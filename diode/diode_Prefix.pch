@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'diode' target in the 'diode' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
