@@ -46,7 +46,7 @@
                              bytesPerRow: [self bytesPerRow]
                             bitsPerPixel: 0];
     // clear new image
-	Pixel* dest = (Pixel *)[sampledRep bitmapData];
+	Pixel *dest = (Pixel *)[sampledRep bitmapData];
     int i, row, col;
     for (row = 0; row < height; ++row)
 		for (col = 0; col < width; ++col)
@@ -58,8 +58,8 @@
 	Pixel* source = (Pixel *)[self bitmapData];
 	for (i = 0; i < 100; ++i)
     {
-        row = random() % height;
-        col = random() % width;
+        row = random() % height * 3;
+        col = random() % width * 3;
         dest[(width * row) + col] = source[(width * row) + col];
     }
     return [sampledRep autorelease];

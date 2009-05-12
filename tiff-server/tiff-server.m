@@ -19,8 +19,8 @@ int main (int argc, const char * argv[]) {
 
     // save snapshot
     NSData * data = [snapshot TIFFRepresentation];
-    filename = [[NSString alloc] initWithUTF8String: "snapshot.tiff"];
-    // filename = [filename stringByExpandingTildeInPath];
+    filename = [[NSString alloc] initWithUTF8String: "~/snapshot.tiff"];
+    filename = [filename stringByExpandingTildeInPath];
     NSLog(@"%@", filename);
     if (YES == [data writeToFile: filename
                       atomically: NO])
