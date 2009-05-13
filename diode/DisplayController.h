@@ -10,21 +10,23 @@
 #import <AppKit/NSImageView.h>
 
 @class ImageHandler;
+@class ImageParameters;
 
 
 @interface DisplayController: NSObject 
 {
     IBOutlet NSImageView *imageView;
-    NSConnection *connection;
-    ImageHandler *server; 
+    ImageParameters *param;
 }
 
 
-- (void)setServer: (id)serverObject;
+- (void)displayImage: (NSImage *)image;
 
 - (void)start: (id)sender;
 
-- (oneway void)displayImage: (NSImage *)image;
+- (void)stop: (id)sender;
+
 
 
 @end
+

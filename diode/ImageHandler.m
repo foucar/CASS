@@ -10,10 +10,29 @@
 #import "DisplayController.h"
 
 
+@implementation ImageParameters
+
+- (id) init
+{
+    return [super init];
+    lock = [[NSLock alloc] init];
+    acquire = FALSE;
+    updated = FALSE;
+    // load image file
+    NSString *filename = [[NSString alloc] initWithString: @"/Users/jochen/simulation.tiff"];
+    image = [[NSImage alloc] initByReferencingFile: filename];
+    if(YES != [image isValid]) {
+        NSLog(@"ImageParameters: init - error loading default image");
+        exit;
+    }
+}
+
+@end
+
+
+
 @implementation ImageHandler
 
-NSImage *image;
-BOOL _continue;
 
 - (id)init
 {
@@ -24,43 +43,36 @@ BOOL _continue;
     NSString *filename = [[NSString alloc] initWithString: @"/Users/jochen/simulation.tiff"];
     image = [[NSImage alloc] initByReferencingFile: filename];
     if(YES != [image isValid])
-        NSLog(@"DisplayController: error loading image");
-    NSLog(@"DisplayController: image loaded");    
+        NSLog(@"ImageHandler: error loading image");
+    NSLog(@"ImageHandler: image loaded");    
     return self;
 }
 
 
-- (oneway void)start: (DisplayController *)controller
+- (void)run: (id)p
 {
-    NSLog(@"ImageHandler: start");
-    _continue = TRUE;
-    while(_continue) {
+    NSLog(@"ImageHandler: run");
+    param = (ImageParameters *)p;
+    param->lock = [[NSLock alloc] init]; // -->
+    this is wrong !!!
+    [param->lock lock];
+    param->acquire = TRUE;
+    [param->lock unlock];
+    while(param->acquire) {
         // wait 1 s
-        [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 1]];
+        [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 0.5]];
         NSLog(@"ImageHandler: start - creating and sending new snapshot");    
         // create snapshot
-        
-        // display new image
-        [controller displayImage: image];
-        
-        _continue = FALSE;
+        // NSImage *snapshot = [[NSImage alloc] init];
+        NSImage *snapshot = image;
+        // store image
+        // [param->lock lock];
+        param->image = snapshot;
+        param->updated = TRUE;
+        // [param->lock unlock];
     }
 }
 
-
-+ (void)connectWithPorts: (NSArray *)portArray
-{
-    NSLog(@"ImageHandler: connectWithPorts");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSConnection *connection = [NSConnection connectionWithReceivePort: [portArray objectAtIndex:0]
-                                                              sendPort: [portArray objectAtIndex:1]];
-    ImageHandler *server = [[self alloc] init];
-    [((DisplayController *)[connection rootProxy]) setServer:server];
-    [server release];
-    [[NSRunLoop currentRunLoop] run];
-    [pool release];
-    return;
-}
 
 
 @end

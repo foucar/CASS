@@ -16,22 +16,7 @@
 {
     NSLog(@"DisplayController: init");    
     self = [super init];
-    if (self != nil) {
-        NSPort *port1 = [NSPort port];
-        NSPort *port2 = [NSPort port];
-        if (! ([port1 isValid] && [port2 isValid]))
-            NSLog(@"DisplayController: init - ports not valid");   
-        connection = [[NSConnection alloc] initWithReceivePort:port1 sendPort:port2];
-        [connection setRootObject:self];
-        if (! [connection isValid])
-            NSLog(@"DisplayController: init - connection not valid");   
-        server = [[ImageHandler alloc] init]; // the example had server = nil !
-        NSArray *portArray = [NSArray arrayWithObjects:port2, port1, nil];
-        [NSThread detachNewThreadSelector: @selector(connectWithPorts:)
-                                 toTarget: [server class]
-                               withObject: portArray];
-        NSLog(@"DisplayController: init - connection created");    
-    }
+    param = [[ImageParameters alloc] init];
     return self;
 }
 
@@ -39,52 +24,56 @@
 - (void)awakeFromNib
 {
     NSLog(@"DisplayController: awakeFromNib");
-    // load image file
-    NSString *filename = [[NSString alloc] initWithString: @"/Users/jochen/simulation.tiff"];
-    NSImage *image = [[NSImage alloc] initByReferencingFile: filename];
-    if(YES != [image isValid])
-        NSLog(@"DisplayController: awakeFromNib: error loading image");
-    NSLog(@"DisplayController: awakeFromNib: image loaded");    
-    [imageView setImage: image];    
 }
 
 
 - (void)start: (id)sender
 {
     NSLog(@"DisplayController: start");
-    int i;
-    for(i = 0; i < 10; ++i) {
-        [NSThread sleepForTimeInterval: (NSTimeInterval)0.1];
-        if (nil != server) {
-            [server start: self];
-            break;
-        }
+    [param->lock lock];
+    if(FALSE == param->acquire) {
+        ImageHandler * handler = [[ImageHandler alloc] init];
+        [NSThread detachNewThreadSelector: @selector(run:)
+                                 toTarget: handler
+                               withObject: param]; 
     }
-    if (9 <= i) {
-        NSLog(@"DisplayController: start - could not start server");
-        exit(0);
-    }
+    [param->lock unlock];
 }
 
 
-- (void)setServer:(id)serverObject
+- (void)stop: (id)sender
 {
-    NSLog(@"DisplayController: setServer");
-    [serverObject setProtocolForProxy: @protocol(ImageInterface)];
-    [serverObject retain];
-    server = (id <ImageInterface>)serverObject;
+    NSLog(@"DisplayController: stop");
+    [param->lock lock];
+    param->acquire = FALSE;
+    [param->lock unlock];
 }
 
 
-- (oneway void)displayImage:(NSImage *)image
+- (void)displayImage:(NSImage *)image
 {
     NSLog(@"DisplayController displayImage");    
-    if(YES != [image isValid])
+    if(TRUE != [image isValid]) {
         NSLog(@"DisplayController: displayImage - image is not valid");
-    if(YES != [NSThread isMainThread])
+        return;
+    }
+    if(TRUE != [NSThread isMainThread]) {
         NSLog(@"DisplayController: displayImage - we are not on main thread!");
-    else
-        [imageView setImage: image];
+        return;
+    }
+    [imageView setImage: image];
+}
+
+
+
+- (void)displayString:(NSString *)string
+{
+    NSLog(@"DisplayController displayString");    
+    if(TRUE != [NSThread isMainThread]) {
+        NSLog(@"DisplayController: displayString - we are not on main thread!");
+        return;
+    }
+    NSLog(string);
 }
 
 

@@ -7,29 +7,35 @@
 //
 
 #import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 @class DisplayController;
 
 
+@interface ImageParameters : NSObject
+{
+@public
+    NSLock *lock;
+    BOOL acquire;
+    BOOL updated;
+    NSImage *image;
+}
 
-@protocol ImageInterface <NSObject>
-
-/* Start reading images and send them back to the DisplayController */
-- (oneway void)start:(DisplayController *)controller;
-
-// /* Stop reading images */
-// - (oneway void)stop:(DsiplayController *)controller;
+- (id) init;
 
 @end
 
 
 
-@interface ImageHandler: NSObject <ImageInterface>
+@interface ImageHandler : NSObject
 {
+    NSImage *image;
+    ImageParameters *param;
+    BOOL _continue;
 }
 
-+ (void)connectWithPorts: (NSArray *)portArray;
-
 - (id)init;
+
+- (void)run: (id)p;
 
 @end
