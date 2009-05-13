@@ -53,8 +53,6 @@
 {
     NSLog(@"ImageHandler: run");
     param = (ImageParameters *)p;
-    param->lock = [[NSLock alloc] init]; // -->
-    this is wrong !!!
     [param->lock lock];
     param->acquire = TRUE;
     [param->lock unlock];
@@ -66,10 +64,10 @@
         // NSImage *snapshot = [[NSImage alloc] init];
         NSImage *snapshot = image;
         // store image
-        // [param->lock lock];
+        [param->lock lock];
         param->image = snapshot;
         param->updated = TRUE;
-        // [param->lock unlock];
+        [param->lock unlock];
     }
 }
 
