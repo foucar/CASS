@@ -38,6 +38,11 @@
                                withObject: param]; 
     }
     [param->lock unlock];
+    timer = [NSTimer scheduledTimerWithTimeInterval: 0.2
+                                             target: self
+                                           selector: @selector(updateDisplay:)
+                                           userInfo: 0
+                                            repeats: YES];
 }
 
 
@@ -47,6 +52,7 @@
     [param->lock lock];
     param->acquire = FALSE;
     [param->lock unlock];
+    [timer invalidate];
 }
 
 
@@ -66,14 +72,11 @@
 
 
 
-- (void)displayString:(NSString *)string
+    
+- (void)updateDisplay: (id)sender
 {
-    NSLog(@"DisplayController displayString");    
-    if(TRUE != [NSThread isMainThread]) {
-        NSLog(@"DisplayController: displayString - we are not on main thread!");
-        return;
-    }
-    NSLog(string);
+    NSLog(@"DisplayController: updateDisplay");    
+    [self displayImage: param->image];
 }
 
 

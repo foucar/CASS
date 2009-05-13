@@ -58,7 +58,7 @@
     [param->lock unlock];
     while(param->acquire) {
         // wait 1 s
-        [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 0.5]];
+        [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 0.05]];
         NSLog(@"ImageHandler: start - creating and sending new snapshot");    
         // create snapshot
         // NSImage *snapshot = [[NSImage alloc] init];

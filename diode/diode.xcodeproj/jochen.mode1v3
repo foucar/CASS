@@ -380,14 +380,14 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>19B2D1F40FBAF91B005EA68B</string>
+										<string>193FC1310FBAFCE200868BF8</string>
 										<key>history</key>
 										<array>
 											<string>19243C780FB9AECC00EEB048</string>
 											<string>196D66FC0FBAF654006BB89C</string>
-											<string>196D66FD0FBAF654006BB89C</string>
-											<string>19B2D1E00FBAF8BF005EA68B</string>
-											<string>19B2D1E10FBAF8BF005EA68B</string>
+											<string>193FC10D0FBAFC0900868BF8</string>
+											<string>193FC12D0FBAFCA200868BF8</string>
+											<string>193FC12E0FBAFCA200868BF8</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -396,7 +396,18 @@
 											<string>19243C7B0FB9AECC00EEB048</string>
 											<string>19E1D9010FB9BF89007D478D</string>
 											<string>196D66EE0FBAF506006BB89C</string>
-											<string>19B2D1E20FBAF8BF005EA68B</string>
+											<string>193FC10F0FBAFC0900868BF8</string>
+											<string>193FC1100FBAFC0900868BF8</string>
+											<string>193FC1110FBAFC0900868BF8</string>
+											<string>193FC1120FBAFC0900868BF8</string>
+											<string>193FC1130FBAFC0900868BF8</string>
+											<string>193FC1140FBAFC0900868BF8</string>
+											<string>193FC1150FBAFC0900868BF8</string>
+											<string>193FC1160FBAFC0900868BF8</string>
+											<string>193FC1170FBAFC0900868BF8</string>
+											<string>193FC1180FBAFC0900868BF8</string>
+											<string>193FC1190FBAFC0900868BF8</string>
+											<string>193FC12F0FBAFCA200868BF8</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -454,9 +465,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>19B2D1E40FBAF8BF005EA68B</string>
+				<string>193FC11B0FBAFC0900868BF8</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>19B2D1E50FBAF8BF005EA68B</string>
+				<string>193FC11C0FBAFC0900868BF8</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -577,7 +588,7 @@
 	<key>StatusbarIsVisible</key>
 	<true/>
 	<key>TimeStamp</key>
-	<real>263911707.274894</real>
+	<real>263912674.57715201</real>
 	<key>ToolbarDisplayMode</key>
 	<integer>1</integer>
 	<key>ToolbarIsVisible</key>
@@ -592,8 +603,8 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>193A2B390FB9A6FA0069878A</string>
 		<string>1CD10A99069EF8BA00B06720</string>
+		<string>193A2B390FB9A6FA0069878A</string>
 		<string>1C78EAAD065D492600B07095</string>
 		<string>/Users/jochen/source/diode/diode.xcodeproj</string>
 	</array>
@@ -636,6 +647,8 @@
 							<string>218pt</string>
 						</dict>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -675,7 +688,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>193A2B390FB9A6FA0069878A</string>
-				<string>19B2D1E60FBAF8BF005EA68B</string>
+				<string>193FC11D0FBAFC0900868BF8</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -686,7 +699,7 @@
 			<key>WindowToolGUID</key>
 			<string>193A2B390FB9A6FA0069878A</string>
 			<key>WindowToolIsVisible</key>
-			<false/>
+			<true/>
 		</dict>
 		<dict>
 			<key>FirstTimeWindowDisplayed</key>
@@ -795,13 +808,13 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1CD10A99069EF8BA00B06720</string>
-				<string>19B2D1E70FBAF8BF005EA68B</string>
+				<string>193FC11E0FBAFC0900868BF8</string>
 				<string>1C162984064C10D400B95A72</string>
-				<string>19B2D1E80FBAF8BF005EA68B</string>
-				<string>19B2D1E90FBAF8BF005EA68B</string>
-				<string>19B2D1EA0FBAF8BF005EA68B</string>
-				<string>19B2D1EB0FBAF8BF005EA68B</string>
-				<string>19B2D1EC0FBAF8BF005EA68B</string>
+				<string>193FC11F0FBAFC0900868BF8</string>
+				<string>193FC1200FBAFC0900868BF8</string>
+				<string>193FC1210FBAFC0900868BF8</string>
+				<string>193FC1220FBAFC0900868BF8</string>
+				<string>193FC1230FBAFC0900868BF8</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>
@@ -965,7 +978,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1C78EAAD065D492600B07095</string>
-				<string>19B2D1ED0FBAF8BF005EA68B</string>
+				<string>193FC1240FBAFC0900868BF8</string>
 				<string>1C78EAAC065D492600B07095</string>
 			</array>
 			<key>ToolbarConfiguration</key>

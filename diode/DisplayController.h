@@ -17,6 +17,7 @@
 {
     IBOutlet NSImageView *imageView;
     ImageParameters *param;
+    NSTimer *timer;
 }
 
 
@@ -26,6 +27,7 @@
 
 - (void)stop: (id)sender;
 
+- (void)updateDisplay: (id) sender;
 
 
 @end
