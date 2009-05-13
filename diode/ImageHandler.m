@@ -2,8 +2,8 @@
 //  ImageHandler.m
 //  diode
 //
-//  Created by Jochen Küpper on 12.05.09.
-//  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
+//  Created by Jochen Küpper on 12. May 2009.
+//  Copyright 2009 Jochen Küpper. All rights reserved.
 //
 
 #import "ImageHandler.h"
@@ -21,10 +21,7 @@
     // load image file
     NSString *filename = [[NSString alloc] initWithString: @"/Users/jochen/simulation.tiff"];
     image = [[NSImage alloc] initByReferencingFile: filename];
-    if(YES != [image isValid]) {
-        NSLog(@"ImageParameters: init - error loading default image");
-        exit;
-    }
+    NSAssert([image isValid], @"ImageParameters: init - error loading default image");
 }
 
 @end
@@ -36,22 +33,20 @@
 
 - (id)init
 {
-    NSLog(@"ImageHandler: init");
+    DLog(@"ImageHandler init:");
     [super init];
     _continue = FALSE;
     // load image file
     NSString *filename = [[NSString alloc] initWithString: @"/Users/jochen/simulation.tiff"];
     image = [[NSImage alloc] initByReferencingFile: filename];
-    if(YES != [image isValid])
-        NSLog(@"ImageHandler: error loading image");
-    NSLog(@"ImageHandler: image loaded");    
+    NSAssert([image isValid], @"ImageHandler init: error loading image");
     return self;
 }
 
 
 - (void)run: (id)p
 {
-    NSLog(@"ImageHandler: run");
+    DLog(@"ImageHandler: run");
     param = (ImageParameters *)p;
     [param->lock lock];
     param->acquire = TRUE;
@@ -59,7 +54,6 @@
     while(param->acquire) {
         // wait 1 s
         [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 0.05]];
-        NSLog(@"ImageHandler: start - creating and sending new snapshot");    
         // create snapshot
         // NSImage *snapshot = [[NSImage alloc] init];
         NSImage *snapshot = image;

@@ -6,8 +6,7 @@
 //  Copyright 2009 Jochen Küpper. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <AppKit/NSImageView.h>
+// #import <AppKit/NSImageView.h>
 
 @class ImageHandler;
 @class ImageParameters;

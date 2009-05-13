@@ -2,12 +2,10 @@
 //  ImageHandler.h
 //  diode
 //
-//  Created by Jochen Küpper on 12.05.09.
+//  Created by Jochen Küpper on 12. May 2009
 //  Copyright 2009 Jochen Küpper. All rights reserved.
 //
 
-#import <AppKit/AppKit.h>
-#import <Cocoa/Cocoa.h>
 
 @class DisplayController;
 

@@ -14,7 +14,7 @@
 
 - (id)init
 {
-    NSLog(@"DisplayController: init");    
+    DLog(@"DisplayController init:");    
     self = [super init];
     param = [[ImageParameters alloc] init];
     return self;
@@ -23,13 +23,13 @@
 
 - (void)awakeFromNib
 {
-    NSLog(@"DisplayController: awakeFromNib");
+    DLog(@"DisplayController awakeFromNib:");
 }
 
 
 - (void)start: (id)sender
 {
-    NSLog(@"DisplayController: start");
+    DLog(@"DisplayController start:");
     [param->lock lock];
     if(FALSE == param->acquire) {
         ImageHandler * handler = [[ImageHandler alloc] init];
@@ -48,7 +48,7 @@
 
 - (void)stop: (id)sender
 {
-    NSLog(@"DisplayController: stop");
+    DLog(@"DisplayController stop:");
     [param->lock lock];
     param->acquire = FALSE;
     [param->lock unlock];
@@ -58,15 +58,9 @@
 
 - (void)displayImage:(NSImage *)image
 {
-    NSLog(@"DisplayController displayImage");    
-    if(TRUE != [image isValid]) {
-        NSLog(@"DisplayController: displayImage - image is not valid");
-        return;
-    }
-    if(TRUE != [NSThread isMainThread]) {
-        NSLog(@"DisplayController: displayImage - we are not on main thread!");
-        return;
-    }
+    DLog(@"DisplayController displayImage:");    
+    NSAssert([image isValid], @"DisplayController displayImage: - image is not valid");
+    NSAssert([NSThread isMainThread], @"DisplayController displayImage: - we are not on main thread!");
     [imageView setImage: image];
 }
 
@@ -75,7 +69,7 @@
     
 - (void)updateDisplay: (id)sender
 {
-    NSLog(@"DisplayController: updateDisplay");    
+    DLog(@"DisplayController updateDisplay:");    
     [self displayImage: param->image];
 }
 
