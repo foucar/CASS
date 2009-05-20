@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cass_remi_global.h"
+#include "cass_remi.h"
 #include "cass/AnalysisBackend.h"
 
 

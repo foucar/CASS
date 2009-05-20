@@ -8,14 +8,16 @@ VERSION = 0.0.1
 
 QMAKE_CXXFLAGS = -O5 -march=native -ftree-vectorize -fopenmp
 
+TARGET = cass_remi
+
 TEMPLATE = lib
 
 DEFINES += CASS_LIBRARY
 
 SOURCES += AnalysisBackend.cpp
 
-HEADERS += AnalysisBackend.h\
-        cass_global.h
+HEADERS += AnalysisBackend.h \
+           cass.h
 
 
 INSTALLBASE    = /usr/local/cass
@@ -23,5 +25,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass*.dylib
+libs.files     = $$TARGET*.dylib
 INSTALLS      += header libs

@@ -1,21 +1,33 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2009-05-20T18:51:23
-#
-#-------------------------------------------------
+# Copyright (C) 2009 Jochen Küpper
+
+CONFIG += release thread warn_on
 
 QT -= core gui
 
+VERSION = 0.0.1
+
+QMAKE_CXXFLAGS = -O5 -march=native -ftree-vectorize -fopenmp
+
 TARGET = cass_remi
+
 TEMPLATE = lib
 
 DEFINES += CASS_REMI_LIBRARY
 
-INCLUDEPATH += ..
+INCLUDEPATH += ../cass
 
 SOURCES += REMIAnalysis.cpp
 
-HEADERS += REMIAnalysis.h\
-        cass_remi_global.h
+HEADERS += REMIAnalysis.h \
+           cass_remi.h
 
 DESTDIR = /usr/local
+
+
+INSTALLBASE    = /usr/local/cass
+header.path    = $$INSTALLBASE/include
+libs.path      = $$INSTALLBASE/libs
+
+header.files   = $$HEADERS
+libs.files     = libcass_remi*.dylib
+INSTALLS      += header libs
