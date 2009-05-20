@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		190EB9A40FC41DF600E2E56A /* AnalysisBackend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 190EB9A30FC41DF600E2E56A /* AnalysisBackend.cpp */; };
+		190EB9A70FC41E1100E2E56A /* REMIAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 190EB9A60FC41E1100E2E56A /* REMIAnalysis.cpp */; };
+		190EB9AA0FC41E1E00E2E56A /* VMIAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 190EB9A90FC41E1E00E2E56A /* VMIAnalysis.cpp */; };
+		190EB9AD0FC41E2900E2E56A /* pnCCDAnalysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 190EB9AC0FC41E2900E2E56A /* pnCCDAnalysis.cpp */; };
 		191035150FBA1438009647CC /* DisplayController.m in Sources */ = {isa = PBXBuildFile; fileRef = 193A2AA60FB99C420069878A /* DisplayController.m */; };
 		193A295B0FB8CB5D0069878A /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 193A295A0FB8CB5D0069878A /* Quartz.framework */; };
 		193A29660FB8CD030069878A /* DIB.icns in Resources */ = {isa = PBXBuildFile; fileRef = 193A29650FB8CD030069878A /* DIB.icns */; };
@@ -22,6 +26,14 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		190EB9A20FC41DF600E2E56A /* AnalysisBackend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalysisBackend.h; sourceTree = "<group>"; };
+		190EB9A30FC41DF600E2E56A /* AnalysisBackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnalysisBackend.cpp; sourceTree = "<group>"; };
+		190EB9A50FC41E1100E2E56A /* REMIAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = REMIAnalysis.h; sourceTree = "<group>"; };
+		190EB9A60FC41E1100E2E56A /* REMIAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = REMIAnalysis.cpp; sourceTree = "<group>"; };
+		190EB9A80FC41E1E00E2E56A /* VMIAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VMIAnalysis.h; sourceTree = "<group>"; };
+		190EB9A90FC41E1E00E2E56A /* VMIAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VMIAnalysis.cpp; sourceTree = "<group>"; };
+		190EB9AB0FC41E2900E2E56A /* pnCCDAnalysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pnCCDAnalysis.h; sourceTree = "<group>"; };
+		190EB9AC0FC41E2900E2E56A /* pnCCDAnalysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pnCCDAnalysis.cpp; sourceTree = "<group>"; };
 		193A295A0FB8CB5D0069878A /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
 		193A29650FB8CD030069878A /* DIB.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = DIB.icns; sourceTree = "<group>"; };
 		193A2A9E0FB99AEF0069878A /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
@@ -60,6 +72,14 @@
 				19E1D8E40FB9BA78007D478D /* ImageHandler.h */,
 				19E1D8E50FB9BA78007D478D /* ImageHandler.m */,
 				19501B510FBB520C00F44223 /* diode.h */,
+				190EB9A20FC41DF600E2E56A /* AnalysisBackend.h */,
+				190EB9A30FC41DF600E2E56A /* AnalysisBackend.cpp */,
+				190EB9A50FC41E1100E2E56A /* REMIAnalysis.h */,
+				190EB9A60FC41E1100E2E56A /* REMIAnalysis.cpp */,
+				190EB9A80FC41E1E00E2E56A /* VMIAnalysis.h */,
+				190EB9A90FC41E1E00E2E56A /* VMIAnalysis.cpp */,
+				190EB9AB0FC41E2900E2E56A /* pnCCDAnalysis.h */,
+				190EB9AC0FC41E2900E2E56A /* pnCCDAnalysis.cpp */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -193,6 +213,10 @@
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
 				19E1D8E60FB9BA78007D478D /* ImageHandler.m in Sources */,
 				191035150FBA1438009647CC /* DisplayController.m in Sources */,
+				190EB9A40FC41DF600E2E56A /* AnalysisBackend.cpp in Sources */,
+				190EB9A70FC41E1100E2E56A /* REMIAnalysis.cpp in Sources */,
+				190EB9AA0FC41E1E00E2E56A /* VMIAnalysis.cpp in Sources */,
+				190EB9AD0FC41E2900E2E56A /* pnCCDAnalysis.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
