@@ -7,6 +7,8 @@
  *
  */
 
+#include <map>
+#include <string>
 #include <vector>
 #include "AnalysisBackend.h"
 
@@ -18,15 +20,28 @@
  */
 class REMIParameter : BackendParameter {
 public:
-    std::pair<double, double> timerange;
+    /* a dictionary of all user settings
+     
+     The following entries (keys) must be present:
+     - "Scalefactor U"
+     - "Scalefactor V"
+     - Scalefactor W
+     ...
+     
+     The following entries (keys) are used if available:
+     <none>
+     */
+    std::map<std::string, double> settings;
 };
 
 
 
-/** alias for LCLS REMI data format container */
+/** REMI data container */
 class RawREMIData {
 public:
-    char data[0xffff];
+    char data[0xfff]; // <-- this is a dummy -- the class would look like this:
+    // Pds::Acqiris::ConfigV1& config;
+    // Pds::Acqiris::DataDescV1& data;    
 };
 
 
@@ -42,6 +57,16 @@ public:
 };
 
 
+
+enum HistogramType {
+    FWHM_U1, FWHM_U2, FWHM_U3
+};
+
+
+
+/* @class histogram container */
+class Histogram {
+};
 
 
 
@@ -64,4 +89,13 @@ public:
      @return analysed data
      */
     virtual std::vector<REMISignal> operator()(const RawREMIData& data);
+    
+    /* provide analysis histogram
+     
+     Return the specified histogram from the last processed event.
+     
+     @param type Which histogram do we want
+     @return histogram data
+     */
+    Histogram histogram(HistogramType type);
 };
