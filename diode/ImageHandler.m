@@ -55,8 +55,8 @@
         // wait 1 s
         [NSThread sleepUntilDate:[NSDate dateWithTimeIntervalSinceNow: 0.05]];
         // create snapshot
-        // NSImage *snapshot = [[NSImage alloc] init];
-        NSImage *snapshot = image;
+        NSImage *snapshot = [[NSImage alloc] init];
+        snapshot = image;
         // store image
         [param->lock lock];
         param->image = snapshot;
