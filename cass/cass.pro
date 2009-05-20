@@ -1,19 +1,27 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2009-05-20T16:32:59
-#
-#-------------------------------------------------
+# Copyright (C) 2009 Jochen Küpper
+
+CONFIG += release thread warn_on
+
+QT -= core gui
 
 VERSION = 0.0.1
 
-QT       -= core gui
+QMAKE_CXXFLAGS = -O5 -march=native -ftree-vectorize -fopenmp
 
-TARGET = cass
 TEMPLATE = lib
 
 DEFINES += CASS_LIBRARY
 
-SOURCES += analysisbackend.cpp
+SOURCES += AnalysisBackend.cpp
 
-HEADERS += analysisbackend.h\
+HEADERS += AnalysisBackend.h\
         cass_global.h
+
+
+INSTALLBASE    = /usr/local/cass
+header.path    = $$INSTALLBASE/include
+libs.path      = $$INSTALLBASE/libs
+
+header.files   = $$HEADERS
+libs.files     = libcass*.dylib
+INSTALLS      += header libs
