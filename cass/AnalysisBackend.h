@@ -3,7 +3,7 @@
 #ifndef ANALYSISBACKEND_H
 #define ANALYSISBACKEND_H
 
-#include "cass_global.h"
+#include "cass.h"
 
 
 /** @class abstract base for all data analysis backend parameter sets
