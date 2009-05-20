@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "cass_remi.h"
-#include "cass/AnalysisBackend.h"
+#include "AnalysisBackend.h"
 
 
 /** @class REMI backend parameter sets
