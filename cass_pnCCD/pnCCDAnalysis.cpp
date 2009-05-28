@@ -1,11 +1,4 @@
-/*
- *  pnCCDAnalysis.cpp
- *  diode
- *
- *  Created by Jochen Küpper on 20.05.09.
- *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
- *
- */
+// Copyright (C) 2009 Jochen Küpper
 
 #include "pnCCDAnalysis.h"
 
