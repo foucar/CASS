@@ -1,7 +1,0 @@
-//
-// Prefix header for all source files of the 'tiff-server' target in the 'tiff-server' project.
-//
-
-#ifdef __OBJC__
-    #import <Foundation/Foundation.h>
-#endif
