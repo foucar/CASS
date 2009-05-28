@@ -1,20 +1,15 @@
 # Copyright (C) 2009 Jochen Küpper
 
-CONFIG += release thread warn_on
+CONFIG += static 
 
 QT -= core gui
 
 VERSION = 0.0.1
 
-QMAKE_CXXFLAGS = -O5 -march=native -ftree-vectorize -fopenmp
-
-TARGET = cass_remi
-
 TEMPLATE = lib
 
-DEFINES += CASS_REMI_LIBRARY
 
-INCLUDEPATH += ../cass
+TARGET = cass_remi
 
 SOURCES += REMIAnalysis.cpp
 
@@ -22,10 +17,13 @@ HEADERS += REMIAnalysis.h \
            cass_remi.h
 
 
+INCLUDEPATH += ../cass
+
+
 INSTALLBASE    = /usr/local/cass
 header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_remi*.dylib
+libs.files     = libcass_remi.a
 INSTALLS      += header libs

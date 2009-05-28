@@ -1,18 +1,16 @@
 # Copyright (C) 2009 Jochen Küpper
 
-CONFIG += release thread warn_on
+CONFIG += static 
 
 QT -= core gui
 
-VERSION = 0.0.1
-
-QMAKE_CXXFLAGS = -O5 -march=native -ftree-vectorize -fopenmp
-
-TARGET = cass_remi
-
 TEMPLATE = lib
 
-DEFINES += CASS_VMI_LIBRARY
+
+TARGET = cass_VMI
+
+gVERSION = 0.0.1
+
 
 INCLUDEPATH += ../cass
 
@@ -27,5 +25,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_VMI*.dylib
+libs.files     = libcass_VMI.a
 INSTALLS      += header libs

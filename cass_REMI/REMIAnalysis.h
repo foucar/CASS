@@ -10,32 +10,34 @@
 #include "cass_remi.h"
 #include "AnalysisBackend.h"
 
+namespace cass {
+namespace REMI {
 
 /** @class REMI backend parameter sets
 
- @author Jochen Küpper
- @version 0.1
- */
-class REMIParameter : BackendParameter {
+@author Jochen Küpper
+@version 0.1
+*/
+class Parameter : cass::BackendParameter {
 public:
     /* a dictionary of all user settings
 
-     The following entries (keys) must be present:
-     - "Scalefactor U"
-     - "Scalefactor V"
-     - Scalefactor W
-     ...
+    The following entries (keys) must be present:
+    - "Scalefactor U"
+    - "Scalefactor V"
+    - Scalefactor W
+    ...
 
-     The following entries (keys) are used if available:
-     <none>
-     */
+    The following entries (keys) are used if available:
+    <none>
+    */
     std::map<std::string, double> settings;
 };
 
 
 
 /** REMI data container */
-class RawREMIData {
+class RawData {
 public:
     char data[0xfff]; // <-- this is a dummy -- the class would look like this:
     // Pds::Acqiris::ConfigV1& config;
@@ -46,10 +48,10 @@ public:
 
 /** @class REMI analysis signal
 
- @author Jochen Küpper
- @version 0.1
- */
-class REMISignal {
+@author Jochen Küpper
+@version 0.1
+*/
+class Signal {
 public:
     double x, y, t;
 };
@@ -70,34 +72,47 @@ class Histogram {
 
 /** @class REMI analysis backend
 
- @author Jochen Küpper
- @version 0.1
- */
-class CASS_REMISHARED_EXPORT REMIAnalysis : AnalysisBackend
+@author Jochen Küpper
+@version 0.1
+*/
+class CASS_REMISHARED_EXPORT Analysis : cass::AnalysisBackend
 {
 public:
 
-    REMIAnalysis(const REMIParameter& param);
+    Analysis(const Parameter& param);
 
     /** initialize AnalysisBackend with new set of parameters */
-    virtual void init(const REMIParameter& param);
+    virtual void init(const Parameter& param);
 
     /* analyse dataset
 
-     @param data Raw data to be analysed
-     @return analysed data
-     */
-    virtual std::vector<REMISignal> operator()(const RawREMIData& data);
+    @param data Raw data to be analysed
+    @return analysed data
+    */
+    virtual std::vector<Signal> operator()(const RawData& data);
 
     /* provide analysis histogram
 
-     Return the specified histogram from the last processed event.
+    Return the specified histogram from the last processed event.
 
-     @param type Which histogram do we want
-     @return histogram data
-     */
+    @param type Which histogram do we want
+    @return histogram data
+    */
     Histogram histogram(HistogramType type);
 };
 
 
-#endif // REMIANALYSIS_H
+}
+}
+
+#endif
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:
