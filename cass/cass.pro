@@ -25,5 +25,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = $$TARGET*.dylib
+libs.files     = libcass*.dylib
 INSTALLS      += header libs
