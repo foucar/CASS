@@ -21,8 +21,6 @@ SOURCES += REMIAnalysis.cpp
 HEADERS += REMIAnalysis.h \
            cass_remi.h
 
-DESTDIR = /usr/local
-
 
 INSTALLBASE    = /usr/local/cass
 header.path    = $$INSTALLBASE/include
