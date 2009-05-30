@@ -1,0 +1,7 @@
+Use qmake with appropriate options to create Makefiles, then run
+  make
+  sudo make install
+to build and install the software.
+
+On my Mac I use
+  qmake -spec macx-g++42 -recursive

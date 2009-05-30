@@ -17,7 +17,7 @@ INCLUDEPATH += ../cass
 SOURCES += VMIAnalysis.cpp
 
 HEADERS += VMIAnalysis.h \
-           cass_pnccd.h
+           cass_vmi.h
 
 
 INSTALLBASE    = /usr/local/cass
