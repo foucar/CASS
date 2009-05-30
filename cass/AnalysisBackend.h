@@ -24,6 +24,8 @@ class CASSSHARED_EXPORT BackendParameter {
 */
 class CASSSHARED_EXPORT AnalysisBackend {
 
+    virtual ~AnalysisBackend() = 0;
+
     /** initialize AnalysisBackend with new set of parameters */
     virtual void init(const BackendParameter& param) = 0;
 
