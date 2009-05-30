@@ -11,6 +11,8 @@ SOURCES += diode.cpp \
 
 TARGET = diode
 
+CODECFORTR = UTF-8
+
 LIBS += -L../cass_pnCCD -lcass_pnCCD \
     -L../cass_REMI -lcass_REMI \
     -L../cass_VMI -lcass_VMI \

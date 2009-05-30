@@ -12,7 +12,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
     setupUi(this);
     // connect Actions
     QObject::connect(this->actionAbout_Diode, SIGNAL(triggered()), this, SLOT(about()));
-    QObject::connect(this->actionAbout_Diode, SIGNAL(triggered()), this, SLOT(about()));
+    QObject::connect(this->actionAbout_Qt, SIGNAL(triggered()), this, SLOT(aboutQt()));
+    QObject::connect(this->actionQuit_Diode, SIGNAL(triggered()), this, SLOT(quit()));
 }
 
 
@@ -20,10 +21,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Diode"),
-                       tr("Diffractive Imaging of Dilute Ensembles (Diode)\n"
+                       tr("Diffractive Imaging of Dilute Ensembles (Diode)\n\n"
                           "Copyright (C) 2009 The CASS team\n"
-                          "Copyright (C) 2009 Jochen Küpper\n"
-                           ));
+                          "Copyright (C) 2009 Jochen Küpper\n"));
 }
 
 
@@ -38,6 +38,12 @@ void MainWindow::aboutQt()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     event->accept();
+}
+
+
+void MainWindow::quit()
+{
+    close();
 }
 
 

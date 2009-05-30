@@ -27,6 +27,8 @@ public slots:
 
     void aboutQt();
 
+    void quit();
+
 
 protected slots:
 

@@ -27,7 +27,7 @@
        <string>define data-picking rules</string>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="GeneralTab">
        <attribute name="title">
@@ -115,6 +115,9 @@
              <property name="text">
               <string>pnCCD 1 horizontal</string>
              </property>
+             <property name="buddy">
+              <cstring>spinBox</cstring>
+             </property>
             </widget>
            </item>
            <item row="0" column="1">
@@ -131,6 +134,9 @@
             <widget class="QLabel" name="label_2">
              <property name="text">
               <string>pnCCD 1 vertical</string>
+             </property>
+             <property name="buddy">
+              <cstring>spinBox_2</cstring>
              </property>
             </widget>
            </item>
@@ -149,6 +155,9 @@
              <property name="text">
               <string>pnCCD 2 horizontal</string>
              </property>
+             <property name="buddy">
+              <cstring>spinBox_3</cstring>
+             </property>
             </widget>
            </item>
            <item row="2" column="1">
@@ -165,6 +174,9 @@
             <widget class="QLabel" name="label_4">
              <property name="text">
               <string>pnCCD 2 vertical</string>
+             </property>
+             <property name="buddy">
+              <cstring>spinBox_4</cstring>
              </property>
             </widget>
            </item>
@@ -237,7 +249,7 @@
         <string>power</string>
        </attribute>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="widget">
        <attribute name="title">
         <string>data picking</string>
        </attribute>
@@ -290,6 +302,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout_Diode"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
@@ -308,24 +321,12 @@
     <string>About Diode</string>
    </property>
   </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>actionQuit_Diode</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>338</x>
-     <y>292</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
