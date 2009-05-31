@@ -1,0 +1,349 @@
+\pdfoutput=1
+\synctex=1
+\documentclass[11pt,a4paper,twoside]{article}
+
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage[vmargin=25mm,inner=15mm,outer=35mm]{geometry}
+\usepackage{graphicx}
+\usepackage{hypernat}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{pdfsync}
+\usepackage[hyperfootnotes=false]{hyperref}
+\usepackage{textcomp}
+\hypersetup{colorlinks,citecolor=black,urlcolor=blue}
+
+\newcommand{\degree}{\ensuremath{^\circ}}%
+\newcommand{\etal}{et al.}%
+\newcommand{\ie}{i.\,e.}%
+
+
+\markboth{\emph{Jochen K\"{u}pper: }CASS -- internal report \#200901}{Do not distribute}
+
+\begin{document}
+
+
+\title{CFEL-ASG Software System (CASS) \\
+   Design notes for a general setup}
+\author{Jochen Küpper}
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+The Max-Planck Advanced Study Group at the Center for Free Electron Laser Science has developed the
+\emph{CFEL-ASG Multi Purpose} experimental chamber for use at upcoming X-ray Free-Electron-Laser
+facilities. The setup includes several data-acquisition devices, including pnCCDs, VMI
+spectrometers, and a COLTRIMS reaction microscope (REMI). It will also include a TOF for detecting
+particle hits and a MCP for detecting the direct beam behind the second detector, thereby taking
+into account the influence of the apertures.
+
+In oder to provide the necessary online viewing capabilities for the upcoming experiments, a common
+software system to obtain, massage, and analyze the data in online-mode is necessary. Here, we
+present a description of a possible software layout.
+
+
+\section{Requirements}
+\label{sec:requirements}
+
+The software system should be able to handle all relevant experimental data. This includes the
+following:
+\begin{itemize}
+\item an arbitrary (currently 2) number of pnCCD detectors
+\item an arbitrary (currently 2) numbers of Pulnix CCD (as used in the VMI)
+\item Acqiris digitizers (as used in the REMI)
+\item 2 XFEL intensity sensors (LCLS + CAMP)
+\item YAG laser power meter
+\end{itemize}
+All data should be connected to a unique (and correct) timestamp; hopefully, LCLS will provide that,
+otherwise we need to provide one ourselves.
+
+
+\section{General layout of the software system}
+\label{sec:general-layout}
+
+At the most abstract level, a number of different tasks need to be performed, essentially
+sequentially, with the data. The major tasks are
+\begin{itemize}
+\item merging and storing event data
+\item data correction operations
+   \begin{itemize}
+   \item image manipulations (bad pixels, data reduction, \dots )
+   \item Acqiris trace evaluation event coordinates
+   \end{itemize}
+\item serving events (and groups thereof)
+\item data reduction
+\item data picking
+\item data averaging
+\end{itemize}
+We propose to split the individual tasks into separate libraries that, nevertheless, will run in the
+same process for fast interoperability. The following individual libraries should be provided:
+
+\begin{enumerate}
+   \item event acquisition, merging, and storage
+   \item pnCCD image manipulation
+      \begin{itemize}\item 
+      \item image corrections
+      \item pixel binning
+      \end{itemize}
+   \item VMI image manipulation
+   \item REMI data evaluation
+\end{enumerate}
+The tasks of data picking and data averaging shall be done in the main program. Others would,
+optimally, also run as separate (sets of) threads in the main program to reach maximum performance,
+but, in principle, coud also be separate processes.
+
+\subsection{Special ``online-analysis''}
+\label{sec:special-online-analysis}
+
+\subsubsection{COLTRIMS reaction microscope (REMI)}
+\label{sec:remi}
+
+Parallel to the actions performed by the software system described here, Lutz Foucar will provide
+his ``standard'' ROOT-based interpreted-C interface for online-analysis of REMI data. This will be a
+standalone system, that gets the REMI data independently from LCLS and works solely by itself,
+without any communication or synchronization with the GUI described in this document.
+
+This package allows the user to easily add his own analysis code and let it run either interpreted
+or compiled. Compilation is done via ``ACLIC''. In the code the user defines Histograms and fills
+them according to his experimental interests. The user has then the ability to interact with these
+histograms, such as making fits, find the Integral, etc via C-style ROOT-Macros.
+
+
+\section{Implementation details}
+\label{sec:implementation}
+
+All code should be written in C or derivatives thereof (i.e., C++, Objective C), or languages that
+have standardized and robust interfaces to C (i.e., Python). Individual parts should be written in a
+single programming language, but different parts don't necessarily have to do so, if there is a C or
+C++ interface for communication. Generally, all non-GUI libraries should be written in a platform
+independent way, i.e., using standard language features unless
+really impossible.
+
+The central graphical user interface (GUI) will utilize the Qt library (version 4), mainly for its
+platform independence. Moreover, LCLS also uses it and some synergies might arise.
+
+We agreed that for non-GUI parts it is also ok to use Qt (QtCore), i.e., in the pnCCD library.
+However, C++ standard library constructs are strongly preferred over Qt datatypes, but most
+importantly is should be consistent and documented for individual parts (libraries) of the project.
+
+Generally, hardware optimized code should be used. For example, for linear algebra optimized
+BLAS/LAPACK shall be used (i.e., ATLAS, Apple's veclib), for image processing Apple's vImage vector
+codes should work very well, \dots
+
+\subsection{Communication}
+\label{sec:communication}
+
+Intra-process communication (using variables in a common address space) is much faster than any kind
+of inter-process communication. As data transfer is foreseen to be the largest hurdle to overcome,
+this really is the major point.
+
+All individual parts of the CASS should be written as re-entrant/threadsafe libraries that are
+linked into a single executable. The GUI will create a number of threads as necessary and forward
+data between them. Data should not be transferred, but locked and only the respective pointers
+transferred.
+
+\subsection{Events}
+\label{sec:events}
+
+An event contains the following information for a single LCLS shot:
+
+\begin{itemize}
+\item bunchid, timestamp
+\item all image data, all digitizer data
+\item all diagnostics data:
+   \begin{itemize}
+   \item power meters (LCLS, YAG, \dots )
+   \item beam position (from FIB patterns)
+   \end{itemize}
+\item all device settings
+\end{itemize}
+
+
+\section{Software sections and tasks}
+\label{sec:software-sections-tasks}
+
+In the following, the tasks performed by the individual parts are described in some more detail.
+
+
+\subsection{Event server}
+\label{sec:event-server}
+
+The event server, which will run in an individual set of threads (or possibly, its own process) will
+perform the following tasks sequentially on each individual event:
+
+\begin{itemize}
+\item get next events from the acquisition system (this could be ``LCLS'' temporary storage) and
+   place it in event queue
+\item determine Experiment-type (analog to run-specification) and store with event (hopefully, this
+   will be done by LCLS)
+\item call the data-picking/reduction library
+\item if the event is still valid (nor ``reduced away'') mangle data (in parallel) according to
+   parameters (from initialization)
+   \begin{itemize}
+   \item if event contains pnCCD images, call the pnCCD library to manipulate them
+   \item if event contains VMI images, call the VMI library to manipulate them
+   \item if event contains REMI data, call the REMI library to manipulate it (calculate images?)
+   \end{itemize}
+\item push event to connected clients
+\end{itemize}
+
+
+\subsubsection{Data picking and reduction}
+\label{sec:data-pick-reduct}
+
+Determine whether all simple measures match their requirements
+\begin{itemize}
+\item LCLS power meter value, YAG power meter value, \dots
+\item remove unnecessary images: i.e., take away second pnCCD image if that's user-specified
+\item potentially bin data (images pixel-wise, digitizer traces time-wise, \dots )
+\end{itemize}
+
+Merge data if possible, i.e., 
+
+\begin{itemize}
+\item merge images from front and back CCD into a single one (taking into account the corrections
+   provided by the FIB patterns)
+\end{itemize}
+
+
+\subsubsection{Device libraries}
+\label{sec:device-libraries}
+
+\paragraph{pnCCD library}
+\label{sec:pnccd-library}
+
+programmatic Xonline/Racoon equivalent, this should provide
+\begin{itemize}
+\item parameter class
+\item initialization routine, creating a state object from a parameter object
+\item handle image according to state object (replace original object unless data-reduction binning
+   is performed)
+\end{itemize}
+Such an interface could of course nicely be provided by a single C++ class for the work and a C++
+class for the parameters.
+
+
+\paragraph{VMI library}
+\label{sec:vmi-library}
+
+Is there much mangling to be done?
+\begin{itemize}
+\item parameter class
+\item initialization routine, creating a state object from a parameter object
+\item handle image according to state object (replace original object unless data-reduction binning
+   is performed)
+\end{itemize}
+
+
+\paragraph{REMI library}
+\label{sec:remi-library}
+
+\begin{itemize}
+\item parameter class
+\item initialization routine, creating a state object from a parameter object
+   \begin{itemize}
+   \item this includes parameters from the GUI and
+   \item parameters from LCLS ConfigV1 data passed along with the data stream
+   \end{itemize}
+\item handle data according to state object
+   \begin{itemize}
+   \item transform digitizer traces (waveforms) into 3D information for every event; i.e., create a
+      vector of (x, y, t) tuples for every event (LCLS shot).
+   \end{itemize}
+\end{itemize}
+
+
+\subsubsection{Averaging}
+\label{sec:averaging}
+
+\begin{itemize}
+\item  Place current event in active set
+\item  update averaged data according to run-definition
+\item  remove inactive events
+\end{itemize}
+
+\subsection{Front-ends}
+\label{sec:front-ends}
+
+While all data-handling functionality will be pure non-graphical code, we will then provide a simple
+yet efficient front-end as a modern user-interface. In principle, since these interfaces are so
+slim, we could even provide several interfaces, adopted o various experiments. I even would suggest
+multiple ``interfaces''
+
+\subsubsection{Racoon}
+\label{sec:racoon}
+
+Provide the functionality necessary for commissioning the pnCCDs and to provide a parameter set for
+the initialization of the pnCCD library.
+
+This would most likely use Qt for the UI (because Racoon already does so)
+
+\subsubsection{Diode}
+\label{sec:diode}
+
+General user interface for imaging experiments.
+
+I would be happy to coordinate development of a common GUI for all experiments planned for 2009
+using the Qt framework. This has the advantage that is platform independent and could also probably
+re-use parts from existing tools.
+
+The REMI data will be presented in a single 3D OpenGL view.
+
+
+\subsubsection{REMI}
+\label{sec:front-end-remi}
+
+The ``standard'' ROOT based interpreted-C interface will be available.
+
+
+\subsubsection{Others}
+\label{sec:others}
+
+Potentially, we might also want to have simple commissioning interfaces that work only for the VMI,
+respectively. This should be based on the current GUIs as much as possible.
+
+\clearpage
+
+\section{Open questions and things to do}
+\label{sec:open-quest-things}
+
+\subsection{Data reduction}
+\label{sec:data-reduction}
+
+For which stages of the data-processing would it be useful to include efficient data-compression?
+Obviously, going into the online-viewing chain, this format must also be highly efficient for
+arithmetic and standard image processing.
+\begin{itemize}
+\item check with crystallographers (i.e., Wolfgang Kabsch)
+\end{itemize}
+
+
+\subsection{Simulation server}
+\label{sec:simulation-server}
+
+We need to write a server that simulates the data stream we will get from LCLS in order to test the
+program in detail, including performance tests. This will still need to be specified, but, anyhow,
+it must deliver data in exactly the same way as LCLS does. It should also run on a different
+computer, to have real network communication between the server and CASS.
+
+
+\begin{flushright}
+\end{flushright}
+
+
+\end{document}
+
+
+
+%% Local Variables:
+%% coding: utf-8
+%% mode: flyspell
+%% fill-column: 100
+%% ispell-dictionary: "american"
+%% reftex-cite-format: default
+%% TeX-auto-save: t
+%% TeX-close-quote: "''"
+%% TeX-open-quote: "``"
+%% TeX-parse-self: t
+%% End:
