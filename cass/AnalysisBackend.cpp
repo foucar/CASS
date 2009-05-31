@@ -2,3 +2,7 @@
 
 #include "analysisbackend.h"
 
+// some tests for compilation
+#include "Event.h"
+#include "Image.h"
+

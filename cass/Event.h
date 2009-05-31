@@ -4,6 +4,7 @@
 #define CASS_EVENT_H
 
 #include <map>
+#include <QtGui/QImage>
 #include "cass.h"
 
 namespace cass {
@@ -23,19 +24,19 @@ public:
     size_t id;
 
     /** a type for all known powermeters */
-    enum PowerMeter = {LCLS,                 // LCLS beam diagnostics power
-                       LCLS_CAMP_GAS,        //
-                       YAG};                 // Spectra Physics YAG power meter
+    enum PowerMeter {LCLS,                 // LCLS beam diagnostics power
+                     LCLS_CAMP_GAS,        //
+                     YAG};                 // Spectra Physics YAG power meter
 
     /** List of all acquired power meter readings for this event */
     std::map<PowerMeter, double> power;
 
     /** a type for all known cameras */
-    enum CameraType = {pnCCD,
-                       Pulnix};
+    enum CameraType {pnCCD,
+                     Pulnix};
 
     /** List of all acquired camera images for this event */
-    std::map<std::pair<CameraType, size_t>, QImage> > power;
+    std::map<std::pair<CameraType, size_t>, QImage> images;
 
 };
 

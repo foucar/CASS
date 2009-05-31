@@ -14,7 +14,8 @@ SOURCES += AnalysisBackend.cpp
 
 HEADERS += AnalysisBackend.h \
            cass.h \
-           Event.h
+           Event.h \
+           Image.h
 
 
 header.path    = $$INSTALLBASE/include
