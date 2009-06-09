@@ -9,13 +9,16 @@
 #include <vector>
 #include "cass_remi.h"
 #include "AnalysisBackend.h"
-#include "Config.h"
-#include "DataDescriptor.h"
-#include "Classes/SignalAnalyzer/SignalAnalyzer.h"
-#include "Classes/DetektorHitSorter/DetektorHitSorter.h"
+#include "pdsdata/acqiris/ConfigV1.hh"
+#include "pdsdata/acqiris/DataDescriptorV1.hh"
+#include "SignalAnalyzer.h"
+#include "DetektorHitSorter.h"
+#include "Detector.h"
 
-namespace cass {
-namespace REMI {
+namespace cass 
+{
+namespace REMI 
+{
 
 /** @class REMI backend parameter sets
 
@@ -23,61 +26,49 @@ namespace REMI {
 @version 0.1
 */
 
-class Layerproperty
-{
-public:
-	//the properties of one layer of the delayline-anode//
-	long			_polarity;			//the Polarity the Signal have
-	double			_tsLow;				//lower edge of the timesum
-	double			_tsHeigh;			//upper edge of the timesum
-	double			_trLow;				//lower edge of the timerange events can happen in
-	double			_trHigh;			//upper edge of the timerange events can happen in
-	double			_sf;				//scalefactor for layer
-	int				_chNbrFiEnd;		//the channel that we will find the Signals of the first end of the Anode
-	int				_chNbrSeEnd;		//the channel that we will find the Signals of the second end of the Anode
-};
 
-class Detector
+class DetectorParameter
 {
 public:
 	//the settings for one detector//
-	double			_Runtime;			//the runtime over the anode
-	double			_wOff;				//the offset of w-layer towards u and v-layer
-	double			_mcpRadius;			//the radius of the MCP in mm
-	double			_deadMCP;			//the Deadtime between to Signals on the MCP
-	double			_deadAnode;			//the Deadtime between to Signals on the Layers
-	int				_chNbrMcp;			//the Channel that we will find the mcp signals in
-	Layerproperty	_uLayer;			//the properties of the U-Layer
-	Layerproperty	_vLayer;			//the properties of the V-Layer
-	Layerproperty	_wLayer;			//the properties of the W-Layer
-	const char *	_name;				//a name for this detector (ie. Electrondetector, Iondetector)
+	double			fRuntime;			//the runtime over the anode
+	double			fWLayerOffset;		//the offset of w-layer towards u and v-layer
+	double			fMcpRadius;			//the radius of the MCP in mm
+	double			fDeadMcp;			//the Deadtime between to Signals on the MCP
+	double			fDeadAnode;			//the Deadtime between to Signals on the Layers
+	AnodeLayer		fULayer;			//the properties of the U-Layer
+	AnodeLayer		fVLayer;			//the properties of the V-Layer
+	AnodeLayer		fWLayer;			//the properties of the W-Layer
+	Signal			fMcp;				//properties of MCP Signal for this detektor
+	long			fSortMethod;		//way how peaks are sorted for detectorhits
+	bool			fIsHex;				//flag that tells 
+	std::string		fName;				//a name for this detector (ie. Electrondetector, Iondetector)
 };
 
-class Channel
+class ChannelParameter
 {
-
 public:
 	//the settings for one channel//
-	double			_thresh;			//the threshold of the channel
-	double			_offset;			//the offset
-	int				_back;				//the backsize
-	int				_stepsize;			//the stepsize
-	int				_delay;				//the delay of the cfd
-	double			_fraction;			//the fraction of the cfd
-	double			_walk;				//the walk of the cfd
+	double			fThreshold;			//the threshold of the channel
+	double			fOffset;			//the offset
+	int				fBacksize;			//the backsize
+	int				fStepsize;			//the stepsize
+	int				fDelay;				//the delay of the cfd
+	double			fFraction;			//the fraction of the cfd
+	double			fWalk;				//the walk of the cfd
 };
 
-
+typedef std::vector<DetectorParameter> detparameters_t;
+typedef std::vector<ChannelParameter> chanparameters_t;
 class Parameter : cass::BackendParameter 
 {
 public:
     //a dictionary of all user settings
 
     //The following entries (keys) must be present:
-	std::map<Detector,int>	_detectors;	//we have the option to have 1 or 2 Detectors
-	std::map<Channel,int>	_channels;	//settings to extract peaks of the channels
-	int						_sortMethod;//way how peaks are sorted for detectorhits
-	int						_anaMethod;	//way how peaks are identified
+	detparameters_t	 fDetPara;			//we have the option to have 1 or 2 Detectors
+	chanparameters_t fChanPara;			//settings to extract peaks of the channels
+	int				 fAnaMethod;		//way how peaks are identified
 
     //The following entries (keys) are used if available:
     //<none>
@@ -91,12 +82,12 @@ public:
 class RawData 
 {
 public:
-	const Pds::Acqiris::ConfigV1&	config()const	{return _config;}
-	const Pds::Acqiris::DataDescV1&	data()const		{return _data;}
+	const Pds::Acqiris::ConfigV1&	config()const	{return fConfig;}
+	const Pds::Acqiris::DataDescV1&	data()const		{return fData;}
 
 private:
-     Pds::Acqiris::ConfigV1&	_config;
-     Pds::Acqiris::DataDescV1&	_data;
+     Pds::Acqiris::ConfigV1&	fConfig;
+     Pds::Acqiris::DataDescV1&	fData;
 };
 
 
@@ -143,7 +134,7 @@ public:
     @param data Raw data to be analysed
     @return analysed data
     */
-	virtual operator()(const RawData& data, cass::Event &cassevent);
+	virtual void operator()(const RawData& data, cass::Event &cassevent);
 
     /* provide analysis histogram
 
@@ -155,9 +146,9 @@ public:
     //Histogram histogram(HistogramType type);
 
 private:
-	SignalAnalyzer		siganalyzer;
-	DetektorHitSorter	sorter;
-	Parameter			_param;
+	SignalAnalyzer		fSiganalyzer;
+	DetektorHitSorter	fSorter;
+	Parameter			fParam;
 };
 
 

@@ -1,35 +1,27 @@
 #include "REMIAnalysis.h"
+#include "Event.h"
 
-namespace cass
-{
-namespace REMI
-{
-
-void Analysis::init(const cass::REMI::Parameter& param)
+void cass::REMI::Analysis::init(const cass::REMI::Parameter& param)
 {
 	//copy the parameters//
-	_param = param;
+	fParam = param;
 	//intitalize the signal analyzer//
-	siganalyzer.init(param._anaMethod);
-	//initialize the Detectorhit sorter//
-	sorter.init(param._sortMethod);
+	fSiganalyzer.init(param.fAnaMethod);
+	//initialize the Detectorhit sorter for each detector//
+	fSorter.init(param);
 }
 
-void Analysis::operator()(const RawData& data, cass::Event &cassEvent)
+void cass::REMI::Analysis::operator()(const cass::REMI::RawData& data, cass::Event &cassEvent)
 {
 	//create the datastructure from the RawData and the parameters//
-	Remi::Event e(RawData.data(),RawData.config(),_param);
+	cass::REMI::Event e(data.data(),data.config(),fParam);
 
 	//find the peaks in the signals of all channels//
-	siganalyzer.FindPeaksIn(e);
+	fSiganalyzer.FindPeaksIn(e);
 	
 	//extract the peaks for the layers//
 	//and sort the peaks for detektor hits//
 	//fill the results in the Cass Event//
-	sorter.Sort(e,cassEvent);
+	//this has to be done for each detektor individually//
+	fSorter.sort(e,cassEvent);
 }
-
-
-}//end namespace Remi
-}//end namespace cass
-
