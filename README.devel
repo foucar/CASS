@@ -12,6 +12,7 @@ These are esome guidelines for the CASS software development.
   decision.
 
 * Please keep the indentation style consistent.
+  Do not use tabs, use spaces instead!
 
 * Do not bloat the code by useless empty lines, comments without
   content (i.e., essentially duplicating the code), etc.
