@@ -2,11 +2,13 @@
 
 #include "SoftTDCCoM.h"
 #include "helperfunctionsforSTDC.h"
+#include "Channel.h"
+#include "Peak.h"
 
 
 //______________________Implimentation of simple Version__________________________________________________________
 template <typename T>
-void com(cass::REMI::Event& e)
+void com(cass::REMI::RemiAnalysisEvent& e)
 {
 	//go through all channels of the event//
 	for (size_t iChan=0;iChan<e.nbrOfChannels();++iChan)
@@ -14,7 +16,7 @@ void com(cass::REMI::Event& e)
 		cass::REMI::Channel &c	= e.channel(iChan);
 		const T *Data			= static_cast<const T*>(c.waveform());
 		const long vOffset		= c.vertOffset() / c.vertGain();	//mV -> ADC Bytes
-		const size_t wLength	= c.wavformLength();
+		const size_t wLength	= c.waveformLength();
 		const double threshold  = c.threshold() / c.vertGain();	//mV -> ADC Bytes
 
 		bool risingEdge			= false;
@@ -38,24 +40,24 @@ void com(cass::REMI::Event& e)
 					p.stoppos(i-1);
 
 					//--height stuff--//
-					maximum<T>(c,p);
+					cass::REMI::maximum<T>(c,p);
 					
 					//--fwhm stuff--//
-					fwhm<T>(c,p);
+					cass::REMI::fwhm<T>(c,p);
 
 					//--center of mass stuff--//
-					CoM<T>(e,c,p);
+					cass::REMI::CoM<T>(e,c,p);
 					
 					//--Time is the Center of Mass--//
 					p.time(p.com());
 
 					//--check the polarity--//
-					if (Data[Peak.maxpos()]-vOffset == Peak.maximum())			//positive
-						p.polarity(Peak::kPositive);
-					else if (Data[Peak.maxpos()]-vOffset == -Peak.maximum())	//negative
-						p.polarity(Peak::kNegative);
+					if (Data[p.maxpos()]-vOffset == p.maximum())			//positive
+						p.polarity(cass::REMI::Peak::kPositive);
+					else if (Data[p.maxpos()]-vOffset == -p.maximum())	//negative
+						p.polarity(cass::REMI::Peak::kNegative);
 					else														//error: polarity not found
-						p.polarity(Peak::kBad);				
+						p.polarity(cass::REMI::Peak::kBad);				
 				}
 				risingEdge = false;
 				firsttime=true;
@@ -88,13 +90,13 @@ void com(cass::REMI::Event& e)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCoM8Bit::FindPeaksIn(cass::REMI::Event& e)
+void cass::REMI::SoftTDCCoM8Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
 {
 	com<char>(e);
 }
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCoM16Bit::FindPeaksIn(cass::REMI::Event& e)
+void cass::REMI::SoftTDCCoM16Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
 {
 	com<short>(e);
 }

@@ -23,7 +23,7 @@ class CASSSHARED_EXPORT BackendParameter {
 @version 0.1
 */
 class CASSSHARED_EXPORT AnalysisBackend {
-
+public:
     virtual ~AnalysisBackend() = 0;
 
     /** initialize AnalysisBackend with new set of parameters */

@@ -2,7 +2,6 @@
 #define ACQIRISCONFIGV1_HH
 
 #include "pdsdata/xtc/TypeId.hh"
-#include "TypeId.hh"
 #include <stdint.h>
 
 namespace Pds {

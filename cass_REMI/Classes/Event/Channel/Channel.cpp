@@ -1,18 +1,22 @@
 #include "Channel.h"
 #include "Peak.h"
+#include "REMIAnalysis.h"
 
 //______________________________________________________________________________________________________________________
-cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config, const Pds::Acqiris::DataDescV1& ddesc, const cass::REMI::Parameter&):
+cass::REMI::Channel::Channel(int chNbr, Pds::Acqiris::ConfigV1& config, Pds::Acqiris::DataDescV1& ddesc, const cass::REMI::ChannelParameter& param):
 	fChNbr(chNbr)
 {
 	fFullscale		 = config.vert(fChNbr).fullScale();
 	fOffset			 = config.vert(fChNbr).offset();
 	fGain			 = config.vert(fChNbr).slope();
-	fIdxToFirstPoint = config.horiz().indexFirstPoint();
+	//fIdxToFirstPoint = config.horiz().indexFirstPoint();
 	fDataLength		 = config.horiz().nbrSamples();
-	fThreshold		 = param.threshold();
-	fStsi			 = param.stepsize();
-	fBs				 = param.backsize();
+	fThreshold		 = param.fThreshold;
+	fStsi			 = param.fStepsize;
+	fBs				 = param.fBacksize;
+	fDelay			 = param.fDelay;
+	fWalk			 = param.fWalk;
+	fFraction		 = param.fFraction;
 	
 	//extract waveform//
 	const short* waveform = ddesc.waveform(config.horiz());

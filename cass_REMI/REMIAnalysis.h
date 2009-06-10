@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C)2009 Jochen Küpper
 
 
 #ifndef REMIANALYSIS_H
@@ -10,149 +10,129 @@
 #include "cass_remi.h"
 #include "AnalysisBackend.h"
 #include "pdsdata/acqiris/ConfigV1.hh"
-#include "pdsdata/acqiris/DataDescriptorV1.hh"
+#include "pdsdata/acqiris/DataDescV1.hh"
 #include "SignalAnalyzer.h"
 #include "DetektorHitSorter.h"
 #include "Detector.h"
 
 namespace cass 
 {
-namespace REMI 
-{
+	class Event;
 
-/** @class REMI backend parameter sets
+	namespace REMI 
+	{
 
-@author Jochen Küpper
-@version 0.1
-*/
+		/** @class REMI backend parameter sets
 
-
-class DetectorParameter
-{
-public:
-	//the settings for one detector//
-	double			fRuntime;			//the runtime over the anode
-	double			fWLayerOffset;		//the offset of w-layer towards u and v-layer
-	double			fMcpRadius;			//the radius of the MCP in mm
-	double			fDeadMcp;			//the Deadtime between to Signals on the MCP
-	double			fDeadAnode;			//the Deadtime between to Signals on the Layers
-	AnodeLayer		fULayer;			//the properties of the U-Layer
-	AnodeLayer		fVLayer;			//the properties of the V-Layer
-	AnodeLayer		fWLayer;			//the properties of the W-Layer
-	Signal			fMcp;				//properties of MCP Signal for this detektor
-	long			fSortMethod;		//way how peaks are sorted for detectorhits
-	bool			fIsHex;				//flag that tells 
-	std::string		fName;				//a name for this detector (ie. Electrondetector, Iondetector)
-};
-
-class ChannelParameter
-{
-public:
-	//the settings for one channel//
-	double			fThreshold;			//the threshold of the channel
-	double			fOffset;			//the offset
-	int				fBacksize;			//the backsize
-	int				fStepsize;			//the stepsize
-	int				fDelay;				//the delay of the cfd
-	double			fFraction;			//the fraction of the cfd
-	double			fWalk;				//the walk of the cfd
-};
-
-typedef std::vector<DetectorParameter> detparameters_t;
-typedef std::vector<ChannelParameter> chanparameters_t;
-class Parameter : cass::BackendParameter 
-{
-public:
-    //a dictionary of all user settings
-
-    //The following entries (keys) must be present:
-	detparameters_t	 fDetPara;			//we have the option to have 1 or 2 Detectors
-	chanparameters_t fChanPara;			//settings to extract peaks of the channels
-	int				 fAnaMethod;		//way how peaks are identified
-
-    //The following entries (keys) are used if available:
-    //<none>
-
-    std::map<std::string, double> _settings;
-};
+		@author Jochen Küpper
+		@version 0.1
+		*/
 
 
+		class DetectorParameter
+		{
+		public:
+			//the settings for one detector//
+			double			fRuntime;			//the runtime over the anode
+			double			fWLayerOffset;		//the offset of w-layer towards u and v-layer
+			double			fMcpRadius;			//the radius of the MCP in mm
+			double			fDeadMcp;			//the Deadtime between to Signals on the MCP
+			double			fDeadAnode;			//the Deadtime between to Signals on the Layers
+			AnodeLayer		fULayer;			//the properties of the U-Layer
+			AnodeLayer		fVLayer;			//the properties of the V-Layer
+			AnodeLayer		fWLayer;			//the properties of the W-Layer
+			Signal			fMcp;				//properties of MCP Signal for this detektor
+			long			fSortMethod;		//way how peaks are sorted for detectorhits
+			bool			fIsHex;				//flag that tells 
+			std::string		fName;				//a name for this detector (ie. Electrondetector, Iondetector)
+		};
 
-/** REMI data container */
-class RawData 
-{
-public:
-	const Pds::Acqiris::ConfigV1&	config()const	{return fConfig;}
-	const Pds::Acqiris::DataDescV1&	data()const		{return fData;}
+		class ChannelParameter
+		{
+		public:
+			//the settings for one channel//
+			double			fThreshold;			//the threshold of the channel
+			double			fOffset;			//the offset
+			int				fBacksize;			//the backsize
+			int				fStepsize;			//the stepsize
+			int				fDelay;				//the delay of the cfd
+			double			fFraction;			//the fraction of the cfd
+			double			fWalk;				//the walk of the cfd
+		};
 
-private:
-     Pds::Acqiris::ConfigV1&	fConfig;
-     Pds::Acqiris::DataDescV1&	fData;
-};
+		typedef std::vector<DetectorParameter> detparameters_t;
+		typedef std::vector<ChannelParameter> chanparameters_t;
+
+		class Parameter : cass::BackendParameter 
+		{
+		public:
+			size_t nbrOfDetectors()const	{return fDetPara.size();}
+			//a dictionary of all user settings
+
+			//The following entries (keys) must be present:
+			detparameters_t	 fDetPara;			//we have the option to have 1 or 2 Detectors
+			chanparameters_t fChanPara;			//settings to extract peaks of the channels
+			int				 fAnaMethod;		//way how peaks are identified
+
+			//The following entries (keys) are used if available:
+			//<none>
+
+			std::map<std::string, double> _settings;
+		};
 
 
 
-/** @class REMI analysis signal
-
-@author Jochen Küpper
-@version 0.1
-//*/
-//class Particle {
-//public:
-//    double _posx, _posy, _tof;
-//};
+		/** REMI data container */
+		class RawData 
+		{
+		public:
+			 Pds::Acqiris::ConfigV1&	config;
+			 Pds::Acqiris::DataDescV1&	data;
+		};
 
 
 
-//enum HistogramType {
-//    FWHM_U1, FWHM_U2, FWHM_U3
-//};
-//
-//
-//
-///* @class histogram container */
-//class Histogram {
-//};
 
 
+		/** @class REMI analysis backend
 
-/** @class REMI analysis backend
+		@author Jochen Küpper
+		@version 0.1
+		*/
 
-@author Jochen Küpper
-@version 0.1
-*/
-class CASS_REMISHARED_EXPORT Analysis : cass::AnalysisBackend
-{
-public:
+			
+		class CASS_REMISHARED_EXPORT Analysis : cass::AnalysisBackend
+		{
+		public:
 
-	Analysis(const Parameter& param)		{init(param);}
+			Analysis(const Parameter& param)		{init(param);}
 
-    /** initialize AnalysisBackend with new set of parameters */
-    virtual void init(const Parameter& param);
+			/** initialize AnalysisBackend with new set of parameters */
+			virtual void init(const Parameter& param);
 
-    /* analyse dataset
-    @param data Raw data to be analysed
-    @return analysed data
-    */
-	virtual void operator()(const RawData& data, cass::Event &cassevent);
+			/* analyse dataset
+			@param data Raw data to be analysed
+			@return analysed data
+			*/
+			virtual void operator()(const RawData& data, cass::Event &cassevent);
 
-    /* provide analysis histogram
+			/* provide analysis histogram
 
-    Return the specified histogram from the last processed event.
+			Return the specified histogram from the last processed event.
 
-    @param type Which histogram do we want
-    @return histogram data
-    */
-    //Histogram histogram(HistogramType type);
+			@param type Which histogram do we want
+			@return histogram data
+			*/
+			//Histogram histogram(HistogramType type);
 
-private:
-	SignalAnalyzer		fSiganalyzer;
-	DetektorHitSorter	fSorter;
-	Parameter			fParam;
-};
+		private:
+			SignalAnalyzer		fSiganalyzer;
+			DetektorHitSorter	fSorter;
+			Parameter			fParam;
+		};
 
 
-} //end namespace REMI
+	} //end namespace REMI
 } //end namespace CASS
 
 #endif

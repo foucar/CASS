@@ -7,7 +7,7 @@
 //________________________________Implematation of Constant Fraction Method______________________________________________________
 //________________this will be a thread that is waiting for Pulses to be added to a queue________________________________________
 template <typename T>
-void cfd(cass::REMI::Event &e)
+void cfd(cass::REMI::RemiAnalysisEvent &e)
 {
 	//now extract information from the Event//
 	const double horpos			= e.horpos()*1.e9;
@@ -21,14 +21,14 @@ void cfd(cass::REMI::Event &e)
 		const long vOff			= c.vertOffset();
 		const double vGain		= c.vertGain();
 
-		const long timestamp	= c.idxToFirstPoint();
+		const long idxToFiPoint	= c.idxToFirstPoint();
 		const T *Data			= static_cast<const T*>(c.waveform());
 		const size_t wLength	= c.waveformLength();
 
 		//--get the right cfd settings--//
 		const long delay		= static_cast<long>(c.delay() / sampleInterval);	//ns -> sampleinterval units
-		const double walk		= c.walk() / vertGain;								//mV -> ADC Bytes
-		const double threshold	= c.threshold() / vertGain;							//mV -> ADC Bytes
+		const double walk		= c.walk() / vGain;								//mV -> ADC Bytes
+		const double threshold	= c.threshold() / vGain;							//mV -> ADC Bytes
 		const double fraction	= c.fraction();
 
 		//--go through the waveform--//
@@ -95,42 +95,42 @@ void cfd(cass::REMI::Event &e)
 				double mslope,cslope;
 				const double xslope[3] = {i-delay,i+1-delay,i+2-delay};
 				const double yslope[3] = {fxd,fxd_1,fxd_2};
-				linearRegression(3,xslope,yslope,mslope,cslope);
+				cass::REMI::linearRegression(3,xslope,yslope,mslope,cslope);
 
 				//--find x with a cubic polynomial interpolation between four points--//
 				//--do this with the Newtons interpolation Polynomial--//
 				const double x[4] = {i-1,i,i+1,i+2};				//x vector
 				const double y[4] = {fsx_m1,fsx,fsx_1,fsx_2};		//y vector
 				double coeff[4] = {0,0,0,0};				//Newton coeff vector
-				createNewtonPolynomial(x,y,coeff);
+				cass::REMI::createNewtonPolynomial(x,y,coeff);
 
 				//--numericaly solve the Newton Polynomial--//
 				//--give the lineare approach for x as Start Value--//
-				const double xPoly = findXForGivenY(x,coeff,walk,xLin);
+				const double xPoly = cass::REMI::findXForGivenY(x,coeff,walk,xLin);
 				const double pos = xPoly + static_cast<double>(idxToFiPoint) + horpos;
 
 				//--add a new peak--//
-				Peak &p = c.addPeak();
+				cass::REMI::Peak &p = c.addPeak();
 
 				//add the info//
 				p.cfd(pos*sampleInterval);
 				p.time(pos*sampleInterval);
-				if (fsx > fsx_1) p.polarity(Peak::kNegative);		//Peak has Neg Pol
-				if (fsx < fsx_1) p.polarity(Peak::kPositive);		//Peak has Pos Pol
-				if (TMath::Abs(fsx-fsx_1) < 1e-8) p.polarity(Peak::kBad);//Peak has Bad Pol
+				if (fsx > fsx_1) p.polarity(cass::REMI::Peak::kNegative);		//Peak has Neg Pol
+				if (fsx < fsx_1) p.polarity(cass::REMI::Peak::kPositive);		//Peak has Pos Pol
+				if (fabs(fsx-fsx_1) < 1e-8) p.polarity(cass::REMI::Peak::kBad);//Peak has Bad Pol
 				
 
 				//--start and stop of the puls--//
-				startstop<T>(e,c,p);
+				cass::REMI::startstop<T>(e,c,p);
 
 				//--height of peak--//
-				maximum<T>(c,p);
+				cass::REMI::maximum<T>(c,p);
 
 				//--width & fwhm of peak--//
-				fwhm<T>(c,p);
+				cass::REMI::fwhm<T>(c,p);
 
 				//--the com and integral--//
-				CoM<T>(e,c,p);
+				cass::REMI::CoM<T>(e,c,p);
 			}
 		}
 	}
@@ -138,14 +138,14 @@ void cfd(cass::REMI::Event &e)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::Event& e)
+void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
 {
 	cfd<char>(e);
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCFD16Bit::FindPeaksIn(cass::REMI::Event& e)
+void cass::REMI::SoftTDCCFD16Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
 {
 	cfd<short>(e);
 }
