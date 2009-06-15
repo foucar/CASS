@@ -4,6 +4,8 @@
 #include <vector>
 #include "pdsdata/acqiris/ConfigV1.hh"
 #include "pdsdata/acqiris/DataDescV1.hh"
+#include "Detector.h"
+#include "Channel.h"
 
 
 
@@ -12,8 +14,8 @@ namespace cass
 	namespace REMI
 	{
 
-		class Channel;
-		class Detector;
+                //class Channel;
+                //class Detector;
 		class Parameter;
 		
 		typedef std::vector<Channel> channels_t;
@@ -36,7 +38,7 @@ namespace cass
 			const Detector	&detector(long idx)const		{return fDets[idx];}
 
 		public:
-			unsigned _int64	 eventID()const					{return fEventID;}
+                        unsigned __int64	 eventID()const					{return fEventID;}
 			double			 horpos()const					{return fHorpos;}
 			short			 nbrBytes()const				{return fNbrBytes;}
 			double			 sampleInterval()const			{return fSampInter;}
@@ -48,7 +50,7 @@ namespace cass
 			short			 nbrConvPerChan()const			{return fNbrConPerCh;}
 
 		private:
-			unsigned _int64	 fEventID;						//an id for this event. It is just the time the event was recorded
+                        unsigned __int64          fEventID;						//an id for this event. It is just the time the event was recorded
 			double			 fHorpos;						//the fHorpos value for this event
 			channels_t		 fChannels;						//Container for all Channels
 			detectors_t		 fDets;							//Container for all Detektors

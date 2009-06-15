@@ -1,5 +1,5 @@
 #include "REMIAnalysis.h"
-#include "./Classes/Event/Event.h"
+#include "RemiAnalysisEvent.h"
 #include "Event.h"
 
 void cass::REMI::Analysis::init(const cass::REMI::Parameter& param)
@@ -15,7 +15,7 @@ void cass::REMI::Analysis::init(const cass::REMI::Parameter& param)
 void cass::REMI::Analysis::operator()(const cass::REMI::RawData& data, cass::Event &cassEvent)
 {
 	//create the datastructure from the RawData and the parameters//
-	cass::REMI::Event e(data.config,data.data,fParam);
+    cass::REMI::RemiAnalysisEvent e(data.config,data.data,fParam);
 
 	//find the peaks in the signals of all channels//
 	fSiganalyzer.FindPeaksIn(e);

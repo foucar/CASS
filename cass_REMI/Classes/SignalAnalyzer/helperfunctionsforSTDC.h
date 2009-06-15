@@ -11,7 +11,18 @@ namespace cass
 {
 	namespace REMI
 	{
-
+        //_________________________________helper function that does a linear Regression_____________________________________________________
+        void linearRegression(int nbrPoints, const double x[], const double y[], double &m, double &c);
+        //_________________________________helper function that does a linear Regression_____________________________________________________
+        void gewichtetlinearRegression(const int nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c);
+        //_________________________________create Newton Polynomial__________________________________________________________________________
+        void createNewtonPolynomial(const double * x, const double * y, double * coeff);
+        //_________________________________evaluate Newton Polynomial________________________________________________________________________
+        double evalNewtonPolynomial(const double * x, const double * coeff, double X);
+        //_________________________________Achims Numerical Approximation____________________________________________________________________
+        double findXForGivenY(const double * x, const double * coeff, double Y, double Start);
+        //_________________________________gib mir zurück____________________________________________________________________________________
+        //double gmz(const double i, const double x0, const dvec MPuls);
 
 		//______________________________fwhm________________________________________________________________________________________
 		template <typename T>
@@ -70,8 +81,8 @@ namespace cass
 			rx[3] = fwhm_r+2;	ry[3] = abs(Data[fwhm_r+2]-vOff);
 
 			double mLeft,cLeft,mRight,cRight;
-			linearRegression(4,lx,ly,mLeft,cLeft);
-			linearRegression(4,rx,ry,mRight,cRight);
+            linearRegression(4,lx,ly,mLeft,cLeft);
+            linearRegression(4,rx,ry,mRight,cRight);
 
 			//y = m*x+c => x = (y-c)/m;
 			const double fwhm_L = (HalfMax-cLeft)/mLeft;
@@ -192,18 +203,6 @@ namespace cass
 		}
 
 
-		//_________________________________helper function that does a linear Regression_____________________________________________________
-		void linearRegression(int nbrPoints, const double x[], const double y[], double &m, double &c);
-		//_________________________________helper function that does a linear Regression_____________________________________________________
-		void gewichtetlinearRegression(const int nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c);
-		//_________________________________create Newton Polynomial__________________________________________________________________________
-		void createNewtonPolynomial(const double * x, const double * y, double * coeff);
-		//_________________________________evaluate Newton Polynomial________________________________________________________________________
-		double evalNewtonPolynomial(const double * x, const double * coeff, double X);
-		//_________________________________Achims Numerical Approximation____________________________________________________________________
-		double findXForGivenY(const double * x, const double * coeff, double Y, double Start);
-		//_________________________________gib mir zurück____________________________________________________________________________________
-		//double gmz(const double i, const double x0, const dvec MPuls);
 
 
 	}//end namespace remi

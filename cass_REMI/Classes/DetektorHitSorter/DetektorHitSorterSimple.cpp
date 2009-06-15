@@ -91,8 +91,6 @@ void cass::REMI::DetektorHitSorterSimple::sortForTimesum(cass::REMI::Detector &d
 	const double tsxHigh	= d.u().tsHigh();
 	const double tsyLow		= d.v().tsLow();
 	const double tsyHigh	= d.v().tsHigh();
-	const double sfx		= d.u().sf();
-	const double sfy		= d.v().sf();
 	const double radius		= d.mcpRadius();
 
 	for (size_t iMcp=0;iMcp<d.mcp().nbrPeaks();++iMcp)

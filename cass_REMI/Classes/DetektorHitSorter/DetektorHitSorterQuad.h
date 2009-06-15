@@ -5,22 +5,22 @@
 
 namespace cass
 {
-namespace REMI
-{
+    namespace REMI
+    {
 
-//_______________________________________________________________________MyDetektorHitSorter________________________________________________________________________________________
-class DetektorHitSorterQuad : public DetektorHitSorterBase
-{
-public:
-	DetektorHitSorterQuad(const cass::REMI::DetectorParameter&p):DetektorHitSorterBase(p)	{}
-	virtual ~DetektorHitSorterQuad()							{}
+            //_______________________________________________________________________MyDetektorHitSorter________________________________________________________________________________________
+            class DetektorHitSorterQuad : public DetektorHitSorterBase
+            {
+            public:
+                DetektorHitSorterQuad(const cass::REMI::DetectorParameter&p):DetektorHitSorterBase(p)	{}
+                virtual ~DetektorHitSorterQuad()							{}
 
-public:
-	virtual void sort(RemiAnalysisEvent&, Detector&, cass::Event&)=0;
+            public:
+                virtual void sort(RemiAnalysisEvent&, Detector&, cass::Event&)=0;
 
-protected:
-	void FillHistosBeforeShift(const Detector&, cass::Event&);
-};
-}//end namespace remi
+            protected:
+                void FillHistosBeforeShift(const Detector&, cass::Event&);
+            };
+    }//end namespace remi
 }//end namespace cass
 #endif
