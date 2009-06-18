@@ -35,12 +35,12 @@ namespace cass
 			const size_t wLength = c.waveformLength();
 
 			//--get peak fwhm--//
-			long fwhm_l			 = 0;
-			long fwhm_r			 = 0;
+			size_t fwhm_l		 = 0;
+			size_t fwhm_r		 = 0;
 			const double HalfMax = 0.5*p.maximum();
 
 			////--go from middle to left until 0.5*height find first point that is above 0.5 height--//
-			for (size_t i=p.maxpos(); i>=0;--i)
+			for (int i=p.maxpos(); i>=0; --i)
 			{
 				if (abs(Data[i]-vOff) < HalfMax)
 				{
@@ -183,8 +183,8 @@ namespace cass
 			//--this function will find the maximum of the peak and its position--//
 			const T *Data		= static_cast<const T*>(c.waveform());
 			const long vOff		= c.vertOffset();
-			const int start		= p.startpos();
-			const int stop		= p.stoppos();
+			const size_t start	= p.startpos();
+			const size_t stop	= p.stoppos();
 			const double vGain	= c.vertGain();
 			long maximum		= 0;
 			int maxpos			= 0;
