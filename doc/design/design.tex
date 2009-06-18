@@ -31,9 +31,10 @@
 \section{Introduction}
 \label{sec:introduction}
 
-The Max-Planck Advanced Study Group at the Center for Free Electron Laser Science has developed the \emph{CFEL-ASG Multi Purpose} experimental chamber for use at upcoming X-ray Free-Electron-Laser facilities. The setup includes several data-acquisition devices, including pnCCDs, VMI spectrometers, and a COLTRIMS reaction microscope (REMI). It will also include a ToF for detecting particle hits and a MCP for detecting the direct beam behind the second detector, thereby taking into account the influence of the apertures.
+The Max-Planck Advanced Study Group at the Center for Free Electron Laser Science has developed the \emph{CFEL-ASG Multi Purpose} experimental chamber for use at upcoming X-ray Free-Electron-Laser facilities. The setup includes several data-acquisition devices, including pnCCDs, VMI spectrometers, and a COLTRIMS reaction microscope (REMI). It will also include a ToF for detecting particle hits or measuring electron spectra and a MCP-Detector behind the second detector, thereby taking into account the influence of the apertures.
 
-In oder to provide the necessary online viewing capabilities for the upcoming experiments, a common software system to obtain, massage, and analyze the data in online-mode is necessary. Here, we present a description of a possible software layout.
+In oder to provide the necessary online viewing capabilities for the upcoming experiments, a common software system to obtain, process, massage and analyze the data in online-mode is necessary. Here, we present a description of a possible software layout. Please note that the presented software is for viewing only. It will not be able to control the acquisition.
+
 
 
 \section{Requirements}
@@ -42,7 +43,7 @@ In oder to provide the necessary online viewing capabilities for the upcoming ex
 The software system should be able to handle all relevant experimental data. This includes the following:
 \begin{itemize}
 \item an arbitrary (currently 2) number of pnCCD detectors
-\item an arbitrary (currently 2) numbers of Pulnix CCD (as used in the VMI)
+\item an arbitrary (currently 1) numbers of Pulnix CCD (as used in the VMI)
 \item an arbitrary number of Acqiris digitizer channels (12 Channels are used for 1 Hex and 1 Quad Delayline Anode Detector)
 \item 2 XFEL intensity sensors (LCLS + CAMP)
 \item YAG laser power meter
@@ -255,7 +256,7 @@ All information are bundled in a container (CASSEvent). It will contain the foll
    \begin{itemize}
    \item power meters (LCLS, YAG, \dots )
    \item beam position (from FIB patterns)
-   \item all device settings
+   \item all device settings (ie. shutter open/closed)
    \end{itemize}
 \end{itemize}
 
