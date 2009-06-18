@@ -189,7 +189,7 @@ namespace cass
 			long maximum		= 0;
 			int maxpos			= 0;
 
-			for (int i = start; i<=stop;++i)
+            for (size_t i = start; i<=stop;++i)
 			{
 				if (abs(Data[i]-vOff) > maximum)
 				{

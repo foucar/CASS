@@ -38,7 +38,7 @@ namespace cass
 			const Detector	&detector(long idx)const		{return fDets[idx];}
 
 		public:
-			uint64			 eventID()const					{return fEventID;}
+            uint64_t		 eventID()const					{return fEventID;}
 			double			 horpos()const					{return fHorpos;}
 			short			 nbrBytes()const				{return fNbrBytes;}
 			double			 sampleInterval()const			{return fSampInter;}
@@ -50,7 +50,7 @@ namespace cass
 			short			 nbrConvPerChan()const			{return fNbrConPerCh;}
 
 		private:
-			uint64			 fEventID;						//an id for this event. It is just the time the event was recorded
+            uint64_t		 fEventID;						//an id for this event. It is just the time the event was recorded
 			double			 fHorpos;						//the fHorpos value for this event
 			channels_t		 fChannels;						//Container for all Channels
 			detectors_t		 fDets;							//Container for all Detektors
