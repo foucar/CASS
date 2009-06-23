@@ -2,6 +2,7 @@
 #define __SignalAnalyzer_h__
 
 #include "SoftTDC.h"
+#include "REMIEvent.h"
 
 namespace cass
 {
@@ -16,9 +17,9 @@ namespace cass
 		public:
 			enum ESignalAnalyzeMethods{kCoM=0, kCfd, kDoNothing};
 			void init(int analyzemethod);
-			void FindPeaksIn(cass::REMI::RemiAnalysisEvent &e)const
+            void findPeaksIn(REMIEvent &remievent)const
 			{
-				fStdc->FindPeaksIn(e);
+                fStdc->FindPeaksIn(remievent);
 			}
 
 		private:

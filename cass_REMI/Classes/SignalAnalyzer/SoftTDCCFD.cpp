@@ -7,7 +7,7 @@
 //________________________________Implematation of Constant Fraction Method______________________________________________________
 //________________this will be a thread that is waiting for Pulses to be added to a queue________________________________________
 template <typename T>
-void cfd(cass::REMI::RemiAnalysisEvent &e)
+void cfd(cass::REMI::REMIEvent &e)
 {
 	//now extract information from the Event//
 	const double horpos			= e.horpos()*1.e9;
@@ -138,14 +138,14 @@ void cfd(cass::REMI::RemiAnalysisEvent &e)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
+void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
 	cfd<char>(e);
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCFD16Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
+void cass::REMI::SoftTDCCFD16Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
 	cfd<short>(e);
 }

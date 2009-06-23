@@ -8,7 +8,7 @@
 
 //______________________Implimentation of simple Version__________________________________________________________
 template <typename T>
-void com(cass::REMI::RemiAnalysisEvent& e)
+void com(cass::REMI::REMIEvent& e)
 {
 	//go through all channels of the event//
 	for (size_t iChan=0;iChan<e.nbrOfChannels();++iChan)
@@ -90,13 +90,13 @@ void com(cass::REMI::RemiAnalysisEvent& e)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCoM8Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
+void cass::REMI::SoftTDCCoM8Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
 	com<char>(e);
 }
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::SoftTDCCoM16Bit::FindPeaksIn(cass::REMI::RemiAnalysisEvent& e)
+void cass::REMI::SoftTDCCoM16Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
 	com<short>(e);
 }

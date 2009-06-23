@@ -14,11 +14,10 @@
 #include "SignalAnalyzer.h"
 #include "DetektorHitSorter.h"
 #include "Detector.h"
+#include "REMIEvent.h"
 
 namespace cass 
 {
-	class Event;
-
 	namespace REMI 
 	{
 
@@ -46,6 +45,7 @@ namespace cass
 			bool			fIsHex;				//flag that tells 
 			std::string		fName;				//a name for this detector (ie. Electrondetector, Iondetector)
 		};
+        typedef std::vector<DetectorParameter> detparameters_t;
 
 		class ChannelParameter
 		{
@@ -59,37 +59,19 @@ namespace cass
 			double			fFraction;			//the fraction of the cfd
 			double			fWalk;				//the walk of the cfd
 		};
-
-		typedef std::vector<DetectorParameter> detparameters_t;
 		typedef std::vector<ChannelParameter> chanparameters_t;
 
 		class Parameter : cass::BackendParameter 
 		{
 		public:
-			size_t nbrOfDetectors()const	{return fDetPara.size();}
+            size_t nbrOfDetectors()const	{return fDetectorParameters.size();}
 			//a dictionary of all user settings
 
 			//The following entries (keys) must be present:
-			detparameters_t	 fDetPara;			//we have the option to have 1 or 2 Detectors
-			chanparameters_t fChanPara;			//settings to extract peaks of the channels
-			int				 fAnaMethod;		//way how peaks are identified
-
-			//The following entries (keys) are used if available:
-			//<none>
-
-			std::map<std::string, double> _settings;
+            detparameters_t	 fDetectorParameters;			//we have the option to have 1 or 2 Detectors
+            chanparameters_t fChannelParameters;			//settings to extract peaks of the channels
+            int				 fPeakfindingMethod;		//way how peaks are identified
 		};
-
-
-
-		/** REMI data container */
-		class RawData 
-		{
-		public:
-			 Pds::Acqiris::ConfigV1&	config;
-			 Pds::Acqiris::DataDescV1&	data;
-		};
-
 
 
 
@@ -109,21 +91,9 @@ namespace cass
 
 			/** initialize AnalysisBackend with new set of parameters */
 			virtual void init(const Parameter& param);
+            //called for every event//
+            virtual void operator()(REMIEvent&);
 
-			/* analyse dataset
-			@param data Raw data to be analysed
-			@return analysed data
-			*/
-			virtual void operator()(const RawData& data, cass::Event &cassevent);
-
-			/* provide analysis histogram
-
-			Return the specified histogram from the last processed event.
-
-			@param type Which histogram do we want
-			@return histogram data
-			*/
-			//Histogram histogram(HistogramType type);
 
 		private:
 			SignalAnalyzer		fSiganalyzer;

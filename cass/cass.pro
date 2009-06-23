@@ -17,6 +17,11 @@ HEADERS += AnalysisBackend.h \
            Event.h \
            Image.h
 
+INCLUDEPATH += ../cass_REMI/Classes/LCLS \
+               ../cass_REMI/Classes/Event \
+               ../cass_REMI/Classes/Event/Channel \
+               ../cass_REMI/Classes/Event/Peak \
+               ../cass_REMI/Classes/Event/Detector
 
 header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs

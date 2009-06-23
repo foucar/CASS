@@ -12,13 +12,13 @@ namespace cass
             class DetektorHitSorterSimple : public DetektorHitSorterQuad
             {
             public:
-                DetektorHitSorterSimple(const cass::REMI::DetectorParameter&);
+                DetektorHitSorterSimple(const DetectorParameter&);
 
             public:
-                void sort(cass::REMI::RemiAnalysisEvent&, cass::REMI::Detector&, cass::Event&);
+                void sort(REMIEvent&, Detector&);
 
             private:
-                void sortForTimesum(cass::REMI::Detector&);
+                void sortForTimesum(Detector&);
             };
 
     }//end namespace remi

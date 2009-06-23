@@ -11,14 +11,14 @@ namespace cass
 		class SoftTDCCFD8Bit : public SoftTDC
 		{
 		public:
-			void FindPeaksIn(cass::REMI::RemiAnalysisEvent&);
+            void FindPeaksIn(REMIEvent&);
 		};
 
 		//this is called in case it is a 10 Bit Instrument
 		class SoftTDCCFD16Bit : public SoftTDC
 		{
 		public:
-			void FindPeaksIn(cass::REMI::RemiAnalysisEvent&);
+            void FindPeaksIn(REMIEvent&);
 		};
 
 	}//end namespace remi

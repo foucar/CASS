@@ -1,86 +1,89 @@
 #ifndef __Peak_H__
 #define __Peak_H__
 
+#include <vector>
+
 namespace cass
 {
-	namespace REMI
-	{
+    namespace REMI
+    {
 
-		class Peak
-		{
-		public:
-			Peak();
+        class Peak
+        {
+        public:
+            Peak();
 
-		public:
-			void   Clear();
-			enum EPolarity{kBad=0,kPositive,kNegative};
+        public:
+            void   Clear();
+            enum EPolarity{kBad=0,kPositive,kNegative};
 
-		public:
-			void   time(double in)				{fTime = in;}
-			double time() const					{return fTime;}
+        public:
+            void   time(double in)				{fTime = in;}
+            double time() const					{return fTime;}
 
-			void   com(double in)				{fCom = in;}
-			double com() const					{return fCom;}
+            void   com(double in)				{fCom = in;}
+            double com() const					{return fCom;}
 
-			void   cfd(double in)				{fCfd = in;}
-			double cfd() const					{return fCfd;}
-			
-			void   integral(double in)			{fIntegral = in;}
-			double integral() const				{return fIntegral;}
+            void   cfd(double in)				{fCfd = in;}
+            double cfd() const					{return fCfd;}
 
-			void   height(double in)			{fHeight = in;}
-			double height() const				{return fHeight;}
-			
-			void   width(double in)				{fWidth = in;}
-			double width() const				{return fWidth;}
+            void   integral(double in)			{fIntegral = in;}
+            double integral() const				{return fIntegral;}
 
-			void   fwhm(double in)				{fFwhm = in;}
-			double fwhm() const					{return fFwhm;}
+            void   height(double in)			{fHeight = in;}
+            double height() const				{return fHeight;}
 
-			void   startpos(long in)			{fStartpos = in;}
-			long   startpos() const				{return fStartpos;}
+            void   width(double in)				{fWidth = in;}
+            double width() const				{return fWidth;}
 
-			void   stoppos(long in)				{fStoppos = in;}
-			long   stoppos() const				{return fStoppos;}
+            void   fwhm(double in)				{fFwhm = in;}
+            double fwhm() const					{return fFwhm;}
 
-			void   maxpos(long in)				{fMaxpos = in;}
-			long   maxpos() const				{return fMaxpos;}
+            void   startpos(long in)			{fStartpos = in;}
+            long   startpos() const				{return fStartpos;}
 
-			void   maximum(double in)			{fMaximum = in;}
-			double maximum() const				{return fMaximum;}
+            void   stoppos(long in)				{fStoppos = in;}
+            long   stoppos() const				{return fStoppos;}
 
-			void   polarity(long in)			{fPolarity = in;}
-			long   polarity() const				{return fPolarity;}
+            void   maxpos(long in)				{fMaxpos = in;}
+            long   maxpos() const				{return fMaxpos;}
 
-			void   isUsed(bool in)				{fUsed = in;}
-			bool   isUsed() const				{return fUsed;}
+            void   maximum(double in)			{fMaximum = in;}
+            double maximum() const				{return fMaximum;}
 
-		private:
-			double fTime;						//the time of the peaks, calculated from either cfd or com
-			double fCfd;						//the time calculated from cfd
-			double fCom;						//the time calculated form com
+            void   polarity(long in)			{fPolarity = in;}
+            long   polarity() const				{return fPolarity;}
 
-			long   fPolarity;					//the polarity of the peak
-			double fSlope;						//the slope of this peak
+            void   isUsed(bool in)				{fUsed = in;}
+            bool   isUsed() const				{return fUsed;}
 
-			long   fMaxpos;						//the position where the maximum of peak is
-			double fMaximum;					//the height in bits
-			double fHeight;						//the height in mV
-			double fHeightAbziehen;				//the height when you use the substraction cfd
+        private:
+            double fTime;						//the time of the peaks, calculated from either cfd or com
+            double fCfd;						//the time calculated from cfd
+            double fCom;						//the time calculated form com
 
-			double fFwhm;						//the fwhm of the peak
-			double fWidth;						//the width at the bottom of the peak
-			double fPosHalfLeft;				//the pos where the left edge crosses the half of the height
-			double fPosHalfRight;				//the pos where the right edge crosses the half of the height
+            long   fPolarity;					//the polarity of the peak
+            double fSlope;						//the slope of this peak
 
-			double fIntegral;					//the integral of the peak
+            long   fMaxpos;						//the position where the maximum of peak is
+            double fMaximum;					//the height in bits
+            double fHeight;						//the height in mV
+            double fHeightAbziehen;				//the height when you use the substraction cfd
 
-			long   fStartpos;					//the start postion of the peak
-			long   fStoppos;					//the stop position of the peak
+            double fFwhm;						//the fwhm of the peak
+            double fWidth;						//the width at the bottom of the peak
+            double fPosHalfLeft;				//the pos where the left edge crosses the half of the height
+            double fPosHalfRight;				//the pos where the right edge crosses the half of the height
 
-			bool   fUsed;						//flag wether this peak has been used in sorting the detektorhits
+            double fIntegral;					//the integral of the peak
 
-		};
-	}//end namespace REMI
+            long   fStartpos;					//the start postion of the peak
+            long   fStoppos;					//the stop position of the peak
+
+            bool   fUsed;						//flag wether this peak has been used in sorting the detektorhits
+
+        };
+        typedef std::vector<Peak> peaks_t;
+    }//end namespace remi
 }//end namespace cass
 #endif

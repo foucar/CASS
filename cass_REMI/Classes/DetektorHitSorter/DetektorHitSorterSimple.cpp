@@ -4,7 +4,7 @@
 #include "DetektorHitSorterSimple.h"
 #include "Detector.h"
 #include "REMIAnalysis.h"
-#include "RemiAnalysisEvent.h"
+#include "REMIEvent.h"
 #include "Channel.h"
 
 
@@ -16,10 +16,10 @@ cass::REMI::DetektorHitSorterSimple::DetektorHitSorterSimple(const cass::REMI::D
 }
 
 //___________________________________________________________________________________________________________________________________________________________
-void cass::REMI::DetektorHitSorterSimple::sort(cass::REMI::RemiAnalysisEvent& e, cass::REMI::Detector& d, cass::Event& output)
+void cass::REMI::DetektorHitSorterSimple::sort(cass::REMI::REMIEvent& e, cass::REMI::Detector& d)
 {
 	d.extractFromChannels(e.channels());
-	FillHistosBeforeShift(d,output);
+    FillHistosBeforeShift(d);
 	sortForTimesum(d);
 }
 

@@ -5,7 +5,7 @@
 #include "DetektorHitSorterSimple.h"
 
 #include "REMIAnalysis.h"
-#include "REMIAnalysisEvent.h"
+#include "REMIEvent.h"
 #include "Detector.h"
 #include "Channel.h"
 
@@ -21,10 +21,10 @@ cass::REMI::DetektorHitSorter::~DetektorHitSorter()
 }
 
 //______________________________________________the sorting_____________________________________________________________________________________________________________
-void cass::REMI::DetektorHitSorter::sort(cass::REMI::RemiAnalysisEvent& e, cass::Event& cassEvent)
+void cass::REMI::DetektorHitSorter::sort(cass::REMI::REMIEvent& e)
 {
 	for (size_t i=0; i<fDhs.size();++i)
-		fDhs[i]->sort(e,e.detector(i),cassEvent);
+        fDhs[i]->sort(e,e.detector(i));
 }
 
 
@@ -37,13 +37,13 @@ void cass::REMI::DetektorHitSorter::init(const cass::REMI::Parameter& param)
 	fDhs.clear();
 
 	//create a sorter for each Detektor
-	for (size_t i=0;i<param.fDetPara.size();++i)
+    for (size_t i=0;i<param.fDetectorParameters.size();++i)
 	{
-		switch (param.fDetPara[i].fSortMethod)
+        switch (param.fDetectorParameters[i].fSortMethod)
 		{
-		case(kSimple):fDhs.push_back(new DetektorHitSorterSimple(param.fDetPara[i])); break;
-		//case(kDoNothing):fDhs.push_back(new DetektorHitSorterDoNothing(param.fDetPara[i]); break;
-		default:std::cerr << "Sorter Method "<<param.fDetPara[i].fSortMethod<<" not available"<<std::endl;break;
+        case(kSimple):fDhs.push_back(new DetektorHitSorterSimple(param.fDetectorParameters[i])); break;
+        //case(kDoNothing):fDhs.push_back(new DetektorHitSorterDoNothing(param.fDetPara[i]); break;
+        default:std::cerr << "Sorter Method "<<param.fDetectorParameters[i].fSortMethod<<" not available"<<std::endl;break;
 		}
 	}
 }

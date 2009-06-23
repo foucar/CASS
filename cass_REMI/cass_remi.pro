@@ -11,10 +11,11 @@ TEMPLATE = lib
 TARGET = cass_remi
 
 SOURCES += REMIAnalysis.cpp \
-           ./Classes/Event/RemiAnalysisEvent.cpp \
+           ./Classes/Event/REMIEvent.cpp \
            ./Classes/Event/Channel/Channel.cpp \
            ./Classes/Event/Peak/Peak.cpp \
            ./Classes/Event/Detector/Detector.cpp \
+           ./Classes/SignalAnalyzer/SignalAnalyzer.cpp \
            ./Classes/SignalAnalyzer/SoftTDCCFD.cpp \
            ./Classes/SignalAnalyzer/SoftTDCCoM.cpp \
            ./Classes/SignalAnalyzer/helperfunctionsForSTDC.cpp\
@@ -26,10 +27,11 @@ SOURCES += REMIAnalysis.cpp \
 
 HEADERS += REMIAnalysis.h \
            cass_remi.h  \
-           ./Classes/Event/RemiAnalysisEvent.h \
+           ./Classes/Event/REMIEvent.h \
            ./Classes/Event/Channel/Channel.h \
            ./Classes/Event/Peak/Peak.h \
            ./Classes/Event/Detector/Detector.h \
+           ./Classes/SignalAnalyzer/SignalAnalyzer.h \
            ./Classes/SignalAnalyzer/SoftTDC.h \
            ./Classes/SignalAnalyzer/SoftTDCCFD.h \
            ./Classes/SignalAnalyzer/SoftTDCCoM.h \

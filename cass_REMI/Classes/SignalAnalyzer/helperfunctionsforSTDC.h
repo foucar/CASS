@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "RemiAnalysisEvent.h"
+#include "REMIEvent.h"
 #include "Channel.h"
 #include "Peak.h"
 
@@ -115,7 +115,7 @@ namespace cass
 
 		//__________________________________________Center of Mass_______________________________________
 		template <typename T>
-		void CoM(const RemiAnalysisEvent &e, const Channel &c, Peak &p)
+        void CoM(const REMIEvent &e, const Channel &c, Peak &p)
 		{
 			//get informations from the event and the channel//
 			const T * Data				= static_cast<const T*>(c.waveform());
@@ -144,7 +144,7 @@ namespace cass
 
 		//______________________________________find start and stop of pulse___________________________________________
 		template <typename T>
-		void startstop(const RemiAnalysisEvent &e, const Channel &c, Peak &p)
+        void startstop(const REMIEvent &e, const Channel &c, Peak &p)
 		{
 			//--this function will find the start and the stop of the peak--//
 			const T * Data			= static_cast<const T*>(c.waveform());
