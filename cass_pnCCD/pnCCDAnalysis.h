@@ -72,6 +72,12 @@ gain and CTI in one value for each  pixel , a factor for a
 cubic non-linearity correction:
 */
     std::vector<pnCCDPulseHeightCal>   pulse_height_calibs;
+/*
+The analysis parameters for a CCD frame, e.g. the photon hit
+detection threshold in units of the noise sigma of each pixel:
+*/
+    double photon_hit_thresh_sigmaunits;
+
 };
 
 
