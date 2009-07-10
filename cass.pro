@@ -13,4 +13,4 @@ QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
 QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
-SUBDIRS = cass cass_pnCCD cass_REMI cass_VMI diode cass_ImageProcessor cass_Database
+SUBDIRS = cass cass_REMI cass_VMI cass_pnCCD diode cass_ImageProcessor cass_Database

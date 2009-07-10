@@ -22,8 +22,8 @@ SOURCES += REMIAnalysis.cpp \
            ./Classes/DetektorHitSorter/DetektorHitSorter.cpp \
            ./Classes/DetektorHitSorter/DetektorHitSorterQuad.cpp \
            ./Classes/DetektorHitSorter/DetektorHitSorterSimple.cpp \
-           ./Classes/LCLS/pdsdata/acqiris/src/ConfigV1.cc \
-           ./Classes/LCLS/pdsdata/acqiris/src/DataDescV1.cc
+           ../LCLS/pdsdata/acqiris/src/ConfigV1.cc \
+           ../LCLS/pdsdata/acqiris/src/DataDescV1.cc
 
 HEADERS += REMIAnalysis.h \
            cass_remi.h  \
@@ -39,8 +39,8 @@ HEADERS += REMIAnalysis.h \
            ./Classes/DetektorHitSorter/DetektorHitSorter.h \
            ./Classes/DetektorHitSorter/DetektorHitSorterQuad.h \
            ./Classes/DetektorHitSorter/DetektorHitSorterSimple.h \
-           ./Classes/LCLS/pdsdata/acqiris/ConfigV1.hh \
-           ./Classes/LCLS/pdsdata/acqiris/DataDescV1.hh
+           ../LCLS/pdsdata/acqiris/ConfigV1.hh \
+           ../LCLS/pdsdata/acqiris/DataDescV1.hh
 
 INCLUDEPATH += ../cass \
                ../LCLS \

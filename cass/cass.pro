@@ -17,7 +17,7 @@ HEADERS += AnalysisBackend.h \
            Event.h \
            Image.h
 
-INCLUDEPATH += ../cass_REMI/Classes/LCLS \
+INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event \
                ../cass_REMI/Classes/Event/Channel \
                ../cass_REMI/Classes/Event/Peak \
