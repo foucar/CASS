@@ -19,7 +19,7 @@ SOURCES += Database.cpp
 HEADERS += Database.h \
            cass_database.h
 
-INCLUDEPATH += ../cass_REMI/Classes/LCLS \
+INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event \
                ../cass_REMI/Classes/Event/Channel \
                ../cass_REMI/Classes/Event/Peak \

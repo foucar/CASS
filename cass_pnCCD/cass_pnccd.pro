@@ -15,10 +15,11 @@ VERSION = 0.0.1
 SOURCES += pnCCDAnalysis.cpp
 
 HEADERS += pnCCDAnalysis.h \
-           cass_pnccd.h
+           cass_pnccd.h \
+           ./Classes/Event/pnCCDEvent.h
 
 
-INCLUDEPATH += ../cass
+INCLUDEPATH += ../cass ./Classes/Event
 
 
 INSTALLBASE    = /usr/local/cass

@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "cass_pnccd.h"
+#include "pnCCDEvent.h"
 #include "AnalysisBackend.h"
 
 #include <QtGui/QImage>
@@ -34,7 +35,7 @@ public:
     pnCCDPulseHeightCal(void);
     ~pnCCDPulseHeightCal();
 private:
-}
+};
 
 /** @class pnCCD backend parameter sets
 
@@ -58,7 +59,7 @@ Get the number of detectors which are described in this
 parameter class:
 */
     int getNumpnCCDPixArrays(void)
-	{ return frame_calibrations.size(); }
+      { return frame_calibrations.size(); };
 /* 
 The results of the dark frame calibration:
 pixel offset maps , pixel noise maps , bad pixel maps
@@ -77,7 +78,6 @@ The analysis parameters for a CCD frame, e.g. the photon hit
 detection threshold in units of the noise sigma of each pixel:
 */
     double photon_hit_thresh_sigmaunits;
-
 };
 
 
@@ -103,7 +103,7 @@ photon hits are extracted if the user wishes to so. In addition, some
 basic parameters are reacorded, e.g. the number of detected events
 in the frame.
 */
-    virtual void operator() (pnCCDEvent& pnccd_data_collection);
+  virtual void operator() (cass::pnCCD::pnCCDEvent& pnccd_data_collection);
 private:
 };
 

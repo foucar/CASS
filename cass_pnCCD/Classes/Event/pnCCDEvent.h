@@ -25,7 +25,7 @@ public:
 	       std::vector<int> max_photons_per_event);
     ~pnCCDEvent();
 private:
-}
+};
 
 
 } // end of scope of namespace pnCCD
