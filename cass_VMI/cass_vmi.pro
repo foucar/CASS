@@ -12,12 +12,18 @@ TARGET = cass_VMI
 gVERSION = 0.0.1
 
 
-INCLUDEPATH += ../cass
+INCLUDEPATH += ../cass \
+               ../LCLS \
+               ./Classes/Event \
 
-SOURCES += VMIAnalysis.cpp
+SOURCES += VMIAnalysis.cpp \
+           ./Classes/Event/VMIEvent.cpp \
+
 
 HEADERS += VMIAnalysis.h \
-           cass_vmi.h
+           cass_vmi.h \
+           ./Classes/Event/VMIEvent.h
+
 
 
 INSTALLBASE    = /usr/local/cass

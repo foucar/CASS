@@ -57,7 +57,7 @@ Constructor: assign the parameters with safe default values:
 Get the number of detectors which are described in this
 parameter class:
 */
-    in getNumpnCCDPixArrays(void)
+    int getNumpnCCDPixArrays(void)
 	{ return frame_calibrations.size(); }
 /* 
 The results of the dark frame calibration:

@@ -43,7 +43,7 @@ HEADERS += REMIAnalysis.h \
            ./Classes/LCLS/pdsdata/acqiris/DataDescV1.hh
 
 INCLUDEPATH += ../cass \
-               ./Classes/LCLS \
+               ../LCLS \
                ./Classes/SignalAnalyzer \
                ./Classes/DetektorHitSorter \
                ./Classes/Event \
