@@ -13,6 +13,9 @@ void cass::REMI::Analysis::init(const cass::REMI::Parameter& param)
 
 void cass::REMI::Analysis::operator()(cass::REMI::REMIEvent& remievent)
 {
+    //copy the parameters to the event//
+    remievent.CopyParameters(fParam);
+
 	//find the peaks in the signals of all channels//
     fSiganalyzer.findPeaksIn(remievent);
 

@@ -19,7 +19,8 @@ namespace cass
         class REMIEvent
         {
         public:
-            REMIEvent(Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&, const Parameter&);
+            REMIEvent(Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&);
+            void             CopyParameters(const Parameter&);
 
         public:
             size_t			 nbrOfChannels()const			{return fChannels.size();}
@@ -33,7 +34,6 @@ namespace cass
             const Detector	&detector(long idx)const		{return fDets[idx];}
 
         public:
-            uint64_t		 eventID()const					{return fEventID;}
             double			 horpos()const					{return fHorpos;}
             short			 nbrBytes()const				{return fNbrBytes;}
             double			 sampleInterval()const			{return fSampleInterval;}

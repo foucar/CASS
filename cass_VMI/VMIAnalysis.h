@@ -7,3 +7,43 @@
  *
  */
 
+#ifndef VMIANALYSIS_H
+#define VMIANALYSIS_H
+
+#include "cass_vmi.h"
+#include "AnalysisBackend.h"
+#include "VMIEvent.h"
+
+namespace cass
+{
+    namespace VMI
+    {
+        class Parameter : cass::BackendParameter
+        {
+        public:
+            uint16_t _threshold;
+            uint32_t _xCenterOfMcp;
+            uint32_t _yCenterOfMcp;
+            uint32_t _maxMcpRadius;
+        };
+
+
+        class CASS_VMISHARED_EXPORT Analysis : cass::AnalysisBackend
+        {
+        public:
+            Analysis(const Parameter &param) {init(param);}
+            virtual void init(const Parameter &param);
+
+            //called for every event//
+            virtual void operator()(VMIEvent&);
+
+        private:
+            uint16_t _threshold;
+            uint32_t _xCenterOfMcp;
+            uint32_t _yCenterOfMcp;
+            uint32_t _maxMcpRadius;
+        };
+    }//end namespace vmi
+}//end namespace cass
+
+#endif
