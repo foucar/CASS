@@ -1,1 +1,10 @@
-If you have used this software in your publication, please cite and / or acknowledge the authors / CAMP collaboration in your publication.
+This software is licensed under the terms of the GNU General Public
+License, version 3 as of 29 June 2007. See the file License.GPLv3 for
+details.
+
+If you use this software for publishable work, please cite and
+acknowledge the authors and the CASS collaboration in your
+publication. The suggested reference is:
+  CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009.
+
+See the file AUTHORS in the software distributions for a list of major contributors.
