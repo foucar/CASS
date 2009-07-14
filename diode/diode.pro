@@ -5,8 +5,10 @@ qt += core gui
 
 FORMS += MainWindow.ui
 HEADERS += diode.h \
+           ImageHandler.h \
            MainWindow.h
 SOURCES += diode.cpp \
+           ImageHandler.cpp \
            MainWindow.cpp
 
 TARGET = diode

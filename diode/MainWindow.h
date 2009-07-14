@@ -13,6 +13,11 @@ QT_FORWARD_DECLARE_CLASS(QMenu)
 QT_FORWARD_DECLARE_CLASS(QSignalMapper)
 
 
+/** @class Diode MainWindow
+
+@author Jochen Küpper
+@version 0.1
+*/
 class MainWindow : public QMainWindow, private Ui::MainWindow
 {
     Q_OBJECT
