@@ -10,12 +10,21 @@ DEFINES += CASS_LIBRARY
 
 VERSION = 0.0.1
 
-SOURCES += AnalysisBackend.cpp
+SOURCES += AnalysisBackend.cpp \
+           Analyzer.cpp \
+           EventQueue.cpp \
+           FormatConverter.cpp \
+           RootTree.cpp \
+           cass.cpp
 
 HEADERS += AnalysisBackend.h \
-           cass.h \
+           Analyzer.h \
            Event.h \
-           Image.h
+           EventQueue.h \
+           FormatConverter.h \
+           Image.h \
+           RootTree.h \
+           cass.h
 
 INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event \
