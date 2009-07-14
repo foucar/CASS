@@ -8,14 +8,11 @@
 
 namespace cass {
 
-enum MachineDataFormat {LCLS};
-
 /** @class EventQueue
 
 @author Jochen Küpper
 @version 0.1
 */
-template <class TYPE>
 class CASSSHARED_EXPORT EventQueue : public QObject {
     Q_OBJECT;
 public:
