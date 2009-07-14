@@ -8,7 +8,7 @@
 #include "FormatConverter.h"
 #include "RootTree.h"
 
-namespace cass {
+using namespace cass;
 
 int main(int argc, char **argv)
 {
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv, false);
 
     // create event queue object
-    EventQueue<MachineDataFormat> input;
+    EventQueue input;
     // create format converter object
     FormatConverter conversion;
     // create analysis object
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     // start Qt event loop
     return app.exec();
 }
-}
+
 
 
 

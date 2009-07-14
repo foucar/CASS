@@ -2,7 +2,7 @@
 
 CONFIG += static 
 
-TEMPLATE = lib
+TEMPLATE = app lib
 
 TARGET = cass
 
@@ -32,9 +32,11 @@ INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event/Peak \
                ../cass_REMI/Classes/Event/Detector
 
+bin.path       = $$INSTALLBASE/bin
 header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
+bin.files      = cass
 header.files   = $$HEADERS
 libs.files     = libcass.a
-INSTALLS      += header libs
+INSTALLS      += header libs bin
