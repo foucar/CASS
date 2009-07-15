@@ -12,6 +12,7 @@ namespace cass
         class Coordinate
         {
         public:
+            Coordinate(uint16_t X, uint16_t Y):x(X),y(Y){}
             uint16_t x;
             uint16_t y;
         };
@@ -24,9 +25,12 @@ namespace cass
             uint32_t    integral()const              {return _integral;}
             void        maxPixelValue(uint16_t in)   {_maxPixelValue=in;}
             uint32_t    maxPixelValue()const         {return _maxPixelValue;}
-            const std::vector<uint16_t>& frame()const{return _frame;}
             uint32_t    columns()const               {return _columns;}
             uint32_t    rows()const                  {return _rows;}
+
+            const std::vector<uint16_t>& frame()const               {return _frame;}
+            std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
+            std::vector<uint16_t>&       cutFrame()                 {return _cutframe;}
 
 		private:
             //data comming from machine//

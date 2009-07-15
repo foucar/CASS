@@ -22,9 +22,9 @@ namespace cass
         {
         public:
             uint16_t _threshold;
-            uint32_t _xCenterOfMcp;
-            uint32_t _yCenterOfMcp;
-            uint32_t _maxMcpRadius;
+            uint16_t _xCenterOfMcp;
+            uint16_t _yCenterOfMcp;
+            uint16_t _maxMcpRadius;
         };
 
 
@@ -39,9 +39,9 @@ namespace cass
 
         private:
             uint16_t _threshold;
-            uint32_t _xCenterOfMcp;
-            uint32_t _yCenterOfMcp;
-            uint32_t _maxMcpRadius;
+            uint16_t _xCenterOfMcp;
+            uint16_t _yCenterOfMcp;
+            uint16_t _maxMcpRadius;
         };
     }//end namespace vmi
 }//end namespace cass
