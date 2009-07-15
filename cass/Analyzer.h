@@ -12,6 +12,8 @@ namespace cass {
 
 @author Jochen Küpper
 @version 0.1
+
+@todo Make Singleton
 */
 class CASSSHARED_EXPORT Analyzer : public QObject {
     Q_OBJECT;
