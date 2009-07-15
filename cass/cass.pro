@@ -19,6 +19,7 @@ SOURCES += AnalysisBackend.cpp \
 
 HEADERS += AnalysisBackend.h \
            Analyzer.h \
+           ConversionBackend.h \
            Event.h \
            EventQueue.h \
            FormatConverter.h \
