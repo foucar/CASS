@@ -4,8 +4,9 @@
 #include "Channel.h"
 
 //______________________________________________________________________________________________________________________
-cass::REMI::REMIEvent::REMIEvent(Pds::Acqiris::ConfigV1& config, Pds::Acqiris::DataDescV1& ddesc)
+void cass::REMI::REMIEvent::CreateEventFromLCLSData(Pds::Acqiris::ConfigV1& config, Pds::Acqiris::DataDescV1& ddesc)
 {
+    fIsFilled             = true;
     fHorpos				= 0;//ddesc.timestamp(0).horpos();				//horpos from acqiris
 	fNbrBytes			= 2;
     fSampleInterval		= config.horiz().sampInterval();

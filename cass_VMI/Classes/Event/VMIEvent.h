@@ -20,6 +20,10 @@ namespace cass
         {
         public:
            // VMIEvent(Pds::Camera::FrameV1 &frame);	//frame from LCLS
+            VMIEvent():_isFilled(false)              {}
+
+            bool&       isFilled()                   {return _isFilled;}
+            bool        isFilled()const              {return _isFilled;}
 
             uint32_t&   integral()                   {return _integral;}
             uint32_t    integral()const              {return _integral;}
@@ -29,13 +33,18 @@ namespace cass
             uint16_t    columns()const               {return _columns;}
             uint16_t&   rows()                       {return _rows;}
             uint16_t    rows()const                  {return _rows;}
+            uint16_t&   bitsPerPixel()               {return _bitsPerPixel;}
+            uint16_t    bitsPerPixel()const          {return _bitsPerPixel;}
+            uint32_t&   offset()                     {return _offset;}
+            uint32_t    offset()const                {return _offset;}
 
             const std::vector<uint16_t>& frame()const               {return _frame;}
             std::vector<uint16_t>&       frame()                    {return _frame;}
-            std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
             std::vector<uint16_t>&       cutFrame()                 {return _cutframe;}
+            std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
 
 		private:
+            bool                    _isFilled;
             //data comming from machine//
             std::vector<uint16_t>   _frame;		//the ccd frame
             uint16_t                _columns;
@@ -43,7 +52,7 @@ namespace cass
             uint16_t                _bitsPerPixel;
             uint32_t                _offset;
 
-            //data that get calculated in Analysis//
+            //data that gets calculated in Analysis//
             uint32_t                _integral;
             uint16_t                _maxPixelValue;
             std::vector<Coordinate> _coordinatesOfImpact;

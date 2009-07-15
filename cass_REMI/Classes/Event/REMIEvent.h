@@ -19,7 +19,8 @@ namespace cass
         class REMIEvent
         {
         public:
-            REMIEvent(Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&);
+            REMIEvent():fIsFilled(false)                    {}
+            void             CreateEventFromLCLSData(Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&);
             void             CopyParameters(const Parameter&);
 
         public:
@@ -45,7 +46,7 @@ namespace cass
             short			 nbrConvPerChan()const			{return fNbrConPerCh;}
 
         private:
-            uint64_t		 fEventID;						//an id for this event. It is just the time the event was recorded
+            bool             fIsFilled;                     //flag to tell whether the event has been filled
             double			 fHorpos;						//the fHorpos value for this event
             channels_t		 fChannels;						//Container for all Channels
             detectors_t		 fDets;							//Container for all Detektors

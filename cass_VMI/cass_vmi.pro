@@ -17,11 +17,13 @@ INCLUDEPATH += ../cass \
                ./Classes/Event \
 
 SOURCES += VMIAnalysis.cpp \
+           VMIConverter.cpp \
            ./Classes/Event/VMIEvent.cpp \
            ../LCLS/pdsdata/camera/src/FrameV1.cc
 
 
 HEADERS += VMIAnalysis.h \
+           VMIConverter.h \
            cass_vmi.h \
            ./Classes/Event/VMIEvent.h \
            ../LCLS/pdsdata/camera/FrameV1.hh

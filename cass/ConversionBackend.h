@@ -4,6 +4,7 @@
 #define CASS_CONVERSIONBACKEND_H
 
 #include "cass.h"
+#include "VMIEvent.h"
 
 
 namespace cass {
@@ -22,7 +23,7 @@ public:
     @param data LCLS data
     @param event CASS event object to fill in data
     */
-    virtual void operator()(const void *data, VMIEvent& event) = 0;
+    virtual void operator()(const void *data, cass::VMI::VMIEvent& event) = 0;
 };
 }
 

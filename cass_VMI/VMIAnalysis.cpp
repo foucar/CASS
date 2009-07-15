@@ -73,6 +73,6 @@ void cass::VMI::Analysis::operator()(cass::VMI::VMIEvent &vmievent)
             maxpixelvalue = pixel;
     }
     //write the found integral and maximum Pixel value to the event//
-    vmievent.integral(integral);
-    vmievent.maxPixelValue(maxpixelvalue);
+    vmievent.integral()     = integral;
+    vmievent.maxPixelValue()= maxpixelvalue;
 }
