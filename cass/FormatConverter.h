@@ -3,6 +3,8 @@
 #ifndef CASS_FORMATCONVERTER_H
 #define CASS_FORMATCONVERTER_H
 
+#include <map>
+#include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
 
@@ -10,17 +12,50 @@ namespace cass {
 
 /** @class Format converter container
 
-@author Jochen Küpper
-@version 0.1
+Only one FormatConvert object must exist, therefore this is implemented as a singleton.
 
-@todo Make Singleton
+@author Jochen Küpper
+@version 0.2
 */
 class CASSSHARED_EXPORT FormatConverter : public QObject {
     Q_OBJECT;
+
 public:
 
+    /** list of known individual format converters */
+    enum Converters {pnCCD, REMI, Pulnix, GMD, YAGPOWER};
+
+    /** Destroy the single FormatConverter instance */
+    static void destroy();
+
+    /** Return a pointer to the single FormatConverter instance */
+    static FormatConverter *instance();
+
+
+protected:
+
+    /** Constructor */
+    FormatConverter();
+
+    /** Destructor */
+    ~FormatConverter();
+
+
+
+    /** Available format converters
+
+    Adjust type for superclass of Format converters (FormatBackend)
+    */
+    std::map<Converters, FormatConverter *> _converter;
+
+    /** pointer to the single instance */
+    static FormatConverter *_instance;
+
+    /** @brief Singleton operation locker in a multi-threaded environment. */
+    static QMutex _mutex;
 };
 }
+
 
 #endif
 

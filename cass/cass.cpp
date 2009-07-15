@@ -16,21 +16,30 @@ int main(int argc, char **argv)
     QApplication app(argc, argv, false);
 
     // create event queue object
-    EventQueue input;
+    EventQueue *input(new EventQueue);
     // create format converter object
-    FormatConverter conversion;
+    FormatConverter *conversion(FormatConverter::instance());
     // create analysis object
-    Analyzer analysis;
+    Analyzer *analysis(new Analyzer);
     // create database object
-    RootTree database;
+    RootTree *database(new RootTree);
 
     // connect the objects
-    QObject::connect (&input, SIGNAL(nextEvent(Event&)), &conversion, SLOT(nextEvent(Event&)));
-    QObject::connect (&conversion, SIGNAL(nextEvent(Event&)), &analysis, SLOT(nextEvent(Event&)));
-    QObject::connect (&analysis, SIGNAL(nextEvent(Event&)), &database, SLOT(nextEvent(Event&)));
+    QObject::connect (input, SIGNAL(nextEvent(Event&)), conversion, SLOT(nextEvent(Event&)));
+    QObject::connect (conversion, SIGNAL(nextEvent(Event&)), analysis, SLOT(nextEvent(Event&)));
+    QObject::connect (analysis, SIGNAL(nextEvent(Event&)), database, SLOT(nextEvent(Event&)));
 
     // start Qt event loop
-    return app.exec();
+    int retval(app.exec());
+
+    // clean up
+    delete database;
+    delete analysis;
+    delete input;
+    FormatConverter::destroy();
+
+    // finish
+    return retval;
 }
 
 
