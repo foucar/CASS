@@ -19,25 +19,28 @@ namespace cass
         class VMIEvent
         {
         public:
-            VMIEvent(Pds::Camera::FrameV1 &frame);	//frame from LCLS
+           // VMIEvent(Pds::Camera::FrameV1 &frame);	//frame from LCLS
 
-            void        integral(uint32_t in)        {_integral=in;}
+            uint32_t&   integral()                   {return _integral;}
             uint32_t    integral()const              {return _integral;}
-            void        maxPixelValue(uint16_t in)   {_maxPixelValue=in;}
-            uint32_t    maxPixelValue()const         {return _maxPixelValue;}
-            uint32_t    columns()const               {return _columns;}
-            uint32_t    rows()const                  {return _rows;}
+            uint16_t&   maxPixelValue()              {return _maxPixelValue;}
+            uint16_t    maxPixelValue()const         {return _maxPixelValue;}
+            uint16_t&   columns()                    {return _columns;}
+            uint16_t    columns()const               {return _columns;}
+            uint16_t&   rows()                       {return _rows;}
+            uint16_t    rows()const                  {return _rows;}
 
             const std::vector<uint16_t>& frame()const               {return _frame;}
+            std::vector<uint16_t>&       frame()                    {return _frame;}
             std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
             std::vector<uint16_t>&       cutFrame()                 {return _cutframe;}
 
 		private:
             //data comming from machine//
             std::vector<uint16_t>   _frame;		//the ccd frame
-			uint32_t                _columns;
-            uint32_t                _rows;
-            uint32_t                _bitsPerPixel;
+            uint16_t                _columns;
+            uint16_t                _rows;
+            uint16_t                _bitsPerPixel;
             uint32_t                _offset;
 
             //data that get calculated in Analysis//
