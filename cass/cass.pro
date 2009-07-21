@@ -2,7 +2,7 @@
 
 CONFIG += static 
 
-TEMPLATE = app lib
+TEMPLATE = lib
 
 TARGET = cass
 
