@@ -31,7 +31,8 @@ INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event \
                ../cass_REMI/Classes/Event/Channel \
                ../cass_REMI/Classes/Event/Peak \
-               ../cass_REMI/Classes/Event/Detector
+               ../cass_REMI/Classes/Event/Detector \
+               ../cass_VMI/Classes/Event \
 
 bin.path       = $$INSTALLBASE/bin
 header.path    = $$INSTALLBASE/include

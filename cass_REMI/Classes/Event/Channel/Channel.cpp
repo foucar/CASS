@@ -3,17 +3,17 @@
 #include "REMIAnalysis.h"
 
 //______________________________________________________________________________________________________________________
-cass::REMI::Channel::Channel(int chNbr, Pds::Acqiris::ConfigV1& config, Pds::Acqiris::DataDescV1& ddesc):
+cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config, const Pds::Acqiris::DataDescV1& ddesc):
 	fChNbr(chNbr)
 {
 	fFullscale		 = config.vert(fChNbr).fullScale();
 	fOffset			 = config.vert(fChNbr).offset();
 	fGain			 = config.vert(fChNbr).slope();
-	//fIdxToFirstPoint = config.horiz().indexFirstPoint();
+        //fIdxToFirstPoint = config.horiz().indexFirstPoint();
 	fDataLength		 = config.horiz().nbrSamples();
 	
 	//extract waveform//
-	const short* waveform = ddesc.waveform(config.horiz());
+        const short* waveform = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).waveform(config.horiz());
 	waveform += fIdxToFirstPoint;
 
 	//we have to invert the byte order for some reason that still has to be determined//

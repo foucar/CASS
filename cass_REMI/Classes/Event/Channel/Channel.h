@@ -16,7 +16,7 @@ namespace cass
         class Channel
         {
         public:
-            Channel(int chNbr, Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&);
+            Channel(int chNbr, const Pds::Acqiris::ConfigV1&, const Pds::Acqiris::DataDescV1&);
             void CopyChannelParameters(const cass::REMI::ChannelParameter&);
 
         public:

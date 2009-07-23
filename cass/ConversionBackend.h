@@ -4,7 +4,8 @@
 #define CASS_CONVERSIONBACKEND_H
 
 #include "cass.h"
-#include "VMIEvent.h"
+//#include "VMIEvent.h"
+//#include "REMIEvent.h"
 
 
 namespace cass {
@@ -14,6 +15,15 @@ namespace cass {
 @author Jochen Küpper
 @version 0.1
 */
+namespace VMI
+{
+    class VMIEvent;
+}
+namespace REMI
+{
+    class REMIEvent;
+}
+
 class CASSSHARED_EXPORT ConversionBackend {
 public:
     virtual ~ConversionBackend() = 0;
@@ -23,7 +33,8 @@ public:
     @param data LCLS data
     @param event CASS event object to fill in data
     */
-    virtual void operator()(const void *data, cass::VMI::VMIEvent& event) = 0;
+    virtual void operator()(const void *data, cass::VMI::VMIEvent&) = 0;
+    virtual void operator()(const void *data, cass::REMI::REMIEvent&) = 0;
 };
 }
 

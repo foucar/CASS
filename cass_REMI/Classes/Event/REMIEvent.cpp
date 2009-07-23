@@ -4,7 +4,7 @@
 #include "Channel.h"
 
 //______________________________________________________________________________________________________________________
-void cass::REMI::REMIEvent::CreateEventFromLCLSData(Pds::Acqiris::ConfigV1& config, Pds::Acqiris::DataDescV1& ddesc)
+void cass::REMI::REMIEvent::CreateEventFromLCLSData(const Pds::Acqiris::ConfigV1& config, const Pds::Acqiris::DataDescV1& ddesc)
 {
     fIsFilled             = true;
     fHorpos				= 0;//ddesc.timestamp(0).horpos();				//horpos from acqiris
@@ -18,7 +18,7 @@ void cass::REMI::REMIEvent::CreateEventFromLCLSData(Pds::Acqiris::ConfigV1& conf
 	fChanCombUsedChans	= config.channelMask();
 	fNbrConPerCh		= config.nbrConvertersPerChannel();
 
-	Pds::Acqiris::DataDescV1 * dd = &ddesc;
+        Pds::Acqiris::DataDescV1 * dd = const_cast<Pds::Acqiris::DataDescV1*>(&ddesc);
 
 	//create the channels//
 	for (size_t i=0;i<config.nbrChannels();++i)

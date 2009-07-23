@@ -11,6 +11,7 @@ TEMPLATE = lib
 TARGET = cass_remi
 
 SOURCES += REMIAnalysis.cpp \
+           REMIConverter.cpp \
            ./Classes/Event/REMIEvent.cpp \
            ./Classes/Event/Channel/Channel.cpp \
            ./Classes/Event/Peak/Peak.cpp \
@@ -26,6 +27,7 @@ SOURCES += REMIAnalysis.cpp \
            ../LCLS/pdsdata/acqiris/src/DataDescV1.cc
 
 HEADERS += REMIAnalysis.h \
+           REMIConverter.h \
            cass_remi.h  \
            ./Classes/Event/REMIEvent.h \
            ./Classes/Event/Channel/Channel.h \
@@ -49,7 +51,8 @@ INCLUDEPATH += ../cass \
                ./Classes/Event \
                ./Classes/Event/Channel \
                ./Classes/Event/Peak \
-               ./Classes/Event/Detector
+               ./Classes/Event/Detector \
+               ./
 
 INSTALLBASE     = /usr/local/cass
 header.path     = $$INSTALLBASE/include

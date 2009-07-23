@@ -20,7 +20,7 @@ namespace cass
         {
         public:
             REMIEvent():fIsFilled(false)                    {}
-            void             CreateEventFromLCLSData(Pds::Acqiris::ConfigV1&, Pds::Acqiris::DataDescV1&);
+            void             CreateEventFromLCLSData(const Pds::Acqiris::ConfigV1&, const Pds::Acqiris::DataDescV1&);
             void             CopyParameters(const Parameter&);
 
         public:

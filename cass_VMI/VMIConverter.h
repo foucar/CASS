@@ -2,7 +2,7 @@
 #define VMICONVERTER_H
 
 #include "cass_vmi.h"
-//#include "VMIEvent.h"
+#include "VMIEvent.h"
 #include "ConversionBackend.h"
 
 namespace cass
