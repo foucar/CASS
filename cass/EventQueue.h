@@ -9,7 +9,7 @@
 namespace cass {
 
 /** @class EventQueue
-
+ 
 @author Jochen Küpper
 @version 0.1
 
