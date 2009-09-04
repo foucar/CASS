@@ -1,7 +1,7 @@
 #ifndef VMICONVERTER_H
 #define VMICONVERTER_H
 
-#include "cass_vmi.h"
+#include "cass_VMI.h"
 #include "VMIEvent.h"
 #include "ConversionBackend.h"
 

@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cass_pnccd.h"
+#include "cass_pnCCD.h"
 #include "pnCCDEvent.h"
 #include "AnalysisBackend.h"
 

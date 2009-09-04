@@ -13,4 +13,8 @@ QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
 QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
+#HEADERS += TMyQButton.h
+#CREATE_ROOT_DICT_FOR_CLASSES = $$HEADERS LinkDef.h
+include("$(ROOTSYS)/include/rootcint.pri")
+
 SUBDIRS = cass cass_REMI cass_VMI cass_pnCCD diode cass_ImageProcessor cass_Database

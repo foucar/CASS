@@ -1,6 +1,6 @@
 // Copytight (C) 2009 Jochen Küpper
 
-#include "analysisbackend.h"
+#include "AnalysisBackend.h"
 
 // some tests for compilation
 #include "Event.h"

@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cass_remi.h"
+#include "cass_REMI.h"
 #include "AnalysisBackend.h"
 #include "pdsdata/acqiris/ConfigV1.hh"
 #include "pdsdata/acqiris/DataDescV1.hh"

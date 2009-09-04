@@ -10,7 +10,7 @@
 #ifndef VMIANALYSIS_H
 #define VMIANALYSIS_H
 
-#include "cass_vmi.h"
+#include "cass_VMI.h"
 #include "AnalysisBackend.h"
 #include "VMIEvent.h"
 
