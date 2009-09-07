@@ -3,39 +3,45 @@
 #include "REMIAnalysis.h"
 
 //______________________________________________________________________________________________________________________
-cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config, const Pds::Acqiris::DataDescV1& ddesc):
-	fChNbr(chNbr)
+cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
+    fChNbr(chNbr)
 {
-	fFullscale		 = config.vert(fChNbr).fullScale();
-	fOffset			 = config.vert(fChNbr).offset();
-	fGain			 = config.vert(fChNbr).slope();
-        //fIdxToFirstPoint = config.horiz().indexFirstPoint();
-	fDataLength		 = config.horiz().nbrSamples();
-	
-	//extract waveform//
-        const short* waveform = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).waveform(config.horiz());
-	waveform += fIdxToFirstPoint;
+    fFullscale  = config.vert(fChNbr).fullScale();
+    fOffset     = config.vert(fChNbr).offset();
+    fGain       = config.vert(fChNbr).slope();
+    fDataLength = config.horiz().nbrSamples();
 
-	//we have to invert the byte order for some reason that still has to be determined//
-	for (size_t i=0;i<fDataLength;++i)
-		fWaveform[i] = (waveform[i]&0xff<<8) | (waveform[i]&0xff00>>8);
+ }
+
+//______________________________________________________________________________________________________________________
+void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
+{
+    fIdxToFirstPoint = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).indexFirstPoint();
+
+    //extract waveform//
+    const short* waveform = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).waveform();
+    waveform += fIdxToFirstPoint;
+
+    //we have to invert the byte order for some reason that still has to be determined//
+    for (size_t i=0;i<fDataLength;++i)
+        fWaveform[i] = (waveform[i]&0xff<<8) | (waveform[i]&0xff00>>8);
 }
 
 //______________________________________________________________________________________________________________________
 void cass::REMI::Channel::CopyChannelParameters(const cass::REMI::ChannelParameter& param)
 {
-    fThreshold		 = param.fThreshold;
-    fStsi			 = param.fStepsize;
-    fBs				 = param.fBacksize;
-    fDelay			 = param.fDelay;
-    fWalk			 = param.fWalk;
-    fFraction		 = param.fFraction;
+    fThreshold  = param.fThreshold;
+    fStsi       = param.fStepsize;
+    fBs         = param.fBacksize;
+    fDelay      = param.fDelay;
+    fWalk       = param.fWalk;
+    fFraction   = param.fFraction;
 }
 
 //______________________________________________________________________________________________________________________
 cass::REMI::Peak& cass::REMI::Channel::addPeak()
 {
-	//add a peak to the container
-	fPeaks.push_back(Peak());
-	return fPeaks.back();
+    //add a peak to the container
+    fPeaks.push_back(Peak());
+    return fPeaks.back();
 }
