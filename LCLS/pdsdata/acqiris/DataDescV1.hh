@@ -56,8 +56,10 @@ namespace Pds {
       uint32_t nbrSegments() const;
       TimestampV1& timestamp(uint32_t seg);
       int16_t* waveform(const HorizV1& hconfig);
+      const int16_t* waveform()const;
       uint32_t indexFirstPoint();
       DataDescV1* nextChannel(const HorizV1& hconfig);
+      DataDescV1* nextChannel();
 
       static uint32_t timestampSize(const HorizV1& hconfig);
       static uint32_t waveformSize(const HorizV1& hconfig);
@@ -69,7 +71,7 @@ namespace Pds {
       // extra space required by Acqiris DMA engine.  may need
       // to change if readmode changes.
       static const uint32_t _extra=32*sizeof(short);
-      TimestampV1* _timestamp();
+      TimestampV1* _timestamp()const;
 
       // this is a copy of AqDataDescriptor in AcqirisDataTypes.h
       // to break dependencies with acqiris software.

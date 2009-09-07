@@ -36,6 +36,10 @@ int16_t* DataDescV1::waveform(const HorizV1& hconfig) {
   return (int16_t*)(&(_timestamp()[hconfig.nbrSegments()]));
 }
 
+const int16_t* DataDescV1::waveform()const {
+  return (int16_t*)(&(_timestamp()[_returnedSegments]));
+}
+
 uint32_t DataDescV1::indexFirstPoint() {
   return _indexFirstPoint;
 }
@@ -53,6 +57,10 @@ DataDescV1* DataDescV1::nextChannel(const HorizV1& hconfig) {
   return (DataDescV1*)((char*)(waveform(hconfig))+DataDescV1::waveformSize(hconfig));
 }
 
-TimestampV1* DataDescV1::_timestamp() {
+DataDescV1* DataDescV1::nextChannel() {
+  return (DataDescV1*)((char*)(waveform())+_returnedSamplesPerSeg*_returnedSegments*sizeof(short)+_extra);
+}
+
+TimestampV1* DataDescV1::_timestamp()const {
   return (TimestampV1*)(this+1);
 }
