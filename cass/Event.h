@@ -25,7 +25,7 @@ namespace cass {
         //This is a montonically increasing series of positive integer values
         uint64_t _id;
 
-        //an event conists of the detectorevents and mashinedataevent//
+        //an event conists of the detectorevents and machinedataevent//
         cass::REMI::REMIEvent _remievent;
 //        PNCCDEvent pnccdevent;
 //        VMIEvent vmievent;
