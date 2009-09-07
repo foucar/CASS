@@ -39,7 +39,7 @@ void XtcMonitorClient::processDgram(Dgram* dg) {
        dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload());
 }
 
-int XtcMonitorClient::run(char * tag) {
+int XtcMonitorClient::runMonitor(char * tag) {
   int error = 0;
   unsigned sizeOfShm = 0;
   char toServerQname[128] = "/PdsFromMonitorMsgQueue_";
