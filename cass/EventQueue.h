@@ -21,8 +21,8 @@ namespace cass
         void run();
         void processDgram(Pds::Dgram*);
 
-        Pds::Dgram* Datagram(uint32_t index)    {return reinterpret_cast<Pds::Dgram*>(_ringbufferindizes[index]+1);}
-        void doneWithDatagram(uint32_t index);
+        Pds::Dgram* Datagram(uint32_t index)    {_ringbufferindizes[index][0]=1;return reinterpret_cast<Pds::Dgram*>(_ringbufferindizes[index]+1);}
+        void doneWithDatagram(uint32_t index)   {_ringbufferindizes[index][0]=0;}
 
     signals:
         void nextEvent(uint32_t index);
