@@ -15,7 +15,8 @@ SOURCES += AnalysisBackend.cpp \
            EventQueue.cpp \
            FormatConverter.cpp \
            RootTree.cpp \
-           cass.cpp
+           cass.cpp \
+           ../LCLS/pdsdata/app/XtcMonitorClient.cc
 
 HEADERS += AnalysisBackend.h \
            Analyzer.h \
@@ -25,7 +26,8 @@ HEADERS += AnalysisBackend.h \
            FormatConverter.h \
            Image.h \
            RootTree.h \
-           cass.h
+           cass.h \
+           ../LCLS/pdsdata/app/XtcMonitorClient.hh
 
 INCLUDEPATH += ../LCLS \
                ../cass_REMI/Classes/Event \
