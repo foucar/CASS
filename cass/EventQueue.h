@@ -5,6 +5,7 @@
 
 #include <QtCore/QObject>
 #include <QThread>
+#include <QMutex>
 
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
@@ -17,12 +18,13 @@ namespace cass
         Q_OBJECT;
     public:
         EventQueue(QObject *parent=0);
+        ~EventQueue();
 
         void run();
         void processDgram(Pds::Dgram*);
 
-        Pds::Dgram* Datagram(uint32_t index)    {_ringbufferindizes[index][0]=1;return reinterpret_cast<Pds::Dgram*>(_ringbufferindizes[index]+1);}
-        void doneWithDatagram(uint32_t index)   {_ringbufferindizes[index][0]=0;}
+        Pds::Dgram* GetAndLockDatagram(uint32_t index);
+        void UnlockDatagram(uint32_t index);
 
     signals:
         void nextEvent(uint32_t index);
@@ -30,6 +32,7 @@ namespace cass
     private:
         char       *_ringbuffer;
         char       *_ringbufferindizes[4];
+        QMutex      _mutexes[4];
         uint32_t    _index;
     };
 
