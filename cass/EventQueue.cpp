@@ -46,6 +46,9 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
     uint32_t sizeofPayload = datagram->xtc.sizeofPayload();
     memcpy(rb+sizeof(Pds::Dgram),datagram+1,sizeofPayload);
 
+    //unlock the lock that one can access the new datagram//
+    _mutexes[_index].unlock();
+
     //advance the index such that next time this is called it will check the next index first//
     ++_index;
 
