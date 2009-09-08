@@ -63,6 +63,7 @@ Pds::Dgram * cass::EventQueue::GetAndLockDatagram(uint32_t index)
 
 void cass::EventQueue::UnlockDatagram(uint32_t index)
 {
+    //check whether Mutex is already locked, if so unlock it//
     if(_mutexes[index].tryLock())
         _mutexes[index].unlock();
 }
