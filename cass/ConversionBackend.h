@@ -4,39 +4,34 @@
 #define CASS_CONVERSIONBACKEND_H
 
 #include "cass.h"
-//#include "VMIEvent.h"
-//#include "REMIEvent.h"
 
+namespace Pds
+{
+    class Xtc;
+}
 
 namespace cass {
 
-/** @class abstract base for all data conversion backends
+    /** @class abstract base for all data conversion backends
 
-@author Jochen Küpper
-@version 0.1
-*/
-namespace VMI
-{
-    class VMIEvent;
-}
-namespace REMI
-{
-    class REMIEvent;
-}
-
-class CASSSHARED_EXPORT ConversionBackend {
-public:
-    virtual ~ConversionBackend() = 0;
-
-    /* Convert LCLS data to internal data format
-
-    @param data LCLS data
-    @param event CASS event object to fill in data
+    @author Jochen Küpper,lmf
+    @version 0.1
     */
-    virtual void operator()(const void *data, cass::VMI::VMIEvent&) = 0;
-    virtual void operator()(const void *data, cass::REMI::REMIEvent&) = 0;
-};
-}
+
+    class CASSEvent;
+
+    class CASSSHARED_EXPORT ConversionBackend {
+    public:
+        virtual ~ConversionBackend() = 0;
+
+        /* Convert LCLS data to internal data format
+
+        @param data LCLS data
+        @param event CASS event object to fill in data
+        */
+        virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
+    };
+}//end namespace cass
 
 #endif
 
