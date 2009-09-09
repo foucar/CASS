@@ -26,7 +26,10 @@ const char* TypeId::name(Type type)
     "Opal1kConfig",
     "FrameFexConfig",
     "EvrConfig",
-    "TM6740Config"
+    "TM6740Config",
+    "RunControlConfig",
+    "pnCCDframe",
+    "pnCCDconfig"
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

@@ -17,8 +17,12 @@ namespace Pds {
 	       Id_FrameFexConfig,
 	       Id_EvrConfig,
 	       Id_TM6740Config,
+	       Id_ControlConfig,
+	       Id_pnCCDframe,
+	       Id_pnCCDconfig,
 	       NumberOf};
 
+    TypeId() {}
     TypeId(const TypeId& v);
     TypeId(Type type, uint32_t version);
 
