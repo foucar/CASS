@@ -3,9 +3,20 @@
 
 #include <iostream>
 #include <vector>
-#include "pdsdata/acqiris/ConfigV1.hh"
-#include "pdsdata/acqiris/DataDescV1.hh"
 #include "Peak.h"
+
+namespace Pds
+{
+    namespace Acqiris
+    {
+        class ConfigV1;
+        class DataDescV1;
+    }
+    namespace Camera
+    {
+        class FrameV1;
+    }
+}
 
 namespace cass
 {
