@@ -7,10 +7,12 @@
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
-#include "EventQueue.h"
+#include "cassevent.h"
 
 namespace cass
 {
+    class EventQueue;
+    class ConversionBackend;
 
     /** @class Format converter container
 
@@ -37,6 +39,9 @@ namespace cass
     public slots:
         void processDatagram(uint32_t index);
 
+    signals:
+        void nextEvent(CASSEvent*);
+
     protected:
 
         /** Constructor */
@@ -51,7 +56,7 @@ namespace cass
 
         Adjust type for superclass of Format converters (FormatBackend)
         */
-        std::map<Converters, FormatConverter *> _converter;
+        std::map<Converters, ConversionBackend *> _converter;
 
         /** pointer to the single instance */
         static FormatConverter *_instance;

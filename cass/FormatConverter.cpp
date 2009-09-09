@@ -2,6 +2,12 @@
 
 #include <QtCore/QMutexLocker>
 #include "FormatConverter.h"
+#include "REMIConverter.h"
+#include "VMIConverter.h"
+#include "ConversionBackend.h"
+#include "xtciterator.h"
+#include "EventQueue.h"
+#include "pdsdata/xtc/Dgram.hh"
 
 
 namespace cass {
@@ -15,6 +21,8 @@ namespace cass {
     FormatConverter::FormatConverter()
     {
         // create all the necessary individual format converters
+        _converter[REMI] = new REMI::Converter();
+        _converter[Pulnix] = new VMI::Converter();
     }
 
 
@@ -43,27 +51,43 @@ namespace cass {
         return _instance;
     }
 
+
+
     //this slot is called once the eventqueue has new data available//
     void FormatConverter::processDatagram(uint32_t index)
     {
-//        //retrieve the Datagram with given index from the eventqueue//
-//        //this will automaticly lock this section of the ringbuffer//
-//        Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
-//
-//        //if datagram is configuration or an event (L1Accept) then we will iterate through it//
-//        if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
-//            (datagram->seq.service() == Pds::TransitionId::L1Accept))
-//        {
-//            //if the datagram is an event than we create a new cass event first//
-//            if ()
-//            {
-//
-//                //extract the bunchId from the datagram//
-//            }
-//
-//
-//        }
+        //retrieve the Datagram with given index from the eventqueue//
+        //this will automaticly lock this section of the ringbuffer//
+        Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
 
+        //if datagram is configuration or an event (L1Accept) then we will iterate through it//
+        //otherwise we ignore the datagram//
+        if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
+            (datagram->seq.service() == Pds::TransitionId::L1Accept))
+        {
+            CASSEvent *cassevent;
+            //if the datagram is an event than we create a new cass event first//
+            if (datagram->seq.service() == Pds::TransitionId::L1Accept)
+            {
+                //extract the bunchId from the datagram//
+                uint64_t bunchId = datagram->seq.clock().seconds();
+                bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
+
+                //create a new cassevent//
+                cassevent = new CASSEvent(bunchId);
+            }
+
+            //iterate through the datagram and find the wanted information//
+            XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
+
+            //when the datagram was an event then emit the new CASSEvent//
+            if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+                emit nextEvent(cassevent);
+
+        }
+
+        //unlock the datagram//
+        _eventqueue->UnlockDatagram(index);
     }
 
 }
