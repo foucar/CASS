@@ -3,7 +3,14 @@
 
 #include <vector>
 
-#include "pdsdata/camera/FrameV1.hh"
+namespace Pds
+{
+    namespace Camera
+    {
+        class FrameV1;
+    }
+}
+
 
 namespace cass
 {
@@ -16,6 +23,8 @@ namespace cass
             uint16_t x;
             uint16_t y;
         };
+        
+        
         class VMIEvent
         {
         public:
