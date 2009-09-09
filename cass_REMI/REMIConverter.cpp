@@ -18,6 +18,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
             remievent = _storedEvent;
             //now initialize the rest of the values from the datadescriptor//
             remievent.init(datadesc);
+            break;
         }
 
         //if it is a configuration then check what kind of configuration
@@ -36,6 +37,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
                     printf("Unsupported acqiris configuration version %d\n",version);
                 break;
             }
+            break;
         }
         default:
             printf("xtc type \"%s\" is not handled by REMIConverter",Pds::TypeId::name(xtc->contains.id()));
