@@ -24,11 +24,6 @@ namespace cass {
     public:
         virtual ~ConversionBackend() = 0;
 
-        /* Convert LCLS data to internal data format
-
-        @param data LCLS data
-        @param event CASS event object to fill in data
-        */
         virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
     };
 }//end namespace cass
