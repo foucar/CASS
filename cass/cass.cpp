@@ -18,14 +18,14 @@ int main(int argc, char **argv)
     // create event queue object
     EventQueue *input(new EventQueue);
     // create format converter object
-    FormatConverter *conversion(FormatConverter::instance());
+    FormatConverter *conversion(FormatConverter::instance(input));
     // create analysis object
     Analyzer *analysis(new Analyzer);
     // create database object
     RootTree *database(new RootTree);
 
     // connect the objects
-    QObject::connect (input, SIGNAL(nextEvent(Event&)), conversion, SLOT(nextEvent(Event&)));
+    QObject::connect (input, SIGNAL(nextEvent(uint32_t)), conversion, SLOT(processDatagram(uint32_t)));
     QObject::connect (conversion, SIGNAL(nextEvent(Event&)), analysis, SLOT(nextEvent(Event&)));
     QObject::connect (analysis, SIGNAL(nextEvent(Event&)), database, SLOT(nextEvent(Event&)));
 
