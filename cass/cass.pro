@@ -4,6 +4,8 @@ TEMPLATE = lib
 TARGET = cass
 DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
+
+
 SOURCES += AnalysisBackend.cpp \
     Analyzer.cpp \
     EventQueue.cpp \
@@ -11,9 +13,10 @@ SOURCES += AnalysisBackend.cpp \
     RootTree.cpp \
     cass.cpp \
    ../LCLS/pdsdata/app/XtcMonitorClient.cc \
-    cassevent.cpp
+    cassevent.cpp \
+    xtciterator.cpp
 
-HEADERS +=  AnalysisBackend.h \
+HEADERS += AnalysisBackend.h \
     Analyzer.h \
     ConversionBackend.h \
     Event.h \
@@ -24,12 +27,16 @@ HEADERS +=  AnalysisBackend.h \
     cass.h \
     ../LCLS/pdsdata/app/XtcMonitorClient.hh \
     cassevent.h \
+    xtciterator.h
 
-INCLUDEPATH += ../LCLS \
+INCLUDEPATH += ./ \
+    ../LCLS \
+    ../cass_REMI \
     ../cass_REMI/Classes/Event \
     ../cass_REMI/Classes/Event/Channel \
     ../cass_REMI/Classes/Event/Peak \
     ../cass_REMI/Classes/Event/Detector \
+    ../cass_VMI \
     ../cass_VMI/Classes/Event
 
 
