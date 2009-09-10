@@ -1,18 +1,15 @@
-# Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009 Nicola Coppola
 
-TEMPLATE = app
+TEMPLATE = lib
 qt += core gui
 
-FORMS += MainWindow.ui
-HEADERS += diode.h \
-           ImageHandler.h \
-           MainWindow.h \
-           ../cass_root/circ_root.h
-SOURCES += diode.cpp \
-           ImageHandler.cpp \
-           MainWindow.cpp \
+#FORMS += MainWindow.ui
+HEADERS +=  circ_root.h
+SOURCES += circ_qt.C
+           
+TARGET = libRoot
 
-TARGET = diode
+VERSION = 0.0.1
 
 CODECFORTR = UTF-8
 
@@ -28,30 +25,28 @@ exists ($$incFile) {
   }
 }
 
-INCLUDEPATH += ../cass_root
-
 win32:debug{
 LIBS += -L../cass_REMI/Debug -lcass_REMI \
         -L../cass_pnCCD/Debug -lcass_pnCCD \
         -L../cass_VMI/Debug -lcass_VMI \
-        -L../cass/Debug -lcass \
-        -L../cass_root -l Root
+        -L../cass/Debug -lcass
 }
 win32:release{
 LIBS += -L../cass_REMI/Release -lcass_REMI \
         -L../cass_pnCCD/Release -lcass_pnCCD \
         -L../cass_VMI/Release -lcass_VMI \
-        -L../cass/Release -lcass \
-        -L../cass_root -l Root
+        -L../cass/Release -lcass
 }
 unix{
 LIBS += -L../cass_REMI -lcass_REMI \
         -L../cass_pnCCD -lcass_pnCCD \
         -L../cass_VMI -lcass_VMI \
-        -L../cass -lcass \
+        -L../cass -lcass
 }
 INSTALLBASE = /usr/local/cass
+header.path    = $$INSTALLBASE/include
+libs.path      = $$INSTALLBASE/libs
 
-bin.path = $$INSTALLBASE/bin
-bin.files = diode.app
-INSTALLS += bin
+header.files = $$HEADERS
+lib.files = libRoot*.a
+INSTALLS += header libs

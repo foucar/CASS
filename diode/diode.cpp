@@ -5,6 +5,7 @@
 #include <QtCore/QTranslator>
 #include "diode.h"
 #include "MainWindow.h"
+#include "circ_root.h"
 
 int main(int argc, char**argv)
 {
