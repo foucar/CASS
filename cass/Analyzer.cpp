@@ -3,16 +3,19 @@
 #include "Analyzer.h"
 #include "REMIAnalysis.h"
 #include "VMIAnalysis.h"
+#include "pnCCDAnalysis.h"
 
 cass::Analyzer::Analyzer()
 {
     //create the parameters and load them//
     _parameter[REMI] = new cass::REMI::Parameter();
     _parameter[VMI] = new cass::VMI::Parameter();
+    _parameter[pnCCD] = new cass::pnCCD::Parameter();
 
     //create the analyzers//
     _analyzer[REMI] = new cass::REMI::Analysis(_parameter[REMI]);
     _analyzer[VMI] = new cass::VMI::Analysis(_parameter[VMI]);
+    _analyzer[pnCCD] = new cass::VMI::Analysis(_parameter[pnCCD]);
 }
 
 void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)

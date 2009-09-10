@@ -8,27 +8,30 @@
 #ifndef PNCCD_EVENT_H
 #define PNCCD_EVENT_H
 
-namespace cass {
-namespace pnCCD {
+namespace cass
+{
+    namespace pnCCD
+    {
 
-class pnCCDEvent {
-public:
-// Initialize the event data structure with the number of
-// detectors (pixel arrays) , the size of the detectors ,
-// the maximum of photon hits which should be stored in the
-// event. This will allocate the necessary memory needed to store
-// the data in the event, so be careful and keep in mind that
-// memory allocation takes CPU time and space.
-    pnCCDEvent(int num_pixel_arrays,
-	       std::vector<int> array_x_size,
-	       std::vector<int> array_y_size,
-	       std::vector<int> max_photons_per_event);
-    ~pnCCDEvent();
-private:
-};
+        class pnCCDEvent
+        {
+        public:
+            // Initialize the event data structure with the number of
+            // detectors (pixel arrays) , the size of the detectors ,
+            // the maximum of photon hits which should be stored in the
+            // event. This will allocate the necessary memory needed to store
+            // the data in the event, so be careful and keep in mind that
+            // memory allocation takes CPU time and space.
+            pnCCDEvent(int num_pixel_arrays,
+                       std::vector<int> array_x_size,
+                       std::vector<int> array_y_size,
+                       std::vector<int> max_photons_per_event);
+            ~pnCCDEvent();
+        private:
+        };
 
 
-} // end of scope of namespace pnCCD
+    } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
 

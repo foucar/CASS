@@ -46,7 +46,7 @@ namespace cass
         @author Jochen Küpper
         @version 0.1
         */
-        class Parameter : cass::ParameterBackend
+        class Parameter : public cass::ParameterBackend
         {
             /*
             Parameters needed for the pnCCDs. CAMP will typically use
@@ -64,7 +64,7 @@ namespace cass
             parameter class:
             */
             int getNumpnCCDPixArrays(void)
-            { return frame_calibrations.size(); };
+            { return frame_calibrations.size(); }
             /*
             The results of the dark frame calibration:
             pixel offset maps , pixel noise maps , bad pixel maps

@@ -36,8 +36,12 @@ INCLUDEPATH += ./ \
     ../cass_REMI/Classes/Event/Channel \
     ../cass_REMI/Classes/Event/Peak \
     ../cass_REMI/Classes/Event/Detector \
+    ../cass_REMI/Classes/DetektorHitSorter \
+    ../cass_REMI/Classes/SignalAnalyzer \
     ../cass_VMI \
-    ../cass_VMI/Classes/Event
+    ../cass_VMI/Classes/Event \
+    ../cass_pnCCD \
+    ../cass_pnCCD/Classes/Event
 
 
 bin.path = $$INSTALLBASE/bin
