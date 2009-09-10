@@ -27,12 +27,38 @@
        <string>define data-picking rules</string>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="GeneralTab">
        <attribute name="title">
         <string>General</string>
        </attribute>
+       <widget class="QRadioButton" name="radioButton">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>95</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>px</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="radioButton_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>40</y>
+          <width>95</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>py</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="pnCCDtab">
        <attribute name="title">
@@ -288,7 +314,7 @@
      <x>0</x>
      <y>0</y>
      <width>677</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

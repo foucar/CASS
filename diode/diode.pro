@@ -9,11 +9,25 @@ HEADERS += diode.h \
            MainWindow.h
 SOURCES += diode.cpp \
            ImageHandler.cpp \
-           MainWindow.cpp
+           MainWindow.cpp \
+           ../cass_root/circ_qt.C
+# for the moment I am just adding the previous line, in the future I will have a library...
 
 TARGET = diode
 
 CODECFORTR = UTF-8
+
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
 
 win32:debug{
 LIBS += -L../cass_REMI/Debug -lcass_REMI \

@@ -21,6 +21,7 @@ int main(int argc, char**argv)
     MainWindow mainwindow;
     mainwindow.show();
     // and run application
+    main_root(argc,argv);
     return app.exec();
 }
 

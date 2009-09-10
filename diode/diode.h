@@ -2,4 +2,6 @@
 
 #include <string>
 
+int main_root(int argc, char**argv);
+
 typedef std::string ExperimentType;
