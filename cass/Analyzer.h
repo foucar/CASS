@@ -3,23 +3,43 @@
 #ifndef CASS_ANALYZER_H
 #define CASS_ANALYZER_H
 
+#include <map>
 #include <QtCore/QObject>
 #include "cass.h"
 
-namespace cass {
+namespace cass
+{
+    class CASSEvent;
+    class AnalysisBackend;
+    class ParameterBackend;
 
-/** @class Format converter container
+    /** @class Format converter container
 
-@author Jochen Küpper
-@version 0.1
+    @author Jochen Küpper
+    @version 0.1
 
-@todo Make Singleton
-*/
-class CASSSHARED_EXPORT Analyzer : public QObject {
-    Q_OBJECT;
-public:
+    @todo Make Singleton
+    */
+    class CASSSHARED_EXPORT Analyzer : public QObject
+    {
+        Q_OBJECT;
 
-};
+    public:
+        Analyzer();
+
+        /** list of known individual analyzers */
+        enum Analyzers {pnCCD, REMI, VMI, GMD, YAGPOWER};
+
+    public slots:
+        void processEvent(CASSEvent*);
+
+    signals:
+        void nextEvent(CASSEvent*);
+
+    protected:
+        std::map<Analyzers, AnalysisBackend*> _analyzer;
+        std::map<Analyzers, ParameterBackend*> _parameter;
+    };
 }
 
 #endif
