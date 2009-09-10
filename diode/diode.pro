@@ -49,6 +49,7 @@ LIBS += -L../cass_REMI -lcass_REMI \
         -L../cass_pnCCD -lcass_pnCCD \
         -L../cass_VMI -lcass_VMI \
         -L../cass -lcass \
+        -L../cass_root -l Root
 }
 INSTALLBASE = /usr/local/cass
 

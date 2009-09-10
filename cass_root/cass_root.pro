@@ -1,5 +1,7 @@
 # Copyright (C) 2009 Nicola Coppola
 
+CONFIG += static
+
 TEMPLATE = lib
 qt += core gui
 
@@ -7,7 +9,7 @@ qt += core gui
 HEADERS +=  circ_root.h
 SOURCES += circ_qt.C
            
-TARGET = libRoot
+TARGET = Root
 
 VERSION = 0.0.1
 
