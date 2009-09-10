@@ -1,6 +1,8 @@
 #include <iostream>
 #include "REMIEvent.h"
 #include "REMIAnalysis.h"
+#include "pdsdata/acqiris/ConfigV1.hh"
+#include "pdsdata/acqiris/DataDescV1.hh"
 #include "Channel.h"
 
 //______________________________________________________________________________________________________________________

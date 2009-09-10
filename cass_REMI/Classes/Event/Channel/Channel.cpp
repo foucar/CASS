@@ -1,6 +1,8 @@
 #include "Channel.h"
 #include "Peak.h"
 #include "REMIAnalysis.h"
+#include "pdsdata/acqiris/ConfigV1.hh"
+#include "pdsdata/acqiris/DataDescV1.hh"
 
 //______________________________________________________________________________________________________________________
 cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
