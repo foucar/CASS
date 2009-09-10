@@ -95,12 +95,12 @@ namespace cass
         class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis(const Parameter& param);
+            Analysis(const cass::ParameterBackend*);
             ~Analysis();
             /*
             initialize AnalysisBackend with new set of parameters
              */
-            virtual void init(const Parameter& param);
+            void init(const cass::ParameterBackend*);
             /*
             Put the pnCCDEvent object through the analysis chain. The original data
             remain unchanged, a new corrected pnCCD image is generated and X-ray
@@ -108,7 +108,7 @@ namespace cass
             basic parameters are reacorded, e.g. the number of detected events
             in the frame.
             */
-            virtual void operator() (cass::pnCCD::pnCCDEvent& pnccd_data_collection);
+            void operator() (cass::CASSEvent*);
         private:
         };
 
