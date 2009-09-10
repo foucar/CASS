@@ -6,38 +6,40 @@
 #include "cass.h"
 
 
-namespace cass {
+namespace cass
+{
+    class CASSEvent;
 
-/** @class abstract base for all data analysis backend parameter sets
+    /** @class abstract base for all data analysis backend parameter sets
 
-@author Jochen Küpper
-@version 0.1
-*/
-class CASSSHARED_EXPORT BackendParameter {
-};
-
-
-/** @class abstract base for all data analysis backends
-
-@author Jochen Küpper
-@version 0.1
-*/
-class CASSSHARED_EXPORT AnalysisBackend {
-public:
-    virtual ~AnalysisBackend() = 0;
-
-    /** initialize AnalysisBackend with new set of parameters */
-    virtual void init(const BackendParameter& param) = 0;
-
-    /* analyse dataset
-
-    @param data Raw data to be analysed
-    @return analysed data
+    @author Jochen Küpper
+    @version 0.1
     */
-    virtual void * operator()(const void *data) = 0;
-};
+    class ParameterBackend
+    {
+    public:
+        virtual ~ParameterBackend();
+    };
 
 
+    /** @class abstract base for all data analysis backends
+
+    @author Jochen Küpper
+    @version 0.1
+    */
+    class CASSSHARED_EXPORT AnalysisBackend
+    {
+    public:
+        virtual ~AnalysisBackend() = 0;
+
+        /** initialize AnalysisBackend with new set of parameters */
+        virtual void init(const ParameterBackend*) = 0;
+
+        /* analyse dataset
+        @param data cass Event
+        */
+        virtual void operator()(CASSEvent*) = 0;
+    };
 }
 
 #endif
