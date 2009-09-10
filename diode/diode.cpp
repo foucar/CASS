@@ -1,4 +1,5 @@
 // Copyright (C) 2009 Jochen Küpper
+// 10/9/2009 added call to main_root...
 
 #include <QtGui/QApplication>
 #include <QtCore/QTextCodec>

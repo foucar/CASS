@@ -1,4 +1,5 @@
 # Copyright (C) 2009 Jochen Küpper
+# 10/9/2009 added cass_root
 
 CONFIG += release
 CONFIG += thread warn_on exceptions rtti sse2 stl
