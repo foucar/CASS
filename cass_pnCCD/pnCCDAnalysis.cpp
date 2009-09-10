@@ -2,9 +2,11 @@
 
 #include "pnCCDAnalysis.h"
 
-namespace cass {
-namespace pnCCD {
-}
+namespace cass
+{
+    namespace pnCCD
+    {
+    }
 }
 
 
