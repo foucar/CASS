@@ -4,21 +4,25 @@
  *
  *  Created by Jochen Küpper on 20.05.09.
  *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
- *
+ * filled with live by lmf
  */
 
 #include "VMIAnalysis.h"
+#include "cassevent.h"
 
-void cass::VMI::Analysis::init(const cass::VMI::Parameter &param)
+void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
 {
+    const cass::VMI::Parameter &param = *dynamic_cast<const cass::VMI::Parameter*>(p);
     _threshold    = param._threshold;
     _xCenterOfMcp = param._xCenterOfMcp;
     _yCenterOfMcp = param._yCenterOfMcp;
     _maxMcpRadius = param._maxMcpRadius;
 }
 
-void cass::VMI::Analysis::operator()(cass::VMI::VMIEvent &vmievent)
+void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
 {
+    cass::VMI::VMIEvent& vmievent = cassevent->VMIEvent();
+
     //initialize the start values for integral and max pixel value//
     uint16_t maxpixelvalue              = 0;
     uint32_t integral                   = 0;
@@ -50,21 +54,21 @@ void cass::VMI::Analysis::operator()(cass::VMI::VMIEvent &vmievent)
         //if so add its coordinates to the coordinates of impact map//
         //check wether pixel is above threshold
         if (pixel > _threshold)
-        //check wether point is at an edge
-        if (ycoordinate > 0 &&
-            ycoordinate < frameheight-1 &&
-            xcoordinate > 0 &&
-            xcoordinate < framewidth+1)
-        // Check all surrounding pixels
-        if (frame[i-framewidth-1] < pixel && //upper left
-            frame[i-framewidth]   < pixel && //upper middle
-            frame[i-framewidth+1] < pixel && //upper right
-            frame[i-1]            < pixel && //left
-            frame[i+1]            < pixel && //right
-            frame[i+framewidth-1] < pixel && //lower left
-            frame[i+framewidth]   < pixel && //lower middle
-            frame[i+framewidth+1] < pixel)   //lower right
-        {
+            //check wether point is at an edge
+            if (ycoordinate > 0 &&
+                ycoordinate < frameheight-1 &&
+                xcoordinate > 0 &&
+                xcoordinate < framewidth+1)
+                // Check all surrounding pixels
+                if (frame[i-framewidth-1] < pixel && //upper left
+                    frame[i-framewidth]   < pixel && //upper middle
+                    frame[i-framewidth+1] < pixel && //upper right
+                    frame[i-1]            < pixel && //left
+                    frame[i+1]            < pixel && //right
+                    frame[i+framewidth-1] < pixel && //lower left
+                    frame[i+framewidth]   < pixel && //lower middle
+                    frame[i+framewidth+1] < pixel)   //lower right
+                {
             vmievent.coordinatesOfImpact().push_back(Coordinate(xcoordinate,ycoordinate));
         }
 

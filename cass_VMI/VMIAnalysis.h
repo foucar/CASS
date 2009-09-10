@@ -18,7 +18,7 @@ namespace cass
 {
     namespace VMI
     {
-        class Parameter : cass::BackendParameter
+        class Parameter : public cass::ParameterBackend
         {
         public:
             uint16_t _threshold;
@@ -28,14 +28,14 @@ namespace cass
         };
 
 
-        class CASS_VMISHARED_EXPORT Analysis : cass::AnalysisBackend
+        class CASS_VMISHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis(const Parameter &param) {init(param);}
-            virtual void init(const Parameter &param);
+            Analysis(const cass::ParameterBackend *param)            {init(param);}
+            void init(const cass::ParameterBackend*);
 
             //called for every event//
-            virtual void operator()(VMIEvent&);
+            void operator()(CASSEvent*);
 
         private:
             uint16_t _threshold;
