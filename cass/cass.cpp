@@ -21,19 +21,19 @@ int main(int argc, char **argv)
     FormatConverter *conversion(FormatConverter::instance(input));
     // create analysis object
     Analyzer *analysis(new Analyzer);
-    // create database object
-    RootTree *database(new RootTree);
+//    // create database object
+//    RootTree *database(new RootTree);
 
     // connect the objects
     QObject::connect (input, SIGNAL(nextEvent(uint32_t)), conversion, SLOT(processDatagram(uint32_t)));
-    QObject::connect (conversion, SIGNAL(nextEvent(Event&)), analysis, SLOT(nextEvent(Event&)));
-    QObject::connect (analysis, SIGNAL(nextEvent(Event&)), database, SLOT(nextEvent(Event&)));
+    QObject::connect (conversion, SIGNAL(nextEvent(CASSEvent*)), analysis, SLOT(nextEvent(Event&)));
+//    QObject::connect (analysis, SIGNAL(nextEvent(Event&)), database, SLOT(nextEvent(Event&)));
 
     // start Qt event loop
     int retval(app.exec());
 
     // clean up
-    delete database;
+//    delete database;
     delete analysis;
     delete input;
     FormatConverter::destroy();
