@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mman.h>
-#ifdef _POSIX_MESSAGE_PASSING
+#if (_POSIX_MESSAGE_PASSING > 0)
 #include <mqueue.h>
 #endif
 
@@ -20,8 +20,8 @@
 namespace Pds {
   class Msg {
     public:
-      Msg() {}; 
-      ~Msg() {}; 
+      Msg() {};
+      ~Msg() {};
       int bufferIndex() {return _bufferIndex;}
       int numberOfBuffers() {return _numberOfBuffers;}
       int sizeOfBuffers() {return _sizeOfBuffers;}
@@ -43,7 +43,7 @@ int XtcMonitorClient::runMonitor(char * tag) {
   int error = 0;
   unsigned sizeOfShm = 0;
   char toServerQname[128] = "/PdsFromMonitorMsgQueue_";
-  char fromServerQname[128] = "/PdsToMonitorMsgQueue_"; 
+  char fromServerQname[128] = "/PdsToMonitorMsgQueue_";
   char shmName[128] = "/PdsMonitorSharedMemory_";
   strcat(shmName, tag);
   strcat(toServerQname, tag);
