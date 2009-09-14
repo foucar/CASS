@@ -1,7 +1,7 @@
 #ifndef __SoftTDCCoM_h__
 #define __SoftTDCCoM_h__
 
-#include "SoftTDC.h"
+#include "softtdc.h"
 namespace cass
 {
     namespace REMI

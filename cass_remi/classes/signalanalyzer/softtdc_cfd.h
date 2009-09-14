@@ -1,7 +1,7 @@
 #ifndef __SoftTDCCFD_h__
 #define __SoftTDCCFD_h__
 
-#include "SoftTDC.h"
+#include "softtdc.h"
 
 namespace cass
 {
