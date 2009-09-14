@@ -54,10 +54,10 @@ namespace cass
                 }
                 break;
             case (Pds::TypeId::Id_pnCCDconfig) :
-
+                (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_pnCCDframe) :
-
+                (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             default :
                     break;

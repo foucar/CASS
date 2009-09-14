@@ -4,6 +4,7 @@
 #include "FormatConverter.h"
 #include "REMIConverter.h"
 #include "VMIConverter.h"
+#include "pnCCDConverter.h"
 #include "ConversionBackend.h"
 #include "xtciterator.h"
 #include "EventQueue.h"
@@ -21,8 +22,9 @@ namespace cass {
     FormatConverter::FormatConverter()
     {
         // create all the necessary individual format converters
-        _converter[REMI] = new REMI::Converter();
-        _converter[Pulnix] = new VMI::Converter();
+        _converter[REMI]    = new REMI::Converter();
+        _converter[Pulnix]  = new VMI::Converter();
+        _converter[pnCCD]   = new pnCCD::Converter();
     }
 
 
