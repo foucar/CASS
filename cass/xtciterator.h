@@ -3,8 +3,8 @@
 
 #include <map>
 
-#include "FormatConverter.h"
-#include "ConversionBackend.h"
+#include "format_converter.h"
+#include "conversion_backend.h"
 
 #include "pdsdata/xtc/XtcIterator.hh"
 #include "pdsdata/xtc/Xtc.hh"

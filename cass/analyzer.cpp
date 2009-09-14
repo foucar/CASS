@@ -1,9 +1,9 @@
 // Copytight (C) 2009 Jochen Küpper
 
-#include "Analyzer.h"
-#include "REMIAnalysis.h"
-#include "VMIAnalysis.h"
-#include "pnCCDAnalysis.h"
+#include "analyzer.h"
+#include "remi_analysis.h"
+#include "vmi_analysis.h"
+#include "pnccd_analysis.h"
 
 cass::Analyzer::Analyzer()
 {

@@ -7,7 +7,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
-#include "cassevent.h"
+#include "cass_event.h"
 
 namespace cass
 {

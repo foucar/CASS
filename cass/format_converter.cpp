@@ -1,13 +1,13 @@
 // Copyright (C) 2009 Jochen Küpper
 
 #include <QtCore/QMutexLocker>
-#include "FormatConverter.h"
-#include "REMIConverter.h"
-#include "VMIConverter.h"
-#include "pnCCDConverter.h"
-#include "ConversionBackend.h"
+#include "format_converter.h"
+#include "remi_converter.h"
+#include "vmi_converter.h"
+#include "pnccd_converter.h"
+#include "conversion_backend.h"
 #include "xtciterator.h"
-#include "EventQueue.h"
+#include "event_queue.h"
 #include "pdsdata/xtc/Dgram.hh"
 
 

@@ -13,6 +13,10 @@ namespace cass
     {
         class VMIEvent;
     }
+    namespace pnCCD
+    {
+        class pnCCDEvent;
+    }
 
     class CASSEvent
     {
@@ -22,15 +26,16 @@ namespace cass
 
         uint64_t         id()const          {return _id;}
 
-        REMI::REMIEvent &REMIEvent()        {return *_remievent;}
-        VMI::VMIEvent   &VMIEvent()         {return *_vmievent;}
+        REMI::REMIEvent     &REMIEvent()    {return *_remievent;}
+        VMI::VMIEvent       &VMIEvent()     {return *_vmievent;}
+        pnCCD::pnCCDEvent   &pnCCDEvent()   {return *_pnccdevent;}
 
 
     private:
         uint64_t            _id;
         REMI::REMIEvent    *_remievent;
         VMI::VMIEvent      *_vmievent;
-//        pnCCDEvent     *_pnccdevent;
+        pnCCD::pnCCDEvent  *_pnccdevent;
 //        MACHINEEvent   *_machineevent;
     };
 }

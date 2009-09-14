@@ -1,18 +1,17 @@
 # Copyright (C) 2009 Jochen Küpper
 CONFIG += static
-#TEMPLATE = lib
-TEMPLATE = app
+TEMPLATE = lib
+#TEMPLATE = app
 TARGET = cass
 DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
 
 
-SOURCES +=  analysis_backend.cpp \
-            analyzer.cpp \
+SOURCES +=  analyzer.cpp \
             event_queue.cpp \
             format_converter.cpp \
             cass.cpp \
-            ../LCLS/pdsdata/app/XtcMonitorClient.cc \
+            #../LCLS/pdsdata/app/XtcMonitorClient.cc \
             cass_event.cpp \
             xtciterator.cpp
 

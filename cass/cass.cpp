@@ -3,10 +3,10 @@
 #include <QtGui/QApplication>
 
 #include "cass.h"
-#include "Analyzer.h"
-#include "EventQueue.h"
-#include "FormatConverter.h"
-#include "RootTree.h"
+#include "analyzer.h"
+#include "event_queue.h"
+#include "format_converter.h"
+//#include "RootTree.h"
 
 using namespace cass;
 

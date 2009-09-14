@@ -1,6 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
 
-#include "EventQueue.h"
+#include "event_queue.h"
 #include "pdsdata/xtc/Dgram.hh"
 
 cass::EventQueue::EventQueue( QObject *parent):
