@@ -1,9 +1,9 @@
-#include "VMIConverter.h"
+#include "vmi_converter.h"
 
 #include "pdsdata/camera/FrameV1.hh"
 #include "pdsdata/xtc/Xtc.hh"
 #include "cassevent.h"
-#include "VMIEvent.h"
+#include "vmi_event.h"
 
 
 void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)

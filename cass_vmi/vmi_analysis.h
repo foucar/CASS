@@ -10,9 +10,9 @@
 #ifndef VMIANALYSIS_H
 #define VMIANALYSIS_H
 
-#include "cass_VMI.h"
-#include "AnalysisBackend.h"
-#include "VMIEvent.h"
+#include "cass_vmi.h"
+#include "analysis_backend.h"
+#include "vmi_event.h"
 
 namespace cass
 {

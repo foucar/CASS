@@ -7,7 +7,7 @@
  * filled with live by lmf
  */
 
-#include "VMIAnalysis.h"
+#include "vmi_analysis.h"
 #include "cassevent.h"
 
 void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
