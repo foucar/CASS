@@ -1,7 +1,7 @@
 #ifndef VMICONVERTER_H
 #define VMICONVERTER_H
 
-#include "cass_VMI.h"
+#include "cass_vmi.h"
 #include "conversion_backend.h"
 
 namespace cass
