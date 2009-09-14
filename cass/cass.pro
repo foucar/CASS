@@ -7,61 +7,57 @@ DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
 
 
-SOURCES += AnalysisBackend.cpp \
-    Analyzer.cpp \
-    EventQueue.cpp \
-    FormatConverter.cpp \
-    RootTree.cpp \
-    cass.cpp \
-   ../LCLS/pdsdata/app/XtcMonitorClient.cc \
-    cassevent.cpp \
-    xtciterator.cpp
+SOURCES +=  analysis_backend.cpp \
+            analyzer.cpp \
+            event_queue.cpp \
+            format_converter.cpp \
+            cass.cpp \
+            ../LCLS/pdsdata/app/XtcMonitorClient.cc \
+            cass_event.cpp \
+            xtciterator.cpp
 
-HEADERS += AnalysisBackend.h \
-    Analyzer.h \
-    ConversionBackend.h \
-    Event.h \
-    EventQueue.h \
-    FormatConverter.h \
-    Image.h \
-    RootTree.h \
-    cass.h \
-    ../LCLS/pdsdata/app/XtcMonitorClient.hh \
-    cassevent.h \
-    xtciterator.h
+HEADERS +=  analysis_backend.h \
+            analyzer.h \
+            conversion_backend.h \
+            event_queue.h \
+            format_converter.h \
+            cass.h \
+            ../LCLS/pdsdata/app/XtcMonitorClient.hh \
+            cass_event.h \
+            xtciterator.h
 
 INCLUDEPATH += ./ \
     ../LCLS \
-    ../cass_REMI \
-    ../cass_REMI/Classes/Event \
-    ../cass_REMI/Classes/Event/Channel \
-    ../cass_REMI/Classes/Event/Peak \
-    ../cass_REMI/Classes/Event/Detector \
-    ../cass_REMI/Classes/DetektorHitSorter \
-    ../cass_REMI/Classes/SignalAnalyzer \
-    ../cass_VMI \
-    ../cass_VMI/Classes/Event \
-    ../cass_pnCCD \
-    ../cass_pnCCD/Classes/Event
+    ../cass_remi \
+    ../cass_remi/classes/event \
+    ../cass_remi/classes/event/channel \
+    ../cass_remi/classes/event/peak \
+    ../cass_remi/classes/event/detector \
+    ../cass_remi/classes/detektorhitsorter \
+    ../cass_remi/classes/signalanalyzer \
+    ../cass_vmi \
+    ../cass_vmi/classes/event \
+    ../cass_pnccd \
+    ../cass_pnccd/classes/event
 
 win32:debug{
-LIBS += -L../cass_REMI/Debug -lcass_REMI \
-        -L../cass_pnCCD/Debug -lcass_pnCCD \
-        -L../cass_VMI/Debug -lcass_VMI \
+LIBS += -L../cass_remi/Debug -lcass_remi \
+        -L../cass_pnccd/Debug -lcass_pnccd \
+        -L../cass_vmi/Debug -lcass_vmi \
         -L../cass/Debug -lcass \
         -L../cass_root -l Root
 }
 win32:release{
-LIBS += -L../cass_REMI/Release -lcass_REMI \
-        -L../cass_pnCCD/Release -lcass_pnCCD \
-        -L../cass_VMI/Release -lcass_VMI \
+LIBS += -L../cass_remi/Release -lcass_remi \
+        -L../cass_pnccd/Release -lcass_pnccd \
+        -L../cass_vmi/Release -lcass_vmi \
         -L../cass/Release -lcass \
         -L../cass_root -l Root
 }
 unix{
-LIBS += -L../cass_REMI -lcass_REMI \
-        -L../cass_pnCCD -lcass_pnCCD \
-        -L../cass_VMI -lcass_VMI \
+LIBS += -L../cass_remi -lcass_remi \
+        -L../cass_pnccd -lcass_pnccd \
+        -L../cass_vmi -lcass_vmi \
         -L../cass -lcass \
         -L../cass_root -l Root
 }
