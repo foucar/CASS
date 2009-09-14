@@ -2,8 +2,8 @@
 #define __Detector_H_
 
 #include <vector>
-#include "Peak.h"
-#include "Channel.h"
+#include "peak.h"
+#include "channel.h"
 
 
 namespace cass
