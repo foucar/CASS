@@ -5,7 +5,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QtGui/QTextEdit>
-#include "ui_MainWindow.h"
+#include "ui_main_window.h"
 
 #include "circ_root.h"
 

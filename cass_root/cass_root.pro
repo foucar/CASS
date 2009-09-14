@@ -10,7 +10,7 @@ qt += core gui
 HEADERS +=  circ_root.h
 SOURCES += circ_qt.C
            
-TARGET = Root
+TARGET = root
 
 VERSION = 0.0.1
 
@@ -41,9 +41,9 @@ LIBS += -L../cass_REMI/Release -lcass_REMI \
         -L../cass/Release -lcass
 }
 unix{
-LIBS += -L../cass_REMI -lcass_REMI \
-        -L../cass_pnCCD -lcass_pnCCD \
-        -L../cass_VMI -lcass_VMI \
+LIBS += -L../cass_remi -lcass_remi \
+        -L../cass_pnccd -lcass_pnccd \
+        -L../cass_vmi -lcass_vmi \
         -L../cass -lcass
 }
 INSTALLBASE = /usr/local/cass
@@ -51,5 +51,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files = $$HEADERS
-lib.files = libRoot*.a
+lib.files = libroot*.a
 INSTALLS += header libs

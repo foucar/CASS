@@ -6,5 +6,5 @@
  *
  */
 
-#include "ImageProcessor.h"
+#include "image_processor.h"
 

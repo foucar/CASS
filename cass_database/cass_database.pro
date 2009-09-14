@@ -14,9 +14,9 @@ gVERSION = 0.0.1
 
 INCLUDEPATH += ../cass
 
-SOURCES += Database.cpp
+SOURCES += database.cpp
 
-HEADERS += Database.h \
+HEADERS += database.h \
            cass_database.h
 
 INCLUDEPATH += ../LCLS \

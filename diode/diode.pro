@@ -13,19 +13,19 @@ LIBS_NAMES += ../cass_REMI/libcass_REMI.a ../cass_pnCCD/libcass_pnCCD.a ../cass_
   ../cass/libcass.a ../cass_root/libRoot.a
 mytarget2.commands = echo $$LIBS_NAMES>> $$mytarget.target
 #mytarget3.commands = @echo Building $$mytarget.target
-QMAKE_EXTRA_TARGETS += mytarget mytarget2
+##QMAKE_EXTRA_TARGETS += mytarget mytarget2
 
 TEMPLATE = app
 qt += core gui
 
-FORMS += MainWindow.ui
+FORMS += main_window.ui
 HEADERS += diode.h \
-           ImageHandler.h \
-           MainWindow.h \
+           image_handler.h \
+           main_window.h \
            ../cass_root/circ_root.h
 SOURCES += diode.cpp \
-           ImageHandler.cpp \
-           MainWindow.cpp \
+           image_handler.cpp \
+           main_window.cpp \
 
 TARGET = diode
 
@@ -51,25 +51,25 @@ INCLUDEPATH += ../cass_root
 #        -L../cass_root
 
 win32:debug{
-LIBS += -L../cass_REMI/Debug -lcass_REMI \
-        -L../cass_pnCCD/Debug -lcass_pnCCD \
-        -L../cass_VMI/Debug -lcass_VMI \
+LIBS += -L../cass_remi/Debug -lcass_remi \
+        -L../cass_pnccd/Debug -lcass_pnccd \
+        -L../cass_vmi/Debug -lcass_vmi \
         -L../cass/Debug -lcass \
-        -L../cass_root -l Root
+        -L../cass_root -l root
 }
 win32:release{
-LIBS += -L../cass_REMI/Release -lcass_REMI \
-        -L../cass_pnCCD/Release -lcass_pnCCD \
-        -L../cass_VMI/Release -lcass_VMI \
+LIBS += -L../cass_remi/Release -lcass_remi \
+        -L../cass_pnccd/Release -lcass_pnccd \
+        -L../cass_vmi/Release -lcass_vmi \
         -L../cass/Release -lcass \
-        -L../cass_root -l Root
+        -L../cass_root -l root
 }
 unix{
-LIBS += -L../cass_REMI -lcass_REMI \
-        -L../cass_pnCCD -lcass_pnCCD \
-        -L../cass_VMI -lcass_VMI \
+LIBS += -L../cass_remi -lcass_remi \
+        -L../cass_pnccd -lcass_pnccd \
+        -L../cass_vmi -lcass_vmi \
         -L../cass -lcass \
-        -L../cass_root -l Root
+        -L../cass_root -l root
 
 #for(a, LIBS_NAMES):exists($${a}):message(I see $${a})
 #for(a, LIBS_NAMES):system(newer diode $${a}):message(diode newer than $${a})

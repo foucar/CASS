@@ -6,7 +6,7 @@
  *
  */
 #include <map>
-#include "Event.h"
+#include "event.h"
 
 namespace cass
 {

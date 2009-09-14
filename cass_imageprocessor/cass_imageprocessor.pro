@@ -7,16 +7,16 @@ QT -= core gui
 TEMPLATE = lib
 
 
-TARGET = cass_ImageProcessor
+TARGET = cass_imageprocessor
 
 gVERSION = 0.0.1
 
 
 INCLUDEPATH += ../cass
 
-SOURCES += ImageProcessor.cpp
+SOURCES += image_processor.cpp
 
-HEADERS += ImageProcessor.h \
+HEADERS += image_processor.h \
            cass_imageprocessor.h
 
 
@@ -25,5 +25,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_ImageProcessor.a
+libs.files     = libcass_imageprocessor.a
 INSTALLS      += header libs

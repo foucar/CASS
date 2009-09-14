@@ -2,7 +2,7 @@
 
 #include <QtGui/QCloseEvent>
 #include <QtGui/QMessageBox>
-#include "MainWindow.h"
+#include "main_window.h"
 
 
 

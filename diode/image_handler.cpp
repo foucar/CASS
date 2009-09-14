@@ -1,6 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
 
-#include "ImageHandler.h"
+#include "image_handler.h"
 
 
 ImageHandler::ImageHandler(const QString& expression, double updatePeriod)
