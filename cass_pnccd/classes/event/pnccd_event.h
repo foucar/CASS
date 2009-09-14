@@ -12,7 +12,6 @@ namespace cass
 {
     namespace pnCCD
     {
-
         class pnCCDEvent
         {
         public:
@@ -22,6 +21,7 @@ namespace cass
             // event. This will allocate the necessary memory needed to store
             // the data in the event, so be careful and keep in mind that
             // memory allocation takes CPU time and space.
+            pnCCDEvent();
             pnCCDEvent(int num_pixel_arrays,
                        std::vector<int> array_x_size,
                        std::vector<int> array_y_size,
