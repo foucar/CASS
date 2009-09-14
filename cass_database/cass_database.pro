@@ -20,10 +20,10 @@ HEADERS += database.h \
            cass_database.h
 
 INCLUDEPATH += ../LCLS \
-               ../cass_REMI/Classes/Event \
-               ../cass_REMI/Classes/Event/Channel \
-               ../cass_REMI/Classes/Event/Peak \
-               ../cass_REMI/Classes/Event/Detector
+               ../cass_remi/classes/event \
+               ../cass_remi/classes/event/channel \
+               ../cass_remi/classes/event/peak \
+               ../cass_remi/classes/event/detector
 
 
 
