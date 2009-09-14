@@ -5,21 +5,29 @@
  *  Created by lutz foucar
  *
  */
-#include <map>
-#include "cass_event.h"
+#include <QtCore/QObject>
+//#include <map>
+//#include "cass_event.h"
 
 namespace cass
 {
-	namespace database
-	{
-		class Database
-		{
+    class CASSEvent;
+
+    namespace database
+    {
+        class Database : public QObject
+        {
+            Q_OBJECT;
+
         public:
-            size_t size()const                 {return _db.size();}
-            cass::Event* event(uint64_t id)    {return _db[id];}
-            void add(cass::Event* e)           {_db[e->id()]=e;}
+            Database();
+
+            cass::CASSEvent* nextEvent();
+
+        public slots:
+            void add(cass::CASSEvent*);
+
         private:
-            std::map<uint64_t,cass::Event*> _db;
-		};
-	}//end namespace database
+        };
+    }//end namespace database
 }//end namespace cass
