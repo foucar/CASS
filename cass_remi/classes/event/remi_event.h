@@ -2,8 +2,8 @@
 #define __REMIEvent_h__
 
 #include <vector>
-#include "Detector.h"
-#include "Channel.h"
+#include "detector.h"
+#include "channel.h"
 
 namespace Pds
 {
