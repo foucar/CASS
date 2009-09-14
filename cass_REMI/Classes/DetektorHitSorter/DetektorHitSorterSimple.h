@@ -7,19 +7,18 @@ namespace cass
 {
     namespace REMI
     {
+        //______________________MyDetektorHitSorter Simple Version______________________
+        class DetektorHitSorterSimple : public DetektorHitSorterQuad
+        {
+        public:
+            DetektorHitSorterSimple(const DetectorParameter&);
 
-            //______________________MyDetektorHitSorter Simple Version______________________
-            class DetektorHitSorterSimple : public DetektorHitSorterQuad
-            {
-            public:
-                DetektorHitSorterSimple(const DetectorParameter&);
+        public:
+            void sort(REMIEvent&, Detector&);
 
-            public:
-                void sort(REMIEvent&, Detector&);
-
-            private:
-                void sortForTimesum(Detector&);
-            };
+        private:
+            void sortForTimesum(Detector&);
+        };
 
     }//end namespace remi
 }//end namespace cass

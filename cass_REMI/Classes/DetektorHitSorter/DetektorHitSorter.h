@@ -6,93 +6,23 @@
 
 namespace cass
 {
-	namespace REMI
-	{
-		class Parameter;
-		class DetectorParameter;
-		class Detector;
+    namespace REMI
+    {
+        class Parameter;
+        class DetectorParameter;
+        class Detector;
         class REMIEvent;
-        //_______________________________________________________________________MyDetektorHitSorter________________________________________________________________________________________
+        //__________________________MyDetektorHitSorter_____________________________
         class DetektorHitSorterBase
         {
         public:
-            DetektorHitSorterBase(const DetectorParameter&)				{}
-            virtual ~DetektorHitSorterBase()	{}
+            DetektorHitSorterBase(const DetectorParameter&) {}
+            virtual ~DetektorHitSorterBase()                {}
 
         public:
             virtual void sort(REMIEvent&, Detector&)=0;
 
         protected:
-            enum EHistoIndex
-            {
-                kSumU=0,
-                kSumV,
-                kSumW,
-                kSumVsURaw,
-                kSumVsVRaw,
-                kSumVsWRaw,
-                kSumVsUShift,
-                kSumVsVShift,
-                kSumVsWShift,
-                kSumVsUShiftCorr,
-                kSumVsVShiftCorr,
-                kSumVsWShiftCorr,
-                kDetRaw_ns,
-                kDetShi_ns,
-                kDetUVRaw_ns,
-                kDetUVShi_ns,
-                kDetUWRaw_ns,
-                kDetUWShi_ns,
-                kDetVWRaw_ns,
-                kDetVWShi_ns,
-                kDetRaw_mm,
-                kDetShi_mm,
-                kDetUVRaw_mm,
-                kDetUVShi_mm,
-                kDetUWRaw_mm,
-                kDetUWShi_mm,
-                kDetVWRaw_mm,
-                kDetVWShi_mm,
-                kMcpDeadTime,
-                kU1DeadTime,
-                kU2DeadTime,
-                kV1DeadTime,
-                kV2DeadTime,
-                kW1DeadTime,
-                kW2DeadTime,
-                kNbrRecHits,
-                kNbrMCPHits,
-                kNbrU1Hits,
-                kNbrU2Hits,
-                kNbrV1Hits,
-                kNbrV2Hits,
-                kNbrW1Hits,
-                kNbrW2Hits,
-                kURatio,
-                kVRatio,
-                kWRatio,
-                kU1MCPRatio,
-                kU2MCPRatio,
-                kV1MCPRatio,
-                kV2MCPRatio,
-                kW1MCPRatio,
-                kW2MCPRatio,
-                kMCPRecRatio,
-                kU1RecRatio,
-                kU2RecRatio,
-                kV1RecRatio,
-                kV2RecRatio,
-                kW1RecRatio,
-                kW2RecRatio,
-                kUsedMethod,
-                kTime,
-                kPosXVsTime,
-                kPosYVsTime,
-                kDetAll,
-                kDetRisky,
-                kDetNonRisky,
-                kNonLinearityMap
-            };
         };
         typedef std::vector<DetektorHitSorterBase*> dethitsorters_t;
 
@@ -100,7 +30,7 @@ namespace cass
         class DetektorHitSorter
         {
         public:
-            DetektorHitSorter()		{}
+            DetektorHitSorter()     {}
             ~DetektorHitSorter();
 
         public:
@@ -109,7 +39,7 @@ namespace cass
             void sort(REMIEvent&);
 
         private:
-            dethitsorters_t		fDhs;	//vector containing pointers to the sorters for each detector
+            dethitsorters_t     fDhs;	//vector containing pointers to the sorters for each detector
         };
     }//end namespace remi
 }//end namespace cass

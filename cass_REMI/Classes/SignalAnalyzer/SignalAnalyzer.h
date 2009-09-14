@@ -6,26 +6,26 @@
 
 namespace cass
 {
-	namespace REMI
-	{
-		class SignalAnalyzer
-		{
-		public:
-			SignalAnalyzer():fStdc(0),fMethod(-1)	{}
-			~SignalAnalyzer();
+    namespace REMI
+    {
+        class SignalAnalyzer
+        {
+        public:
+            SignalAnalyzer():fStdc(0),fMethod(-1)	{}
+            ~SignalAnalyzer();
 
-		public:
-			enum ESignalAnalyzeMethods{kCoM=0, kCfd, kDoNothing};
-			void init(int analyzemethod);
+        public:
+            enum ESignalAnalyzeMethods{kCoM=0, kCfd, kDoNothing};
+            void init(int analyzemethod);
             void findPeaksIn(REMIEvent &remievent)const
-			{
+            {
                 fStdc->FindPeaksIn(remievent);
-			}
+            }
 
-		private:
-			SoftTDC		*fStdc;
-			int			 fMethod;
-		};
-	}//end namespace remi
+        private:
+            SoftTDC *fStdc;
+            int      fMethod;
+        };
+    }//end namespace remi
 }//end namespace cass
 #endif
