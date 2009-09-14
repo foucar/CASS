@@ -6,9 +6,9 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cass_pnCCD.h"
-#include "pnCCDEvent.h"
-#include "AnalysisBackend.h"
+#include "cass_pnccd.h"
+#include "pnccd_event.h"
+#include "analysis_backend.h"
 
 #include <QtGui/QImage>
 

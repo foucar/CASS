@@ -1,6 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
 
-#include "pnCCDAnalysis.h"
+#include "pnccd_analysis.h"
 
 namespace cass
 {

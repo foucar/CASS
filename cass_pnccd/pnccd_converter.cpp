@@ -1,4 +1,4 @@
-#include "pnCCDConverter.h"
+#include "pnccd_converter.h"
 
 //#include "pdsdata/xtc/Xtc.hh"
 #include "cassevent.h"

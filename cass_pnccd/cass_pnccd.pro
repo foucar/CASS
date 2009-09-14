@@ -7,21 +7,21 @@ QT -= core gui
 TEMPLATE = lib
 
 
-TARGET = cass_pnCCD
+TARGET = cass_pnccd
 
 VERSION = 0.0.1
 
 
-SOURCES += pnCCDAnalysis.cpp \
-           pnCCDConverter.cpp
+SOURCES += pnccd_analysis.cpp \
+           pnccd_converter.cpp
 
-HEADERS += pnCCDAnalysis.h \
-           pnCCDConverter.h \
+HEADERS += pnccd_analysis.h \
+           pnccd_converter.h \
            cass_pnccd.h \
-           ./Classes/Event/pnCCDEvent.h
+           ./classes/event/pnccd_event.h
 
 
-INCLUDEPATH += ../cass ./Classes/Event
+INCLUDEPATH += ../cass ./classes/event
 
 
 INSTALLBASE    = /usr/local/cass
@@ -29,5 +29,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_pnCCD*.a
+libs.files     = libcass_pnccd.a
 INSTALLS      += header libs
