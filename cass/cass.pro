@@ -1,7 +1,7 @@
 # Copyright (C) 2009 Jochen Küpper
 CONFIG += static
 #TEMPLATE = lib
-TEMPLATE = app lib
+TEMPLATE = app
 TARGET = cass
 DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
