@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <vector>
-#include "Peak.h"
+#include "peak.h"
 
 namespace Pds
 {
