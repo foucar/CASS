@@ -1,4 +1,4 @@
-#include "helperfunctionsforSTDC.h"
+#include "helperfunctionsforstdc.h"
 #include <cmath>
 
 //_______________________________________helper function that does a linear Regression__________________________________________
