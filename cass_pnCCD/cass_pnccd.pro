@@ -12,9 +12,11 @@ TARGET = cass_pnCCD
 VERSION = 0.0.1
 
 
-SOURCES += pnCCDAnalysis.cpp
+SOURCES += pnCCDAnalysis.cpp \
+           pnCCDConverter.cpp
 
 HEADERS += pnCCDAnalysis.h \
+           pnCCDConverter.h \
            cass_pnccd.h \
            ./Classes/Event/pnCCDEvent.h
 
