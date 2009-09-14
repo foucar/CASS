@@ -1,13 +1,13 @@
 #include <iostream>
 
-#include "DetektorHitSorter.h"
+#include "detektorhitsorter.h"
 
-#include "DetektorHitSorterSimple.h"
+#include "detektorhitsorter_simple.h"
 
-#include "REMIAnalysis.h"
-#include "REMIEvent.h"
-#include "Detector.h"
-#include "Channel.h"
+#include "remi_analysis.h"
+#include "remi_event.h"
+#include "detector.h"
+#include "channel.h"
 
 
 //______________________________________________the acutal worker_____________________________________________________________________________________________________________

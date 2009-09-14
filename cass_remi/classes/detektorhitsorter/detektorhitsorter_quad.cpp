@@ -1,4 +1,4 @@
-#include "DetektorHitSorterQuad.h"
+#include "detektorhitsorter_quad.h"
 
 
 

@@ -7,12 +7,12 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "cass_REMI.h"
-#include "AnalysisBackend.h"
-#include "SignalAnalyzer.h"
-#include "DetektorHitSorter.h"
-#include "Detector.h"
-#include "REMIEvent.h"
+#include "cass_remi.h"
+#include "analysis_backend.h"
+#include "signal_analyzer.h"
+#include "detektorhitsorter.h"
+#include "detector.h"
+#include "remi_event.h"
 
 namespace cass 
 {

@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-#include "REMIEvent.h"
-#include "Channel.h"
-#include "Peak.h"
+#include "remi_event.h"
+#include "channel.h"
+#include "peak.h"
 
 namespace cass
 {

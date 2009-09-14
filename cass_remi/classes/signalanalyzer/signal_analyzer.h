@@ -1,13 +1,14 @@
 #ifndef __SignalAnalyzer_h__
 #define __SignalAnalyzer_h__
 
-#include "SoftTDC.h"
-#include "REMIEvent.h"
+#include "softtdc.h"
+//#include "remi_event.h"
 
 namespace cass
 {
     namespace REMI
     {
+        class REMIEvent;
         class SignalAnalyzer
         {
         public:

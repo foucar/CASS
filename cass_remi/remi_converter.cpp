@@ -1,4 +1,4 @@
-#include "REMIConverter.h"
+#include "remi_converter.h"
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
 #include "cassevent.h"

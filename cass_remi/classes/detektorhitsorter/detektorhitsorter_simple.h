@@ -1,7 +1,7 @@
 #ifndef __DetektorHitSorterSimple_H_
 #define __DetektorHitSorterSimple_H_
 
-#include "DetektorHitSorterQuad.h"
+#include "detektorhitsorter_quad.h"
 
 namespace cass
 {

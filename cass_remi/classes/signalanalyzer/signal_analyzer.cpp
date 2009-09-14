@@ -1,8 +1,8 @@
 #include <iostream>
-#include "SignalAnalyzer.h"
+#include "signal_analyzer.h"
 
-#include "SoftTDCCFD.h"
-#include "SoftTDCCoM.h"
+#include "softtdc_cfd.h"
+#include "softtdc_com.h"
 
 
 //_________________________________________________________________________________

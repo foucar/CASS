@@ -1,11 +1,11 @@
 #include <iostream>
 #include <cmath>
 
-#include "DetektorHitSorterSimple.h"
-#include "Detector.h"
-#include "REMIAnalysis.h"
-#include "REMIEvent.h"
-#include "Channel.h"
+#include "detektorhitsorter_simple.h"
+#include "detector.h"
+#include "remi_analysis.h"
+#include "remi_event.h"
+#include "channel.h"
 
 
 //****************************************The Class Implementation*******************************************************

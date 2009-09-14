@@ -1,7 +1,7 @@
 #include <cmath>
 
-#include "SoftTDCCFD.h"
-#include "helperfunctionsforSTDC.h"
+#include "softtdc_cfd.h"
+#include "helperfunctionsforstdc.h"
 
 
 //________________________________Implematation of Constant Fraction Method______________________________________________________

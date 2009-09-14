@@ -3,7 +3,7 @@
 
 #include "cass_remi.h"
 #include "ConversionBackend.h"
-#include "REMIEvent.h"
+#include "remi_event.h"
 
 namespace cass
 {

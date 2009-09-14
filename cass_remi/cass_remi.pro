@@ -10,48 +10,48 @@ TEMPLATE = lib
 
 TARGET = cass_remi
 
-SOURCES += REMIAnalysis.cpp \
-           REMIConverter.cpp \
-           ./Classes/Event/REMIEvent.cpp \
-           ./Classes/Event/Channel/Channel.cpp \
-           ./Classes/Event/Peak/Peak.cpp \
-           ./Classes/Event/Detector/Detector.cpp \
-           ./Classes/SignalAnalyzer/SignalAnalyzer.cpp \
-           ./Classes/SignalAnalyzer/SoftTDCCFD.cpp \
-           ./Classes/SignalAnalyzer/SoftTDCCoM.cpp \
-           ./Classes/SignalAnalyzer/helperfunctionsForSTDC.cpp\
-           ./Classes/DetektorHitSorter/DetektorHitSorter.cpp \
-           ./Classes/DetektorHitSorter/DetektorHitSorterQuad.cpp \
-           ./Classes/DetektorHitSorter/DetektorHitSorterSimple.cpp \
+SOURCES += remi_analysis.cpp \
+           remi_converter.cpp \
+           ./classes/event/remi_event.cpp \
+           ./classes/event/channel/channel.cpp \
+           ./classes/event/peak/peak.cpp \
+           ./classes/event/detector/detector.cpp \
+           ./classes/signalanalyzer/signal_analyzer.cpp \
+           ./classes/signalanalyzer/softtdc_cfd.cpp \
+           ./classes/signalanalyzer/softtdc_com.cpp \
+           ./classes/signalanalyzer/helperfunctionsforstdc.cpp\
+           ./classes/detektorhitsorter/detektorhitsorter.cpp \
+           ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
+           ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
            ../LCLS/pdsdata/acqiris/src/ConfigV1.cc \
            ../LCLS/pdsdata/acqiris/src/DataDescV1.cc
 
-HEADERS += REMIAnalysis.h \
-           REMIConverter.h \
+HEADERS += remi_analysis.h \
+           remi_converter.h \
            cass_remi.h  \
-           ./Classes/Event/REMIEvent.h \
-           ./Classes/Event/Channel/Channel.h \
-           ./Classes/Event/Peak/Peak.h \
-           ./Classes/Event/Detector/Detector.h \
-           ./Classes/SignalAnalyzer/SignalAnalyzer.h \
-           ./Classes/SignalAnalyzer/SoftTDC.h \
-           ./Classes/SignalAnalyzer/SoftTDCCFD.h \
-           ./Classes/SignalAnalyzer/SoftTDCCoM.h \
-           ./Classes/SignalAnalyzer/helperfunctionsForSTDC.h \
-           ./Classes/DetektorHitSorter/DetektorHitSorter.h \
-           ./Classes/DetektorHitSorter/DetektorHitSorterQuad.h \
-           ./Classes/DetektorHitSorter/DetektorHitSorterSimple.h \
+           ./classes/event/remi_event.h \
+           ./classes/event/channel/channel.h \
+           ./classes/event/peak/peak.h \
+           ./classes/event/detector/detector.h \
+           ./classes/signalanalyzer/signal_analyzer.h \
+           ./classes/signalanalyzer/softtdc.h \
+           ./classes/signalanalyzer/softtdc_cfd.h \
+           ./classes/signalanalyzer/softtdc_com.h \
+           ./classes/signalanalyzer/helperfunctionsforstdc.h \
+           ./classes/detektorhitsorter/detektorhitsorter.h \
+           ./classes/detektorhitsorter/detektorhitsorter_quad.h \
+           ./classes/detektorhitsorter/detektorhitsorter_simple.h \
            ../LCLS/pdsdata/acqiris/ConfigV1.hh \
            ../LCLS/pdsdata/acqiris/DataDescV1.hh
 
 INCLUDEPATH += ../cass \
                ../LCLS \
-               ./Classes/SignalAnalyzer \
-               ./Classes/DetektorHitSorter \
-               ./Classes/Event \
-               ./Classes/Event/Channel \
-               ./Classes/Event/Peak \
-               ./Classes/Event/Detector \
+               ./classes/signalanalyzer \
+               ./classes/detektorhitsorter \
+               ./classes/event \
+               ./classes/event/channel \
+               ./classes/event/peak \
+               ./classes/event/detector \
                ./
 
 INSTALLBASE     = /usr/local/cass

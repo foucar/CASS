@@ -1,14 +1,14 @@
 #include <iostream>
 
-#include "SoftTDCCoM.h"
-#include "helperfunctionsforSTDC.h"
-#include "Channel.h"
-#include "Peak.h"
+#include "softtdc_com.h"
+#include "helperfunctionsforstdc.h"
+#include "channel.h"
+#include "peak.h"
 
 
 //______________________Implimentation of simple Version__________________________________________________________
 template <typename T>
-        void com(cass::REMI::REMIEvent& e)
+void com(cass::REMI::REMIEvent& e)
 {
     //go through all channels of the event//
     for (size_t iChan=0;iChan<e.nbrOfChannels();++iChan)

@@ -2,12 +2,13 @@
 #define __SoftTDC_h__
 
 #include <vector>
-#include "REMIEvent.h"
+//#include "REMIEvent.h"
 
 namespace cass
 {
     namespace REMI
     {
+        class REMIEvent;
         //this class is placeholder for two other classes wich will be called
         //according to how many bits the instrument has
         class SoftTDC

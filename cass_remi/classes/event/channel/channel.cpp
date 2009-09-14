@@ -1,6 +1,6 @@
-#include "Channel.h"
-#include "Peak.h"
-#include "REMIAnalysis.h"
+#include "channel.h"
+#include "peak.h"
+#include "remi_analysis.h"
 #include "pdsdata/acqiris/ConfigV1.hh"
 #include "pdsdata/acqiris/DataDescV1.hh"
 

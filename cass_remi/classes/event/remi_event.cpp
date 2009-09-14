@@ -1,9 +1,9 @@
 #include <iostream>
-#include "REMIEvent.h"
-#include "REMIAnalysis.h"
+#include "remi_event.h"
+#include "remi_analysis.h"
 #include "pdsdata/acqiris/ConfigV1.hh"
 #include "pdsdata/acqiris/DataDescV1.hh"
-#include "Channel.h"
+#include "channel.h"
 
 //______________________________________________________________________________________________________________________
 void cass::REMI::REMIEvent::init(const Pds::Acqiris::ConfigV1& config)
