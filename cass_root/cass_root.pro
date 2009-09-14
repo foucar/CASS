@@ -1,6 +1,7 @@
 # Copyright (C) 2009 Nicola Coppola
 
 CONFIG += static
+CONFIG += create_prl
 
 TEMPLATE = lib
 qt += core gui

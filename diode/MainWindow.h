@@ -7,6 +7,8 @@
 #include <QtGui/QTextEdit>
 #include "ui_MainWindow.h"
 
+#include "circ_root.h"
+
 
 class ToolBar;
 QT_FORWARD_DECLARE_CLASS(QMenu)
@@ -34,6 +36,8 @@ public slots:
 
     void quit();
 
+    void startrOotb();
+    void startrOot(int argc, char**argv);
 
 protected slots:
 

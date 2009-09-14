@@ -14,6 +14,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
     QObject::connect(this->actionAbout_Diode, SIGNAL(triggered()), this, SLOT(about()));
     QObject::connect(this->actionAbout_Qt, SIGNAL(triggered()), this, SLOT(aboutQt()));
     QObject::connect(this->actionQuit_Diode, SIGNAL(triggered()), this, SLOT(quit()));
+    QObject::connect(this->actionStart_ROOTb, SIGNAL(triggered()), this, SLOT(startrOotb()));
+    // the following is not an action....
+    QObject::connect(this->actionStart_ROOT, SIGNAL(triggered()), this, SLOT(startrOot(int argc, char**argv)));
 }
 
 
@@ -46,6 +49,19 @@ void MainWindow::quit()
     close();
 }
 
+
+void MainWindow::startrOotb()
+{
+    int argc=0;
+    char**argv=NULL;
+    // start root windows
+    main_root(argc,argv);
+}
+void MainWindow::startrOot(int argc, char**argv)
+{
+    // start root windows
+    main_root(argc,argv);
+}
 
 
 // Local Variables:

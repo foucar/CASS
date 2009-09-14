@@ -1,6 +1,7 @@
 # Copyright (C) 2009 Jochen Küpper
 CONFIG += static
-TEMPLATE = lib
+#TEMPLATE = lib
+TEMPLATE = app
 TARGET = cass
 DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
@@ -43,6 +44,27 @@ INCLUDEPATH += ./ \
     ../cass_pnCCD \
     ../cass_pnCCD/Classes/Event
 
+win32:debug{
+LIBS += -L../cass_REMI/Debug -lcass_REMI \
+        -L../cass_pnCCD/Debug -lcass_pnCCD \
+        -L../cass_VMI/Debug -lcass_VMI \
+        -L../cass/Debug -lcass \
+        -L../cass_root -l Root
+}
+win32:release{
+LIBS += -L../cass_REMI/Release -lcass_REMI \
+        -L../cass_pnCCD/Release -lcass_pnCCD \
+        -L../cass_VMI/Release -lcass_VMI \
+        -L../cass/Release -lcass \
+        -L../cass_root -l Root
+}
+unix{
+LIBS += -L../cass_REMI -lcass_REMI \
+        -L../cass_pnCCD -lcass_pnCCD \
+        -L../cass_VMI -lcass_VMI \
+        -L../cass -lcass \
+        -L../cass_root -l Root
+}
 
 bin.path = $$INSTALLBASE/bin
 header.path = $$INSTALLBASE/include

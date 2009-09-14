@@ -49,7 +49,7 @@ int main_root( int argc, char **argv )
   MyWidget->GetCanvas()->cd(1);
   //m_graph->Draw("AC*");
 
-  for(i=0;i<165000; i++)
+  for(i=0;i<125000; i++)
   {
     r.Rannor(px,py);
     pz=px*px+py*py;

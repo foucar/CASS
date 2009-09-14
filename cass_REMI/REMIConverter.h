@@ -1,7 +1,7 @@
 #ifndef REMICONVERTER_H
 #define REMICONVERTER_H
 
-#include "cass_REMI.h"
+#include "cass_remi.h"
 #include "ConversionBackend.h"
 #include "REMIEvent.h"
 

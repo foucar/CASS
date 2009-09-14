@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QTabWidget" name="dataPickingTab">
       <property name="sizePolicy">
@@ -57,6 +57,19 @@
         </property>
         <property name="text">
          <string>py</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="actionStart_ROOT">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>160</y>
+          <width>75</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Start ROOT</string>
         </property>
        </widget>
       </widget>
@@ -321,6 +334,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionStart_ROOTb"/>
     <addaction name="actionQuit_Diode"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -350,6 +364,14 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionStart_ROOTb">
+   <property name="text">
+    <string>Start ROOT</string>
+   </property>
+   <property name="toolTip">
+    <string>Start ROOT window</string>
    </property>
   </action>
  </widget>
