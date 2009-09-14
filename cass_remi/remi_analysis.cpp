@@ -1,6 +1,6 @@
 #include "remi_analysis.h"
 #include "remi_event.h"
-#include "cassevent.h"
+#include "cass_event.h"
 
 void cass::REMI::Analysis::init(const cass::ParameterBackend* param)
 {

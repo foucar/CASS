@@ -8,7 +8,7 @@
  */
 
 #include "vmi_analysis.h"
-#include "cassevent.h"
+#include "cass_event.h"
 
 void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
 {

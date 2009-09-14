@@ -2,7 +2,7 @@
 
 #include "pdsdata/camera/FrameV1.hh"
 #include "pdsdata/xtc/Xtc.hh"
-#include "cassevent.h"
+#include "cass_event.h"
 #include "vmi_event.h"
 
 

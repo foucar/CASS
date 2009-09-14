@@ -1,7 +1,7 @@
 #include "remi_converter.h"
+#include "cass_event.h"
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
-#include "cassevent.h"
 
 
 void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
