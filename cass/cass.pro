@@ -44,21 +44,21 @@ LIBS += -L../cass_remi/Debug -lcass_remi \
         -L../cass_pnccd/Debug -lcass_pnccd \
         -L../cass_vmi/Debug -lcass_vmi \
         -L../cass/Debug -lcass \
-        -L../cass_root -lroot
+#        -L../cass_root -lroot
 }
 win32:release{
 LIBS += -L../cass_remi/Release -lcass_remi \
         -L../cass_pnccd/Release -lcass_pnccd \
         -L../cass_vmi/Release -lcass_vmi \
         -L../cass/Release -lcass \
-        -L../cass_root -lroot
+#        -L../cass_root -lroot
 }
 unix{
 LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_vmi -lcass_vmi \
         -L../cass -lcass \
-        -L../cass_root -lroot
+#        -L../cass_root -lroot
 }
 
 bin.path = $$INSTALLBASE/bin

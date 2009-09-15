@@ -21,6 +21,9 @@ namespace cass
         class Parameter : public cass::ParameterBackend
         {
         public:
+            Parameter()     {}
+            ~Parameter()     {}
+        public:
             uint16_t _threshold;
             uint16_t _xCenterOfMcp;
             uint16_t _yCenterOfMcp;
@@ -32,6 +35,7 @@ namespace cass
         {
         public:
             Analysis(const cass::ParameterBackend *param)            {init(param);}
+            ~Analysis() {}
             void init(const cass::ParameterBackend*);
 
             //called for every event//

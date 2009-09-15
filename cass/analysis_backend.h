@@ -18,7 +18,7 @@ namespace cass
     class ParameterBackend
     {
     public:
-        virtual ~ParameterBackend();
+        virtual ~ParameterBackend()=0;
     };
 
 

@@ -62,6 +62,8 @@ namespace cass
         class Parameter : public cass::ParameterBackend
         {
         public:
+            Parameter(){}
+            ~Parameter(){}
             size_t nbrOfDetectors()const    {return fDetectorParameters.size();}
             //a dictionary of all user settings
 
@@ -86,7 +88,7 @@ namespace cass
         public:
 
             Analysis(const cass::ParameterBackend* param)        {init(param);}
-
+            ~Analysis(){}
             /** initialize AnalysisBackend with new set of parameters */
             void init(const cass::ParameterBackend* param);
             //called for every event//

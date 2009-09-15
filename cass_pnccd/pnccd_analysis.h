@@ -57,8 +57,8 @@ namespace cass
             /*
             Constructor: assign the parameters with safe default values:
             */
-            Parameter(void);
-            ~Parameter();
+            Parameter(void) {}
+            ~Parameter()    {}
             /*
             Get the number of detectors which are described in this
             parameter class:

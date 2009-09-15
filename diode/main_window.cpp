@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
     QObject::connect(this->actionQuit_Diode, SIGNAL(triggered()), this, SLOT(quit()));
     QObject::connect(this->actionStart_ROOTb, SIGNAL(triggered()), this, SLOT(startrOotb()));
     // the following is not an action....
-    QObject::connect(this->actionStart_ROOT, SIGNAL(triggered()), this, SLOT(startrOot(int argc, char**argv)));
+//    QObject::connect(this->actionStart_ROOT, SIGNAL(triggered()), this, SLOT(startrOot(int argc, char**argv)));
 }
 
 
