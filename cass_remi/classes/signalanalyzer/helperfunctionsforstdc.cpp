@@ -2,7 +2,7 @@
 #include <cmath>
 
 //_______________________________________helper function that does a linear Regression__________________________________________
-void linearRegression(const int nbrPoints, const double x[], const double y[], double &m, double &c)
+/*void linearRegression(const int nbrPoints, const double x[], const double y[], double &m, double &c)
 {
     //--this funktion does a linear regression of 4 points--//
     //--getting a line that follows the form: y(x) = m*x + c--//
@@ -21,7 +21,7 @@ void linearRegression(const int nbrPoints, const double x[], const double y[], d
 
     m = ((SumX*SumY) - (nbrPoints*SumXY)) / a1;
     c = ((SumX*SumXY) - (SumY*SumXsq)) / a1;
-}
+    }*/
 //_______________________________________helper function that does a weighted linear Regression__________________________________________
 void gewichtetlinearRegression(const int nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c)
 {
@@ -48,14 +48,14 @@ void gewichtetlinearRegression(const int nbrPoints, const double x[], const doub
 }
 
 //_________________________________create Newton Polynomial____________________________
-void createNewtonPolynomial(const double * x, const double * y, double * coeff)
-{
+//void createNewtonPolynomial(const double * x, const double * y, double * coeff)
+//{
     //**this function creates the coefficients for Newton interpolating Polynomials  **//
     //**Newton Polynomial are Created from n Points and have the form                **//
     //**p(x) = c0 + c1(x-x0) + c2(x-x0)(x-x1)+...+c_(n-1)(x-x0)(x-x1)...(x-x_(n-2))  **//
     //**given that you have n Points (x0,y0), (x1,y1), ..., (x_(n-1),y_(n-1))        **//
 
-    double f_x0_x1 = (y[1]-y[0]) / (x[1]-x[0]);
+/*    double f_x0_x1 = (y[1]-y[0]) / (x[1]-x[0]);
     double f_x1_x2 = (y[2]-y[1]) / (x[2]-x[1]);
     double f_x2_x3 = (y[3]-y[2]) / (x[3]-x[2]);
 
@@ -68,24 +68,24 @@ void createNewtonPolynomial(const double * x, const double * y, double * coeff)
     coeff[1] = f_x0_x1;
     coeff[2] = f_x0_x1_x2;
     coeff[3] = f_x0_x1_x2_x3;
-}
+}*/
 
 //_________________________________evaluate Newton Polynomial____________________________
-double evalNewtonPolynomial(const double * x, const double * coeff, double X)
-{
+/*double evalNewtonPolynomial(const double * x, const double * coeff, double X)
+{*/
     //**this function evaluates the Newton Polynomial that was created from n Points**//
     //** (x0,y0),..., (x(n-1),y(n-1)) with coefficients (c0,...,c(n-1))             **//
     //**using Horner's Rule                                                         **//
 
-    double returnValue = coeff[3];
+  /* double returnValue = coeff[3];
     returnValue = returnValue * (X - x[2]) + coeff[2];
     returnValue = returnValue * (X - x[1]) + coeff[1];
     returnValue = returnValue * (X - x[0]) + coeff[0];
 
     return returnValue;
-}
+}*/
 //_________________________________Achims Numerical Approximation______________________
-class MyPunkt
+/*class MyPunkt
 {
 public: 
     MyPunkt(double xx, double yy):X(xx),Y(yy){}
@@ -93,7 +93,7 @@ public:
     double &y() {return Y;}
 private:
     double X;
-    double Y;
+    double Y; 
 };
 double findXForGivenY(const double * x, const double * coeff, const double Y, const double Start)
 {
@@ -164,7 +164,7 @@ double findXForGivenY(const double * x, const double * coeff, const double Y, co
     //ist der gewuenschte Abstand zwischen den x-Werten erreicht
     //liefere das arithmetische mittel zwischen beiden zurueck
     return ((Up.x() + Low.x())*0.5);
-}
+}*/
 //_________________________________gib mir zurueck______________________
 //double gmz(const double i, const double x0, const dvec MPuls)
 //{

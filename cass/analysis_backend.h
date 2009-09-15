@@ -15,10 +15,11 @@ namespace cass
     @author Jochen Küpper
     @version 0.1
     */
-    class ParameterBackend
+    class CASSSHARED_EXPORT ParameterBackend
     {
     public:
-        virtual ~ParameterBackend()=0;
+        //virtual ParameterBackend()=0;
+        virtual ~ParameterBackend() {}
     };
 
 
@@ -30,7 +31,7 @@ namespace cass
     class CASSSHARED_EXPORT AnalysisBackend
     {
     public:
-        virtual ~AnalysisBackend() = 0;
+        virtual ~AnalysisBackend() {}
 
         /** initialize AnalysisBackend with new set of parameters */
         virtual void init(const ParameterBackend*) = 0;

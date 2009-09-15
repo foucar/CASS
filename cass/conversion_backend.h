@@ -22,7 +22,7 @@ namespace cass {
 
     class CASSSHARED_EXPORT ConversionBackend {
     public:
-        virtual ~ConversionBackend() = 0;
+        virtual ~ConversionBackend() {}
 
         virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
     };

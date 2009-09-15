@@ -3,15 +3,16 @@ CONFIG += static
 #TEMPLATE = lib
 TEMPLATE = app
 TARGET = cass
-DEFINES += CASS_LIBRARY
+#DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
+CODECFORTR = UTF-8
 
-
-SOURCES +=  analyzer.cpp \
+SOURCES +=  cass.cpp \
+            analyzer.cpp \
             event_queue.cpp \
             format_converter.cpp \
-            cass.cpp \
-            #../LCLS/pdsdata/app/XtcMonitorClient.cc \
+            #cass.cpp \
+            ../LCLS/pdsdata/app/XtcMonitorClient.cc \
             cass_event.cpp \
             xtciterator.cpp
 
@@ -61,12 +62,17 @@ LIBS += -L../cass_remi -lcass_remi \
 #        -L../cass_root -lroot
 }
 
+INSTALLBASE = /usr/local/cass
+
 bin.path = $$INSTALLBASE/bin
 header.path = $$INSTALLBASE/include
 libs.path = $$INSTALLBASE/libs
-bin.files = cass
+bin.files = cass.app
 header.files = $$HEADERS
 libs.files = libcass.a
+
+#INSTALLS += bin
+
 INSTALLS += header \
     libs \
     bin

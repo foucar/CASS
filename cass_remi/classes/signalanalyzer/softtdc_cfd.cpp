@@ -95,18 +95,18 @@ void cfd(cass::REMI::REMIEvent &e)
                 double mslope,cslope;
                 const double xslope[3] = {i-delay,i+1-delay,i+2-delay};
                 const double yslope[3] = {fxd,fxd_1,fxd_2};
-                cass::REMI::linearRegression(3,xslope,yslope,mslope,cslope);
+                cass::REMI::linearRegression<T>(3,xslope,yslope,mslope,cslope);
 
                 //--find x with a cubic polynomial interpolation between four points--//
                 //--do this with the Newtons interpolation Polynomial--//
                 const double x[4] = {i-1,i,i+1,i+2};          //x vector
                 const double y[4] = {fsx_m1,fsx,fsx_1,fsx_2}; //y vector
                 double coeff[4] = {0,0,0,0};                  //Newton coeff vector
-                cass::REMI::createNewtonPolynomial(x,y,coeff);
+                cass::REMI::createNewtonPolynomial<T>(x,y,coeff);
 
                 //--numericaly solve the Newton Polynomial--//
                 //--give the lineare approach for x as Start Value--//
-                const double xPoly = cass::REMI::findXForGivenY(x,coeff,walk,xLin);
+                const double xPoly = cass::REMI::findXForGivenY<T>(x,coeff,walk,xLin);
                 const double pos = xPoly + static_cast<double>(idxToFiPoint) + horpos;
 
                 //--add a new peak--//

@@ -59,11 +59,11 @@ namespace cass
         };
         typedef std::vector<ChannelParameter> chanparameters_t;
 
-        class Parameter : public cass::ParameterBackend
+        class CASS_REMISHARED_EXPORT Parameter : public cass::ParameterBackend
         {
         public:
-            Parameter(){}
-            ~Parameter(){}
+            Parameter()  {}
+            ~Parameter() {}
             size_t nbrOfDetectors()const    {return fDetectorParameters.size();}
             //a dictionary of all user settings
 

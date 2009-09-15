@@ -8,11 +8,13 @@
 #ifndef PNCCD_EVENT_H
 #define PNCCD_EVENT_H
 
+#include "cass_pnccd.h"
+
 namespace cass
 {
     namespace pnCCD
     {
-        class pnCCDEvent
+        class CASS_PNCCDSHARED_EXPORT pnCCDEvent
         {
         public:
             // Initialize the event data structure with the number of
@@ -21,12 +23,12 @@ namespace cass
             // event. This will allocate the necessary memory needed to store
             // the data in the event, so be careful and keep in mind that
             // memory allocation takes CPU time and space.
-            pnCCDEvent();
+            pnCCDEvent() {}
             pnCCDEvent(int num_pixel_arrays,
                        std::vector<int> array_x_size,
                        std::vector<int> array_y_size,
                        std::vector<int> max_photons_per_event);
-            ~pnCCDEvent();
+            ~pnCCDEvent() {}
         private:
         };
 

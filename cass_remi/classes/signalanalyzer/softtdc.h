@@ -14,7 +14,9 @@ namespace cass
         class SoftTDC
         {
         public:
+	  virtual ~SoftTDC() {}
             virtual void FindPeaksIn(REMIEvent&)=0;
+            
         };
 
         //this class does nothing

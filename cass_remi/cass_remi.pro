@@ -5,8 +5,10 @@ CONFIG += static
 QT -= core gui
 
 VERSION = 0.0.1
+QMAKE_RANLIB = ranlib
 
 TEMPLATE = lib
+DEFINES += CASS_REMI_LIBRARY
 
 TARGET = cass_remi
 

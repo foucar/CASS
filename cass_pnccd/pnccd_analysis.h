@@ -24,8 +24,8 @@ namespace cass
         class pnCCDFrameCalibration
         {
         public:
-            pnCCDFrameCalibration(void);
-            ~pnCCDFrameCalibration();
+            pnCCDFrameCalibration(void) {}
+            ~pnCCDFrameCalibration() {}
         private:
         };
 
@@ -36,8 +36,8 @@ namespace cass
         class pnCCDPulseHeightCal
         {
         public:
-            pnCCDPulseHeightCal(void);
-            ~pnCCDPulseHeightCal();
+            pnCCDPulseHeightCal(void) {}
+            ~pnCCDPulseHeightCal() {}
         private:
         };
 
