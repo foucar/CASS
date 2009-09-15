@@ -37,10 +37,10 @@ namespace cass
         static FormatConverter *instance(EventQueue *);
 
     public slots:
-        void processDatagram(uint32_t index);
+        void processDatagram(quint32 index);
 
     signals:
-        void nextEvent(CASSEvent*);
+        void nextEvent(cass::CASSEvent*);
 
     protected:
 

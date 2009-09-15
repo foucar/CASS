@@ -15,6 +15,7 @@ cass::Analyzer::Analyzer()
     //create the analyzers//
     _analyzer[REMI] = new cass::REMI::Analysis(_parameter[REMI]);
     _analyzer[VMI] = new cass::VMI::Analysis(_parameter[VMI]);
+
     _analyzer[pnCCD] = new cass::VMI::Analysis(_parameter[pnCCD]);
 }
 

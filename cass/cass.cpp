@@ -6,9 +6,9 @@
 #include "analyzer.h"
 #include "event_queue.h"
 #include "format_converter.h"
-//#include "RootTree.h"
+#include "database.h"
 
-using namespace cass;
+//using namespace cass;
 
 int main(int argc, char **argv)
 {
@@ -16,27 +16,30 @@ int main(int argc, char **argv)
     QApplication app(argc, argv, false);
 
     // create event queue object
-    EventQueue *input(new EventQueue);
+    cass::EventQueue *input(new cass::EventQueue());
     // create format converter object
-    FormatConverter *conversion(FormatConverter::instance(input));
+    cass::FormatConverter *conversion(cass::FormatConverter::instance(input));
     // create analysis object
-    Analyzer *analysis(new Analyzer);
-//    // create database object
-//    RootTree *database(new RootTree);
+    cass::Analyzer *analysis(new cass::Analyzer());
+    // create database object
+    cass::database::Database *database(new cass::database::Database());
 
     // connect the objects
-    QObject::connect (input, SIGNAL(nextEvent(uint32_t)), conversion, SLOT(processDatagram(uint32_t)));
-    QObject::connect (conversion, SIGNAL(nextEvent(CASSEvent*)), analysis, SLOT(nextEvent(Event&)));
-//    QObject::connect (analysis, SIGNAL(nextEvent(Event&)), database, SLOT(nextEvent(Event&)));
+    QObject::connect (input, SIGNAL(nextEvent(quint32)), conversion, SLOT(processDatagram(quint32)));
+    QObject::connect (conversion, SIGNAL(nextEvent(cass::CASSEvent*)), analysis, SLOT(processEvent(cass::CASSEvent*)));
+    QObject::connect (analysis, SIGNAL(nextEvent(cass::CASSEvent*)), database, SLOT(add(cass::CASSEvent*)));
 
+    QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
+    input->start();
+ 
     // start Qt event loop
     int retval(app.exec());
 
     // clean up
-//    delete database;
+    delete database;
     delete analysis;
     delete input;
-    FormatConverter::destroy();
+    cass::FormatConverter::destroy();
 
     // finish
     return retval;

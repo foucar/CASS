@@ -4,7 +4,8 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 cass::EventQueue::EventQueue( QObject *parent):
-        QThread(parent),_index(0)
+        QThread(parent),
+        _index(0)
 {
     //initialize the ringbuffer//
     _ringbuffer = new char[(0x700000)*4];
@@ -33,7 +34,7 @@ void cass::EventQueue::run()
 
 void cass::EventQueue::processDgram(Pds::Dgram* datagram)
 {
-    //check which entry of the ringbuffer is not locked by a receiver//
+    //check which entry of the ringbuffer is not locked by a receiver//   
     while(!(_mutexes[_index].tryLock()))
         _index = (++_index )% 4;
 
@@ -50,7 +51,7 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
     _mutexes[_index].unlock();
 
     //advance the index such that next time this is called it will check the next index first//
-    ++_index;
+    _index = (++_index)%4;
 
     //tell the world that there is a new datagram available//
     emit nextEvent(index);
@@ -67,7 +68,7 @@ Pds::Dgram * cass::EventQueue::GetAndLockDatagram(uint32_t index)
 void cass::EventQueue::UnlockDatagram(uint32_t index)
 {
     //check whether Mutex is already locked, if so unlock it//
-    if(_mutexes[index].tryLock())
+    if(!(_mutexes[index].tryLock()))
         _mutexes[index].unlock();
 }
 

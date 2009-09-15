@@ -27,7 +27,7 @@ namespace cass
         void UnlockDatagram(uint32_t index);
 
     signals:
-        void nextEvent(uint32_t index);
+        void nextEvent(quint32 index);
 
     private:
         char       *_ringbuffer;

@@ -31,10 +31,10 @@ namespace cass
         enum Analyzers {pnCCD, REMI, VMI, GMD, YAGPOWER};
 
     public slots:
-        void processEvent(CASSEvent*);
+    void processEvent(cass::CASSEvent*);
 
     signals:
-        void nextEvent(CASSEvent*);
+    void nextEvent(cass::CASSEvent*);
 
     protected:
         std::map<Analyzers, AnalysisBackend*> _analyzer;

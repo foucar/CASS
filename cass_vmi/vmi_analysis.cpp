@@ -12,7 +12,8 @@
 
 void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
 {
-    const cass::VMI::Parameter &param = *dynamic_cast<const cass::VMI::Parameter*>(p);
+  const cass::VMI::Parameter &param = *(reinterpret_cast<const cass::VMI::Parameter*>(p));
+  // const cass::VMI::Parameter &param = *((const cass::VMI::Parameter*)(p));
     _threshold    = param._threshold;
     _xCenterOfMcp = param._xCenterOfMcp;
     _yCenterOfMcp = param._yCenterOfMcp;
