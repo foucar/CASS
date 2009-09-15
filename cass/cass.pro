@@ -60,6 +60,10 @@ LIBS += -L../cass_remi -lcass_remi \
         -L../cass_vmi -lcass_vmi \
         -L../cass -lcass \
 #        -L../cass_root -lroot
+        -L/afs/desy.de/user/n/ncoppola/LCLS/new/release/build/pdsdata/lib/i386-linux -lacqdata -lxtcdata -lpulnixdata
+
+
+QMAKE_LFLAGS += -Wl,-rpath,/afs/desy.de/user/n/ncoppola/LCLS/new/release/build/pdsdata/lib/i386-linux -L
 }
 
 INSTALLBASE = /usr/local/cass
