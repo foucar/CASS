@@ -18,4 +18,12 @@ QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 #CREATE_ROOT_DICT_FOR_CLASSES = $$HEADERS LinkDef.h
 include("$(ROOTSYS)/include/rootcint.pri")
 
-SUBDIRS = cass cass_root cass_remi cass_vmi cass_pnccd cass_imageprocessor cass_database diode
+SUBDIRS = \
+          cass \
+          cass_root \
+          cass_remi \
+          cass_vmi \
+          cass_pnccd \
+          cass_imageprocessor \
+          cass_database \
+          diode
