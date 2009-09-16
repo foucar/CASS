@@ -8,8 +8,8 @@
 cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     fChNbr(chNbr)
 {
-    fFullscale  = config.vert(fChNbr).fullScale();
-    fOffset     = config.vert(fChNbr).offset();
+    fFullscale  = static_cast<int16_t>(config.vert(fChNbr).fullScale());
+    fOffset     = static_cast<int16_t>(config.vert(fChNbr).offset());
     fGain       = config.vert(fChNbr).slope();
     fDataLength = config.horiz().nbrSamples();
 
@@ -32,7 +32,7 @@ void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 //______________________________________________________________________________________________________________________
 void cass::REMI::Channel::CopyChannelParameters(const cass::REMI::ChannelParameter& param)
 {
-    fThreshold  = param.fThreshold;
+    fThreshold  = static_cast<int16_t>(param.fThreshold);
     fStsi       = param.fStepsize;
     fBs         = param.fBacksize;
     fDelay      = param.fDelay;

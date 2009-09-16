@@ -16,7 +16,7 @@ void com(cass::REMI::REMIEvent& e)
         //extract info from the event//
         cass::REMI::Channel &c  = e.channel(iChan);
         const T *Data           = static_cast<const T*>(c.waveform());
-        const long vOffset      = c.vertOffset() / c.vertGain();    //mV -> ADC Bytes
+        const long vOffset      = static_cast<long>(c.vertOffset() / c.vertGain());    //mV -> ADC Bytes
         const size_t wLength    = c.waveformLength();
         const double threshold  = c.threshold() / c.vertGain();    //mV -> ADC Bytes
 
