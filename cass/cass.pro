@@ -11,9 +11,7 @@ SOURCES +=  cass.cpp \
             analyzer.cpp \
             event_queue.cpp \
             format_converter.cpp \
-            ../LCLS/pdsdata/app/XtcMonitorClient.cc \
-            #$$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc \
-            cass_event.cpp \
+            $$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc \ #we have to live with this hack until lcls has made this part of their library
             xtciterator.cpp
 
 HEADERS +=  analysis_backend.h \
@@ -44,17 +42,13 @@ win32:debug{
 LIBS += -L../cass_remi/Debug -lcass_remi \
         -L../cass_pnccd/Debug -lcass_pnccd \
         -L../cass_vmi/Debug -lcass_vmi \
-        -L../cass/Debug -lcass \
         -L../cass_database/Debug -lcass_database \
-#        -L../cass_root -lroot
 }
 win32:release{
 LIBS += -L../cass_remi/Release -lcass_remi \
         -L../cass_pnccd/Release -lcass_pnccd \
         -L../cass_vmi/Release -lcass_vmi \
-        -L../cass/Release -lcass \
         -L../cass_database/Release -lcass_database \
-#        -L../cass_root -lroot
 }
 unix{
 QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB) -L
