@@ -11,7 +11,8 @@ SOURCES +=  cass.cpp \
             analyzer.cpp \
             event_queue.cpp \
             format_converter.cpp \
-            #../LCLS/pdsdata/app/XtcMonitorClient.cc \
+            ../LCLS/pdsdata/app/XtcMonitorClient.cc \
+            #$$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc \
             cass_event.cpp \
             xtciterator.cpp
 
@@ -60,7 +61,7 @@ QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB) -L
 LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_vmi -lcass_vmi \
-        -L../cass -lcass \
+#        -L../cass -lcass \
         -L../cass_database -lcass_database \
 #        -L../cass_root -lroot
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata
