@@ -6,8 +6,6 @@
  *
  */
 #include <QtCore/QObject>
-//#include <map>
-//#include "cass_event.h"
 
 namespace cass
 {
