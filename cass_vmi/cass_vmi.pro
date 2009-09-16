@@ -7,11 +7,6 @@ TARGET = cass_vmi
 DEFINES += CASS_VMI_LIBRARY
 VERSION = 0.0.1
 
-
-INCLUDEPATH += ../cass \
-               ../LCLS \
-               ./classes/event \
-
 SOURCES += vmi_analysis.cpp \
            vmi_converter.cpp \
            ./classes/event/vmi_event.cpp \
@@ -21,6 +16,11 @@ HEADERS += vmi_analysis.h \
            vmi_converter.h \
            cass_vmi.h \
            ./classes/event/vmi_event.h \
+
+INCLUDEPATH += $$(LCLSSYSINCLUDE) \
+               ../cass \
+               ./classes/event \
+
 
 
 
