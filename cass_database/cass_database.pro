@@ -1,30 +1,21 @@
 # Copyright (C) 2009 lutz foucar
 
 CONFIG += static 
-
 QT -= core gui
-
 TEMPLATE = lib
-
-
 TARGET = cass_database
+DEFINES += CASS_DATABASE_LIBRARY
 
-gVERSION = 0.0.1
+VERSION = 0.0.1
 
 
-INCLUDEPATH += ../cass
 
 SOURCES += database.cpp
 
 HEADERS += database.h \
            cass_database.h
 
-INCLUDEPATH += ../LCLS \
-               ../cass_remi/classes/event \
-               ../cass_remi/classes/event/channel \
-               ../cass_remi/classes/event/peak \
-               ../cass_remi/classes/event/detector
-
+INCLUDEPATH += ../cass
 
 
 INSTALLBASE    = /usr/local/cass

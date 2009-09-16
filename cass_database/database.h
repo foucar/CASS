@@ -20,15 +20,14 @@ namespace cass
             Q_OBJECT;
 
         public:
-            Database() {}
-            ~Database() {}
+            Database();
+            ~Database();
 
-
-            cass::CASSEvent* nextEvent() {return 0;}
+            cass::CASSEvent* nextEvent();
            
 
         public slots:
-            void add(cass::CASSEvent*) {}
+            void add(cass::CASSEvent*);
 
         private:
         };
