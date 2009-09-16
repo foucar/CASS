@@ -1,14 +1,10 @@
 # Copyright (C) 2009 Jochen Küpper
 
 CONFIG += static 
-
 QT -= core gui
-
 TEMPLATE = lib
-
-
 TARGET = cass_pnccd
-
+DEFINES += CASS_PNCCD_LIBRARY
 VERSION = 0.0.1
 
 
@@ -21,7 +17,8 @@ HEADERS += pnccd_analysis.h \
            ./classes/event/pnccd_event.h
 
 
-INCLUDEPATH += ../cass ./classes/event
+INCLUDEPATH += ../cass \
+               ./classes/event
 
 
 INSTALLBASE    = /usr/local/cass
