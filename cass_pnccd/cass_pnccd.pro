@@ -17,8 +17,10 @@ HEADERS += pnccd_analysis.h \
            ./classes/event/pnccd_event.h
 
 
-INCLUDEPATH += ../cass \
-               ./classes/event
+INCLUDEPATH += ./ \
+               ../cass \
+               ./classes/event \
+               $$(LCLSSYSINCLUDE)
 
 
 INSTALLBASE    = /usr/local/cass

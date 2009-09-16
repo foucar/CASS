@@ -95,8 +95,8 @@ namespace cass
         class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis(const cass::ParameterBackend*);
-            ~Analysis();
+            Analysis(const cass::ParameterBackend* param)     {init(param);}
+            ~Analysis() {}
             /*
             initialize AnalysisBackend with new set of parameters
              */

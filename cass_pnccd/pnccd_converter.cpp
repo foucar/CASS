@@ -1,6 +1,6 @@
 #include "pnccd_converter.h"
 
-//#include "pdsdata/xtc/Xtc.hh"
+#include "pdsdata/xtc/Xtc.hh"
 #include "cass_event.h"
 
 

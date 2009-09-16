@@ -1,12 +1,18 @@
 // Copyright (C) 2009 Jochen Küpper
 
 #include "pnccd_analysis.h"
+#include "pnccd_event.h"
+#include "cass_event.h"
 
-namespace cass
+void cass::pnCCD::Analysis::init(const cass::ParameterBackend*)
 {
-    namespace pnCCD
-    {
-    }
+    //initialize your analyzer here//
+}
+
+void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
+{
+    cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+    //analyze your event here//
 }
 
 
