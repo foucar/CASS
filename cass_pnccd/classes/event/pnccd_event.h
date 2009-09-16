@@ -8,31 +8,58 @@
 #ifndef PNCCD_EVENT_H
 #define PNCCD_EVENT_H
 
-#include "cass_pnccd.h"
+// Include as defined in C99. This should thus hopefully work
+// on all systems which support this standard:
+#include <inttypes.h>
 
+#include "pnccd_photon_hit.h"
+#include "cass_pnccd.h"
+	
 namespace cass
 {
-    namespace pnCCD
-    {
-        class CASS_PNCCDSHARED_EXPORT pnCCDEvent
-        {
-        public:
-            // Initialize the event data structure with the number of
-            // detectors (pixel arrays) , the size of the detectors ,
-            // the maximum of photon hits which should be stored in the
-            // event. This will allocate the necessary memory needed to store
-            // the data in the event, so be careful and keep in mind that
-            // memory allocation takes CPU time and space.
-            pnCCDEvent() {}
-            pnCCDEvent(int num_pixel_arrays,
-                       std::vector<int> array_x_size,
-                       std::vector<int> array_y_size,
-                       std::vector<int> max_photons_per_event);
-            ~pnCCDEvent() {}
-        private:
-        };
-
-
+  namespace pnCCD
+  {
+     class CASS_PNCCDSHARED_EXPORT pnCCDEvent
+     {
+     public:
+// Initialize the event data structure with the number of
+// detectors (pixel arrays) , the size of the detectors ,
+// the maximum of photon hits which should be stored in the
+// event. This will allocate the necessary memory needed to store
+// the data in the event, so be careful and keep in mind that
+// memory allocation takes CPU time and space.
+	pnCCDEvent() {}
+	pnCCDEvent(int num_pixel_arrays,
+                   std::vector<int> array_x_size,
+                   std::vector<int> array_y_size,
+                   std::vector<int> max_photons_per_event);
+        ~pnCCDEvent() {}
+// Initialize the event storage with the given number of detectors
+// and their array sizes:
+        bool initEventStorage(void);
+      private:
+// These variables are set by the second constructor. The allocation
+// of the local storage arrays is performed by the initEventStorage()
+// member function.
+        std::vector<int> array_x_size_;
+	std::vector<int> array_y_size_;
+	std::vector<int> max_photons_per_event_;
+// The storage arrays for:
+// -> detector array raw data
+// -> offset and, if desired, common mode corrected raw data.
+//    this is the most basic analysis product and corresponds
+//    to the pixel signal map (without averaging) in Xonline.
+// -> non-recombined X-ray photon hits which correspond to a
+//    pixel signal which is above the signal threshold defined
+//    in cass::pnCCD::Parameter.
+// -> recombined X-ray photon hits which are created from the
+//    non-recombined hits. Neighboring photon hits are grouped
+//    into one hit which contains the sum of the recombined
+//    pulse heights.
+        std::vector<uint16_t*> raw_signal_values_;
+        std::vector<uint16_t*> corr_signal_values_;
+        std::vector<
+      };
     } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
