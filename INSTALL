@@ -1,7 +1,21 @@
-Use qmake with appropriate options to create Makefiles, then run
+Install instructions for CASS
+=============================
+
+Prerequisites
+-------------
+
+The following software packages need to be installed and available for building and running CASS:
+  - Qt version 4.x
+  - ROOT version 5.24.x
+  - LCLS <something> package, availabel from confluence.slac.gov
+
+
+Building CASS
+-------------
+
+Use qmake with appropriate options to create Makefiles, i. e.,
+  qmake -r
+then run
   make
   sudo make install
 to build and install the software.
-
-On my Mac I use
-  qmake -spec macx-g++42 -recursive
