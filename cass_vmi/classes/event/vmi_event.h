@@ -28,9 +28,7 @@ namespace cass
         class VMIEvent
         {
         public:
-           // VMIEvent(Pds::Camera::FrameV1 &frame);	//frame from LCLS
             VMIEvent():_isFilled(false)              {}
-
 
             bool&       isFilled()                   {return _isFilled;}
             bool        isFilled()const              {return _isFilled;}

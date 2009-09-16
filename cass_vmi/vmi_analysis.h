@@ -22,7 +22,7 @@ namespace cass
         {
         public:
             Parameter()     {}
-            ~Parameter()     {}
+            ~Parameter()    {}
         public:
             uint16_t _threshold;
             uint16_t _xCenterOfMcp;
