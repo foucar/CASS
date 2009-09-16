@@ -1,12 +1,7 @@
 # Copyright (C) 2009 Jochen Küpper
 
 CONFIG += static
-
 QT -= core gui
-
-VERSION = 0.0.1
-QMAKE_RANLIB = ranlib
-
 TEMPLATE = lib
 DEFINES += CASS_REMI_LIBRARY
 
@@ -21,12 +16,9 @@ SOURCES += remi_analysis.cpp \
            ./classes/signalanalyzer/signal_analyzer.cpp \
            ./classes/signalanalyzer/softtdc_cfd.cpp \
            ./classes/signalanalyzer/softtdc_com.cpp \
-           ./classes/signalanalyzer/helperfunctionsforstdc.cpp\
            ./classes/detektorhitsorter/detektorhitsorter.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
-           ../LCLS/pdsdata/acqiris/src/ConfigV1.cc \
-           ../LCLS/pdsdata/acqiris/src/DataDescV1.cc
 
 HEADERS += remi_analysis.h \
            remi_converter.h \
@@ -43,8 +35,6 @@ HEADERS += remi_analysis.h \
            ./classes/detektorhitsorter/detektorhitsorter.h \
            ./classes/detektorhitsorter/detektorhitsorter_quad.h \
            ./classes/detektorhitsorter/detektorhitsorter_simple.h \
-           ../LCLS/pdsdata/acqiris/ConfigV1.hh \
-           ../LCLS/pdsdata/acqiris/DataDescV1.hh
 
 INCLUDEPATH += ../cass \
                ../LCLS \
