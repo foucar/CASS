@@ -12,7 +12,7 @@ namespace Pds {
       virtual ~XtcMonitorClient() {};
 
     public:
-      int runMonitor(char * partitionTag);
+      int run(char * partitionTag);
       virtual void processDgram(Dgram*);
   };
 }
