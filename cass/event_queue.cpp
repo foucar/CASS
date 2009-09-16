@@ -29,7 +29,7 @@ void cass::EventQueue::run()
 {
     //start the xtcmonitorclient//
     //this eventqueue will subscripe to a partitiontag with name cass//
-    runMonitor("cass");
+    Pds::XtcMonitorClient::run("cass");
 }
 
 void cass::EventQueue::processDgram(Pds::Dgram* datagram)
