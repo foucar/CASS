@@ -6,8 +6,8 @@ Prerequisites
 
 The following software packages need to be installed and available for building and running CASS:
   - Qt version 4.x
-  - ROOT version 5.24.x
-  - LCLS <something> package, availabel from confluence.slac.gov
+  - ROOT version 5.24 or higher
+  - LCLS package, available from http://confluence.slac.stanford.edu/display/PCDS/Online+Analysis+And+Monitoring
 
 
 Building CASS
