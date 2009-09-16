@@ -36,8 +36,8 @@ HEADERS += remi_analysis.h \
            ./classes/detektorhitsorter/detektorhitsorter_quad.h \
            ./classes/detektorhitsorter/detektorhitsorter_simple.h \
 
-INCLUDEPATH += ../cass \
-               ../LCLS \
+INCLUDEPATH += $$(LCLSSYSINCLUDE) \
+               ../cass \
                ./classes/signalanalyzer \
                ./classes/detektorhitsorter \
                ./classes/event \
