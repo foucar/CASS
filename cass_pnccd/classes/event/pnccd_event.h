@@ -58,7 +58,6 @@ namespace cass
 //    pulse heights.
         std::vector<uint16_t*> raw_signal_values_;
         std::vector<uint16_t*> corr_signal_values_;
-        std::vector<
       };
     } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
