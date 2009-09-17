@@ -56,8 +56,10 @@ namespace cass
 //    non-recombined hits. Neighboring photon hits are grouped
 //    into one hit which contains the sum of the recombined
 //    pulse heights.
-        std::vector<uint16_t*> raw_signal_values_;
-        std::vector<uint16_t*> corr_signal_values_;
+        std::vector<uint16_t*>          raw_signal_values_;
+        std::vector<uint16_t*>          corr_signal_values_;
+        std::vector<pnccd_photon_hit*>  unrec_photon_hits_;
+        std::vector<pnccd_photon_hit*>  recom_photon_hits_;
       };
     } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
