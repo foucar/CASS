@@ -12,7 +12,8 @@ SOURCES +=  cass.cpp \
             event_queue.cpp \
             format_converter.cpp \
             $$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc \ #we have to live with this hack until lcls has made this part of their library
-            xtciterator.cpp
+            xtciterator.cpp \
+            cass_event.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
