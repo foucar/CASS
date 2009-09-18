@@ -12,8 +12,10 @@
 
 void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
 {
-  const cass::VMI::Parameter &param = *(reinterpret_cast<const cass::VMI::Parameter*>(p));
-  // const cass::VMI::Parameter &param = *((const cass::VMI::Parameter*)(p));
+    //somehow the dynamic_cast doesn't work here, maybe due to the different namespace?
+    //we have to investigate this
+//    const cass::VMI::Parameter &param = *(dynamic_cast<const cass::VMI::Parameter*>(p));
+    const cass::VMI::Parameter &param = *(reinterpret_cast<const cass::VMI::Parameter*>(p));
     _threshold    = param._threshold;
     _xCenterOfMcp = param._xCenterOfMcp;
     _yCenterOfMcp = param._yCenterOfMcp;
@@ -55,21 +57,21 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
         //if so add its coordinates to the coordinates of impact map//
         //check wether pixel is above threshold
         if (pixel > _threshold)
-            //check wether point is at an edge
-            if (ycoordinate > 0 &&
-                ycoordinate < frameheight-1 &&
-                xcoordinate > 0 &&
-                xcoordinate < framewidth+1)
-                // Check all surrounding pixels
-                if (frame[i-framewidth-1] < pixel && //upper left
-                    frame[i-framewidth]   < pixel && //upper middle
-                    frame[i-framewidth+1] < pixel && //upper right
-                    frame[i-1]            < pixel && //left
-                    frame[i+1]            < pixel && //right
-                    frame[i+framewidth-1] < pixel && //lower left
-                    frame[i+framewidth]   < pixel && //lower middle
-                    frame[i+framewidth+1] < pixel)   //lower right
-                {
+        //check wether point is at an edge
+        if (ycoordinate > 0 &&
+            ycoordinate < frameheight-1 &&
+            xcoordinate > 0 &&
+            xcoordinate < framewidth+1)
+        // Check all surrounding pixels
+        if (frame[i-framewidth-1] < pixel && //upper left
+            frame[i-framewidth]   < pixel && //upper middle
+            frame[i-framewidth+1] < pixel && //upper right
+            frame[i-1]            < pixel && //left
+            frame[i+1]            < pixel && //right
+            frame[i+framewidth-1] < pixel && //lower left
+            frame[i+framewidth]   < pixel && //lower middle
+            frame[i+framewidth+1] < pixel)   //lower right
+        {
             vmievent.coordinatesOfImpact().push_back(Coordinate(xcoordinate,ycoordinate));
         }
 
