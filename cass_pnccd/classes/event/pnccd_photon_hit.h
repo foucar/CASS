@@ -10,17 +10,18 @@ namespace cass
   namespace pnCCD
   {
 
-typedef struct raw_evt_t {
-    uint16_t x;        // x coordinate
-    uint16_t y;        // y coordinate
-    uint16_t amp;      // signal amplitude in adu
-    float    energy;   // energy in eV
-    uint64_t index;    // running index of the event
-    uint64_t frm_idx;  // index of the frame where the event
-                       // was detected
-} pnccd_photon_hit;
+    typedef struct raw_evt_t
+    {
+      uint16_t x;        // x coordinate
+      uint16_t y;        // y coordinate
+      uint16_t amp;      // signal amplitude in adu
+      float    energy;   // energy in eV
+      uint64_t index;    // running index of the event
+      uint64_t frm_idx;  // index of the frame where the event
+                         // was detected
+    } pnccd_photon_hit;
 
-    } // end of scope of namespace pnCCD
+  } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
 #endif // PNCCD_PHOTON_HIT_H
