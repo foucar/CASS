@@ -11,36 +11,30 @@ namespace cass
 {
     class CASSEvent;
     class AnalysisBackend;
-    class ParameterBackend;
 
-    /** @class Format converter container
+    //todo make singleton??
 
-    @author Jochen Küpper
-    @version 0.1
-
-    @todo Make Singleton
-    */
     class CASSSHARED_EXPORT Analyzer : public QObject
     {
         Q_OBJECT;
 
     public:
         Analyzer();
+        ~Analyzer();
 
         /** list of known individual analyzers */
         enum Analyzers {pnCCD, REMI, VMI, GMD, YAGPOWER};
 
     public slots:
-    void processEvent(cass::CASSEvent*);
+        void processEvent(cass::CASSEvent*);
 
     signals:
-    void nextEvent(cass::CASSEvent*);
+        void nextEvent(cass::CASSEvent*);
 
     protected:
         std::map<Analyzers, AnalysisBackend*> _analyzer;
-        std::map<Analyzers, ParameterBackend*> _parameter;
     };
-}
+}//end namespace cass
 
 #endif
 

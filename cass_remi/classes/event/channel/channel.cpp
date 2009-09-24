@@ -33,6 +33,7 @@ void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 void cass::REMI::Channel::CopyChannelParameters(const cass::REMI::ChannelParameter& param)
 {
     fThreshold  = static_cast<int16_t>(param.fThreshold);
+    fOffset     = static_cast<int16_t>(param.fOffset);
     fStsi       = param.fStepsize;
     fBs         = param.fBacksize;
     fDelay      = param.fDelay;

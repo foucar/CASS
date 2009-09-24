@@ -12,7 +12,8 @@ namespace cass
         class DetectorParameter;
         class Detector;
         class REMIEvent;
-        //__________________________MyDetektorHitSorter_____________________________
+
+
         class DetektorHitSorterBase
         {
         public:
@@ -26,7 +27,10 @@ namespace cass
         };
         typedef std::vector<DetektorHitSorterBase*> dethitsorters_t;
 
-        //the actual worker
+
+
+
+        //container for all detectors
         class DetektorHitSorter
         {
         public:

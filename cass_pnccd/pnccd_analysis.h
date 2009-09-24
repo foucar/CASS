@@ -9,6 +9,7 @@
 #include "cass_pnccd.h"
 #include "pnccd_event.h"
 #include "analysis_backend.h"
+#include "parameter_backend.h"
 
 #include <QtGui/QImage>
 
@@ -41,12 +42,10 @@ namespace cass
         private:
         };
 
-        /** @class pnCCD backend parameter sets
 
-        @author Jochen Küpper
-        @version 0.1
-        */
-        class Parameter : public cass::ParameterBackend
+
+
+        class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
         {
             /*
             Parameters needed for the pnCCDs. CAMP will typically use
@@ -57,8 +56,10 @@ namespace cass
             /*
             Constructor: assign the parameters with safe default values:
             */
-            Parameter(void) {}
-            ~Parameter()    {}
+            Parameter(void) {beginGroup("pnCCD");}
+            ~Parameter()    {endGroup();}
+            void load()     {}
+            void save()     {}
             /*
             Get the number of detectors which are described in this
             parameter class:
@@ -87,20 +88,15 @@ namespace cass
 
 
 
-        /** @class pnCCD analysis backend
-
-        @author Jochen Küpper
-        @version 0.1
-        */
         class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis(const cass::ParameterBackend* param)     {init(param);}
-            ~Analysis() {}
+            Analysis()      {init();}
+            ~Analysis()     {}
             /*
             initialize AnalysisBackend with new set of parameters
              */
-            void init(const cass::ParameterBackend*);
+            void init();
             /*
             Put the pnCCDEvent object through the analysis chain. The original data
             remain unchanged, a new corrected pnCCD image is generated and X-ray
@@ -110,6 +106,7 @@ namespace cass
             */
             void operator() (cass::CASSEvent*);
         private:
+            Parameter _param;
         };
 
 

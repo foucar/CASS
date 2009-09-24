@@ -2,10 +2,94 @@
 #include "remi_event.h"
 #include "cass_event.h"
 
-void cass::REMI::Analysis::init(const cass::ParameterBackend* param)
+void loadSignalParameter(cass::REMI::Signal& s, const char * groupName, cass::REMI::Parameter* p)
 {
-    //copy the parameters//
-    fParam = *dynamic_cast<const cass::REMI::Parameter*>(param);
+    p->beginGroup(groupName);
+    s.polarity(p->value("Polarity",cass::REMI::Peak::kNegative).toInt());
+    s.chanNbr(p->value("ChannelNumber",0).toInt());
+    s.trLow(p->value("LowerTimeRangeLimit",0.).toDouble());
+    s.trHigh(p->value("UpperTimeRangeLimit",20000.).toDouble());
+    p->endGroup();
+}
+
+void loadAnodeParameter(cass::REMI::AnodeLayer& a, const char * groupName, cass::REMI::Parameter* p)
+{
+    p->beginGroup(groupName);
+    a.tsLow(p->value("LowerTimeSumLimit",0.).toDouble());
+    a.tsHigh(p->value("UpperTimeSumLimit",20000.).toDouble());
+    a.sf(p->value("Scalefactor",0.5).toDouble());
+    loadSignalParameter(a.one(),"One",p);
+    loadSignalParameter(a.two(),"Two",p);
+    p->endGroup();
+}
+
+void cass::REMI::Parameter::load()
+{
+    //the signal analyzer relevant stuff//
+    beginGroup("SignalAnalyzer");
+    fPeakfindingMethod = value("Method",SignalAnalyzer::kCoM).toInt();
+    endGroup(); //Signalanalyzer
+
+    //the channel parameters//
+    beginGroup("ChannelContainer");
+    for (size_t i = 0; i < value("size",16).toUInt();++i)
+    {
+        beginGroup(QString(static_cast<int>(i)));
+        fChannelParameters[i].fOffset    = value("Offset",0.).toDouble();
+        fChannelParameters[i].fBacksize  = value("Backsize",30).toInt();
+        fChannelParameters[i].fStepsize  = value("Stepsize",50).toInt();
+        fChannelParameters[i].fThreshold = value("Threshold",50.).toDouble();
+        fChannelParameters[i].fDelay     = value("Delay",5).toInt();
+        fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
+        fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
+        endGroup(); //QString
+    }
+    endGroup();//channelparameter
+
+    //the detektor parameters//
+    beginGroup("DetectorContainer");
+    for (size_t i = 0; i < value("size",0).toUInt();++i)
+    {
+        beginGroup(QString(static_cast<int>(i)));
+            fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
+            fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
+            fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
+            fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
+            fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
+            fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
+            fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
+            fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
+            loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
+            loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
+            loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
+            loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
+        endGroup(); //QString(i)
+    }
+    endGroup();//detectorcontainer
+}
+
+void cass::REMI::Parameter::save()
+{
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void cass::REMI::Analysis::init()
+{
+    //we need to fill the parameters with some life first//
+    fParam.load();
+
     //intitalize the signal analyzer//
     fSiganalyzer.init(fParam.fPeakfindingMethod);
     //initialize the Detectorhit sorter for each detector//
@@ -20,7 +104,7 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
     //copy the parameters to the event//
     remievent.CopyParameters(fParam);
 
-    //find the peaks in the signals of all channels//
+    //find the Signals (peaks) of all waveforms in the channels//
     fSiganalyzer.findPeaksIn(remievent);
 
     //extract the peaks for the layers//

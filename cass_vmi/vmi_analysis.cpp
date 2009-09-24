@@ -9,18 +9,28 @@
 
 #include "vmi_analysis.h"
 #include "cass_event.h"
+#include "vmi_event.h"
 
-void cass::VMI::Analysis::init(const cass::ParameterBackend *p)
+
+void cass::VMI::Parameter::load()
 {
-    //somehow the dynamic_cast doesn't work here, maybe due to the different namespace?
-    //we have to investigate this
-//    const cass::VMI::Parameter &param = *(dynamic_cast<const cass::VMI::Parameter*>(p));
-    const cass::VMI::Parameter &param = *(reinterpret_cast<const cass::VMI::Parameter*>(p));
-    _threshold    = param._threshold;
-    _xCenterOfMcp = param._xCenterOfMcp;
-    _yCenterOfMcp = param._yCenterOfMcp;
-    _maxMcpRadius = param._maxMcpRadius;
+    _threshold    = value("Threshold",0).toUInt();
+    _centerOfMcp  = value("CenterOfMcp",QPoint(200, 200)).toPoint();
+    _maxMcpRadius = value("MaxMcpRadius",200).toUInt();
 }
+
+void cass::VMI::Parameter::save()
+{
+    setValue("Threshold",_threshold);
+    setValue("CenterOfMcp",_centerOfMcp);
+    setValue("MaxMcpRadius",_maxMcpRadius);
+}
+
+
+
+
+
+
 
 void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
 {
@@ -46,9 +56,9 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
 
         //check whether pixel is outside of maximum radius//
         //if not then add pixel to cutframe//
-        uint16_t corX = xcoordinate - _xCenterOfMcp;
-        uint16_t corY = ycoordinate - _yCenterOfMcp;
-        if (corX*corX + corY*corY < _maxMcpRadius*_maxMcpRadius)
+        uint16_t corX = xcoordinate - _param._centerOfMcp.x();
+        uint16_t corY = ycoordinate - _param._centerOfMcp.y();
+        if (corX*corX + corY*corY < _param._maxMcpRadius*_param._maxMcpRadius)
         {
             vmievent.cutFrame()[i] = pixel;
         }
@@ -56,7 +66,7 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
         //check whether pixel is a local maximum//
         //if so add its coordinates to the coordinates of impact map//
         //check wether pixel is above threshold
-        if (pixel > _threshold)
+        if (pixel > _param._threshold)
         //check wether point is at an edge
         if (ycoordinate > 0 &&
             ycoordinate < frameheight-1 &&

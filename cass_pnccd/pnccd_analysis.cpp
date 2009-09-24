@@ -4,9 +4,9 @@
 #include "pnccd_event.h"
 #include "cass_event.h"
 
-void cass::pnCCD::Analysis::init(const cass::ParameterBackend*)
+void cass::pnCCD::Analysis::init()
 {
-    //initialize your analyzer here//
+    //initialize your analyzer here using param//
 }
 
 void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)

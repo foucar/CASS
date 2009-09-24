@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 Jochen Küpper,lmf
 
 #ifndef CASS_CONVERSIONBACKEND_H
 #define CASS_CONVERSIONBACKEND_H
@@ -10,17 +10,12 @@ namespace Pds
     class Xtc;
 }
 
-namespace cass {
-
-    /** @class abstract base for all data conversion backends
-
-    @author Jochen Küpper,lmf
-    @version 0.1
-    */
-
+namespace cass
+{
     class CASSEvent;
 
-    class CASSSHARED_EXPORT ConversionBackend {
+    class CASSSHARED_EXPORT ConversionBackend
+    {
     public:
         virtual ~ConversionBackend() {}
 

@@ -2,7 +2,6 @@
 #define __SoftTDC_h__
 
 #include <vector>
-//#include "REMIEvent.h"
 
 namespace cass
 {
@@ -14,9 +13,8 @@ namespace cass
         class SoftTDC
         {
         public:
-	  virtual ~SoftTDC() {}
+            virtual ~SoftTDC() {}
             virtual void FindPeaksIn(REMIEvent&)=0;
-            
         };
 
         //this class does nothing

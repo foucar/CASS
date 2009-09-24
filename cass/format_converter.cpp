@@ -5,7 +5,6 @@
 #include "remi_converter.h"
 #include "vmi_converter.h"
 #include "pnccd_converter.h"
-#include "conversion_backend.h"
 #include "xtciterator.h"
 #include "event_queue.h"
 #include "pdsdata/xtc/Dgram.hh"
@@ -32,6 +31,8 @@ namespace cass {
     FormatConverter::~FormatConverter()
     {
         // destruct all the individual format converters
+        for (std::map<Converters, ConversionBackend *>::iterator it=_converter.begin() ; it != _converter.end(); ++it )
+            delete (it->second);
     }
 
 

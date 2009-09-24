@@ -20,7 +20,10 @@ SOURCES += remi_analysis.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
 
-HEADERS += remi_analysis.h \
+HEADERS += ../cass/analysis_backend.h \
+           ../cass/parameter_backend.h \
+           ../cass/conversion_backend.h \
+           remi_analysis.h \
            remi_converter.h \
            cass_remi.h  \
            ./classes/event/remi_event.h \

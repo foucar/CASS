@@ -10,7 +10,7 @@ void cass::REMI::REMIEvent::init(const Pds::Acqiris::ConfigV1& config)
 {
     fIsInitialized      = true;
     fIsFilled           = false;
-    fNbrBytes           = 2;
+    fNbrBytes           = sizeof(int16_t);
     fSampleInterval     = config.horiz().sampInterval();
     fNbrSamples         = config.horiz().nbrSamples();
     fDelayTime          = config.horiz().delayTime();
@@ -44,6 +44,6 @@ void cass::REMI::REMIEvent::CopyParameters(const cass::REMI::Parameter& param)
         fChannels[i].CopyChannelParameters(param.fChannelParameters[i]);
 
     //create the detectors
-    for (size_t i=0;i<param.nbrOfDetectors();++i)
+    for (size_t i=0;i<param.fDetectorParameters.size();++i)
         fDets.push_back(Detector(param.fDetectorParameters[i]));
 }

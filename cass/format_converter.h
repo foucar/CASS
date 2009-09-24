@@ -54,7 +54,7 @@ namespace cass
 
         /** Available format converters
 
-        Adjust type for superclass of Format converters (FormatBackend)
+        Adjust type for superclass of Format converters (ConversionBackend)
         */
         std::map<Converters, ConversionBackend *> _converter;
 

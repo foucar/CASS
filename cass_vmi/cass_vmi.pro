@@ -12,7 +12,10 @@ SOURCES += vmi_analysis.cpp \
            ./classes/event/vmi_event.cpp \
 
 
-HEADERS += vmi_analysis.h \
+HEADERS += ../cass/analysis_backend.h \
+           ../cass/parameter_backend.h \
+           ../cass/conversion_backend.h \
+           vmi_analysis.h \
            vmi_converter.h \
            cass_vmi.h \
            ./classes/event/vmi_event.h \

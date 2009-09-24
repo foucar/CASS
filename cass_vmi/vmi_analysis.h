@@ -4,48 +4,51 @@
  *
  *  Created by Jochen Küpper on 20.05.09.
  *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
- *
+ *lmf
  */
 
 #ifndef VMIANALYSIS_H
 #define VMIANALYSIS_H
 
+#include <QtCore/QPoint>
+
 #include "cass_vmi.h"
 #include "analysis_backend.h"
-#include "vmi_event.h"
+#include "parameter_backend.h"
 
 namespace cass
 {
+    class CASSEvent;
+
     namespace VMI
     {
-        class Parameter : public cass::ParameterBackend
+        class CASS_VMISHARED_EXPORT Parameter : public cass::ParameterBackend
         {
         public:
-            Parameter()     {}
-            ~Parameter()    {}
+            Parameter()     {beginGroup("VMI");}
+            ~Parameter()    {endGroup();}
+            void load();
+            void save();
+
         public:
-            uint16_t _threshold;
-            uint16_t _xCenterOfMcp;
-            uint16_t _yCenterOfMcp;
-            uint16_t _maxMcpRadius;
+            uint16_t   _threshold;
+            QPoint     _centerOfMcp;
+            uint16_t   _maxMcpRadius;
         };
 
 
         class CASS_VMISHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis(const cass::ParameterBackend *param)            {init(param);}
-            ~Analysis() {}
-            void init(const cass::ParameterBackend*);
+            Analysis()            {init();}
+            ~Analysis()           {_param.save();}
+            void init()           {_param.load();}
 
             //called for every event//
             void operator()(CASSEvent*);
 
         private:
-            uint16_t _threshold;
-            uint16_t _xCenterOfMcp;
-            uint16_t _yCenterOfMcp;
-            uint16_t _maxMcpRadius;
+            Parameter  _param;
         };
     }//end namespace vmi
 }//end namespace cass
