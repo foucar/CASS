@@ -44,7 +44,6 @@ namespace cass
 
 
 
-
         class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
         {
             /*

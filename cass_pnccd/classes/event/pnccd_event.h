@@ -1,4 +1,4 @@
-// pnCCDEvent.h
+// pnCCDEvent.h : Nils Kimmel 2009
 // The pnCCD detector data that result from one machine event
 // of e.g. a Free Electron Laser. This data collection is pipe-
 // lined through the operator() of the class cass::pnCCD::Analysis
@@ -28,16 +28,27 @@ namespace cass
 // event. This will allocate the necessary memory needed to store
 // the data in the event, so be careful and keep in mind that
 // memory allocation takes CPU time and space.
-	pnCCDEvent() {}
-	pnCCDEvent(int num_pixel_arrays,
+	pnCCDEvent(void);
+	pnCCDEvent(uint16_t num_pixel_arrays,
                    std::vector<int> array_x_size,
                    std::vector<int> array_y_size,
                    std::vector<int> max_photons_per_event);
-        ~pnCCDEvent() {}
+        ~pnCCDEvent();
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
         bool initEventStorage(void);
+// Return the address of the raw signal array at the index
+// index. Returns zero if no array with this index is allocated.
+        uint16_t* rawSignalArrayAddr(uint16_t index);
+// Return the address of the offset and, optionally common
+// mode corrected signal value array:
+        uint16_t* corrSignalArrayAddr(uint16_t index);
+// Return the address of the unrecombined photon hit array:
+        pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
+// Return the address of the recombined photon hit array:
+        pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
       private:
+        uint16_t num_pixel_arrays_;
 // These variables are set by the second constructor. The allocation
 // of the local storage arrays is performed by the initEventStorage()
 // member function.
