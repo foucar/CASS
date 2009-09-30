@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+//#ifndef ROOT_Rtypes
+//#include "Rtypes.h"
+//#endif
+
+
 namespace cass
 {
     namespace REMI
@@ -30,6 +35,7 @@ namespace cass
         VMI::VMIEvent       &VMIEvent()     {return *_vmievent;}
         pnCCD::pnCCDEvent   &pnCCDEvent()   {return *_pnccdevent;}
 
+        //ClassDef(CASSEvent,1)
 
     private:
         uint64_t            _id;

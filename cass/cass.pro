@@ -7,6 +7,18 @@ DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
 CODECFORTR = UTF-8
 
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
+
 SOURCES +=  cass.cpp \
             analyzer.cpp \
             event_queue.cpp \
@@ -37,7 +49,10 @@ INCLUDEPATH +=  ./ \
                 ../cass_vmi/classes/event \
                 ../cass_pnccd \
                 ../cass_pnccd/classes/event \
-                ../cass_database
+                ../cass_database 
+#\
+#                ../cass_root \
+#                ../diode
 
 win32:debug{
 LIBS += -L../cass_remi/Debug -lcass_remi \

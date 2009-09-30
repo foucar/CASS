@@ -8,6 +8,14 @@
 #include "format_converter.h"
 #include "database.h"
 
+/*#include "main_window.h"
+#include "TGraph.h"
+#include "TQtWidget.h"
+#include "TCanvas.h"
+#include "TDatime.h"
+#include "TAxis.h"
+#include <QLabel>*/
+
 //using namespace cass;
 
 int main(int argc, char **argv)
