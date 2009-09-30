@@ -234,13 +234,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   VMI_rows=vmievent.rows();
   VMI_bitsPerPixel=vmievent.bitsPerPixel();
   VMI_offset=vmievent.offset();
-  for(jj=0;jj<VMI_columns;jj++)
+  /*for(jj=0;jj<VMI_columns;jj++)
   {
     for(kk=0;kk<VMI_rows;kk++)
     {
       VMI_frame[kk][jj]=vmievent.frame(jj+kk);
     }
-  }
+    }*/
   //printf("%i\n",&vmievent.frame());
   //std::vector<uint16_t> VMI_frame= new vmievent.frame();
   //VMI_cutFrame=vmievent.cutFrame();
