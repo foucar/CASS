@@ -10,6 +10,8 @@
 
 // Include as defined in C99. This should thus hopefully work
 // on all systems which support this standard:
+#include <vector>
+
 #include <inttypes.h>
 
 #include "pnccd_photon_hit.h"

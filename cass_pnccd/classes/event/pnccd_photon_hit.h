@@ -10,7 +10,7 @@ namespace cass
   namespace pnCCD
   {
 
-    typedef struct raw_evt_t
+    typedef struct pnccd_photon_hit
     {
       uint16_t x;        // x coordinate
       uint16_t y;        // y coordinate

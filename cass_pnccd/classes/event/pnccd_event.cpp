@@ -42,9 +42,9 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
 // number of photon hits stored for each event:
 
 cass::pnCCD::pnCCDEvent::pnCCDEvent
-(int num_pixel arrays,
+(uint16_t num_pixel_arrays,
  std::vector<int> array_x_size,
- std::vector<int> array_y_Size,
+ std::vector<int> array_y_size,
  std::vector<int> max_photons_per_event)
 {
 // Check whether the argument values are consistent:
@@ -79,19 +79,19 @@ cass::pnCCD::pnCCDEvent::~pnCCDEvent
 ()
 {
 // Free the memory resources which were allocated for this event:
-  for( int i=0; i<raw_signal_values_.size(); i++ )
+  for( size_t i=0; i<raw_signal_values_.size(); i++ )
   {
     delete[] raw_signal_values_.at(i);
   }
-  for( int i=0; i<corr_signal_values_.size(); i++ )
+  for( size_t i=0; i<corr_signal_values_.size(); i++ )
   {
     delete[] corr_signal_values_.at(i);
   }
-  for( int i=0; i<unrec_photon_hits_.size(); i++ )
+  for( size_t i=0; i<unrec_photon_hits_.size(); i++ )
   {
     delete[] unrec_photon_hits_.at(i);
   }
-  for( int i=0; i<recom_photon_hits_.size(); i++ )
+  for( size_t i=0; i<recom_photon_hits_.size(); i++ )
   {
     delete[] recom_photon_hits_.at(i);
   }
@@ -139,7 +139,7 @@ cass::pnCCD::pnCCDEvent::corrSignalArrayAddr
   return corr_signal_values_.at(index - 1);
 }
 
-pnccd_photon_hit*
+cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::unrecPhotonHitAddr
 (uint16_t index)
 {
@@ -148,7 +148,7 @@ cass::pnCCD::pnCCDEvent::unrecPhotonHitAddr
   return unrec_photon_hits_.at(index - 1);
 }
 
-pnccd_photon_hit*
+cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::recomPhotonHitAddr
 (uint16_t index)
 {

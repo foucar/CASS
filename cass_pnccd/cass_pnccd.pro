@@ -9,7 +9,8 @@ VERSION = 0.0.1
 
 
 SOURCES += pnccd_analysis.cpp \
-           pnccd_converter.cpp
+           pnccd_converter.cpp \
+           ./classes/event/pnccd_event.cpp
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
