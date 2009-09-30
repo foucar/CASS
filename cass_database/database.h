@@ -2,7 +2,7 @@
  *  Database.h
  *  diode
  *
- *  Created by lutz foucar
+ *  Created by lutz foucar, modified by N. Coppola
  *
  */
 #include <QtCore/QObject>
@@ -18,6 +18,9 @@ namespace cass
             Q_OBJECT;
 
         public:
+            // I actually already need to know the structure of the CASSEvent...
+            // something like
+            //Database(cass::CASSEvent*);
             Database();
             ~Database();
 

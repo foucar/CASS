@@ -32,7 +32,15 @@ SOURCES += database.cpp
 HEADERS += database.h \
            cass_database.h
 
-INCLUDEPATH += ../cass
+INCLUDEPATH += ../cass \
+               ../cass_remi/classes/event \
+               ../cass_remi/classes/event/detector \
+               ../cass_remi/classes/event/channel \
+               ../cass_remi/classes/event/peak \
+               ../cass_vmi/classes/event \
+               ../cass_pnccd/classes/event \
+               ../cass_pnccd \
+               $$(ROOTSYS)/test
 
 
 INSTALLBASE    = /usr/local/cass

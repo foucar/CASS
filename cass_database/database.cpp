@@ -8,99 +8,223 @@
 
 #include "database.h"
 #include "cass_event.h"
+//ClassImp(cass::CASSEvent)
 
+#include "remi_event.h"
+#include "vmi_event.h"
+#include "pnccd_event.h"
+
+#include <TROOT.h>
 #include <TRandom.h>
 #include <TNtuple.h>
 #include <TMath.h>
-
+#include <TH2.h>
+#include <TFile.h>
 #include <TClassTable.h>
 #include <TSystem.h>
-//#include <TCollection.h>
+#include "TDirectory.h"
+#include "TProcessID.h"
 
-// the following may be removed in the end...
-#include <qapplication.h>
+TTree *T = new TTree("T","circ buffer");
+#include "cass_tree.h"
+//ClassImp(thisCoordinate)
 
-#include "TGraph.h"
-#include "TQtWidget.h"
-#include "TCanvas.h"
-#include "TDatime.h"
-#include "TAxis.h"
-#include <QLabel>
+#include "histo_list.h"
 
+// 1000 seconds at 30 Hz
+#define max_events_in_Buffer 30000
+//cass::CASSEvent *Theevent;
+/*uint64_t od=0;
+  cass::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);*/
 
-// TQtWidget *MyWidget= new TQtWidget(0,"MyWidget");
- TTree *T = new TTree("T","test circ buffers");
- TRandom r;
- Float_t px,py,pz;
- Int_t i;
- 
+//cass::CASSEvent::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);
+
 cass::database::Database::Database()
 {
   
   Double_t random;
 
   // this is where I am going to start the tree
+  T->Branch("i",&i,"i/i");
   T->Branch("px",&px,"px/F");
   T->Branch("py",&py,"py/F");
   T->Branch("pz",&pz,"pz/F");
   T->Branch("random",&random,"random/D");
-  T->Branch("i",&i,"i/i");
-  if(!TClassTable::GetDict("Event")) {
+  /*if(!TClassTable::GetDict("Event")) {
     gSystem->Load("$ROOTSYS/test/libEvent.so");
-  }
-  //  Event *event = new Event();
-  //cass::CASSEvent *event = new Event();
-  //T->Branch("thiscassevent","CASSEvent",&event);
+    }*/
+  /*Event *event = new Event();
+    T->Branch("EventBranch","Event",&event,32000,99);*/
+  //cass::CASSEvent *event = new cass::CASSEvent::CASSEvent(uint64_t);
+  /*  T->Branch("TheCASSevent","cass::CASSEvent::CASSEvent(uint64_t od)",
+      &Theevent,32000,99);*/
+  // otherwise
 
-  T->SetCircular(20000);
+  //REMI
+  T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
+  T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]i");
+  T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
+  T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/i");
 
-  /*int argc;
-  char **argv;
-  QApplication *app = new QApplication(argc, argv);
-  app->connect(app,SIGNAL(lastWindowClosed ()),app,SLOT(quit()));
+  T->Branch("REMI_horpos",REMI_horpos,"REMI_horpos[REMI_nofDetectors]/D");
+  T->Branch("REMI_nbrBytes",REMI_nbrBytes,"REMI_nbrBytes[REMI_nofDetectors]/S");
+  T->Branch("REMI_sampleInterval",REMI_sampleInterval,"REMI_sampleInterval[REMI_nofDetectors]/D");
+  T->Branch("REMI_nbrSamples",REMI_nbrSamples,"REMI_nbrSamples[REMI_nofDetectors]/L");
+  T->Branch("REMI_delayTime",REMI_delayTime,"REMI_delayTime[REMI_nofDetectors]/D");
+  T->Branch("REMI_trigLevel",REMI_trigLevel,"REMI_trigLevel[REMI_nofDetectors]/D");
+  T->Branch("REMI_trigSlope",REMI_trigSlope,"REMI_trigSlope[REMI_nofDetectors]/S");
+  T->Branch("REMI_chanCombUsedChannels",REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels[REMI_nofDetectors]/L");
+  T->Branch("REMI_nbrConvPerChan",REMI_nbrConvPerChan,"REMI_nbrConvPerChan[REMI_nofDetectors]/S");
 
-  MyWidget->resize(1000,1000);
-  MyWidget->GetCanvas()->cd();*/
+  //VMI Pulnix CCD
+  T->Branch("VMI_integral",&VMI_integral,"VMI_integral/i");
+  T->Branch("VMI_maxPixelValue",&VMI_maxPixelValue,"VMI_maxPixelValue/s");
+  T->Branch("VMI_columns",&VMI_columns,"VMI_columns/s");
+  T->Branch("VMI_rows",&VMI_rows,"VMI_rows/s");
+  T->Branch("VMI_bitsPerPixel",&VMI_bitsPerPixel,"VMI_bitsPerPixel/s");
+  T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
+  // the following are vectors..
+  //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
+  //T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
+  //T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x/s");
+  //T->Branch("VMI_coordinatesOfImpact_y",VMI_coordinatesOfImpact_y,"VMI_coordinatesOfImpact_y/s");
+
+  //pnCCD (2)
+  T->Branch("pnCCD_num_pixel_arrays",pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays[2]/I");
+  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[2]/I");
+  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[2]/I");
+  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[2]/I");
+  T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
+  T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
+  T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
+  //T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]");
+  //T->Branch("pnCCD_corr",pnCCD_corr,"pnCCD_corr[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]");
+  //T->Branch();
+  //T->Branch();
+  // others YAG XFEL intensities...
+
+  T->SetCircular(max_events_in_Buffer);
+  printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+
   i=0;
-  //printf("init j=%i\n",i);
+
+  // I could also create some default histograms
+  // like 1 for each pnCCD: last event, all events since beginning of time
+
 }
 
 cass::database::Database::~Database()
 {
+  // delete all histos
+  delete h_pnCCD1_lastevent; h_pnCCD1_lastevent=0;
+
 }
 
 void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
   Double_t random;
+  Int_t jj;
 
-  //MyWidget->GetCanvas()->cd(1);
+  if(i==0) {
+    /*T->SetCircular(max_events_in_Buffer);
+    printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);*/
+    T->Print();
+  }
+
   i++;
-    r.Rannor(px,py);
-    pz=px*px+py*py;
-    random=r.Rndm();
-    T->Fill();
-    if(i>2 && (i%500)==0)
-    {
-      //printf("event j=%i\n",i);
-      //printf("j=%i\n",((i-19000)/5000)%12+1);
-      //if(i<26000) T->Draw("px");
-      //MyWidget->GetCanvas()->cd(((i-19000)/5000)%12+1);
 
-      //T->Draw("px");
-      T->Print();
-      /*MyWidget->show();
-	MyWidget->Refresh();*/
-      /*if( ((i-19000)/5000+1)%4 == 3)
-      {
-        sleep(1);
-	}*/
-    }
-    // maybe if i>20000 i could save the events to file before
-    // overwriting them....
-    if(i==1) {
-      T->Print();
-      //      gRoot->GetListOfClasses();
-    }
+  if (i<xbins-1) 
+  {
+    xy[i][i+1]=2*i;
+  }
+
+  r.Rannor(px,py);
+  pz=px*px+py*py;
+  random=r.Rndm();
+
+  cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
+  REMI_nofChannels=remievent.nbrOfChannels();
+  for(jj=0;jj<REMI_nofChannels;jj++)
+  {
+    //    REMI_Channel[jj]=remievent.channel(jj);
+  }
+  REMI_nofDetectors=remievent.nbrOfDetectors();
+  for(jj=0;jj<REMI_nofDetectors;jj++)
+  { 
+    //    REMI_Detector[jj]=remievent.detector(jj);
+    REMI_horpos[jj]=remievent.horpos();
+    REMI_nbrBytes[jj]=remievent.nbrBytes();
+    REMI_sampleInterval[jj]=remievent.sampleInterval();
+    REMI_nbrSamples[jj]=remievent.nbrSamples();
+    REMI_delayTime[jj]=remievent.delayTime();
+    REMI_trigLevel[jj]=remievent.trigLevel();
+    REMI_trigSlope[jj]=remievent.trigSlope();
+    REMI_chanCombUsedChannels[jj]=remievent.chanCombUsedChannels();
+    REMI_nbrConvPerChan[jj]=remievent.nbrConvPerChan();
+  }
+
+  cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
+  VMI_integral=vmievent.integral();
+  VMI_maxPixelValue=vmievent.maxPixelValue();
+  VMI_columns=vmievent.columns();
+  VMI_rows=vmievent.rows();
+  VMI_bitsPerPixel=vmievent.bitsPerPixel();
+  VMI_offset=vmievent.offset();
+  printf("%i",&vmievent.frame());
+  //std::vector<uint16_t> VMI_frame= new vmievent.frame();
+  //VMI_cutFrame=vmievent.cutFrame();
+  //VMI_coordinatesOfImpact[0]=vmievent.coordinatesOfImpact();
+
+  cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+//  printf("this %i %i %i\n", pnccdevent.num_pixel_arrays,pnccdevent.array_x_size,pnccdevent.array_y_size);
+//  printf("thi0 %i %i\n", pnccdevent.max_photons_per_event,pnccdevent.raw_signal_values);
+  /*pnCCD_num_pixel_arrays[0]=pnccdevent.num_pixel_arrays;
+  pnCCD_array_x_size[0]=pnccdevent.array_x_size;
+  pnCCD_array_y_size[0]=pnccdevent.array_y_size;
+  pnCCD_max_photons_per_event[0]=pnccdevent.max_photons_per_event;
+  pnCCD_array_x_size1=pnccdevent.array_x_size;
+  pnCCD_array_y_size1=pnccdevent.array_y_size;
+  pnCCD_raw=pnccdevent.raw_signal_values;*/
+
+  //Theevent=cassevent;
+  T->Fill();
+
+  if(i>2 && (i%500)==0)
+  {
+    //T->Draw("px");
+    T->Print();
+    T->Show(i%max_events_in_Buffer-1);
+    /*MyWidget->show();
+      MyWidget->Refresh();*/
+  }
+  // maybe if i>max_events_in_Buffer i could save the events to file before
+  // overwriting them....
+
+  //now fill the history histograms,
+  h_pnCCD1_history->Fill(float(i),float(i+1),int(xy));
+
+  // we may have sets that overweight the last event
+  // if "#events > 5" divide histo by 5 and add last event...
+
+  // the "last event" ones need to be clear each time
+  h_pnCCD1_lastevent->Reset();
+  h_pnCCD1_lastevent->Fill(float(i),float(i+1),int(xy));
+  if(i==xbins-1) {
+    printf("saving\n");
+    //save the histos instead of draw...
+    //h_pnCCD1_lastevent->Draw("Text");
+    //h_pnCCD1_history->Draw("Text");
+    TFile f("histos.root","new");
+    h_pnCCD1_lastevent->Write();
+    h_pnCCD1_history->Write();
+    T->Write();
+    f.Close();
+  }
+  // I may have to save some histos to be able to reload them again...
+  // maybe this need to be done by diode....
+
+  // I need to delock??... But I did not lock
+  //emit nextEvent();
 }
 
 cass::CASSEvent* cass::database::Database::nextEvent()
