@@ -123,6 +123,7 @@ cass::database::Database::Database()
   T->Branch("VMI_bitsPerPixel",&VMI_bitsPerPixel,"VMI_bitsPerPixel/s");
   T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
   // the following are vectors..
+  T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
   //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
   //T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
   //T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x/s");
@@ -233,6 +234,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   VMI_rows=vmievent.rows();
   VMI_bitsPerPixel=vmievent.bitsPerPixel();
   VMI_offset=vmievent.offset();
+  for(jj=0;jj<VMI_columns;jj++)
+  {
+    for(kk=0;kk<VMI_rows;kk++)
+    {
+      VMI_frame[kk][jj]=vmievent.frame(jj+kk);
+    }
+  }
   //printf("%i\n",&vmievent.frame());
   //std::vector<uint16_t> VMI_frame= new vmievent.frame();
   //VMI_cutFrame=vmievent.cutFrame();
