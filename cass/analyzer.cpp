@@ -8,7 +8,7 @@
 cass::Analyzer::Analyzer()
 {
     //create the analyzers//
-//    _analyzer[REMI]     = new cass::REMI::Analysis();
+    _analyzer[REMI]     = new cass::REMI::Analysis();
     _analyzer[VMI]      = new cass::VMI::Analysis();
     _analyzer[pnCCD]    = new cass::pnCCD::Analysis();
 }

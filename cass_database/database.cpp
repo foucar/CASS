@@ -60,11 +60,50 @@ cass::database::Database::Database()
       &Theevent,32000,99);*/
   // otherwise
 
+  // the eventid
+  T->Branch("CASS_id",&event_id,"CASS_id/l");
+
   //REMI
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
-  T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]i");
+  T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
+  T->Branch("REMI_Channel_nbrPeaks",REMI_Channel_nbrPeaks,"REMI_Channel_nbrPeaks[REMI_nofChannels]/i");
+  /*T->Branch("REMI_Channel_Peak",REMI_Channel_Peak,
+    "REMI_Channel_Peak[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
+  T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
+     "REMI_Channel_Peak_time[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
+     "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
+     "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_integral",REMI_Channel_Peak_integral,
+     "REMI_Channel_Peak_integral[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_height",REMI_Channel_Peak_height,
+     "REMI_Channel_Peak_height[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_width",REMI_Channel_Peak_width,
+     "REMI_Channel_Peak_width[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_fwhm",REMI_Channel_Peak_fwhm,
+     "REMI_Channel_Peak_fwhm[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
+     "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_stoppos",REMI_Channel_Peak_stoppos,
+     "REMI_Channel_Peak_stoppos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_maxpos",REMI_Channel_Peak_maxpos,
+     "REMI_Channel_Peak_maxpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_maximum",REMI_Channel_Peak_maximum,
+     "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
+     "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  printf("should I add isUsed\n");
+
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
   T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/i");
+  T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
+  T->Branch("REMI_Detector_Hits_x",REMI_Detector_Hits_x,
+     "REMI_Detector_Hits_x[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
+  T->Branch("REMI_Detector_Hits_y",REMI_Detector_Hits_y,
+     "REMI_Detector_Hits_y[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
+  T->Branch("REMI_Detector_Hits_t",REMI_Detector_Hits_t,
+     "REMI_Detector_Hits_t[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
 
   T->Branch("REMI_horpos",REMI_horpos,"REMI_horpos[REMI_nofDetectors]/D");
   T->Branch("REMI_nbrBytes",REMI_nbrBytes,"REMI_nbrBytes[REMI_nofDetectors]/S");
@@ -123,7 +162,7 @@ cass::database::Database::~Database()
 void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
   Double_t random;
-  Int_t jj;
+  Int_t jj,kk;
 
   if(i==0) {
     /*T->SetCircular(max_events_in_Buffer);
@@ -142,16 +181,40 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   pz=px*px+py*py;
   random=r.Rndm();
 
+  event_id=cassevent->id();
+
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
   REMI_nofChannels=remievent.nbrOfChannels();
   for(jj=0;jj<REMI_nofChannels;jj++)
   {
-    //    REMI_Channel[jj]=remievent.channel(jj);
+    REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
+    for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
+    {
+      REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
+      REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
+      REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
+      REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
+      REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
+      REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
+      REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
+      REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
+      REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
+      REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
+      REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
+      REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
+    }
   }
   REMI_nofDetectors=remievent.nbrOfDetectors();
   for(jj=0;jj<REMI_nofDetectors;jj++)
   { 
     //    REMI_Detector[jj]=remievent.detector(jj);
+    REMI_Detector_nbrOfHits[jj]=remievent.detector(jj).nbrOfHits();
+    for(kk=0;kk<REMI_Detector_nbrOfHits[jj];kk++)
+    {
+      REMI_Detector_Hits_x[jj][kk]=remievent.detector(jj).hit(kk).x();
+      REMI_Detector_Hits_y[jj][kk]=remievent.detector(jj).hit(kk).y();
+      REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
+    }
     REMI_horpos[jj]=remievent.horpos();
     REMI_nbrBytes[jj]=remievent.nbrBytes();
     REMI_sampleInterval[jj]=remievent.sampleInterval();
@@ -170,7 +233,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   VMI_rows=vmievent.rows();
   VMI_bitsPerPixel=vmievent.bitsPerPixel();
   VMI_offset=vmievent.offset();
-  printf("%i",&vmievent.frame());
+  //printf("%i\n",&vmievent.frame());
   //std::vector<uint16_t> VMI_frame= new vmievent.frame();
   //VMI_cutFrame=vmievent.cutFrame();
   //VMI_coordinatesOfImpact[0]=vmievent.coordinatesOfImpact();

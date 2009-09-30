@@ -32,13 +32,26 @@ void cass::REMI::Parameter::load()
 
     //the channel parameters//
     beginGroup("ChannelContainer");
-    for (size_t i = 0; i < value("size",16).toUInt();++i)
+    //printf("remi channel setup %i\n",value("size",16).toUInt());
+    //for (size_t i = 0; i < value("size",16).toUInt();++i)
+    for (size_t i = 0; i < value("size",0).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
+        /*printf("remi channel setup %f %i %i %f %i %f %f\n",
+	       value("Offset",0.).toDouble(),
+	       value("Backsize",30).toInt(),
+	       value("Stepsize",50).toInt(),
+	       value("Threshold",50.).toDouble(),
+	       value("Delay",5).toInt(),
+	       value("Fraction",0.6).toDouble(),
+	value("Walk",0.).toDouble());*/
+        //fChannelParameters[i].fOffset    = 0;
         fChannelParameters[i].fOffset    = value("Offset",0.).toDouble();
+        //fChannelParameters[i].fOffset    = value("Offset",0).toInt();
         fChannelParameters[i].fBacksize  = value("Backsize",30).toInt();
         fChannelParameters[i].fStepsize  = value("Stepsize",50).toInt();
         fChannelParameters[i].fThreshold = value("Threshold",50.).toDouble();
+        //fChannelParameters[i].fThreshold = value("Threshold",50).toInt();
         fChannelParameters[i].fDelay     = value("Delay",5).toInt();
         fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
         fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
@@ -48,6 +61,7 @@ void cass::REMI::Parameter::load()
 
     //the detektor parameters//
     beginGroup("DetectorContainer");
+    //printf("remi detec setup %i\n",value("size",0).toUInt());
     for (size_t i = 0; i < value("size",0).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
