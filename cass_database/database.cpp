@@ -123,7 +123,7 @@ cass::database::Database::Database()
   T->Branch("VMI_bitsPerPixel",&VMI_bitsPerPixel,"VMI_bitsPerPixel/s");
   T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
   // the following are vectors..
-  T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
+  //T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
   //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
   //T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
   //T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x/s");
@@ -146,6 +146,7 @@ cass::database::Database::Database()
   T->SetCircular(max_events_in_Buffer);
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
+  T->Print();
   i=0;
 
   // I could also create some default histograms
@@ -234,13 +235,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   VMI_rows=vmievent.rows();
   VMI_bitsPerPixel=vmievent.bitsPerPixel();
   VMI_offset=vmievent.offset();
-  /*for(jj=0;jj<VMI_columns;jj++)
+  for(jj=0;jj<VMI_columns;jj++)
   {
     for(kk=0;kk<VMI_rows;kk++)
     {
-      VMI_frame[kk][jj]=vmievent.frame(jj+kk);
+      //      VMI_frame[kk][jj]=vmievent.frame()[jj*VMI_rows+kk];
     }
-    }*/
+  }
   //printf("%i\n",&vmievent.frame());
   //std::vector<uint16_t> VMI_frame= new vmievent.frame();
   //VMI_cutFrame=vmievent.cutFrame();
@@ -263,7 +264,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   if(i>2 && (i%500)==0)
   {
     //T->Draw("px");
-    T->Print();
+    //T->Print();
     T->Show(i%max_events_in_Buffer-1);
     /*MyWidget->show();
       MyWidget->Refresh();*/
@@ -280,7 +281,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // the "last event" ones need to be clear each time
   h_pnCCD1_lastevent->Reset();
   h_pnCCD1_lastevent->Fill(float(i),float(i+1),int(xy));
-  if(i==xbins-1) {
+  if(i==xbins-500-1) {
     printf("saving\n");
     //save the histos instead of draw...
     //h_pnCCD1_lastevent->Draw("Text");
