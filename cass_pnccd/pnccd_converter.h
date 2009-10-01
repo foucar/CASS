@@ -1,6 +1,7 @@
 #ifndef PNCCDCONVERTER_H
 #define PNCCDCONVERTER_H
 
+#include "pdsdata/pnCCD/fformat.h"
 #include "cass_pnccd.h"
 #include "pnccd_event.h"
 #include "conversion_backend.h"
