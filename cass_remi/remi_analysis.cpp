@@ -65,18 +65,18 @@ void cass::REMI::Parameter::load()
     for (size_t i = 0; i < value("size",0).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
-            fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
-            fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
-            fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
-            fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
-            fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
-            fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
-            fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
-            fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
-            loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
-            loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
-            loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
-            loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
+        fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
+        fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
+        fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
+        fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
+        fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
+        fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
+        fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
+        fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
+        loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
+        loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
+        loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
+        loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
         endGroup(); //QString(i)
     }
     endGroup();//detectorcontainer
