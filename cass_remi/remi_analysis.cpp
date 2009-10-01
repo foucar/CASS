@@ -25,27 +25,19 @@ void loadAnodeParameter(cass::REMI::AnodeLayer& a, const char * groupName, cass:
 
 void cass::REMI::Parameter::load()
 {
-    //the signal analyzer relevant stuff//
+    //the signal analyzer relevant stuff// 
     beginGroup("SignalAnalyzer");
     fPeakfindingMethod = value("Method",SignalAnalyzer::kCoM).toInt();
     endGroup(); //Signalanalyzer
 
     //the channel parameters//
     beginGroup("ChannelContainer");
-<<<<<<< .mine
     //printf("remi channel setup %i\n",value("size",16).toUInt());
     //delete the previous channel parameters//
     fChannelParameters.clear();
     for (size_t i = 0; i < value("size",16).toUInt();++i)
-=======
-    //delete the previous channel parameters//
-    fChannelParameters.clear();
-    //add enough the right amount of channel parameters//
-    for (size_t i = 0; i < value("size",16).toUInt();++i)
->>>>>>> .r297
     {
         beginGroup(QString(static_cast<int>(i)));
-<<<<<<< .mine
         fChannelParameters.push_back(ChannelParameter());
         /* the following should be put after the "proper read in of the params... to see what they are
         printf("remi channel setup %f %i %i %f %i %f %f\n",
@@ -63,31 +55,16 @@ void cass::REMI::Parameter::load()
         fChannelParameters[i].fDelay     = value("Delay",5).toInt();
         fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
         fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
-=======
-            //add a channel parameter to the container//
-            fChannelParameters.push_back(ChannelParameter());
-            //fill it with the right default values//
-            fChannelParameters[i].fOffset    = value("Offset",0.).toDouble();
-            fChannelParameters[i].fBacksize  = value("Backsize",30).toInt();
-            fChannelParameters[i].fStepsize  = value("Stepsize",50).toInt();
-            fChannelParameters[i].fThreshold = value("Threshold",50.).toDouble();
-            fChannelParameters[i].fDelay     = value("Delay",5).toInt();
-            fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
-            fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
->>>>>>> .r297
         endGroup(); //QString
     }
     endGroup();//channelparameter
 
     //the detektor parameters//
     beginGroup("DetectorContainer");
-    //delete the previous detector paramters//
-    fDetectorParameters.clear();
+    //printf("remi detec setup %i\n",value("size",0).toUInt());
     for (size_t i = 0; i < value("size",0).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
-            //add a detectorparameter//
-            fDetectorParameters.push_back(DetectorParameter());
             fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
             fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
             fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
