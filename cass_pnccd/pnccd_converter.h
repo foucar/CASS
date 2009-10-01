@@ -2,6 +2,7 @@
 #define PNCCDCONVERTER_H
 
 #include "cass_pnccd.h"
+#include "pnccd_event.h"
 #include "conversion_backend.h"
 
 namespace Pds
@@ -20,6 +21,8 @@ namespace cass
             //called for LCLS event//
             //            void operator()(const Pds::Camera::FrameV1&, VMIEvent&);
             void operator()(const Pds::Xtc*, cass::CASSEvent*);
+        private:
+            pnCCDEvent _storedEvent;
 
         };
     }//end namespace vmi

@@ -43,9 +43,9 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
 
 cass::pnCCD::pnCCDEvent::pnCCDEvent
 (uint16_t num_pixel_arrays,
- std::vector<int> array_x_size,
- std::vector<int> array_y_size,
- std::vector<int> max_photons_per_event)
+ std::vector<uint32_t> array_x_size,
+ std::vector<uint32_t> array_y_size,
+ std::vector<uint32_t> max_photons_per_event)
 {
 // Check whether the argument values are consistent:
   if( num_pixel_arrays != array_x_size.size() ||
@@ -119,6 +119,34 @@ cass::pnCCD::pnCCDEvent::initEventStorage
   }
 
   return true;
+}
+
+uint16_t
+cass::pnCCD::pnCCDEvent::getNumPixArrays
+(void)
+{
+  return num_pixel_arrays_;
+}
+
+std::vector<uint32_t>
+cass::pnCCD::pnCCDEvent::getArrXSize
+(void)
+{
+  return array_x_size_;
+}
+
+std::vector<uint32_t>
+cass::pnCCD::pnCCDEvent::getArrYSize
+(void)
+{
+  return array_y_size_;
+}
+
+std::vector<uint32_t>
+cass::pnCCD::pnCCDEvent::getMaxPhotPerEvt
+(void)
+{
+  return max_photons_per_event_;
 }
 
 uint16_t*

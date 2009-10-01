@@ -32,13 +32,18 @@ namespace cass
 // memory allocation takes CPU time and space.
 	pnCCDEvent(void);
 	pnCCDEvent(uint16_t num_pixel_arrays,
-                   std::vector<int> array_x_size,
-                   std::vector<int> array_y_size,
-                   std::vector<int> max_photons_per_event);
+                   std::vector<uint32_t> array_x_size,
+                   std::vector<uint32_t> array_y_size,
+                   std::vector<uint32_t> max_photons_per_event);
         ~pnCCDEvent();
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
         bool initEventStorage(void);
+// Get access to some private members of this class:
+        uint16_t              getNumPixArrays(void);
+        std::vector<uint32_t> getArrXSize(void);
+        std::vector<uint32_t> getArrYSize(void);
+        std::vector<uint32_t> getMaxPhotPerEvt(void);
 // Return the address of the raw signal array at the index
 // index. Returns zero if no array with this index is allocated.
         uint16_t* rawSignalArrayAddr(uint16_t index);
@@ -54,9 +59,9 @@ namespace cass
 // These variables are set by the second constructor. The allocation
 // of the local storage arrays is performed by the initEventStorage()
 // member function.
-        std::vector<int> array_x_size_;
-	std::vector<int> array_y_size_;
-	std::vector<int> max_photons_per_event_;
+        std::vector<uint32_t> array_x_size_;
+	std::vector<uint32_t> array_y_size_;
+	std::vector<uint32_t> max_photons_per_event_;
 // The storage arrays for:
 // -> detector array raw data
 // -> offset and, if desired, common mode corrected raw data.
