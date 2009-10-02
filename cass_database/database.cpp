@@ -25,6 +25,7 @@
 #include "TDirectory.h"
 #include "TProcessID.h"
 
+//gROOT->cd();
 TTree *T = new TTree("T","circ buffer");
 #include "cass_tree.h"
 //ClassImp(thisCoordinate)
@@ -32,7 +33,11 @@ TTree *T = new TTree("T","circ buffer");
 #include "histo_list.h"
 
 // 1000 seconds at 30 Hz
-#define max_events_in_Buffer 30000
+//#define max_events_in_Buffer 30000
+// the following is more "suitable" in case a lot of arrays are supposed to
+// be kept in memory.... I would maybe suppose that they are not needed,
+// and instead a "lot" of histograms could be filled ...
+#define max_events_in_Buffer 300
 //cass::CASSEvent *Theevent;
 /*uint64_t od=0;
   cass::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);*/
@@ -106,15 +111,15 @@ cass::database::Database::Database()
   T->Branch("REMI_Detector_Hits_t",REMI_Detector_Hits_t,
      "REMI_Detector_Hits_t[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
 
-  T->Branch("REMI_horpos",REMI_horpos,"REMI_horpos[REMI_nofDetectors]/D");
-  T->Branch("REMI_nbrBytes",REMI_nbrBytes,"REMI_nbrBytes[REMI_nofDetectors]/S");
-  T->Branch("REMI_sampleInterval",REMI_sampleInterval,"REMI_sampleInterval[REMI_nofDetectors]/D");
-  T->Branch("REMI_nbrSamples",REMI_nbrSamples,"REMI_nbrSamples[REMI_nofDetectors]/L");
-  T->Branch("REMI_delayTime",REMI_delayTime,"REMI_delayTime[REMI_nofDetectors]/D");
-  T->Branch("REMI_trigLevel",REMI_trigLevel,"REMI_trigLevel[REMI_nofDetectors]/D");
-  T->Branch("REMI_trigSlope",REMI_trigSlope,"REMI_trigSlope[REMI_nofDetectors]/S");
-  T->Branch("REMI_chanCombUsedChannels",REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels[REMI_nofDetectors]/L");
-  T->Branch("REMI_nbrConvPerChan",REMI_nbrConvPerChan,"REMI_nbrConvPerChan[REMI_nofDetectors]/S");
+  T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
+  T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
+  T->Branch("REMI_sampleInterval",&REMI_sampleInterval,"REMI_sampleInterval/D");
+  T->Branch("REMI_nbrSamples",&REMI_nbrSamples,"REMI_nbrSamples/L");
+  T->Branch("REMI_delayTime",&REMI_delayTime,"REMI_delayTime/D");
+  T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
+  T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
+  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
+  T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
 
   //VMI Pulnix CCD
   T->Branch("VMI_integral",&VMI_integral,"VMI_integral/i");
@@ -137,16 +142,40 @@ cass::database::Database::Database()
   T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[pnCCD_num_pixel_arrays]/I");
   T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[pnCCD_num_pixel_arrays]/I");
   T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[pnCCD_num_pixel_arrays]/I");
+
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
-  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]]/s");
   T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
+
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
-  //T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]/s");
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
   T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
+
+  T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
+  T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
+
+  // all these branches are too large to be used at the same time if the events that
+  // we are going to save in memory need to be large
+  /*T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_unrec_amp0",   pnCCD_ph_unrec_amp0,   "pnCCD_ph_unrec_amp0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_unrec_energy0",pnCCD_ph_unrec_energy0,"pnCCD_ph_unrec_energy0[pnCCD_max_photons_per_event0]/F");
+  T->Branch("pnCCD_ph_unrec_x1",     pnCCD_ph_unrec_x1,     "pnCCD_ph_unrec_x1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_unrec_y1",     pnCCD_ph_unrec_y1,     "pnCCD_ph_unrec_y1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_unrec_amp1",   pnCCD_ph_unrec_amp1,   "pnCCD_ph_unrec_amp1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_unrec_energy1",pnCCD_ph_unrec_energy1,"pnCCD_ph_unrec_energy1[pnCCD_max_photons_per_event1]/F");*/
+
+  T->Branch("pnCCD_ph_recom_x0",     pnCCD_ph_recom_x0,     "pnCCD_ph_recom_x0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_recom_y0",     pnCCD_ph_recom_y0,     "pnCCD_ph_recom_y0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_recom_amp0",   pnCCD_ph_recom_amp0,   "pnCCD_ph_recom_amp0[pnCCD_max_photons_per_event0]/s");
+  T->Branch("pnCCD_ph_recom_energy0",pnCCD_ph_recom_energy0,"pnCCD_ph_recom_energy0[pnCCD_max_photons_per_event0]/F");
+  /*T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_recom_amp1",   pnCCD_ph_recom_amp1,   "pnCCD_ph_recom_amp1[pnCCD_max_photons_per_event1]/s");
+  T->Branch("pnCCD_ph_recom_energy1",pnCCD_ph_recom_energy1,"pnCCD_ph_recom_energy1[pnCCD_max_photons_per_event1]/F");*/
+
   //T->Branch();
   //T->Branch();
   // others YAG XFEL intensities...
@@ -225,16 +254,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       REMI_Detector_Hits_y[jj][kk]=remievent.detector(jj).hit(kk).y();
       REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
     }
-    REMI_horpos[jj]=remievent.horpos();
-    REMI_nbrBytes[jj]=remievent.nbrBytes();
-    REMI_sampleInterval[jj]=remievent.sampleInterval();
-    REMI_nbrSamples[jj]=remievent.nbrSamples();
-    REMI_delayTime[jj]=remievent.delayTime();
-    REMI_trigLevel[jj]=remievent.trigLevel();
-    REMI_trigSlope[jj]=remievent.trigSlope();
-    REMI_chanCombUsedChannels[jj]=remievent.chanCombUsedChannels();
-    REMI_nbrConvPerChan[jj]=remievent.nbrConvPerChan();
   }
+
+  REMI_horpos=remievent.horpos();
+  REMI_nbrBytes=remievent.nbrBytes();
+  REMI_sampleInterval=remievent.sampleInterval();
+  REMI_nbrSamples=remievent.nbrSamples();
+  REMI_delayTime=remievent.delayTime();
+  REMI_trigLevel=remievent.trigLevel();
+  REMI_trigSlope=remievent.trigSlope();
+  REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
+  REMI_nbrConvPerChan=remievent.nbrConvPerChan();
+  //cassevent->~REMIEvent();
 
   cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
   VMI_integral=vmievent.integral();
@@ -254,11 +285,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //std::vector<uint16_t> VMI_frame= new vmievent.frame();
   //VMI_cutFrame=vmievent.cutFrame();
   //VMI_coordinatesOfImpact[0]=vmievent.coordinatesOfImpact();
+  //cassevent->~VMIEvent();
 
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
-  // the following could be even done 1 everytime the configuration changes...
-//  printf("this %i %i %i\n", pnccdevent.num_pixel_arrays,pnccdevent.array_x_size,pnccdevent.array_y_size);
-//  printf("thi0 %i %i\n", pnccdevent.max_photons_per_event,pnccdevent.raw_signal_values);
+  // the following could be even done only everytime the configuration changes...
   for(jj=0;jj<MAX_pnCCD;jj++)
   {
     pnCCD_array_x_size[jj]=0;
@@ -277,14 +307,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   pnCCD_array_y_size0=0;
   pnCCD_array_x_size1=0;
   pnCCD_array_y_size1=0;
+  pnCCD_max_photons_per_event0=0;
+  pnCCD_max_photons_per_event1=0;
   if(pnCCD_num_pixel_arrays>0)
   {
     pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
     pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
-    if(pnCCD_num_pixel_arrays==1)
+    pnCCD_max_photons_per_event0=pnccdevent.getMaxPhotPerEvt()[0]/9;
+    if(pnCCD_num_pixel_arrays==2)
     {
       pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
       pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
+      pnCCD_max_photons_per_event1=pnccdevent.getMaxPhotPerEvt()[1]/9;
     }
   } 
   //pnCCD_raw=pnccdevent.raw_signal_values;
@@ -293,28 +327,34 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   if(pnccdevent.rawSignalArrayAddr(0)!=0)
   {
     printf("oh 000r");
-    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    //memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
     printf("oh 111r");
-    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
 
   if(pnccdevent.corrSignalArrayAddr(0)!=0)
   {
     printf("oh 000c");
-    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    //memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
     printf("oh 111c");
-    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    //memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }
+  /*if(pnccdevent.unrecPhotonHitAddr.x[0]!=0)
+  {
+    printf("oh 000ph");
+    memcpy(&pnCCD_ph_unrec_x0[0],pnccdevent.unrecPhotonHitAddr.x[0],pnCCD_max_photons_per_event[0]);
+    //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
+    }*/
   //??which/both
   //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
@@ -322,16 +362,17 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //Theevent=cassevent;
   T->Fill();
 
-  if(i>2 && (i%500)==0)
+  if ( max_events_in_Buffer>100 && i>1 && (i%(max_events_in_Buffer/10))==0 )
+  {
+    printf("done/seen event %i %i\n",i,int(event_id));
+    //T->Show(i%max_events_in_Buffer-1);
+  }
+
+  if(i>1 && (i%max_events_in_Buffer)==0)
   {
     //T->Draw("px");
-    //T->Print();
     T->Show(i%max_events_in_Buffer-1);
-    /*MyWidget->show();
-      MyWidget->Refresh();*/
   }
-  // maybe if i>max_events_in_Buffer i could save the events to file before
-  // overwriting them....
 
   //now fill the history histograms,
   h_pnCCD1_history->Fill(float(i),float(i+1),int(xy));
@@ -342,12 +383,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // the "last event" ones need to be clear each time
   h_pnCCD1_lastevent->Reset();
   h_pnCCD1_lastevent->Fill(float(i),float(i+1),int(xy));
-  if(i==xbins-500-1) {
+
+  // maybe if i>max_events_in_Buffer i could save the events to file before
+  // overwriting them....
+#ifdef DEBUG
+  if(i==max_events_in_Buffer) {
+    // I saw a problem if using the circular buffer...
+    // after some events the job crashes at Max_buffers*(1+0.1)+1 events
     printf("saving\n");
     //save the histos instead of draw...
     //h_pnCCD1_lastevent->Draw("Text");
     //h_pnCCD1_history->Draw("Text");
-    TFile f("histos.root","new");
+    TFile f("histos.root","RECREATE");
     h_pnCCD1_lastevent->Write();
     h_pnCCD1_history->Write();
     T->Write();
@@ -355,6 +402,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
+#endif
+
+  //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
   //emit nextEvent();

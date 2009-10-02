@@ -39,15 +39,17 @@ Int_t REMI_Detector_nbrOfHits[REMI_Detectors_Max];
 Double_t REMI_Detector_Hits_x[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 Double_t REMI_Detector_Hits_y[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 Double_t REMI_Detector_Hits_t[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
-Double_t REMI_horpos[REMI_Detectors_Max];
-Short_t REMI_nbrBytes[REMI_Detectors_Max];
-Double_t REMI_sampleInterval[REMI_Detectors_Max];
-Long_t REMI_nbrSamples[REMI_Detectors_Max];
-Double_t REMI_delayTime[REMI_Detectors_Max];
-Double_t REMI_trigLevel[REMI_Detectors_Max];
-Short_t REMI_trigSlope[REMI_Detectors_Max];
-Long_t REMI_chanCombUsedChannels[REMI_Detectors_Max];
-Short_t REMI_nbrConvPerChan[REMI_Detectors_Max];
+// all of the following were like Double_t REMI_horpos[REMI_Detectors_Max];
+Double_t REMI_horpos;
+Short_t REMI_nbrBytes;
+Double_t REMI_sampleInterval;
+Long_t REMI_nbrSamples;
+Double_t REMI_delayTime;
+Double_t REMI_trigLevel;
+Short_t REMI_trigSlope;
+Long_t REMI_chanCombUsedChannels;
+Short_t REMI_nbrConvPerChan;
+
 
 UInt_t VMI_integral;
 UShort_t VMI_maxPixelValue;
