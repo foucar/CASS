@@ -78,6 +78,7 @@ std::vector<uint16_t> VMI_coordinatesOfImpact_y;
 #define MAX_pnCCD 2
 #define MAX_pnCCD_array_x_size 1024
 #define MAX_pnCCD_array_y_size 1024
+#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
 
 //Int_t pnCCD_num_pixel_arrays[2];
 Int_t pnCCD_num_pixel_arrays;
@@ -89,6 +90,8 @@ Int_t pnCCD_array_x_size0;
 Int_t pnCCD_array_y_size0;
 Int_t pnCCD_array_x_size1;
 Int_t pnCCD_array_y_size1;
+Int_t pnCCD_max_photons_per_event0;
+Int_t pnCCD_max_photons_per_event1;
 
 //std::vector<uint16_t> pnCCD_raw[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size][2];
 //std::vector<uint16_t> pnCCD_corr[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size][2];
@@ -98,3 +101,25 @@ UShort_t pnCCD_raw1[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 
 UShort_t pnCCD_corr0[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 UShort_t pnCCD_corr1[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
+
+UShort_t pnCCD_ph_unrec_x0[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_unrec_y0[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_unrec_amp0[MAX_pnCCD_max_photons_per_event];
+Float_t pnCCD_ph_unrec_energy0[MAX_pnCCD_max_photons_per_event];
+// index?? frm_idx??
+
+UShort_t pnCCD_ph_unrec_x1[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_unrec_y1[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_unrec_amp1[MAX_pnCCD_max_photons_per_event];
+Float_t pnCCD_ph_unrec_energy1[MAX_pnCCD_max_photons_per_event];
+
+// same for recom_photon_hits_
+UShort_t pnCCD_ph_recom_x0[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_recom_y0[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_recom_amp0[MAX_pnCCD_max_photons_per_event];
+Float_t pnCCD_ph_recom_energy0[MAX_pnCCD_max_photons_per_event];
+
+UShort_t pnCCD_ph_recom_x1[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_recom_y1[MAX_pnCCD_max_photons_per_event];
+UShort_t pnCCD_ph_recom_amp1[MAX_pnCCD_max_photons_per_event];
+Float_t pnCCD_ph_recom_energy1[MAX_pnCCD_max_photons_per_event];
