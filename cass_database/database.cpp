@@ -93,8 +93,9 @@ cass::database::Database::Database()
      "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
      "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
-  printf("should I add isUsed\n");
-
+  T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
+	    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i"); 
+  
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
   T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/i");
   T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
@@ -130,15 +131,22 @@ cass::database::Database::Database()
   //T->Branch("VMI_coordinatesOfImpact_y",VMI_coordinatesOfImpact_y,"VMI_coordinatesOfImpact_y/s");
 
   //pnCCD (2)
-  T->Branch("pnCCD_num_pixel_arrays",pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays[2]/I");
-  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[2]/I");
-  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[2]/I");
-  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[2]/I");
+  // the 2 pnCCD are not allowed to have different setting??
+  //T->Branch("pnCCD_num_pixel_arrays",pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays[2]/I");
+  T->Branch("pnCCD_num_pixel_arrays",&pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays/I");
+  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[pnCCD_num_pixel_arrays]/I");
+  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[pnCCD_num_pixel_arrays]/I");
+  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[pnCCD_num_pixel_arrays]/I");
+  T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
+  T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
+  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]]/s");
   T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
-  T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
-  //T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]");
-  //T->Branch("pnCCD_corr",pnCCD_corr,"pnCCD_corr[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]");
+  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
+  //T->Branch("pnCCD_raw",pnCCD_raw,"pnCCD_raw[pnCCD_array_x_size[0]][pnCCD_array_y_size[0]][2]/s");
+  T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
+  T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
   //T->Branch();
   //T->Branch();
   // others YAG XFEL intensities...
@@ -168,8 +176,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   if(i==0) {
     /*T->SetCircular(max_events_in_Buffer);
-    printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);*/
-    T->Print();
+    printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+    T->Print();*/
   }
 
   i++;
@@ -248,15 +256,68 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //VMI_coordinatesOfImpact[0]=vmievent.coordinatesOfImpact();
 
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+  // the following could be even done 1 everytime the configuration changes...
 //  printf("this %i %i %i\n", pnccdevent.num_pixel_arrays,pnccdevent.array_x_size,pnccdevent.array_y_size);
 //  printf("thi0 %i %i\n", pnccdevent.max_photons_per_event,pnccdevent.raw_signal_values);
-  /*pnCCD_num_pixel_arrays[0]=pnccdevent.num_pixel_arrays;
-  pnCCD_array_x_size[0]=pnccdevent.array_x_size;
-  pnCCD_array_y_size[0]=pnccdevent.array_y_size;
-  pnCCD_max_photons_per_event[0]=pnccdevent.max_photons_per_event;
-  pnCCD_array_x_size1=pnccdevent.array_x_size;
-  pnCCD_array_y_size1=pnccdevent.array_y_size;
-  pnCCD_raw=pnccdevent.raw_signal_values;*/
+  for(jj=0;jj<MAX_pnCCD;jj++)
+  {
+    pnCCD_array_x_size[jj]=0;
+    pnCCD_array_y_size[jj]=0;
+    pnCCD_max_photons_per_event[jj]=0;
+  }
+  pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
+  // I am not sure of the meaning of the next 2 arrays
+  for(jj=0;jj<pnCCD_num_pixel_arrays;jj++)
+  {
+    pnCCD_array_x_size[jj]=pnccdevent.getArrXSize()[jj];
+    pnCCD_array_y_size[jj]=pnccdevent.getArrYSize()[jj];
+    pnCCD_max_photons_per_event[jj]=pnccdevent.getMaxPhotPerEvt()[jj];
+  }
+  pnCCD_array_x_size0=0;
+  pnCCD_array_y_size0=0;
+  pnCCD_array_x_size1=0;
+  pnCCD_array_y_size1=0;
+  if(pnCCD_num_pixel_arrays>0)
+  {
+    pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
+    pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
+    if(pnCCD_num_pixel_arrays==1)
+    {
+      pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
+      pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
+    }
+  } 
+  //pnCCD_raw=pnccdevent.raw_signal_values;
+  if(pnccdevent.rawSignalArrayAddr(0)!=0)
+    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0],pnCCD_array_x_size[1]);
+  if(pnccdevent.rawSignalArrayAddr(0)!=0)
+  {
+    printf("oh 000r");
+    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
+  }  
+  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+  {
+    printf("oh 111r");
+    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
+  }  
+
+  if(pnccdevent.corrSignalArrayAddr(0)!=0)
+  {
+    printf("oh 000c");
+    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
+  }  
+  if(pnccdevent.corrSignalArrayAddr(1)!=0)
+  {
+    printf("oh 111c");
+    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
+  }
+  //??which/both
+  //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
+  //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
 
   //Theevent=cassevent;
   T->Fill();
