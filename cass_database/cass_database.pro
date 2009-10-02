@@ -30,7 +30,9 @@ exists ($$incFile) {
 SOURCES += database.cpp
 
 HEADERS += database.h \
-           cass_database.h
+           cass_database.h \
+           cass_tree.h \
+           histo_list.h
 
 INCLUDEPATH += ../cass \
                ../cass_remi/classes/event \
