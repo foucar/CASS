@@ -1,4 +1,4 @@
-Int_t xbins=1024,ybins=124;
+Int_t xbins=1024,ybins=1024;
 Float_t xmin=-0.5,xmax=1023.5,ymin=-0.5,ymax=1023.5;
 // these could be actually also taken from the runtime configuration
 /*xbins=1024;

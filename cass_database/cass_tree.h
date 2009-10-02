@@ -1,3 +1,10 @@
+// 1000 seconds at 30 Hz
+//#define max_events_in_Buffer 30000
+// the following is more "suitable" in case a lot of arrays are supposed to
+// be kept in memory.... I would maybe suppose that they are not needed,
+// and instead a "lot" of histograms could be filled ...
+#define max_events_in_Buffer 300
+
 #define REMI_Channels_Max 20
 #define REMI_PeaksproChannels_Max 20
 #define REMI_Detectors_Max 20
@@ -5,8 +12,8 @@
 
 #define VMI_Channels_Max 20
 #define VMI_Detectors_Max 20
-#define VMI_max_cols 8000 // ???
-#define VMI_max_rows 8000 // ???
+#define VMI_max_cols 1000 // ??? it was 8000, it is still too large
+#define VMI_max_rows 1000 // ??? it was 8000, it is still too large
 
 TRandom r;
 Float_t px,py,pz;
@@ -80,7 +87,8 @@ std::vector<uint16_t> VMI_coordinatesOfImpact_y;
 #define MAX_pnCCD 2
 #define MAX_pnCCD_array_x_size 1024
 #define MAX_pnCCD_array_y_size 1024
-#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
+//#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
+#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
 
 //Int_t pnCCD_num_pixel_arrays[2];
 Int_t pnCCD_num_pixel_arrays;

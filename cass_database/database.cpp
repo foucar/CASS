@@ -32,12 +32,6 @@ TTree *T = new TTree("T","circ buffer");
 
 #include "histo_list.h"
 
-// 1000 seconds at 30 Hz
-//#define max_events_in_Buffer 30000
-// the following is more "suitable" in case a lot of arrays are supposed to
-// be kept in memory.... I would maybe suppose that they are not needed,
-// and instead a "lot" of histograms could be filled ...
-#define max_events_in_Buffer 300
 //cass::CASSEvent *Theevent;
 /*uint64_t od=0;
   cass::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);*/
@@ -158,24 +152,30 @@ cass::database::Database::Database()
 
   // all these branches are too large to be used at the same time if the events that
   // we are going to save in memory need to be large
-  /*T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_unrec_amp0",   pnCCD_ph_unrec_amp0,   "pnCCD_ph_unrec_amp0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_unrec_energy0",pnCCD_ph_unrec_energy0,"pnCCD_ph_unrec_energy0[pnCCD_max_photons_per_event0]/F");
-  T->Branch("pnCCD_ph_unrec_x1",     pnCCD_ph_unrec_x1,     "pnCCD_ph_unrec_x1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_unrec_y1",     pnCCD_ph_unrec_y1,     "pnCCD_ph_unrec_y1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_unrec_amp1",   pnCCD_ph_unrec_amp1,   "pnCCD_ph_unrec_amp1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_unrec_energy1",pnCCD_ph_unrec_energy1,"pnCCD_ph_unrec_energy1[pnCCD_max_photons_per_event1]/F");*/
 
+  //I am not allowing all unless MAX_pnCCD_max_photons_per_event small enough...
+  if(MAX_pnCCD_max_photons_per_event<65537) // 1024*1024/16
+  {
+    T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
+    T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
+    T->Branch("pnCCD_ph_unrec_amp0",   pnCCD_ph_unrec_amp0,   "pnCCD_ph_unrec_amp0[pnCCD_max_photons_per_event0]/s");
+    T->Branch("pnCCD_ph_unrec_energy0",pnCCD_ph_unrec_energy0,"pnCCD_ph_unrec_energy0[pnCCD_max_photons_per_event0]/F");
+    T->Branch("pnCCD_ph_unrec_x1",     pnCCD_ph_unrec_x1,     "pnCCD_ph_unrec_x1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_unrec_y1",     pnCCD_ph_unrec_y1,     "pnCCD_ph_unrec_y1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_unrec_amp1",   pnCCD_ph_unrec_amp1,   "pnCCD_ph_unrec_amp1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_unrec_energy1",pnCCD_ph_unrec_energy1,"pnCCD_ph_unrec_energy1[pnCCD_max_photons_per_event1]/F");
+  }
   T->Branch("pnCCD_ph_recom_x0",     pnCCD_ph_recom_x0,     "pnCCD_ph_recom_x0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_y0",     pnCCD_ph_recom_y0,     "pnCCD_ph_recom_y0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_amp0",   pnCCD_ph_recom_amp0,   "pnCCD_ph_recom_amp0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_energy0",pnCCD_ph_recom_energy0,"pnCCD_ph_recom_energy0[pnCCD_max_photons_per_event0]/F");
-  /*T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_recom_amp1",   pnCCD_ph_recom_amp1,   "pnCCD_ph_recom_amp1[pnCCD_max_photons_per_event1]/s");
-  T->Branch("pnCCD_ph_recom_energy1",pnCCD_ph_recom_energy1,"pnCCD_ph_recom_energy1[pnCCD_max_photons_per_event1]/F");*/
-
+  if(MAX_pnCCD_max_photons_per_event<131073) // 1024*1024/8
+  {
+    T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_recom_amp1",   pnCCD_ph_recom_amp1,   "pnCCD_ph_recom_amp1[pnCCD_max_photons_per_event1]/s");
+    T->Branch("pnCCD_ph_recom_energy1",pnCCD_ph_recom_energy1,"pnCCD_ph_recom_energy1[pnCCD_max_photons_per_event1]/F");
+  }
   //T->Branch();
   //T->Branch();
   // others YAG XFEL intensities...
@@ -210,7 +210,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
 
   i++;
-
+  // just have something filled...
   if (i<xbins-1) 
   {
     xy[i][i+1]=2*i;
@@ -313,12 +313,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   {
     pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
     pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
-    pnCCD_max_photons_per_event0=pnccdevent.getMaxPhotPerEvt()[0]/9;
+    pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),MAX_pnCCD_max_photons_per_event);
     if(pnCCD_num_pixel_arrays==2)
     {
       pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
       pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
-      pnCCD_max_photons_per_event1=pnccdevent.getMaxPhotPerEvt()[1]/9;
+      pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),MAX_pnCCD_max_photons_per_event);
     }
   } 
   //pnCCD_raw=pnccdevent.raw_signal_values;
@@ -334,22 +334,22 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   {
     printf("oh 111r");
     //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
-    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
 
   if(pnccdevent.corrSignalArrayAddr(0)!=0)
   {
     printf("oh 000c");
     //memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
-    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
     printf("oh 111c");
     //memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
-    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }
-  /*if(pnccdevent.unrecPhotonHitAddr.x[0]!=0)
+  /*
+  if(MAX_pnCCD_max_photons_per_event<131073) // 1024*1024/8
+  {}
+  if(pnccdevent.unrecPhotonHitAddr.x[0]!=0)
   {
     printf("oh 000ph");
     memcpy(&pnCCD_ph_unrec_x0[0],pnccdevent.unrecPhotonHitAddr.x[0],pnCCD_max_photons_per_event[0]);
