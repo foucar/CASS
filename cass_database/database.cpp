@@ -24,6 +24,7 @@
 #include <TSystem.h>
 #include "TDirectory.h"
 #include "TProcessID.h"
+#include <TCut.h>
 
 //gROOT->cd();
 TTree *T = new TTree("T","circ buffer");
@@ -31,6 +32,10 @@ TTree *T = new TTree("T","circ buffer");
 //ClassImp(thisCoordinate)
 
 #include "histo_list.h"
+#include <time.h>
+time_t rawtime;
+struct tm * timeinfo;
+char hourmin[12];
 
 //cass::CASSEvent *Theevent;
 /*uint64_t od=0;
@@ -44,10 +49,10 @@ cass::database::Database::Database()
   Double_t random;
 
   // this is where I am going to start the tree
-  T->Branch("i",&i,"i/i");
+  T->Branch("Nevents",&Nevents,"Nevents/i");
   T->Branch("px",&px,"px/F");
   T->Branch("py",&py,"py/F");
-  T->Branch("pz",&pz,"pz/F");
+  //T->Branch("pz",&pz,"pz/F");
   T->Branch("random",&random,"random/D");
   /*if(!TClassTable::GetDict("Event")) {
     gSystem->Load("$ROOTSYS/test/libEvent.so");
@@ -154,7 +159,7 @@ cass::database::Database::Database()
   // we are going to save in memory need to be large
 
   //I am not allowing all unless MAX_pnCCD_max_photons_per_event small enough...
-  if(MAX_pnCCD_max_photons_per_event<65537) // 1024*1024/16
+  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer)
   {
     T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
     T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
@@ -169,7 +174,7 @@ cass::database::Database::Database()
   T->Branch("pnCCD_ph_recom_y0",     pnCCD_ph_recom_y0,     "pnCCD_ph_recom_y0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_amp0",   pnCCD_ph_recom_amp0,   "pnCCD_ph_recom_amp0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_energy0",pnCCD_ph_recom_energy0,"pnCCD_ph_recom_energy0[pnCCD_max_photons_per_event0]/F");
-  if(MAX_pnCCD_max_photons_per_event<131073) // 1024*1024/8
+  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer_loose)
   {
     T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
@@ -184,7 +189,7 @@ cass::database::Database::Database()
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
   T->Print();
-  i=0;
+  Nevents=0;
 
   // I could also create some default histograms
   // like 1 for each pnCCD: last event, all events since beginning of time
@@ -203,21 +208,22 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   Double_t random;
   Int_t jj,kk;
 
-  if(i==0) {
+  if(Nevents==0) {
     /*T->SetCircular(max_events_in_Buffer);
     printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
     T->Print();*/
   }
 
-  i++;
-  // just have something filled...
-  if (i<xbins-1) 
+  Nevents++;
+  //if(Nevents>299) printf("Nevents=%i \n",Nevents);
+  // just to have something filled...
+  if (int(Nevents)<xbins-1) 
   {
-    xy[i][i+1]=2*i;
+    xy[Nevents][Nevents+1]=2*Nevents;
   }
 
   r.Rannor(px,py);
-  pz=px*px+py*py;
+  //pz=px*px+py*py;
   random=r.Rndm();
 
   event_id=cassevent->id();
@@ -314,11 +320,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
     pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
     pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),MAX_pnCCD_max_photons_per_event);
+    pnCCD_max_photons_per_event0=TMath::Min(pnCCD_max_photons_per_event0,max_phot_in_Buffer_loose);
     if(pnCCD_num_pixel_arrays==2)
     {
       pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
       pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
       pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),MAX_pnCCD_max_photons_per_event);
+      pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
     }
   } 
   //pnCCD_raw=pnccdevent.raw_signal_values;
@@ -347,7 +355,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
   }
   /*
-  if(MAX_pnCCD_max_photons_per_event<131073) // 1024*1024/8
+  for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
   {}
   if(pnccdevent.unrecPhotonHitAddr.x[0]!=0)
   {
@@ -362,32 +370,112 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //Theevent=cassevent;
   T->Fill();
 
-  if ( max_events_in_Buffer>100 && i>1 && (i%(max_events_in_Buffer/10))==0 )
+  if ( max_events_in_Buffer>100 && ( Nevents%(max_events_in_Buffer/10) )==0 )
   {
-    printf("done/seen event %i %i\n",i,int(event_id));
+    time(&rawtime);
+    timeinfo=localtime(&rawtime);
+    strftime(hourmin,11,"%H%M%S",timeinfo);
+    printf("done/seen event %i %i %s\n",Nevents,int(event_id), hourmin );
+    
     //T->Show(i%max_events_in_Buffer-1);
   }
 
-  if(i>1 && (i%max_events_in_Buffer)==0)
+  /*if(Nevents>1 && (Nevents%max_events_in_Buffer)==0)
   {
     //T->Draw("px");
-    T->Show(i%max_events_in_Buffer-1);
-  }
+    T->Show(Nevents%max_events_in_Buffer-1);
+  }*/
 
   //now fill the history histograms,
-  h_pnCCD1_history->Fill(float(i),float(i+1),int(xy));
+  h_pnCCD1_history->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
 
-  // we may have sets that overweight the last event
-  // if "#events > 5" divide histo by 5 and add last event...
+  // we could "look" for no-hit or for hit to save "showtime"
 
+  // the "last N event" ones need to be clear each time
+  h_pnCCD1_lastNevent->Reset();
+  h_pnCCD1_w_lastNevent->Reset();
+  lastNevent=5;
+    /*printf("filling histos Nlast start=%i, end=%i and Nevents modulus max_events_in_Buffer %i \n",
+      Nevents-6,Nevents,Nevents%max_events_in_Buffer);*/
+  if(Nevents>lastNevent)
+  {
+    start=int(Nevents)-lastNevent-1;
+    stop=int(Nevents);
+//examples to be implemented in diode unless lastNevent>max_events_in_Buffer
+// the stdout seems changed by T->Draw() and T->Project() statements
+// simple h->Draw() have no such an effect...
+
+    char thisstring[25];
+    sprintf(thisstring,"int(Nevents)>=%i",start);
+    TCut c1 = thisstring;
+    sprintf(thisstring,"int(Nevents)<%i",stop);
+    TCut c2 = thisstring;
+
+    sprintf(thisstring,"Nevents<%i",stop-1);
+    TCut c3 = thisstring;
+    sprintf(thisstring,"%i*(Nevents==%i)",lastNevent,stop);
+    TCut c4 = thisstring;
+
+    if ( c1 && c2 )
+    {
+      //T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+    }
+
+    if ( c1 && c3 )
+    {
+      //T->Project("h_pnCCD1_w_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+    }
+    if ( c4 )
+    {
+      //T->Project("h_pnCCD1_w_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+    }
+
+#ifdef DEBUG
+    T->Draw("pnCCD_raw0>>+h_pnCCD1_lastNevent", c1 && c2);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevent", c1 && c2);
+    
+    //    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevent", "","",lastNevent,start);
+    
+    /*
+    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevent", c1 && c3);
+    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevent", c4);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevent", c1 && c3);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevent", c4);*/
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevent", "","",lastNevent-1,start);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevent", "","",1,stop-1);
+#endif
+
+#ifdef DEBUG
+    for (jj=start;jj<stop;jj++)
+    {
+      thisevent_mod=int(Nevents%max_events_in_Buffer);
+      // the following line overwrites the vars in the root-block....
+      //T->GetEntry(thisevent_mod); // or Nevents??
+      // I think that I need to use T->Draw()...
+      h_pnCCD1_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+      // we may have sets that overweight the last event
+      // if "#events > 5" divide histo by 5 and add last event... or the other way multiplying by 5 the last one...
+      if(jj<stop-1) {
+        h_pnCCD1_w_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+      }
+      else
+      {
+        h_pnCCD1_w_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy)*int(lastNevent));
+      }
+    }
+#endif
+  }
   // the "last event" ones need to be clear each time
   h_pnCCD1_lastevent->Reset();
-  h_pnCCD1_lastevent->Fill(float(i),float(i+1),int(xy));
+  h_pnCCD1_lastevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-#ifdef DEBUG
-  if(i==max_events_in_Buffer) {
+  //#ifdef DEBUG
+  UInt_t this1 = max_events_in_Buffer/100*90;
+  
+  if(Nevents==this1) {
     // I saw a problem if using the circular buffer...
     // after some events the job crashes at Max_buffers*(1+0.1)+1 events
     printf("saving\n");
@@ -397,12 +485,14 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     TFile f("histos.root","RECREATE");
     h_pnCCD1_lastevent->Write();
     h_pnCCD1_history->Write();
+    h_pnCCD1_lastNevent->Write();
+    h_pnCCD1_w_lastNevent->Write();
     T->Write();
     f.Close();
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
-#endif
+  //#endif
 
   //cass::CASSEvent::~CASSEvent();
 
