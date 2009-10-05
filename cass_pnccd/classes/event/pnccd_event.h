@@ -11,10 +11,11 @@
 // Include as defined in C99. This should thus hopefully work
 // on all systems which support this standard:
 #include <vector>
-
+#include "pdsdata/pnCCD/fformat.h"
 #include <inttypes.h>
 
 #include "pnccd_photon_hit.h"
+
 #include "cass_pnccd.h"
 	
 namespace cass
@@ -36,6 +37,8 @@ namespace cass
                    std::vector<uint32_t> array_y_size,
                    std::vector<uint32_t> max_photons_per_event);
         ~pnCCDEvent();
+// Initialize the event with frame data from the xtc:
+        bool init(frameHeaderType* pnccd_frame, uint32_t ccd_id);
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
         bool initEventStorage(void);

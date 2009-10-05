@@ -28,7 +28,7 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
   {
     array_x_size_.at(i)          = 1024;
     array_y_size_.at(i)          = 1024;
-    max_photons_per_event_.at(i) = 1024*1024;
+    max_photons_per_event_.at(i) = 2048;
     raw_signal_values_.at(i)     = 0;
     corr_signal_values_.at(i)    = 0;
     unrec_photon_hits_.at(i)     = 0;
@@ -96,6 +96,16 @@ cass::pnCCD::pnCCDEvent::~pnCCDEvent
     delete[] recom_photon_hits_.at(i);
   }
 }
+
+// Initialize the event with the data stored in an xtc:
+
+bool
+cass::pnCCD::pnCCDEvent::init
+(frameHeaderType* pnccd_frame, uint32_t ccd_id)
+{
+  return true;
+}
+
 
 // Initialize the storage of pnCCD events with the previously
 // defined size parameters:
