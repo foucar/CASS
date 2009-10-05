@@ -3,7 +3,11 @@
 // the following is more "suitable" in case a lot of arrays are supposed to
 // be kept in memory.... I would maybe suppose that they are not needed,
 // and instead a "lot" of histograms could be filled ...
-#define max_events_in_Buffer 300
+//#define max_events_in_Buffer 303
+UInt_t max_events_in_Buffer= 100;
+
+#define max_phot_in_Buffer_loose 16385 // 1024*1024/64+1
+#define max_phot_in_Buffer 8193 // 1024*1024/128+1
 
 #define REMI_Channels_Max 20
 #define REMI_PeaksproChannels_Max 20
@@ -17,7 +21,8 @@
 
 TRandom r;
 Float_t px,py,pz;
-Int_t i;
+UInt_t Nevents;
+//Int_t i;
 
 ULong64_t event_id;
 
