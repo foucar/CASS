@@ -42,6 +42,7 @@ INCLUDEPATH += ../cass \
                ../cass_vmi/classes/event \
                ../cass_pnccd/classes/event \
                ../cass_pnccd \
+               $$(LCLSSYSINCLUDE) \
                $$(ROOTSYS)/test
 
 
