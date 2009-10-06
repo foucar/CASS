@@ -35,7 +35,7 @@ namespace cass
                     _bitsPerPixel(0),
                     _offset(0),
                     _integral(0),
-                    _maxPixelValue(0),
+                    _maxPixelValue(0)
                     {}
 
             bool&       isFilled()                   {return _isFilled;}
