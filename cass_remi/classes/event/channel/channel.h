@@ -41,7 +41,7 @@ namespace cass
             double      vertGain()const         {return fGain;}
             long        stepsize()const         {return fStsi;}
             long        backsize()const         {return fBs;}
-            const void *waveform()const         {return &fWaveform[fIdxToFirstPoint];}
+            const void *waveform()const         {return &fWaveform[0];}
             size_t      waveformLength()const   {return fDataLength;}
             size_t      idxToFirstPoint()const  {return fIdxToFirstPoint;}
             int         delay()const            {return fDelay;}

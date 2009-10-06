@@ -44,6 +44,9 @@ namespace cass
             size_t              nbrOfDetectors()const       {return fDets.size();}
             Detector           &detector(long idx)          {return fDets[idx];}
             const Detector     &detector(long idx)const     {return fDets[idx];}
+        
+        public:
+            bool                isFilled()const             {return fIsFilled;}
 
         public:
             double              horpos()const               {return fHorpos;}

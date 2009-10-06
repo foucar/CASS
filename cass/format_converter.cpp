@@ -68,7 +68,7 @@ namespace cass {
         if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
             (datagram->seq.service() == Pds::TransitionId::L1Accept))
         {
-            CASSEvent *cassevent;
+            CASSEvent *cassevent=0;
             //if the datagram is an event than we create a new cass event first//
             if (datagram->seq.service() == Pds::TransitionId::L1Accept)
             {
@@ -78,10 +78,12 @@ namespace cass {
 
                 //create a new cassevent//
                 cassevent = new CASSEvent(bunchId);
+                //cassevent = database.nextEvent();
             }
 
             //iterate through the datagram and find the wanted information//
             XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
+            iter.iterate();
 
             //when the datagram was an event then emit the new CASSEvent//
             if(datagram->seq.service() == Pds::TransitionId::L1Accept)

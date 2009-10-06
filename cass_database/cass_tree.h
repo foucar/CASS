@@ -4,7 +4,7 @@
 // be kept in memory.... I would maybe suppose that they are not needed,
 // and instead a "lot" of histograms could be filled ...
 //#define max_events_in_Buffer 303
-UInt_t max_events_in_Buffer= 300;
+UInt_t max_events_in_Buffer= 1000;
 
 #define max_phot_in_Buffer_loose 16385 // 1024*1024/64+1
 #define max_phot_in_Buffer 8193 // 1024*1024/128+1
@@ -13,6 +13,8 @@ UInt_t max_events_in_Buffer= 300;
 #define REMI_PeaksproChannels_Max 150
 #define REMI_Detectors_Max 2
 #define REMI_Detectors_Hits_Max 150 // is it reasonable?? Too small
+//#define REMI_maxWaveform 40000 // 40us
+#define REMI_maxWaveform 20000 // 20us
 
 #define VMI_max_cols 640 // ??? it was 8000, it is still too large
 #define VMI_max_rows 480 // ??? it was 8000, it is still too large
@@ -25,12 +27,12 @@ UInt_t Nevents;
 ULong64_t event_id;
 
 Int_t REMI_nofChannels;
-Int_t REMI_Channel[REMI_Channels_Max];
+//Int_t REMI_Channel[REMI_Channels_Max];
 Int_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
 //Long_t REMI_Channel_Peak[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_time[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Double_t REMI_Channel_Peak_com[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Double_t REMI_Channel_Peak_cfd[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//Double_t REMI_Channel_Peak_com[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//Double_t REMI_Channel_Peak_cfd[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_integral[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_height[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_width[REMI_Channels_Max][REMI_PeaksproChannels_Max];
@@ -41,6 +43,7 @@ Long_t REMI_Channel_Peak_maxpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_maximum[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Long_t REMI_Channel_Peak_polarity[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Bool_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+Short_t REMI_Channel_Waveform[REMI_Channels_Max][REMI_maxWaveform];
 
 //add channels_t??
 Int_t REMI_nofDetectors;

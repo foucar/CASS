@@ -12,13 +12,14 @@ cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     fOffset     = static_cast<int16_t>(config.vert(fChNbr).offset());
     fGain       = config.vert(fChNbr).slope();
     fDataLength = config.horiz().nbrSamples();
+    fWaveform.resize(fDataLength);
 
  }
 
 //______________________________________________________________________________________________________________________
 void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 {
-    fIdxToFirstPoint = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).indexFirstPoint();
+   fIdxToFirstPoint = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).indexFirstPoint();
 
     //extract waveform//
     const short* waveform = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).waveform();
@@ -26,7 +27,10 @@ void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 
     //we have to invert the byte order for some reason that still has to be determined//
     for (size_t i=0;i<fDataLength;++i)
+      {
         fWaveform[i] = (waveform[i]&0xff<<8) | (waveform[i]&0xff00>>8);
+	//       printf("%i ",fWaveform[i]);
+      }
 }
 
 //______________________________________________________________________________________________________________________

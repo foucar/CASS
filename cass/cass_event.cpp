@@ -8,13 +8,13 @@ cass::CASSEvent::CASSEvent(uint64_t id):
         _id(id),
         _remievent(new REMI::REMIEvent()),
         _vmievent(new VMI::VMIEvent()),
-        _pnccdevent(new pnCCD::pnCCDEvent())
+	_pnccdevent(new pnCCD::pnCCDEvent())
 {
 }
 
 cass::CASSEvent::~CASSEvent()
 {
-    delete _pnccdevent;
-    delete _vmievent;
-    delete _remievent;
+  delete _pnccdevent;
+  delete _vmievent;
+  delete _remievent;
 }

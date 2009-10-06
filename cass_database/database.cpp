@@ -69,16 +69,16 @@ cass::database::Database::Database()
 
   //REMI
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
-  T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
+  //T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
   T->Branch("REMI_Channel_nbrPeaks",REMI_Channel_nbrPeaks,"REMI_Channel_nbrPeaks[REMI_nofChannels]/i");
   /*T->Branch("REMI_Channel_Peak",REMI_Channel_Peak,
     "REMI_Channel_Peak[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
   T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
      "REMI_Channel_Peak_time[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
-  T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
+  /*T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
      "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
-     "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+  "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
   T->Branch("REMI_Channel_Peak_integral",REMI_Channel_Peak_integral,
      "REMI_Channel_Peak_integral[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_height",REMI_Channel_Peak_height,
@@ -99,7 +99,7 @@ cass::database::Database::Database()
      "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
 	    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i"); 
-  
+
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
   T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/i");
   T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
@@ -119,6 +119,9 @@ cass::database::Database::Database()
   T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
   T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
   T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
+
+  T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
+            "REMI_Channel_Waveform[REMI_nofChannels][REMI_nbrSamples]/S");
 
   //VMI Pulnix CCD
   T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");
@@ -237,8 +240,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
     {
       REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
-      REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
-      REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
+      //REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
+      //REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
       REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
       REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
       REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
@@ -248,6 +251,15 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
       REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
       REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
+    }
+    if(remievent.isFilled())
+    {
+      /*printf("%i %i \n",remievent.channel(jj).waveformLength(),
+	(static_cast<const short*>(remievent.channel(jj).waveform()))[19]);*/
+      memcpy(&REMI_Channel_Waveform[jj][0],
+        remievent.channel(jj).waveform(),
+        remievent.channel(jj).waveformLength());
+      /*printf("%i \n",REMI_Channel_Waveform[jj][210]);*/
     }
   }
   REMI_nofDetectors=remievent.nbrOfDetectors();
@@ -478,7 +490,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-#ifdef DEBUG
+  //#ifdef DEBUG
   UInt_t this1 = max_events_in_Buffer/100*90;
   
   if(Nevents==this1) {
@@ -498,12 +510,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
-#endif
+  //#endif
 
   //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
   //emit nextEvent();
+  delete cassevent;
 }
 
 cass::CASSEvent* cass::database::Database::nextEvent()
