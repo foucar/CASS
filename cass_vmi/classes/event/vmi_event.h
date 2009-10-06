@@ -28,7 +28,15 @@ namespace cass
         class VMIEvent
         {
         public:
-            VMIEvent():_isFilled(false)              {}
+            VMIEvent():
+                    _isFilled(false),
+                    _columns(0),
+                    _rows(0),
+                    _bitsPerPixel(0),
+                    _offset(0),
+                    _integral(0),
+                    _maxPixelValue(0),
+                    {}
 
             bool&       isFilled()                   {return _isFilled;}
             bool        isFilled()const              {return _isFilled;}
