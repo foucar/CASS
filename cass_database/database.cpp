@@ -121,6 +121,7 @@ cass::database::Database::Database()
   T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
 
   //VMI Pulnix CCD
+  T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");
   T->Branch("VMI_integral",&VMI_integral,"VMI_integral/i");
   T->Branch("VMI_maxPixelValue",&VMI_maxPixelValue,"VMI_maxPixelValue/s");
   T->Branch("VMI_columns",&VMI_columns,"VMI_columns/s");
@@ -274,17 +275,21 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //cassevent->~REMIEvent();
 
   cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
+  VMI_isFilled=vmievent.isFilled();
   VMI_integral=vmievent.integral();
   VMI_maxPixelValue=vmievent.maxPixelValue();
   VMI_columns=vmievent.columns();
   VMI_rows=vmievent.rows();
   VMI_bitsPerPixel=vmievent.bitsPerPixel();
   VMI_offset=vmievent.offset();
-  for(jj=0;jj<VMI_columns;jj++)
+  if(VMI_isFilled)
   {
-    for(kk=0;kk<VMI_rows;kk++)
+    for(jj=0;jj<VMI_columns;jj++)
     {
-      //      VMI_frame[kk][jj]=vmievent.frame()[jj*VMI_rows+kk];
+      for(kk=0;kk<VMI_rows;kk++)
+      {
+        VMI_frame[kk][jj]=vmievent.frame()[jj*VMI_rows+kk];
+      }
     }
   }
   //printf("%i\n",&vmievent.frame());
@@ -416,6 +421,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     sprintf(thisstring,"%i*(Nevents==%i)",lastNevent,stop);
     TCut c4 = thisstring;
 
+    // the following 3 if are actually not what I want to achieve...
     if ( c1 && c2 )
     {
       //T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
@@ -472,7 +478,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-  //#ifdef DEBUG
+#ifdef DEBUG
   UInt_t this1 = max_events_in_Buffer/100*90;
   
   if(Nevents==this1) {
@@ -492,7 +498,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
-  //#endif
+#endif
 
   //cass::CASSEvent::~CASSEvent();
 

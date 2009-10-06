@@ -4,20 +4,18 @@
 // be kept in memory.... I would maybe suppose that they are not needed,
 // and instead a "lot" of histograms could be filled ...
 //#define max_events_in_Buffer 303
-UInt_t max_events_in_Buffer= 100;
+UInt_t max_events_in_Buffer= 300;
 
 #define max_phot_in_Buffer_loose 16385 // 1024*1024/64+1
 #define max_phot_in_Buffer 8193 // 1024*1024/128+1
 
-#define REMI_Channels_Max 20
-#define REMI_PeaksproChannels_Max 20
-#define REMI_Detectors_Max 20
-#define REMI_Detectors_Hits_Max 100 // is it reasonable?? Too small
+#define REMI_Channels_Max 16
+#define REMI_PeaksproChannels_Max 150
+#define REMI_Detectors_Max 2
+#define REMI_Detectors_Hits_Max 150 // is it reasonable?? Too small
 
-#define VMI_Channels_Max 20
-#define VMI_Detectors_Max 20
-#define VMI_max_cols 1000 // ??? it was 8000, it is still too large
-#define VMI_max_rows 1000 // ??? it was 8000, it is still too large
+#define VMI_max_cols 640 // ??? it was 8000, it is still too large
+#define VMI_max_rows 480 // ??? it was 8000, it is still too large
 
 TRandom r;
 Float_t px,py,pz;
@@ -63,6 +61,7 @@ Long_t REMI_chanCombUsedChannels;
 Short_t REMI_nbrConvPerChan;
 
 
+UShort_t VMI_isFilled;
 UInt_t VMI_integral;
 UShort_t VMI_maxPixelValue;
 UShort_t VMI_columns;
