@@ -7,6 +7,7 @@
 //#include "Rtypes.h"
 //#endif
 
+//#include "TObject.h"
 
 namespace cass
 {
@@ -26,16 +27,15 @@ namespace cass
     class CASSEvent
     {
     public:
+        CASSEvent() {}
         CASSEvent(uint64_t id);
         ~CASSEvent();
 
         uint64_t         id()const          {return _id;}
 
-        REMI::REMIEvent     &REMIEvent()    {return *_remievent;}
+	REMI::REMIEvent     &REMIEvent()    {return *_remievent;}
         VMI::VMIEvent       &VMIEvent()     {return *_vmievent;}
         pnCCD::pnCCDEvent   &pnCCDEvent()   {return *_pnccdevent;}
-
-        //ClassDef(CASSEvent,1)
 
     private:
         uint64_t            _id;
@@ -43,6 +43,8 @@ namespace cass
         VMI::VMIEvent      *_vmievent;
         pnCCD::pnCCDEvent  *_pnccdevent;
 //        MACHINEEvent   *_machineevent;
+
+//	 ClassDef(cass::CASSEvent,1)
     };
 }
 

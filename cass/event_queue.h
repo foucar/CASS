@@ -10,6 +10,8 @@
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
 
+#define _maxbufsize 4
+
 namespace cass
 {
 
@@ -30,7 +32,7 @@ namespace cass
         void nextEvent(quint32 index);
 
     private:
-        const size_t    _maxbufsize;
+
         char           *_ringbuffer;
         char           *_ringbufferindizes[_maxbufsize];
         QMutex          _mutexes[_maxbufsize];

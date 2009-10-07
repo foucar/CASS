@@ -4,6 +4,8 @@
 #include "vmi_event.h"
 #include "pnccd_event.h"
 
+//ClassImp(cass::CASSEvent)
+
 cass::CASSEvent::CASSEvent(uint64_t id):
         _id(id),
         _remievent(new REMI::REMIEvent()),
@@ -14,7 +16,7 @@ cass::CASSEvent::CASSEvent(uint64_t id):
 
 cass::CASSEvent::~CASSEvent()
 {
-  delete _pnccdevent;
-  delete _vmievent;
-  delete _remievent;
+    delete _pnccdevent;
+    delete _vmievent;
+    delete _remievent;
 }

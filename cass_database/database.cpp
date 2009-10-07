@@ -40,13 +40,13 @@ char hourmin[12];
 //cass::CASSEvent *Theevent;
 /*uint64_t od=0;
   cass::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);*/
-
 //cass::CASSEvent::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);
 
 cass::database::Database::Database()
 {
-  
   Double_t random;
+
+  //should I add a header to the tree??
 
   // this is where I am going to start the tree
   T->Branch("Nevents",&Nevents,"Nevents/i");
@@ -69,34 +69,53 @@ cass::database::Database::Database()
 
   //REMI
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
+
+  T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
+  T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
+  T->Branch("REMI_sampleInterval",&REMI_sampleInterval,"REMI_sampleInterval/D");
+  T->Branch("REMI_nbrSamples",&REMI_nbrSamples,"REMI_nbrSamples/L");
+  T->Branch("REMI_delayTime",&REMI_delayTime,"REMI_delayTime/D");
+  T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
+  T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
+  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
+  T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
+
+  T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
+	    "REMI_Channel_Waveform[5][10000]/S"); //[REMI_Channels_Max][REMI_maxWaveform 20000]
+  // it seems that the following is not really appreciated....
+  //  "REMI_Channel_Waveform[REMI_nofChannels][REMI_nbrSamples]/S");
+
   //T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
   T->Branch("REMI_Channel_nbrPeaks",REMI_Channel_nbrPeaks,"REMI_Channel_nbrPeaks[REMI_nofChannels]/i");
-  /*T->Branch("REMI_Channel_Peak",REMI_Channel_Peak,
-    "REMI_Channel_Peak[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
-  T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
-     "REMI_Channel_Peak_time[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+
   /*T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
      "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
   "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
+
   T->Branch("REMI_Channel_Peak_integral",REMI_Channel_Peak_integral,
-     "REMI_Channel_Peak_integral[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+	         "REMI_Channel_Peak_integral[5][2]/D");
+	    //     "REMI_Channel_Peak_integral[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+
+  T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
+     "REMI_Channel_Peak_time[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+
   T->Branch("REMI_Channel_Peak_height",REMI_Channel_Peak_height,
-     "REMI_Channel_Peak_height[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_height[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
   T->Branch("REMI_Channel_Peak_width",REMI_Channel_Peak_width,
-     "REMI_Channel_Peak_width[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_width[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
   T->Branch("REMI_Channel_Peak_fwhm",REMI_Channel_Peak_fwhm,
-     "REMI_Channel_Peak_fwhm[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_fwhm[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
   T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
-     "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_stoppos",REMI_Channel_Peak_stoppos,
-     "REMI_Channel_Peak_stoppos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_stoppos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_maxpos",REMI_Channel_Peak_maxpos,
-     "REMI_Channel_Peak_maxpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_maxpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_maximum",REMI_Channel_Peak_maximum,
-     "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
   T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
-     "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
+     "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
 	    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i"); 
 
@@ -110,21 +129,8 @@ cass::database::Database::Database()
   T->Branch("REMI_Detector_Hits_t",REMI_Detector_Hits_t,
      "REMI_Detector_Hits_t[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
 
-  T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
-  T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
-  T->Branch("REMI_sampleInterval",&REMI_sampleInterval,"REMI_sampleInterval/D");
-  T->Branch("REMI_nbrSamples",&REMI_nbrSamples,"REMI_nbrSamples/L");
-  T->Branch("REMI_delayTime",&REMI_delayTime,"REMI_delayTime/D");
-  T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
-  T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
-  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
-  T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
-
-  T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
-            "REMI_Channel_Waveform[REMI_nofChannels][REMI_nbrSamples]/S");
-
   //VMI Pulnix CCD
-  T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");
+  T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");//&cassevent->VMIEvent()->isFilled()
   T->Branch("VMI_integral",&VMI_integral,"VMI_integral/i");
   T->Branch("VMI_maxPixelValue",&VMI_maxPixelValue,"VMI_maxPixelValue/s");
   T->Branch("VMI_columns",&VMI_columns,"VMI_columns/s");
@@ -211,6 +217,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
   Double_t random;
   Int_t jj,kk;
+  Int_t arraysize;
 
   if(Nevents==0) {
     /*T->SetCircular(max_events_in_Buffer);
@@ -234,15 +241,30 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
   REMI_nofChannels=remievent.nbrOfChannels();
+
+  REMI_horpos=remievent.horpos();
+  REMI_nbrBytes=remievent.nbrBytes();
+  REMI_sampleInterval=remievent.sampleInterval();
+  REMI_nbrSamples=remievent.nbrSamples();
+  REMI_delayTime=remievent.delayTime();
+  REMI_trigLevel=remievent.trigLevel();
+  REMI_trigSlope=remievent.trigSlope();
+  REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
+  REMI_nbrConvPerChan=remievent.nbrConvPerChan();
+
   for(jj=0;jj<REMI_nofChannels;jj++)
   {
     REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
+    REMI_Channel_nbrPeaks[jj]=1;
     for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
     {
       REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
       //REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
       //REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
-      REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
+      //REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
+      //REMI_Channel_Peak_integral[jj][kk]=int(150.*px);
+      REMI_Channel_Peak_integral[jj][kk]=(Double_t)(150.*px);
+      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
       REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
       REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
       REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
@@ -251,14 +273,16 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
       REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
       REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
+      REMI_Channel_Peak_isUsed[jj][kk]=(UShort_t)remievent.channel(jj).peak(kk).isUsed();
     }
     if(remievent.isFilled())
     {
       /*printf("%i %i \n",remievent.channel(jj).waveformLength(),
-	(static_cast<const short*>(remievent.channel(jj).waveform()))[19]);*/
+	(static_cast<const short*>(remievent.channel(jj).waveform()))[5050]);*/
       memcpy(&REMI_Channel_Waveform[jj][0],
         remievent.channel(jj).waveform(),
-        remievent.channel(jj).waveformLength());
+	     remievent.channel(jj).waveformLength()*sizeof(REMI_Channel_Waveform[0][0]));
+      //REMI_Channel_Waveform[jj][20]=(static_cast<const short*>(remievent.channel(jj).waveform()))[20];
       /*printf("%i \n",REMI_Channel_Waveform[jj][210]);*/
     }
   }
@@ -274,16 +298,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
     }
   }
-
-  REMI_horpos=remievent.horpos();
-  REMI_nbrBytes=remievent.nbrBytes();
-  REMI_sampleInterval=remievent.sampleInterval();
-  REMI_nbrSamples=remievent.nbrSamples();
-  REMI_delayTime=remievent.delayTime();
-  REMI_trigLevel=remievent.trigLevel();
-  REMI_trigSlope=remievent.trigSlope();
-  REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
-  REMI_nbrConvPerChan=remievent.nbrConvPerChan();
   //cassevent->~REMIEvent();
 
   cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
@@ -346,30 +360,38 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
     }
   } 
+  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
+         sizeof(pnccdevent.rawSignalArrayAddr(0))*sizeof(pnccdevent.rawSignalArrayAddr(0));
   //pnCCD_raw=pnccdevent.raw_signal_values;
   if(pnccdevent.rawSignalArrayAddr(0)!=0)
     printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0],pnCCD_array_x_size[1]);
   if(pnccdevent.rawSignalArrayAddr(0)!=0)
   {
     printf("oh 000r");
-    //memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),arraysize);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
+  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
+         sizeof(pnccdevent.rawSignalArrayAddr(1))*sizeof(pnccdevent.rawSignalArrayAddr(1));
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
     printf("oh 111r");
-    //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
   }  
 
+  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
+         sizeof(pnccdevent.corrSignalArrayAddr(0))*sizeof(pnccdevent.corrSignalArrayAddr(0));
   if(pnccdevent.corrSignalArrayAddr(0)!=0)
   {
     printf("oh 000c");
-    //memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),pnCCD_array_x_size[0]*pnCCD_array_y_size[0]);
+    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),arraysize);
   }  
+  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
+         sizeof(pnccdevent.corrSignalArrayAddr(1))*sizeof(pnccdevent.corrSignalArrayAddr(1));
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
     printf("oh 111c");
-    //memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_array_x_size[1]*pnCCD_array_y_size[1]);
+    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),arraysize);
   }
   /*
   for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
@@ -436,7 +458,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     // the following 3 if are actually not what I want to achieve...
     if ( c1 && c2 )
     {
-      //T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+      T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
 
     if ( c1 && c3 )
