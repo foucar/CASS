@@ -5,18 +5,12 @@
 
 cass::EventQueue::EventQueue( QObject *parent):
         QThread(parent),
-        _index(0)/*,
-		 _maxbufsize(1)*/
+        _index(0)
 {
     //initialize the ringbuffer//
     _ringbuffer = new char[(0x700000)*_maxbufsize];
     for (size_t i=0;i<_maxbufsize;++i)
-    {
-//    _ringbufferindizes[0] = _ringbuffer;
-//    _ringbufferindizes[1] = _ringbuffer+(0x700000);
-//    _ringbufferindizes[2] = _ringbuffer+(0x700000)*2;
         _ringbufferindizes[i] = _ringbuffer+(0x700000)*i;
-    }
 }
 
 cass::EventQueue::~EventQueue()
@@ -40,7 +34,7 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
 {
     //check which entry of the ringbuffer is not locked by a receiver//   
     while(!(_mutexes[_index].tryLock()))
-        _index = (++_index )% _maxbufsize;
+        _index = (++_index) % _maxbufsize;
 
     //remember which index it is and get the corrosponding ringbuffer pointer//
     uint32_t index = _index;
@@ -55,7 +49,7 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
     _mutexes[_index].unlock();
 
     //advance the index such that next time this is called it will check the next index first//
-    _index = (++_index)%_maxbufsize;
+    _index = (++_index) % _maxbufsize;
 
     //tell the world that there is a new datagram available//
     emit nextEvent(index);
