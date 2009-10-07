@@ -30,10 +30,11 @@ namespace cass
         void nextEvent(quint32 index);
 
     private:
-        char       *_ringbuffer;
-        char       *_ringbufferindizes[4];
-        QMutex      _mutexes[4];
-        uint32_t    _index;
+        const size_t    _maxbufsize;
+        char           *_ringbuffer;
+        char           *_ringbufferindizes[_maxbufsize];
+        QMutex          _mutexes[_maxbufsize];
+        uint32_t        _index;
     };
 
 }//end namespace cass
