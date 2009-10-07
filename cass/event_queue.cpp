@@ -22,7 +22,7 @@ cass::EventQueue::EventQueue( QObject *parent):
 cass::EventQueue::~EventQueue()
 {
     //unlock all mutexes//
-    for (size_t i=0;i<4;++i)
+    for (size_t i=0;i<_maxbufsize;++i)
         if (_mutexes[i].tryLock())
             _mutexes[i].unlock();
     //delete ringbuffer//
