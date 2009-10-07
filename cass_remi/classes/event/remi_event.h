@@ -56,6 +56,7 @@ namespace cass
             double              delayTime()const            {return fDelayTime;}
             double              trigLevel()const            {return fTrigLevel;}
             short               trigSlope()const            {return fTrigSlope;}
+            short               trigChannel()const          {return fTrigChannel;}
             long                chanCombUsedChannels()const {return fChanCombUsedChans;}
             short               nbrConvPerChan()const       {return fNbrConPerCh;}
 
