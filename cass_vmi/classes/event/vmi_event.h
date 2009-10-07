@@ -37,7 +37,7 @@ namespace cass
                     _integral(0),
                     _maxPixelValue(0)
                     {}
-
+        public:
             bool&       isFilled()                   {return _isFilled;}
             bool        isFilled()const              {return _isFilled;}
 
@@ -59,7 +59,7 @@ namespace cass
             std::vector<uint16_t>&       cutFrame()                 {return _cutframe;}
             std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
 
-		private:
+         private:
             bool                    _isFilled;
             //data comming from machine//
             std::vector<uint16_t>   _frame;		//the ccd frame
