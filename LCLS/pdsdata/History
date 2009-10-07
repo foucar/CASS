@@ -1,6 +1,3 @@
-2009-Aug15	weaver	Tag V00-05-03.  Applied Bozek's detector name changes.
-					Added master EVG fiducial count details.
-2009-Aug12	weaver	Tag V00-05-02.  Tagged for production release.
 2009-Jul22	weaver	Tag V00-05-01.  Modified RunControl configuration data.
 					Added EVR vectoring field to TimeStamp.
 2009-Jul17	jackp			Added pnCCD support and made strings match enums
