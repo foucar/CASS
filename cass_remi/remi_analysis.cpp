@@ -38,24 +38,23 @@ void cass::REMI::Parameter::load()
     for (size_t i = 0; i < value("size",16).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
-        //add a channel parameter to the container
-        fChannelParameters.push_back(ChannelParameter());
-        /* the following should be put after the "proper read in of the params... to see what they are
-        printf("remi channel setup %f %i %i %f %i %f %f\n",
-	       value("Offset",0.).toDouble(),
-	       value("Backsize",30).toInt(),
-	       value("Stepsize",50).toInt(),
-	       value("Threshold",50.).toDouble(),
-	       value("Delay",5).toInt(),
-	       value("Fraction",0.6).toDouble(),
-	value("Walk",0.).toDouble());*/
-        fChannelParameters[i].fOffset    = value("Offset",0.).toDouble();
-        fChannelParameters[i].fBacksize  = value("Backsize",30).toInt();
-        fChannelParameters[i].fStepsize  = value("Stepsize",50).toInt();
-        fChannelParameters[i].fThreshold = value("Threshold",50.).toDouble();
-        fChannelParameters[i].fDelay     = value("Delay",5).toInt();
-        fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
-        fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
+            fChannelParameters.push_back(ChannelParameter());
+            /* the following should be put after the "proper read in of the params... to see what they are
+            printf("remi channel setup %f %i %i %f %i %f %f\n",
+                   value("Offset",0.).toDouble(),
+                   value("Backsize",30).toInt(),
+                   value("Stepsize",50).toInt(),
+                   value("Threshold",50.).toDouble(),
+                   value("Delay",5).toInt(),
+                   value("Fraction",0.6).toDouble(),
+            value("Walk",0.).toDouble());*/
+            fChannelParameters[i].fOffset    = value("Offset",0.).toDouble();
+            fChannelParameters[i].fBacksize  = value("Backsize",30).toInt();
+            fChannelParameters[i].fStepsize  = value("Stepsize",50).toInt();
+            fChannelParameters[i].fThreshold = value("Threshold",50.).toDouble();
+            fChannelParameters[i].fDelay     = value("Delay",5).toInt();
+            fChannelParameters[i].fFraction  = value("Fraction",0.6).toDouble();
+            fChannelParameters[i].fWalk      = value("Walk",0.).toDouble();
         endGroup(); //QString
     }
     endGroup();//channelparameter
@@ -68,20 +67,20 @@ void cass::REMI::Parameter::load()
     for (size_t i = 0; i < value("size",1).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
-        // add a detectorparameter
-        fDetectorParameters.push_back(DetectorParameter());
-        fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
-        fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
-        fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
-        fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
-        fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
-        fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
-        fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
-        fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
-        loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
-        loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
-        loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
-        loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
+            // add a detectorparameter//
+            fDetectorParameters.push_back(DetectorParameter());
+            fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
+            fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
+            fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
+            fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
+            fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
+            fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
+            fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
+            fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
+            loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
+            loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
+            loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
+            loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
         endGroup(); //QString(i)
     }
     endGroup();//detectorcontainer
