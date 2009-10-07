@@ -13,7 +13,7 @@ cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     fGain       = config.vert(fChNbr).slope();
     fDataLength = config.horiz().nbrSamples();
     fWaveform.resize(fDataLength);
-
+    printf("here %i %f\n",fFullscale,fGain);
  }
 
 //______________________________________________________________________________________________________________________

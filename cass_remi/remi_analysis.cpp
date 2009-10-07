@@ -38,6 +38,7 @@ void cass::REMI::Parameter::load()
     for (size_t i = 0; i < value("size",16).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
+        //add a channel parameter to the container
         fChannelParameters.push_back(ChannelParameter());
         /* the following should be put after the "proper read in of the params... to see what they are
         printf("remi channel setup %f %i %i %f %i %f %f\n",
@@ -62,9 +63,13 @@ void cass::REMI::Parameter::load()
     //the detektor parameters//
     beginGroup("DetectorContainer");
     //printf("remi detec setup %i\n",value("size",0).toUInt());
-    for (size_t i = 0; i < value("size",0).toUInt();++i)
+    //delete the previous detector parameters//
+    fDetectorParameters.clear();
+    for (size_t i = 0; i < value("size",1).toUInt();++i)
     {
         beginGroup(QString(static_cast<int>(i)));
+        // add a detectorparameter
+        fDetectorParameters.push_back(DetectorParameter());
         fDetectorParameters[i].fRuntime      = value("Runtime",150).toDouble();
         fDetectorParameters[i].fWLayerOffset = value("WLayerOffset",0.).toDouble();
         fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();

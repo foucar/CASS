@@ -88,6 +88,9 @@ cass::database::Database::Database()
   //T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
   T->Branch("REMI_Channel_nbrPeaks",REMI_Channel_nbrPeaks,"REMI_Channel_nbrPeaks[REMI_nofChannels]/i");
 
+  T->Branch("REMI_Channel_fullscale",REMI_Channel_fullscale,"REMI_Channel_fullscale[REMI_nofChannels]/S");
+  T->Branch("REMI_Channel_vertGain",REMI_Channel_vertGain,"REMI_Channel_vertGain[REMI_nofChannels]/D");
+
   /*T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
      "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
@@ -120,7 +123,7 @@ cass::database::Database::Database()
 	    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i"); 
 
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
-  T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/i");
+  T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/C");
   T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
   T->Branch("REMI_Detector_Hits_x",REMI_Detector_Hits_x,
      "REMI_Detector_Hits_x[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
@@ -255,6 +258,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   for(jj=0;jj<REMI_nofChannels;jj++)
   {
     REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
+    REMI_Channel_vertGain[jj]=remievent.channel(jj).vertGain();
+    REMI_Channel_fullscale[jj]=remievent.channel(jj).fullscale();
     REMI_Channel_nbrPeaks[jj]=1;
     for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
     {
@@ -264,7 +269,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       //REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
       //REMI_Channel_Peak_integral[jj][kk]=int(150.*px);
       REMI_Channel_Peak_integral[jj][kk]=(Double_t)(150.*px);
-      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
+      //      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
       REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
       REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
       REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
@@ -290,6 +295,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   for(jj=0;jj<REMI_nofDetectors;jj++)
   { 
     //    REMI_Detector[jj]=remievent.detector(jj);
+    //strcpy(REMI_Detector[jj][0],remievent.detector(jj).name());
+    memcpy(&REMI_Detector[jj][0],remievent.detector(jj).name(),REMI_maxNAME);
+    printf("%s\n",remievent.detector(jj).name());
+    printf("1%s\n",REMI_Detector[jj]);
     REMI_Detector_nbrOfHits[jj]=remievent.detector(jj).nbrOfHits();
     for(kk=0;kk<REMI_Detector_nbrOfHits[jj];kk++)
     {
@@ -458,7 +467,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     // the following 3 if are actually not what I want to achieve...
     if ( c1 && c2 )
     {
-      T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+      //T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
 
     if ( c1 && c3 )

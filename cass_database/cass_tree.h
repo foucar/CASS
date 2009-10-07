@@ -15,6 +15,7 @@ UInt_t max_events_in_Buffer= 100;
 #define REMI_Detectors_Hits_Max 150 // is it reasonable?? Too small
 //#define REMI_maxWaveform 40000 // 40us
 #define REMI_maxWaveform 20000 // 20us
+#define REMI_maxNAME 64
 
 #define VMI_max_cols 640 // ??? it was 8000, it is still too large
 #define VMI_max_rows 480 // ??? it was 8000, it is still too large
@@ -41,7 +42,9 @@ Short_t REMI_trigSlope;
 Long_t REMI_chanCombUsedChannels;
 Short_t REMI_nbrConvPerChan;
 
-Int_t REMI_Detector[REMI_Detectors_Max];
+//Int_t REMI_Detector[REMI_Detectors_Max];
+Char_t REMI_Detector[REMI_Detectors_Max][REMI_maxNAME];
+
 Int_t REMI_Detector_nbrOfHits[REMI_Detectors_Max];
 Double_t REMI_Detector_Hits_x[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 Double_t REMI_Detector_Hits_y[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
@@ -49,6 +52,10 @@ Double_t REMI_Detector_Hits_t[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 
 //Int_t REMI_Channel[REMI_Channels_Max];
 Int_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
+
+Double_t REMI_Channel_vertGain[REMI_Channels_Max];
+Short_t REMI_Channel_fullscale[REMI_Channels_Max];
+
 //Long_t REMI_Channel_Peak[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_time[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //Double_t REMI_Channel_Peak_com[REMI_Channels_Max][REMI_PeaksproChannels_Max];
