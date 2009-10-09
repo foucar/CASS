@@ -34,7 +34,8 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
     unrec_photon_hits_.at(i)     = 0;
     recom_photon_hits_.at(i)     = 0;
   }
-
+// Reserve memory for the default event:
+  this->initEventStorage();
 }
 
 // Create the event with given parameters for the geometry
@@ -99,10 +100,54 @@ cass::pnCCD::pnCCDEvent::~pnCCDEvent
 
 // Initialize the event with the data stored in an xtc:
 
+// Get information from the file header:
+
+bool
+cass::pnCCD::pnCCDEvent::init
+(fileHeaderType* pnccd_fhdr, uint32_t ccd_id)
+{
+  if( !pnccd_fhdr ) return false;
+
+// Set the frame siez of CCD with id ccd_id, this is
+// needed for the correct initialization of the raw and
+// corrected pixel signal data:
+  array_x_size_.at(ccd_id) = pnccd_fhdr->the_width;
+  array_y_size_.at(ccd_id) = pnccd_fhdr->the_maxHeight;
+
+  return true;
+}
+
+// Get information from the frame header:
+
 bool
 cass::pnCCD::pnCCDEvent::init
 (frameHeaderType* pnccd_frame, uint32_t ccd_id)
 {
+  uint32_t  width;
+//  uint32_t  height;
+  uint64_t  datasize;
+  pxType   *frm_data;
+
+  if( !pnccd_frame ) return false;
+// Get the start address of the frame data block. In memory
+// The frame data block begins directly after the frame
+// header:
+  frm_data = reinterpret_cast<pxType*>(pnccd_frame + 1);
+// Check whether the geometry information in the frame header
+// corresponds to the initialization parameters of the pnCCDEvent:
+  width = pnccd_frame->the_height;
+// Test version: do nothing by now!
+//  if( width != array_x_size_.at(ccd_id) ) ;
+  datasize = array_x_size_.at(ccd_id)
+            *array_y_size_.at(ccd_id)
+            *sizeof(pxType);
+// Copy the contents of the memory region of the frame in
+// the xtc datagram to the corresponding memory region in
+// the cass::pnCCD::pnCCDEvent :
+  memcpy(this->raw_signal_values_.at(ccd_id),
+         frm_data,
+         datasize);
+
   return true;
 }
 

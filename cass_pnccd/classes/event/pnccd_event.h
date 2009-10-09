@@ -13,6 +13,7 @@
 #include <vector>
 #include "pdsdata/pnCCD/fformat.h"
 #include <inttypes.h>
+#include <string.h>
 
 #include "pnccd_photon_hit.h"
 
@@ -37,8 +38,11 @@ namespace cass
                    std::vector<uint32_t> array_y_size,
                    std::vector<uint32_t> max_photons_per_event);
         ~pnCCDEvent();
+// Initialize the event with the file header data from the
+// xtc:
+        bool init(fileHeaderType *pnccd_fhdr, uint32_t ccd_id);
 // Initialize the event with frame data from the xtc:
-        bool init(frameHeaderType* pnccd_frame, uint32_t ccd_id);
+        bool init(frameHeaderType *pnccd_frame, uint32_t ccd_id);
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
         bool initEventStorage(void);
