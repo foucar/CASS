@@ -25,6 +25,7 @@
 #include "TDirectory.h"
 #include "TProcessID.h"
 #include <TCut.h>
+#include <TThread.h>
 
 //gROOT->cd();
 TTree *T = new TTree("T","circ buffer");
@@ -71,12 +72,13 @@ cass::database::Database::Database()
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
 
   T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
-  T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
+  //T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
   T->Branch("REMI_sampleInterval",&REMI_sampleInterval,"REMI_sampleInterval/D");
   T->Branch("REMI_nbrSamples",&REMI_nbrSamples,"REMI_nbrSamples/L");
   T->Branch("REMI_delayTime",&REMI_delayTime,"REMI_delayTime/D");
   T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
   T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
+  T->Branch("REMI_trigChannel",&REMI_trigChannel,"REMI_trigChannel/S");
   T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
   T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
 
@@ -90,6 +92,10 @@ cass::database::Database::Database()
 
   T->Branch("REMI_Channel_fullscale",REMI_Channel_fullscale,"REMI_Channel_fullscale[REMI_nofChannels]/S");
   T->Branch("REMI_Channel_vertGain",REMI_Channel_vertGain,"REMI_Channel_vertGain[REMI_nofChannels]/D");
+  T->Branch("REMI_Channel_vertOffset",REMI_Channel_vertOffset,"REMI_Channel_vertOffset[REMI_nofChannels]/D");
+  T->Branch("REMI_Channel_delay",REMI_Channel_delay,"REMI_Channel_delay[REMI_nofChannels]/D");
+  T->Branch("REMI_Channel_fraction",REMI_Channel_fraction,"REMI_Channel_fraction[REMI_nofChannels]/D");
+  T->Branch("REMI_Channel_walk",REMI_Channel_walk,"REMI_Channel_walk[REMI_nofChannels]/D");
 
   /*T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
      "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
@@ -109,21 +115,21 @@ cass::database::Database::Database()
      "REMI_Channel_Peak_width[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
   T->Branch("REMI_Channel_Peak_fwhm",REMI_Channel_Peak_fwhm,
      "REMI_Channel_Peak_fwhm[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
-  T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
+  /*T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
      "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_stoppos",REMI_Channel_Peak_stoppos,
      "REMI_Channel_Peak_stoppos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_maxpos",REMI_Channel_Peak_maxpos,
      "REMI_Channel_Peak_maxpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_maximum",REMI_Channel_Peak_maximum,
-     "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+  "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");*/
   T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
      "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
-  T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
-	    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i"); 
+  /*T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
+    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
 
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
-  T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/C");
+  //T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/C");
   T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
   T->Branch("REMI_Detector_Hits_x",REMI_Detector_Hits_x,
      "REMI_Detector_Hits_x[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
@@ -141,11 +147,12 @@ cass::database::Database::Database()
   T->Branch("VMI_bitsPerPixel",&VMI_bitsPerPixel,"VMI_bitsPerPixel/s");
   T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
   // the following are vectors..
-  //T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
+  T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
   //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
-  //T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
-  //T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x/s");
-  //T->Branch("VMI_coordinatesOfImpact_y",VMI_coordinatesOfImpact_y,"VMI_coordinatesOfImpact_y/s");
+  T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
+  T->Branch("VMI_nof_Impacts",&VMI_nof_Impacts,"VMI_nof_Impacts/s");
+  T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x[VMI_nof_Impacts]/s");
+  T->Branch("VMI_coordinatesOfImpact_y",VMI_coordinatesOfImpact_y,"VMI_coordinatesOfImpact_y[VMI_nof_Impacts]/s");
 
   //pnCCD (2)
   // the 2 pnCCD are not allowed to have different setting??
@@ -228,6 +235,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     T->Print();*/
   }
 
+  //TThread::Lock();
+
   Nevents++;
   //if(Nevents>299) printf("Nevents=%i \n",Nevents);
   // just to have something filled...
@@ -243,45 +252,54 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   event_id=cassevent->id();
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
-  REMI_nofChannels=remievent.nbrOfChannels();
-
-  REMI_horpos=remievent.horpos();
-  REMI_nbrBytes=remievent.nbrBytes();
-  REMI_sampleInterval=remievent.sampleInterval();
-  REMI_nbrSamples=remievent.nbrSamples();
-  REMI_delayTime=remievent.delayTime();
-  REMI_trigLevel=remievent.trigLevel();
-  REMI_trigSlope=remievent.trigSlope();
-  REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
-  REMI_nbrConvPerChan=remievent.nbrConvPerChan();
-
-  for(jj=0;jj<REMI_nofChannels;jj++)
+  if(!remievent.isFilled())
   {
-    REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
-    REMI_Channel_vertGain[jj]=remievent.channel(jj).vertGain();
-    REMI_Channel_fullscale[jj]=remievent.channel(jj).fullscale();
-    REMI_Channel_nbrPeaks[jj]=1;
-    for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
+    REMI_nofChannels=0;
+    REMI_nofDetectors=0;
+  }
+  else
+  {
+    REMI_nofChannels=remievent.nbrOfChannels();
+    REMI_horpos=remievent.horpos();
+    //REMI_nbrBytes=remievent.nbrBytes();
+    REMI_sampleInterval=remievent.sampleInterval();
+    REMI_nbrSamples=remievent.nbrSamples();
+    REMI_delayTime=remievent.delayTime();
+    REMI_trigLevel=remievent.trigLevel();
+    REMI_trigSlope=remievent.trigSlope();
+    REMI_trigChannel=remievent.trigChannel();
+    REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
+    REMI_nbrConvPerChan=remievent.nbrConvPerChan();
+
+    for(jj=0;jj<REMI_nofChannels;jj++)
     {
-      REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
-      //REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
-      //REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
-      //REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
-      //REMI_Channel_Peak_integral[jj][kk]=int(150.*px);
-      REMI_Channel_Peak_integral[jj][kk]=(Double_t)(150.*px);
-      //      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
-      REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
-      REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
-      REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
-      REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
-      REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
-      REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
-      REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
-      REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
-      REMI_Channel_Peak_isUsed[jj][kk]=(UShort_t)remievent.channel(jj).peak(kk).isUsed();
-    }
-    if(remievent.isFilled())
-    {
+      REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
+      REMI_Channel_vertGain[jj]=remievent.channel(jj).vertGain();
+      REMI_Channel_fullscale[jj]=remievent.channel(jj).fullscale();
+      REMI_Channel_vertOffset[jj]=remievent.channel(jj).vertOffset();
+      REMI_Channel_delay[jj]=remievent.channel(jj).delay();
+      REMI_Channel_fraction[jj]=remievent.channel(jj).fraction();
+      REMI_Channel_walk[jj]=remievent.channel(jj).walk();
+      REMI_Channel_nbrPeaks[jj]=1;
+      for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
+      {
+        REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
+        //REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
+        //REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
+        REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
+        //REMI_Channel_Peak_integral[jj][kk]=int(150.*px);
+        //REMI_Channel_Peak_integral[jj][kk]=(Double_t)(150.*px);
+        //      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
+        //REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
+        REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
+        REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
+        //REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
+        //REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
+        //REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
+        REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
+        REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
+        //REMI_Channel_Peak_isUsed[jj][kk]=(UShort_t)remievent.channel(jj).peak(kk).isUsed();
+      }
       /*printf("%i %i \n",remievent.channel(jj).waveformLength(),
 	(static_cast<const short*>(remievent.channel(jj).waveform()))[5050]);*/
       memcpy(&REMI_Channel_Waveform[jj][0],
@@ -290,48 +308,63 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       //REMI_Channel_Waveform[jj][20]=(static_cast<const short*>(remievent.channel(jj).waveform()))[20];
       /*printf("%i \n",REMI_Channel_Waveform[jj][210]);*/
     }
-  }
-  REMI_nofDetectors=remievent.nbrOfDetectors();
-  for(jj=0;jj<REMI_nofDetectors;jj++)
-  { 
-    //    REMI_Detector[jj]=remievent.detector(jj);
-    //strcpy(REMI_Detector[jj][0],remievent.detector(jj).name());
-    memcpy(&REMI_Detector[jj][0],remievent.detector(jj).name(),REMI_maxNAME);
-    printf("%s\n",remievent.detector(jj).name());
-    printf("1%s\n",REMI_Detector[jj]);
-    REMI_Detector_nbrOfHits[jj]=remievent.detector(jj).nbrOfHits();
-    for(kk=0;kk<REMI_Detector_nbrOfHits[jj];kk++)
-    {
-      REMI_Detector_Hits_x[jj][kk]=remievent.detector(jj).hit(kk).x();
-      REMI_Detector_Hits_y[jj][kk]=remievent.detector(jj).hit(kk).y();
-      REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
+    REMI_nofDetectors=remievent.nbrOfDetectors();
+    for(jj=0;jj<REMI_nofDetectors;jj++)
+    { 
+      //    REMI_Detector[jj]=remievent.detector(jj);
+      //strcpy(REMI_Detector[jj][0],remievent.detector(jj).name());
+      //memcpy(&REMI_Detector[jj][0],remievent.detector(jj).name(),REMI_maxNAME);
+      //printf("%s\n",remievent.detector(jj).name());
+      //printf("1%s\n",REMI_Detector[jj]);
+      REMI_Detector_nbrOfHits[jj]=remievent.detector(jj).nbrOfHits();
+      for(kk=0;kk<REMI_Detector_nbrOfHits[jj];kk++)
+      {
+        REMI_Detector_Hits_x[jj][kk]=remievent.detector(jj).hit(kk).x();
+        REMI_Detector_Hits_y[jj][kk]=remievent.detector(jj).hit(kk).y();
+        REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
+      }
     }
   }
   //cassevent->~REMIEvent();
 
   cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
   VMI_isFilled=vmievent.isFilled();
-  VMI_integral=vmievent.integral();
-  VMI_maxPixelValue=vmievent.maxPixelValue();
-  VMI_columns=vmievent.columns();
-  VMI_rows=vmievent.rows();
-  VMI_bitsPerPixel=vmievent.bitsPerPixel();
-  VMI_offset=vmievent.offset();
   if(VMI_isFilled)
   {
+    VMI_integral=vmievent.integral();
+    VMI_maxPixelValue=vmievent.maxPixelValue();
+    VMI_columns=vmievent.columns();
+    VMI_rows=vmievent.rows();
+    VMI_bitsPerPixel=vmievent.bitsPerPixel();
+    VMI_offset=vmievent.offset();
     for(jj=0;jj<VMI_columns;jj++)
     {
       for(kk=0;kk<VMI_rows;kk++)
       {
         VMI_frame[kk][jj]=vmievent.frame()[jj*VMI_rows+kk];
+        VMI_cutFrame[kk][jj]=vmievent.cutFrame()[jj*VMI_rows+kk];
       }
     }
+    //printf("%i\n",&vmievent.frame());
+    //std::vector<uint16_t> VMI_frame= new vmievent.frame();
+    VMI_nof_Impacts=vmievent.coordinatesOfImpact().size();
+    for(jj=0;jj<VMI_nof_Impacts;jj++)
+    {
+      VMI_coordinatesOfImpact_x[jj]=vmievent.coordinatesOfImpact()[jj].x;
+      VMI_coordinatesOfImpact_y[jj]=vmievent.coordinatesOfImpact()[jj].y;
+    }
   }
-  //printf("%i\n",&vmievent.frame());
-  //std::vector<uint16_t> VMI_frame= new vmievent.frame();
-  //VMI_cutFrame=vmievent.cutFrame();
-  //VMI_coordinatesOfImpact[0]=vmievent.coordinatesOfImpact();
-  //cassevent->~VMIEvent();
+  else
+  {
+    VMI_integral=0;
+    VMI_maxPixelValue=0;
+    VMI_columns=0;
+    VMI_rows=0;
+    VMI_bitsPerPixel=0;
+    VMI_offset=-999;
+    VMI_nof_Impacts=0;
+  }
+    //cassevent->~VMIEvent();
 
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   // the following could be even done only everytime the configuration changes...
@@ -370,36 +403,40 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
   } 
   arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-         sizeof(pnccdevent.rawSignalArrayAddr(0))*sizeof(pnccdevent.rawSignalArrayAddr(0));
+    sizeof(pnccdevent.rawSignalArrayAddr(0));
   //pnCCD_raw=pnccdevent.raw_signal_values;
   if(pnccdevent.rawSignalArrayAddr(0)!=0)
-    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0],pnCCD_array_x_size[1]);
+    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0],pnCCD_array_y_size[0]);
   if(pnccdevent.rawSignalArrayAddr(0)!=0)
   {
-    printf("oh 000r");
+    printf("oh 000r, %i",arraysize);
     memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),arraysize);
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
-  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-         sizeof(pnccdevent.rawSignalArrayAddr(1))*sizeof(pnccdevent.rawSignalArrayAddr(1));
+  arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*
+    sizeof(pnccdevent.rawSignalArrayAddr(1));
+  printf("oh 111r, %i %i\n",arraysize,sizeof(pnccdevent.rawSignalArrayAddr(1)));
+
+  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
-    printf("oh 111r");
+    printf("oh 111r, %i",arraysize);
     memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
   }  
 
   arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-         sizeof(pnccdevent.corrSignalArrayAddr(0))*sizeof(pnccdevent.corrSignalArrayAddr(0));
+    sizeof(pnccdevent.corrSignalArrayAddr(0));
   if(pnccdevent.corrSignalArrayAddr(0)!=0)
   {
-    printf("oh 000c");
+    printf("oh 000c, %i",arraysize);
     memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),arraysize);
   }  
-  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-         sizeof(pnccdevent.corrSignalArrayAddr(1))*sizeof(pnccdevent.corrSignalArrayAddr(1));
+  arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*
+    sizeof(pnccdevent.corrSignalArrayAddr(1));
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
-    printf("oh 111c");
+    printf("oh 111c, %i",arraysize);
     memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),arraysize);
   }
   /*
@@ -416,7 +453,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
 
   //Theevent=cassevent;
+
   T->Fill();
+
+  //TThread::UnLock();
 
   if ( max_events_in_Buffer>100 && ( Nevents%(max_events_in_Buffer/10) )==0 )
   {
@@ -523,7 +563,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // overwriting them....
   //#ifdef DEBUG
   UInt_t this1 = max_events_in_Buffer/100*90;
-  
+  TThread::Lock();
+
   if(Nevents==this1) {
     // I saw a problem if using the circular buffer...
     // after some events the job crashes at Max_buffers*(1+0.1)+1 events
@@ -541,6 +582,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
+  TThread::UnLock();
   //#endif
 
   //cass::CASSEvent::~CASSEvent();

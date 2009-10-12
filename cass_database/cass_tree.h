@@ -6,8 +6,8 @@
 //#define max_events_in_Buffer 303
 UInt_t max_events_in_Buffer= 100;
 
-#define max_phot_in_Buffer_loose 16385 // 1024*1024/64+1
-#define max_phot_in_Buffer 8193 // 1024*1024/128+1
+#define max_phot_in_Buffer_loose 4096 //16385 = 1024*1024/64+1
+#define max_phot_in_Buffer 2048 // 8193= 1024*1024/128+1
 
 #define REMI_Channels_Max 16
 #define REMI_PeaksproChannels_Max 150
@@ -19,6 +19,7 @@ UInt_t max_events_in_Buffer= 100;
 
 #define VMI_max_cols 640 // ??? it was 8000, it is still too large
 #define VMI_max_rows 480 // ??? it was 8000, it is still too large
+#define VMI_MAX_IMPACTS 100 //???
 
 TRandom r;
 Float_t px,py,pz;
@@ -33,17 +34,18 @@ Int_t REMI_nofChannels;
 Int_t REMI_nofDetectors;
 // all of the following were like Double_t REMI_horpos[REMI_Detectors_Max];
 Double_t REMI_horpos;
-Short_t REMI_nbrBytes;
+//Short_t REMI_nbrBytes;
 Double_t REMI_sampleInterval;
 Long_t REMI_nbrSamples;
 Double_t REMI_delayTime;
 Double_t REMI_trigLevel;
 Short_t REMI_trigSlope;
+Short_t REMI_trigChannel;
 Long_t REMI_chanCombUsedChannels;
 Short_t REMI_nbrConvPerChan;
 
 //Int_t REMI_Detector[REMI_Detectors_Max];
-Char_t REMI_Detector[REMI_Detectors_Max][REMI_maxNAME];
+//Char_t REMI_Detector[REMI_Detectors_Max][REMI_maxNAME];
 
 Int_t REMI_Detector_nbrOfHits[REMI_Detectors_Max];
 Double_t REMI_Detector_Hits_x[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
@@ -55,6 +57,10 @@ Int_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
 
 Double_t REMI_Channel_vertGain[REMI_Channels_Max];
 Short_t REMI_Channel_fullscale[REMI_Channels_Max];
+Double_t REMI_Channel_vertOffset[REMI_Channels_Max];
+Short_t REMI_Channel_delay[REMI_Channels_Max];
+Double_t REMI_Channel_fraction[REMI_Channels_Max];
+Double_t REMI_Channel_walk[REMI_Channels_Max];
 
 //Long_t REMI_Channel_Peak[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_time[REMI_Channels_Max][REMI_PeaksproChannels_Max];
@@ -65,15 +71,17 @@ Double_t REMI_Channel_Peak_integral[REMI_Channels_Max][REMI_PeaksproChannels_Max
 Double_t REMI_Channel_Peak_height[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_width[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_fwhm[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Long_t REMI_Channel_Peak_startpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Long_t REMI_Channel_Peak_stoppos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Long_t REMI_Channel_Peak_maxpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//Long_t REMI_Channel_Peak_startpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//Long_t REMI_Channel_Peak_stoppos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//Long_t REMI_Channel_Peak_maxpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_maximum[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Long_t REMI_Channel_Peak_polarity[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-UShort_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+//UShort_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //Bool_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 
 Short_t REMI_Channel_Waveform[REMI_Channels_Max][REMI_maxWaveform];
+
+UShort_t VMI_nof_Impacts;
 
 UShort_t VMI_isFilled;
 UInt_t VMI_integral;
@@ -84,6 +92,9 @@ UShort_t VMI_bitsPerPixel;
 UInt_t VMI_offset;
 UShort_t VMI_frame[VMI_max_cols][VMI_max_rows];
 UShort_t VMI_cutFrame[VMI_max_cols][VMI_max_rows];
+UShort_t VMI_coordinatesOfImpact_x[VMI_MAX_IMPACTS];
+UShort_t VMI_coordinatesOfImpact_y[VMI_MAX_IMPACTS];
+
 //std::vector<uint16_t> VMI_frame;
 //std::vector<uint16_t> VMI_cutFrame;
 
@@ -106,7 +117,8 @@ public:
 #define MAX_pnCCD_array_x_size 1024
 #define MAX_pnCCD_array_y_size 1024
 //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
-#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
+ //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
+#define MAX_pnCCD_max_photons_per_event max_phot_in_Buffer
 
 //Int_t pnCCD_num_pixel_arrays[2];
 Int_t pnCCD_num_pixel_arrays;
