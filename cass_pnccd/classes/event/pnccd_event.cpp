@@ -21,7 +21,9 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
   raw_signal_values_.resize(num_pixel_arrays_);
   corr_signal_values_.resize(num_pixel_arrays_);
   unrec_photon_hits_.resize(num_pixel_arrays_);
+  num_unrec_phits_.resize(num_pixel_arrays_);
   recom_photon_hits_.resize(num_pixel_arrays_);
+  num_recom_phits_.resize(num_pixel_arrays_);
 // Set the default size values and initialize all array addresses
 // with zeros:
   for( int i=0; i<num_pixel_arrays_; i++ )
@@ -65,7 +67,9 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
   raw_signal_values_.resize(num_pixel_arrays_);
   corr_signal_values_.resize(num_pixel_arrays_);
   unrec_photon_hits_.resize(num_pixel_arrays_);
+  num_unrec_phits_.resize(num_pixel_arrays_);
   recom_photon_hits_.resize(num_pixel_arrays_);
+  num_recom_phits_.resize(num_pixel_arrays_);
 // Initialize all array addresses with zeros:
   for( int i=0; i<num_pixel_arrays_; i++ )
   {
@@ -111,8 +115,8 @@ cass::pnCCD::pnCCDEvent::init
 // Set the frame siez of CCD with id ccd_id, this is
 // needed for the correct initialization of the raw and
 // corrected pixel signal data:
-  array_x_size_.at(ccd_id) = pnccd_fhdr->the_width;
-  array_y_size_.at(ccd_id) = pnccd_fhdr->the_maxHeight;
+  array_x_size_.at(ccd_id-1) = pnccd_fhdr->the_width;
+  array_y_size_.at(ccd_id-1) = pnccd_fhdr->the_maxHeight;
 
   return true;
 }
@@ -138,13 +142,13 @@ cass::pnCCD::pnCCDEvent::init
   width = pnccd_frame->the_height;
 // Test version: do nothing by now!
 //  if( width != array_x_size_.at(ccd_id) ) ;
-  datasize = array_x_size_.at(ccd_id)
-            *array_y_size_.at(ccd_id)
+  datasize = array_x_size_.at(ccd_id-1)
+            *array_y_size_.at(ccd_id-1)
             *sizeof(pxType);
 // Copy the contents of the memory region of the frame in
 // the xtc datagram to the corresponding memory region in
 // the cass::pnCCD::pnCCDEvent :
-  memcpy(this->raw_signal_values_.at(ccd_id),
+  memcpy(this->raw_signal_values_.at(ccd_id-1),
          frm_data,
          datasize);
 
@@ -206,37 +210,51 @@ cass::pnCCD::pnCCDEvent::getMaxPhotPerEvt
 
 uint16_t*
 cass::pnCCD::pnCCDEvent::rawSignalArrayAddr
-(uint16_t index)
+(uint16_t index, uint32_t *byte_size)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
-  if( !raw_signal_values_.at(index - 1) )          return 0;
+  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
+  if( !raw_signal_values_.at(index - 1) || !byte_size ) return 0;
+// Assign the array size in bytes to the second argument:
+  *byte_size = sizeof(uint16_t)*array_x_size_.at(index - 1)
+                               *array_y_size_.at(index - 1);
+
   return raw_signal_values_.at(index - 1);
 }
 
 uint16_t*
 cass::pnCCD::pnCCDEvent::corrSignalArrayAddr
-(uint16_t index)
+(uint16_t index, uint32_t *byte_size)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
-  if( !corr_signal_values_.at(index - 1) )         return 0;
+  if( (index < 1) || (index > num_pixel_arrays_) )       return 0;
+  if( !corr_signal_values_.at(index - 1) || !byte_size ) return 0;
+// Assign the array size in bytes to the second argument:
+  *byte_size = sizeof(uint16_t)*array_x_size_.at(index - 1)
+                               *array_y_size_.at(index - 1);
+
   return corr_signal_values_.at(index - 1);
 }
 
 cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::unrecPhotonHitAddr
-(uint16_t index)
+(uint16_t index, uint32_t *n_photons)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
-  if( !unrec_photon_hits_.at(index - 1) )          return 0;
+  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
+  if( !unrec_photon_hits_.at(index - 1) || !n_photons ) return 0;
+// Assign the number of detected photons hits to the second argument:
+  *n_photons = num_unrec_phits_.at(index - 1);
+
   return unrec_photon_hits_.at(index - 1);
 }
 
 cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::recomPhotonHitAddr
-(uint16_t index)
+(uint16_t index, uint32_t *n_photons)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
-  if( !recom_photon_hits_.at(index - 1) )          return 0;
+  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
+  if( !recom_photon_hits_.at(index - 1) || !n_photons ) return 0;
+// Assign the number of detected photons hits to the second argument:
+  *n_photons = num_recom_phits_.at(index - 1);
+
   return recom_photon_hits_.at(index - 1);
 }
 
