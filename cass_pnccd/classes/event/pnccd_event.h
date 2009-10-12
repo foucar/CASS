@@ -53,22 +53,18 @@ namespace cass
         std::vector<uint32_t> getMaxPhotPerEvt(void);
 // Return the address of the raw signal array at the index
 // index. Returns zero if no array with this index is allocated.
-        uint16_t* rawSignalArrayAddr(
-                            uint16_t  index,
-                            uint32_t *byte_size);
+        uint16_t* rawSignalArrayAddr(uint16_t index);
+        uint32_t  rawSignalArrayByteSize(uint16_t index);
 // Return the address of the offset and, optionally common
 // mode corrected signal value array:
-        uint16_t* corrSignalArrayAddr(
-                            uint16_t  index,
-                            uint32_t *byte_size);
+        uint16_t* corrSignalArrayAddr(uint16_t index);
+        uint32_t  corrSignalArrayByteSize(uint16_t index);
 // Return the address of the unrecombined photon hit array:
-        pnccd_photon_hit* unrecPhotonHitAddr(
-                            uint16_t  index,
-                            uint32_t *n_photons);
+        pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
+        uint32_t          numUnrecPhotonHits(uint16_t index);
 // Return the address of the recombined photon hit array:
-        pnccd_photon_hit* recomPhotonHitAddr(
-                            uint16_t  index,
-                            uint32_t *n_photons);
+        pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
+        uint32_t          numRecomPhotonHits(uint16_t index);
       private:
         uint16_t num_pixel_arrays_;
 // These variables are set by the second constructor. The allocation

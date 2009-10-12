@@ -210,54 +210,73 @@ cass::pnCCD::pnCCDEvent::getMaxPhotPerEvt
 
 uint16_t*
 cass::pnCCD::pnCCDEvent::rawSignalArrayAddr
-(uint16_t index, uint32_t *byte_size)
+(uint16_t index)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
-  if( !raw_signal_values_.at(index - 1) || !byte_size ) return 0;
-// Assign the array size in bytes to the second argument:
-  *byte_size = sizeof(uint16_t)*array_x_size_.at(index - 1)
-                               *array_y_size_.at(index - 1);
+  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
+  if( !raw_signal_values_.at(index - 1) )          return 0;
 
   return raw_signal_values_.at(index - 1);
 }
 
+uint32_t
+cass::pnCCD::pnCCDEvent::rawSignalArrayByteSize
+(uint16_t index)
+{
+  return sizeof(uint16_t)*array_x_size_.at(index - 1)
+                         *array_y_size_.at(index - 1);
+}
+
 uint16_t*
 cass::pnCCD::pnCCDEvent::corrSignalArrayAddr
-(uint16_t index, uint32_t *byte_size)
+(uint16_t index )
 {
-  if( (index < 1) || (index > num_pixel_arrays_) )       return 0;
-  if( !corr_signal_values_.at(index - 1) || !byte_size ) return 0;
-// Assign the array size in bytes to the second argument:
-  *byte_size = sizeof(uint16_t)*array_x_size_.at(index - 1)
-                               *array_y_size_.at(index - 1);
+  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
+  if( !corr_signal_values_.at(index - 1) )         return 0;
 
   return corr_signal_values_.at(index - 1);
 }
 
+uint32_t
+cass::pnCCD::pnCCDEvent::corrSignalArrayByteSize
+(uint16_t index)
+{
+  return sizeof(uint16_t)*array_x_size_.at(index - 1)
+                         *array_y_size_.at(index - 1);
+}
+
 cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::unrecPhotonHitAddr
-(uint16_t index, uint32_t *n_photons)
+(uint16_t index)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
-  if( !unrec_photon_hits_.at(index - 1) || !n_photons ) return 0;
-// Assign the number of detected photons hits to the second argument:
-  *n_photons = num_unrec_phits_.at(index - 1);
+  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
+  if( !unrec_photon_hits_.at(index - 1) )          return 0;
 
   return unrec_photon_hits_.at(index - 1);
 }
 
+uint32_t
+cass::pnCCD::pnCCDEvent::numUnrecPhotonHits
+(uint16_t index)
+{
+  return num_unrec_phits_.at(index - 1);
+}
+
 cass::pnCCD::pnccd_photon_hit*
 cass::pnCCD::pnCCDEvent::recomPhotonHitAddr
-(uint16_t index, uint32_t *n_photons)
+(uint16_t index)
 {
-  if( (index < 1) || (index > num_pixel_arrays_) )      return 0;
-  if( !recom_photon_hits_.at(index - 1) || !n_photons ) return 0;
-// Assign the number of detected photons hits to the second argument:
-  *n_photons = num_recom_phits_.at(index - 1);
+  if( (index < 1) || (index > num_pixel_arrays_) ) return 0;
+  if( !recom_photon_hits_.at(index - 1) )          return 0;
 
   return recom_photon_hits_.at(index - 1);
 }
 
+uint32_t
+cass::pnCCD::pnCCDEvent::numRecomPhotonHits
+(uint16_t index)
+{
+  return num_recom_phits_.at(index - 1);
+}
 
 // Local Variables:
 // coding: utf-8
@@ -268,8 +287,5 @@ cass::pnCCD::pnCCDEvent::recomPhotonHitAddr
 // End:
 
 // end of file pnCCDEvent.cpp
-
-
-
 
 
