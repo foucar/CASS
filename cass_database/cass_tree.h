@@ -6,9 +6,6 @@
 //#define max_events_in_Buffer 303
 UInt_t max_events_in_Buffer= 100;
 
-#define max_phot_in_Buffer_loose 4096 //16385 = 1024*1024/64+1
-#define max_phot_in_Buffer 2048 // 8193= 1024*1024/128+1
-
 #define REMI_Channels_Max 16
 #define REMI_PeaksproChannels_Max 150
 #define REMI_Detectors_Max 2
@@ -112,6 +109,9 @@ public:
 //std::vector<thisCoordinate> VMI_coordinatesOfImpact;
  //std::vector<uint16_t> VMI_coordinatesOfImpact_x;
  //std::vector<uint16_t> VMI_coordinatesOfImpact_y;
+
+#define max_phot_in_Buffer_loose 4096 //16385 = 1024*1024/64+1
+#define max_phot_in_Buffer 2048 // 8193= 1024*1024/128+1
 
 #define MAX_pnCCD 2
 #define MAX_pnCCD_array_x_size 1024
