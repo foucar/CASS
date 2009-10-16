@@ -28,11 +28,15 @@
 #include <TThread.h>
 
 //gROOT->cd();
+//TFile f("histos1.root","RECREATE");
 TTree *T = new TTree("T","circ buffer");
+
 #include "cass_tree.h"
 //ClassImp(thisCoordinate)
 
 #include "histo_list.h"
+void reset_lastevt_histos();
+#include "reset_histos.h"
 #include <time.h>
 time_t rawtime;
 struct tm * timeinfo;
@@ -158,15 +162,23 @@ cass::database::Database::Database()
   // the 2 pnCCD are not allowed to have different setting??
   //T->Branch("pnCCD_num_pixel_arrays",pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays[2]/I");
   T->Branch("pnCCD_num_pixel_arrays",&pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays/I");
-  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[pnCCD_num_pixel_arrays]/I");
-  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[pnCCD_num_pixel_arrays]/I");
-  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[pnCCD_num_pixel_arrays]/I");
+  T->Branch("pnCCD_raw_image_size",pnCCD_raw_image_size,"pnCCD_raw_image_size[pnCCD_num_pixel_arrays]/i");
+  T->Branch("pnCCD_corr_image_size",pnCCD_corr_image_size,"pnCCD_corr_image_size[pnCCD_num_pixel_arrays]/i");
+  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[pnCCD_num_pixel_arrays]/i");
+  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[pnCCD_num_pixel_arrays]/i");
+  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[pnCCD_num_pixel_arrays]/i");
+
+  T->Branch("pnCCD_raw_integral",pnCCD_raw_integral,"pnCCD_raw_integral[pnCCD_num_pixel_arrays]/F");
+  T->Branch("pnCCD_raw_integral_ROI",pnCCD_raw_integral_ROI,"pnCCD_raw_integral_ROI[pnCCD_num_pixel_arrays]/F");
+  T->Branch("pnCCD_corr_integral",pnCCD_corr_integral,"pnCCD_corr_integral[pnCCD_num_pixel_arrays]/F");
+  T->Branch("pnCCD_corr_integral_ROI",pnCCD_corr_integral_ROI,"pnCCD_corr_integral_ROI[pnCCD_num_pixel_arrays]/F");
 
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
   T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
 
+  // actually we may not need the raw version
   T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
@@ -179,8 +191,8 @@ cass::database::Database::Database()
   // we are going to save in memory need to be large
 
   //I am not allowing all unless MAX_pnCCD_max_photons_per_event small enough...
-  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer)
-  {
+  //  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer)
+  //{
     T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
     T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
     T->Branch("pnCCD_ph_unrec_amp0",   pnCCD_ph_unrec_amp0,   "pnCCD_ph_unrec_amp0[pnCCD_max_photons_per_event0]/s");
@@ -189,22 +201,26 @@ cass::database::Database::Database()
     T->Branch("pnCCD_ph_unrec_y1",     pnCCD_ph_unrec_y1,     "pnCCD_ph_unrec_y1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_unrec_amp1",   pnCCD_ph_unrec_amp1,   "pnCCD_ph_unrec_amp1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_unrec_energy1",pnCCD_ph_unrec_energy1,"pnCCD_ph_unrec_energy1[pnCCD_max_photons_per_event1]/F");
-  }
+    //}
   T->Branch("pnCCD_ph_recom_x0",     pnCCD_ph_recom_x0,     "pnCCD_ph_recom_x0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_y0",     pnCCD_ph_recom_y0,     "pnCCD_ph_recom_y0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_amp0",   pnCCD_ph_recom_amp0,   "pnCCD_ph_recom_amp0[pnCCD_max_photons_per_event0]/s");
   T->Branch("pnCCD_ph_recom_energy0",pnCCD_ph_recom_energy0,"pnCCD_ph_recom_energy0[pnCCD_max_photons_per_event0]/F");
-  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer_loose)
-  {
+  //if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer_loose)
+  //{
     T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_recom_amp1",   pnCCD_ph_recom_amp1,   "pnCCD_ph_recom_amp1[pnCCD_max_photons_per_event1]/s");
     T->Branch("pnCCD_ph_recom_energy1",pnCCD_ph_recom_energy1,"pnCCD_ph_recom_energy1[pnCCD_max_photons_per_event1]/F");
-  }
+    //}
+
   //T->Branch();
   //T->Branch();
   // others YAG XFEL intensities...
 
+  T->SetAutoSave();
+  T->BranchRef();
+  //T->SetCompressionLevel(0);
   T->SetCircular(max_events_in_Buffer);
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
@@ -219,7 +235,7 @@ cass::database::Database::Database()
 cass::database::Database::~Database()
 {
   // delete all histos
-  delete h_pnCCD1_lastevent; h_pnCCD1_lastevent=0;
+  delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
 
 }
 
@@ -227,7 +243,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
   Double_t random;
   Int_t jj,kk;
-  Int_t arraysize;
+  UInt_t jj_u;
+  /*UShort_t jj16_u;
+    Int_t arraysize;*/
 
   if(Nevents==0) {
     /*T->SetCircular(max_events_in_Buffer);
@@ -370,9 +388,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // the following could be even done only everytime the configuration changes...
   for(jj=0;jj<MAX_pnCCD;jj++)
   {
+    pnCCD_raw_image_size[jj]=0;
+    pnCCD_corr_image_size[jj]=0;
     pnCCD_array_x_size[jj]=0;
     pnCCD_array_y_size[jj]=0;
     pnCCD_max_photons_per_event[jj]=0;
+  }
+  for(jj=0;jj<MAX_pnCCD;jj++)
+  {
+     pnCCD_raw_integral[jj]=0.;
+     pnCCD_raw_integral_ROI[jj]=0.;
+     pnCCD_corr_integral[jj]=0.;
+     pnCCD_corr_integral_ROI[jj]=0.;
   }
   pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
   // I am not sure of the meaning of the next 2 arrays
@@ -381,6 +408,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     pnCCD_array_x_size[jj]=pnccdevent.getArrXSize()[jj];
     pnCCD_array_y_size[jj]=pnccdevent.getArrYSize()[jj];
     pnCCD_max_photons_per_event[jj]=pnccdevent.getMaxPhotPerEvt()[jj];
+    //jj16_u=ushort(jj+1);
+    //    printf("uu %i ",pnccdevent.rawSignalArrayByteSize(1));
+
+    pnCCD_raw_image_size[jj]=pnccdevent.rawSignalArrayByteSize(jj+1);
+    pnCCD_corr_image_size[jj]=pnccdevent.corrSignalArrayByteSize(jj+1);
   }
   pnCCD_array_x_size0=0;
   pnCCD_array_y_size0=0;
@@ -402,59 +434,93 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
     }
   } 
-  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-    sizeof(pnccdevent.rawSignalArrayAddr(0));
+  //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
+    //  sizeof(pnccdevent.rawSignalArrayAddr(0));
   //pnCCD_raw=pnccdevent.raw_signal_values;
-  if(pnccdevent.rawSignalArrayAddr(0)!=0)
-    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(0),pnCCD_array_x_size[0],pnCCD_array_y_size[0]);
-  if(pnccdevent.rawSignalArrayAddr(0)!=0)
+  if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
-    printf("oh 000r, %i",arraysize);
-    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(0),arraysize);
+    printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
+           pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);
+    //printf("oh 000r, %i",arraysize);
+    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
+
+    /*pnCCD_raw_integral[0]=0.;
+      pnCCD_raw_integral_ROI[0]=0.;*/
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }  
-  arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*
-    sizeof(pnccdevent.rawSignalArrayAddr(1));
-  printf("oh 111r, %i %i\n",arraysize,sizeof(pnccdevent.rawSignalArrayAddr(1)));
+  //arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*sizeof(UShort_t);
+    //    sizeof(pnccdevent.rawSignalArrayAddr(1));
 
-  if(pnccdevent.rawSignalArrayAddr(1)!=0)
-    printf("%i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);
-  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+  if(pnccdevent.rawSignalArrayAddr(2)!=0)
   {
-    printf("oh 111r, %i",arraysize);
-    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
+    printf("11r, %i %i ",pnCCD_raw_image_size[1],sizeof(pnccdevent.rawSignalArrayAddr(2)));
+    printf("%i %i %i ", pnccdevent.rawSignalArrayAddr(2),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);
+    //printf("oh 111r, %i",arraysize);
+    //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
+
+    for(jj_u=0;jj_u<pnCCD_array_y_size[1];jj_u++)
+       memcpy(&pnCCD_raw1[0][jj_u],pnccdevent.rawSignalArrayAddr(2)+2*jj_u,pnCCD_raw_image_size[1]);
+    /*pnCCD_raw_integral[1]=0.;
+      pnCCD_raw_integral_ROI[1]=0.;*/
   }  
 
-  arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*
-    sizeof(pnccdevent.corrSignalArrayAddr(0));
-  if(pnccdevent.corrSignalArrayAddr(0)!=0)
-  {
-    printf("oh 000c, %i",arraysize);
-    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(0),arraysize);
-  }  
-  arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*
-    sizeof(pnccdevent.corrSignalArrayAddr(1));
+  //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
+  //   sizeof(pnccdevent.corrSignalArrayAddr(0));
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
-    printf("oh 111c, %i",arraysize);
-    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(1),arraysize);
-  }
-  /*
-  for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
-  {}
-  if(pnccdevent.unrecPhotonHitAddr.x[0]!=0)
+    //printf("00c, %i ",arraysize);
+    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_corr_image_size[0]);
+    /*pnCCD_corr_integral[0]=0.;
+      pnCCD_corr_integral_ROI[0]=0.;*/
+  }  
+  //arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*sizeof(UShort_t);
+    //   sizeof(pnccdevent.corrSignalArrayAddr(1));
+  if(pnccdevent.corrSignalArrayAddr(2)!=0)
   {
-    printf("oh 000ph");
-    memcpy(&pnCCD_ph_unrec_x0[0],pnccdevent.unrecPhotonHitAddr.x[0],pnCCD_max_photons_per_event[0]);
-    //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
-    }*/
+    //printf("11c, %i \n",arraysize);
+    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(2),pnCCD_corr_image_size[1]);
+    /*pnCCD_corr_integral[1]=0.;
+      pnCCD_corr_integral_ROI[1]=0.;*/
+  }
+  //ph 1 recomph 1 ph 2 recomph 2 11r, 2097152 4 -1304707064 1024 1024 2097152 11c, 2097152 
+  
+  for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
+  {
+    if(pnccdevent.unrecPhotonHitAddr(jj+1)!=0)
+    {
+      printf("ph %i ",jj);
+      // the following could be much easier if there where the proper functions
+      //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
+      memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr(jj+1),sizeof(UShort_t));
+      //memcpy(&pnCCD_ph_unrec_y0[jj],pnccdevent.unrecPhotonHitAddr(jj)+sizeof(UShort_t),2);
+      //memcpy(&pnCCD_ph_unrec_amp0[jj],pnccdevent.unrecPhotonHitAddr(jj)+2*sizeof(UShort_t),2);
+      //memcpy(&pnCCD_ph_unrec_energy0[jj],pnccdevent.unrecPhotonHitAddr(jj)+3*sizeof(UShort_t),4);
+
+      //memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr.x[jj],pnCCD_max_photons_per_event[0]);
+      //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
+    }
+    if(pnccdevent.recomPhotonHitAddr(jj+1)!=0)
+    {
+      printf(" recomph %i ",jj);
+      // the following could be much easier if there where the proper functions
+      //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
+      memcpy(&pnCCD_ph_recom_x0[jj],pnccdevent.recomPhotonHitAddr(jj+1),sizeof(UShort_t));
+      //memcpy(&pnCCD_ph_unrec_y0[jj],pnccdevent.unrecPhotonHitAddr(jj)+sizeof(UShort_t),2);
+      //memcpy(&pnCCD_ph_unrec_amp0[jj],pnccdevent.unrecPhotonHitAddr(jj)+2*sizeof(UShort_t),2);
+      //memcpy(&pnCCD_ph_unrec_energy0[jj],pnccdevent.unrecPhotonHitAddr(jj)+3*sizeof(UShort_t),4);
+
+      //memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr.x[jj],pnCCD_max_photons_per_event[0]);
+      //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
+    }
+  }
+  printf("\n");
   //??which/both
   //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
 
   //Theevent=cassevent;
 
-  T->Fill();
+  //  T->Fill();
 
   //TThread::UnLock();
 
@@ -475,13 +541,14 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }*/
 
   //now fill the history histograms,
-  h_pnCCD1_history->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+  h_pnCCD1r_history->Fill(float(Nevents%xbins)*xmax,float(Nevents%xbins+1)*ymax,int(xy[Nevents][Nevents+1]));
+  h_pnCCD1r_history->Fill(float(Nevents%ybins)*ymax*2.,float((Nevents%ybins)+1)*ymax*2.,int(2.*xy[Nevents][Nevents+1]));
 
   // we could "look" for no-hit or for hit to save "showtime"
 
   // the "last N event" ones need to be clear each time
-  h_pnCCD1_lastNevent->Reset();
-  h_pnCCD1_w_lastNevent->Reset();
+  h_pnCCD1r_lastNevt->Reset();
+  h_pnCCD1r_w_lastNevt->Reset();
   lastNevent=5;
     /*printf("filling histos Nlast start=%i, end=%i and Nevents modulus max_events_in_Buffer %i \n",
       Nevents-6,Nevents,Nevents%max_events_in_Buffer);*/
@@ -507,31 +574,31 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     // the following 3 if are actually not what I want to achieve...
     if ( c1 && c2 )
     {
-      //T->Project("h_pnCCD1_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+      //T->Project("h_pnCCD1_lastNevt","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
 
     if ( c1 && c3 )
     {
-      //T->Project("h_pnCCD1_w_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+      //T->Project("h_pnCCD1_w_lastNevt","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
     if ( c4 )
     {
-      //T->Project("h_pnCCD1_w_lastNevent","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
+      //T->Project("h_pnCCD1_w_lastNevt","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
 
 #ifdef DEBUG
-    T->Draw("pnCCD_raw0>>+h_pnCCD1_lastNevent", c1 && c2);
-    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevent", c1 && c2);
+    T->Draw("pnCCD_raw0>>+h_pnCCD1_lastNevt", c1 && c2);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevt", c1 && c2);
     
-    //    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevent", "","",lastNevent,start);
+    //    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevt", "","",lastNevt,start);
     
     /*
-    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevent", c1 && c3);
-    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevent", c4);
-    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevent", c1 && c3);
-    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevent", c4);*/
-    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevent", "","",lastNevent-1,start);
-    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevent", "","",1,stop-1);
+    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c1 && c3);
+    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c4);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevt", c1 && c3);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevt", c4);*/
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevt", "","",lastNevent-1,start);
+    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevt", "","",1,stop-1);
 #endif
 
 #ifdef DEBUG
@@ -541,23 +608,44 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       // the following line overwrites the vars in the root-block....
       //T->GetEntry(thisevent_mod); // or Nevents??
       // I think that I need to use T->Draw()...
-      h_pnCCD1_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+      h_pnCCD1r_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
       // we may have sets that overweight the last event
       // if "#events > 5" divide histo by 5 and add last event... or the other way multiplying by 5 the last one...
       if(jj<stop-1) {
-        h_pnCCD1_w_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+        h_pnCCD1r_w_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
       }
       else
       {
-        h_pnCCD1_w_lastNevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy)*int(lastNevent));
+        h_pnCCD1r_w_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy)*int(lastNevent));
       }
     }
 #endif
   }
   // the "last event" ones need to be clear each time
-  h_pnCCD1_lastevent->Reset();
-  h_pnCCD1_lastevent->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+  reset_lastevt_histos();
+  //h_pnCCD1r_lastevt->Reset();
+  h_pnCCD1r_lastevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
 
+  //now "remember the entries"
+  //GetSumOfWeights()
+  // GetSum()-??
+  //GetIntegral() < gives error if the integral is zero if called  interactively
+  // GetEntries() is for sure not what we want... 
+  //h_pnCCD1r_lastevt->GetBinContent(0,0);// is underflow
+  //h_pnCCD1r_lastevt->GetBinContent(xbins+1,ybins+1);// is overflow
+
+  pnCCD_raw_integral[0]=h_pnCCD1r_lastevt->GetSumOfWeights();
+  pnCCD_raw_integral[1]=h_pnCCD2r_lastevt->GetSumOfWeights();
+
+  pnCCD_raw_integral_ROI[0]=h_pnCCD1r_lastevt_ROI_sm->GetSumOfWeights();
+  pnCCD_raw_integral_ROI[1]=h_pnCCD2r_lastevt_ROI_sm->GetSumOfWeights();
+
+  pnCCD_corr_integral[0]=h_pnCCD1c_lastevt->GetSumOfWeights();
+  pnCCD_corr_integral[1]=h_pnCCD2c_lastevt->GetSumOfWeights();
+  pnCCD_corr_integral_ROI[0]=h_pnCCD1c_lastevt_ROI_sm->GetSumOfWeights();
+  pnCCD_corr_integral_ROI[1]=h_pnCCD2c_lastevt_ROI_sm->GetSumOfWeights();
+
+  T->Fill();
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
@@ -570,15 +658,20 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     // after some events the job crashes at Max_buffers*(1+0.1)+1 events
     printf("saving\n");
     //save the histos instead of draw...
-    //h_pnCCD1_lastevent->Draw("Text");
-    //h_pnCCD1_history->Draw("Text");
-    TFile f("histos.root","RECREATE");
-    h_pnCCD1_lastevent->Write();
-    h_pnCCD1_history->Write();
-    h_pnCCD1_lastNevent->Write();
-    h_pnCCD1_w_lastNevent->Write();
+    //h_pnCCD1r_lastevt->Draw("Text");
+    //h_pnCCD1r_history->Draw("Text");
+    TFile f("histos1.root","RECREATE");
+    //f->cd();
+    //h_pnCCD1r_lastevt->Write();
+    h_pnCCD1r_history->Write();
+    //h_pnCCD1r_lastNevt->Write();
+    //h_pnCCD1r_w_lastNevt->Write();
     T->Write();
     f.Close();
+    // 1 solution could be to recreate the tree...
+    //delete T;
+    //TTree *T = new TTree("T","circ buffer");
+
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....

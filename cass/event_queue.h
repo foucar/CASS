@@ -10,7 +10,8 @@
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
 
-#define _maxbufsize 4
+//#define _maxbufsize 4
+#define _maxbufsize 1
 
 namespace cass
 {

@@ -122,9 +122,17 @@ public:
 
 //Int_t pnCCD_num_pixel_arrays[2];
 Int_t pnCCD_num_pixel_arrays;
-Int_t pnCCD_array_x_size[2];
-Int_t pnCCD_array_y_size[2];
-Int_t pnCCD_max_photons_per_event[2];
+UInt_t pnCCD_array_x_size[MAX_pnCCD];
+UInt_t pnCCD_array_y_size[MAX_pnCCD];
+UInt_t pnCCD_max_photons_per_event[MAX_pnCCD];
+UInt_t pnCCD_raw_image_size[MAX_pnCCD];
+UInt_t pnCCD_corr_image_size[MAX_pnCCD];
+
+// or Double_t ??
+Float_t pnCCD_raw_integral[MAX_pnCCD];
+Float_t pnCCD_raw_integral_ROI[MAX_pnCCD];
+Float_t pnCCD_corr_integral[MAX_pnCCD];
+Float_t pnCCD_corr_integral_ROI[MAX_pnCCD];
 
 Int_t pnCCD_array_x_size0;
 Int_t pnCCD_array_y_size0;
