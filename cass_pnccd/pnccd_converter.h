@@ -20,7 +20,6 @@ namespace cass
         {
         public:
             //called for LCLS event//
-            //            void operator()(const Pds::Camera::FrameV1&, VMIEvent&);
             void operator()(const Pds::Xtc*, cass::CASSEvent*);
         private:
             pnCCDEvent _storedEvent;
