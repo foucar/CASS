@@ -37,6 +37,8 @@ TTree *T = new TTree("T","circ buffer");
 #include "histo_list.h"
 void reset_lastevt_histos();
 #include "reset_histos.h"
+#include "fill_histos.h"
+void   fill_lastevt_histos();
 #include <time.h>
 time_t rawtime;
 struct tm * timeinfo;
@@ -624,6 +626,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // the "last event" ones need to be clear each time
   reset_lastevt_histos();
   //h_pnCCD1r_lastevt->Reset();
+  fill_lastevt_histos();
   h_pnCCD1r_lastevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
 
   //now "remember the entries"
