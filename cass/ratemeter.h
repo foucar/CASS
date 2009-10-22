@@ -2,7 +2,7 @@
 #define CASS_RATEMETER_H
 
 #include <QtCore/QObject>
-#include <QTCore/QTime>
+#include <QtCore/QTime>
 
 namespace cass
 {

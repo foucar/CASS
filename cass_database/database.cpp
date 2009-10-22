@@ -260,6 +260,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   Nevents++;
   //if(Nevents>299) printf("Nevents=%i \n",Nevents);
   // just to have something filled...
+#ifdef RDEBUG
   if (int(Nevents)<xbins-1) 
   {
     xy[Nevents][Nevents+1]=2*Nevents;
@@ -268,7 +269,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   r.Rannor(px,py);
   //pz=px*px+py*py;
   random=r.Rndm();
-
+#endif
   event_id=cassevent->id();
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
@@ -543,17 +544,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }*/
 
   //now fill the history histograms,
-  h_pnCCD1r_history->Fill(float(Nevents%xbins)*xmax,float(Nevents%xbins+1)*ymax,int(xy[Nevents][Nevents+1]));
-  h_pnCCD1r_history->Fill(float(Nevents%ybins)*ymax*2.,float((Nevents%ybins)+1)*ymax*2.,int(2.*xy[Nevents][Nevents+1]));
+  //h_pnCCD1r_history->Fill(float(Nevents%xbins)*xmax,float(Nevents%xbins+1)*ymax,int(xy[Nevents][Nevents+1]));
+  //h_pnCCD1r_history->Fill(float(Nevents%ybins)*ymax*2.,float((Nevents%ybins)+1)*ymax*2.,int(2.*xy[Nevents][Nevents+1]));
 
   // we could "look" for no-hit or for hit to save "showtime"
 
   // the "last N event" ones need to be clear each time
-  h_pnCCD1r_lastNevt->Reset();
-  h_pnCCD1r_w_lastNevt->Reset();
-  lastNevent=5;
+  //h_pnCCD1r_lastNevt->Reset();
+  //h_pnCCD1r_w_lastNevt->Reset();
+  //lastNevent=5;
     /*printf("filling histos Nlast start=%i, end=%i and Nevents modulus max_events_in_Buffer %i \n",
       Nevents-6,Nevents,Nevents%max_events_in_Buffer);*/
+#ifdef RDEBUG
   if(Nevents>lastNevent)
   {
     start=int(Nevents)-lastNevent-1;
@@ -587,7 +589,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     {
       //T->Project("h_pnCCD1_w_lastNevt","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
-
 #ifdef DEBUG
     T->Draw("pnCCD_raw0>>+h_pnCCD1_lastNevt", c1 && c2);
     T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevt", c1 && c2);
@@ -623,11 +624,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
 #endif
   }
+#endif
   // the "last event" ones need to be clear each time
-  reset_lastevt_histos();
+  //reset_lastevt_histos();
   //h_pnCCD1r_lastevt->Reset();
-  fill_lastevt_histos();
-  h_pnCCD1r_lastevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
+  //fill_lastevt_histos();
+  //h_pnCCD1r_lastevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
 
   //now "remember the entries"
   //GetSumOfWeights()
@@ -636,7 +638,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // GetEntries() is for sure not what we want... 
   //h_pnCCD1r_lastevt->GetBinContent(0,0);// is underflow
   //h_pnCCD1r_lastevt->GetBinContent(xbins+1,ybins+1);// is overflow
-
+/*
   pnCCD_raw_integral[0]=h_pnCCD1r_lastevt->GetSumOfWeights();
   pnCCD_raw_integral[1]=h_pnCCD2r_lastevt->GetSumOfWeights();
 
@@ -647,14 +649,14 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   pnCCD_corr_integral[1]=h_pnCCD2c_lastevt->GetSumOfWeights();
   pnCCD_corr_integral_ROI[0]=h_pnCCD1c_lastevt_ROI_sm->GetSumOfWeights();
   pnCCD_corr_integral_ROI[1]=h_pnCCD2c_lastevt_ROI_sm->GetSumOfWeights();
-
+*/
   T->Fill();
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-  //#ifdef DEBUG
+#ifdef DEBUG
   UInt_t this1 = max_events_in_Buffer/100*90;
-  TThread::Lock();
+  //TThread::Lock();
 
   if(Nevents==this1) {
     // I saw a problem if using the circular buffer...
@@ -678,17 +680,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
-  TThread::UnLock();
-  //#endif
+  //TThread::UnLock();
+#endif
 
   //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
-  //emit nextEvent();
+  printf("I will send the nextEvent signal\n");
   delete cassevent;
+  emit nextEvent();
 }
 
-cass::CASSEvent* cass::database::Database::nextEvent()
+/*cass::CASSEvent* cass::database::Database::nextEvent()
 {
-    return 0;
-}
+   return 0;
+}*/

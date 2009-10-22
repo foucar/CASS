@@ -23,5 +23,5 @@ void cass::Ratemeter::nextEvent()
        std::cout<< "it took  "<< time->elapsed() <<" ms to analyze event"<<std::endl;
 //       counter = 0;
        time->restart();
-    }
+//    }
 }

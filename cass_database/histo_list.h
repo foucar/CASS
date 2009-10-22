@@ -58,9 +58,9 @@ TH2I *h_pnCCD2r_lastevt_ROI_tri = new TH2I("h_pnCCD2r_lastevt_ROI_tri","histo pn
           xbins,xmin,xmax,ybins,ymin,ymax);
 
 // this will contain the "last" image with  weight=ln(x)
-TH2I *h_pnCCD1r_lastevt_ln = new TH2I("h_pnCCD1r_lastevt","histo pnCCD1 weight=ln(x), last event raw", 
+TH2I *h_pnCCD1r_lastevt_ln = new TH2I("h_pnCCD1r_lastevt_ln","histo pnCCD1 weight=ln(x), last event raw", 
           xbins,xmin,xmax,ybins,ymin,ymax);
-TH2I *h_pnCCD2r_lastevt_ln = new TH2I("h_pnCCD2r_lastevt","histo pnCCD2 weight=ln(x), last event raw",
+TH2I *h_pnCCD2r_lastevt_ln = new TH2I("h_pnCCD2r_lastevt_ln","histo pnCCD2 weight=ln(x), last event raw",
           xbins,xmin,xmax,ybins,ymin,ymax);
 // this will contain the "last" image with  weight=x**0.25
 TH2I *h_pnCCD1r_lastevt_x025 = new TH2I("h_pnCCD1r_lastevt_x025","histo pnCCD1 weight=x**0.25, last event raw", 
@@ -134,9 +134,9 @@ TH2I *h_pnCCD2c_lastevt_ROI_tri = new TH2I("h_pnCCD2c_lastevt_ROI_tri","histo pn
           xbins,xmin,xmax,ybins,ymin,ymax);
 
 // this will contain the "last" image with  weight=ln(x)
-TH2I *h_pnCCD1c_lastevt_ln = new TH2I("h_pnCCD1c_lastevt","histo pnCCD1 weight=ln(x), last event corr", 
+TH2I *h_pnCCD1c_lastevt_ln = new TH2I("h_pnCCD1c_lastevt_ln","histo pnCCD1 weight=ln(x), last event corr", 
           xbins,xmin,xmax,ybins,ymin,ymax);
-TH2I *h_pnCCD2c_lastevt_ln = new TH2I("h_pnCCD2c_lastevt","histo pnCCD2 weight=ln(x), last event corr",
+TH2I *h_pnCCD2c_lastevt_ln = new TH2I("h_pnCCD2c_lastevt_ln","histo pnCCD2 weight=ln(x), last event corr",
           xbins,xmin,xmax,ybins,ymin,ymax);
 // this will contain the "last" image with  weight=x**0.25
 TH2I *h_pnCCD1c_lastevt_x025 = new TH2I("h_pnCCD1c_lastevt_x025","histo pnCCD1 weight=x**0.25, last event corr", 
