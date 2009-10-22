@@ -2,7 +2,8 @@
 #include "cass_event.h"
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
-
+#include "pdsdata/xtc/DetInfo.hh"
+#include "pdsdata/xtc/Src.hh"
 
 void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
@@ -12,30 +13,44 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
         //if it is a event then extract all information from the event//
         case (Pds::TypeId::Id_AcqWaveform):
         {
-            const Pds::Acqiris::DataDescV1 &datadesc = *reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
-            REMIEvent &remievent = cassevent->REMIEvent();
-            //first copy the stored configuration into the incoming remievent//
-            remievent = _storedEvent;
-            //now initialize the rest of the values from the datadescriptor//
-            remievent.init(datadesc);
+            //extract the detectorinfo//
+            const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+            //only extract data if it is from the acqiris that we are using//
+            std::cout << "detector info: "<<info.detector()<<std::endl;
+            if (info.detector() == 0x0)
+            {
+                //extract the datadescriptor (waveform etc) from the xtc//
+                const Pds::Acqiris::DataDescV1 &datadesc = *reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
+                REMIEvent &remievent = cassevent->REMIEvent();
+                //first copy the stored configuration into the incoming remievent//
+                remievent = _storedEvent;
+                //now initialize the rest of the values from the datadescriptor//
+                remievent.init(datadesc);
+            }
             break;
         }
 
         //if it is a configuration then check what kind of configuration
         case (Pds::TypeId::Id_AcqConfig) :
         {
-            unsigned version = xtc->contains.version();
-            switch (version)
+            //extract the detectorinfo//
+            const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+            std::cout << "detector info: "<<info.detector()<<std::endl;
+            if(info.detector() == 0x0)
             {
-                //if it is the right configuration then initialize the storedevent with the configuration//
-                case 1:
+                unsigned version = xtc->contains.version();
+                switch (version)
                 {
-                    _storedEvent.init(*reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload()));
+                    //if it is the right configuration then initialize the storedevent with the configuration//
+                    case 1:
+                    {
+                        _storedEvent.init(*reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload()));
+                    }
+                    break;
+                    default:
+                        printf("Unsupported acqiris configuration version %d\n",version);
+                    break;
                 }
-                break;
-                default:
-                    printf("Unsupported acqiris configuration version %d\n",version);
-                break;
             }
             break;
         }
