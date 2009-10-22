@@ -3,6 +3,7 @@
 
 CONFIG += release
 CONFIG += thread warn_on exceptions rtti sse2 stl
+#CONFIG -= debug
 
 VERSION = 0.0.1
 
@@ -12,6 +13,7 @@ INSTALLBASE    = /usr/local/cass
 
 QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
+#QMAKE_CXXFLAGS_DEBUG   += -O0
 QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
 #LFLAGS += -Wl,-rpath,/afs/desy.de/user/n/ncoppola/LCLS/new/release/build/pdsdata/lib/i386-linux

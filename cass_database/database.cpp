@@ -265,11 +265,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   {
     xy[Nevents][Nevents+1]=2*Nevents;
   }
+#endif
 
   r.Rannor(px,py);
   //pz=px*px+py*py;
   random=r.Rndm();
-#endif
+
   event_id=cassevent->id();
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
@@ -427,16 +428,19 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   {
     pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
     pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
-    pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),MAX_pnCCD_max_photons_per_event);
+    pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),
+         MAX_pnCCD_max_photons_per_event);
     pnCCD_max_photons_per_event0=TMath::Min(pnCCD_max_photons_per_event0,max_phot_in_Buffer_loose);
     if(pnCCD_num_pixel_arrays==2)
     {
       pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
       pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
-      pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),MAX_pnCCD_max_photons_per_event);
+      pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),
+         MAX_pnCCD_max_photons_per_event);
       pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
     }
   } 
+
   //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
     //  sizeof(pnccdevent.rawSignalArrayAddr(0));
   //pnCCD_raw=pnccdevent.raw_signal_values;
@@ -461,12 +465,16 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //printf("oh 111r, %i",arraysize);
     //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
 
-    for(jj_u=0;jj_u<pnCCD_array_y_size[1];jj_u++)
+    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(2),pnCCD_raw_image_size[1]);
+
+    /*    for(jj_u=0;jj_u<pnCCD_array_y_size[1];jj_u++)
        memcpy(&pnCCD_raw1[0][jj_u],pnccdevent.rawSignalArrayAddr(2)+2*jj_u,pnCCD_raw_image_size[1]);
+    */
     /*pnCCD_raw_integral[1]=0.;
       pnCCD_raw_integral_ROI[1]=0.;*/
   }  
 
+  //#ifdef pnCCD
   //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
   //   sizeof(pnccdevent.corrSignalArrayAddr(0));
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
@@ -520,7 +528,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //??which/both
   //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
-
+  //#endif
   //Theevent=cassevent;
 
   //  T->Fill();
@@ -555,7 +563,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //lastNevent=5;
     /*printf("filling histos Nlast start=%i, end=%i and Nevents modulus max_events_in_Buffer %i \n",
       Nevents-6,Nevents,Nevents%max_events_in_Buffer);*/
-#ifdef RDEBUG
+  //#ifdef RDEBUG
   if(Nevents>lastNevent)
   {
     start=int(Nevents)-lastNevent-1;
@@ -613,7 +621,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       // I think that I need to use T->Draw()...
       h_pnCCD1r_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
       // we may have sets that overweight the last event
-      // if "#events > 5" divide histo by 5 and add last event... or the other way multiplying by 5 the last one...
+      // if "#events > 5" divide histo by 5 and add last event... or the other way 
+      // multiplying by 5 the last one...
       if(jj<stop-1) {
         h_pnCCD1r_w_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy));
       }
@@ -624,7 +633,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
 #endif
   }
-#endif
+  //#endif
   // the "last event" ones need to be clear each time
   //reset_lastevt_histos();
   //h_pnCCD1r_lastevt->Reset();
