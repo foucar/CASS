@@ -63,33 +63,41 @@ namespace cass {
         //this will automaticly lock this section of the ringbuffer//
         Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
 
-        //if datagram is configuration or an event (L1Accept) then we will iterate through it//
-        //otherwise we ignore the datagram//
-        if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
-            (datagram->seq.service() == Pds::TransitionId::L1Accept))
+        //check whether datagram is damaged//
+        uint32_t damage = datagram->xtc.damage.value();
+
+        if (!damage)
         {
-            CASSEvent *cassevent=0;
-            //if the datagram is an event than we create a new cass event first//
-            if (datagram->seq.service() == Pds::TransitionId::L1Accept)
+            //if datagram is configuration or an event (L1Accept) then we will iterate through it//
+            //otherwise we ignore the datagram//
+            if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
+                (datagram->seq.service() == Pds::TransitionId::L1Accept))
             {
-                //extract the bunchId from the datagram//
-                uint64_t bunchId = datagram->seq.clock().seconds();
-                bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
+                CASSEvent *cassevent=0;
+                //if the datagram is an event than we create a new cass event first//
+                if (datagram->seq.service() == Pds::TransitionId::L1Accept)
+                {
+                    //extract the bunchId from the datagram//
+                    uint64_t bunchId = datagram->seq.clock().seconds();
+                    bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
 
-                //create a new cassevent//
-                cassevent = new CASSEvent(bunchId);
-                //cassevent = database.nextEvent();
+                    //create a new cassevent//
+                    cassevent = new CASSEvent(bunchId);
+                    //cassevent = database.nextEvent();
+                }
+
+                //iterate through the datagram and find the wanted information//
+                XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
+                iter.iterate();
+
+                //when the datagram was an event then emit the new CASSEvent//
+                if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+                    emit nextEvent(cassevent);
+
             }
-
-            //iterate through the datagram and find the wanted information//
-            XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
-            iter.iterate();
-
-            //when the datagram was an event then emit the new CASSEvent//
-            if(datagram->seq.service() == Pds::TransitionId::L1Accept)
-                emit nextEvent(cassevent);
-
         }
+        else
+            std::cout << "datagram is damaged. Damage value "<<damage<<std::endl;
 
         //unlock the datagram//
         _eventqueue->UnlockDatagram(index);
