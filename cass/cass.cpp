@@ -7,6 +7,7 @@
 #include "event_queue.h"
 #include "format_converter.h"
 #include "database.h"
+#include "ratemeter.h"
 
 /*#include "main_window.h"
 #include "TGraph.h"
@@ -31,11 +32,14 @@ int main(int argc, char **argv)
     cass::Analyzer *analysis(new cass::Analyzer());
     // create database object
     cass::database::Database *database(new cass::database::Database());
+    // create a ratemeter object
+    cass::Ratemeter *ratemeter(new cass::Ratemeter);
 
     // connect the objects
     QObject::connect (input, SIGNAL(nextEvent(quint32)), conversion, SLOT(processDatagram(quint32)));
     QObject::connect (conversion, SIGNAL(nextEvent(cass::CASSEvent*)), analysis, SLOT(processEvent(cass::CASSEvent*)));
     QObject::connect (analysis, SIGNAL(nextEvent(cass::CASSEvent*)), database, SLOT(add(cass::CASSEvent*)));
+    QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
 
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
     input->start();
