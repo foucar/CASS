@@ -17,11 +17,11 @@ cass::Ratemeter::~Ratemeter()
 
 void cass::Ratemeter::nextEvent()
 {
-    ++counter;
-    if (counter == 32)
-    {
-       std::cout<< "\rRate is: "<< static_cast<double>(counter)*1000./static_cast<double>(time->elapsed()) <<" Hz"<<std::endl;
-       counter = 0;
+//    ++counter;
+//    if (counter == 32)
+//    {
+       std::cout<< "it took  "<< time->elapsed() <<" ms to analyze event"<<std::endl;
+//       counter = 0;
        time->restart();
     }
 }
