@@ -446,9 +446,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //pnCCD_raw=pnccdevent.raw_signal_values;
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
-    printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
-           pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);
-    //printf("oh 000r, %i",arraysize);
+    /*printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
+      pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);*/
     memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
 
     /*pnCCD_raw_integral[0]=0.;
@@ -460,11 +459,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   if(pnccdevent.rawSignalArrayAddr(2)!=0)
   {
-    printf("11r, %i %i ",pnCCD_raw_image_size[1],sizeof(pnccdevent.rawSignalArrayAddr(2)));
-    printf("%i %i %i ", pnccdevent.rawSignalArrayAddr(2),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);
-    //printf("oh 111r, %i",arraysize);
-    //memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(1),arraysize);
-
+    /*printf("11r, %i %i ",pnCCD_raw_image_size[1],sizeof(pnccdevent.rawSignalArrayAddr(2)));
+      printf("%i %i %i ", pnccdevent.rawSignalArrayAddr(2),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);*/
     memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(2),pnCCD_raw_image_size[1]);
 
     /*    for(jj_u=0;jj_u<pnCCD_array_y_size[1];jj_u++)
@@ -475,8 +471,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }  
 
   //#ifdef pnCCD
-  //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
-  //   sizeof(pnccdevent.corrSignalArrayAddr(0));
   if(pnccdevent.corrSignalArrayAddr(1)!=0)
   {
     //printf("00c, %i ",arraysize);
@@ -484,8 +478,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     /*pnCCD_corr_integral[0]=0.;
       pnCCD_corr_integral_ROI[0]=0.;*/
   }  
-  //arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*sizeof(UShort_t);
-    //   sizeof(pnccdevent.corrSignalArrayAddr(1));
   if(pnccdevent.corrSignalArrayAddr(2)!=0)
   {
     //printf("11c, %i \n",arraysize);
@@ -493,13 +485,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     /*pnCCD_corr_integral[1]=0.;
       pnCCD_corr_integral_ROI[1]=0.;*/
   }
-  //ph 1 recomph 1 ph 2 recomph 2 11r, 2097152 4 -1304707064 1024 1024 2097152 11c, 2097152 
   
   for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
   {
     if(pnccdevent.unrecPhotonHitAddr(jj+1)!=0)
     {
-      printf("ph %i ",jj);
+      //printf("ph %i ",jj);
       // the following could be much easier if there where the proper functions
       //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
       memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr(jj+1),sizeof(UShort_t));
@@ -512,7 +503,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
     if(pnccdevent.recomPhotonHitAddr(jj+1)!=0)
     {
-      printf(" recomph %i ",jj);
+      //printf(" recomph %i ",jj);
       // the following could be much easier if there where the proper functions
       //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
       memcpy(&pnCCD_ph_recom_x0[jj],pnccdevent.recomPhotonHitAddr(jj+1),sizeof(UShort_t));
@@ -524,7 +515,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
     }
   }
-  printf("\n");
+  //printf("\n");
   //??which/both
   //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
@@ -535,7 +526,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   //TThread::UnLock();
 
-  if ( max_events_in_Buffer>100 && ( Nevents%(max_events_in_Buffer/10) )==0 )
+  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/10) )==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
@@ -695,8 +686,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
-  printf("I will send the nextEvent signal\n");
   delete cassevent;
+  //printf("I will send the nextEvent signal\n");
   emit nextEvent();
 }
 
