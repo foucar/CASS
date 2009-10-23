@@ -54,19 +54,19 @@ namespace cass
                 }
                 break;
             case (Pds::TypeId::Id_pnCCDconfig) :
-              (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
+              //  (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_pnCCDframe) :
-                (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
+	      //  (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_EBeam) :
-                (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_FEEGasDetEnergy) :
-                (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_PhaseCavity) :
-                (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             default :
                     break;

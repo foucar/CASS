@@ -12,6 +12,7 @@
 cass::pnCCD::pnCCDEvent::pnCCDEvent
 (void)
 {
+/*
 // Per default, two detector arrays are foreseen in CAMP:
   num_pixel_arrays_ = 2;
 // Resize the vectors which hold the event data:
@@ -38,6 +39,7 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
   }
 // Reserve memory for the default event:
   this->initEventStorage();
+*/
 }
 
 // Create the event with given parameters for the geometry
@@ -50,6 +52,7 @@ cass::pnCCD::pnCCDEvent::pnCCDEvent
  std::vector<uint32_t> array_y_size,
  std::vector<uint32_t> max_photons_per_event)
 {
+    printf("HI HO\n");
 // Check whether the argument values are consistent:
   if( num_pixel_arrays != array_x_size.size() ||
       num_pixel_arrays != array_y_size.size() ||

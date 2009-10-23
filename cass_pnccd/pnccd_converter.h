@@ -6,14 +6,14 @@
 #include "pnccd_event.h"
 #include "conversion_backend.h"
 
-namespace Pds
+/*namespace Pds
 {
     class Xtc;
-}
+    }*/
 
 namespace cass
 {
-    class CASSEvent;
+  //class CASSEvent;
     namespace pnCCD
     {
         class CASS_PNCCDSHARED_EXPORT Converter : public cass::ConversionBackend
