@@ -28,7 +28,7 @@ namespace cass
     public:
 
         /** list of known individual format converters */
-        enum Converters {pnCCD, REMI, Pulnix, GMD, YAGPOWER};
+        enum Converters {pnCCD, REMI, Pulnix, MachineData};
 
         /** Destroy the single FormatConverter instance */
         static void destroy();

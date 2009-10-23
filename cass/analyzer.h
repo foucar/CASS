@@ -23,7 +23,7 @@ namespace cass
         ~Analyzer();
 
         /** list of known individual analyzers */
-        enum Analyzers {pnCCD, REMI, VMI, GMD, YAGPOWER};
+        enum Analyzers {pnCCD, REMI, VMI, MachineData};
 
     public slots:
         void processEvent(cass::CASSEvent*);

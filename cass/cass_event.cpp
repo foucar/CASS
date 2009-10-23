@@ -3,14 +3,15 @@
 #include "remi_event.h"
 #include "vmi_event.h"
 #include "pnccd_event.h"
+#include "machine_event.h"
 
-//ClassImp(cass::CASSEvent)
 
 cass::CASSEvent::CASSEvent(uint64_t id):
         _id(id),
         _remievent(new REMI::REMIEvent()),
         _vmievent(new VMI::VMIEvent()),
-	_pnccdevent(new pnCCD::pnCCDEvent())
+        _pnccdevent(new pnCCD::pnCCDEvent()),
+        _machinedataevent(new MachineData::MachineDataEvent())
 {
 }
 
@@ -19,4 +20,5 @@ cass::CASSEvent::~CASSEvent()
     delete _pnccdevent;
     delete _vmievent;
     delete _remievent;
+    delete _machinedataevent;
 }

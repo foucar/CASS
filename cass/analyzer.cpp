@@ -4,13 +4,15 @@
 #include "remi_analysis.h"
 #include "vmi_analysis.h"
 #include "pnccd_analysis.h"
+#include "machine_analysis.h"
 
 cass::Analyzer::Analyzer()
 {
     //create the analyzers//
-    _analyzer[REMI]     = new cass::REMI::Analysis();
-    _analyzer[VMI]      = new cass::VMI::Analysis();
-    _analyzer[pnCCD]    = new cass::pnCCD::Analysis();
+    _analyzer[REMI]         = new cass::REMI::Analysis();
+    _analyzer[VMI]          = new cass::VMI::Analysis();
+    _analyzer[pnCCD]        = new cass::pnCCD::Analysis();
+    _analyzer[MachineData]  = new cass::MachineData::Analysis();
 }
 
 cass::Analyzer::~Analyzer()

@@ -51,7 +51,9 @@ INCLUDEPATH +=  ./ \
                 ../cass_vmi/classes/event \
                 ../cass_pnccd \
                 ../cass_pnccd/classes/event \
-                ../cass_database 
+                ../cass_machinedata \
+                ../cass_machinedata/classes/event \
+                ../cass_database
 #\
 #                ../cass_root \
 #                ../diode
