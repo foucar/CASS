@@ -79,6 +79,7 @@ LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_vmi -lcass_vmi \
         #-L../cass -lcass \
+        -L../cass_machinedata -lcass_machinedata \
         -L../cass_database -lcass_database \
         #-L../cass_root -lroot
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata

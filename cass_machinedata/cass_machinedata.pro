@@ -3,7 +3,7 @@
 CONFIG += static 
 QT -= core gui
 TEMPLATE = lib
-TARGET = cass_vmi
+TARGET = cass_machinedata
 DEFINES += CASS_MACHINEDATA_LIBRARY
 VERSION = 0.0.1
 
@@ -32,5 +32,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_vmi.a
+libs.files     = libcass_machinedata.a
 INSTALLS      += header libs

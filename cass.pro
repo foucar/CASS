@@ -28,7 +28,7 @@ SUBDIRS = \
           cass_vmi \
           cass_pnccd \
 #          cass_imageprocessor \
-          cass_database \
           cass_machinedata \
+          cass_database \
           cass \
 #          diode
