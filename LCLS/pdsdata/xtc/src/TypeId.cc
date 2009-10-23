@@ -29,7 +29,11 @@ const char* TypeId::name(Type type)
     "TM6740Config",
     "RunControlConfig",
     "pnCCDframe",
-    "pnCCDconfig"
+    "pnCCDconfig",
+    "Epics",    
+    "FEEGasDetEnergy",
+    "EBeamBld",
+    "PhaseCavity"
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }
