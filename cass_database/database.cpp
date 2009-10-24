@@ -339,7 +339,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     LCLS_Charge1=0.;
     LCLS_Charge2=0.;
   }
-  printf("he %f %f",LCLS_FitTime1,LCLS_EbeamLTUPosX);
+  //printf("he %f %f",LCLS_FitTime1,LCLS_EbeamLTUPosX);
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
   if(!remievent.isFilled())
@@ -733,7 +733,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //save the histos instead of draw...
     //h_pnCCD1r_lastevt->Draw("Text");
     //h_pnCCD1r_history->Draw("Text");
-    TFile f("histos1mach.root","RECREATE");
+    TFile f("histos2mach.root","RECREATE");
     //f->cd();
     //h_pnCCD1r_lastevt->Write();
     h_pnCCD1r_history->Write();
