@@ -171,10 +171,11 @@ cass::pnCCD::pnCCDEvent::init
 
   //test
   size_t idx=0;
+  uint16_t* data = frm_data;
   for (size_t iy=0;iy<array_y_size_.at(ccd_id-1);++iy)
   {
       for (size_t ix=0;ix<array_y_size_.at(ccd_id-1);++ix)
-          std::cout << frm_data[idx++]<<" ";
+          std::cout << data[idx++]<<" ";
       std::cout<<std::endl;
   }
 
