@@ -5,6 +5,7 @@
 // and generates the basic analysis products for a user of raw
 // pnCCD frames.
 
+#include <iostream>
 #include "pnccd_event.h"
 
 // Default constructor for an empty event with safe default values:
@@ -167,6 +168,15 @@ cass::pnCCD::pnCCDEvent::init
   memcpy(this->raw_signal_values_.at(ccd_id-1),
          frm_data,
          datasize);
+
+  //test
+  size_t idx=0;
+  for (size_t iy=0;iy<array_y_size_.at(ccd_id-1);++iy)
+  {
+      for (size_t ix=0;ix<array_y_size_.at(ccd_id-1);++ix)
+          std::cout << frm_data[idx++]<<" ";
+      std::cout<<std::endl;
+  }
 
   return true;
 }
