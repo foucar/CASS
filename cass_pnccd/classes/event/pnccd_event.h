@@ -38,6 +38,8 @@ namespace cass
                    std::vector<uint32_t> array_y_size,
                    std::vector<uint32_t> max_photons_per_event);
         ~pnCCDEvent();
+// assignment operator that will only the relevant part of the event
+        pnCCDEvent& operator=(const pnCCDEvent&);
 // Initialize the event with the file header data from the
 // xtc:
         bool init(fileHeaderType *pnccd_fhdr, uint32_t ccd_id);

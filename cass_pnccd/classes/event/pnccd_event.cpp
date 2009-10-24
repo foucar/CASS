@@ -104,6 +104,20 @@ cass::pnCCD::pnCCDEvent::~pnCCDEvent
   }
 }
 
+// assignment operator that will only copy the relevant data
+cass::pnCCD::pnCCDEvent&
+cass::pnCCD::pnCCDEvent::operator =
+(const cass::pnCCD::pnCCDEvent& rhs)
+{
+    if (this != &rhs) // protect against invalid self-assignment
+    {
+        array_x_size_ = rhs.array_x_size_;
+        array_y_size_ = rhs.array_y_size_;
+    }
+    return *this;
+}
+
+
 // Initialize the event with the data stored in an xtc:
 
 // Get information from the file header:
