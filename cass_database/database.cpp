@@ -329,13 +329,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     LCLS_energy=0.;
     LCLS_EbeamCharge=0.;
     LCLS_EbeamL3Energy=0.;
-    LCLS_EbeamLTUPosX=0.;
-    LCLS_EbeamLTUPosY=0.;
-    LCLS_EbeamLTUAngX=0.;
-    LCLS_EbeamLTUAngY=0.;
+    LCLS_EbeamLTUPosX=0.; //-90.
+    LCLS_EbeamLTUPosY=0.; //-90.
+    LCLS_EbeamLTUAngX=0.; //-90.
+    LCLS_EbeamLTUAngY=0.; //-90.
 
-    LCLS_FitTime1=0.;
-    LCLS_FitTime2=0.;
+    LCLS_FitTime1=0.; //-90.
+    LCLS_FitTime2=0.; //-90.
     LCLS_Charge1=0.;
     LCLS_Charge2=0.;
   }

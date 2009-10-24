@@ -154,20 +154,20 @@ UShort_t pnCCD_ph_recom_amp1[MAX_pnCCD_max_photons_per_event];
 Float_t pnCCD_ph_recom_energy1[MAX_pnCCD_max_photons_per_event];
 
 //machine quantities
-Float_t LCLS_f_11_ENRC;
-Float_t LCLS_f_12_ENRC;
-Float_t LCLS_f_21_ENRC;
-Float_t LCLS_f_22_ENRC;
+Double_t LCLS_f_11_ENRC;
+Double_t LCLS_f_12_ENRC;
+Double_t LCLS_f_21_ENRC;
+Double_t LCLS_f_22_ENRC;
 
-Float_t LCLS_energy;
-Float_t LCLS_EbeamCharge;
-Float_t LCLS_EbeamL3Energy;
-Float_t LCLS_EbeamLTUPosX;
-Float_t LCLS_EbeamLTUPosY;
-Float_t LCLS_EbeamLTUAngX;
-Float_t LCLS_EbeamLTUAngY;
+Double_t LCLS_energy;
+Double_t LCLS_EbeamCharge;
+Double_t LCLS_EbeamL3Energy;
+Double_t LCLS_EbeamLTUPosX;
+Double_t LCLS_EbeamLTUPosY;
+Double_t LCLS_EbeamLTUAngX;
+Double_t LCLS_EbeamLTUAngY;
 
-Float_t LCLS_FitTime1;
-Float_t LCLS_FitTime2;
-Float_t LCLS_Charge1;
-Float_t LCLS_Charge2;
+Double_t LCLS_FitTime1;
+Double_t LCLS_FitTime2;
+Double_t LCLS_Charge1;
+Double_t LCLS_Charge2;
