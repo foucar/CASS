@@ -21,13 +21,15 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
     case (Pds::TypeId::Id_pnCCDframe) :
       {
 // Get a reference to the pnCCDEvent in the argument address:
-      printf("ahoi %i ",cassevent);
       pnCCDEvent      &pnccd_evt = cassevent->pnCCDEvent();
-      printf("ahoi\n");
 //      process(info, (frameHeaderType*) xtc->payload());
       pnccd_frmhdr = reinterpret_cast<frameHeaderType*>(xtc->payload());
 // Copy the stored information into the pnCCDEvent:
-      pnccd_evt = _storedEvent;
+
+// the following statement will also copy the pointers of the stored
+// event, which are deleted at the end of the processing of the event
+// and they are not available anymore...
+      //pnccd_evt = _storedEvent;
 // Initialize the event in the argument with the xtc payload data:
       pnccd_evt.init(pnccd_frmhdr,1);
       }
@@ -35,7 +37,6 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
     default:
       break;
   }
-  printf("ahoi end\n");
 
 
 }

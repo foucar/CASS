@@ -246,8 +246,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   Double_t random;
   Int_t jj,kk;
   UInt_t jj_u;
+
+  if(!cassevent) return;
   /*UShort_t jj16_u;
     Int_t arraysize;*/
+  //printf("I am in\n");
 
   if(Nevents==0) {
     /*T->SetCircular(max_events_in_Buffer);
@@ -686,6 +689,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
+  //printf("I will delete\n");
   delete cassevent;
   //printf("I will send the nextEvent signal\n");
   emit nextEvent();

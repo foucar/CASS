@@ -84,7 +84,7 @@ namespace cass {
                     bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
 
                     //create a new cassevent//
-                    cassevent = new CASSEvent(bunchId);
+		    cassevent = new CASSEvent(bunchId);
                     //cassevent = database.nextEvent();
                 }
 

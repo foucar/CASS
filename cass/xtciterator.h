@@ -35,10 +35,10 @@ namespace cass
                     break;
                 }
             case (Pds::TypeId::Id_Frame) :
-                (*(_converters[FormatConverter::Pulnix]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::Pulnix]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_AcqWaveform) :
-                (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_AcqConfig) :
                 {
@@ -46,7 +46,7 @@ namespace cass
                     switch (version)
                     {
                     case 1:
-                        (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
+		        (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
                         break;
                     default:
                         break;
@@ -54,19 +54,19 @@ namespace cass
                 }
                 break;
             case (Pds::TypeId::Id_pnCCDconfig) :
-              //  (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_pnCCDframe) :
-	      //  (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_EBeam) :
-	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_FEEGasDetEnergy) :
-	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             case (Pds::TypeId::Id_PhaseCavity) :
-	      //(*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
+	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
                 break;
             default :
                     break;
