@@ -42,7 +42,7 @@ namespace cass
         public:
             Analysis()            {init();}
             ~Analysis()           {_param.save();}
-            void init()           {_param.load();}
+            void init()           {_param.load();_param.save();}
 
             //called for every event//
             void operator()(CASSEvent*);

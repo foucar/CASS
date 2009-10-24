@@ -166,6 +166,8 @@ void cass::REMI::Analysis::init()
     fSiganalyzer.init(fParam.fPeakfindingMethod);
     //initialize the Detectorhit sorter for each detector//
     fSorter.init(fParam);
+    //save parameters to file//
+    fParam.save();
 }
 
 void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
