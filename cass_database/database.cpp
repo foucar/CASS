@@ -201,7 +201,8 @@ cass::database::Database::Database()
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
 
   // actually we may not need the raw version
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
+  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][1024]/s");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
   T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
@@ -516,12 +517,26 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   {
     /*printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
       pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);*/
-    memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
-
+    //memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
+    for(jj_u=0;jj_u<pnCCD_array_y_size[0];jj_u++)
+       memcpy(&pnCCD_raw0[jj_u][0],pnccdevent.rawSignalArrayAddr(1)+pnCCD_array_x_size[0]*jj_u,
+          pnCCD_array_x_size[0]*2);
+   
     /*pnCCD_raw_integral[0]=0.;
       pnCCD_raw_integral_ROI[0]=0.;*/
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
-  }  
+  }
+  /*  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+  {
+    size_t idx=0;
+    uint16_t* data = (pnccdevent.rawSignalArrayAddr(1));
+    for (size_t iy=0;iy<pnCCD_array_y_size0;++iy)
+    {
+        for (size_t ix=0;ix<pnCCD_array_x_size0;++ix)
+	  std::cout <<"m" << data[idx++]<<" "<< pnCCD_raw0[iy][ix];
+        std::cout<<std::endl;
+    }
+    }*/
   //arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*sizeof(UShort_t);
     //    sizeof(pnccdevent.rawSignalArrayAddr(1));
 

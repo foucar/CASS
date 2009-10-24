@@ -170,14 +170,14 @@ cass::pnCCD::pnCCDEvent::init
          datasize);
 
   //test
-  size_t idx=0;
-  uint16_t* data = reinterpret_cast<uint16_t*>(frm_data);
+  /*size_t idx=0;
+  uint16_t* data = reinterpret_cast<uint16_t*>(this->raw_signal_values_.at(ccd_id-1));
   for (size_t iy=0;iy<array_y_size_.at(ccd_id-1);++iy)
   {
       for (size_t ix=0;ix<array_y_size_.at(ccd_id-1);++ix)
           std::cout << data[idx++]<<" ";
       std::cout<<std::endl;
-  }
+  }*/
 
   return true;
 }
