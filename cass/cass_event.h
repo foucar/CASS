@@ -31,12 +31,14 @@ namespace cass
     class CASSEvent
     {
     public:
-        CASSEvent() {}
+        CASSEvent()     {}
         CASSEvent(uint64_t id);
         ~CASSEvent();
 
-        uint64_t    id()const          {return _id;}
+    public:
+        uint64_t    id()const   {return _id;}
 
+    public:
         REMI::REMIEvent                 &REMIEvent()          {return *_remievent;}
         VMI::VMIEvent                   &VMIEvent()           {return *_vmievent;}
         pnCCD::pnCCDEvent               &pnCCDEvent()         {return *_pnccdevent;}
