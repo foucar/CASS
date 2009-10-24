@@ -29,9 +29,6 @@ namespace cass
             void save();
 
         public:
-//            uint16_t   _threshold;
-//            QPoint     _centerOfMcp;
-//            uint16_t   _maxMcpRadius;
         };
 
 

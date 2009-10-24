@@ -9,6 +9,7 @@
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
     MachineDataEvent &machinedataevent = cassevent->MachineDataEvent();
+    machinedataevent.isFilled() = true;
 
     switch (xtc->contains.id())
     {

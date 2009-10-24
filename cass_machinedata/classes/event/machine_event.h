@@ -20,7 +20,18 @@ namespace cass
                     _f_11_ENRC(0),
                     _f_12_ENRC(0),
                     _f_21_ENRC(0),
-                    _f_22_ENRC(0)
+                    _f_22_ENRC(0),
+                    _EbeamCharge(0),
+                    _EbeamL3Energy(0),
+                    _EbeamLTUPosX(0),
+                    _EbeamLTUPosY(0),
+                    _EbeamLTUAngX(0),
+                    _EbeamLTUAngY(0),
+                    _FitTime1(0),
+                    _FitTime2(0),
+                    _Charge1(0),
+                    _Charge2(0),
+                    _energy(0)
                     {}
         public:
             bool  isFilled()const       {return _isFilled;}
