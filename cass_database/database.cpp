@@ -201,6 +201,7 @@ cass::database::Database::Database()
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
 
   // actually we may not need the raw version
+  // note the sway y<>x in the following line
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
   T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][1024]/s");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
@@ -330,13 +331,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     LCLS_energy=0.;
     LCLS_EbeamCharge=0.;
     LCLS_EbeamL3Energy=0.;
-    LCLS_EbeamLTUPosX=0.; //-90.
-    LCLS_EbeamLTUPosY=0.; //-90.
-    LCLS_EbeamLTUAngX=0.; //-90.
-    LCLS_EbeamLTUAngY=0.; //-90.
+    LCLS_EbeamLTUPosX=-90.; //-90.
+    LCLS_EbeamLTUPosY=-90.; //-90.
+    LCLS_EbeamLTUAngX=-90.; //-90.
+    LCLS_EbeamLTUAngY=-90.; //-90.
 
-    LCLS_FitTime1=0.; //-90.
-    LCLS_FitTime2=0.; //-90.
+    LCLS_FitTime1=-90.; //-90.
+    LCLS_FitTime2=-90.; //-90.
     LCLS_Charge1=0.;
     LCLS_Charge2=0.;
   }
@@ -737,8 +738,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-  //#ifdef DEBUG
-  UInt_t this1 = max_events_in_Buffer/100*90;
+#ifdef DEBUG
+  UInt_t this1 = max_events_in_Buffer/100*30;
   //TThread::Lock();
 
   if(Nevents==this1) {
@@ -764,7 +765,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
   //TThread::UnLock();
-  //#endif
+#endif
 
   //cass::CASSEvent::~CASSEvent();
 
