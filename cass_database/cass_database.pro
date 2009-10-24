@@ -35,6 +35,7 @@ HEADERS += database.h \
            histo_list.h
 
 INCLUDEPATH += ../cass \
+               ../cass_machinedata/classes/event \
                ../cass_remi/classes/event \
                ../cass_remi/classes/event/detector \
                ../cass_remi/classes/event/channel \

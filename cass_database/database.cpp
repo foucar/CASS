@@ -10,6 +10,7 @@
 #include "cass_event.h"
 //ClassImp(cass::CASSEvent)
 
+#include "machine_event.h"
 #include "remi_event.h"
 #include "vmi_event.h"
 #include "pnccd_event.h"
@@ -73,6 +74,25 @@ cass::database::Database::Database()
 
   // the eventid
   T->Branch("CASS_id",&event_id,"CASS_id/l");
+
+  //machine quantities
+  T->Branch("LCLS_f_11_ENRC",&LCLS_f_11_ENRC,"LCLS_f_11_ENRC/D");
+  T->Branch("LCLS_f_12_ENRC",&LCLS_f_12_ENRC,"LCLS_f_12_ENRC/D");
+  T->Branch("LCLS_f_21_ENRC",&LCLS_f_21_ENRC,"LCLS_f_21_ENRC/D");
+  T->Branch("LCLS_f_22_ENRC",&LCLS_f_22_ENRC,"LCLS_f_22_ENRC/D");
+
+  T->Branch("LCLS_energy",&LCLS_energy,"LCLS_energy/D");
+  T->Branch("LCLS_EbeamCharge",&LCLS_EbeamCharge,"LCLS_EbeamCharge/D");
+  T->Branch("LCLS_EbeamL3Energy",&LCLS_EbeamL3Energy,"LCLS_EbeamL3Energy/D");
+  T->Branch("LCLS_EbeamLTUPosX",&LCLS_EbeamLTUPosX,"LCLS_EbeamLTUPosX/D");
+  T->Branch("LCLS_EbeamLTUPosY",&LCLS_EbeamLTUPosY,"LCLS_EbeamLTUPosY/D");
+  T->Branch("LCLS_EbeamLTUAngX",&LCLS_EbeamLTUAngX,"LCLS_EbeamLTUAngX/D");
+  T->Branch("LCLS_EbeamLTUAngY",&LCLS_EbeamLTUAngY,"LCLS_EbeamLTUAngY/D");
+
+  T->Branch("LCLS_FitTime1",&LCLS_FitTime1,"LCLS_FitTime1/D");
+  T->Branch("LCLS_FitTime2",&LCLS_FitTime2,"LCLS_FitTime2/D");
+  T->Branch("LCLS_Charge1",&LCLS_Charge1,"LCLS_Charge1/D");
+  T->Branch("LCLS_Charge2",&LCLS_Charge2,"LCLS_Charge2/D");
 
   //REMI
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
@@ -275,6 +295,51 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   random=r.Rndm();
 
   event_id=cassevent->id();
+
+  cass::MachineData::MachineDataEvent &machinedata = cassevent->MachineDataEvent();
+  if(machinedata.isFilled())
+  {
+    printf("mach full\n");
+    LCLS_f_11_ENRC=machinedata.f_11_ENRC();
+    LCLS_f_12_ENRC=machinedata.f_12_ENRC();
+    LCLS_f_21_ENRC=machinedata.f_21_ENRC();
+    LCLS_f_22_ENRC=machinedata.f_22_ENRC();
+
+    LCLS_energy=machinedata.energy();
+    LCLS_EbeamCharge=machinedata.EbeamCharge();
+    LCLS_EbeamL3Energy=machinedata.EbeamL3Energy();
+    LCLS_EbeamLTUPosX=machinedata.EbeamLTUPosX();
+    LCLS_EbeamLTUPosY=machinedata.EbeamLTUPosY();
+    LCLS_EbeamLTUAngX=machinedata.EbeamLTUAngX();
+    LCLS_EbeamLTUAngY=machinedata.EbeamLTUAngY();
+
+    LCLS_FitTime1=machinedata.FitTime1();
+    LCLS_FitTime2=machinedata.FitTime2();
+    LCLS_Charge1=machinedata.Charge1();
+    LCLS_Charge2=machinedata.Charge2();
+  }
+  else
+  {
+    printf("mach empty\n");
+    LCLS_f_11_ENRC=0.;
+    LCLS_f_12_ENRC=0.;
+    LCLS_f_21_ENRC=0.;
+    LCLS_f_22_ENRC=0.;
+
+    LCLS_energy=0.;
+    LCLS_EbeamCharge=0.;
+    LCLS_EbeamL3Energy=0.;
+    LCLS_EbeamLTUPosX=0.;
+    LCLS_EbeamLTUPosY=0.;
+    LCLS_EbeamLTUAngX=0.;
+    LCLS_EbeamLTUAngY=0.;
+
+    LCLS_FitTime1=0.;
+    LCLS_FitTime2=0.;
+    LCLS_Charge1=0.;
+    LCLS_Charge2=0.;
+  }
+  printf("he %f %f",LCLS_FitTime1,LCLS_EbeamLTUPosX);
 
   cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
   if(!remievent.isFilled())
@@ -657,7 +722,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
-#ifdef DEBUG
+  //#ifdef DEBUG
   UInt_t this1 = max_events_in_Buffer/100*90;
   //TThread::Lock();
 
@@ -668,7 +733,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //save the histos instead of draw...
     //h_pnCCD1r_lastevt->Draw("Text");
     //h_pnCCD1r_history->Draw("Text");
-    TFile f("histos1.root","RECREATE");
+    TFile f("histos1mach.root","RECREATE");
     //f->cd();
     //h_pnCCD1r_lastevt->Write();
     h_pnCCD1r_history->Write();
@@ -684,7 +749,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // I may have to save some histos to be able to reload them again...
   // maybe this need to be done by diode....
   //TThread::UnLock();
-#endif
+  //#endif
 
   //cass::CASSEvent::~CASSEvent();
 

@@ -92,24 +92,6 @@ UShort_t VMI_cutFrame[VMI_max_cols][VMI_max_rows];
 UShort_t VMI_coordinatesOfImpact_x[VMI_MAX_IMPACTS];
 UShort_t VMI_coordinatesOfImpact_y[VMI_MAX_IMPACTS];
 
-//std::vector<uint16_t> VMI_frame;
-//std::vector<uint16_t> VMI_cutFrame;
-
-/*class thisCoordinate
-{
-public:
-   thisCoordinate(uint16_t X,uint16_t Y):x(X),y(Y){}
-   ~thisCoordinate(){}
-   uint16_t x;
-   uint16_t y;
-
-   ClassDef(thisCoordinate,1)
-};*/
-
-//std::vector<thisCoordinate> VMI_coordinatesOfImpact;
- //std::vector<uint16_t> VMI_coordinatesOfImpact_x;
- //std::vector<uint16_t> VMI_coordinatesOfImpact_y;
-
 #define max_phot_in_Buffer_loose 4096 //16385 = 1024*1024/64+1
 #define max_phot_in_Buffer 2048 // 8193= 1024*1024/128+1
 
@@ -117,10 +99,9 @@ public:
 #define MAX_pnCCD_array_x_size 1024
 #define MAX_pnCCD_array_y_size 1024
 //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
- //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
+//#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
 #define MAX_pnCCD_max_photons_per_event max_phot_in_Buffer
 
-//Int_t pnCCD_num_pixel_arrays[2];
 Int_t pnCCD_num_pixel_arrays;
 UInt_t pnCCD_array_x_size[MAX_pnCCD];
 UInt_t pnCCD_array_y_size[MAX_pnCCD];
@@ -171,3 +152,22 @@ UShort_t pnCCD_ph_recom_x1[MAX_pnCCD_max_photons_per_event];
 UShort_t pnCCD_ph_recom_y1[MAX_pnCCD_max_photons_per_event];
 UShort_t pnCCD_ph_recom_amp1[MAX_pnCCD_max_photons_per_event];
 Float_t pnCCD_ph_recom_energy1[MAX_pnCCD_max_photons_per_event];
+
+//machine quantities
+Float_t LCLS_f_11_ENRC;
+Float_t LCLS_f_12_ENRC;
+Float_t LCLS_f_21_ENRC;
+Float_t LCLS_f_22_ENRC;
+
+Float_t LCLS_energy;
+Float_t LCLS_EbeamCharge;
+Float_t LCLS_EbeamL3Energy;
+Float_t LCLS_EbeamLTUPosX;
+Float_t LCLS_EbeamLTUPosY;
+Float_t LCLS_EbeamLTUAngX;
+Float_t LCLS_EbeamLTUAngY;
+
+Float_t LCLS_FitTime1;
+Float_t LCLS_FitTime2;
+Float_t LCLS_Charge1;
+Float_t LCLS_Charge2;
