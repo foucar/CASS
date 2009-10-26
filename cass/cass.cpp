@@ -48,7 +48,9 @@ int main(int argc, char **argv)
     QObject::connect (dialog, SIGNAL (load()), analysis, SLOT(loadSettings()));
     QObject::connect (dialog, SIGNAL (save()), analysis, SLOT(saveSettings()));
 
+    // connect deletion of thread
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
+    //start input thread
     input->start();
 
     //show dialog//

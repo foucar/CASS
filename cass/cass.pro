@@ -1,4 +1,5 @@
 # Copyright (C) 2009 Jochen Küpper
+QT += gui
 CONFIG += static
 # TEMPLATE = lib
 TEMPLATE = app
