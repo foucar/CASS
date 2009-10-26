@@ -1,5 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
-
+#include <iostream>
+#include <iomanip>
 #include <QtCore/QMutexLocker>
 #include "format_converter.h"
 #include "remi_converter.h"
@@ -65,13 +66,15 @@ namespace cass {
         //this will automaticly lock this section of the ringbuffer//
         Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
 
+        // do some debug output
+        std::cout<<"eventqueue index: "<<std::dec<<index<<" transition: "<<Pds::TransitionId::name(datagram->seq.service());
+        std::cout<<std::hex<<" "<<datagram->seq.stamp().fiducials()<<" "<< datagram->seq.stamp().ticks()  <<std::endl;
+
+
         //check whether datagram is damaged//
         uint32_t damage = datagram->xtc.damage.value();
-
         if (!damage)
         {
-            printf("trans: %s %x %x\n",Pds::TransitionId::name(datagram->seq.service()),
-		   datagram->seq.stamp().fiducials(), datagram->seq.stamp().ticks()  );
             //if datagram is configuration or an event (L1Accept) then we will iterate through it//
             //otherwise we ignore the datagram//
             if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
