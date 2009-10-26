@@ -3,8 +3,7 @@
 #include <QtGui>
 #include "dialog.h"
 
-cass::Dialog::Dialog(QWidget *parent)
-    : QDialog(parent)
+cass::Window::Window()
 {
     statusLabel = new QLabel;
 
@@ -34,4 +33,3 @@ cass::Dialog::Dialog(QWidget *parent)
 
     setWindowTitle(tr("CASS"));
 }
-

@@ -3,19 +3,19 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QDialog>
+#include <QWidget>
 
 class QLabel;
 class QPushButton;
 
 namespace cass
 {
-    class Dialog : public QDialog
+    class Window : public QWidget
     {
         Q_OBJECT
 
     public:
-        Dialog(QWidget *parent = 0);
+        Window();
 
     signals:
         void load();
