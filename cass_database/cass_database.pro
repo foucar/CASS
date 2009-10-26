@@ -9,6 +9,7 @@ qt += core gui
 #QT -= core gui
 TARGET = cass_database
 DEFINES += CASS_DATABASE_LIBRARY
+QMAKE_PRL_LIBS += -lNew
 
 VERSION = 0.0.1
 

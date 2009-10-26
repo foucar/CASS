@@ -27,10 +27,23 @@
 #include "TProcessID.h"
 #include <TCut.h>
 #include <TThread.h>
+#include <TClass.h>
+#include <TDataType.h>
+#include <TMapFile.h>
 
 //gROOT->cd();
 //TFile f("histos1.root","RECREATE");
 TTree *T = new TTree("T","circ buffer");
+
+//TMapFile(const char* name, const char* title, Option_t* option, Int_t size, TMapFile*& newMapFile)
+//TMapFile("testthis_map","my_precious","RECREATE",1000000000, TMapFile*& newMapFile);
+//TMapFile * Create(const char* name, Option_t* option = "READ", Int_t size = kDefaultMapSize, const char* title = "")
+TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+/*mapfile->Print();
+mapfile->ls();*/
+/*mapfile->Add(T,"T");
+mapfile->Print();
+mapfile->ls();*/
 
 #include "cass_tree.h"
 //ClassImp(thisCoordinate)
@@ -96,6 +109,8 @@ cass::database::Database::Database()
 
   //REMI
   T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
+// I could be able to do something like this, if I knew "cassevent"..
+  //T->Branch("REMI_nofChannels",&remievent.nbrOfChannels(),"REMI_nofChannels/i");
 
   T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
   //T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
@@ -203,7 +218,8 @@ cass::database::Database::Database()
   // actually we may not need the raw version
   // note the sway y<>x in the following line
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][1024]/s");
+  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][1024]/s");
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][pnCCD_array_x_size0]/s");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
   T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
@@ -735,7 +751,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   pnCCD_corr_integral_ROI[1]=h_pnCCD2c_lastevt_ROI_sm->GetSumOfWeights();
 */
   T->Fill();
-
+  //mapfile.Update(TObject obj = 0);
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
 #ifdef DEBUG
