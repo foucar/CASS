@@ -50,11 +50,12 @@ int main(int argc, char **argv)
 
     // connect deletion of thread
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
-    //start input thread
-    input->start();
 
     //show dialog//
     dialog->show();
+
+    // start input thread
+    input->start();
 
     // start Qt event loop
     int retval(app.exec());
