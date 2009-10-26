@@ -32,3 +32,18 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
     //once you are done emit the done singal//
     emit nextEvent(cassevent);
 }
+
+void cass::Analyzer::loadSettings()
+{
+    //iterate through all analyzers and load the settings of them//
+    for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+        it->second->loadSettings();
+}
+
+void cass::Analyzer::saveSettings()
+{
+    //iterate through all analyzers and load the settings of them//
+    for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+        it->second->saveSettings();
+}
+

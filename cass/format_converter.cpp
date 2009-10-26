@@ -95,7 +95,6 @@ namespace cass {
                 //when the datagram was an event then emit the new CASSEvent//
                 if(datagram->seq.service() == Pds::TransitionId::L1Accept)
                     emit nextEvent(cassevent);
-
             }
         }
         else

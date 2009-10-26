@@ -4,9 +4,14 @@
 #include "pnccd_event.h"
 #include "cass_event.h"
 
-void cass::pnCCD::Analysis::init()
+void cass::pnCCD::Analysis::loadSettings()
 {
     //initialize your analyzer here using param//
+}
+
+void cass::pnCCD::Analysis::saveSettings()
+{
+    //save your settings here//
 }
 
 void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)

@@ -76,9 +76,10 @@ namespace cass
         class CASS_REMISHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis()        {init();}
-            ~Analysis()       {fParam.save();}
-            void init();
+            Analysis()          {loadSettings();}
+            ~Analysis()         {}
+            void loadSettings();
+            void saveSettings() {fParam.save();}
             //called for every event//
             void operator()(CASSEvent*);
 

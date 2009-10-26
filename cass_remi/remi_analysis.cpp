@@ -157,7 +157,7 @@ void cass::REMI::Parameter::save()
 
 
 
-void cass::REMI::Analysis::init()
+void cass::REMI::Analysis::loadSettings()
 {
     //we need to fill the parameters with some life first//
     fParam.load();
@@ -166,8 +166,6 @@ void cass::REMI::Analysis::init()
     fSiganalyzer.init(fParam.fPeakfindingMethod);
     //initialize the Detectorhit sorter for each detector//
     fSorter.init(fParam);
-    //save parameters to file//
-    fParam.save();
 }
 
 void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)

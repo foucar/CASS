@@ -90,12 +90,13 @@ namespace cass
         class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis()      {init();}
+            Analysis()      {loadSettings();}
             ~Analysis()     {}
             /*
             initialize AnalysisBackend with new set of parameters
              */
-            void init();
+            void loadSettings();
+            void saveSettings();
             /*
             Put the pnCCDEvent object through the analysis chain. The original data
             remain unchanged, a new corrected pnCCD image is generated and X-ray

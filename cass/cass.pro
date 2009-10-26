@@ -25,7 +25,8 @@ SOURCES +=  cass.cpp \
             format_converter.cpp \
             cass_event.cpp \
             xtciterator.cpp \
-            ratemeter.cpp
+            ratemeter.cpp \
+            dialog.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -36,7 +37,8 @@ HEADERS +=  analysis_backend.h \
             cass_event.h \
             xtciterator.h \
             parameter_backend.h \
-            ratemeter.h
+            ratemeter.h \
+            dialog.h
 
 INCLUDEPATH +=  ./ \
                 $$(LCLSSYSINCLUDE) \

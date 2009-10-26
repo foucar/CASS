@@ -15,7 +15,8 @@ namespace cass
         AnalysisBackend()           {}
         virtual ~AnalysisBackend()  {}
 
-        virtual void init() = 0;
+        virtual void loadSettings() = 0;
+        virtual void saveSettings() = 0;
 
         virtual void operator()(CASSEvent*) = 0;
     };

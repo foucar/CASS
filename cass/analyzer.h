@@ -27,6 +27,8 @@ namespace cass
 
     public slots:
         void processEvent(cass::CASSEvent*);
+        void saveSettings();
+        void loadSettings();
 
     signals:
         void nextEvent(cass::CASSEvent*);

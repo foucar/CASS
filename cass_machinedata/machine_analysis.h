@@ -35,9 +35,10 @@ namespace cass
         class CASS_MACHINEDATASHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis()            {init();}
-            ~Analysis()           {_param.save();}
-            void init()           {_param.load();_param.save();}
+            Analysis()            {loadSettings();}
+            ~Analysis()           {}
+            void loadSettings()   {_param.load();}
+            void saveSettings()   {_param.save();}
 
             //called for every event//
             void operator()(CASSEvent*);

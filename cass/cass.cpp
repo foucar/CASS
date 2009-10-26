@@ -8,6 +8,7 @@
 #include "format_converter.h"
 #include "database.h"
 #include "ratemeter.h"
+#include "dialog.h"
 
 /*#include "main_window.h"
 #include "TGraph.h"
@@ -17,7 +18,6 @@
 #include "TAxis.h"
 #include <QLabel>*/
 
-//using namespace cass;
 
 int main(int argc, char **argv)
 {
@@ -33,7 +33,9 @@ int main(int argc, char **argv)
     // create database object
     cass::database::Database *database(new cass::database::Database());
     // create a ratemeter object
-    cass::Ratemeter *ratemeter(new cass::Ratemeter);
+    cass::Ratemeter *ratemeter(new cass::Ratemeter());
+    // create a dialog object
+    cass::Dialog * dialog(new cass::Dialog());
 
     // connect the objects
     QObject::connect (input, SIGNAL(nextEvent(quint32)), conversion, SLOT(processDatagram(quint32)));
@@ -41,9 +43,17 @@ int main(int argc, char **argv)
     QObject::connect (analysis, SIGNAL(nextEvent(cass::CASSEvent*)), database, SLOT(add(cass::CASSEvent*)));
     QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
 
+    // connect controls
+    QObject::connect (dialog, SIGNAL(quit()), &app, SLOT(quit()));
+    QObject::connect (dialog, SIGNAL (load()), analysis, SLOT(loadSettings()));
+    QObject::connect (dialog, SIGNAL (save()), analysis, SLOT(saveSettings()));
+
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
     input->start();
- 
+
+    //show dialog//
+    dialog->show();
+
     // start Qt event loop
     int retval(app.exec());
 
