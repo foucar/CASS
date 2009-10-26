@@ -70,6 +70,8 @@ namespace cass {
 
         if (!damage)
         {
+            printf("trans: %s %x %x\n",Pds::TransitionId::name(datagram->seq.service()),
+		   datagram->seq.stamp().fiducials(), datagram->seq.stamp().ticks()  );
             //if datagram is configuration or an event (L1Accept) then we will iterate through it//
             //otherwise we ignore the datagram//
             if ((datagram->seq.service() == Pds::TransitionId::Configure) ||

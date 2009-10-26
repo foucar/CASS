@@ -22,7 +22,7 @@
 int main(int argc, char **argv)
 {
     // construct Qt application object
-    QApplication app(argc, argv, true);
+    QApplication app(argc, argv);
 
     // create event queue object
     cass::EventQueue *input(new cass::EventQueue());
@@ -44,9 +44,9 @@ int main(int argc, char **argv)
     QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
 
     // connect controls
-    QObject::connect (dialog, SIGNAL(quit()), &app, SLOT(quit()));
+    /*  QObject::connect (dialog, SIGNAL(quit()), &app, SLOT(quit()));
     QObject::connect (dialog, SIGNAL (load()), analysis, SLOT(loadSettings()));
-    QObject::connect (dialog, SIGNAL (save()), analysis, SLOT(saveSettings()));
+    QObject::connect (dialog, SIGNAL (save()), analysis, SLOT(saveSettings()));*/
 
     // connect deletion of thread
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
@@ -58,7 +58,8 @@ int main(int argc, char **argv)
     input->start();
 
     // start Qt event loop
-    int retval(app.exec());
+//    int retval(app.exec());
+    int retval(dialog->exec());
 
     // clean up
     delete database;

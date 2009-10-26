@@ -39,11 +39,6 @@ TTree *T = new TTree("T","circ buffer");
 //TMapFile("testthis_map","my_precious","RECREATE",1000000000, TMapFile*& newMapFile);
 //TMapFile * Create(const char* name, Option_t* option = "READ", Int_t size = kDefaultMapSize, const char* title = "")
 TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-/*mapfile->Print();
-mapfile->ls();*/
-/*mapfile->Add(T,"T");
-mapfile->Print();
-mapfile->ls();*/
 
 #include "cass_tree.h"
 //ClassImp(thisCoordinate)
@@ -66,6 +61,10 @@ char hourmin[12];
 cass::database::Database::Database()
 {
   Double_t random;
+
+  mapfile->Add(T,"T");
+  //mapfile->Print();
+  //mapfile->ls();
 
   //should I add a header to the tree??
 
@@ -752,6 +751,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 */
   T->Fill();
   //mapfile.Update(TObject obj = 0);
+  if(Nevents%10==0) mapfile->Update();
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
 #ifdef DEBUG
