@@ -129,7 +129,7 @@ cass::pnCCD::pnCCDEvent::init
 {
   if( !pnccd_fhdr ) return false;
 
-// Set the frame siez of CCD with id ccd_id, this is
+// Set the frame size of the CCD with id ccd_id, this is
 // needed for the correct initialization of the raw and
 // corrected pixel signal data:
   array_x_size_.at(ccd_id-1) = pnccd_fhdr->the_width;
