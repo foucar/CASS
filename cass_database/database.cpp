@@ -38,7 +38,9 @@ TTree *T = new TTree("T","circ buffer");
 //TMapFile(const char* name, const char* title, Option_t* option, Int_t size, TMapFile*& newMapFile)
 //TMapFile("testthis_map","my_precious","RECREATE",1000000000, TMapFile*& newMapFile);
 //TMapFile * Create(const char* name, Option_t* option = "READ", Int_t size = kDefaultMapSize, const char* title = "")
-TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+//TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+
 
 #include "cass_tree.h"
 //ClassImp(thisCoordinate)

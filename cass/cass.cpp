@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
 
     //show dialog//
-    window->show();
+//    window->show();
 
     // start input thread
     input->start();

@@ -3,7 +3,7 @@
 
 CONFIG += release
 CONFIG += thread warn_on exceptions rtti sse2 stl
-#CONFIG -= debug
+#CONFIG += debug
 
 VERSION = 0.0.1
 
