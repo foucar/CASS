@@ -22,7 +22,7 @@
 int main(int argc, char **argv)
 {
     // construct Qt application object
-    QApplication app(argc, argv);
+    QApplication app(argc, argv,false);
 
     // create event queue object
     cass::EventQueue *input(new cass::EventQueue());
