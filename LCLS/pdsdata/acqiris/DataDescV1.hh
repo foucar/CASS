@@ -41,6 +41,7 @@ namespace Pds {
     public:
       uint64_t value() const;
       uint64_t operator-(const TimestampV1& ts) const;
+      double   horPos() const;
     private:
       // this is a copy of AqSegmentDescriptor in AcqirisDataTypes.h
       // to break dependencies with acqiris software.  Note that if
