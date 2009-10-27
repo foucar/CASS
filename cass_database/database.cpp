@@ -39,7 +39,8 @@ TTree *T = new TTree("T","circ buffer");
 //TMapFile("testthis_map","my_precious","RECREATE",1000000000, TMapFile*& newMapFile);
 //TMapFile * Create(const char* name, Option_t* option = "READ", Int_t size = kDefaultMapSize, const char* title = "")
 //TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+//TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
 
 
 #include "cass_tree.h"
@@ -219,11 +220,11 @@ cass::database::Database::Database()
   // actually we may not need the raw version
   // note the sway y<>x in the following line
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
-  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][1024]/s");
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[1024][pnCCD_array_x_size0]/s");
-  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
-  T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_x_size0][pnCCD_array_y_size0]/s");
-  T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_x_size1][pnCCD_array_y_size1]/s");
+  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[MAX_pnCCD_array_y_size][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
 
   T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
   T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
