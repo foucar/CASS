@@ -3,14 +3,14 @@
 #include "event_queue.h"
 #include "pdsdata/xtc/Dgram.hh"
 
-cass::EventQueue::EventQueue( QObject *parent):
+cass::EventQueue::EventQueue(QObject *parent):
         QThread(parent),
         _index(0)
 {
     //initialize the ringbuffer//
-    _ringbuffer = new char[(0x700000)*_maxbufsize];
+    _ringbuffer = new char[(_maxdatagramsize)*_maxbufsize];
     for (size_t i=0;i<_maxbufsize;++i)
-        _ringbufferindizes[i] = _ringbuffer+(0x700000)*i;
+        _ringbufferindizes[i] = _ringbuffer+(_maxdatagramsize)*i;
 }
 
 cass::EventQueue::~EventQueue()
@@ -45,8 +45,10 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
     uint32_t sizeofPayload = datagram->xtc.sizeofPayload();
     memcpy(rb+sizeof(Pds::Dgram),datagram+1,sizeofPayload);
 
-    //unlock the lock that one can access the new datagram//
-    _mutexes[_index].unlock();
+    //unlock the lock that one can access the new datagram
+    //only if it was a L1Accept transition, otherwise keep locked//
+    if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+        _mutexes[_index].unlock();
 
     //advance the index such that next time this is called it will check the next index first//
     _index = (++_index) % _maxbufsize;

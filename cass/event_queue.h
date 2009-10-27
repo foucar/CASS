@@ -12,6 +12,7 @@
 
 //#define _maxbufsize 4
 #define _maxbufsize 1
+#define _maxdatagramsize 0x800000
 
 namespace cass
 {
