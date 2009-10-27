@@ -219,10 +219,12 @@ cass::database::Database::Database()
   // note the sway y<>x in the following line
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[MAX_pnCCD_array_y_size][MAX_pnCCD_array_x_size]/s");
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
+  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][1024]/s");
   T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
-  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
+  //T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][1024]/s");
 
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
   T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
@@ -539,9 +541,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);*/
     //memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
     for(jj_u=0;jj_u<pnCCD_array_y_size[0];jj_u++)
+    {
        memcpy(&pnCCD_raw0[jj_u][0],pnccdevent.rawSignalArrayAddr(1)+pnCCD_array_x_size[0]*jj_u,
           pnCCD_array_x_size[0]*2);
-   
+       //printf("pnCCD_raw0[%i][1]= %i\n",jj_u,pnCCD_raw0[jj_u][1]);
+    }
     /*pnCCD_raw_integral[0]=0.;
       pnCCD_raw_integral_ROI[0]=0.;*/
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
@@ -755,7 +759,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 */
   T->Fill();
   //mapfile.Update(TObject obj = 0);
-  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/25) )==0 )mapfile->Update();
+  if ( max_events_in_Buffer>99 && ( Nevents%(20) )==0 )
+  {
+    printf("updating mapfile\n");
+    mapfile->Update();
+  }
   else
   {
     if(Nevents%10==0) mapfile->Update();
