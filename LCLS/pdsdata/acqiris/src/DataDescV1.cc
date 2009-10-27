@@ -20,6 +20,11 @@ uint64_t TimestampV1::operator-(const TimestampV1& ts) const {
   return value()-ts.value();
 }
 
+double TimestampV1::horPos() const
+{
+    return _horPos;
+}
+
 uint32_t DataDescV1::nbrSamplesInSeg() const {
   return _returnedSamplesPerSeg;
 }
