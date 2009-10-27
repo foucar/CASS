@@ -214,15 +214,16 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
-  T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
-  T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
 
   // actually we may not need the raw version
   // note the sway y<>x in the following line
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
   //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[MAX_pnCCD_array_y_size][MAX_pnCCD_array_x_size]/s");
   T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
+  T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
+  T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
   T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
+
   T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
   T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
 
@@ -754,7 +755,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 */
   T->Fill();
   //mapfile.Update(TObject obj = 0);
-  if(Nevents%10==0) mapfile->Update();
+  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/25) )==0 )mapfile->Update();
+  else
+  {
+    if(Nevents%10==0) mapfile->Update();
+  }
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
 #ifdef DEBUG

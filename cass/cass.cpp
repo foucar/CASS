@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     // create a ratemeter object
     cass::Ratemeter *ratemeter(new cass::Ratemeter());
     // create a dialog object
-    cass::Window * window(new cass::Window());
+//    cass::Window * window(new cass::Window());
 
     // connect the objects
     QObject::connect (input, SIGNAL(nextEvent(quint32)), conversion, SLOT(processDatagram(quint32)));
@@ -44,12 +44,12 @@ int main(int argc, char **argv)
     QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
 
     // connect controls
-    QObject::connect (window, SIGNAL (quit()), &app, SLOT(quit()));
-    QObject::connect (window, SIGNAL (load()), analysis, SLOT(loadSettings()));
-    QObject::connect (window, SIGNAL (save()), analysis, SLOT(saveSettings()));
+//    QObject::connect (window, SIGNAL (quit()), &app, SLOT(quit()));
+//    QObject::connect (window, SIGNAL (load()), analysis, SLOT(loadSettings()));
+//    QObject::connect (window, SIGNAL (save()), analysis, SLOT(saveSettings()));
 
     // connect deletion of thread
-    QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
+//    QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
 
     //show dialog//
 //    window->show();
