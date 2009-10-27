@@ -29,22 +29,17 @@
 #include <TThread.h>
 #include <TClass.h>
 #include <TDataType.h>
-#include <TMapFile.h>
+//#include <TMapFile.h>
 
-//gROOT->cd();
-//TFile f("histos1.root","RECREATE");
+//TFile f("tree_and_histos.root","RECREATE");
 TTree *T = new TTree("T","circ buffer");
 
-//TMapFile(const char* name, const char* title, Option_t* option, Int_t size, TMapFile*& newMapFile)
-//TMapFile("testthis_map","my_precious","RECREATE",1000000000, TMapFile*& newMapFile);
-//TMapFile * Create(const char* name, Option_t* option = "READ", Int_t size = kDefaultMapSize, const char* title = "")
 //TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
 //TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
+//TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
 
 
 #include "cass_tree.h"
-//ClassImp(thisCoordinate)
 
 #include "histo_list.h"
 void reset_lastevt_histos();
@@ -56,16 +51,11 @@ time_t rawtime;
 struct tm * timeinfo;
 char hourmin[12];
 
-//cass::CASSEvent *Theevent;
-/*uint64_t od=0;
-  cass::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);*/
-//cass::CASSEvent::CASSEvent *Theevent = new cass::CASSEvent::CASSEvent(od);
-
 cass::database::Database::Database()
 {
   Double_t random;
 
-  mapfile->Add(T,"T");
+  //mapfile->Add(T,"T");
   //mapfile->Print();
   //mapfile->ls();
 
@@ -79,8 +69,8 @@ cass::database::Database::Database()
   T->Branch("random",&random,"random/D");
   /*if(!TClassTable::GetDict("Event")) {
     gSystem->Load("$ROOTSYS/test/libEvent.so");
-    }*/
-  /*Event *event = new Event();
+    }
+    Event *event = new Event();
     T->Branch("EventBranch","Event",&event,32000,99);*/
   //cass::CASSEvent *event = new cass::CASSEvent::CASSEvent(uint64_t);
   /*  T->Branch("TheCASSevent","cass::CASSEvent::CASSEvent(uint64_t od)",
@@ -271,10 +261,6 @@ cass::database::Database::Database()
 
   T->Print();
   Nevents=0;
-
-  // I could also create some default histograms
-  // like 1 for each pnCCD: last event, all events since beginning of time
-
 }
 
 cass::database::Database::~Database()
@@ -291,17 +277,13 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   UInt_t jj_u;
 
   if(!cassevent) return;
-  /*UShort_t jj16_u;
-    Int_t arraysize;*/
   //printf("I am in\n");
 
-  if(Nevents==0) {
-    /*T->SetCircular(max_events_in_Buffer);
+  /*if(Nevents==0) {
+    T->SetCircular(max_events_in_Buffer);
     printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
-    T->Print();*/
-  }
-
-  //TThread::Lock();
+    T->Print();
+  }*/
 
   Nevents++;
   //if(Nevents>299) printf("Nevents=%i \n",Nevents);
@@ -314,7 +296,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
   r.Rannor(px,py);
-  //pz=px*px+py*py;
   random=r.Rndm();
 
   event_id=cassevent->id();
@@ -438,7 +419,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       }
     }
   }
-  //cassevent->~REMIEvent();
 
   cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
   VMI_isFilled=vmievent.isFilled();
@@ -477,7 +457,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     VMI_offset=-999;
     VMI_nof_Impacts=0;
   }
-    //cassevent->~VMIEvent();
 
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   // the following could be even done only everytime the configuration changes...
@@ -532,9 +511,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
   } 
 
-  //arraysize=pnCCD_array_x_size[0]*pnCCD_array_y_size[0]*sizeof(UShort_t);
-    //  sizeof(pnccdevent.rawSignalArrayAddr(0));
-  //pnCCD_raw=pnccdevent.raw_signal_values;
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
     /*printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
@@ -550,7 +526,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnCCD_raw_integral_ROI[0]=0.;*/
     //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
   }
-  /*  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+#if DEBUG_pnCCD_raw
+  if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
     size_t idx=0;
     uint16_t* data = (pnccdevent.rawSignalArrayAddr(1));
@@ -560,9 +537,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 	  std::cout <<"m" << data[idx++]<<" "<< pnCCD_raw0[iy][ix];
         std::cout<<std::endl;
     }
-    }*/
-  //arraysize=pnCCD_array_x_size[1]*pnCCD_array_y_size[1]*sizeof(UShort_t);
-    //    sizeof(pnccdevent.rawSignalArrayAddr(1));
+    }
+#endif
 
   if(pnccdevent.rawSignalArrayAddr(2)!=0)
   {
@@ -627,11 +603,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
   //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
   //#endif
-  //Theevent=cassevent;
-
-  //  T->Fill();
-
-  //TThread::UnLock();
 
   if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/10) )==0 )
   {
@@ -645,7 +616,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   /*if(Nevents>1 && (Nevents%max_events_in_Buffer)==0)
   {
-    //T->Draw("px");
     T->Show(Nevents%max_events_in_Buffer-1);
   }*/
 
@@ -661,7 +631,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //lastNevent=5;
     /*printf("filling histos Nlast start=%i, end=%i and Nevents modulus max_events_in_Buffer %i \n",
       Nevents-6,Nevents,Nevents%max_events_in_Buffer);*/
-  //#ifdef RDEBUG
+
+#ifdef root_local_within_cass
   if(Nevents>lastNevent)
   {
     start=int(Nevents)-lastNevent-1;
@@ -695,15 +666,15 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     {
       //T->Project("h_pnCCD1_w_lastNevt","pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9");
     }
-#ifdef DEBUG
+
     T->Draw("pnCCD_raw0>>+h_pnCCD1_lastNevt", c1 && c2);
     T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevt", c1 && c2);
     
     //    T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_lastNevt", "","",lastNevt,start);
     
     /*
-    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c1 && c3);
-    //T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c4);
+    T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c1 && c3);
+    T->Draw("pnCCD_raw0>>+h_pnCCD1_w_lastNevt", c4);
     T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevt", c1 && c3);
     T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>+h_pnCCD1_w_lastNevt", c4);*/
     T->Draw("pnCCD_array_x_size[0]*.9:pnCCD_array_y_size[0]*.9>>h_pnCCD1_w_lastNevt", "","",lastNevent-1,start);
@@ -729,9 +700,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
         h_pnCCD1r_w_lastNevt->Fill(float(Nevents)/xmax,float(Nevents+1)/ymax,int(xy)*int(lastNevent));
       }
     }
-#endif
   }
-  //#endif
+#endif
+
   // the "last event" ones need to be clear each time
   //reset_lastevt_histos();
   //h_pnCCD1r_lastevt->Reset();
@@ -759,7 +730,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 */
   T->Fill();
   //mapfile.Update(TObject obj = 0);
-  if ( max_events_in_Buffer>99 && ( Nevents%(20) )==0 )
+  /*  if ( max_events_in_Buffer>99 && ( Nevents%(20) )==0 )
   {
     printf("updating mapfile\n");
     mapfile->Update();
@@ -767,7 +738,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   else
   {
     if(Nevents%10==0) mapfile->Update();
-  }
+    }*/
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
 #ifdef DEBUG
@@ -798,8 +769,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // maybe this need to be done by diode....
   //TThread::UnLock();
 #endif
-
-  //cass::CASSEvent::~CASSEvent();
 
   // I need to delock??... But I did not lock
   //printf("I will delete\n");

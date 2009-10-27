@@ -1,5 +1,5 @@
 // the following could be set at init-time or config-time...
-Int_t xbins=1024,ybins=1024;
+Int_t xbins=MAX_pnCCD_array_x_size,ybins=MAX_pnCCD_array_y_size;
 Float_t xmin=-0.5,xmax=1023.5,ymin=-0.5,ymax=1023.5;
 // these could be actually also taken from the runtime configuration
 /*xbins=1024;
@@ -8,7 +8,7 @@ xmin=-0.5;
 xmax=1023.5;
 ymin=-0.5;
 ymax=1023.5;*/
-Int_t xy[1024][1024];
+Int_t xy[MAX_pnCCD_array_x_size][MAX_pnCCD_array_x_size];
 
 UInt_t lastNevent;
 

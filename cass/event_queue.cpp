@@ -47,7 +47,7 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
 
     //unlock the lock that one can access the new datagram
     //only if it was a L1Accept transition, otherwise keep locked//
-    if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+    //if(datagram->seq.service() == Pds::TransitionId::L1Accept)
         _mutexes[_index].unlock();
 
     //advance the index such that next time this is called it will check the next index first//
