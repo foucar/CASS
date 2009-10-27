@@ -30,8 +30,8 @@ void cass::REMI::REMIEvent::init(const Pds::Acqiris::ConfigV1& config)
 void cass::REMI::REMIEvent::init(const Pds::Acqiris::DataDescV1& ddesc)
 {
     fIsFilled   = true;
-    fHorpos     = ddesc.timestamp(0).horpos();                //horpos from acqiris
     Pds::Acqiris::DataDescV1 * dd = const_cast<Pds::Acqiris::DataDescV1*>(&ddesc);
+    fHorpos     = dd->timestamp(0).horPos();                //horpos from acqiris
     //printf("in DataDesc %i\n",fChannels.size());
 
     for (size_t i=0;i<fChannels.size();++i)
