@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "remi_event.h"
 #include "remi_analysis.h"
 #include "pdsdata/acqiris/ConfigV1.hh"
@@ -21,17 +22,19 @@ void cass::REMI::REMIEvent::init(const Pds::Acqiris::ConfigV1& config)
     fNbrConPerCh        = config.nbrConvertersPerChannel();
 
     //output data//
+    std::cout << std::dec<<std::endl;
     std::cout <<"config:"<<std::endl;
     std::cout <<" SampleInterval: "<<config.horiz().sampInterval()<<std::endl;
     std::cout <<" NbrSamples: "<<config.horiz().nbrSamples()<<std::endl;
     std::cout <<" DelayTime: "<<fDelayTime<<std::endl;
-    std::cout <<" TrigChannel: "<<fTrigChannel<<std::endl;
+    std::cout <<" TrigChannel: "<<std::hex<<fTrigChannel<<std::dec<<std::endl;
     std::cout <<" TrigLevel: "<<fTrigLevel<<std::endl;
     std::cout <<" TrigSlope: "<<fTrigSlope<<std::endl;
-    std::cout <<" ChanCombUsedChans: "<<fChanCombUsedChans<<std::endl;
+    std::cout <<" ChanCombUsedChans: "<<std::hex<<fChanCombUsedChans<<std::dec<<std::endl;
     std::cout <<" NbrConPerCh: "<<fNbrConPerCh<<std::endl;
     std::cout <<" SizeOfHoriz: "<<sizeof(Pds::Acqiris::HorizV1)<<std::endl;
     std::cout <<" SizeOfTrig: " <<sizeof(Pds::Acqiris::TrigV1)<<std::endl;
+    std::cout <<" SizeOfConfig: "<<sizeof(Pds::Acqiris::ConfigV1)<<std::endl;
 
     //create the channels//
     for (size_t i=0;i<config.nbrChannels();++i)
@@ -47,7 +50,9 @@ void cass::REMI::REMIEvent::init(const Pds::Acqiris::DataDescV1& ddesc)
         Pds::Acqiris::DataDescV1 * dd = const_cast<Pds::Acqiris::DataDescV1*>(&ddesc);
         fHorpos     = dd->timestamp(0).horPos();                //horpos from acqiris
 //        std::cout <<"datadesc:"<<std::endl;
-//        std::cout <<"  horpos: "<<fHorpos<<std::endl;
+//        std::cout <<" horpos: "<<fHorpos<<std::endl;
+//        std::cout <<" SizeOfDatadesc: "<<sizeof(Pds::Acqiris::DataDescV1)<<std::endl;
+//        std::cout <<" SizeOfTimestamp: "<<sizeof(Pds::Acqiris::TimestampV1)<<std::endl;
 
         for (size_t i=0;i<fChannels.size();++i)
         {

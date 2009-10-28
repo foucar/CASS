@@ -29,7 +29,7 @@ namespace cass
         class REMIEvent
         {
         public:
-            REMIEvent():fIsFilled(false)                    {}
+            REMIEvent():fIsFilled(false),fIsInitialized(false)  {}
             void                init(const Pds::Acqiris::DataDescV1&);
             void                init(const Pds::Acqiris::ConfigV1&);
             void                CopyParameters(const Parameter&);
@@ -58,7 +58,7 @@ namespace cass
             double              trigLevel()const            {return fTrigLevel;}
             int16_t             trigSlope()const            {return fTrigSlope;}
             int16_t             trigChannel()const          {return fTrigChannel;}
-            int32_t             chanCombUsedChannels()const {return fChanCombUsedChans;}
+            uint32_t            chanCombUsedChannels()const {return fChanCombUsedChans;}
             int16_t             nbrConvPerChan()const       {return fNbrConPerCh;}
 
         private:

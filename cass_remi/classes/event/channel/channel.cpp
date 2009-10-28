@@ -21,8 +21,7 @@ cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     std::cout <<"  Offset: " <<config.vert(fChNbr).offset()*1000<<std::endl;
     std::cout <<"  WaveformLength: "<<config.horiz().nbrSamples()<<std::endl;
     std::cout <<"  SizeofVert: " <<sizeof(Pds::Acqiris::VertV1)<<std::endl;
-    std::cout <<"  sizeofshort:" << sizeof(short)<<std::endl;
- }
+}
 
 //______________________________________________________________________________________________________________________
 void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)

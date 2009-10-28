@@ -7,7 +7,7 @@
 namespace Pds {
 
   namespace Acqiris {
-
+#pragma pack(4)
     class VertV1 {
     public:
       VertV1();
@@ -18,6 +18,8 @@ namespace Pds {
       uint32_t coupling()  const;
       uint32_t bandwidth() const;
       double   slope()     const;
+      enum Coupling  {GND,DC,AC,DC50ohm,AC50ohm};
+      enum Bandwidth {None,MHz25,MHz700,MHz200,MHz20,MHz35};
     private:
       double   _fullScale;
       double   _offset;
@@ -54,6 +56,9 @@ namespace Pds {
       uint32_t trigInput()        const;
       uint32_t trigSlope()        const;
       double   trigLevel()        const;
+      enum Source   {Internal=1,External=-1};
+      enum Coupling {DC=0,AC=1,HFreject=2,DC50ohm=3,AC50ohm=4};
+      enum Slope    {Positive,Negative,OutOfWindow,IntoWindow,HFDivide,SpikeStretcher};
     private:
       uint32_t _trigCoupling;
       uint32_t _trigInput;
@@ -91,6 +96,7 @@ namespace Pds {
       HorizV1  _horiz;
       VertV1   _vert[MaxChan];
     };
+#pragma pack()
   }
 }
 
