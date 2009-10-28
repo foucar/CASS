@@ -113,7 +113,7 @@ cass::database::Database::Database()
   T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
   T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
   T->Branch("REMI_trigChannel",&REMI_trigChannel,"REMI_trigChannel/S");
-  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/L");
+  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/i");
   T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
 
   T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
@@ -126,8 +126,8 @@ cass::database::Database::Database()
 
   T->Branch("REMI_Channel_fullscale",REMI_Channel_fullscale,"REMI_Channel_fullscale[REMI_nofChannels]/S");
   T->Branch("REMI_Channel_vertGain",REMI_Channel_vertGain,"REMI_Channel_vertGain[REMI_nofChannels]/D");
-  T->Branch("REMI_Channel_vertOffset",REMI_Channel_vertOffset,"REMI_Channel_vertOffset[REMI_nofChannels]/D");
-  T->Branch("REMI_Channel_delay",REMI_Channel_delay,"REMI_Channel_delay[REMI_nofChannels]/D");
+  T->Branch("REMI_Channel_vertOffset",REMI_Channel_vertOffset,"REMI_Channel_vertOffset[REMI_nofChannels]/S");
+  T->Branch("REMI_Channel_delay",REMI_Channel_delay,"REMI_Channel_delay[REMI_nofChannels]/I");
   T->Branch("REMI_Channel_fraction",REMI_Channel_fraction,"REMI_Channel_fraction[REMI_nofChannels]/D");
   T->Branch("REMI_Channel_walk",REMI_Channel_walk,"REMI_Channel_walk[REMI_nofChannels]/D");
 

@@ -33,13 +33,14 @@ Int_t REMI_nofDetectors;
 Double_t REMI_horpos;
 //Short_t REMI_nbrBytes;
 Double_t REMI_sampleInterval;
-Long_t REMI_nbrSamples;
+Long_t REMI_nbrSamples; // changed into int32_t now
 Double_t REMI_delayTime;
 Double_t REMI_trigLevel;
-Short_t REMI_trigSlope;
-Short_t REMI_trigChannel;
-Long_t REMI_chanCombUsedChannels;
-Short_t REMI_nbrConvPerChan;
+Short_t REMI_trigSlope; // changed into int16_t now
+Short_t REMI_trigChannel; // changed into int16_t now
+//Long_t REMI_chanCombUsedChannels; // changed into uint32_t now
+UInt_t REMI_chanCombUsedChannels; // changed into uint32_t now
+Short_t REMI_nbrConvPerChan; // changed into int16_t now
 
 //Int_t REMI_Detector[REMI_Detectors_Max];
 //Char_t REMI_Detector[REMI_Detectors_Max][REMI_maxNAME];
@@ -53,9 +54,13 @@ Double_t REMI_Detector_Hits_t[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 Int_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
 
 Double_t REMI_Channel_vertGain[REMI_Channels_Max];
-Short_t REMI_Channel_fullscale[REMI_Channels_Max];
-Double_t REMI_Channel_vertOffset[REMI_Channels_Max];
-Short_t REMI_Channel_delay[REMI_Channels_Max];
+Short_t REMI_Channel_fullscale[REMI_Channels_Max]; // changed into int16_t now
+// changed into int16_t now
+//Double_t REMI_Channel_vertOffset[REMI_Channels_Max];
+Short_t REMI_Channel_vertOffset[REMI_Channels_Max]; // changed into int16_t now
+// changed into int32_t now
+//Short_t REMI_Channel_delay[REMI_Channels_Max];
+Int_t REMI_Channel_delay[REMI_Channels_Max];
 Double_t REMI_Channel_fraction[REMI_Channels_Max];
 Double_t REMI_Channel_walk[REMI_Channels_Max];
 
