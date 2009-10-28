@@ -29,15 +29,10 @@
 #include <TThread.h>
 #include <TClass.h>
 #include <TDataType.h>
-//#include <TMapFile.h>
+#include <TMapFile.h>
 
 //TFile f("tree_and_histos.root","RECREATE");
 TTree *T = new TTree("T","circ buffer");
-
-//TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-//TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-//TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
-
 
 #include "cass_tree.h"
 
@@ -51,11 +46,17 @@ time_t rawtime;
 struct tm * timeinfo;
 char hourmin[12];
 
+//TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+//TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
+//TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
+//maybe I could put the map-file on the shm.... device
+TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 1000000000, "");
+
 cass::database::Database::Database()
 {
   Double_t random;
 
-  //mapfile->Add(T,"T");
+  mapfile->Add(T,"T");
   //mapfile->Print();
   //mapfile->ls();
 
@@ -730,7 +731,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 */
   T->Fill();
   //mapfile.Update(TObject obj = 0);
-  /*  if ( max_events_in_Buffer>99 && ( Nevents%(20) )==0 )
+  if ( max_events_in_Buffer>99 && ( Nevents%(20) )==0 )
   {
     printf("updating mapfile\n");
     mapfile->Update();
@@ -738,7 +739,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   else
   {
     if(Nevents%10==0) mapfile->Update();
-    }*/
+  }
+
   // maybe if i>max_events_in_Buffer i could save the events to file before
   // overwriting them....
 #ifdef DEBUG
