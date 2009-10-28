@@ -1,11 +1,14 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 LMF
 
+#include <iostream>
+#include <iomanip>
 #include "event_queue.h"
 #include "pdsdata/xtc/Dgram.hh"
 
 cass::EventQueue::EventQueue(QObject *parent):
         QThread(parent),
-        _index(0)
+        _index(0),
+        _quit(false)
 {
     //initialize the ringbuffer//
     _ringbuffer = new char[(_maxdatagramsize)*_maxbufsize];
@@ -27,10 +30,16 @@ void cass::EventQueue::run()
 {
     //start the xtcmonitorclient//
     //this eventqueue will subscripe to a partitiontag with name cass//
+    _quit = false;
     Pds::XtcMonitorClient::run("cass");
 }
 
-void cass::EventQueue::processDgram(Pds::Dgram* datagram)
+void cass::EventQueue::end()
+{
+    _quit=true;
+}
+
+int cass::EventQueue::processDgram(Pds::Dgram* datagram)
 {
     //check which entry of the ringbuffer is not locked by a receiver//   
     while(!(_mutexes[_index].tryLock()))
@@ -47,22 +56,27 @@ void cass::EventQueue::processDgram(Pds::Dgram* datagram)
 
     //unlock the lock that one can access the new datagram
     //only if it was a L1Accept transition, otherwise keep locked//
-    //if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+    if(datagram->seq.service() == Pds::TransitionId::L1Accept)
         _mutexes[_index].unlock();
 
-    //advance the index such that next time this is called it will check the next index first//
+    //advance the index such that next time this function is called it will check the next index first//
     _index = (++_index) % _maxbufsize;
 
     //tell the world that there is a new datagram available//
     emit nextEvent(index);
+
+    //return the quit code//
+    return _quit;
 }
 
 Pds::Dgram * cass::EventQueue::GetAndLockDatagram(uint32_t index)
 {
-    //get the lock of the mutex that takes care for this part of the ringbuffer//
-    _mutexes[index].lock();
-    //return the ringbuffer element for index//
-    return reinterpret_cast<Pds::Dgram*>(_ringbufferindizes[index]);
+    Pds::Dgram * datagram = reinterpret_cast<Pds::Dgram*>(_ringbufferindizes[index]);
+    //if the datagram is something other than L1Accept, it is already locked//
+    //if it is a L1Accept we need to obtain the lock//
+    if(datagram->seq.service() == Pds::TransitionId::L1Accept)
+        _mutexes[index].lock();
+    return datagram;
 }
 
 void cass::EventQueue::UnlockDatagram(uint32_t index)

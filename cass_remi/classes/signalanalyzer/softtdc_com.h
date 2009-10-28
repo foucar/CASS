@@ -11,6 +11,7 @@ namespace cass
         class SoftTDCCoM8Bit : public SoftTDC
         {
         public:
+            SoftTDCCoM8Bit()    {std::cout << "using 8 bit CoM"<<std::endl;}
             void FindPeaksIn(REMIEvent&);
         };
 
@@ -18,6 +19,7 @@ namespace cass
         class SoftTDCCoM16Bit : public SoftTDC
         {
         public:
+            SoftTDCCoM16Bit()    {std::cout << "using 16 bit CoM"<<std::endl;}
             void FindPeaksIn(REMIEvent&);
         };
     }//end namespace remi

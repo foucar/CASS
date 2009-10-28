@@ -34,9 +34,10 @@ namespace Pds {
 
 using namespace Pds;
 
-void XtcMonitorClient::processDgram(Dgram* dg) {
+int XtcMonitorClient::processDgram(Dgram* dg) {
   printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x\n",TransitionId::name(dg->seq.service()),
        dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload());
+  return 0;
 }
 
 int XtcMonitorClient::run(char * tag) {
@@ -102,7 +103,7 @@ int XtcMonitorClient::run(char * tag) {
 	else printf("Shared memory at %p\n", (void*)myShm);
       }
       dg = (Dgram*) (myShm + (myMsg.sizeOfBuffers() * myMsg.bufferIndex()));
-      this->processDgram(dg);
+      if(this->processDgram(dg)) break;
       if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), priority)) {
 	perror("mq_send back buffer");
 	error++;

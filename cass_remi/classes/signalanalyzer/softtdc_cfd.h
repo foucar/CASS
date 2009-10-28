@@ -11,6 +11,7 @@ namespace cass
         class SoftTDCCFD8Bit : public SoftTDC
         {
         public:
+            SoftTDCCFD8Bit()    {std::cout << "using 8 bit CFD"<<std::endl;}
             void FindPeaksIn(REMIEvent&);
         };
 
@@ -18,6 +19,7 @@ namespace cass
         class SoftTDCCFD16Bit : public SoftTDC
         {
         public:
+            SoftTDCCFD16Bit()    {std::cout << "using 16 bit CFD"<<std::endl;}
             void FindPeaksIn(REMIEvent&);
         };
 

@@ -87,7 +87,7 @@ void cass::REMI::Parameter::load()
                 fDetectorParameters[i].fMcpRadius    = value("McpRadius",66.).toDouble();
                 fDetectorParameters[i].fDeadMcp      = value("DeadTimeMcp",10.).toDouble();
                 fDetectorParameters[i].fDeadAnode    = value("DeadTimeAnode",10.).toDouble();
-                fDetectorParameters[i].fSortMethod   = value("SortingMethod",10.).toInt();
+                fDetectorParameters[i].fSortMethod   = value("SortingMethod",DetektorHitSorter::kSimple).toInt();
                 fDetectorParameters[i].fIsHex        = value("isHex",true).toBool();
                 fDetectorParameters[i].fName         = value("Name","IonDetector").toString().toStdString();
                 loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
@@ -173,17 +173,22 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
     //get the remievent from the cassevent//
     cass::REMI::REMIEvent& remievent = cassevent->REMIEvent();
 
-    //copy the parameters to the event//
-    remievent.CopyParameters(fParam);
+    //ignore event if it is not initialized//
+    if (remievent.isFilled() && remievent.isInitialized())
+    {
 
-    //find the Signals (peaks) of all waveforms in the channels//
-    fSiganalyzer.findPeaksIn(remievent);
+        //copy the parameters to the event//
+        remievent.CopyParameters(fParam);
 
-    //extract the peaks for the layers//
-    //and sort the peaks for detektor hits//
-    //fill the results in the Cass Event//
-    //this has to be done for each detektor individually//
-    fSorter.sort(remievent);
+        //find the Signals (peaks) of all waveforms in the channels//
+        fSiganalyzer.findPeaksIn(remievent);
+
+        //extract the peaks for the layers//
+        //and sort the peaks for detektor hits//
+        //fill the results in the Cass Event//
+        //this has to be done for each detektor individually//
+        fSorter.sort(remievent);
+    }
 }
 
 

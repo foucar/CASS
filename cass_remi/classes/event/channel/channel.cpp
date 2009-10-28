@@ -8,18 +8,28 @@
 cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     fChNbr(chNbr)
 {
-    fFullscale  = static_cast<int16_t>(config.vert(fChNbr).fullScale());
-    fOffset     = static_cast<int16_t>(config.vert(fChNbr).offset());
-    fGain       = config.vert(fChNbr).slope();
+    fFullscale  = static_cast<int16_t>(config.vert(fChNbr).fullScale()*1000.);
+    fOffset     = static_cast<int16_t>(config.vert(fChNbr).offset()*1000.);
+    fGain       = config.vert(fChNbr).slope()*1000;
     fDataLength = config.horiz().nbrSamples();
     fWaveform.resize(fDataLength);
-    printf("channel config Fullscale= %i fGain= %f\n",fFullscale,fGain);
+
+    //output//
+    std::cout <<" channel: "<<fChNbr<<std::endl;
+    std::cout <<"  Fullscale: "<<config.vert(fChNbr).fullScale()*1000<<std::endl;
+    std::cout <<"  Gain: "<<config.vert(fChNbr).slope()*1000<<std::endl;
+    std::cout <<"  Offset: " <<config.vert(fChNbr).offset()*1000<<std::endl;
+    std::cout <<"  WaveformLength: "<<config.horiz().nbrSamples()<<std::endl;
+    std::cout <<"  SizeofVert: " <<sizeof(Pds::Acqiris::VertV1)<<std::endl;
+    std::cout <<"  sizeofshort:" << sizeof(short)<<std::endl;
  }
 
 //______________________________________________________________________________________________________________________
 void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 {
-   fIdxToFirstPoint = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).indexFirstPoint();
+    fIdxToFirstPoint = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).indexFirstPoint();
+//    std::cout <<" channel "<<fChNbr<<":"<<std::endl;
+//    std::cout <<"   idx to 1 point: " <<fIdxToFirstPoint<<std::endl;
 
     //extract waveform//
     const short* waveform = const_cast<Pds::Acqiris::DataDescV1&>(ddesc).waveform();
@@ -27,10 +37,7 @@ void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 
     //we have to invert the byte order for some reason that still has to be determined//
     for (size_t i=0;i<fDataLength;++i)
-      {
         fWaveform[i] = (waveform[i]&0xff<<8) | (waveform[i]&0xff00>>8);
-	//       printf("%i ",fWaveform[i]);
-      }
 }
 
 //______________________________________________________________________________________________________________________

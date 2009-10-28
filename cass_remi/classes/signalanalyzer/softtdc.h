@@ -2,6 +2,7 @@
 #define __SoftTDC_h__
 
 #include <vector>
+#include <iostream>
 
 namespace cass
 {
@@ -21,6 +22,7 @@ namespace cass
         class SoftTDCDoNothing : public SoftTDC
         {
         public:
+            SoftTDCDoNothing(){std::cout << "using do nothing Softtdc"<<std::endl;}
             void FindPeaksIn(REMIEvent&)    {}
         };
     }//end namespace remi

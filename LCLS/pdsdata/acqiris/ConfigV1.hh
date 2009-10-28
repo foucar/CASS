@@ -91,7 +91,6 @@ namespace Pds {
       HorizV1  _horiz;
       VertV1   _vert[MaxChan];
     };
-
   }
 }
 

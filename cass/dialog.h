@@ -18,6 +18,7 @@ namespace cass
         Window();
 
     signals:
+        void start();
         void load();
         void save();
         void quit();
@@ -27,6 +28,7 @@ namespace cass
         QPushButton *loadButton;
         QPushButton *saveButton;
         QPushButton *quitButton;
+        QPushButton *startButton;
     };
 }
 #endif

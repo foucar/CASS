@@ -13,7 +13,7 @@ namespace Pds {
 
     public:
       int run(char * partitionTag);
-      virtual void processDgram(Dgram*);
+      virtual int processDgram(Dgram*);
   };
 }
 #endif

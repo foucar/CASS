@@ -25,19 +25,22 @@ namespace cass
         ~EventQueue();
 
         void run();
-        void processDgram(Pds::Dgram*);
+        int processDgram(Pds::Dgram*);
 
         Pds::Dgram* GetAndLockDatagram(uint32_t index);
         void UnlockDatagram(uint32_t index);
 
     signals:
         void nextEvent(quint32 index);
+    public slots:
+        void end();
 
     private:
         char           *_ringbuffer;
         char           *_ringbufferindizes[_maxbufsize];
         QMutex          _mutexes[_maxbufsize];
         uint32_t        _index;
+        bool            _quit;
     };
 
 }//end namespace cass

@@ -47,18 +47,19 @@ namespace cass
         
         public:
             bool                isFilled()const             {return fIsFilled;}
+            bool                isInitialized()const        {return fIsInitialized;}
 
         public:
             double              horpos()const               {return fHorpos;}
-            short               nbrBytes()const             {return fNbrBytes;}
+            int16_t             nbrBytes()const             {return fNbrBytes;}
             double              sampleInterval()const       {return fSampleInterval;}
-            long                nbrSamples()const           {return fNbrSamples;}
+            int32_t             nbrSamples()const           {return fNbrSamples;}
             double              delayTime()const            {return fDelayTime;}
             double              trigLevel()const            {return fTrigLevel;}
-            short               trigSlope()const            {return fTrigSlope;}
-            short               trigChannel()const          {return fTrigChannel;}
-            long                chanCombUsedChannels()const {return fChanCombUsedChans;}
-            short               nbrConvPerChan()const       {return fNbrConPerCh;}
+            int16_t             trigSlope()const            {return fTrigSlope;}
+            int16_t             trigChannel()const          {return fTrigChannel;}
+            int32_t             chanCombUsedChannels()const {return fChanCombUsedChans;}
+            int16_t             nbrConvPerChan()const       {return fNbrConPerCh;}
 
         private:
             bool                fIsFilled;                  //flag to tell whether the event has been filled
@@ -67,15 +68,15 @@ namespace cass
             channels_t          fChannels;                  //Container for all Channels
             detectors_t         fDets;                      //Container for all Detektors
 
-            short               fNbrBytes;                  //Nbr of bytes of the adc values (either 1 or 2)
+            int16_t             fNbrBytes;                  //Nbr of bytes of the adc values (either 1 or 2)
             double              fSampleInterval;            //the time between two consecutive points (in ns)
-            long                fNbrSamples;                //Nbr of Points (multiplied by the fSampInter it will give the timewindow in ns)
+            uint32_t            fNbrSamples;                //Nbr of Points (multiplied by the fSampInter it will give the timewindow in ns)
             double              fDelayTime;                 //the delay of the trigger with respect to the window
-            short               fTrigChannel;               //the fTriggering Channel
+            uint32_t            fTrigChannel;               //the fTriggering Channel
             double              fTrigLevel;                 //the trigger Level from the Offset
-            short               fTrigSlope;                 //which Slope was used by the fTrigger
-            long                fChanCombUsedChans;         //Bitmask discribing which Converters per Channel have been used
-            short               fNbrConPerCh;               //tells how many converts per channel have been used
+            uint32_t            fTrigSlope;                 //which Slope was used by the fTrigger
+            uint32_t            fChanCombUsedChans;         //Bitmask discribing which Converters per Channel have been used
+            uint32_t            fNbrConPerCh;               //tells how many converts per channel have been used
         };
     }//end namespace remi
 }//end namespace cass

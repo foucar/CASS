@@ -9,6 +9,7 @@ cass::Window::Window()
 
     loadButton = new QPushButton(tr("Load Settings"));
     saveButton = new QPushButton(tr("Save Settings"));
+    startButton = new QPushButton(tr("Start Queue"));
 
     quitButton = new QPushButton(tr("Quit"));
     quitButton->setAutoDefault(false);
@@ -18,9 +19,11 @@ cass::Window::Window()
     connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
     connect(loadButton, SIGNAL(clicked()), this, SIGNAL(load()));
     connect(saveButton, SIGNAL(clicked()), this, SIGNAL(save()));
+    connect(startButton, SIGNAL(clicked()), this, SIGNAL(start()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
+//    buttonLayout->addWidget(startButton);
     buttonLayout->addWidget(loadButton);
     buttonLayout->addWidget(saveButton);
     buttonLayout->addWidget(quitButton);

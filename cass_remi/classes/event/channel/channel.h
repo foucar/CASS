@@ -35,34 +35,34 @@ namespace cass
 
         public:
             int         channelNbr()const       {return fChNbr;}
-            short       threshold()const        {return fThreshold;}
-            short       fullscale()const        {return fFullscale;}
-            short       vertOffset()const       {return fOffset;}
+            int16_t     threshold()const        {return fThreshold;}
+            int16_t     fullscale()const        {return fFullscale;}
+            int16_t     vertOffset()const       {return fOffset;}
             double      vertGain()const         {return fGain;}
-            long        stepsize()const         {return fStsi;}
-            long        backsize()const         {return fBs;}
+            int32_t     stepsize()const         {return fStsi;}
+            int32_t     backsize()const         {return fBs;}
             const void *waveform()const         {return &fWaveform[0];}
             size_t      waveformLength()const   {return fDataLength;}
             size_t      idxToFirstPoint()const  {return fIdxToFirstPoint;}
-            int         delay()const            {return fDelay;}
+            int32_t     delay()const            {return fDelay;}
             double      fraction()const         {return fFraction;}
             double      walk()const             {return fWalk;}
 
 
         private:
-            int         fChNbr;                  //This Channels Number
+            uint32_t    fChNbr;                  //This Channels Number
             peaks_t     fPeaks;                  //Container storing the found peaks
             waveform_t  fWaveform;               //the waveform
             size_t      fDataLength;             //the length of the waveform
             size_t      fIdxToFirstPoint;        //the index to the first point in the waveform
 
-            short       fFullscale;              //the fullscale for this channel (in mV)
-            short       fOffset;                 //the offset for this channel (in mV)
+            int16_t     fFullscale;              //the fullscale for this channel (in mV)
+            int16_t     fOffset;                 //the offset for this channel (in mV)
             double      fGain;                   //the conversion factor from adc bytes to mV (adc bytes * fGain = mV)
-            short       fThreshold;              //the Noiselevel for this channel (in adc bytes)
-            long        fStsi;                   //the stepsize for this channel
-            long        fBs;                     //the backsize for this channel
-            int         fDelay;                  //the delay of the cfd
+            int16_t     fThreshold;              //the Noiselevel for this channel (in adc bytes)
+            int32_t     fStsi;                   //the stepsize for this channel
+            int32_t     fBs;                     //the backsize for this channel
+            int32_t     fDelay;                  //the delay of the cfd
             double      fFraction;               //the fraction of the cfd
             double      fWalk;                   //the walk of the cfd
         };

@@ -139,6 +139,7 @@ void cfd(cass::REMI::REMIEvent &e)
 //______________________________________________________________________________________________________________________
 void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
+    std::cout << "using 8 bit CFD"<<std::endl;
     cfd<char>(e);
 }
 
@@ -146,5 +147,6 @@ void cass::REMI::SoftTDCCFD8Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 //______________________________________________________________________________________________________________________
 void cass::REMI::SoftTDCCFD16Bit::FindPeaksIn(cass::REMI::REMIEvent& e)
 {
+    std::cout << "using 16 bit CFD"<<std::endl;
     cfd<short>(e);
 }
