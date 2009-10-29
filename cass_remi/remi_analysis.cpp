@@ -135,10 +135,10 @@ void cass::REMI::Parameter::save()
                 setValue("SortingMethod",static_cast<int>(fDetectorParameters[i].fSortMethod));
                 setValue("isHex",fDetectorParameters[i].fIsHex);
                 setValue("Name",fDetectorParameters[i].fName.c_str());
-                loadSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
-                loadAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
-                loadAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
-                loadAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
+                saveSignalParameter(fDetectorParameters[i].fMcp,"McpSignal",this);
+                saveAnodeParameter(fDetectorParameters[i].fULayer,"ULayer",this);
+                saveAnodeParameter(fDetectorParameters[i].fVLayer,"VLayer",this);
+                saveAnodeParameter(fDetectorParameters[i].fWLayer,"WLayer",this);
             endGroup(); //QString(i)
         }
     endGroup();//detectorcontainer
@@ -188,6 +188,21 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
         //fill the results in the Cass Event//
         //this has to be done for each detektor individually//
         fSorter.sort(remievent);
+
+//        for (size_t i=0;i<remievent.nbrOfChannels();++i)
+//        {
+//            std::cout << "channel "<<i<<std::endl;
+//            for (size_t j=0;j<remievent.channel(i).nbrPeaks();++j)
+//            {
+//                std::cout << " Peak "<<j<<std::endl;
+//                std::cout << "   time "<<remievent.channel(i).peak(j).time()<<std::endl;
+//                std::cout << "   integral "<<remievent.channel(i).peak(j).integral()<<std::endl;
+//                std::cout << "   width "<<remievent.channel(i).peak(j).width()<<std::endl;
+//                std::cout << "   fwhm "<<remievent.channel(i).peak(j).fwhm()<<std::endl;
+//                std::cout << "   maximum "<<remievent.channel(i).peak(j).maximum()<<std::endl;
+//                std::cout << "   polarity "<<remievent.channel(i).peak(j).polarity()<<std::endl;
+//            }
+//        }
     }
 }
 

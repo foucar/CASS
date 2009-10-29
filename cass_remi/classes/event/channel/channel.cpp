@@ -18,7 +18,7 @@ cass::REMI::Channel::Channel(int chNbr, const Pds::Acqiris::ConfigV1& config):
     std::cout <<" channel: "<<fChNbr<<std::endl;
     std::cout <<"  Fullscale: "<<config.vert(fChNbr).fullScale()*1000<<std::endl;
     std::cout <<"  Gain: "<<config.vert(fChNbr).slope()*1000<<std::endl;
-    std::cout <<"  Offset: " <<config.vert(fChNbr).offset()*1000<<std::endl;
+    std::cout <<"  Offset: " <<config.vert(fChNbr).offset()*1000.<<std::endl;
     std::cout <<"  WaveformLength: "<<config.horiz().nbrSamples()<<std::endl;
     std::cout <<"  SizeofVert: " <<sizeof(Pds::Acqiris::VertV1)<<std::endl;
 }

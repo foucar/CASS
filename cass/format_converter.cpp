@@ -68,7 +68,7 @@ namespace cass {
 
         // do some debug output
         std::cout<<"eventqueue index: "<<std::dec<<index<<" transition: "<<Pds::TransitionId::name(datagram->seq.service());
-        std::cout<<std::hex<<" "<<datagram->seq.stamp().fiducials()<<" "<< datagram->seq.stamp().ticks()  <<std::endl;
+        std::cout<<std::hex<<" "<<datagram->seq.stamp().fiducials()<<" "<< datagram->seq.stamp().ticks() <<std::dec <<std::endl;
 
 
         //check whether datagram is damaged//

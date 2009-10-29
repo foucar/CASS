@@ -252,7 +252,7 @@ namespace cass
             const double fwhm = fwhm_R-fwhm_L;
             //--set all found parameters--//
             p.fwhm(fwhm);
-            p.width(p.stoppos()-p.startpos());
+            p.width(p.stoppos() - p.startpos());
         }
 
 
