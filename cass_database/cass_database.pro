@@ -28,12 +28,14 @@ exists ($$incFile) {
 }
 
 
-SOURCES += database.cpp
+SOURCES += database.cpp #\
+#           map_files_name.cpp
 
 HEADERS += database.h \
            cass_database.h \
            cass_tree.h \
-           histo_list.h
+           histo_list.h \
+           map_files_name.h
 
 INCLUDEPATH += ../cass \
                ../cass_machinedata/classes/event \

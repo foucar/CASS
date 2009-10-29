@@ -5,7 +5,6 @@
  *  Created by Nicola Coppola & lutz foucar .
  *  
  */
-#include <stdlib.h>
 
 #include "database.h"
 #include "cass_event.h"
@@ -51,32 +50,43 @@ char hourmin[12];
 //TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
 //TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
 //maybe I could put the map-file on the shm.... device
-TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 2000000000, "");
-/*
+// it was 2000000000
+//TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 700000000, "");
+
 // reduced version
+#include <stdlib.h>
+#include <string.h>
+#include "map_files_name.h"
 char username[10];
-char Tmap_filename[125];
 
-strcpy(Tmap_filename,"/dev/shm/test_root_");
-
-strcpy(username,"");
-strcpy(username,getenv("$USER"));
-
-printf("user is %s\n",username);
-if(strcmp(username,"ncoppola")==0)
-  strcat(Tmap_filename,"copp.map");
-else if(strcmp(username,"lutz")==0)
-  strcat(Tmap_filename,"lutz.map");
-else 
-  {  printf("unknown user\n");}
-
-TMapFile *mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
-*/
+TMapFile *mapfile;
 
 cass::database::Database::Database()
 {
   Double_t random;
+  // it was 2000000000
+  sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
+  //printf("%s\n",Tmap_filename);
+  strcpy(username,"");
 
+  if(getenv("USER")!=NULL)
+  {
+    sprintf(username,"%s", getenv("USER"));
+  }
+  else sprintf(username,"%s","nobody");
+  
+  //  printf("user is %s\n",username);
+  if(strcmp(username,"ncoppola")==0)
+    strcat(Tmap_filename,"copp.map");
+  else if(strcmp(username,"lutz")==0)
+    strcat(Tmap_filename,"lutz.map");
+  else 
+  {  
+    printf("unknown user\n");
+    strcat(Tmap_filename,"nobody.map\0");
+  } 
+  printf("TMapFile is in %s\n",Tmap_filename);
+  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
   mapfile->Add(T,"T");
   //mapfile->Print();
   //mapfile->ls();
@@ -325,7 +335,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   cass::MachineData::MachineDataEvent &machinedata = cassevent->MachineDataEvent();
   if(machinedata.isFilled())
   {
-    printf("mach full\n");
+    //printf("mach full\n");
     LCLS_f_11_ENRC=machinedata.f_11_ENRC();
     LCLS_f_12_ENRC=machinedata.f_12_ENRC();
     LCLS_f_21_ENRC=machinedata.f_21_ENRC();
@@ -346,7 +356,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   else
   {
-    printf("mach empty\n");
+    //printf("mach empty\n");
     LCLS_f_11_ENRC=0.;
     LCLS_f_12_ENRC=0.;
     LCLS_f_21_ENRC=0.;

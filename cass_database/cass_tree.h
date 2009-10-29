@@ -4,10 +4,11 @@
 // be kept in memory.... I would maybe suppose that they are not needed,
 // and instead a "lot" of histograms could be filled ...
 //#define max_events_in_Buffer 303
-// the following could be 300 but than the shr-file must be at least 2000000000 large
-// (this would allow 350 events)
+// the following could be 300 but than the shr-file must be at least 2000000000 large,
+// this would allow 350 events but not with full width pnCCD both "raw" and "corr" images, in this
+// case we can store up to 260 events in this file.
 // I am reducing it for the time being to allow for more than 1 TMapFile, to have more than 1 user..
-UInt_t max_events_in_Buffer= 300;
+UInt_t max_events_in_Buffer= 100;
 
 #define REMI_Channels_Max 16
 #define REMI_PeaksproChannels_Max 150

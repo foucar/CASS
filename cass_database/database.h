@@ -23,11 +23,11 @@ namespace cass
             //Database(cass::CASSEvent*);
             Database();
             ~Database();
+	    /*        public:
+		      Name_set();*/
+
             signals:
             void nextEvent();
-
-            //cass::CASSEvent* nextEvent();
-           
 
         public slots:
             void add(cass::CASSEvent*);
