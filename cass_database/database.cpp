@@ -5,6 +5,7 @@
  *  Created by Nicola Coppola & lutz foucar .
  *  
  */
+#include <stdlib.h>
 
 #include "database.h"
 #include "cass_event.h"
@@ -50,7 +51,26 @@ char hourmin[12];
 //TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
 //TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
 //maybe I could put the map-file on the shm.... device
-TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 1000000000, "");
+TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 2000000000, "");
+/*
+// reduced version
+char username[10];
+char Tmap_filename[125];
+strcpy(Tmap_filename,"/dev/shm/test_root_");
+
+strcpy(username,"");
+strcpy(username,getenv("$USER"));
+
+printf("user is %s\n",username);
+if(strcmp(username,"ncoppola")==0)
+  strcat(Tmap_filename,"copp.map");
+else if(strcmp(username,"lutz")==0)
+  strcat(Tmap_filename,"lutz.map");
+else 
+  {  printf("unknown user\n");}
+
+TMapFile *mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
+*/
 
 cass::database::Database::Database()
 {
@@ -101,7 +121,7 @@ cass::database::Database::Database()
   T->Branch("LCLS_Charge2",&LCLS_Charge2,"LCLS_Charge2/D");
 
   //REMI
-  T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/i");
+  T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/I");
 // I could be able to do something like this, if I knew "cassevent"..
   //T->Branch("REMI_nofChannels",&remievent.nbrOfChannels(),"REMI_nofChannels/i");
 
@@ -117,7 +137,7 @@ cass::database::Database::Database()
   T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
 
   T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
-	    "REMI_Channel_Waveform[5][10000]/S"); //[REMI_Channels_Max][REMI_maxWaveform 20000]
+	    "REMI_Channel_Waveform[REMI_nofChannels][10000]/S"); //[REMI_Channels_Max][REMI_maxWaveform 20000]
   // it seems that the following is not really appreciated....
   //  "REMI_Channel_Waveform[REMI_nofChannels][REMI_nbrSamples]/S");
 
@@ -135,20 +155,18 @@ cass::database::Database::Database()
      "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
   T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
   "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
-
+  // everywhere where 150 is it was "REMI_Channel_nbrPeaks[REMI_nofChannels]"
   T->Branch("REMI_Channel_Peak_integral",REMI_Channel_Peak_integral,
-	         "REMI_Channel_Peak_integral[5][2]/D");
-	    //     "REMI_Channel_Peak_integral[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
-
+	         "REMI_Channel_Peak_integral[REMI_nofChannels][150]/D");
   T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
-     "REMI_Channel_Peak_time[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
-
+     "REMI_Channel_Peak_time[REMI_nofChannels][150]/D");
   T->Branch("REMI_Channel_Peak_height",REMI_Channel_Peak_height,
-     "REMI_Channel_Peak_height[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+     "REMI_Channel_Peak_height[REMI_nofChannels][150]/D");
   T->Branch("REMI_Channel_Peak_width",REMI_Channel_Peak_width,
-     "REMI_Channel_Peak_width[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+     "REMI_Channel_Peak_width[REMI_nofChannels][150]/D");
   T->Branch("REMI_Channel_Peak_fwhm",REMI_Channel_Peak_fwhm,
-     "REMI_Channel_Peak_fwhm[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");
+     "REMI_Channel_Peak_fwhm[REMI_nofChannels][150]/D");
+
   /*T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
      "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
   T->Branch("REMI_Channel_Peak_stoppos",REMI_Channel_Peak_stoppos,
@@ -158,19 +176,21 @@ cass::database::Database::Database()
   T->Branch("REMI_Channel_Peak_maximum",REMI_Channel_Peak_maximum,
   "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");*/
   T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
-     "REMI_Channel_Peak_polarity[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
+	    "REMI_Channel_Peak_polarity[REMI_nofChannels][150]/L");
   /*T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
     "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
 
   T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
   //T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/C");
+  //every place where 150 was REMI_Detector_nbrOfHits[REMI_nofDetectors]
   T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
+
   T->Branch("REMI_Detector_Hits_x",REMI_Detector_Hits_x,
-     "REMI_Detector_Hits_x[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
+     "REMI_Detector_Hits_x[REMI_nofDetectors][150]/i");
   T->Branch("REMI_Detector_Hits_y",REMI_Detector_Hits_y,
-     "REMI_Detector_Hits_y[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
+     "REMI_Detector_Hits_y[REMI_nofDetectors][150]/i");
   T->Branch("REMI_Detector_Hits_t",REMI_Detector_Hits_t,
-     "REMI_Detector_Hits_t[REMI_nofDetectors][REMI_Detector_nbrOfHits[REMI_nofDetectors]]/i");
+     "REMI_Detector_Hits_t[REMI_nofDetectors][150]/i");
 
   //VMI Pulnix CCD
   T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");//&cassevent->VMIEvent()->isFilled()
@@ -375,7 +395,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       REMI_Channel_delay[jj]=remievent.channel(jj).delay();
       REMI_Channel_fraction[jj]=remievent.channel(jj).fraction();
       REMI_Channel_walk[jj]=remievent.channel(jj).walk();
-      REMI_Channel_nbrPeaks[jj]=1;
+      //REMI_Channel_nbrPeaks[jj]=1;
+      REMI_Channel_nbrPeaks[jj]=TMath::Min(int(remievent.channel(jj).nbrPeaks()),REMI_PeaksproChannels_Max);
       for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
       {
         REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
@@ -388,6 +409,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
         //REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
         REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
         REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
+        //if(fabs(remievent.channel(jj).peak(kk).fwhm())>10000) 
+        printf("fwhm %f\n",
+								    float(remievent.channel(jj).peak(kk).fwhm()));
         //REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
         //REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
         //REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();

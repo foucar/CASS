@@ -4,12 +4,17 @@
 // be kept in memory.... I would maybe suppose that they are not needed,
 // and instead a "lot" of histograms could be filled ...
 //#define max_events_in_Buffer 303
-UInt_t max_events_in_Buffer= 100;
+// the following could be 300 but than the shr-file must be at least 2000000000 large
+// (this would allow 350 events)
+// I am reducing it for the time being to allow for more than 1 TMapFile, to have more than 1 user..
+UInt_t max_events_in_Buffer= 300;
 
 #define REMI_Channels_Max 16
 #define REMI_PeaksproChannels_Max 150
+//int  REMI_PeaksproChannels_Max = 150;
 #define REMI_Detectors_Max 2
 #define REMI_Detectors_Hits_Max 150 // is it reasonable?? Too small
+//int  REMI_Detectors_Hits_Max = 150; // is it reasonable?? Too small
 //#define REMI_maxWaveform 40000 // 40us
 #define REMI_maxWaveform 20000 // 20us
 #define REMI_maxNAME 64
@@ -51,7 +56,7 @@ Double_t REMI_Detector_Hits_y[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 Double_t REMI_Detector_Hits_t[REMI_Detectors_Max][REMI_Detectors_Hits_Max];
 
 //Int_t REMI_Channel[REMI_Channels_Max];
-Int_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
+UInt_t REMI_Channel_nbrPeaks[REMI_Channels_Max];
 
 Double_t REMI_Channel_vertGain[REMI_Channels_Max];
 Short_t REMI_Channel_fullscale[REMI_Channels_Max]; // changed into int16_t now
