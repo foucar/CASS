@@ -56,6 +56,7 @@ TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 20
 // reduced version
 char username[10];
 char Tmap_filename[125];
+
 strcpy(Tmap_filename,"/dev/shm/test_root_");
 
 strcpy(username,"");
@@ -409,9 +410,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
         //REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
         REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
         REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
-        //if(fabs(remievent.channel(jj).peak(kk).fwhm())>10000) 
-        printf("fwhm %f\n",
-								    float(remievent.channel(jj).peak(kk).fwhm()));
+	/*        if(fabs(remievent.channel(jj).peak(kk).fwhm())>10000) printf("fwhm %f\n",
+		  float(remievent.channel(jj).peak(kk).fwhm()));*/
         //REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
         //REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
         //REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();

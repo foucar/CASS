@@ -38,7 +38,7 @@ Int_t REMI_nofDetectors;
 Double_t REMI_horpos;
 //Short_t REMI_nbrBytes;
 Double_t REMI_sampleInterval;
-Long_t REMI_nbrSamples; // changed into int32_t now
+Long64_t REMI_nbrSamples; // changed into int32_t now
 Double_t REMI_delayTime;
 Double_t REMI_trigLevel;
 Short_t REMI_trigSlope; // changed into int16_t now
@@ -82,7 +82,7 @@ Double_t REMI_Channel_Peak_fwhm[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //Long_t REMI_Channel_Peak_stoppos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //Long_t REMI_Channel_Peak_maxpos[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 Double_t REMI_Channel_Peak_maximum[REMI_Channels_Max][REMI_PeaksproChannels_Max];
-Long_t REMI_Channel_Peak_polarity[REMI_Channels_Max][REMI_PeaksproChannels_Max];
+Long64_t REMI_Channel_Peak_polarity[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //UShort_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 //Bool_t REMI_Channel_Peak_isUsed[REMI_Channels_Max][REMI_PeaksproChannels_Max];
 
