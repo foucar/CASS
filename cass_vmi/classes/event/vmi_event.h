@@ -2,6 +2,7 @@
 #define _VMIEVENT_H_
 
 #include <vector>
+#include <stdint.h>
 
 namespace Pds
 {
