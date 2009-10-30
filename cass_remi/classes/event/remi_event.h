@@ -18,6 +18,13 @@ namespace Pds
     }
 }
 
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
+
+#ifndef ROOT_TObject
+#include <TObject.h>
+#endif
 
 namespace cass
 {
@@ -77,6 +84,7 @@ namespace cass
             uint32_t            fTrigSlope;                 //which Slope was used by the fTrigger
             uint32_t            fChanCombUsedChans;         //Bitmask discribing which Converters per Channel have been used
             uint32_t            fNbrConPerCh;               //tells how many converts per channel have been used
+            ClassDefNV(REMIEvent,1);
         };
     }//end namespace remi
 }//end namespace cass

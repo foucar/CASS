@@ -11,6 +11,11 @@ namespace Pds
     }
 }
 
+#ifndef ROOT_Rtypes
+#include "Rtypes.h"
+#endif
+
+#include "TObject.h"
 
 namespace cass
 {
@@ -73,6 +78,7 @@ namespace cass
             uint16_t                _maxPixelValue;
             std::vector<Coordinate> _coordinatesOfImpact;
             std::vector<uint16_t>   _cutframe;            //new frame where only mcp is drawn (give maximum radius)
+            ClassDefNV(VMIEvent,1);
         };
     }//end namespace vmi
 }//end namespace cass

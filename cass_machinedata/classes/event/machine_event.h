@@ -7,6 +7,11 @@ namespace Pds
     class BldDataFEEGasDetEnergy;
 }
 
+#ifndef ROOT_Rtypes
+#include "Rtypes.h"
+#endif
+
+#include "TObject.h"
 
 namespace cass
 {
@@ -33,6 +38,7 @@ namespace cass
                     _Charge2(0),
                     _energy(0)
                     {}
+	      //virtual ~MachineDataEvent();
         public:
             bool  isFilled()const       {return _isFilled;}
             bool& isFilled()            {return _isFilled;}
@@ -105,6 +111,9 @@ namespace cass
 
             //data that gets calculated in Analysis//
             double _energy;
+	    //ClassDef(cass::MachineData::MachineDataEvent,1)
+
+            ClassDefNV(MachineDataEvent,1);
         };
     }//end namespace machinedata
 }//end namespace cass

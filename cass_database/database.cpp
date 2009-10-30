@@ -61,6 +61,19 @@ char username[10];
 
 TMapFile *mapfile;
 
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
+
+#ifndef ROOT_TObject
+#include <TObject.h>
+#endif
+
+/*ClassImp(cass::MachineData::MachineDataEvent);
+ClassImp(cass::REMI::REMIEvent);
+ClassImp(cass::VMI::VMIEvent);
+ClassImp(cass::pnCCD::pnCCDEvent);*/
+
 cass::database::Database::Database()
 {
   Double_t random;
@@ -213,6 +226,7 @@ cass::database::Database::Database()
   T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
   // the following are vectors..
   T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
+  //T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][480]/s");
   //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
   T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
   T->Branch("VMI_nof_Impacts",&VMI_nof_Impacts,"VMI_nof_Impacts/s");

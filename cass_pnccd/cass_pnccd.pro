@@ -7,6 +7,17 @@ TARGET = cass_pnccd
 DEFINES += CASS_PNCCD_LIBRARY
 VERSION = 0.0.1
 
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
 
 SOURCES += pnccd_analysis.cpp \
            pnccd_converter.cpp \

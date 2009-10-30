@@ -7,6 +7,18 @@ TARGET = cass_vmi
 DEFINES += CASS_VMI_LIBRARY
 VERSION = 0.0.1
 
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
+
 SOURCES += vmi_analysis.cpp \
            vmi_converter.cpp \
            ./classes/event/vmi_event.cpp \

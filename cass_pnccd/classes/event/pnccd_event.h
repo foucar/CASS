@@ -8,6 +8,14 @@
 #ifndef PNCCD_EVENT_H
 #define PNCCD_EVENT_H
 
+#ifndef ROOT_Rtypes
+#include "Rtypes.h"
+#endif
+
+#ifndef ROOT_TObject
+#include "TObject.h"
+#endif
+
 // Include as defined in C99. This should thus hopefully work
 // on all systems which support this standard:
 #include <vector>
@@ -93,6 +101,7 @@ namespace cass
         std::vector<uint32_t>           num_unrec_phits_;
         std::vector<pnccd_photon_hit*>  recom_photon_hits_;
         std::vector<uint32_t>           num_recom_phits_;
+        ClassDefNV(pnCCDEvent,1);
       };
     } // end of scope of namespace pnCCD
 } // end of scope of namespace cass

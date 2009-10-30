@@ -7,6 +7,18 @@ TARGET = cass_machinedata
 DEFINES += CASS_MACHINEDATA_LIBRARY
 VERSION = 0.0.1
 
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
+
 SOURCES += machine_analysis.cpp \
            machine_converter.cpp \
            ./classes/event/machine_event.cpp \

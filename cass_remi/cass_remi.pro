@@ -5,6 +5,18 @@ QT -= core gui
 TEMPLATE = lib
 DEFINES += CASS_REMI_LIBRARY
 
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
+}
+
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
+  }
+}
+
 TARGET = cass_remi
 
 SOURCES += remi_analysis.cpp \

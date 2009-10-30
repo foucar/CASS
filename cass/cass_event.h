@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
-//#ifndef ROOT_Rtypes
-//#include "Rtypes.h"
-//#endif
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
 
-//#include "TObject.h"
+#ifndef ROOT_TObject
+#include "TObject.h"
+#endif
 
 namespace cass
 {
@@ -51,7 +53,7 @@ namespace cass
         pnCCD::pnCCDEvent               *_pnccdevent;
         MachineData::MachineDataEvent   *_machinedataevent;
 
-//	 ClassDef(cass::CASSEvent,1)
+	ClassDefNV(CASSEvent,1);
     };
 }
 
