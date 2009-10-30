@@ -3,6 +3,16 @@
 
 #include <vector>
 
+
+#ifndef ROOT_Rtypes
+#include "Rtypes.h"
+#endif
+
+#ifndef ROOT_TObject
+#include "TObject.h"
+#endif
+
+
 namespace cass
 {
     namespace REMI
@@ -12,6 +22,7 @@ namespace cass
         {
         public:
             Peak();
+            ~Peak();
 
         public:
             void   Clear();
@@ -82,6 +93,7 @@ namespace cass
 
             bool   fUsed;						//flag wether this peak has been used in sorting the detektorhits
 
+            ClassDefNV(Peak,1);
         };
         typedef std::vector<Peak> peaks_t;
     }//end namespace remi
