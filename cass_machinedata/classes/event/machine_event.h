@@ -1,17 +1,20 @@
 #ifndef _MACHINEDATAEVENT_H_
 #define _MACHINEDATAEVENT_H_
 
-
-namespace Pds
-{
-    class BldDataFEEGasDetEnergy;
-}
+#include <map>
+#include <string>
 
 #ifndef ROOT_Rtypes
 #include "Rtypes.h"
 #endif
 
 #include "TObject.h"
+
+namespace Pds
+{
+    class BldDataFEEGasDetEnergy;
+}
+
 
 namespace cass
 {
@@ -38,7 +41,11 @@ namespace cass
                     _Charge2(0),
                     _energy(0)
                     {}
-	      //virtual ~MachineDataEvent();
+
+            ~MachineDataEvent(){}
+        private:
+            typedef std::map<std::string,double> EpicsDataMap;
+
         public:
             bool  isFilled()const       {return _isFilled;}
             bool& isFilled()            {return _isFilled;}
@@ -88,6 +95,9 @@ namespace cass
             double Charge2()const      {return _Charge2;}
             double& Charge2()          {return _Charge2;}
 
+            const EpicsDataMap& EpicsData()const {return _epicsdata;}
+            EpicsDataMap& EpicsData() {return _epicsdata;}
+
         private:
             bool   _isFilled;
             //data comming from machine//
@@ -108,12 +118,14 @@ namespace cass
             double _Charge1;    /* in pico-columbs */
             double _Charge2;    /* in pico-columbs */
 
+            //epics data//
+            EpicsDataMap _epicsdata;
+
 
             //data that gets calculated in Analysis//
             double _energy;
-	    //ClassDef(cass::MachineData::MachineDataEvent,1)
 
-            ClassDefNV(MachineDataEvent,1);
+            ClassDefNV(MachineDataEvent,1)
         };
     }//end namespace machinedata
 }//end namespace cass
