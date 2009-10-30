@@ -1,6 +1,14 @@
 #ifndef __Detector_H_
 #define __Detector_H_
 
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
+
+#ifndef ROOT_TObject
+#include <TObject.h>
+#endif
+
 #include <vector>
 #include "peak.h"
 #include "channel.h"
@@ -162,6 +170,7 @@ namespace cass
             double               fDeadAnode;                //the Deadtime between to Signals on the Layers
             bool                 fHex;                      //flag telling wether this is a Hexanode Detektor
             short                fSortMethod;               //flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
+            ClassDefNV(Detector,1)
         };
         typedef std::vector<Detector> detectors_t;
     }//end namespace remi

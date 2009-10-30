@@ -1,6 +1,15 @@
 #ifndef __Channel_h__
 #define __Channel_h__
 
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
+
+#ifndef ROOT_TObject
+#include <TObject.h>
+#endif
+
+#include <stdint.h>
 #include <iostream>
 #include <vector>
 #include "peak.h"
@@ -26,6 +35,8 @@ namespace cass
             Channel(int chNbr, const Pds::Acqiris::ConfigV1&);
             void init(const Pds::Acqiris::DataDescV1&);
             void CopyChannelParameters(const cass::REMI::ChannelParameter&);
+            Channel() {};
+            ~Channel() {};
 
         public:
             Peak       &addPeak();
@@ -65,6 +76,8 @@ namespace cass
             int32_t     fDelay;                  //the delay of the cfd
             double      fFraction;               //the fraction of the cfd
             double      fWalk;                   //the walk of the cfd
+
+            ClassDefNV(Channel,1)
         };
         typedef std::vector<Channel> channels_t;
     }//end namespace remi
