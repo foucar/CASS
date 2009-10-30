@@ -101,7 +101,7 @@ namespace cass
         std::vector<uint32_t>           num_unrec_phits_;
         std::vector<pnccd_photon_hit*>  recom_photon_hits_;
         std::vector<uint32_t>           num_recom_phits_;
-        ClassDefNV(pnCCDEvent,1);
+        ClassDefNV(pnCCDEvent,1)
       };
     } // end of scope of namespace pnCCD
 } // end of scope of namespace cass

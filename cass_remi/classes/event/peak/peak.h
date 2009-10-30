@@ -22,7 +22,7 @@ namespace cass
         {
         public:
             Peak();
-            ~Peak();
+            ~Peak() {}
 
         public:
             void   Clear();
@@ -93,7 +93,7 @@ namespace cass
 
             bool   fUsed;						//flag wether this peak has been used in sorting the detektorhits
 
-            ClassDefNV(Peak,1);
+            ClassDefNV(Peak,1)
         };
         typedef std::vector<Peak> peaks_t;
     }//end namespace remi
