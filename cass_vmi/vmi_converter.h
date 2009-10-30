@@ -16,7 +16,6 @@ namespace cass
             Converter();
             //called for LCLS event//
             void operator()(const Pds::Xtc*, cass::CASSEvent*);
-            bool handlesType(uint16_t type);
         };
     }//end namespace vmi
 }//end namespace cass
