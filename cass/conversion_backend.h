@@ -4,6 +4,9 @@
 #define CASS_CONVERSIONBACKEND_H
 
 #include "cass.h"
+#include <stdint.h>
+#include <vector>
+#include <algorithm>
 
 namespace Pds
 {
@@ -20,6 +23,10 @@ namespace cass
         virtual ~ConversionBackend() {}
 
         virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
+        //checks whether this converter should react on the type
+        bool handlesType(uint16_t type) { return (std::find(_types.begin(),_types.end(),type) != _types.end());}
+    protected:
+        std::vector<uint16_t>   _types;             //the types that the converter should react on
     };
 }//end namespace cass
 

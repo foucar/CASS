@@ -6,6 +6,13 @@
 #include "vmi_event.h"
 
 
+
+cass::VMI::Converter::Converter()
+{
+    //this converter should react on acqiris config and waveform//
+    _types.push_back(Pds::TypeId::Id_Frame);
+}
+
 void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
     const Pds::Camera::FrameV1 &frame = *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());

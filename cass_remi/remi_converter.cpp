@@ -5,6 +5,13 @@
 #include "pdsdata/xtc/DetInfo.hh"
 #include "pdsdata/xtc/Src.hh"
 
+cass::REMI::Converter::Converter()
+{
+    //this converter should react on acqiris config and waveform//
+    _types.push_back(Pds::TypeId::Id_AcqConfig);
+    _types.push_back(Pds::TypeId::Id_AcqWaveform);
+}
+
 void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
     //check whether xtc is a configuration or a event//
@@ -57,3 +64,4 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
         break;
     }
 }
+

@@ -4,6 +4,14 @@
 #include "cass_event.h"
 
 
+cass::pnCCD::Converter::Converter()
+{
+    //this converter should react on acqiris config and waveform//
+    _types.push_back(Pds::TypeId::Id_pnCCDconfig);
+    _types.push_back(Pds::TypeId::Id_pnCCDframe);
+}
+
+
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
   fileHeaderType  *pnccd_filhdr;

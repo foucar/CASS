@@ -2,6 +2,7 @@
 #define XTCITERATOR_H
 
 #include <map>
+#include <iostream>
 
 #include "format_converter.h"
 #include "conversion_backend.h"
@@ -25,51 +26,18 @@ namespace cass
 
         int process(Pds::Xtc* xtc)
         {
-            //find out what type this xtc is//
-            switch (xtc->contains.id())
+            //if it is another xtc, then iterate through it//
+            if (xtc->contains.id() == Pds::TypeId::Id_Xtc)
             {
-            case (Pds::TypeId::Id_Xtc) ://if it is another xtc we iterate through it recursively
+                iterate(xtc);
+            }
+            else //otherwise check which format converter is responsible for this xtc//
+            {
+                for (std::map<FormatConverter::Converters,ConversionBackend*>::iterator it=_converters.begin() ; it != _converters.end(); ++it )
                 {
-                    XtcIterator iter(xtc, _converters, _cassevent, _depth+1);
-                    iter.iterate();
-                    break;
+                    if( it->second->handlesType(xtc->contains.id()))
+                        (*(it->second))(xtc,_cassevent);
                 }
-            case (Pds::TypeId::Id_Frame) :
-	        (*(_converters[FormatConverter::Pulnix]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_AcqWaveform) :
-	        (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_AcqConfig) :
-                {
-                    unsigned version = xtc->contains.version();
-                    switch (version)
-                    {
-                    case 1:
-		        (*(_converters[FormatConverter::REMI]))(xtc,_cassevent);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-                break;
-            case (Pds::TypeId::Id_pnCCDconfig) :
-	        (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_pnCCDframe) :
-	        (*(_converters[FormatConverter::pnCCD]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_EBeam) :
-	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_FEEGasDetEnergy) :
-	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
-                break;
-            case (Pds::TypeId::Id_PhaseCavity) :
-	        (*(_converters[FormatConverter::MachineData]))(xtc,_cassevent);
-                break;
-            default :
-                    break;
             }
             return Continue;
         }
