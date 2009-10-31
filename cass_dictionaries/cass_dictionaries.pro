@@ -32,6 +32,7 @@ SOURCES += machine_event_dict.cxx \
            remi_event_dict.cxx \
            vmi_event_dict.cxx \
            pnccd_event_dict.cxx \
+#           cass_event_dict.cxx
 
 HEADERS += machine_event_dict.h \
            peak_dict.h \
@@ -40,6 +41,7 @@ HEADERS += machine_event_dict.h \
            remi_event_dict.h \
            vmi_event_dict.h \
            pnccd_event_dict.h \
+           cass_event_dict.h
 
 INCLUDEPATH += ../cass_machinedata/classes/event \
                ../cass_remi/classes/event/peak \
@@ -48,6 +50,7 @@ INCLUDEPATH += ../cass_machinedata/classes/event \
                ../cass_remi/classes/event \
                ../cass_vmi/classes/event \
                ../cass_pnccd/classes/event \
+               ../cass \
                $$(LCLSSYSINCLUDE) \
 
 
