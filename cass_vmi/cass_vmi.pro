@@ -1,11 +1,15 @@
 # Copyright (C) 2009 Jochen Küpper
+#modified Copyright (C) 2009 N Coppola
 
 CONFIG += static 
+CONFIG += create_prl
 QT -= core gui
 TEMPLATE = lib
 TARGET = cass_vmi
 DEFINES += CASS_VMI_LIBRARY
 VERSION = 0.0.1
+
+CODECFORTR = UTF-8
 
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
