@@ -6,10 +6,9 @@ CONFIG += create_prl
 QT -= core gui
 TEMPLATE = lib
 TARGET = cass_vmi
+#TARGET += classes/event/vmi_event_dict.cxx
 DEFINES += CASS_VMI_LIBRARY
 VERSION = 0.0.1
-
-CODECFORTR = UTF-8
 
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
@@ -26,7 +25,6 @@ exists ($$incFile) {
 SOURCES += vmi_analysis.cpp \
            vmi_converter.cpp \
            ./classes/event/vmi_event.cpp \
-
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
