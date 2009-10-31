@@ -20,18 +20,20 @@
 // on all systems which support this standard:
 #include <vector>
 #include "pdsdata/pnCCD/fformat.h"
-#include <inttypes.h>
+//#include <inttypes.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "pnccd_photon_hit.h"
 
-#include "cass_pnccd.h"
+//#include "cass_pnccd.h"
 	
 namespace cass
 {
   namespace pnCCD
   {
-     class CASS_PNCCDSHARED_EXPORT pnCCDEvent
+  //class CASS_PNCCDSHARED_EXPORT pnCCDEvent
+     class pnCCDEvent
      {
      public:
 // Initialize the event data structure with the number of
