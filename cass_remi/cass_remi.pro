@@ -1,6 +1,8 @@
 # Copyright (C) 2009 Jochen Küpper
+#modified Copyright (C) 2009 N Coppola
 
 CONFIG += static
+CONFIG += create_prl
 QT -= core gui
 TEMPLATE = lib
 DEFINES += CASS_REMI_LIBRARY
