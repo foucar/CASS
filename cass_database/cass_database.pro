@@ -2,7 +2,6 @@
 # modified Copyright (C) 2009 N Coppola
 
 CONFIG += static 
-#the following could be removed in the future...
 CONFIG += create_prl
 TEMPLATE = lib
 qt += core gui
