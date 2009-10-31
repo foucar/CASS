@@ -30,5 +30,6 @@ SUBDIRS = \
 #          cass_imageprocessor \
           cass_machinedata \
           cass_database \
+          cass_dictionaries \
           cass \
 #          diode

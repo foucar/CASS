@@ -142,7 +142,7 @@ namespace cass
             ~Detector() {}
 
         public:
-            void                 extractFromChannels(const std::vector<Channel>&);
+            void                 extractFromChannels(const std::vector<cass::REMI::Channel>&);
             DetectorHit         &addHit(double x, double y, double t);
             size_t               nbrOfHits() const          {return fHits.size();}
             DetectorHit         &hit(const int idx)         {return fHits[idx];}

@@ -28,8 +28,11 @@ namespace cass
         {
         public:
             Coordinate(uint16_t X, uint16_t Y):x(X),y(Y){}
+	    Coordinate() {}
+            ~Coordinate() {}
             uint16_t x;
             uint16_t y;
+            ClassDefNV(Coordinate,1)
         };
         
         
@@ -65,7 +68,7 @@ namespace cass
             const std::vector<uint16_t>& frame()const               {return _frame;}
             std::vector<uint16_t>&       frame()                    {return _frame;}
             std::vector<uint16_t>&       cutFrame()                 {return _cutframe;}
-            std::vector<Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
+            std::vector<cass::VMI::Coordinate>&     coordinatesOfImpact()      {return _coordinatesOfImpact;}
 
          private:
             bool                    _isFilled;
