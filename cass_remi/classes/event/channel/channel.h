@@ -1,7 +1,6 @@
 #ifndef __Channel_h__
 #define __Channel_h__
 
-
 #ifndef ROOT_Rtypes
 #include <Rtypes.h>
 #endif
