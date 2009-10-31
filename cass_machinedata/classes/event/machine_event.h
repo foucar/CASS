@@ -123,7 +123,6 @@ namespace cass
             //epics data//
             EpicsDataMap _epicsdata;
 
-
             //data that gets calculated in Analysis//
             double _energy;
 
