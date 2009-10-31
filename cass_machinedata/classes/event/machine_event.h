@@ -8,7 +8,9 @@
 #include "Rtypes.h"
 #endif
 
+#ifndef ROOT_TObject
 #include "TObject.h"
+#endif
 
 namespace Pds
 {
