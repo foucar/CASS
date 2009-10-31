@@ -6,12 +6,9 @@
 #            rceapp
 #            rcehw
 
-projects := pdsdata #\
-	    acqiris \
-	    evgr \
-	    leutron \
-	    pds \
-	    pdsapp \
+projects := pdsdata#\
+		pds \
+	    pdsapp  #\
 	    qt \
 	    qwt
 
