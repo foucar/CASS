@@ -110,6 +110,9 @@ namespace cass
         public:
             DetectorHit(double x, double y, double t):
               fX_mm(x), fY_mm(y), fTime(t)        {}
+            DetectorHit() {}
+            ~DetectorHit() {}
+
 
         public:
             double  x()const    {return fX_mm;}
@@ -135,6 +138,8 @@ namespace cass
         {
         public:
             Detector(const DetectorParameter&);
+            Detector() {}
+            ~Detector() {}
 
         public:
             void                 extractFromChannels(const std::vector<Channel>&);
