@@ -8,7 +8,6 @@
 #ifndef MACHINEDATAANALYSIS_H
 #define MACHINEDATAANALYSIS_H
 
-#include <QtCore/QPoint>
 
 #include "cass_machine.h"
 #include "analysis_backend.h"
