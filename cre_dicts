@@ -1,0 +1,45 @@
+#!/bin/sh
+thishome=`pwd`
+cd cass_remi/classes/event/peak
+rootcint -f peak_dict.cxx -c peak.h LinkDef.h
+cd $thishome
+cd cass_remi/classes/event/channel
+rootcint -f channel_dict.cxx -c -I../peak channel.h LinkDef.h
+cd $thishome
+cd cass_remi/classes/event/detector
+rootcint -f detector_dict.cxx -c -I../peak -I../channel detector.h LinkDef.h
+cd $thishome
+cd cass_remi/classes/event
+rootcint -f remi_event_dict.cxx -c -Ipeak -Ichannel -Idetector remi_event.h LinkDef.h
+cd $thishome
+cd cass_vmi/classes/event
+rootcint -f vmi_event_dict.cxx -c vmi_event.h LinkDef.h
+cd $thishome
+cd cass_machinedata/classes/event
+rootcint -f machine_event_dict.cxx -c machine_event.h LinkDef.h
+cd $thishome
+cd cass_pnccd/classes/event
+rootcint -f pnccd_event_dict.cxx -c -I../../../LCLS pnccd_event.h LinkDef.h
+cd $thishome
+cd cass
+rootcint -f cass_event_dict.cxx -c cass_event.h LinkDef.h
+
+cd $thishome
+cd cass_dictionaries
+ln -s ../cass_remi/classes/event/peak/peak_dict.cxx .
+ln -s ../cass_remi/classes/event/peak/peak_dict.h .
+ln -s ../cass_remi/classes/event/channel/channel_dict.cxx
+ln -s ../cass_remi/classes/event/channel/channel_dict.h
+ln -s ../cass_remi/classes/event/detector/detector_dict.cxx
+ln -s ../cass_remi/classes/event/detector/detector_dict.h
+ln -s ../cass_remi/classes/event/remi_event_dict.cxx
+ln -s ../cass_remi/classes/event/remi_event_dict.h
+ln -s ../cass_vmi/classes/event/vmi_event_dict.cxx
+ln -s ../cass_vmi/classes/event/vmi_event_dict.h
+ln -s ../cass_machinedata/classes/event/machine_event_dict.cxx
+ln -s ../cass_machinedata/classes/event/machine_event_dict.h
+ln -s ../cass_pnccd/classes/event/pnccd_event_dict.cxx
+ln -s ../cass_pnccd/classes/event/pnccd_event_dict.h
+ln -s ../cass/cass_event_dict.cxx
+ln -s ../cass/cass_event_dict.h
+
