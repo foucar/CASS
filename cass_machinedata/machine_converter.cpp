@@ -35,7 +35,7 @@ cass::MachineData::Converter::Converter()
     _types.push_back(Pds::TypeId::Id_FEEGasDetEnergy);
     _types.push_back(Pds::TypeId::Id_EBeam);
     _types.push_back(Pds::TypeId::Id_PhaseCavity);
-    _types.push_back(Pds::TypeId::Id_Epics);
+//    _types.push_back(Pds::TypeId::Id_Epics);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
