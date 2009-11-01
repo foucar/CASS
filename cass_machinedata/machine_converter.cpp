@@ -104,7 +104,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                 else
                 {
                     machinedataevent.EpicsData()[ctrl.sPvName] = 0.;
-                    std::cout << "add "<<entryname.str() << " to machinedatamap"<<std::endl;
+                    std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
                 }
 
             }
