@@ -76,7 +76,9 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         }
         case(Pds::TypeId::Id_Epics):
         {
+            std::cout << "found epics typeid ";
             const Pds::EpicsPvHeader& epicsData = *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
+            std::cout << epicsData.iDbrType<<std::endl;
             //cntrl is a configuration type and will only be send with a configure transition//
             if ( dbr_type_is_CTRL(epicsData.iDbrType) )
             {
