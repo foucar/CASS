@@ -45,7 +45,7 @@ namespace cass
                     {}
 
             ~MachineDataEvent(){}
-        private:
+        public:
             typedef std::map<std::string,double> EpicsDataMap;
 
         public:
