@@ -80,8 +80,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
             //cntrl is a configuration type and will only be send with a configure transition//
             if ( dbr_type_is_CTRL(epicsData.iDbrType) )
             {
-                std::cout << "epics control with id "<<ctrl.iPvId<<" and name "<< ctrl.sPvName<<" is added to index map"<<std::endl;
                 const Pds::EpicsPvCtrlHeader& ctrl = static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
+                std::cout << "epics control with id "<<ctrl.iPvId<<" and name "<< ctrl.sPvName<<" is added to index map"<<std::endl;
                 //record what name the pvId has, this help later to find the name, which is the index of map in machineevent//
                 _index2name[ctrl.iPvId] = ctrl.sPvName;
                 //now we need to create the map which we will fill later with real values//
