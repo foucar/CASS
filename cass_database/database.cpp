@@ -46,12 +46,8 @@ time_t rawtime;
 struct tm * timeinfo;
 char hourmin[12];
 
-//TMapFile *mapfile = TMapFile::Create("/scratch/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-//TMapFile *mapfile = TMapFile::Create("/reg/neh/home/ncoppola/testthis_root.map","RECREATE", 1000000000, "");
-//TMapFile *mapfile = TMapFile::Create("~/testthis_root.map","RECREATE", 1000000000, "");
-//maybe I could put the map-file on the shm.... device
+//I put the map-file on the shm.... device, but maybe there is a better place..
 // it was 2000000000
-//TMapFile *mapfile = TMapFile::Create("/dev/shm/testthis_root.map","RECREATE", 700000000, "");
 
 // reduced version
 #include <stdlib.h>
@@ -69,15 +65,15 @@ TMapFile *mapfile;
 #include <TObject.h>
 #endif
 
-/*ClassImp(cass::MachineData::MachineDataEvent);
+ClassImp(cass::MachineData::MachineDataEvent);
 ClassImp(cass::REMI::REMIEvent);
 ClassImp(cass::VMI::VMIEvent);
-ClassImp(cass::pnCCD::pnCCDEvent);*/
+ClassImp(cass::pnCCD::pnCCDEvent);
 
 cass::database::Database::Database()
 {
   Double_t random;
-  // it was 2000000000
+
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
   //printf("%s\n",Tmap_filename);
   strcpy(username,"");
@@ -99,6 +95,7 @@ cass::database::Database::Database()
     strcat(Tmap_filename,"nobody.map\0");
   } 
   printf("TMapFile is in %s\n",Tmap_filename);
+  // it was 2000000000
   mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
   mapfile->Add(T,"T");
   //mapfile->Print();
@@ -112,192 +109,59 @@ cass::database::Database::Database()
   T->Branch("py",&py,"py/F");
   //T->Branch("pz",&pz,"pz/F");
   T->Branch("random",&random,"random/D");
-  /*if(!TClassTable::GetDict("Event")) {
-    gSystem->Load("$ROOTSYS/test/libEvent.so");
-    }
-    Event *event = new Event();
-    T->Branch("EventBranch","Event",&event,32000,99);*/
-  //cass::CASSEvent *event = new cass::CASSEvent::CASSEvent(uint64_t);
-  /*  T->Branch("TheCASSevent","cass::CASSEvent::CASSEvent(uint64_t od)",
-      &Theevent,32000,99);*/
-  // otherwise
 
   // the eventid
   T->Branch("CASS_id",&event_id,"CASS_id/l");
 
   //machine quantities
-  T->Branch("LCLS_f_11_ENRC",&LCLS_f_11_ENRC,"LCLS_f_11_ENRC/D");
-  T->Branch("LCLS_f_12_ENRC",&LCLS_f_12_ENRC,"LCLS_f_12_ENRC/D");
-  T->Branch("LCLS_f_21_ENRC",&LCLS_f_21_ENRC,"LCLS_f_21_ENRC/D");
-  T->Branch("LCLS_f_22_ENRC",&LCLS_f_22_ENRC,"LCLS_f_22_ENRC/D");
-
-  T->Branch("LCLS_energy",&LCLS_energy,"LCLS_energy/D");
-  T->Branch("LCLS_EbeamCharge",&LCLS_EbeamCharge,"LCLS_EbeamCharge/D");
-  T->Branch("LCLS_EbeamL3Energy",&LCLS_EbeamL3Energy,"LCLS_EbeamL3Energy/D");
-  T->Branch("LCLS_EbeamLTUPosX",&LCLS_EbeamLTUPosX,"LCLS_EbeamLTUPosX/D");
-  T->Branch("LCLS_EbeamLTUPosY",&LCLS_EbeamLTUPosY,"LCLS_EbeamLTUPosY/D");
-  T->Branch("LCLS_EbeamLTUAngX",&LCLS_EbeamLTUAngX,"LCLS_EbeamLTUAngX/D");
-  T->Branch("LCLS_EbeamLTUAngY",&LCLS_EbeamLTUAngY,"LCLS_EbeamLTUAngY/D");
-
-  T->Branch("LCLS_FitTime1",&LCLS_FitTime1,"LCLS_FitTime1/D");
-  T->Branch("LCLS_FitTime2",&LCLS_FitTime2,"LCLS_FitTime2/D");
-  T->Branch("LCLS_Charge1",&LCLS_Charge1,"LCLS_Charge1/D");
-  T->Branch("LCLS_Charge2",&LCLS_Charge2,"LCLS_Charge2/D");
+  if(!TClassTable::GetDict("cass::MachineData::MachineDataEvent"))
+  {
+    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+  }
+  else printf("I have got already the MachineData definitions\n");
+  cass::MachineData::MachineDataEvent *machinedata = new cass::MachineData::MachineDataEvent();
+  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,99);
+  //  delete mac_things_event;
 
   //REMI
-  T->Branch("REMI_nofChannels",&REMI_nofChannels,"REMI_nofChannels/I");
-// I could be able to do something like this, if I knew "cassevent"..
-  //T->Branch("REMI_nofChannels",&remievent.nbrOfChannels(),"REMI_nofChannels/i");
+  if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
+  {
+    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+  }
+  else printf("I have got already the REMI definitions\n");
+  cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
+  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,99);
+  //  delete REMI_things_event;
 
-  T->Branch("REMI_horpos",&REMI_horpos,"REMI_horpos/D");
-  //T->Branch("REMI_nbrBytes",&REMI_nbrBytes,"REMI_nbrBytes/S");
-  T->Branch("REMI_sampleInterval",&REMI_sampleInterval,"REMI_sampleInterval/D");
-  T->Branch("REMI_nbrSamples",&REMI_nbrSamples,"REMI_nbrSamples/L");
-  T->Branch("REMI_delayTime",&REMI_delayTime,"REMI_delayTime/D");
-  T->Branch("REMI_trigLevel",&REMI_trigLevel,"REMI_trigLevel/D");
-  T->Branch("REMI_trigSlope",&REMI_trigSlope,"REMI_trigSlope/S");
-  T->Branch("REMI_trigChannel",&REMI_trigChannel,"REMI_trigChannel/S");
-  T->Branch("REMI_chanCombUsedChannels",&REMI_chanCombUsedChannels,"REMI_chanCombUsedChannels/i");
-  T->Branch("REMI_nbrConvPerChan",&REMI_nbrConvPerChan,"REMI_nbrConvPerChan/S");
+  //VMI
+  if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
+  {
+    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+  }
+  else printf("I have got already the VMI definitions\n");
+  cass::VMI::VMIEvent *VMIdata = new cass::VMI::VMIEvent();
+  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,99);
+  //  delete VMI_things_event;
 
-  T->Branch("REMI_Channel_Waveform",REMI_Channel_Waveform,
-	    "REMI_Channel_Waveform[REMI_nofChannels][10000]/S"); //[REMI_Channels_Max][REMI_maxWaveform 20000]
-  // it seems that the following is not really appreciated....
-  //  "REMI_Channel_Waveform[REMI_nofChannels][REMI_nbrSamples]/S");
-
-  //T->Branch("REMI_Channel",REMI_Channel,"REMI_Channel[REMI_nofChannels]/i");
-  T->Branch("REMI_Channel_nbrPeaks",REMI_Channel_nbrPeaks,"REMI_Channel_nbrPeaks[REMI_nofChannels]/i");
-
-  T->Branch("REMI_Channel_fullscale",REMI_Channel_fullscale,"REMI_Channel_fullscale[REMI_nofChannels]/S");
-  T->Branch("REMI_Channel_vertGain",REMI_Channel_vertGain,"REMI_Channel_vertGain[REMI_nofChannels]/D");
-  T->Branch("REMI_Channel_vertOffset",REMI_Channel_vertOffset,"REMI_Channel_vertOffset[REMI_nofChannels]/S");
-  T->Branch("REMI_Channel_delay",REMI_Channel_delay,"REMI_Channel_delay[REMI_nofChannels]/I");
-  T->Branch("REMI_Channel_fraction",REMI_Channel_fraction,"REMI_Channel_fraction[REMI_nofChannels]/D");
-  T->Branch("REMI_Channel_walk",REMI_Channel_walk,"REMI_Channel_walk[REMI_nofChannels]/D");
-
-  /*T->Branch("REMI_Channel_Peak_com",REMI_Channel_Peak_com,
-     "REMI_Channel_Peak_com[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");
-  T->Branch("REMI_Channel_Peak_cfd",REMI_Channel_Peak_cfd,
-  "REMI_Channel_Peak_cfd[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
-  // everywhere where 150 is it was "REMI_Channel_nbrPeaks[REMI_nofChannels]"
-  T->Branch("REMI_Channel_Peak_integral",REMI_Channel_Peak_integral,
-	         "REMI_Channel_Peak_integral[REMI_nofChannels][150]/D");
-  T->Branch("REMI_Channel_Peak_time",REMI_Channel_Peak_time,
-     "REMI_Channel_Peak_time[REMI_nofChannels][150]/D");
-  T->Branch("REMI_Channel_Peak_height",REMI_Channel_Peak_height,
-     "REMI_Channel_Peak_height[REMI_nofChannels][150]/D");
-  T->Branch("REMI_Channel_Peak_width",REMI_Channel_Peak_width,
-     "REMI_Channel_Peak_width[REMI_nofChannels][150]/D");
-  T->Branch("REMI_Channel_Peak_fwhm",REMI_Channel_Peak_fwhm,
-     "REMI_Channel_Peak_fwhm[REMI_nofChannels][150]/D");
-
-  /*T->Branch("REMI_Channel_Peak_startpos",REMI_Channel_Peak_startpos,
-     "REMI_Channel_Peak_startpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
-  T->Branch("REMI_Channel_Peak_stoppos",REMI_Channel_Peak_stoppos,
-     "REMI_Channel_Peak_stoppos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
-  T->Branch("REMI_Channel_Peak_maxpos",REMI_Channel_Peak_maxpos,
-     "REMI_Channel_Peak_maxpos[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/L");
-  T->Branch("REMI_Channel_Peak_maximum",REMI_Channel_Peak_maximum,
-  "REMI_Channel_Peak_maximum[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/D");*/
-  T->Branch("REMI_Channel_Peak_polarity",REMI_Channel_Peak_polarity,
-	    "REMI_Channel_Peak_polarity[REMI_nofChannels][150]/L");
-  /*T->Branch("REMI_Channel_Peak_isUsed",REMI_Channel_Peak_isUsed, // it should be bool
-    "REMI_Channel_Peak_isUsed[REMI_nofChannels][REMI_Channel_nbrPeaks[REMI_nofChannels]]/i");*/
-
-  T->Branch("REMI_nofDetectors",&REMI_nofDetectors,"REMI_nofDetectors/i");
-  //T->Branch("REMI_Detector",REMI_Detector,"REMI_Detector[REMI_nofDetectors]/C");
-  //every place where 150 was REMI_Detector_nbrOfHits[REMI_nofDetectors]
-  T->Branch("REMI_Detector_nbrOfHits",REMI_Detector_nbrOfHits,"REMI_Detector_nbrOfHits[REMI_nofDetectors]/i");
-
-  T->Branch("REMI_Detector_Hits_x",REMI_Detector_Hits_x,
-     "REMI_Detector_Hits_x[REMI_nofDetectors][150]/i");
-  T->Branch("REMI_Detector_Hits_y",REMI_Detector_Hits_y,
-     "REMI_Detector_Hits_y[REMI_nofDetectors][150]/i");
-  T->Branch("REMI_Detector_Hits_t",REMI_Detector_Hits_t,
-     "REMI_Detector_Hits_t[REMI_nofDetectors][150]/i");
-
-  //VMI Pulnix CCD
-  T->Branch("VMI_isFilled",&VMI_isFilled,"VMI_isFilled/s");//&cassevent->VMIEvent()->isFilled()
-  T->Branch("VMI_integral",&VMI_integral,"VMI_integral/i");
-  T->Branch("VMI_maxPixelValue",&VMI_maxPixelValue,"VMI_maxPixelValue/s");
-  T->Branch("VMI_columns",&VMI_columns,"VMI_columns/s");
-  T->Branch("VMI_rows",&VMI_rows,"VMI_rows/s");
-  T->Branch("VMI_bitsPerPixel",&VMI_bitsPerPixel,"VMI_bitsPerPixel/s");
-  T->Branch("VMI_offset",&VMI_offset,"VMI_offset/i");
-  // the following are vectors..
-  T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][VMI_rows]/s");
-  //T->Branch("VMI_frame",VMI_frame,"VMI_frame[VMI_columns][480]/s");
-  //T->Branch("VMI_frame",VMI_frame,"VMI_frame/s");
-  T->Branch("VMI_cutFrame",VMI_cutFrame,"VMI_cutFrame/s");
-  T->Branch("VMI_nof_Impacts",&VMI_nof_Impacts,"VMI_nof_Impacts/s");
-  T->Branch("VMI_coordinatesOfImpact_x",VMI_coordinatesOfImpact_x,"VMI_coordinatesOfImpact_x[VMI_nof_Impacts]/s");
-  T->Branch("VMI_coordinatesOfImpact_y",VMI_coordinatesOfImpact_y,"VMI_coordinatesOfImpact_y[VMI_nof_Impacts]/s");
+  //pnCCD
+  if(!TClassTable::GetDict("cass::pnCCD::pnCCDEvent"))
+  {
+    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+  }
+  else printf("I have got already the pnCCD definitions\n");
+  cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
+  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,99);
+  //  delete pnCCD_things_event;
 
   //pnCCD (2)
-  // the 2 pnCCD are not allowed to have different setting??
-  //T->Branch("pnCCD_num_pixel_arrays",pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays[2]/I");
-  T->Branch("pnCCD_num_pixel_arrays",&pnCCD_num_pixel_arrays,"pnCCD_num_pixel_arrays/I");
-  T->Branch("pnCCD_raw_image_size",pnCCD_raw_image_size,"pnCCD_raw_image_size[pnCCD_num_pixel_arrays]/i");
-  T->Branch("pnCCD_corr_image_size",pnCCD_corr_image_size,"pnCCD_corr_image_size[pnCCD_num_pixel_arrays]/i");
-  T->Branch("pnCCD_array_x_size",pnCCD_array_x_size,"pnCCD_array_x_size[pnCCD_num_pixel_arrays]/i");
-  T->Branch("pnCCD_array_y_size",pnCCD_array_y_size,"pnCCD_array_y_size[pnCCD_num_pixel_arrays]/i");
-  T->Branch("pnCCD_max_photons_per_event",pnCCD_max_photons_per_event,"pnCCD_max_photons_per_event[pnCCD_num_pixel_arrays]/i");
-
-  T->Branch("pnCCD_raw_integral",pnCCD_raw_integral,"pnCCD_raw_integral[pnCCD_num_pixel_arrays]/F");
-  T->Branch("pnCCD_raw_integral_ROI",pnCCD_raw_integral_ROI,"pnCCD_raw_integral_ROI[pnCCD_num_pixel_arrays]/F");
-  T->Branch("pnCCD_corr_integral",pnCCD_corr_integral,"pnCCD_corr_integral[pnCCD_num_pixel_arrays]/F");
-  T->Branch("pnCCD_corr_integral_ROI",pnCCD_corr_integral_ROI,"pnCCD_corr_integral_ROI[pnCCD_num_pixel_arrays]/F");
-
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
 
-  // actually we may not need the raw version
-  // note the sway y<>x in the following line
-  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][pnCCD_array_x_size0]/s");
-  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[MAX_pnCCD_array_y_size][MAX_pnCCD_array_x_size]/s");
-  //T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
-  T->Branch("pnCCD_raw0",pnCCD_raw0,"pnCCD_raw0[pnCCD_array_y_size0][1024]/s");
   T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
   T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
-  //T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
-  T->Branch("pnCCD_raw1",pnCCD_raw1,"pnCCD_raw1[pnCCD_array_y_size1][1024]/s");
-
-  T->Branch("pnCCD_corr0",pnCCD_corr0,"pnCCD_corr0[pnCCD_array_y_size0][MAX_pnCCD_array_x_size]/s");
-  T->Branch("pnCCD_corr1",pnCCD_corr1,"pnCCD_corr1[pnCCD_array_y_size1][MAX_pnCCD_array_x_size]/s");
 
   T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
   T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
-
-  // all these branches are too large to be used at the same time if the events that
-  // we are going to save in memory need to be large
-
-  //I am not allowing all unless MAX_pnCCD_max_photons_per_event small enough...
-  //  if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer)
-  //{
-    T->Branch("pnCCD_ph_unrec_x0",     pnCCD_ph_unrec_x0,     "pnCCD_ph_unrec_x0[pnCCD_max_photons_per_event0]/s");
-    T->Branch("pnCCD_ph_unrec_y0",     pnCCD_ph_unrec_y0,     "pnCCD_ph_unrec_y0[pnCCD_max_photons_per_event0]/s");
-    T->Branch("pnCCD_ph_unrec_amp0",   pnCCD_ph_unrec_amp0,   "pnCCD_ph_unrec_amp0[pnCCD_max_photons_per_event0]/s");
-    T->Branch("pnCCD_ph_unrec_energy0",pnCCD_ph_unrec_energy0,"pnCCD_ph_unrec_energy0[pnCCD_max_photons_per_event0]/F");
-    T->Branch("pnCCD_ph_unrec_x1",     pnCCD_ph_unrec_x1,     "pnCCD_ph_unrec_x1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_unrec_y1",     pnCCD_ph_unrec_y1,     "pnCCD_ph_unrec_y1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_unrec_amp1",   pnCCD_ph_unrec_amp1,   "pnCCD_ph_unrec_amp1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_unrec_energy1",pnCCD_ph_unrec_energy1,"pnCCD_ph_unrec_energy1[pnCCD_max_photons_per_event1]/F");
-    //}
-  T->Branch("pnCCD_ph_recom_x0",     pnCCD_ph_recom_x0,     "pnCCD_ph_recom_x0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_recom_y0",     pnCCD_ph_recom_y0,     "pnCCD_ph_recom_y0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_recom_amp0",   pnCCD_ph_recom_amp0,   "pnCCD_ph_recom_amp0[pnCCD_max_photons_per_event0]/s");
-  T->Branch("pnCCD_ph_recom_energy0",pnCCD_ph_recom_energy0,"pnCCD_ph_recom_energy0[pnCCD_max_photons_per_event0]/F");
-  //if(MAX_pnCCD_max_photons_per_event<max_phot_in_Buffer_loose)
-  //{
-    T->Branch("pnCCD_ph_recom_x1",     pnCCD_ph_recom_x1,     "pnCCD_ph_recom_x1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_recom_y1",     pnCCD_ph_recom_y1,     "pnCCD_ph_recom_y1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_recom_amp1",   pnCCD_ph_recom_amp1,   "pnCCD_ph_recom_amp1[pnCCD_max_photons_per_event1]/s");
-    T->Branch("pnCCD_ph_recom_energy1",pnCCD_ph_recom_energy1,"pnCCD_ph_recom_energy1[pnCCD_max_photons_per_event1]/F");
-    //}
-
-  //T->Branch();
-  //T->Branch();
-  // others YAG XFEL intensities...
 
   T->SetAutoSave();
   T->BranchRef();
@@ -346,197 +210,33 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   event_id=cassevent->id();
 
-  cass::MachineData::MachineDataEvent &machinedata = cassevent->MachineDataEvent();
-  if(machinedata.isFilled())
-  {
-    //printf("mach full\n");
-    LCLS_f_11_ENRC=machinedata.f_11_ENRC();
-    LCLS_f_12_ENRC=machinedata.f_12_ENRC();
-    LCLS_f_21_ENRC=machinedata.f_21_ENRC();
-    LCLS_f_22_ENRC=machinedata.f_22_ENRC();
-
-    LCLS_energy=machinedata.energy();
-    LCLS_EbeamCharge=machinedata.EbeamCharge();
-    LCLS_EbeamL3Energy=machinedata.EbeamL3Energy();
-    LCLS_EbeamLTUPosX=machinedata.EbeamLTUPosX();
-    LCLS_EbeamLTUPosY=machinedata.EbeamLTUPosY();
-    LCLS_EbeamLTUAngX=machinedata.EbeamLTUAngX();
-    LCLS_EbeamLTUAngY=machinedata.EbeamLTUAngY();
-
-    LCLS_FitTime1=machinedata.FitTime1();
-    LCLS_FitTime2=machinedata.FitTime2();
-    LCLS_Charge1=machinedata.Charge1();
-    LCLS_Charge2=machinedata.Charge2();
-  }
+  cass::MachineData::MachineDataEvent *machinedata = &cassevent->MachineDataEvent();
+  //if(machinedata.isFilled())
+  /*  if(cassevent->MachineDataEvent().isFilled())
+      {*/
+  T->SetBranchAddress("MachineEventBranch",&machinedata);
+    /*  }
   else
   {
-    //printf("mach empty\n");
-    LCLS_f_11_ENRC=0.;
-    LCLS_f_12_ENRC=0.;
-    LCLS_f_21_ENRC=0.;
-    LCLS_f_22_ENRC=0.;
+    printf("machine data empty, should I reset something??\n");
+    }*/
 
-    LCLS_energy=0.;
-    LCLS_EbeamCharge=0.;
-    LCLS_EbeamL3Energy=0.;
-    LCLS_EbeamLTUPosX=-90.; //-90.
-    LCLS_EbeamLTUPosY=-90.; //-90.
-    LCLS_EbeamLTUAngX=-90.; //-90.
-    LCLS_EbeamLTUAngY=-90.; //-90.
+  cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
+  T->SetBranchAddress("REMIEventBranch",&REMIdata);
 
-    LCLS_FitTime1=-90.; //-90.
-    LCLS_FitTime2=-90.; //-90.
-    LCLS_Charge1=0.;
-    LCLS_Charge2=0.;
-  }
-  //printf("he %f %f",LCLS_FitTime1,LCLS_EbeamLTUPosX);
+  cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
+  T->SetBranchAddress("VMIEventBranch",&VMIdata);
 
-  cass::REMI::REMIEvent &remievent = cassevent->REMIEvent();
-  if(!remievent.isFilled())
-  {
-    REMI_nofChannels=0;
-    REMI_nofDetectors=0;
-  }
-  else
-  {
-    REMI_nofChannels=remievent.nbrOfChannels();
-    REMI_horpos=remievent.horpos();
-    //REMI_nbrBytes=remievent.nbrBytes();
-    REMI_sampleInterval=remievent.sampleInterval();
-    REMI_nbrSamples=remievent.nbrSamples();
-    REMI_delayTime=remievent.delayTime();
-    REMI_trigLevel=remievent.trigLevel();
-    REMI_trigSlope=remievent.trigSlope();
-    REMI_trigChannel=remievent.trigChannel();
-    REMI_chanCombUsedChannels=remievent.chanCombUsedChannels();
-    REMI_nbrConvPerChan=remievent.nbrConvPerChan();
 
-    for(jj=0;jj<REMI_nofChannels;jj++)
-    {
-      REMI_Channel_nbrPeaks[jj]=remievent.channel(jj).nbrPeaks();
-      REMI_Channel_vertGain[jj]=remievent.channel(jj).vertGain();
-      REMI_Channel_fullscale[jj]=remievent.channel(jj).fullscale();
-      REMI_Channel_vertOffset[jj]=remievent.channel(jj).vertOffset();
-      REMI_Channel_delay[jj]=remievent.channel(jj).delay();
-      REMI_Channel_fraction[jj]=remievent.channel(jj).fraction();
-      REMI_Channel_walk[jj]=remievent.channel(jj).walk();
-      //REMI_Channel_nbrPeaks[jj]=1;
-      REMI_Channel_nbrPeaks[jj]=TMath::Min(int(remievent.channel(jj).nbrPeaks()),REMI_PeaksproChannels_Max);
-      for(kk=0;kk<REMI_Channel_nbrPeaks[jj];kk++)
-      {
-        REMI_Channel_Peak_time[jj][kk]=remievent.channel(jj).peak(kk).time();
-        //REMI_Channel_Peak_com[jj][kk]=remievent.channel(jj).peak(kk).com();
-        //REMI_Channel_Peak_cfd[jj][kk]=remievent.channel(jj).peak(kk).cfd();
-        REMI_Channel_Peak_integral[jj][kk]=remievent.channel(jj).peak(kk).integral();
-        //REMI_Channel_Peak_integral[jj][kk]=int(150.*px);
-        //REMI_Channel_Peak_integral[jj][kk]=(Double_t)(150.*px);
-        //      printf("%f %f ",REMI_Channel_Peak_integral[jj][kk],px);
-        //REMI_Channel_Peak_height[jj][kk]=remievent.channel(jj).peak(kk).height();
-        REMI_Channel_Peak_width[jj][kk]=remievent.channel(jj).peak(kk).width();
-        REMI_Channel_Peak_fwhm[jj][kk]=remievent.channel(jj).peak(kk).fwhm();
-	/*        if(fabs(remievent.channel(jj).peak(kk).fwhm())>10000) printf("fwhm %f\n",
-		  float(remievent.channel(jj).peak(kk).fwhm()));*/
-        //REMI_Channel_Peak_startpos[jj][kk]=remievent.channel(jj).peak(kk).startpos();
-        //REMI_Channel_Peak_stoppos[jj][kk]=remievent.channel(jj).peak(kk).stoppos();
-        //REMI_Channel_Peak_maxpos[jj][kk]=remievent.channel(jj).peak(kk).maxpos();
-        REMI_Channel_Peak_maximum[jj][kk]=remievent.channel(jj).peak(kk).maximum();
-        REMI_Channel_Peak_polarity[jj][kk]=remievent.channel(jj).peak(kk).polarity();
-        //REMI_Channel_Peak_isUsed[jj][kk]=(UShort_t)remievent.channel(jj).peak(kk).isUsed();
-      }
-      /*printf("%i %i \n",remievent.channel(jj).waveformLength(),
-	(static_cast<const short*>(remievent.channel(jj).waveform()))[5050]);*/
-      memcpy(&REMI_Channel_Waveform[jj][0],
-        remievent.channel(jj).waveform(),
-	     remievent.channel(jj).waveformLength()*sizeof(REMI_Channel_Waveform[0][0]));
-      //REMI_Channel_Waveform[jj][20]=(static_cast<const short*>(remievent.channel(jj).waveform()))[20];
-      /*printf("%i \n",REMI_Channel_Waveform[jj][210]);*/
-    }
-    REMI_nofDetectors=remievent.nbrOfDetectors();
-    for(jj=0;jj<REMI_nofDetectors;jj++)
-    { 
-      //    REMI_Detector[jj]=remievent.detector(jj);
-      //strcpy(REMI_Detector[jj][0],remievent.detector(jj).name());
-      //memcpy(&REMI_Detector[jj][0],remievent.detector(jj).name(),REMI_maxNAME);
-      //printf("%s\n",remievent.detector(jj).name());
-      //printf("1%s\n",REMI_Detector[jj]);
-      REMI_Detector_nbrOfHits[jj]=remievent.detector(jj).nbrOfHits();
-      for(kk=0;kk<REMI_Detector_nbrOfHits[jj];kk++)
-      {
-        REMI_Detector_Hits_x[jj][kk]=remievent.detector(jj).hit(kk).x();
-        REMI_Detector_Hits_y[jj][kk]=remievent.detector(jj).hit(kk).y();
-        REMI_Detector_Hits_t[jj][kk]=remievent.detector(jj).hit(kk).t();
-      }
-    }
-  }
+  cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
+  T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
 
-  cass::VMI::VMIEvent &vmievent = cassevent->VMIEvent();
-  VMI_isFilled=vmievent.isFilled();
-  if(VMI_isFilled)
-  {
-    VMI_integral=vmievent.integral();
-    VMI_maxPixelValue=vmievent.maxPixelValue();
-    VMI_columns=vmievent.columns();
-    VMI_rows=vmievent.rows();
-    VMI_bitsPerPixel=vmievent.bitsPerPixel();
-    VMI_offset=vmievent.offset();
-    for(jj=0;jj<VMI_columns;jj++)
-    {
-      for(kk=0;kk<VMI_rows;kk++)
-      {
-        VMI_frame[kk][jj]=vmievent.frame()[jj*VMI_rows+kk];
-        VMI_cutFrame[kk][jj]=vmievent.cutFrame()[jj*VMI_rows+kk];
-      }
-    }
-    //printf("%i\n",&vmievent.frame());
-    //std::vector<uint16_t> VMI_frame= new vmievent.frame();
-    VMI_nof_Impacts=vmievent.coordinatesOfImpact().size();
-    for(jj=0;jj<VMI_nof_Impacts;jj++)
-    {
-      VMI_coordinatesOfImpact_x[jj]=vmievent.coordinatesOfImpact()[jj].x;
-      VMI_coordinatesOfImpact_y[jj]=vmievent.coordinatesOfImpact()[jj].y;
-    }
-  }
-  else
-  {
-    VMI_integral=0;
-    VMI_maxPixelValue=0;
-    VMI_columns=0;
-    VMI_rows=0;
-    VMI_bitsPerPixel=0;
-    VMI_offset=-999;
-    VMI_nof_Impacts=0;
-  }
-
+  //#ifdef pnCCD_deb
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   // the following could be even done only everytime the configuration changes...
-  for(jj=0;jj<MAX_pnCCD;jj++)
-  {
-    pnCCD_raw_image_size[jj]=0;
-    pnCCD_corr_image_size[jj]=0;
-    pnCCD_array_x_size[jj]=0;
-    pnCCD_array_y_size[jj]=0;
-    pnCCD_max_photons_per_event[jj]=0;
-  }
-  for(jj=0;jj<MAX_pnCCD;jj++)
-  {
-     pnCCD_raw_integral[jj]=0.;
-     pnCCD_raw_integral_ROI[jj]=0.;
-     pnCCD_corr_integral[jj]=0.;
-     pnCCD_corr_integral_ROI[jj]=0.;
-  }
-  pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
-  // I am not sure of the meaning of the next 2 arrays
-  for(jj=0;jj<pnCCD_num_pixel_arrays;jj++)
-  {
-    pnCCD_array_x_size[jj]=pnccdevent.getArrXSize()[jj];
-    pnCCD_array_y_size[jj]=pnccdevent.getArrYSize()[jj];
-    pnCCD_max_photons_per_event[jj]=pnccdevent.getMaxPhotPerEvt()[jj];
-    //jj16_u=ushort(jj+1);
-    //    printf("uu %i ",pnccdevent.rawSignalArrayByteSize(1));
 
-    pnCCD_raw_image_size[jj]=pnccdevent.rawSignalArrayByteSize(jj+1);
-    pnCCD_corr_image_size[jj]=pnccdevent.corrSignalArrayByteSize(jj+1);
-  }
+  pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
+
   pnCCD_array_x_size0=0;
   pnCCD_array_y_size0=0;
   pnCCD_array_x_size1=0;
@@ -560,21 +260,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     }
   } 
 
-  if(pnccdevent.rawSignalArrayAddr(1)!=0)
-  {
-    /*printf("00r %i %i %i %i %i\n", pnccdevent.rawSignalArrayAddr(1),pnCCD_array_x_size[0],pnCCD_array_y_size[0],
-      pnccdevent.rawSignalArrayByteSize(1),pnCCD_raw_image_size[0]);*/
-    //memcpy(&pnCCD_raw0[0][0],pnccdevent.rawSignalArrayAddr(1),pnCCD_raw_image_size[0]);
-    for(jj_u=0;jj_u<pnCCD_array_y_size[0];jj_u++)
-    {
-       memcpy(&pnCCD_raw0[jj_u][0],pnccdevent.rawSignalArrayAddr(1)+pnCCD_array_x_size[0]*jj_u,
-          pnCCD_array_x_size[0]*2);
-       //printf("pnCCD_raw0[%i][1]= %i\n",jj_u,pnCCD_raw0[jj_u][1]);
-    }
-    /*pnCCD_raw_integral[0]=0.;
-      pnCCD_raw_integral_ROI[0]=0.;*/
-    //pnCCD_raw0= *pnccdevent.rawSignalArrayAddr(0);
-  }
 #if DEBUG_pnCCD_raw
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
@@ -586,72 +271,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 	  std::cout <<"m" << data[idx++]<<" "<< pnCCD_raw0[iy][ix];
         std::cout<<std::endl;
     }
-    }
+  }
 #endif
 
-  if(pnccdevent.rawSignalArrayAddr(2)!=0)
-  {
-    /*printf("11r, %i %i ",pnCCD_raw_image_size[1],sizeof(pnccdevent.rawSignalArrayAddr(2)));
-      printf("%i %i %i ", pnccdevent.rawSignalArrayAddr(2),pnCCD_array_x_size[1],pnCCD_array_y_size[1]);*/
-    memcpy(&pnCCD_raw1[0][0],pnccdevent.rawSignalArrayAddr(2),pnCCD_raw_image_size[1]);
-
-    /*    for(jj_u=0;jj_u<pnCCD_array_y_size[1];jj_u++)
-       memcpy(&pnCCD_raw1[0][jj_u],pnccdevent.rawSignalArrayAddr(2)+2*jj_u,pnCCD_raw_image_size[1]);
-    */
-    /*pnCCD_raw_integral[1]=0.;
-      pnCCD_raw_integral_ROI[1]=0.;*/
-  }  
-
-  //#ifdef pnCCD
-  if(pnccdevent.corrSignalArrayAddr(1)!=0)
-  {
-    //printf("00c, %i ",arraysize);
-    memcpy(&pnCCD_corr0[0][0],pnccdevent.corrSignalArrayAddr(1),pnCCD_corr_image_size[0]);
-    /*pnCCD_corr_integral[0]=0.;
-      pnCCD_corr_integral_ROI[0]=0.;*/
-  }  
-  if(pnccdevent.corrSignalArrayAddr(2)!=0)
-  {
-    //printf("11c, %i \n",arraysize);
-    memcpy(&pnCCD_corr1[0][0],pnccdevent.corrSignalArrayAddr(2),pnCCD_corr_image_size[1]);
-    /*pnCCD_corr_integral[1]=0.;
-      pnCCD_corr_integral_ROI[1]=0.;*/
-  }
-  
-  for(jj=0;jj<pnCCD_max_photons_per_event0;jj++)
-  {
-    if(pnccdevent.unrecPhotonHitAddr(jj+1)!=0)
-    {
-      //printf("ph %i ",jj);
-      // the following could be much easier if there where the proper functions
-      //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
-      memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr(jj+1),sizeof(UShort_t));
-      //memcpy(&pnCCD_ph_unrec_y0[jj],pnccdevent.unrecPhotonHitAddr(jj)+sizeof(UShort_t),2);
-      //memcpy(&pnCCD_ph_unrec_amp0[jj],pnccdevent.unrecPhotonHitAddr(jj)+2*sizeof(UShort_t),2);
-      //memcpy(&pnCCD_ph_unrec_energy0[jj],pnccdevent.unrecPhotonHitAddr(jj)+3*sizeof(UShort_t),4);
-
-      //memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr.x[jj],pnCCD_max_photons_per_event[0]);
-      //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
-    }
-    if(pnccdevent.recomPhotonHitAddr(jj+1)!=0)
-    {
-      //printf(" recomph %i ",jj);
-      // the following could be much easier if there where the proper functions
-      //pnCCD_ph_unrec_x0[jj]=pnccdevent.unrecPhotonHitAddr(jj).x;
-      memcpy(&pnCCD_ph_recom_x0[jj],pnccdevent.recomPhotonHitAddr(jj+1),sizeof(UShort_t));
-      //memcpy(&pnCCD_ph_unrec_y0[jj],pnccdevent.unrecPhotonHitAddr(jj)+sizeof(UShort_t),2);
-      //memcpy(&pnCCD_ph_unrec_amp0[jj],pnccdevent.unrecPhotonHitAddr(jj)+2*sizeof(UShort_t),2);
-      //memcpy(&pnCCD_ph_unrec_energy0[jj],pnccdevent.unrecPhotonHitAddr(jj)+3*sizeof(UShort_t),4);
-
-      //memcpy(&pnCCD_ph_unrec_x0[jj],pnccdevent.unrecPhotonHitAddr.x[jj],pnCCD_max_photons_per_event[0]);
-      //pnCCD_ph_unrec0= *pnccdevent.unrecPhotonHitAddr(0);
-    }
-  }
-  //printf("\n");
-  //??which/both
-  //  pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
-  //  pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
-  //#endif
 
   if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/10) )==0 )
   {

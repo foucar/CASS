@@ -53,7 +53,7 @@ namespace cass
             const Detector     &detector(long idx)const     {return fDets[idx];}
         
         public:
-            bool                isFilled()const             {return fIsFilled;}
+            bool                isFilled()const             {return fIsFilled;}  //!
             bool                isInitialized()const        {return fIsInitialized;}
 
         public:

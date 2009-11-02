@@ -1,6 +1,7 @@
 # Copyright (C) 2009 Nicola Coppola
 
-CONFIG += shared static
+CONFIG += shared
+#CONFIG += static
 CONFIG += create_prl
 TEMPLATE = lib
 qt += core gui
@@ -59,5 +60,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_dictionaries.so
+libs.files     = libcass_dictionaries.so libcass_dictionaries.a
 INSTALLS      += header libs
