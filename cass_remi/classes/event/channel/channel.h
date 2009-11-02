@@ -77,7 +77,7 @@ namespace cass
             double      fFraction;               //the fraction of the cfd
             double      fWalk;                   //the walk of the cfd
 
-            ClassDefNV(Channel,1)
+            ClassDefNV(Channel,1)                //A channel of the Acqiris instrument
         };
         typedef std::vector<Channel> channels_t;
     }//end namespace remi

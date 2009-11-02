@@ -69,21 +69,21 @@ namespace cass
             int16_t             nbrConvPerChan()const       {return fNbrConPerCh;}
 
         private:
-            bool                fIsFilled;                  //flag to tell whether the event has been filled
-            bool                fIsInitialized;             //flag to tell whether the event has been initalized with configv1
+            bool                fIsFilled;                  //! flag to tell whether the event has been filled
+            bool                fIsInitialized;             //! flag to tell whether the event has been initalized with configv1
             double              fHorpos;                    //the fHorpos value for this event
             channels_t          fChannels;                  //Container for all Channels
             detectors_t         fDets;                      //Container for all Detektors
 
-            int16_t             fNbrBytes;                  //Nbr of bytes of the adc values (either 1 or 2)
+            int16_t             fNbrBytes;                  //! Nbr of bytes of the adc values (either 1 or 2)
             double              fSampleInterval;            //the time between two consecutive points (in ns)
             uint32_t            fNbrSamples;                //Nbr of Points (multiplied by the fSampInter it will give the timewindow in ns)
-            double              fDelayTime;                 //the delay of the trigger with respect to the window
-            uint32_t            fTrigChannel;               //the fTriggering Channel
-            double              fTrigLevel;                 //the trigger Level from the Offset
-            uint32_t            fTrigSlope;                 //which Slope was used by the fTrigger
-            uint32_t            fChanCombUsedChans;         //Bitmask discribing which Converters per Channel have been used
-            uint32_t            fNbrConPerCh;               //tells how many converts per channel have been used
+            double              fDelayTime;                 //! the delay of the trigger with respect to the window
+            uint32_t            fTrigChannel;               //! the fTriggering Channel
+            double              fTrigLevel;                 //! the trigger Level from the Offset
+            uint32_t            fTrigSlope;                 //! which Slope was used by the fTrigger
+            uint32_t            fChanCombUsedChans;         //! Bitmask discribing which Converters per Channel have been used
+            uint32_t            fNbrConPerCh;               //! tells how many converts per channel have been used
             ClassDefNV(REMIEvent,1)
         };
     }//end namespace remi

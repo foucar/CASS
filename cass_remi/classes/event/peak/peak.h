@@ -69,30 +69,30 @@ namespace cass
 
         private:
             double fTime;               //the time of the peaks, calculated from either cfd or com
-            double fCfd;                //the time calculated from cfd
-            double fCom;                //the time calculated form com
+            double fCfd;                //! the time calculated from cfd
+            double fCom;                //! the time calculated form com
 
             long   fPolarity;           //the polarity of the peak
             double fSlope;              //the slope of this peak
 
-            long   fMaxpos;             //the position where the maximum of peak is
-            double fMaximum;            //the height in bits
+            long   fMaxpos;             //! the position where the maximum of peak is
+            double fMaximum;            //! the height in bits
             double fHeight;             //the height in mV
-            double fHeightAbziehen;     //the height when you use the substraction cfd
+            double fHeightAbziehen;     //! the height when you use the substraction cfd
 
             double fFwhm;               //the fwhm of the peak
-            double fWidth;              //the width at the bottom of the peak
-            double fPosHalfLeft;        //the pos where the left edge crosses the half of the height
-            double fPosHalfRight;       //the pos where the right edge crosses the half of the height
+            double fWidth;              //! the width at the bottom of the peak
+            double fPosHalfLeft;        //! the pos where the left edge crosses the half of the height
+            double fPosHalfRight;       //! the pos where the right edge crosses the half of the height
 
             double fIntegral;           //the integral of the peak
 
-            long   fStartpos;           //the start postion of the peak
-            long   fStoppos;            //the stop position of the peak
+            long   fStartpos;           //! the start postion of the peak
+            long   fStoppos;            //! the stop position of the peak
 
-            bool   fUsed;               //flag wether this peak has been used in sorting the detektorhits
+            bool   fUsed;               //! flag wether this peak has been used in sorting the detektorhits
 
-            ClassDefNV(Peak,1)
+            ClassDefNV(Peak,1)          //An identified Signal in the waveform
         };
         typedef std::vector<Peak> peaks_t;
     }//end namespace remi

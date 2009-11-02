@@ -12,10 +12,6 @@
 #include "TObject.h"
 #endif
 
-namespace Pds
-{
-    class BldDataFEEGasDetEnergy;
-}
 
 
 namespace cass
@@ -103,30 +99,30 @@ namespace cass
         private:
             bool   _isFilled;
             //data comming from machine//
-            double _f_11_ENRC;   /* in mJ */
-            double _f_12_ENRC;   /* in mJ */
-            double _f_21_ENRC;   /* in mJ */
-            double _f_22_ENRC;   /* in mJ */
+            double _f_11_ENRC;      //pulsenergy in mJ
+            double _f_12_ENRC;      //pulsenergy in mJ
+            double _f_21_ENRC;      //pulsenergy in mJ
+            double _f_22_ENRC;      //pulsenergy in mJ
 
-            double _EbeamCharge;    /* in nC */
-            double _EbeamL3Energy;  /* in MeV */
-            double _EbeamLTUPosX;   /* in mm */
-            double _EbeamLTUPosY;   /* in mm */
-            double _EbeamLTUAngX;   /* in mrad */
-            double _EbeamLTUAngY;   /* in mrad */
+            double _EbeamCharge;    // in nC
+            double _EbeamL3Energy;  // in MeV
+            double _EbeamLTUPosX;   // in mm
+            double _EbeamLTUPosY;   // in mm
+            double _EbeamLTUAngX;   // in mrad
+            double _EbeamLTUAngY;   // in mrad
 
-            double _FitTime1;   /* in pico-seconds */
-            double _FitTime2;   /* in pico-seconds */
-            double _Charge1;    /* in pico-columbs */
-            double _Charge2;    /* in pico-columbs */
+            double _FitTime1;       //cavity property in pico-seconds
+            double _FitTime2;       //cavity property in pico-seconds
+            double _Charge1;        //cavity property in pico-columbs
+            double _Charge2;        //cavity property in pico-columbs
 
             //epics data//
-            EpicsDataMap _epicsdata;
+            EpicsDataMap _epicsdata;//a map containing all epics data in the xtc stream
 
             //data that gets calculated in Analysis//
-            double _energy;
+            double _energy;         //the calculated puls energy
 
-            ClassDefNV(MachineDataEvent,1)
+            ClassDefNV(MachineDataEvent,1)  //A Container for all relevant Machinespecific Data
         };
     }//end namespace machinedata
 }//end namespace cass

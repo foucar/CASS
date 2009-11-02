@@ -164,18 +164,18 @@ namespace cass
         private:
             dethits_t            fHits;                     //Container storing the refrences to the DetektorHits of this Detektor
             std::string          fName;                     //the name of this detector
-            AnodeLayer           fULayer;                   //properties of U1 Signals for this detektor
-            AnodeLayer           fVLayer;                   //properties of V1 Signals for this detektor
-            AnodeLayer           fWLayer;                   //properties of W1 Signals for this detektor
-            Signal               fMcp;                      //properties of MCP Signals for this detektor
-            double               fRuntime;                  //the runtime over the anode
-            double               fWLayerOffset;             //the offset of w-layer towards u and v-layer
-            double               fMcpRadius;                //the radius of the MCP in mm
-            double               fDeadMcp;                  //the Deadtime between to Signals on the MCP
-            double               fDeadAnode;                //the Deadtime between to Signals on the Layers
-            bool                 fHex;                      //flag telling wether this is a Hexanode Detektor
-            short                fSortMethod;               //flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
-            ClassDefNV(Detector,1)
+            AnodeLayer           fULayer;                   //! properties of U1 Signals for this detektor
+            AnodeLayer           fVLayer;                   //! properties of V1 Signals for this detektor
+            AnodeLayer           fWLayer;                   //! properties of W1 Signals for this detektor
+            Signal               fMcp;                      //! properties of MCP Signals for this detektor
+            double               fRuntime;                  //! the runtime over the anode
+            double               fWLayerOffset;             //! the offset of w-layer towards u and v-layer
+            double               fMcpRadius;                //! the radius of the MCP in mm
+            double               fDeadMcp;                  //! the Deadtime between to Signals on the MCP
+            double               fDeadAnode;                //! the Deadtime between to Signals on the Layers
+            bool                 fHex;                      //! flag telling wether this is a Hexanode Detektor
+            short                fSortMethod;               //! flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
+            ClassDefNV(Detector,1)                          //A Delayline Detector
         };
         typedef std::vector<Detector> detectors_t;
     }//end namespace remi
