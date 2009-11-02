@@ -15,8 +15,12 @@
 #define CASETOVAL(timetype,valtype) case timetype: {			\
     const Pds::EpicsPvTime<valtype>& p = static_cast<const Pds::EpicsPvTime<valtype>&>(epicsData); \
     const Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value = &p.value;	\
-    for(int i=0; i<epicsData.iNumElements; i++)				\
-        it->second = *value++; 					\
+    for(int i=0; i<epicsData.iNumElements; i++) \
+    {			\
+        it->second = *value;  \
+        std::cout << "epicsVariable " <<it->first <<" has value "<< it->second <<" should have "<<*value<<std::endl; \
+        it++;value++; \
+    }\
     break; }
 
 
@@ -71,14 +75,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         }
         case(Pds::TypeId::Id_Epics):
         {
-            std::cout << "found epics typeid ";
+//            std::cout << "found epics typeid ";
             const Pds::EpicsPvHeader& epicsData = *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
-            std::cout << epicsData.iDbrType<<std::endl;
+//            std::cout << epicsData.iDbrType<<std::endl;
             //cntrl is a configuration type and will only be send with a configure transition//
             if ( dbr_type_is_CTRL(epicsData.iDbrType) )
             {
                 const Pds::EpicsPvCtrlHeader& ctrl = static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
-                std::cout << "epics control with id "<<ctrl.iPvId<<" and name "<< ctrl.sPvName<<" is added to index map"<<std::endl;
+//                std::cout << "epics control with id "<<ctrl.iPvId<<" and name "<< ctrl.sPvName<<" is added to index map"<<std::endl;
                 //record what name the pvId has, this help later to find the name, which is the index of map in machineevent//
                 _index2name[ctrl.iPvId] = ctrl.sPvName;
                 //now we need to create the map which we will fill later with real values//
@@ -94,14 +98,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                         std::stringstream entryname;
                         entryname << ctrl.sPvName << "[" << i << "]";
                         _storedevent.EpicsData()[entryname.str()] = 0.;
-                        std::cout << "add "<<entryname.str() << " to machinedatamap"<<std::endl;
+//                        std::cout << "add "<<entryname.str() << " to machinedatamap"<<std::endl;
                     }
                 }
                 //otherwise we just add the name to the map and initialze it with 0//
                 else
                 {
                     _storedevent.EpicsData()[ctrl.sPvName] = 0.;
-                    std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
+//                    std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
                 }
 
             }
@@ -111,12 +115,12 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                 //now we need to find the variable name in the map//
                 //therefore we look up the name in the indexmap//
                 std::string name = _index2name[epicsData.iPvId];
-                std::cout <<"found id "<<epicsData.iPvId<<" lookup in the indexmap revealed the name "<<name<<std::endl;
+//                std::cout <<"found id "<<epicsData.iPvId<<" lookup in the indexmap revealed the name "<<name<<std::endl;
                 //if it is an array we added the braces with the array index before,
                 //so we need to add it also now before trying to find the name in the map//
                 if (epicsData.iNumElements > 1)
                     name.append("[0]");
-                std::cout << "now the name is "<<name<<std::endl;
+//                std::cout << "now the name is "<<name<<std::endl;
                 //try to find the the name in the map//
                 //this returns an iterator to the first entry we found//
                 //if it was an array we can then use the iterator to the next values//
@@ -124,7 +128,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                 //if the name is not in the map//
                 //then output an erromessage//
                 if (it == machinedataevent->EpicsData().end())
-                    std::cout << "epics variable with id "<<epicsData.iPvId<<" was not defined"<<std::endl;
+                    std::cerr << "epics variable with id "<<epicsData.iPvId<<" was not defined"<<std::endl;
                 //otherwise extract the epicsData and write it into the map
                 else
                 {
@@ -137,7 +141,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                         CASETOVAL(DBR_TIME_DOUBLE,DBR_DOUBLE)
                         default: break;
                     }
-                    std::cout << "added the value for the epics variable to the map"<<std::endl;
                 }
             }
             break;
