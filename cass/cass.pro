@@ -78,12 +78,14 @@ LIBS += -L../cass_remi/Release -lcass_remi \
 unix{
 SOURCES += $$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc # we have to live with this hack until lcls has made this part of their library
 QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
+QMAKE_LFLAGS += -Wl,-rpath,$$(Dict_LIB)
 LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_vmi -lcass_vmi \
         #-L../cass -lcass \
         -L../cass_machinedata -lcass_machinedata \
         -L../cass_database -lcass_database \
+#        -L$$(Dict_LIB) -ldictionaries \
         #-L../cass_root -lroot
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata
 }
