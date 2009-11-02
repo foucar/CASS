@@ -4,6 +4,7 @@
 #include <map>
 #include "cass_machine.h"
 #include "conversion_backend.h"
+#include "machine_event.h"
 
 namespace cass
 {
@@ -20,7 +21,9 @@ namespace cass
 
         private:
             typedef std::map<int,std::string> IndexMap;
-            IndexMap _index2name;
+            IndexMap            _index2name;
+            MachineDataEvent    _storedevent;
+
 
         };
     }//end namespace MachineData
