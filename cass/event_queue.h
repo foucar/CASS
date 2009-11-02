@@ -11,8 +11,8 @@
 #include "pdsdata/app/XtcMonitorClient.hh"
 
 //#define _maxbufsize 4
-#define _maxbufsize 1
-#define _maxdatagramsize 0x800000
+//#define _maxbufsize 1
+//#define _maxdatagramsize 0x800000
 
 namespace cass
 {
@@ -21,11 +21,12 @@ namespace cass
     {
         Q_OBJECT;
     public:
+        enum {_maxbufsize=1, _maxdatagramsize=0x800000};
         EventQueue(QObject *parent=0);
         ~EventQueue();
 
         void run();
-        int processDgram(Pds::Dgram*);
+        int  processDgram(Pds::Dgram*);
 
         Pds::Dgram* GetAndLockDatagram(uint32_t index);
         void UnlockDatagram(uint32_t index);
@@ -36,11 +37,11 @@ namespace cass
         void end();
 
     private:
-        char           *_ringbuffer;
-        char           *_ringbufferindizes[_maxbufsize];
-        QMutex          _mutexes[_maxbufsize];
-        uint32_t        _index;
-        bool            _quit;
+        char       *_ringbuffer;
+        char       *_ringbufferindizes[_maxbufsize];
+        QMutex      _mutexes[_maxbufsize];
+        uint32_t    _index;
+        bool        _quit;
     };
 
 }//end namespace cass
