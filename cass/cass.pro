@@ -61,12 +61,6 @@ INCLUDEPATH +=  ./ \
 #                ../cass_root \
 #                ../diode
 
-TARGETDEPS +=   ../cass_remi/libcass_remi.a \
-                ../cass_pnccd/libcass_pnccd.a \
-                ../cass_vmi/libcass_vmi.a \
-                ../cass_machinedata/libcass_machinedata.a \
-                ../cass_dictionaries/libcass_dictionaries.a \
-                ../cass_database/libcass_database.a \
 
 win32:debug{
 LIBS += -L../cass_remi/Debug -lcass_remi \
@@ -95,6 +89,13 @@ LIBS += -L../cass_remi -lcass_remi \
         -L$$(Dict_LIB) -lcass_dictionaries \
         #-L../cass_root -lroot
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata
+
+TARGETDEPS +=   ../cass_remi/libcass_remi.a \
+                ../cass_pnccd/libcass_pnccd.a \
+                ../cass_vmi/libcass_vmi.a \
+                ../cass_machinedata/libcass_machinedata.a \
+                ../cass_dictionaries/libcass_dictionaries.a \
+                ../cass_database/libcass_database.a
 }
 
 
