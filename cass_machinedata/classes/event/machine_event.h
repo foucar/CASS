@@ -97,7 +97,7 @@ namespace cass
             EpicsDataMap& EpicsData() {return _epicsdata;}
 
         private:
-            bool   _isFilled;
+            bool   _isFilled;       //! flag telling whether this event has been filled
             //data comming from machine//
             double _f_11_ENRC;      //pulsenergy in mJ
             double _f_12_ENRC;      //pulsenergy in mJ
