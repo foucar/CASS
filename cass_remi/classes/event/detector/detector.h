@@ -32,6 +32,7 @@ namespace cass
             size_t       nbrPeaks()const        {return fPeaks.size();}
             Peak        &peak(size_t idx)       {return fPeaks[idx];}
             const Peak  &peak(size_t idx)const  {return fPeaks[idx];}
+            peaks_t     &peaks()                {return fPeaks;}
 
         public:
             long         polarity()const        {return fPolarity;}
@@ -147,6 +148,7 @@ namespace cass
             size_t               nbrOfHits() const          {return fHits.size();}
             DetectorHit         &hit(const int idx)         {return fHits[idx];}
             const DetectorHit   &hit(const int idx) const   {return fHits[idx];}
+            dethits_t           &hits()                     {return fHits;}
 
         public:
             const char          *name()const                {return fName.c_str();}

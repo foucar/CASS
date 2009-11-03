@@ -444,7 +444,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   // I need to delock??... But I did not lock
   //printf("I will delete\n");
-  delete cassevent;
+//  delete cassevent;
   //printf("I will send the nextEvent signal\n");
   emit nextEvent();
 }

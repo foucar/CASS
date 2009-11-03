@@ -36,7 +36,7 @@ void cass::REMI::Channel::init(const Pds::Acqiris::DataDescV1& ddesc)
 
     //we have to invert the byte order for some reason that still has to be determined//
     for (size_t i=0;i<fDataLength;++i)
-        fWaveform[i] = (waveform[i]&0xff<<8) | (waveform[i]&0xff00>>8);
+        fWaveform[i] = (waveform[i]&0x00ff<<8) | (waveform[i]&0xff00>>8);
 }
 
 //______________________________________________________________________________________________________________________

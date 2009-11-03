@@ -9,6 +9,7 @@
 #include "pnccd_converter.h"
 #include "xtciterator.h"
 #include "event_queue.h"
+#include "event_manager.h"
 #include "pdsdata/xtc/Dgram.hh"
 
 
@@ -18,6 +19,7 @@ namespace cass {
     FormatConverter *FormatConverter::_instance(0);
     QMutex FormatConverter::_mutex;
     EventQueue *FormatConverter::_eventqueue(0);
+    EventManager *FormatConverter::_eventmanager(0);
 
 
     FormatConverter::FormatConverter()
@@ -48,10 +50,11 @@ namespace cass {
     }
 
 
-    FormatConverter *FormatConverter::instance(EventQueue* eventqueue)
+    FormatConverter *FormatConverter::instance(EventQueue* eventqueue, EventManager* eventmanager)
     {
         QMutexLocker locker(&_mutex);
         _eventqueue = eventqueue;
+        _eventmanager = eventmanager;
         if(0 == _instance)
             _instance = new FormatConverter();
         return _instance;
@@ -89,8 +92,9 @@ namespace cass {
                     bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
 
                     //create a new cassevent//
-		    cassevent = new CASSEvent(bunchId);
-                    //cassevent = database.nextEvent();
+//                    cassevent = new CASSEvent(bunchId);
+                    cassevent = _eventmanager->event(index);
+                    cassevent->id() = bunchId;
                 }
 
                 //iterate through the datagram and find the wanted information//

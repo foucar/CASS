@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 lmf
 
 #ifndef CASS_EVENTQUEUE_H
 #define CASS_EVENTQUEUE_H
@@ -10,13 +10,8 @@
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
 
-//#define _maxbufsize 4
-//#define _maxbufsize 1
-//#define _maxdatagramsize 0x800000
-
 namespace cass
 {
-
     class CASSSHARED_EXPORT EventQueue : public QThread, Pds::XtcMonitorClient
     {
         Q_OBJECT;

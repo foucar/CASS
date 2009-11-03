@@ -36,20 +36,23 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
 {
     cass::VMI::VMIEvent& vmievent = cassevent->VMIEvent();
 
+    //clear the vector of impacts//
+    vmievent.coordinatesOfImpact().clear();
+
     //initialize the start values for integral and max pixel value//
-    uint16_t maxpixelvalue              = 0;
-    uint32_t integral                   = 0;
-    uint16_t framewidth                 = vmievent.columns();
-    uint16_t frameheight                = vmievent.rows();
-    const std::vector<uint16_t>& frame  = vmievent.frame();
+    uint16_t maxpixelvalue                     = 0;
+    uint32_t integral                          = 0;
+    uint16_t framewidth                        = vmievent.columns();
+    uint16_t frameheight                       = vmievent.rows();
+    const cass::VMI::VMIEvent::frame_t& frame  = vmievent.frame();
 
     //go through all pixels of the frame//
     for (size_t i=0; i<frame.size(); ++i)
     {
         //extract the value and coordinate from the frame//
-        uint16_t pixel              = frame[i];
-        uint16_t xcoordinate        = i % framewidth;
-        uint16_t ycoordinate        = i / framewidth;
+        uint16_t pixel          = frame[i];
+        uint16_t xcoordinate    = i % framewidth;
+        uint16_t ycoordinate    = i / framewidth;
 
         //calc integral//
         integral += pixel;

@@ -20,6 +20,7 @@
         it->second = *value;  \
         std::cout << "epicsVariable " <<it->first <<" has value "<< it->second <<" should have "<<*value<<std::endl; \
         it++;value++; \
+        /*it++->second = *value++;*/\
     }\
     break; }
 

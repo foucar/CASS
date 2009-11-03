@@ -6,8 +6,8 @@
 #include "machine_event.h"
 
 
-cass::CASSEvent::CASSEvent(uint64_t id):
-        _id(id),
+cass::CASSEvent::CASSEvent():
+        _id(0),
         _remievent(new REMI::REMIEvent()),
         _vmievent(new VMI::VMIEvent()),
         _pnccdevent(new pnCCD::pnCCDEvent()),

@@ -11,6 +11,7 @@
 
 namespace cass
 {
+    class EventManager;
     class EventQueue;
     class ConversionBackend;
 
@@ -34,7 +35,7 @@ namespace cass
         static void destroy();
 
         /** Return a pointer to the single FormatConverter instance */
-        static FormatConverter *instance(EventQueue *);
+        static FormatConverter *instance(EventQueue *,EventManager *);
 
     public slots:
         void processDatagram(quint32 index);
@@ -64,7 +65,8 @@ namespace cass
         /** @brief Singleton operation locker in a multi-threaded environment. */
         static QMutex _mutex;
 
-        static EventQueue *_eventqueue;
+        static EventQueue   *_eventqueue;
+        static EventManager *_eventmanager;
 
     };
 

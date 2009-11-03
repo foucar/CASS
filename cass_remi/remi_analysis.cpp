@@ -173,9 +173,24 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
     //get the remievent from the cassevent//
     cass::REMI::REMIEvent& remievent = cassevent->REMIEvent();
 
+
     //ignore event if it is not initialized//
     if (remievent.isFilled() && remievent.isInitialized())
     {
+        //clear the arrays that contain the actual data//
+        for (size_t i=0;i<remievent.nbrOfChannels();++i)
+            remievent.channel(i).peaks().clear();
+        for (size_t i=0;i<remievent.nbrOfDetectors();++i)
+        {
+            remievent.detector(i).hits().clear();
+            remievent.detector(i).u().one().peaks().clear();
+            remievent.detector(i).u().two().peaks().clear();
+            remievent.detector(i).v().one().peaks().clear();
+            remievent.detector(i).v().two().peaks().clear();
+            remievent.detector(i).w().one().peaks().clear();
+            remievent.detector(i).w().two().peaks().clear();
+            remievent.detector(i).mcp().peaks().clear();
+        }
 
         //copy the parameters to the event//
         remievent.CopyParameters(fParam);

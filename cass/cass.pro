@@ -27,7 +27,8 @@ SOURCES +=  cass.cpp \
             cass_event.cpp \
             xtciterator.cpp \
             ratemeter.cpp \
-            dialog.cpp
+            dialog.cpp \
+            event_manager.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -39,7 +40,8 @@ HEADERS +=  analysis_backend.h \
             xtciterator.h \
             parameter_backend.h \
             ratemeter.h \
-            dialog.h
+            dialog.h \
+            event_manager.h
 
 INCLUDEPATH +=  ./ \
                 $$(LCLSSYSINCLUDE) \
@@ -86,7 +88,7 @@ LIBS += -L../cass_remi -lcass_remi \
         #-L../cass -lcass \
         -L../cass_machinedata -lcass_machinedata \
         -L../cass_database -lcass_database \
-        -L$$(Dict_LIB) -lcass_dictionaries \
+        -L../cass_dictionaries -lcass_dictionaries \
         #-L../cass_root -lroot
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata
 

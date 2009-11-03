@@ -48,43 +48,49 @@ namespace cass
                     _integral(0),
                     _maxPixelValue(0)
                     {}
+            ~VMIEvent() {}
+
         public:
-            bool&       isFilled()                   {return _isFilled;}
-            bool        isFilled()const              {return _isFilled;}
+            typedef std::vector<uint16_t> frame_t;
+            typedef std::vector<Coordinate> coordinates_t;
 
-            uint32_t&   integral()                   {return _integral;}
-            uint32_t    integral()const              {return _integral;}
-            uint16_t&   maxPixelValue()              {return _maxPixelValue;}
-            uint16_t    maxPixelValue()const         {return _maxPixelValue;}
-            uint16_t&   columns()                    {return _columns;}
-            uint16_t    columns()const               {return _columns;}
-            uint16_t&   rows()                       {return _rows;}
-            uint16_t    rows()const                  {return _rows;}
-            uint16_t&   bitsPerPixel()               {return _bitsPerPixel;}
-            uint16_t    bitsPerPixel()const          {return _bitsPerPixel;}
-            uint32_t&   offset()                     {return _offset;}
-            uint32_t    offset()const                {return _offset;}
+        public:
+            bool            &isFilled()              {return _isFilled;}
+            bool             isFilled()const         {return _isFilled;}
 
-            const std::vector<uint16_t>& frame()const{return _frame;}
-            std::vector<uint16_t>&       frame()     {return _frame;}
-            std::vector<uint16_t>&       cutFrame()  {return _cutframe;}
-            std::vector<cass::VMI::Coordinate>& coordinatesOfImpact()      {return _coordinatesOfImpact;}
+            uint32_t        &integral()              {return _integral;}
+            uint32_t         integral()const         {return _integral;}
+            uint16_t        &maxPixelValue()         {return _maxPixelValue;}
+            uint16_t         maxPixelValue()const    {return _maxPixelValue;}
+            uint16_t        &columns()               {return _columns;}
+            uint16_t         columns()const          {return _columns;}
+            uint16_t        &rows()                  {return _rows;}
+            uint16_t         rows()const             {return _rows;}
+            uint16_t        &bitsPerPixel()          {return _bitsPerPixel;}
+            uint16_t         bitsPerPixel()const     {return _bitsPerPixel;}
+            uint32_t        &offset()                {return _offset;}
+            uint32_t         offset()const           {return _offset;}
+
+            const frame_t   &frame()const            {return _frame;}
+            frame_t         &frame()                 {return _frame;}
+            frame_t         &cutFrame()              {return _cutframe;}
+            coordinates_t   &coordinatesOfImpact()   {return _coordinatesOfImpact;}
 
          private:
-            bool                    _isFilled;       //flag to tell whether this event has been filled
+            bool             _isFilled;              //flag to tell whether this event has been filled
 
             //data comming from machine//
-            std::vector<uint16_t>   _frame;          //the ccd frame
-            uint16_t                _columns;        //Nbr of columns of the frame
-            uint16_t                _rows;           //Nbr of rows of the frame
-            uint16_t                _bitsPerPixel;   //! number of bits per pixel
-            uint32_t                _offset;         //! the offset (need to find out what this value stands for)
+            frame_t         _frame;                  //the ccd frame
+            uint16_t        _columns;                //Nbr of columns of the frame
+            uint16_t        _rows;                   //Nbr of rows of the frame
+            uint16_t        _bitsPerPixel;           //! number of bits per pixel
+            uint32_t        _offset;                 //! the offset (need to find out what this value stands for)
 
             //data that gets calculated in Analysis//
-            uint32_t                _integral;       //the sum of all pixelvalues
-            uint16_t                _maxPixelValue;  //the highest pixelvalue
-            std::vector<Coordinate> _coordinatesOfImpact;//locations where something hit the detector are stored in this vector
-            std::vector<uint16_t>   _cutframe;       //new frame where only mcp is drawn (give maximum radius)
+            uint32_t        _integral;               //the sum of all pixelvalues
+            uint16_t        _maxPixelValue;          //the highest pixelvalue
+            coordinates_t   _coordinatesOfImpact;    //locations where something hit the detector are stored in this vector
+            frame_t         _cutframe;               //new frame where only mcp is drawn (give maximum radius)
             ClassDefNV(VMIEvent,1)
         };
     }//end namespace vmi

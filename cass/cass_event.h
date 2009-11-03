@@ -33,12 +33,12 @@ namespace cass
     class CASSEvent
     {
     public:
-        CASSEvent()     {}
-        CASSEvent(uint64_t id);
+        CASSEvent();
         ~CASSEvent();
 
     public:
         uint64_t    id()const   {return _id;}
+        uint64_t   &id()        {return _id;}
 
     public:
 	REMI::REMIEvent                 &REMIEvent()          {return *_remievent;}

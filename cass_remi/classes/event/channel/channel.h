@@ -41,6 +41,7 @@ namespace cass
         public:
             Peak       &addPeak();
             size_t      nbrPeaks()const         {return fPeaks.size();}
+            peaks_t    &peaks()                 {return fPeaks;}
             Peak       &peak(long idx)          {return fPeaks[idx];}
             const Peak &peak(long idx)const     {return fPeaks[idx];}
 

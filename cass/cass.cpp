@@ -5,6 +5,7 @@
 #include "cass.h"
 #include "analyzer.h"
 #include "event_queue.h"
+#include "event_manager.h"
 #include "format_converter.h"
 #include "database.h"
 #include "ratemeter.h"
@@ -26,8 +27,10 @@ int main(int argc, char **argv)
 
     // create event queue object
     cass::EventQueue *input(new cass::EventQueue());
+    // create event manager object
+    cass::EventManager *eventmanager(new cass::EventManager());
     // create format converter object
-    cass::FormatConverter *conversion(cass::FormatConverter::instance(input));
+    cass::FormatConverter *conversion(cass::FormatConverter::instance(input,eventmanager));
     // create analysis object
     cass::Analyzer *analysis(new cass::Analyzer());
     // create database object
