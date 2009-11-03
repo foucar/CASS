@@ -20,6 +20,7 @@ exists ($$incFile) {
 }
 
 TARGET = cass_remi
+TARGET += libcass_remi.a
 
 SOURCES += remi_analysis.cpp \
            remi_converter.cpp \
@@ -68,5 +69,5 @@ header.path     = $$INSTALLBASE/include
 libs.path       = $$INSTALLBASE/libs
 
 header.files    = $$HEADERS
-libs.files      = libcass_remi.a
+libs.files      = libcass_remi*
 INSTALLS        += header libs
