@@ -169,6 +169,11 @@ cass::pnCCD::pnCCDEvent::init
          frm_data,
          datasize);
 
+  //for now also copy the raw frame to the corrected frame//
+  memcpy(this->corr_signal_values_.at(ccd_id-1),
+         frm_data,
+         datasize);
+
   return true;
 }
 
