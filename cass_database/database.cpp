@@ -30,7 +30,7 @@
 #include <TDataType.h>
 #include <TMapFile.h>
 
-TFile f("tree_and_histos.root","RECREATE");
+//TFile f("tree_and_histos.root","RECREATE");
 TTree *T = new TTree("T","circ buffer");
 
 #include "cass_tree.h"
@@ -102,18 +102,18 @@ cass::database::Database::Database()
   //mapfile->Print();
   //mapfile->ls();
 
-  Long64_t fgMaxTreeSize=100000000;
-  T->SetMaxTreeSize(fgMaxTreeSize);
-  printf("Linear Tree allocated with %i bytes\n",fgMaxTreeSize);
+  //  Long64_t fgMaxTreeSize=1000000000;
+  //T->SetMaxTreeSize(fgMaxTreeSize);
+  //printf("Linear Tree allocated with %i bytes\n",fgMaxTreeSize);
 
   //should I add a header to the tree??
 
   // this is where I am going to start the tree
   T->Branch("Nevents",&Nevents,"Nevents/i");
-  T->Branch("px",&px,"px/F");
-  T->Branch("py",&py,"py/F");
+  /*T->Branch("px",&px,"px/F");
+    T->Branch("py",&py,"py/F");*/
   //T->Branch("pz",&pz,"pz/F");
-  T->Branch("random",&random,"random/D");
+  //T->Branch("random",&random,"random/D");
 
   // the eventid
   T->Branch("CASS_id",&event_id,"CASS_id/l");
@@ -125,8 +125,10 @@ cass::database::Database::Database()
   }
   else printf("I have got already the MachineData definitions\n");
   cass::MachineData::MachineDataEvent *machinedata = new cass::MachineData::MachineDataEvent();
-  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,99);
-  //  delete mac_things_event;
+  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,00);
+  delete machinedata;
+  //TBranch::SetAutoDelete(kTRUE);
+
 
   //REMI
   if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
@@ -135,8 +137,8 @@ cass::database::Database::Database()
   }
   else printf("I have got already the REMI definitions\n");
   cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
-  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,99);
-  //  delete REMI_things_event;
+  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,0);
+  delete REMIdata;
 
   //VMI
   if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
@@ -145,8 +147,8 @@ cass::database::Database::Database()
   }
   else printf("I have got already the VMI definitions\n");
   cass::VMI::VMIEvent *VMIdata = new cass::VMI::VMIEvent();
-  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,99);
-  //  delete VMI_things_event;
+  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,0);
+  delete VMIdata;
 
   //pnCCD
   if(!TClassTable::GetDict("cass::pnCCD::pnCCDEvent"))
@@ -155,9 +157,10 @@ cass::database::Database::Database()
   }
   else printf("I have got already the pnCCD definitions\n");
   cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
-  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,99);
-  //  delete pnCCD_things_event;
+  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,0);
+  delete pnCCDdata;
 
+  /*
   //pnCCD (2)
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
@@ -167,12 +170,12 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
   T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
-
-  T->SetAutoSave();
-  T->BranchRef();
+  */
+  //T->SetAutoSave();
+  //T->BranchRef();
   //T->SetCompressionLevel(0);
-  //T->SetCircular(max_events_in_Buffer);
-  //printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+  T->SetCircular(max_events_in_Buffer);
+  printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
   T->Print();
   Nevents=0;
@@ -268,17 +271,60 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
 
   T->Fill();
-  //mapfile.Update(TObject obj = 0);
+  //mapfile->Update(TObject obj = 0);
+  mapfile->Update();
 
-  if ( max_events_in_Buffer>99 && ( Nevents%(10) )==0 )
+#ifdef sng_update
+  if ( max_events_in_Buffer>99)
   {
-    printf("updating mapfile\n");
-    mapfile->Update();
+
+    if( ( Nevents%(10) )==0 )
+    {
+    /*printf("updating mapfile\n");
+      mapfile->Update();*/
+
+    /*
+    //going to close and open next file
+    //OpennextFile(int(Nevents%100));
+    if((Nevents/100)==0)
+    {
+    char root_files[30];
+    sprintf(root_files,"teen_and_hs_%i.root",int(Nevents/100));
+    printf("%s\n",root_files);
+    T->Write();
+    f.Close();
+    delete T;
+    TFile f(root_files,"RECREATE");
+    TTree *T = new TTree("T","lin buffer");
+    T->Branch("Nevents",&Nevents,"Nevents/i");
+    T->Branch("px",&px,"px/F");
+    T->Branch("py",&py,"py/F");
+    T->Branch("random",&random,"random/D");
+    T->Branch("CASS_id",&event_id,"CASS_id/l");
+    T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,99);
+    T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,99);
+    T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,99);
+    T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,99);
+    T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
+    T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
+
+    T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
+    T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
+
+    T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
+    T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
+
+    T->SetAutoSave();
+    T->BranchRef();
+    }
+*/
+    }
   }
   else
   {
     if(Nevents%5==0) mapfile->Update();
   }
+#endif
 
 //  delete cassevent;
   //printf("I will send the nextEvent signal\n");
@@ -289,3 +335,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
    return 0;
 }*/
+
+ /*cass::CASSEvent* cass::database::Database::OpennextFile(int nof)
+{
+  return 0;
+  }*/
