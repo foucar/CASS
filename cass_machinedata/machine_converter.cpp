@@ -35,6 +35,8 @@ cass::MachineData::Converter::Converter()
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
+    //during a configure transition we don't get a cassevent, so we should extract the machineevent//
+    //only when cassevent is non zero//
     MachineDataEvent *machinedataevent = 0;
     if (cassevent)
     {
@@ -108,7 +110,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                     _storedevent.EpicsData()[ctrl.sPvName] = 0.;
 //                    std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
                 }
-
             }
             //time is the actual data, that will be send down the xtc with 1 Hz
             else if(dbr_type_is_TIME(epicsData.iDbrType))
@@ -125,10 +126,10 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
                 //try to find the the name in the map//
                 //this returns an iterator to the first entry we found//
                 //if it was an array we can then use the iterator to the next values//
-                MachineDataEvent::EpicsDataMap::iterator it = machinedataevent->EpicsData().find(name);
+                MachineDataEvent::EpicsDataMap::iterator it = _storedevent.EpicsData().find(name);
                 //if the name is not in the map//
                 //then output an erromessage//
-                if (it == machinedataevent->EpicsData().end())
+                if (it == _storedevent.EpicsData().end())
                     std::cerr << "epics variable with id "<<epicsData.iPvId<<" was not defined"<<std::endl;
                 //otherwise extract the epicsData and write it into the map
                 else
@@ -149,4 +150,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 
         default: break;
     }
+    //copy the epics values in the storedevent to the machineevent
+    if (cassevent)
+        machinedataevent->EpicsData() = _storedevent.EpicsData();
+
 }
