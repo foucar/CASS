@@ -125,7 +125,7 @@ cass::database::Database::Database()
   }
   else printf("I have got already the MachineData definitions\n");
   cass::MachineData::MachineDataEvent *machinedata = new cass::MachineData::MachineDataEvent();
-  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,00);
+  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,0);
   delete machinedata;
   //TBranch::SetAutoDelete(kTRUE);
 
@@ -160,7 +160,7 @@ cass::database::Database::Database()
   T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,0);
   delete pnCCDdata;
 
-  /*
+ 
   //pnCCD (2)
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
@@ -170,9 +170,9 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
   T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
-  */
+ 
   //T->SetAutoSave();
-  //T->BranchRef();
+  T->BranchRef();
   //T->SetCompressionLevel(0);
   T->SetCircular(max_events_in_Buffer);
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
@@ -261,7 +261,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
 
-  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/10) )==0 )
+  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/100) )==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
@@ -289,7 +289,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     if((Nevents/100)==0)
     {
     char root_files[30];
-    sprintf(root_files,"teen_and_hs_%i.root",int(Nevents/100));
+    sprintf(root_files,"tree_and_hs_%i.root",int(Nevents/100));
     printf("%s\n",root_files);
     T->Write();
     f.Close();

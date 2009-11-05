@@ -1,3 +1,6 @@
+#include <map>
+#include <string>
+
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -5,6 +8,9 @@
 #pragma link off all functions;
 #pragma link C++ namespace cass;
 #pragma link C++ namespace cass::MachineData;
+
+#pragma link C++ class map<std::string,double>;
+
 //#pragma link C++ nestedclasses;
  
 //#pragma link C++ global gROOT;
