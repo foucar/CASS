@@ -22,8 +22,11 @@ UInt_t max_events_in_Buffer= 2000;
 
 #define VMI_max_cols 640 // ??? it was 8000, it is still too large
 #define VMI_max_rows 480 // ??? it was 8000, it is still too large
-#define VMI_MAX_IMPACTS 100 //???
+#define VMI_MAX_IMPACTS 100 // ???
 
+#ifndef ROOT_TRandom
+#include <TRandom.h>
+#endif
 TRandom r;
 Float_t px,py,pz;
 UInt_t Nevent;
