@@ -109,7 +109,7 @@ cass::database::Database::Database()
   //should I add a header to the tree??
 
   // this is where I am going to start the tree
-  T->Branch("Nevents",&Nevents,"Nevents/i");
+  T->Branch("Nevent",&Nevent,"Nevent/i");
   /*T->Branch("px",&px,"px/F");
     T->Branch("py",&py,"py/F");*/
   //T->Branch("pz",&pz,"pz/F");
@@ -178,7 +178,7 @@ cass::database::Database::Database()
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
   T->Print();
-  Nevents=0;
+  Nevent=0;
 }
 
 cass::database::Database::~Database()
@@ -198,8 +198,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   if(!cassevent) return;
 
-  Nevents++;
-  //if(Nevents>299) printf("Nevents=%i \n",Nevents);
+  Nevent++;
+  //if(Nevent>299) printf("Nevent=%i \n",Nevent);
   // just to have something filled...
 
   r.Rannor(px,py);
@@ -261,12 +261,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
 
-  if ( max_events_in_Buffer>99 && ( Nevents%(max_events_in_Buffer/100) )==0 )
+  if ( max_events_in_Buffer>99 && ( Nevent%(max_events_in_Buffer/100) )==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
     strftime(hourmin,11,"%H%M%S",timeinfo);
-    printf("done/seen event %i %i %s\n",Nevents,int(event_id), hourmin );
+    printf("done/seen event %i %i %s\n",Nevent,int(event_id), hourmin );
     //T->Show(i%max_events_in_Buffer-1);
   }
 
@@ -278,25 +278,25 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   if ( max_events_in_Buffer>99)
   {
 
-    if( ( Nevents%(10) )==0 )
+    if( ( Nevent%(10) )==0 )
     {
     /*printf("updating mapfile\n");
       mapfile->Update();*/
 
     /*
     //going to close and open next file
-    //OpennextFile(int(Nevents%100));
-    if((Nevents/100)==0)
+    //OpennextFile(int(Nevent%100));
+    if((Nevent/100)==0)
     {
     char root_files[30];
-    sprintf(root_files,"tree_and_hs_%i.root",int(Nevents/100));
+    sprintf(root_files,"tree_and_hs_%i.root",int(Nevent/100));
     printf("%s\n",root_files);
     T->Write();
     f.Close();
     delete T;
     TFile f(root_files,"RECREATE");
     TTree *T = new TTree("T","lin buffer");
-    T->Branch("Nevents",&Nevents,"Nevents/i");
+    T->Branch("Nevent",&Nevent,"Nevent/i");
     T->Branch("px",&px,"px/F");
     T->Branch("py",&py,"py/F");
     T->Branch("random",&random,"random/D");
@@ -322,7 +322,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   else
   {
-    if(Nevents%5==0) mapfile->Update();
+    if(Nevent%5==0) mapfile->Update();
   }
 #endif
 

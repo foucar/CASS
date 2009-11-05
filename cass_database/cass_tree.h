@@ -26,7 +26,7 @@ UInt_t max_events_in_Buffer= 2000;
 
 TRandom r;
 Float_t px,py,pz;
-UInt_t Nevents;
+UInt_t Nevent;
 //Int_t i;
 
 ULong64_t event_id;
