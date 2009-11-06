@@ -3,7 +3,7 @@ thishome=`pwd`
 extention='.h'
 cd cass_remi/classes/event/peak
 newer peak.h peak_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary peak_dict.cxx
   rootcint -f peak_dict.cxx -c peak.h LinkDef.h
@@ -11,7 +11,7 @@ fi
 cd $thishome
 cd cass_remi/classes/event/channel
 newer channel.h channel_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary channel_dict.cxx
   rootcint -f channel_dict.cxx -c -I../peak channel.h LinkDef.h
@@ -19,7 +19,7 @@ fi
 cd $thishome
 cd cass_remi/classes/event/detector
 newer detector.h detector_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary detector_dict.cxx
   rootcint -f detector_dict.cxx -c -I../peak -I../channel detector.h LinkDef.h
@@ -27,7 +27,7 @@ fi
 cd $thishome
 cd cass_remi/classes/event
 newer remi_event.h remi_event_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary remi_event_dict.cxx
   rootcint -f remi_event_dict.cxx -c -Ipeak -Ichannel -Idetector remi_event.h LinkDef.h
@@ -35,7 +35,7 @@ fi
 cd $thishome
 cd cass_vmi/classes/event
 newer vmi_event.h vmi_event_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary vmi_event_dict.cxx
   rootcint -f vmi_event_dict.cxx -c vmi_event.h LinkDef.h
@@ -43,7 +43,7 @@ fi
 cd $thishome
 cd cass_machinedata/classes/event
 newer machine_event.h machine_event_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary machine_event_dict.cxx
   rootcint -f machine_event_dict.cxx -c machine_event.h LinkDef.h
@@ -51,7 +51,7 @@ fi
 cd $thishome
 cd cass_pnccd/classes/event
 newer pnccd_event.h pnccd_event_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary pnccd_event_dict.cxx
   rootcint -f pnccd_event_dict.cxx -c -I../../../LCLS pnccd_event.h LinkDef.h
@@ -59,7 +59,7 @@ fi
 cd $thishome
 cd cass
 newer cass_event.h cass_event_dict.cxx
-if [ $? -gt 0 ]
+if [ $? -eq 0 ]
 then
   echo rebuilding dictionary cass_event_dict.cxx
   rootcint -f cass_event_dict.cxx -c cass_event.h LinkDef.h
