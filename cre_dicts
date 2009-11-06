@@ -44,4 +44,16 @@ ln -s ../cass_pnccd/classes/event/pnccd_event_dict.cxx
 ln -s ../cass_pnccd/classes/event/pnccd_event_dict.h
 ln -s ../cass/cass_event_dict.cxx
 ln -s ../cass/cass_event_dict.h
-
+ln -s ../cass_machinedata/classes/event/machine_event.cpp
+ln -s ../cass_remi/classes/event/peak/peak.cpp
+ln -s ../cass_remi/classes/event/channel/channel.cpp
+ln -s ../cass_remi/classes/event/detector/detector.cpp
+ln -s ../cass_remi/classes/event/remi_event.cpp
+ln -s ../cass_vmi/classes/event/vmi_event.cpp
+ln -s ../cass_pnccd/classes/event/pnccd_event.cpp
+ln -s ../cass_remi/classes/event/remi_event.h
+ln -s ../cass_remi/remi_analysis.h
+ln -s ../cass_remi/cass_remi.h
+ln -s ../cass_remi/classes/signalanalyzer/signal_analyzer.h
+ln -s ../cass_remi/classes/signalanalyzer/softtdc.h
+ln -s ../cass_remi/classes/detektorhitsorter/detektorhitsorter.h
