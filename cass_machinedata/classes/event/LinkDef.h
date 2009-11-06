@@ -9,7 +9,7 @@
 #pragma link C++ namespace cass;
 #pragma link C++ namespace cass::MachineData;
 
-#pragma link C++ class map<std::string,double>;
+//#pragma link C++ class map<std::string,double>;
 
 //#pragma link C++ nestedclasses;
  
