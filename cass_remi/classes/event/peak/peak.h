@@ -9,7 +9,7 @@
 #include "Rtypes.h"
 #endif
 
-#ifndef ROOT_tObject
+#ifndef ROOT_TObject
 #include "TObject.h"
 #endif
 
