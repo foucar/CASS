@@ -20,7 +20,7 @@ exists ($$incFile) {
 }
 
 TARGET = cass_remi
-TARGET += libcass_remi.a
+#TARGET += libcass_remi.a
 
 SOURCES += remi_analysis.cpp \
            remi_converter.cpp \

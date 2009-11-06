@@ -1,6 +1,6 @@
 # Copyright (C) 2009 Jochen Küpper
 
-//CONFIG += shared
+#CONFIG += shared
 CONFIG += static 
 QT -= core gui
 TEMPLATE = lib

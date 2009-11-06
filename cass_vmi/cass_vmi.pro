@@ -1,6 +1,6 @@
 # Copyright (C) 2009 Jochen Küpper
 #modified Copyright (C) 2009 N Coppola
-//CONFIG += shared
+#CONFIG += shared
 CONFIG += static 
 CONFIG += create_prl
 QT -= core gui
