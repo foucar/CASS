@@ -74,7 +74,7 @@ namespace cass
             double      _horpos;                 //Horizontal position of first data point with respect to the trigger
             int16_t     _fullscale;              //the fullscale for this channel (in mV)
             int16_t     _offset;                 //the offset for this channel (in mV)
-            double      _gain;                   //Vertical gain in Volts/LSB. (V = vGain * data – vOffset) the conversion factor from adc bytes to mV (adc bytes * fGain = mV)
+            double      _gain;                   //Vertical gain in Volts/LSB. (V = vGain * data - vOffset) the conversion factor from adc bytes to mV (adc bytes * fGain = mV)
 
             //things important to know to analyze the waveform//
             //set by the user via parameters//

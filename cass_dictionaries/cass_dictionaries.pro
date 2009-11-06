@@ -25,6 +25,13 @@ exists ($$incFile) {
   }
 }
 
+#mytargeta.target = Makefile.dic
+#mytargeta.commands = cd ../cass_vmi/classes/event/;rootcint -f vmi_event_dict.cxx -c vmi_event.h LinkDef.h
+                     
+
+#mytargeta.commands = cd ;../cre_dict
+#QMAKE_EXTRA_TARGETS += mytargeta
+#CONFIG += QMAKE_EXTRA_TARGETS
 
 SOURCES += machine_event_dict.cxx \
            machine_event.cpp \
@@ -39,8 +46,8 @@ SOURCES += machine_event_dict.cxx \
            vmi_event_dict.cxx \
            vmi_event.cpp \
            pnccd_event_dict.cxx \
-           pnccd_event.cpp \
-#           cass_event_dict.cxx
+           pnccd_event.cpp
+
 
 HEADERS += machine_event_dict.h \
            peak_dict.h \

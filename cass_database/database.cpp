@@ -212,6 +212,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
   T->SetBranchAddress("REMIEventBranch",&REMIdata);
+  std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
+
 
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
   T->SetBranchAddress("VMIEventBranch",&VMIdata);
