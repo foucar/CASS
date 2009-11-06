@@ -1,14 +1,15 @@
-#ifndef __Peak_H__
-#define __Peak_H__
+#ifndef __peak_h__
+#define __peak_h__
 
 #include <vector>
+#include <stdint.h>
 
 
 #ifndef ROOT_Rtypes
 #include "Rtypes.h"
 #endif
 
-#ifndef ROOT_TObject
+#ifndef ROOT_tObject
 #include "TObject.h"
 #endif
 
@@ -20,81 +21,79 @@ namespace cass
         class Peak
         {
         public:
-            Peak();
+            Peak()  {}
             ~Peak() {}
 
         public:
-            void Clear();
-            enum EPolarity{kBad=0,kPositive,kNegative};
+            enum Polarity{Bad=0,Positive,Negative};
 
         public:
-            void   time(double in)      {fTime = in;}
-            double time() const         {return fTime;}
+            double      time()const         {return _time;}
+            double     &time()              {return _time;}
 
-            void   com(double in)       {fCom = in;}
-            double com() const          {return fCom;}
+            double      com()const          {return _com;}
+            double     &com()               {return _com;}
 
-            void   cfd(double in)       {fCfd = in;}
-            double cfd() const          {return fCfd;}
+            double      cfd()const          {return _cfd;}
+            double     &cfd()               {return _cfd;}
 
-            void   integral(double in)  {fIntegral = in;}
-            double integral() const     {return fIntegral;}
+            double      integral()const     {return _integral;}
+            double     &integral()          {return _integral;}
 
-            void   height(double in)    {fHeight = in;}
-            double height() const       {return fHeight;}
+            double      height()const       {return _height;}
+            double     &height()            {return _height;}
 
-            void   width(double in)     {fWidth = in;}
-            double width() const        {return fWidth;}
+            double      width()const        {return _width;}
+            double     &width()             {return _width;}
 
-            void   fwhm(double in)      {fFwhm = in;}
-            double fwhm() const         {return fFwhm;}
+            double      fwhm()const         {return _fwhm;}
+            double     &fwhm()              {return _fwhm;}
 
-            void   startpos(long in)    {fStartpos = in;}
-            long   startpos() const     {return fStartpos;}
+            uint32_t    startpos()const     {return _startpos;}
+            uint32_t   &startpos()          {return _startpos;}
 
-            void   stoppos(long in)     {fStoppos = in;}
-            long   stoppos() const      {return fStoppos;}
+            uint32_t    stoppos()const      {return _stoppos;}
+            uint32_t   &stoppos()           {return _stoppos;}
 
-            void   maxpos(long in)      {fMaxpos = in;}
-            long   maxpos() const       {return fMaxpos;}
+            uint32_t    maxpos()const       {return _maxpos;}
+            uint32_t   &maxpos()            {return _maxpos;}
 
-            void   maximum(double in)   {fMaximum = in;}
-            double maximum() const      {return fMaximum;}
+            double      maximum()const      {return _maximum;}
+            double     &maximum()           {return _maximum;}
 
-            void   polarity(long in)    {fPolarity = in;}
-            long   polarity() const     {return fPolarity;}
+            Polarity    polarity()const     {return _polarity;}
+            Polarity   &polarity()          {return _polarity;}
 
-            void   isUsed(bool in)      {fUsed = in;}
-            bool   isUsed() const       {return fUsed;}
+            bool        isUsed()const       {return _used;}
+            bool       &isUsed()            {return _used;}
 
         private:
-            double fTime;               //the time of the peaks, calculated from either cfd or com
-            double fCfd;                //! the time calculated from cfd
-            double fCom;                //! the time calculated form com
+            double      _time;              //the time of the peaks, calculated from either cfd or com
+            double      _cfd;               //! the time calculated from cfd
+            double      _com;               //! the time calculated from com
 
-            long   fPolarity;           //the polarity of the peak
-            double fSlope;              //the slope of this peak
+            Polarity    _polarity;          //the polarity of the peak
+            double      _slope;             //the slope of this peak
 
-            long   fMaxpos;             //! the position where the maximum of peak is
-            double fMaximum;            //! the height in bits
-            double fHeight;             //the height in mV
-            double fHeightAbziehen;     //! the height when you use the substraction cfd
+            uint32_t    _maxpos;            //! the position where the maximum of peak is
+            double      _maximum;           //! the height in bits
+            double      _height;            //the height in mV
+            double      _heightAbziehen;    //! the height when you use the substraction cfd
 
-            double fFwhm;               //the fwhm of the peak
-            double fWidth;              //! the width at the bottom of the peak
-            double fPosHalfLeft;        //! the pos where the left edge crosses the half of the height
-            double fPosHalfRight;       //! the pos where the right edge crosses the half of the height
+            double      _fwhm;              //the _whm of the peak
+            double      _width;             //! the width at the bottom of the peak
+            double      _posHalfLeft;       //! the pos where the left edge crosses the half of the height
+            double      _posHalfRight;      //! the pos where the right edge crosses the half of the height
 
-            double fIntegral;           //the integral of the peak
+            double      _integral;          //the integral of the peak
 
-            long   fStartpos;           //! the start postion of the peak
-            long   fStoppos;            //! the stop position of the peak
+            uint32_t    _startpos;          //! the start postion of the peak
+            uint32_t    _stoppos;           //! the stop position of the peak
 
-            bool   fUsed;               //! flag wether this peak has been used in sorting the detektorhits
+            bool        _used;              //! _lag wether this peak has been used in sorting the detektorhits
 
-            ClassDefNV(Peak,1)          //An identified Signal in the waveform
+            ClassDefNV(Peak,1)              //An identified Signal in the waveform
         };
-        typedef std::vector<Peak> peaks_t;
     }//end namespace remi
 }//end namespace cass
 #endif

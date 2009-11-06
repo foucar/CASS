@@ -3,7 +3,7 @@
 
 
 //___________________________________________________________________________________________________________________________________________________________
-void cass::REMI::DetektorHitSorterQuad::FillHistosBeforeShift(const Detector&)
+void cass::REMI::DetectorHitSorterQuad::FillHistosBeforeShift(const cass::REMI::Detector&)
 {
     ////--timesum--//
     //rm.fill2d(fHiOff+kSumVsURaw,u1-u2,u1+u2-2.*mcp);

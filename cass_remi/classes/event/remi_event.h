@@ -5,6 +5,14 @@
 #include "detector.h"
 #include "channel.h"
 
+#ifndef ROOT_Rtypes
+#include <Rtypes.h>
+#endif
+
+#ifndef ROOT_TObject
+#include <TObject.h>
+#endif
+
 namespace Pds
 {
     namespace Acqiris
@@ -18,14 +26,6 @@ namespace Pds
     }
 }
 
-#ifndef ROOT_Rtypes
-#include <Rtypes.h>
-#endif
-
-#ifndef ROOT_TObject
-#include <TObject.h>
-#endif
-
 namespace cass
 {
     namespace REMI
@@ -36,54 +36,44 @@ namespace cass
         class REMIEvent
         {
         public:
-            REMIEvent():fIsFilled(false),fIsInitialized(false)  {}
-            void                init(const Pds::Acqiris::DataDescV1&);
-            void                init(const Pds::Acqiris::ConfigV1&);
-            void                CopyParameters(const Parameter&);
+            REMIEvent():
+                    _isFilled(false),
+                    _isConfigured(false)  {}
+            ~REMIEvent()    {}
 
         public:
-            size_t              nbrOfChannels()const        {return fChannels.size();}
-            Channel            &channel(long idx)           {return fChannels[idx];}
-            const Channel      &channel(long idx)const      {return fChannels[idx];}
-            const channels_t   &channels()const             {return fChannels;}
+            typedef std::vector<Channel> channels_t;
+            typedef std::vector<Detector> detectors_t;
 
         public:
-            size_t              nbrOfDetectors()const       {return fDets.size();}
-            Detector           &detector(long idx)          {return fDets[idx];}
-            const Detector     &detector(long idx)const     {return fDets[idx];}
+            const channels_t   &channels()const         {return _channels;}
+            channels_t         &channels()              {return _channels;}
+
+        public:
+            const detectors_t  &detectors()const        {return _dets;}
+            detectors_t        &detectors()             {return _dets;}
         
         public:
-            bool                isFilled()const             {return fIsFilled;}  //!
-            bool                isInitialized()const        {return fIsInitialized;}
+            bool                isFilled()const         {return _isFilled;}
+            bool               &isFilled()              {return _isFilled;}
+            bool                isConfigured()const     {return _isConfigured;}
+            bool               &isConfigured()          {return _isConfigured;}
 
         public:
-            double              horpos()const               {return fHorpos;}
-            int16_t             nbrBytes()const             {return fNbrBytes;}
-            double              sampleInterval()const       {return fSampleInterval;}
-            int32_t             nbrSamples()const           {return fNbrSamples;}
-            double              delayTime()const            {return fDelayTime;}
-            double              trigLevel()const            {return fTrigLevel;}
-            int16_t             trigSlope()const            {return fTrigSlope;}
-            int16_t             trigChannel()const          {return fTrigChannel;}
-            uint32_t            chanCombUsedChannels()const {return fChanCombUsedChans;}
-            int16_t             nbrConvPerChan()const       {return fNbrConPerCh;}
+            double              sampleInterval()const   {return _sampleInterval;}
+            double             &sampleInterval()        {return _sampleInterval;}
 
         private:
-            bool                fIsFilled;                  //! flag to tell whether the event has been filled
-            bool                fIsInitialized;             //! flag to tell whether the event has been initalized with configv1
-            double              fHorpos;                    //the fHorpos value for this event
-            channels_t          fChannels;                  //Container for all Channels
-            detectors_t         fDets;                      //Container for all Detektors
+            //status flags//
+            bool                _isFilled;              //! flag to tell whether the event has been filled
+            bool                _isConfigured;          //! flag to tell whether the event has been initalized with configv1
 
-            int16_t             fNbrBytes;                  //! Nbr of bytes of the adc values (either 1 or 2)
-            double              fSampleInterval;            //the time between two consecutive points (in ns)
-            uint32_t            fNbrSamples;                //Nbr of Points (multiplied by the fSampInter it will give the timewindow in ns)
-            double              fDelayTime;                 //! the delay of the trigger with respect to the window
-            uint32_t            fTrigChannel;               //! the fTriggering Channel
-            double              fTrigLevel;                 //! the trigger Level from the Offset
-            uint32_t            fTrigSlope;                 //! which Slope was used by the fTrigger
-            uint32_t            fChanCombUsedChans;         //! Bitmask discribing which Converters per Channel have been used
-            uint32_t            fNbrConPerCh;               //! tells how many converts per channel have been used
+            //containers for acqiris and delayline data//
+            channels_t          _channels;              //Container for all Channels
+            detectors_t         _dets;                  //Container for all Detektors
+
+            //variables from the acqiris instrument//
+            double              _sampleInterval;        //the time between two consecutive points (in ns)
             ClassDefNV(REMIEvent,1)
         };
     }//end namespace remi

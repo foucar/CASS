@@ -14,14 +14,14 @@ namespace cass
     {
         //_________________________________helper function that does a linear Regression_____________________________________________________
         template <typename T>
-        void linearRegression(const int nbrPoints, const double x[], const double y[], double &m, double &c)
+        void linearRegression(const size_t nbrPoints, const double x[], const double y[], double &m, double &c)
         {
             //--this funktion does a linear regression of 4 points--//
             //--getting a line that follows the form: y(x) = m*x + c--//
             //--return the x value for a given y(x) (yb)--//
             //-- => x = (y(x)-c)/m--//
             double SumXsq=0.,SumX=0.,SumY=0.,SumXY=0.;
-            for (int i=0;i<nbrPoints;++i)
+            for (size_t i=0;i<nbrPoints;++i)
             {
                 SumX    +=  x[i];
                 SumY    +=  y[i];
@@ -37,14 +37,14 @@ namespace cass
 
         //_______________________________________helper function that does a weighted linear Regression__________________________________________
         template<typename T>
-        void gewichtetlinearRegression(const int nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c)
+        void gewichtetlinearRegression(const size_t nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c)
         {
             //--this funktion does a linear regression of 4 points--//
             //--getting a line that follows the form: y(x) = m*x + c--//
             //--return the x value for a given y(x) (yb)--//
             //-- => x = (y(x)-c)/m--//
             double SumXsq=0.,SumX=0.,SumY=0.,SumXY=0.,SumWeight=0.;
-            for (int i=0;i<nbrPoints;++i)
+            for (size_t i=0;i<nbrPoints;++i)
             {
                 double weight = (fabs(x[i]-correctX) > 1e-10) ? 1./fabs(x[i]-correctX): 100.;
                 SumWeight += weight;
@@ -191,9 +191,9 @@ namespace cass
         {
             //get information from the channel//
 
-            const long vOff      = static_cast<long>(c.vertOffset() / c.vertGain());        //mV -> adc bytes
-            const T *Data        = static_cast<const T*>(c.waveform());
-            const size_t wLength = c.waveformLength();
+            const int32_t vOff   = static_cast<int32_t>(c.offset() / c.gain());        //mV -> adc bytes
+            const Channel::waveform_t Data  = c.waveform();
+            const size_t wLength = c.waveform().size();
 
             //--get peak fwhm--//
             size_t fwhm_l        = 0;
@@ -251,8 +251,8 @@ namespace cass
 
             const double fwhm = fwhm_R-fwhm_L;
             //--set all found parameters--//
-            p.fwhm(fwhm);
-            p.width(p.stoppos() - p.startpos());
+            p.fwhm()  = fwhm;
+            p.width() = p.stoppos() - p.startpos();
         }
 
 
@@ -260,11 +260,11 @@ namespace cass
 //        template <typename T>
 //        void extractVoltage(const MyOriginalChannel &oc, const MyPuls &p, const MyChannelSection &cs, MySignalAnalyzedChannel &sac)
 //        {
-//            double volt                    = 0;
-//            int count                    = 0;
-//            const double gain            = oc.GetVertGain();
-//            const double offset            = oc.GetOffset();
-//            const T *d                    = static_cast<const T*>(oc.GetDataPointerForPuls(p));
+//            double volt           = 0;
+//            int count             = 0;
+//            const double gain     = oc.GetVertGain();
+//            const double offset   = oc.GetOffset();
+//            const T *d            = static_cast<const T*>(oc.GetDataPointerForPuls(p));
 //
 //            for (int j=10;j<p.GetLength()-10;++j)
 //            {
@@ -278,15 +278,14 @@ namespace cass
 
         //__________________________________________Center of Mass_______________________________________
         template <typename T>
-        void CoM(const REMIEvent &e, const Channel &c, Peak &p)
+        void CoM(const Channel &c, Peak &p, const double SampleInterval)
         {
             //get informations from the event and the channel//
-            const T * Data              = static_cast<const T*>(c.waveform());
-            const long vOff             = static_cast<long>(c.vertOffset() / c.vertGain());
-            const long threshold        = c.threshold();
-            const long timestamp        = c.idxToFirstPoint();
-            const double horpos         = e.horpos()*1.e9;          //s -> ns
-            const double sampleInterval = e.sampleInterval()*1e9;   //s -> ns
+            const Channel::waveform_t Data  = c.waveform();
+            const int32_t vOff          = static_cast<int32_t>(c.offset() / c.gain());
+            const int32_t threshold     = c.threshold();
+            const double horpos         = c.horpos()*1.e9;          //s -> ns
+            const double sampleInterval = SampleInterval*1e9;   //s -> ns
 
             //--this function goes through the puls from start to stop and finds the center of mass--//
             double integral = 0;
@@ -299,27 +298,26 @@ namespace cass
                 integral +=  (abs(Data[i]-vOff)-threshold);            //calc integral
                 wichtung += ((abs(Data[i]-vOff)-threshold)*i);        //calc weight
             }
-            p.integral(integral);
-            p.com((wichtung/integral + timestamp + horpos)*sampleInterval);
+            p.integral()    = integral;
+            p.com()         = (wichtung/integral + horpos)*sampleInterval;
         }
 
 
 
         //______________________________________find start and stop of pulse___________________________________________
         template <typename T>
-        void startstop(const REMIEvent &e, const Channel &c, Peak &p)
+        void startstop(const Channel &c, Peak &p, const double SampleInterval)
         {
             //--this function will find the start and the stop of the peak--//
-            const T * Data            = static_cast<const T*>(c.waveform());
-            const long vOff            = static_cast<long>(c.vertOffset()/c.vertGain());
-            const long threshold    = c.threshold();
-            const long wLength        = c.waveformLength();
-            const double sampInt    = e.sampleInterval()*1e9;
-            const double horpos        = e.horpos()*1e9;
-            const long timestamp    = c.idxToFirstPoint();
+            const Channel::waveform_t Data = c.waveform();
+            const int32_t vOff      = static_cast<int32_t>(c.offset()/c.gain());
+            const int32_t threshold = c.threshold();
+            const int32_t wLength   = c.waveform().size();
+            const double sampInt    = SampleInterval*1e9;
+            const double horpos     = c.horpos()*1e9;
 
             //calculate the center of peak is in the waveform coodinates//
-            const long center        = static_cast<long>(p.time()/sampInt - timestamp - horpos);
+            const int32_t center        = static_cast<int32_t>(p.time()/sampInt - horpos);
 
 
             //go left from center until either i == 0, or the datapoint is inside the noise
@@ -328,14 +326,14 @@ namespace cass
             for (i = center; i>=0; --i)
                 if ((abs(Data[i]-vOff) < threshold) || (((Data[i]-vOff) * (Data[i+1]-vOff)) < 0) )
                     break;
-            p.startpos(i);
+            p.startpos() = i;
 
             //go right form center until either i < pulslength, or the datapoint is inside the noise
             //or we go from the previous one (i-1) to the actual one (i) through the baseline
             for (i = center; i< wLength; ++i)
                 if ((abs(Data[i]-vOff) < threshold) || (((Data[i]-vOff) * (Data[i-1]-vOff)) < 0) )
                     break;
-            p.stoppos(i);
+            p.stoppos() = i;
         }
 
 
@@ -344,25 +342,25 @@ namespace cass
         void maximum(const Channel &c, Peak &p)
         {
             //--this function will find the maximum of the peak and its position--//
-            const T *Data        = static_cast<const T*>(c.waveform());
-            const long vOff        = c.vertOffset();
-            const size_t start    = p.startpos();
+            const Channel::waveform_t Data = c.waveform();
+            const int32_t vOff   = c.offset();
+            const size_t start   = p.startpos();
             const size_t stop    = p.stoppos();
-            const double vGain    = c.vertGain();
-            long maximum        = 0;
-            int maxpos            = 0;
+            const double vGain   = c.gain();
+            int32_t maximum      = 0;
+            int maxpos           = 0;
 
             for (size_t i = start; i<=stop;++i)
             {
                 if (abs(Data[i]-vOff) > maximum)
                 {
                     maximum = abs(Data[i]-vOff);
-                    maxpos = i;
+                    maxpos  = i;
                 }
             }
-            p.maxpos(maxpos);
-            p.maximum(maximum);
-            p.height(static_cast<double>(maximum) * vGain);        //this will set the height in mV
+            p.maxpos()  = maxpos;
+            p.maximum() = maximum;
+            p.height()  = static_cast<double>(maximum) * vGain;        //this will set the height in mV
         }
 
 

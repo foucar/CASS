@@ -51,7 +51,7 @@ INCLUDEPATH +=  ./ \
                 ../cass_remi/classes/event/peak \
                 ../cass_remi/classes/event/detector \
                 ../cass_remi/classes/detektorhitsorter \
-                ../cass_remi/classes/signalanalyzer \
+                ../cass_remi/classes/waveformanalyzer \
                 ../cass_vmi \
                 ../cass_vmi/classes/event \
                 ../cass_pnccd \
@@ -85,12 +85,12 @@ QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
 LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_vmi -lcass_vmi \
-        #-L../cass -lcass \
         -L../cass_machinedata -lcass_machinedata \
         -L../cass_database -lcass_database \
-        -L../cass_dictionaries -lcass_dictionaries \
-        #-L../cass_root -lroot
-        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata
+        -L../cass_dictionaries -lcass_dictionaries  \
+        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata \
+       #-L../cass_root -lroot
+        #-L../cass -lcass \
 
 TARGETDEPS +=   ../cass_remi/libcass_remi.a \
                 ../cass_pnccd/libcass_pnccd.a \
@@ -98,6 +98,7 @@ TARGETDEPS +=   ../cass_remi/libcass_remi.a \
                 ../cass_machinedata/libcass_machinedata.a \
                 ../cass_dictionaries/libcass_dictionaries.a \
                 ../cass_database/libcass_database.a
+                #../cass_database/libcass_database.so
 }
 
 

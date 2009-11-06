@@ -1,6 +1,6 @@
 # Copyright (C) 2009 Jochen Küpper
-#modified Copyright (C) 2009 N Coppola
-//CONFIG += shared
+#modified Copyright (C) 2009 N Coppola,lmf
+#CONFIG += shared
 CONFIG += static
 CONFIG += create_prl
 QT -= core gui
@@ -28,9 +28,8 @@ SOURCES += remi_analysis.cpp \
            ./classes/event/channel/channel.cpp \
            ./classes/event/peak/peak.cpp \
            ./classes/event/detector/detector.cpp \
-           ./classes/signalanalyzer/signal_analyzer.cpp \
-           ./classes/signalanalyzer/softtdc_cfd.cpp \
-           ./classes/signalanalyzer/softtdc_com.cpp \
+           ./classes/waveformanalyzer/cfd.cpp \
+           ./classes/waveformanalyzer/com.cpp \
            ./classes/detektorhitsorter/detektorhitsorter.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
@@ -45,18 +44,17 @@ HEADERS += ../cass/analysis_backend.h \
            ./classes/event/channel/channel.h \
            ./classes/event/peak/peak.h \
            ./classes/event/detector/detector.h \
-           ./classes/signalanalyzer/signal_analyzer.h \
-           ./classes/signalanalyzer/softtdc.h \
-           ./classes/signalanalyzer/softtdc_cfd.h \
-           ./classes/signalanalyzer/softtdc_com.h \
-           ./classes/signalanalyzer/helperfunctionsforstdc.h \
+           ./classes/waveformanalyzer/waveform_analyzer.h \
+           ./classes/waveformanalyzer/cfd.h \
+           ./classes/waveformanalyzer/com.h \
+           ./classes/waveformanalyzer/helperfunctionsforstdc.h \
            ./classes/detektorhitsorter/detektorhitsorter.h \
            ./classes/detektorhitsorter/detektorhitsorter_quad.h \
            ./classes/detektorhitsorter/detektorhitsorter_simple.h \
 
 INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \
-               ./classes/signalanalyzer \
+               ./classes/waveformanalyzer \
                ./classes/detektorhitsorter \
                ./classes/event \
                ./classes/event/channel \

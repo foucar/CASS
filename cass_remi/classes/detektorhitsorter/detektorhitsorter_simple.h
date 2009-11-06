@@ -8,11 +8,8 @@ namespace cass
     namespace REMI
     {
         //______________________MyDetektorHitSorter Simple Version______________________
-        class DetektorHitSorterSimple : public DetektorHitSorterQuad
+        class DetectorHitSorterSimple : public DetectorHitSorterQuad
         {
-        public:
-            DetektorHitSorterSimple(const DetectorParameter&);
-
         public:
             void sort(REMIEvent&, Detector&);
 

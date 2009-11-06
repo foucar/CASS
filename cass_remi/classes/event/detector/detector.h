@@ -22,34 +22,32 @@ namespace cass
         class Signal    //the properties of one Wire-end of the Layerwire
         {
         public:
-            void         extractFromChannels(const channels_t&);
-
-        public:
-            double       t(size_t idx)const     {return fPeaks.size()?fPeaks[idx].time():0;}
-            double       t()const               {return fPeaks.size()?fPeaks[0].time():0;}
-
-        public:
-            size_t       nbrPeaks()const        {return fPeaks.size();}
-            Peak        &peak(size_t idx)       {return fPeaks[idx];}
-            const Peak  &peak(size_t idx)const  {return fPeaks[idx];}
-            peaks_t     &peaks()                {return fPeaks;}
-
-        public:
-            long         polarity()const        {return fPolarity;}
-            void         polarity(long in)      {fPolarity = in;}
-            long         chanNbr()const         {return fChNbr;}
-            void         chanNbr(long in)       {fChNbr = in;}
-            double       trLow()const           {return fTrLow;}
-            void         trLow(double in)       {fTrLow = in;}
-            double       trHigh()const          {return fTrHigh;}
-            void         trHigh(double in)      {fTrHigh = in;}
+            Signal()    {}
+            ~Signal()   {}
 
         private:
-            long         fPolarity;             //the Polarity the Signal has
-            long         fChNbr;                //the channel that we will find this Layer Signal in
-            double       fTrLow;                //lower edge of the timerange events can happen in
-            double       fTrHigh;               //upper edge of the timerange events can happen in
-            peaks_t      fPeaks;                //container for the peaks, that fit the conditions for this Signal
+            typedef std::vector<Peak*> peaks_t;
+
+        public:
+            peaks_t        &peaks()         {return fPeaks;}
+            const peaks_t  &peaks()const    {return fPeaks;}
+
+        public:
+            Peak::Polarity  polarity()const {return fPolarity;}
+            Peak::Polarity &polarity()      {return fPolarity;}
+            long            chanNbr()const  {return fChNbr;}
+            size_t         &chanNbr()       {return fChNbr;}
+            double          trLow()const    {return fTrLow;}
+            double         &trLow()         {return fTrLow;}
+            double          trHigh()const   {return fTrHigh;}
+            double         &trHigh()        {return fTrHigh;}
+
+        private:
+            Peak::Polarity  fPolarity;      //the Polarity the Signal has
+            size_t          fChNbr;         //the channel that we will find this Layer Signal in
+            double          fTrLow;         //lower edge of the timerange events can happen in
+            double          fTrHigh;        //upper edge of the timerange events can happen in
+            peaks_t         fPeaks;         //container for the peaks, that fit the conditions for this Signal
         };
 
 
@@ -61,36 +59,23 @@ namespace cass
         class AnodeLayer    //the properties of one layer of the delayline-anode//
         {
         public:
-            void             extractFromChannels(const channels_t&);
+            AnodeLayer()    {}
+            ~AnodeLayer()   {}
 
         public:
-            double           pos_ns(size_t idxFi, size_t idxSe)const    {return  fOne.t(idxFi) - fTwo.t(idxSe);}
-            double           pos_mm(size_t idxFi, size_t idxSe)const    {return (fOne.t(idxFi) - fTwo.t(idxSe))*fSf;}
-            double           sum(size_t idxFi, size_t idxSe)const       {return  fOne.t(idxFi) + fTwo.t(idxSe);}
-
-            double           pos_ns(size_t idx)const                    {return  fOne.t(idx) - fTwo.t(idx);}
-            double           pos_mm(size_t idx)const                    {return (fOne.t(idx) - fTwo.t(idx))*fSf;}
-            double           sum(size_t idx)const                       {return  fOne.t(idx) + fTwo.t(idx);}
-
-            double           pos_ns()const                              {return  fOne.t() - fTwo.t();}
-            double           pos_mm()const                              {return (fOne.t() - fTwo.t())*fSf;}
-            double           sum()const                                 {return  fOne.t() + fTwo.t();}
-
             double           ts()const                                  {return 0.5*(fTsLow+fTsHeigh);}
 
         public:
             double           tsLow()const                               {return fTsLow;}
-            void             tsLow(double in)                           {fTsLow = in;}
+            double          &tsLow()                                    {return fTsLow;}
             double           tsHigh()const                              {return fTsHeigh;}
-            void             tsHigh(double in)                          {fTsHeigh = in;}
+            double          &tsHigh()                                   {return fTsHeigh;}
             double           sf()const                                  {return fSf;}
-            void             sf(double in)                              {fSf = in;}
-            Signal          &one()                                      {return fOne;}
+            double          &sf()                                       {return fSf;}
             const Signal    &one()const                                 {return fOne;}
-            void             one(Signal in)                             {fOne = in;}
-            Signal          &two()                                      {return fTwo;}
+            Signal          &one()                                      {return fOne;}
             const Signal    &two()const                                 {return fTwo;}
-            void             two(Signal in)                             {fTwo = in;}
+            Signal          &two()                                      {return fTwo;}
 
         private:
             double           fTsLow;                                    //lower edge of the timesum
@@ -111,21 +96,25 @@ namespace cass
         public:
             DetectorHit(double x, double y, double t):
               fX_mm(x), fY_mm(y), fTime(t)        {}
-            DetectorHit() {}
+            DetectorHit()  {}
             ~DetectorHit() {}
 
 
         public:
             double  x()const    {return fX_mm;}
+            double &x()         {return fX_mm;}
             double  y()const    {return fY_mm;}
+            double &y()         {return fY_mm;}
             double  t()const    {return fTime;}
+            double &t()         {return fTime;}
 
         private:
+
             double  fX_mm;      //the x component of the detector in mm
             double  fY_mm;      //the y component of the detector in mm
             double  fTime;      //the mcp time of this hit on the detector
         };
-        typedef std::vector<DetectorHit> dethits_t;
+
 
 
 
@@ -138,48 +127,62 @@ namespace cass
         class Detector
         {
         public:
-            Detector(const DetectorParameter&);
-            Detector() {}
+            Detector()  {}
             ~Detector() {}
 
         public:
-            void                 extractFromChannels(const std::vector<cass::REMI::Channel>&);
-            DetectorHit         &addHit(double x, double y, double t);
-            size_t               nbrOfHits() const          {return fHits.size();}
-            DetectorHit         &hit(const int idx)         {return fHits[idx];}
-            const DetectorHit   &hit(const int idx) const   {return fHits[idx];}
-            dethits_t           &hits()                     {return fHits;}
+            typedef std::vector<DetectorHit> dethits_t;
 
         public:
-            const char          *name()const                {return fName.c_str();}
-            double               runtime()const             {return fRuntime;}
-            double               wOff()const                {return fWLayerOffset;}
-            double               mcpRadius()const           {return fMcpRadius;}
-            double               deadTimeAnode()const       {return fDeadAnode;}
-            double               deadTimeMCP()const         {return fDeadMcp;}
-            AnodeLayer          &u()                        {return fULayer;}
-            AnodeLayer          &v()                        {return fVLayer;}
-            AnodeLayer          &w()                        {return fWLayer;}
-            Signal              &mcp()                      {return fMcp;}
-            bool                 isHexAnode()const          {return fHex;}
+            const dethits_t     &hits()const            {return _hits;}
+            dethits_t           &hits()                 {return _hits;}
+
+        public:
+            const std::string   &name()const            {return _name;}
+            std::string         &name()                 {return _name;}
+            double               runtime()const         {return _runtime;}
+            double              &runtime()              {return _runtime;}
+            double               wLayerOffset()const    {return _wLayerOffset;}
+            double              &wLayerOffset()         {return _wLayerOffset;}
+            double               mcpRadius()const       {return _mcpRadius;}
+            double              &mcpRadius()            {return _mcpRadius;}
+            double               deadTimeAnode()const   {return _deadAnode;}
+            double              &deadTimeAnode()        {return _deadAnode;}
+            double               deadTimeMCP()const     {return _deadMcp;}
+            double              &deadTimeMCP()          {return _deadMcp;}
+            const AnodeLayer    &u()const               {return _uLayer;}
+            AnodeLayer          &u()                    {return _uLayer;}
+            const AnodeLayer    &v()const               {return _vLayer;}
+            AnodeLayer          &v()                    {return _vLayer;}
+            const AnodeLayer    &w()const               {return _wLayer;}
+            AnodeLayer          &w()                    {return _wLayer;}
+            const Signal        &mcp()const             {return _mcp;}
+            Signal              &mcp()                  {return _mcp;}
+            bool                 isHexAnode()const      {return _isHex;}
+            bool                &isHexAnode()           {return _isHex;}
+            int32_t              sorterType()const      {return _sorterType;}
+            int32_t             &sorterType()           {return _sorterType;}
 
         private:
-            dethits_t            fHits;                     //Container storing the refrences to the DetektorHits of this Detektor
-            std::string          fName;                     //the name of this detector
-            AnodeLayer           fULayer;                   //! properties of U1 Signals for this detektor
-            AnodeLayer           fVLayer;                   //! properties of V1 Signals for this detektor
-            AnodeLayer           fWLayer;                   //! properties of W1 Signals for this detektor
-            Signal               fMcp;                      //! properties of MCP Signals for this detektor
-            double               fRuntime;                  //! the runtime over the anode
-            double               fWLayerOffset;             //! the offset of w-layer towards u and v-layer
-            double               fMcpRadius;                //! the radius of the MCP in mm
-            double               fDeadMcp;                  //! the Deadtime between to Signals on the MCP
-            double               fDeadAnode;                //! the Deadtime between to Signals on the Layers
-            bool                 fHex;                      //! flag telling wether this is a Hexanode Detektor
-            short                fSortMethod;               //! flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
+            //variables that the sorters need to find detectorhits, given by the user
+            std::string          _name;                 //the name of this detector
+            AnodeLayer           _uLayer;               //! properties of U1 Signals for this detektor
+            AnodeLayer           _vLayer;               //! properties of V1 Signals for this detektor
+            AnodeLayer           _wLayer;               //! properties of W1 Signals for this detektor
+            Signal               _mcp;                  //! properties of MCP Signals for this detektor
+            double               _runtime;              //! the runtime over the anode
+            double               _wLayerOffset;         //! the offset of w-layer towards u and v-layer
+            double               _mcpRadius;            //! the radius of the MCP in mm
+            double               _deadMcp;              //! the Deadtime between to Signals on the MCP
+            double               _deadAnode;            //! the Deadtime between to Signals on the Layers
+            bool                 _isHex;                //! flag telling wether this is a Hexanode Detektor
+            int32_t              _sorterType;           //! flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
+
+            //output of the analysis (sorting) of the peaks
+            dethits_t            _hits;                     //Container storing the refrences to the DetektorHits of this Detektor
             ClassDefNV(Detector,1)                          //A Delayline Detector
         };
-        typedef std::vector<Detector> detectors_t;
+
     }//end namespace remi
 }//end namespace cass
 #endif

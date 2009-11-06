@@ -7,13 +7,10 @@ namespace cass
 {
     namespace REMI
     {
-
-        //_______________________________________________________________________MyDetektorHitSorter________________________________________________________________________________________
-        class DetektorHitSorterQuad : public DetektorHitSorterBase
+        class DetectorHitSorterQuad : public DetectorHitSorter
         {
         public:
-            DetektorHitSorterQuad(const cass::REMI::DetectorParameter&p):DetektorHitSorterBase(p)	{}
-            virtual ~DetektorHitSorterQuad()							{}
+            virtual ~DetectorHitSorterQuad()							{}
 
         public:
             virtual void sort(REMIEvent&, Detector&)=0;

@@ -55,10 +55,11 @@ namespace Pds {
     public:
       uint32_t nbrSamplesInSeg() const;
       uint32_t nbrSegments() const;
-      TimestampV1& timestamp(uint32_t seg);
+      TimestampV1& timestamp(uint32_t seg) const;
       int16_t* waveform(const HorizV1& hconfig);
       const int16_t* waveform()const;
-      uint32_t indexFirstPoint();
+      uint32_t indexFirstPoint()const;
+      double gain()const {return _vGain;}
       DataDescV1* nextChannel(const HorizV1& hconfig);
       DataDescV1* nextChannel();
 
@@ -76,7 +77,7 @@ namespace Pds {
 
       // this is a copy of AqDataDescriptor in AcqirisDataTypes.h
       // to break dependencies with acqiris software.
-      uint32_t _returnedSamplesPerSeg;
+      uint32_t _returnedSamplesPerSeg;//Total number of data samples actually returned. DataArray[indexFirstPoint]… DataArray[indexFirstPoint+ returnedSamplesPerSeg-1]
       uint32_t _indexFirstPoint; // indexFirstPoint is the first valid point. 
       //!< Note: Not valid for 'readMode = ReadModeSeqRawW'.
       double   _sampTime;

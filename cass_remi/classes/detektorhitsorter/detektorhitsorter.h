@@ -3,47 +3,25 @@
 
 #include <vector>
 
-
 namespace cass
 {
     namespace REMI
     {
-        class Parameter;
-        class DetectorParameter;
         class Detector;
         class REMIEvent;
+        class Channel;
+        class Signal;
 
-
-        class DetektorHitSorterBase
+        //base class for detectorhit sorter
+        class DetectorHitSorter
         {
         public:
-            DetektorHitSorterBase(const DetectorParameter&) {}
-            virtual ~DetektorHitSorterBase()                {}
-
-        public:
+            virtual ~DetectorHitSorter() {}
             virtual void sort(REMIEvent&, Detector&)=0;
-
+        public:
+            enum SorterTypes {kDoNothing=0, Simple, Achim};
         protected:
-        };
-        typedef std::vector<DetektorHitSorterBase*> dethitsorters_t;
-
-
-
-
-        //container for all detectors
-        class DetektorHitSorter
-        {
-        public:
-            DetektorHitSorter()     {}
-            ~DetektorHitSorter();
-
-        public:
-            enum ESorterMethod {kSimple=0, kAchim, kDoNothing};
-            void init(const Parameter&);
-            void sort(REMIEvent&);
-
-        private:
-            dethitsorters_t     fDhs;	//vector containing pointers to the sorters for each detector
+            void extractPeaksForSignal(std::vector<Channel>&, Signal&);
         };
     }//end namespace remi
 }//end namespace cass

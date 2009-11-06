@@ -1,6 +1,8 @@
 #ifndef CASS_REMI_GLOBAL_H
 #define CASS_REMI_GLOBAL_H
 
+//lmf
+
 #include <QtCore/qglobal.h>
 
 #if defined(CASS_REMI_LIBRARY)
