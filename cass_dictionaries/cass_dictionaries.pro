@@ -27,12 +27,19 @@ exists ($$incFile) {
 
 
 SOURCES += machine_event_dict.cxx \
+           machine_event.cpp \
            peak_dict.cxx \
+           peak.cpp \
            channel_dict.cxx \
+           channel.cpp \
            detector_dict.cxx \
+           detector.cpp \
            remi_event_dict.cxx \
+           remi_event.cpp \
            vmi_event_dict.cxx \
+           vmi_event.cpp \
            pnccd_event_dict.cxx \
+           pnccd_event.cpp \
 #           cass_event_dict.cxx
 
 HEADERS += machine_event_dict.h \
