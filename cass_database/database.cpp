@@ -171,7 +171,13 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
   T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
- 
+
+  T->Branch("pnCCD_array_xy_size0",&pnCCD_array_xy_size0,"pnCCD_array_xy_size0/I");
+  T->Branch("pnCCD_array_xy_size1",&pnCCD_array_xy_size1,"pnCCD_array_xy_size1/I");
+
+  T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
+  T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
+
   //T->SetAutoSave();
   T->BranchRef();
   //T->SetCompressionLevel(0);
@@ -213,8 +219,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
   T->SetBranchAddress("REMIEventBranch",&REMIdata);
-  //std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
-
+#ifdef REMI_DEB
+  std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
+#endif
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
   T->SetBranchAddress("VMIEventBranch",&VMIdata);
 
@@ -224,6 +231,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
+
+  pnCCD_array_xy_size0=0;
+  pnCCD_array_xy_size1=0;
 
   pnCCD_array_x_size0=0;
   pnCCD_array_y_size0=0;
@@ -238,6 +248,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),
          MAX_pnCCD_max_photons_per_event);
     pnCCD_max_photons_per_event0=TMath::Min(pnCCD_max_photons_per_event0,max_phot_in_Buffer_loose);
+
+    pnCCD_array_xy_size0=pnccdevent.getArrXSize()[0]*pnccdevent.getArrYSize()[0];
     if(pnCCD_num_pixel_arrays==2)
     {
       pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
@@ -245,8 +257,23 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),
          MAX_pnCCD_max_photons_per_event);
       pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
+
+      pnCCD_array_xy_size1=pnccdevent.getArrXSize()[1]*pnccdevent.getArrYSize()[1];
+
     }
   } 
+  if(pnccdevent.rawSignalArrayAddr(1)!=0)
+  {
+     memcpy(&pnCCD_raw_0,
+	    pnccdevent.rawSignalArrayAddr(1),
+          1024*1024*2);
+  }
+  if(pnccdevent.rawSignalArrayAddr(2)!=0)
+  {
+     memcpy(&pnCCD_raw_1,
+	    pnccdevent.rawSignalArrayAddr(2),
+          1024*1024*2);
+  }
 
 #if DEBUG_pnCCD_raw
   if(pnccdevent.rawSignalArrayAddr(1)!=0)

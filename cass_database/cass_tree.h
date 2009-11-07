@@ -139,6 +139,12 @@ Int_t pnCCD_max_photons_per_event1;
 //std::vector<uint16_t> pnCCD_raw[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size][2];
 //std::vector<uint16_t> pnCCD_corr[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size][2];
 
+Int_t pnCCD_array_xy_size0;
+Int_t pnCCD_array_xy_size1;
+
+UShort_t pnCCD_raw_0[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
+UShort_t pnCCD_raw_1[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
+
 UShort_t pnCCD_raw0[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 UShort_t pnCCD_raw1[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 
