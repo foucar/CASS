@@ -129,7 +129,7 @@ cass::database::Database::Database()
   delete machinedata;
   //TBranch::SetAutoDelete(kTRUE);
 
-
+  //#ifdef deb_REMI
   //REMI
   if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
   {
@@ -139,6 +139,7 @@ cass::database::Database::Database()
   cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
   T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,0);
   delete REMIdata;
+  //#endif
 
   //VMI
   if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
@@ -213,7 +214,6 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
   T->SetBranchAddress("REMIEventBranch",&REMIdata);
   std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
-
 
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
   T->SetBranchAddress("VMIEventBranch",&VMIdata);

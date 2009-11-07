@@ -34,19 +34,19 @@ exists ($$incFile) {
 #CONFIG += QMAKE_EXTRA_TARGETS
 
 SOURCES += machine_event_dict.cxx \
-           machine_event.cpp \
+#           machine_event.cpp \
            peak_dict.cxx \
-           peak.cpp \
+#           peak.cpp \
            channel_dict.cxx \
-           channel.cpp \
+#           channel.cpp \
            detector_dict.cxx \
-           detector.cpp \
+#           detector.cpp \
            remi_event_dict.cxx \
-           remi_event.cpp \
+#           remi_event.cpp \
            vmi_event_dict.cxx \
-           vmi_event.cpp \
+#           vmi_event.cpp \
            pnccd_event_dict.cxx \
-           pnccd_event.cpp
+#           pnccd_event.cpp
 
 
 HEADERS += machine_event_dict.h \
