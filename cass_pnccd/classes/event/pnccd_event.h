@@ -19,7 +19,7 @@
 // Include as defined in C99. This should thus hopefully work
 // on all systems which support this standard:
 #include <vector>
-#include "pdsdata/pnCCD/fformat.h"
+//#include "pdsdata/pnCCD/fformat.h"
 //#include <inttypes.h>
 #include <string.h>
 #include <stdint.h>
@@ -28,6 +28,15 @@
 
 //#include "cass_pnccd.h"
 	
+
+namespace Pds
+{
+    namespace PNCCD
+    {
+        class ConfigV1;
+        class FrameV1;
+    }
+}
 namespace cass
 {
   namespace pnCCD
@@ -36,6 +45,12 @@ namespace cass
      class pnCCDEvent
      {
      public:
+        //some typedefs for more readable code
+        typedef std::vector<uint16_t> frame_t;
+        typedef std::vector<pnccd_photon_hit> photonHits_t;
+        typedef struct {double width; double height;} pnccd_frame_size_t;
+
+    public:
 // Initialize the event data structure with the number of
 // detectors (pixel arrays) , the size of the detectors ,
 // the maximum of photon hits which should be stored in the
@@ -43,26 +58,32 @@ namespace cass
 // the data in the event, so be careful and keep in mind that
 // memory allocation takes CPU time and space.
 	pnCCDEvent(void);
-	pnCCDEvent(uint16_t num_pixel_arrays,
-                   std::vector<uint32_t> array_x_size,
-                   std::vector<uint32_t> array_y_size,
-                   std::vector<uint32_t> max_photons_per_event);
+//	pnCCDEvent(uint16_t num_pixel_arrays,
+//                   std::vector<uint32_t> array_x_size,
+//                   std::vector<uint32_t> array_y_size,
+//                   std::vector<uint32_t> max_photons_per_event);
         ~pnCCDEvent();
 // assignment operator that will only the relevant part of the event
         pnCCDEvent& operator=(const pnCCDEvent&);
 // Initialize the event with the file header data from the
 // xtc:
-        bool init(fileHeaderType *pnccd_fhdr, uint32_t ccd_id);
+//        bool init(fileHeaderType *pnccd_fhdr, uint32_t ccd_id);
+//        bool init(const Pds::PNCCD::ConfigV1&, uint32_t ccd_id);
 // Initialize the event with frame data from the xtc:
-        bool init(frameHeaderType *pnccd_frame, uint32_t ccd_id);
+//        bool init(frameHeaderType *pnccd_frame, uint32_t ccd_id);
+        bool init(const Pds::PNCCD::ConfigV1&, const Pds::PNCCD::FrameV1*);
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
-        bool initEventStorage(void);
+//        bool initEventStorage(void);
 // Get access to some private members of this class:
-        uint16_t              getNumPixArrays(void);
-        std::vector<uint32_t> getArrXSize(void);
-        std::vector<uint32_t> getArrYSize(void);
-        std::vector<uint32_t> getMaxPhotPerEvt(void);
+//        uint16_t              getNumPixArrays(void);
+        size_t              getNumPixArrays(void);
+//        std::vector<uint32_t> getArrXSize(void);
+        std::vector<uint32_t> getArrXSize(void)     {std::vector<uint32_t> v(2,1024); return v;}
+//        std::vector<uint32_t> getArrYSize(void);
+        std::vector<uint32_t> getArrYSize(void)     {std::vector<uint32_t> v(2,1024); return v;}
+//        std::vector<uint32_t> getMaxPhotPerEvt(void);
+        std::vector<uint32_t> getMaxPhotPerEvt(void){std::vector<uint32_t> v(2,1024); return v;}
 // Return the address of the raw signal array at the index
 // index. Returns zero if no array with this index is allocated.
         uint16_t* rawSignalArrayAddr(uint16_t index);
@@ -72,19 +93,25 @@ namespace cass
         uint16_t* corrSignalArrayAddr(uint16_t index);
         uint32_t  corrSignalArrayByteSize(uint16_t index);
 // Return the address of the unrecombined photon hit array:
-        pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
-        uint32_t          numUnrecPhotonHits(uint16_t index);
+//        pnccd_photon_hit* unrecPhotonHitAddr(uint16_t index);
+//        uint32_t          numUnrecPhotonHits(uint16_t index);
 // Return the address of the recombined photon hit array:
-        pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
-        uint32_t          numRecomPhotonHits(uint16_t index);
+//        pnccd_photon_hit* recomPhotonHitAddr(uint16_t index);
+//        uint32_t          numRecomPhotonHits(uint16_t index);
+        photonHits_t& unrecPhotonHits(size_t index) {return unrec_photon_hits_[index];}
+        photonHits_t& recomPhotonHits(size_t index) {return recom_photon_hits_[index];}
+
+
+
       private:
-        uint16_t num_pixel_arrays_;
+//        uint16_t num_pixel_arrays_; //this is the number of expected detectors
 // These variables are set by the second constructor. The allocation
 // of the local storage arrays is performed by the initEventStorage()
 // member function.
-        std::vector<uint32_t> array_x_size_;
-	std::vector<uint32_t> array_y_size_;
-	std::vector<uint32_t> max_photons_per_event_;
+//      std::vector<uint32_t> array_x_size_;
+//	std::vector<uint32_t> array_y_size_;
+//	std::vector<uint32_t> max_photons_per_event_;
+        std::vector<pnccd_frame_size_t> detector_sizes;
 // The storage arrays for:
 // -> detector array raw data
 // -> offset and, if desired, common mode corrected raw data.
@@ -97,12 +124,18 @@ namespace cass
 //    non-recombined hits. Neighboring photon hits are grouped
 //    into one hit which contains the sum of the recombined
 //    pulse heights.
-        std::vector<uint16_t*>          raw_signal_values_;
-        std::vector<uint16_t*>          corr_signal_values_;
-        std::vector<pnccd_photon_hit*>  unrec_photon_hits_;
-        std::vector<uint32_t>           num_unrec_phits_;
-        std::vector<pnccd_photon_hit*>  recom_photon_hits_;
-        std::vector<uint32_t>           num_recom_phits_;
+//        std::vector<uint16_t*>          raw_signal_values_;
+        std::vector<frame_t>            raw_signal_values_;     //vector containing the raw frames
+//        std::vector<uint16_t*>          corr_signal_values_;
+        std::vector<frame_t>            corr_signal_values_;    //vector containing the corrected frames
+//        std::vector<pnccd_photon_hit*>  unrec_photon_hits_;
+        std::vector<photonHits_t>       unrec_photon_hits_;     //vector containing non-recombined X-ray photon hits for each detector
+//        std::vector<uint32_t>           num_unrec_phits_;
+//        std::vector<pnccd_photon_hit*>  recom_photon_hits_;
+        std::vector<photonHits_t>       recom_photon_hits_;     //vector containing recombined X-ray photon hits for each detector
+//        std::vector<uint32_t>           num_recom_phits_;
+
+
         ClassDefNV(pnCCDEvent,1)
       };
     } // end of scope of namespace pnCCD
