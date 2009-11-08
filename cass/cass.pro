@@ -88,7 +88,7 @@ LIBS += -L../cass_remi -lcass_remi \
         -L../cass_machinedata -lcass_machinedata \
         -L../cass_database -lcass_database \
         -L../cass_dictionaries -lcass_dictionaries  \
-        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata \
+        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
        #-L../cass_root -lroot
         #-L../cass -lcass \
 
