@@ -192,8 +192,8 @@ cass::pnCCD::pnCCDEvent::init
     }
 
     //resize the frame to what we will receive//
-    size_t SegmentDataSizeInBytes  = pnccd_fhdr.payloadSizePerLink()-sizeof(Pds::PNCCD::FrameV1);
-    size_t FrameSize = pnccd_frame->sizeofData(pnccd_fhdr) * pnccd_fhdr.numLinks();
+    size_t sizeOfOneSegment = pnccd_frame->sizeofData(pnccd_fhdr);
+    size_t FrameSize = sizeOfOneSegment * pnccd_fhdr.numLinks();
 
     raw_signal_values_[detectorId].resize(FrameSize);
 //    std::cout << "frame size "<<FrameSize<<std::endl;
@@ -202,11 +202,9 @@ cass::pnCCD::pnCCDEvent::init
     {
 //        printf("*** Processing pnCCD frame number %x segment %d\n",pnccd_frame->frameNumber(),i);
         const uint16_t* data = pnccd_frame->data();
+        std::copy(data, data + sizeOfOneSegment,raw_signal_values_[detectorId].begin()+(i*sizeOfOneSegment));
 //        printf("First data words: 0x%4.4x 0x%4.4x\n",data[0],data[1]);
 //        printf("Last  data words: 0x%4.4x 0x%4.4x\n",data[pnccd_frame->sizeofData(pnccd_fhdr)-2],data[pnccd_frame->sizeofData(pnccd_fhdr)-1]);
-        memcpy(&raw_signal_values_[detectorId][0],
-               data,
-               SegmentDataSizeInBytes);
         pnccd_frame = pnccd_frame->next(pnccd_fhdr);
     }
 
