@@ -5,12 +5,14 @@
 #pragma link off all functions;
 #pragma link C++ namespace cass;
 #pragma link C++ namespace cass::REMI;
+
 //#pragma link C++ nestedclasses;
  
 //#pragma link C++ global gROOT;
 //#pragma link C++ global gEnv;
  
 //#pragma link C++ enum EMessageTypes;
+
 #pragma link C++ defined_in "remi_event.h";
 
 //#pragma link C++ class REMIEvent;

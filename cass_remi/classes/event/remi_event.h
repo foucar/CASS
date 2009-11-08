@@ -13,19 +13,6 @@
 #include <TObject.h>
 #endif
 
-namespace Pds
-{
-    namespace Acqiris
-    {
-        class ConfigV1;
-        class DataDescV1;
-    }
-    namespace Camera
-    {
-        class FrameV1;
-    }
-}
-
 namespace cass
 {
     namespace REMI

@@ -14,15 +14,6 @@
 #include <vector>
 #include "peak.h"
 
-namespace Pds
-{
-    namespace Acqiris
-    {
-        class ConfigV1;
-        class DataDescV1;
-    }
-}
-
 namespace cass
 {
     namespace REMI
