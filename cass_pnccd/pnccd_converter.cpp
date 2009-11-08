@@ -44,7 +44,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 //          pnccd_evt = _storedEvent;
           // Initialize the event in the argument with the xtc payload data:
 //          pnccd_evt.init(pnccd_frmhdr,1);
-          pnccd_evt.init(_pnccdConfig,frame);
+          pnccd_evt.init(_pnccdConfig,frame,0);
       }
       break;
   default:

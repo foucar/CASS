@@ -71,7 +71,7 @@ namespace cass
 //        bool init(const Pds::PNCCD::ConfigV1&, uint32_t ccd_id);
 // Initialize the event with frame data from the xtc:
 //        bool init(frameHeaderType *pnccd_frame, uint32_t ccd_id);
-        bool init(const Pds::PNCCD::ConfigV1&, const Pds::PNCCD::FrameV1*);
+        bool init(const Pds::PNCCD::ConfigV1&, const Pds::PNCCD::FrameV1*, size_t ccd_id);
 // Initialize the event storage with the given number of detectors
 // and their array sizes:
 //        bool initEventStorage(void);
