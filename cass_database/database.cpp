@@ -161,7 +161,7 @@ cass::database::Database::Database()
   T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,0);
   delete pnCCDdata;
 
- 
+ #ifdef sng_pnccd
   //pnCCD (2)
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
@@ -177,6 +177,7 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
   T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
+#endif
 
   //T->SetAutoSave();
   T->BranchRef();
@@ -229,6 +230,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
   T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
 
+#ifdef wide_pnccd
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
 
@@ -274,6 +276,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 	    pnccdevent.rawSignalArrayAddr(2),
           1024*1024*2);
   }
+#endif
 
 #if DEBUG_pnCCD_raw
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
