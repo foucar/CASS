@@ -231,6 +231,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
   T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
+//  for (size_t ididid=0; ididid<pnCCDdata->detectors().size();++ididid)
+//      std::cout <<"Det:"<<ididid<<" size:"<< pnCCDdata->detectors()[ididid].correctedFrame().size()<<std::endl;
 
 #ifdef wide_pnccd
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
