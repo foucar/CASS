@@ -210,8 +210,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   //if(Nevent>299) printf("Nevent=%i \n",Nevent);
   // just to have something filled...
 
+#ifdef extra
   r.Rannor(px,py);
   random=double(r.Rndm());
+#endif
 
   event_id=cassevent->id();
 
