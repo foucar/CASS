@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009 ncoppola, lmf
 qt += core gui
 CONFIG += static
 # TEMPLATE = lib
@@ -56,6 +56,7 @@ INCLUDEPATH +=  ./ \
                 ../cass_vmi/classes/event \
                 ../cass_pnccd \
                 ../cass_pnccd/classes/event \
+                ../cass_pnccd/classes/event/pnccd_detector \
                 ../cass_machinedata \
                 ../cass_machinedata/classes/event \
                 ../cass_database

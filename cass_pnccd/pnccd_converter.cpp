@@ -1,13 +1,18 @@
 #include "pnccd_converter.h"
 
 #include "pdsdata/xtc/Xtc.hh"
+#include "pdsdata/xtc/TypeId.hh"
+#include "pdsdata/xtc/DetInfo.hh"
+#include "pdsdata/pnCCD/ConfigV1.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
+#include "pnccd_event.h"
 
 
-cass::pnCCD::Converter::Converter()
+cass::pnCCD::Converter::Converter():
+        _pnccdConfig(0)
 {
-    //this converter should react on acqiris config and waveform//
+    //this converter should react on pnccd config and frame//
     _types.push_back(Pds::TypeId::Id_pnCCDconfig);
     _types.push_back(Pds::TypeId::Id_pnCCDframe);
 }
@@ -15,41 +20,53 @@ cass::pnCCD::Converter::Converter()
 
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
-//  fileHeaderType  *pnccd_filhdr;
-//  frameHeaderType *pnccd_frmhdr;
-
-// Check whether the xtc object id contains configuration or event data:
-  switch( xtc->contains.id() )
-  {
-  case (Pds::TypeId::Id_pnCCDconfig) :
-//    process(info, (fileHeaderType*) xtc->payload());
-//      pnccd_filhdr = reinterpret_cast<fileHeaderType*>(xtc->payload());
-       // Initialize the stored event with the file header information:
-//      _storedEvent.init(pnccd_filhdr,1);
-      //just store the config
-      _pnccdConfig = (*reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
-      break;
-  case (Pds::TypeId::Id_pnCCDframe) :
-      {
-          // Get a reference to the pnCCDEvent in the argument address:
-          pnCCDEvent      &pnccd_evt = cassevent->pnCCDEvent();
-          //      process(info, (frameHeaderType*) xtc->payload());
-//          pnccd_frmhdr = reinterpret_cast<frameHeaderType*>(xtc->payload());
-          Pds::PNCCD::FrameV1* frame = reinterpret_cast<Pds::PNCCD::FrameV1*>(xtc->payload());
-          // Copy the stored information into the pnCCDEvent:
-
-          // the following statement will also copy the pointers of the stored
-          // event, which are deleted at the end of the processing of the event
-          // and they are not available anymore...
-//          pnccd_evt = _storedEvent;
-          // Initialize the event in the argument with the xtc payload data:
-//          pnccd_evt.init(pnccd_frmhdr,1);
-          pnccd_evt.init(_pnccdConfig,frame,0);
-      }
-      break;
-  default:
-      break;
-  }
+    // Check whether the xtc object id contains configuration or event data:
+    switch( xtc->contains.id() )
+    {
+    case (Pds::TypeId::Id_pnCCDconfig) :
+        //just store the config
+        delete _pnccdConfig;
+        _pnccdConfig = new Pds::PNCCD::ConfigV1();
+        *_pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
+        break;
 
 
+    case (Pds::TypeId::Id_pnCCDframe) :
+        {
+            //only run this if we have a config
+            if (_pnccdConfig)
+            {
+                // Get a reference to the pnCCDEvent:
+                pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+                //Get the frame from the xtc
+                const Pds::PNCCD::FrameV1* frame = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
+                //Get the the detecotor id //
+                const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+                const size_t detectorId = info.devId();
+
+                //if necessary resize the detector container//
+                if (detectorId >= pnccdevent.detectors().size())
+                    pnccdevent.detectors().resize(detectorId+1);
+
+                //find out the total size of this frame//
+                size_t sizeOfOneSegment = frame->sizeofData(*_pnccdConfig);
+                size_t FrameSize = sizeOfOneSegment * _pnccdConfig->numLinks();
+                //resize the frame to what we will receive//
+                pnccdevent.detectors()[detectorId].rawFrame().resize(FrameSize);
+
+                for (size_t i=0;i<_pnccdConfig->numLinks();++i)
+                {
+                    //pointer to first data element//
+                    const uint16_t* data = frame->data();
+                    //copy frame data to container using std::copy//
+                    std::copy(data, data + sizeOfOneSegment,pnccdevent.detectors()[detectorId].rawFrame().begin()+(i*sizeOfOneSegment));
+                    //iterate to the next frame segment//
+                    frame = frame->next(*_pnccdConfig);
+                }
+            }
+        }
+        break;
+    default:
+        break;
+    }
 }

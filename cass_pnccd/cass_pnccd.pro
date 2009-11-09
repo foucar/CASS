@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009 nik, ncoppola, lmf
 
 CONFIG += shared
 #CONFIG += static
@@ -30,12 +30,14 @@ HEADERS += ../cass/analysis_backend.h \
            pnccd_analysis.h \
            pnccd_converter.h \
            cass_pnccd.h \
-           ./classes/event/pnccd_event.h
+           ./classes/event/pnccd_event.h \
+           ./classes/event/pnccd_detector/pnccd_detector.h
 
 
 INCLUDEPATH += ./ \
                ../cass \
                ./classes/event \
+               ./classes/event/pnccd_detector \
                $$(LCLSSYSINCLUDE)
 
 

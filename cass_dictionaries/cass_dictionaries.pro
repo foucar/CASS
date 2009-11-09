@@ -46,6 +46,7 @@ SOURCES += machine_event_dict.cxx \
            vmi_event_dict.cxx \
 #           vmi_event.cpp \
            pnccd_event_dict.cxx \
+           pnccd_detector_dict.cxx \
 #           pnccd_event.cpp
 
 
@@ -56,6 +57,7 @@ HEADERS += machine_event_dict.h \
            remi_event_dict.h \
            vmi_event_dict.h \
            pnccd_event_dict.h \
+           pnccd_detector_dict.h \
            cass_event_dict.h
 
 INCLUDEPATH += ../cass_machinedata/classes/event \
@@ -65,6 +67,7 @@ INCLUDEPATH += ../cass_machinedata/classes/event \
                ../cass_remi/classes/event \
                ../cass_vmi/classes/event \
                ../cass_pnccd/classes/event \
+               ../cass_pnccd/classes/event/pnccd_detector \
                ../cass \
                $$(LCLSSYSINCLUDE) \
 

@@ -49,12 +49,20 @@ then
   rootcint -f machine_event_dict.cxx -c machine_event.h LinkDef.h
 fi
 cd $thishome
+cd cass_pnccd/classes/event/pnccd_detector
+newer pnccd_detector.h pnccd_detector_dict.cxx
+if [ $? -eq 0 ]
+then
+  echo rebuilding dictionary pnccd_detector_dict.cxx
+  rootcint -f pnccd_detector_dict.cxx -c pnccd_detector.h LinkDef.h
+fi
+cd $thishome
 cd cass_pnccd/classes/event
 newer pnccd_event.h pnccd_event_dict.cxx
 if [ $? -eq 0 ]
 then
   echo rebuilding dictionary pnccd_event_dict.cxx
-  rootcint -f pnccd_event_dict.cxx -c -I../../../LCLS pnccd_event.h LinkDef.h
+  rootcint -f pnccd_event_dict.cxx -c -I./pnccd_detector pnccd_event.h LinkDef.h
 fi
 cd $thishome
 cd cass
@@ -80,22 +88,9 @@ if [ ! -f vmi_event_dict.cxx ] ; then ln -s ../cass_vmi/classes/event/vmi_event_
 if [ ! -f vmi_event_dict.h ] ; then ln -s ../cass_vmi/classes/event/vmi_event_dict.h ; fi
 if [ ! -f machine_event_dict.cxx  ] ; then ln -s ../cass_machinedata/classes/event/machine_event_dict.cxx ; fi
 if [ ! -f machine_event_dict.h ] ; then ln -s ../cass_machinedata/classes/event/machine_event_dict.h ; fi
+if [ ! -f pnccd_detector_dict.cxx ] ; then ln -s ../cass_pnccd/classes/event/pnccd_detector/pnccd_detector_dict.cxx ; fi
+if [ ! -f pnccd_detector_dict.h ] ; then ln -s ../cass_pnccd/classes/event/pnccd_detector/pnccd_detector_dict.h ; fi
 if [ ! -f pnccd_event_dict.cxx ] ; then ln -s ../cass_pnccd/classes/event/pnccd_event_dict.cxx ; fi
 if [ ! -f pnccd_event_dict.h ] ; then ln -s ../cass_pnccd/classes/event/pnccd_event_dict.h ; fi
 if [ ! -f cass_event_dict.cxx ] ; then ln -s ../cass/cass_event_dict.cxx ; fi
 if [ ! -f cass_event_dict.h ] ; then ln -s ../cass/cass_event_dict.h ; fi
-
-#if [ ! -f machine_event.cpp ] ; then ln -s ../cass_machinedata/classes/event/machine_event.cpp ; fi
-#if [ ! -f peak.cpp ] ; then ln -s ../cass_remi/classes/event/peak/peak.cpp ; fi
-#if [ ! -f channel.cpp ] ; then ln -s ../cass_remi/classes/event/channel/channel.cpp ; fi
-#if [ ! -f detector.cpp ] ; then ln -s ../cass_remi/classes/event/detector/detector.cpp ; fi
-#if [ ! -f remi_event.cpp ] ; then ln -s ../cass_remi/classes/event/remi_event.cpp ; fi
-#if [ ! -f vmi_event.cpp ] ; then ln -s ../cass_vmi/classes/event/vmi_event.cpp ; fi
-#if [ ! -f pnccd_event.cpp ] ; then ln -s ../cass_pnccd/classes/event/pnccd_event.cpp ; fi
-#if [ ! -f remi_event.h ] ; then ln -s ../cass_remi/classes/event/remi_event.h ; fi
-
-#if [ ! -f remi_analysis.h ] ; then ln -s ../cass_remi/remi_analysis.h ; fi
-#if [ ! -f cass_remi.h ] ; then ln -s ../cass_remi/cass_remi.h ; fi
-#if [ ! -f waveform_analyzer.h ] ; then ln -s ../cass_remi/classes/waveformanalyzer/waveform_analyzer.h ; fi
-#if [ ! -f tdc.h ] ; then ln -s ../cass_remi/classes/signalanalyzer/softtdc.h ; fi
-#if [ ! -f detektorhitsorter.h ] ; then ln -s ../cass_remi/classes/detektorhitsorter/detektorhitsorter.h ; fi

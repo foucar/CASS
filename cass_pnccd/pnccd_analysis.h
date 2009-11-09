@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "cass_pnccd.h"
-#include "pnccd_event.h"
+//#include "pnccd_event.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
 
@@ -16,6 +16,7 @@
 
 namespace cass
 {
+    class CASSEvent;
     namespace pnCCD
     {
 
