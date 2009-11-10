@@ -66,7 +66,6 @@ void cass::REMI::Parameter::load()
                 _channelParameters[i]._fraction     = value("Fraction",0.6).toDouble();
                 _channelParameters[i]._walk         = value("Walk",0.).toDouble();
                 _channelParameters[i]._analyzetyp   = static_cast<WaveformAnalyzer::WaveformAnalyzerTypes>(value("Method",WaveformAnalyzer::CoM16Bit).toInt());
-                std::cout << _channelParameters[i]._threshold<<std::endl;
             endGroup(); //QString
         }
     endGroup();//channelparameter

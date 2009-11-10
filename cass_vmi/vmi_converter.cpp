@@ -1,4 +1,5 @@
 #include "vmi_converter.h"
+#include <iostream>
 
 #include "pdsdata/camera/FrameV1.hh"
 #include "pdsdata/xtc/Xtc.hh"
