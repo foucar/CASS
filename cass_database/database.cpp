@@ -109,7 +109,7 @@ cass::database::Database::Database()
   //should I add a header to the tree??
 
   // this is where I am going to start the tree
-  T->Branch("Nevent",&Nevent,"Nevent/i");
+  T->Branch("Nevent",&Nevent,"Nevent/l");
   /*T->Branch("px",&px,"px/F");
     T->Branch("py",&py,"py/F");*/
   //T->Branch("pz",&pz,"pz/F");
@@ -124,6 +124,7 @@ cass::database::Database::Database()
     gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
   }
   else printf("I have got already the MachineData definitions\n");
+
   cass::MachineData::MachineDataEvent *machinedata = new cass::MachineData::MachineDataEvent();
   T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,0);
   delete machinedata;
@@ -161,7 +162,7 @@ cass::database::Database::Database()
   T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,0);
   delete pnCCDdata;
 
- #ifdef sng_pnccd
+#ifdef sng_pnccd
   //pnCCD (2)
   T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
   T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
@@ -225,9 +226,9 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #ifdef REMI_DEB
   std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
 #endif
+
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
   T->SetBranchAddress("VMIEventBranch",&VMIdata);
-
 
   cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
   T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
