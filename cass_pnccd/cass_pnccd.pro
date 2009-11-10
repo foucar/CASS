@@ -8,6 +8,8 @@ TARGET = cass_pnccd
 DEFINES += CASS_PNCCD_LIBRARY
 VERSION = 0.0.1
 
+OBJECTS_DIR = ./obj
+
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
   include ($$incFile/rootcint.pri)
