@@ -20,7 +20,7 @@ void cass::Ratemeter::nextEvent()
     ++counter;
     if (counter%10 == 0)
     {
-       std::cout<< "it took  "<< time->elapsed() <<" ms to analyze 10 events"<<std::endl;
+//       std::cout<< "it took  "<< time->elapsed() <<" ms to analyze 10 events"<<std::endl;
 //       counter = 0;
        time->restart();
     }

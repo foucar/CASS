@@ -9,6 +9,9 @@
 
 void cass::MachineData::Parameter::load()
 {
+    //sync before loading//
+    sync();
+
 }
 
 void cass::MachineData::Parameter::save()

@@ -6,6 +6,9 @@
 
 void cass::pnCCD::Analysis::loadSettings()
 {
+    //sync before loading//
+    sync();
+
     //initialize your analyzer here using param//
 }
 

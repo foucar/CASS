@@ -14,6 +14,7 @@ void com(cass::REMI::Channel& c, const double SampleInterval)
     const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
     const size_t wLength    = c.waveform().size();
     const double threshold  = c.threshold() / c.gain();    //mV -> ADC Bytes
+//    std::cout << "in waveformanalyzer threshold of channel "<<c.channelNbr()<<" is "<<c.threshold()<<std::endl;
 
     //initialize values for finding peaks//
     bool risingEdge         = false;

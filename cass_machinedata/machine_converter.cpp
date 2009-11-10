@@ -16,12 +16,7 @@
     const Pds::EpicsPvTime<valtype>& p = static_cast<const Pds::EpicsPvTime<valtype>&>(epicsData); \
     const Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value = &p.value;	\
     for(int i=0; i<epicsData.iNumElements; i++) \
-    {			\
-        it->second = *value;  \
-        std::cout << "epicsVariable " <<it->first <<" has value "<< it->second <<" should have "<<*value<<std::endl; \
-        it++;value++; \
-        /*it++->second = *value++;*/\
-    }\
+        it++->second = *value++;\
     break; }
 
 

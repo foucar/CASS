@@ -14,6 +14,8 @@
 
 void cass::VMI::Parameter::load()
 {
+    //sync before loading//
+    sync();
     _threshold    = value("Threshold",0).toUInt();
     _centerOfMcp  = value("CenterOfMcp",QPoint(200, 200)).toPoint();
     _maxMcpRadius = value("MaxMcpRadius",200).toUInt();
