@@ -39,7 +39,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
                 // Get a reference to the pnCCDEvent:
                 pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
                 //Get the frame from the xtc
-                const Pds::PNCCD::FrameV1* frame = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
+                const Pds::PNCCD::FrameV1* frameSegment = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
                 //Get the the detecotor id //
                 const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
                 const size_t detectorId = info.devId();
@@ -48,20 +48,50 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
                 if (detectorId >= pnccdevent.detectors().size())
                     pnccdevent.detectors().resize(detectorId+1);
 
-                //find out the total size of this frame//
-                size_t sizeOfOneSegment = frame->sizeofData(*_pnccdConfig);
-                size_t FrameSize = sizeOfOneSegment * _pnccdConfig->numLinks();
-                //resize the frame to what we will receive//
-                pnccdevent.detectors()[detectorId].rawFrame().resize(FrameSize);
+                //get a reference to the detector we are working on right now//
+                cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
 
-                for (size_t i=0;i<_pnccdConfig->numLinks();++i)
+                //find out the total size of this frame//
+                const size_t sizeOfOneSegment = frameSegment->sizeofData(*_pnccdConfig);
+                const size_t NbrOfSegments = _pnccdConfig->numLinks();
+                const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
+
+                //resize the frame to what we will receive//
+                det.rawFrame().resize(FrameSize);
+
+                //create a container for pointers to the beginning of the data for all segments//
+                std::vector<const uint16_t*> datapointers(NbrOfSegments,0);
+                //go through all segments and get the pointers to the beginning//
+                for (size_t i=0; i<NbrOfSegments ;++i)
                 {
-                    //pointer to first data element//
-                    const uint16_t* data = frame->data();
-                    //copy frame data to container using std::copy//
-                    std::copy(data, data + sizeOfOneSegment,pnccdevent.detectors()[detectorId].rawFrame().begin()+(i*sizeOfOneSegment));
+                    //pointer to first data element of segment//
+                    datapointers[i] = frameSegment->data();
                     //iterate to the next frame segment//
-                    frame = frame->next(*_pnccdConfig);
+                    frameSegment = frameSegment->next(*_pnccdConfig);
+                }
+
+                //calc the Number of Rows in the Virtual Detector//
+                //and Colums in one Segment//
+                const size_t rowsOfVirtualDetector = det.rows() / 2;
+                const size_t columnsOfSegment = det.columns() / 2;
+
+
+                //go through each row of each element and align the data that it is//
+                //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
+                //create a iterator for the raw frame//
+                cass::pnCCD::pnCCDDetector::frame_t::iterator it = det.rawFrame().begin();
+                for (size_t iRow = 0; iRow<rowsOfVirtualDetector; ++iRow)
+                {
+                    for (size_t iSegment = 0; iSegment<NbrOfSegments; ++iSegment)
+                    {
+                        //copy the row of this segment//
+                        std::copy(datapointers[iSegment],
+                                  datapointers[iSegment] + columnsOfSegment,
+                                  it);
+                        //advance the iterators by size of columns of one segment//
+                        it += columnsOfSegment;
+                        datapointers[iSegment] += columnsOfSegment;
+                    }
                 }
             }
         }

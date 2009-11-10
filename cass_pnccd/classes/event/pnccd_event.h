@@ -43,7 +43,7 @@ namespace cass
             detectors_t         &detectors()        {return _detectors;}
 
         private:
-            detectors_t          _detectors;     //a vector containing all detectors
+            detectors_t          _detectors;        //a vector containing all detectors
 
 
             ClassDefNV(pnCCDEvent,1)            //the pnccd event
