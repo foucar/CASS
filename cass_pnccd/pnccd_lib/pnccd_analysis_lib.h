@@ -23,5 +23,52 @@
 
 #include "pnccd_photon_hit.h"
 #include "pnccd_event.h"
+#include "pnccd_detector.h"
+
+#include "dark_frame_caldata.h"
+#include "frame_data.h"
+#include "pix_event_data.h"
 
 //#include "cass_pnccd.h"
+
+// pnCCDFrameAnalysis: the wrapper class for the analysis
+// functionality of Raccoon/Xonline:
+
+namespace cass
+{
+  namespace pnCCD
+  {
+    class CASS_PNCCDSHARED_EXPORT pnCCDFrameAnalysis
+    {
+    public:
+// The standard constructor which initializes the analysis
+// parameters to defaults except for the offset, noise and
+// bad pixel map.
+      pnCCDFrameAnalysis(void);
+      ~pnCCDFrameAnalysis();
+      bool loadDarkCalDataFromFile(const std::string& fname);
+      bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector* detector);
+    private:
+// The necessary class members for the analysis of a raw
+// pnCCD data frame:
+      DarkFrameCaldata *darkcal_file_loader_;
+      FrameData        *dark_frame_calibrator_;
+      PixEventData     *signal_frame_processor_;
+    };
+  } // End of namespace pnCCD
+} // End of namespace cass
+
+#endif // PNCCD_ANALYSIS_LIB_H
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:
+
+// end of file pnccd_analysis_lib.h
+
+
+
+
