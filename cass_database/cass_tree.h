@@ -8,7 +8,7 @@
 // this would allow 350 events but not with full width pnCCD both "raw" and "corr" images, in this
 // case we can store up to 260 events in this file.
 // I am reducing it for the time being to allow for more than 1 TMapFile, to have more than 1 user..
-UInt_t max_events_in_Buffer= 100/*2000*/;
+UInt_t max_events_in_Buffer= 200/*2000*/;
 
 #define REMI_Channels_Max 16
 #define REMI_PeaksproChannels_Max 150
@@ -29,7 +29,7 @@ UInt_t max_events_in_Buffer= 100/*2000*/;
 #endif
 TRandom r;
 Float_t px,py,pz;
-UInt_t Nevent;
+ULong64_t Nevent;
 //Int_t i;
 
 ULong64_t event_id;
