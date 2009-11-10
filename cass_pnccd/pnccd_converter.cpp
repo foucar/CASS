@@ -70,9 +70,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
                     frameSegment = frameSegment->next(*_pnccdConfig);
                 }
 
-                //calc the Number of Rows in the Virtual Detector//
-                //and Colums in one Segment//
-                const size_t rowsOfVirtualDetector = det.rows() / 2;
+                //calc the Number of Rows and Colums in one Segment//
+                ////
+                const size_t rowsOfSegment = det.rows() / 2;
                 const size_t columnsOfSegment = det.columns() / 2;
 
 
@@ -80,7 +80,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
                 //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
                 //create a iterator for the raw frame//
                 cass::pnCCD::pnCCDDetector::frame_t::iterator it = det.rawFrame().begin();
-                for (size_t iRow = 0; iRow<rowsOfVirtualDetector; ++iRow)
+                for (size_t iRow = 0; iRow<rowsOfSegment; ++iRow)
                 {
                     for (size_t iSegment = 0; iSegment<NbrOfSegments; ++iSegment)
                     {
