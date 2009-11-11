@@ -30,12 +30,15 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //go through all detectors//
     for (size_t i=0; i<pnccdevent.detectors().size();++i)
     {
+        //retrieve a reference to the detector we are working on right now//
+        cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[i];
         //get the dimesions of the detector//
-        const uint16_t NbrOfRows = pnccdevent.detectors()[i].rows();
-        const uint16_t NbrOfCols = pnccdevent.detectors()[i].columns();
+        const uint16_t NbrOfRows = det.rows();
+        const uint16_t NbrOfCols = det.columns();
 
         //resize the corrected frame container to the size of the raw frame container//
-        pnccdevent.detectors()[i].correctedFrame().resize(pnccdevent.detectors()[i].rawFrame().size());
+//        pnccdevent.detectors()[i].correctedFrame().resize(pnccdevent.detectors()[i].rawFrame().size());
+        det.correctedFrame().assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
 
         //get the pointers to the first datapoint in the frames//
 //        const uint16_t* rawData = &pnccdevent.detectors()[i].rawFrame()[0];
@@ -44,9 +47,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         //do the "massaging" of the detector here//
 
         //calc the integral (the sum of all bins)//
-        pnccdevent.detectors()[i].integral() = 0;
-        for (size_t j=0; j<pnccdevent.detectors()[i].correctedFrame().size();++j)
-            pnccdevent.detectors()[i].integral() += pnccdevent.detectors()[i].correctedFrame()[j];
+        det.integral() = 0;
+        for (size_t j=0; j<det.correctedFrame().size();++j)
+            det.integral() += det.correctedFrame()[j];
 
         //find the photon hits here//
     }
