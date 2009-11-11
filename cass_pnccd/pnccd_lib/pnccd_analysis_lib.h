@@ -49,6 +49,8 @@ namespace cass
       bool loadDarkCalDataFromFile(const std::string& fname);
       bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector* detector);
     private:
+// Private function members:
+      bool setDefaultAnalysisParams_(void);
 // The necessary class members for the analysis of a raw
 // pnCCD data frame:
       DarkFrameCaldata *darkcal_file_loader_;

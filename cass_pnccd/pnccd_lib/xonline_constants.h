@@ -29,8 +29,8 @@
 
 #define NCOLORS		128
 //#define EBFRSIZE	8388608	// storage size for events from mulitple frames
-#define EBFRSIZE	4194304	// storage size for events from mulitple frames
-#define EFRMSIZE	1048576	// storage size for events per frame
+#define EBFRSIZE	65536	// storage size for events from mulitple frames
+#define EFRMSIZE	2048	// storage size for events per frame
 #define EVE_MAXRAW	10	// max. number of stored pixels in a cluster
 #define	MAXCHANNEL	300	// maximum channels to support
 #define	MAXLINES	600	// maximum lines to support
