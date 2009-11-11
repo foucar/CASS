@@ -38,7 +38,7 @@ namespace cass
 {
   namespace pnCCD
   {
-    class CASS_PNCCDSHARED_EXPORT pnCCDFrameAnalysis
+    class pnCCDFrameAnalysis
     {
     public:
 // The standard constructor which initializes the analysis
@@ -47,7 +47,7 @@ namespace cass
       pnCCDFrameAnalysis(void);
       ~pnCCDFrameAnalysis();
       bool loadDarkCalDataFromFile(const std::string& fname);
-      bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector* detector);
+      bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector *detector);
     private:
 // Private function members:
       bool setDefaultAnalysisParams_(void);
@@ -56,6 +56,12 @@ namespace cass
       DarkFrameCaldata *darkcal_file_loader_;
       FrameData        *dark_frame_calibrator_;
       PixEventData     *signal_frame_processor_;
+// Status flags:
+      bool              dark_caldata_ok_;
+// Detector parameters:
+      uint16_t det_columns_;
+      uint16_t det_rows_;
+
     };
   } // End of namespace pnCCD
 } // End of namespace cass

@@ -27,7 +27,8 @@ SOURCES += pnccd_analysis.cpp \
            ./classes/event/pnccd_event.cpp \
            ./pnccd_lib/frame_data.C \
            ./pnccd_lib/pix_event_data.C \
-           ./pnccd_lib/dark_frame_caldata.C
+           ./pnccd_lib/dark_frame_caldata.C \
+           ./pnccd_lib/pnccd_analysis_lib.cpp
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
@@ -43,7 +44,8 @@ HEADERS += ../cass/analysis_backend.h \
            ./pnccd_lib/xonline_data_types.h \
            ./pnccd_lib/frame_data.h \
            ./pnccd_lib/pix_event_data.h \
-           ./pnccd_lib/dark_frame_caldata.h
+           ./pnccd_lib/dark_frame_caldata.h \
+           ./pnccd_lib/pnccd_analysis_lib.h
 
 INCLUDEPATH += ./ \
                ../cass \
