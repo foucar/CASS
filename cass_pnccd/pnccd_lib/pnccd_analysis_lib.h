@@ -21,7 +21,8 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "pnccd_photon_hit.h"
+//#include "pnccd_photon_hit.h" //!!!when needed replace with pnccd_detector.h
+
 #include "pnccd_event.h"
 #include "pnccd_detector.h"
 

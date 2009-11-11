@@ -64,7 +64,7 @@ namespace cass
             ~pnCCDDetector()    {}
 
         public: //typedefs for better readable code
-            typedef std::vector<int16_t>   frame_t;
+            typedef std::vector<int16_t>    frame_t;
             typedef std::vector<PhotonHit>  photonHits_t;
 
         public:

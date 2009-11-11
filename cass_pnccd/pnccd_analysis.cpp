@@ -38,8 +38,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         pnccdevent.detectors()[i].correctedFrame().resize(pnccdevent.detectors()[i].rawFrame().size());
 
         //get the pointers to the first datapoint in the frames//
-        const uint16_t* rawData = &pnccdevent.detectors()[i].rawFrame()[0];
-        uint16_t* corData = &pnccdevent.detectors()[i].correctedFrame()[0];
+//        const uint16_t* rawData = &pnccdevent.detectors()[i].rawFrame()[0];
+//        uint16_t* corData = &pnccdevent.detectors()[i].correctedFrame()[0];
 
         //do the "massaging" of the detector here//
 

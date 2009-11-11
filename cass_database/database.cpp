@@ -303,7 +303,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     time(&rawtime);
     timeinfo=localtime(&rawtime);
     strftime(hourmin,11,"%H%M%S",timeinfo);
-    printf("done/seen event %i %i %s\n",Nevent,int(event_id), hourmin );
+//    printf("done/seen event %i %i %s\n",Nevent,int(event_id), hourmin );
     //T->Show(i%max_events_in_Buffer-1);
   }
 
