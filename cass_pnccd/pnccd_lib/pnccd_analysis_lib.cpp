@@ -31,6 +31,36 @@ bool
 cass::pnCCD::pnCCDFrameAnalysis::loadDarkCalDataFromFile
 (const std::string& fname)
 {
+  uint32_t width, height;
+// Load the dark frame calibration data file:
+  if( !darkcal_file_loader_->readPixelStatMapFromFile(fname) )
+  {
+    det_columns_     = 0;
+    det_rows_        = 0;
+    dark_caldata_ok_ = false;
+    return false;
+  }
+// Loading was ok, set the calivration information in
+// signal_frame_processor_:
+  darkcal_file_loader_->getPixelStatMapAddr(&width,&height);
+  if( (width < 1) || (height < 1) )
+  {
+// The file does not contain valid detector geometry information:
+    det_columns_     = 0;
+    det_rows_        = 0;
+    dark_caldata_ok_ = false;
+    return false;
+  }
+  det_columns_ = static_cast<uint16_t>(width);
+  det_rows_    = static_cast<uint16_t>(height);
+// Set the pixel statistics map and the bad pixel map:
+  signal_frame_processor_->setFramePixStatMap(
+    darkcal_file_loader_->getPixelStatMapAddr(&width,&height),
+    width,height);
+  signal_frame_processor_->setFrameBadPixMap(
+    darkcal_file_loader_->getBadPixelMapAddr(&width,&height),
+    width,height);
+
   return true;
 }
 
@@ -43,14 +73,14 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
   int32_t                 num_photon_hits;
   shmBfrType              frame_buffer;
   eventType              *pnccd_photon_hits;
-  cass::pnCCD::PhotonHit *unrec_photon_hits;
+  cass::pnCCD::PhotonHit  unrec_photon_hit;
 // Check if the dark frame calibration has either been set
 // or performed. If not, do nothing:
   if( !dark_caldata_ok_ ) return false;
 
 // Check whether the geometry of the frame is equal to the
 // geometry which has been defined by the dark frame calibration
-// /file loading before:
+// /file loaded before:
   if( (det_columns_ != detector->columns()) ||
       (det_rows_    != detector->rows()) )
   {
@@ -60,7 +90,6 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // and corr frame data vectors:
   raw_frm_addr      = &detector->rawFrame()[0];
   corr_frm_addr     = &detector->correctedFrame()[0];
-  unrec_photon_hits = &detector->nonrecombined()[0];
 // Still a bit complicated, but necessary since the data analysis uses
 // information from the frame header:
   frame_buffer.frH.index   = 1;
@@ -88,12 +117,13 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // Copy the events to the detector instance:
   for( int32_t i=0; i<num_photon_hits; i++ )
   {
-    unrec_photon_hits[i].x()         = pnccd_photon_hits[i].x;
-    unrec_photon_hits[i].y()         = pnccd_photon_hits[i].y;
-    unrec_photon_hits[i].amplitude() = 
+    unrec_photon_hit.x()         = pnccd_photon_hits[i].x;
+    unrec_photon_hit.y()         = pnccd_photon_hits[i].y;
+    unrec_photon_hit.amplitude() = 
       static_cast<uint16_t>(pnccd_photon_hits[i].corrval);
-    unrec_photon_hits[i].energy() = 
+    unrec_photon_hit.energy()    = 
       static_cast<float>(pnccd_photon_hits[i].corrval);
+    detector->nonrecombined().push_back(unrec_photon_hit);
   }
 
   return true;
@@ -107,6 +137,8 @@ bool
 cass::pnCCD::pnCCDFrameAnalysis::setDefaultAnalysisParams_
 (void)
 {
+  signal_frame_processor_->setDefaultAnlParams();
+
   return true;
 }
 
