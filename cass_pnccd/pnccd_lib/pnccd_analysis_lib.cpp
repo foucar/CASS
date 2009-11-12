@@ -40,7 +40,7 @@ cass::pnCCD::pnCCDFrameAnalysis::loadDarkCalDataFromFile
     dark_caldata_ok_ = false;
     return false;
   }
-// Loading was ok, set the calivration information in
+// Loading was ok, set the calibration information in
 // signal_frame_processor_:
   darkcal_file_loader_->getPixelStatMapAddr(&width,&height);
   if( (width < 1) || (height < 1) )
