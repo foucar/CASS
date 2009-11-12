@@ -235,14 +235,14 @@ PixEventData::setDefaultAnlParams
     event_threshold_ = 4.0;
 // The event analysis property structure:
     event_analysis_props_.minEnergy   = 0;
-    event_analysis_props_.maxEnergy   = 65535;
-    event_analysis_props_.mipThresh   = 65535;
+    event_analysis_props_.maxEnergy   = 16383;
+    event_analysis_props_.mipThresh   = 16000;
     event_analysis_props_.minClu      = 1;
-    event_analysis_props_.maxClu      = 4;
+    event_analysis_props_.maxClu      = 9;
     event_analysis_props_.qlin        = 0.0;
-    event_analysis_props_.isoEvents   = 1;
+    event_analysis_props_.isoEvents   = 0;
     event_analysis_props_.firstEvents = 0;
-    event_analysis_props_.badShapes   = 1;
+    event_analysis_props_.badShapes   = 0;
 
     return;
 }
@@ -1876,8 +1876,7 @@ PixEventData::storeFrameEventBuffer_
 	    break;
 	}
 // Set the initial values of the event pulse height:
-	source_evtbuffer->corrval
-	                          = source_evtbuffer->aux_value
+	source_evtbuffer->corrval = source_evtbuffer->aux_value
 	                          = source_evtbuffer->value;
 	*corrected_evts           = *source_evtbuffer;
 // Store the event and increment the array pointers:

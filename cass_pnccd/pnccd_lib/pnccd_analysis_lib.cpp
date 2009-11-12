@@ -38,9 +38,12 @@ bool
 cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 (cass::pnCCD::pnCCDDetector *detector)
 {
-  int16_t    *raw_frm_addr;
-  int16_t    *corr_frm_addr;
-  shmBfrType  frame_buffer;
+  int16_t                *raw_frm_addr;
+  int16_t                *corr_frm_addr;
+  int32_t                 num_photon_hits;
+  shmBfrType              frame_buffer;
+  eventType              *pnccd_photon_hits;
+  cass::pnCCD::PhotonHit *unrec_photon_hits;
 // Check if the dark frame calibration has either been set
 // or performed. If not, do nothing:
   if( !dark_caldata_ok_ ) return false;
@@ -55,8 +58,9 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
   }
 // Get the address of the first elements of the raw frame
 // and corr frame data vectors:
-  raw_frm_addr  = &detector->rawFrame()[0];
-  corr_frm_addr = &detector->correctedFrame()[0];
+  raw_frm_addr      = &detector->rawFrame()[0];
+  corr_frm_addr     = &detector->correctedFrame()[0];
+  unrec_photon_hits = &detector->nonrecombined()[0];
 // Still a bit complicated, but necessary since the data analysis uses
 // information from the frame header:
   frame_buffer.frH.index   = 1;
@@ -71,7 +75,26 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
   signal_frame_processor_->setPixSignalBfrAddr(
     corr_frm_addr,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
 // Analyze the frame:
-  signal_frame_processor_->analyzeCurrentFrame();
+  if( signal_frame_processor_->analyzeCurrentFrame() < 1 )
+  {
+    return false;
+  }
+// Get the number of photon hits and the address of the photon
+// hit buffer in signal_frame_processor_. Note: these events are not corrected
+// since no pulse height correction parameters are set. Pulse height
+// correction is done in another class:
+  pnccd_photon_hits =
+    signal_frame_processor_->getCorrectedFrameEvents(num_photon_hits);
+// Copy the events to the detector instance:
+  for( int32_t i=0; i<num_photon_hits; i++ )
+  {
+    unrec_photon_hits[i].x()         = pnccd_photon_hits[i].x;
+    unrec_photon_hits[i].y()         = pnccd_photon_hits[i].y;
+    unrec_photon_hits[i].amplitude() = 
+      static_cast<uint16_t>(pnccd_photon_hits[i].corrval);
+    unrec_photon_hits[i].energy() = 
+      static_cast<float>(pnccd_photon_hits[i].corrval);
+  }
 
   return true;
 }
