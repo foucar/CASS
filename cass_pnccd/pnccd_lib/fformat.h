@@ -59,7 +59,7 @@
 #define  EMPTYPIX	0x00
 
 // just for laziness
-typedef short		pxType;
+typedef  int16_t        pxType;
 
 // new for SLAC, PxH 6-Oct-09
 typedef union 

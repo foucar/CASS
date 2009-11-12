@@ -67,6 +67,9 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // Set the raw frame in the signal frame processor:
   signal_frame_processor_->setCurrentFrame(
     &frame_buffer,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
+// Set the address of the pixel signal map in the frame processor:
+  signal_frame_processor_->setPixSignalBfrAddr(
+    corr_frm_addr,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
 // Analyze the frame:
   signal_frame_processor_->analyzeCurrentFrame();
 

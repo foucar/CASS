@@ -196,6 +196,26 @@ PixEventData::setFrameBadPixMap
     return 0;
 }
 
+int
+PixEventData::setPixSignalBfrAddr
+(pxType *pix_signals, int width, int height)
+{
+// Check if the size of the signal map makes sense or
+// if the size of the signal map differs from the size
+// of the pixel statistics map:
+    if( (width < 1) || (height < 1) ) return -1;
+    if( (frame_width_ > 0) && (frame_height_ > 0) ) {
+	if( (width!=frame_width_) || (height!=frame_height_) ) {
+	    return -2;
+	}
+    }
+// Assign the local pixel signal map pointer to the argument, the
+// valididty of the externally stored pixel signal map must be
+// guaranteed:
+    pixsignal_buffer_ = pix_signals;
+    return 0;
+}
+
 void
 PixEventData::clearEvtAnalysisResults
 (void)
@@ -2027,18 +2047,20 @@ PixEventData::allocEvtStorageResources_
     }
 // Allocate the buffer for pixel signals. It has the same size as the
 // frame buffer:
-    if( pixsignal_buffer_ ) delete[] pixsignal_buffer_;
-    pixsignal_buffer_ = new pxType[frame_arraysize_];
-    if( !pixsignal_buffer_ ) {
-	error_msg_.str("");
-	error_msg_ << "Error in allocEvtStorageResources_() in file: "
-		   << __FILE__ << " , in line: " << __LINE__
-		   << " , could not allocate the storage buffer"
-		   << " for the common mode and offset corrected"
-		   << " signals od the current frame.";
+
+//    if( pixsignal_buffer_ ) delete[] pixsignal_buffer_;
+//    pixsignal_buffer_ = new pxType[frame_arraysize_];
+//    if( !pixsignal_buffer_ ) {
+//	error_msg_.str("");
+//	error_msg_ << "Error in allocEvtStorageResources_() in file: "
+//		   << __FILE__ << " , in line: " << __LINE__
+//		   << " , could not allocate the storage buffer"
+//		   << " for the common mode and offset corrected"
+//		   << " signals od the current frame.";
 //	AskUserDiags::askContinue(parent_,"Xonline",error_msg_.str());
-	return false;
-    }
+//	return false;
+//    }
+
 // Allocate the event threshold map. It has the same size as the
 // frame buffer:
     if( evtthresh_map_ ) delete[] evtthresh_map_;
@@ -2253,7 +2275,7 @@ PixEventData::clearAnalysisResources_
 {
     int i;
 
-    if( pixsignal_buffer_ )   delete[] pixsignal_buffer_;
+//    if( pixsignal_buffer_ )   delete[] pixsignal_buffer_;
     if( evtthresh_map_ )      delete[] evtthresh_map_;
     if( line_cmodes_ ) {
 	for( i=0; i<number_adcs_; i++ ) {

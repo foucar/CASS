@@ -80,6 +80,9 @@ public:
 // Set the bad pixel map. The bad pixel map is created by the pixel
 // statistics calibration class:
     int setFrameBadPixMap(char *badmap, int width, int height);
+// Set the address of the buffer where the pixel signals
+// of the currently analyzed frame are stored:
+    int setPixSignalBfrAddr(pxType *pix_signals, int width, int height);
 // Clear the analysis results:
     void clearEvtAnalysisResults(void);
 // Set the analysis parameters:
