@@ -25,7 +25,7 @@ namespace cass
             Signal()    {}
             ~Signal()   {}
 
-        private:
+        public:
             typedef std::vector<Peak*> peaks_t;
 
         public:
