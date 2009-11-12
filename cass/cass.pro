@@ -93,13 +93,13 @@ LIBS += -L../cass_remi -lcass_remi \
        #-L../cass_root -lroot
         #-L../cass -lcass \
 
-TARGETDEPS +=   ../cass_remi/libcass_remi.a \
-                ../cass_pnccd/libcass_pnccd.a \
-                ../cass_vmi/libcass_vmi.a \
-                ../cass_machinedata/libcass_machinedata.a \
+#TARGETDEPS +=   ../cass_remi/libcass_remi.a \
+#                ../cass_pnccd/libcass_pnccd.a \
+#                ../cass_vmi/libcass_vmi.a \
+#               ../cass_machinedata/libcass_machinedata.a \
 #                ../cass_dictionaries/libcass_dictionaries.a \
-                ../cass_database/libcass_database.a
-                #../cass_database/libcass_database.so
+#                ../cass_database/libcass_database.a
+#                ../cass_database/libcass_database.so
 }
 
 
