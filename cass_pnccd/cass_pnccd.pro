@@ -1,4 +1,4 @@
-# Copyright (C) 2009 nik, ncoppola, lmf
+# Copyright (C) 2009 jk, nik, ncoppola, lmf
 
 CONFIG += shared
 #CONFIG += static

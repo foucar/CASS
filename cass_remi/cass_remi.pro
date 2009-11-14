@@ -7,6 +7,8 @@ QT -= core gui
 TEMPLATE = lib
 DEFINES += CASS_REMI_LIBRARY
 
+OBJECTS_DIR = ./obj
+
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
   include ($$incFile/rootcint.pri)

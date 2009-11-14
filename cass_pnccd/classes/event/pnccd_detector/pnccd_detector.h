@@ -99,7 +99,7 @@ namespace cass
             frame_t              _correctedFrame;       //the "massaged" frame
             photonHits_t         _recombined;           //vector containing recombined X-ray photon hits
             photonHits_t         _nonrecombined;        //vector containing non-recombined X-ray photon hits
-            uint32_t             _integral;             //the sum of all pixels in the frame
+            int32_t              _integral;             //the sum of all pixels in the frame
 
             ClassDefNV(pnCCDDetector,1)  //a pnccd detector
         };
