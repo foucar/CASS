@@ -86,8 +86,8 @@ namespace cass
             uint16_t             columns()const         {return _columns;}
             uint16_t            &columns()              {return _columns;}
 
-            uint32_t             integral()const        {return _integral;}
-            uint32_t            &integral()             {return _integral;}
+            int32_t              integral()const        {return _integral;}
+            int32_t             &integral()             {return _integral;}
 
         private:
             //infos from the xtc file
