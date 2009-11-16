@@ -9,6 +9,7 @@ cass::pnCCD::pnCCDFrameAnalysis::pnCCDFrameAnalysis
 {
 // Allocate instances of the private members:
   darkcal_file_loader_    = new DarkFrameCaldata();
+  badpix_file_loader_     = new BadpixMapEdit();
   dark_frame_calibrator_  = new FrameData();
   signal_frame_processor_ = new PixEventData();
 // Set start values of the private members:
@@ -23,6 +24,7 @@ cass::pnCCD::pnCCDFrameAnalysis::~pnCCDFrameAnalysis
 ()
 {
   if( darkcal_file_loader_ )    delete darkcal_file_loader_;
+  if( badpix_file_loader_ )     delete badpix_file_loader_;
   if( dark_frame_calibrator_ )  delete dark_frame_calibrator_;
   if( signal_frame_processor_ ) delete signal_frame_processor_;
 }
@@ -32,6 +34,9 @@ cass::pnCCD::pnCCDFrameAnalysis::loadDarkCalDataFromFile
 (const std::string& fname)
 {
   uint32_t width, height;
+
+// Dark calibration data is not ok anymore:
+  dark_caldata_ok_ = false;
 // Load the dark frame calibration data file:
   if( !darkcal_file_loader_->readPixelStatMapFromFile(fname) )
   {
@@ -60,7 +65,33 @@ cass::pnCCD::pnCCDFrameAnalysis::loadDarkCalDataFromFile
   signal_frame_processor_->setFrameBadPixMap(
     darkcal_file_loader_->getBadPixelMapAddr(&width,&height),
     width,height);
+// Set the bad pixel map in the bad pixel file loader too
+// since this triggers the allocation of the backup bad pixel
+// map:
+  badpix_file_loader_->setBadPixelMap(
+    darkcal_file_loader_->getBadPixelMapAddr(&width,&height),
+    width,height);
+// Dark calibration was successfully loaded:
+  dark_caldata_ok_ = true;
 
+  return true;
+}
+
+bool
+cass::pnCCD::pnCCDFrameAnalysis::loadBadpixelMapFromFile
+(const std::string& fname)
+{
+// A successful dark frame calibration is required if we want to
+// load an additional bad pixel map:
+  if( !dark_caldata_ok_ ) return false;
+
+  return true;
+}
+
+bool
+cass::pnCCD::pnCCDFrameAnalysis::triggerDarkFrameCalibration
+(void)
+{
   return true;
 }
 

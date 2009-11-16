@@ -29,6 +29,7 @@
 #include "dark_frame_caldata.h"
 #include "frame_data.h"
 #include "pix_event_data.h"
+#include "badpix_map_edit.h"
 
 //#include "cass_pnccd.h"
 
@@ -48,6 +49,12 @@ namespace cass
       pnCCDFrameAnalysis(void);
       ~pnCCDFrameAnalysis();
       bool loadDarkCalDataFromFile(const std::string& fname);
+      bool loadBadpixelMapFromFile(const std::string& fname);
+// Trigger the offset, noise etc calibration with a set of
+// dark frames:
+      bool triggerDarkFrameCalibration(void);
+// Process the frame data that is attached to a pnCCDDetector
+// instance:
       bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector *detector);
     private:
 // Private function members:
@@ -55,6 +62,7 @@ namespace cass
 // The necessary class members for the analysis of a raw
 // pnCCD data frame:
       DarkFrameCaldata *darkcal_file_loader_;
+      BadpixMapEdit    *badpix_file_loader_;
       FrameData        *dark_frame_calibrator_;
       PixEventData     *signal_frame_processor_;
 // Status flags:
