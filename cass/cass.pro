@@ -57,6 +57,7 @@ INCLUDEPATH +=  ./ \
                 ../cass_pnccd \
                 ../cass_pnccd/classes/event \
                 ../cass_pnccd/classes/event/pnccd_detector \
+                ../cass_pnccd/pnccd_lib \
                 ../cass_machinedata \
                 ../cass_machinedata/classes/event \
                 ../cass_database
