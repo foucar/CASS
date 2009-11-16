@@ -4,6 +4,21 @@
 #include "pnccd_event.h"
 #include "cass_event.h"
 
+cass::pnCCD::Analysis::Analysis
+(void)
+{
+  this->loadSettings();
+  pnccd_analysis_ = new pnCCDFrameAnalysis();
+
+  return;
+}
+
+cass::pnCCD::Analysis::~Analysis
+()
+{
+  if( pnccd_analysis_ ) delete pnccd_analysis_;
+}
+
 void cass::pnCCD::Analysis::loadSettings()
 {
   //sync before loading//
@@ -33,16 +48,16 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[i];
     //get the dimesions of the detector//
-    const uint16_t NbrOfRows = det.rows();
-    const uint16_t NbrOfCols = det.columns();
+    //const uint16_t NbrOfRows = det.rows();
+    //const uint16_t NbrOfCols = det.columns();
 
     //resize the corrected frame container to the size of the raw frame container//
 //    pnccdevent.detectors()[i].correctedFrame().resize(pnccdevent.detectors()[i].rawFrame().size());
-    det.correctedFrame().assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
+    //det.correctedFrame().assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
 
 
     //do the "massaging" of the detector here//
-
+    pnccd_analysis_->processPnCCDDetectorData(&det);
     //calc the integral (the sum of all bins)//
     det.integral() = 0;
     for (size_t j=0; j<det.correctedFrame().size();++j)

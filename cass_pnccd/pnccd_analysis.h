@@ -10,6 +10,7 @@
 //#include "pnccd_event.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
+#include "pnccd_analysis_lib.h"
 
 #include <QtGui/QImage>
 
@@ -91,8 +92,8 @@ namespace cass
         class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
         {
         public:
-            Analysis()      {loadSettings();}
-            ~Analysis()     {}
+            Analysis(void);
+            ~Analysis();
             /*
             initialize AnalysisBackend with new set of parameters
              */
@@ -108,6 +109,8 @@ namespace cass
             void operator() (cass::CASSEvent*);
         private:
             Parameter _param;
+// The frame analysis object:
+            pnCCDFrameAnalysis *pnccd_analysis_;
         };
 
 

@@ -53,7 +53,8 @@ INCLUDEPATH += ./ \
                ../cass \
                ./classes/event \
                ./classes/event/pnccd_detector \
-               $$(LCLSSYSINCLUDE)
+               $$(LCLSSYSINCLUDE) \
+               ./pnccd_lib
 
 
 INSTALLBASE    = /usr/local/cass

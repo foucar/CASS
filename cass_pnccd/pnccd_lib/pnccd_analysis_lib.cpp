@@ -81,9 +81,21 @@ bool
 cass::pnCCD::pnCCDFrameAnalysis::loadBadpixelMapFromFile
 (const std::string& fname)
 {
+  char     *bpxmap;
+  int32_t   width, height;
+
 // A successful dark frame calibration is required if we want to
 // load an additional bad pixel map:
   if( !dark_caldata_ok_ ) return false;
+// Load the bad pixel map:
+  if( !badpix_file_loader_->readBadPixMapFromFile(fname) )
+  {
+    return false;
+  }
+// Loading was ok, set the modified bad pixel map in
+// signal_frame_processor_:
+  badpix_file_loader_->getModifiedBpxmap(&bpxmap,&width,&height);
+  signal_frame_processor_->setFrameBadPixMap(bpxmap,width,height);
 
   return true;
 }
@@ -92,7 +104,7 @@ bool
 cass::pnCCD::pnCCDFrameAnalysis::triggerDarkFrameCalibration
 (void)
 {
-  return true;
+  return false;
 }
 
 bool
