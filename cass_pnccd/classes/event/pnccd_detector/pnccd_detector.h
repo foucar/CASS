@@ -91,7 +91,7 @@ namespace cass
 
         private:
             //infos from the xtc file
-            frame_t              _rawFrame;             //! the raw frame
+            frame_t              _rawFrame;             // the raw frame
             uint16_t             _rows;                 //number of rows of the detector
             uint16_t             _columns;              //number of columns of the detector
 

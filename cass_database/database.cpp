@@ -31,7 +31,7 @@
 #include <TMapFile.h>
 
 //TFile f("tree_and_histos.root","RECREATE");
-TTree *T = new TTree("T","circ buffer");
+//TTree *T = new TTree("T","circ buffer");
 
 #include "cass_tree.h"
 
@@ -55,6 +55,7 @@ char hourmin[12];
 char username[10];
 
 TMapFile *mapfile;
+//TTree *T=0;
 
 #ifndef ROOT_Rtypes
 #include <Rtypes.h>
@@ -99,7 +100,10 @@ cass::database::Database::Database()
   } 
   printf("TMapFile is in %s\n",Tmap_filename);
   // it was 2000000000
-  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 1200000000, "");
+  gROOT->cd();
+  T= new TTree("T","circ buffer");
+
+  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 500000000, "");
   mapfile->Add(T,"T");
   //mapfile->Print();
   //mapfile->ls();
@@ -159,7 +163,7 @@ cass::database::Database::Database()
   }
   else printf("I have got already the pnCCD definitions\n");
   cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
-  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,600000,0); // it was 6000000
+  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,6000000,0);
   delete pnCCDdata;
 
 #ifdef sng_pnccd
@@ -177,16 +181,16 @@ cass::database::Database::Database()
   T->Branch("pnCCD_array_xy_size1",&pnCCD_array_xy_size1,"pnCCD_array_xy_size1/I");
 #endif
 
-  T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
-  T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
+  //  T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
+  //T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
 #ifdef sng_pnccd
   T->Branch("pnCCD_corr_0",pnCCD_corr_0,"pnCCD_corr_0[1048576]/s");
   T->Branch("pnCCD_corr_1",pnCCD_corr_1,"pnCCD_corr_1[1048576]/s");
 #endif
 
-  //T->SetAutoSave();
-  T->BranchRef();
-  //T->SetCompressionLevel(0);
+  T->SetAutoSave();
+  //T->BranchRef();
+  //T->SetCompressionLevel(1);
   T->SetCircular(max_events_in_Buffer);
   printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
 
@@ -296,7 +300,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
 #endif
 
-  //#ifdef sgl
+#ifdef sgl
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   size_t pnCCD_num_pixel_arrays=pnccdevent.detectors().size();
   if(pnCCD_num_pixel_arrays>0&&  ( pnccdevent.detectors()[0].correctedFrame()[0]!=0))
@@ -314,7 +318,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
           1024*1024*2);
   }
   }
-  //#endif
+#endif
 
 #if DEBUG_pnCCD_raw
   if(pnccdevent.rawSignalArrayAddr(1)!=0)

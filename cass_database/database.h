@@ -6,6 +6,8 @@
  *
  */
 #include <QtCore/QObject>
+#include <TNtuple.h>
+
 
 namespace cass
 {
@@ -33,6 +35,7 @@ namespace cass
             void add(cass::CASSEvent*);
 
         private:
+            TTree *T;
         };
     }//end namespace database
 }//end namespace cass
