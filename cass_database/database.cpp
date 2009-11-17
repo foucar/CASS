@@ -196,6 +196,8 @@ cass::database::Database::Database()
 
 cass::database::Database::~Database()
 {
+  mapfile->Close("close");
+  //delete T;
   // delete all histos
   //delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
 
