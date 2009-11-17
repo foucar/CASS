@@ -1,5 +1,7 @@
 #include "pnccd_converter.h"
 
+#include <iostream>
+
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
 #include "pdsdata/xtc/DetInfo.hh"

@@ -1,6 +1,7 @@
 // Copyright (C) 2009 Jochen Küpper
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 #include <QtCore/QMutexLocker>
 #include "format_converter.h"
 #include "remi_converter.h"
@@ -21,6 +22,7 @@ namespace cass
     QMutex FormatConverter::_mutex;
     EventQueue *FormatConverter::_eventqueue(0);
     EventManager *FormatConverter::_eventmanager(0);
+    bool FormatConverter::_firsttime(true);
 
 
     FormatConverter::FormatConverter()
@@ -54,8 +56,9 @@ namespace cass
     FormatConverter *FormatConverter::instance(EventQueue* eventqueue, EventManager* eventmanager)
     {
         QMutexLocker locker(&_mutex);
-        _eventqueue = eventqueue;
+        _eventqueue   = eventqueue;
         _eventmanager = eventmanager;
+        _firsttime    = true;
         if(0 == _instance)
             _instance = new FormatConverter();
         return _instance;
@@ -74,6 +77,29 @@ namespace cass
 //        std::cout<<"eventqueue index: "<<std::dec<<index<<" transition: "<<Pds::TransitionId::name(datagram->seq.service());
 //        std::cout<<std::hex<<" "<<datagram->seq.stamp().fiducials()<<" "<< datagram->seq.stamp().ticks() <<std::dec <<std::endl;
 
+        //if this is the firsttime we run we want to load a config that was stored to disk//
+        if(_firsttime)
+        {
+            //reset the flag//
+            _firsttime = false;
+            //open the file//
+            std::ifstream oldconfigtransition;
+            oldconfigtransition.open("oldconfig.xtc",std::ios::binary|std::ios::in);
+            //if there was such a file then we want to load it//
+            if (oldconfigtransition.is_open())
+            {
+                //read the datagram from the file//
+                char * buffer =  new char [0x900000];
+                Pds::Dgram& dg = *reinterpret_cast<Dgram*>(buffer);
+                oldconfigtransition.read(buffer,sizeof(dg));
+                oldconfigtransition.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+                //done reading.. close file//
+                oldconfigtransition.close();
+                //now iterate through the config datagram//
+                XtcIterator iter(&(dg.xtc),_converter,0,0);
+                iter.iterate();
+            }
+        }
 
         //check whether datagram is damaged//
         uint32_t damage = datagram->xtc.damage.value();
@@ -96,6 +122,20 @@ namespace cass
 //                    cassevent = new CASSEvent(bunchId);
                     cassevent = _eventmanager->event(index);
                     cassevent->id() = bunchId;
+                }
+                //if it is a configure transition we want to store it to file//
+                else if(datagram->seq.service() == Pds::TransitionId::Configure)
+                {
+                    //open the file//
+                    std::ofstream configtransition;
+                    configtransition.open("oldconfig.xtc",std::ios::binary|std::ios::out);
+                    if (configtransition.is_open())
+                    {
+                        //write the datagram to file//
+                        configtransition.write(reinterpret_cast<char*>(datagram),sizeof(Pds::Dgram));
+                        configtransition.write(datagram->xtc.payload(),datagram->xtc.sizeofPayload());
+                        configtransition.close();
+                    }
                 }
 
                 //iterate through the datagram and find the wanted information//

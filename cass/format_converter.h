@@ -67,6 +67,7 @@ namespace cass
 
         static EventQueue   *_eventqueue;
         static EventManager *_eventmanager;
+        static bool          _firsttime;
 
     };
 
