@@ -2,18 +2,20 @@
 #define XTC_MONITOR_CLIENT_HH
 
 
-namespace Pds {
+namespace Pds 
+{
 
   class Dgram;
 
-  class XtcMonitorClient {
-    public:
-      XtcMonitorClient() {};
-      virtual ~XtcMonitorClient() {};
+  class XtcMonitorClient 
+  {
+  public:
+    XtcMonitorClient() {};
+    virtual ~XtcMonitorClient() {};
 
-    public:
-      int run(char * partitionTag);
-      virtual int processDgram(Dgram*);
+  public:
+    int run(char * partitionTag);
+    virtual int processDgram(Dgram*);
   };
 }
 #endif

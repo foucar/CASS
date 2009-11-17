@@ -1,5 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
 
+#include <iostream>
 #include <QtGui/QApplication>
 
 #include "cass.h"
@@ -47,14 +48,13 @@ int main(int argc, char **argv)
     QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
 
     // connect controls
-    QObject::connect (window, SIGNAL (quit()), &app, SLOT(quit()));
     QObject::connect (window, SIGNAL (load()), analysis, SLOT(loadSettings()));
     QObject::connect (window, SIGNAL (save()), analysis, SLOT(saveSettings()));
     QObject::connect (window, SIGNAL (start()), input, SLOT(start()));
     QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
 
-    // connect deletion of thread
-    QObject::connect(input, SIGNAL(finished()), input, SLOT(deleteLater()));
+    // when the thread has finished, we want to close this application
+    QObject::connect(input, SIGNAL(finished()), window, SLOT(close()));
 
     //show dialog//
     window->show();
@@ -66,10 +66,13 @@ int main(int argc, char **argv)
     int retval(app.exec());
 
     // clean up
+    delete window;
+    delete ratemeter;
     delete database;
     delete analysis;
-    delete input;
     cass::FormatConverter::destroy();
+    delete eventmanager;
+    delete input;
 
     // finish
     return retval;
