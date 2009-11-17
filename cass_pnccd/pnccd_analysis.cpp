@@ -8,7 +8,7 @@ cass::pnCCD::Analysis::Analysis
 (void)
 {
   this->loadSettings();
-  pnccd_analysis_ = new pnCCDFrameAnalysis();
+//  pnccd_analysis_ = new pnCCDFrameAnalysis();
 
   return;
 }
@@ -16,7 +16,7 @@ cass::pnCCD::Analysis::Analysis
 cass::pnCCD::Analysis::~Analysis
 ()
 {
-  if( pnccd_analysis_ ) delete pnccd_analysis_;
+//  if( pnccd_analysis_ ) delete pnccd_analysis_;
 }
 
 void cass::pnCCD::Analysis::loadSettings()
@@ -57,7 +57,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 
 
     //do the "massaging" of the detector here//
-    pnccd_analysis_->processPnCCDDetectorData(&det);
+    //   pnccd_analysis_->processPnCCDDetectorData(&det);
     //calc the integral (the sum of all bins)//
     det.integral() = 0;
     for (size_t j=0; j<det.correctedFrame().size();++j)

@@ -29,11 +29,14 @@ UInt_t max_events_in_Buffer= 200/*2000*/;
 #endif
 TRandom r;
 Float_t px,py,pz;
+
+
 ULong64_t Nevent;
 //Int_t i;
 
 ULong64_t event_id;
 
+#ifdef notthis
 Int_t REMI_nofChannels;
 
 //add channels_t??
@@ -109,9 +112,13 @@ UShort_t VMI_coordinatesOfImpact_y[VMI_MAX_IMPACTS];
 #define max_phot_in_Buffer_loose 4096 //16385 = 1024*1024/64+1
 #define max_phot_in_Buffer 2048 // 8193= 1024*1024/128+1
 
+#endif
+
 #define MAX_pnCCD 2
 #define MAX_pnCCD_array_x_size 1024
 #define MAX_pnCCD_array_y_size 1024
+
+#ifdef notthis
 //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size
 //#define MAX_pnCCD_max_photons_per_event MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size/16
 #define MAX_pnCCD_max_photons_per_event max_phot_in_Buffer
@@ -141,15 +148,20 @@ Int_t pnCCD_max_photons_per_event1;
 
 Int_t pnCCD_array_xy_size0;
 Int_t pnCCD_array_xy_size1;
+#endif
 
 UShort_t pnCCD_raw_0[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
 UShort_t pnCCD_raw_1[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
 
+#ifdef notthis
 UShort_t pnCCD_raw0[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 UShort_t pnCCD_raw1[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 
 UShort_t pnCCD_corr0[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
 UShort_t pnCCD_corr1[MAX_pnCCD_array_x_size][MAX_pnCCD_array_y_size];
+
+UShort_t pnCCD_corr_0[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
+UShort_t pnCCD_corr_1[MAX_pnCCD_array_x_size*MAX_pnCCD_array_y_size];
 
 UShort_t pnCCD_ph_unrec_x0[MAX_pnCCD_max_photons_per_event];
 UShort_t pnCCD_ph_unrec_y0[MAX_pnCCD_max_photons_per_event];
@@ -191,3 +203,5 @@ Double_t LCLS_FitTime1;
 Double_t LCLS_FitTime2;
 Double_t LCLS_Charge1;
 Double_t LCLS_Charge2;
+
+#endif

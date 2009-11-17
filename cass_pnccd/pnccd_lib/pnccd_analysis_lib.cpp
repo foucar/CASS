@@ -119,6 +119,7 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
   cass::pnCCD::PhotonHit  unrec_photon_hit;
 // Check if the dark frame calibration has either been set
 // or performed. If not, do nothing:
+
   if( !dark_caldata_ok_ ) return false;
 
 // Check whether the geometry of the frame is equal to the

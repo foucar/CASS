@@ -35,11 +35,11 @@ TTree *T = new TTree("T","circ buffer");
 
 #include "cass_tree.h"
 
-#include "histo_list.h"
-void reset_lastevt_histos();
-#include "reset_histos.h"
-#include "fill_histos.h"
-void   fill_lastevt_histos();
+//#include "histo_list.h"
+//void reset_lastevt_histos();
+//#include "reset_histos.h"
+//#include "fill_histos.h"
+//void   fill_lastevt_histos();
 #include <time.h>
 time_t rawtime;
 struct tm * timeinfo;
@@ -69,12 +69,14 @@ ClassImp(cass::REMI::REMIEvent);
 ClassImp(cass::VMI::VMIEvent);
 ClassImp(cass::pnCCD::pnCCDEvent);
 //ClassImp(cass::CASSEvent)
+//ClassImp(cass::pnCCD::pnCCDDetector);
 
 cass::database::Database::Database()
 {
 
-  Double_t random;
+  //  Double_t random;
 
+  //sprintf(Tmap_filename,"%s","~/");
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
   //printf("%s\n",Tmap_filename);
   strcpy(username,"");
@@ -97,7 +99,7 @@ cass::database::Database::Database()
   } 
   printf("TMapFile is in %s\n",Tmap_filename);
   // it was 2000000000
-  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
+  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 1200000000, "");
   mapfile->Add(T,"T");
   //mapfile->Print();
   //mapfile->ls();
@@ -126,11 +128,10 @@ cass::database::Database::Database()
   else printf("I have got already the MachineData definitions\n");
 
   cass::MachineData::MachineDataEvent *machinedata = new cass::MachineData::MachineDataEvent();
-  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,0);
+  T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,64000,0);
   delete machinedata;
   //TBranch::SetAutoDelete(kTRUE);
 
-  //#ifdef deb_REMI
   //REMI
   if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
   {
@@ -138,9 +139,8 @@ cass::database::Database::Database()
   }
   else printf("I have got already the REMI definitions\n");
   cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
-  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,0);
+  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,128000,0);
   delete REMIdata;
-  //#endif
 
   //VMI
   if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
@@ -149,7 +149,7 @@ cass::database::Database::Database()
   }
   else printf("I have got already the VMI definitions\n");
   cass::VMI::VMIEvent *VMIdata = new cass::VMI::VMIEvent();
-  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,0);
+  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,6000000,0);
   delete VMIdata;
 
   //pnCCD
@@ -159,7 +159,7 @@ cass::database::Database::Database()
   }
   else printf("I have got already the pnCCD definitions\n");
   cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
-  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,0);
+  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,600000,0); // it was 6000000
   delete pnCCDdata;
 
 #ifdef sng_pnccd
@@ -175,9 +175,13 @@ cass::database::Database::Database()
 
   T->Branch("pnCCD_array_xy_size0",&pnCCD_array_xy_size0,"pnCCD_array_xy_size0/I");
   T->Branch("pnCCD_array_xy_size1",&pnCCD_array_xy_size1,"pnCCD_array_xy_size1/I");
+#endif
 
   T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
   T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
+#ifdef sng_pnccd
+  T->Branch("pnCCD_corr_0",pnCCD_corr_0,"pnCCD_corr_0[1048576]/s");
+  T->Branch("pnCCD_corr_1",pnCCD_corr_1,"pnCCD_corr_1[1048576]/s");
 #endif
 
   //T->SetAutoSave();
@@ -193,13 +197,12 @@ cass::database::Database::Database()
 cass::database::Database::~Database()
 {
   // delete all histos
-  delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
+  //delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
 
 }
 
 void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
-  Double_t random;
 #ifdef DEBUG
   Int_t jj,kk;
   UInt_t jj_u;
@@ -212,6 +215,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   // just to have something filled...
 
 #ifdef extra
+  Double_t random;
   r.Rannor(px,py);
   random=double(r.Rndm());
 #endif
@@ -228,7 +232,14 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
+  //  VMIdata->frame().resize(VMIdata->frame().size()/4);
+  //VMIdata->cutFrame().resize(VMIdata->cutFrame().size()/4);
   T->SetBranchAddress("VMIEventBranch",&VMIdata);
+#ifdef VMI_DEB
+  std::cout<< VMIdata->frame().size() << " a " <<
+    VMIdata->cutFrame().size() << " b " <<
+    VMIdata->coordinatesOfImpact().size() << std::endl;
+#endif
 
   cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
   T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
@@ -283,6 +294,26 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
 #endif
 
+  //#ifdef sgl
+  cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+  size_t pnCCD_num_pixel_arrays=pnccdevent.detectors().size();
+  if(pnCCD_num_pixel_arrays>0&&  ( pnccdevent.detectors()[0].correctedFrame()[0]!=0))
+  {
+     memcpy(&pnCCD_raw_0,
+	    &pnccdevent.detectors()[0].rawFrame()[0],
+            //	    &pnccdevent.detectors()[0].correctedFrame()[0],
+          1024*1024*2);
+
+  if(pnCCD_num_pixel_arrays>1&&  ( pnccdevent.detectors()[1].correctedFrame()[0]!=0))
+  {
+     memcpy(&pnCCD_raw_1,
+	    &pnccdevent.detectors()[1].rawFrame()[0],
+            //	    &pnccdevent.detectors()[1].correctedFrame()[0],
+          1024*1024*2);
+  }
+  }
+  //#endif
+
 #if DEBUG_pnCCD_raw
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
@@ -298,18 +329,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
 
-  if ( max_events_in_Buffer>99 && ( Nevent%(max_events_in_Buffer/100) )==0 )
+  if ( max_events_in_Buffer>99 && ( Nevent%(max_events_in_Buffer/50) )==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
     strftime(hourmin,11,"%H%M%S",timeinfo);
-//    printf("done/seen event %i %i %s\n",Nevent,int(event_id), hourmin );
+    printf("done/seen event %i %i %s\n",int(Nevent),int(event_id), hourmin );
     //T->Show(i%max_events_in_Buffer-1);
   }
 
   T->Fill();
   //mapfile->Update(TObject obj = 0);
-  mapfile->Update();
+  if( ( Nevent%(20) )==0 ) mapfile->Update();
 
 #ifdef sng_update
   if ( max_events_in_Buffer>99)
