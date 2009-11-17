@@ -13,7 +13,8 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 
-namespace cass {
+namespace cass
+{
 
     // define static members
     FormatConverter *FormatConverter::_instance(0);
