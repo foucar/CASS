@@ -47,7 +47,7 @@ namespace cass
             uint16_t _amplitude;            // signal amplitude in adu
             float    _energy;               // energy in eV
 
-            ClassDefNV(PhotonHit,1)     //a photon hit on the detector
+            ClassDefNV(PhotonHit,1)         //a photon hit on the detector
         };
 
 

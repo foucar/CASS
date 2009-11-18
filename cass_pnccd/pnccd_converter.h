@@ -4,6 +4,7 @@
 #include "cass_pnccd.h"
 //#include "pnccd_event.h"
 #include "conversion_backend.h"
+#include <vector>
 
 namespace Pds
 {
@@ -24,7 +25,7 @@ namespace cass
             //called for LCLS event//
             void operator()(const Pds::Xtc*, cass::CASSEvent*);
         private:
-            Pds::PNCCD::ConfigV1 *_pnccdConfig;
+            std::vector<Pds::PNCCD::ConfigV1*> _pnccdConfig;
 
         };
     }//end namespace vmi

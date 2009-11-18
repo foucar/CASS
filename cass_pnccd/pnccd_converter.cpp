@@ -26,40 +26,55 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
   switch( xtc->contains.id() )
   {
   case (Pds::TypeId::Id_pnCCDconfig) :
-    //just store the config
-    delete _pnccdConfig;
-    _pnccdConfig = new Pds::PNCCD::ConfigV1();
-    *_pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
+    {
+      //Get the the detecotor id //
+      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      const size_t detectorId = info.devId();
+
+      //if necessary resize the config container//
+      if (detectorId >= _pnccdConfig.size())
+        _pnccdConfig.resize(detectorId+1,0);
+
+      //retrieve the reference to the right pointer to config//
+      //and store the transmitted config//
+      Pds::PNCCD::ConfigV1 *&pnccdConfig = _pnccdConfig[detectorId];
+      delete pnccdConfig;
+      pnccdConfig = new Pds::PNCCD::ConfigV1();
+      *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
+    }
     break;
 
 
   case (Pds::TypeId::Id_pnCCDframe) :
     {
-      //only run this if we have a config
-      if (_pnccdConfig)
+      // Get a reference to the pnCCDEvent:
+      pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+      //Get the frame from the xtc
+      const Pds::PNCCD::FrameV1* frameSegment = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
+      //Get the the detecotor id //
+      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      const size_t detectorId = info.devId();
+
+      //if necessary resize the detector container//
+      if (detectorId >= pnccdevent.detectors().size())
+        pnccdevent.detectors().resize(detectorId+1);
+
+      //only run this if we have a config for this detector
+      if (_pnccdConfig.size() >= detectorId && _pnccdConfig[detectorId])
       {
-        // Get a reference to the pnCCDEvent:
-        pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
-        //Get the frame from the xtc
-        const Pds::PNCCD::FrameV1* frameSegment = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
-        //Get the the detecotor id //
-        const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-        const size_t detectorId = info.devId();
-
-        //if necessary resize the detector container//
-        if (detectorId >= pnccdevent.detectors().size())
-          pnccdevent.detectors().resize(detectorId+1);
-
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
+
+        //get the pointer to the config for this detector//
+        Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
 
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
         det.rows() = det.columns() = 1024;
 
         //find out the total size of this frame//
-        const size_t sizeOfOneSegment = frameSegment->sizeofData(*_pnccdConfig);
-        const size_t NbrOfSegments = _pnccdConfig->numLinks();
+        const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
+        const size_t NbrOfSegments = pnccdConfig->numLinks();
         const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
 
         //resize the frame to what we will receive//
@@ -73,7 +88,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           //pointer to first data element of segment//
           datapointers[i] = frameSegment->data();
           //iterate to the next frame segment//
-          frameSegment = frameSegment->next(*_pnccdConfig);
+          frameSegment = frameSegment->next(*pnccdConfig);
         }
 
         //calc the Number of Rows and Colums in one Segment//
