@@ -3,35 +3,52 @@
 #include "pnccd_analysis.h"
 #include "pnccd_event.h"
 #include "cass_event.h"
+#include "pnccd_analysis_lib.h"
 
 #include <vector>
 
-cass::pnCCD::Analysis::Analysis
-(void)
-{
-  this->loadSettings();
-  pnccd_analysis_ = new pnCCDFrameAnalysis();
 
-  return;
+void cass::pnCCD::Parameter::load()
+{
+  //sync before loading//
+  sync();
+  _rebinfactor = value("RebinFactor",1).toUInt();
 }
 
-cass::pnCCD::Analysis::~Analysis
-()
+void cass::pnCCD::Parameter::save()
 {
-  if( pnccd_analysis_ ) delete pnccd_analysis_;
+  setValue("RebinFactor",static_cast<uint32_t>(_rebinfactor));
+}
+
+
+
+
+
+
+cass::pnCCD::Analysis::Analysis(void)
+    :pnccd_analysis_(0)
+{
+  //load the settings//
+  loadSettings();
+  //create an instance of the frame analysis from Munich//
+  pnccd_analysis_ = new pnCCDFrameAnalysis();
+}
+
+cass::pnCCD::Analysis::~Analysis()
+{
+  delete pnccd_analysis_;
 }
 
 void cass::pnCCD::Analysis::loadSettings()
 {
-  //sync before loading//
-  sync();
-
-  //initialize your analyzer here using param//
+  //save the settings
+  _param.load();
 }
 
 void cass::pnCCD::Analysis::saveSettings()
 {
-  //save your settings here//
+  //save settings//
+  _param.save();
 }
 
 void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
@@ -45,66 +62,63 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     pnccdevent.detectors()[i].nonrecombined().clear();
   }
   //go through all detectors//
-  for (size_t i=0; i<pnccdevent.detectors().size();++i)
+  for (size_t iDet=0; iDet<pnccdevent.detectors().size();++iDet)
   {
     //retrieve a reference to the detector we are working on right now//
-    cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[i];
+    cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
+
+   //retrieve a reference to the corrected frame of the detector//
+    cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
+
     //get the dimesions of the detector//
-    //const uint16_t NbrOfRows = det.rows();
-    //const uint16_t NbrOfCols = det.columns();
+    const uint16_t nRows = det.rows();
+    const uint16_t nCols = det.columns();
 
     //resize the corrected frame container to the size of the raw frame container//
-//    pnccdevent.detectors()[i].correctedFrame().resize(pnccdevent.detectors()[i].rawFrame().size());
-    det.correctedFrame().assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
+//   cf.resize(pnccdevent.detectors()[i].rawFrame().size());
+    cf.assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
 
 
-    //do the "massaging" of the detector here//
+    //do the "massaging" of the detector//
+    //and find the photon hits//
 //    pnccd_analysis_->processPnCCDDetectorData(&det);
+
+
     //calc the integral (the sum of all bins)//
     det.integral() = 0;
-    for (size_t j=0; j<det.correctedFrame().size();++j)
-      det.integral() += det.correctedFrame()[j];
+    for (size_t iInt=0; iInt<cf.size() ;++iInt)
+      det.integral() += cf[iInt];
 
-    //find the photon hits here//
 
-    //rebin image frame
+    //rebin image frame//
+    if (_param._rebinfactor != 1)
+    {
+      //get the new dimensions//
+      const size_t newRows = nRows / _param._rebinfactor;
+      const size_t newCols = nCols / _param._rebinfactor;
+      //set the new dimensions in the detector//
+      det.rows()    = newRows;
+      det.columns() = newCols;
+      //resize the temporary container to fit the rebinned image
+      _tmp.resize(newRows * newCols);
 
-    
-    for(size_t jcol=0;jcol<det.columns();jcol++)
-    { 
-        for(size_t jrow=0;jrow<det.rows();jrow++)
+      //go through the whole frame//
+      //and do the magic work//
+      for(size_t iCol=0; iCol<newCols ;++iCol)
+      {
+        for(size_t iRow=0; iRow<newRows ;iRow++)
         {
-
-//            if(jcol==0)   std::cout<< jcol << " a " << jrow << " b " << ((jcol*det.columns()+jrow)&0x7FFF) << std::endl;
-            det.correctedFrame()[jcol*det.columns()+jrow]=(jcol*det.columns()+jrow)&0x7FFF;
+          _tmp[iCol*newCols+iRow]=
+              cf[iCol    *nCols+ iRow   ]+
+              cf[iCol    *nCols+(iRow+1)]+
+              cf[(iCol+1)*nCols+ iRow   ]+
+              cf[(iCol+1)*nCols+(iRow+1)];
         }
+      }
+      //copy the temporary frame to the right place
+      cf.assign(_tmp.begin(), _tmp.end());
     }
 
-    std::vector<int16_t> rebinned_frame;
-    size_t rebinning=2;
-
-    rebinned_frame.resize(det.rows()/rebinning*det.columns()/rebinning);
-//    std::cout<<det.columns() << " a " << det.rows() << " b " << rebinning << std::endl;
-
-    for(size_t jcol=0;jcol<det.columns()/rebinning;jcol++)
-    { 
-        for(size_t jrow=0;jrow<det.rows()/rebinning;jrow++)
-        {
-           rebinned_frame[jcol*det.columns()/rebinning+jrow]=
-              det.correctedFrame()[jcol*det.columns()+jrow]+
-               det.correctedFrame()[jcol*det.columns()+(jrow+1)]+
-               det.correctedFrame()[(jcol+1)*det.columns()+jrow]+
-               det.correctedFrame()[(jcol+1)*det.columns()+(jrow+1)];
-        }
-    }
-
-    det.correctedFrame().assign(rebinned_frame.begin(), rebinned_frame.end());
-//    det.columns()=det.columns()/rebinning;
-//    det.rows()=det.rows()/rebinning;
-    // the prev does not works....
-    det.columns()=1024/2;
-    det.rows()=1024/2;
-//    std::cout<<det.columns() << " a " << det.rows() << " b " << rebinning << std::endl;
 
   }
 }
