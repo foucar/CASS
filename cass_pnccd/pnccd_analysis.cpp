@@ -106,7 +106,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       det.columns() = newCols;
       //resize the temporary container to fit the rebinned image
       _tmp.resize(newRows * newCols);
-
       //go through the whole frame//
       //and do the magic work//
       for(size_t iCol=0; iCol<newCols ;++iCol)
@@ -118,12 +117,12 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
               cf[iCol    *nCols+(iRow+1)]+
               cf[(iCol+1)*nCols+ iRow   ]+
               cf[(iCol+1)*nCols+(iRow+1)];
+//            det.correctedFrame()[jcol*det.columns()+jrow]=(jcol*det.columns()+jrow)&0x3FF;
         }
       }
       //copy the temporary frame to the right place
       cf.assign(_tmp.begin(), _tmp.end());
     }
-
 
   }
 }
