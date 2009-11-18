@@ -20,8 +20,8 @@ namespace cass
   {
 
     /*
-        Dark Frame calibration results of a pnCCD pixel array:
-        */
+    Dark Frame calibration results of a pnCCD pixel array:
+    */
     class pnCCDFrameCalibration
     {
     public:
@@ -31,9 +31,9 @@ namespace cass
     };
 
     /*
-        X-ray photon pulse height calibration results of a
-        pnCCD pixel array:
-        */
+    X-ray photon pulse height calibration results of a
+    pnCCD pixel array:
+    */
     class pnCCDPulseHeightCal
     {
     public:
@@ -102,7 +102,7 @@ namespace cass
       ~Analysis();
       /*
       initialize AnalysisBackend with new set of parameters
-       */
+      */
       void loadSettings();
       void saveSettings();
       /*
