@@ -98,6 +98,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //rebin image frame//
     if (_param._rebinfactor != 1)
     {
+        // I would need something like pow(2,int(log2(_param._rebinfactor)))
+        if(nRows%_param._rebinfactor!=0) _param._rebinfactor=pow(2,int( log(static_cast<Double_t>_param._rebinfactor) /0.693) );
+
       //get the new dimensions//
       const size_t newRows = nRows / _param._rebinfactor;
       const size_t newCols = nCols / _param._rebinfactor;
@@ -112,11 +115,21 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       {
         for(size_t iRow=0; iRow<newRows ;iRow++)
         {
+/* the following works only for rebin=2
           _tmp[iCol*newCols+iRow]=
               cf[iCol    *nCols+ iRow   ]+
               cf[iCol    *nCols+(iRow+1)]+
               cf[(iCol+1)*nCols+ iRow   ]+
               cf[(iCol+1)*nCols+(iRow+1)];
+*/
+          for(size_t iReby=0;iReby<_param._rebinfactor;iReby++)
+          {
+            for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
+            {
+              _tmp[iCol*newCols+iRow]+=
+                  cf[(iCol +iReby ) *nCols+(iRow +iRebx)  ];
+            }
+          }
 //            det.correctedFrame()[jcol*det.columns()+jrow]=(jcol*det.columns()+jrow)&0x3FF;
         }
       }
