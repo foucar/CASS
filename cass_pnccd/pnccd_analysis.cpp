@@ -15,16 +15,17 @@ void cass::pnCCD::Parameter::load()
   _rebinfactor = value("RebinFactor",1).toUInt();
 }
 
+//------------------------------------------------------------------------------
 void cass::pnCCD::Parameter::save()
 {
   setValue("RebinFactor",static_cast<uint32_t>(_rebinfactor));
 }
 
 
+//______________________________________________________________________________
 
 
-
-
+//------------------------------------------------------------------------------
 cass::pnCCD::Analysis::Analysis(void)
     :pnccd_analysis_(0)
 {
@@ -34,23 +35,27 @@ cass::pnCCD::Analysis::Analysis(void)
   pnccd_analysis_ = new pnCCDFrameAnalysis();
 }
 
+//------------------------------------------------------------------------------
 cass::pnCCD::Analysis::~Analysis()
 {
   delete pnccd_analysis_;
 }
 
+//------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
   //save the settings
   _param.load();
 }
 
+//------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::saveSettings()
 {
   //save settings//
   _param.save();
 }
 
+//------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 {
   //extract a reference to the pnccdevent in cassevent//
