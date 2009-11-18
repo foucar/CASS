@@ -53,6 +53,10 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
 
+        //we need to set the rows and columns hardcoded since the information is not yet
+        //provided by LCLS//
+        det.rows() = det.columns() = 1024;
+
         //find out the total size of this frame//
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*_pnccdConfig);
         const size_t NbrOfSegments = _pnccdConfig->numLinks();
