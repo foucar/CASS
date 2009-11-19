@@ -143,8 +143,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           {
             for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
             {
-              _tmp[iCol*newRows+iRow]+=
-                  cf[(iCol +iReby ) *nRows+(iRow +iRebx)  ];
+	       _tmp[iCol+newCols*iRow]+=
+                  cf[(iCol*_param._rebinfactor +iReby ) +nCols*(iRow*_param._rebinfactor +iRebx)  ];
             }
           }
         }
