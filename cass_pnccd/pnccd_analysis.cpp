@@ -97,6 +97,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 
 //test do not delete
 #ifdef test
+      for(size_t iCol=0; iCol<nCols ;++iCol)
+      {
+        for(size_t iRow=0; iRow<nRows ;iRow++)
+        {
+	    cf[(iCol) *nRows+(iRow) ]= ((iCol)*nRows+(iRow))&0x3FFF;
+	}
+      }
 #endif
 
     //rebin image frame//
@@ -104,7 +111,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     {
       if(nRows%_param._rebinfactor!=0)
       {
-	  //pow(2,int(log2(_param._rebinfactor)));
+          //pow(2,int(log2(_param._rebinfactor)));
         Double_t res_tes= static_cast<Double_t>(_param._rebinfactor);
         res_tes=log(res_tes)/0.693;
         res_tes=floor(res_tes);
