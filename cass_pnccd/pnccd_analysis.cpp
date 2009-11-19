@@ -158,8 +158,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
         {
           //calculate the row and column of the current Index//
-          const size_t row = i / nCols;
-          const size_t col = i % nCols;
+          const size_t row = iIdx / nCols;
+          const size_t col = iIdx % nCols;
           //calculate the index of the rebinned frame//
           const size_t newRow = row / _param._rebinfactor;
           const size_t newCol = col / _param._rebinfactor;

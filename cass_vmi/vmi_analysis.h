@@ -11,6 +11,7 @@
 #define VMIANALYSIS_H
 
 #include <QtCore/QPoint>
+#include <vector>
 
 #include "cass_vmi.h"
 #include "analysis_backend.h"
@@ -34,6 +35,7 @@ namespace cass
             uint16_t   _threshold;
             QPoint     _centerOfMcp;
             uint16_t   _maxMcpRadius;
+            uint32_t   _rebinfactor;
         };
 
 
@@ -50,6 +52,8 @@ namespace cass
 
         private:
             Parameter  _param;
+            //temporary frame for rebinning
+            std::vector<uint16_t> _tmp;
         };
     }//end namespace vmi
 }//end namespace cass
