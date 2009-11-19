@@ -1,5 +1,6 @@
 // Copyright (C) 2009 jk, lmf
 #include <iostream>
+#include <cmath>
 #include "pnccd_analysis.h"
 #include "pnccd_event.h"
 #include "cass_event.h"
@@ -98,13 +99,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //rebin image frame//
     if (_param._rebinfactor != 1)
     {
-        // I would need something like pow(2,int(log2(_param._rebinfactor)))
       if(nRows%_param._rebinfactor!=0)
       {
-	  Double_t res_tes= static_cast<Double_t>(_param._rebinfactor);
-          res_tes=log(res_tes)/0.693;
-          res_tes=floor(res_tes);
-          _param._rebinfactor=static_cast<UInt_t>(pow(2. , res_tes ));
+        pow(2,int(log2(_param._rebinfactor)));
+        Double_t res_tes= static_cast<Double_t>(_param._rebinfactor);
+        res_tes=log(res_tes)/0.693;
+        res_tes=floor(res_tes);
+        _param._rebinfactor=static_cast<UInt_t>(pow(2. , res_tes ));
       }
       //get the new dimensions//
       const size_t newRows = nRows / _param._rebinfactor;
@@ -120,13 +121,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       {
         for(size_t iRow=0; iRow<newRows ;iRow++)
         {
-/* the following works only for rebin=2
+          /* the following works only for rebin=2
           _tmp[iCol*newCols+iRow]=
               cf[iCol    *nCols+ iRow   ]+
               cf[iCol    *nCols+(iRow+1)]+
               cf[(iCol+1)*nCols+ iRow   ]+
-              cf[(iCol+1)*nCols+(iRow+1)];
-*/
+              cf[(iCol+1)*nCols+(iRow+1)];*/
+
           for(size_t iReby=0;iReby<_param._rebinfactor;iReby++)
           {
             for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
@@ -135,7 +136,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
                   cf[(iCol +iReby ) *nCols+(iRow +iRebx)  ];
             }
           }
-//            det.correctedFrame()[jcol*det.columns()+jrow]=(jcol*det.columns()+jrow)&0x3FF;
         }
       }
       //copy the temporary frame to the right place

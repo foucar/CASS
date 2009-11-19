@@ -118,7 +118,7 @@ namespace cass
       // The frame analysis object:
       pnCCDFrameAnalysis *pnccd_analysis_;
 
-      //temporary storage if one wants to have the picture rebinned//
+      //temporary storage for rebinning frames//
       std::vector<int16_t> _tmp;
     };
 
