@@ -99,10 +99,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     if (_param._rebinfactor != 1)
     {
         // I would need something like pow(2,int(log2(_param._rebinfactor)))
-      if(nRows%_param._rebinfactor!=0) 
-          _param._rebinfactor=static_cast<UInt_t>(int(
-                      pow(2. , int( log( (static_cast<Double_t>_param._rebinfactor) )/0.693 ) )));
-
+      if(nRows%_param._rebinfactor!=0)
+      {
+	  Double_t res_tes= static_cast<Double_t>_param._rebinfactor;
+          res_tes=log(res_tes)/0.693;
+          res_tes=floor(res_tes);
+          _param._rebinfactor=static_cast<UInt_t>(pow(2. , res_tes ));
+      }
       //get the new dimensions//
       const size_t newRows = nRows / _param._rebinfactor;
       const size_t newCols = nCols / _param._rebinfactor;
