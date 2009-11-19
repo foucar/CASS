@@ -95,13 +95,16 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
       det.integral() += cf[iInt];
 
+//test do not delete
+#ifdef test
+#endif
 
     //rebin image frame//
     if (_param._rebinfactor != 1)
     {
       if(nRows%_param._rebinfactor!=0)
       {
-        pow(2,int(log2(_param._rebinfactor)));
+	  //pow(2,int(log2(_param._rebinfactor)));
         Double_t res_tes= static_cast<Double_t>(_param._rebinfactor);
         res_tes=log(res_tes)/0.693;
         res_tes=floor(res_tes);
@@ -122,7 +125,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         for(size_t iRow=0; iRow<newRows ;iRow++)
         {
           /* the following works only for rebin=2
-          _tmp[iCol*newCols+iRow]=
+          _tmp[iCol*newCols+iRow]=  // actually is newRows
               cf[iCol    *nCols+ iRow   ]+
               cf[iCol    *nCols+(iRow+1)]+
               cf[(iCol+1)*nCols+ iRow   ]+
@@ -132,8 +135,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           {
             for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
             {
-              _tmp[iCol*newCols+iRow]+=
-                  cf[(iCol +iReby ) *nCols+(iRow +iRebx)  ];
+              _tmp[iCol*newRows+iRow]+=
+                  cf[(iCol +iReby ) *nRows+(iRow +iRebx)  ];
             }
           }
         }
