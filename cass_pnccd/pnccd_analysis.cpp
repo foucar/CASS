@@ -95,27 +95,31 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
       det.integral() += cf[iInt];
 
-//test do not delete
-#ifdef test
-      for(size_t iCol=0; iCol<nCols ;++iCol)
+    //test do not delete
+    /*#ifdef test
+    for(size_t iCol=0; iCol<nCols ;++iCol)
+    {
+      for(size_t iRow=0; iRow<nRows ;iRow++)
       {
-        for(size_t iRow=0; iRow<nRows ;iRow++)
-        {
-	    cf[(iCol) *nRows+(iRow) ]= ((iCol)*nRows+(iRow))&0x3FFF;
-	}
+        cf[(iCol) *nRows+(iRow) ]= ((iCol)*nRows+(iRow))&0x3FFF;
       }
-#endif
+    }
+    #endif*/
 
     //rebin image frame//
     if (_param._rebinfactor != 1)
     {
+      //if the rebinfactor doesn't fit the original dimensions//
+      //checks wether rebinfactor is of power of 2//
+      //look for the next smaller number that is a power of 2//
       if(nRows%_param._rebinfactor!=0)
       {
-          //pow(2,int(log2(_param._rebinfactor)));
-        Double_t res_tes= static_cast<Double_t>(_param._rebinfactor);
-        res_tes=log(res_tes)/0.693;
-        res_tes=floor(res_tes);
-        _param._rebinfactor=static_cast<UInt_t>(pow(2. , res_tes ));
+        //pow(2,int(log2(_param._rebinfactor)));
+        double res_tes= static_cast<double>(_param._rebinfactor);
+        res_tes = log(res_tes)/0.693;
+        res_tes = floor(res_tes);
+        _param._rebinfactor = static_cast<UInt_t>(pow(2. , res_tes ));
+        saveSettings();
       }
       //get the new dimensions//
       const size_t newRows = nRows / _param._rebinfactor;
@@ -143,12 +147,30 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           {
             for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
             {
-	       _tmp[iCol+newCols*iRow]+=
+              _tmp[iCol+newCols*iRow]+=
                   cf[(iCol*_param._rebinfactor +iReby ) +nCols*(iRow*_param._rebinfactor +iRebx)  ];
             }
           }
         }
       }
+
+      /*//another way//
+        for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
+        {
+          //calculate the row and column of the current Index//
+          const size_t row = i / nCols;
+          const size_t col = i % nCols;
+          //calculate the index of the rebinned frame//
+          const size_t newRow = row / _param._rebinfactor;
+          const size_t newCol = col / _param._rebinfactor;
+          //calculate the index in the rebinned frame//
+          //that newRow and newCol belongs to//
+          const size_t newIndex = newRow*newCols + newCol;
+          //add this index value to the newIndex value//
+          _tmp[newIndex] += cf[iIdx];
+
+        }*/
+
       //copy the temporary frame to the right place
       cf.assign(_tmp.begin(), _tmp.end());
     }
