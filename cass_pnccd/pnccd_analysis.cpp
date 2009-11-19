@@ -100,7 +100,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     {
         // I would need something like pow(2,int(log2(_param._rebinfactor)))
       if(nRows%_param._rebinfactor!=0) 
-	  _param._rebinfactor=pow(2,int( log((static_cast<Double_t>_param._rebinfactor))/0.693 ) );
+          _param._rebinfactor=static_cast<Uint_t>(int(
+                      pow(2. , int( log( (static_cast<Double_t>_param._rebinfactor) )/0.693 ) )));
 
       //get the new dimensions//
       const size_t newRows = nRows / _param._rebinfactor;
