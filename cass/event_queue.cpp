@@ -31,7 +31,7 @@ void cass::EventQueue::run()
     //start the xtcmonitorclient//
     //this eventqueue will subscripe to a partitiontag with name cass//
     _quit = false;
-    Pds::XtcMonitorClient::run("cass");
+    Pds::XtcMonitorClient::run("1_0_AMO");
 }
 
 void cass::EventQueue::end()
