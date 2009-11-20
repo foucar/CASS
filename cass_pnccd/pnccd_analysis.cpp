@@ -76,13 +76,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
    //retrieve a reference to the corrected frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
 
+    //resize the corrected frame container to the size of the raw frame container//
+//    cf.resize(det.rawFrame().size());
+    cf.assign(det.rawFrame().begin(), det.rawFrame().end()); det.rows()= det.rows()/2; det.columns() = det.columns()*2;//for testing copy the contents of raw to cor
+
     //get the dimesions of the detector//
     const uint16_t nRows = det.rows();
     const uint16_t nCols = det.columns();
-
-    //resize the corrected frame container to the size of the raw frame container//
-//   cf.resize(pnccdevent.detectors()[i].rawFrame().size());
-    cf.assign(det.rawFrame().begin(), det.rawFrame().end()); //for testing copy the contents of raw to cor
 
 
     //do the "massaging" of the detector//
