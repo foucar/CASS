@@ -13,13 +13,27 @@ void cass::pnCCD::Parameter::load()
 {
   //sync before loading//
   sync();
-  _rebinfactor = value("RebinFactor",1).toUInt();
+  _rebinfactors.clear();
+  for (size_t iDet=0; iDet<value("size",2).toUInt(); ++iDet)
+  {
+    beginGroup(QString(static_cast<int>(iDet)));
+      _rebinfactors.push_back(0);
+      _rebinfactors[iDet] = value("RebinFactor",1).toUInt();
+    endGroup();
+  }
+
 }
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Parameter::save()
 {
-  setValue("RebinFactor",static_cast<uint32_t>(_rebinfactor));
+  setValue("size",static_cast<uint32_t>(_rebinfactors.size()));
+  for (size_t iDet=0; iDet<_rebinfactors.size(); ++iDet)
+  {
+    beginGroup(QString(static_cast<int>(iDet)));
+      setValue("RebinFactor",_rebinfactors[iDet]);
+    endGroup();
+  }
 }
 
 
@@ -67,27 +81,61 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     pnccdevent.detectors()[i].recombined().clear();
     pnccdevent.detectors()[i].nonrecombined().clear();
   }
+
+  //check if we have enough parameters for the amount of channels//
+  //increase it if necessary
+  if(pnccdevent.detectors().size() > _param._rebinfactors.size())
+  {
+    //how many rebinfactors did we have before//
+    const size_t before = _param._rebinfactors.size();
+    //resize to fit the new size//
+    _param._rebinfactors.resize(pnccdevent.detectors().size());
+    //initialize with the new settings//
+    for (size_t i=before; i<_param._rebinfactors.size();++i)
+      _param._rebinfactors[i] = 1;
+    //save the new settings//
+    _param.save();
+  }
+
   //go through all detectors//
   for (size_t iDet=0; iDet<pnccdevent.detectors().size();++iDet)
   {
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
-
-   //retrieve a reference to the corrected frame of the detector//
+    //retrieve a reference to the corrected frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
+    //retrieve a reference to the raw frame of the detector//
+    cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
 
     //resize the corrected frame container to the size of the raw frame container//
-//    cf.resize(det.rawFrame().size());
-    cf.assign(det.rawFrame().begin(), det.rawFrame().end()); det.rows()= det.rows()/2; det.columns() = det.columns()*2;//for testing copy the contents of raw to cor
+    cf.resize(det.rawFrame().size());
+    //for now just rearrange the frame so that it looks like a real frame//
+    //get the dimesions of the detector before the rebinning//
+    const uint16_t nRows = det.originalrows();
+    const uint16_t nCols = det.originalcolumns();
 
-    //get the dimesions of the detector//
-    const uint16_t nRows = det.rows();
-    const uint16_t nCols = det.columns();
 
 
     //do the "massaging" of the detector//
     //and find the photon hits//
-//    pnccd_analysis_->processPnCCDDetectorData(&det);
+    if(!pnccd_analysis_->processPnCCDDetectorData(&det))
+    {
+      //if nothing was done then rearrange the frame to the right geometry//
+      //go through the complete frame and copy the first row to the first row//
+      //and the next row to the last row and so on//
+      size_t sourceindex=0;
+      for (size_t i=0; i<nRows/2 ;++i)
+      {
+        memcpy(&cf[i*nCols],
+               &rf[sourceindex*nCols],
+               1024*sizeof(int16_t));
+        ++sourceindex;
+        memcpy(&cf[(nCols-1-i)*nCols],
+               &rf[sourceindex*nCols],
+               1024*sizeof(int16_t));
+        ++sourceindex;
+      }
+    }
 
 
     //calc the integral (the sum of all bins)//
@@ -106,24 +154,24 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     }
     #endif*/
 
-    //rebin image frame//
-    if (_param._rebinfactor != 1)
+    //rebin image frame if requested//
+    if (_param._rebinfactors[iDet] != 1)
     {
       //if the rebinfactor doesn't fit the original dimensions//
       //checks wether rebinfactor is of power of 2//
       //look for the next smaller number that is a power of 2//
-      if(nRows%_param._rebinfactor!=0)
+      if(nRows%_param._rebinfactors[iDet]!=0)
       {
         //pow(2,int(log2(_param._rebinfactor)));
-        double res_tes= static_cast<double>(_param._rebinfactor);
+        double res_tes= static_cast<double>(_param._rebinfactors[iDet]);
         res_tes = log(res_tes)/0.693;
         res_tes = floor(res_tes);
-        _param._rebinfactor = static_cast<UInt_t>(pow(2. , res_tes ));
+        _param._rebinfactors[iDet] = static_cast<UInt_t>(pow(2. , res_tes ));
         saveSettings();
       }
       //get the new dimensions//
-      const size_t newRows = nRows / _param._rebinfactor;
-      const size_t newCols = nCols / _param._rebinfactor;
+      const size_t newRows = nRows / _param._rebinfactors[iDet];
+      const size_t newCols = nCols / _param._rebinfactors[iDet];
       //set the new dimensions in the detector//
       det.rows()    = newRows;
       det.columns() = newCols;
@@ -143,12 +191,12 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
               cf[(iCol+1)*nCols+ iRow   ]+
               cf[(iCol+1)*nCols+(iRow+1)];*/
 
-          for(size_t iReby=0;iReby<_param._rebinfactor;iReby++)
+          for(size_t iReby=0;iReby<_param._rebinfactors[iDet];iReby++)
           {
-            for(size_t iRebx=0;iRebx<_param._rebinfactor;iRebx++)
+            for(size_t iRebx=0;iRebx<_param._rebinfactors[iDet];iRebx++)
             {
               _tmp[iCol+newCols*iRow]+=
-                  cf[(iCol*_param._rebinfactor +iReby ) +nCols*(iRow*_param._rebinfactor +iRebx)  ];
+                  cf[(iCol*_param._rebinfactors[iDet] +iReby ) +nCols*(iRow*_param._rebinfactors[iDet] +iRebx)  ];
             }
           }
         }
@@ -161,8 +209,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           const size_t row = iIdx / nCols;
           const size_t col = iIdx % nCols;
           //calculate the index of the rebinned frame//
-          const size_t newRow = row / _param._rebinfactor;
-          const size_t newCol = col / _param._rebinfactor;
+          const size_t newRow = row / _param._rebinfactors[iDet];
+          const size_t newCol = col / _param._rebinfactors[iDet];
           //calculate the index in the rebinned frame//
           //that newRow and newCol belongs to//
           const size_t newIndex = newRow*newCols + newCol;

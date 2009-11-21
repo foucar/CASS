@@ -86,20 +86,28 @@ namespace cass
             uint16_t             columns()const         {return _columns;}
             uint16_t            &columns()              {return _columns;}
 
+            uint16_t             originalrows()const    {return _orignalrows;}
+            uint16_t            &originalrows()         {return _orignalrows;}
+
+            uint16_t             originalcolumns()const {return _originalcolumns;}
+            uint16_t            &originalcolumns()      {return _originalcolumns;}
+
             int32_t              integral()const        {return _integral;}
             int32_t             &integral()             {return _integral;}
 
         private:
             //infos from the xtc file
             frame_t              _rawFrame;             //! the raw frame
-            uint16_t             _rows;                 //number of rows of the detector
-            uint16_t             _columns;              //number of columns of the detector
+            uint16_t             _orignalrows;          //number of rows of the detector
+            uint16_t             _originalcolumns;      //number of columns of the detector
 
             //results of the analysis
             frame_t              _correctedFrame;       //the "massaged" frame
             photonHits_t         _recombined;           //vector containing recombined X-ray photon hits
             photonHits_t         _nonrecombined;        //vector containing non-recombined X-ray photon hits
             int32_t              _integral;             //the sum of all pixels in the frame
+            uint16_t             _rows;                 //number of rows of the rebinned detector
+            uint16_t             _columns;              //number of columns of the rebinned detector
 
             ClassDefNV(pnCCDDetector,1)  //a pnccd detector
         };

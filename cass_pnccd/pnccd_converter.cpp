@@ -50,7 +50,8 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       // Get a reference to the pnCCDEvent:
       pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
       //Get the frame from the xtc
-      const Pds::PNCCD::FrameV1* frameSegment = reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
+      const Pds::PNCCD::FrameV1* frameSegment =
+          reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
       //Get the the detecotor id //
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
@@ -71,6 +72,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
         det.rows() = det.columns() = 1024;
+        det.originalrows() = det.originalcolumns() = 1024;
 
         //find out the total size of this frame//
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);

@@ -55,7 +55,7 @@ namespace cass
       /*
       Constructor: assign the parameters with safe default values:
       */
-      Parameter(void):_rebinfactor(1) {beginGroup("pnCCD");}
+      Parameter(void) {beginGroup("pnCCD");}
       ~Parameter()    {endGroup();}
       void load();
       void save();
@@ -85,7 +85,7 @@ namespace cass
       double photon_hit_thresh_sigmaunits;
 
       //rebin factor//
-      size_t _rebinfactor;
+      std::vector<uint32_t> _rebinfactors;
     };
 
 
