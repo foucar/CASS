@@ -27,7 +27,7 @@ void cass::VMI::Parameter::save()
   setValue("Threshold",_threshold);
   setValue("CenterOfMcp",_centerOfMcp);
   setValue("MaxMcpRadius",_maxMcpRadius);
-  setValue("MaxMcpRadius",_rebinfactor);
+  setValue("RebinFactor",_rebinfactor);
 }
 
 
