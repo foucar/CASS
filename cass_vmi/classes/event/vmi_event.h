@@ -99,7 +99,7 @@ namespace cass
       coordinates_t   _coordinatesOfImpact;    //locations where something hit the detector are stored in this vector
       frame_t         _cutframe;               //new frame where only mcp is drawn (give maximum radius)
       ClassDefNV(VMIEvent,1)
-        };
+    };
   }//end namespace vmi
 }//end namespace cass
 
