@@ -16,7 +16,7 @@ namespace cass
     {
         Q_OBJECT;
     public:
-        enum {_maxbufsize=1, _maxdatagramsize=0x800000};
+        enum {_maxbufsize=1, _maxdatagramsize=0x900000};
         EventQueue(QObject *parent=0);
         ~EventQueue();
 
