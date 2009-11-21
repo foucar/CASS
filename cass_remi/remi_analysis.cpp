@@ -55,7 +55,7 @@ void cass::REMI::Parameter::load()
     beginGroup("ChannelContainer");
         //delete the previous channel parameters//
         _channelParameters.clear();
-        for (size_t i = 0; i < value("size",16).toUInt();++i)
+        for (size_t i = 0; i < value("size",24).toUInt();++i)
         {
             beginGroup(QString(static_cast<int>(i)));
                 //add a channel//
