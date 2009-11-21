@@ -215,7 +215,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
   if(!cassevent) return;
-
+  //  std::cout<< " I am in"<<std::endl;
   Nevent++;
   //if(Nevent>299) printf("Nevent=%i \n",Nevent);
   // just to have something filled...
@@ -236,11 +236,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #ifdef REMI_DEB
   std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
 #endif
-
+  //  std::cout<< " I am in1"<<std::endl;
   cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
-  //  VMIdata->frame().resize(VMIdata->frame().size()/4);
-  //VMIdata->cutFrame().resize(VMIdata->cutFrame().size()/4);
   T->SetBranchAddress("VMIEventBranch",&VMIdata);
+  //  std::cout<< " I am in3"<<std::endl;
 #ifdef VMI_DEB
   std::cout<< VMIdata->frame().size() << " a " <<
     VMIdata->cutFrame().size() << " b " <<
@@ -334,14 +333,16 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
 #endif
 
-
+  //  std::cout<< " I am in a"<<std::endl;
   if ( max_events_in_Buffer>99 && ( Nevent%(max_events_in_Buffer/50) )==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
     strftime(hourmin,11,"%H%M%S",timeinfo);
-    printf("done/seen event %i %u %s\n",int(Nevent), //int(event_id),
-           pnCCDdata->detectors()[0].correctedFrame().size()  , hourmin );
+    printf("done/seen event %i %s\n",int(Nevent)
+            , hourmin );
+    /*    printf("done/seen event %i %u %s\n",int(Nevent), //int(event_id),
+          pnCCDdata->detectors()[0].correctedFrame().size()  , hourmin );*/
     //T->Show(i%max_events_in_Buffer-1);
   }
 
@@ -397,7 +398,11 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   }
   else
   {
-    if(Nevent%5==0) mapfile->Update();
+    if(Nevent%5==0)
+    {
+      printf("updating now small if\n");
+      mapfile->Update();
+    }
   }
 #endif
 
