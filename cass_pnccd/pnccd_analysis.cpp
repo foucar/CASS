@@ -11,12 +11,14 @@
 
 void cass::pnCCD::Parameter::load()
 {
+  //sting for the container index//
+  QString s;
   //sync before loading//
   sync();
   _rebinfactors.clear();
-  for (size_t iDet=0; iDet<value("size",2).toUInt(); ++iDet)
+  for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
-    beginGroup(QString(static_cast<int>(iDet)));
+    beginGroup(s.setNum(static_cast<int>(iDet)));
       _rebinfactors.push_back(0);
       _rebinfactors[iDet] = value("RebinFactor",1).toUInt();
     endGroup();
@@ -27,10 +29,12 @@ void cass::pnCCD::Parameter::load()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Parameter::save()
 {
+  //sting for the container index//
+  QString s;
   setValue("size",static_cast<uint32_t>(_rebinfactors.size()));
   for (size_t iDet=0; iDet<_rebinfactors.size(); ++iDet)
   {
-    beginGroup(QString(static_cast<int>(iDet)));
+    beginGroup(s.setNum(static_cast<int>(iDet)));
       setValue("RebinFactor",_rebinfactors[iDet]);
     endGroup();
   }

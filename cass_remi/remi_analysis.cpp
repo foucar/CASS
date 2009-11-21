@@ -49,6 +49,8 @@ void saveAnodeParameter(const cass::REMI::AnodeLayer& a, const char * groupName,
 
 void cass::REMI::Parameter::load()
 {
+  //string for the container index//
+  QString s;
   //sync before loading//
   sync();
   //the channel parameters//
@@ -57,7 +59,7 @@ void cass::REMI::Parameter::load()
   _channelParameters.clear();
   for (size_t i = 0; i < value("size",4).toUInt();++i)
   {
-    beginGroup(QString(static_cast<int>(i)));
+    beginGroup(s.setNum(static_cast<uint32_t>(i)));
     //add a channel//
     _channelParameters.push_back(ChannelParameter());
     //load the parameters of the channel//
@@ -77,18 +79,18 @@ void cass::REMI::Parameter::load()
   _detectors.clear();
   for (size_t i = 0; i < value("size",1).toUInt();++i)
   {
-    beginGroup(QString(static_cast<int>(i)));
+    beginGroup(s.setNum(static_cast<uint32_t>(i)));
     //create a new detector//
     _detectors.push_back(cass::REMI::Detector());
     //load the parameters of the detector//
-    _detectors[i].runtime()         = value("Runtime",150).toDouble();
-    _detectors[i].wLayerOffset()    = value("WLayerOffset",0.).toDouble();
-    _detectors[i].mcpRadius()       = value("McpRadius",66.).toDouble();
-    _detectors[i].deadTimeMCP()     = value("DeadTimeMcp",10.).toDouble();
-    _detectors[i].deadTimeAnode()   = value("DeadTimeAnode",10.).toDouble();
-    _detectors[i].sorterType()      = value("SortingMethod",DetectorHitSorter::Simple).toInt();
-    _detectors[i].isHexAnode()      = value("isHex",true).toBool();
-    _detectors[i].name()            = value("Name","IonDetector").toString().toStdString();
+    _detectors[i].runtime()       = value("Runtime",150).toDouble();
+    _detectors[i].wLayerOffset()  = value("WLayerOffset",0.).toDouble();
+    _detectors[i].mcpRadius()     = value("McpRadius",66.).toDouble();
+    _detectors[i].deadTimeMCP()   = value("DeadTimeMcp",10.).toDouble();
+    _detectors[i].deadTimeAnode() = value("DeadTimeAnode",10.).toDouble();
+    _detectors[i].sorterType()    = value("SortingMethod",DetectorHitSorter::Simple).toInt();
+    _detectors[i].isHexAnode()    = value("isHex",true).toBool();
+    _detectors[i].name()          = value("Name","IonDetector").toString().toStdString();
     loadSignalParameter(_detectors[i].mcp(),"McpSignal",this);
     loadAnodeParameter(_detectors[i].u(),"ULayer",this);
     loadAnodeParameter(_detectors[i].v(),"VLayer",this);
@@ -102,12 +104,14 @@ void cass::REMI::Parameter::load()
 
 void cass::REMI::Parameter::save()
 {
+  //string for the container index//
+  QString s;
   //the channel parameters//
   beginGroup("ChannelContainer");
   setValue("size",static_cast<uint32_t>(_channelParameters.size()));
   for (size_t i = 0; i < _channelParameters.size();++i)
   {
-    beginGroup(QString(static_cast<int>(i)));
+    beginGroup(s.setNum(static_cast<uint32_t>(i)));
     setValue("Threshold",_channelParameters[i]._threshold);
     setValue("Delay",_channelParameters[i]._delay);
     setValue("Fraction",_channelParameters[i]._fraction);
@@ -123,7 +127,7 @@ void cass::REMI::Parameter::save()
   setValue("size",static_cast<uint32_t>(_detectors.size()));
   for (size_t i = 0; i < _detectors.size();++i)
   {
-    beginGroup(QString(static_cast<int>(i)));
+    beginGroup(s.setNum(static_cast<uint32_t>(i)));
     setValue("Runtime",_detectors[i].runtime());
     setValue("WLayerOffset",_detectors[i].wLayerOffset());
     setValue("McpRadius",_detectors[i].mcpRadius());
