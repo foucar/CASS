@@ -29,6 +29,8 @@ void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
     const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
     vmievent.frame().assign(framedata, framedata + (frame.width()*frame.height()));
 
+    //std::cout  <<frame.width()<< " " <<frame.height()<<std::endl;
+
     //make the cutframe as big as the vmievent, but fill with 0//
     vmievent.cutFrame().assign(vmievent.frame().size(),0);
 }
