@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 Jochen Küpper,lmf
 
 #include <iostream>
 #include <QtGui/QApplication>

@@ -19,11 +19,13 @@ void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
     const Pds::Camera::FrameV1 &frame = *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
     VMIEvent &vmievent = cassevent->VMIEvent();
 
-    vmievent.isFilled()     = true;
-    vmievent.columns()      = frame.width();
-    vmievent.rows()         = frame.height();
-    vmievent.bitsPerPixel() = frame.depth();
-    vmievent.offset()       = frame.offset();
+    vmievent.isFilled()         = true;
+    vmievent.columns()          = frame.width();
+    vmievent.rows()             = frame.height();
+    vmievent.originalcolumns()  = frame.width();
+    vmievent.originalrows()     = frame.height();
+    vmievent.bitsPerPixel()     = frame.depth();
+    vmievent.offset()           = frame.offset();
 
     //copy the frame data to this event ... initalize the size of the cutevent//
     const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
