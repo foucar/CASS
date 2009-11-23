@@ -24,7 +24,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
     {
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      if(info.detector() == Pds::DetInfo::AmoETof)
+      if(info.detector() == Pds::DetInfo::Camp)
       {
         unsigned version = xtc->contains.version();
         switch (version)
@@ -82,7 +82,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       //only extract data if it is from the acqiris that we are using//
-      if (info.detector() == Pds::DetInfo::AmoETof)
+      if (info.detector() == Pds::DetInfo::Camp)
       {
         //extract the datadescriptor (waveform etc) from the xtc//
         const Pds::Acqiris::DataDescV1 &datadesc = *reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());

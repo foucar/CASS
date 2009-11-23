@@ -257,6 +257,7 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
     //                std::cout << "   polarity "<<remievent.channel(i).peak(j).polarity()<<std::endl;
     //            }
     //        }
+//    std::cout  << remievent.channels().size()<<std::endl;
   }
 }
 
