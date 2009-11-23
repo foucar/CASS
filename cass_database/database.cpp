@@ -74,7 +74,7 @@ ClassImp(cass::pnCCD::pnCCDEvent);
 cass::database::Database::Database()
 {
   //maybe the following should be moved somewhere else?? 
-  loadSettings();
+  //loadSettings();
 
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
   strcpy(username,"");
@@ -222,6 +222,7 @@ void cass::database::Parameter::load()
   sync();
   _updatefrequency = value("UpdateFrequency",10).toUInt();
   _number_ofevents = value("NumberOfEvents",100).toUInt();
+  _usejustFile     = value("usejustFile",0).toUInt();
   _useREMI         = value("useREMI",1).toUInt();
   _useVMI          = value("useVMI",1).toUInt();
   _usepnCCD        = value("usepnCCD",1).toUInt();
@@ -231,6 +232,7 @@ void cass::database::Parameter::save()
 {
   setValue("UpdateFrequency",_updatefrequency);
   setValue("NumberOfEvents",_number_ofevents);
+  setValue("usejustFile",_usejustFile);
   setValue("useREMI",_useREMI);
   setValue("useVMI",_useVMI);
   setValue("usepnCCD",_usepnCCD);
