@@ -73,6 +73,8 @@ ClassImp(cass::pnCCD::pnCCDEvent);
 
 cass::database::Database::Database()
 {
+  //maybe the following should be moved somewhere else?? 
+  loadSettings();
 
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
   strcpy(username,"");
@@ -126,35 +128,47 @@ cass::database::Database::Database()
   delete machinedata;
   //TBranch::SetAutoDelete(kTRUE);
 
-  //REMI
-  if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
+  if(_param._useREMI)
   {
-    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    //REMI
+    if(!TClassTable::GetDict("cass::REMI::REMIEvent"))
+    {
+      gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    }
+    else printf("I have got already the REMI definitions\n");
+    cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
+    T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,128000,0);
+    delete REMIdata;
   }
-  else printf("I have got already the REMI definitions\n");
-  cass::REMI::REMIEvent *REMIdata = new cass::REMI::REMIEvent();
-  T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,128000,0);
-  delete REMIdata;
+  else printf("Decided not to store REMI in database structure\n");
 
-  //VMI
-  if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
+  if(_param._useVMI)
   {
-    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    //VMI
+    if(!TClassTable::GetDict("cass::VMI::VMIEvent"))
+    {
+      gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    }
+    else printf("I have got already the VMI definitions\n");
+    cass::VMI::VMIEvent *VMIdata = new cass::VMI::VMIEvent();
+    T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,2000000,0);
+    delete VMIdata;
   }
-  else printf("I have got already the VMI definitions\n");
-  cass::VMI::VMIEvent *VMIdata = new cass::VMI::VMIEvent();
-  T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,6000000,0);
-  delete VMIdata;
+  else printf("Decided not to store VMI in database structure\n");
 
-  //pnCCD
-  if(!TClassTable::GetDict("cass::pnCCD::pnCCDEvent"))
+  if(_param._usepnCCD)
   {
-    gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    //pnCCD
+    if(!TClassTable::GetDict("cass::pnCCD::pnCCDEvent"))
+    {
+      gSystem->Load("$Dict_LIB/libcass_dictionaries.so");
+    }
+    else printf("I have got already the pnCCD definitions\n");
+    cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
+    T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,6000000,0);
+    delete pnCCDdata;
   }
-  else printf("I have got already the pnCCD definitions\n");
-  cass::pnCCD::pnCCDEvent *pnCCDdata = new cass::pnCCD::pnCCDEvent();
-  T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,6000000,0);
-  delete pnCCDdata;
+  else printf("Decided not to store pnCCD in database structure\n");
 
 #ifdef sng_pnccd
   //pnCCD (2)
@@ -181,12 +195,48 @@ cass::database::Database::Database()
   T->SetAutoSave();
   //T->BranchRef();
   //T->SetCompressionLevel(1);
-  T->SetCircular(max_events_in_Buffer);
-  printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+  if(max_events_in_Buffer<_param._number_ofevents)
+  {
+    T->SetCircular(max_events_in_Buffer);
+    printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+  }
+  else
+  {
+    T->SetCircular(_param._number_ofevents);
+    printf("Circular buffer allocated with %i events\n",_param._number_ofevents);
+  }
 
+  printf("TMapFile update frequency is %i events\n",_param._updatefrequency);
   T->Print();
   Nevent=0;
+
+  //saveSettings();
+
 }
+
+
+
+void cass::database::Parameter::load()
+{
+  //sync before loading//
+  sync();
+  _updatefrequency = value("UpdateFrequency",10).toUInt();
+  _number_ofevents = value("NumberOfEvents",100).toUInt();
+  _useREMI         = value("useREMI",1).toUInt();
+  _useVMI          = value("useVMI",1).toUInt();
+  _usepnCCD        = value("usepnCCD",1).toUInt();
+}
+
+void cass::database::Parameter::save()
+{
+  setValue("UpdateFrequency",_updatefrequency);
+  setValue("NumberOfEvents",_number_ofevents);
+  setValue("useREMI",_useREMI);
+  setValue("useVMI",_useVMI);
+  setValue("usepnCCD",_usepnCCD);
+}
+
+
 
 cass::database::Database::~Database()
 {
@@ -209,103 +259,113 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   cass::MachineData::MachineDataEvent *machinedata = &cassevent->MachineDataEvent();
   T->SetBranchAddress("MachineEventBranch",&machinedata);
 
-  cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
-  T->SetBranchAddress("REMIEventBranch",&REMIdata);
+  if(_param._useREMI)
+  {
+    cass::REMI::REMIEvent *REMIdata = &cassevent->REMIEvent();
+    T->SetBranchAddress("REMIEventBranch",&REMIdata);
 #ifdef REMI_DEB
   std::cout << "remi test" << REMIdata->sampleInterval() << std::endl;
 #endif
-  //  std::cout<< " I am in1"<<std::endl;
-  cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
-  T->SetBranchAddress("VMIEventBranch",&VMIdata);
-  //  std::cout<< " I am in3"<<std::endl;
-#ifdef VMI_DEB
-  std::cout<< VMIdata->frame().size() << " a " <<
-    VMIdata->cutFrame().size() << " b " <<
-    VMIdata->coordinatesOfImpact().size() << std::endl;
-#endif
+  }
 
-  cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
-  T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
-//  for (size_t ididid=0; ididid<pnCCDdata->detectors().size();++ididid)
-//      std::cout <<"Det:"<<ididid<<" size:"<< pnCCDdata->detectors()[ididid].correctedFrame().size()<<std::endl;
+  if(_param._useVMI)
+  {
+    //  std::cout<< " I am in1"<<std::endl;
+    cass::VMI::VMIEvent *VMIdata = &cassevent->VMIEvent();
+    T->SetBranchAddress("VMIEventBranch",&VMIdata);
+    //  std::cout<< " I am in3"<<std::endl;
+#ifdef VMI_DEB
+    std::cout<< VMIdata->frame().size() << " a " <<
+      VMIdata->cutFrame().size() << " b " <<
+      VMIdata->coordinatesOfImpact().size() << std::endl;
+#endif
+  }
+
+  if(_param._usepnCCD)
+  {
+    cass::pnCCD::pnCCDEvent *pnCCDdata = &cassevent->pnCCDEvent();
+    T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
+    //  for (size_t ididid=0; ididid<pnCCDdata->detectors().size();++ididid)
+    //      std::cout <<"Det:"<<ididid<<" size:"<< pnCCDdata->detectors()[ididid].correctedFrame().size()<<std::endl;
 
 #ifdef wide_pnccd
-  cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
-  pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
+    cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+    pnCCD_num_pixel_arrays=pnccdevent.getNumPixArrays();
 
-  pnCCD_array_xy_size0=0;
-  pnCCD_array_xy_size1=0;
+    pnCCD_array_xy_size0=0;
+    pnCCD_array_xy_size1=0;
 
-  pnCCD_array_x_size0=0;
-  pnCCD_array_y_size0=0;
-  pnCCD_array_x_size1=0;
-  pnCCD_array_y_size1=0;
-  pnCCD_max_photons_per_event0=0;
-  pnCCD_max_photons_per_event1=0;
-  if(pnCCD_num_pixel_arrays>0)
-  {
-    pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
-    pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
-    pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),
-         MAX_pnCCD_max_photons_per_event);
-    pnCCD_max_photons_per_event0=TMath::Min(pnCCD_max_photons_per_event0,max_phot_in_Buffer_loose);
-
-    pnCCD_array_xy_size0=pnccdevent.getArrXSize()[0]*pnccdevent.getArrYSize()[0];
-    if(pnCCD_num_pixel_arrays==2)
+    pnCCD_array_x_size0=0;
+    pnCCD_array_y_size0=0;
+    pnCCD_array_x_size1=0;
+    pnCCD_array_y_size1=0;
+    pnCCD_max_photons_per_event0=0;
+    pnCCD_max_photons_per_event1=0;
+    if(pnCCD_num_pixel_arrays>0)
     {
-      pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
-      pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
-      pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),
+      pnCCD_array_x_size0=pnccdevent.getArrXSize()[0];
+      pnCCD_array_y_size0=pnccdevent.getArrYSize()[0];
+      pnCCD_max_photons_per_event0=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[0]),
          MAX_pnCCD_max_photons_per_event);
-      pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
-      pnCCD_array_xy_size1=pnccdevent.getArrXSize()[1]*pnccdevent.getArrYSize()[1];
+      pnCCD_max_photons_per_event0=TMath::Min(pnCCD_max_photons_per_event0,max_phot_in_Buffer_loose);
+
+      pnCCD_array_xy_size0=pnccdevent.getArrXSize()[0]*pnccdevent.getArrYSize()[0];
+      if(pnCCD_num_pixel_arrays==2)
+      {
+        pnCCD_array_x_size1=pnccdevent.getArrXSize()[1];
+        pnCCD_array_y_size1=pnccdevent.getArrYSize()[1];
+        pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),
+          MAX_pnCCD_max_photons_per_event);
+        pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
+        pnCCD_array_xy_size1=pnccdevent.getArrXSize()[1]*pnccdevent.getArrYSize()[1];
+      }
+    } 
+    if(pnccdevent.rawSignalArrayAddr(1)!=0)
+    {
+      memcpy(&pnCCD_raw_0,
+             pnccdevent.rawSignalArrayAddr(1), 1024*1024*2);
     }
-  } 
-  if(pnccdevent.rawSignalArrayAddr(1)!=0)
-  {
-     memcpy(&pnCCD_raw_0,
-	    pnccdevent.rawSignalArrayAddr(1), 1024*1024*2);
-  }
-  if(pnccdevent.rawSignalArrayAddr(2)!=0)
-  {
-     memcpy(&pnCCD_raw_1,
-	    pnccdevent.rawSignalArrayAddr(2), 1024*1024*2);
-  }
+    if(pnccdevent.rawSignalArrayAddr(2)!=0)
+    {
+      memcpy(&pnCCD_raw_1,
+             pnccdevent.rawSignalArrayAddr(2), 1024*1024*2);
+    }
 #endif
 
 #ifdef sgl
-  cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
-  size_t pnCCD_num_pixel_arrays=pnccdevent.detectors().size();
-  if(pnCCD_num_pixel_arrays>0&&  ( pnccdevent.detectors()[0].correctedFrame()[0]!=0))
-  {
-     memcpy(&pnCCD_raw_0,
-	    &pnccdevent.detectors()[0].rawFrame()[0],
+    cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+    size_t pnCCD_num_pixel_arrays=pnccdevent.detectors().size();
+    if(pnCCD_num_pixel_arrays>0&&  ( pnccdevent.detectors()[0].correctedFrame()[0]!=0))
+    {
+      memcpy(&pnCCD_raw_0,
+             &pnccdevent.detectors()[0].rawFrame()[0],
             //	    &pnccdevent.detectors()[0].correctedFrame()[0],
-          1024*1024*2);
+             1024*1024*2);
 
-  if(pnCCD_num_pixel_arrays>1&&  ( pnccdevent.detectors()[1].correctedFrame()[0]!=0))
-  {
-     memcpy(&pnCCD_raw_1,
-	    &pnccdevent.detectors()[1].rawFrame()[0],
+      if(pnCCD_num_pixel_arrays>1&&  ( pnccdevent.detectors()[1].correctedFrame()[0]!=0))
+      {
+        memcpy(&pnCCD_raw_1,
+               &pnccdevent.detectors()[1].rawFrame()[0],
             //	    &pnccdevent.detectors()[1].correctedFrame()[0],
-          1024*1024*2);
-  }
-  }
+               1024*1024*2);
+      }
+    }
 #endif
 
 #if DEBUG_pnCCD_raw
-  if(pnccdevent.rawSignalArrayAddr(1)!=0)
-  {
-    size_t idx=0;
-    uint16_t* data = (pnccdevent.rawSignalArrayAddr(1));
-    for (size_t iy=0;iy<pnCCD_array_y_size0;++iy)
+    if(pnccdevent.rawSignalArrayAddr(1)!=0)
     {
+      size_t idx=0;
+      uint16_t* data = (pnccdevent.rawSignalArrayAddr(1));
+      for (size_t iy=0;iy<pnCCD_array_y_size0;++iy)
+      {
         for (size_t ix=0;ix<pnCCD_array_x_size0;++ix)
 	  std::cout <<"m" << data[idx++]<<" "<< pnCCD_raw0[iy][ix];
         std::cout<<std::endl;
+      }
     }
-  }
 #endif
+  }
 
   //  std::cout<< " I am in a"<<std::endl;
   if ( max_events_in_Buffer>99 && (Nevent%10)==0 )
@@ -322,8 +382,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   T->Fill();
   //mapfile->Update(TObject obj = 0);
-  if( ( Nevent%(20) )==0 ) mapfile->Update();
-
+  //  if( ( Nevent%(20) )==0 ) mapfile->Update();
+  if( ( Nevent%_param._updatefrequency)==0 )
+  {
+    printf("Going to update the TMapFile\n");
+    mapfile->Update();
+  }
 #ifdef sng_update
   if ( max_events_in_Buffer>99)
   {
