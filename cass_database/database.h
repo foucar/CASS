@@ -32,6 +32,7 @@ namespace cass
         public:
             uint       _updatefrequency;
             uint       _number_ofevents;
+            uint16_t   _usejustFile;
             uint16_t   _useREMI;
             uint16_t   _useVMI;
             uint16_t   _usepnCCD;
@@ -47,8 +48,6 @@ namespace cass
             //Database(cass::CASSEvent*);
             Database();
             ~Database();
-            void loadSettings()   {_param.load();}
-            void saveSettings()   {_param.save();}
 	    /*        public:
 		      Name_set();*/
 
@@ -57,6 +56,8 @@ namespace cass
 
         public slots:
             void add(cass::CASSEvent*);
+            void loadSettings()   {_param.load();}
+            void saveSettings()   {_param.save();}
 
         private:
             TTree *T;
