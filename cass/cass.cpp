@@ -50,6 +50,8 @@ int main(int argc, char **argv)
   // connect controls
   QObject::connect (window, SIGNAL (load()), analysis, SLOT(loadSettings()));
   QObject::connect (window, SIGNAL (save()), analysis, SLOT(saveSettings()));
+  QObject::connect (window, SIGNAL (load()), database, SLOT(loadSettings()));
+  QObject::connect (window, SIGNAL (save()), database, SLOT(saveSettings()));
   QObject::connect (window, SIGNAL (start()), input, SLOT(start()));
   QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
 
