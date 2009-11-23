@@ -74,7 +74,7 @@ ClassImp(cass::pnCCD::pnCCDEvent);
 cass::database::Database::Database()
 {
   //maybe the following should be moved somewhere else?? 
-  //loadSettings();
+  loadSettings();
 
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
   strcpy(username,"");
