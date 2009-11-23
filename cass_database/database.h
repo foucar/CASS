@@ -7,13 +7,13 @@
  */
 #include <QtCore/QObject>
 #include <TNtuple.h>
-#include "analysis_backend.h"
+//#include "analysis_backend.h"
 #include "parameter_backend.h"
 
 #define CASS_DATABASE_GLOBAL_H
 
 #include <QtCore/qglobal.h>
-#  define CASS_DATABASESHARED_EXPORT Q_DECL_EXPORT
+#define CASS_DATABASESHARED_EXPORT Q_DECL_EXPORT
 
 namespace cass
 {
@@ -21,7 +21,7 @@ namespace cass
 
     namespace database
     {
-        class CASS_DATABASESHARED_EXPORT Parameter : public cass::ParameterBackend
+      class CASS_DATABASESHARED_EXPORT Parameter : public cass::ParameterBackend
         {
         public:
             Parameter()     {beginGroup("Database");}
@@ -30,8 +30,8 @@ namespace cass
             void save();
 
         public:
-            uint   _updatefrequency;
-            uint   _number_ofevents;
+            uint       _updatefrequency;
+            uint       _number_ofevents;
             uint16_t   _useREMI;
             uint16_t   _useVMI;
             uint16_t   _usepnCCD;

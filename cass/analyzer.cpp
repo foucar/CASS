@@ -5,6 +5,7 @@
 #include "vmi_analysis.h"
 #include "pnccd_analysis.h"
 #include "machine_analysis.h"
+#include "database.h"
 
 cass::Analyzer::Analyzer()
 {
@@ -45,5 +46,6 @@ void cass::Analyzer::saveSettings()
     //iterate through all analyzers and load the settings of them//
     for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
         it->second->saveSettings();
+    //cass::database::Database::saveSettings();
 }
 
