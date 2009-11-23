@@ -70,16 +70,11 @@ ClassImp(cass::REMI::REMIEvent);
 ClassImp(cass::VMI::VMIEvent);
 ClassImp(cass::pnCCD::pnCCDEvent);
 //ClassImp(cass::CASSEvent)
-//ClassImp(cass::pnCCD::pnCCDDetector);
 
 cass::database::Database::Database()
 {
 
-  //  Double_t random;
-
-  //sprintf(Tmap_filename,"%s","~/");
   sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
-  //printf("%s\n",Tmap_filename);
   strcpy(username,"");
 
   if(getenv("USER")!=NULL)
@@ -112,14 +107,9 @@ cass::database::Database::Database()
   //T->SetMaxTreeSize(fgMaxTreeSize);
   //printf("Linear Tree allocated with %i bytes\n",fgMaxTreeSize);
 
-  //should I add a header to the tree??
 
   // this is where I am going to start the tree
   T->Branch("Nevent",&Nevent,"Nevent/l");
-  /*T->Branch("px",&px,"px/F");
-    T->Branch("py",&py,"py/F");*/
-  //T->Branch("pz",&pz,"pz/F");
-  //T->Branch("random",&random,"random/D");
 
   // the eventid
   T->Branch("CASS_id",&event_id,"CASS_id/l");
@@ -181,9 +171,9 @@ cass::database::Database::Database()
   T->Branch("pnCCD_array_xy_size1",&pnCCD_array_xy_size1,"pnCCD_array_xy_size1/I");
 #endif
 
-  //  T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
-  //T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
 #ifdef sng_pnccd
+  //T->Branch("pnCCD_raw_0",pnCCD_raw_0,"pnCCD_raw_0[1048576]/s");
+  //T->Branch("pnCCD_raw_1",pnCCD_raw_1,"pnCCD_raw_1[1048576]/s");
   T->Branch("pnCCD_corr_0",pnCCD_corr_0,"pnCCD_corr_0[1048576]/s");
   T->Branch("pnCCD_corr_1",pnCCD_corr_1,"pnCCD_corr_1[1048576]/s");
 #endif
@@ -202,29 +192,17 @@ cass::database::Database::~Database()
 {
   mapfile->Close("close");
   //delete T;
-  // delete all histos
+  //delete all histos, if created
   //delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
 
 }
 
 void cass::database::Database::add(cass::CASSEvent* cassevent)
 {
-#ifdef DEBUG
-  Int_t jj,kk;
-  UInt_t jj_u;
-#endif
 
   if(!cassevent) return;
   //  std::cout<< " I am in"<<std::endl;
   Nevent++;
-  //if(Nevent>299) printf("Nevent=%i \n",Nevent);
-  // just to have something filled...
-
-#ifdef extra
-  Double_t random;
-  r.Rannor(px,py);
-  random=double(r.Rndm());
-#endif
 
   event_id=cassevent->id();
 
@@ -280,22 +258,18 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       pnCCD_max_photons_per_event1=TMath::Min(int(pnccdevent.getMaxPhotPerEvt()[1]),
          MAX_pnCCD_max_photons_per_event);
       pnCCD_max_photons_per_event1=TMath::Min(pnCCD_max_photons_per_event1,max_phot_in_Buffer);
-
       pnCCD_array_xy_size1=pnccdevent.getArrXSize()[1]*pnccdevent.getArrYSize()[1];
-
     }
   } 
   if(pnccdevent.rawSignalArrayAddr(1)!=0)
   {
      memcpy(&pnCCD_raw_0,
-	    pnccdevent.rawSignalArrayAddr(1),
-          1024*1024*2);
+	    pnccdevent.rawSignalArrayAddr(1), 1024*1024*2);
   }
   if(pnccdevent.rawSignalArrayAddr(2)!=0)
   {
      memcpy(&pnCCD_raw_1,
-	    pnccdevent.rawSignalArrayAddr(2),
-          1024*1024*2);
+	    pnccdevent.rawSignalArrayAddr(2), 1024*1024*2);
   }
 #endif
 
@@ -334,14 +308,14 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 #endif
 
   //  std::cout<< " I am in a"<<std::endl;
-  if ( max_events_in_Buffer>99 && ( Nevent%(max_events_in_Buffer/50) )==0 )
+  if ( max_events_in_Buffer>99 && (Nevent%10)==0 )
   {
     time(&rawtime);
     timeinfo=localtime(&rawtime);
     strftime(hourmin,11,"%H%M%S",timeinfo);
     printf("done/seen event %i %s\n",int(Nevent)
             , hourmin );
-    /*    printf("done/seen event %i %u %s\n",int(Nevent), //int(event_id),
+    /*printf("done/seen event %i %u %s\n",int(Nevent), //int(event_id),
           pnCCDdata->detectors()[0].correctedFrame().size()  , hourmin );*/
     //T->Show(i%max_events_in_Buffer-1);
   }
@@ -356,44 +330,8 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
     if( ( Nevent%(10) )==0 )
     {
-    /*printf("updating mapfile\n");
-      mapfile->Update();*/
-
-    /*
-    //going to close and open next file
-    //OpennextFile(int(Nevent%100));
-    if((Nevent/100)==0)
-    {
-    char root_files[30];
-    sprintf(root_files,"tree_and_hs_%i.root",int(Nevent/100));
-    printf("%s\n",root_files);
-    T->Write();
-    f.Close();
-    delete T;
-    TFile f(root_files,"RECREATE");
-    TTree *T = new TTree("T","lin buffer");
-    T->Branch("Nevent",&Nevent,"Nevent/i");
-    T->Branch("px",&px,"px/F");
-    T->Branch("py",&py,"py/F");
-    T->Branch("random",&random,"random/D");
-    T->Branch("CASS_id",&event_id,"CASS_id/l");
-    T->Branch("MachineEventBranch","cass::MachineData::MachineDataEvent",&machinedata,32000,99);
-    T->Branch("REMIEventBranch","cass::REMI::REMIEvent",&REMIdata,32000,99);
-    T->Branch("VMIEventBranch","cass::VMI::VMIEvent",&VMIdata,32000,99);
-    T->Branch("pnCCDEventBranch","cass::pnCCD::pnCCDEvent",&pnCCDdata,32000,99);
-    T->Branch("pnCCD_array_x_size0",&pnCCD_array_x_size0,"pnCCD_array_x_size0/I");
-    T->Branch("pnCCD_array_y_size0",&pnCCD_array_y_size0,"pnCCD_array_y_size0/I");
-
-    T->Branch("pnCCD_array_x_size1",&pnCCD_array_x_size1,"pnCCD_array_x_size1/I");
-    T->Branch("pnCCD_array_y_size1",&pnCCD_array_y_size1,"pnCCD_array_y_size1/I");
-
-    T->Branch("pnCCD_max_photons_per_event0",&pnCCD_max_photons_per_event0,"pnCCD_max_photons_per_event0/I");
-    T->Branch("pnCCD_max_photons_per_event1",&pnCCD_max_photons_per_event1,"pnCCD_max_photons_per_event1/I");
-
-    T->SetAutoSave();
-    T->BranchRef();
-    }
-*/
+      printf("updating mapfile\n");
+      mapfile->Update();
     }
   }
   else
