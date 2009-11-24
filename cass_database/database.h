@@ -6,6 +6,7 @@
  *
  */
 #include <QtCore/QObject>
+#include <TFile.h>
 #include <TNtuple.h>
 //#include "analysis_backend.h"
 #include "parameter_backend.h"
@@ -61,6 +62,7 @@ namespace cass
 
         private:
             TTree *T;
+            TFile *f;
             Parameter  _param;
         };
     }//end namespace database

@@ -30,9 +30,6 @@
 #include <TDataType.h>
 #include <TMapFile.h>
 
-//TFile f("tree_and_histos.root","RECREATE");
-//TTree *T = new TTree("T","circ buffer");
-
 #include "cass_tree.h"
 
 //#include "histo_list.h"
@@ -75,35 +72,42 @@ cass::database::Database::Database()
 {
   //maybe the following should be moved somewhere else?? 
   loadSettings();
-
-  sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
-  strcpy(username,"");
-
-  if(getenv("USER")!=NULL)
+  if(_param._usejustFile==0)
   {
-    sprintf(username,"%s", getenv("USER"));
-  }
-  else sprintf(username,"%s","nobody");
-  
-  //  printf("user is %s\n",username);
-  if(strcmp(username,"ncoppola")==0)
-    strcat(Tmap_filename,"copp.map");
-  else if(strcmp(username,"lutz")==0)
-    strcat(Tmap_filename,"lutz.map");
-  else 
-  {  
-    printf("unknown user\n");
-    strcat(Tmap_filename,"nobody.map\0");
-  } 
-  printf("TMapFile is in %s\n",Tmap_filename);
-  // it was 2000000000
-  gROOT->cd();
-  T= new TTree("T","circ buffer");
+    sprintf(Tmap_filename,"%s","/dev/shm/test_root_");
+    strcpy(username,"");
 
-  mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 500000000, "");
-  mapfile->Add(T,"T");
-  //mapfile->Print();
-  //mapfile->ls();
+    if(getenv("USER")!=NULL)
+    {
+      sprintf(username,"%s", getenv("USER"));
+    }
+    else sprintf(username,"%s","nobody");
+  
+    //  printf("user is %s\n",username);
+    if(strcmp(username,"ncoppola")==0)
+      strcat(Tmap_filename,"copp.map");
+    else if(strcmp(username,"lutz")==0)
+      strcat(Tmap_filename,"lutz.map");
+    else 
+    {  
+      printf("unknown user\n");
+      strcat(Tmap_filename,"nobody.map\0");
+    } 
+    printf("TMapFile is in %s\n",Tmap_filename);
+    // it was 2000000000
+    gROOT->cd();
+    T= new TTree("T","circ buffer");
+
+    mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 500000000, "");
+    mapfile->Add(T,"T");
+    //mapfile->Print();
+    //mapfile->ls();
+  }
+  else
+  {
+    f= new TFile("tree_and_histos_CASS.root","RECREATE");
+    T= new TTree("T","Cass tree");
+  }
 
   //  Long64_t fgMaxTreeSize=1000000000;
   //T->SetMaxTreeSize(fgMaxTreeSize);
@@ -195,18 +199,23 @@ cass::database::Database::Database()
   T->SetAutoSave();
   //T->BranchRef();
   //T->SetCompressionLevel(1);
-  if(max_events_in_Buffer<_param._number_ofevents)
+  if(_param._usejustFile==0)
   {
-    T->SetCircular(max_events_in_Buffer);
-    printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
-  }
-  else
-  {
-    T->SetCircular(_param._number_ofevents);
-    printf("Circular buffer allocated with %i events\n",_param._number_ofevents);
-  }
+    if(max_events_in_Buffer<_param._number_ofevents)
+    {
+      T->SetCircular(max_events_in_Buffer);
+      printf("Circular buffer allocated with %i events\n",max_events_in_Buffer);
+    }
+    else
+    {
+      T->SetCircular(_param._number_ofevents);
+      printf("Circular buffer allocated with %i events\n",_param._number_ofevents);
+    }
 
-  printf("TMapFile update frequency is %i events\n",_param._updatefrequency);
+    printf("TMapFile update frequency is %i events\n",_param._updatefrequency);
+  }
+  else printf("saving to file, no circular tree declared\n");
+
   T->Print();
   Nevent=0;
 
@@ -222,6 +231,8 @@ void cass::database::Parameter::load()
   sync();
   _updatefrequency = value("UpdateFrequency",10).toUInt();
   _number_ofevents = value("NumberOfEvents",100).toUInt();
+  //usejustFile 1: means actually use just File, no TMapFile
+  //            0: actually, no File, just TMapFile
   _usejustFile     = value("usejustFile",0).toUInt();
   _useREMI         = value("useREMI",1).toUInt();
   _useVMI          = value("useVMI",1).toUInt();
@@ -242,8 +253,15 @@ void cass::database::Parameter::save()
 
 cass::database::Database::~Database()
 {
-  mapfile->Close("close");
-  //delete T;
+  if(_param._usejustFile==0) mapfile->Close("close");
+  if(_param._usejustFile!=0)
+  {
+    //closing tree-file
+    f->cd();
+    T->Write();
+    f->Close();
+    delete T;
+  }
   //delete all histos, if created
   //delete h_pnCCD1r_lastevt; h_pnCCD1r_lastevt=0;
 
@@ -385,10 +403,17 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
   T->Fill();
   //mapfile->Update(TObject obj = 0);
   //  if( ( Nevent%(20) )==0 ) mapfile->Update();
-  if( ( Nevent%_param._updatefrequency)==0 )
+  if(_param._usejustFile==0)
+    {
+      if( (Nevent%_param._updatefrequency)==0 )
+      {
+        printf("Going to update the TMapFile\n");
+        mapfile->Update();
+      }
+    }
+  else
   {
-    printf("Going to update the TMapFile\n");
-    mapfile->Update();
+    printf("Going to save to file no need to update the TMapFile\n");
   }
 #ifdef sng_update
   if ( max_events_in_Buffer>99)
