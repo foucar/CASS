@@ -10,3 +10,8 @@ This file contains an alphabetical list of all major contributors to CASS
 - Jochen Küpper
   CASS design, infrastructure development
   cass framework implementation
+
+- Nicola Coppola
+  cass_database
+  cass_dictionary
+  CASS testing, debug and development
