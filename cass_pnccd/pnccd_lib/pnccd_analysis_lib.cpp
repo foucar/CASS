@@ -109,7 +109,7 @@ cass::pnCCD::pnCCDFrameAnalysis::triggerDarkFrameCalibration
 
 bool
 cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
-(cass::pnCCD::pnCCDDetector *detector)
+(cass::pnCCD::pnCCDDetector *detector, const size_t& detidx)
 {
   int16_t                *raw_frm_addr;
   int16_t                *corr_frm_addr;

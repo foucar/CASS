@@ -55,7 +55,8 @@ namespace cass
       bool triggerDarkFrameCalibration(void);
 // Process the frame data that is attached to a pnCCDDetector
 // instance:
-      bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector *detector);
+	bool processPnCCDDetectorData(cass::pnCCD::pnCCDDetector *detector,
+				      const size_t&               detidx);
     private:
 // Private function members:
       bool setDefaultAnalysisParams_(void);
