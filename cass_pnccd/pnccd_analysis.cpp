@@ -151,6 +151,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //and find the photon hits//
     if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det,iDet))
     {
+		   std::cout << "pnccd analysis for pnccd" << iDet<< " did not do anything."<<std::endl;
       //if nothing was done then rearrange the frame to the right geometry//
       //go through the complete frame and copy the first row to the first row//
       //and the next row to the last row and so on//
