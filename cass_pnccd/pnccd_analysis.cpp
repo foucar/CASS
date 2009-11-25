@@ -94,25 +94,36 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     pnccdevent.detectors()[i].nonrecombined().clear();
   }
 
-  //check if we have enough parameters and analzyer for the amount of detectors//
+  //check if we have enough rebin parameters and analzyer for the amount of detectors//
   //increase it if necessary
   if(pnccdevent.detectors().size() > _param._rebinfactors.size())
   {
-    //how many rebinfactors (detectors) did we have before//
-    const size_t before = _param._rebinfactors.size();
+    //resize to fit the new size and initialize the new settings//
+    _param._rebinfactors.resize(pnccdevent.detectors().size(),1);
+		//save the new settings//
+    _param.save();
+  }
+  //check if we have enough darkframenames parameters for the amount of detectors//
+  //increase it if necessary
+  if(pnccdevent.detectors().size() > _param.darkcal_fnames_.size())
+  {
     //resize to fit the new size//
-    _param._rebinfactors.resize(pnccdevent.detectors().size());
     _param.darkcal_fnames_.resize(pnccdevent.detectors().size(),"darkcal.darkcal");
-    _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
-
-    //initialize / create with the new settings//
-    for (size_t i=before; i<_param._rebinfactors.size();++i)
-		{
-      _param._rebinfactors[i] = 1;
-      //Create a new instance of pnCCDFrameAnalysis and load the dark frame for it//
-      _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
+		//save the new settings//
+    _param.save();
+  }
+  //check if we have enough analyzers for the amount of detectors//
+  //increase it if necessary
+  if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
+  {
+	  //remember the size the analyzer container had before//
+		const size_t before = _pnccd_analyzer.size();
+    //resize to fit the new size//
+    _pnccd_analyzer.resize(pnccdevent.detectors().size(),new pnCCDFrameAnalysis());
+    //initialize the new right darkframe//
+    for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
+      //load the dark frame for pnCCDFrameAnalysis//
       _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param.darkcal_fnames_[i]);
-		}
 		//save the new settings//
     _param.save();
   }
