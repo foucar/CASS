@@ -233,6 +233,7 @@ void cass::database::Parameter::load()
   _number_ofevents = value("NumberOfEvents",100).toUInt();
   //usejustFile 1: means actually use just File, no TMapFile
   //            0: actually, no File, just TMapFile
+  _nofill          = value("DoNotFillTree",0).toUInt();
   _usejustFile     = value("usejustFile",0).toUInt();
   _useREMI         = value("useREMI",1).toUInt();
   _useVMI          = value("useVMI",1).toUInt();
@@ -243,6 +244,7 @@ void cass::database::Parameter::save()
 {
   setValue("UpdateFrequency",_updatefrequency);
   setValue("NumberOfEvents",_number_ofevents);
+  setValue("DoNotFillTree",_nofill);
   setValue("usejustFile",_usejustFile);
   setValue("useREMI",_useREMI);
   setValue("useVMI",_useVMI);
@@ -400,7 +402,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //T->Show(i%max_events_in_Buffer-1);
   }
 
-  T->Fill();
+  if(_param._nofill==0) T->Fill();
   //mapfile->Update(TObject obj = 0);
   //  if( ( Nevent%(20) )==0 ) mapfile->Update();
   if(_param._usejustFile==0)
@@ -408,7 +410,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       if( (Nevent%_param._updatefrequency)==0 )
       {
         printf("Going to update the TMapFile\n");
-        mapfile->Update();
+        if(_param._nofill==0) mapfile->Update();
       }
     }
   else

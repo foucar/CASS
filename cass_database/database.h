@@ -33,6 +33,7 @@ namespace cass
         public:
             uint       _updatefrequency;
             uint       _number_ofevents;
+            uint16_t   _nofill;
             uint16_t   _usejustFile;
             uint16_t   _useREMI;
             uint16_t   _useVMI;
