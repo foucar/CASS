@@ -166,17 +166,17 @@ namespace cass
         private:
             //variables that the sorters need to find detectorhits, given by the user
             std::string          _name;                 //the name of this detector
-            AnodeLayer           _uLayer;               //! properties of U1 Signals for this detektor
-            AnodeLayer           _vLayer;               //! properties of V1 Signals for this detektor
-            AnodeLayer           _wLayer;               //! properties of W1 Signals for this detektor
-            Signal               _mcp;                  //! properties of MCP Signals for this detektor
-            double               _runtime;              //! the runtime over the anode
-            double               _wLayerOffset;         //! the offset of w-layer towards u and v-layer
-            double               _mcpRadius;            //! the radius of the MCP in mm
-            double               _deadMcp;              //! the Deadtime between to Signals on the MCP
-            double               _deadAnode;            //! the Deadtime between to Signals on the Layers
-            bool                 _isHex;                //! flag telling wether this is a Hexanode Detektor
-            int32_t              _sorterType;           //! flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
+            AnodeLayer           _uLayer;               //properties of U1 Signals for this detektor
+            AnodeLayer           _vLayer;               //properties of V1 Signals for this detektor
+            AnodeLayer           _wLayer;               //properties of W1 Signals for this detektor
+            Signal               _mcp;                  //properties of MCP Signals for this detektor
+            double               _runtime;              //the runtime over the anode
+            double               _wLayerOffset;         //the offset of w-layer towards u and v-layer
+            double               _mcpRadius;            //the radius of the MCP in mm
+            double               _deadMcp;              //the Deadtime between to Signals on the MCP
+            double               _deadAnode;            //the Deadtime between to Signals on the Layers
+            bool                 _isHex;                //flag telling wether this is a Hexanode Detektor
+            int32_t              _sorterType;           //flag telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
 
             //output of the analysis (sorting) of the peaks
             dethits_t            _hits;                     //Container storing the refrences to the DetektorHits of this Detektor
