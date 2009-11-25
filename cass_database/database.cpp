@@ -409,7 +409,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     {
       if( (Nevent%_param._updatefrequency)==0 )
       {
-        printf("Going to update the TMapFile\n");
+        printf("Going to update the TMapFile, nofill is %i\n",_param._nofill);
         if(_param._nofill==0) mapfile->Update();
       }
     }
