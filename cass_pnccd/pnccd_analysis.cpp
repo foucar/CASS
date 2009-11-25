@@ -15,12 +15,17 @@ void cass::pnCCD::Parameter::load()
   QString s;
   //sync before loading//
   sync();
+	//clear the containers before adding new stuff to them//
   _rebinfactors.clear();
+	darkcal_fnames_.clear();
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
-      _rebinfactors.push_back(0);
-      _rebinfactors[iDet] = value("RebinFactor",1).toUInt();
+		  //the rebin factors for the detector//
+      _rebinfactors.push_back(value("RebinFactor",1).toUInt());
+			//the positions of the darkframe calibration data for the detectors//
+      darkcal_fnames_.push_back(value("DarkCalibratioFilePath","darkcal.darkcal").toString().toStdString());
+			
     endGroup();
   }
 
@@ -36,6 +41,7 @@ void cass::pnCCD::Parameter::save()
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
       setValue("RebinFactor",_rebinfactors[iDet]);
+      setValue("DarkCalibratioFilePath",darkcal_fnames_[iDet].c_str());
     endGroup();
   }
 }
@@ -46,22 +52,17 @@ void cass::pnCCD::Parameter::save()
 
 //------------------------------------------------------------------------------
 cass::pnCCD::Analysis::Analysis(void)
-    :pnccd_analysis_(0)
 {
-  darkcal_fnames_.push_back(std::string("~nik/testframes/"));
   //load the settings//
   loadSettings();
-  //create an instance of the frame analysis from Munich//
-  //pnccd_analysis_ = new pnCCDFrameAnalysis();
-  //load the dark frame calibration data:
-  //pnccd_analysis_->loadDarkCalDataFromFile(darkcal_fnames_.at(0));
-
 }
 
 //------------------------------------------------------------------------------
 cass::pnCCD::Analysis::~Analysis()
 {
-  delete pnccd_analysis_;
+  for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
+    delete _pnccd_analyzer[i];
+	_pnccd_analyzer.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -69,6 +70,9 @@ void cass::pnCCD::Analysis::loadSettings()
 {
   //save the settings
   _param.load();
+	// Set the dark calibration data in the new analysis instance//
+  for(size_t i=0; i<_pnccd_analyzer.size() ;++i)
+   _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param.darkcal_fnames_[i]);
 }
 
 //------------------------------------------------------------------------------
@@ -90,18 +94,26 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     pnccdevent.detectors()[i].nonrecombined().clear();
   }
 
-  //check if we have enough parameters for the amount of channels//
+  //check if we have enough parameters and analzyer for the amount of detectors//
   //increase it if necessary
   if(pnccdevent.detectors().size() > _param._rebinfactors.size())
   {
-    //how many rebinfactors did we have before//
+    //how many rebinfactors (detectors) did we have before//
     const size_t before = _param._rebinfactors.size();
     //resize to fit the new size//
     _param._rebinfactors.resize(pnccdevent.detectors().size());
-    //initialize with the new settings//
+    _param.darkcal_fnames_.resize(pnccdevent.detectors().size(),"darkcal.darkcal");
+    _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
+
+    //initialize / create with the new settings//
     for (size_t i=before; i<_param._rebinfactors.size();++i)
+		{
       _param._rebinfactors[i] = 1;
-    //save the new settings//
+      //Create a new instance of pnCCDFrameAnalysis and load the dark frame for it//
+      _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
+      _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param.darkcal_fnames_[i]);
+		}
+		//save the new settings//
     _param.save();
   }
 

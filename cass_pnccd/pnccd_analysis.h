@@ -86,6 +86,9 @@ namespace cass
 
       //rebin factor//
       std::vector<uint32_t> _rebinfactors;
+
+      // Dark frame calibration file names:
+      std::vector<std::string> darkcal_fnames_;
     };
 
 
@@ -116,9 +119,7 @@ namespace cass
     private:
       Parameter _param;
       // The frame analysis object:
-      pnCCDFrameAnalysis *pnccd_analysis_;
-      // Dark frame calibration file names:
-      std::vector<std::string> darkcal_fnames_;
+      std::vector<pnCCDFrameAnalysis *> _pnccd_analyzer;
       //temporary storage for rebinning frames//
       std::vector<int16_t> _tmp;
     };

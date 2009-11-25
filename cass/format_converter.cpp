@@ -151,7 +151,7 @@ namespace cass
       }
     }
     else
-      std::cout << "datagram is damaged. Damage value "<<damage<<std::endl;
+      std::cout << "datagram is damaged. Damage value: 0x"<<std::hex<<damage<<std::dec<<std::endl;
 
     //unlock the datagram//
     _eventqueue->UnlockDatagram(index);
