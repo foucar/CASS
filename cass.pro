@@ -11,6 +11,9 @@ TEMPLATE = subdirs
 
 INSTALLBASE    = /usr/local/cass
 
+QMAKE_CFLAGS += -p
+QMAKE_LFLAGS += -p
+
 QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
 #QMAKE_CXXFLAGS_DEBUG   += -O0

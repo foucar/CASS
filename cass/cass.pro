@@ -20,6 +20,10 @@ exists ($$incFile) {
   }
 }
 
+#QMAKE_CFLAGS += -pg
+#QMAKE_LFLAGS += -pg
+#QMAKE_CXXFLAGS += -pg
+
 SOURCES +=  cass.cpp \
             analyzer.cpp \
             event_queue.cpp \

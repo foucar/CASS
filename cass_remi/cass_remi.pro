@@ -9,6 +9,10 @@ DEFINES += CASS_REMI_LIBRARY
 
 OBJECTS_DIR = ./obj
 
+#QMAKE_CFLAGS += -pg
+#QMAKE_LFLAGS += -pg
+#QMAKE_CXXFLAGS += -pg
+
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
   include ($$incFile/rootcint.pri)

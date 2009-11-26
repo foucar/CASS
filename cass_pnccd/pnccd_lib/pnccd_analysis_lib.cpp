@@ -12,6 +12,7 @@ cass::pnCCD::pnCCDFrameAnalysis::pnCCDFrameAnalysis
   badpix_file_loader_     = new BadpixMapEdit();
   dark_frame_calibrator_  = new FrameData();
   signal_frame_processor_ = new PixEventData();
+//  std::cout<<"i'm in\n"<<std::endl;
 // Set start values of the private members:
   dark_caldata_ok_        = false;
   det_columns_            = 0;
@@ -176,6 +177,7 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // correction is done in another class:
   pnccd_photon_hits =
     signal_frame_processor_->getCorrectedFrameEvents(num_photon_hits);
+  std::cout<< num_photon_hits<<std::endl;
 // Copy the events to the detector instance:
   for( int32_t i=0; i<num_photon_hits; i++ )
   {

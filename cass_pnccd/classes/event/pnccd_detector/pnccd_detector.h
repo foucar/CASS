@@ -60,7 +60,7 @@ namespace cass
         class pnCCDDetector
         {
         public:
-            pnCCDDetector():_rows(1024),_columns(1024)     {}
+            pnCCDDetector():_rows(1024),_columns(1024),_originalrows(1024),_originalcolumns(1024)    {}
             ~pnCCDDetector()    {}
 
         public: //typedefs for better readable code
@@ -80,14 +80,17 @@ namespace cass
             const photonHits_t  &nonrecombined()const   {return _nonrecombined;}
             photonHits_t        &nonrecombined()        {return _nonrecombined;}
 
+            uint16_t             calibrated()const      {return _calibrated;}
+            uint16_t            &calibrated()           {return _calibrated;}
+
             uint16_t             rows()const            {return _rows;}
             uint16_t            &rows()                 {return _rows;}
 
             uint16_t             columns()const         {return _columns;}
             uint16_t            &columns()              {return _columns;}
 
-            uint16_t             originalrows()const    {return _orignalrows;}
-            uint16_t            &originalrows()         {return _orignalrows;}
+            uint16_t             originalrows()const    {return _originalrows;}
+            uint16_t            &originalrows()         {return _originalrows;}
 
             uint16_t             originalcolumns()const {return _originalcolumns;}
             uint16_t            &originalcolumns()      {return _originalcolumns;}
@@ -98,7 +101,7 @@ namespace cass
         private:
             //infos from the xtc file
             frame_t              _rawFrame;             //! the raw frame
-            uint16_t             _orignalrows;          //number of rows of the detector
+            uint16_t             _originalrows;          //number of rows of the detector
             uint16_t             _originalcolumns;      //number of columns of the detector
 
             //results of the analysis
@@ -108,6 +111,7 @@ namespace cass
             int32_t              _integral;             //the sum of all pixels in the frame
             uint16_t             _rows;                 //number of rows of the rebinned detector
             uint16_t             _columns;              //number of columns of the rebinned detector
+            uint16_t             _calibrated;            //true if the calibration procedure was run
 
             ClassDefNV(pnCCDDetector,1)  //a pnccd detector
         };

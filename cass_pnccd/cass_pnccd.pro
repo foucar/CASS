@@ -10,6 +10,10 @@ VERSION = 0.0.1
 
 OBJECTS_DIR = ./obj
 
+#QMAKE_CFLAGS += -pg
+#QMAKE_LFLAGS += -pg
+#QMAKE_CXXFLAGS += -pg
+
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
   include ($$incFile/rootcint.pri)

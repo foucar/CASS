@@ -56,15 +56,18 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
 
+      //std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
       //if necessary resize the detector container//
       if (detectorId >= pnccdevent.detectors().size())
         pnccdevent.detectors().resize(detectorId+1);
+      //std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
 
       //only run this if we have a config for this detector
       if (_pnccdConfig.size() >= detectorId && _pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
+        //std::cout<< "a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
 
         //get the pointer to the config for this detector//
         Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
@@ -116,6 +119,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
             datapointers[iSegment] += columnsOfSegment;
           }
         }
+        //std::cout<<det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
       }
     }
     break;

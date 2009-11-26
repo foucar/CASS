@@ -8,6 +8,10 @@ TARGET = cass_machinedata
 DEFINES += CASS_MACHINEDATA_LIBRARY
 VERSION = 0.0.1
 
+#QMAKE_CFLAGS += -pg
+#QMAKE_LFLAGS += -pg
+#QMAKE_CXXFLAGS += -pg
+
 incFile = $$(QTROOTSYSDIR)/include
 exists ($$incFile) {
   include ($$incFile/rootcint.pri)
