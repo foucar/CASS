@@ -149,7 +149,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 
     //do the "massaging" of the detector//
     //and find the photon hits//
-    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det,iDet))
+    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
     {
 		   std::cout << "pnccd analysis for pnccd" << iDet<< " did not do anything."<<std::endl;
       //if nothing was done then rearrange the frame to the right geometry//

@@ -43,6 +43,10 @@ cass::pnCCD::pnCCDFrameAnalysis::loadDarkCalDataFromFile
     det_columns_     = 0;
     det_rows_        = 0;
     dark_caldata_ok_ = false;
+
+    std::cout << "\n Loading dark calibration data from file "
+	      << fname << " did not succeed" << std::endl;
+
     return false;
   }
 // Loading was ok, set the calibration information in
@@ -109,7 +113,7 @@ cass::pnCCD::pnCCDFrameAnalysis::triggerDarkFrameCalibration
 
 bool
 cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
-(cass::pnCCD::pnCCDDetector *detector, const size_t& detidx)
+(cass::pnCCD::pnCCDDetector *detector)
 {
   int16_t                *raw_frm_addr;
   int16_t                *corr_frm_addr;
@@ -120,14 +124,26 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // Check if the dark frame calibration has either been set
 // or performed. If not, do nothing:
 
-  if( !dark_caldata_ok_ ) return false;
+  if( !dark_caldata_ok_ )
+  {
+    std::cout << "\n Dark calibration not loaded, aborting"
+	      << " frame analysis" << std::endl;
+    return false;
+  }
 
 // Check whether the geometry of the frame is equal to the
 // geometry which has been defined by the dark frame calibration
 // /file loaded before:
-  if( (det_columns_ != detector->columns()) ||
-      (det_rows_    != detector->rows()) )
+  if( (det_columns_ != detector->columns()*2) ||
+      (det_rows_    != detector->rows()/2) )
   {
+    std::cout << " Inconsistent detector geometry:"
+	      << " local: width "
+	      << det_columns_ << " height "
+	      << det_rows_    << " from detector:"
+	      << " width "    << detector->columns()*2
+	      << " height "   << detector->rows()/2
+	      << std::endl;
     return false;
   }
 // Get the address of the first elements of the raw frame
@@ -148,8 +164,10 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
   signal_frame_processor_->setPixSignalBfrAddr(
     corr_frm_addr,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
 // Analyze the frame:
-  if( signal_frame_processor_->analyzeCurrentFrame() < 1 )
+  if( signal_frame_processor_->analyzeCurrentFrame() < 0 )
   {
+    std::cout << "\n Signal frame analysis was aborted!"
+	      << std::endl;
     return false;
   }
 // Get the number of photon hits and the address of the photon
@@ -169,6 +187,9 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
       static_cast<float>(pnccd_photon_hits[i].corrval);
     detector->nonrecombined().push_back(unrec_photon_hit);
   }
+
+//  std::cout << " Successfully analyzed a CCD frame"
+//	    << std::endl;
 
   return true;
 }

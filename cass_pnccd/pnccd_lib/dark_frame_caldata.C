@@ -365,6 +365,7 @@ DarkFrameCaldata::readPixelStatMapFromFile
 		   << " , the file with the name '"
 		   << in_fname
 		   << "' could not be opened!";
+	std::cout << error_msg_.str() << std::endl;
 //	AskUserDiags::askContinue(parent_,"Xonline",error_msg_.str());
 // Could not open correctly, close and clear the stream
 // state:
@@ -388,6 +389,7 @@ DarkFrameCaldata::readPixelStatMapFromFile
 		   << " , the file with the name '"
 		   << in_fname
 		   << "' does not contain pixel statistics data!";
+	std::cout << error_msg_.str() << std::endl;
 //	AskUserDiags::askContinue(parent_,"Xonline",error_msg_.str());
 	
 	inpfile_ok_ = false;
