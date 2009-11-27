@@ -103,9 +103,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 		//save the new settings//
 //    _param.save();
   }
+
   //check if we have enough darkframenames parameters for the amount of detectors//
   //increase it if necessary
-
   if(pnccdevent.detectors().size() > _param.darkcal_fnames_.size())
   {
     //resize to fit the new size//
@@ -113,6 +113,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 		//save the new settings//
 //    _param.save();
   }
+
   //check if we have enough analyzers for the amount of detectors//
   //increase it if necessary
   if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
@@ -134,12 +135,17 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
   {
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
-    //std::cout<< "b "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
 
     //retrieve a reference to the corrected frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
     //retrieve a reference to the raw frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
+
+//    std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<<std::endl;
+
+    //if the size of the rawframe is 0, this detector with this id is not in the datastream//
+		//so we are not going to anlyse this detector further//
+		if (rf.empty()) continue;
 
     //resize the corrected frame container to the size of the raw frame container//
     cf.resize(det.rawFrame().size());
@@ -148,24 +154,18 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     const uint16_t nRows = det.originalrows();
     const uint16_t nCols = det.originalcolumns();
 
-    det.calibrated()=0;
-
-    std::cout << "pnccd start analysis for pnccd a " << iDet << " " << nRows << " " << nCols <<std::endl;
-    std::cout << "pnccd start analysis for pnccd b " << iDet << " " << det.rows() << " " << det.columns() <<std::endl;
-    std::cout<< "A "<< rf.size() << " " <<cf.size() << " " << det.correctedFrame().size() <<std::endl;
+    det.calibrated()=false;
 
     //do the "massaging" of the detector//
     //and find the photon hits//
     if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
-//    if(true)
     {
-        std::cout << "pnccd analysis for pnccd " << iDet<< " did not do anything."<<std::endl;
+      //NC the following is increadibly slow...
+      // maybe we could shift it downwards, to have a "downsized copy"
+
       //if nothing was done then rearrange the frame to the right geometry//
       //go through the complete frame and copy the first row to the first row//
       //and the next row to the last row and so on//
-
-      //NC the following is increadibly slow...
-      // maybe we could shift it downwards, to have a "downsized copy"
       size_t sourceindex=0;
       for (size_t i=0; i<nRows/2 ;++i)
       {
@@ -179,7 +179,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         ++sourceindex;
       }
     }
-    else det.calibrated()=1;
+    else 
+      det.calibrated()=true;
 
     //calc the integral (the sum of all bins)//
     det.integral() = 0;

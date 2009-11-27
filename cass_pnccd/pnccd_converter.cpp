@@ -67,7 +67,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       {
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
-        //std::cout<< "a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
+ //       std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<< pnccdevent.detectors().size() <<std::endl;
 
         //get the pointer to the config for this detector//
         Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
@@ -97,7 +97,6 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         }
 
         //calc the Number of Rows and Colums in one Segment//
-        ////
         const size_t rowsOfSegment = det.rows() / 2;
         const size_t columnsOfSegment = det.columns() / 2;
 
@@ -119,7 +118,8 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
             datapointers[iSegment] += columnsOfSegment;
           }
         }
-        //std::cout<<det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
+//        std::cout<<det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
+//        std::cout<<detectorId << " " <<  det.rawFrame().size() << " " << det.correctedFrame().size()<< std::endl;
       }
     }
     break;

@@ -177,7 +177,7 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
 // correction is done in another class:
   pnccd_photon_hits =
     signal_frame_processor_->getCorrectedFrameEvents(num_photon_hits);
-  std::cout<< num_photon_hits<<std::endl;
+//  std::cout<< num_photon_hits<<std::endl;
 // Copy the events to the detector instance:
   for( int32_t i=0; i<num_photon_hits; i++ )
   {
