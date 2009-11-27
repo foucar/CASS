@@ -160,6 +160,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //and find the photon hits//
     if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
     {
+		   std::cout << "nils did not succeed"<< std::endl;
       //NC the following is increadibly slow...
       // maybe we could shift it downwards, to have a "downsized copy"
 
