@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper , Nils Kimmel
+// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf
 
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
@@ -10,7 +10,7 @@
 #include "analysis_backend.h"
 #include "parameter_backend.h"
 
-#include <QtGui/QImage>
+//#include <QtGui/QImage>
 
 
 namespace cass
@@ -19,28 +19,28 @@ namespace cass
   namespace pnCCD
   {
 
-    /*
-    Dark Frame calibration results of a pnCCD pixel array:
-    */
-    class pnCCDFrameCalibration
-    {
-    public:
-      pnCCDFrameCalibration(void) {}
-      ~pnCCDFrameCalibration() {}
-    private:
-    };
-
-    /*
-    X-ray photon pulse height calibration results of a
-    pnCCD pixel array:
-    */
-    class pnCCDPulseHeightCal
-    {
-    public:
-      pnCCDPulseHeightCal(void) {}
-      ~pnCCDPulseHeightCal() {}
-    private:
-    };
+//     /*
+//     Dark Frame calibration results of a pnCCD pixel array:
+//     */
+//     class pnCCDFrameCalibration
+//     {
+//     public:
+//       pnCCDFrameCalibration(void) {}
+//       ~pnCCDFrameCalibration() {}
+//     private:
+//     };
+// 
+//     /*
+//     X-ray photon pulse height calibration results of a
+//     pnCCD pixel array:
+//     */
+//     class pnCCDPulseHeightCal
+//     {
+//     public:
+//       pnCCDPulseHeightCal(void) {}
+//       ~pnCCDPulseHeightCal() {}
+//     private:
+//     };
 
 
 
@@ -59,36 +59,36 @@ namespace cass
       ~Parameter()    {endGroup();}
       void load();
       void save();
-      /*
-      Get the number of detectors which are described in this
-      parameter class:
-      */
-      int getNumpnCCDPixArrays(void)
-      { return frame_calibrations.size(); }
-      /*
-      The results of the dark frame calibration:
-      pixel offset maps , pixel noise maps , bad pixel maps
-      */
-      std::vector<pnCCDFrameCalibration> frame_calibrations;
-      /*
-      The results of the pulse height calibration:
-      gain correction factors of each channel , charge transfer
-      inefficiency of each channel , a map which combines both
-      gain and CTI in one value for each  pixel , a factor for a
-      cubic non-linearity correction:
-      */
-      std::vector<pnCCDPulseHeightCal>   pulse_height_calibs;
-      /*
-      The analysis parameters for a CCD frame, e.g. the photon hit
-      detection threshold in units of the noise sigma of each pixel:
-      */
-      double photon_hit_thresh_sigmaunits;
+//       /*
+//       Get the number of detectors which are described in this
+//       parameter class:
+//       */
+//       int getNumpnCCDPixArrays(void)
+//       { return frame_calibrations.size(); }
+//       /*
+//       The results of the dark frame calibration:
+//       pixel offset maps , pixel noise maps , bad pixel maps
+//       */
+//       std::vector<pnCCDFrameCalibration> frame_calibrations;
+//       /*
+//       The results of the pulse height calibration:
+//       gain correction factors of each channel , charge transfer
+//       inefficiency of each channel , a map which combines both
+//       gain and CTI in one value for each  pixel , a factor for a
+//       cubic non-linearity correction:
+//       */
+//       std::vector<pnCCDPulseHeightCal>   pulse_height_calibs;
+//       /*
+//       The analysis parameters for a CCD frame, e.g. the photon hit
+//       detection threshold in units of the noise sigma of each pixel:
+//       */
+//       double photon_hit_thresh_sigmaunits;
 
-      //rebin factor//
+      //rebin factors for each detector//
       std::vector<uint32_t> _rebinfactors;
 
-      // Dark frame calibration file names:
-      std::vector<std::string> darkcal_fnames_;
+      // Dark frame calibration file names for each detector//
+      std::vector<std::string> _darkcal_fnames;
     };
 
 

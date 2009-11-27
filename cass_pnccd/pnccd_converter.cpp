@@ -11,8 +11,7 @@
 #include "pnccd_event.h"
 
 
-cass::pnCCD::Converter::Converter():
-    _pnccdConfig(0)
+cass::pnCCD::Converter::Converter()
 {
   //this converter should react on pnccd config and frame//
   _types.push_back(Pds::TypeId::Id_pnCCDconfig);

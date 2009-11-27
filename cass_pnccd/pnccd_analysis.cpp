@@ -15,17 +15,17 @@ void cass::pnCCD::Parameter::load()
   QString s;
   //sync before loading//
   sync();
-	//clear the containers before adding new stuff to them//
+        //clear the containers before adding new stuff to them//
   _rebinfactors.clear();
-	darkcal_fnames_.clear();
+  _darkcal_fnames.clear();
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
-		  //the rebin factors for the detector//
+      //the rebin factors for the detector//
       _rebinfactors.push_back(value("RebinFactor",1).toUInt());
-			//the positions of the darkframe calibration data for the detectors//
-      darkcal_fnames_.push_back(value("DarkCalibratioFilePath","darkcal.darkcal").toString().toStdString());
-			
+      //the positions of the darkframe calibration data for the detectors//
+      _darkcal_fnames.push_back(
+          value("DarkCalibrationFilePath","darkcal.darkcal").toString().toStdString());
     endGroup();
   }
 
@@ -41,7 +41,7 @@ void cass::pnCCD::Parameter::save()
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
       setValue("RebinFactor",_rebinfactors[iDet]);
-      setValue("DarkCalibratioFilePath",darkcal_fnames_[iDet].c_str());
+      setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
     endGroup();
   }
 }
@@ -62,17 +62,17 @@ cass::pnCCD::Analysis::~Analysis()
 {
   for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
     delete _pnccd_analyzer[i];
-	_pnccd_analyzer.clear();
+      _pnccd_analyzer.clear();
 }
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
-  //save the settings
+  //load the settings
   _param.load();
-	// Set the dark calibration data in the new analysis instance//
+  // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_pnccd_analyzer.size() ;++i)
-   _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param.darkcal_fnames_[i]);
+    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
 }
 
 //------------------------------------------------------------------------------
@@ -94,40 +94,30 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     pnccdevent.detectors()[i].nonrecombined().clear();
   }
 
-  //check if we have enough rebin parameters and analzyer for the amount of detectors//
+  //check if we have enough rebin parameters and darkframe names for the amount of detectors//
   //increase it if necessary
-  if(pnccdevent.detectors().size() > _param._rebinfactors.size())
+  if((pnccdevent.detectors().size() > _param._rebinfactors.size()) ||
+     (pnccdevent.detectors().size() > _param._darkcal_fnames.size()))
   {
     //resize to fit the new size and initialize the new settings//
     _param._rebinfactors.resize(pnccdevent.detectors().size(),1);
-		//save the new settings//
-//    _param.save();
-  }
-
-  //check if we have enough darkframenames parameters for the amount of detectors//
-  //increase it if necessary
-  if(pnccdevent.detectors().size() > _param.darkcal_fnames_.size())
-  {
     //resize to fit the new size//
-    _param.darkcal_fnames_.resize(pnccdevent.detectors().size(),"darkcal.darkcal");
-		//save the new settings//
-//    _param.save();
+    _param._darkcal_fnames.resize(pnccdevent.detectors().size(),"darkcal.darkcal");
+    //save the new parameters//
+    saveSettings();
   }
 
   //check if we have enough analyzers for the amount of detectors//
   //increase it if necessary
   if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
   {
-	  //remember the size the analyzer container had before//
-		const size_t before = _pnccd_analyzer.size();
+    //remember the size the analyzer container had before//
+    const size_t before = _pnccd_analyzer.size();
     //resize to fit the new size//
     _pnccd_analyzer.resize(pnccdevent.detectors().size(),new pnCCDFrameAnalysis());
     //initialize the new right darkframe//
     for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
-      //load the dark frame for pnCCDFrameAnalysis//
-      _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param.darkcal_fnames_[i]);
-		//save the new settings//
-//    _param.save();
+      _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
   }
 
   //go through all detectors//
@@ -135,7 +125,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
   {
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
-
     //retrieve a reference to the corrected frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
     //retrieve a reference to the raw frame of the detector//
@@ -144,8 +133,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 //    std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<<std::endl;
 
     //if the size of the rawframe is 0, this detector with this id is not in the datastream//
-		//so we are not going to anlyse this detector further//
-		if (rf.empty()) continue;
+    //so we are not going to anlyse this detector further//
+    if (rf.empty()) 
+      continue;
 
     //resize the corrected frame container to the size of the raw frame container//
     cf.resize(det.rawFrame().size());
@@ -160,7 +150,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //and find the photon hits//
     if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
     {
-		   std::cout << "nils did not succeed"<< std::endl;
+//      std::cout << "nils did not succeed"<< std::endl;
       //NC the following is increadibly slow...
       // maybe we could shift it downwards, to have a "downsized copy"
 
@@ -171,12 +161,12 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       for (size_t i=0; i<nRows/2 ;++i)
       {
         memcpy(&cf[i*nCols],
-               &rf[sourceindex*nCols],
-               1024*sizeof(int16_t));
+              &rf[sourceindex*nCols],
+              1024*sizeof(int16_t));
         ++sourceindex;
         memcpy(&cf[(nCols-1-i)*nCols],
-               &rf[sourceindex*nCols],
-               1024*sizeof(int16_t));
+              &rf[sourceindex*nCols],
+              1024*sizeof(int16_t));
         ++sourceindex;
       }
     }
@@ -267,7 +257,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       //copy the temporary frame to the right place
       cf.assign(_tmp.begin(), _tmp.end());
     }
-
   }
 }
 
