@@ -12,8 +12,8 @@ void cfd(cass::REMI::Channel &c, const double SampleInterval)
     const double sampleInterval = SampleInterval*1e9;    //convert the s to ns
     //now extract information from the Channel
     const double horpos     = c.horpos()*1.e9;
-    const int32_t vOff      = c.offset();
     const double vGain      = c.gain();
+    const int32_t vOff      = static_cast<int32_t>(c.offset() / vGain);       //mV -> ADC Bytes
 
     const int32_t idxToFiPoint = 0;
     const cass::REMI::Channel::waveform_t Data = c.waveform();
