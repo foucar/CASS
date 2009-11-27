@@ -60,7 +60,7 @@ namespace cass
         class pnCCDDetector
         {
         public:
-            pnCCDDetector():_originalrows(1024),_originalcolumns(1024),_rows(1024),_columns(1024)    {}
+            pnCCDDetector():_originalrows(0),_originalcolumns(0),_rows(0),_columns(0)    {}
             ~pnCCDDetector()    {}
 
         public: //typedefs for better readable code
