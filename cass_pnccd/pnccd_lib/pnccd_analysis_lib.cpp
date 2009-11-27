@@ -12,11 +12,32 @@ cass::pnCCD::pnCCDFrameAnalysis::pnCCDFrameAnalysis
   badpix_file_loader_     = new BadpixMapEdit();
   dark_frame_calibrator_  = new FrameData();
   signal_frame_processor_ = new PixEventData();
+  pixel_resorter_         = new PixelRearrSet<int16_t,int16_t>();
+  tmp_resort_frm_.resize(1024*1024,0);
 //  std::cout<<"i'm in\n"<<std::endl;
 // Set start values of the private members:
   dark_caldata_ok_        = false;
   det_columns_            = 0;
   det_rows_               = 0;
+// Configure the pixel resorter for two CFEL pnCCD modules:
+  pixel_resorter_->setTotalArraySizes(2048,512,1024,1024);
+  pixel_resorter_->addPixelRearrgmnt(512,512,
+				     0,0,
+				     512,0,
+				     -1,1);
+  pixel_resorter_->addPixelRearrgmnt(512,512,
+				     512,0,
+				     0,0,
+				     1,-1);
+  pixel_resorter_->addPixelRearrgmnt(512,512,
+				     1024,0,
+				     0,512,
+				     1,-1);
+  pixel_resorter_->addPixelRearrgmnt(512,512,
+				     1536,0,
+				     512,512,
+				     -1,1);
+  pixel_resorter_->initPixRearrSet();
 
   return;
 }
@@ -28,6 +49,7 @@ cass::pnCCD::pnCCDFrameAnalysis::~pnCCDFrameAnalysis
   if( badpix_file_loader_ )     delete badpix_file_loader_;
   if( dark_frame_calibrator_ )  delete dark_frame_calibrator_;
   if( signal_frame_processor_ ) delete signal_frame_processor_;
+  if( pixel_resorter_ )         delete pixel_resorter_;
 }
 
 bool
@@ -163,11 +185,19 @@ cass::pnCCD::pnCCDFrameAnalysis::processPnCCDDetectorData
     &frame_buffer,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
 // Set the address of the pixel signal map in the frame processor:
   signal_frame_processor_->setPixSignalBfrAddr(
-    corr_frm_addr,static_cast<int>(det_columns_),static_cast<int>(det_rows_));
+    &tmp_resort_frm_[0],static_cast<int>(det_columns_),static_cast<int>(det_rows_));
 // Analyze the frame:
   if( signal_frame_processor_->analyzeCurrentFrame() < 0 )
   {
     std::cout << "\n Signal frame analysis was aborted!"
+	      << std::endl;
+    return false;
+  }
+// Rearrange the pixels in the corrected frame to their physically
+// correct locations:
+  if( !pixel_resorter_->rearrangeAllPixels(&tmp_resort_frm_[0],corr_frm_addr) )
+  {
+    std::cout << "\n Pixel rearrangement was aborted!"
 	      << std::endl;
     return false;
   }

@@ -51,7 +51,11 @@ HEADERS += ../cass/analysis_backend.h \
            ./pnccd_lib/pix_event_data.h \
            ./pnccd_lib/dark_frame_caldata.h \
            ./pnccd_lib/badpix_map_edit.h \
-           ./pnccd_lib/pnccd_analysis_lib.h
+           ./pnccd_lib/pnccd_analysis_lib.h \
+           ./pnccd_lib/pixel_rearr_set.h \
+           ./pnccd_lib/pixel_rearrangement.h \
+           ./pnccd_lib/pixel_rearr_set.C \
+           ./pnccd_lib/pixel_rearrangement.C
 
 INCLUDEPATH += ./ \
                ../cass \

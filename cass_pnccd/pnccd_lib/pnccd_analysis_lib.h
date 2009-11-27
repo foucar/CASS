@@ -30,8 +30,7 @@
 #include "frame_data.h"
 #include "pix_event_data.h"
 #include "badpix_map_edit.h"
-
-//#include "cass_pnccd.h"
+#include "pixel_rearr_set.C"
 
 // pnCCDFrameAnalysis: the wrapper class for the analysis
 // functionality of Raccoon/Xonline:
@@ -65,6 +64,8 @@ namespace cass
       BadpixMapEdit    *badpix_file_loader_;
       FrameData        *dark_frame_calibrator_;
       PixEventData     *signal_frame_processor_;
+      PixelRearrSet<int16_t,int16_t> *pixel_resorter_;
+      pnCCDDetector::frame_t tmp_resort_frm_;
 // Status flags:
       bool              dark_caldata_ok_;
 // Detector parameters:
