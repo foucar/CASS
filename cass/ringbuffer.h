@@ -54,23 +54,22 @@ namespace lmf
   public:
     enum behaviour_t{blocking,nonblocking};
     typedef std::vector<Element> buffer_t;
-    typedef std::vector<Element>::iterator iterator_t;
+    typedef typename buffer_t::iterator iterator_t;
     typedef T*& reference;
     typedef const T*& const_reference;
     typedef T* value_t;
 
-    RingBuffer(properties property) 
-      : _next(0),
-        _first(0),
-        _last(0),
-        _property(property),
-        _buffer(cap,Element())
+    RingBuffer(behaviour_t behaviour) 
+      : _behaviour(behaviour),
+        _buffer(cap,Element()),
+        _nextToProcess(_buffer.begin()),
+        _nextToFill(_buffer.begin())
     {
     }
 
     ~RingBuffer()
     {
-      for (buffer_t::iterator it=_buffer.begin(); it != _buffer.end(); ++it)
+      for (iterator_t it=_buffer.begin(); it != _buffer.end(); ++it)
         delete (*it);
     }
 
@@ -163,7 +162,7 @@ namespace lmf
     void nextToProcess(reference element)
     {
       //create a lock//
-      QMutexLocker lock(&mutex);
+      QMutexLocker lock(&_mutex);
       while (!findNextProcessable())
       {
         //wenn nichts gefunden wurd warte bis wir benachrichtigt werden//
@@ -183,7 +182,7 @@ namespace lmf
     void doneProcessing(const_reference element)
     {
       //create a lock//
-      QMutexLocker lock(&mutex);
+      QMutexLocker lock(&_mutex);
       //finde den index des elements und setze den dazugehoerigen status um
       iterator_t iElement = std::find(_buffer.begin(),_buffer.end(),element);
       iElement->inBearbeitung = false;
@@ -192,7 +191,7 @@ namespace lmf
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
       lock.unlock();
-      _fillingcondition.wakeOne();
+      _fillcondition.wakeOne();
     }
 
     //liefere das naechste abgearbeitete Element zurueck
@@ -202,8 +201,8 @@ namespace lmf
     void nextToFill(reference element)
     {
       //create lock//
-      QMutexLocker lock(&mutex);
-      if (behaviour == blocking)
+      QMutexLocker lock(&_mutex);
+      if (_behaviour == blocking)
       {
         while(!findNextFillableBlockable)
         {
@@ -230,7 +229,7 @@ namespace lmf
     void doneFilling(const_reference element)
     {
       //create a lock//
-      QMutexLocker lock(&mutex);
+      QMutexLocker lock(&_mutex);
       //finde den index des elements und setze den dazugehoerigen status um
       iterator_t iElement = std::find(_buffer.begin(),_buffer.end(),element);
       iElement->inBearbeitung = false;
@@ -250,11 +249,9 @@ namespace lmf
 
   private:
     QMutex          _mutex;             // mutex to sync the processing part
-    QWaitCondition  _fillcondition;     // conditionto sync the filling part
-    QWaitCondition  _processcondition;  // conditionto sync the filling part
-    size_t          _process,           // Index das naechste zu bearbeitende element
-    size_t          _fill,              // Index das nachste zu fuellende element
-    behaviour_t     _behaviour          // verhalten des containers
+    QWaitCondition  _fillcondition;     // condition to sync the filling part
+    QWaitCondition  _processcondition;  // condition to sync the filling part
+    behaviour_t     _behaviour;         // verhalten des containers
     buffer_t        _buffer;            // der Container
     iterator_t      _nextToProcess;     // Iterator des naechsten zu bearbeitenden elements
     iterator_t      _nextToFill;        // Iterator des naechsten zu fuellenden elements
