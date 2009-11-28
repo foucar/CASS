@@ -16,10 +16,16 @@ namespace lmf
   // T = Elementetyp, cap = Kapazitaet des Ringpuffers
   // Zwei solche Ringpuffer sind nur dann von gleichem Typ,
   // wenn sie in Elementetyp und Kapazitaet uebereinstimmen.
+  
+  //todo ob es blockable oder nicht blockabel in die//
+  //compilezeit uebernehmen//
   template <typename T, size_t cap>
   class RingBuffer
   {
   private:
+    //ein Element des Rinbuffers//
+    //enthaellt den Status des Elements und//
+    //ein Zeiger auf das eigentliche Element//
     class Element
     {
       Element()
@@ -29,12 +35,12 @@ namespace lmf
          inBearbeitung(false)
       {
       }
-      
+
       ~Element()
       {
         delete element;
       }
-      
+
       bool operator==(const T*& rhs)
       {
         return (element == rhs);
@@ -72,9 +78,12 @@ namespace lmf
     //some function to retrieve the right elements
     bool findNextProcessable()
     {
-      //merke dir wo wir starten//
-      iterator_t start = (_nextToProcess == _buffer.end()-1) ? _buffer.begin() : _nextToProcess+1;
-      //wenn das aktuelle element gerade bearbeitet wird oder nicht gefuellt ist// 
+      //merke dir wo wir enden sollten//
+      //dies sollte spaetestens dort passieren wo der next fillable steht sein//
+      //da die elemente davor entweder schon bearbeitet worden sind//
+      //oder noch bearbeitet werden//
+      iterator_t letztesFreiesElement = _nextToFill;
+      //wenn das aktuelle element gerade bearbeitet wird oder nicht gefuellt ist//
       //probiere es mit dem naechsten//
       while (_nextToProcess->inBearbeitung || !_nextToProcess->gefuellt)
       {
@@ -83,8 +92,9 @@ namespace lmf
         if (_nextToProcess == _buffer.begin())
           _nextToProcess = _buffer.end()-1;
 
-        //wenn wir wieder am start angekommen sind, dann ist nichts da zu bearbeiten//
-        if (_nextToProcess == start);
+        //wenn wir wieder am dort wo der filler steht angekommen sind//
+        //dann ist nichts da zu bearbeiten//
+        if (_nextToProcess == letztesFreiesElement);
           return false;
 
         //wir sollen rueckwaerts durch den buffer gehen//
@@ -98,7 +108,8 @@ namespace lmf
     bool findNextFillableBlockable()
     {
       //merke dir wo wir starten//
-      iterator_t start = (_nextToProcess == _buffer.begin()) ? _buffer.end() :_nextToFill-1;
+      iterator_t start =
+          (_nextToProcess == _buffer.begin()) ? _buffer.end() :_nextToFill-1;
       //wenn das aktuelle element gerade bearbeitet wird// 
       //oder noch nicht bearbeitet wurde//
       //probiere es mit dem naechsten//
@@ -109,7 +120,8 @@ namespace lmf
         if (_nextToFill == _buffer.end()-1)
           _nextToFill = _buffer.begin();
 
-        //wenn wir wieder am start angekommen sind, dann ist nichts da zu bearbeiten//
+        //wenn wir wieder am start angekommen sind
+        //dann ist nichts da zu bearbeiten//
         if (_nextToFill == start);
         return false;
 
@@ -120,7 +132,8 @@ namespace lmf
     bool findNextFillableNonBlockable()
     {
       //merke dir wo wir starten//
-      iterator_t start = (_nextToProcess == _buffer.begin()) ? _buffer.end() :_nextToFill-1;
+      iterator_t start =
+          (_nextToProcess == _buffer.begin()) ? _buffer.end() :_nextToFill-1;
       //wenn das aktuelle element gerade bearbeitet wird// 
       //oder noch nicht bearbeitet wurde//
       //probiere es mit dem naechsten//
@@ -131,7 +144,8 @@ namespace lmf
         if (_nextToFill == _buffer.end()-1)
           _nextToFill = _buffer.begin();
 
-        //wenn wir wieder am start angekommen sind, dann ist nichts da zu bearbeiten//
+        //wenn wir wieder am start angekommen sind//
+        //dann ist nichts da zu bearbeiten//
         if (_nextToFill == start);
         return false;
 
@@ -176,6 +190,8 @@ namespace lmf
       iElement->bearbeitet    = true;
       iElement->gefuellt      = false;
       //notify the waiting condition that something new is in the buffer//
+      //we need to unlock the lock before//
+      lock.unlock();
       _fillingcondition.wakeOne();
     }
 
@@ -225,6 +241,8 @@ namespace lmf
       //zurueckliefert//
       _nextToProcess = iElement;
       //notify the waiting condition that something new is in the buffer//
+      //we need to unlock the lock before//
+      lock.unlock();
       _processcondition.wakeOne();
     }
 
@@ -236,7 +254,7 @@ namespace lmf
     QWaitCondition  _processcondition;  // conditionto sync the filling part
     size_t          _process,           // Index das naechste zu bearbeitende element
     size_t          _fill,              // Index das nachste zu fuellende element
-    behaviour_t     _behaviour          // verhalten des containers blocking or nonblocking
+    behaviour_t     _behaviour          // verhalten des containers
     buffer_t        _buffer;            // der Container
     iterator_t      _nextToProcess;     // Iterator des naechsten zu bearbeitenden elements
     iterator_t      _nextToFill;        // Iterator des naechsten zu fuellenden elements
