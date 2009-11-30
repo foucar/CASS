@@ -33,7 +33,7 @@ PixEventData::PixEventData
 (void)
 {
     analysis_flag_     = NOCMMD_NOEVT;
-    frameAnalysisOp_   = &PixEventData::frameAnlNoCmmdNoEvt_;
+    frameAnalysisOp_   = &PixEventData::frameAnlCmmdEvt_;
     frame_processed_   = false;
     stop_processing_   = false;
     data_ready_        = false;
