@@ -181,6 +181,12 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     if (rf.empty()) 
       continue;
 
+
+    // The following is quite dangerous...
+    // if the size of the frame changes we are not permitted to
+    // do the resize.!!! We have to zero the dark-map!!
+    // we need to initialize the map(s) to zero at the beginning
+
     //resize the corrected frame container the noise and the offset to the size of the raw frame container//
     cf.resize(det.rawFrame().size());
     noise.resize(det.rawFrame().size());
@@ -189,7 +195,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //get the dimesions of the detector before the rebinning//
     const uint16_t nRows = det.originalrows();
     const uint16_t nCols = det.originalcolumns();
-
+    //int32_t this1=0;
 
     //to find out whether there was light in the chamber we test to see a signal//
     //on one of the acqiris channels idealy on the intensity monitor signal//
@@ -199,10 +205,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
-      for (; itFrame != cf.end(); ++itFrame,++itNoise,++itOffset)
+      for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
       {
+          //  this1++;
+// the next 2 lines should have += and not =
         *itOffset =  *itFrame;
         *itNoise  = (*itFrame)*(*itFrame);
+        //printf("uu %i\n",this1);
       }
       ++nDarkframes;
     }
@@ -235,6 +244,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           ph.energy()    = ph.amplitude() * adu2eV;
           //add it to the vector of photon hits//
           phs.push_back(ph);
+// I would in any case do not allow more than 2000 photons (or 20000 photons)
         }
       }
     }

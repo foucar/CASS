@@ -45,6 +45,8 @@ else
 #  quiet := @
 #  MAKEFLAGS := -s
 endif
+  quiet :=
+  MAKEFLAGS :=
 
 # Target variable
 # ---------------
