@@ -215,8 +215,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 	//statistics//
         const double mean =  *itOffset / nDarkframes;
         const double meansquared =  mean * mean;
-        const double sumofsqare = *itNoise;
-        const double sigma = sqrt( 1/nDarkFrames * sumofsquare - meansquared ); 
+        const double sumofsquare = *itNoise;
+        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
         //remove the offset of the frame and copy it into the corrected frame//
         *itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
         //find out whether this pixel is a photon hit//
