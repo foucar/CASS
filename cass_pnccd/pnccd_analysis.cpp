@@ -1,5 +1,6 @@
 // Copyright (C) 2009 jk, lmf
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include "pnccd_analysis.h"
 #include "pnccd_event.h"
@@ -79,9 +80,9 @@ cass::pnCCD::Analysis::Analysis(void)
 //------------------------------------------------------------------------------
 cass::pnCCD::Analysis::~Analysis()
 {
-  for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
+/*  for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
     delete _pnccd_analyzer[i];
-      _pnccd_analyzer.clear();
+      _pnccd_analyzer.clear();*/
 }
 
 //------------------------------------------------------------------------------
@@ -91,7 +92,23 @@ void cass::pnCCD::Analysis::loadSettings()
   _param.load();
   // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_pnccd_analyzer.size() ;++i)
-    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+  {
+//    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+    ifstream in(_param._darkcal_fnames[i].c_str(), std::ios::binary|std::ios::ate);
+    if (in.is_open())
+    {
+      //find big the vectors have to be//
+      const size_t size = in.tellg() / 2 / sizeof(double);
+      //go to the beginning of the file
+      in.seekg(0,std::ios::beg);
+      //resize the vectors to the right size//
+      _param._offsets[i].resize(size);
+      _param._noise[i].resize(size);
+      //read the parameters stored in the file//
+      in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
+      in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -99,6 +116,16 @@ void cass::pnCCD::Analysis::saveSettings()
 {
   //save settings//
   _param.save();
+  //now save the noise and the offset vectors to the designated files//
+  for (size_t i=0; i<_pnccd_analyzer.size() ; ++i)
+  {
+    ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
+    if (out.is_open())
+    {
+      out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
+      out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -117,13 +144,13 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
   //check if we have enough rebin parameters and darkframe names for the amount of detectors//
   //increase the noise and offset vectors//
   //increase it if necessary
-  if((pnccdevent.detectors().size()  > _param._rebinfactors.size()) ||
-      (pnccdevent.detectors().size() > _param._darkcal_fnames.size()) ||
-      (pnccdevent.detectors().size() > _param._noise.size()) ||
-      (pnccdevent.detectors().size() > _param._sigmaMultiplier.size()) ||
-      (pnccdevent.detectors().size() > _param._adu2eV.size()) ||
-      (pnccdevent.detectors().size() > _param._offsets.size()) ||
-      (pnccdevent.detectors().size() > _param._nbrDarkframes.size()))
+  if((pnccdevent.detectors().size() > _param._rebinfactors.size()) ||
+     (pnccdevent.detectors().size() > _param._darkcal_fnames.size()) ||
+     (pnccdevent.detectors().size() > _param._noise.size()) ||
+     (pnccdevent.detectors().size() > _param._sigmaMultiplier.size()) ||
+     (pnccdevent.detectors().size() > _param._adu2eV.size()) ||
+     (pnccdevent.detectors().size() > _param._offsets.size()) ||
+     (pnccdevent.detectors().size() > _param._nbrDarkframes.size()))
   {
     //resize to fit the new size and initialize the new settings//
     _param._rebinfactors.resize(pnccdevent.detectors().size(),1);
@@ -138,19 +165,19 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
 
   //check if we have enough analyzers for the amount of detectors//
   //increase it if necessary
-  if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
-  {
-    //remember the size the analyzer container had before//
-    const size_t before = _pnccd_analyzer.size();
-    //resize to fit the new size//
-    _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
-    //initialize the new right darkframe//
-    for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
-    {
-      _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
-      _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
-    }
-  }
+//   if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
+//   {
+//     //remember the size the analyzer container had before//
+//     const size_t before = _pnccd_analyzer.size();
+//     //resize to fit the new size//
+//     _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
+//     //initialize the new right darkframe//
+//     for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
+//     {
+//       _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
+//       _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+//     }
+//   }
 
   //go through all detectors//
   for (size_t iDet=0; iDet<pnccdevent.detectors().size();++iDet)
@@ -181,13 +208,8 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     if (rf.empty()) 
       continue;
 
-
-    // The following is quite dangerous...
-    // if the size of the frame changes we are not permitted to
-    // do the resize.!!! We have to zero the dark-map!!
-    // we need to initialize the map(s) to zero at the beginning
-
     //resize the corrected frame container the noise and the offset to the size of the raw frame container//
+    //this code relies on the fact, that the frame size won't change at runtime//
     cf.resize(det.rawFrame().size());
     noise.resize(det.rawFrame().size());
     offset.resize(det.rawFrame().size());
@@ -195,25 +217,25 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //get the dimesions of the detector before the rebinning//
     const uint16_t nRows = det.originalrows();
     const uint16_t nCols = det.originalcolumns();
-    //int32_t this1=0;
+
 
     //to find out whether there was light in the chamber we test to see a signal//
     //on one of the acqiris channels idealy on the intensity monitor signal//
     //create the offset and noise vector//
-    if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
+    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
     {
-      std::vector<double>::iterator itOffset = offset.begin();
-      std::vector<double>::iterator itNoise = noise.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
-      for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
+      if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
       {
-          //  this1++;
-// the next 2 lines should have += and not =
-        *itOffset =  *itFrame;
-        *itNoise  = (*itFrame)*(*itFrame);
-        //printf("uu %i\n",this1);
+        std::vector<double>::iterator itOffset = offset.begin();
+        std::vector<double>::iterator itNoise = noise.begin();
+        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+        for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
+        {
+          *itOffset +=  *itFrame;
+          *itNoise  += (*itFrame)*(*itFrame);
+        }
+        ++nDarkframes;
       }
-      ++nDarkframes;
     }
 
     //do the selfmade "massaging" of the detector//
@@ -244,7 +266,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           ph.energy()    = ph.amplitude() * adu2eV;
           //add it to the vector of photon hits//
           phs.push_back(ph);
-// I would in any case do not allow more than 2000 photons (or 20000 photons)
         }
       }
     }
@@ -298,49 +319,49 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       //if the rebinfactor doesn't fit the original dimensions//
       //checks wether rebinfactor is of power of 2//
       //look for the next smaller number that is a power of 2//
-      if(nRows%_param._rebinfactors[iDet]!=0)
+      if(nRows%_param._rebinfactors[iDet] != 0)
       {
-        //pow(2,int(log2(_param._rebinfactor)));
-        double res_tes= static_cast<double>(_param._rebinfactors[iDet]);
+        _param._rebinfactors[iDet] = static_cast<uint32_t>(pow(2,int(log2(_param._rebinfactors[iDet]))));
+/*        double res_tes= static_cast<double>(_param._rebinfactors[iDet]);
         res_tes = log(res_tes)/0.693;
         res_tes = floor(res_tes);
-        _param._rebinfactors[iDet] = static_cast<UInt_t>(pow(2. , res_tes ));
+        _param._rebinfactors[iDet] = static_cast<UInt_t>(pow(2. , res_tes ));*/
         saveSettings();
       }
-      //get the new dimensions//
-      const size_t newRows = nRows / _param._rebinfactors[iDet];
-      const size_t newCols = nCols / _param._rebinfactors[iDet];
-      //set the new dimensions in the detector//
-      det.rows()    = newRows;
-      det.columns() = newCols;
-      //resize the temporary container to fit the rebinned image
-      //initialize it with 0
-      _tmp.assign(newRows * newCols,0);
-      //go through the whole frame//
-      //and do the magic work//
-      for(size_t iCol=0; iCol<newCols ;++iCol)
-      {
-        for(size_t iRow=0; iRow<newRows ;iRow++)
-        {
-          /* the following works only for rebin=2
-          _tmp[iCol*newCols+iRow]=  // actually is newRows
-              cf[iCol    *nCols+ iRow   ]+
-              cf[iCol    *nCols+(iRow+1)]+
-              cf[(iCol+1)*nCols+ iRow   ]+
-              cf[(iCol+1)*nCols+(iRow+1)];*/
+       //get the new dimensions//
+       const size_t newRows = nRows / _param._rebinfactors[iDet];
+       const size_t newCols = nCols / _param._rebinfactors[iDet];
+       //set the new dimensions in the detector//
+       det.rows()    = newRows;
+       det.columns() = newCols;
+//       //resize the temporary container to fit the rebinned image
+//       //initialize it with 0
+//       _tmp.assign(newRows * newCols,0);
+//       //go through the whole frame//
+//       //and do the magic work//
+//       for(size_t iCol=0; iCol<newCols ;++iCol)
+//       {
+//         for(size_t iRow=0; iRow<newRows ;iRow++)
+//         {
+//           /* the following works only for rebin=2
+//           _tmp[iCol*newCols+iRow]=  // actually is newRows
+//               cf[iCol    *nCols+ iRow   ]+
+//               cf[iCol    *nCols+(iRow+1)]+
+//               cf[(iCol+1)*nCols+ iRow   ]+
+//               cf[(iCol+1)*nCols+(iRow+1)];*/
+// 
+//           for(size_t iReby=0;iReby<_param._rebinfactors[iDet];iReby++)
+//           {
+//             for(size_t iRebx=0;iRebx<_param._rebinfactors[iDet];iRebx++)
+//             {
+//               _tmp[iCol+newCols*iRow]+=
+//                   cf[(iCol*_param._rebinfactors[iDet] +iReby ) +nCols*(iRow*_param._rebinfactors[iDet] +iRebx)  ];
+//             }
+//           }
+//         }
+//       }
 
-          for(size_t iReby=0;iReby<_param._rebinfactors[iDet];iReby++)
-          {
-            for(size_t iRebx=0;iRebx<_param._rebinfactors[iDet];iRebx++)
-            {
-              _tmp[iCol+newCols*iRow]+=
-                  cf[(iCol*_param._rebinfactors[iDet] +iReby ) +nCols*(iRow*_param._rebinfactors[iDet] +iRebx)  ];
-            }
-          }
-        }
-      }
-
-      /*//another way//
+        //another way//
         for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
         {
           //calculate the row and column of the current Index//
@@ -355,7 +376,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           //add this index value to the newIndex value//
           _tmp[newIndex] += cf[iIdx];
 
-        }*/
+        }
 
       //copy the temporary frame to the right place
       cf.assign(_tmp.begin(), _tmp.end());
