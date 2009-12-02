@@ -19,30 +19,6 @@ namespace cass
   namespace pnCCD
   {
 
-//     /*
-//     Dark Frame calibration results of a pnCCD pixel array:
-//     */
-//     class pnCCDFrameCalibration
-//     {
-//     public:
-//       pnCCDFrameCalibration(void) {}
-//       ~pnCCDFrameCalibration() {}
-//     private:
-//     };
-// 
-//     /*
-//     X-ray photon pulse height calibration results of a
-//     pnCCD pixel array:
-//     */
-//     class pnCCDPulseHeightCal
-//     {
-//     public:
-//       pnCCDPulseHeightCal(void) {}
-//       ~pnCCDPulseHeightCal() {}
-//     private:
-//     };
-
-
 
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
@@ -72,7 +48,8 @@ namespace cass
       std::vector<double> _sigmaMultiplier;
       //the conversion factor to convert "adu's" to eV//
       std::vector<double> _adu2eV;
-      
+      //the remichannel to that will tell us whether there is light in the chamber//
+      uint32_t _lightIndicatorChannel;
       // Dark frame calibration file names for each detector//
       std::vector<std::string> _darkcal_fnames;
     };

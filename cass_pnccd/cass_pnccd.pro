@@ -55,14 +55,18 @@ HEADERS += ../cass/analysis_backend.h \
            ./pnccd_lib/pixel_rearr_set.h \
            ./pnccd_lib/pixel_rearrangement.h \
            ./pnccd_lib/pixel_rearr_set.C \
-           ./pnccd_lib/pixel_rearrangement.C
-
+           ./pnccd_lib/pixel_rearrangement.C 
+  
 INCLUDEPATH += ./ \
                ../cass \
                ./classes/event \
                ./classes/event/pnccd_detector \
                $$(LCLSSYSINCLUDE) \
-               ./pnccd_lib
+               ./pnccd_lib \
+               ../cass_remi/classes/event \
+               ../cass_remi/classes/event/channel \
+               ../cass_remi/classes/event/peak \
+               ../cass_remi/classes/event/detector
 
 
 INSTALLBASE    = /usr/local/cass

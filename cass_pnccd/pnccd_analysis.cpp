@@ -4,6 +4,7 @@
 #include "pnccd_analysis.h"
 #include "pnccd_event.h"
 #include "cass_event.h"
+#include "remi_event.h"
 #include "pnccd_analysis_lib.h"
 
 #include <vector>
@@ -15,9 +16,11 @@ void cass::pnCCD::Parameter::load()
   QString s;
   //sync before loading//
   sync();
-        //clear the containers before adding new stuff to them//
+  //clear the containers before adding new stuff to them//
   _rebinfactors.clear();
   _darkcal_fnames.clear();
+  //the light indicator channel of the acqiris//
+  _lightIndicatorChannel = value("LightIndicatorChannel",9).toUInt();
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
@@ -40,6 +43,7 @@ void cass::pnCCD::Parameter::save()
 {
   //sting for the container index//
   QString s;
+  setValue("LightIndicatorChannel",_lightIndicatorChannel);
   setValue("size",static_cast<uint32_t>(_rebinfactors.size()));
   for (size_t iDet=0; iDet<_rebinfactors.size(); ++iDet)
   {
@@ -187,9 +191,10 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     const uint16_t nCols = det.originalcolumns();
 
 
-    
+    //to find out whether there was light in the chamber we test to see a signal//
+    //on one of the acqiris channels idealy on the intensity monitor signal//
     //create the offset and noise vector//
-    if (/*it is a darkframe*/ true)
+    if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
     {
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise = noise.begin();
