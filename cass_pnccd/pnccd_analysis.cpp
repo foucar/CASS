@@ -212,10 +212,15 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
       {
+	//statistics//
+        const double mean =  *itOffset / nDarkframes;
+        const double meansquared =  mean * mean;
+        const double sumofsqare = *itNoise;
+        const double sigma = sqrt( 1/nDarkFrames * sumofsquare - meansquared ); 
         //remove the offset of the frame and copy it into the corrected frame//
-        *itCorFrame = static_cast<int16_t>((*itRawFrame - *itOffset) / nDarkframes);
+        *itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
         //find out whether this pixel is a photon hit//
-        if (*itCorFrame > (sigmaMultiplier * ((*itNoise-((*itOffset)*(*itOffset)))/(nDarkframes))) )
+        if (*itCorFrame > (sigmaMultiplier * sigma) )
         {
           //create a photon hit//
           cass::pnCCD::PhotonHit ph;

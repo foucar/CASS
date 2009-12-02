@@ -1,6 +1,6 @@
 # Architecture flags
 # ------------------
-arch_tgts := ppc-linux ppc-rtems-rce405 ppc-rtems-ml405 i386-linux x86_64-linux sparc-solaris
+arch_tgts := ppc-linux ppc-rtems-rce405 ppc-rtems-ml405 i386-linux x86_64-linux sparc-solaris x86_64-Darwin
 arch_opts := opt dbg
 
 define arch_opt_template
@@ -40,6 +40,24 @@ CXXFLAGS := $(CFLAGS)
 CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
 LDFLAGS  := -m32 -shared
 LXFLAGS  := -m32
+else
+ifeq ($(tgt_cpu_family)-$(tgt_os),x86_64-Darwin)
+AS  := as
+CPP := gcc -E
+CC  := gcc
+CXX := g++
+LD  := g++
+LX  := g++
+
+LIBEXTNS := so
+DEPFLAGS := -MM
+DEFINES  += -fPIC -D_REENTRANT -D__pentium__ -Wall
+CPPFLAGS :=
+CFLAGS   := -m64
+CXXFLAGS := $(CFLAGS)
+CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
+LDFLAGS  := -Wl,-rpath,@loader_path/../lib -dynamiclib -single_module -undefined dynamic_lookup -install_name @rpath -m64 
+LXFLAGS  := -m64
 else
 ifeq ($(tgt_cpu_family),x86_64)
 AS  := as
@@ -124,6 +142,7 @@ CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
 LDFLAGS  := -shared
 LXFLAGS  :=
 
+endif
 endif
 endif
 endif
