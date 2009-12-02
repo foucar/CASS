@@ -26,6 +26,10 @@ void cass::pnCCD::Parameter::load()
       //the positions of the darkframe calibration data for the detectors//
       _darkcal_fnames.push_back(
           value("DarkCalibrationFilePath","darkcal.darkcal").toString().toStdString());
+      //the multiplier for the noise//
+      _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
+      //the conversion factor for adu's to eV//
+      _adu2eV.push_back(value("Adu2eV",1).toDouble());
     endGroup();
   }
 
@@ -42,12 +46,23 @@ void cass::pnCCD::Parameter::save()
     beginGroup(s.setNum(static_cast<int>(iDet)));
       setValue("RebinFactor",_rebinfactors[iDet]);
       setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
+      setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
+      setValue("Adu2eV",_adu2eV[iDet]);
     endGroup();
   }
 }
 
 
 //______________________________________________________________________________
+
+
+
+
+
+
+
+
+
 
 
 //------------------------------------------------------------------------------
@@ -96,15 +111,24 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
   }
 
   //check if we have enough rebin parameters and darkframe names for the amount of detectors//
+  //increase the noise and offset vectors//
   //increase it if necessary
-  if((pnccdevent.detectors().size() > _param._rebinfactors.size()) ||
-     (pnccdevent.detectors().size() > _param._darkcal_fnames.size()))
+  if((pnccdevent.detectors().size()  > _param._rebinfactors.size()) ||
+      (pnccdevent.detectors().size() > _param._darkcal_fnames.size()) ||
+      (pnccdevent.detectors().size() > _param._noise.size()) ||
+      (pnccdevent.detectors().size() > _param._sigmaMultiplier.size()) ||
+      (pnccdevent.detectors().size() > _param._adu2eV.size()) ||
+      (pnccdevent.detectors().size() > _param._offsets.size()) ||
+      (pnccdevent.detectors().size() > _param._nbrDarkframes.size()))
   {
     //resize to fit the new size and initialize the new settings//
     _param._rebinfactors.resize(pnccdevent.detectors().size(),1);
-    //resize to fit the new size//
     _param._darkcal_fnames.resize(pnccdevent.detectors().size(),"darkcal.darkcal");
-    //save the new parameters//
+    _param._noise.resize(pnccdevent.detectors().size());
+    _param._offsets.resize(pnccdevent.detectors().size());
+    _param._nbrDarkframes.resize(pnccdevent.detectors().size(),0);
+    _param._sigmaMultiplier.resize(pnccdevent.detectors().size(),4);
+    _param._adu2eV.resize(pnccdevent.detectors().size(),1);
     saveSettings();
   }
 
@@ -132,7 +156,19 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the corrected frame of the detector//
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
     //retrieve a reference to the raw frame of the detector//
-    cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
+    const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
+    //retrieve a reference to the nonrecombined photon hits of the detector//
+    cass::pnCCD::pnCCDDetector::photonHits_t &phs = det.nonrecombined();
+    //retrieve a reference to the noise vector of this detector//
+    std::vector<double> &noise = _param._noise[iDet];
+    //retrieve a reference to the offset of the detector//
+    std::vector<double> &offset = _param._offsets[iDet];
+    //retrieve a reference to the number of Darkframes that were taken for this the detector//
+    size_t &nDarkframes = _param._nbrDarkframes[iDet];
+    //retrieve a reference to the multiplier of the sigma of the noise//
+    const double &sigmaMultiplier = _param._sigmaMultiplier[iDet];
+    //retrieve a reference to the conversionfactor from "adu" to eV of the noise//
+    const double &adu2eV = _param._adu2eV[iDet];
 
 //     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
 
@@ -141,17 +177,61 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     if (rf.empty()) 
       continue;
 
-    //resize the corrected frame container to the size of the raw frame container//
+    //resize the corrected frame container the noise and the offset to the size of the raw frame container//
     cf.resize(det.rawFrame().size());
+    noise.resize(det.rawFrame().size());
+    offset.resize(det.rawFrame().size());
     //for now just rearrange the frame so that it looks like a real frame//
     //get the dimesions of the detector before the rebinning//
     const uint16_t nRows = det.originalrows();
     const uint16_t nCols = det.originalcolumns();
 
 
+    
+    //create the offset and noise vector//
+    if (/*it is a darkframe*/ true)
+    {
+      std::vector<double>::iterator itOffset = offset.begin();
+      std::vector<double>::iterator itNoise = noise.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+      for (; itFrame != cf.end(); ++itFrame,++itNoise,++itOffset)
+      {
+        *itOffset =  *itFrame;
+        *itNoise  = (*itFrame)*(*itFrame);
+      }
+      ++nDarkframes;
+    }
+
+    //do the selfmade "massaging" of the detector//
+    //only if we have already enough darkframes//
+    if (nDarkframes > 1)
+    {
+      std::vector<double>::iterator itOffset = offset.begin();
+      std::vector<double>::iterator itNoise  = noise.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
+      {
+        //remove the offset of the frame and copy it into the corrected frame//
+        *itCorFrame = static_cast<int16_t>((*itRawFrame - *itOffset) / nDarkframes);
+        //find out whether this pixel is a photon hit//
+        if (*itCorFrame > (sigmaMultiplier * ((*itNoise-((*itOffset)*(*itOffset)))/(nDarkframes))) )
+        {
+          //create a photon hit//
+          cass::pnCCD::PhotonHit ph;
+          //set the values of the photon hit//
+          //todo : find the positions that are clear only after the rearrangement//
+          ph.amplitude() = *itCorFrame;
+          ph.energy()    = ph.amplitude() * adu2eV;
+          //add it to the vector of photon hits//
+          phs.push_back(ph);
+        }
+      }
+    }
     //do the "massaging" of the detector//
     //and find the photon hits//
-    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
+//    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
+    if (true)
     {
       //NC the following is increadibly slow...
       //maybe we could shift it downwards, to have a "downsized copy"
@@ -175,6 +255,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     else 
       det.calibrated()=true;
 
+    
     //calc the integral (the sum of all bins)//
     det.integral() = 0;
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
