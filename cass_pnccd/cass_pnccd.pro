@@ -33,7 +33,7 @@ SOURCES += pnccd_analysis.cpp \
            ./pnccd_lib/pix_event_data.C \
            ./pnccd_lib/dark_frame_caldata.C \
            ./pnccd_lib/badpix_map_edit.C \
-           ./pnccd_lib/pnccd_analysis_lib.cpp
+#           ./pnccd_lib/pnccd_analysis_lib.cpp
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \

@@ -65,14 +65,15 @@ namespace cass
 
         public: //typedefs for better readable code
             typedef std::vector<int16_t>    frame_t;
+            typedef std::vector<uint16_t>    unsignedframe_t;
             typedef std::vector<PhotonHit>  photonHits_t;
 
         public:
             const frame_t       &rawFrame()const        {return _rawFrame;}
             frame_t             &rawFrame()             {return _rawFrame;}
 
-            const frame_t       &correctedFrame()const  {return _correctedFrame;}
-            frame_t             &correctedFrame()       {return _correctedFrame;}
+            const unsignedframe_t       &correctedFrame()const  {return _correctedFrame;}
+            unsignedframe_t             &correctedFrame()       {return _correctedFrame;}
 
             const photonHits_t  &recombined()const      {return _recombined;}
             photonHits_t        &recombined()           {return _recombined;}
@@ -105,7 +106,7 @@ namespace cass
             uint16_t             _originalcolumns;      //number of columns of the detector
 
             //results of the analysis
-            frame_t              _correctedFrame;       //the "massaged" frame
+            unsignedframe_t              _correctedFrame;       //the "massaged" frame
             photonHits_t         _recombined;           //vector containing recombined X-ray photon hits
             photonHits_t         _nonrecombined;        //vector containing non-recombined X-ray photon hits
             int32_t              _integral;             //the sum of all pixels in the frame

@@ -185,7 +185,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
     //retrieve a reference to the corrected frame of the detector//
-    cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
+    cass::pnCCD::pnCCDDetector::unsignedframe_t &cf = det.correctedFrame();
     //retrieve a reference to the raw frame of the detector//
     const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
     //retrieve a reference to the nonrecombined photon hits of the detector//
@@ -238,6 +238,12 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       }
     }
 
+    if(nDarkframes>0) printf("dark frame seen %u\n",nDarkframes);
+    /*    uint16_t one1=16;
+    uint16_t one2=15;
+    uint16_t result=(one1-one2);
+    printf("this test %u\n",result);*/
+
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
     if (nDarkframes > 1)
@@ -245,7 +251,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise  = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      cass::pnCCD::pnCCDDetector::unsignedframe_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
       {
 	//statistics//
@@ -254,10 +260,11 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         const double sumofsquare = *itNoise;
         const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
         //remove the offset of the frame and copy it into the corrected frame//
-        *itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
+        //*itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
         // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
-        // and give large variation range
-        //if(*itCorFrame<0) *itCorFrame=0;
+        // and give wider range, I have anyway to do some "If" statements
+        if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
+        else *itCorFrame=0;
         //find out whether this pixel is a photon hit//
         if (*itCorFrame > (sigmaMultiplier * sigma) )
         {
@@ -382,6 +389,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           // that is even worse with the use of int instead of uint...
 
           // instead of doing the prev line, I could:
+#ifdef signedframeonly
           // "stop" at 32k
           // do not add if already over max allowed
           int16_t temp_sum=_tmp[newIndex] + cf[iIdx];
@@ -390,6 +398,14 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
               _tmp[newIndex] = temp_sum;
           }
           else _tmp[newIndex]=0x7FFF;
+#endif
+          uint32_t temp_sum=static_cast<uint32_t>(_tmp[newIndex] + cf[iIdx]);
+          if( temp_sum < 0xFFFF) 
+          {
+              _tmp[newIndex] = static_cast<uint16_t>(temp_sum);
+          }
+          else _tmp[newIndex]=0xFFFF;
+
 //          if(_tmp[newIndex]<0) std::cout << _tmp[newIndex] << " ";
           // "invent" some math
           //_tmp[newIndex] += cf[iIdx];
