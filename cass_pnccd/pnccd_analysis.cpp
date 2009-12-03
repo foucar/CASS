@@ -222,9 +222,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //to find out whether there was light in the chamber we test to see a signal//
     //on one of the acqiris channels idealy on the intensity monitor signal//
     //create the offset and noise vector//
-    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
+    if (/*true*/ cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
     {
-      if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
+        if (/*true*/cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
       {
         std::vector<double>::iterator itOffset = offset.begin();
         std::vector<double>::iterator itNoise = noise.begin();
@@ -255,6 +255,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
         //remove the offset of the frame and copy it into the corrected frame//
         *itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
+        // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
+        // and give large variation range
+        //if(*itCorFrame<0) *itCorFrame=0;
         //find out whether this pixel is a photon hit//
         if (*itCorFrame > (sigmaMultiplier * sigma) )
         {
@@ -374,12 +377,28 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           //that newRow and newCol belongs to//
           const size_t newIndex = newRow*newCols + newCol;
           //add this index value to the newIndex value//
-          _tmp[newIndex] += cf[iIdx];
+          //_tmp[newIndex] += cf[iIdx];
+          // the previous line has gives problem with overflow
+          // that is even worse with the use of int instead of uint...
 
+          // instead of doing the prev line, I could:
+          // "stop" at 32k
+          // do not add if already over max allowed
+          int16_t temp_sum=_tmp[newIndex] + cf[iIdx];
+          if( temp_sum > 0) 
+          {
+              _tmp[newIndex] = temp_sum;
+          }
+          else _tmp[newIndex]=0x7FFF;
+//          if(_tmp[newIndex]<0) std::cout << _tmp[newIndex] << " ";
+          // "invent" some math
+          //_tmp[newIndex] += cf[iIdx];
+          //if( _tmp[newIndex] & 0x8000 ) _tmp[newIndex]=0x7FFF;
         }
 
       //copy the temporary frame to the right place
       cf.assign(_tmp.begin(), _tmp.end());
+//      std::cout<<std::endl;
     }
   }
 }
