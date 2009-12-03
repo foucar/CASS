@@ -334,9 +334,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
        //set the new dimensions in the detector//
        det.rows()    = newRows;
        det.columns() = newCols;
-//       //resize the temporary container to fit the rebinned image
-//       //initialize it with 0
-//       _tmp.assign(newRows * newCols,0);
+       //resize the temporary container to fit the rebinned image
+       //initialize it with 0
+       _tmp.assign(newRows * newCols,0);
 //       //go through the whole frame//
 //       //and do the magic work//
 //       for(size_t iCol=0; iCol<newCols ;++iCol)
