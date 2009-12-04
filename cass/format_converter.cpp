@@ -60,18 +60,14 @@ cass::FormatConverter *cass::FormatConverter::instance(EventQueue* eventqueue, E
 
 
 //this slot is called once the eventqueue has new data available//
-void cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
+bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 {
   Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
 
-    // do some debug output
-//    std::cout<<"eventqueue index: "<<std::dec<<index<<" transition: "<<Pds::TransitionId::name(datagram->seq.service());
-//    std::cout<<std::hex<<" "<<datagram->seq.stamp().fiducials()<<" "<< datagram->seq.stamp().ticks() <<std::dec <<std::endl;
 
     //if this is the firsttime we run we want to load a config that was stored to disk//
     if(_firsttime)
     {
-//      std::cout << "open the file"<<std::endl;
       //reset the flag//
       _firsttime = false;
       //open the file//
@@ -80,7 +76,6 @@ void cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       //if there was such a file then we want to load it//
       if (oldconfigtransition.is_open())
       {
-//        std::cout << "file is open"<<std::endl;
         //read the datagram from the file//
         char * buffer =  new char [0x900000];
         Pds::Dgram& dg = *reinterpret_cast<Dgram*>(buffer);
@@ -89,10 +84,8 @@ void cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
         //done reading.. close file//
         oldconfigtransition.close();
         //now iterate through the config datagram//
-//        std::cout <<"iterating through it"<<std::endl;
         XtcIterator iter(&(dg.xtc),_converter,0,0);
         iter.iterate();
-//        std::cout <<"done"<<std::endl;
       }
     }
 
@@ -146,7 +139,7 @@ void cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 
     //unlock the datagram//
     _eventqueue->UnlockDatagram(index);
-  }
+}
 
 
 

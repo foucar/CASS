@@ -27,11 +27,10 @@ namespace cass
         enum Converters {pnCCD, REMI, Pulnix, MachineData};
         // Destroy the single FormatConverter instance//
         static void destroy();
-        // Return a pointer to the single FormatConverter instance /
+        // Return a pointer to the single FormatConverter instance//
         static FormatConverter *instance();
-
-    public slots:
-        void processDatagram(cass::CASSEvent*);
+        //function to process a datagram and turn it into a cassevent/
+        bool processDatagram(cass::CASSEvent*);
 
     signals:
         void nextEvent(cass::CASSEvent*);
@@ -47,7 +46,8 @@ namespace cass
         //Singleton operation locker in a multi-threaded environment.//
         static QMutex _mutex;
 
-        static bool          _firsttime;
+        //indicator whether process gets called the firsttime//
+        static bool _firsttime;
     };
 
 }//end namespace cass
