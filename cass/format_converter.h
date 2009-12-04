@@ -11,64 +11,43 @@
 
 namespace cass
 {
-    class EventManager;
-    class EventQueue;
     class ConversionBackend;
 
-    /** @class Format converter container
+    // @class Format converter container
+    //Only one FormatConvert object must exist, therefore this is implemented as a singleton.
+    //@author Jochen Küpper,lmf
+    //@version 0.2
 
-    Only one FormatConvert object must exist, therefore this is implemented as a singleton.
-
-    @author Jochen Küpper
-    @version 0.2
-    */
     class CASSSHARED_EXPORT FormatConverter : public QObject
     {
         Q_OBJECT;
 
     public:
-
-        /** list of known individual format converters */
+        // list of known individual format converters //
         enum Converters {pnCCD, REMI, Pulnix, MachineData};
-
-        /** Destroy the single FormatConverter instance */
+        // Destroy the single FormatConverter instance//
         static void destroy();
-
-        /** Return a pointer to the single FormatConverter instance */
-        static FormatConverter *instance(EventQueue *,EventManager *);
+        // Return a pointer to the single FormatConverter instance /
+        static FormatConverter *instance();
 
     public slots:
-        void processDatagram(quint32 index);
+        void processDatagram(cass::CASSEvent*);
 
     signals:
         void nextEvent(cass::CASSEvent*);
 
     protected:
-
-        /** Constructor */
         FormatConverter();
-
-        /** Destructor */
         ~FormatConverter();
 
-
-
-        /** Available format converters
-
-        Adjust type for superclass of Format converters (ConversionBackend)
-        */
+        // Available format converters
         std::map<Converters, ConversionBackend *> _converter;
-
-        /** pointer to the single instance */
+        // pointer to the single instance //
         static FormatConverter *_instance;
-
-        /** @brief Singleton operation locker in a multi-threaded environment. */
+        //Singleton operation locker in a multi-threaded environment.//
         static QMutex _mutex;
 
-        static EventQueue   *_eventqueue;
-        static EventManager *_eventmanager;
         static bool          _firsttime;
-
     };
 
 }//end namespace cass
