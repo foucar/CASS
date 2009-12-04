@@ -1,24 +1,17 @@
 // Copyright (C) 2009 Jochen Küpper,lmf
-
+//
 #include <iostream>
 #include <QtGui/QApplication>
 
 #include "cass.h"
 #include "analyzer.h"
-#include "event_queue.h"
-#include "event_manager.h"
+#include "sharedmemory_input.h"
+#include "ringbuffer.h"
 #include "format_converter.h"
 #include "database.h"
 #include "ratemeter.h"
 #include "dialog.h"
-
-/*#include "main_window.h"
-#include "TGraph.h"
-#include "TQtWidget.h"
-#include "TCanvas.h"
-#include "TDatime.h"
-#include "TAxis.h"
-#include <QLabel>*/
+#include "worker.h"
 
 
 int main(int argc, char **argv)
@@ -26,54 +19,70 @@ int main(int argc, char **argv)
   // construct Qt application object
   QApplication app(argc, argv);
 
-  // create event queue object
-  cass::EventQueue *input(new cass::EventQueue());
-  // create event manager object
-  cass::EventManager *eventmanager(new cass::EventManager());
-  // create format converter object
-  cass::FormatConverter *conversion(cass::FormatConverter::instance(input,eventmanager));
-  // create analysis object
-  cass::Analyzer *analysis(new cass::Analyzer());
-  // create database object
-  cass::database::Database *database(new cass::database::Database());
-  // create a ratemeter object
-  cass::Ratemeter *ratemeter(new cass::Ratemeter());
-  // create a dialog object
+  //create a container for the partition tag
+  int c;
+  char partitionTag[128];
+
+  //get the partition string
+  while ((c = getopt(argc, argv, "p:")) != -1)
+  {
+    switch (c) 
+    {
+      case 'p':
+        strcpy(partitionTag, optarg);
+        break;
+      default:
+        std::cout << "please give me a partition tag" <<std::endl;
+        break;
+    }
+  }
+
+
+  //a nonblocking ringbuffer for the cassevents//
+  lmf::RingBuffer<cass::CASSEvent,4> ringbuffer;
+  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
+  // create shared memory input object //
+  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer));
+  // create a worker//
+  cass::Worker *worker(new cass::Worker(ringbuffer));
+  // create a ratemeter object for the input//
+  cass::Ratemeter *inputrate(new cass::Ratemeter());
+  // create a ratemeter object for the worker//
+  cass::Ratemeter *workerrate(new cass::Ratemeter());
+  // create a dialog object //
   cass::Window * window(new cass::Window());
 
-  // connect the objects
-  QObject::connect (input, SIGNAL(nextEvent(quint32)), conversion, SLOT(processDatagram(quint32)));
-  QObject::connect (conversion, SIGNAL(nextEvent(cass::CASSEvent*)), analysis, SLOT(processEvent(cass::CASSEvent*)));
-  QObject::connect (analysis, SIGNAL(nextEvent(cass::CASSEvent*)), database, SLOT(add(cass::CASSEvent*)));
-  QObject::connect (database, SIGNAL(nextEvent()), ratemeter, SLOT(nextEvent()));
+  //conncet ratemeters//
+  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
+  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
+  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
+  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
+
 
   // connect controls
-  QObject::connect (window, SIGNAL (load()), analysis, SLOT(loadSettings()));
-  QObject::connect (window, SIGNAL (save()), analysis, SLOT(saveSettings()));
-  QObject::connect (window, SIGNAL (load()), database, SLOT(loadSettings()));
-  QObject::connect (window, SIGNAL (save()), database, SLOT(saveSettings()));
-  QObject::connect (window, SIGNAL (start()), input, SLOT(start()));
+  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
+  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
   QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
+  QObject::connect (window, SIGNAL (close()), input, SLOT(end()));
 
   // when the thread has finished, we want to close this application
-  QObject::connect(input, SIGNAL(finished()), window, SLOT(close()));
+  QObject::connect(input, SIGNAL(finished()), worker, SLOT(end()));
+  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
 
   //show dialog//
   window->show();
 
-  // start input thread
+  // start input and worker thread
   input->start();
+  worker->start();
 
   // start Qt event loop
   int retval(app.exec());
 
   // clean up
   delete window;
-  delete ratemeter;
-  delete database;
-  delete analysis;
-  cass::FormatConverter::destroy();
-  delete eventmanager;
+  delete workerrate;
+  delete inputrate;
   delete input;
 
   // finish

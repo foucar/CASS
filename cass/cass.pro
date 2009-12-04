@@ -26,18 +26,18 @@ exists ($$incFile) {
 
 SOURCES +=  cass.cpp \
             analyzer.cpp \
-            event_queue.cpp \
+            sharedmemory_input.cpp \
             format_converter.cpp \
             cass_event.cpp \
             xtciterator.cpp \
             ratemeter.cpp \
             dialog.cpp \
-            event_manager.cpp
+            worker.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
             conversion_backend.h \
-            event_queue.h \
+            sharedmemory_input.h \
             format_converter.h \
             cass.h \
             cass_event.h \
@@ -45,7 +45,8 @@ HEADERS +=  analysis_backend.h \
             parameter_backend.h \
             ratemeter.h \
             dialog.h \
-            event_manager.h
+            ringbuffer.h \
+            worker.h
 
 INCLUDEPATH +=  ./ \
                 $$(LCLSSYSINCLUDE) \
@@ -65,9 +66,6 @@ INCLUDEPATH +=  ./ \
                 ../cass_machinedata \
                 ../cass_machinedata/classes/event \
                 ../cass_database
-#\
-#                ../cass_root \
-#                ../diode
 
 
 win32:debug{

@@ -6,6 +6,8 @@
 cass::Window::Window()
 {
     statusLabel = new QLabel;
+    inputRateLabel = new QLabel;
+    processRateLabel = new QLabel;
 
     loadButton = new QPushButton(tr("Load Settings"));
     saveButton = new QPushButton(tr("Save Settings"));
@@ -15,6 +17,8 @@ cass::Window::Window()
     quitButton->setAutoDefault(false);
 
     statusLabel->setText(tr("load / save CASS Settings"));
+    updateInputRate(0);
+    updateProcessRate(0);
 
     connect(quitButton, SIGNAL(clicked()), this, SIGNAL(quit()));
     connect(loadButton, SIGNAL(clicked()), this, SIGNAL(load()));
@@ -31,8 +35,20 @@ cass::Window::Window()
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(statusLabel);
+    mainLayout->addWidget(inputRateLabel);
+    mainLayout->addWidget(processRateLabel);
     mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 
     setWindowTitle(tr("CASS"));
+}
+
+void cass::Window::updateInputRate(double rate)
+{
+  inputRateLabel->setText(tr("Input: %1 Hz").arg(rate));
+}
+
+void cass::Window::updateProcessRate(double rate)
+{
+  processRateLabel->setText(tr("Input: %1 Hz").arg(rate));
 }

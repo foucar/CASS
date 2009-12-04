@@ -10,25 +10,31 @@ class QPushButton;
 
 namespace cass
 {
-    class Window : public QWidget
-    {
-        Q_OBJECT
+  class Window : public QWidget
+  {
+    Q_OBJECT
 
     public:
-        Window();
+      Window();
 
     signals:
-        void start();
-        void load();
-        void save();
-        void quit();
+      void start();
+      void load();
+      void save();
+      void quit();
+        
+    public slots:
+      void updateInputRate(double);
+      void updateProcessRate(double);
 
     private:
-        QLabel      *statusLabel;
-        QPushButton *loadButton;
-        QPushButton *saveButton;
-        QPushButton *quitButton;
-        QPushButton *startButton;
-    };
+      QLabel      *statusLabel;
+      QLabel      *inputRateLabel;
+      QLabel      *processRateLabel;
+      QPushButton *loadButton;
+      QPushButton *saveButton;
+      QPushButton *quitButton;
+      QPushButton *startButton;
+  };
 }
 #endif

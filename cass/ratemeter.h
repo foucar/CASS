@@ -6,21 +6,24 @@
 
 namespace cass
 {
-    class Ratemeter : public QObject
-    {
-        Q_OBJECT;
+  class Ratemeter : public QObject
+  {
+    Q_OBJECT;
 
     public:
-        Ratemeter();
-        ~Ratemeter();
+      Ratemeter();
+      ~Ratemeter();
+
+    signals:
+      void rate(double);
 
     public slots:
-        void nextEvent();
+      void count();
 
     private:
-        QTime* time;
-        size_t counter;
-    };
+      QTime* time;
+      size_t counter;
+  };
 }
 
 #endif // RATEMETER_H
