@@ -125,10 +125,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 
       //iterate through the datagram and find the wanted information//
       XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
-std::cout << "before"<<std::endl;
       iter.iterate();
-std::cout << "after"<<std::endl;
-
     }
   }
   return retval;
