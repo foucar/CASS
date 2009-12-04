@@ -21,10 +21,10 @@ bool cass::FormatConverter::_firsttime(true);
 cass::FormatConverter::FormatConverter()
 {
   // create all the necessary individual format converters
-  _converter[REMI]        = new REMI::Converter();
-  _converter[Pulnix]      = new VMI::Converter();
-  _converter[pnCCD]       = new pnCCD::Converter();
-  _converter[MachineData] = new MachineData::Converter();
+//  _converter[REMI]        = new REMI::Converter();
+//  _converter[Pulnix]      = new VMI::Converter();
+//  _converter[pnCCD]       = new pnCCD::Converter();
+//  _converter[MachineData] = new MachineData::Converter();
 }
 
 cass::FormatConverter::~FormatConverter()
