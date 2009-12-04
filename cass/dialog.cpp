@@ -45,10 +45,10 @@ cass::Window::Window()
 
 void cass::Window::updateInputRate(double rate)
 {
-  inputRateLabel->setText(tr("Input: %1 Hz").arg(rate));
+  inputRateLabel->setText(tr("Input Rate: %1 Hz").arg(rate));
 }
 
 void cass::Window::updateProcessRate(double rate)
 {
-  processRateLabel->setText(tr("Process: %1 Hz").arg(rate));
+  processRateLabel->setText(tr("Process Rate: %1 Hz").arg(rate));
 }

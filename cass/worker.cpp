@@ -41,10 +41,10 @@ void cass::Worker::run()
       const bool shouldBeAnalyzed  = _converter->processDatagram(cassevent);
 
       //when the formatconverter told us, then analyze the cassevent//
-      if (shouldBeAnalyzed) _analyzer->processEvent(cassevent);
+//      if (shouldBeAnalyzed) _analyzer->processEvent(cassevent);
 
       //here the usercode that will work on the cassevent will be called//
-      if (shouldBeAnalyzed) _database->add(cassevent);
+//      if (shouldBeAnalyzed) _database->add(cassevent);
 
       //we are done, so tell the ringbuffer//
       _ringbuffer.doneProcessing(cassevent);

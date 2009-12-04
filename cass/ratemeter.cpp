@@ -21,7 +21,7 @@ void cass::Ratemeter::count()
   if (counter%10 == 0 && counter != 0)
   {
 //    std::cout<< "it took  "<< time->elapsed() <<" ms to analyze 10 events"<<std::endl;
-    double r = 1. / static_cast<double>(time->elapsed()) / 100.;
+    double r = 10000. / static_cast<double>(time->elapsed());
     emit rate(r);
     time->restart();
   }
