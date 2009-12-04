@@ -14,64 +14,55 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 
-namespace cass
+// define static members
+cass::FormatConverter *cass::FormatConverter::_instance(0);
+QMutex cass::FormatConverter::_mutex;
+bool cass::FormatConverter::_firsttime(true);
+
+
+cass::FormatConverter::cass::FormatConverter()
 {
+  // create all the necessary individual format converters
+  _converter[REMI]        = new REMI::Converter();
+  _converter[Pulnix]      = new VMI::Converter();
+  _converter[pnCCD]       = new pnCCD::Converter();
+  _converter[MachineData] = new MachineData::Converter();
+}
 
-  // define static members
-  FormatConverter *FormatConverter::_instance(0);
-  QMutex FormatConverter::_mutex;
-  EventQueue *FormatConverter::_eventqueue(0);
-  EventManager *FormatConverter::_eventmanager(0);
-  bool FormatConverter::_firsttime(true);
-
-
-  FormatConverter::FormatConverter()
-  {
-    // create all the necessary individual format converters
-    _converter[REMI]        = new REMI::Converter();
-    _converter[Pulnix]      = new VMI::Converter();
-    _converter[pnCCD]       = new pnCCD::Converter();
-    _converter[MachineData] = new MachineData::Converter();
-  }
+cass::FormatConverter::~cass::FormatConverter()
+{
+  // destruct all the individual format converters
+  for (std::map<Converters, ConversionBackend *>::iterator it=_converter.begin() ; it != _converter.end(); ++it )
+    delete (it->second);
+}
 
 
 
-  FormatConverter::~FormatConverter()
-  {
-    // destruct all the individual format converters
-    for (std::map<Converters, ConversionBackend *>::iterator it=_converter.begin() ; it != _converter.end(); ++it )
-      delete (it->second);
-  }
+void cass::FormatConverter::destroy()
+{
+  QMutexLocker locker(&_mutex);
+  delete _instance;
+  _instance = 0;
+}
+
+
+cass::FormatConverter *cass::FormatConverter::instance(EventQueue* eventqueue, EventManager* eventmanager)
+{
+  QMutexLocker locker(&_mutex);
+  _eventqueue   = eventqueue;
+  _eventmanager = eventmanager;
+  _firsttime    = true;
+  if(0 == _instance)
+    _instance = new FormatConverter();
+  return _instance;
+}
 
 
 
-  void FormatConverter::destroy()
-  {
-    QMutexLocker locker(&_mutex);
-    delete _instance;
-    _instance = 0;
-  }
-
-
-  FormatConverter *FormatConverter::instance(EventQueue* eventqueue, EventManager* eventmanager)
-  {
-    QMutexLocker locker(&_mutex);
-    _eventqueue   = eventqueue;
-    _eventmanager = eventmanager;
-    _firsttime    = true;
-    if(0 == _instance)
-      _instance = new FormatConverter();
-    return _instance;
-  }
-
-
-
-  //this slot is called once the eventqueue has new data available//
-  void FormatConverter::processDatagram(uint32_t index)
-  {
-    //retrieve the Datagram with given index from the eventqueue//
-    //this will automaticly lock this section of the ringbuffer//
-    Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
+//this slot is called once the eventqueue has new data available//
+void cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
+{
+  Pds::Dgram * datagram = _eventqueue->GetAndLockDatagram(index);
 
     // do some debug output
 //    std::cout<<"eventqueue index: "<<std::dec<<index<<" transition: "<<Pds::TransitionId::name(datagram->seq.service());
@@ -156,8 +147,6 @@ namespace cass
     //unlock the datagram//
     _eventqueue->UnlockDatagram(index);
   }
-
-}
 
 
 
