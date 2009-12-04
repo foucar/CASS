@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
   QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
   QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
-  QObject::connect (window, SIGNAL (close()), input, SLOT(end()));
+//  QObject::connect (window, SIGNAL (close()), input, SLOT(end()));
 
   // when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), worker, SLOT(end()));

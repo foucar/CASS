@@ -46,6 +46,5 @@ void cass::Analyzer::saveSettings()
     //iterate through all analyzers and load the settings of them//
     for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
         it->second->saveSettings();
-    //cass::database::Database::saveSettings();
 }
 
