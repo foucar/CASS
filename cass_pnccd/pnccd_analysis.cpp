@@ -25,15 +25,15 @@ void cass::pnCCD::Parameter::load()
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
-      //the rebin factors for the detector//
-      _rebinfactors.push_back(value("RebinFactor",1).toUInt());
-      //the positions of the darkframe calibration data for the detectors//
-      _darkcal_fnames.push_back(
-          value("DarkCalibrationFilePath","darkcal.darkcal").toString().toStdString());
-      //the multiplier for the noise//
-      _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
-      //the conversion factor for adu's to eV//
-      _adu2eV.push_back(value("Adu2eV",1).toDouble());
+    //the rebin factors for the detector//
+    _rebinfactors.push_back(value("RebinFactor",1).toUInt());
+    //the positions of the darkframe calibration data for the detectors//
+    _darkcal_fnames.push_back(
+        value("DarkCalibrationFilePath","darkcal.darkcal").toString().toStdString());
+    //the multiplier for the noise//
+    _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
+    //the conversion factor for adu's to eV//
+    _adu2eV.push_back(value("Adu2eV",1).toDouble());
     endGroup();
   }
 
@@ -49,10 +49,10 @@ void cass::pnCCD::Parameter::save()
   for (size_t iDet=0; iDet<_rebinfactors.size(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
-      setValue("RebinFactor",_rebinfactors[iDet]);
-      setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
-      setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
-      setValue("Adu2eV",_adu2eV[iDet]);
+    setValue("RebinFactor",_rebinfactors[iDet]);
+    setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
+    setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
+    setValue("Adu2eV",_adu2eV[iDet]);
     endGroup();
   }
 }
@@ -80,7 +80,7 @@ cass::pnCCD::Analysis::Analysis(void)
 //------------------------------------------------------------------------------
 cass::pnCCD::Analysis::~Analysis()
 {
-/*  for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
+  /*  for(size_t i=0; i<_pnccd_analyzer.size(); i++ )
     delete _pnccd_analyzer[i];
       _pnccd_analyzer.clear();*/
 }
@@ -93,7 +93,7 @@ void cass::pnCCD::Analysis::loadSettings()
   // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_pnccd_analyzer.size() ;++i)
   {
-//    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+    //    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
     ifstream in(_param._darkcal_fnames[i].c_str(), std::ios::binary|std::ios::ate);
     if (in.is_open())
     {
@@ -119,9 +119,11 @@ void cass::pnCCD::Analysis::saveSettings()
   //now save the noise and the offset vectors to the designated files//
   for (size_t i=0; i<_pnccd_analyzer.size() ; ++i)
   {
+    //create a output file//
     ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
     if (out.is_open())
     {
+      //write the parameters to the file//
       out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
       out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
     }
@@ -163,21 +165,21 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     saveSettings();
   }
 
-  //check if we have enough analyzers for the amount of detectors//
-  //increase it if necessary
-//   if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
-//   {
-//     //remember the size the analyzer container had before//
-//     const size_t before = _pnccd_analyzer.size();
-//     //resize to fit the new size//
-//     _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
-//     //initialize the new right darkframe//
-//     for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
-//     {
-//       _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
-//       _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
-//     }
-//   }
+  //   //check if we have enough analyzers for the amount of detectors//
+  //   //increase it if necessary
+  //   if(pnccdevent.detectors().size() > _pnccd_analyzer.size())
+  //   {
+  //     //remember the size the analyzer container had before//
+  //     const size_t before = _pnccd_analyzer.size();
+  //     //resize to fit the new size//
+  //     _pnccd_analyzer.resize(pnccdevent.detectors().size(),0);
+  //     //initialize the new right darkframe//
+  //     for (size_t i=before; i<_pnccd_analyzer.size() ;++i)
+  //     {
+  //       _pnccd_analyzer[i] = new pnCCDFrameAnalysis();
+  //       _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+  //     }
+  //   }
 
   //go through all detectors//
   for (size_t iDet=0; iDet<pnccdevent.detectors().size();++iDet)
@@ -185,7 +187,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
     //retrieve a reference to the corrected frame of the detector//
-    cass::pnCCD::pnCCDDetector::unsignedframe_t &cf = det.correctedFrame();
+    cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
     //retrieve a reference to the raw frame of the detector//
     const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
     //retrieve a reference to the nonrecombined photon hits of the detector//
@@ -200,8 +202,10 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     const double &sigmaMultiplier = _param._sigmaMultiplier[iDet];
     //retrieve a reference to the conversionfactor from "adu" to eV of the noise//
     const double &adu2eV = _param._adu2eV[iDet];
+    //retrieve a reference to the rebinfactor of this detector//
+    uint32_t &rebinfactor = _param._rebinfactors[iDet];
 
-//     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
+    //     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
 
     //if the size of the rawframe is 0, this detector with this id is not in the datastream//
     //so we are not going to anlyse this detector further//
@@ -222,10 +226,14 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //to find out whether there was light in the chamber we test to see a signal//
     //on one of the acqiris channels idealy on the intensity monitor signal//
     //create the offset and noise vector//
-    if (/*true*/ cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
+    //check wether the light indicator channel is present//
+    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
     {
-        if (/*true*/cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size())
+      //check if in the light indicator channel is at least one signal//
+      //this proves that there was light in the chamber//
+      if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().empty())
       {
+        //add this frame to the offset and noise vectors
         std::vector<double>::iterator itOffset = offset.begin();
         std::vector<double>::iterator itNoise = noise.begin();
         cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
@@ -238,12 +246,6 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       }
     }
 
-    if(nDarkframes>0) printf("dark frame seen %u\n",nDarkframes);
-    /*    uint16_t one1=16;
-    uint16_t one2=15;
-    uint16_t result=(one1-one2);
-    printf("this test %u\n",result);*/
-
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
     if (nDarkframes > 1)
@@ -251,14 +253,14 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise  = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
-      cass::pnCCD::pnCCDDetector::unsignedframe_t::iterator itCorFrame = cf.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
       {
-	//statistics//
+        //statistics//
         const double mean =  *itOffset / nDarkframes;
-        const double meansquared =  mean * mean;
-        const double sumofsquare = *itNoise;
-        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
+//        const double meansquared =  mean * mean;
+//        const double sumofsquare = *itNoise;
+//        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
         //remove the offset of the frame and copy it into the corrected frame//
         //*itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
         // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
@@ -266,7 +268,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
         if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
         else *itCorFrame=0;
         //find out whether this pixel is a photon hit//
-        if (*itCorFrame > (sigmaMultiplier * sigma) )
+        /*if (*itCorFrame > (sigmaMultiplier * sigma) )
         {
           //create a photon hit//
           cass::pnCCD::PhotonHit ph;
@@ -276,35 +278,38 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
           ph.energy()    = ph.amplitude() * adu2eV;
           //add it to the vector of photon hits//
           phs.push_back(ph);
-        }
+        }*/
       }
     }
-    //do the "massaging" of the detector//
-    //and find the photon hits//
-//    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
-    if (true)
-    {
-      //NC the following is increadibly slow...
-      //maybe we could shift it downwards, to have a "downsized copy"
 
-      //if nothing was done then rearrange the frame to the right geometry//
-      //go through the complete frame and copy the first row to the first row//
-      //and the next row to the last row and so on//
-      size_t sourceindex=0;
-      for (size_t i=0; i<nRows/2 ;++i)
-      {
-        memcpy(&cf[i*nCols],
-              &rf[sourceindex*nCols],
-              1024*sizeof(int16_t));
-        ++sourceindex;
-        memcpy(&cf[(nCols-1-i)*nCols],
-              &rf[sourceindex*nCols],
-              1024*sizeof(int16_t));
-        ++sourceindex;
-      }
-    }
-    else 
-      det.calibrated()=true;
+
+    //the rearrangement has been moved to the converter//
+//    //do the munich "massaging" of the detector//
+//    //and find the photon hits/
+////    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
+//    if (true)
+//    {
+//      //NC the following is increadibly slow...
+//      //maybe we could shift it downwards, to have a "downsized copy"
+//
+//      //if nothing was done then rearrange the frame to the right geometry//
+//      //go through the complete frame and copy the first row to the first row//
+//      //and the next row to the last row and so on//
+//      size_t sourceindex=0;
+//      for (size_t i=0; i<nRows/2 ;++i)
+//      {
+//        memcpy(&cf[i*nCols],
+//               &rf[sourceindex*nCols],
+//               1024*sizeof(int16_t));
+//        ++sourceindex;
+//        memcpy(&cf[(nCols-1-i)*nCols],
+//               &rf[sourceindex*nCols],
+//               1024*sizeof(int16_t));
+//        ++sourceindex;
+//      }
+//    }
+//    else
+//      det.calibrated()=true;
 
     
     //calc the integral (the sum of all bins)//
@@ -312,109 +317,75 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
       det.integral() += cf[iInt];
 
-    //test do not delete
-    /*#ifdef test
-    for(size_t iCol=0; iCol<nCols ;++iCol)
-    {
-      for(size_t iRow=0; iRow<nRows ;iRow++)
-      {
-        cf[(iCol) *nRows+(iRow) ]= ((iCol)*nRows+(iRow))&0x3FFF;
-      }
-    }
-    #endif*/
 
     //rebin image frame if requested//
-    if (_param._rebinfactors[iDet] != 1)
+    if (rebinfactor != 1)
     {
       //if the rebinfactor doesn't fit the original dimensions//
       //checks wether rebinfactor is of power of 2//
       //look for the next smaller number that is a power of 2//
-      if(nRows%_param._rebinfactors[iDet] != 0)
+      if(nRows % rebinfactor != 0)
       {
-        _param._rebinfactors[iDet] = static_cast<uint32_t>(pow(2,int(log2(_param._rebinfactors[iDet]))));
-/*        double res_tes= static_cast<double>(_param._rebinfactors[iDet]);
-        res_tes = log(res_tes)/0.693;
-        res_tes = floor(res_tes);
-        _param._rebinfactors[iDet] = static_cast<UInt_t>(pow(2. , res_tes ));*/
+        rebinfactor = static_cast<uint32_t>(pow(2,int(log2(rebinfactor))));
         saveSettings();
       }
-       //get the new dimensions//
-       const size_t newRows = nRows / _param._rebinfactors[iDet];
-       const size_t newCols = nCols / _param._rebinfactors[iDet];
-       //set the new dimensions in the detector//
-       det.rows()    = newRows;
-       det.columns() = newCols;
-       //resize the temporary container to fit the rebinned image
-       //initialize it with 0
-       _tmp.assign(newRows * newCols,0);
-//       //go through the whole frame//
-//       //and do the magic work//
-//       for(size_t iCol=0; iCol<newCols ;++iCol)
-//       {
-//         for(size_t iRow=0; iRow<newRows ;iRow++)
-//         {
-//           /* the following works only for rebin=2
-//           _tmp[iCol*newCols+iRow]=  // actually is newRows
-//               cf[iCol    *nCols+ iRow   ]+
-//               cf[iCol    *nCols+(iRow+1)]+
-//               cf[(iCol+1)*nCols+ iRow   ]+
-//               cf[(iCol+1)*nCols+(iRow+1)];*/
-// 
-//           for(size_t iReby=0;iReby<_param._rebinfactors[iDet];iReby++)
-//           {
-//             for(size_t iRebx=0;iRebx<_param._rebinfactors[iDet];iRebx++)
-//             {
-//               _tmp[iCol+newCols*iRow]+=
-//                   cf[(iCol*_param._rebinfactors[iDet] +iReby ) +nCols*(iRow*_param._rebinfactors[iDet] +iRebx)  ];
-//             }
-//           }
-//         }
-//       }
+      //get the new dimensions//
+      const size_t newRows = nRows / rebinfactor;
+      const size_t newCols = nCols / rebinfactor;
+      //set the new dimensions in the detector//
+      det.rows()    = newRows;
+      det.columns() = newCols;
+      //resize the temporary container to fit the rebinned image
+      //initialize it with 0
+      _tmp.assign(newRows * newCols,0);
 
-        //another way//
-        for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
-        {
-          //calculate the row and column of the current Index//
-          const size_t row = iIdx / nCols;
-          const size_t col = iIdx % nCols;
-          //calculate the index of the rebinned frame//
-          const size_t newRow = row / _param._rebinfactors[iDet];
-          const size_t newCol = col / _param._rebinfactors[iDet];
-          //calculate the index in the rebinned frame//
-          //that newRow and newCol belongs to//
-          const size_t newIndex = newRow*newCols + newCol;
-          //add this index value to the newIndex value//
-          //_tmp[newIndex] += cf[iIdx];
-          // the previous line has gives problem with overflow
-          // that is even worse with the use of int instead of uint...
+      //go through the whole corrected frame//
+      for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
+      {
+        //calculate the row and column of the current Index//
+        const size_t row = iIdx / nCols;
+        const size_t col = iIdx % nCols;
+        //calculate the index of the rebinned frame//
+        const size_t newRow = row / rebinfactor;
+        const size_t newCol = col / rebinfactor;
+        //calculate the index in the rebinned frame//
+        //that newRow and newCol belongs to//
+        const size_t newIndex = newRow*newCols + newCol;
+        //add this index value to the newIndex value//
+        _tmp[newIndex] += cf[iIdx];
 
-          // instead of doing the prev line, I could:
-#ifdef signedframeonly
+        /*// instead of doing the prev line, I could:
+          #ifdef signedframeonly
           // "stop" at 32k
           // do not add if already over max allowed
           int16_t temp_sum=_tmp[newIndex] + cf[iIdx];
-          if( temp_sum > 0) 
+          if( temp_sum > 0)
           {
               _tmp[newIndex] = temp_sum;
           }
           else _tmp[newIndex]=0x7FFF;
-#endif
+          #endif
           uint32_t temp_sum=static_cast<uint32_t>(_tmp[newIndex] + cf[iIdx]);
-          if( temp_sum < 0xFFFF) 
+          if( temp_sum < 0xFFFF)
           {
               _tmp[newIndex] = static_cast<uint16_t>(temp_sum);
           }
           else _tmp[newIndex]=0xFFFF;
 
-//          if(_tmp[newIndex]<0) std::cout << _tmp[newIndex] << " ";
+          //if(_tmp[newIndex]<0) std::cout << _tmp[newIndex] << " ";
           // "invent" some math
           //_tmp[newIndex] += cf[iIdx];
-          //if( _tmp[newIndex] & 0x8000 ) _tmp[newIndex]=0x7FFF;
-        }
-
-      //copy the temporary frame to the right place
-      cf.assign(_tmp.begin(), _tmp.end());
-//      std::cout<<std::endl;
+          //if( _tmp[newIndex] & 0x8000 ) _tmp[newIndex]=0x7FFF;*/
+      }
+      //make the correctedframe the right size//
+      cf.resize(newRows*newCols);
+      //copy the tempframe to the corrected frame//
+      //make sure that each pixel is scaled to avoid//
+      //decreasing the dynamic range//
+      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+        *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
     }
   }
 }

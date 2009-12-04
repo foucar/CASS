@@ -84,7 +84,8 @@ namespace cass
       // The frame analysis object:
       std::vector<pnCCDFrameAnalysis *> _pnccd_analyzer;
       //temporary storage for rebinning frames//
-      std::vector<int16_t> _tmp;
+      //!!! this is not thread safe if this is a singleton//
+      std::vector<uint64_t> _tmp;
     };
 
 

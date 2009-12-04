@@ -55,18 +55,18 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
 
-      //std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
+//      std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
       //if necessary resize the detector container//
       if (detectorId >= pnccdevent.detectors().size())
         pnccdevent.detectors().resize(detectorId+1);
-      //std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
 
       //only run this if we have a config for this detector
-      if (_pnccdConfig.size() >= detectorId && _pnccdConfig[detectorId])
+      if (_pnccdConfig.size() > detectorId)
+      if (_pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
- //       std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<< pnccdevent.detectors().size() <<std::endl;
+//        std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<< pnccdevent.detectors().size() <<std::endl;
 
         //get the pointer to the config for this detector//
         Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
@@ -99,14 +99,30 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         const size_t rowsOfSegment = det.rows() / 2;
         const size_t columnsOfSegment = det.columns() / 2;
 
-
         //go through each row of each element and align the data that it is//
         //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
         //create a iterator for the raw frame//
         cass::pnCCD::pnCCDDetector::frame_t::iterator it = det.rawFrame().begin();
-        for (size_t iRow = 0; iRow<rowsOfSegment; ++iRow)
+//        for (size_t iRow = 0; iRow<rowsOfSegment; ++iRow)
+//        {
+//          for (size_t iSegment = 0; iSegment<NbrOfSegments; ++iSegment)
+//          {
+//            //copy the row of this segment//
+//            std::copy(datapointers[iSegment],
+//                      datapointers[iSegment] + columnsOfSegment,
+//                      it);
+//            //advance the iterators by size of columns of one segment//
+//            it += columnsOfSegment;
+//            datapointers[iSegment] += columnsOfSegment;
+//          }
+//        }
+        //for now we might want to do the reordering of the segments and
+        //reallignment of the nils stuff here
+        //go through the all rows of the first two segments and //
+        //do first row , first row, second row , second row ...//
+        for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
-          for (size_t iSegment = 0; iSegment<NbrOfSegments; ++iSegment)
+          for (size_t iSegment=0; iSegment<NbrOfSegments/2 ; ++iSegment)
           {
             //copy the row of this segment//
             std::copy(datapointers[iSegment],
@@ -117,8 +133,24 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
             datapointers[iSegment] += columnsOfSegment;
           }
         }
-//        std::cout<<det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<< std::endl;
-//        std::cout<<detectorId << " " <<  det.rawFrame().size() << " " << det.correctedFrame().size()<< std::endl;
+        //go through the all rows of the next two segments and //
+        //do last row , last row, last row -1 , last row -1 ...//
+        //therefore we need to adjust the datapointers of the last two segments//
+        for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
+          datapointers[iSegment] += ((rowsOfSegment-1)*columnsOfSegment);
+        for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+        {
+          for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
+          {
+            //copy the row of this segment//
+            std::copy(datapointers[iSegment],
+                      datapointers[iSegment] + columnsOfSegment,
+                      it);
+            //advance the iterators by size of columns of one segment//
+            it += columnsOfSegment;
+            datapointers[iSegment] -= columnsOfSegment;
+          }
+        }
       }
     }
     break;
