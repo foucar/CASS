@@ -16,6 +16,9 @@ cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,4> &ringbuffer, QObject *pa
 
 cass::Worker::~Worker()
 {
+  delete _database;
+  _converter->destroy();
+  delete _analyzer;
 }
 
 void cass::Worker::end()
