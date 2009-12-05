@@ -60,6 +60,7 @@ namespace Pds {
       const int16_t* waveform()const;
       uint32_t indexFirstPoint()const;
       double gain()const {return _vGain;}
+      double offset()const {return _vOffset;}
       DataDescV1* nextChannel(const HorizV1& hconfig);
       DataDescV1* nextChannel();
 
