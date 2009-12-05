@@ -44,7 +44,7 @@ void cass::Worker::run()
       if (shouldBeAnalyzed) _analyzer->processEvent(cassevent);
 
       //here the usercode that will work on the cassevent will be called//
-//      if (shouldBeAnalyzed) _database->add(cassevent);
+      if (shouldBeAnalyzed) _database->add(cassevent);
 
       //we are done, so tell the ringbuffer//
       _ringbuffer.doneProcessing(cassevent);

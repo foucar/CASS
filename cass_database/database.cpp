@@ -98,7 +98,7 @@ cass::database::Database::Database()
     gROOT->cd();
     T= new TTree("T","circ buffer");
 
-    mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 500000000, "");
+    mapfile = TMapFile::Create(Tmap_filename,"RECREATE", 800000000, "");
     mapfile->Add(T,"T");
     //mapfile->Print();
     //mapfile->ls();
