@@ -6,7 +6,7 @@
  *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
  * filled with live by lmf
  */
-
+#include <iostream>
 #include "vmi_analysis.h"
 #include "cass_event.h"
 #include "vmi_event.h"

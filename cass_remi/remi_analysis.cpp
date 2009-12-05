@@ -230,6 +230,7 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::REMI::WaveformAnalyzer::WaveformAnalyzerTypes type =
           static_cast<cass::REMI::WaveformAnalyzer::WaveformAnalyzerTypes>(remievent.channels()[i].type());
       _waveformanalyzer[type]->analyze(remievent.channels()[i], remievent.sampleInterval());
+      std::cout << "found " <<remievent.channels()[i].peaks().size()<<" peaks in channel "<<i<<std::endl;
     }
 
     //extract the peaks for the layers//

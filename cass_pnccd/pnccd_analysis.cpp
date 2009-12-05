@@ -205,7 +205,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the rebinfactor of this detector//
     uint32_t &rebinfactor = _param._rebinfactors[iDet];
 
-    //     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
+//     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
 
     //if the size of the rawframe is 0, this detector with this id is not in the datastream//
     //so we are not going to anlyse this detector further//

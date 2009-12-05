@@ -23,15 +23,12 @@ namespace cass
         ~Analyzer();
 
         /** list of known individual analyzers */
-        enum Analyzers {pnCCD, REMI, VMI, MachineData};
+        enum Analyzers {REMI, VMI, MachineData, pnCCD};
 
     public slots:
         void processEvent(cass::CASSEvent*);
         void saveSettings();
         void loadSettings();
-
-    signals:
-        void nextEvent(cass::CASSEvent*);
 
     protected:
         std::map<Analyzers, AnalysisBackend*> _analyzer;

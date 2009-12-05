@@ -2,6 +2,7 @@
 #include "analyzer.h"
 #include "format_converter.h"
 #include "database.h"
+#include "remi_event.h"
 
 cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,4> &ringbuffer, QObject *parent)
   :QThread(parent),

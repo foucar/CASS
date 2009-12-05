@@ -1,6 +1,7 @@
 /*
  *  lmf
  */
+#include <iostream>
 
 #include "machine_analysis.h"
 #include "cass_event.h"
