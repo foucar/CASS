@@ -104,6 +104,8 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
             remievent.channels()[ic].gain() = ddesc.gain()*1000;
             //extact the horizontal position of the first point with respect to the trigger//
             remievent.channels()[ic].horpos() = ddesc.timestamp(0).horPos();
+            //extact the vertical Offset //
+            remievent.channels()[ic].horpos() = static_cast<int16_t>(ddesc.offset()*1000.);
             //extract waveform//
             const short* waveform = ddesc.waveform();
             //we need to shift the pointer so that it looks at the first real point of the waveform//
