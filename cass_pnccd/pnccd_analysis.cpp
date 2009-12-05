@@ -91,12 +91,14 @@ void cass::pnCCD::Analysis::loadSettings()
   //load the settings
   _param.load();
   // Set the dark calibration data in the new analysis instance//
-  for(size_t i=0; i<_pnccd_analyzer.size() ;++i)
+  for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
   {
     //    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
     ifstream in(_param._darkcal_fnames[i].c_str(), std::ios::binary|std::ios::ate);
+    std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
     if (in.is_open())
     {
+      std::cout <<"file is open"<<std::endl;
       //find big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
       //go to the beginning of the file
@@ -117,12 +119,14 @@ void cass::pnCCD::Analysis::saveSettings()
   //save settings//
   _param.save();
   //now save the noise and the offset vectors to the designated files//
-  for (size_t i=0; i<_pnccd_analyzer.size() ; ++i)
+  for (size_t i=0; i<_param._darkcal_fnames.size() ; ++i)
   {
     //create a output file//
     ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
+    std::cout <<"writing pnccd "<<i<<" to file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
     if (out.is_open())
     {
+      std::cout <<"file is open"<<std::endl;
       //write the parameters to the file//
       out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
       out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
@@ -191,7 +195,7 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the raw frame of the detector//
     const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
     //retrieve a reference to the nonrecombined photon hits of the detector//
-    cass::pnCCD::pnCCDDetector::photonHits_t &phs = det.nonrecombined();
+    //cass::pnCCD::pnCCDDetector::photonHits_t &phs = det.nonrecombined();
     //retrieve a reference to the noise vector of this detector//
     std::vector<double> &noise = _param._noise[iDet];
     //retrieve a reference to the offset of the detector//
@@ -199,9 +203,9 @@ void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
     //retrieve a reference to the number of Darkframes that were taken for this the detector//
     size_t &nDarkframes = _param._nbrDarkframes[iDet];
     //retrieve a reference to the multiplier of the sigma of the noise//
-    const double &sigmaMultiplier = _param._sigmaMultiplier[iDet];
+    //const double &sigmaMultiplier = _param._sigmaMultiplier[iDet];
     //retrieve a reference to the conversionfactor from "adu" to eV of the noise//
-    const double &adu2eV = _param._adu2eV[iDet];
+    //const double &adu2eV = _param._adu2eV[iDet];
     //retrieve a reference to the rebinfactor of this detector//
     uint32_t &rebinfactor = _param._rebinfactors[iDet];
 
