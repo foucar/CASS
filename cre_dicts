@@ -1,6 +1,19 @@
 #!/bin/sh
 thishome=`pwd`
 extention='.h'
+if [ $# -gt 0 ]
+then
+  if [ $1 = 'cleandicts' ]
+  then
+    list=`find . -name \*_dict.cxx`
+    for i in $list
+    do
+      rm -f $i
+    done
+  fi
+fi
+
+
 cd cass_remi/classes/event/peak
 newer peak.h peak_dict.cxx
 if [ $? -eq 0 ]
