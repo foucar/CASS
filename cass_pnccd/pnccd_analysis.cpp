@@ -90,16 +90,19 @@ void cass::pnCCD::Analysis::loadSettings()
 {
   //load the settings
   _param.load();
+  //resize the vector containers to the right size//
+  _param._offsets.resize(_param._darkcal_fnames.size());
+  _param._noise.resize(_param._darkcal_fnames.size());
   // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
   {
-    //    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+//    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+    //open the file that should contain the darkframes//
     ifstream in(_param._darkcal_fnames[i].c_str(), std::ios::binary|std::ios::ate);
-    std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
     if (in.is_open())
     {
-      std::cout <<"file is open"<<std::endl;
-      //find big the vectors have to be//
+      std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
+      //find how big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
       //go to the beginning of the file
       in.seekg(0,std::ios::beg);
@@ -121,21 +124,24 @@ void cass::pnCCD::Analysis::saveSettings()
   //now save the noise and the offset vectors to the designated files//
   for (size_t i=0; i<_param._darkcal_fnames.size() ; ++i)
   {
-    //create a output file//
-    ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
-    std::cout <<"writing pnccd "<<i<<" to file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
-    if (out.is_open())
+    //only if the vectors have some information inside//
+    if (!_param._offsets[i].empty() && !_param._noise[i].empty())
     {
-      std::cout <<"file is open"<<std::endl;
-      //write the parameters to the file//
-      out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
-      out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+      //create a output file//
+      ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
+      if (out.is_open())
+      {
+        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
+        //write the parameters to the file//
+        out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
+        out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+      }
     }
   }
 }
 
 //------------------------------------------------------------------------------
-void cass::pnCCD::Analysis::operator ()(cass::CASSEvent* cassevent)
+void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
   //extract a reference to the pnccdevent in cassevent//
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
