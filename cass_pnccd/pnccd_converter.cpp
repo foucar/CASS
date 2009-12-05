@@ -85,12 +85,13 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         det.rawFrame().resize(FrameSize);
 
         //create a container for pointers to the beginning of the data for all segments//
-        std::vector<const uint16_t*> datapointers(NbrOfSegments,0);
+        std::vector<const uint16_t*> xtcSegmentsPointers(NbrOfSegments,0);
+        std::vector<const uint16_t*> frameSegmentsPointers(NbrOfSegments,0);
         //go through all segments and get the pointers to the beginning//
         for (size_t i=0; i<NbrOfSegments ;++i)
         {
           //pointer to first data element of segment//
-          datapointers[i] = frameSegment->data();
+          xtcSegmentsPointers[i] = frameSegment->data();
           //iterate to the next frame segment//
           frameSegment = frameSegment->next(*pnccdConfig);
         }
@@ -98,6 +99,12 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //calc the Number of Rows and Colums in one Segment//
         const size_t rowsOfSegment = det.rows() / 2;
         const size_t columnsOfSegment = det.columns() / 2;
+
+        //reorient the xtc segements to real frame segments//
+        frameSegmentPointers[0] = xtcSementPointers[0];
+        frameSegmentPointers[1] = xtcSementPointers[1];
+        frameSegmentPointers[2] = xtcSementPointers[2];
+        frameSegmentPointers[3] = xtcSementPointers[3];
 
         //go through each row of each element and align the data that it is//
         //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
@@ -125,12 +132,12 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           for (size_t iSegment=0; iSegment<NbrOfSegments/2 ; ++iSegment)
           {
             //copy the row of this segment//
-            std::copy(datapointers[iSegment],
-                      datapointers[iSegment] + columnsOfSegment,
+            std::copy(frameSegmentPointers[iSegment],
+                      frameSegmentPointers[iSegment] + columnsOfSegment,
                       it);
             //advance the iterators by size of columns of one segment//
             it += columnsOfSegment;
-            datapointers[iSegment] += columnsOfSegment;
+            frameSegmentPointers[iSegment] += columnsOfSegment;
           }
         }
         //go through the all rows of the next two segments and //
@@ -143,12 +150,12 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
           {
             //copy the row of this segment//
-            std::copy(datapointers[iSegment],
-                      datapointers[iSegment] + columnsOfSegment,
+            std::copy(frameSegmentPointers[iSegment],
+                      frameSegmentPointers[iSegment] + columnsOfSegment,
                       it);
             //advance the iterators by size of columns of one segment//
             it += columnsOfSegment;
-            datapointers[iSegment] -= columnsOfSegment;
+            frameSegmentPointers[iSegment] -= columnsOfSegment;
           }
         }
       }
