@@ -128,6 +128,8 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       iter.iterate();
     }
   }
+  else
+    std::cout <<std::hex<< "datagram is damaged: 0x" <<datagram->xtc.damage.value()<<std::dec<<std::endl;
   return retval;
 }
 

@@ -50,8 +50,8 @@ void cass::Worker::run()
       //we are done, so tell the ringbuffer//
       _ringbuffer.doneProcessing(cassevent);
 
-      //tell outside that we are done//
-      emit processedEvent();
+      //tell outside that we are done, when we should have anlyzed the event//
+      if (shouldBeAnalyzed) emit processedEvent();
     }
   }
   std::cout <<"worker is closing down"<<std::endl;

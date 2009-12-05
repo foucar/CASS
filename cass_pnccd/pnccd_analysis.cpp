@@ -243,7 +243,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //this proves that there was light in the chamber//
       if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().empty())
       {
-        std::cout << "it's a darkframe"<<std::endl;
         //add this frame to the offset and noise vectors
         std::vector<double>::iterator itOffset = offset.begin();
         std::vector<double>::iterator itNoise = noise.begin();
@@ -255,15 +254,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         }
         ++nDarkframes;
       }
-      else
-        std::cout << "there is light "<<cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().size()<<std::endl;
     }
 
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
     if (nDarkframes > 1)
     {
-      std::cout <<"we fill the corrected frame"<<std::endl;
+      //std::cout <<"we fill the corrected frame"<<std::endl;
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise  = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
