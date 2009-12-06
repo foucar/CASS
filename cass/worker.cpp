@@ -7,7 +7,7 @@
 cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,4> &ringbuffer, QObject *parent)
   :QThread(parent),
     _ringbuffer(ringbuffer),
-    _analyzer(new cass::Analyzer()),
+    _analyzer(cass::Analyzer::instance()),
     _converter(cass::FormatConverter::instance()),
     _database(new cass::database::Database()),
     _quit(false)
@@ -18,7 +18,7 @@ cass::Worker::~Worker()
 {
   delete _database;
   _converter->destroy();
-  delete _analyzer;
+  _analyzer->destroy();
 }
 
 void cass::Worker::end()
