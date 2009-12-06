@@ -11,7 +11,7 @@ cass::Ratemeter::Ratemeter()
   //create a timer that will call this at given interval//
   _timer = new QTimer();
   connect(_timer, SIGNAL(timeout()), this, SLOT(calculateRate()));
-  _timer->start(500);
+  _timer->start(1000);
 
   //create a clock that will time how long it took//
   _time = new QTime();
@@ -38,12 +38,16 @@ void cass::Ratemeter::calculateRate()
     time   += _times[i];
     counts += _counter[i];
   }
+   
   //now calculate and emit the rate
-  double r = counts / (time*1e3);
+  double r = counts / (time*1e-3);
   emit rate(r);
   //restart the timer and advance the index//
   _time->restart();
   ++_idx;
+  
+  //reset the curent counter before adding//
+  _counter[_idx%4] = 0.;
 }
 
 void cass::Ratemeter::count()
