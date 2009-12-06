@@ -1,7 +1,7 @@
 // Copytight (C) 2009 Jochen Küpper
 
 #include <iostream>
-
+#include <QtCore/QMutexLocker>
 #include "analyzer.h"
 #include "remi_analysis.h"
 #include "vmi_analysis.h"
