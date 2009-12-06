@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <fstream>
 #include <QtCore/QMutexLocker>
+#include "cass_event.h"
 #include "format_converter.h"
 #include "remi_converter.h"
 #include "vmi_converter.h"

@@ -9,6 +9,12 @@
 #include "machine_analysis.h"
 #include "database.h"
 
+
+// define static members
+cass::Analyzer *cass::Analyzer::_instance(0);
+QMutex cass::Analyzer::_mutex;
+
+
 cass::Analyzer::Analyzer()
 {
   //create the analyzers//
@@ -22,6 +28,21 @@ cass::Analyzer::~Analyzer()
 {
   for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     delete (it->second);
+}
+
+cass::Analyzer *cass::Analyzer::instance()
+{
+  QMutexLocker locker(&_mutex);
+  if(0 == _instance)
+    _instance = new Analyzer();
+  return _instance;
+}
+
+void cass::Analyzer::destroy()
+{
+  QMutexLocker locker(&_mutex);
+  delete _instance;
+  _instance = 0;
 }
 
 
