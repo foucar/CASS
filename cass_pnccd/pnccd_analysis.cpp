@@ -110,8 +110,8 @@ void cass::pnCCD::Analysis::loadSettings()
       _param._offsets[i].resize(size);
       _param._noise[i].resize(size);
       //read the parameters stored in the file//
-      in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
-      in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+      in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
+      in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
     }
   }
 }
@@ -133,8 +133,8 @@ void cass::pnCCD::Analysis::saveSettings()
       {
         std::cout <<"writing pnccd "<<i<<" to file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
         //write the parameters to the file//
-        out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets.size()*sizeof(double));
-        out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise.size()*sizeof(double));
+        out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
+        out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
       }
     }
   }
