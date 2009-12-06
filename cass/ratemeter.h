@@ -1,8 +1,10 @@
 #ifndef CASS_RATEMETER_H
 #define CASS_RATEMETER_H
 
+#include <vector>
 #include <QtCore/QObject>
 #include <QtCore/QTime>
+#include <QtCore/QTimer>
 
 namespace cass
 {

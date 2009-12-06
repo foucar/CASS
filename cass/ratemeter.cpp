@@ -14,8 +14,8 @@ cass::Ratemeter::Ratemeter()
   _timer->start(500);
 
   //create a clock that will time how long it took//
-  time = new QTime();
-  time->start();
+  _time = new QTime();
+  _time->start();
 }
 
 cass::Ratemeter::~Ratemeter()
@@ -26,27 +26,27 @@ cass::Ratemeter::~Ratemeter()
   delete _time;
 }
 
-void cass::calculateRate()
+void cass::Ratemeter::calculateRate()
 {
   //remember the time//
-  _times[idx%4] = time->elapsed();
+  _times[_idx%4] = _time->elapsed();
   //calculate the complete times and counts//
   double time = 0;
   double counts = 0;
   for (size_t i=0; i<_times.size() ;++i)
   {
     time   += _times[i];
-    counts += _counts[i];
+    counts += _counter[i];
   }
   //now calculate and emit the rate
-  double r = / static_cast<double>(time->elapsed());
+  double r = counts / (time*1e3);
   emit rate(r);
   //restart the timer and advance the index//
-  time->restart();
-  ++idx;
+  _time->restart();
+  ++_idx;
 }
 
 void cass::Ratemeter::count()
 {
-  counter[idx%4] += counter[idx%4];
+  _counter[_idx%4] += 1.;
 }
