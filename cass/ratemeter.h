@@ -10,19 +10,25 @@ namespace cass
   {
     Q_OBJECT;
 
-    public:
-      Ratemeter();
-      ~Ratemeter();
+  public:
+    Ratemeter();
+    ~Ratemeter();
 
-    signals:
-      void rate(double);
+  signals:
+    void rate(double);
 
-    public slots:
-      void count();
+  private slots:
+    void calculateRate();
 
-    private:
-      QTime* time;
-      size_t counter;
+  public slots:
+    void count();
+
+  private:
+    QTime              *_time;
+    QTimer             *_timer;
+    std::vector<double> _counter;
+    std::vector<double> _times;
+    size_t              _idx;
   };
 }
 

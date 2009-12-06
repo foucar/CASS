@@ -30,7 +30,7 @@ cass::Analyzer::~Analyzer()
     delete (it->second);
 }
 
-cass::Analyzer *cass::Analyzer::instance()
+cass::Analyzer* cass::Analyzer::instance()
 {
   QMutexLocker locker(&_mutex);
   if(0 == _instance)
