@@ -85,13 +85,13 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         det.rawFrame().resize(FrameSize);
 
         //create a container for pointers to the beginning of the data for all segments//
-        std::vector<const uint16_t*> xtcSegmentsPointers(NbrOfSegments,0);
-        std::vector<const uint16_t*> frameSegmentsPointers(NbrOfSegments,0);
+        std::vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
+        std::vector<const uint16_t*> frameSegmentPointers(NbrOfSegments,0);
         //go through all segments and get the pointers to the beginning//
         for (size_t i=0; i<NbrOfSegments ;++i)
         {
           //pointer to first data element of segment//
-          xtcSegmentsPointers[i] = frameSegment->data();
+          xtcSegmentPointers[i] = frameSegment->data();
           //iterate to the next frame segment//
           frameSegment = frameSegment->next(*pnccdConfig);
         }
@@ -101,10 +101,10 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         const size_t columnsOfSegment = det.columns() / 2;
 
         //reorient the xtc segements to real frame segments//
-        frameSegmentPointers[0] = xtcSementPointers[0];
-        frameSegmentPointers[1] = xtcSementPointers[1];
-        frameSegmentPointers[2] = xtcSementPointers[2];
-        frameSegmentPointers[3] = xtcSementPointers[3];
+        frameSegmentPointers[0] = xtcSegmentPointers[0];
+        frameSegmentPointers[1] = xtcSegmentPointers[3];
+        frameSegmentPointers[2] = xtcSegmentPointers[1];
+        frameSegmentPointers[3] = xtcSegmentPointers[2];
 
         //go through each row of each element and align the data that it is//
         //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
@@ -129,34 +129,33 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //do first row , first row, second row , second row ...//
         for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
-          for (size_t iSegment=0; iSegment<NbrOfSegments/2 ; ++iSegment)
-          {
-            //copy the row of this segment//
-            std::copy(frameSegmentPointers[iSegment],
-                      frameSegmentPointers[iSegment] + columnsOfSegment,
-                      it);
-            //advance the iterators by size of columns of one segment//
-            it += columnsOfSegment;
-            frameSegmentPointers[iSegment] += columnsOfSegment;
-          }
+          //copy the row of first segment//
+          std::copy(frameSegmentPointers[0],
+                    frameSegmentPointers[0] + columnsOfSegment,
+                    it);
+          //advance the iterators by size of columns of one segment//
+          it += columnsOfSegment;
+          frameSegmentPointers[0] += columnsOfSegment;
+
+          //copy the row of second segment//
+          std::copy(frameSegmentPointers[1],
+                    frameSegmentPointers[1] + columnsOfSegment,
+                    it);
+          //advance the iterators by size of columns of one segment//
+          it += columnsOfSegment;
+          frameSegmentPointers[1] += columnsOfSegment;
         }
         //go through the all rows of the next two segments and //
-        //do last row , last row, last row -1 , last row -1 ...//
+        //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
         //therefore we need to adjust the datapointers of the last two segments//
         for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
-          datapointers[iSegment] += ((rowsOfSegment-1)*columnsOfSegment);
+          frameSegmentPointers[iSegment] += ((rowsOfSegment-1)*columnsOfSegment) + columnsOfSegment-1;
         for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
-          for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
-          {
-            //copy the row of this segment//
-            std::copy(frameSegmentPointers[iSegment],
-                      frameSegmentPointers[iSegment] + columnsOfSegment,
-                      it);
-            //advance the iterators by size of columns of one segment//
-            it += columnsOfSegment;
-            frameSegmentPointers[iSegment] -= columnsOfSegment;
-          }
+          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+            *it++ = *frameSegmentPointers[2]--;
+          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+            *it++ = *frameSegmentPointers[3]--;
         }
       }
     }
