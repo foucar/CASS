@@ -63,7 +63,8 @@ DataDescV1* DataDescV1::nextChannel(const HorizV1& hconfig) {
   return (DataDescV1*)((char*)(waveform(hconfig))+DataDescV1::waveformSize(hconfig));
 }
 
-DataDescV1* DataDescV1::nextChannel() {
+const DataDescV1* DataDescV1::nextChannel() const 
+{
   return (DataDescV1*)((char*)(waveform())+_returnedSamplesPerSeg*_returnedSegments*sizeof(short)+_extra);
 }
 

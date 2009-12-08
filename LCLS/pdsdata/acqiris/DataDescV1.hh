@@ -62,7 +62,7 @@ namespace Pds {
       double gain()const {return _vGain;}
       double offset()const {return _vOffset;}
       DataDescV1* nextChannel(const HorizV1& hconfig);
-      DataDescV1* nextChannel();
+      const DataDescV1* nextChannel() const;
 
       static uint32_t timestampSize(const HorizV1& hconfig);
       static uint32_t waveformSize(const HorizV1& hconfig);
