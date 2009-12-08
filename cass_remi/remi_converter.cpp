@@ -96,7 +96,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
           //change the flag//
           remievent.isFilled() = true;
           //go through all channels//
-          Pds::Acqiris::DataDescV1 *dd = const_cast<Pds::Acqiris::DataDescV1*>(&datadesc); //this is a hack that is needed because of the Datalayout in the xtc
+          const Pds::Acqiris::DataDescV1 *dd = &datadesc;
           for (size_t ic=0;ic<remievent.channels().size();++ic)
           {
             const Pds::Acqiris::DataDescV1 &ddesc = *dd;
