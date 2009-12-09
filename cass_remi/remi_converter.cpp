@@ -99,13 +99,16 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
           const Pds::Acqiris::DataDescV1 *dd = &datadesc;
           for (size_t ic=0;ic<remievent.channels().size();++ic)
           {
+            //retrieve a reference instead of a pointer//
             const Pds::Acqiris::DataDescV1 &ddesc = *dd;
+            //retrieve a reference to the channel we are working on//
+            cass::REMI::Channel &chan = remievent.channels()[ic];
             //extract the vertical gain, that allows one to convert points from ADC Bytes to Volts (milli Volts)
-            remievent.channels()[ic].gain() = ddesc.gain()*1000;
+            chan.gain() = ddesc.gain()*1000;
             //extact the horizontal position of the first point with respect to the trigger//
-            remievent.channels()[ic].horpos() = ddesc.timestamp(0).horPos();
+            chan.horpos() = ddesc.timestamp(0).horPos();
             //extact the vertical Offset //
-            remievent.channels()[ic].offset() = static_cast<int16_t>(ddesc.offset()*1000.);
+            chan.offset() = static_cast<int16_t>(ddesc.offset()*1000.);
             //extract waveform//
             const short* waveform = ddesc.waveform();
             //we need to shift the pointer so that it looks at the first real point of the waveform//
