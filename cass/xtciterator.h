@@ -45,7 +45,7 @@ namespace cass
           }
         }
         else
-          std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<datagram->xtc.damage.value()<<std::dec<<std::endl;
+          std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
 
       }
       return Continue;
