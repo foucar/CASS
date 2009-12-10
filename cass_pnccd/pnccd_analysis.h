@@ -42,6 +42,8 @@ namespace cass
       std::vector<std::vector<double> > _offsets;
       //noise for each detector//
       std::vector<std::vector<double> > _noise;
+      //the damping coefficient//
+      std::vector<double> _dampingCoefficient;
       //the number of fills for each detector//
       std::vector<size_t> _nbrDarkframes;
       //the multiplier how much times the sigma is the noise level//

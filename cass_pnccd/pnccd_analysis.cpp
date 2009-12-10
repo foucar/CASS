@@ -13,6 +13,7 @@
 
 void cass::pnCCD::Parameter::load()
 {
+  std::cout <<"loading"<<std::endl;
   //sting for the container index//
   QString s;
   //sync before loading//
@@ -34,9 +35,11 @@ void cass::pnCCD::Parameter::load()
     _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
     //the conversion factor for adu's to eV//
     _adu2eV.push_back(value("Adu2eV",1).toDouble());
+    //the daming coefficent//
+    _dampingCoefficient.push_back(value("DampingCoefficient",5).toDouble());
     endGroup();
   }
-
+  std::cout << "done"<< std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -53,6 +56,7 @@ void cass::pnCCD::Parameter::save()
     setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
     setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
     setValue("Adu2eV",_adu2eV[iDet]);
+    setValue("DampingCoefficient",_dampingCoefficient[iDet]);
     endGroup();
   }
 }
@@ -88,6 +92,7 @@ cass::pnCCD::Analysis::~Analysis()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
+  std::cout <<"load"<<std::endl;
   //load the settings
   _param.load();
   //resize the vector containers to the right size//
@@ -114,6 +119,8 @@ void cass::pnCCD::Analysis::loadSettings()
       in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
     }
   }
+  
+  std::cout <<"done"<<std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -162,6 +169,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
      (pnccdevent.detectors().size() > _param._sigmaMultiplier.size()) ||
      (pnccdevent.detectors().size() > _param._adu2eV.size()) ||
      (pnccdevent.detectors().size() > _param._offsets.size()) ||
+     (pnccdevent.detectors().size() > _param._dampingCoefficient.size()) ||
      (pnccdevent.detectors().size() > _param._nbrDarkframes.size()))
   {
     //resize to fit the new size and initialize the new settings//
@@ -172,6 +180,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     _param._nbrDarkframes.resize(pnccdevent.detectors().size(),0);
     _param._sigmaMultiplier.resize(pnccdevent.detectors().size(),4);
     _param._adu2eV.resize(pnccdevent.detectors().size(),1);
+    _param._dampingCoefficient.resize(pnccdevent.detectors().size(),5);
     saveSettings();
   }
 
@@ -214,6 +223,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //const double &adu2eV = _param._adu2eV[iDet];
     //retrieve a reference to the rebinfactor of this detector//
     uint32_t &rebinfactor = _param._rebinfactors[iDet];
+    //retrieve a reference to the damping coefficent of this detector//
+    const double damping = _param._dampingCoefficient[iDet];
 
 //     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
 
@@ -249,8 +260,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
         for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
         {
-          *itOffset +=  *itFrame;
-          *itNoise  += (*itFrame)*(*itFrame);
+//          *itOffset +=  *itFrame;
+          *itOffset = (*itOffset * damping + *itFrame) / (damping+1.);
+//          *itNoise  += (*itFrame)*(*itFrame);
         }
         ++nDarkframes;
       }
@@ -268,7 +280,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
       {
         //statistics//
-        const double mean =  *itOffset / nDarkframes;
+//        const double mean =  *itOffset / nDarkframes;
+        const double mean = *itOffset; 
 //        const double meansquared =  mean * mean;
 //        const double sumofsquare = *itNoise;
 //        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
