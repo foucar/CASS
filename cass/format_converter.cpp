@@ -89,48 +89,41 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
     }
   }
 
-  //check whether datagram is damaged//
-  uint32_t damage = datagram->xtc.damage.value();
-  if (!damage)
+  //if datagram is configuration or an event (L1Accept) then we will iterate through it//
+  //otherwise we ignore the datagram//
+  if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
+      (datagram->seq.service() == Pds::TransitionId::L1Accept))
   {
-    //if datagram is configuration or an event (L1Accept) then we will iterate through it//
-    //otherwise we ignore the datagram//
-    if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
-        (datagram->seq.service() == Pds::TransitionId::L1Accept))
+    //if the datagram is an event than we create a new cass event first//
+    if (datagram->seq.service() == Pds::TransitionId::L1Accept)
     {
-      //if the datagram is an event than we create a new cass event first//
-      if (datagram->seq.service() == Pds::TransitionId::L1Accept)
-      {
-        //extract the bunchId from the datagram//
-        uint64_t bunchId = datagram->seq.clock().seconds();
-        bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
-        //put the id into the cassevent
-        cassevent->id() = bunchId;
-        //when the datagram was an event we need to tell the caller//
-        retval = true;
-      }
-      //if it is a configure transition we want to store it to file//
-      else if(datagram->seq.service() == Pds::TransitionId::Configure)
-      {
-        //open the file//
-        std::ofstream configtransition;
-        configtransition.open("oldconfig.xtc",std::ios::binary|std::ios::out);
-        if (configtransition.is_open())
-        {
-          //write the datagram to file//
-          configtransition.write(reinterpret_cast<char*>(datagram),sizeof(Pds::Dgram));
-          configtransition.write(datagram->xtc.payload(),datagram->xtc.sizeofPayload());
-          configtransition.close();
-        }
-      }
-
-      //iterate through the datagram and find the wanted information//
-      XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
-      iter.iterate();
+      //extract the bunchId from the datagram//
+      uint64_t bunchId = datagram->seq.clock().seconds();
+      bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
+      //put the id into the cassevent
+      cassevent->id() = bunchId;
+      //when the datagram was an event we need to tell the caller//
+      retval = true;
     }
+    //if it is a configure transition we want to store it to file//
+    else if(datagram->seq.service() == Pds::TransitionId::Configure)
+    {
+      //open the file//
+      std::ofstream configtransition;
+      configtransition.open("oldconfig.xtc",std::ios::binary|std::ios::out);
+      if (configtransition.is_open())
+      {
+        //write the datagram to file//
+        configtransition.write(reinterpret_cast<char*>(datagram),sizeof(Pds::Dgram));
+        configtransition.write(datagram->xtc.payload(),datagram->xtc.sizeofPayload());
+        configtransition.close();
+      }
+    }
+
+    //iterate through the datagram and find the wanted information//
+    XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
+    iter.iterate();
   }
-  else
-    std::cout <<std::hex<< "datagram is damaged: 0x" <<datagram->xtc.damage.value()<<std::dec<<std::endl;
   return retval;
 }
 
