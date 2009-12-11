@@ -17,7 +17,7 @@ TypeId::Type TypeId::id() const {return (TypeId::Type)(_value&0xffff);}
 const char* TypeId::name(Type type)
 { 
   static const char* _names[] = {
-    "Any",
+    "Unknown",
     "Xtc",
     "Frame",
     "AcqWaveform",
