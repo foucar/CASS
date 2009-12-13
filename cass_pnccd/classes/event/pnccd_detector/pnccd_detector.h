@@ -95,8 +95,8 @@ namespace cass
             uint16_t             originalcolumns()const {return _originalcolumns;}
             uint16_t            &originalcolumns()      {return _originalcolumns;}
 
-            int32_t              integral()const        {return _integral;}
-            int32_t             &integral()             {return _integral;}
+            int64_t              integral()const        {return _integral;}
+            int64_t             &integral()             {return _integral;}
 
         private:
             //infos from the xtc file
@@ -108,7 +108,7 @@ namespace cass
             frame_t              _correctedFrame;       //the "massaged" frame
             photonHits_t         _recombined;           //vector containing recombined X-ray photon hits
             photonHits_t         _nonrecombined;        //vector containing non-recombined X-ray photon hits
-            int32_t              _integral;             //the sum of all pixels in the frame
+            int64_t              _integral;             //the sum of all pixels in the frame
             uint16_t             _rows;                 //number of rows of the rebinned detector
             uint16_t             _columns;              //number of columns of the rebinned detector
             bool                 _calibrated;           //true if the calibration procedure was run
