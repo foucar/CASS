@@ -31,6 +31,9 @@ void cass::pnCCD::Parameter::load()
     //the positions of the darkframe calibration data for the detectors//
     _darkcal_fnames.push_back(
         value("DarkCalibrationFilePath","darkcal.darkcal").toString().toStdString());
+    //the positions of the darkframe calibration data for afterwards saving//
+    _save_darkcal_fnames.push_back(
+        value("DarkCalibrationSaveFilePath","darkcal_save.darkcal").toString().toStdString());
     //the multiplier for the noise//
     _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
     //the conversion factor for adu's to eV//
@@ -129,16 +132,16 @@ void cass::pnCCD::Analysis::saveSettings()
   //save settings//
   _param.save();
   //now save the noise and the offset vectors to the designated files//
-  for (size_t i=0; i<_param._darkcal_fnames.size() ; ++i)
+  for (size_t i=0; i<_param._save_darkcal_fnames.size() ; ++i)
   {
     //only if the vectors have some information inside//
     if (!_param._offsets[i].empty() && !_param._noise[i].empty())
     {
       //create a output file//
-      ofstream out(_param._darkcal_fnames[i].c_str(), std::ios::binary);
+      ofstream out(_param._save_darkcal_fnames[i].c_str(), std::ios::binary);
       if (out.is_open())
       {
-        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
+        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._save_darkcal_fnames[i].c_str()<<"\""<<std::endl;
         //write the parameters to the file//
         out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
         out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));

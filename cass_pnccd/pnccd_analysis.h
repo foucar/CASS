@@ -54,6 +54,8 @@ namespace cass
       uint32_t _lightIndicatorChannel;
       // Dark frame calibration file names for each detector//
       std::vector<std::string> _darkcal_fnames;
+      // Dark frame calibration save file names for each detector//
+      std::vector<std::string> _save_darkcal_fnames;
     };
 
 
