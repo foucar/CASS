@@ -266,6 +266,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         }
         ++nDarkframes;
       }
+      else printf("not able to decide %i\n",nDarkframes);
     }
 
     //do the selfmade "massaging" of the detector//
@@ -304,6 +305,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           phs.push_back(ph);
         }*/
       }
+    }
+    else
+    {
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+        *itCorFrame = static_cast<uint16_t>(*itRawFrame);
+
     }
 
 
