@@ -21,9 +21,9 @@ void cass::SharedMemoryInput::run()
 {
   //start the xtcmonitorclient//
   //this eventqueue will subscripe to a partitiontag//
-  std::cout << "starting with partition Tag: \""<<_partitionTag <<"\""<<std::endl;
+  std::cout << "starting shared memory in put with partition Tag: \""<<_partitionTag <<"\""<<std::endl;
   Pds::XtcMonitorClient::run(_partitionTag);
-  std::cout << "shared memory is closing down"<<std::endl;
+  std::cout << "shared memory input is closing down"<<std::endl;
 }
 
 void cass::SharedMemoryInput::end()
@@ -43,6 +43,8 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   //read the datagram to the ringbuffer//
   Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
+  if (datagram->xtc.sizeofPayload() > 0x1000000)
+    std::cout << "datagram size is bigger than the expected buffer size of 10 MB. Something is wrong"<<std::endl;
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
   //tell the buffer that we are done//

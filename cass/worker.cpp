@@ -23,12 +23,13 @@ cass::Worker::~Worker()
 
 void cass::Worker::end()
 {
-  std::cout << "worker got signal to close"<<std::endl;
+  std::cout << "worker 0x"<<std::hex<<this<<std::dec <<" got signal to close"<<std::endl;
   _quit = true;
 }
 
 void cass::Worker::run()
 {
+  std::cout << "worker 0x"<<std::hex<<this<<std::dec <<" is starting"<<std::endl;
   //a pointer that we use//
   cass::CASSEvent *cassevent=0;
   //run als long as we are told not to stop//
@@ -57,7 +58,7 @@ void cass::Worker::run()
       if (shouldBeAnalyzed) emit processedEvent();
     }
   }
-  std::cout <<"worker is closing down"<<std::endl;
+  std::cout <<"worker 0x"<<std::hex<<this<<std::dec <<" is closing down"<<std::endl;
 }
 
 void cass::Worker::loadSettings()

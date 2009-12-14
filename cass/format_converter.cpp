@@ -64,6 +64,12 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   //get the datagram from the cassevent//
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
 
+  std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
+  std::cout << "0x"<< std::hex<< datagram->xtc.sizeofPayload()<<std::dec<<"  ";
+  std::cout << "0x"<< std::hex<<datagram->xtc.damage.value()<<std::dec<<" ";
+  std::cout << "0x"<<std::hex<< datagram->seq.clock().seconds()<<" ";
+  std::cout << "0x"<<std::hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<" ";
+  std::cout << std::dec <<std::endl;
 
   //if this is the firsttime we run we want to load a config that was stored to disk//
   if(_firsttime)
@@ -77,7 +83,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
     if (oldconfigtransition.is_open())
     {
       //read the datagram from the file//
-      char * buffer =  new char [0x900000];
+      char * buffer =  new char [0x1000000];
       Pds::Dgram& dg = *reinterpret_cast<Dgram*>(buffer);
       oldconfigtransition.read(buffer,sizeof(dg));
       oldconfigtransition.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
