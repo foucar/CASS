@@ -251,26 +251,38 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //on one of the acqiris channels idealy on the intensity monitor signal//
     //create the offset and noise vector//
     //check wether the light indicator channel is present//
-    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
-    {
+/*    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
+    {*/
       //check if in the light indicator channel is at least one signal//
       //this proves that there was light in the chamber//
-      if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().empty())
-      {
-        //add this frame to the offset and noise vectors
-        std::vector<double>::iterator itOffset = offset.begin();
-        std::vector<double>::iterator itNoise = noise.begin();
-        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
-        for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
-        {
-//          *itOffset +=  *itFrame;
-          *itOffset = (*itOffset * damping + *itFrame) / (damping+1.);
-//          *itNoise  += (*itFrame)*(*itFrame);
-        }
-        ++nDarkframes;
-      }
-      else printf("not able to decide %i\n",nDarkframes);
+//       if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().empty())
+//       {
+
+    //take the average over the first and last 3 rows//
+    cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+    cass::pnCCD::pnCCDDetector::frame_t::const_iterator ritFrame = rf.end()-1024*3;
+    
+    for (size_t iOff=0; iOff<1024*3;++itFrame,++ritFrame,++iOff)
+    {
+      offset[iOff%1024] = (offset[iOff%1024] * damping + *itFrame) / (damping+1.);
+      noise[iOff%1024]  = ( noise[iOff%1024] * damping + *ritFrame)/ (damping+1.);
     }
+      
+    
+        //add this frame to the offset and noise vectors
+//        std::vector<double>::iterator itOffset = offset.begin();
+//        std::vector<double>::iterator itNoise = noise.begin();
+//        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+//        for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
+//        {
+//          *itOffset +=  *itFrame;
+//          *itOffset = (*itOffset * damping + *itFrame) / (damping+1.);
+//          *itNoise  += (*itFrame)*(*itFrame);
+//        }
+        ++nDarkframes;
+/*      }
+      else printf("not able to decide %i\n",nDarkframes);*/
+//     }
 
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
@@ -281,11 +293,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       std::vector<double>::iterator itNoise  = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset)
+      size_t pixelidx=0;
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
       {
         //statistics//
 //        const double mean =  *itOffset / nDarkframes;
-        const double mean = *itOffset; 
+//        const double mean = *itOffset; 
+        const double mean = (pixelidx < 1024*512) ? offset[pixelidx%1024] : noise[pixelidx%1024]; 
 //        const double meansquared =  mean * mean;
 //        const double sumofsquare = *itNoise;
 //        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
