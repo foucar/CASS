@@ -72,6 +72,14 @@ void cass::pnCCD::Parameter::save()
 
 
 
+int timeval_subtract(struct timeval *result, struct timeval *t2, struct timeval *t1)
+{
+    long int diff = (t2->tv_usec + 1000000 * t2->tv_sec) - (t1->tv_usec + 1000000 * t1->tv_sec);
+    result->tv_sec = diff / 1000000;
+    result->tv_usec = diff % 1000000;
+
+    return (diff<0);
+}
 
 
 
@@ -154,7 +162,7 @@ void cass::pnCCD::Analysis::saveSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
-  struct timeval tv,tv1;
+  struct timeval tvBegin, tvEnd, tvDiff;
   //extract a reference to the pnccdevent in cassevent//
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   //clear the event//
@@ -296,7 +304,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       size_t pixelidx=0;
-      gettimeofday(&tv, NULL);
+      gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
       {
         //statistics//
@@ -325,20 +333,22 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           phs.push_back(ph);
         }*/
       }
-      gettimeofday(&tv1, NULL);
+      gettimeofday(&tvEnd, NULL);
 
     }
     else
     {
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-      gettimeofday(&tv, NULL);
+      gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<uint16_t>(*itRawFrame);
-       gettimeofday(&tv1, NULL);
+       gettimeofday(&tvEnd, NULL);
 
     }
 
+    timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
+    printf("%ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
 
     //the rearrangement has been moved to the converter//
 //    //do the munich "massaging" of the detector//
