@@ -1,4 +1,4 @@
-// Copyright (C) 2009 jk, lmf
+// Copyright (C) 2009 jk, lmf, nc
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -9,6 +9,7 @@
 #include "pnccd_analysis_lib.h"
 
 #include <vector>
+#include <sys/time.h>
 
 
 void cass::pnCCD::Parameter::load()
@@ -153,7 +154,6 @@ void cass::pnCCD::Analysis::saveSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
-#include <sys/time.h>
   struct timeval *tv,*tv1;
   struct timezone *tz;
   tz=0;
