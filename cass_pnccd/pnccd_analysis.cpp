@@ -348,7 +348,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     }
 
     timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-    printf("%ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+    printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
 
     //the rearrangement has been moved to the converter//
 //    //do the munich "massaging" of the detector//
