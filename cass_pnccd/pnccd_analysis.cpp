@@ -153,6 +153,10 @@ void cass::pnCCD::Analysis::saveSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
+#include <sys/time.h>
+  struct timeval *tv,*tv1;
+  struct timezone *tz;
+  tz=0;
   //extract a reference to the pnccdevent in cassevent//
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   //clear the event//
@@ -294,6 +298,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       size_t pixelidx=0;
+      gettimeofday(&tv, &tz);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
       {
         //statistics//
@@ -322,6 +327,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           phs.push_back(ph);
         }*/
       }
+      gettimeofday(&tv1, &tz);
+
     }
     else
     {
@@ -329,6 +336,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<uint16_t>(*itRawFrame);
+       gettimeofday(&tv1, &tz);
 
     }
 
