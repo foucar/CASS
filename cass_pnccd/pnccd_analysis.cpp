@@ -334,6 +334,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     {
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      gettimeofday(&tv, &tz);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<uint16_t>(*itRawFrame);
        gettimeofday(&tv1, &tz);
