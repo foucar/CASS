@@ -299,7 +299,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 /*      }
       else printf("not able to decide %i\n",nDarkframes);*/
 //     }
-
+    nDarkframes=0;
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
     if (nDarkframes > 1)
@@ -353,14 +353,16 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     else
     {
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+      gettimeofday(&tvBegin, NULL);
 #ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
-#else
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-#endif
-      gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<int32_t>(*itRawFrame);
+#else
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+        *itCorFrame = static_cast<uint16_t>(*itRawFrame);
+#endif
        gettimeofday(&tvEnd, NULL);
 
     }
