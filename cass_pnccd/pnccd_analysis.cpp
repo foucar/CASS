@@ -220,8 +220,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
     //retrieve a reference to the corrected frame of the detector//
 #ifdef bit32
+    std::cout << "signed 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
 #else
+    std::cout << "unsigned 16 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
 #endif
     //retrieve a reference to the raw frame of the detector//
