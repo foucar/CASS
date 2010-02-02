@@ -16,7 +16,9 @@
 #include "TObject.h"
 #endif
 
-
+#ifndef bit32
+#define bit32
+#endif
 
 namespace cass
 {
