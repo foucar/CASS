@@ -72,9 +72,13 @@ namespace cass
             const frame_t       &rawFrame()const        {return _rawFrame;}
             frame_t             &rawFrame()             {return _rawFrame;}
 
+#ifdef bit32
             const frame_i32_t       &correctedFrame()const  {return _correctedFrame;}
             frame_i32_t             &correctedFrame()       {return _correctedFrame;}
-
+#else
+            const frame_t       &correctedFrame()const  {return _correctedFrame;}
+            frame_t             &correctedFrame()       {return _correctedFrame;}
+#endif
             const photonHits_t  &recombined()const      {return _recombined;}
             photonHits_t        &recombined()           {return _recombined;}
 
@@ -106,8 +110,11 @@ namespace cass
             uint16_t             _originalcolumns;      //number of columns of the detector
 
             //results of the analysis
-            //frame_t              _correctedFrame;       //the "massaged" frame
+#ifdef bit32
             frame_i32_t          _correctedFrame;       //the "massaged" frame
+#else
+            frame_t              _correctedFrame;       //the "massaged" frame
+#endif
             photonHits_t         _recombined;           //vector containing recombined X-ray photon hits
             photonHits_t         _nonrecombined;        //vector containing non-recombined X-ray photon hits
             int64_t              _integral;             //the sum of all pixels in the frame

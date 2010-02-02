@@ -219,7 +219,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //retrieve a reference to the detector we are working on right now//
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
     //retrieve a reference to the corrected frame of the detector//
+#ifdef bit32
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
+#else
+    cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
+#endif
     //retrieve a reference to the raw frame of the detector//
     const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
     //retrieve a reference to the nonrecombined photon hits of the detector//
@@ -302,7 +306,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       std::vector<double>::iterator itOffset = offset.begin();
       std::vector<double>::iterator itNoise  = noise.begin();
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+#ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#else
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+#endif
       size_t pixelidx=0;
       gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
@@ -318,7 +326,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         //*itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
         // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
         // and give wider range, I have anyway to do some "If" statements
+#ifdef bit32
         if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
+#else
+        if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
+#endif
         else *itCorFrame=0;
         //find out whether this pixel is a photon hit//
         /*if (*itCorFrame > (sigmaMultiplier * sigma) )
@@ -339,7 +351,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     else
     {
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+#ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#else
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+#endif
       gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<int32_t>(*itRawFrame);
@@ -350,7 +366,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
     printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
 
-    //the rearrangement has been moved to the converter//
+
+//the rearrangement has been moved to the converter//
 //    //do the munich "massaging" of the detector//
 //    //and find the photon hits/
 ////    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
@@ -450,7 +467,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //make sure that each pixel is scaled to avoid//
       //decreasing the dynamic range//
       std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+#ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#else
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+#endif
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
     }
