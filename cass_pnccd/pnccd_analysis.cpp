@@ -299,7 +299,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 /*      }
       else printf("not able to decide %i\n",nDarkframes);*/
 //     }
-    nDarkframes=0;
+    //nDarkframes=0;
     //do the selfmade "massaging" of the detector//
     //only if we have already enough darkframes//
     if (nDarkframes > 1)
@@ -473,11 +473,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
 #ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+        *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-#endif
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
+#endif
     }
   }
 }
