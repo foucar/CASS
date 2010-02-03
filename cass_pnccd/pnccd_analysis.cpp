@@ -228,7 +228,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #ifdef bit32
     std::cout << "signed 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
-#elifdef bit32
+#elifdef fbit32
     std::cout << "float 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_f32_t &cf = det.correctedFrame();
 #else
@@ -342,7 +342,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         // and give wider range, I have anyway to do some "If" statements
 #ifdef bit32
         if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
-#elifdef bit32
+#elifdef fbit32
         if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
 #else
         if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
@@ -373,7 +373,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<int32_t>(*itRawFrame);
-#elifdef bit32
+#elifdef fbit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<float>(*itRawFrame);
