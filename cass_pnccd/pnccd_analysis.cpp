@@ -82,8 +82,13 @@ int timeval_subtract(struct timeval *result, struct timeval *t2, struct timeval 
 }
 
 
-
-
+long long int timeDiff(struct timespec* end, struct timespec* start) {
+  long long int diff;
+  diff =  (end->tv_sec - start->tv_sec) * 1000000000;
+  diff += end->tv_nsec;
+  diff -= start->tv_nsec;
+  return diff;
+}
 
 
 //------------------------------------------------------------------------------
@@ -163,6 +168,7 @@ void cass::pnCCD::Analysis::saveSettings()
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
   struct timeval tvBegin, tvEnd, tvDiff;
+  struct timespec start, now;
   //extract a reference to the pnccdevent in cassevent//
   cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
   //clear the event//
@@ -222,6 +228,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #ifdef bit32
     std::cout << "signed 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
+#elifdef bit32
+    std::cout << "float 32 bits version" <<std::endl;
+    cass::pnCCD::pnCCDDetector::frame_f32_t &cf = det.correctedFrame();
 #else
     std::cout << "unsigned 16 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
@@ -310,10 +319,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
 #ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#elifdef fbit32
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
 #endif
       size_t pixelidx=0;
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
       gettimeofday(&tvBegin, NULL);
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
       {
@@ -330,6 +342,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         // and give wider range, I have anyway to do some "If" statements
 #ifdef bit32
         if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
+#elifdef bit32
+        if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
 #else
         if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
 #endif
@@ -348,6 +362,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         }*/
       }
       gettimeofday(&tvEnd, NULL);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
 
     }
     else
@@ -358,6 +373,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<int32_t>(*itRawFrame);
+#elifdef bit32
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+        *itCorFrame = static_cast<float>(*itRawFrame);
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
@@ -369,6 +388,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
     timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
     printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+    printf("doing_math_took %lld ns\n", timeDiff(&now, &start));
 
 
 //the rearrangement has been moved to the converter//
@@ -406,11 +426,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       det.integral() += cf[iInt];
 
 
+    gettimeofday(&tvBegin, NULL);
     //rebin image frame if requested//
     if (rebinfactor != 1)
     {
       //if the rebinfactor doesn't fit the original dimensions//
-      //checks wether rebinfactor is of power of 2//
+      //checks whether rebinfactor is of power of 2//
       //look for the next smaller number that is a power of 2//
       if(nRows % rebinfactor != 0)
       {
@@ -475,12 +496,20 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
+#elifdef fbit32
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+        *itCorFrame = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
 #endif
     }
+    gettimeofday(&tvEnd, NULL);
+    timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
+    printf("rebin_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+
   }
 }
 

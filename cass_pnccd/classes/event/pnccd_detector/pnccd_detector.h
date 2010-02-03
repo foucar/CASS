@@ -16,8 +16,12 @@
 #include "TObject.h"
 #endif
 
-#ifndef bit32
-#define bit32
+//#ifndef bit32
+//#define bit32
+//#endif
+
+#ifndef fbit32
+#define fbit32
 #endif
 
 namespace cass
@@ -66,6 +70,7 @@ namespace cass
             ~pnCCDDetector()    {}
 
         public: //typedefs for better readable code
+            typedef std::vector<float>   frame_f32_t;
             typedef std::vector<int32_t>   frame_i32_t;
             typedef std::vector<uint16_t>   frame_t;
             typedef std::vector<PhotonHit>  photonHits_t;
@@ -77,6 +82,9 @@ namespace cass
 #ifdef bit32
             const frame_i32_t       &correctedFrame()const  {return _correctedFrame;}
             frame_i32_t             &correctedFrame()       {return _correctedFrame;}
+#elifdef fbit32
+            const frame_f32_t       &correctedFrame()const  {return _correctedFrame;}
+            frame_f32_t             &correctedFrame()       {return _correctedFrame;}
 #else
             const frame_t       &correctedFrame()const  {return _correctedFrame;}
             frame_t             &correctedFrame()       {return _correctedFrame;}
@@ -114,6 +122,8 @@ namespace cass
             //results of the analysis
 #ifdef bit32
             frame_i32_t          _correctedFrame;       //the "massaged" frame
+#elifdef fbit32
+            frame_f32_t          _correctedFrame;       //the "massaged" frame
 #else
             frame_t              _correctedFrame;       //the "massaged" frame
 #endif
