@@ -373,16 +373,16 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #elif defined(every)
         if(*itRawFrame> mean)
         {
-	   *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
-	   *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
-	   *itCorFrame16u = static_cast<uint16_t>(*itRawFrame - mean);
-	}
+           *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
+           *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
+           *itCorFrame16u = static_cast<uint16_t>(*itRawFrame - mean);
+        }
         else
         {
            *itCorFrame32i=0;
            *itCorFrame32f=0;
            *itCorFrame16u=0;
-	}
+        }
 #else
         if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
         else *itCorFrame=0;
@@ -474,9 +474,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     det.integral() = 0;
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
 #ifdef fbit32
-	det.integral() += static_cast<uint64_t>(cf[iInt]);
+      det.integral() += static_cast<uint64_t>(cf[iInt]); // in this case it could just be a copy 
+                                                           //if det.int would be float32
 #else
-      det.integral() += cf[iInt];
+      det.integral() += static_cast<uint64_t>(cf[iInt]);
 #endif
 
     gettimeofday(&tvBegin, NULL);
@@ -569,11 +570,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame16u!=cf.end() ;++itCorFrame16u,++itTemp)
         *itCorFrame16u = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+      itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
-      for (; itCorFrame32i!=cf.end() ;++itCorFrame32i,++itTemp)
+      for (; itCorFrame32i!=cf32i.end() ;++itCorFrame32i,++itTemp)
         *itCorFrame32i = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+      itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
-      for (; itCorFrame32f!=cf.end() ;++itCorFrame32f,++itTemp)
+      for (; itCorFrame32f!=cf32f.end() ;++itCorFrame32f,++itTemp)
         *itCorFrame32f = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
 #else
       std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
