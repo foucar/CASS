@@ -346,8 +346,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       size_t pixelidx=0;
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
       gettimeofday(&tvBegin, NULL);
+#ifdef every
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
                ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
+#else
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
+#endif
       {
         //statistics//
 //        const double mean =  *itOffset / nDarkframes;
@@ -469,7 +473,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //calc the integral (the sum of all bins)//
     det.integral() = 0;
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
+#ifdef fbit32
+	det.integral() += static_cast<uint64_t>(cf[iInt]);
+#else
       det.integral() += cf[iInt];
+#endif
 
     gettimeofday(&tvBegin, NULL);
     //rebin image frame if requested//
@@ -491,7 +499,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       det.columns() = newCols;
       //resize the temporary container to fit the rebinned image
       //initialize it with 0
+#ifdef fbit32
+      _tmpf.assign(newRows * newCols,0.);
+#else
       _tmp.assign(newRows * newCols,0);
+#endif
 
       //go through the whole corrected frame//
       for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
@@ -506,7 +518,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         //that newRow and newCol belongs to//
         const size_t newIndex = newRow*newCols + newCol;
         //add this index value to the newIndex value//
+#ifdef fbit32
+        _tmpf[newIndex] += cf[iIdx];
+#else
         _tmp[newIndex] += cf[iIdx];
+#endif
 
         /*// instead of doing the prev line, I could:
           #ifdef signedframeonly
@@ -536,16 +552,31 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //copy the tempframe to the corrected frame//
       //make sure that each pixel is scaled to avoid//
       //decreasing the dynamic range//
-      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
 #ifdef bit32
+      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
 #elif defined(fbit32)
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      std::vector<float>::const_iterator itTemp = _tmpf.begin();
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+#elif defined(every)
+      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+      cf32i.resize(newRows*newCols);
+      cf32f.resize(newRows*newCols);
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      for (; itCorFrame16u!=cf.end() ;++itCorFrame16u,++itTemp)
+        *itCorFrame16u = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+      for (; itCorFrame32i!=cf.end() ;++itCorFrame32i,++itTemp)
+        *itCorFrame32i = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+      for (; itCorFrame32f!=cf.end() ;++itCorFrame32f,++itTemp)
+        *itCorFrame32f = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
 #else
+      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));

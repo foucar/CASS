@@ -20,13 +20,13 @@
 //#define bit32
 //#endif
 
-//#ifndef fbit32
-//#define fbit32
-//#endif
-
-#ifndef every
-#define every
+#ifndef fbit32
+#define fbit32
 #endif
+
+//#ifndef every
+//#define every
+//#endif
 
 namespace cass
 {
