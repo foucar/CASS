@@ -567,13 +567,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
       cf32i.resize(newRows*newCols);
       cf32f.resize(newRows*newCols);
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
       for (; itCorFrame16u!=cf.end() ;++itCorFrame16u,++itTemp)
-        *itCorFrame16u = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+        *itCorFrame16u = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
       itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
       for (; itCorFrame32i!=cf32i.end() ;++itCorFrame32i,++itTemp)
-        *itCorFrame32i = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+        *itCorFrame32i = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
       itTemp = _tmp.begin();
       cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
       for (; itCorFrame32f!=cf32f.end() ;++itCorFrame32f,++itTemp)
