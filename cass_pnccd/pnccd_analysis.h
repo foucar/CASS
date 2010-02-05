@@ -90,6 +90,7 @@ namespace cass
       //temporary storage for rebinning frames//
       //!!! this is not thread safe if this is a singleton//
       std::vector<uint64_t> _tmp;
+      std::vector<float> _tmpf;
     };
 
 
