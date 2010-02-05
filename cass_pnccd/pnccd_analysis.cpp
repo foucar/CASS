@@ -228,9 +228,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #ifdef bit32
     std::cout << "signed 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
-#elifdef fbit32
+#elif defined(fbit32)
     std::cout << "float 32 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_f32_t &cf = det.correctedFrame();
+#elif defined(every)
+    std::cout << "all versions" <<std::endl;
+    cass::pnCCD::pnCCDDetector::frame_i32_t &cf32i = det.correctedFrame32i();
+    cass::pnCCD::pnCCDDetector::frame_f32_t &cf32f = det.correctedFrame32f();
+    cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame16u();
 #else
     std::cout << "unsigned 16 bits version" <<std::endl;
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
@@ -263,7 +268,17 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
     //resize the corrected frame container the noise and the offset to the size of the raw frame container//
     //this code relies on the fact, that the frame size won't change at runtime//
+#ifdef bit32
     cf.resize(det.rawFrame().size());
+#elif defined(fbit32)
+    cf.resize(det.rawFrame().size());
+#elif defined(every)
+    cf32i.resize(det.rawFrame().size());
+    cf32f.resize(det.rawFrame().size());
+    cf.resize(det.rawFrame().size());
+#else
+    cf.resize(det.rawFrame().size());
+#endif
     noise.resize(det.rawFrame().size());
     offset.resize(det.rawFrame().size());
     //for now just rearrange the frame so that it looks like a real frame//
@@ -319,15 +334,20 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
 #ifdef bit32
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
-#elifdef fbit32
+#elif defined(fbit32)
       cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
+#elif defined(every)
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
 #endif
       size_t pixelidx=0;
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
       gettimeofday(&tvBegin, NULL);
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
+               ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
       {
         //statistics//
 //        const double mean =  *itOffset / nDarkframes;
@@ -342,12 +362,27 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         // and give wider range, I have anyway to do some "If" statements
 #ifdef bit32
         if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
-#elifdef fbit32
+        else *itCorFrame=0;
+#elif defined(fbit32)
         if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
+        else *itCorFrame=0;
+#elif defined(every)
+        if(*itRawFrame> mean)
+        {
+	   *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
+	   *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
+	   *itCorFrame16u = static_cast<uint16_t>(*itRawFrame - mean);
+	}
+        else
+        {
+           *itCorFrame32i=0;
+           *itCorFrame32f=0;
+           *itCorFrame16u=0;
+	}
 #else
         if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
-#endif
         else *itCorFrame=0;
+#endif
         //find out whether this pixel is a photon hit//
         /*if (*itCorFrame > (sigmaMultiplier * sigma) )
         {
@@ -373,10 +408,21 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<int32_t>(*itRawFrame);
-#elifdef fbit32
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#elif defined(fbit32)
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
         *itCorFrame = static_cast<float>(*itRawFrame);
+#elif defined(every)
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
+      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
+               ++itCorFrame32f,++itCorFrame16u)
+      {
+        *itCorFrame32i = static_cast<int32_t>(*itRawFrame);
+        *itCorFrame32f = static_cast<float>(*itRawFrame);
+        *itCorFrame16u = static_cast<uint16_t>(*itRawFrame);
+      }
 #else
       cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
       for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
@@ -424,7 +470,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     det.integral() = 0;
     for (size_t iInt=0; iInt<cf.size() ;++iInt)
       det.integral() += cf[iInt];
-
 
     gettimeofday(&tvBegin, NULL);
     //rebin image frame if requested//
@@ -496,7 +541,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
-#elifdef fbit32
+#elif defined(fbit32)
       cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
       for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
         *itCorFrame = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));

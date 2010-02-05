@@ -20,8 +20,12 @@
 //#define bit32
 //#endif
 
-#ifndef fbit32
-#define fbit32
+//#ifndef fbit32
+//#define fbit32
+//#endif
+
+#ifndef every
+#define every
 #endif
 
 namespace cass
@@ -70,8 +74,8 @@ namespace cass
             ~pnCCDDetector()    {}
 
         public: //typedefs for better readable code
-            typedef std::vector<float>   frame_f32_t;
-            typedef std::vector<int32_t>   frame_i32_t;
+            typedef std::vector<float>      frame_f32_t;
+            typedef std::vector<int32_t>    frame_i32_t;
             typedef std::vector<uint16_t>   frame_t;
             typedef std::vector<PhotonHit>  photonHits_t;
 
@@ -80,11 +84,18 @@ namespace cass
             frame_t             &rawFrame()             {return _rawFrame;}
 
 #ifdef bit32
-            const frame_i32_t       &correctedFrame()const  {return _correctedFrame;}
-            frame_i32_t             &correctedFrame()       {return _correctedFrame;}
-#elifdef fbit32
-            const frame_f32_t       &correctedFrame()const  {return _correctedFrame;}
-            frame_f32_t             &correctedFrame()       {return _correctedFrame;}
+            const frame_i32_t   &correctedFrame()const  {return _correctedFrame;}
+            frame_i32_t         &correctedFrame()       {return _correctedFrame;}
+#elif defined(fbit32)
+            const frame_f32_t   &correctedFrame()const  {return _correctedFrame;}
+            frame_f32_t         &correctedFrame()       {return _correctedFrame;}
+#elif defined(every)
+            const frame_i32_t   &correctedFrame32i()const  {return _correctedFrame32i;}
+            frame_i32_t         &correctedFrame32i()       {return _correctedFrame32i;}
+            const frame_f32_t   &correctedFrame32f()const  {return _correctedFrame32f;}
+            frame_f32_t         &correctedFrame32f()       {return _correctedFrame32f;}
+            const frame_t       &correctedFrame16u()const  {return _correctedFrame16u;}
+            frame_t             &correctedFrame16u()       {return _correctedFrame16u;}
 #else
             const frame_t       &correctedFrame()const  {return _correctedFrame;}
             frame_t             &correctedFrame()       {return _correctedFrame;}
@@ -122,8 +133,12 @@ namespace cass
             //results of the analysis
 #ifdef bit32
             frame_i32_t          _correctedFrame;       //the "massaged" frame
-#elifdef fbit32
+#elif defined(fbit32)
             frame_f32_t          _correctedFrame;       //the "massaged" frame
+#elif defined(every)
+            frame_i32_t          _correctedFrame32i;       //the "massaged" frame
+            frame_f32_t          _correctedFrame32f;       //the "massaged" frame
+            frame_t              _correctedFrame16u;       //the "massaged" frame
 #else
             frame_t              _correctedFrame;       //the "massaged" frame
 #endif
