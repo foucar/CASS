@@ -62,6 +62,14 @@ TMapFile *mapfile;
 #include <TObject.h>
 #endif
 
+long long int timeDiff(struct timespec* end, struct timespec* start) {
+  long long int diff;
+  diff =  (end->tv_sec - start->tv_sec) * 1000000000;
+  diff += end->tv_nsec;
+  diff -= start->tv_nsec;
+  return diff;
+}
+
 ClassImp(cass::MachineData::MachineDataEvent);
 ClassImp(cass::REMI::REMIEvent);
 ClassImp(cass::VMI::VMIEvent);
@@ -70,6 +78,7 @@ ClassImp(cass::pnCCD::pnCCDEvent);
 
 cass::database::Database::Database()
 {
+  struct timespec start, now;
   //maybe the following should be moved somewhere else?? 
   loadSettings();
   if(_param._usejustFile==0)
@@ -218,6 +227,39 @@ cass::database::Database::Database()
 
   T->Print();
   Nevent=0;
+#ifdef every
+  printf("some more quantities for testing\n");
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum16u.resize(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("creating_16u %lld ns\n", timeDiff(&now, &start));
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum32i.resize(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("creating_32i %lld ns\n", timeDiff(&now, &start));
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum32f.resize(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("creating_32f %lld ns\n", timeDiff(&now, &start));
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum16u.assign(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size,0);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("zeroing_16i %lld ns\n", timeDiff(&now, &start));
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum32i.assign(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size,0);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("zeroing_32i %lld ns\n", timeDiff(&now, &start));
+
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+  sum32f.assign(MAX_pnCCD_array_x_size * MAX_pnCCD_array_y_size,0.);
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+  printf("zeroing_32f %lld ns\n", timeDiff(&now, &start));
+#endif
 
   //saveSettings();
 
@@ -274,6 +316,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   if(!cassevent) return;
   //  std::cout<< " I am in"<<std::endl;
+  struct timespec start, now;
   Nevent++;
 
   event_id=cassevent->id();
@@ -309,6 +352,41 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     T->SetBranchAddress("pnCCDEventBranch",&pnCCDdata);
     //  for (size_t ididid=0; ididid<pnCCDdata->detectors().size();++ididid)
     //      std::cout <<"Det:"<<ididid<<" size:"<< pnCCDdata->detectors()[ididid].correctedFrame().size()<<std::endl;
+#ifdef every
+    for (size_t isiz=0; isiz<pnCCDdata->detectors().size();++isiz)
+    {
+      cass::pnCCD::pnCCDDetector::frame_t &cf16u = pnCCDdata->detectors()[isiz].correctedFrame16u();
+      cass::pnCCD::pnCCDDetector::frame_i32_t &cf32i = pnCCDdata->detectors()[isiz].correctedFrame32i();
+      cass::pnCCD::pnCCDDetector::frame_f32_t &cf32f = pnCCDdata->detectors()[isiz].correctedFrame32f();
+
+      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf16u.begin();
+      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+
+      std::vector<uint16_t>::iterator itTemp16u = sum16u.begin();
+      std::vector<int32_t>::iterator itTemp32i = sum32i.begin();
+      std::vector<float>::iterator itTemp32f = sum32f.begin();
+
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+      for ( ; itCorFrame16u != cf16u.end(); ++itCorFrame16u,++itTemp16u )
+	*itTemp16u+=*itCorFrame16u;
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+      printf("summing_16i %lld ns\n", timeDiff(&now, &start));
+
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+      for ( ; itCorFrame32i != cf32i.end(); ++itCorFrame32i,++itTemp32i )
+	*itTemp32i+=*itCorFrame32i;
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+      printf("summing_32i %lld ns\n", timeDiff(&now, &start));
+
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+      for ( ; itCorFrame32f != cf32f.end(); ++itCorFrame32f,++itTemp32f )
+	*itTemp32f+=*itCorFrame32f;
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+      printf("summing_32f %lld ns\n", timeDiff(&now, &start));
+    }
+#endif
+
 
 #ifdef wide_pnccd
     cass::pnCCD::pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
@@ -373,6 +451,7 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       }
     }
 #endif
+
 
 #if DEBUG_pnCCD_raw
     if(pnccdevent.rawSignalArrayAddr(1)!=0)

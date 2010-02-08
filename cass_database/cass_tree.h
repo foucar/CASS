@@ -205,3 +205,11 @@ Double_t LCLS_Charge1;
 Double_t LCLS_Charge2;
 
 #endif
+
+#ifdef every
+// some more quantities for testing   
+std::vector<uint16_t> sum16u;
+std::vector<int32_t> sum32i;
+std::vector<float> sum32f;
+
+#endif
