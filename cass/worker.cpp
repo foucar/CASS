@@ -78,6 +78,7 @@ void cass::Worker::run()
 
 void cass::Worker::loadSettings()
 {
+  std::cout << "loading init-settings"<<std::endl;
   _analyzer->loadSettings();
   _database->loadSettings();
 }
@@ -86,5 +87,6 @@ void cass::Worker::saveSettings()
 {
   _analyzer->saveSettings();
   _database->saveSettings();
+  std::cout << "saved settings"<<std::endl;
 }
 
