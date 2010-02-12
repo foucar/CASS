@@ -273,7 +273,6 @@ void cass::database::Parameter::load()
   //sync before loading//
   std::cout << "loading database init-settings"<<std::endl;
   sync();
-  beginGroup("Database");
   _updatefrequency = value("UpdateFrequency",10).toUInt();
   _number_ofevents = value("NumberOfEvents",100).toUInt();
   //usejustFile 1: means actually use just File, no TMapFile
@@ -283,13 +282,11 @@ void cass::database::Parameter::load()
   _useREMI         = value("useREMI",1).toUInt();
   _useVMI          = value("useVMI",1).toUInt();
   _usepnCCD        = value("usepnCCD",1).toUInt();
-  endGroup();
 }
 
 void cass::database::Parameter::save()
 {
   QString s;
-  beginGroup("Database");
   std::cout << "saving database init-settings"<<std::endl;
   setValue("UpdateFrequency",_updatefrequency);
   setValue("NumberOfEvents",_number_ofevents);
@@ -298,7 +295,6 @@ void cass::database::Parameter::save()
   setValue("useREMI",_useREMI);
   setValue("useVMI",_useVMI);
   setValue("usepnCCD",_usepnCCD);
-  endGroup();
 }
 
 
