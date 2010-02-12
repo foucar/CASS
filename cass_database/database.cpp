@@ -261,7 +261,7 @@ cass::database::Database::Database()
   printf("zeroing_32f %lld ns\n", timeDiff(&now, &start));
 #endif
 
-  //saveSettings();
+  saveSettings();
 
 }
 
@@ -295,6 +295,7 @@ void cass::database::Parameter::save()
   setValue("useREMI",_useREMI);
   setValue("useVMI",_useVMI);
   setValue("usepnCCD",_usepnCCD);
+  std::cout << "saved database running-settings"<<std::endl;
 }
 
 
