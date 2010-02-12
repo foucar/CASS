@@ -40,7 +40,9 @@ int main(int argc, char **argv)
 
   //a nonblocking ringbuffer for the cassevents//
   lmf::RingBuffer<cass::CASSEvent,4> ringbuffer;
-  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
+  //ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
+  std::cout <<"testing blocking buffers to test speed" <<std::endl;
+  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::blocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer));
   // create a worker//
@@ -50,27 +52,27 @@ int main(int argc, char **argv)
   // create a ratemeter object for the worker//
   cass::Ratemeter *workerrate(new cass::Ratemeter());
   // create a dialog object //
-  cass::Window * window(new cass::Window());
+//  cass::Window * window(new cass::Window());
 
   //conncet ratemeters//
   QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
   QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
-  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
-  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
+//  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
+//  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
 
 
   // connect controls
-  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
-  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
-  QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
+//  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
+//  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
+//  QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
 //  QObject::connect (window, SIGNAL (close()), input, SLOT(end()));
 
   // when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), worker, SLOT(end()));
-  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
+//  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
 
   //show dialog//
-  window->show();
+  //window->show();
 
   // start input and worker thread
   input->start();
@@ -80,7 +82,7 @@ int main(int argc, char **argv)
   int retval(app.exec());
 
   // clean up
-  delete window;
+//  delete window;
   delete workerrate;
   delete inputrate;
   delete input;
