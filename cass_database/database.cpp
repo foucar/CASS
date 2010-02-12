@@ -269,8 +269,11 @@ cass::database::Database::Database()
 
 void cass::database::Parameter::load()
 {
+  QString s;
   //sync before loading//
+  std::cout << "loading database init-settings"<<std::endl;
   sync();
+  beginGroup("Database");
   _updatefrequency = value("UpdateFrequency",10).toUInt();
   _number_ofevents = value("NumberOfEvents",100).toUInt();
   //usejustFile 1: means actually use just File, no TMapFile
@@ -280,10 +283,14 @@ void cass::database::Parameter::load()
   _useREMI         = value("useREMI",1).toUInt();
   _useVMI          = value("useVMI",1).toUInt();
   _usepnCCD        = value("usepnCCD",1).toUInt();
+  endGroup();
 }
 
 void cass::database::Parameter::save()
 {
+  QString s;
+  beginGroup("Database");
+  std::cout << "saving database init-settings"<<std::endl;
   setValue("UpdateFrequency",_updatefrequency);
   setValue("NumberOfEvents",_number_ofevents);
   setValue("DoNotFillTree",_nofill);
@@ -291,6 +298,7 @@ void cass::database::Parameter::save()
   setValue("useREMI",_useREMI);
   setValue("useVMI",_useVMI);
   setValue("usepnCCD",_usepnCCD);
+  endGroup();
 }
 
 
@@ -368,22 +376,23 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
       std::vector<float>::iterator itTemp32f = sum32f.begin();
 
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-      for ( ; itCorFrame16u != cf16u.end(); ++itCorFrame16u,++itTemp16u )
-	*itTemp16u+=*itCorFrame16u;
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
-      printf("summing_16i %lld ns\n", timeDiff(&now, &start));
-
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
       for ( ; itCorFrame32i != cf32i.end(); ++itCorFrame32i,++itTemp32i )
 	*itTemp32i+=*itCorFrame32i;
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
       printf("summing_32i %lld ns\n", timeDiff(&now, &start));
 
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+      for ( ; itCorFrame16u != cf16u.end(); ++itCorFrame16u,++itTemp16u )
+	*itTemp16u+=*itCorFrame16u;
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+      printf("summing_16i %lld ns\n", timeDiff(&now, &start));
+
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
       for ( ; itCorFrame32f != cf32f.end(); ++itCorFrame32f,++itTemp32f )
 	*itTemp32f+=*itCorFrame32f;
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
       printf("summing_32f %lld ns\n", timeDiff(&now, &start));
+
     }
 #endif
 
@@ -481,10 +490,12 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
     //T->Show(i%max_events_in_Buffer-1);
   }
 
-  if(_param._nofill==0) T->Fill();
+  if(_param._nofill==0)
+  {
+    T->Fill();
   //mapfile->Update(TObject obj = 0);
   //  if( ( Nevent%(20) )==0 ) mapfile->Update();
-  if(_param._usejustFile==0)
+    if(_param._usejustFile==0)
     {
       if( (Nevent%_param._updatefrequency)==0 )
       {
@@ -492,9 +503,10 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
         if(_param._nofill==0) mapfile->Update();
       }
     }
-  else
-  {
-    printf("Going to save to file no need to update the TMapFile\n");
+    else
+    {
+      printf("Going to save to file no need to update the TMapFile\n");
+    }
   }
 #ifdef sng_update
   if ( max_events_in_Buffer>99)
