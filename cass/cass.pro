@@ -1,5 +1,6 @@
 # Copyright (C) 2009 ncoppola, lmf
-qt += core gui
+#qt += core gui
+qt += core
 CONFIG += static
 # TEMPLATE = lib
 TEMPLATE = app
