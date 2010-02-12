@@ -36,8 +36,9 @@ namespace cass
       {
         //check whether datagram is damaged//
         uint32_t damage = xtc->damage.value();
-        if (!damage)
+        if (!damage || damage==2)
         {
+          if(damage==2) std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
           for (std::map<FormatConverter::Converters,ConversionBackend*>::iterator it=_converters.begin() ; it != _converters.end(); ++it )
           {
             if( it->second->handlesType(xtc->contains.id()))
