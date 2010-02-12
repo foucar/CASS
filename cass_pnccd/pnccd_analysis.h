@@ -19,6 +19,39 @@ namespace cass
   namespace pnCCD
   {
 
+    class ROIsimple
+    {
+    /* inserting the "definition" of a ROI
+       each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
+       shapes:=circ,triangle,square <=Do I need many squares per frame?
+       I think also a "double triangle bottle-like shape could be helpful
+
+       xsize,ysize and center are in pixel units
+
+       Do I need to shrink the ROI if I am rebinning??
+    */
+    public:
+      // the shape name(s)
+      std::string name;
+      // the size(s) along the x axis
+      uint32_t xsize;
+      // the size(s) along the y axis
+      uint32_t ysize;
+      // the centre(s) along the x axis
+      uint32_t xcentre;
+      // the centre(s) along the y axis
+      uint32_t ycentre;
+    };
+
+    class detROI_t
+    {
+    public:
+      std::vector<ROIsimple> _ROI;
+      //_ROI_t _ROI;
+      // to which detector the ROI belongs
+      uint32_t detID;
+    };
+
 
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
@@ -56,11 +89,12 @@ namespace cass
       std::vector<std::string> _darkcal_fnames;
       // Dark frame calibration save file names for each detector//
       std::vector<std::string> _save_darkcal_fnames;
+
+      typedef std::vector<detROI_t> _detROI;
+      _detROI detROI;
+//      std::vector<detROI_t> detROI;
+
     };
-
-
-
-
 
 
     class pnCCDFrameAnalysis;
@@ -85,6 +119,7 @@ namespace cass
       void operator() (cass::CASSEvent*);
     private:
       Parameter _param;
+
       // The frame analysis object:
       std::vector<pnCCDFrameAnalysis *> _pnccd_analyzer;
       //temporary storage for rebinning frames//
