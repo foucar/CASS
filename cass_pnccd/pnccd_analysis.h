@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf
+// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf, Nicola Coppola
 
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
@@ -92,7 +92,6 @@ namespace cass
 
       typedef std::vector<detROI_t> _detROI;
       _detROI detROI;
-//      std::vector<detROI_t> detROI;
 
     };
 
@@ -126,6 +125,9 @@ namespace cass
       //!!! this is not thread safe if this is a singleton//
       std::vector<uint64_t> _tmp;
       std::vector<float> _tmpf;
+
+      typedef std::vector<uint16_t>   maskframe_t;
+      std::vector<maskframe_t>       mask_frame;
     };
 
 
