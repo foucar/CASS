@@ -40,9 +40,10 @@ int main(int argc, char **argv)
 
   //a nonblocking ringbuffer for the cassevents//
   lmf::RingBuffer<cass::CASSEvent,4> ringbuffer;
-  //ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
-  std::cout <<"testing blocking buffers to test speed" <<std::endl;
-  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::blocking);
+  std::cout <<"testing nonblocking buffers to test speed" <<std::endl;
+  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
+  //std::cout <<"testing blocking buffers to test speed" <<std::endl;
+  //ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::blocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer));
   // create a worker//
