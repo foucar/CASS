@@ -9,6 +9,12 @@
 #  define CASSSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
+namespace cass
+{
+  const size_t RingBufferSize=4;
+  const size_t NbrOfWorkers=1;
+}
+
 #endif
 
 

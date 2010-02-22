@@ -14,7 +14,6 @@
 namespace cass
 {
   class Analyzer;
-  class FormatConverter;
   class PostProcessor;
   namespace database
   {
@@ -41,8 +40,7 @@ namespace cass
     private:
       lmf::RingBuffer<cass::CASSEvent,4>  &_ringbuffer;
       Analyzer                            *_analyzer;
-      FormatConverter                     *_converter;
-      database::Database                  *_database;
+      PostProcessor                       *_postprocessor;
       bool                                 _quit;
   };
 }

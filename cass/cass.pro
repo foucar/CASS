@@ -32,7 +32,8 @@ SOURCES +=  cass.cpp \
             xtciterator.cpp \
             ratemeter.cpp \
             dialog.cpp \
-            worker.cpp
+            worker.cpp \
+            post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -46,7 +47,8 @@ HEADERS +=  analysis_backend.h \
             ratemeter.h \
             dialog.h \
             ringbuffer.h \
-            worker.h
+            worker.h \
+            post_processor.h
 
 INCLUDEPATH +=  ./ \
                 $$(LCLSSYSINCLUDE) \
@@ -65,7 +67,8 @@ INCLUDEPATH +=  ./ \
                 ../cass_pnccd/pnccd_lib \
                 ../cass_machinedata \
                 ../cass_machinedata/classes/event \
-                ../cass_database
+                ../cass_database \
+                ./postprocessing
 
 
 win32:debug{

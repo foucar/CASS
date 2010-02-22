@@ -14,26 +14,30 @@
 
 namespace cass
 {
+  class FormatConverter;
+
   class CASSSHARED_EXPORT SharedMemoryInput : public QThread, Pds::XtcMonitorClient
   {
     Q_OBJECT;
-    public:
-      SharedMemoryInput(char * PartitionTag, lmf::RingBuffer<cass::CASSEvent,4>&, QObject *parent=0);
-      ~SharedMemoryInput();
+  public:
+    SharedMemoryInput(char * PartitionTag, lmf::RingBuffer<cass::CASSEvent,4>&, QObject *parent=0);
+    ~SharedMemoryInput();
 
-      void run();
-      int  processDgram(Pds::Dgram*);
+    void run();
+    int  processDgram(Pds::Dgram*);
 
-    signals:
-      void newEventAdded(); 
+  signals:
+    void newEventAdded();
 
-    public slots:
-      void end();
+  public slots:
+    void end();
 
-    private:
-      lmf::RingBuffer<cass::CASSEvent,4>  &_ringbuffer;
-      char                                *_partitionTag;
-      bool                                 _quit;
+  private:
+    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    char                                *_partitionTag;
+    bool                                 _quit;
+    FormatConverter                     *_converter;
+
   };
 
 }//end namespace cass

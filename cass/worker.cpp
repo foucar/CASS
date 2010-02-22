@@ -1,29 +1,28 @@
 #include "worker.h"
 #include "analyzer.h"
 #include "format_converter.h"
-#include "database.h"
-#include "remi_event.h"
+#include "post_processor.h"
 
-cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,4> &ringbuffer, QObject *parent)
+cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,const char* OutputFileName, QObject *parent)
   :QThread(parent),
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
-    _converter(cass::FormatConverter::instance()),
-    _database(new cass::database::Database()),
+    _postprocessor(cass::PostProcessor::instance(OutputFileName)),
     _quit(false)
 {
 }
 
 cass::Worker::~Worker()
 {
-  delete _database;
-  _converter->destroy();
+  std::cout <<"worker "<<this<<" is closing"<<std::endl;
+  _postprocessor->destroy();
   _analyzer->destroy();
+  std::cout<< "worker "<<this<<" is closed" <<std::endl;
 }
 
 void cass::Worker::end()
 {
-  std::cout << "worker \""<<std::hex<<this<<std::dec <<"\" got signal to close"<<std::endl;
+  std::cout << "worker "<<this<<" got signal to close"<<std::endl;
   _quit = true;
 }
 
@@ -35,56 +34,78 @@ void cass::Worker::run()
   //run als long as we are told not to stop//
   while(!_quit)
   {
-//    std::cout <<"retrieving a new cassevent from ringbuffer"<<std::endl;
     //retrieve a new cassevent from the eventbuffer//
     _ringbuffer.nextToProcess(cassevent, 1000);
-//    std::cout <<"done retrieving"<<std::endl;
 
     //when the cassevent has been set work on it//
     if (cassevent)
     {
-      //convert the datagrambuffer to something useful//
-      //this will tell us whether this transition should be analyzed further//
-//      std::cout << "worker converts"<<std::endl;
-      const bool shouldBeAnalyzed  = _converter->processDatagram(cassevent);
-//      std::cout << "done converting"<<std::endl;
-
-      //when the formatconverter told us, then analyze the cassevent//
-      if (shouldBeAnalyzed)
-      {
- //       std::cout << "worker analyses"<<std::endl;
-        _analyzer->processEvent(cassevent);
- //       std::cout << "done analysing"<<std::endl;
-      }
+      //analyze the cassevent//
+      _analyzer->processEvent(cassevent);
 
       //here the usercode that will work on the cassevent will be called//
-      if (shouldBeAnalyzed)
-      {
-//        std::cout << "worker adds event to database"<<std::endl;
-        _database->add(cassevent);
-//        std::cout << "done adding"<<std::endl;
-      }
-//      std::cout << "putting event back to ringbuffer"<<std::endl;
+      _postprocessor->postProcess(*cassevent);
+
       //we are done, so tell the ringbuffer//
       _ringbuffer.doneProcessing(cassevent);
-//      std::cout << "done putting"<<std::endl;
 
       //tell outside that we are done, when we should have anlyzed the event//
       if (shouldBeAnalyzed) emit processedEvent();
     }
   }
-  std::cout <<"worker \""<<std::hex<<this<<std::dec <<"\" is closing down"<<std::endl;
+  std::cout <<"worker "<<this<<" is closing down"<<std::endl;
 }
 
 void cass::Worker::loadSettings()
 {
+  _postprocessor->loadSettings();
   _analyzer->loadSettings();
-  _database->loadSettings();
 }
 
 void cass::Worker::saveSettings()
 {
+  _postprocessor->saveSettings();
   _analyzer->saveSettings();
-  _database->saveSettings();
 }
 
+
+
+//-----------------------the wrapper for more than 1 worker--------------------
+cass::Workers::Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, const char* OutputFileName, QObject *parent)
+    :_workers(cass::NbrOfWorkers,0)
+{
+  //create the worker instances//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i] = new cass::Worker(ringbuffer,OutputFileName, parent);
+}
+
+cass::Workers::~Workers()
+{
+  std::cout <<"workers are closing"<<std::endl;
+  //delete the worker instances//
+  for (size_t i=0;i<_workers.size();++i)
+    delete _workers[i];
+  std::cout<< "workers are closed" <<std::endl;
+}
+
+
+void cass::Workers::start()
+{
+  //start all workers//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->start();
+}
+
+
+void cass::Workers::end()
+{
+  std::cout << "got signal to close the workers"<<std::endl;
+  //tell all workers that they should quit//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->end();
+  //now wait until all have finished//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->wait();
+  //emit that all workers are finished//
+  emit finished();
+}

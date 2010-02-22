@@ -251,7 +251,7 @@ namespace lmf
 
     //wenn die funktion, die das element abgeholt hat, fertig ist mit dem
     //fuellen, dann soll sie bescheid geben
-    void doneFilling(reference element)
+    void doneFilling(reference element, bool fillstatus=true)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
@@ -261,8 +261,8 @@ namespace lmf
         if (iElement->element == element)
           break;
       iElement->inBearbeitung = false;
-      iElement->bearbeitet    = false;
-      iElement->gefuellt      = true;
+      iElement->bearbeitet    = !fillstatus;
+      iElement->gefuellt      = fillstatus;
       //setze den process iterator auf dieses element//
       //so dass dieser das naechste mal das neu hinzugefuegte element//
       //zurueckliefert//

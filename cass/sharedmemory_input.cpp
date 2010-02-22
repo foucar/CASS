@@ -3,13 +3,16 @@
 #include <iostream>
 #include <iomanip>
 #include "sharedmemory_input.h"
+#include "format_converter.h"
 #include "pdsdata/xtc/Dgram.hh"
+
 
 cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag, lmf::RingBuffer<cass::CASSEvent,4>& ringbuffer, QObject *parent)
        :QThread(parent),
         _ringbuffer(ringbuffer),
         _partitionTag(partitionTag),
-        _quit(false)
+        _quit(false),
+        _converter(cass::FormatConverter::instance())
 {
 }
 
@@ -44,11 +47,14 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
   if (datagram->xtc.sizeofPayload() > 0x1000000)
-    std::cout << "datagram size is bigger than the expected buffer size of 10 MB. Something is wrong"<<std::endl;
+    std::cout << "datagram size is bigger than the maximum buffer size of 10 MB. Something is wrong"<<std::endl;
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
-  //tell the buffer that we are done//
-  _ringbuffer.doneFilling(cassevent);
+  //now convert the datagram to a cassevent//
+  const bool isGood = _converter->processDatagram(cassevent);
+
+  //tell the buffer that we are done, but also let it know whether it is a good event//
+  _ringbuffer.doneFilling(cassevent,isGood);
   
   //for ratemeter purposes send a signal that we added a new event//
   emit newEventAdded();
