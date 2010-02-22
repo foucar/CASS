@@ -60,6 +60,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
             machinedataevent->EbeamLTUAngY()  = beam.fEbeamLTUAngY;
             machinedataevent->EbeamLTUPosX()  = beam.fEbeamLTUPosX;
             machinedataevent->EbeamLTUPosY()  = beam.fEbeamLTUPosY;
+            machinedataevent->EbeamPkCurrBC2()= beam.fEbeamPkCurrBC2;
             break;
         }
         case(Pds::TypeId::Id_PhaseCavity):

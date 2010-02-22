@@ -4,13 +4,6 @@
 #include <map>
 #include <string>
 
-#ifndef ROOT_Rtypes
-#include "Rtypes.h"
-#endif
-
-#ifndef ROOT_TObject
-#include "TObject.h"
-#endif
 
 
 
@@ -37,7 +30,8 @@ namespace cass
                     _FitTime2(0),
                     _Charge1(0),
                     _Charge2(0),
-                    _energy(0)
+                    _energy(0),
+                    _wavelength(0)
                     {}
 
             ~MachineDataEvent(){}
@@ -63,6 +57,9 @@ namespace cass
             double energy()const       {return _energy;}
             double& energy()           {return _energy;}
 
+            double wavelength()const   {return _energy;}
+            double& wavelength()       {return _energy;}
+
             double EbeamCharge()const  {return _EbeamCharge;}
             double& EbeamCharge()      {return _EbeamCharge;}
 
@@ -80,6 +77,9 @@ namespace cass
 
             double EbeamLTUAngY()const {return _EbeamLTUAngY;}
             double& EbeamLTUAngY()     {return _EbeamLTUAngY;}
+
+            double EbeamPkCurrBC2()const {return _EbeamPkCurrBC2;}
+            double& EbeamPkCurrBC2()     {return _EbeamPkCurrBC2;} 
 
             double FitTime1()const     {return _FitTime1;}
             double& FitTime1()         {return _FitTime1;}
@@ -110,6 +110,7 @@ namespace cass
             double _EbeamLTUPosY;   // in mm
             double _EbeamLTUAngX;   // in mrad
             double _EbeamLTUAngY;   // in mrad
+            double _EbeamPkCurrBC2; // in Amps
 
             double _FitTime1;       //cavity property in pico-seconds
             double _FitTime2;       //cavity property in pico-seconds
@@ -121,8 +122,8 @@ namespace cass
 
             //data that gets calculated in Analysis//
             double _energy;         //the calculated puls energy
+            double _wavelength;     //the corrosponding wavelength
 
-            ClassDefNV(MachineDataEvent,1)  //A Container for all relevant Machinespecific Data
         };
     }//end namespace machinedata
 }//end namespace cass

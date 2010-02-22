@@ -15,37 +15,39 @@
 
 namespace cass
 {
-    class CASSEvent;
+  class CASSEvent;
 
-    namespace MachineData
+  namespace MachineData
+  {
+    class CASS_MACHINEDATASHARED_EXPORT Parameter : public cass::ParameterBackend
     {
-        class CASS_MACHINEDATASHARED_EXPORT Parameter : public cass::ParameterBackend
-        {
-        public:
-            Parameter()     {beginGroup("MachineData");}
-            ~Parameter()    {endGroup();}
-            void load();
-            void save();
+    public:
+      Parameter()     {beginGroup("MachineData");}
+      ~Parameter()    {save();endGroup();}
+      void load();
+      void save();
 
-        public:
-        };
+     public:
+      double _lambda; //the undulator period
+      double _K;      //the undulator K
+    };
 
 
-        class CASS_MACHINEDATASHARED_EXPORT Analysis : public cass::AnalysisBackend
-        {
-        public:
-            Analysis()            {loadSettings();}
-            ~Analysis()           {}
-            void loadSettings()   {_param.load();}
-            void saveSettings()   {_param.save();}
+    class CASS_MACHINEDATASHARED_EXPORT Analysis : public cass::AnalysisBackend
+    {
+    public:
+      Analysis()            {loadSettings();}
+      ~Analysis()           {}
+      void loadSettings()   {_param.load();}
+      void saveSettings()   {_param.save();}
 
-            //called for every event//
-            void operator()(CASSEvent*);
+      //called for every event//
+      void operator()(CASSEvent*);
 
-        private:
-            Parameter  _param;
-        };
-    }//end namespace vmi
+    private:
+      Parameter  _param;
+    };
+  }//end namespace MachineData
 }//end namespace cass
 
 #endif
