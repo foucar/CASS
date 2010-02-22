@@ -36,5 +36,5 @@ void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
     //std::cout<<std::endl;
 
     //make the cutframe as big as the vmievent, but fill with 0//
-    //vmievent.cutFrame().assign(vmievent.frame().size(),0);
+    vmievent.cutFrame().assign(vmievent.frame().size(),0);
 }

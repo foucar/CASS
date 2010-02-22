@@ -4,9 +4,9 @@
  *
  *  Created by Jochen Küpper on 20.05.09.
  *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
- * filled with live by lmf
+ * filled with life by lmf
  */
-#include <iostream>
+
 #include "vmi_analysis.h"
 #include "cass_event.h"
 #include "vmi_event.h"
@@ -61,16 +61,16 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
     //calc integral//
     integral += pixel;
 
-    /*//check whether pixel is outside of maximum radius//
+    //check whether pixel is outside of maximum radius//
     //if not then add pixel to cutframe//
     uint16_t corX = xcoordinate - _param._centerOfMcp.x();
     uint16_t corY = ycoordinate - _param._centerOfMcp.y();
     if (corX*corX + corY*corY < _param._maxMcpRadius*_param._maxMcpRadius)
     {
       vmievent.cutFrame()[i] = pixel;
-    }*/
+    }
 
-    /*//check whether pixel is a local maximum//
+    //check whether pixel is a local maximum//
     //if so add its coordinates to the coordinates of impact map//
     //check wether pixel is above threshold
     if (pixel > _param._threshold)
@@ -90,7 +90,7 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
           frame[i+framewidth+1] < pixel)   //lower right
       {
         vmievent.coordinatesOfImpact().push_back(Coordinate(xcoordinate,ycoordinate));
-      }*/
+      }
 
     //get the maximum pixel value//
     if (maxpixelvalue < pixel)
