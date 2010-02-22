@@ -40,7 +40,7 @@ namespace cass
       void load();
       void save();
 
-      REMIEvent::detectors_t  _detectors;
+      REMIEvent::detectors_t  _detectors;             //the detector parameters (are the dets itselve
       chanparameters_t        _channelParameters;     //settings to extract peaks of the channels
     };
 

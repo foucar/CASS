@@ -14,7 +14,7 @@ void com(cass::REMI::Channel& c, const double SampleInterval)
     const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
     const size_t wLength    = c.waveform().size();
     const double threshold  = c.threshold() / c.gain();    //mV -> ADC Bytes
-    //std::cout << "in waveformanalyzer threshold of channel "<<c.channelNbr()<<" is "<<c.threshold()<<" "<<vOffset<<" "<<c.gain()<<" "<<c.offset()<<std::endl;
+//    std::cout << "in waveformanalyzer threshold of channel "<<c.channelNbr()<<" is "<<c.threshold()<<" "<<c.offset()<<std::endl;
 
     //initialize values for finding peaks//
     bool risingEdge         = false;
@@ -24,6 +24,7 @@ void com(cass::REMI::Channel& c, const double SampleInterval)
     //--go through the waveform--//
     for (size_t i=3; i<wLength;++i)
     {
+//      if (c.channelNbr()== 17)std::cout <<i<<" "<< Data[i]*c.gain() << " " <<(Data[i]-vOffset)*c.gain()<<std::endl;
         //check wether we have an indication of a peak in the signal//
         if (   (abs(Data[i] - vOffset) <= threshold)                    //checking for inside noise
             || ( i == wLength-1)                                        //check if we are at the second to last index
@@ -33,6 +34,7 @@ void com(cass::REMI::Channel& c, const double SampleInterval)
             {
                 //--create a new peak--//
                 cass::REMI::Peak p;
+//                std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
                 //--set all known settings--//
                 p.startpos() = startpos;
                 p.stoppos()  = i-1;
@@ -54,9 +56,11 @@ void com(cass::REMI::Channel& c, const double SampleInterval)
                     p.polarity() = cass::REMI::Peak::Positive;
                 else if (Data[p.maxpos()]-vOffset == -p.maximum()) //negative
                     p.polarity() = cass::REMI::Peak::Negative;
-                else                                               //error: polarity not found
-                    p.polarity() = cass::REMI::Peak::Bad;
-
+                else
+                {
+                  std::cout << "error: polarity not found"<<std::endl;
+                  p.polarity() = cass::REMI::Peak::Bad;
+                }
                 //--add peak to the channel--//
                 c.peaks().push_back(p);
             }

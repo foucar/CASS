@@ -20,7 +20,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
   switch (xtc->contains.id())
   {
     //if it is a configuration then check what kind of configuration
-        case (Pds::TypeId::Id_AcqConfig) :
+    case (Pds::TypeId::Id_AcqConfig) :
     {
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
@@ -30,7 +30,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
         switch (version)
         {
           //if it is the right configuration then initialize the storedevent with the configuration//
-                    case 1:
+          case 1:
           {
             //get the config//
             const Pds::Acqiris::ConfigV1 &config = *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
@@ -77,7 +77,7 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
 
 
     //if it is a event then extract all information from the event//
-        case (Pds::TypeId::Id_AcqWaveform):
+    case (Pds::TypeId::Id_AcqWaveform):
     {
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);

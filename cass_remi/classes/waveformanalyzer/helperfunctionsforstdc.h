@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <math.h>
+#include <cstdlib>
 
 #include "remi_event.h"
 #include "channel.h"
@@ -343,10 +345,10 @@ namespace cass
         {
             //--this function will find the maximum of the peak and its position--//
             const Channel::waveform_t Data = c.waveform();
-            const int32_t vOff   = c.offset();
+            const double vGain   = c.gain();
+            const int32_t vOff   = static_cast<int32_t>(c.offset()/vGain);
             const size_t start   = p.startpos();
             const size_t stop    = p.stoppos();
-            const double vGain   = c.gain();
             int32_t maximum      = 0;
             int maxpos           = 0;
 

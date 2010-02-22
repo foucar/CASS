@@ -5,19 +5,22 @@
 
 namespace cass
 {
-    namespace REMI
+  namespace REMI
+  {
+    //______________________MyDetektorHitSorter Simple Version______________________
+    class DetectorHitSorterSimple : public DetectorHitSorterQuad
     {
-        //______________________MyDetektorHitSorter Simple Version______________________
-        class DetectorHitSorterSimple : public DetectorHitSorterQuad
-        {
-        public:
-            void sort(REMIEvent&, Detector&);
+    public:
+      DetectorHitSorterSimple()    {std::cout << "adding simple detectorhitsorter"<<std::endl;}
+      void sort(REMIEvent&, Detector&);
+    public:
+      enum LayersToUse {UV=0,UW,VW};
 
-        private:
-            void sortForTimesum(Detector&);
-        };
+    private:
+      void sortForTimesum(Detector&,AnodeLayer &x,AnodeLayer &y);
+    };
 
-    }//end namespace remi
+  }//end namespace remi
 }//end namespace cass
 
 #endif

@@ -89,6 +89,7 @@ void cass::REMI::Parameter::load()
     _detectors[i].deadTimeMCP()   = value("DeadTimeMcp",10.).toDouble();
     _detectors[i].deadTimeAnode() = value("DeadTimeAnode",10.).toDouble();
     _detectors[i].sorterType()    = value("SortingMethod",DetectorHitSorter::Simple).toInt();
+    _detectors[i].LayersToUse()   = value("LayersToUse",DetectorHitSorterSimple::UV).toInt();
     _detectors[i].isHexAnode()    = value("isHex",true).toBool();
     _detectors[i].name()          = value("Name","IonDetector").toString().toStdString();
     loadSignalParameter(_detectors[i].mcp(),"McpSignal",this);
@@ -134,6 +135,7 @@ void cass::REMI::Parameter::save()
     setValue("DeadTimeMcp",_detectors[i].deadTimeMCP());
     setValue("DeadTimeAnode",_detectors[i].deadTimeAnode());
     setValue("SortingMethod",_detectors[i].sorterType());
+    setValue("LayersToUse",_detectors[i].LayersToUse());
     setValue("isHex",_detectors[i].isHexAnode());
     setValue("Name",_detectors[i].name().c_str());
     saveSignalParameter(_detectors[i].mcp(),"McpSignal",this);
@@ -162,6 +164,7 @@ cass::REMI::Analysis::Analysis()
   _waveformanalyzer[WaveformAnalyzer::CFD16Bit] = new cass::REMI::CFD16Bit();
   _waveformanalyzer[WaveformAnalyzer::CoM8Bit]  = new cass::REMI::CoM8Bit();
   _waveformanalyzer[WaveformAnalyzer::CoM16Bit] = new cass::REMI::CoM16Bit();
+  _waveformanalyzer[WaveformAnalyzer::DoNothing]= new cass::REMI::WaveformAnalyzerDoNothing();
 
   //create the map with the DetectorHitSorter//
   _sorter[DetectorHitSorter::Simple] = new cass::REMI::DetectorHitSorterSimple();
@@ -211,7 +214,7 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
         chanparam[iNewParam]._analyzetyp  = WaveformAnalyzer::CoM16Bit;
       }
       //save the new settings//
-      _parameter.save();
+//      _parameter.save();
     }
     //go through all channels//
     for (size_t i=0; i<remievent.channels().size() ;++i)

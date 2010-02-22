@@ -12,7 +12,7 @@ namespace cass
         class CFD8Bit : public WaveformAnalyzer
         {
         public:
-            CFD8Bit()    {std::cout << "using 8 bit Constant Fraction Discriminator"<<std::endl;}
+            CFD8Bit()    {std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
             void analyze(Channel&, const double SampleInterval);
         };
 
@@ -20,7 +20,7 @@ namespace cass
         class CFD16Bit : public WaveformAnalyzer
         {
         public:
-            CFD16Bit()    {std::cout << "using 16 bit Constant Fraction Discriminator"<<std::endl;}
+            CFD16Bit()    {std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
             void analyze(Channel&, const double SampleInterval);
         };
 
