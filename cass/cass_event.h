@@ -2,7 +2,7 @@
 #define CASSEVENT_H
 
 #include <stdint.h>
-
+#include "cass.h"
 
 namespace cass
 {
@@ -25,30 +25,30 @@ namespace cass
 
   class CASSEvent
   {
-    public:
-      CASSEvent();
-      ~CASSEvent();
+  public:
+    CASSEvent();
+    ~CASSEvent();
 
-    public:
-      uint64_t    id()const   {return _id;}
-      uint64_t   &id()        {return _id;}
-        
-    public:
-      char                            *datagrambuffer()     {return _datagrambuffer;} 
+  public:
+    uint64_t    id()const   {return _id;}
+    uint64_t   &id()        {return _id;}
 
-    public:
-      REMI::REMIEvent                 &REMIEvent()          {return *_remievent;}
-      VMI::VMIEvent                   &VMIEvent()           {return *_vmievent;}
-      pnCCD::pnCCDEvent               &pnCCDEvent()         {return *_pnccdevent;}
-      MachineData::MachineDataEvent   &MachineDataEvent()   {return *_machinedataevent;}
+  public:
+    char                            *datagrambuffer()     {return _datagrambuffer;}
 
-    private:
-      uint64_t                         _id;
-      REMI::REMIEvent                 *_remievent;
-      VMI::VMIEvent                   *_vmievent;
-      pnCCD::pnCCDEvent               *_pnccdevent;
-      MachineData::MachineDataEvent   *_machinedataevent;
-      char                             _datagrambuffer[0x1000000];
+  public:
+    REMI::REMIEvent                 &REMIEvent()          {return *_remievent;}
+    VMI::VMIEvent                   &VMIEvent()           {return *_vmievent;}
+    pnCCD::pnCCDEvent               &pnCCDEvent()         {return *_pnccdevent;}
+    MachineData::MachineDataEvent   &MachineDataEvent()   {return *_machinedataevent;}
+
+  private:
+    uint64_t                         _id;
+    REMI::REMIEvent                 *_remievent;
+    VMI::VMIEvent                   *_vmievent;
+    pnCCD::pnCCDEvent               *_pnccdevent;
+    MachineData::MachineDataEvent   *_machinedataevent;
+    char                             _datagrambuffer[cass::DatagramBufferSize];
   };
 }
 

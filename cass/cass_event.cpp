@@ -7,18 +7,18 @@
 
 
 cass::CASSEvent::CASSEvent():
-        _id(0),
-        _remievent(new REMI::REMIEvent()),
-        _vmievent(new VMI::VMIEvent()),
-        _pnccdevent(new pnCCD::pnCCDEvent()),
-	_machinedataevent(new MachineData::MachineDataEvent())
+    _id(0),
+    _remievent(new REMI::REMIEvent()),
+    _vmievent(new VMI::VMIEvent()),
+    _pnccdevent(new pnCCD::pnCCDEvent()),
+    _machinedataevent(new MachineData::MachineDataEvent())
 {
 }
 
 cass::CASSEvent::~CASSEvent()
 {
-    delete _machinedataevent;
-    delete _pnccdevent;
-    delete _vmievent;
-    delete _remievent;
+  delete _machinedataevent;
+  delete _pnccdevent;
+  delete _vmievent;
+  delete _remievent;
 }

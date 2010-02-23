@@ -46,7 +46,7 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   //read the datagram to the ringbuffer//
   Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
-  if (datagram->xtc.sizeofPayload() > 0x1000000)
+  if (datagram->xtc.sizeofPayload() > cass::DatagramBufferSize)
     std::cout << "datagram size is bigger than the maximum buffer size of 10 MB. Something is wrong"<<std::endl;
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
