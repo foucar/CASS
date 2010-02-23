@@ -40,14 +40,14 @@ namespace cass
     public:
       Analysis()            {loadSettings();}
       ~Analysis()           {}
-      void loadSettings()   {QMutexLocker(&_mutex);_param.load();}
-      void saveSettings()   {QMutexLocker(&_mutex);_param.save();}
+      void loadSettings()   {QMutexLocker locker(&_mutex);_param.load();}
+      void saveSettings()   {QMutexLocker locker(&_mutex);_param.save();}
 
       //called for every event//
       void operator()(CASSEvent*);
 
     private:
-      QMutex                      _mutex; //mutex to block the tmp frame & parameter
+      QMutex                      _mutex; //mutex to block the tmp frame + parameter
       Parameter                   _param; //the parameters to analyze
       cass::CCDDetector::frame_t  _tmp;   //temp frame for rebinning
     };

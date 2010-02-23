@@ -30,7 +30,8 @@ void cass::CCD::Parameter::save()
 void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
   //retrieve a pointer to the ccd device we are working on//
-  cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::Pulnix]);
+  cass::CCD::CCDDevice* dev = 
+    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::Pulnix]);
   //retrieve a reference to the pulnix detector//
   cass::CCDDetector& det = dev->detector();
 
@@ -90,7 +91,7 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
   if (_param._rebinfactor != 1)
   {
     //lock this section due to the access to the tmp frame//
-    QMutexLocker(&_mutex);
+    QMutexLocker locker(&_mutex);
 
     //get the new dimensions//
     const size_t newRows = framewidth  / _param._rebinfactor;

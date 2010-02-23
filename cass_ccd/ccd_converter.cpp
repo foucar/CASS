@@ -11,27 +11,31 @@
 
 cass::CCD::Converter::Converter()
 {
-    //this converter should react on a ccd frame//
-    _types.push_back(Pds::TypeId::Id_Frame);
+  //this converter should react on a ccd frame//
+  _types.push_back(Pds::TypeId::Id_Frame);
 }
 
 void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
-    const Pds::Camera::FrameV1 &frame = *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
-    CCDDetector &det = cassevent->devices()[cass::DeviceBackend::Pulnix].detector();
+  //retrieve a reference to the frame contained int the xtc//
+  const Pds::Camera::FrameV1 &frame = 
+    *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
+  //retrieve a pointer to the ccd device we are working on//
+  cass::CCD::CCDDevice* dev = 
+    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::Pulnix]);
+  //retrieve a reference to the pulnix detector//
+  cass::CCDDetector& det = dev->detector();
 
-    det.isFilled()         = true;
-    det.columns()          = frame.width();
-    det.rows()             = frame.height();
-    det.originalcolumns()  = frame.width();
-    det.originalrows()     = frame.height();
-    det.bitsPerPixel()     = frame.depth();
-    det.offset()           = frame.offset();
+  //copy the values status values from the frame to the detector//
+  det.isFilled()         = true;
+  det.columns()          = frame.width();
+  det.rows()             = frame.height();
+  det.originalcolumns()  = frame.width();
+  det.originalrows()     = frame.height();
+  det.bitsPerPixel()     = frame.depth();
+  det.offset()           = frame.offset();
 
-    //copy the frame data to this event ... initalize the size of the cutevent//
-    const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
-    det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
-
-    //make the cutframe as big as the vmievent, but fill with 0//
-    vmievent.cutFrame().assign(vmievent.frame().size(),0);
+  //copy the frame data to this detector and do a type convertion implicitly//
+  const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
+  det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
 }
