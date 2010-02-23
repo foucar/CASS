@@ -6,6 +6,8 @@
 namespace Pds 
 {
     
+#pragma pack(4)
+
 class BldDataFEEGasDetEnergy
 {
     // PV names: GDET:FEE1:11:ENRC,GDET:FEE1:12:ENRC,GDET:FEE1:21:ENRC,GDET:FEE1:22:ENRC
@@ -18,9 +20,10 @@ public:
     int print() const;
 };
 
-class BldDataEBeam
+class BldDataEBeamV0
 {
 public:
+  enum { version=0 };
     uint32_t    uDamageMask;
     double      fEbeamCharge;    /* in nC */ 
     double      fEbeamL3Energy;  /* in MeV */ 
@@ -28,6 +31,23 @@ public:
     double      fEbeamLTUPosY;   /* in mm */ 
     double      fEbeamLTUAngX;   /* in mrad */ 
     double      fEbeamLTUAngY;   /* in mrad */  
+    
+    int print() const;    
+};
+
+
+class BldDataEBeam
+{
+public:
+  enum { version=1 };
+    uint32_t    uDamageMask;
+    double      fEbeamCharge;    /* in nC */ 
+    double      fEbeamL3Energy;  /* in MeV */ 
+    double      fEbeamLTUPosX;   /* in mm */ 
+    double      fEbeamLTUPosY;   /* in mm */ 
+    double      fEbeamLTUAngX;   /* in mrad */ 
+    double      fEbeamLTUAngY;   /* in mrad */  
+    double      fEbeamPkCurrBC2; /* in Amps */  
     
     int print() const;    
 };
@@ -46,5 +66,6 @@ public:
     int print() const;
 };
 
+#pragma pack()
 }
 #endif
