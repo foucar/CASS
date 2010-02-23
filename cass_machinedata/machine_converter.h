@@ -4,29 +4,31 @@
 #include <map>
 #include "cass_machine.h"
 #include "conversion_backend.h"
-#include "machine_event.h"
+#include "machine_device.h"
 
 namespace cass
 {
-    class CASSEvent;
+  class CASSEvent;
 
-    namespace MachineData
+  namespace MachineData
+  {
+    class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
     {
-        class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
-        {
-        public:
-            Converter();
-            //called for LCLS event//
-            void operator()(const Pds::Xtc*, cass::CASSEvent*);
+    public:
+      Converter();
+      //called for appropriate xtc part//
+      void operator()(const Pds::Xtc*, cass::CASSEvent*);
 
-        private:
-            typedef std::map<int,std::string> IndexMap;
-            IndexMap            _index2name;
-            MachineDataEvent    _storedevent;
+    private:
+      typedef std::map<int,std::string> indexMap_t;
 
-
-        };
-    }//end namespace MachineData
+    private:
+      IndexMap          _index2name;  //map to convert indexes to strings
+      MachineDataDevice _store;       //a container for the machindata values
+                                      //this is necessary, since not every shot there
+                                      //is info about the epics values
+    };
+  }//end namespace MachineData
 }//end namespace cass
 
 #endif

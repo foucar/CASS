@@ -11,7 +11,6 @@ OBJECTS_DIR = ./obj
 
 SOURCES += machine_analysis.cpp \
            machine_converter.cpp \
-           ./classes/event/machine_event.cpp \
 
 
 HEADERS += ../cass/analysis_backend.h \
@@ -20,12 +19,11 @@ HEADERS += ../cass/analysis_backend.h \
            machine_analysis.h \
            machine_converter.h \
            cass_machine.h \
-           ./classes/event/machine_event.h \
+           machine_device.h \
+
 
 INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \
-               ./classes/event \
-
 
 
 

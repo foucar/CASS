@@ -4,7 +4,7 @@
 
 #include "machine_analysis.h"
 #include "cass_event.h"
-#include "machine_event.h"
+#include "machine_device.h"
 
 
 void cass::MachineData::Parameter::load()
@@ -29,14 +29,16 @@ void cass::MachineData::Parameter::save()
 
 void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
 {
-  cass::MachineData::MachineDataEvent& machinedataevent = cassevent->MachineDataEvent();
+  //retrive refernce to the machinedevice//
+  MachineDataDevice& machinedata = 
+    *dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
 
   //This uses Rick K. code at psexport:/reg/neh/home/rkirian/ana2 //
 
   //Get electron beam parameters from beamline data/
-  const double fEbeamCharge    = machinedataevent.EbeamCharge();    // in nC
-  const double fEbeamL3Energy  = machinedataevent.EbeamL3Energy();  // in MeV 
-  const double fEbeamPkCurrBC2 = machinedataevent.EbeamPkCurrBC2(); // in Amps
+  const double fEbeamCharge    = machinedata.EbeamCharge();    // in nC
+  const double fEbeamL3Energy  = machinedata.EbeamL3Energy();  // in MeV 
+  const double fEbeamPkCurrBC2 = machinedata.EbeamPkCurrBC2(); // in Amps
 
   //calculate the resonant photon energy//
   // Get the present peak current in Amps
@@ -57,7 +59,7 @@ void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
 
   // Calculate the resonant photon energy of the first active segment
   // and the corrosponding wavelength
-  machinedataevent.energy() = 44.42*energyProfile*energyProfile;
-  machinedataevent.wavelength() =  1398.8/machinedataevent.energy();
+  machinedata.energy() = 44.42*energyProfile*energyProfile;
+  machinedata.wavelength() =  1398.8/machinedataevent.energy();
 }
 

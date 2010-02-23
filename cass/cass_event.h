@@ -17,7 +17,7 @@ namespace cass
     ~CASSEvent();
 
   public:
-    enum Device{pnCCD,Acqiris,Pulnix};
+    enum Device{pnCCD,Acqiris,Pulnix,MachineData};
     typedef std::map<Device,DeviceBackend*> devices_t;
 
   public:

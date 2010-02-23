@@ -5,8 +5,8 @@
  *lmf
  */
 
-#ifndef MACHINEDATAANALYSIS_H
-#define MACHINEDATAANALYSIS_H
+#ifndef _MACHINEDATAANALYSIS_H
+#define _MACHINEDATAANALYSIS_H
 
 
 #include "cass_machine.h"

@@ -3,7 +3,7 @@
 #include "remi_event.h"
 #include "ccd_device.h"
 #include "pnccd_event.h"
-#include "machine_event.h"
+#include "machine_device.h"
 
 
 cass::CASSEvent::CASSEvent():
@@ -11,6 +11,7 @@ cass::CASSEvent::CASSEvent():
 {
   //add all devices that are available
   _devices[Pulnix] = new cass::CCD::CCDDevice();
+  _devices[MachineData] = new cass::MachineData::MachineDataDevice();
 }
 
 cass::CASSEvent::~CASSEvent()
