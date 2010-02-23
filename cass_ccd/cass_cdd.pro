@@ -4,26 +4,25 @@
 CONFIG += static
 QT -= core gui
 TEMPLATE = lib
-TARGET = cass_vmi
-DEFINES += CASS_VMI_LIBRARY
+TARGET = cass_ccd
+DEFINES += CASS_CCD_LIBRARY
 VERSION = 0.0.1
 
 
-SOURCES += vmi_analysis.cpp \
-           vmi_converter.cpp \
-           ./classes/event/vmi_event.cpp \
+SOURCES += ccd_analysis.cpp \
+           ccd_converter.cpp \
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
-           vmi_analysis.h \
-           vmi_converter.h \
-           cass_vmi.h \
-           ./classes/event/vmi_event.h \
+           ../cass/ccd_detector.h \
+           ccd_analysis.h \
+           ccd_converter.h \
+           cass_ccd.h \
+           ccd_device.h
 
 INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \
-               ./classes/event \
 
 
 
@@ -33,5 +32,5 @@ header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/libs
 
 header.files   = $$HEADERS
-libs.files     = libcass_vmi.a
+libs.files     = libcass_ccd.a
 INSTALLS      += header libs

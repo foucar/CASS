@@ -20,7 +20,7 @@ QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
 SUBDIRS = \
           cass_remi \
-          cass_vmi \
+          cass_ccd \
           cass_pnccd \
           cass_machinedata \
           cass \
