@@ -10,8 +10,8 @@ namespace cass
   class CASSSHARED_EXPORT Pixel
   {
   public:
-    Pixel(uint16_t X, uint16_t Y, Pixel_t Z)
-        :x(X),y(Y),z(Z)
+    Pixel(uint16_t X, uint16_t Y, pixel_t Z)
+        :_x(X),_y(Y),_z(Z)
     {
     }
     Pixel()       {}
@@ -21,13 +21,13 @@ namespace cass
     uint16_t  x()const  {return _x;}
     uint16_t &y()       {return _y;}
     uint16_t  y()const  {return _y;}
-    Pixel_t  &z()       {return _z;}
-    Pixel_t   z()const  {return _z;}
+    pixel_t  &z()       {return _z;}
+    pixel_t   z()const  {return _z;}
 
   private:
     uint16_t _x;        //x coordinate of the coordinate
     uint16_t _y;        //y part of the coordinate
-    Pixel_t  _z;        //the pixel value
+    pixel_t  _z;        //the pixel value
   };
 
 
@@ -45,8 +45,8 @@ namespace cass
     ~CCDDetector() {}
 
   public:
-    typedef std::vector<Pixel_t> Frame_t;
-    typedef std::vector<Pixel> PixelList_t;
+    typedef std::vector<pixel_t> frame_t;
+    typedef std::vector<Pixel> pixelList_t;
 
   public:
     bool            &isFilled()              {return _isFilled;}
@@ -69,10 +69,10 @@ namespace cass
     uint32_t        &offset()                {return _offset;}
     uint32_t         offset()const           {return _offset;}
 
-    const Frame_t   &frame()const            {return _frame;}
-    Frame_t         &frame()                 {return _frame;}
-    const PixelList_t &pixellist()const      {return _coordinatesOfImpact;}
-    PixelList_t       &pixellist()           {return _coordinatesOfImpact;}
+    const frame_t     &frame()const          {return _frame;}
+    frame_t           &frame()               {return _frame;}
+    const pixelList_t &pixellist()const      {return _pixellist;}
+    pixelList_t       &pixellist()           {return _pixellist;}
 
   private:
     bool            _isFilled;               //flag to tell whether this event has been filled
@@ -89,7 +89,7 @@ namespace cass
     //data that gets calculated in Analysis//
     uint32_t        _integral;               //the sum of all pixelvalues
     uint16_t        _maxPixelValue;          //the highest pixelvalue
-    PixelList_t     _pixellist;              //list of pixels above a given threshold
+    pixelList_t     _pixellist;              //list of pixels above a given threshold
     frame_t         _cutframe;               //new frame where only mcp is drawn (give maximum radius)
   };
 }//end namespace cass

@@ -10,27 +10,27 @@ namespace cass
 {
   class DeviceBackend;
 
-  class CASSEvent
+  class CASSSHARED_EXPORT CASSEvent
   {
   public:
     CASSEvent();
     ~CASSEvent();
 
   public:
-    uint64_t             id()const        {return _id;}
-    uint64_t            &id()             {return _id;}
-    char                *datagrambuffer() {return _datagrambuffer;}
-    const DeviceBackend &devices()const   {return _devices;}
-    DeviceBackend       &devices()        {return _devices;}
-
-  public:
     enum Device{pnCCD,Acqiris,Pulnix};
     typedef std::map<Device,DeviceBackend*> devices_t;
 
+  public:
+    uint64_t         id()const        {return _id;}
+    uint64_t        &id()             {return _id;}
+    char            *datagrambuffer() {return _datagrambuffer;}
+    const devices_t &devices()const   {return _devices;}
+    devices_t       &devices()        {return _devices;}
+
   private:
-    uint64_t   _id;
-    devices_t  _devices;
-    char       _datagrambuffer[cass::DatagramBufferSize];
+    uint64_t   _id;         //id of the cassevent
+    devices_t  _devices;    //list of devices for this event
+    char       _datagrambuffer[cass::DatagramBufferSize]; //buffer for the datagram
   };
 }//end namespace
 

@@ -27,28 +27,28 @@ void cass::CCD::Parameter::save()
 
 
 
-
 void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
+  //retrieve a pointer to the ccd device we are working on//
+  cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::Pulnix]);
   //retrieve a reference to the pulnix detector//
-  cass::CCDDetector& det =
-      cassevent->devices()[cass::DeviceBackend::Pulnix].detector();
+  cass::CCDDetector& det = dev->detector();
 
   //clear the pixel list//
   det.pixellist().clear();
 
   //initialize the start values for integral and max pixel value//
-  Pixel_t maxpixelvalue                       = 0;
+  pixel_t maxpixelvalue                       = 0;
   float integral                              = 0;
   uint16_t framewidth                         = det.columns();
   uint16_t frameheight                        = det.rows();
-  const cass::VMI::VMIEvent::Frame_t& frame   = det.frame();
+  const cass::CCDDetector::frame_t& frame      = det.frame();
 
   //go through all pixels of the frame//
   for (size_t i=0; i<frame.size(); ++i)
   {
     //extract the value and coordinate from the frame//
-    Pixel_t pixel         = frame[i];
+    pixel_t pixel         = frame[i];
     uint16_t xcoordinate  = i % framewidth;
     uint16_t ycoordinate  = i / framewidth;
 
@@ -82,8 +82,8 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       maxpixelvalue = pixel;
   }
   //write the found integral and maximum Pixel value to the event//
-  vmievent.integral()     = integral;
-  vmievent.maxPixelValue()= maxpixelvalue;
+  det.integral()     = integral;
+  det.maxPixelValue()= maxpixelvalue;
 
   //rebinning the frame//
   //rebin image frame//
@@ -96,8 +96,8 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
     const size_t newRows = framewidth  / _param._rebinfactor;
     const size_t newCols = frameheight / _param._rebinfactor;
     //set the new dimensions in the detector//
-    vmievent.rows()    = newRows;
-    vmievent.columns() = newCols;
+    det.rows()    = newRows;
+    det.columns() = newCols;
     //resize the temporary container to fit the rebinned image
     //initialize it with 0
     _tmp.assign(newRows * newCols,0);
@@ -117,6 +117,6 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       _tmp[newIndex] += frame[iIdx];
     }
     //copy the temporary frame to the right place
-    vmievent.frame().assign(_tmp.begin(), _tmp.end());
+    det.frame().assign(_tmp.begin(), _tmp.end());
   }
 }

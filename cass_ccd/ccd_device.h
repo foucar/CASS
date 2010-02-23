@@ -2,10 +2,12 @@
 #define _CCD_DEVICE_H_
 
 #include "cass_ccd.h"
+#include "device_backend.h"
+#include "ccd_detector.h"
 
 namespace cass
 {
-  namespace ccd
+  namespace CCD
   {
     class CASS_CCDSHARED_EXPORT CCDDevice : public cass::DeviceBackend
     {
@@ -14,12 +16,12 @@ namespace cass
       ~CCDDevice()  {}
 
     public:
-      const CCDDetector &detector()const  {return _detector;}
-      CCDDetector &detector()             {return _detector;}
+      const cass::CCDDetector &detector()const  {return _detector;}
+      cass::CCDDetector &detector()             {return _detector;}
 
     private:
-      CCDDetector   _detector;
-    }
+      cass::CCDDetector   _detector;  //the ccd detector of this device
+    };
   }
 }
 

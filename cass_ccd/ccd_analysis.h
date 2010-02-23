@@ -7,6 +7,7 @@
 
 #include <QtCore/QPoint>
 #include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
 #include <vector>
 
 #include "cass_ccd.h"
@@ -46,11 +47,11 @@ namespace cass
       void operator()(CASSEvent*);
 
     private:
-      Parameter                   _param; //the parameters to analyze
-      cass::CCDDetector::Frame_t  _tmp;   //temp frame for rebinning
       QMutex                      _mutex; //mutex to block the tmp frame & parameter
+      Parameter                   _param; //the parameters to analyze
+      cass::CCDDetector::frame_t  _tmp;   //temp frame for rebinning
     };
-  }//end namespace vmi
+  }//end namespace ccd
 }//end namespace cass
 
 #endif
