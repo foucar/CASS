@@ -1,28 +1,11 @@
 # Copyright (C) 2009 ncoppola, lmf
 qt += core gui
 CONFIG += static
-# TEMPLATE = lib
 TEMPLATE = app
 TARGET = cass
 DEFINES += CASS_LIBRARY
 VERSION = 0.0.1
 CODECFORTR = UTF-8
-
-incFile = $$(QTROOTSYSDIR)/include
-exists ($$incFile) {
-  include ($$incFile/rootcint.pri)
-}
-
-!exists ($$incFile) {
-  incFile = $$(ROOTSYS)/include/rootcint.pri
-  exists ($$incFile) {
-    include ($$incFile)
-  }
-}
-
-#QMAKE_CFLAGS += -pg
-#QMAKE_LFLAGS += -pg
-#QMAKE_CXXFLAGS += -pg
 
 SOURCES +=  cass.cpp \
             analyzer.cpp \
@@ -70,41 +53,20 @@ INCLUDEPATH +=  ./ \
                 ./postprocessing
 
 
-win32:debug{
-LIBS += -L../cass_remi/Debug -lcass_remi \
-        -L../cass_pnccd/Debug -lcass_pnccd \
-        -L../cass_vmi/Debug -lcass_vmi \
-        -L../cass_database/Debug -lcass_database \
-}
-
-win32:release{
-LIBS += -L../cass_remi/Release -lcass_remi \
-        -L../cass_pnccd/Release -lcass_pnccd \
-        -L../cass_vmi/Release -lcass_vmi \
-        -L../cass_database/Release -lcass_database
-}
 
 unix{
 SOURCES += $$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc # we have to live with this hack until lcls has made this part of their library
 QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
-#QMAKE_LFLAGS += -Wl,-rpath,$$(Dict_LIB)
 LIBS += -L../cass_remi -lcass_remi \
         -L../cass_pnccd -lcass_pnccd \
-        -L../cass_vmi -lcass_vmi \
+        -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        -L../cass_database -lcass_database \
-        -L../cass_dictionaries -lcass_dictionaries  \
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
-       #-L../cass_root -lroot
-        #-L../cass -lcass \
 
-#TARGETDEPS +=   ../cass_remi/libcass_remi.a \
-#                ../cass_pnccd/libcass_pnccd.a \
-#                ../cass_vmi/libcass_vmi.a \
-#               ../cass_machinedata/libcass_machinedata.a \
-#                ../cass_dictionaries/libcass_dictionaries.a \
-#                ../cass_database/libcass_database.a
-#                ../cass_database/libcass_database.so
+TARGETDEPS +=	../cass_remi/libcass_remi.a \
+                ../cass_pnccd/libcass_pnccd.a \
+                ../cass_vmi/libcass_ccd.a \
+				../cass_machinedata/libcass_machinedata.a \
 }
 
 
