@@ -36,7 +36,7 @@ void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
   //This uses Rick K. code at psexport:/reg/neh/home/rkirian/ana2 //
 
   //Get electron beam parameters from beamline data/
-  const double fEbeamCharge    = machinedata.EbeamCharge();    // in nC
+  //const double fEbeamCharge    = machinedata.EbeamCharge();    // in nC
   const double fEbeamL3Energy  = machinedata.EbeamL3Energy();  // in MeV 
   const double fEbeamPkCurrBC2 = machinedata.EbeamPkCurrBC2(); // in Amps
 
@@ -60,6 +60,6 @@ void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
   // Calculate the resonant photon energy of the first active segment
   // and the corrosponding wavelength
   machinedata.energy() = 44.42*energyProfile*energyProfile;
-  machinedata.wavelength() =  1398.8/machinedataevent.energy();
+  machinedata.wavelength() =  1398.8/machinedata.energy();
 }
 

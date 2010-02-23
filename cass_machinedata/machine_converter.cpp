@@ -37,7 +37,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   if (cassevent)
   {
     machinedata = dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
-    machinedata->EpicsData() = _storedevent.EpicsData();
+    machinedata->EpicsData() = _store.EpicsData();
   }
 
   switch (xtc->contains.id())
@@ -101,14 +101,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
           {
             std::stringstream entryname;
             entryname << ctrl.sPvName << "[" << i << "]";
-            _storedevent.EpicsData()[entryname.str()] = 0.;
+            _store.EpicsData()[entryname.str()] = 0.;
             //std::cout << "add "<<entryname.str() << " to machinedatamap"<<std::endl;
           }
         }
         //otherwise we just add the name to the map and initialze it with 0//
         else
         {
-          _storedevent.EpicsData()[ctrl.sPvName] = 0.;
+          _store.EpicsData()[ctrl.sPvName] = 0.;
           //std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
         }
       }
@@ -127,10 +127,11 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         //try to find the the name in the map//
         //this returns an iterator to the first entry we found//
         //if it was an array we can then use the iterator to the next values//
-        machinedata::epicsDataMap_t::iterator it = _storedevent.EpicsData().find(name);
+        MachineDataDevice::epicsDataMap_t::iterator it = 
+          _store.EpicsData().find(name);
         //if the name is not in the map//
         //then output an erromessage//
-        if (it == _storedevent.EpicsData().end())
+        if (it == _store.EpicsData().end())
           std::cerr << "epics variable with id "<<epicsData.iPvId<<" was not defined"<<std::endl;
         //otherwise extract the epicsData and write it into the map
         else
@@ -153,6 +154,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }
   //copy the epics values in the storedevent to the machineevent
   if (cassevent)
-    machinedata->EpicsData() = _storedevent.EpicsData();
+    machinedata->EpicsData() = _store.EpicsData();
 
 }

@@ -15,8 +15,7 @@ namespace cass
     {
     public:
       MachineDataDevice()
-        :_isFilled(false),
-        _f_11_ENRC(0),
+        :_f_11_ENRC(0),
         _f_12_ENRC(0),
         _f_21_ENRC(0),
         _f_22_ENRC(0),
@@ -92,8 +91,8 @@ namespace cass
       double Charge2()const      {return _Charge2;}
       double& Charge2()          {return _Charge2;}
 
-      const EpicsDataMap& EpicsData()const {return _epicsdata;}
-      EpicsDataMap& EpicsData() {return _epicsdata;}
+      const epicsDataMap_t& EpicsData()const {return _epicsdata;}
+      epicsDataMap_t& EpicsData() {return _epicsdata;}
 
     private:
       //data comming from machine//
@@ -116,7 +115,7 @@ namespace cass
       double _Charge2;        //cavity property in pico-columbs
 
       //epics data//
-      EpicsDataMap _epicsdata;//a map containing all epics data in the xtc stream
+      epicsDataMap_t _epicsdata;//a map containing all epics data in the xtc stream
 
       //data that gets calculated in Analysis//
       double _energy;         //the calculated puls energy
