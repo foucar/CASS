@@ -1,16 +1,16 @@
-#ifndef VMICONVERTER_H
-#define VMICONVERTER_H
+#ifndef _CCD_CONVERTER_H_
+#define _CCD_CONVERTER_H_
 
-#include "cass_vmi.h"
+#include "cass_ccd.h"
 #include "conversion_backend.h"
 
 namespace cass
 {
     class CASSEvent;
 
-    namespace VMI
+    namespace CCD
     {
-        class CASS_VMISHARED_EXPORT Converter : public cass::ConversionBackend
+        class CASS_CCDSHARED_EXPORT Converter : public cass::ConversionBackend
         {
         public:
             Converter();

@@ -4,7 +4,6 @@
 #define CASS_DEVICEBACKEND_H
 
 #include "cass.h"
-#include <stdint.h>
 
 namespace cass
 {

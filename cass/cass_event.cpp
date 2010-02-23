@@ -1,24 +1,21 @@
 #include "cass_event.h"
 
 #include "remi_event.h"
-#include "vmi_event.h"
+#include "ccd_device.h"
 #include "pnccd_event.h"
 #include "machine_event.h"
 
 
 cass::CASSEvent::CASSEvent():
     _id(0),
-    _remievent(new REMI::REMIEvent()),
-    _vmievent(new VMI::VMIEvent()),
-    _pnccdevent(new pnCCD::pnCCDEvent()),
-    _machinedataevent(new MachineData::MachineDataEvent())
 {
+  //add all devices that are available
+  _devices[Pulnix] = new cass::CCD::CCDDevice();
 }
 
 cass::CASSEvent::~CASSEvent()
 {
-  delete _machinedataevent;
-  delete _pnccdevent;
-  delete _vmievent;
-  delete _remievent;
+  //delete all devices
+  for (device_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
+    delete (it->second);
 }

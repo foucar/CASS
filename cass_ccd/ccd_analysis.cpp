@@ -1,32 +1,24 @@
 /*
- *  VMIAnalysis.cpp
- *  diode
- *
- *  Created by Jochen Küpper on 20.05.09.
- *  Copyright 2009 Fritz-Haber-Institut der MPG. All rights reserved.
- * filled with life by lmf
+ *  Created by Lutz Foucar on 23.02.2010
  */
 
-#include "vmi_analysis.h"
+#include "ccd_analysis.h"
 #include "cass_event.h"
-#include "vmi_event.h"
+#include "ccd_detector.h"
+#include "ccd_device.h"
 
 
-void cass::VMI::Parameter::load()
+void cass::CCD::Parameter::load()
 {
   //sync before loading//
   sync();
   _threshold    = value("Threshold",0).toUInt();
-  _centerOfMcp  = value("CenterOfMcp",QPoint(200, 200)).toPoint();
-  _maxMcpRadius = value("MaxMcpRadius",200).toUInt();
-  _rebinfactor  = value("RebinFactor",4).toUInt();
+  _rebinfactor  = value("RebinFactor",1).toUInt();
 }
 
-void cass::VMI::Parameter::save()
+void cass::CCD::Parameter::save()
 {
   setValue("Threshold",_threshold);
-  setValue("CenterOfMcp",_centerOfMcp);
-  setValue("MaxMcpRadius",_maxMcpRadius);
   setValue("RebinFactor",_rebinfactor);
 }
 
@@ -36,45 +28,37 @@ void cass::VMI::Parameter::save()
 
 
 
-void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
+void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
-  cass::VMI::VMIEvent& vmievent = cassevent->VMIEvent();
+  //retrieve a reference to the pulnix detector//
+  cass::CCD::CCDDetector& det = cassevent->devices()[Pulnix].detector();
 
-  //clear the vector of impacts//
-  vmievent.coordinatesOfImpact().clear();
+  //clear the pixel list//
+  det.pixellist().clear();
 
   //initialize the start values for integral and max pixel value//
-  uint16_t maxpixelvalue                     = 0;
-  uint32_t integral                          = 0;
-  uint16_t framewidth                        = vmievent.columns();
-  uint16_t frameheight                       = vmievent.rows();
-  const cass::VMI::VMIEvent::frame_t& frame  = vmievent.frame();
+  Pixel_t maxpixelvalue                       = 0;
+  float integral                              = 0;
+  uint16_t framewidth                         = det.columns();
+  uint16_t frameheight                        = det.rows();
+  const cass::VMI::VMIEvent::Frame_t& frame   = det.frame();
 
   //go through all pixels of the frame//
   for (size_t i=0; i<frame.size(); ++i)
   {
     //extract the value and coordinate from the frame//
-    uint16_t pixel          = frame[i];
-    uint16_t xcoordinate    = i % framewidth;
-    uint16_t ycoordinate    = i / framewidth;
+    Pixel_t pixel         = frame[i];
+    uint16_t xcoordinate  = i % framewidth;
+    uint16_t ycoordinate  = i / framewidth;
 
     //calc integral//
     integral += pixel;
 
-    //check whether pixel is outside of maximum radius//
-    //if not then add pixel to cutframe//
-    uint16_t corX = xcoordinate - _param._centerOfMcp.x();
-    uint16_t corY = ycoordinate - _param._centerOfMcp.y();
-    if (corX*corX + corY*corY < _param._maxMcpRadius*_param._maxMcpRadius)
-    {
-      vmievent.cutFrame()[i] = pixel;
-    }
-
-    //check whether pixel is a local maximum//
-    //if so add its coordinates to the coordinates of impact map//
-    //check wether pixel is above threshold
+    //check whether pixel is above threshold//
+    //then check whether pixel is a local maximum//
+    //if so add it to the pixel list//
     if (pixel > _param._threshold)
-      //check wether point is at an edge
+      //check wether point is not at an edge
       if (ycoordinate > 0 &&
           ycoordinate < frameheight-1 &&
           xcoordinate > 0 &&
@@ -89,7 +73,7 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
           frame[i+framewidth]   < pixel && //lower middle
           frame[i+framewidth+1] < pixel)   //lower right
       {
-        vmievent.coordinatesOfImpact().push_back(Coordinate(xcoordinate,ycoordinate));
+        det.pixellist().push_back(Pixel(xcoordinate,ycoordinate,pixel));
       }
 
     //get the maximum pixel value//
@@ -104,6 +88,9 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
   //rebin image frame//
   if (_param._rebinfactor != 1)
   {
+    //lock this section due to the access to the tmp frame//
+    QMutexLocker(&_mutex);
+
     //get the new dimensions//
     const size_t newRows = framewidth  / _param._rebinfactor;
     const size_t newCols = frameheight / _param._rebinfactor;
@@ -130,6 +117,5 @@ void cass::VMI::Analysis::operator()(cass::CASSEvent *cassevent)
     }
     //copy the temporary frame to the right place
     vmievent.frame().assign(_tmp.begin(), _tmp.end());
-
   }
 }

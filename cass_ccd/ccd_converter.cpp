@@ -1,39 +1,36 @@
-#include "vmi_converter.h"
+#include "ccd_converter.h"
 #include <iostream>
 
 #include "pdsdata/camera/FrameV1.hh"
 #include "pdsdata/xtc/Xtc.hh"
 #include "cass_event.h"
-#include "vmi_event.h"
+#include "ccd_device.h"
+#include "ccd_detector.h"
 
 
 
-cass::VMI::Converter::Converter()
+cass::CCD::Converter::Converter()
 {
-    //this converter should react on acqiris config and waveform//
+    //this converter should react on a ccd frame//
     _types.push_back(Pds::TypeId::Id_Frame);
 }
 
-void cass::VMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
+void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
     const Pds::Camera::FrameV1 &frame = *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
-    VMIEvent &vmievent = cassevent->VMIEvent();
+    CCDDetector &det = cassevent->devices()[cass::DeviceBackend::Pulnix].detector();
 
-    vmievent.isFilled()         = true;
-    vmievent.columns()          = frame.width();
-    vmievent.rows()             = frame.height();
-    vmievent.originalcolumns()  = frame.width();
-    vmievent.originalrows()     = frame.height();
-    vmievent.bitsPerPixel()     = frame.depth();
-    vmievent.offset()           = frame.offset();
+    det.isFilled()         = true;
+    det.columns()          = frame.width();
+    det.rows()             = frame.height();
+    det.originalcolumns()  = frame.width();
+    det.originalrows()     = frame.height();
+    det.bitsPerPixel()     = frame.depth();
+    det.offset()           = frame.offset();
 
     //copy the frame data to this event ... initalize the size of the cutevent//
     const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
-    vmievent.frame().assign(framedata, framedata + (frame.width()*frame.height()));
-
-    //std::cout  <<frame.width()<< " " <<frame.height()<<std::endl;
-    //for(size_t i=0;i<15;i++) std::cout<<i<< std::hex<<": 0x"<<framedata[i] << std::dec<<std::endl;
-    //std::cout<<std::endl;
+    det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
 
     //make the cutframe as big as the vmievent, but fill with 0//
     vmievent.cutFrame().assign(vmievent.frame().size(),0);

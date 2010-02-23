@@ -59,8 +59,7 @@ INCLUDEPATH +=  ./ \
                 ../cass_remi/classes/event/detector \
                 ../cass_remi/classes/detektorhitsorter \
                 ../cass_remi/classes/waveformanalyzer \
-                ../cass_vmi \
-                ../cass_vmi/classes/event \
+                ../cass_ccd \
                 ../cass_pnccd \
                 ../cass_pnccd/classes/event \
                 ../cass_pnccd/classes/event/pnccd_detector \
