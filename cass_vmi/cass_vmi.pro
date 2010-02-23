@@ -1,30 +1,13 @@
 # Copyright (C) 2009 Jochen Küpper
 #modified Copyright (C) 2009 N Coppola
-CONFIG += shared
-#CONFIG += static 
-CONFIG += create_prl
+
+CONFIG += static
 QT -= core gui
 TEMPLATE = lib
 TARGET = cass_vmi
-#TARGET += classes/event/vmi_event_dict.cxx
 DEFINES += CASS_VMI_LIBRARY
 VERSION = 0.0.1
 
-#QMAKE_CFLAGS += -pg
-#QMAKE_LFLAGS += -pg
-#QMAKE_CXXFLAGS += -pg
-
-incFile = $$(QTROOTSYSDIR)/include
-exists ($$incFile) {
-  include ($$incFile/rootcint.pri)
-}
-
-!exists ($$incFile) {
-  incFile = $$(ROOTSYS)/include/rootcint.pri
-  exists ($$incFile) {
-    include ($$incFile)
-  }
-}
 
 SOURCES += vmi_analysis.cpp \
            vmi_converter.cpp \

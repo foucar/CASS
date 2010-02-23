@@ -1,32 +1,13 @@
 # Copyright (C) 2009 Jochen Küpper
 #modified Copyright (C) 2009 N Coppola,lmf
-CONFIG += shared
-#CONFIG += static
-CONFIG += create_prl
+CONFIG += static
 QT -= core gui
 TEMPLATE = lib
+TARGET = cass_remi
 DEFINES += CASS_REMI_LIBRARY
 
 OBJECTS_DIR = ./obj
 
-#QMAKE_CFLAGS += -pg
-#QMAKE_LFLAGS += -pg
-#QMAKE_CXXFLAGS += -pg
-
-incFile = $$(QTROOTSYSDIR)/include
-exists ($$incFile) {
-  include ($$incFile/rootcint.pri)
-}
-
-!exists ($$incFile) {
-  incFile = $$(ROOTSYS)/include/rootcint.pri
-  exists ($$incFile) {
-    include ($$incFile)
-  }
-}
-
-TARGET = cass_remi
-#TARGET += libcass_remi.a
 
 SOURCES += remi_analysis.cpp \
            remi_converter.cpp \

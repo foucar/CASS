@@ -16,23 +16,11 @@ QMAKE_LFLAGS += -p
 
 QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
-#QMAKE_CXXFLAGS_DEBUG   += -O0
 QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
-#LFLAGS += -Wl,-rpath,/afs/desy.de/user/n/ncoppola/LCLS/new/release/build/pdsdata/lib/i386-linux
-
-#HEADERS += TMyQButton.h
-#CREATE_ROOT_DICT_FOR_CLASSES = $$HEADERS LinkDef.h
-include("$(ROOTSYS)/include/rootcint.pri")
-
 SUBDIRS = \
-#          cass_root \
           cass_remi \
           cass_vmi \
           cass_pnccd \
-#          cass_imageprocessor \
           cass_machinedata \
-          cass_database \
-          cass_dictionaries \
           cass \
-#          diode

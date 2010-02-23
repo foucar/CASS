@@ -4,9 +4,6 @@
 #include <map>
 #include <string>
 
-
-
-
 namespace cass
 {
     namespace MachineData

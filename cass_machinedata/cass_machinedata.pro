@@ -1,28 +1,13 @@
 # Copyright (C) 2009 Jochen Küpper
 
-CONFIG += shared
-#CONFIG += static 
+CONFIG += static
 QT -= core gui
 TEMPLATE = lib
 TARGET = cass_machinedata
 DEFINES += CASS_MACHINEDATA_LIBRARY
 VERSION = 0.0.1
 
-#QMAKE_CFLAGS += -pg
-#QMAKE_LFLAGS += -pg
-#QMAKE_CXXFLAGS += -pg
-
-incFile = $$(QTROOTSYSDIR)/include
-exists ($$incFile) {
-  include ($$incFile/rootcint.pri)
-}
-
-!exists ($$incFile) {
-  incFile = $$(ROOTSYS)/include/rootcint.pri
-  exists ($$incFile) {
-    include ($$incFile)
-  }
-}
+OBJECTS_DIR = ./obj
 
 SOURCES += machine_analysis.cpp \
            machine_converter.cpp \
