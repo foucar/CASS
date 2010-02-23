@@ -31,7 +31,8 @@ void cass::CCD::Parameter::save()
 void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
   //retrieve a reference to the pulnix detector//
-  cass::CCD::CCDDetector& det = cassevent->devices()[Pulnix].detector();
+  cass::CCDDetector& det =
+      cassevent->devices()[cass::DeviceBackend::Pulnix].detector();
 
   //clear the pixel list//
   det.pixellist().clear();
