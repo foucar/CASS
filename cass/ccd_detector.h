@@ -49,9 +49,6 @@ namespace cass
     typedef std::vector<Pixel> pixelList_t;
 
   public:
-    bool            &isFilled()              {return _isFilled;}
-    bool             isFilled()const         {return _isFilled;}
-
     uint32_t        &integral()              {return _integral;}
     uint32_t         integral()const         {return _integral;}
     uint16_t        &maxPixelValue()         {return _maxPixelValue;}
@@ -64,10 +61,6 @@ namespace cass
     uint16_t         originalcolumns()const  {return _originalcolumns;}
     uint16_t        &originalrows()          {return _originalrows;}
     uint16_t         originalrows()const     {return _originalrows;}
-    uint16_t        &bitsPerPixel()          {return _bitsPerPixel;}
-    uint16_t         bitsPerPixel()const     {return _bitsPerPixel;}
-    uint32_t        &offset()                {return _offset;}
-    uint32_t         offset()const           {return _offset;}
 
     const frame_t     &frame()const          {return _frame;}
     frame_t           &frame()               {return _frame;}
@@ -75,22 +68,17 @@ namespace cass
     pixelList_t       &pixellist()           {return _pixellist;}
 
   private:
-    bool            _isFilled;               //flag to tell whether this event has been filled
-
-    //data comming from machine//
+    //data//
     frame_t         _frame;                  //the ccd frame
     uint16_t        _columns;                //Nbr of columns of the frame
     uint16_t        _rows;                   //Nbr of rows of the frame
     uint16_t        _originalcolumns;        //Nbr of columns of the frame before rebinning
     uint16_t        _originalrows;           //Nbr of rows of the frame before rebinning
-    uint16_t        _bitsPerPixel;           //number of bits per pixel
-    uint32_t        _offset;                 //the offset (need to find out what this value stands for)
 
     //data that gets calculated in Analysis//
     uint32_t        _integral;               //the sum of all pixelvalues
     uint16_t        _maxPixelValue;          //the highest pixelvalue
     pixelList_t     _pixellist;              //list of pixels above a given threshold
-    frame_t         _cutframe;               //new frame where only mcp is drawn (give maximum radius)
   };
 }//end namespace cass
 
