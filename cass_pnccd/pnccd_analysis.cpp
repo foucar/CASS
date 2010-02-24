@@ -1,4 +1,5 @@
 // Copyright (C) 2009 jk, lmf
+#include <QtCore/QMutexLocker>
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -11,6 +12,7 @@
 
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
+  QString s;
   //retrieve reference to the detector parameter//
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
@@ -34,7 +36,7 @@ void cass::pnCCD::Parameter::load()
   //sync before loading//
   sync();
   //resize the detector parameter container before adding new stuff//
-  _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter);
+  _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter());
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
@@ -105,7 +107,7 @@ void cass::pnCCD::Analysis::loadSettings()
     //retrieve a reference to the detector parameter
     DetectorParameter &dp = _param._detectorparameters[iDet];
     //open the file that should contain the darkframes//
-    ifstream in(dp._darkcalfilename.c_str(), std::ios::binary|std::ios::ate);
+    std::ifstream in(dp._darkcalfilename.c_str(), std::ios::binary|std::ios::ate);
     if (in.is_open())
     {
 //      std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
@@ -139,13 +141,13 @@ void cass::pnCCD::Analysis::saveSettings()
     if (!dp._offset.empty() && !dp._noise.empty())
     {
       //create a output file//
-      ofstream out(dp._darkcalfilename.c_str(), std::ios::binary);
+      std::ofstream out(dp._darkcalfilename.c_str(), std::ios::binary);
       if (out.is_open())
       {
 //        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._save_darkcal_fnames[i].c_str()<<"\""<<std::endl;
         //write the parameters to the file//
-        out.write(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
-        out.write(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+        out.write(reinterpret_cast<const char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
+        out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
       }
     }
   }

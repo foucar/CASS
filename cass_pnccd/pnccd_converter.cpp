@@ -72,7 +72,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
     {
       // Get a reference to the pnCCDDevice
       pnCCDDevice &dev =
-          *dynamic_cast<pnCCDDevice*>(cassevent->device()[cass::CASSEvent::pnCCD]);
+          *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
       //Get the frame from the xtc
       const Pds::PNCCD::FrameV1* frameSegment =
           reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
@@ -109,7 +109,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
 
         //resize the frame to what we will receive//
-        det.rawFrame().resize(FrameSize);
+        det.frame().resize(FrameSize);
 
         //create a container for pointers to the beginning of the data for all segments//
         std::vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
@@ -131,7 +131,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
         //go through each row of each element and align the data that it is//
         //create a iterator for the raw frame//
-        cass::CCDDetector::frame_t::iterator it = det.rawFrame().begin();
+        cass::CCDDetector::frame_t::iterator it = det.frame().begin();
         //we need to do the reordering of the segments here
         //go through the all rows of the first two segments and //
         //do first row , first row, second row , second row ...//

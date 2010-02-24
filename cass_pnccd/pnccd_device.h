@@ -7,6 +7,7 @@
 
 #include "ccd_detector.h"
 #include "cass_pnccd.h"
+#include "device_backend.h"
 
 
 namespace cass
