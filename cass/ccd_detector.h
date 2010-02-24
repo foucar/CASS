@@ -37,8 +37,6 @@ namespace cass
     CCDDetector():
         _columns(0),
         _rows(0),
-        _bitsPerPixel(0),
-        _offset(0),
         _integral(0),
         _maxPixelValue(0)
     {}
