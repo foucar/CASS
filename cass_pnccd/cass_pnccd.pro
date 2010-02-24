@@ -11,27 +11,20 @@ OBJECTS_DIR = ./obj
 
 SOURCES += pnccd_analysis.cpp \
            pnccd_converter.cpp \
-           ./classes/event/pnccd_event.cpp \
 
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
+           ../cass/device_backend.h \
+           ../cass/ccd_detector.h \
            pnccd_analysis.h \
            pnccd_converter.h \
            cass_pnccd.h \
-           ./classes/event/pnccd_event.h \
-           ./classes/event/pnccd_detector/pnccd_detector.h \
+           pnccd_device.h \
   
-INCLUDEPATH += ./ \
+INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
                ../cass \
-               ./classes/event \
-               ./classes/event/pnccd_detector \
-               $$(LCLSSYSINCLUDE) \
-               ./pnccd_lib \
-               ../cass_remi/classes/event \
-               ../cass_remi/classes/event/channel \
-               ../cass_remi/classes/event/peak \
-               ../cass_remi/classes/event/detector
+
 
 
 INSTALLBASE    = /usr/local/cass
