@@ -8,7 +8,31 @@
 #include "pdsdata/pnCCD/ConfigV1.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
-#include "pnccd_event.h"
+#include "pnccd_device.h"
+#include "ccd_detector.h"
+
+inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
+{
+  //if pixel over or underflow//
+  if (pixel & 0xc000)
+  {
+    //check whether all lower bits are set (overflow)
+    if((pixel & 0x3fff) == 0x3fff)
+      return 16383;
+    //or all lower bits are not set (underflow)
+    else if((pixel & 0x3fff) == 0x0)
+      return 0;
+    //otherwise this datapoint yields something wrong//
+    else
+    {
+      std::cout << "bad pixel representation: 0x"<<std::hex<<pixel<<std::dec<<std::endl;
+      return 0xffff;
+    }
+  }
+  //otherwise just return pixel
+  else
+    return pixel;
+}
 
 
 cass::pnCCD::Converter::Converter()
@@ -46,8 +70,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
   case (Pds::TypeId::Id_pnCCDframe) :
     {
-      // Get a reference to the pnCCDEvent:
-      pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
+      // Get a reference to the pnCCDDevice
+      pnCCDDevice &dev =
+          *dynamic_cast<pnCCDDevice*>(cassevent->device()[cass::CASSEvent::pnCCD]);
       //Get the frame from the xtc
       const Pds::PNCCD::FrameV1* frameSegment =
           reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
@@ -55,26 +80,28 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
 
-//      std::cout<< detectorId << " " << pnccdevent.detectors().size()<<std::endl;
       //if necessary resize the detector container//
-      if (detectorId >= pnccdevent.detectors().size())
-        pnccdevent.detectors().resize(detectorId+1);
+      if (detectorId >= dev.detectors().size())
+        dev.detectors().resize(detectorId+1);
 
-      //only run this if we have a config for this detector
+      //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
       if (_pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
-        cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
-//        std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<< pnccdevent.detectors().size() <<std::endl;
+        cass::CCDDetector& det = dev.detectors()[detectorId];
 
         //get the pointer to the config for this detector//
-        Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
+        const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
 
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
         det.rows() = det.columns() = 1024;
         det.originalrows() = det.originalcolumns() = 1024;
+
+        //the dim of one frame segment is also not provided//
+        const size_t rowsOfSegment = 512;
+        const size_t columnsOfSegment = 512;
 
         //find out the total size of this frame//
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
@@ -86,7 +113,6 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
         //create a container for pointers to the beginning of the data for all segments//
         std::vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
-        std::vector<const uint16_t*> frameSegmentPointers(NbrOfSegments,0);
         //go through all segments and get the pointers to the beginning//
         for (size_t i=0; i<NbrOfSegments ;++i)
         {
@@ -96,66 +122,44 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           frameSegment = frameSegment->next(*pnccdConfig);
         }
 
-        //calc the Number of Rows and Colums in one Segment//
-        const size_t rowsOfSegment = det.rows() / 2;
-        const size_t columnsOfSegment = det.columns() / 2;
-
         //reorient the xtc segements to real frame segments//
+        std::vector<const uint16_t*> frameSegmentPointers(NbrOfSegments,0);
         frameSegmentPointers[0] = xtcSegmentPointers[0];
         frameSegmentPointers[1] = xtcSegmentPointers[3];
         frameSegmentPointers[2] = xtcSegmentPointers[1];
         frameSegmentPointers[3] = xtcSegmentPointers[2];
 
         //go through each row of each element and align the data that it is//
-        //1 row of 1segment : 1 row of 2segment : ...  : 1 row of last segment : 2 row of 1 segment : ... : 2 row of last segment : .... : last row of last segment
         //create a iterator for the raw frame//
-        cass::pnCCD::pnCCDDetector::frame_t::iterator it = det.rawFrame().begin();
-//        for (size_t iRow = 0; iRow<rowsOfSegment; ++iRow)
-//        {
-//          for (size_t iSegment = 0; iSegment<NbrOfSegments; ++iSegment)
-//          {
-//            //copy the row of this segment//
-//            std::copy(datapointers[iSegment],
-//                      datapointers[iSegment] + columnsOfSegment,
-//                      it);
-//            //advance the iterators by size of columns of one segment//
-//            it += columnsOfSegment;
-//            datapointers[iSegment] += columnsOfSegment;
-//          }
-//        }
-        //for now we might want to do the reordering of the segments and
-        //reallignment of the nils stuff here
+        cass::CCDDetector::frame_t::iterator it = det.rawFrame().begin();
+        //we need to do the reordering of the segments here
         //go through the all rows of the first two segments and //
         //do first row , first row, second row , second row ...//
+        //also do a overflow / underflow chekc of each pixel and set it//
+        //accordingly
         for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
           //copy the row of first segment//
-          std::copy(frameSegmentPointers[0],
-                    frameSegmentPointers[0] + columnsOfSegment,
-                    it);
-          //advance the iterators by size of columns of one segment//
-          it += columnsOfSegment;
-          frameSegmentPointers[0] += columnsOfSegment;
-
+          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+            *it++ = checkOverAndUnderflow(*frameSegmentPointers[0]++);
           //copy the row of second segment//
-          std::copy(frameSegmentPointers[1],
-                    frameSegmentPointers[1] + columnsOfSegment,
-                    it);
-          //advance the iterators by size of columns of one segment//
-          it += columnsOfSegment;
-          frameSegmentPointers[1] += columnsOfSegment;
+          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+            *it++ = checkOverAndUnderflow(*frameSegmentPointers[1]++);
         }
         //go through the all rows of the next two segments and //
         //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
-        //therefore we need to adjust the datapointers of the last two segments//
-        for (size_t iSegment=NbrOfSegments/2; iSegment<NbrOfSegments ; ++iSegment)
-          frameSegmentPointers[iSegment] += ((rowsOfSegment-1)*columnsOfSegment) + columnsOfSegment-1;
+        //therefore we need to let the datapointers of the last two segments//
+        //point to the end of the segement//
+        frameSegmentPointers[2] += rowsOfSegment*columnsOfSegment - 1;
+        frameSegmentPointers[3] += rowsOfSegment*columnsOfSegment - 1;
         for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
+          //copy row of 3rd segment reversed
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = *frameSegmentPointers[2]--;
+            *it++ = checkOverAndUnderflow(*frameSegmentPointers[2]--);
+          //copy row of 4th segement reversed
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = *frameSegmentPointers[3]--;
+            *it++ = checkOverAndUnderflow(*frameSegmentPointers[3]--);
         }
       }
     }

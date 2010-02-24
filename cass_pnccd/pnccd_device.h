@@ -1,54 +1,35 @@
-// pnCCDEvent.h : Nils Kimmel 2009
-// The pnCCD detector data that result from one machine event
-// of e.g. a Free Electron Laser. This data collection is pipe-
-// lined through the operator() of the class cass::pnCCD::Analysis
-// and generates the basic analysis products for a user of raw
-// pnCCD frames.
+#ifndef _PNCCD_DEVICE_H
+#define _PNCCD_DEVICE_H
 
 
 #include <vector>
 #include <stdint.h>
 
-#include "pnccd_detector.h"
+#include "ccd_detector.h"
+#include "cass_pnccd.h"
 
 
-#ifndef PNCCD_EVENT_H
-#define PNCCD_EVENT_H
-
-#ifndef ROOT_Rtypes
-#include "Rtypes.h"
-#endif
-
-#ifndef ROOT_TObject
-#include "TObject.h"
-#endif
-
-	
 namespace cass
 {
-    namespace pnCCD
+  namespace pnCCD
+  {
+    class CASS_PNCCDSHARED_EXPORT pnCCDDevice : public DeviceBackend
     {
-        class pnCCDEvent
-        {
-        public:
-            //some typedefs for more readable code
-            typedef std::vector<pnCCDDetector> detectors_t;
+    public:
+      pnCCDDevice(void)    {}
+      ~pnCCDDevice()       {}
 
-        public:
-            pnCCDEvent(void)    {}
-            ~pnCCDEvent()       {}
+    public:
+      typedef std::vector<CCDDetector> detectors_t;
 
-        public:
-            const detectors_t   &detectors()const   {return _detectors;}
-            detectors_t         &detectors()        {return _detectors;}
+    public:
+      const detectors_t   &detectors()const   {return _detectors;}
+      detectors_t         &detectors()        {return _detectors;}
 
-        private:
-            detectors_t          _detectors;        //a vector containing all detectors
-
-
-            ClassDefNV(pnCCDEvent,1)            //the pnccd event
-        };
-    } // end of scope of namespace pnCCD
+    private:
+      detectors_t          _detectors;        //a vector containing all ccd detectors
+    };
+  } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
 

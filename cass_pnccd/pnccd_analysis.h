@@ -7,10 +7,9 @@
 #include <string>
 #include <vector>
 #include "cass_pnccd.h"
+#include "ccd_detector.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
-
-//#include <QtGui/QImage>
 
 
 namespace cass
@@ -18,52 +17,42 @@ namespace cass
   class CASSEvent;
   namespace pnCCD
   {
+    class pnCCDDevice;
 
+    class CASS_PNCCDSHARED_EXPORT DetectorParameter
+    {
+    public:
+      typedef std::vector<double> correctionmap_t;
+    public:
+      correctionmap_t _offset;            //offsetmap
+      correctionmap_t _noise;             //noise map
+      uint32_t        _rebinfactor;       //the rebinfactor for rebinning
+      double          _sigmaMuliplier;    //how big is above noise
+      double          _adu2eV;            //conversion from adu to eV
+      bool            _createPixellist;   //flag to switch pixellist on / off
+      bool            _doOffsetCorrection;//flag to switch offsetcorrection on / off
+      std::string     _darkcalfilename;   //filename of file containing dark & noisemap
+    };
 
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
-      /*
-      Parameters needed for the pnCCDs. CAMP will typically use
-      two one-megapixel detector modules consisting of two pnCCDs
-      with 512 x 1024 pixels each.
-      */
     public:
-      /*
-      Constructor: assign the parameters with safe default values:
-      */
       Parameter(void) {beginGroup("pnCCD");}
       ~Parameter()    {endGroup();}
       void load();
       void save();
+      void loadDetectorParameter(size_t DetectorIndex);
 
-      //rebin factors for each detector//
-      std::vector<uint32_t> _rebinfactors;
-      //offsets for each detector//
-      std::vector<std::vector<double> > _offsets;
-      //noise for each detector//
-      std::vector<std::vector<double> > _noise;
-      //the damping coefficient//
-      std::vector<double> _dampingCoefficient;
-      //the number of fills for each detector//
-      std::vector<size_t> _nbrDarkframes;
-      //the multiplier how much times the sigma is the noise level//
-      std::vector<double> _sigmaMultiplier;
-      //the conversion factor to convert "adu's" to eV//
-      std::vector<double> _adu2eV;
-      //the remichannel to that will tell us whether there is light in the chamber//
-      uint32_t _lightIndicatorChannel;
-      // Dark frame calibration file names for each detector//
-      std::vector<std::string> _darkcal_fnames;
-      // Dark frame calibration save file names for each detector//
-      std::vector<std::string> _save_darkcal_fnames;
+    public:
+      typedef std::vector<DetectorParameter> detparameters_t;
+    public:
+      detparameters_t _detectorparameters;  //the parameters of the detector
+      bool            _isDarkframe;         //switch telling whether we are collecting darkframes right now
     };
 
 
 
 
-
-
-    class pnCCDFrameAnalysis;
 
     class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
@@ -83,16 +72,16 @@ namespace cass
       in the frame.
       */
       void operator() (cass::CASSEvent*);
+
     private:
-      Parameter _param;
-      // The frame analysis object:
-      std::vector<pnCCDFrameAnalysis *> _pnccd_analyzer;
-      //temporary storage for rebinning frames//
-      //!!! this is not thread safe if this is a singleton//
-      std::vector<uint64_t> _tmp;
+      void createOffsetAndNoiseMap(const pnCCDDevice&);
+      void rebin();
+
+    private:
+      QMutex                      _mutex; //a mutex to lock write operations
+      Parameter                   _param; //the parameters used to analyze the pnccd detectors
+      cass::CCDDetector::frame_t  _tmp;   //temporary storage for rebinning frames
     };
-
-
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
