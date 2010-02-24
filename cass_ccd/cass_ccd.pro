@@ -8,6 +8,7 @@ TARGET = cass_ccd
 DEFINES += CASS_CCD_LIBRARY
 VERSION = 0.0.1
 
+OBJECTS_DIR = ./obj
 
 SOURCES += ccd_analysis.cpp \
            ccd_converter.cpp \
@@ -15,6 +16,7 @@ SOURCES += ccd_analysis.cpp \
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
+           ../cass/device_backend.h \
            ../cass/ccd_detector.h \
            ccd_analysis.h \
            ccd_converter.h \
