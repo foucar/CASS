@@ -6,23 +6,21 @@
 
 namespace cass
 {
-    class CASSSHARED_EXPORT ParameterBackend : public QSettings
+  class CASSSHARED_EXPORT ParameterBackend : public QSettings
+  {
+  public:
+    ParameterBackend():
+        QSettings("./cass.ini",QSettings::IniFormat)
     {
-    public:
-        ParameterBackend():
-                QSettings("./cass.ini",QSettings::IniFormat)
-        {
-            beginGroup("cass");
-        }
+    }
 
-        virtual ~ParameterBackend()
-        {
-            endGroup();
-        }
+    virtual ~ParameterBackend()
+    {
+    }
 
-        virtual void load()=0;
-        virtual void save()=0;
-    };
+    virtual void load()=0;
+    virtual void save()=0;
+  };
 }//end namespace cass
 
 #endif // PARAMETER_BACKEND_H
