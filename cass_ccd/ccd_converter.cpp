@@ -27,13 +27,10 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   cass::CCDDetector& det = dev->detector();
 
   //copy the values status values from the frame to the detector//
-  det.isFilled()         = true;
   det.columns()          = frame.width();
   det.rows()             = frame.height();
   det.originalcolumns()  = frame.width();
   det.originalrows()     = frame.height();
-  det.bitsPerPixel()     = frame.depth();
-  det.offset()           = frame.offset();
 
   //copy the frame data to this detector and do a type convertion implicitly//
   const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
