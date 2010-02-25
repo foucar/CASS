@@ -1,14 +1,26 @@
-#ifndef CASS_REMI_GLOBAL_H
-#define CASS_REMI_GLOBAL_H
+#ifndef _ACQIRIS_GLOBAL_H_
+#define _ACQIRIS_GLOBAL_H_
 
 //lmf
 
 #include <QtCore/qglobal.h>
 
-#if defined(CASS_REMI_LIBRARY)
-#  define CASS_REMISHARED_EXPORT Q_DECL_EXPORT
+#if defined(CASS_ACQIRIS_LIBRARY)
+#  define CASS_ACQIRISSHARED_EXPORT Q_DECL_EXPORT
 #else
-#  define CASS_REMISHARED_EXPORT Q_DECL_IMPORT
+#  define CASS_ACQIRISSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
-#endif // CASS_REMI_GLOBAL_H
+namespace cass
+{
+  namespace ACQIRIS
+  {
+    enum Polarity {Bad,Positive,Negative};
+    enum LayersToUse {UV,UW,VW};
+    enum DetectorAnalyzers {DelaylineDetectorSimple};
+    enum WaveformAnalyzers {CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
+    enum LayerTypes{U,V,W};
+  }
+}
+
+#endif // CASS_ACQIRIS_GLOBAL_H

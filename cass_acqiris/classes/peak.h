@@ -1,5 +1,5 @@
-#ifndef __peak_h__
-#define __peak_h__
+#ifndef _PEAK_H_
+#define _PEAK_H_
 
 #include <vector>
 #include <stdint.h>
@@ -8,16 +8,13 @@
 
 namespace cass
 {
-  namespace REMI
+  namespace ACQIRIS
   {
     class Peak
     {
       public:
         Peak():_used(false)  {}
         ~Peak() {}
-
-      public:
-        enum Polarity{Bad=0,Positive,Negative};
 
       public:
         double      time()const         {return _time;}

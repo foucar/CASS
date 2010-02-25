@@ -1,7 +1,6 @@
-#ifndef __DELAYLINE_DETECTOR_ANALYZER_H_
-#define __DELAYLINE_DETECTOR_ANALYZER_H_
+#ifndef __DELAYLINE_DETECTOR_ANALYZER_BACKEND_H_
+#define __DELAYLINE_DETECTOR_ANALYZER_BACKEND_H_
 
-#include <vector>
 #include "detector_analyzer_backend.h"
 
 namespace cass

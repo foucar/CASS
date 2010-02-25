@@ -5,14 +5,15 @@
 
 #include "vector"
 #include "cass_acqiris.h"
-#include "waveform_analyzer.h"
+#include "channel.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
     class DetectorBackend;
-    class Channel;
+    class WaveformAnalyzerBackend;
+
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
     public:
@@ -20,10 +21,8 @@ namespace cass
           :_waveformanalyzer(waveformanalyzer) {}
       virtual ~DetectorAnalyzerBackend() {}
       virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
-    public:
-      enum Analyzers {DelaylineSimple};
     protected:
-      typedef std::map<WaveformAnalyzer::WaveformAnalyzerTypes, WaveformAnalyzer*> waveformanalyzers_t;
+      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
     protected:
       waveformanalyzers_t *_waveformanalyzer;
     };

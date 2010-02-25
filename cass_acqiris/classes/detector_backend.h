@@ -7,12 +7,15 @@
 
 namespace cass
 {
-  class CASS_ACQIRISSHARED_EXPORT DetectorBackend
+  namespace ACQIRIS
   {
-  public:
-    virtual ~DetectorBackend() {}
-    enum DetectorTypes {DelaylineDetector, ToFDetector};
-  };
+    class CASS_ACQIRISSHARED_EXPORT DetectorBackend
+    {
+    public:
+      virtual ~DetectorBackend() {}
+      enum DetectorTypes {DelaylineDetector, ToFDetector};
+    };
+  }
 }//end namespace cass
 
 #endif

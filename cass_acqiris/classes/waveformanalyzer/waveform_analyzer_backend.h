@@ -14,8 +14,6 @@ namespace cass
     public:
       virtual ~WaveformAnalyzerBackend()         {}
       virtual void analyze(const Channel&, Signal&) = 0;
-    public:
-      enum WaveformAnalyzerTypes{CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
     };
   }//end namespace remi
 }//end namespace cass
