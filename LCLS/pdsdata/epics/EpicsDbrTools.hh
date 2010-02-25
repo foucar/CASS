@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdint.h>
+#include <stdio.h>
 
 #if defined(INCLcadefh)
 #define EPICS_HEADERS_INCLUDED
@@ -13,21 +14,21 @@ namespace Pds
 
 /*
  * Imported from Epics library
- */        
+ */
 namespace Epics
 {
 
-#ifndef EPICS_HEADERS_INCLUDED    
-    
+#ifndef EPICS_HEADERS_INCLUDED
+
 /*
  * Imported from Epics header file: ${EPICS_PROJECT_DIR}/base/current/include/alarm.h
- */    
+ */
 #define ALARM_NSEV      4
 #define ALARM_NSTATUS   22
 
 /*
  * Imported from Epics header file: ${EPICS_PROJECT_DIR}/base/current/include/epicsTypes.h
- */    
+ */
 
 #if __STDC_VERSION__ >= 199901L
     typedef int8_t          epicsInt8;
@@ -51,13 +52,13 @@ namespace Epics
 typedef float           epicsFloat32;
 typedef double          epicsFloat64;
 typedef unsigned long   epicsIndex;
-typedef epicsInt32      epicsStatus;   
+typedef epicsInt32      epicsStatus;
 #define MAX_STRING_SIZE 40
-typedef char            epicsOldString[MAX_STRING_SIZE]; 
+typedef char            epicsOldString[MAX_STRING_SIZE];
 
 /*
  * Imported from Epics header file: ${EPICS_PROJECT_DIR}/base/current/include/epicsTime.h
- */    
+ */
 
 typedef struct epicsTimeStamp {
     epicsUInt32    secPastEpoch;   /* seconds since 0000 Jan 1, 1990 */
@@ -66,7 +67,7 @@ typedef struct epicsTimeStamp {
 
 /*
  * Imported from Epics header file: ${EPICS_PROJECT_DIR}/base/current/include/db_access.h
- */    
+ */
 
 /* data request buffer types */
 #define DBR_STRING      0
@@ -108,7 +109,7 @@ typedef struct epicsTimeStamp {
 
 #define dbr_type_is_TIME(type)   \
         ((type) >= DBR_TIME_STRING && (type) <= DBR_TIME_DOUBLE)
-        
+
 #define dbr_type_is_CTRL(type)   \
         ((type) >= DBR_CTRL_STRING && (type) <= DBR_CTRL_DOUBLE)
 
@@ -124,9 +125,9 @@ typedef epicsUInt16 dbr_put_acks_t;
 typedef epicsOldString dbr_stsack_string_t;
 typedef epicsOldString dbr_class_name_t;
 
-#define MAX_UNITS_SIZE          8   
+#define MAX_UNITS_SIZE          8
 #define MAX_ENUM_STRING_SIZE    26
-#define MAX_ENUM_STATES         16  
+#define MAX_ENUM_STATES         16
 
 /* structure for a  string time field */
 struct dbr_time_string{
@@ -203,7 +204,7 @@ struct dbr_ctrl_int{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_short_t upper_disp_limit;   /* upper limit of graph */
     dbr_short_t lower_disp_limit;   /* lower limit of graph */
-    dbr_short_t upper_alarm_limit;  
+    dbr_short_t upper_alarm_limit;
     dbr_short_t upper_warning_limit;
     dbr_short_t lower_warning_limit;
     dbr_short_t lower_alarm_limit;
@@ -217,7 +218,7 @@ struct dbr_ctrl_short{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_short_t upper_disp_limit;   /* upper limit of graph */
     dbr_short_t lower_disp_limit;   /* lower limit of graph */
-    dbr_short_t upper_alarm_limit;  
+    dbr_short_t upper_alarm_limit;
     dbr_short_t upper_warning_limit;
     dbr_short_t lower_warning_limit;
     dbr_short_t lower_alarm_limit;
@@ -235,7 +236,7 @@ struct dbr_ctrl_float{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_float_t upper_disp_limit;   /* upper limit of graph */
     dbr_float_t lower_disp_limit;   /* lower limit of graph */
-    dbr_float_t upper_alarm_limit;  
+    dbr_float_t upper_alarm_limit;
     dbr_float_t upper_warning_limit;
     dbr_float_t lower_warning_limit;
     dbr_float_t lower_alarm_limit;
@@ -261,7 +262,7 @@ struct dbr_ctrl_char{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_char_t  upper_disp_limit;   /* upper limit of graph */
     dbr_char_t  lower_disp_limit;   /* lower limit of graph */
-    dbr_char_t  upper_alarm_limit;  
+    dbr_char_t  upper_alarm_limit;
     dbr_char_t  upper_warning_limit;
     dbr_char_t  lower_warning_limit;
     dbr_char_t  lower_alarm_limit;
@@ -278,7 +279,7 @@ struct dbr_ctrl_long{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_long_t  upper_disp_limit;   /* upper limit of graph */
     dbr_long_t  lower_disp_limit;   /* lower limit of graph */
-    dbr_long_t  upper_alarm_limit;  
+    dbr_long_t  upper_alarm_limit;
     dbr_long_t  upper_warning_limit;
     dbr_long_t  lower_warning_limit;
     dbr_long_t  lower_alarm_limit;
@@ -296,7 +297,7 @@ struct dbr_ctrl_double{
     char        units[MAX_UNITS_SIZE];  /* units of value */
     dbr_double_t    upper_disp_limit;   /* upper limit of graph */
     dbr_double_t    lower_disp_limit;   /* lower limit of graph */
-    dbr_double_t    upper_alarm_limit;  
+    dbr_double_t    upper_alarm_limit;
     dbr_double_t    upper_warning_limit;
     dbr_double_t    lower_warning_limit;
     dbr_double_t    lower_alarm_limit;
@@ -305,27 +306,27 @@ struct dbr_ctrl_double{
     dbr_double_t    value;          /* current value */
 };
 
-#endif 
-// #ifndef EPICS_HEADERS_INCLUDED    
+#endif
+// #ifndef EPICS_HEADERS_INCLUDED
 
 /*
  * Imported from Epics header file: ${EPICS_PROJECT_DIR}/base/current/include/alarm.h
- */    
+ */
 extern const char *epicsAlarmSeverityStrings [ALARM_NSEV];
 extern const char *epicsAlarmConditionStrings [ALARM_NSTATUS];
 
 /*
  * Imported from Epics source file: ${EPICS_PROJECT_DIR}/base/current/src/ca/access.cpp
- *  
+ *
  */
 extern const char *dbr_text[35];
 
 } // namespace Epics
-    
-        
+
+
 namespace EpicsDbrTools
 {
-    
+
 const int iSizeBasicDbrTypes = 7; // Summarized from Epics namespace
 const int iSizeAllDbrTypes = 35; // Summarized from Epics namespace
 
@@ -359,19 +360,19 @@ template <> struct DbrTypeFromInt<DBR_CTRL_LONG>   { typedef dbr_ctrl_long   TDb
 template <> struct DbrTypeFromInt<DBR_CTRL_DOUBLE> { typedef dbr_ctrl_double TDbr; };
 
 template <int iDbrType> struct DbrTypeTraits
-{ 
-    enum { 
+{
+    enum {
       iDiffDbrOrgToDbrTime = DBR_TIME_DOUBLE - DBR_DOUBLE,
       iDiffDbrOrgToDbrCtrl = DBR_CTRL_DOUBLE - DBR_DOUBLE };
-      
-    enum { 
+
+    enum {
       iDbrTimeType = iDbrType + iDiffDbrOrgToDbrTime,
       iDbrCtrlType = iDbrType + iDiffDbrOrgToDbrCtrl };
-        
+
     typedef typename DbrTypeFromInt<iDbrType    >::TDbr TDbrOrg;
     typedef typename DbrTypeFromInt<iDbrTimeType>::TDbr TDbrTime;
-    typedef typename DbrTypeFromInt<iDbrCtrlType>::TDbr TDbrCtrl;    
-}; 
+    typedef typename DbrTypeFromInt<iDbrCtrlType>::TDbr TDbrCtrl;
+};
 
 template <class TDbr> struct DbrIntFromType { char a[-1 + (TDbr)0]; }; // Default should not be used. Will generate compilation error.
 template <class TDbr> struct DbrIntFromType<const TDbr> : DbrIntFromType<TDbr> {}; // remove const qualifier
@@ -395,69 +396,69 @@ template <> struct DbrIntFromCtrlType<dbr_ctrl_double> { enum {iTypeId = DBR_DOU
 
 extern const char* sDbrPrintfFormat[];
 
-template <class TDbr> 
-void printValue( TDbr* pValue ) 
-{ 
+template <class TDbr>
+void printValue( TDbr* pValue )
+{
     enum { iDbrType = DbrIntFromType<TDbr>::iTypeId };
-    printf( sDbrPrintfFormat[iDbrType], *pValue );    
+    printf( sDbrPrintfFormat[iDbrType], *pValue );
 }
 
 template <> inline
 void printValue( const dbr_string_t* pValue )
-{ 
+{
     printf( "%s", (char*) pValue );
 }
 
 template <class TCtrl> // Default not to print precision field
 void printPrecisionField(TCtrl& pvCtrlVal)  {}
 
-template <> inline 
+template <> inline
 void printPrecisionField(const dbr_ctrl_double& pvCtrlVal)
 {
     printf( "Precision: %d\n", pvCtrlVal.precision );
 }
 
-template <> inline 
+template <> inline
 void printPrecisionField(const dbr_ctrl_float& pvCtrlVal)
 {
-    printf( "Precision: %d\n", pvCtrlVal.precision );    
+    printf( "Precision: %d\n", pvCtrlVal.precision );
 }
 
 template <class TCtrl> inline
 void printCtrlFields(TCtrl& pvCtrlVal)
 {
     printPrecisionField(pvCtrlVal);
-    printf( "Units: %s\n", pvCtrlVal.units );        
-    
-    enum { iDbrType = DbrIntFromCtrlType<TCtrl>::iTypeId };    
+    printf( "Units: %s\n", pvCtrlVal.units );
+
+    enum { iDbrType = DbrIntFromCtrlType<TCtrl>::iTypeId };
 
     std::string sFieldFmt = sDbrPrintfFormat[iDbrType];
     std::string sOutputString = std::string() +
-      "Hi Disp : " + sFieldFmt + "  Lo Disp : " + sFieldFmt + "\n" + 
+      "Hi Disp : " + sFieldFmt + "  Lo Disp : " + sFieldFmt + "\n" +
       "Hi Alarm: " + sFieldFmt + "  Hi Warn : " + sFieldFmt + "\n" +
       "Lo Warn : " + sFieldFmt + "  Lo Alarm: " + sFieldFmt + "\n" +
       "Hi Ctrl : " + sFieldFmt + "  Lo Ctrl : " + sFieldFmt + "\n";
-     
-    printf( sOutputString.c_str(), 
-      pvCtrlVal.upper_disp_limit, pvCtrlVal.lower_disp_limit, 
-      pvCtrlVal.upper_alarm_limit, pvCtrlVal.upper_warning_limit, 
-      pvCtrlVal.lower_warning_limit, pvCtrlVal.lower_alarm_limit, 
+
+    printf( sOutputString.c_str(),
+      pvCtrlVal.upper_disp_limit, pvCtrlVal.lower_disp_limit,
+      pvCtrlVal.upper_alarm_limit, pvCtrlVal.upper_warning_limit,
+      pvCtrlVal.lower_warning_limit, pvCtrlVal.lower_alarm_limit,
       pvCtrlVal.upper_ctrl_limit, pvCtrlVal.lower_ctrl_limit
       );
-    
+
     return;
 }
 
-template <> inline 
+template <> inline
 void printCtrlFields(const dbr_sts_string& pvCtrlVal) {}
 
-template <> inline 
-void printCtrlFields(const dbr_ctrl_enum& pvCtrlVal) 
+template <> inline
+void printCtrlFields(const dbr_ctrl_enum& pvCtrlVal)
 {
     if ( pvCtrlVal.no_str > 0 )
     {
         printf( "EnumState Num: %d\n", pvCtrlVal.no_str );
-        
+
         for (int iEnumState = 0; iEnumState < pvCtrlVal.no_str; iEnumState++ )
             printf( "EnumState[%d]: %s\n", iEnumState, pvCtrlVal.strs[iEnumState] );
     }
