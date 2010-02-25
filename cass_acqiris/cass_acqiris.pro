@@ -3,15 +3,14 @@
 CONFIG += static
 QT -= core gui
 TEMPLATE = lib
-TARGET = cass_remi
-DEFINES += CASS_REMI_LIBRARY
+TARGET = cass_acqiris
+DEFINES += CASS_ACQIRIS_LIBRARY
 
 OBJECTS_DIR = ./obj
 
 
-SOURCES += remi_analysis.cpp \
-           remi_converter.cpp \
-           ./classes/event/remi_event.cpp \
+SOURCES += acqiris_analysis.cpp \
+           acqiris_converter.cpp \
            ./classes/event/channel/channel.cpp \
            ./classes/event/peak/peak.cpp \
            ./classes/event/detector/detector.cpp \
@@ -21,13 +20,14 @@ SOURCES += remi_analysis.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
            ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
 
-HEADERS += ../cass/analysis_backend.h \
+HEADERS += acqiris_analysis.h \
+           acqiris_converter.h \
+           cass_acqiris.h  \
+           remi_device.h \
+           ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
-           remi_analysis.h \
-           remi_converter.h \
-           cass_remi.h  \
-           ./classes/event/remi_event.h \
+           ../cass/device_backend.h \
            ./classes/event/channel/channel.h \
            ./classes/event/peak/peak.h \
            ./classes/event/detector/detector.h \
@@ -41,12 +41,9 @@ HEADERS += ../cass/analysis_backend.h \
 
 INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \
+               ./classes \
                ./classes/waveformanalyzer \
                ./classes/detektorhitsorter \
-               ./classes/event \
-               ./classes/event/channel \
-               ./classes/event/peak \
-               ./classes/event/detector \
                ./
 
 INSTALLBASE     = /usr/local/cass
@@ -54,5 +51,5 @@ header.path     = $$INSTALLBASE/include
 libs.path       = $$INSTALLBASE/libs
 
 header.files    = $$HEADERS
-libs.files      = libcass_remi*
+libs.files      = libcass_acqiris*
 INSTALLS        += header libs
