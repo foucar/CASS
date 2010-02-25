@@ -1,23 +1,27 @@
 #ifndef __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 #define __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 
-#include "delayline_detector_analyzer.h"
+#include "delayline_detector_analyzer_backend.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
-    class DelaylineDetectorAnalyzerSimple : public DelaylineDetectorAnalyzer
+    class DelaylineDetector;
+    class AnodeLayer;
+
+    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
+        : public DelaylineDetectorAnalyzerBackend
     {
     public:
       DetectorHitSorterSimple()
-          :DelaylineDetectorAnalyzer(waveformanalyzer){std::cout << "adding simple detectorhitsorter"<<std::endl;}
+          :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
+      {
+        std::cout << "adding simple delayline detector analyzer"<<std::endl;
+      }
       void analyze(DetectorBackend&,const std::vector<Channel>&);
-    public:
-      enum LayersToUse {UV=0,UW,VW};
-
     private:
-      void sortForTimesum(Detector&,AnodeLayer &x,AnodeLayer &y);
+      void sortForTimesum(DelaylineDetector&,AnodeLayer &x,AnodeLayer &y);
     };
 
   }//end namespace acqiris

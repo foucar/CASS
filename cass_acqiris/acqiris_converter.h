@@ -1,27 +1,27 @@
-#ifndef REMICONVERTER_H
-#define REMICONVERTER_H
+#ifndef _ACQIRIS_CONVERTER_H
+#define _ACQIRIS_CONVERTER_H
 
-#include "cass_remi.h"
+#include "cass_acqiris.h"
 #include "conversion_backend.h"
-#include "remi_event.h"
+#include "acqiris_device.h"
 #include <iostream>
 
 
 namespace cass
 {
-    namespace REMI
+  namespace ACQIRIS
+  {
+    class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
     {
-        class CASS_REMISHARED_EXPORT Converter : public cass::ConversionBackend
-        {
-        public:
-            Converter();
-           //called for LCLS event//
-            void operator()(const Pds::Xtc*, cass::CASSEvent*);
-        private:
-            //store the config internally since its only send once for each run//
-            REMIEvent               _storedEvent;
-        };
-    }//end namespace remi
+    public:
+      Converter();
+
+      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+
+    private:
+      size_t _numberOfChannels;   //the number of channels for the device is only send once
+    };
+  }//end namespace acqiris
 }//end namespace cass
 
 #endif

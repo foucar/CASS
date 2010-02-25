@@ -6,68 +6,54 @@
 
 #include <string>
 #include <vector>
-#include "cass_remi.h"
+#include "cass_acqiris.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
-#include "waveform_analyzer.h"
-#include "detektorhitsorter.h"
-#include "remi_event.h"
+#include "acqiris_device.h"
 
 namespace cass 
 {
-  namespace REMI
+  class CASSEvent*;
+
+  namespace ACQIRIS
   {
+    class WaveformAnalyzerBackend;
+    class DetectorAnalyzerBackend;
 
-    class ChannelParameter
+    class CASS_ACQIRISSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
     public:
-      //the settings for one channel//
-      int16_t     _threshold;   //the threshold of the channel
-      uint32_t    _delay;       //the delay of the cfd
-      double      _fraction;    //the fraction of the cfd
-      double      _walk;        //the walk of the cfd
-      WaveformAnalyzer::WaveformAnalyzerTypes     _analyzetyp;     //way how peaks are identified
-    };
-
-    class CASS_REMISHARED_EXPORT Parameter : public cass::ParameterBackend
-    {
-    public:
-      Parameter()  {beginGroup("REMI");}
+      Parameter()  {beginGroup("Acqiris");}
       ~Parameter() {endGroup();}
-        public:
-      typedef std::vector<ChannelParameter> chanparameters_t;
 
       void load();
       void save();
 
-      REMIEvent::detectors_t  _detectors;             //the detector parameters (are the dets itselve
-      chanparameters_t        _channelParameters;     //settings to extract peaks of the channels
+      AcqirisDevice::detectors_t  _detectors; //the detector parameters (are the dets itselve)
     };
 
 
 
 
-    class CASS_REMISHARED_EXPORT Analysis : public cass::AnalysisBackend
+    class CASS_ACQIRISSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
       Analysis();
       ~Analysis()         {}
-      void loadSettings();
-      void saveSettings() {_parameter.save();}
+      void loadSettings() {_param.load();}
+      void saveSettings() {_param.save();}
       //called for every event//
-      void operator()(CASSEvent*);
+      void operator()(cass::CASSEvent*);
 
     private:
-      typedef std::map<WaveformAnalyzer::WaveformAnalyzerTypes, WaveformAnalyzer*> waveformanalyzers_t;
-      typedef std::map<DetectorHitSorter::SorterTypes, DetectorHitSorter*> dethitsorter_t;
+      typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
+      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
 
-   private:
-      waveformanalyzers_t _waveformanalyzer;
-      dethitsorter_t      _sorter;
-      Parameter           _parameter;
+    private:
+      waveformanalyzer_t  _waveformanalyzer;
+      detectoranalyzer_t  _detectoranalyzer;
+      Parameter           _param;
     };
-
-
   } //end namespace REMI
 } //end namespace CASS
 

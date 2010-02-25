@@ -1,62 +1,62 @@
 #include <iostream>
 #include <cmath>
 
-#include "detektorhitsorter_simple.h"
-#include "detector.h"
-#include "remi_analysis.h"
-#include "remi_event.h"
+#include "delayline_detector_analyzer_simple.h"
+#include "delayline_detector.h"
 #include "channel.h"
 
 
 //****************************************The Class Implementation*******************************************************
 //___________________________________________________________________________________________________________________________________________________________
-void cass::REMI::DetectorHitSorterSimple::sort(cass::REMI::REMIEvent& e, cass::REMI::Detector& d)
+void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::DetectorBackend& detector, const std::vector<cass::ACQIRIS::Channel>& channels)
 {
-  std::cout << "do the sorting"<<std::endl;
+//  std::cout << "do the sorting"<<std::endl;
+  //do a type conversion to have a delayline detector//
+  DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
   //check what layer the user wants to use for calculating the pos//
-  cass::REMI::AnodeLayer *firstLayer=0;
-  cass::REMI::AnodeLayer *secondLayer=0;
+  AnodeLayer *firstLayer=0;
+  AnodeLayer *secondLayer=0;
   switch (d.LayersToUse())
   {
-  case(cass::REMI::DetectorHitSorterSimple::UV):
+  case(UV):
     {
-      std::cout << "uv"<<std::endl;
-      firstLayer = &d.u();
-      secondLayer = &d.v();
+//      std::cout << "uv"<<std::endl;
+      firstLayer = &d.layers()[AnodeLayer::U];
+      secondLayer = &d.layers()[AnodeLayer::V];
       break;
     }
-  case(cass::REMI::DetectorHitSorterSimple::UW):
+  case(UW):
     {
-      std::cout << "uw"<<std::endl;
-      firstLayer = &d.u();
-      secondLayer = &d.w();
+//      std::cout << "uw"<<std::endl;
+      firstLayer = &d.layers()[AnodeLayer::U];
+      secondLayer = &d.layers()[AnodeLayer::W];
       break;
     }
-  case(cass::REMI::DetectorHitSorterSimple::VW):
+  case(VW):
     {
-      std::cout << "vw"<<std::endl;
-      firstLayer = &d.v();
-      secondLayer = &d.w();
+//      std::cout << "vw"<<std::endl;
+      firstLayer = &d.layers()[AnodeLayer::V];
+      secondLayer = &d.layers()[AnodeLayer::W];
       break;
     }
   default: break;
   }
   //extract the peaks for the signals of the detector from the channels//
-  extractPeaksForSignal(e.channels(),d.mcp());
-  extractPeaksForSignal(e.channels(),firstLayer->one());
-  extractPeaksForSignal(e.channels(),firstLayer->two());
-  extractPeaksForSignal(e.channels(),secondLayer->one());
-  extractPeaksForSignal(e.channels(),secondLayer->two());
+  (*_waveformanalyzer)[d.mcp().analysistype()]->analyze(channels[d.mcp().channelNbr()],d.mcp().peaks());
+  (*_waveformanalyzer)[firstLayer->one().analysistype()]->analyze(channels[d.mcp().channelNbr()],firstLayer->one().peaks());
+  (*_waveformanalyzer)[firstLayer->two().analysistype()]->analyze(channels[d.mcp().channelNbr()],firstLayer->two().peaks());
+  (*_waveformanalyzer)[secondLayer->one().analysistype()]->analyze(channels[d.mcp().channelNbr()],secondLayer->one().peaks());
+  (*_waveformanalyzer)[secondLayer->two().analysistype()]->analyze(channels[d.mcp().channelNbr()],secondLayer->two().peaks());
 
   //now sort these peaks for the layers timesum//
-  std::cout << "sort for timesum"<<std::endl;
+//  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,*firstLayer,*secondLayer);
-  std::cout <<"done"<<std::endl;
+//  std::cout <<"done"<<std::endl;
 }
 
 
 //____________________________functions that will use a simple sorting__________________________________
-void findBoundriesForSorting(const cass::REMI::Signal &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
+void findBoundriesForSorting(const cass::ACQIRIS::Signal &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
 {
   //--we know two things:--//
   //-- |x1-x2|<rTimex  and--//
@@ -112,7 +112,7 @@ void findBoundriesForSorting(const cass::REMI::Signal &anodeEnd, const double mc
 //    }
 //}
 //___________________________________________________________________________________________________________________________________________________________
-void cass::REMI::DetectorHitSorterSimple::sortForTimesum(cass::REMI::Detector &d,cass::REMI::AnodeLayer &xLayer,cass::REMI::AnodeLayer &yLayer)
+void cass::ACQIRIS::DetectorHitSorterSimple::sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,cass::ACQIRIS::AnodeLayer &xLayer,cass::ACQIRIS::AnodeLayer &yLayer)
 {
   //--calculate the timesum from the given lower and upper boundries for it--//
   const double tsx		= xLayer.ts();

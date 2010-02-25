@@ -13,14 +13,14 @@ SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
            ./classes/waveformanalyzer/cfd.cpp \
            ./classes/waveformanalyzer/com.cpp \
-           ./classes/detektorhitsorter/detektorhitsorter.cpp \
-           ./classes/detektorhitsorter/detektorhitsorter_quad.cpp \
-           ./classes/detektorhitsorter/detektorhitsorter_simple.cpp \
+           ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
 
 HEADERS += acqiris_analysis.h \
            acqiris_converter.h \
            cass_acqiris.h  \
            acqiris_device.h \
+           detector_backend.h \
+           detector_analyzer_backend.h \
            ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
@@ -28,13 +28,13 @@ HEADERS += acqiris_analysis.h \
            ./classes/channel.h \
            ./classes/peak.h \
            ./classes/delayline_detector.h \
-           ./classes/waveformanalyzer/waveform_analyzer.h \
+           ./classes/waveformanalyzer/waveform_analyzer_backend.h \
            ./classes/waveformanalyzer/cfd.h \
            ./classes/waveformanalyzer/com.h \
            ./classes/waveformanalyzer/helperfunctionsforstdc.h \
-           ./classes/detektorhitsorter/detektorhitsorter.h \
-           ./classes/detektorhitsorter/detektorhitsorter_quad.h \
-           ./classes/detektorhitsorter/detektorhitsorter_simple.h \
+           ./classes/detector_analyzer/detector_analyzer_backend.h \
+           ./classes/detector_analyzer/delayline_detector_analyzer_backend.h \
+           ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
 
 INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \

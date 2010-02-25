@@ -1,5 +1,5 @@
-#include "remi_analysis.h"
-#include "remi_event.h"
+#include "acqiris_analysis.h"
+#include "acqiris_device.h"
 #include "cass_event.h"
 #include "com.h"
 #include "cfd.h"
@@ -47,7 +47,7 @@ void saveAnodeParameter(const cass::REMI::AnodeLayer& a, const char * groupName,
   p->endGroup();
 }
 
-void cass::REMI::Parameter::load()
+void cass::ACQIRIS::Parameter::load()
 {
   //string for the container index//
   QString s;
@@ -103,7 +103,7 @@ void cass::REMI::Parameter::load()
   endGroup();//detectorcontainer
 }
 
-void cass::REMI::Parameter::save()
+void cass::ACQIRIS::Parameter::save()
 {
   //string for the container index//
   QString s;
@@ -119,7 +119,7 @@ void cass::REMI::Parameter::save()
     setValue("Walk",_channelParameters[i]._walk);
     setValue("Method",_channelParameters[i]._analyzetyp);
 
-    endGroup(); //QString
+    endGroup();
   }
   endGroup();//channelparameter
 
@@ -142,7 +142,7 @@ void cass::REMI::Parameter::save()
     saveAnodeParameter(_detectors[i].u(),"ULayer",this);
     saveAnodeParameter(_detectors[i].v(),"VLayer",this);
     saveAnodeParameter(_detectors[i].w(),"WLayer",this);
-    endGroup(); //QString(i)
+    endGroup();
   }
   endGroup();//detectorcontainer
 }
@@ -157,7 +157,7 @@ void cass::REMI::Parameter::save()
 
 
 
-cass::REMI::Analysis::Analysis()
+cass::ACQIRIS::Analysis::Analysis()
 {
   //create the map with the waveform Analyzers//
   _waveformanalyzer[WaveformAnalyzer::CFD8Bit]  = new cass::REMI::CFD8Bit();
@@ -174,13 +174,7 @@ cass::REMI::Analysis::Analysis()
 }
 
 
-void cass::REMI::Analysis::loadSettings()
-{
-  //we need to fill the parameters with some life first//
-  _parameter.load();
-}
-
-void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
+void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* cassevent)
 {
   //get the remievent from the cassevent//
   cass::REMI::REMIEvent& remievent = cassevent->REMIEvent();
@@ -230,7 +224,7 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
     //find the Signals (peaks) of all waveforms in the channels//
     for (size_t i=0; i<remievent.channels().size();++i)
     {
-      cass::REMI::WaveformAnalyzer::WaveformAnalyzerTypes type =
+      WaveformAnalyzer::WaveformAnalyzerTypes type =
           static_cast<cass::REMI::WaveformAnalyzer::WaveformAnalyzerTypes>(remievent.channels()[i].type());
       _waveformanalyzer[type]->analyze(remievent.channels()[i], remievent.sampleInterval());
     }
@@ -246,20 +240,20 @@ void cass::REMI::Analysis::operator()(cass::CASSEvent* cassevent)
       _sorter[type]->sort(remievent, remievent.detectors()[i]);
     }
 
-    //        for (size_t i=0;i<remievent.nbrOfChannels();++i)
-    //        {
-    //            std::cout << "channel "<<i<<std::endl;
-    //            for (size_t j=0;j<remievent.channel(i).nbrPeaks();++j)
-    //            {
-    //                std::cout << " Peak "<<j<<std::endl;
-    //                std::cout << "   time "<<remievent.channel(i).peak(j).time()<<std::endl;
-    //                std::cout << "   integral "<<remievent.channel(i).peak(j).integral()<<std::endl;
-    //                std::cout << "   width "<<remievent.channel(i).peak(j).width()<<std::endl;
-    //                std::cout << "   fwhm "<<remievent.channel(i).peak(j).fwhm()<<std::endl;
-    //                std::cout << "   maximum "<<remievent.channel(i).peak(j).maximum()<<std::endl;
-    //                std::cout << "   polarity "<<remievent.channel(i).peak(j).polarity()<<std::endl;
-    //            }
-    //        }
+//        for (size_t i=0;i<remievent.nbrOfChannels();++i)
+//        {
+//            std::cout << "channel "<<i<<std::endl;
+//            for (size_t j=0;j<remievent.channel(i).nbrPeaks();++j)
+//            {
+//                std::cout << " Peak "<<j<<std::endl;
+//                std::cout << "   time "<<remievent.channel(i).peak(j).time()<<std::endl;
+//                std::cout << "   integral "<<remievent.channel(i).peak(j).integral()<<std::endl;
+//                std::cout << "   width "<<remievent.channel(i).peak(j).width()<<std::endl;
+//                std::cout << "   fwhm "<<remievent.channel(i).peak(j).fwhm()<<std::endl;
+//                std::cout << "   maximum "<<remievent.channel(i).peak(j).maximum()<<std::endl;
+//                std::cout << "   polarity "<<remievent.channel(i).peak(j).polarity()<<std::endl;
+//            }
+//        }
 //    std::cout  << remievent.channels().size()<<std::endl;
   }
 }
