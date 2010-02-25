@@ -168,8 +168,6 @@ namespace cass
       Signal              &mcp()                  {return _mcp;}
       bool                 isHexAnode()const      {return _isHex;}
       bool                &isHexAnode()           {return _isHex;}
-      DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
-      DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
       LayersToUse          LayersToUse()const     {return _layersToUse;}
       LayersToUse         &LayersToUse()          {return _layersToUse;}
 
@@ -184,7 +182,6 @@ namespace cass
       double               _deadMcp;              //the Deadtime between to Signals on the MCP
       double               _deadAnode;            //the Deadtime between to Signals on the Layers
       bool                 _isHex;                //flag telling wether this is a Hexanode Detektor
-      DetectorAnalyzers    _analyzerType;         //enum telling which Method to sort the times is used 0=Simple Sorting, 1=Achims Sorting
       LayersToUse         _layersToUse;          //enum telling which Layers should be used to calc the position when using simple sorting
 
       //output of the analysis (sorting) of the peaks

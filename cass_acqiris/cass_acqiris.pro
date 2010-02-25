@@ -19,7 +19,6 @@ HEADERS += acqiris_analysis.h \
            acqiris_converter.h \
            cass_acqiris.h  \
            acqiris_device.h \
-           detector_backend.h \
            detector_analyzer_backend.h \
            ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
@@ -27,6 +26,7 @@ HEADERS += acqiris_analysis.h \
            ../cass/device_backend.h \
            ./classes/channel.h \
            ./classes/peak.h \
+           ./classes/detector_backend.h \
            ./classes/delayline_detector.h \
            ./classes/waveformanalyzer/waveform_analyzer_backend.h \
            ./classes/waveformanalyzer/cfd.h \

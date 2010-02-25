@@ -13,7 +13,10 @@ namespace cass
     {
     public:
       virtual ~DetectorBackend() {}
-      enum DetectorTypes {DelaylineDetector, ToFDetector};
+      DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
+      DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
+    protected:
+      DetectorAnalyzers    _analyzerType;         //enum telling which analyzer should be used
     };
   }
 }//end namespace cass

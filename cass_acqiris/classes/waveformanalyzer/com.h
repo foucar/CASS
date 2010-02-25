@@ -6,7 +6,7 @@
 
 namespace cass
 {
-  namespace REMI
+  namespace ACQIRIS
   {
     //this is called in case it is a 8 Bit Instrument
     class CoM8Bit : public WaveformAnalyzer

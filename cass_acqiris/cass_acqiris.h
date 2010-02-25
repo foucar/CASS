@@ -18,6 +18,7 @@ namespace cass
     enum Polarity {Bad,Positive,Negative};
     enum LayersToUse {UV,UW,VW};
     enum DetectorAnalyzers {DelaylineDetectorSimple};
+    enum DetectorTypes {DelaylineDetector, ToFDetector};
     enum WaveformAnalyzers {CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
     enum LayerTypes{U,V,W};
   }

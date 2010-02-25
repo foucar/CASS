@@ -1,8 +1,8 @@
 // Copyright (C)2009 Jochen Küpper,lmf
 
 
-#ifndef REMIANALYSIS_H
-#define REMIANALYSIS_H
+#ifndef _ACQIRIS_ANALYSIS_H_
+#define _ACQIRIS_ANALYSIS_H_
 
 #include <string>
 #include <vector>
@@ -13,7 +13,7 @@
 
 namespace cass 
 {
-  class CASSEvent*;
+  class CASSEvent;
 
   namespace ACQIRIS
   {
@@ -54,8 +54,8 @@ namespace cass
       detectoranalyzer_t  _detectoranalyzer;
       Parameter           _param;
     };
-  } //end namespace REMI
-} //end namespace CASS
+  } //end namespace acqiris
+} //end namespace cass
 
 #endif
 
