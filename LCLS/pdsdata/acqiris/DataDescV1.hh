@@ -61,6 +61,7 @@ namespace Pds {
       uint32_t indexFirstPoint()const;
       double gain()const {return _vGain;}
       double offset()const {return _vOffset;}
+      double sampleInterval()const {return _sampTime;}
       DataDescV1* nextChannel(const HorizV1& hconfig);
       const DataDescV1* nextChannel() const;
 
