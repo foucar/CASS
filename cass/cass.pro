@@ -19,14 +19,13 @@ SOURCES +=  cass.cpp \
             post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
-            analyzer.h \
             conversion_backend.h \
             sharedmemory_input.h \
+            analyzer.h \
             format_converter.h \
             cass.h \
             cass_event.h \
             xtciterator.h \
-            parameter_backend.h \
             ratemeter.h \
             dialog.h \
             ringbuffer.h \
@@ -34,23 +33,13 @@ HEADERS +=  analysis_backend.h \
             post_processor.h \
             ccd_detector.h
 
-INCLUDEPATH +=  ./ \
-                $$(LCLSSYSINCLUDE) \
-                ../cass_remi \
-                ../cass_remi/classes/event \
-                ../cass_remi/classes/event/channel \
-                ../cass_remi/classes/event/peak \
-                ../cass_remi/classes/event/detector \
-                ../cass_remi/classes/detektorhitsorter \
-                ../cass_remi/classes/waveformanalyzer \
+INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
+                ../cass_acqiris \
                 ../cass_ccd \
                 ../cass_pnccd \
-                ../cass_pnccd/classes/event \
-                ../cass_pnccd/classes/event/pnccd_detector \
-                ../cass_pnccd/pnccd_lib \
                 ../cass_machinedata \
-                ../cass_database \
                 ./postprocessing
+                ./
 
 
 
