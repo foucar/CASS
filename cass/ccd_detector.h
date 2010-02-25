@@ -37,6 +37,9 @@ namespace cass
     CCDDetector():
         _columns(0),
         _rows(0),
+        _originalcolumns(0),
+        _originalrows(0),
+        _isDarkframe(false),
         _integral(0),
         _maxPixelValue(0)
     {}
@@ -72,6 +75,9 @@ namespace cass
     uint16_t        _rows;                   //Nbr of rows of the frame
     uint16_t        _originalcolumns;        //Nbr of columns of the frame before rebinning
     uint16_t        _originalrows;           //Nbr of rows of the frame before rebinning
+
+    //status that is set by analysis, derived by cass.ini//
+    bool            _isDarkframe;            //is this ccd frame a darkframe
 
     //data that gets calculated in Analysis//
     uint32_t        _integral;               //the sum of all pixelvalues
