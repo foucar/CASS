@@ -1,11 +1,11 @@
-#ifndef __WAVEFORMANALYZER_h__
-#define __WAVEFORMANALYZER_h__
+#ifndef __WAVEFORM_ANALYZER_h__
+#define __WAVEFORM_ANALYZER_h__
 
 #include <iostream>
 
 namespace cass
 {
-  namespace REMI
+  namespace ACQIRIS
   {
     class Channel;
     //this class is placeholder for two other classes wich will be called
