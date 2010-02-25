@@ -7,11 +7,11 @@
 
 namespace cass
 {
-    class CASSSHARED_EXPORT DeviceBackend
-    {
-    public:
-        virtual ~DeviceBackend() {}
-    };
+  class CASSSHARED_EXPORT DeviceBackend
+  {
+  public:
+    virtual ~DeviceBackend() {}
+  };
 }//end namespace cass
 
 #endif
