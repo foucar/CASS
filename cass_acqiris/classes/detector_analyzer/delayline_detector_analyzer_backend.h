@@ -9,7 +9,7 @@ namespace cass
   namespace ACQIRIS
   {
     //base class for delayline detector analysis
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzer
+    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerBackend
         : public DetectorAnalyzerBackend
     {
     public:
