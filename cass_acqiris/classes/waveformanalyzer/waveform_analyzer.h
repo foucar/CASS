@@ -1,31 +1,22 @@
-#ifndef __WAVEFORM_ANALYZER_h__
-#define __WAVEFORM_ANALYZER_h__
+#ifndef _WAVEFORM_ANALYZER_BACKEND_H_
+#define _WAVEFORM_ANALYZER_BACKEND_H_
 
-#include <iostream>
+#include "cass_acqiris.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
     class Channel;
-    //this class is placeholder for two other classes wich will be called
-    //according to how many bits the instrument has
-    class WaveformAnalyzer
+    class Signal;
+    class CASS_ACQIRISSHARED_EXPORT WaveformAnalyzerBackend
     {
     public:
-      virtual ~WaveformAnalyzer()         {}
-      virtual void analyze(Channel&, const double SampleInterval) = 0;
+      virtual ~WaveformAnalyzerBackend()         {}
+      virtual void analyze(const Channel&, Signal&) = 0;
     public:
-      enum WaveformAnalyzerTypes{DoNothing,CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
+      enum WaveformAnalyzerTypes{CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
     };
-
-    class WaveformAnalyzerDoNothing : public WaveformAnalyzer
-    {
-    public:
-      WaveformAnalyzerDoNothing(){std::cout<<"adding nothing waveformanalyzer"<<std::endl;}
-      void analyze(Channel&, const double SampleInterval) {}
-    };
-
   }//end namespace remi
 }//end namespace cass
 #endif
