@@ -11,9 +11,6 @@ OBJECTS_DIR = ./obj
 
 SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
-           ./classes/event/channel/channel.cpp \
-           ./classes/event/peak/peak.cpp \
-           ./classes/event/detector/detector.cpp \
            ./classes/waveformanalyzer/cfd.cpp \
            ./classes/waveformanalyzer/com.cpp \
            ./classes/detektorhitsorter/detektorhitsorter.cpp \
@@ -23,14 +20,14 @@ SOURCES += acqiris_analysis.cpp \
 HEADERS += acqiris_analysis.h \
            acqiris_converter.h \
            cass_acqiris.h  \
-           remi_device.h \
+           acqiris_device.h \
            ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
            ../cass/device_backend.h \
-           ./classes/event/channel/channel.h \
-           ./classes/event/peak/peak.h \
-           ./classes/event/detector/detector.h \
+           ./classes/channel.h \
+           ./classes/peak.h \
+           ./classes/delayline_detector.h \
            ./classes/waveformanalyzer/waveform_analyzer.h \
            ./classes/waveformanalyzer/cfd.h \
            ./classes/waveformanalyzer/com.h \
