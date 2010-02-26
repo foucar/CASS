@@ -12,9 +12,9 @@ namespace cass
         : public DetectorAnalyzerBackend
     {
     public:
-      DelaylineDetectorAnalyzer(waveformanalyzers_t* waveformanalyzer)
+      DelaylineDetectorAnalyzerBackend(waveformanalyzers_t* waveformanalyzer)
           :DetectorAnalyzerBackend(waveformanalyzer) {}
-      virtual ~DelaylineDetectorAnalyzer() {}
+      virtual ~DelaylineDetectorAnalyzerBackend() {}
       virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
     };
   }//end namespace acqiris

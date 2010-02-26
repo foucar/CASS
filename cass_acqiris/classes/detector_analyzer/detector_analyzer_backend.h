@@ -3,7 +3,7 @@
 #ifndef _DETECTOR_ANALYZER_BACKEND_H_
 #define _DETECTOR_ANALYZER_BACKEND_H_
 
-#include "vector"
+#include <map>
 #include "cass_acqiris.h"
 #include "channel.h"
 
@@ -16,13 +16,13 @@ namespace cass
 
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
+    protected:
+      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
     public:
       DetectorAnalyzerBackend(waveformanalyzers_t* waveformanalyzer)
           :_waveformanalyzer(waveformanalyzer) {}
       virtual ~DetectorAnalyzerBackend() {}
       virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
-    protected:
-      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
     protected:
       waveformanalyzers_t *_waveformanalyzer;
     };

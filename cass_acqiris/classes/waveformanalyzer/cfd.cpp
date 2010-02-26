@@ -12,15 +12,15 @@ template <typename T>
 void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
   //get reference to the signal//
-  cass::ACQIRIS::Signal &s = dynamic_cast<Signal>(result);
+  cass::ACQIRIS::Signal &s = dynamic_cast<cass::ACQIRIS::Signal&>(result);
   //now extract information from the Channel
-  const double sampleInterval = c.sampleInterval*1e9;    //convert the s to ns
+  const double sampleInterval = c.sampleInterval()*1e9;    //convert the s to ns
   const double horpos     = c.horpos()*1.e9;
   const double vGain      = c.gain();
   const int32_t vOff      = static_cast<int32_t>(c.offset() / vGain);       //mV -> ADC Bytes
 
   const int32_t idxToFiPoint = 0;
-  const cass::REMI::Channel::waveform_t Data = c.waveform();
+  const cass::ACQIRIS::Channel::waveform_t Data = c.waveform();
   const size_t wLength    = c.waveform().size();
 
   //--get the right cfd settings--//
@@ -104,7 +104,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 
       //--numericaly solve the Newton Polynomial--//
       //--give the lineare approach for x as Start Value--//
-      const double xPoly = cass::REMI::findXForGivenY<T>(x,coeff,walk,xLin);
+      const double xPoly = cass::ACQIRIS::findXForGivenY<T>(x,coeff,walk,xLin);
       const double pos = xPoly + static_cast<double>(idxToFiPoint) + horpos;
 
       //--create a new peak--//
@@ -113,12 +113,12 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       //add the info//
       p.cfd()     = pos*sampleInterval;
       p.time()    = pos*sampleInterval;
-      if (fsx > fsx_1) p.polarity()            = cass::REMI::Peak::Negative;       //Peak has Neg Pol
-      if (fsx < fsx_1) p.polarity()            = cass::REMI::Peak::Positive;       //Peak has Pos Pol
-      if (fabs(fsx-fsx_1) < 1e-8) p.polarity() = cass::REMI::Peak::Bad;            //Peak has Bad Pol
+      if (fsx > fsx_1) p.polarity()            = cass::ACQIRIS::Negative;       //Peak has Neg Pol
+      if (fsx < fsx_1) p.polarity()            = cass::ACQIRIS::Positive;       //Peak has Pos Pol
+      if (fabs(fsx-fsx_1) < 1e-8) p.polarity() = cass::ACQIRIS::Bad;            //Peak has Bad Pol
 
       //--start and stop of the puls--//
-      cass::ACQIRIS::startstop<T>(c,p,SampleInterval);
+      cass::ACQIRIS::startstop<T>(c,p,threshold);
 
       //--height of peak--//
       cass::ACQIRIS::maximum<T>(c,p);
@@ -127,11 +127,11 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       cass::ACQIRIS::fwhm<T>(c,p);
 
       //--the com and integral--//
-      cass::ACQIRIS::CoM<T>(c,p,SampleInterval);
+      cass::ACQIRIS::CoM<T>(c,p,threshold);
 
       //--add peak to signal if it fits the conditions--//
       if(p.polarity() == s.polarity())  //if it has the right polarity
-        if(p.time() > s.trLow() && p.time() < s.trHigh) //if signal is in the right timerange
+        if(p.time() > s.trLow() && p.time() < s.trHigh()) //if signal is in the right timerange
           s.peaks().push_back(p);
     }
   }
@@ -139,14 +139,14 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::CFD8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CFD8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   cfd<char>(c,r);
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::CFD16Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CFD16Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   cfd<short>(c,r);
 }

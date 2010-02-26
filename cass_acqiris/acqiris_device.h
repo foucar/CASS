@@ -4,6 +4,7 @@
 #include <vector>
 #include "cass_acqiris.h"
 #include "detector_backend.h"
+#include "device_backend.h"
 #include "channel.h"
 
 namespace cass

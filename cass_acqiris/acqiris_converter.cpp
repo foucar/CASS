@@ -1,3 +1,5 @@
+//Copyright (C) 2010 lmf
+
 #include "acqiris_converter.h"
 #include "cass_event.h"
 #include "pdsdata/xtc/Xtc.hh"
@@ -7,7 +9,7 @@
 #include "pdsdata/acqiris/DataDescV1.hh"
 #include "pdsdata/xtc/Src.hh"
 
-cass::REMI::Converter::Converter()
+cass::ACQIRIS::Converter::Converter()
     :_numberOfChannels(0)
 {
   //this converter should react on acqiris config and waveform//
@@ -15,7 +17,7 @@ cass::REMI::Converter::Converter()
   _types.push_back(Pds::TypeId::Id_AcqWaveform);
 }
 
-void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
+void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
   //check whether xtc is a configuration or a event//
   switch (xtc->contains.id())
@@ -67,12 +69,12 @@ void cass::REMI::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cas
         //resize the channel vector to how many channels are in the device//
         dev->channels().resize(_numberOfChannels);
         //initialize the channel values from the datadescriptor//
-        for (size_t iChan=0;iChan<remievent.channels().size();++iChan)
+        for (size_t iChan=0;iChan<dev->channels().size();++iChan)
         {
           //retrieve a reference instead of a pointer//
           const Pds::Acqiris::DataDescV1 &dd = *datadesc;
           //retrieve a reference to the channel we are working on//
-          cass::REMI::Channel &chan = dev->channels()[iChan];
+          Channel &chan         = dev->channels()[iChan];
           //extract the infos from the datadesc//
           chan.horpos()         = dd.timestamp(0).horPos();
           chan.offset()         = dd.offset();

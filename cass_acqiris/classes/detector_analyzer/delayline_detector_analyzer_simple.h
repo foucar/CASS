@@ -14,7 +14,7 @@ namespace cass
         : public DelaylineDetectorAnalyzerBackend
     {
     public:
-      DetectorHitSorterSimple()
+      DelaylineDetectorAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
           :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
       {
         std::cout << "adding simple delayline detector analyzer"<<std::endl;

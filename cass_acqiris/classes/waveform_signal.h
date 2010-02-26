@@ -20,7 +20,7 @@ namespace cass
       ~Signal()   {}
 
     public:
-      loadParameters(QSettings *p, const char * signalname)
+      void loadParameters(QSettings *p, const char * signalname)
       {
         p->beginGroup(signalname);
         _chNbr        = p->value("ChannelNumber",0).toInt();
@@ -31,20 +31,20 @@ namespace cass
         _delay        = p->value("Delay",5).toInt();
         _fraction     = p->value("Fraction",0.6).toDouble();
         _walk         = p->value("Walk",0.).toDouble();
-        _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",CoM16Bit).toInt());
+        _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
         p->endGroup();
       }
-      saveParameters(QSettings *p, const char * signalname)
+      void saveParameters(QSettings *p, const char * signalname)
       {
         p->beginGroup(signalname);
         p->setValue("ChannelNumber",static_cast<int>(_chNbr));
         p->setValue("LowerTimeRangeLimit",_trLow);
         p->setValue("UpperTimeRangeLimit",_trHigh);
-        p->setValue("Polarity",static_cast<int>(_polarity()));
-        p->setValue("Threshold",_threshold());
-        p->setValue("Delay",_delay());
-        p->setValue("Fraction",_fraction());
-        p->setValue("Walk",_walk());
+        p->setValue("Polarity",static_cast<int>(_polarity));
+        p->setValue("Threshold",_threshold);
+        p->setValue("Delay",_delay);
+        p->setValue("Fraction",_fraction);
+        p->setValue("Walk",_walk);
         p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
         p->endGroup();
       }
@@ -93,3 +93,5 @@ namespace cass
     };
   }//end namespace acqiris
 }//end namespace cass
+
+#endif

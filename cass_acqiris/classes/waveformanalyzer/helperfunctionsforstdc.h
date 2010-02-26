@@ -278,12 +278,11 @@ namespace cass
 
     //__________________________________________Center of Mass_______________________________________
     template <typename T>
-        void CoM(const Channel &c, Peak &p)
+        void CoM(const Channel &c, Peak &p, const int32_t threshold)
     {
       //get informations from the event and the channel//
       const Channel::waveform_t Data  = c.waveform();
       const int32_t vOff          = static_cast<int32_t>(c.offset() / c.gain());
-      const int32_t threshold     = c.threshold();
       const double horpos         = c.horpos()*1.e9;          //s -> ns
       const double sampleInterval = c.sampleInterval()*1e9;   //s -> ns
 
@@ -306,12 +305,11 @@ namespace cass
 
     //______________________________________find start and stop of pulse___________________________________________
     template <typename T>
-        void startstop(const Channel &c, Peak &p)
+        void startstop(const Channel &c, Peak &p, const int32_t threshold)
     {
       //--this function will find the start and the stop of the peak--//
       const Channel::waveform_t Data = c.waveform();
       const int32_t vOff      = static_cast<int32_t>(c.offset()/c.gain());
-      const int32_t threshold = c.threshold();
       const int32_t wLength   = c.waveform().size();
       const double sampInt    = c.sampleInterval()*1e9;
       const double horpos     = c.horpos()*1e9;

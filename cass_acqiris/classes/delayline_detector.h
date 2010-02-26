@@ -6,6 +6,7 @@
 #include <vector>
 #include "cass_acqiris.h"
 #include "detector_backend.h"
+#include "waveform_signal.h"
 
 
 
@@ -21,22 +22,22 @@ namespace cass
       ~AnodeLayer() {}
 
     public:
-      loadParameters(QSettings *p,const char * layername)
+      void loadParameters(QSettings *p,const char * layername)
       {
         p->beginGroup(layername);
         _tsLow   = p->value("LowerTimeSumLimit",0.).toDouble();
-        _tsHigh  = p->value("UpperTimeSumLimit",20000.).toDouble();
+        _tsHeigh  = p->value("UpperTimeSumLimit",20000.).toDouble();
         _sf      = p->value("Scalefactor",0.5).toDouble();
-        _one.loadparameters(p,"One");
-        _one.loadparameters(p,"One");
+        _one.loadParameters(p,"One");
+        _one.loadParameters(p,"One");
         p->endGroup();
       }
-      saveParameters(QSettings *p,const char * layername)
+      void saveParameters(QSettings *p,const char * layername)
       {
         p->beginGroup(layername);
-        p->setValue("LowerTimeSumLimit",_tsLow());
-        p->setValue("UpperTimeSumLimit",_tsHigh());
-        p->setValue("Scalefactor",_sf());
+        p->setValue("LowerTimeSumLimit",_tsLow);
+        p->setValue("UpperTimeSumLimit",_tsHeigh);
+        p->setValue("Scalefactor",_sf);
         _one.saveParameters(p,"One");
         _two.saveParameters(p,"Two");
         p->endGroup();
@@ -106,23 +107,23 @@ namespace cass
     {
     public:
       DelaylineDetector()
-          :DetectorBackend(DelaylineDetector)  {}
+          :DetectorBackend(Delayline)  {}
       ~DelaylineDetector() {}
 
     public:
-      loadParameters(QSettings *p)
+      void loadParameters(QSettings *p)
       {
         //load the parameters for this detector//
         _name         = p->value("Name","IonDetector").toString().toStdString();
         _runtime      = p->value("Runtime",150).toDouble();
         _mcpRadius    = p->value("McpRadius",44.).toDouble();
         _mcp.loadParameters(p,"MCP");
-        _analyzerType = static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineDetectorSimple).toInt());
+        _analyzerType = static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
         //load parameters depending on which analyzer you use to analyze this detector//
         switch(_analyzerType)
         {
-        case DelaylineDetectorSimple :
-          _layerstouse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
+        case DelaylineSimple :
+          _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
           break;
         default:
           _deadMcp      = p->value("DeadTimeMcp",10.).toDouble();
@@ -149,7 +150,7 @@ namespace cass
           break;
         }
       }
-      saveParameters(QSettings *p)
+      void saveParameters(QSettings *p)
       {
         //save the parameters//
         p->setValue("Name",_name.c_str());
@@ -160,8 +161,8 @@ namespace cass
         p->setValue("AnalysisMethod",static_cast<int>(_analyzerType));
         switch(_analyzerType)
         {
-        case DelaylineDetectorSimple :
-          p->setValue("LayersToUse",static_cast<int>(_layerstouse));
+        case DelaylineSimple :
+          p->setValue("LayersToUse",static_cast<int>(_layersToUse));
           break;
         default:
           p->setValue("DeadTimeMcp",_deadMcp);
@@ -188,7 +189,7 @@ namespace cass
       }
 
     public:
-      typedef std::vector<DetectorHit> dethits_t;
+      typedef std::vector<DelaylineDetectorHit> dethits_t;
       typedef std::vector<AnodeLayer> anodelayers_t;
 
     public:
@@ -214,8 +215,8 @@ namespace cass
       Signal              &mcp()                  {return _mcp;}
       DelaylineType        delaylineType()const   {return _delaylinetype;}
       DelaylineType       &delaylineType()        {return _delaylinetype;}
-      LayersToUse          LayersToUse()const     {return _layersToUse;}
-      LayersToUse         &LayersToUse()          {return _layersToUse;}
+      LayersToUse          layersToUse()const     {return _layersToUse;}
+      LayersToUse         &layersToUse()          {return _layersToUse;}
 
     private:
       //variables that the sorters need to find detectorhits, given by the user

@@ -11,7 +11,7 @@ template <typename T>
     void com(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
   //get reference to the signal//
-  cass::ACQIRIS::Signal &s = dynamic_cast<Signal>(result);
+  cass::ACQIRIS::Signal &s = dynamic_cast<cass::ACQIRIS::Signal&>(result);
   //extract infos from channel//
   const cass::ACQIRIS::Channel::waveform_t Data = c.waveform();
   const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
@@ -50,24 +50,24 @@ template <typename T>
         cass::ACQIRIS::fwhm<T>(c,p);
 
         //--center of mass stuff--//
-        cass::ACQIRIS::CoM<T>(c,p,SampleInterval);
+        cass::ACQIRIS::CoM<T>(c,p,threshold);
 
         //--Time is the Center of Mass--//
         p.time()= p.com();
 
         //--check the polarity--//
         if (Data[p.maxpos()]-vOffset == p.maximum())       //positive
-          p.polarity() = Positive;
+          p.polarity() = cass::ACQIRIS::Positive;
         else if (Data[p.maxpos()]-vOffset == -p.maximum()) //negative
-          p.polarity() = Negative;
+          p.polarity() = cass::ACQIRIS::Negative;
         else
         {
           std::cout << "error: polarity not found"<<std::endl;
-          p.polarity() = Bad;
+          p.polarity() = cass::ACQIRIS::Bad;
         }
         //--add peak to signal if it fits the conditions--//
         if(p.polarity() == s.polarity())  //if it has the right polarity
-          if(p.time() > s.trLow() && p.time() < s.trHigh) //if signal is in the right timerange
+          if(p.time() > s.trLow() && p.time() < s.trHigh()) //if signal is in the right timerange
             s.peaks().push_back(p);
       }
       risingEdge = false;
@@ -100,13 +100,13 @@ template <typename T>
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::CoM8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CoM8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   com<char>(c,r);
 }
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::REMI::CoM16Bit::analyze(const cass::ACQIRIS::Channel&, cass::ACQIRIS::ResultsBackend&)
+void cass::ACQIRIS::CoM16Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   com<short>(c,r);
 }

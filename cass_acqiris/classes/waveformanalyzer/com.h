@@ -10,7 +10,7 @@ namespace cass
   namespace ACQIRIS
   {
     //this is called in case it is a 8 Bit Instrument
-    class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public WaveformAnalyzer
+    class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public WaveformAnalyzerBackend
     {
     public:
       CoM8Bit()    {std::cout << "adding 8 bit Center of Mass waveformanalyzer"<<std::endl;}
@@ -18,7 +18,7 @@ namespace cass
     };
 
     //this is called in case it is a 10 Bit Instrument
-    class CASS_ACQIRISSHARED_EXPORT CoM16Bit : public WaveformAnalyzer
+    class CASS_ACQIRISSHARED_EXPORT CoM16Bit : public WaveformAnalyzerBackend
     {
     public:
       CoM16Bit()    {std::cout << "adding 16 bit Center of Mass waveformanalyzer"<<std::endl;}

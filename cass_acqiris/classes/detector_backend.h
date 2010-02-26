@@ -16,11 +16,11 @@ namespace cass
       DetectorBackend(DetectorType type)
           :_type(type)           {}
       virtual ~DetectorBackend() {}
-      virtual void loadParameter(const QSettings*)=0;
-      virtual void saveParameter(QSettings*)=0;
+      virtual void loadParameters(QSettings*){};
+      virtual void saveParameters(QSettings*){};
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
-      DetectorTyp          type()const            {return _type;}
+      DetectorType         type()const            {return _type;}
     protected:
       DetectorAnalyzers    _analyzerType; //which analyzer should be used
       DetectorType         _type;         //what typ is this detector

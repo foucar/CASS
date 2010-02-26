@@ -19,7 +19,6 @@ HEADERS += acqiris_analysis.h \
            acqiris_converter.h \
            cass_acqiris.h  \
            acqiris_device.h \
-           detector_analyzer_backend.h \
            ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
@@ -42,7 +41,7 @@ INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ../cass \
                ./classes \
                ./classes/waveformanalyzer \
-               ./classes/detektorhitsorter \
+               ./classes/detector_analyzer \
                ./
 
 INSTALLBASE     = /usr/local/cass

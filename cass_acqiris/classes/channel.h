@@ -23,8 +23,8 @@ namespace cass
       public:
         double             horpos()const          {return _horpos;}
         double            &horpos()               {return _horpos;}
-        int16_t            offset()const          {return _offset;}
-        int16_t           &offset()               {return _offset;}
+        double             offset()const          {return _offset;}
+        double            &offset()               {return _offset;}
         double             gain()const            {return _gain;}
         double            &sampleInterval()       {return _sampleInterval;}
         double             sampleInterval()const  {return _sampleInterval;}
