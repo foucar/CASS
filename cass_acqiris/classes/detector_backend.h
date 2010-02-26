@@ -3,6 +3,7 @@
 #ifndef _DETECTOR_BACKEND_H_
 #define _DETECTOR_BACKEND_H_
 
+#include <QtCore/QSettings>
 #include "cass_acqiris.h"
 
 namespace cass
@@ -12,11 +13,17 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DetectorBackend
     {
     public:
+      DetectorBackend(DetectorType type)
+          :_type(type)           {}
       virtual ~DetectorBackend() {}
+      virtual void loadParameter(const QSettings*)=0;
+      virtual void saveParameter(QSettings*)=0;
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
+      DetectorTyp          type()const            {return _type;}
     protected:
-      DetectorAnalyzers    _analyzerType;         //enum telling which analyzer should be used
+      DetectorAnalyzers    _analyzerType; //which analyzer should be used
+      DetectorType         _type;         //what typ is this detector
     };
   }
 }//end namespace cass

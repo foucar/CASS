@@ -1,7 +1,8 @@
+//jk,lmf
+
 #ifndef _ACQIRIS_GLOBAL_H_
 #define _ACQIRIS_GLOBAL_H_
 
-//lmf
 
 #include <QtCore/qglobal.h>
 
@@ -18,7 +19,8 @@ namespace cass
     enum Polarity {Bad,Positive,Negative};
     enum LayersToUse {UV,UW,VW};
     enum DetectorAnalyzers {DelaylineDetectorSimple};
-    enum DetectorTypes {DelaylineDetector, ToFDetector};
+    enum DetectorType {DelaylineDetector, ToFDetector};
+    enum DelaylineType {Quad,Hex};
     enum WaveformAnalyzers {CoM8Bit,CoM16Bit,CFD8Bit,CFD16Bit};
     enum LayerTypes{U,V,W};
   }

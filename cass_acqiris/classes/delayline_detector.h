@@ -21,46 +21,76 @@ namespace cass
       ~Signal()   {}
 
     public:
+      loadParameters(QSettings *p, const char * signalname)
+      {
+        p->beginGroup(signalname);
+        _chNbr        = p->value("ChannelNumber",0).toInt();
+        _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
+        _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
+        _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
+        _threshold    = p->value("Threshold",50.).toInt();
+        _delay        = p->value("Delay",5).toInt();
+        _fraction     = p->value("Fraction",0.6).toDouble();
+        _walk         = p->value("Walk",0.).toDouble();
+        _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",CoM16Bit).toInt());
+        p->endGroup();
+      }
+      saveParameters(QSettings *p, const char * signalname)
+      {
+        p->beginGroup(signalname);
+        p->setValue("ChannelNumber",static_cast<int>(_chNbr));
+        p->setValue("LowerTimeRangeLimit",_trLow);
+        p->setValue("UpperTimeRangeLimit",_trHigh);
+        p->setValue("Polarity",static_cast<int>(_polarity()));
+        p->setValue("Threshold",_threshold());
+        p->setValue("Delay",_delay());
+        p->setValue("Fraction",_fraction());
+        p->setValue("Walk",_walk());
+        p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
+        p->endGroup();
+      }
+
+    public:
       typedef std::vector<Peak> peaks_t;
 
     public:
-      peaks_t        &peaks()               {return _peaks;}
-      const peaks_t  &peaks()const          {return _peaks;}
+      peaks_t           &peaks()             {return _peaks;}
+      const peaks_t     &peaks()const        {return _peaks;}
 
     public:
-      size_t           channelNbr()const    {return _chNbr;}
-      size_t          &channelNbr()         {return _chNbr;}
-      double           trLow()const         {return _trLow;}
-      double          &trLow()              {return _trLow;}
-      double           trHigh()const        {return _trHigh;}
-      double          &trHigh()             {return _trHigh;}
-      Polarity         polarity()const      {return -polarity;}
-      Polarity        &polarity()           {return _polarity;}
-      int16_t          threshold()const     {return _threshold;}
-      int16_t         &threshold()          {return _threshold;}
-      int32_t          delay()const         {return _delay;}
-      int32_t         &delay()              {return _delay;}
-      double           fraction()const      {return _fraction;}
-      double          &fraction()           {return _fraction;}
-      double           walk()const          {return _walk;}
-      double          &walk()               {return _walk;}
+      size_t             channelNbr()const    {return _chNbr;}
+      size_t            &channelNbr()         {return _chNbr;}
+      double             trLow()const         {return _trLow;}
+      double            &trLow()              {return _trLow;}
+      double             trHigh()const        {return _trHigh;}
+      double            &trHigh()             {return _trHigh;}
+      Polarity           polarity()const      {return _polarity;}
+      Polarity          &polarity()           {return _polarity;}
+      int16_t            threshold()const     {return _threshold;}
+      int16_t           &threshold()          {return _threshold;}
+      int32_t            delay()const         {return _delay;}
+      int32_t           &delay()              {return _delay;}
+      double             fraction()const      {return _fraction;}
+      double            &fraction()           {return _fraction;}
+      double             walk()const          {return _walk;}
+      double            &walk()               {return _walk;}
       WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
 
     private:
       //things important to know how to analyze the waveform//
       //set by the user via parameters//
-      double          _trLow;         //lower edge of the timerange events can happen in
-      double          _trHigh;        //upper edge of the timerange events can happen in
-      size_t          _chNbr;         //This Channels Number in the Acqiris Crate
-      int16_t         _threshold;     //the Noiselevel for this channel (in adc bytes)
-      int32_t         _delay;         //the delay of the cfd
-      double          _fraction;      //the fraction of the cfd
-      double          _walk;          //the walk of the cfd
-      Peak::Polarity  _polarity;      //the Polarity the Signal has
-      WaveformAnalyzers _analyzerType;//type of analysis to analyze this channel
+      size_t            _chNbr;         //This Channels Number in the Acqiris Crate
+      double            _trLow;         //lower edge of the timerange events can happen in
+      double            _trHigh;        //upper edge of the timerange events can happen in
+      Peak::Polarity    _polarity;      //the Polarity the Signal has
+      int16_t           _threshold;     //the Noiselevel for this channel (in adc bytes)
+      int32_t           _delay;         //the delay of the cfd
+      double            _fraction;      //the fraction of the cfd
+      double            _walk;          //the walk of the cfd
+      WaveformAnalyzers _analyzerType;  //type of analysis to analyze this channel
       //container for the results of the waveform analysis
-      peaks_t         _peaks;         //container for the peaks of the waveform
+      peaks_t           _peaks;         //container for the peaks of the waveform
     };
 
 
@@ -74,6 +104,28 @@ namespace cass
     public:
       AnodeLayer()  {}
       ~AnodeLayer() {}
+
+    public:
+      loadParameters(QSettings *p,const char * layername)
+      {
+        p->beginGroup(layername);
+        _tsLow   = p->value("LowerTimeSumLimit",0.).toDouble();
+        _tsHigh  = p->value("UpperTimeSumLimit",20000.).toDouble();
+        _sf      = p->value("Scalefactor",0.5).toDouble();
+        _one.loadparameters(p,"One");
+        _one.loadparameters(p,"One");
+        p->endGroup();
+      }
+      saveParameters(QSettings *p,const char * layername)
+      {
+        p->beginGroup(layername);
+        p->setValue("LowerTimeSumLimit",_tsLow());
+        p->setValue("UpperTimeSumLimit",_tsHigh());
+        p->setValue("Scalefactor",_sf());
+        _one.saveParameters(p,"One");
+        _two.saveParameters(p,"Two");
+        p->endGroup();
+      }
 
     public:
       double         ts()const      {return 0.5*(_tsLow+_tsHeigh);}
@@ -138,8 +190,87 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public DetectorBackend
     {
     public:
-      DelaylineDetector()  {}
+      DelaylineDetector()
+          :DetectorBackend(DelaylineDetector)  {}
       ~DelaylineDetector() {}
+
+    public:
+      loadParameters(QSettings *p)
+      {
+        //load the parameters for this detector//
+        _name         = p->value("Name","IonDetector").toString().toStdString();
+        _runtime      = p->value("Runtime",150).toDouble();
+        _mcpRadius    = p->value("McpRadius",44.).toDouble();
+        _mcp.loadParameters(p,"MCP");
+        _analyzerType = static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineDetectorSimple).toInt());
+        //load parameters depending on which analyzer you use to analyze this detector//
+        switch(_analyzerType)
+        {
+        case DelaylineDetectorSimple :
+          _layerstouse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
+          break;
+        default:
+          _deadMcp      = p->value("DeadTimeMcp",10.).toDouble();
+          _deadAnode    = p->value("DeadTimeAnode",10.).toDouble();
+          _wLayerOffset = p->value("WLayerOffset",0.).toDouble();
+          break;
+        }
+        _delaylinetype   = static_cast<DelaylineType>(p->value("DelaylineType",Quad).toInt());
+        //add and load layers according the the delaylinedtype//
+        switch (_delaylinetype)
+        {
+        case Hex:
+          _anodelayers.resize(3,AnodeLayer());
+          _anodelayers[U].loadParameters(p,"ULayer");
+          _anodelayers[V].loadParameters(p,"VLayer");
+          _anodelayers[W].loadParameters(p,"WLayer");
+          break;
+        case Quad:
+          _anodelayers.resize(2,AnodeLayer());
+          _anodelayers[U].loadParameters(p,"XLayer");
+          _anodelayers[V].loadParameters(p,"YLayer");
+          break;
+        default:
+          break;
+        }
+      }
+      saveParameters(QSettings *p)
+      {
+        //save the parameters//
+        p->setValue("Name",_name.c_str());
+        p->setValue("Runtime",_runtime);
+        p->setValue("McpRadius",_mcpRadius);
+        _mcp.saveParameters(p,"MCP");
+        //save according to the method//
+        p->setValue("AnalysisMethod",static_cast<int>(_analyzerType));
+        switch(_analyzerType)
+        {
+        case DelaylineDetectorSimple :
+          p->setValue("LayersToUse",static_cast<int>(_layerstouse));
+          break;
+        default:
+          p->setValue("DeadTimeMcp",_deadMcp);
+          p->setValue("DeadTimeAnode",_deadAnode);
+          p->setValue("WLayerOffset",_wLayerOffset);
+          break;
+        }
+        //save according to the delayline type//
+        p->setValue("DelaylineType",static_cast<int>(_delaylinetype));
+        switch (_delaylinetype)
+        {
+        case Hex:
+          _anodelayers[U].saveParameters(p,"ULayer");
+          _anodelayers[V].saveParameters(p,"VLayer");
+          _anodelayers[W].saveParameters(p,"WLayer");
+          break;
+        case Quad:
+          _anodelayers[U].saveParameters(p,"XLayer");
+          _anodelayers[V].saveParameters(p,"YLayer");
+          break;
+        default:
+          break;
+        }
+      }
 
     public:
       typedef std::vector<DetectorHit> dethits_t;
@@ -166,23 +297,23 @@ namespace cass
       anodelayers_t       &layers()               {return _anodelayers;}
       const Signal        &mcp()const             {return _mcp;}
       Signal              &mcp()                  {return _mcp;}
-      bool                 isHexAnode()const      {return _isHex;}
-      bool                &isHexAnode()           {return _isHex;}
+      DelaylineType        delaylineType()const   {return _delaylinetype;}
+      DelaylineType       &delaylineType()        {return _delaylinetype;}
       LayersToUse          LayersToUse()const     {return _layersToUse;}
       LayersToUse         &LayersToUse()          {return _layersToUse;}
 
     private:
       //variables that the sorters need to find detectorhits, given by the user
       std::string          _name;                 //the name of this detector
-      anodelayers_t        _anodelayers;          //properties of layers
-      Signal               _mcp;                  //properties of MCP Signals for this detektor
       double               _runtime;              //the runtime over the anode
       double               _wLayerOffset;         //the offset of w-layer towards u and v-layer
       double               _mcpRadius;            //the radius of the MCP in mm
+      Signal               _mcp;                  //properties of MCP Signals for this detektor
       double               _deadMcp;              //the Deadtime between to Signals on the MCP
       double               _deadAnode;            //the Deadtime between to Signals on the Layers
-      bool                 _isHex;                //flag telling wether this is a Hexanode Detektor
-      LayersToUse         _layersToUse;          //enum telling which Layers should be used to calc the position when using simple sorting
+      LayersToUse          _layersToUse;          //enum telling which Layers should be used to calc the position when using simple sorting
+      DelaylineType        _delaylinetype;        //type of the delayline (hex or quad)
+      anodelayers_t        _anodelayers;          //properties of layers
 
       //output of the analysis (sorting) of the peaks
       dethits_t            _hits;                 //Container storing the refrences to the DetektorHits of this Detektor
