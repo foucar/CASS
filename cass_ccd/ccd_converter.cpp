@@ -9,12 +9,6 @@
 
 
 
-cass::CCD::Converter::Converter()
-{
-  //this converter should react on a ccd frame//
-  _types.push_back(Pds::TypeId::Id_Frame);
-}
-
 void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
   //retrieve a reference to the frame contained int the xtc//
@@ -22,7 +16,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
     *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = 
-    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::Pulnix]);
+    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::ccd]);
   //retrieve a reference to the pulnix detector//
   cass::CCDDetector& det = dev->detector();
 

@@ -14,8 +14,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      Converter();
-
+      Converter():_numberOfChannels(0) {}
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
 
     private:

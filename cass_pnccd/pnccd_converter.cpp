@@ -35,13 +35,6 @@ inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
 }
 
 
-cass::pnCCD::Converter::Converter()
-{
-  //this converter should react on pnccd config and frame//
-  _types.push_back(Pds::TypeId::Id_pnCCDconfig);
-  _types.push_back(Pds::TypeId::Id_pnCCDframe);
-}
-
 
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {

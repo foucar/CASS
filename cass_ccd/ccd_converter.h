@@ -13,11 +13,11 @@ namespace cass
     class CASS_CCDSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      Converter();
+      Converter() {}
       //called for LCLS event//
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
     };
-  }//end namespace vmi
+  }//end namespace ccd
 }//end namespace cass
 
 #endif

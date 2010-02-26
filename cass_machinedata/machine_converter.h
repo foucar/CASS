@@ -15,7 +15,7 @@ namespace cass
     class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      Converter();
+      Converter()   {}
       //called for appropriate xtc part//
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
 

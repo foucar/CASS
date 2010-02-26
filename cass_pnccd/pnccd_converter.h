@@ -20,7 +20,7 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      Converter();
+      Converter() {}
       //called for LCLS event//
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
     private:

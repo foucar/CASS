@@ -9,13 +9,6 @@
 #include "pdsdata/acqiris/DataDescV1.hh"
 #include "pdsdata/xtc/Src.hh"
 
-cass::ACQIRIS::Converter::Converter()
-    :_numberOfChannels(0)
-{
-  //this converter should react on acqiris config and waveform//
-  _types.push_back(Pds::TypeId::Id_AcqConfig);
-  _types.push_back(Pds::TypeId::Id_AcqWaveform);
-}
 
 void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
