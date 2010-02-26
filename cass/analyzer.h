@@ -4,6 +4,7 @@
 #define CASS_ANALYZER_H
 
 #include <map>
+#include <set>
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
@@ -37,8 +38,15 @@ namespace cass
     Analyzer();
     ~Analyzer();
 
+  public:
+    typedef std::map<Analyzers, AnalysisBackend*> analyzers_t;
+    typedef std::set<Analyzers> active_analyzers_t;
+
+  protected:
     //map of available analyzers//
-    std::map<Analyzers, AnalysisBackend*> _analyzer;
+    analyzers_t _analyzer;
+    //a set of the active analyzers//
+    active_analyzers_t _activeAnalyzers;
     //pointer to the instance//
     static Analyzer *_instance;
     //Singleton operation locker in a multi-threaded environment.//

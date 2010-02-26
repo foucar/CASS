@@ -3,11 +3,10 @@
 #include <iostream>
 #include <QtCore/QMutexLocker>
 #include "analyzer.h"
-#include "remi_analysis.h"
-#include "vmi_analysis.h"
+#include "acqiris_analysis.h"
+#include "ccd_analysis.h"
 #include "pnccd_analysis.h"
 #include "machine_analysis.h"
-#include "database.h"
 
 
 // define static members
@@ -18,15 +17,22 @@ QMutex cass::Analyzer::_mutex;
 cass::Analyzer::Analyzer()
 {
   //create the analyzers//
-  _analyzer[VMI]          = new cass::VMI::Analysis();
-  _analyzer[pnCCD]        = new cass::pnCCD::Analysis();
-  _analyzer[REMI]         = new cass::REMI::Analysis();
-  _analyzer[MachineData]  = new cass::MachineData::Analysis();
+  _analyzer[ccd]          = new CCD::Analysis();
+  _analyzer[pnCCD]        = new pnCCD::Analysis();
+  _analyzer[Acqiris]      = new ACQIRIS::Analysis();
+  _analyzer[MachineData]  = new MachineData::Analysis();
+
+  //set up what analysis is interesting//
+  _activeAnalyzers.insert(ccd);
+  _activeAnalyzers.insert(pnCCD);
+  _activeAnalyzers.insert(Acqiris);
+  _activeAnalyzers.insert(MachineData);
 }
 
 cass::Analyzer::~Analyzer()
 {
-  for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+  //delete all analyzers
+  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     delete (it->second);
 }
 
@@ -49,22 +55,22 @@ void cass::Analyzer::destroy()
 void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 {
   //use the analyzers to analyze the event//
-  //iterate through all analyzers and send the cassevent to them//
-  for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
-    (*(it->second))(cassevent);
+  //iterate through all active analyzers and send the cassevent to them//
+  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++i)
+    (*_analyzer[*it])(cassevent);
 }
 
 void cass::Analyzer::loadSettings()
 {
   //iterate through all analyzers and load the settings of them//
-  for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->loadSettings();
 }
 
 void cass::Analyzer::saveSettings()
 {
   //iterate through all analyzers and load the settings of them//
-  for (std::map<Analyzers,cass::AnalysisBackend*>::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->saveSettings();
 }
 
