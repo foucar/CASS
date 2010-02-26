@@ -10,8 +10,10 @@ cass::CASSEvent::CASSEvent():
     _id(0),
 {
   //add all devices that are available
-  _devices[Pulnix] = new cass::CCD::CCDDevice();
+  _devices[ccd]         = new cass::CCD::CCDDevice();
   _devices[MachineData] = new cass::MachineData::MachineDataDevice();
+  _devices[Acqiris]     = new cass::ACQIRIS::AcqirisDevice();
+  _devices[pnCCD]       = new cass::pnCCD::pnCCDDevice();
 }
 
 cass::CASSEvent::~CASSEvent()

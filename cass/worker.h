@@ -15,34 +15,51 @@ namespace cass
 {
   class Analyzer;
   class PostProcessor;
-  namespace database
-  {
-    class Database;
-  }
 
   class CASSSHARED_EXPORT Worker : public QThread
   {
     Q_OBJECT;
-    public:
-      Worker(lmf::RingBuffer<cass::CASSEvent,4>&, QObject *parent=0);
-      ~Worker();
+  public:
+    Worker(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
+    ~Worker();
 
-      void run();
+    void run();
 
-    signals:
-      void processedEvent();
+  signals:
+    void processedEvent();
 
-    public slots:
-      void end();
-      void loadSettings();
-      void saveSettings();
+  public slots:
+    void end();
+    void loadSettings();
+    void saveSettings();
 
-    private:
-      lmf::RingBuffer<cass::CASSEvent,4>  &_ringbuffer;
-      Analyzer                            *_analyzer;
-      PostProcessor                       *_postprocessor;
-      bool                                 _quit;
+  private:
+    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    Analyzer      *_analyzer;
+    PostProcessor *_postprocessor;
+    bool           _quit;
   };
+
+  //a class that will handle the requested amount of workers
+  class CASSSHARED_EXPORT Workers : public QObject
+  {
+    Q_OBJECT;
+  public:
+    Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,const char* OutputFileName, QObject *parent=0);
+    ~Workers();
+
+    void start();
+
+  public slots:
+    void end();
+
+  signals:
+    void finished();
+
+  private:
+    std::vector<cass::Worker*> _workers; //list of workers
+  };
+
 }
 
 #endif
