@@ -45,7 +45,7 @@ namespace cass
   {
     Q_OBJECT;
   public:
-    Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,const char* OutputFileName, QObject *parent=0);
+    Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
     ~Workers();
 
     void start();

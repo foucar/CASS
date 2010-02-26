@@ -8,7 +8,6 @@
 #include "sharedmemory_input.h"
 #include "ringbuffer.h"
 #include "format_converter.h"
-#include "database.h"
 #include "ratemeter.h"
 #include "dialog.h"
 #include "worker.h"
@@ -39,40 +38,41 @@ int main(int argc, char **argv)
 
 
   //a nonblocking ringbuffer for the cassevents//
-  lmf::RingBuffer<cass::CASSEvent,4> ringbuffer;
-  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,4>::nonblocking);
+  lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
+  ringbuffer.behaviour(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
-  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer));
+  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer),qApp);
   // create a worker//
-  cass::Worker *worker(new cass::Worker(ringbuffer));
-  // create a ratemeter object for the input//
-  cass::Ratemeter *inputrate(new cass::Ratemeter());
+  //cass::Worker *worker(new cass::Worker(ringbuffer));
+  cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
+  //create a ratemeter object for the input//
+  //cass::Ratemeter *inputrate(new cass::Ratemeter());
   // create a ratemeter object for the worker//
-  cass::Ratemeter *workerrate(new cass::Ratemeter());
+  //cass::Ratemeter *workerrate(new cass::Ratemeter());
   // create a dialog object //
-  cass::Window * window(new cass::Window());
+  //cass::Window * window(new cass::Window());
 
   //conncet ratemeters//
-  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
-  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
-  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
-  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
+//  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
+//  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
+//  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
+//  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
 
 
   // connect controls
-  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
-  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
-  QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
-//  QObject::connect (window, SIGNAL (close()), input, SLOT(end()));
+//  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
+//  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
+//  QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
 
   // when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), worker, SLOT(end()));
-  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
+  QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
+//  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
 
   //show dialog//
-  window->show();
+//  window->show();
 
-  // start input and worker thread
+  // start input and worker threads
   input->start();
   worker->start();
 
@@ -80,9 +80,10 @@ int main(int argc, char **argv)
   int retval(app.exec());
 
   // clean up
-  delete window;
-  delete workerrate;
-  delete inputrate;
+//  delete window;
+//  delete workerrate;
+//  delete inputrate;
+  delete workers;
   delete input;
 
   // finish

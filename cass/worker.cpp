@@ -71,12 +71,12 @@ void cass::Worker::saveSettings()
 
 
 //-----------------------the wrapper for more than 1 worker--------------------
-cass::Workers::Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, const char* OutputFileName, QObject *parent)
+cass::Workers::Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, QObject *parent)
     :_workers(cass::NbrOfWorkers,0)
 {
   //create the worker instances//
   for (size_t i=0;i<_workers.size();++i)
-    _workers[i] = new cass::Worker(ringbuffer,OutputFileName, parent);
+    _workers[i] = new cass::Worker(ringbuffer, parent);
 }
 
 cass::Workers::~Workers()
