@@ -1,13 +1,13 @@
 #include "cass_event.h"
 
-#include "remi_event.h"
+#include "acqiris_device.h"
 #include "ccd_device.h"
-#include "pnccd_event.h"
+#include "pnccd_device.h"
 #include "machine_device.h"
 
 
-cass::CASSEvent::CASSEvent():
-    _id(0),
+cass::CASSEvent::CASSEvent()
+    :_id(0)
 {
   //add all devices that are available
   _devices[ccd]         = new cass::CCD::CCDDevice();
@@ -19,6 +19,6 @@ cass::CASSEvent::CASSEvent():
 cass::CASSEvent::~CASSEvent()
 {
   //delete all devices
-  for (device_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
+  for (devices_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
     delete (it->second);
 }

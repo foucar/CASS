@@ -8,6 +8,7 @@
 #include <QtCore/QObject>
 #include "cass.h"
 #include "conversion_backend.h"
+#include "parameter_backend.h"
 #include "pdsdata/xtc/TypeId.hh"
 
 namespace cass
@@ -61,6 +62,11 @@ namespace cass
     typedef std::map<Pds::TypeId::Type, ConversionBackend *> usedConverters_t;
 
   protected:
+    //functions to add / remove analyzers from the list//
+    void addConverter(Converters);
+    void removeConverter(Converters);
+    //the parameters//
+    ConverterParameter _param;
     // Available format converters
     availableConverters_t _availableConverters;
     //map of all xtc types there are, we add the appropriate

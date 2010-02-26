@@ -3,11 +3,11 @@
 #include "format_converter.h"
 #include "post_processor.h"
 
-cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,const char* OutputFileName, QObject *parent)
+cass::Worker::Worker(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, QObject *parent)
   :QThread(parent),
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
-    _postprocessor(cass::PostProcessor::instance(OutputFileName)),
+    _postprocessor(cass::PostProcessor::instance("")),
     _quit(false)
 {
 }

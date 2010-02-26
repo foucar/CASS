@@ -76,7 +76,7 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 {
   //use the analyzers to analyze the event//
   //iterate through all active analyzers and send the cassevent to them//
-  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++i)
+  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
     (*_analyzer[*it])(cassevent);
 }
 
@@ -85,13 +85,13 @@ void cass::Analyzer::loadSettings()
   //load the parameters to find out what analyzers the user want to be working//
   _param.load();
   //install the requested analyzers//
-  _param._useCCD      ? _activeAnalyzers.insert(ccd)        : _activeAnalyzers.erase(ccd);
-  _param._useAcqiris  ? _activeAnalyzers.insert(Acqiris)    : _activeAnalyzers.erase(Acqiris);
-  _param._usepnCCD    ? _activeAnalyzers.insert(pnCCD)      : _activeAnalyzers.erase(pnCCD);
-  _param._useMachine  ? _activeAnalyzers.insert(MachineData): _activeAnalyzers.erase(MachineData);
+  if(_param._useCCD)    _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
+  if(_param._useAcqiris)_activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
+  if(_param._usepnCCD)  _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
+  if(_param._useMachine)_activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
 
   //iterate through all analyzers and load the settings of them//
-  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+  for (analyzers_t::iterator it=_analyzer.begin();it != _analyzer.end();++it )
     it->second->loadSettings();
 }
 

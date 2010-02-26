@@ -75,8 +75,8 @@ namespace cass
       void operator() (cass::CASSEvent*);
 
     private:
-      void createOffsetAndNoiseMap(const pnCCDDevice&);
-      void rebin();
+      void createOffsetAndNoiseMap(const pnCCDDevice&) {}
+      void rebin(){}
 
     private:
       QMutex                      _mutex; //a mutex to lock write operations

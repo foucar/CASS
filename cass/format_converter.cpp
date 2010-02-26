@@ -94,7 +94,7 @@ cass::FormatConverter::FormatConverter()
 cass::FormatConverter::~FormatConverter()
 {
   // destruct all the individual format converters
-  for (availableConverters_t::iterator it=_converter.begin() ; it != _converter.end(); ++it )
+  for (availableConverters_t::iterator it=_availableConverters.begin() ; it != _availableConverters.end(); ++it )
     delete (it->second);
 }
 

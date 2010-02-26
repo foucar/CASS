@@ -8,6 +8,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
+#include "parameter_backend.h"
 
 namespace cass
 {
@@ -58,6 +59,8 @@ namespace cass
     typedef std::set<Analyzers> active_analyzers_t;
 
   protected:
+    //the parameters//
+    AnalysisParameter _param;
     //map of available analyzers//
     analyzers_t _analyzer;
     //a set of the active analyzers//
@@ -66,6 +69,7 @@ namespace cass
     static Analyzer *_instance;
     //Singleton operation locker in a multi-threaded environment.//
     static QMutex _mutex;
+    //
 
   };
 }//end namespace cass
