@@ -5,33 +5,64 @@
 #include <QtCore/QMutexLocker>
 #include "cass_event.h"
 #include "format_converter.h"
-#include "remi_converter.h"
-#include "vmi_converter.h"
+#include "acqiris_converter.h"
+#include "ccd_converter.h"
 #include "machine_converter.h"
 #include "pnccd_converter.h"
 #include "xtciterator.h"
 #include "pdsdata/xtc/Dgram.hh"
 
 
+namespace cass
+{
+  //create a black converter for all ids that we are not interested in//
+  class CASSSHARED_EXPORT BlankConverter : public ConversionBackend
+  {
+  public:
+    void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
+  };
+}
+
+
+
 // define static members
 cass::FormatConverter *cass::FormatConverter::_instance(0);
 QMutex cass::FormatConverter::_mutex;
-bool cass::FormatConverter::_firsttime(true);
 
 
 cass::FormatConverter::FormatConverter()
 {
   // create all the necessary individual format converters
-  _converter[REMI]        = new REMI::Converter();
-  _converter[Pulnix]      = new VMI::Converter();
-  _converter[pnCCD]       = new pnCCD::Converter();
-  _converter[MachineData] = new MachineData::Converter();
+  _availableConverters[Acqiris]     = new ACQIRIS::Converter();
+  _availableConverters[ccd]         = new CCD::Converter();
+  _availableConverters[pnCCD]       = new pnCCD::Converter();
+  _availableConverters[MachineData] = new MachineData::Converter();
+  _availableConverters[Blank]       = new BlankConverter();
+
+  // now fill the map of the used converters//
+  _usedConverters[Pds::TypeId::Any]                 = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_Xtc]              = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[ccd];
+  _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Acqiris];
+  _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Acqiris];
+  _usedConverters[Pds::TypeId::Id_TwoDGaussian]     = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_Opal1kConfig]     = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_FrameFexConfig]   = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_EvrConfig]        = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_TM6740Config]     = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_ControlConfig]    = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[pnCCD];
+  _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[pnCCD];
+  _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[MachineData];
+  _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
+  _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
+  _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
 }
 
 cass::FormatConverter::~FormatConverter()
 {
   // destruct all the individual format converters
-  for (std::map<Converters, ConversionBackend *>::iterator it=_converter.begin() ; it != _converter.end(); ++it )
+  for (availableConverters_t::iterator it=_converter.begin() ; it != _converter.end(); ++it )
     delete (it->second);
 }
 
@@ -48,7 +79,6 @@ void cass::FormatConverter::destroy()
 cass::FormatConverter *cass::FormatConverter::instance()
 {
   QMutexLocker locker(&_mutex);
-  _firsttime    = true;
   if(0 == _instance)
     _instance = new FormatConverter();
   return _instance;
@@ -72,7 +102,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   std::cout << std::dec <<std::endl;*/
 
   //if this is the firsttime we run we want to load a config that was stored to disk//
-  if(_firsttime)
+  /*if(_firsttime)
   {
     //reset the flag//
     _firsttime = false;
@@ -93,14 +123,14 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       XtcIterator iter(&(dg.xtc),_converter,0,0);
       iter.iterate();
     }
-  }
+  }*/
 
   //if datagram is configuration or an event (L1Accept) then we will iterate through it//
   //otherwise we ignore the datagram//
   if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
       (datagram->seq.service() == Pds::TransitionId::L1Accept))
   {
-    //if the datagram is an event than we create a new cass event first//
+    //if the datagram is an event create the id from time and fiducial//
     if (datagram->seq.service() == Pds::TransitionId::L1Accept)
     {
       //extract the bunchId from the datagram//
@@ -111,7 +141,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       //when the datagram was an event we need to tell the caller//
       retval = true;
     }
-    //if it is a configure transition we want to store it to file//
+    /*//if it is a configure transition we want to store it to file//
     else if(datagram->seq.service() == Pds::TransitionId::Configure)
     {
       //open the file//
@@ -124,10 +154,10 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
         configtransition.write(datagram->xtc.payload(),datagram->xtc.sizeofPayload());
         configtransition.close();
       }
-    }
+    }*/
 
     //iterate through the datagram and find the wanted information//
-    XtcIterator iter(&(datagram->xtc),_converter,cassevent,0);
+    XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
     iter.iterate();
   }
   return retval;

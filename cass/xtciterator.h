@@ -1,5 +1,7 @@
-#ifndef XTCITERATOR_H
-#define XTCITERATOR_H
+//Copyright (C) 2010 lmf
+
+#ifndef _XTCITERATOR_H_
+#define _XTCITERATOR_H_
 
 #include <map>
 #include <iostream>
@@ -9,7 +11,6 @@
 
 #include "pdsdata/xtc/XtcIterator.hh"
 #include "pdsdata/xtc/Xtc.hh"
-#include "pdsdata/xtc/TypeId.hh"
 
 namespace cass
 {
@@ -17,7 +18,7 @@ namespace cass
   {
   public:
     enum {Stop, Continue};
-    XtcIterator(Pds::Xtc* xtc, std::map<FormatConverter::Converters,ConversionBackend*>& converters, CASSEvent *cassevent, unsigned depth) :
+    XtcIterator(Pds::Xtc* xtc, FormatConverter::usedConverters_t& converters, CASSEvent *cassevent, unsigned depth) :
         Pds::XtcIterator(xtc),
         _depth(depth),
         _converters(converters),
@@ -29,33 +30,27 @@ namespace cass
     {
       //if it is another xtc, then iterate through it//
       if (xtc->contains.id() == Pds::TypeId::Id_Xtc)
-      {
         iterate(xtc);
-      }
-      else //otherwise check which format converter is responsible for this xtc//
+      //otherwise use the responsible format converter for this xtc//
+      else
       {
-        //check whether datagram is damaged//
+        //first check whether datagram is damaged or the xtc id is bigger than we expect//
         uint32_t damage = xtc->damage.value();
-        if (!damage)
-        {
-          for (std::map<FormatConverter::Converters,ConversionBackend*>::iterator it=_converters.begin() ; it != _converters.end(); ++it )
-          {
-            if( it->second->handlesType(xtc->contains.id()))
-              (*(it->second))(xtc,_cassevent);
-          }
-        }
-        else
+        if (xtc->contains.id() >= Pds::TypeId::NumberOf)
+          std::cout << xtc->contains.id() <<" is an unkown xtc id"<<std::endl;
+        else if (damage)
           std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
-
+        else
+          //use the converter that is good for this xtc type//
+          (*_converters[xtc->contains.id()])(xtc,_cassevent);
       }
       return Continue;
     }
-      private:
+  private:
     unsigned _depth;
-    std::map<FormatConverter::Converters, ConversionBackend *>& _converters;
+    FormatConverter::usedConverters_t& _converters;
     CASSEvent *_cassevent;
   };
-
-}//end namespace
+}//end namespace cass
 
 #endif // XTCITERATOR_H

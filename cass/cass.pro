@@ -12,7 +12,6 @@ SOURCES +=  cass.cpp \
             sharedmemory_input.cpp \
             format_converter.cpp \
             cass_event.cpp \
-            xtciterator.cpp \
             ratemeter.cpp \
             dialog.cpp \
             worker.cpp \

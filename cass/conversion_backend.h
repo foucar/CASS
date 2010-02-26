@@ -10,24 +10,19 @@
 
 namespace Pds
 {
-    class Xtc;
+  class Xtc;
 }
 
 namespace cass
 {
-    class CASSEvent;
+  class CASSEvent;
 
-    class CASSSHARED_EXPORT ConversionBackend
-    {
-    public:
-        virtual ~ConversionBackend() {}
-
-        virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
-        //checks whether this converter should react on the type
-        bool handlesType(uint16_t type) { return (std::find(_types.begin(),_types.end(),type) != _types.end());}
-    protected:
-        std::vector<uint16_t>   _types;             //the types that the converter should react on
-    };
+  class CASSSHARED_EXPORT ConversionBackend
+  {
+  public:
+    virtual ~ConversionBackend() {}
+    virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
+  };
 }//end namespace cass
 
 #endif
