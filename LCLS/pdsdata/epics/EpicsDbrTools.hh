@@ -1,6 +1,7 @@
 #ifndef EPICS_DBR_TOOLS_H
 #define EPICS_DBR_TOOLS_H
 
+#include <cstring>
 #include <string>
 #include <stdint.h>
 #include <stdio.h>
