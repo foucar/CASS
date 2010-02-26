@@ -14,6 +14,21 @@ namespace cass
   class CASSEvent;
   class AnalysisBackend;
 
+  class CASSSHARED_EXPORT AnalysisParameter : public cass::ParameterBackend
+  {
+  public:
+    AnalysisParameter()     {beginGroup("PreAnalyzer");}
+    ~AnalysisParameter()    {endGroup();}
+    void load();
+    void save();
+
+  public:
+    bool _useCCD;
+    bool _useAcqiris;
+    bool _usepnCCD;
+    bool _useMachine;
+  };
+
 
   class CASSSHARED_EXPORT Analyzer : public QObject
   {
@@ -21,7 +36,7 @@ namespace cass
 
   public:
     //list of known individual analyzers//
-    enum Analyzers {REMI, VMI, MachineData, pnCCD};
+    enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
     //creates an instace if not it does not exist already//
     static Analyzer *instance();
     //this destroys the the instance//

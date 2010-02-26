@@ -9,32 +9,9 @@
 #include "machine_analysis.h"
 
 
-// define static members
+// ============define static members==============
 cass::Analyzer *cass::Analyzer::_instance(0);
 QMutex cass::Analyzer::_mutex;
-
-
-cass::Analyzer::Analyzer()
-{
-  //create the analyzers//
-  _analyzer[ccd]          = new CCD::Analysis();
-  _analyzer[pnCCD]        = new pnCCD::Analysis();
-  _analyzer[Acqiris]      = new ACQIRIS::Analysis();
-  _analyzer[MachineData]  = new MachineData::Analysis();
-
-  //set up what analysis is interesting//
-  _activeAnalyzers.insert(ccd);
-  _activeAnalyzers.insert(pnCCD);
-  _activeAnalyzers.insert(Acqiris);
-  _activeAnalyzers.insert(MachineData);
-}
-
-cass::Analyzer::~Analyzer()
-{
-  //delete all analyzers
-  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
-    delete (it->second);
-}
 
 cass::Analyzer* cass::Analyzer::instance()
 {
@@ -50,6 +27,49 @@ void cass::Analyzer::destroy()
   delete _instance;
   _instance = 0;
 }
+//===================================================
+
+
+void cass::AnalysisParameter::load()
+{
+  //sync before loading//
+  sync();
+  _useCCD     = value("useComercialCCDAnalyzer",true).toBool();
+  _useAcqiris = value("useAcqirisAnalyzer",true).toBool();
+  _useMachine = value("useMachineAnalyzer",true).toBool();
+  _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
+}
+
+void cass::AnalysisParameter::save()
+{
+  setValue("useComercialCCDAnalyzer",_useCCD);
+  setValue("useAcqirisAnalyzer",_useAcqiris);
+  setValue("useMachineAnalyzer",_useMachine);
+  setValue("usepnCCDAnalyzer",_usepnCCD);
+}
+
+
+
+
+
+cass::Analyzer::Analyzer()
+{
+  //create the analyzers//
+  _analyzer[ccd]          = new CCD::Analysis();
+  _analyzer[pnCCD]        = new pnCCD::Analysis();
+  _analyzer[Acqiris]      = new ACQIRIS::Analysis();
+  _analyzer[MachineData]  = new MachineData::Analysis();
+
+  //look what analysis is interestign to the user//
+  loadSettings();
+}
+
+cass::Analyzer::~Analyzer()
+{
+  //delete all analyzers
+  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+    delete (it->second);
+}
 
 
 void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
@@ -62,6 +82,14 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 
 void cass::Analyzer::loadSettings()
 {
+  //load the parameters to find out what analyzers the user want to be working//
+  _param.load();
+  //install the requested analyzers//
+  _param._useCCD      ? _activeAnalyzers.insert(ccd)        : _activeAnalyzers.erase(ccd);
+  _param._useAcqiris  ? _activeAnalyzers.insert(Acqiris)    : _activeAnalyzers.erase(Acqiris);
+  _param._usepnCCD    ? _activeAnalyzers.insert(pnCCD)      : _activeAnalyzers.erase(pnCCD);
+  _param._useMachine  ? _activeAnalyzers.insert(MachineData): _activeAnalyzers.erase(MachineData);
+
   //iterate through all analyzers and load the settings of them//
   for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->loadSettings();
@@ -69,6 +97,9 @@ void cass::Analyzer::loadSettings()
 
 void cass::Analyzer::saveSettings()
 {
+  //save the AnalyzerParameters//
+  _param.save();
+
   //iterate through all analyzers and load the settings of them//
   for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->saveSettings();
