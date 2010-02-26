@@ -20,6 +20,20 @@ namespace cass
   //@author Jochen Küpper,lmf
   //@version 0.2
 
+  class CASSSHARED_EXPORT ConverterParameter : public cass::ParameterBackend
+  {
+  public:
+    ConverterParameter()     {beginGroup("Converter");}
+    ~ConverterParameter()    {endGroup();}
+    void load();
+    void save();
+
+  public:
+    bool _useCCD;
+    bool _useAcqiris;
+    bool _usepnCCD;
+    bool _useMachine;
+  };
 
   class CASSSHARED_EXPORT FormatConverter : public QObject
   {
@@ -34,6 +48,9 @@ namespace cass
     static FormatConverter *instance();
     //function to process a datagram and turn it into a cassevent/
     bool processDatagram(cass::CASSEvent*);
+    //functions to load / save the settings for the format converter//
+    void loadSettings();
+    void saveSettings();
 
   protected:
     FormatConverter();

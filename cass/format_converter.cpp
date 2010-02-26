@@ -13,9 +13,9 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 
+//create a black converter for all ids that we are not interested in//
 namespace cass
 {
-  //create a black converter for all ids that we are not interested in//
   class CASSSHARED_EXPORT BlankConverter : public ConversionBackend
   {
   public:
@@ -25,9 +25,50 @@ namespace cass
 
 
 
-// define static members
+// ===============define static members====================
 cass::FormatConverter *cass::FormatConverter::_instance(0);
 QMutex cass::FormatConverter::_mutex;
+
+void cass::FormatConverter::destroy()
+{
+  QMutexLocker locker(&_mutex);
+  delete _instance;
+  _instance = 0;
+}
+cass::FormatConverter *cass::FormatConverter::instance()
+{
+  QMutexLocker locker(&_mutex);
+  if(0 == _instance)
+    _instance = new FormatConverter();
+  return _instance;
+}
+//==========================================================
+
+
+
+//load the settings
+void cass::ConverterParameter::load()
+{
+  //sync before loading//
+  sync();
+  _useCCD     = value("useCommercialCCDConverter",true).toBool();
+  _useAcqiris = value("useAcqirisConverter",true).toBool();
+  _useMachine = value("useMachineConverter",true).toBool();
+  _usepnCCD   = value("usepnCCDConverter",true).toBool();
+}
+//save the settings
+void cass::ConverterParameter::save()
+{
+  setValue("useCommercialCCDConverter",_useCCD);
+  setValue("useAcqirisConverter",_useAcqiris);
+  setValue("useMachineConverter",_useMachine);
+  setValue("usepnCCDConverter",_usepnCCD);
+}
+
+
+
+
+
 
 
 cass::FormatConverter::FormatConverter()
@@ -39,24 +80,15 @@ cass::FormatConverter::FormatConverter()
   _availableConverters[MachineData] = new MachineData::Converter();
   _availableConverters[Blank]       = new BlankConverter();
 
-  // now fill the map of the used converters//
+  // now initialze the uniteresting xtc ids with blank converters//
   _usedConverters[Pds::TypeId::Any]                 = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_Xtc]              = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[ccd];
-  _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Acqiris];
-  _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Acqiris];
   _usedConverters[Pds::TypeId::Id_TwoDGaussian]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_Opal1kConfig]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_FrameFexConfig]   = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_EvrConfig]        = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_TM6740Config]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_ControlConfig]    = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[pnCCD];
-  _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[pnCCD];
-  _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[MachineData];
-  _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
-  _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
-  _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
 }
 
 cass::FormatConverter::~FormatConverter()
@@ -67,23 +99,76 @@ cass::FormatConverter::~FormatConverter()
 }
 
 
-
-void cass::FormatConverter::destroy()
+void cass::FormatConverter::addConverter(cass::FormatConverter::Converters converter)
 {
-  QMutexLocker locker(&_mutex);
-  delete _instance;
-  _instance = 0;
+  //look which converter should be added//
+  switch(converter)
+  {
+  case ccd:
+    _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[ccd];
+    break;
+  case Acqiris:
+    _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Acqiris];
+    _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Acqiris];
+    break;
+  case pnCCD:
+    _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[pnCCD];
+    _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[pnCCD];
+    break;
+  case MachineData:
+    _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[MachineData];
+    _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
+    _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
+    _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
+    break;
+  default:
+    break;
+  }
 }
 
-
-cass::FormatConverter *cass::FormatConverter::instance()
+void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters converter)
 {
-  QMutexLocker locker(&_mutex);
-  if(0 == _instance)
-    _instance = new FormatConverter();
-  return _instance;
+  //look which converter should be removed//
+  switch(converter)
+  {
+  case ccd:
+    _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[Blank];
+    break;
+  case Acqiris:
+    _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Blank];
+    break;
+  case pnCCD:
+    _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[Blank];
+    break;
+  case MachineData:
+    _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
+    break;
+  default:
+    break;
+  }
 }
 
+void cass::FormatConverter::loadSettings()
+{
+  //load the parameters//
+  _param.load();
+  //install the requested converters//
+  _param._useCCD      ? addConverter(ccd)         : removeConverter(ccd);
+  _param._useAcqiris  ? addConverter(Acqiris)     : removeConverter(Acqiris);
+  _param._usepnCCD    ? addConverter(pnCCD)       : removeConverter(pnCCD);
+  _param._useMachine  ? addConverter(MachineData) : removeConverter(MachineData);
+}
+
+void cass::FormatConverter::saveSettings()
+{
+  //save the parameters//
+  _param.save();
+}
 
 
 //this slot is called once the eventqueue has new data available//
