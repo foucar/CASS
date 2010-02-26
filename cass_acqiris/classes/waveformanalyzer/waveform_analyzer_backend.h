@@ -8,12 +8,12 @@ namespace cass
   namespace ACQIRIS
   {
     class Channel;
-    class Signal;
+    class ResultsBackend;
     class CASS_ACQIRISSHARED_EXPORT WaveformAnalyzerBackend
     {
     public:
       virtual ~WaveformAnalyzerBackend()         {}
-      virtual void analyze(const Channel&, Signal&) = 0;
+      virtual void analyze(const Channel&, ResultsBackend&) = 0;
     };
   }//end namespace remi
 }//end namespace cass

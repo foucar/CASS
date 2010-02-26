@@ -4,13 +4,14 @@
 #include <vector>
 #include <stdint.h>
 
+#include "cass_acqiris.h"
 
 
 namespace cass
 {
   namespace ACQIRIS
   {
-    class Peak
+    class CASS_ACQIRISSHARED_EXPORT Peak
     {
       public:
         Peak():_used(false)  {}

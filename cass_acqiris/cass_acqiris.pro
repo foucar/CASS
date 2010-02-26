@@ -28,7 +28,9 @@ HEADERS += acqiris_analysis.h \
            ./classes/peak.h \
            ./classes/detector_backend.h \
            ./classes/delayline_detector.h \
+           ./classes/waveform_signal.h \
            ./classes/waveformanalyzer/waveform_analyzer_backend.h \
+           ./classes/waveformanalyzer/results_backend.h \
            ./classes/waveformanalyzer/cfd.h \
            ./classes/waveformanalyzer/com.h \
            ./classes/waveformanalyzer/helperfunctionsforstdc.h \

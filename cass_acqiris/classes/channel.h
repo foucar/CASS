@@ -5,12 +5,13 @@
 #include <stdint.h>
 #include <iostream>
 #include <vector>
+#include "cass_acqiris.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
-    class Channel
+    class CASS_ACQIRISSHARED_EXPORT Channel
     {
       public:
         Channel()  {}
