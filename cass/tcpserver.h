@@ -4,8 +4,8 @@
 
 #include <QtNetwork/QTcpServer>
 
-class *Event;
-class *Histogram;
+typedef int Event;
+typedef int Histogram;
 
 /* @brief CASS TCP server
 
@@ -80,8 +80,8 @@ public:
     @param event Specify get_event functor
     @param hist Specify get_histogram functor
     */
-    TCPServer(std::unary_function<event_parameter&, *Event> event,
-              std::unary_function<histogram_parameter&, *Histogram> hist);
+    TCPserver(std::unary_function<event_parameter&, Event> event,
+              std::unary_function<histogram_parameter&, Histogram> hist);
 
 
 signals:
@@ -94,10 +94,10 @@ signals:
 protected:
 
     /** get_event functor */
-    std::unary_function<event_parameter&, *Event> get_event;
+    std::unary_function<event_parameter&, Event> get_event;
 
     /** get_histogram functor */
-    std::unary_function<histogram_parameter&, *Histogram> get_histogram;
+    std::unary_function<histogram_parameter&, Histogram> get_histogram;
 };
 
 

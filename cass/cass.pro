@@ -1,10 +1,10 @@
-# Copyright (C) 2009 ncoppola, lmf
-qt += core gui
-CONFIG += static
+# Copyright (C) 2009 ncoppola, lmf, Jochen KÃpper
 TEMPLATE = app
+CONFIG += static
+QT += network
 TARGET = cass
 DEFINES += CASS_LIBRARY
-VERSION = 0.0.1
+VERSION = 0.1.0
 CODECFORTR = UTF-8
 
 OBJECTS_DIR = ./obj
@@ -17,6 +17,7 @@ SOURCES +=  cass.cpp \
             #ratemeter.cpp \
             #dialog.cpp \
             worker.cpp \
+            tcpserver.cpp \
             ./postprocessing/post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
@@ -32,6 +33,7 @@ HEADERS +=  analysis_backend.h \
             ringbuffer.h \
             ccd_detector.h \
             worker.h \
+            tcpserver.h \
             ./postprocessing/post_processor.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \

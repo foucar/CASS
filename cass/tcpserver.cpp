@@ -5,8 +5,8 @@
 #include "tcpserver.h"
 
 
-TCPServer::TCPServer(std::unary_function<event_parameter&, *Event> event,
-                     std::unary_function<histogram_parameter&, *Histogram> hist)
+TCPserver::TCPserver(std::unary_function<event_parameter&, Event> event,
+                     std::unary_function<histogram_parameter&, Histogram> hist)
   : get_event(event), get_histogram(hist)
 {
 }
