@@ -1,8 +1,11 @@
 // CASS TCP server
 //
-// Copyright (C) 2010 Jochen Küppe
+// Copyright (C) 2010 Jochen Küpper
 
 #include <QtNetwork/QTcpServer>
+
+class *Event;
+class *Histogram;
 
 /* @brief CASS TCP server
 
@@ -35,14 +38,20 @@ CASS:GET:EVENT:<what>:<t1>:<t2>
 Get latest available event.
 Currently, the unisgned integers <what>, <t1>, and <t2> are unused. They might be used to read
 partial events (<what>) or all events from a given time-range ([<t1>:<t2>]) at some later stage.
-OB
+
+This command calls the supplied get_event functor.
+
+
 
 CASS:GET:HISTOGRAM:<type>
 =========================
 
 Get current histogram of type <type>, which is a unsigned integer value.
 
-The defined types are
+This command calls the supplied get_event functor.
+
+
+The defined histogram types are
 
     1: Last plain image from pnCCD-1
     2: Last plain image from pnCCD 2
@@ -55,15 +64,40 @@ class TCPserver : public QTcpServer
 {
     Q_OBJECT;
 
+public:
+
+    struct event_parameter {
+        size_t what;
+        unsigned int t1, t2;
+    };
+
+    struct histogram_parameter {
+        size_t type;
+    };
+
+    /** Constructor
+
+    @param event Specify get_event functor
+    @param hist Specify get_histogram functor
+    */
+    TCPServer(std::unary_function<event_parameter&, *Event> event,
+              std::unary_function<histogram_parameter&, *Histogram> hist);
+
+
 signals:
 
     void quit();
-    
+
     void readini(size_t what);
+
 
 protected:
 
-    
+    /** get_event functor */
+    std::unary_function<event_parameter&, *Event> get_event;
+
+    /** get_histogram functor */
+    std::unary_function<histogram_parameter&, *Histogram> get_histogram;
 };
 
 

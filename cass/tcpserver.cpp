@@ -1,8 +1,15 @@
 // CASS TCP server
 //
-// Copyright (C) 2010 Jochen Küppe
+// Copyright (C) 2010 Jochen Küpper
 
 #include "tcpserver.h"
+
+
+TCPServer::TCPServer(std::unary_function<event_parameter&, *Event> event,
+                     std::unary_function<histogram_parameter&, *Histogram> hist)
+  : get_event(event), get_histogram(hist)
+{
+}
 
 
 
