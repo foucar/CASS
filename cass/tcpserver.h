@@ -48,7 +48,7 @@ CASS:GET:HISTOGRAM:<type>
 
 Get current histogram of type <type>, which is a unsigned integer value.
 
-This command calls the supplied get_event functor.
+This command calls the supplied get_histogram functor.
 
 
 The defined histogram types are
