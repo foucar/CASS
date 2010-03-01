@@ -40,6 +40,15 @@ namespace cass
       typedef std::map<std::string,double> epicsDataMap_t;
 
     public:
+      void serialize(bufferinputiterator_t&)const
+      {
+      }
+      void deserialize(bufferoutputiterator_t&)
+      {
+      }
+
+
+    public:
       double f_11_ENRC()const    {return _f_11_ENRC;}
       double& f_11_ENRC()        {return _f_11_ENRC;}
 

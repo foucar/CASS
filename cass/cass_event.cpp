@@ -22,3 +22,23 @@ cass::CASSEvent::~CASSEvent()
   for (devices_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
     delete (it->second);
 }
+
+cass::CASSEvent::serialize(bufferinputiterator_t& buffer)const
+{
+  //serialize the id and then all devices//
+  std::copy( reinterpret_cast<char*>(&_id),
+             reinterpret_cast<char*>(&_id)+sizeof(uint64_t),
+             buffer);
+  for (device_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+    it->second->serialize(buffer);
+}
+
+cass::CASSEvent::deserialize(bufferoutputiterator_t& buffer)
+{
+  //get all infos from the buffer//
+  std::copy(buffer,
+            buffer+sizeof(uint64_t),
+            reinterpret_cast<char*>(&_id));
+  for (device_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+    it->second->deserialize(buffer);
+}

@@ -21,6 +21,10 @@ namespace cass
     typedef std::map<Device,DeviceBackend*> devices_t;
 
   public:
+    void serialize(bufferinputiterator_t&)const;
+    void deserialize(bufferoutputiterator_t&);
+
+  public:
     uint64_t         id()const        {return _id;}
     uint64_t        &id()             {return _id;}
     char            *datagrambuffer() {return _datagrambuffer;}

@@ -24,6 +24,14 @@ namespace cass
       typedef std::vector<CCDDetector> detectors_t;
 
     public:
+      void serialize(bufferinputiterator_t&)const
+      {
+      }
+      void deserialize(bufferoutputiterator_t&)
+      {
+      }
+
+    public:
       const detectors_t   &detectors()const   {return _detectors;}
       detectors_t         &detectors()        {return _detectors;}
 

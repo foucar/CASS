@@ -16,6 +16,11 @@ namespace cass
     }
     Pixel()       {}
     ~Pixel()      {}
+
+  public:
+    void serialize(bufferinputiterator_t&)const;
+    void deserialize(bufferoutputiterator_t&);
+
   public:
     uint16_t &x()       {return _x;}
     uint16_t  x()const  {return _x;}
@@ -48,6 +53,12 @@ namespace cass
   public:
     typedef std::vector<pixel_t> frame_t;
     typedef std::vector<Pixel> pixelList_t;
+
+  public:
+    void serialize(bufferinputiterator_t&)const;
+    void deserialize(bufferoutputiterator_t&);
+
+
 
   public:
     uint32_t        &integral()              {return _integral;}

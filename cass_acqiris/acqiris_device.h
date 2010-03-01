@@ -22,6 +22,15 @@ namespace cass
       typedef std::vector<DetectorBackend> detectors_t;
 
     public:
+      void serialize(bufferinputiterator_t&)const
+      {
+      }
+      void deserialize(bufferoutputiterator_t&)
+      {
+      }
+
+
+    public:
       const channels_t   &channels()const         {return _channels;}
       channels_t         &channels()              {return _channels;}
       const detectors_t  &detectors()const        {return _dets;}
