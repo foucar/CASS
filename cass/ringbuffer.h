@@ -110,6 +110,36 @@ namespace lmf
       //wir haben ein freies gefunden
       return true;
     }
+    //some function to retrieve the right elements
+    bool findNextViewable()
+    {
+      //merke dir wo wir enden sollten//
+      //dies sollte spaetestens dort passieren wo der next fillable steht sein//
+      //da die elemente davor entweder schon bearbeitet worden sind//
+      //oder noch bearbeitet werden//
+      iterator_t letztesElement = _nextToView;
+      //wenn das aktuelle element gerade bearbeitet wird oder nicht gefuellt ist//
+      //probiere es mit dem naechsten//
+      while (_nextToView->inBearbeitung || !_nextToView->bearbeitet)
+      {
+
+        //wenn wir wieder am dort wo der filler steht angekommen sind//
+        //dann ist nichts da zu bearbeiten//
+        if (_nextToView == letztesFreiesElement)
+          return false;
+
+        //wir sollen rueckwaerts durch den buffer gehen//
+        //um das jeweilig vorherige event zu erreichen//
+        //wenn wir mit dem iterator am anfang angekommen sind//
+        //fangen wir wieder von hinten an//
+        if (_nextToView == _buffer.begin())
+          _nextToView = _buffer.end()-1;
+        else
+          --_nextToView;
+      }
+      //wir haben ein anschaubares gefunden
+      return true;
+    }
 
     bool findNextFillableBlockable()
     {
@@ -273,15 +303,59 @@ namespace lmf
       _processcondition.wakeOne();
     }
 
-
+    //hole das letzt hinzugefügte element des processors, wenn das schon abgeholt wurde, das davor...//
+    //ein element ist anzuschauen, wenn es gefüllt und processiert wurde//
+   void nextToView(reference element, int timeout=ULONG_MAX)
+   {
+      //create a lock//
+      QMutexLocker lock(&_mutex);
+      while (!findNextViewable())
+      {
+        //wenn nichts gefunden wurd warte bis wir benachrichtigt werden//
+        //dass ein neues element hinzugefuegt wurde//
+        if(!_viewcondition.wait(lock.mutex(),timeout))
+        {
+          element = 0;
+          return;
+        }
+      }
+      //setze die eigenschaften und weise den pointer zu//
+      _nextToView->inBearbeitung = true;
+      element = _nextToView->element;
+      //wir erwarten dass als naechstes, wenn nichts gefuellt wird,//
+      //das vorherige element genutzt wird//
+      if (_nextToView == _buffer.begin())
+        _nextToView = _buffer.end()-1;
+      else
+      --_nextToView;
+    }
+    //wenn die funktion, die das element abgeholt hat, fertig ist mit dem
+    //anschauen, dann soll sie bescheid geben
+    void doneViewing(reference element)
+    {
+      //create a lock//
+      QMutexLocker lock(&_mutex);
+      //finde den index des elements und setze den dazugehoerigen status um
+      iterator_t iElement = _buffer.begin();
+      for ( ; iElement != _buffer.end() ; ++iElement)
+        if (iElement->element == element)
+          break;
+      iElement->inBearbeitung = false;
+      //notify the waiting condition that something new is in the buffer//
+      //we need to unlock the lock before//
+      lock.unlock();
+      _fillcondition.wakeOne();
+    }
 
   private:
     QMutex            _mutex;             // mutex to sync the processing part
     QWaitCondition    _fillcondition;     // condition to sync the filling part
-    QWaitCondition    _processcondition;  // condition to sync the filling part
+    QWaitCondition    _processcondition;  // condition to sync the processing part
+    QWaitCondition    _viewcondition;     // condition to sync the viewing part
     behaviour_t       _behaviour;         // verhalten des containers
     buffer_t          _buffer;            // der Container
     iterator_t        _nextToProcess;     // Iterator des naechsten zu bearbeitenden elements
+    iterator_t        _nextToView;        // Iterator des naechsten zu anzschauenden elements
     iterator_t        _nextToFill;        // Iterator des naechsten zu fuellenden elements
   };
 }
