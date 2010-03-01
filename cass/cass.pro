@@ -18,6 +18,7 @@ SOURCES +=  cass.cpp \
             #dialog.cpp \
             worker.cpp \
             tcpserver.cpp \
+            event_getter.cpp \
             ./postprocessing/post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
@@ -34,6 +35,7 @@ HEADERS +=  analysis_backend.h \
             ccd_detector.h \
             worker.h \
             tcpserver.h \
+            event_getter.h \
             ./postprocessing/post_processor.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
