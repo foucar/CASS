@@ -5,12 +5,17 @@
 #include "tcpserver.h"
 
 
+namespace cass
+{
+
 TCPserver::TCPserver(std::unary_function<event_parameter&, Event> event,
                      std::unary_function<histogram_parameter&, Histogram> hist)
   : get_event(event), get_histogram(hist)
 {
 }
 
+
+}
 
 
 
