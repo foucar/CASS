@@ -6,9 +6,9 @@
 #define CASS_TCPSERVER_H
 
 #include <QtNetwork/QTcpServer>
-#include "cass_Event.h"
-#include "histogram.h"
 
+class SerializedEvent;
+class SerializedHistogram;
 
 namespace cass
 {
@@ -86,8 +86,8 @@ public:
     @param event Specify get_event functor
     @param hist Specify get_histogram functor
     */
-    TCPserver(std::unary_function<event_parameter&, CASSEvent> event,
-              std::unary_function<histogram_parameter&, HistogramBase> hist);
+    TCPserver(std::unary_function<event_parameter&, const SerializedEvent *> event,
+              std::unary_function<histogram_parameter&, const SerializedHistogram *> hist);
 
 
 signals:
@@ -100,11 +100,14 @@ signals:
 protected:
 
     /** get_event functor */
-    std::unary_function<event_parameter&, CASSEvent> get_event;
+    std::unary_function<event_parameter&, const SerializedEvent *> get_event;
 
     /** get_histogram functor */
-    std::unary_function<histogram_parameter&, HistogramBase> get_histogram;
+    std::unary_function<histogram_parameter&, const SerializedHistogram *> get_histogram;
 };
+
+
+#endif
 
 }
 

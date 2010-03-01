@@ -8,8 +8,8 @@
 namespace cass
 {
 
-TCPserver::TCPserver(std::unary_function<event_parameter&, Event> event,
-                     std::unary_function<histogram_parameter&, Histogram> hist)
+TCPserver::TCPserver(std::unary_function<event_parameter&, const SerializedEvent *> event,
+                     std::unary_function<histogram_parameter&, const SerializedHistogram *> hist)
   : get_event(event), get_histogram(hist)
 {
 }
