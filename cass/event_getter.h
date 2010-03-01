@@ -13,7 +13,7 @@ namespace cass
   class CASSSHARED_EXPORT EventGetter
   {
   public:
-      CASSEvent operator()(const TCPserver::event_parameter&);
+      void operator()(const TCPserver::event_parameter&,bufferinputiterator_t&);
   };
 }//end namespace cass
 
