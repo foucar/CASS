@@ -11,6 +11,8 @@ namespace cass
   {
   public:
     virtual ~DeviceBackend() {}
+    virtual void serialize(bufferinputiterator_t&)const{}
+    virtual void deserialize(bufferoutputiterator_t&){}
   };
 }//end namespace cass
 

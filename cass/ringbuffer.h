@@ -125,7 +125,7 @@ namespace lmf
 
         //wenn wir wieder am dort wo der filler steht angekommen sind//
         //dann ist nichts da zu bearbeiten//
-        if (_nextToView == letztesFreiesElement)
+        if (_nextToView == letztesElement)
           return false;
 
         //wir sollen rueckwaerts durch den buffer gehen//

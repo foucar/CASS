@@ -17,3 +17,4 @@ namespace cass
   };
 }//end namespace cass
 
+#endif
