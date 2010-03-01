@@ -2,10 +2,16 @@
 //
 // Copyright (C) 2010 Jochen Küpper
 
-#include <QtNetwork/QTcpServer>
+#ifndef CASS_TCPSERVER_H
+#define CASS_TCPSERVER_H
 
-typedef int Event;
-typedef int Histogram;
+#include <QtNetwork/QTcpServer>
+#include "cass_Event.h"
+#include "histogram.h"
+
+
+namespace cass
+{
 
 /* @brief CASS TCP server
 
@@ -80,8 +86,8 @@ public:
     @param event Specify get_event functor
     @param hist Specify get_histogram functor
     */
-    TCPserver(std::unary_function<event_parameter&, Event> event,
-              std::unary_function<histogram_parameter&, Histogram> hist);
+    TCPserver(std::unary_function<event_parameter&, CASSEvent> event,
+              std::unary_function<histogram_parameter&, HistogramBase> hist);
 
 
 signals:
@@ -94,12 +100,13 @@ signals:
 protected:
 
     /** get_event functor */
-    std::unary_function<event_parameter&, Event> get_event;
+    std::unary_function<event_parameter&, CASSEvent> get_event;
 
     /** get_histogram functor */
-    std::unary_function<histogram_parameter&, Histogram> get_histogram;
+    std::unary_function<histogram_parameter&, HistogramBase> get_histogram;
 };
 
+}
 
 
 
