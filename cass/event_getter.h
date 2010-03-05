@@ -11,17 +11,31 @@
 namespace cass
 {
 
-  class CASSSHARED_EXPORT EventGetter
-  {
-  public:
-    EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
+    class CASSSHARED_EXPORT EventGetter
+    {
+    public:
 
-  public:
-      void operator()(const TCPserver::event_parameter&,bufferinputiterator_t&);
-  private:
-    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+        EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
 
-  };
-}//end namespace cass
+    public:
+
+        void operator()(const cass::TCP::EventParameter&, bufferinputiterator_t&);
+
+    private:
+
+        lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    };
+
+} //end namespace cass
 
 #endif
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:

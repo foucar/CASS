@@ -5,13 +5,104 @@
 #ifndef CASS_TCPSERVER_H
 #define CASS_TCPSERVER_H
 
+#include <functional>
+
 #include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
 
 class SerializedEvent;
 class SerializedHistogram;
 
 namespace cass
 {
+namespace TCP
+{
+
+
+/** possible TCP commands */
+enum cmd_t { READINI, EVENT, HISTOGRAM, QUIT };
+
+
+/** Event retrievel parameters
+
+@author Jochen Küpper
+*/
+struct EventParameter {
+
+    EventParameter(size_t _what, unsigned _t1, unsigned _t2)
+        : what(_what), t1(_t1), t2(_t2)
+        {};
+
+    size_t what;
+    unsigned int t1, t2;
+};
+
+
+/** Histogram retrievel parameters
+
+@author Jochen Küpper
+*/
+struct HistogramParameter {
+
+    HistogramParameter(size_t _type)
+        : type(_type)
+        {};
+
+    size_t type;
+};
+
+
+#warning Replace class GetEvent by real implementation
+class GetEvent : public std::unary_function<SerializedEvent *, const EventParameter&>
+{
+public:
+    const SerializedEvent * operator()(const EventParameter&) const
+        { return 0; };
+};
+
+
+#warning Replace class GetHistogram by real implementation
+class GetHistogram : public std::unary_function<SerializedHistogram *, const HistogramParameter&>
+{
+public:
+    const SerializedHistogram * operator()(const HistogramParameter&) const
+        { return 0; };
+};
+
+
+
+/** @brief TCP server Socket handler
+
+@author Jochen Küpper, FHI
+@author Uwe Hoppe, FHI
+*/
+class Socket : public QTcpSocket
+{
+    Q_OBJECT
+
+public:
+
+    Socket(QObject *parent=0);
+
+
+private slots:
+
+    void readClient();
+
+
+signals:
+
+    void readini(size_t);
+
+    void quit();
+
+
+private:
+
+    quint16 _nextblocksize;
+};
+
+
 
 /* @brief CASS TCP server
 
@@ -66,28 +157,23 @@ The defined histogram types are
        - geometric binning (x and y) of cass.ini:cass/histogram/101/binning
        - background subtraction of the images specified in cass.ini:cass/histogram/101/background
 */
-class TCPserver : public QTcpServer
+class Server : public QTcpServer
 {
     Q_OBJECT;
 
+    friend class Socket;
+
 public:
-
-    struct event_parameter {
-        size_t what;
-        unsigned int t1, t2;
-    };
-
-    struct histogram_parameter {
-        size_t type;
-    };
 
     /** Constructor
 
     @param event Specify get_event functor
     @param hist Specify get_histogram functor
+    @param parent Qt parent object (default none)
     */
-    TCPserver(std::unary_function<event_parameter&, const SerializedEvent *> event,
-              std::unary_function<histogram_parameter&, const SerializedHistogram *> hist);
+    Server(const GetEvent& event, const GetHistogram& hist, QObject *parent=0)
+        : QTcpServer(parent), get_event(event), get_histogram(hist)
+        {};
 
 
 signals:
@@ -97,19 +183,31 @@ signals:
     void readini(size_t what);
 
 
+protected slots:
+
+    void emit_quit() { emit quit(); };
+
+    void emit_readini(size_t what) { emit readini(what); };
+
+
 protected:
 
     /** get_event functor */
-    std::unary_function<event_parameter&, const SerializedEvent *> get_event;
+    const GetEvent& get_event;
 
     /** get_histogram functor */
-    std::unary_function<histogram_parameter&, const SerializedHistogram *> get_histogram;
+    const GetHistogram& get_histogram;
+
+    /** handle incoming client connections */
+    void incomingConnection(int);
 };
 
 
-#endif
-
 }
+}
+
+
+#endif
 
 
 

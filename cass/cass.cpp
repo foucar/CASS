@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Jochen Küpper,lmf
+// Copyright (C) 2009,2010 Jochen Küpper
+// Copyright (C) 2009 lmf
 //
 #include <iostream>
 #include <QtGui/QApplication>
@@ -10,6 +11,7 @@
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "dialog.h"
+#include "tcpserver.h"
 #include "worker.h"
 
 
@@ -25,7 +27,7 @@ int main(int argc, char **argv)
   //get the partition string
   while ((c = getopt(argc, argv, "p:")) != -1)
   {
-    switch (c) 
+    switch (c)
     {
       case 'p':
         strcpy(partitionTag, optarg);
@@ -70,19 +72,31 @@ int main(int argc, char **argv)
 //  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
 
   //show dialog//
-//  window->show();
+  //  window->show();
 
   // start input and worker threads
   input->start();
   workers->start();
 
+  // start TCP server
+#warning fix setup of TCP server parameters and signal/slot conenctions
+  cass::TCP::GetEvent get_event;
+  cass::TCP::GetHistogram get_histogram;
+  cass::TCP::Server server(get_event, get_histogram);
+  // connect(server, SIGNAL(quit()), this, SLOT(quit()));
+  // connect(server, SIGNAL(readini()), this, SLOT(readini());
+  if(! server.listen(QHostAddress::Any, 54321)) {
+      std::cerr << "Failed to bind to TCP port" << std::endl;
+      return 1;
+  }
+
   // start Qt event loop
   int retval(app.exec());
 
   // clean up
-//  delete window;
-//  delete workerrate;
-//  delete inputrate;
+  //  delete window;
+  //  delete workerrate;
+  //  delete inputrate;
   delete workers;
   delete input;
 
