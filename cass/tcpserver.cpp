@@ -61,17 +61,15 @@ void Socket::readClient()
     case EVENT: {
         quint32 t1, t2;
         in >> what >> t1 >> t2;
-        const SerializedEvent *event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
+        Event event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
 #warning send event back
-#warning event->free();
         break;
     }
     case HISTOGRAM: {
         quint32 type;
         in >> type;
-        const SerializedHistogram *hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
+        Histogram hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
 #warning send histogram back
-#warning hist->free();
         break;
     }
     case QUIT:

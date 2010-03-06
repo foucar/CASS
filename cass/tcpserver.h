@@ -10,14 +10,13 @@
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 
-class SerializedEvent;
-class SerializedHistogram;
+#include "cass_event.h"
+
 
 namespace cass
 {
 namespace TCP
 {
-
 
 /** possible TCP commands */
 enum cmd_t { READINI, EVENT, HISTOGRAM, QUIT };
@@ -52,21 +51,38 @@ struct HistogramParameter {
 };
 
 
-#warning Replace class GetEvent by real implementation
-class GetEvent : public std::unary_function<SerializedEvent *, const EventParameter&>
+
+/** Provide a common container class for all histograms
+
+This must be done much smarter... and in hitogram.h */
+class Histogram
 {
 public:
-    const SerializedEvent * operator()(const EventParameter&) const
-        { return 0; };
+    void *hist;
 };
 
 
-#warning Replace class GetHistogram by real implementation
-class GetHistogram : public std::unary_function<SerializedHistogram *, const HistogramParameter&>
+
+#warning Replace class GetEvent by real implementation
+class GetEvent
 {
 public:
-    const SerializedHistogram * operator()(const HistogramParameter&) const
-        { return 0; };
+
+    /** @return Event -- must provide operator>> */
+    const CASSEvent& operator()(const EventParameter&) const
+        { CASSEvent event; return event; };
+};
+
+
+
+#warning Replace class GetHistogram by real implementation
+class GetHistogram
+{
+public:
+
+    /** @return Histogram -- must provide operator>> */
+    const Histogram& operator()(const HistogramParameter&) const
+        { Histogram hist; return hist; };
 };
 
 
@@ -203,7 +219,6 @@ protected:
 };
 
 
-}
 }
 
 
