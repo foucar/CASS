@@ -69,8 +69,10 @@ class GetEvent
 public:
 
     /** @return Event -- must provide operator>> */
-    const CASSEvent& operator()(const EventParameter&) const
-        { CASSEvent event; return event; };
+    CASSEvent operator()(const EventParameter&) const {
+        CASSEvent event;
+        return event;
+    };
 };
 
 
@@ -81,8 +83,10 @@ class GetHistogram
 public:
 
     /** @return Histogram -- must provide operator>> */
-    const Histogram& operator()(const HistogramParameter&) const
-        { Histogram hist; return hist; };
+    Histogram operator()(const HistogramParameter&) const {
+        Histogram hist;
+        return hist;
+    };
 };
 
 
@@ -219,7 +223,8 @@ protected:
 };
 
 
-}
+} // namespace TCP
+} // namespace cass
 
 
 #endif
