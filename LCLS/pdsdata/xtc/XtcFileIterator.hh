@@ -14,7 +14,7 @@ public:
   Dgram* next();
 private:
   FILE*    _file;
-  unsigned _maxDgramSize;
+  size_t   _maxDgramSize;
   char*    _buf;
 };
 
