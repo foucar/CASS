@@ -35,11 +35,11 @@ namespace cass
 
     std::string retrieveString();
     uint16_t    retrieveUint16();
-    int16_t     retrieveUint16();
-    uint32_t    retrieveUint16();
-    int32_t     retrieveUint16();
-    uint64_t    retrieveUint16();
-    int64_t     retrieveUint16();
+    int16_t     retrieveInt16();
+    uint32_t    retrieveUint32();
+    int32_t     retrieveInt32();
+    uint64_t    retrieveUint64();
+    int64_t     retrieveInt64();
     size_t      retrieveSizet();
     double      retrieveDouble();
     float       retrieveFloat();
