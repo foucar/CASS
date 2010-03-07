@@ -62,7 +62,7 @@ inline std::string cass::Serializer::retrieveString()
 {
   //first the length of the string, then the string itselve//
   size_t len = retrieveSizet();
-  std::string str(len,''); //create a temp string with right size
+  std::string str(len,' '); //create a temp string with right size
   _stream.read (&str[0], len);
   return str;
 }
@@ -91,7 +91,7 @@ inline int16_t cass::Serializer::retrieveInt16()
 
 inline void cass::Serializer::addUint32(const uint32_t ui)
 {
-  _stream.write (reinterpret_castconst <char *> (&ui), sizeof (uint32_t));
+  _stream.write (reinterpret_cast<const char *> (&ui), sizeof (uint32_t));
 }
 inline uint32_t cass::Serializer::retrieveUint32()
 {
