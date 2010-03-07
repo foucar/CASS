@@ -42,10 +42,10 @@ namespace cass
       const bldMap_t &BeamlineData()const     {return _blddata;}
       bldMap_t       &BeamlineData()          {return _blddata;}
 
-      double         &energy()const           {return _energy;}
+      double          energy()const           {return _energy;}
       double         &energy()                {return _energy;}
 
-      double         &wavelength()const       {return _wavelength;}
+      double          wavelength()const       {return _wavelength;}
       double         &wavelength()            {return _wavelength;}
 
     private:
