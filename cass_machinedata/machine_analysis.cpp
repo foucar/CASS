@@ -37,8 +37,8 @@ void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
 
   //Get electron beam parameters from beamline data/
   //const double fEbeamCharge    = machinedata.EbeamCharge();    // in nC
-  const double fEbeamL3Energy  = machinedata.EbeamL3Energy();  // in MeV 
-  const double fEbeamPkCurrBC2 = machinedata.EbeamPkCurrBC2(); // in Amps
+  const double fEbeamL3Energy  = machinedata.BeamlineData["EbeamL3Energy"];  // in MeV
+  const double fEbeamPkCurrBC2 = machinedata.BeamlineData["EbeamPkCurrBC2"]; // in Amps
 
   //calculate the resonant photon energy//
   // Get the present peak current in Amps

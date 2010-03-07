@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 #include "device_backend.h"
 #include "cass_machine.h"
@@ -18,10 +19,10 @@ namespace cass
     {
     public:
       MachineDataDevice()
-        :_version(1),
-        _energy(0),
+        :_energy(0),
         _wavelength(0)
       {
+        _version(1)
       }
 
       ~MachineDataDevice()  {}
@@ -67,8 +68,7 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &ou
   //the beamlinedata//
   out.addSizet(_blddata.size());
   //for each entry in the map copy the length of the name, the name, then the value//
-  bldMap_t::const_iterator it;
-  for (it = _blddata.begin (); it != _blddata.end (); ++it)
+  for (bldMap_t::const_iterator it = _blddata.begin (); it != _blddata.end (); ++it)
   {
       out.addString(it->first);
       out.addDouble(it->second);
@@ -76,8 +76,7 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &ou
   //the epics data//
   out.addSizet(_epicsdata.size());
   //for each entry in the map copy the length of the name, the name, then the value//
-  epicsDataMap_t::const_iterator it;
-  for (it = _epicsdata.begin (); it != _epicsdata.end (); ++it)
+  for (epicsDataMap_t::const_iterator it = _epicsdata.begin (); it != _epicsdata.end (); ++it)
   {
       out.addString(it->first);
       out.addDouble(it->second);
