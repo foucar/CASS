@@ -36,17 +36,17 @@ namespace cass
       void deserialize(cass::Serializer&);
 
     public:
-      const epicsDataMap_t& EpicsData()const  {return _epicsdata;}
-      epicsDataMap_t& EpicsData()             {return _epicsdata;}
+      const epicsDataMap_t &EpicsData()const  {return _epicsdata;}
+      epicsDataMap_t &EpicsData()             {return _epicsdata;}
 
-      const bldMap_t& BeamlineData()const     {return _blddata;}
-      bldMap_t&       BeamlineData()          {return _blddata;}
+      const bldMap_t &BeamlineData()const     {return _blddata;}
+      bldMap_t       &BeamlineData()          {return _blddata;}
 
-      double          energy()const           {return _energy;}
-      double          energy()                {return _energy;}
+      double         &energy()const           {return _energy;}
+      double         &energy()                {return _energy;}
 
-      double          wavelength()const       {return _wavelength;}
-      double          wavelength()            {return _wavelength;}
+      double         &wavelength()const       {return _wavelength;}
+      double         &wavelength()            {return _wavelength;}
 
     private:
       //beamline data//
