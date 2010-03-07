@@ -17,8 +17,6 @@ namespace cass
   const size_t NbrOfWorkers=1;
   const size_t DatagramBufferSize=0x1000000;
   typedef float pixel_t;
-  typedef std::back_insert_iterator<std::vector<unsigned char> > bufferinputiterator_t;
-  typedef std::vector<unsigned char>::const_iterator bufferoutputiterator_t;
 }
 
 #endif

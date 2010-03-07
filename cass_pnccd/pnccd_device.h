@@ -24,12 +24,8 @@ namespace cass
       typedef std::vector<CCDDetector> detectors_t;
 
     public:
-      void serialize(bufferinputiterator_t&)const
-      {
-      }
-      void deserialize(bufferoutputiterator_t&)
-      {
-      }
+      void serialize(cass::Serializer&)const;
+      void deserialize(cass::Serializer&);
 
     public:
       const detectors_t   &detectors()const   {return _detectors;}
@@ -41,6 +37,30 @@ namespace cass
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
+inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out) const
+{
+//  //serialize the amount of detectors present//
+//  size_t nDets = _detectors.size();
+//  std::copy( reinterpret_cast<const char*>(&nDets),
+//             reinterpret_cast<const char*>(&nDets)+sizeof(size_t),
+//             out);
+//  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
+//    *it.serialize(out);
+}
+
+inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &)
+{
+//  //read how many detectors//
+//  size_t nDets;
+//  std::copy(in,
+//            in+sizeof(size_t),
+//            reinterpret_cast<char*>(&nDets));
+//  in += sizeof(size_t);
+//  //make the detector container big enough//
+//  _detectors.resize(nDets);
+//  for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
+//    *it.deserialize(in);
+}
 
 #endif // PNCCD_EVENT_H
 

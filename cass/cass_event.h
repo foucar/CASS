@@ -9,6 +9,7 @@
 namespace cass
 {
   class DeviceBackend;
+  class Serializer;
 
   class CASSSHARED_EXPORT CASSEvent
   {
@@ -21,8 +22,8 @@ namespace cass
     typedef std::map<Device,DeviceBackend*> devices_t;
 
   public:
-    void serialize(bufferinputiterator_t&)const;
-    void deserialize(bufferoutputiterator_t&);
+    void serialize(Serializer&)const;
+    void deserialize(Serializer&);
 
   public:
     uint64_t         id()const        {return _id;}

@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdint.h>
 #include "cass.h"
+#include "serializer.h"
 
 namespace cass
 {
@@ -16,10 +17,6 @@ namespace cass
     }
     Pixel()       {}
     ~Pixel()      {}
-
-  public:
-    void serialize(bufferinputiterator_t&)const;
-    void deserialize(bufferoutputiterator_t&);
 
   public:
     uint16_t &x()       {return _x;}
@@ -55,8 +52,8 @@ namespace cass
     typedef std::vector<Pixel> pixelList_t;
 
   public:
-    void serialize(bufferinputiterator_t&)const;
-    void deserialize(bufferoutputiterator_t&);
+    void serialize(cass::Serializer&)const;
+    void deserialize(cass::Serializer&);
 
 
 
@@ -96,5 +93,41 @@ namespace cass
     pixelList_t     _pixellist;              //list of pixels above a given threshold
   };
 }//end namespace cass
+
+inline void cass::CCDDetector::serialize(cass::Serializer &out) const
+{
+//  //serialize the columns rows and then the frame//
+//  std::copy( reinterpret_cast<const char*>(&_columns),
+//             reinterpret_cast<const char*>(&_columns)+sizeof(uint16_t),
+//             out);
+//  std::copy( reinterpret_cast<const char*>(&_rows),
+//             reinterpret_cast<const char*>(&_rows)+sizeof(uint16_t),
+//             out);
+//
+//  std::copy( reinterpret_cast<const char*>(&_frame[0]),
+//             reinterpret_cast<const char*>(&_frame[0])+sizeof(pixel_t)*_frame.size(),
+//             out);
+}
+
+inline void cass::CCDDetector::deserialize(cass::Serializer &in)
+{
+//  //get the number of columns and rows. This defines the size of//
+//  //the frame that comes after it//
+//  std::copy(in,
+//            in+sizeof(uint16_t),
+//            reinterpret_cast<char*>(&_columns));
+//  in += sizeof(uint16_t);
+//  std::copy(in,
+//            in+sizeof(uint16_t),
+//            reinterpret_cast<char*>(&_rows));
+//  in += sizeof(uint16_t);
+//
+//  //make the frame the right size//
+//  _frame.resize(_columns*_rows);
+//  std::copy(in,
+//            in+sizeof(pixel_t)*_frame.size(),
+//            reinterpret_cast<char*>(&_frame[0]));
+//  in += sizeof(pixel_t)*_frame.size();
+}
 
 #endif

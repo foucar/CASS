@@ -7,12 +7,16 @@
 
 namespace cass
 {
+  class Serializer;
+
   class CASSSHARED_EXPORT DeviceBackend
   {
   public:
     virtual ~DeviceBackend() {}
-    virtual void serialize(bufferinputiterator_t&)const{}
-    virtual void deserialize(bufferoutputiterator_t&){}
+    virtual void serialize(Serializer&)const=0;
+    virtual void deserialize(Serializer&)=0;
+  protected:
+    uint16_t _version;
   };
 }//end namespace cass
 

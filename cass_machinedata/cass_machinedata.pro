@@ -16,6 +16,7 @@ SOURCES += machine_analysis.cpp \
 HEADERS += ../cass/analysis_backend.h \
            ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
+           ../cass/serializer.h \
            machine_analysis.h \
            machine_converter.h \
            cass_machine.h \

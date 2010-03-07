@@ -23,22 +23,23 @@ cass::CASSEvent::~CASSEvent()
     delete (it->second);
 }
 
-void cass::CASSEvent::serialize(bufferinputiterator_t& buffer)const
+void cass::CASSEvent::serialize(cass::Serializer& buffer)const
 {
-  //serialize the id and then all devices//
-  std::copy( reinterpret_cast<const char*>(&_id),
-             reinterpret_cast<const char*>(&_id)+sizeof(uint64_t),
-             buffer);
-  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
-    it->second->serialize(buffer);
+//  //serialize the id and then all devices//
+//  std::copy( reinterpret_cast<const char*>(&_id),
+//             reinterpret_cast<const char*>(&_id)+sizeof(uint64_t),
+//             buffer);
+//  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+//    it->second->serialize(buffer);
 }
 
-void cass::CASSEvent::deserialize(bufferoutputiterator_t& buffer)
+void cass::CASSEvent::deserialize(cass::Serializer& buffer)
 {
   //get all infos from the buffer//
-  std::copy(buffer,
-            buffer+sizeof(uint64_t),
-            reinterpret_cast<char*>(&_id));
-  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
-    it->second->deserialize(buffer);
+//  std::copy(buffer,
+//            buffer+sizeof(uint64_t),
+//            reinterpret_cast<char*>(&_id));
+//  buffer += sizeof(uint64_t);
+//  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+//    it->second->deserialize(buffer);
 }

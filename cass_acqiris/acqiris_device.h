@@ -6,6 +6,7 @@
 #include "detector_backend.h"
 #include "device_backend.h"
 #include "channel.h"
+#include "serializer.h"
 
 namespace cass
 {
@@ -22,13 +23,8 @@ namespace cass
       typedef std::vector<DetectorBackend> detectors_t;
 
     public:
-      void serialize(bufferinputiterator_t&)const
-      {
-      }
-      void deserialize(bufferoutputiterator_t&)
-      {
-      }
-
+      void serialize(cass::Serializer&)const;
+      void deserialize(cass::Serializer&);
 
     public:
       const channels_t   &channels()const         {return _channels;}
@@ -43,4 +39,29 @@ namespace cass
     };
   }//end namespace acqiris
 }//end namespace cass
+
+inline void cass::ACQIRIS::AcqirisDevice::serialize(cass::Serializer &out) const
+{
+//  //copy the size of the channels and then all channels//
+//  size_t nChannels = _channels.size();
+//  std::copy( reinterpret_cast<const char*>(&nChannels),
+//             reinterpret_cast<const char*>(&nChannels)+sizeof(size_t),
+//             out);
+//  for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
+//    *it.serialize(out);
+}
+inline void cass::ACQIRIS::AcqirisDevice::deserialize(cass::Serializer &in)
+{
+//  //read how many channels//
+//  size_t nChannels;
+//  std::copy(in,
+//            in+sizeof(size_t),
+//            reinterpret_cast<char*>(&nChannels));
+//  in += sizeof(size_t);
+//  //make the channels big enough//
+//  _channels.resize(nChannels);
+//  for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
+//    *it.deserialize(in);
+}
+
 #endif

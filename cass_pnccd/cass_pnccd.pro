@@ -17,6 +17,7 @@ HEADERS += ../cass/analysis_backend.h \
            ../cass/conversion_backend.h \
            ../cass/device_backend.h \
            ../cass/ccd_detector.h \
+           ../cass/serializer.h \
            pnccd_analysis.h \
            pnccd_converter.h \
            cass_pnccd.h \

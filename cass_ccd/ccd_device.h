@@ -19,17 +19,22 @@ namespace cass
       const cass::CCDDetector &detector()const  {return _detector;}
       cass::CCDDetector &detector()             {return _detector;}
 
-      void serialize(bufferinputiterator_t&)const
-      {
-      }
-      void deserialize(bufferoutputiterator_t&)
-      {
-      }
+      void serialize(cass::Serializer&)const;
+      void deserialize(cass::Serializer&);
 
     private:
       cass::CCDDetector   _detector;  //the ccd detector of this device
     };
   }
+}
+
+inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)const
+{
+//  _detector.serialize(out);
+}
+inline void cass::CCD::CCDDevice::deserialize(cass::Serializer& in)
+{
+//  _detector.serialize(in);
 }
 
 #endif

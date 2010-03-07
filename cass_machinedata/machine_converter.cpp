@@ -24,11 +24,11 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
 {
   //during a configure transition we don't get a cassevent, so we should extract the machineevent//
   //only when cassevent is non zero//
-  MachineDataDevice *machinedata = 0;
+  MachineDataDevice *md = 0;
   if (cassevent)
   {
-    machinedata = dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
-    machinedata->EpicsData() = _store.EpicsData();
+    md = dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);
+    md->EpicsData() = _store.EpicsData();
   }
 
   switch (xtc->contains.id())
@@ -37,33 +37,33 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
       const Pds::BldDataFEEGasDetEnergy &gasdet = 
         *reinterpret_cast<const Pds::BldDataFEEGasDetEnergy*>(xtc->payload());
-      machinedata->f_11_ENRC() = gasdet.f_11_ENRC;
-      machinedata->f_12_ENRC() = gasdet.f_12_ENRC;
-      machinedata->f_21_ENRC() = gasdet.f_21_ENRC;
-      machinedata->f_22_ENRC() = gasdet.f_22_ENRC;
+      md->BeamlineData()["f_11_ENRC"] = gasdet.f_11_ENRC;
+      md->BeamlineData()["f_12_ENRC"] = gasdet.f_12_ENRC;
+      md->BeamlineData()["f_21_ENRC"] = gasdet.f_21_ENRC;
+      md->BeamlineData()["f_22_ENRC"] = gasdet.f_22_ENRC;
       break;
     }
   case(Pds::TypeId::Id_EBeam):
     {
       const Pds::BldDataEBeam &beam = 
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
-      machinedata->EbeamCharge()   = beam.fEbeamCharge;
-      machinedata->EbeamL3Energy() = beam.fEbeamL3Energy;
-      machinedata->EbeamLTUAngX()  = beam.fEbeamLTUAngX;
-      machinedata->EbeamLTUAngY()  = beam.fEbeamLTUAngY;
-      machinedata->EbeamLTUPosX()  = beam.fEbeamLTUPosX;
-      machinedata->EbeamLTUPosY()  = beam.fEbeamLTUPosY;
-      machinedata->EbeamPkCurrBC2()= beam.fEbeamPkCurrBC2;
+      md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
+      md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
+      md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
+      md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
+      md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
+      md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
+      md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
       break;
     }
   case(Pds::TypeId::Id_PhaseCavity):
     {
       const Pds::BldDataPhaseCavity &cavity = 
         *reinterpret_cast<const Pds::BldDataPhaseCavity*>(xtc->payload());
-      machinedata->Charge1()  = cavity.fCharge1;
-      machinedata->Charge2()  = cavity.fCharge2;
-      machinedata->FitTime1() = cavity.fFitTime1;
-      machinedata->FitTime2() = cavity.fFitTime2;
+      md->BeamlineData()["Charge1"]  = cavity.fCharge1;
+      md->BeamlineData()["Charge2"]  = cavity.fCharge2;
+      md->BeamlineData()["FitTime1"] = cavity.fFitTime1;
+      md->BeamlineData()["FitTime2"] = cavity.fFitTime2;
       break;
     }
   case(Pds::TypeId::Id_Epics):
@@ -145,6 +145,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   }
   //copy the epics values in the storedevent to the machineevent
   if (cassevent)
-    machinedata->EpicsData() = _store.EpicsData();
+    md->EpicsData() = _store.EpicsData();
 
 }
