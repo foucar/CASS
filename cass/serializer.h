@@ -3,7 +3,7 @@
 #ifndef _SERIALIZER_H_
 #define _SERIALIZER_H_
 
-#include <sstring>
+#include <sstream>
 #include <string>
 #include "cass.h"
 
