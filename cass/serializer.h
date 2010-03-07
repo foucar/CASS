@@ -176,3 +176,5 @@ inline bool cass::Serializer::retrieveBool()
   _stream.read (reinterpret_cast<char *> (&b), sizeof (bool));
   return b;
 }
+
+#endif
