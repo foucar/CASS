@@ -14,12 +14,12 @@ namespace cass
   {
   public:
     Serializer(){}
-    Serializer(std::stringstream &inputstream)
-      :_stream(inputstream)
-    {
-    }
-    const std::string &buffer()const  {return  _stream.str();}
-    std::string       &buffer()       {return  _stream.str();}
+//    Serializer(std::stringstream &inputstream)
+//      :_stream(inputstream)
+//    {
+//    }
+//    const std::string &buffer()const  {return  _stream.str();}
+//    std::string       &buffer()       {return  _stream.str();}
 
     void addString(const std::string&);
     void addUint16(const uint16_t);
@@ -51,7 +51,7 @@ namespace cass
 }
 
 
-inline void cass::Serializer::addString(std::string str)
+inline void cass::Serializer::addString(const std::string str)
 {
   //first the length of the string, then the string itselve//
   size_t len = str.length ();
