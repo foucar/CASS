@@ -1,4 +1,5 @@
 #include "event_getter.h"
+#include "serializer.h"
 
 
 cass::EventGetter::EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
@@ -6,7 +7,7 @@ cass::EventGetter::EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferS
 {
 }
 
-void cass::EventGetter::operator()(const TCP::EventParameter& ep, bufferinputiterator_t& buffer)
+void cass::EventGetter::operator()(const TCP::EventParameter& ep, cass::Serializer& buffer)
 {
   //retrieve a cassevent from the ringbuffer based on the parameter//
   CASSEvent *cassevent=0;
