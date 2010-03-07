@@ -69,7 +69,7 @@ inline std::string cass::Serializer::retrieveString()
 
 inline void cass::Serializer::addUint16(const uint16_t ui)
 {
-  _stream.write (reinterpret_cast<char *> (&ui), sizeof (uint16_t));
+  _stream.write (reinterpret_cast<const char *> (&ui), sizeof (uint16_t));
 }
 inline uint16_t cass::Serializer::retrieveUint16()
 {
@@ -80,7 +80,7 @@ inline uint16_t cass::Serializer::retrieveUint16()
 
 inline void cass::Serializer::addInt16(const int16_t i)
 {
-  _stream.write (reinterpret_cast<char *> (&i), sizeof (int16_t));
+  _stream.write (reinterpret_cast<const char *> (&i), sizeof (int16_t));
 }
 inline int16_t cass::Serializer::retrieveInt16()
 {
@@ -91,7 +91,7 @@ inline int16_t cass::Serializer::retrieveInt16()
 
 inline void cass::Serializer::addUint32(const uint32_t ui)
 {
-  _stream.write (reinterpret_cast<char *> (&ui), sizeof (uint32_t));
+  _stream.write (reinterpret_castconst <char *> (&ui), sizeof (uint32_t));
 }
 inline uint32_t cass::Serializer::retrieveUint32()
 {
@@ -102,7 +102,7 @@ inline uint32_t cass::Serializer::retrieveUint32()
 
 inline void cass::Serializer::addInt32(const int32_t i)
 {
-  _stream.write (reinterpret_cast<char *> (ui), sizeof (int32_t));
+  _stream.write (reinterpret_cast<const char *> (i), sizeof (int32_t));
 }
 inline int32_t cass::Serializer::retrieveInt32()
 {
@@ -113,7 +113,7 @@ inline int32_t cass::Serializer::retrieveInt32()
 
 inline void cass::Serializer::addUint64(const uint64_t ui)
 {
-  _stream.write (reinterpret_cast<char *> (&ui), sizeof (uint64_t));
+  _stream.write (reinterpret_cast<const char *> (&ui), sizeof (uint64_t));
 }
 inline uint64_t cass::Serializer::retrieveUint64()
 {
@@ -124,7 +124,7 @@ inline uint64_t cass::Serializer::retrieveUint64()
 
 inline void cass::Serializer::addInt64(const int64_t i)
 {
-  _stream.write (reinterpret_cast<char *> (&i), sizeof (int64_t));
+  _stream.write (reinterpret_cast<const char *> (&i), sizeof (int64_t));
 }
 inline int64_t cass::Serializer::retrieveInt64()
 {
@@ -135,7 +135,7 @@ inline int64_t cass::Serializer::retrieveInt64()
 
 inline void cass::Serializer::addSizet(const size_t s)
 {
-  _stream.write (reinterpret_cast<char *> (&s), sizeof (size_t));
+  _stream.write (reinterpret_cast<const char *> (&s), sizeof (size_t));
 }
 inline size_t cass::Serializer::retrieveSizet()
 {
@@ -146,7 +146,7 @@ inline size_t cass::Serializer::retrieveSizet()
 
 inline void cass::Serializer::addFloat(const float f)
 {
-  _stream.write (reinterpret_cast<char *> (&f), sizeof (float));
+  _stream.write (reinterpret_cast<const char *> (&f), sizeof (float));
 }
 inline float cass::Serializer::retrieveFloat()
 {
@@ -157,7 +157,7 @@ inline float cass::Serializer::retrieveFloat()
 
 inline void cass::Serializer::addDouble(const double d)
 {
-  _stream.write (reinterpret_cast<char *> (&d), sizeof (double));
+  _stream.write (reinterpret_cast<const char *> (&d), sizeof (double));
 }
 inline double cass::Serializer::retrieveDouble()
 {
@@ -168,7 +168,7 @@ inline double cass::Serializer::retrieveDouble()
 
 inline void cass::Serializer::addBool(const bool b)
 {
-  _stream.write (reinterpret_cast<char *> (&b), sizeof (bool));
+  _stream.write (reinterpret_cast<const char *> (&b), sizeof (bool));
 }
 inline bool cass::Serializer::retrieveBool()
 {
