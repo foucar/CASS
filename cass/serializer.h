@@ -34,7 +34,7 @@ namespace cass
     void addFloat(const float);
     void addBool(const bool);
     template <typename T>
-    void add(const T)
+    void add(const T t)
     {
       _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
     }
