@@ -3,6 +3,7 @@
 #ifndef _CCD_DETECTOR_H_
 #define _CCD_DETECTOR_H_
 
+#include <iostream>
 #include <vector>
 #include <stdint.h>
 #include "cass.h"
