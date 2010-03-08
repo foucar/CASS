@@ -1,7 +1,9 @@
+//Copyright (C) 2010 lmf
+
 #ifndef _PNCCD_DEVICE_H
 #define _PNCCD_DEVICE_H
 
-
+#include <iostream>
 #include <vector>
 #include <stdint.h>
 
@@ -46,7 +48,7 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out) const
   out.addSizet(nDets);
   //serialize each detector//
   for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
-    *it.serialize(out);
+    it->serialize(out);
 }
 
 inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &in)
@@ -64,7 +66,7 @@ inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &in)
   _detectors.resize(nDets);
   //deserialize each detector//
   for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
-    *it.deserialize(in);
+    it->deserialize(in);
 }
 
 #endif // PNCCD_EVENT_H
