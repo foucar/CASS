@@ -17,7 +17,7 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT pnCCDDevice : public DeviceBackend
     {
     public:
-      pnCCDDevice(void)    {}
+      pnCCDDevice(void)    {_version=1;}
       ~pnCCDDevice()       {}
 
     public:
@@ -39,27 +39,32 @@ namespace cass
 
 inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out) const
 {
-//  //serialize the amount of detectors present//
-//  size_t nDets = _detectors.size();
-//  std::copy( reinterpret_cast<const char*>(&nDets),
-//             reinterpret_cast<const char*>(&nDets)+sizeof(size_t),
-//             out);
-//  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
-//    *it.serialize(out);
+  //the version//
+  out.addUint16(_version);
+  //serialize the amount of detectors present//
+  size_t nDets = _detectors.size();
+  out.addSizet(nDets);
+  //serialize each detector//
+  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
+    *it.serialize(out);
 }
 
-inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &)
+inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &in)
 {
-//  //read how many detectors//
-//  size_t nDets;
-//  std::copy(in,
-//            in+sizeof(size_t),
-//            reinterpret_cast<char*>(&nDets));
-//  in += sizeof(size_t);
-//  //make the detector container big enough//
-//  _detectors.resize(nDets);
-//  for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
-//    *it.deserialize(in);
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in pnCCD: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //read how many detectors//
+  size_t nDets = in.retrieveSizet ();
+  //make the detector container big enough//
+  _detectors.resize(nDets);
+  //deserialize each detector//
+  for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
+    *it.deserialize(in);
 }
 
 #endif // PNCCD_EVENT_H

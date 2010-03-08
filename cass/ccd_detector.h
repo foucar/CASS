@@ -41,6 +41,7 @@ namespace cass
         _rows(0),
         _originalcolumns(0),
         _originalrows(0),
+        _version(1),
         _isDarkframe(false),
         _integral(0),
         _maxPixelValue(0)
@@ -83,6 +84,7 @@ namespace cass
     uint16_t        _rows;                   //Nbr of rows of the frame
     uint16_t        _originalcolumns;        //Nbr of columns of the frame before rebinning
     uint16_t        _originalrows;           //Nbr of rows of the frame before rebinning
+    uint16_t        _version;                //the version for de/serializing
 
     //status that is set by analysis, derived by cass.ini//
     bool            _isDarkframe;            //is this ccd frame a darkframe
@@ -96,38 +98,32 @@ namespace cass
 
 inline void cass::CCDDetector::serialize(cass::Serializer &out) const
 {
-//  //serialize the columns rows and then the frame//
-//  std::copy( reinterpret_cast<const char*>(&_columns),
-//             reinterpret_cast<const char*>(&_columns)+sizeof(uint16_t),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_rows),
-//             reinterpret_cast<const char*>(&_rows)+sizeof(uint16_t),
-//             out);
-//
-//  std::copy( reinterpret_cast<const char*>(&_frame[0]),
-//             reinterpret_cast<const char*>(&_frame[0])+sizeof(pixel_t)*_frame.size(),
-//             out);
+  //the version//
+  out.addUint16(_version);
+  //serialize the columns rows and then the frame//
+  out.addUint16(_columns);
+  out.addUint16(_rows);
+  for (frame_t::const_iterator it=_frame.begin();it!=_frame.end();++it)
+     out.addFloat(*it);
 }
 
 inline void cass::CCDDetector::deserialize(cass::Serializer &in)
 {
-//  //get the number of columns and rows. This defines the size of//
-//  //the frame that comes after it//
-//  std::copy(in,
-//            in+sizeof(uint16_t),
-//            reinterpret_cast<char*>(&_columns));
-//  in += sizeof(uint16_t);
-//  std::copy(in,
-//            in+sizeof(uint16_t),
-//            reinterpret_cast<char*>(&_rows));
-//  in += sizeof(uint16_t);
-//
-//  //make the frame the right size//
-//  _frame.resize(_columns*_rows);
-//  std::copy(in,
-//            in+sizeof(pixel_t)*_frame.size(),
-//            reinterpret_cast<char*>(&_frame[0]));
-//  in += sizeof(pixel_t)*_frame.size();
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in ccd-detector: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //get the number of columns and rows. This defines the size of//
+  _columns = in.retrieveUint16();
+  _rows    = in.retrieveUint16();
+  //make the frame the right size//
+  _frame.resize(_columns*_rows);
+  //retrieve the frame//
+  for (frame_t::const_iterator it=_frame.begin();it!=_frame.end();++it)
+     *it = in.retrieveFloat();
 }
 
 #endif

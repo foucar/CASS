@@ -12,7 +12,7 @@ namespace cass
     class CASS_CCDSHARED_EXPORT CCDDevice : public cass::DeviceBackend
     {
     public:
-      CCDDevice()   {}
+      CCDDevice()   {_version=1;}
       ~CCDDevice()  {}
 
     public:
@@ -30,11 +30,22 @@ namespace cass
 
 inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)const
 {
-//  _detector.serialize(out);
+  //the version//
+  out.addUint16(_version);
+  //the detector//
+  _detector.serialize(out);
 }
 inline void cass::CCD::CCDDevice::deserialize(cass::Serializer& in)
 {
-//  _detector.serialize(in);
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in ccd: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //deserialize the detector
+  _detector.deserialize(in);
 }
 
 #endif

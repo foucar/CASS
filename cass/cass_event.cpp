@@ -7,7 +7,8 @@
 
 
 cass::CASSEvent::CASSEvent()
-    :_id(0)
+    :_id(0),
+     _version(1)
 {
   //add all devices that are available
   _devices[ccd]         = new cass::CCD::CCDDevice();
@@ -23,23 +24,31 @@ cass::CASSEvent::~CASSEvent()
     delete (it->second);
 }
 
-void cass::CASSEvent::serialize(cass::Serializer& buffer)const
+void cass::CASSEvent::serialize(cass::Serializer& out)const
 {
-//  //serialize the id and then all devices//
-//  std::copy( reinterpret_cast<const char*>(&_id),
-//             reinterpret_cast<const char*>(&_id)+sizeof(uint64_t),
-//             buffer);
-//  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
-//    it->second->serialize(buffer);
+  //the version//
+  out.addUint16(_version);
+
+  //the id//
+  out.addUint64(id);
+
+  //all devices//
+  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+    it->second->serialize(out);
 }
 
-void cass::CASSEvent::deserialize(cass::Serializer& buffer)
+void cass::CASSEvent::deserialize(cass::Serializer& in)
 {
-  //get all infos from the buffer//
-//  std::copy(buffer,
-//            buffer+sizeof(uint64_t),
-//            reinterpret_cast<char*>(&_id));
-//  buffer += sizeof(uint64_t);
-//  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
-//    it->second->deserialize(buffer);
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in cass-event: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //get id//
+  _id = in.retrieveUint64();
+  //all devices//
+  for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
+    it->second->deserialize(in);
 }

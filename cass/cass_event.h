@@ -36,6 +36,7 @@ namespace cass
     uint64_t   _id;         //id of the cassevent
     devices_t  _devices;    //list of devices for this event
     char       _datagrambuffer[cass::DatagramBufferSize]; //buffer for the datagram
+    uint16_t   _version;    //the version for de/serializing
   };
 }//end namespace
 

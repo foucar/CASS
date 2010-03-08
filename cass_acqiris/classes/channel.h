@@ -15,7 +15,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Channel
     {
       public:
-        Channel()  {}
+      Channel():_version(1)  {}
         ~Channel() {}
 
       public:
@@ -50,72 +50,48 @@ namespace cass
         double      _gain;          //Vertical gain in Volts/LSB. (V = vGain * data - vOffset)
         double      _sampleInterval;//the time between two consecutive datapoints in s
         waveform_t  _waveform;      //the waveform
+        uint16_t    _version;       //the version for de/serialization
     };
   }//end namespace remi
 }//end namespace cass
 
 inline void cass::ACQIRIS::Channel::serialize(cass::Serializer &out) const
 {
-//  //output all variables obtained from the acqiris, then the waveform//
-//  std::copy( reinterpret_cast<const char*>(&_chNbr),
-//             reinterpret_cast<const char*>(&_chNbr)+sizeof(size_t),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_horpos),
-//             reinterpret_cast<const char*>(&_horpos)+sizeof(double),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_offset),
-//             reinterpret_cast<const char*>(&_offset)+sizeof(double),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_gain),
-//             reinterpret_cast<const char*>(&_gain)+sizeof(double),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_sampleInterval),
-//             reinterpret_cast<const char*>(&_sampleInterval)+sizeof(double),
-//             out);
-//
-//  size_t nSamples = _waveform.size();
-//  std::copy( reinterpret_cast<const char*>(&nSamples),
-//             reinterpret_cast<const char*>(&nSamples)+sizeof(size_t),
-//             out);
-//  std::copy( reinterpret_cast<const char*>(&_waveform[0]),
-//             reinterpret_cast<const char*>(&_waveform[0])+sizeof(int16_t)*_waveform.size(),
-//             out);
+  //the version//
+  out.addUint16(_version);
+  //output all variables obtained from the acqiris, then the waveform//
+  out.addDouble(_horpos);
+  out.addDouble(_offset);
+  out.addDouble(_gain);
+  out.addDouble(_sampleInterval);
+  //the length of the waveform//
+  const size_t nSamples = _waveform.size();
+  out.addSizet(nSamples);
+  //the waveform itselve//
+  for (waveform_t::const_iterator it=_waveform.begin();it!=_wavform.end();++it)
+    out.addInt16(*it);
 }
 
 inline void cass::ACQIRIS::Channel::deserialize(cass::Serializer &in)
 {
-//  //read all variables and then the waveform from the input stream
-//  std::copy(in,
-//            in+sizeof(size_t),
-//            reinterpret_cast<char*>(&_chNbr));
-//  in += sizeof(size_t);
-//  std::copy(in,
-//            in+sizeof(double),
-//            reinterpret_cast<char*>(&_horpos));
-//  in += sizeof(double);
-//  std::copy(in,
-//            in+sizeof(double),
-//            reinterpret_cast<char*>(&_offset));
-//  in += sizeof(double);
-//  std::copy(in,
-//            in+sizeof(double),
-//            reinterpret_cast<char*>(&_gain));
-//  in += sizeof(double);
-//  std::copy(in,
-//            in+sizeof(double),
-//            reinterpret_cast<char*>(&_sampleInterval));
-//  in += sizeof(double);
-//
-//  size_t nSamples;
-//  std::copy(in,
-//            in+sizeof(size_t),
-//            reinterpret_cast<char*>(&nSamples));
-//  in += sizeof(size_t);
-//  _waveform.resize(nSamples);
-//  std::copy(in,
-//            in+sizeof(int16_t)*_waveform.size(),
-//            reinterpret_cast<char*>(&_waveform[0]));
-//  in += sizeof(int16_t)*_wavform.size();
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in acqiris channel: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //read all variables and then the waveform from the input stream
+  _horpos = in.retrieveDouble();
+  _offset = in.retrieveDouble();
+  _gain = in.retrieveDouble();
+  _sampleInterval = in.retrieveDouble();
+  //read the length of the waveform//
+  size_t nSamples = in.retrieveSizet();
+  //make sure the waveform is long enough//
+  _waveform.resize(nSamples);
+  for (waveform_t::iterator it=_waveform.begin();it!=_wavform.end();++it)
+    *it = in.retrieveInt16();
 }
 
 #endif

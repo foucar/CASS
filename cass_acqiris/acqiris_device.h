@@ -15,7 +15,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT AcqirisDevice : public cass::DeviceBackend
     {
     public:
-      AcqirisDevice()   {}
+      AcqirisDevice()   {_version=1;}
       ~AcqirisDevice()  {}
 
     public:
@@ -42,26 +42,30 @@ namespace cass
 
 inline void cass::ACQIRIS::AcqirisDevice::serialize(cass::Serializer &out) const
 {
-//  //copy the size of the channels and then all channels//
-//  size_t nChannels = _channels.size();
-//  std::copy( reinterpret_cast<const char*>(&nChannels),
-//             reinterpret_cast<const char*>(&nChannels)+sizeof(size_t),
-//             out);
-//  for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
-//    *it.serialize(out);
+  //the version//
+  out.addUint16(_version);
+  //copy the size of the channels and then all channels//
+  size_t nChannels = _channels.size();
+  out.addSizet(nChannels);
+  for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
+    *it.serialize(out);
 }
 inline void cass::ACQIRIS::AcqirisDevice::deserialize(cass::Serializer &in)
 {
-//  //read how many channels//
-//  size_t nChannels;
-//  std::copy(in,
-//            in+sizeof(size_t),
-//            reinterpret_cast<char*>(&nChannels));
-//  in += sizeof(size_t);
-//  //make the channels big enough//
-//  _channels.resize(nChannels);
-//  for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
-//    *it.deserialize(in);
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in acqiris: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //read how many channels//
+  size_t nChannels= in.retrieveSizet ();
+  //make the channels container big enough//
+  _channels.resize(nChannels);
+  //deserialize all channels//
+  for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
+    *it.deserialize(in);
 }
 
 #endif
