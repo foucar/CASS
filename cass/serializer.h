@@ -64,27 +64,29 @@ namespace cass
   protected:
     std::stringstream _stream;
   };
-}
 
-//specialized version for a string//
-template<>
-void cass::Serializer::add<std::string>(const std::string str)
-{
-  //first the length of the string, then the string itselve//
-  size_t len = str.length ();
-  addSizet(len);
-  _stream.write(str.data(), len);
-}
-//specialized version to retrieve a string//
-template<>
-std::string cass::Serializer::retrieve<std::string>()
-{
-  //first the length of the string, then the string itselve//
-  size_t len = retrieve<size_t>();
-  std::string str(len,' '); //create a temp string with right size
-  _stream.read (&str[0], len);
-  return str;
-}
+  //specialized version for a string//
+  template<>
+  void Serializer::add<std::string>(const std::string str)
+  {
+    //first the length of the string, then the string itselve//
+    size_t len = str.length ();
+    addSizet(len);
+    _stream.write(str.data(), len);
+  }
+  //specialized version to retrieve a string//
+  template<>
+  std::string Serializer::retrieve<std::string>()
+  {
+    //first the length of the string, then the string itselve//
+    size_t len = retrieve<size_t>();
+    std::string str(len,' '); //create a temp string with right size
+    _stream.read (&str[0], len);
+    return str;
+  }
+
+}//end namespace
+
 
 
 
