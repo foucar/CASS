@@ -48,7 +48,7 @@ inline void cass::ACQIRIS::AcqirisDevice::serialize(cass::Serializer &out) const
   size_t nChannels = _channels.size();
   out.addSizet(nChannels);
   for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
-    *it.serialize(out);
+    it->serialize(out);
 }
 inline void cass::ACQIRIS::AcqirisDevice::deserialize(cass::Serializer &in)
 {
@@ -60,12 +60,12 @@ inline void cass::ACQIRIS::AcqirisDevice::deserialize(cass::Serializer &in)
     return;
   }
   //read how many channels//
-  size_t nChannels= in.retrieveSizet ();
+  size_t nChannels= in.retrieveSizet();
   //make the channels container big enough//
   _channels.resize(nChannels);
   //deserialize all channels//
   for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
-    *it.deserialize(in);
+    it->deserialize(in);
 }
 
 #endif
