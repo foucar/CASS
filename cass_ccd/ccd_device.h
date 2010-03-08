@@ -1,6 +1,9 @@
+//Copyright (C) 2010 lmf
+
 #ifndef _CCD_DEVICE_H_
 #define _CCD_DEVICE_H_
 
+#include <iostream>
 #include "cass_ccd.h"
 #include "device_backend.h"
 #include "ccd_detector.h"

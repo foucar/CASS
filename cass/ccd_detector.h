@@ -1,3 +1,5 @@
+//Copyright (C) 2010 lmf
+
 #ifndef _CCD_DETECTOR_H_
 #define _CCD_DETECTOR_H_
 
@@ -122,7 +124,7 @@ inline void cass::CCDDetector::deserialize(cass::Serializer &in)
   //make the frame the right size//
   _frame.resize(_columns*_rows);
   //retrieve the frame//
-  for (frame_t::const_iterator it=_frame.begin();it!=_frame.end();++it)
+  for (frame_t::iterator it=_frame.begin();it!=_frame.end();++it)
      *it = in.retrieveFloat();
 }
 
