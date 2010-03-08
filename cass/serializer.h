@@ -13,13 +13,15 @@ namespace cass
   class CASSSHARED_EXPORT Serializer
   {
   public:
-    Serializer(){}
-//    Serializer(std::stringstream &inputstream)
-//      :_stream(inputstream)
-//    {
-//    }
-    const std::string &buffer()const  {return  _stream.str();}
-    std::string       &buffer()       {return  _stream.str();}
+    Serializer()
+      :_stream(ios_base::binary|ios_base::in)
+    {
+    }
+    Serializer(const std::string &string)
+      :_stream(string,ios_base::binary|ios_base::out)
+    {
+    }
+    const std::string &buffer()const  {return _stream.str();}
     virtual ~Serializer() {}
 
     void addString(const std::string&);
