@@ -145,8 +145,8 @@ void cass::AxisProperty::deserialize(Serializer &in)
 
 
 //-----------------Base class-----------------------
-inline
 template <typename T>
+inline
 void cass::HistogramBase<T>::serialize(TemplateSerializer<T> &out)const
 {
   //the version//
@@ -165,8 +165,8 @@ void cass::HistogramBase<T>::serialize(TemplateSerializer<T> &out)const
     out.addT(*it);
 }
 
-inline
 template <typename T>
+inline
 void cass::HistogramBase<T>::deserialize(TemplateSerializer<T> &in)
 {
   //check whether the version fits//
@@ -192,8 +192,8 @@ void cass::HistogramBase<T>::deserialize(TemplateSerializer<T> &in)
 
 
 //-----------------1D Hist--------------------------
-inline
 template <typename T>
+inline
 void cass::Histogram1D<T>::fill(float x, T weight)
 {
   //calc the bin//
@@ -218,8 +218,8 @@ void cass::Histogram1D<T>::fill(float x, T weight)
 }
 
 //-----------------2D Hist--------------------------
-inline
 template <typename T>
+inline
 void cass::Histogram2D<T>::fill(float x, float y, T weight)
 {
   //calc the xbin//
