@@ -61,16 +61,16 @@ namespace cass
   };
 }
 
-inline
 template <typename T>
-void addT(const t)
+inline
+void cass::TemplateSerializer::addT(const t)
 {
   _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
 }
 
 inline
 template <typename T>
-T retrieveT()
+T cass::TemplateSerializer::retrieveT()
 {
   T t;
   _stream.read(reinterpret_cast<char *> (&t), sizeof(T));
