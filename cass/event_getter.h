@@ -15,13 +15,13 @@ namespace cass
   class CASSSHARED_EXPORT EventGetter
   {
   public:
-    EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
+    EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
 
   public:
     void operator()(const cass::TCP::EventParameter&, Serializer&);
 
   private:
-    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
   };
 
 } //end namespace cass
