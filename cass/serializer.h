@@ -14,11 +14,11 @@ namespace cass
   {
   public:
     Serializer()
-      :_stream(ios_base::binary|ios_base::in)
+      :_stream(std::ios_base::binary|std::ios_base::in)
     {
     }
     Serializer(const std::string &string)
-      :_stream(string,ios_base::binary|ios_base::out)
+      :_stream(string,std::ios_base::binary|std::ios_base::out)
     {
     }
     const std::string &buffer()const  {return _stream.str();}
