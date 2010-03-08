@@ -18,7 +18,7 @@ namespace cass
 //      :_stream(inputstream)
 //    {
 //    }
-//    const std::string &buffer()const  {return  _stream.str();}
+    const std::string &buffer()const  {return  _stream.str();}
 //    std::string       &buffer()       {return  _stream.str();}
     virtual ~Serializer() {}
 
