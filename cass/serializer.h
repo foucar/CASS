@@ -63,7 +63,7 @@ namespace cass
 
 template <typename T>
 inline
-void cass::TemplateSerializer<T>::addT(const t)
+void cass::TemplateSerializer<T>::addT(const T t)
 {
   _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
 }
