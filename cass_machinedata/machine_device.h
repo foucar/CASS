@@ -78,7 +78,7 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &ou
   //for each entry in the map copy the length of the name, the name, then the value//
   for (epicsDataMap_t::const_iterator it = _epicsdata.begin (); it != _epicsdata.end (); ++it)
   {
-      out.addString(it->first);
+      out.add(it->first);
       out.addDouble(it->second);
   }
 }
