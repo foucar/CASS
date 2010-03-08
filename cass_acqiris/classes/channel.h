@@ -75,7 +75,7 @@ inline void cass::ACQIRIS::Channel::serialize(cass::Serializer &out) const
 inline void cass::ACQIRIS::Channel::deserialize(cass::Serializer &in)
 {
   //check whether the version fits//
-  uint16_t ver = in.retrieve();
+  uint16_t ver = in.retrieve<uint16_t>();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in acqiris channel: "<<ver<<" "<<_version<<std::endl;
