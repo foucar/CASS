@@ -10,7 +10,7 @@
 #include <vector>
 #include <algorithm>
 
-namespace lmf
+namespace cass
 {
   // ringbuffer dessen elemente auf dem Heap erzeugt werden
   // T = Elementetyp, cap = Kapazitaet des Ringpuffers

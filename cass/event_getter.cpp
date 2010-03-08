@@ -2,7 +2,7 @@
 #include "serializer.h"
 
 
-cass::EventGetter::EventGetter(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
+cass::EventGetter::EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
   :_ringbuffer(ringbuffer)
 {
 }

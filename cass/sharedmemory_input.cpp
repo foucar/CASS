@@ -7,7 +7,7 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 
-cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag, lmf::RingBuffer<cass::CASSEvent,4>& ringbuffer, QObject *parent)
+cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag, cass::RingBuffer<cass::CASSEvent,4>& ringbuffer, QObject *parent)
        :QThread(parent),
         _ringbuffer(ringbuffer),
         _partitionTag(partitionTag),

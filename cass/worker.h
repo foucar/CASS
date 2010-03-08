@@ -20,7 +20,7 @@ namespace cass
   {
     Q_OBJECT;
   public:
-    Worker(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
+    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
     ~Worker();
 
     void run();
@@ -34,7 +34,7 @@ namespace cass
     void saveSettings();
 
   private:
-    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
     Analyzer      *_analyzer;
     PostProcessor *_postprocessor;
     bool           _quit;
@@ -45,7 +45,7 @@ namespace cass
   {
     Q_OBJECT;
   public:
-    Workers(lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
+    Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&, QObject *parent=0);
     ~Workers();
 
     void start();

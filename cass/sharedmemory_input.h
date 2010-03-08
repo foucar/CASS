@@ -20,7 +20,7 @@ namespace cass
   {
     Q_OBJECT;
   public:
-    SharedMemoryInput(char * PartitionTag, lmf::RingBuffer<cass::CASSEvent,4>&, QObject *parent=0);
+    SharedMemoryInput(char * PartitionTag, cass::RingBuffer<cass::CASSEvent,4>&, QObject *parent=0);
     ~SharedMemoryInput();
 
     void run();
@@ -33,7 +33,7 @@ namespace cass
     void end();
 
   private:
-    lmf::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
     char                                *_partitionTag;
     bool                                 _quit;
     FormatConverter                     *_converter;
