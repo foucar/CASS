@@ -1,3 +1,5 @@
+//Copyright (C) 2010 lmf
+
 #ifndef CASSEVENT_H
 #define CASSEVENT_H
 

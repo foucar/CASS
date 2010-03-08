@@ -1,5 +1,8 @@
-#include "cass_event.h"
+//Copyright (C) 2010 lmf
 
+#include <iostream>
+
+#include "cass_event.h"
 #include "acqiris_device.h"
 #include "ccd_device.h"
 #include "pnccd_device.h"
@@ -30,7 +33,7 @@ void cass::CASSEvent::serialize(cass::Serializer& out)const
   out.addUint16(_version);
 
   //the id//
-  out.addUint64(id);
+  out.addUint64(_id);
 
   //all devices//
   for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
