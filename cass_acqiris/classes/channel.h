@@ -68,7 +68,7 @@ inline void cass::ACQIRIS::Channel::serialize(cass::Serializer &out) const
   const size_t nSamples = _waveform.size();
   out.addSizet(nSamples);
   //the waveform itselve//
-  for (waveform_t::const_iterator it=_waveform.begin();it!=_wavform.end();++it)
+  for (waveform_t::const_iterator it=_waveform.begin();it!=_waveform.end();++it)
     out.addInt16(*it);
 }
 
@@ -90,7 +90,7 @@ inline void cass::ACQIRIS::Channel::deserialize(cass::Serializer &in)
   size_t nSamples = in.retrieveSizet();
   //make sure the waveform is long enough//
   _waveform.resize(nSamples);
-  for (waveform_t::iterator it=_waveform.begin();it!=_wavform.end();++it)
+  for (waveform_t::iterator it=_waveform.begin();it!=_waveform.end();++it)
     *it = in.retrieveInt16();
 }
 
