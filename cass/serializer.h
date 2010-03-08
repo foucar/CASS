@@ -20,6 +20,7 @@ namespace cass
 //    }
 //    const std::string &buffer()const  {return  _stream.str();}
 //    std::string       &buffer()       {return  _stream.str();}
+    virtual ~Serializer() {}
 
     void addString(const std::string&);
     void addUint16(const uint16_t);
@@ -45,11 +46,35 @@ namespace cass
     float       retrieveFloat();
     bool        retrieveBool();
 
-  private:
+  protected:
     std::stringstream _stream;
+  };
+
+  template<typename T>
+  class CASSSHARED_EXPORT TemplateSerializer : public Serializer
+  {
+  public:
+    TemplateSerializer(){}
+
+    void addT(const T);
+    T    retrieveT();
   };
 }
 
+inline
+template <typename T>
+void addT(const t)
+{
+  _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
+}
+
+inline
+template <typename T>
+T retrieveT()
+{
+  T t;
+  _stream.read(reinterpret_cast<char *> (&t), sizeof(T));
+}
 
 inline void cass::Serializer::addString(const std::string& str)
 {

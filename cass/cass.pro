@@ -36,6 +36,8 @@ HEADERS +=  analysis_backend.h \
             worker.h \
             tcpserver.h \
             event_getter.h \
+            histogram.h \
+            serializer.h \
             ./postprocessing/post_processor.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
