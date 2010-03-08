@@ -70,16 +70,16 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &ou
   //for each entry in the map copy the length of the name, the name, then the value//
   for (bldMap_t::const_iterator it = _blddata.begin (); it != _blddata.end (); ++it)
   {
-      out.addString(it->first);
-      out.addDouble(it->second);
+    out.addString(it->first);
+    out.addDouble(it->second);
   }
   //the epics data//
   out.addSizet(_epicsdata.size());
   //for each entry in the map copy the length of the name, the name, then the value//
   for (epicsDataMap_t::const_iterator it = _epicsdata.begin (); it != _epicsdata.end (); ++it)
   {
-      out.add(it->first);
-      out.addDouble(it->second);
+    out.add<std::string>(it->first);
+    out.addDouble(it->second);
   }
 }
 
@@ -101,9 +101,9 @@ inline void cass::MachineData::MachineDataDevice::deserialize(cass::Serializer &
   //retrieve every entry of the map
   for (size_t i=0; i<len; ++i)
   {
-      std::string str = in.retrieveString();
-      double val = in.retrieveDouble();
-      _blddata[str] = val;
+    std::string str = in.retrieveString();
+    double val = in.retrieveDouble();
+    _blddata[str] = val;
   }
 
   //epics data//
