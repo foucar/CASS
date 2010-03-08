@@ -33,7 +33,11 @@ namespace cass
     void addDouble(const double);
     void addFloat(const float);
     void addBool(const bool);
-
+    template <typename T>
+    void add(const T)
+    {
+      _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
+    }
     std::string retrieveString();
     uint16_t    retrieveUint16();
     int16_t     retrieveInt16();
@@ -45,37 +49,20 @@ namespace cass
     double      retrieveDouble();
     float       retrieveFloat();
     bool        retrieveBool();
+    template <typename T>
+    T retrieve()
+    {
+      T t;
+      _stream.read(reinterpret_cast<char *> (&t), sizeof(T));
+      return t;
+    }
+
 
   protected:
     std::stringstream _stream;
   };
-
-  template<typename T>
-  class CASSSHARED_EXPORT TemplateSerializer : public Serializer
-  {
-  public:
-    TemplateSerializer(){}
-
-    void addT(const T);
-    T    retrieveT();
-  };
 }
 
-template <typename T>
-inline
-void cass::TemplateSerializer<T>::addT(const T t)
-{
-  _stream.write (reinterpret_cast<const char *> (&t), sizeof (T));
-}
-
-
-template <typename T>
-inline
-T cass::TemplateSerializer<T>::retrieveT()
-{
-  T t;
-  _stream.read(reinterpret_cast<char *> (&t), sizeof(T));
-}
 
 inline void cass::Serializer::addString(const std::string& str)
 {
