@@ -54,8 +54,8 @@ namespace cass
     size_t               &nbrOfFills()      {return _nbrOfFills;}
     size_t                dimension()       {return _dimension;}
 
-    virtual void serialize(TemplateSerializer<T>&)const;
-    virtual void deserialize(TemplateSerializer<T>&);
+    virtual void serialize(Serializer&)const;
+    virtual void deserialize(Serializer&);
 
   protected:
     enum Axis{xAxis=0,yAxis,zAxis}; //choose easier the axis
@@ -81,14 +81,17 @@ namespace cass
   {
   public:
     //constructor for creating a histogram//
-    Histogram1D(size_t nbrXBins, float xLow, float xUp):
-        _memory(nbrXBins+2,0),  //reserve space for the over/underflow bin
-        _dimension(1)
+    Histogram1D(size_t nbrXBins, float xLow, float xUp)
     {
-      _axisproperties.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      //the dimension of the 1d Hist
+      _dimension=1;
+      //resize the memory, reserve space for the over/underflow bin
+      _memory.resize(nbrXBins+2,0);
+      //set up the axis
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
     //Constructor for reading a histogram from a stream//
-    Histogram1D(Serializer &in)   {deserialize(in);}
+    Histogram1D(Serializer &in)   {deserialize<T>(in);}
 
     void fill(float x, T weight=1);
   };
@@ -101,15 +104,17 @@ namespace cass
   {
     //constructor creating histo//
     Histogram2D(size_t nbrXBins, float xLow, float xUp,
-                size_t nbrYBins, float yLow, float yUp):
-        _memory(nbrXBins*nbrYBins+8,0),//reserve space for under/over quadrants
-        _dimension(2)
+                size_t nbrYBins, float yLow, float yUp)
     {
-      _axisproperties.push_back(AxisProperty(nbrXBins,xLow,xUp));
-      _axisproperties.push_back(AxisProperty(nbrYBins,yLow,yUp));
+      //create memory, reserve space for under/over quadrants
+      _memory.resize(nbrXBins*nbrYBins+8,0);
+      _dimension=2;
+      //set up the two axis of the 2d hist
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    Histogram2D(Serializer &in)     {deserialize(in);}
+    Histogram2D(Serializer &in)     {deserialize<T>(in);}
     void fill(float x, float y, T weight=1);
   };
 }
@@ -147,7 +152,7 @@ void cass::AxisProperty::deserialize(Serializer &in)
 //-----------------Base class-----------------------
 template <typename T>
 inline
-void cass::HistogramBase<T>::serialize(TemplateSerializer<T> &out)const
+void cass::HistogramBase<T>::serialize(Serializer &out)const
 {
   //the version//
   out.addUint16(_version);
@@ -162,12 +167,12 @@ void cass::HistogramBase<T>::serialize(TemplateSerializer<T> &out)const
   out.addSizet(size);
   //the memory//
   for (std::vector<T>::const_iterator it=_memory.begin(); it!=_memory.end();++it)
-    out.addT(*it);
+    out.add(*it);
 }
 
 template <typename T>
 inline
-void cass::HistogramBase<T>::deserialize(TemplateSerializer<T> &in)
+void cass::HistogramBase<T>::deserialize(Serializer &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
@@ -187,7 +192,7 @@ void cass::HistogramBase<T>::deserialize(TemplateSerializer<T> &in)
   size_t size = in.retrieveSizet();
   _memory.resize(size);
   for (std::vector<T>::iterator it=_memory.begin(); it!=_memory.end();++it)
-    *it = in.retrieveT();
+    *it = in.retrieve<T>();
 }
 
 
