@@ -21,7 +21,7 @@ namespace cass
       :_stream(string,std::ios_base::binary|std::ios_base::out)
     {
     }
-    const std::string &buffer()const  {return _stream.str();}
+    const std::string buffer()const  {return _stream.str();}
     virtual ~Serializer() {}
 
     void addString(const std::string&);
