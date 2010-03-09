@@ -11,6 +11,7 @@
 namespace cass
 {
   class Serializer;
+  class Histogram;
 
   class CASSSHARED_EXPORT HistogramGetter
   {
