@@ -91,7 +91,7 @@ namespace cass
       this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
     //Constructor for reading a histogram from a stream//
-    Histogram1D(Serializer &in)   {this->deserialize<T>(in);}
+    Histogram1D(Serializer &in)   {this->deserialize(in);}
 
     void fill(float x, T weight=1);
   };
