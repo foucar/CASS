@@ -86,12 +86,12 @@ namespace cass
       //the dimension of the 1d Hist
       this->_dimension=1;
       //resize the memory, reserve space for the over/underflow bin
-      _memory.resize(nbrXBins+2,0);
+      this->_memory.resize(nbrXBins+2,0);
       //set up the axis
-      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
     //Constructor for reading a histogram from a stream//
-    Histogram1D(Serializer &in)   {deserialize<T>(in);}
+    Histogram1D(Serializer &in)   {this->deserialize<T>(in);}
 
     void fill(float x, T weight=1);
   };
@@ -107,14 +107,14 @@ namespace cass
                 size_t nbrYBins, float yLow, float yUp)
     {
       //create memory, reserve space for under/over quadrants
-      _memory.resize(nbrXBins*nbrYBins+8,0);
-      _dimension=2;
+      this->_memory.resize(nbrXBins*nbrYBins+8,0);
+      this->_dimension=2;
       //set up the two axis of the 2d hist
-      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-      _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
+      this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      this->_axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    Histogram2D(Serializer &in)     {deserialize<T>(in);}
+    Histogram2D(Serializer &in)     {this->deserialize<T>(in);}
     void fill(float x, float y, T weight=1);
   };
 }
