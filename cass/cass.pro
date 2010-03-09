@@ -19,6 +19,7 @@ SOURCES +=  cass.cpp \
             worker.cpp \
             tcpserver.cpp \
             event_getter.cpp \
+            histogram_getter.cpp \
             ./postprocessing/post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
@@ -36,6 +37,7 @@ HEADERS +=  analysis_backend.h \
             worker.h \
             tcpserver.h \
             event_getter.h \
+            histogram_getter.h \
             histogram.h \
             serializer.h \
             ./postprocessing/post_processor.h \
