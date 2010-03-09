@@ -13,7 +13,7 @@ const std::string cass::HistogramGetter::operator()(const TCP::HistogramParamete
   //create a serializer that will serialize the cassevent//
   Serializer serializer;
   //serialize the wanted histogram using the serializer//
-  _histograms[hp.type]->serialize(serializer);
+//  _histograms[hp.type]->serialize(serializer);
   //return the buffer (std::string) of the serializer)
   return serializer.buffer();
 }
