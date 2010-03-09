@@ -121,7 +121,7 @@ namespace cass
 
 //---------------Axis-------------------------------
 inline
-void cass::AxisProperty::serialize(Serializer &out)const
+void cass::AxisProperty::serialize(cass::Serializer &out)const
 {
   //the version//
   out.addUint16(_version);
@@ -132,7 +132,7 @@ void cass::AxisProperty::serialize(Serializer &out)const
   out.addFloat(_up);
 }
 inline
-void cass::AxisProperty::deserialize(Serializer &in)
+void cass::AxisProperty::deserialize(cass::Serializer &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
@@ -160,7 +160,7 @@ void cass::HistogramBase<T>::serialize(Serializer &out)const
   out.addSizet(_dimension);
   //the axis properties//
   std::vector<AxisProperty>::const_iterator it;
-  for (it=_axisproperties.begin(); it !=_axisproperties.end();++it)
+  for (it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
   size_t size = _memory.size();
@@ -186,7 +186,7 @@ void cass::HistogramBase<T>::deserialize(Serializer &in)
   //make sure the axis container is big enough for all dimensions//
   _axisproperties.resize(_dimension);
   std::vector<AxisProperty>::iterator it;
-  for (it=_axisproperties.begin(); it !=_axisproperties.end();++it)
+  for (it=_axis.begin(); it !=_axis.end();++it)
     it->deserialize(in);
   //the memory//
   size_t size = in.retrieveSizet();
