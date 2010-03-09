@@ -3,6 +3,8 @@
 #ifndef __EVENT_GETTER_H__
 #define __EVENT_GETTER_H__
 
+#include <string>
+
 #include "cass.h"
 #include "cass_event.h"
 #include "tcpserver.h"
@@ -18,7 +20,7 @@ namespace cass
     EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
 
   public:
-    void operator()(const cass::TCP::EventParameter&, Serializer&);
+    const std::string operator()(const cass::TCP::EventParameter&);
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
