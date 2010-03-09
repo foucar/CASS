@@ -1,6 +1,6 @@
 #include "histogram_getter.h"
 #include "serializer.h"
-#inlcude "histogram.h"
+#include "histogram.h"
 
 
 cass::HistogramGetter::HistogramGetter(std::map<size_t,Histogram*>& histos)
