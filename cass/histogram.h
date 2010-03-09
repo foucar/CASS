@@ -23,7 +23,7 @@ namespace cass
     }
     ~AxisProperty() {}
 
-    void serialize(Serializer&);
+    void serialize(Serializer&)const;
     void deserialize(Serializer&);
 
     size_t nbrBins()const   {return _nbrBins;}
@@ -39,7 +39,7 @@ namespace cass
 
   //base class from which all histograms inherit
   template <typename T>
-  class CASSSHARED_EXPORT HistogramBase
+  class HistogramBase
   {
   public:
     HistogramBase():_dimension(0),_version(1),_nbrOfFills(0) {}
@@ -77,7 +77,7 @@ namespace cass
 
   //1D Histogram for Graphs, ToF's etc...
   template <typename T>
-  class CASSSHARED_EXPORT Histogram1D : public HistogramBase<T>
+  class Histogram1D : public HistogramBase<T>
   {
   public:
     //constructor for creating a histogram//
@@ -100,7 +100,7 @@ namespace cass
 
   //2D Histogram for Detector Pictures etc...
   template <typename T>
-  class CASSSHARED_EXPORT Histogram2D : public HistogramBase<T>
+  class Histogram2D : public HistogramBase<T>
   {
     //constructor creating histo//
     Histogram2D(size_t nbrXBins, float xLow, float xUp,
@@ -184,7 +184,7 @@ void cass::HistogramBase<T>::deserialize(Serializer &in)
   //the dimension//
   _dimension = in.retrieveSizet();
   //make sure the axis container is big enough for all dimensions//
-  _axisproperties.resize(_dimension);
+  _axis.resize(_dimension);
   std::vector<AxisProperty>::iterator it;
   for (it=_axis.begin(); it !=_axis.end();++it)
     it->deserialize(in);
