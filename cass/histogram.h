@@ -114,7 +114,7 @@ namespace cass
       this->_axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    Histogram2D(Serializer &in)     {this->deserialize<T>(in);}
+    Histogram2D(Serializer &in)     {this->deserialize(in);}
     void fill(float x, float y, T weight=1);
   };
 }
@@ -166,7 +166,7 @@ void cass::HistogramBase<T>::serialize(Serializer &out)const
   size_t size = _memory.size();
   out.addSizet(size);
   //the memory//
-  for (std::vector<T>::const_iterator it=_memory.begin(); it!=_memory.end();++it)
+  for (typename std::vector<T>::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.add(*it);
 }
 
@@ -191,7 +191,7 @@ void cass::HistogramBase<T>::deserialize(Serializer &in)
   //the memory//
   size_t size = in.retrieveSizet();
   _memory.resize(size);
-  for (std::vector<T>::iterator it=_memory.begin(); it!=_memory.end();++it)
+  for (typename std::vector<T>::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieve<T>();
 }
 
