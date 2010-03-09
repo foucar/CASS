@@ -77,14 +77,14 @@ namespace cass
 
   //1D Histogram for Graphs, ToF's etc...
   template <typename T>
-  class Histogram1D : public HistogramBase<T>
+  class CASSSHARED_EXPORT Histogram1D : public HistogramBase<T>
   {
   public:
     //constructor for creating a histogram//
     Histogram1D(size_t nbrXBins, float xLow, float xUp)
     {
       //the dimension of the 1d Hist
-      _dimension=1;
+      this->_dimension=1;
       //resize the memory, reserve space for the over/underflow bin
       _memory.resize(nbrXBins+2,0);
       //set up the axis
@@ -100,7 +100,7 @@ namespace cass
 
   //2D Histogram for Detector Pictures etc...
   template <typename T>
-  class Histogram2D : public HistogramBase<T>
+  class CASSSHARED_EXPORT Histogram2D : public HistogramBase<T>
   {
     //constructor creating histo//
     Histogram2D(size_t nbrXBins, float xLow, float xUp,
