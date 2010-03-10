@@ -37,54 +37,76 @@ namespace cass
     uint16_t  _version; //the version for de/serializing
   };
 
-  //base class from which all histograms inherit
-  template <typename T>
-  class HistogramBase
+  //histogram backend, every type of histogram inherits from here//
+  class CASSSHARED_EXPORT HistogramBackend
   {
   public:
-    HistogramBase():_dimension(0),_version(1),_nbrOfFills(0) {}
-    virtual ~HistogramBase()      {}
-
-    //reset the histogram//
-    virtual void          reset()           {_memory.assign(_memory.size(),0);}
-    //setters and getters
-    const std::vector<T> &memory()const     {return _memory;}
-    std::vector<T>       &memory()          {return _memory;}
-    size_t                nbrOfFills()const {return _nbrOfFills;}
-    size_t               &nbrOfFills()      {return _nbrOfFills;}
-    size_t                dimension()       {return _dimension;}
-
-    virtual void serialize(Serializer&)const;
-    virtual void deserialize(Serializer&);
-
+    explicit HistogramBackend(size_t dim)
+      :_dimension(dim),
+      _nbrOfFills(0),
+       _version(1)
+    {}
+    virtual ~HistogramBackend(){}
+    virtual void serialize(Serializer&)=0;
+    virtual void deserialize(Serializer&)=0;
+  protected: //setters , getters
+    size_t   nbrOfFills()const {return _nbrOfFills;}
+    size_t  &nbrOfFills()      {return _nbrOfFills;}
+    size_t   dimension()       {return _dimension;}
+  protected:
+    typedef std::vector<AxisProperty> axis_t;
   protected:
     enum Axis{xAxis=0,yAxis,zAxis}; //choose easier the axis
     enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight, //choose easier the over/
                   Left,                     Right,      //underflow quadrant (2D hist)
                   LowerLeft  , LowerMiddle, LowerRight};
     enum OverUnderFlow{Overflow=0, Underflow};    //the over/underflow bin (1D hist)
+  protected:
+    size_t    _dimension;
+    axis_t    _axis;
+    size_t    _nbrOfFills;
+    uint16_t  _version;
+  };
 
+
+
+
+
+
+
+  //base class for floats from which all float histograms inherit
+  class CASSSHARED_EXPORT HistogramFloatBase : public HistogramBackend
+  {
+  public:
+    explicit HistogramFloatBase(size_t dim)
+      :HistogramBackend(dim)
+    {}
+    virtual ~HistogramFloatBase()      {}
+    virtual void serialize(Serializer&)const;
+    virtual void deserialize(Serializer&);
+  protected:
+    typedef std::vector<float> histo_t;
+  protected:
+    //reset the histogram//
+    virtual void   reset()           {_memory.assign(_memory.size(),0);}
+    //setters and getters
+    const histo_t &memory()const     {return _memory;}
+    histo_t       &memory()          {return _memory;}
   protected:
     //the memory contains the histogram in range nbins
     //after that there are some reservered spaces for over/underflow statistics
-    std::vector<T>            _memory;
-    size_t                    _dimension;
-    std::vector<AxisProperty> _axis;
-    size_t                    _nbrOfFills;
-    uint16_t                  _version;
+    histo_t        _memory;
   };
 
 
   //1D Histogram for Graphs, ToF's etc...
-  template <typename T>
-  class CASSSHARED_EXPORT Histogram1D : public HistogramBase<T>
+  class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
   {
   public:
     //constructor for creating a histogram//
-    Histogram1D(size_t nbrXBins, float xLow, float xUp)
+    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
+      :HistogramFloatBase(1)
     {
-      //the dimension of the 1d Hist
-      this->_dimension=1;
       //resize the memory, reserve space for the over/underflow bin
       this->_memory.resize(nbrXBins+2,0);
       //set up the axis
@@ -93,31 +115,33 @@ namespace cass
     //Constructor for reading a histogram from a stream//
     Histogram1D(Serializer &in)   {this->deserialize(in);}
 
-    void fill(float x, T weight=1);
+    void fill(float x, float weight=1);
   };
 
 
 
   //2D Histogram for Detector Pictures etc...
-  template <typename T>
-  class CASSSHARED_EXPORT Histogram2D : public HistogramBase<T>
+  class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
   {
     //constructor creating histo//
-    Histogram2D(size_t nbrXBins, float xLow, float xUp,
+    Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                 size_t nbrYBins, float yLow, float yUp)
+                  :HistogramFloatBase(2)
     {
       //create memory, reserve space for under/over quadrants
       this->_memory.resize(nbrXBins*nbrYBins+8,0);
-      this->_dimension=2;
       //set up the two axis of the 2d hist
       this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
       this->_axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    Histogram2D(Serializer &in)     {this->deserialize(in);}
-    void fill(float x, float y, T weight=1);
+    Histogram2DFloat(Serializer &in)     {this->deserialize(in);}
+    void fill(float x, float y, float weight=1);
   };
-}
+}//end namespace cass
+
+
+//--inlined functions---//
 
 //---------------Axis-------------------------------
 inline
@@ -150,29 +174,26 @@ void cass::AxisProperty::deserialize(cass::Serializer &in)
 
 
 //-----------------Base class-----------------------
-template <typename T>
 inline
-void cass::HistogramBase<T>::serialize(Serializer &out)const
+void cass::HistogramFloatBase::serialize(cass::Serializer &out)const
 {
   //the version//
   out.addUint16(_version);
   //the dimension//
   out.addSizet(_dimension);
   //the axis properties//
-  std::vector<AxisProperty>::const_iterator it;
-  for (it=_axis.begin(); it !=_axis.end();++it)
+  for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
   size_t size = _memory.size();
   out.addSizet(size);
   //the memory//
-  for (typename std::vector<T>::const_iterator it=_memory.begin(); it!=_memory.end();++it)
-    out.add(*it);
+  for (histo_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
+    out.addFloat(*it);
 }
 
-template <typename T>
 inline
-void cass::HistogramBase<T>::deserialize(Serializer &in)
+void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
@@ -185,21 +206,19 @@ void cass::HistogramBase<T>::deserialize(Serializer &in)
   _dimension = in.retrieveSizet();
   //make sure the axis container is big enough for all dimensions//
   _axis.resize(_dimension);
-  std::vector<AxisProperty>::iterator it;
-  for (it=_axis.begin(); it !=_axis.end();++it)
+  for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
     it->deserialize(in);
   //the memory//
   size_t size = in.retrieveSizet();
   _memory.resize(size);
-  for (typename std::vector<T>::iterator it=_memory.begin(); it!=_memory.end();++it)
-    *it = in.retrieve<T>();
+  for (histo_t::iterator it=_memory.begin(); it!=_memory.end();++it)
+    *it = in.retrieveFloat();
 }
 
 
 //-----------------1D Hist--------------------------
-template <typename T>
 inline
-void cass::Histogram1D<T>::fill(float x, T weight)
+void cass::Histogram1D::fill(float x, float weight)
 {
   //calc the bin//
   const size_t nxBins = this->_axis[this->xAxis].nbrBins();
@@ -223,9 +242,8 @@ void cass::Histogram1D<T>::fill(float x, T weight)
 }
 
 //-----------------2D Hist--------------------------
-template <typename T>
 inline
-void cass::Histogram2D<T>::fill(float x, float y, T weight)
+void cass::Histogram2D<T>::fill(float x, float y, float weight)
 {
   //calc the xbin//
   const size_t nxBins = this->_axis[this->xAxis].nbrBins();
