@@ -19,7 +19,10 @@ namespace cass
         :_nbrBins(nbrBins),
          _low(lowerLimit),
          _up(upperLimit)
+    {}
+    AxisProperty(Serializer &in)
     {
+      deserialize(in);
     }
     ~AxisProperty() {}
 
@@ -47,7 +50,7 @@ namespace cass
        _version(1)
     {}
     virtual ~HistogramBackend(){}
-    virtual void serialize(Serializer&)=0;
+    virtual void serialize(Serializer&)const=0;
     virtual void deserialize(Serializer&)=0;
   protected: //setters , getters
     size_t   nbrOfFills()const {return _nbrOfFills;}
@@ -215,8 +218,8 @@ void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
   _dimension = in.retrieveSizet();
   //make sure the axis container is big enough for all dimensions//
   _axis.resize(_dimension);
-  for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
-    it->deserialize(in);
+  for (size_t i=0; i<_dimension;++i)
+    _axis.push_back(AxisProperty(in));
   //the memory//
   size_t size = in.retrieveSizet();
   _memory.resize(size);
@@ -230,7 +233,7 @@ inline
 void cass::Histogram1DFloat::fill(float x, float weight)
 {
   //calc the bin//
-  const size_t nxBins = _axis[xAxis].nbrBins();
+  const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
   const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
@@ -255,13 +258,13 @@ inline
 void cass::Histogram2DFloat::fill(float x, float y, float weight)
 {
   //calc the xbin//
-  const size_t nxBins = _axis[xAxis].nbrBins();
+  const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
   const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //calc the ybin//
-  const size_t nyBins = _axis[yAxis].nbrBins();
+  const int nyBins    = static_cast<const int>(_axis[yAxis].nbrBins());
   const float ylow    = _axis[yAxis].lowerLimit();
   const float yup     = _axis[yAxis].upperLimit();
   const int yBin = static_cast<int>( nyBins * (y - ylow) / (yup-ylow));
