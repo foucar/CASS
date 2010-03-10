@@ -85,9 +85,9 @@ int main(int argc, char **argv)
   cass::TCP::GetHistogram get_histogram;
   cass::TCP::Server server(get_event, get_histogram);
   //setup the connections//
-  connect(server, SIGNAL(quit()), input, SLOT(end()));
-  connect(server, SIGNAL(readini(size_t)), input, SLOT(readini(size_t)));
-  connect(server, SIGNAL(readini(size_t)), workers, SLOT(readini(size_t)));
+  QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
+  QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(readini(size_t)));
+  QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(readini(size_t)));
   //let the server listen to port 54321//
   if(! server.listen(QHostAddress::Any, 54321)) {
       std::cerr << "Failed to bind to TCP port" << std::endl;
