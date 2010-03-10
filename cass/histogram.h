@@ -108,12 +108,12 @@ namespace cass
       :HistogramFloatBase(1)
     {
       //resize the memory, reserve space for the over/underflow bin
-      this->_memory.resize(nbrXBins+2,0);
+      _memory.resize(nbrXBins+2,0);
       //set up the axis
-      this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
     //Constructor for reading a histogram from a stream//
-    Histogram1D(Serializer &in)   {this->deserialize(in);}
+    Histogram1D(Serializer &in)   {deserialize(in);}
 
     void fill(float x, float weight=1);
   };
@@ -129,13 +129,13 @@ namespace cass
                   :HistogramFloatBase(2)
     {
       //create memory, reserve space for under/over quadrants
-      this->_memory.resize(nbrXBins*nbrYBins+8,0);
+      _memory.resize(nbrXBins*nbrYBins+8,0);
       //set up the two axis of the 2d hist
-      this->_axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-      this->_axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    Histogram2DFloat(Serializer &in)     {this->deserialize(in);}
+    Histogram2DFloat(Serializer &in)     {deserialize(in);}
     void fill(float x, float y, float weight=1);
   };
 }//end namespace cass
@@ -221,9 +221,9 @@ inline
 void cass::Histogram1D::fill(float x, float weight)
 {
   //calc the bin//
-  const size_t nxBins = this->_axis[this->xAxis].nbrBins();
-  const float xlow    = this->_axis[this->xAxis].lowerLimit();
-  const float xup     = this->_axis[this->xAxis].upperLimit();
+  const size_t nxBins = _axis[xAxis].nbrBins();
+  const float xlow    = _axis[xAxis].lowerLimit();
+  const float xup     = _axis[xAxis].upperLimit();
   const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //check whether the fill is in the right range//
@@ -231,14 +231,14 @@ void cass::Histogram1D::fill(float x, float weight)
   //if in range fill the memory otherwise figure out//
   //whether over of underflow occured//
   if (xInRange)
-    this->_memory[xBin] += weight;
+    _memory[xBin] += weight;
   else if (xBin >= nxBins)
-    this->_memory[nxBins+this->Overflow] += 1;
+    _memory[nxBins+Overflow] += 1;
   else if (xBin < 0)
-    this->_memory[nxBins+this->Underflow] += 1;
+    _memory[nxBins+Underflow] += 1;
 
   //increase the number of fills//
-  ++(this->_nbrOfFills);
+  ++(_nbrOfFills);
 }
 
 //-----------------2D Hist--------------------------
@@ -246,15 +246,15 @@ inline
 void cass::Histogram2D<T>::fill(float x, float y, float weight)
 {
   //calc the xbin//
-  const size_t nxBins = this->_axis[this->xAxis].nbrBins();
-  const float xlow    = this->_axis[this->xAxis].lowerLimit();
-  const float xup     = this->_axis[this->xAxis].upperLimit();
+  const size_t nxBins = _axis[xAxis].nbrBins();
+  const float xlow    = _axis[xAxis].lowerLimit();
+  const float xup     = _axis[xAxis].upperLimit();
   const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //calc the ybin//
-  const size_t nyBins = this->_axis[this->yAxis].nbrBins();
-  const float ylow    = this->_axis[this->yAxis].lowerLimit();
-  const float yup     = this->_axis[this->yAxis].upperLimit();
+  const size_t nyBins = _axis[yAxis].nbrBins();
+  const float ylow    = _axis[yAxis].lowerLimit();
+  const float yup     = _axis[yAxis].upperLimit();
   const int yBin = static_cast<int>( nyBins * (y - ylow) / (yup-ylow));
 
   //fill the memory or the over/underflow quadrant bins//
@@ -264,26 +264,26 @@ void cass::Histogram2D<T>::fill(float x, float y, float weight)
   //if both are in range fill the memory other wise figure out which qadrant
   //needs to be filled//
   if (xInRange && yInRange)
-    this->_memory[yBin*nxBins + yBin]+= weight;
+    _memory[yBin*nxBins + yBin]+= weight;
   if (xBin <0 && yBin <0)
-    this->_memory[maxSize+this->LowerLeft]+=1;
+    _memory[maxSize+LowerLeft]+=1;
   else if (xInRange && yBin <0)
-    this->_memory[maxSize+this->LowerMiddle]+=1;
+    _memory[maxSize+LowerMiddle]+=1;
   else if (xBin >= nxBins && yBin >=nyBins)
-    this->_memory[maxSize+this->LowerRight]+=1;
+    _memory[maxSize+LowerRight]+=1;
   else if (xBin < 0 && yInRange)
-    this->_memory[maxSize+this->Left]+=1;
+    _memory[maxSize+Left]+=1;
   else if (xBin >= nxBins && yInRange)
-    this->_memory[maxSize+this->Right]+=1;
+    _memory[maxSize+Right]+=1;
   else if (xBin < 0 && yBin >= nyBins)
-    this->_memory[maxSize+this->UpperLeft]+=1;
+    _memory[maxSize+UpperLeft]+=1;
   else if (xInRange && yBin >= nyBins)
-    this->_memory[maxSize+this->UpperMiddle]+=1;
+    _memory[maxSize+UpperMiddle]+=1;
   else if (xBin >= nxBins && yBin >= nyBins)
-    this->_memory[maxSize+this->UpperRight]+=1;
+    _memory[maxSize+UpperRight]+=1;
 
   //increase the number of fills//
-  ++(this->_nbrOfFills);
+  ++(_nbrOfFills);
 }
 
 
