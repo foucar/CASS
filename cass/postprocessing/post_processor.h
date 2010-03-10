@@ -6,7 +6,7 @@
 #include <QtCore/QMutex>
 
 #include <map>
-#include <pair>
+#include <utility>
 
 #include "cass.h"
 
