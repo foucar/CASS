@@ -153,7 +153,7 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
   }
 }
 
-void cass::FormatConverter::loadSettings()
+void cass::FormatConverter::loadSettings(size_t)
 {
   //load the parameters//
   _param.load();

@@ -80,7 +80,7 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
     (*_analyzer[*it])(cassevent);
 }
 
-void cass::Analyzer::loadSettings()
+void cass::Analyzer::loadSettings(size_t)
 {
   //load the parameters to find out what analyzers the user want to be working//
   _param.load();

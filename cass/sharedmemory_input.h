@@ -31,6 +31,7 @@ namespace cass
 
   public slots:
     void end();
+    void loadSettings(size_t what);
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;

@@ -21,7 +21,7 @@ namespace cass
 
   public:
     void postProcess(CASSEvent&);
-    void loadSettings() {}
+    void loadSettings(size_t) {}
     void saveSettings() {}
 
   protected:

@@ -56,10 +56,10 @@ void cass::Worker::run()
   std::cout <<"worker "<<this<<" is closing down"<<std::endl;
 }
 
-void cass::Worker::loadSettings()
+void cass::Worker::loadSettings(size_t what)
 {
-  _postprocessor->loadSettings();
-  _analyzer->loadSettings();
+  _postprocessor->loadSettings(what);
+  _analyzer->loadSettings(what);
 }
 
 void cass::Worker::saveSettings()
@@ -88,6 +88,10 @@ cass::Workers::~Workers()
   std::cout<< "workers are closed" <<std::endl;
 }
 
+void cass::Workers::loadSettings(size_t what)
+{
+  _workers[0]->loadSettings(what);
+}
 
 void cass::Workers::start()
 {

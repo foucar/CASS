@@ -48,7 +48,7 @@ namespace cass
     //slots called by the gui//
   public slots:
     void saveSettings();
-    void loadSettings();
+    void loadSettings(size_t what);
 
   protected:
     Analyzer();

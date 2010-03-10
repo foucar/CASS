@@ -50,7 +50,7 @@ namespace cass
     //function to process a datagram and turn it into a cassevent/
     bool processDatagram(cass::CASSEvent*);
     //functions to load / save the settings for the format converter//
-    void loadSettings();
+    void loadSettings(size_t what);
     void saveSettings();
 
   protected:

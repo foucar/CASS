@@ -30,7 +30,7 @@ namespace cass
 
   public slots:
     void end();
-    void loadSettings();
+    void loadSettings(size_t what);
     void saveSettings();
 
   private:
@@ -52,6 +52,7 @@ namespace cass
 
   public slots:
     void end();
+    void loadSettings(size_t what);
 
   signals:
     void finished();

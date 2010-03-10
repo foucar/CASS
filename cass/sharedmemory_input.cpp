@@ -20,6 +20,12 @@ cass::SharedMemoryInput::~SharedMemoryInput()
 {
 }
 
+
+void cass::SharedMemoryInput::loadSettings(size_t what)
+{
+  _converter->loadSettings(what);
+}
+
 void cass::SharedMemoryInput::run()
 {
   //start the xtcmonitorclient//
