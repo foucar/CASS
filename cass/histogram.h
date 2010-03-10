@@ -81,6 +81,11 @@ namespace cass
     explicit HistogramFloatBase(size_t dim)
       :HistogramBackend(dim)
     {}
+    HistogramFloatBase(Serializer& in)
+      :HistogramBackend(0)
+    {
+      deserialize(in);
+    }
     virtual ~HistogramFloatBase()      {}
     virtual void serialize(Serializer&)const;
     virtual void deserialize(Serializer&);
@@ -104,7 +109,7 @@ namespace cass
   {
   public:
     //constructor for creating a histogram//
-    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
+    explicit Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
       :HistogramFloatBase(1)
     {
       //resize the memory, reserve space for the over/underflow bin
@@ -113,7 +118,9 @@ namespace cass
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
     //Constructor for reading a histogram from a stream//
-    Histogram1D(Serializer &in)   {deserialize(in);}
+    Histogram1DFloat(Serializer &in)
+      :HistogramFloatBase(in)
+    {}
 
     void fill(float x, float weight=1);
   };
@@ -124,9 +131,9 @@ namespace cass
   class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
   {
     //constructor creating histo//
-    Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
-                size_t nbrYBins, float yLow, float yUp)
-                  :HistogramFloatBase(2)
+    explicit Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
+                              size_t nbrYBins, float yLow, float yUp)
+                                :HistogramFloatBase(2)
     {
       //create memory, reserve space for under/over quadrants
       _memory.resize(nbrXBins*nbrYBins+8,0);
@@ -134,8 +141,10 @@ namespace cass
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
       _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
+    Histogram2DFloat(Serializer &in)
+      :HistogramFloatBase(in)
+    {}
 
-    Histogram2DFloat(Serializer &in)     {deserialize(in);}
     void fill(float x, float y, float weight=1);
   };
 }//end namespace cass
@@ -218,7 +227,7 @@ void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
 
 //-----------------1D Hist--------------------------
 inline
-void cass::Histogram1D::fill(float x, float weight)
+void cass::Histogram1DFloat::fill(float x, float weight)
 {
   //calc the bin//
   const size_t nxBins = _axis[xAxis].nbrBins();
@@ -243,7 +252,7 @@ void cass::Histogram1D::fill(float x, float weight)
 
 //-----------------2D Hist--------------------------
 inline
-void cass::Histogram2D<T>::fill(float x, float y, float weight)
+void cass::Histogram2DFloat::fill(float x, float y, float weight)
 {
   //calc the xbin//
   const size_t nxBins = _axis[xAxis].nbrBins();
