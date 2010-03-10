@@ -5,11 +5,15 @@
 
 #include <QtCore/QMutex>
 
+#include <map>
+#include <pair>
+
 #include "cass.h"
 
 namespace cass
 {
   class CASSEvent;
+  class HistogramBackend;
 
   class PostProcessor
   {
@@ -24,6 +28,13 @@ namespace cass
     void loadSettings(size_t) {}
     void saveSettings() {}
 
+  public:
+    typedef std::map<std::pair<size_t, size_t>, HistogramBackend*> histograms_t;
+
+  public://setters/getters
+    const histograms_t  &histograms()const  {return _histograms;}
+    histograms_t        &histograms()       {return _histograms;}
+
   protected:
     PostProcessor(const char* OutputFileName) {}
     ~PostProcessor()                          {}
@@ -32,8 +43,10 @@ namespace cass
     static PostProcessor *_instance;
     //Singleton operation locker in a multi-threaded environment.//
     static QMutex _mutex;
+
+    //container for all histograms//
+    histograms_t _histograms;
   };
 }
-
 
 #endif

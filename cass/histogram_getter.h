@@ -7,6 +7,7 @@
 
 #include "cass.h"
 #include "tcpserver.h"
+#include "post_processor.h"
 
 namespace cass
 {
@@ -16,13 +17,13 @@ namespace cass
   class CASSSHARED_EXPORT HistogramGetter
   {
   public:
-    HistogramGetter(std::map<size_t,Histogram*>&);
+    HistogramGetter(cass::PostProcessor::histograms_t &histograms);
 
   public:
     const std::string operator()(const cass::TCP::HistogramParameter&);
 
   private:
-    std::map<size_t,Histogram*> &_histograms;
+    cass::PostProcessor::histograms_t &_histograms;
   };
 
 } //end namespace cass

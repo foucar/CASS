@@ -3,7 +3,7 @@
 #include "histogram.h"
 
 
-cass::HistogramGetter::HistogramGetter(std::map<size_t,Histogram*>& histos)
+cass::HistogramGetter::HistogramGetter(cass::PostProcessor::histograms_t& histos)
   :_histograms(histos)
 {
 }
@@ -13,7 +13,8 @@ const std::string cass::HistogramGetter::operator()(const TCP::HistogramParamete
   //create a serializer that will serialize the cassevent//
   Serializer serializer;
   //serialize the wanted histogram using the serializer//
-//  _histograms[hp.type]->serialize(serializer);
+  #warning: we need to decide how to retrieve a sub histogram a given postanalyzer
+  _histograms[std::make_pair(hp.type,0)]->serialize(serializer);
   //return the buffer (std::string) of the serializer)
   return serializer.buffer();
 }
