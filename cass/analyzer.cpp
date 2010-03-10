@@ -61,7 +61,7 @@ cass::Analyzer::Analyzer()
   _analyzer[MachineData]  = new MachineData::Analysis();
 
   //look what analysis is interestign to the user//
-  loadSettings();
+  loadSettings(0);
 }
 
 cass::Analyzer::~Analyzer()
