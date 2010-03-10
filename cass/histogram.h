@@ -216,8 +216,7 @@ void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
   }
   //the dimension//
   _dimension = in.retrieveSizet();
-  //make sure the axis container is big enough for all dimensions//
-  _axis.resize(_dimension);
+  //initialize axis for all dimensions//
   for (size_t i=0; i<_dimension;++i)
     _axis.push_back(AxisProperty(in));
   //the memory//
