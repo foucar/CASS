@@ -8,6 +8,7 @@ VERSION = 0.1.0
 CODECFORTR = UTF-8
 
 OBJECTS_DIR = ./obj
+MOC_DIR = ./obj
 
 SOURCES +=  cass.cpp \
             analyzer.cpp \

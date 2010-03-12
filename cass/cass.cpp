@@ -10,7 +10,6 @@
 #include "ringbuffer.h"
 #include "format_converter.h"
 #include "ratemeter.h"
-#include "dialog.h"
 #include "tcpserver.h"
 #include "worker.h"
 
@@ -18,7 +17,7 @@
 int main(int argc, char **argv)
 {
   // construct Qt application object
-  QApplication app(argc, argv);
+  QApplication app(argc, argv,false);
 
   //create a container for the partition tag
   int c;
@@ -51,28 +50,17 @@ int main(int argc, char **argv)
 //  cass::Ratemeter *inputrate(new cass::Ratemeter());
   // create a ratemeter object for the worker//
 //  cass::Ratemeter *workerrate(new cass::Ratemeter());
-  // create a dialog object //
-//  cass::Window * window(new cass::Window());
 
-  //conncet ratemeters//
+  //connect ratemeters//
 //  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
 //  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
 //  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
 //  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
 
 
-  // connect controls
-//  QObject::connect (window, SIGNAL (load()), worker, SLOT(loadSettings()));
-//  QObject::connect (window, SIGNAL (save()), worker, SLOT(saveSettings()));
-//  QObject::connect (window, SIGNAL (quit()), input, SLOT(end()));
-
   // when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
-//  QObject::connect(worker, SIGNAL(finished()), window, SLOT(close()));
-
-  //show dialog//
-//  window->show();
 
   // start input and worker threads
   input->start();
@@ -81,24 +69,23 @@ int main(int argc, char **argv)
   // start TCP server
 #warning fix setup of TCP server parameters
   //tell the server how to get an id or histogram//
-  cass::TCP::GetEvent get_event;
-  cass::TCP::GetHistogram get_histogram;
-  cass::TCP::Server server(get_event, get_histogram,qApp);
-  //setup the connections//
-  QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
-  QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(readini(size_t)));
-  QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(readini(size_t)));
-  //let the server listen to port 54321//
-  if(! server.listen(QHostAddress::Any, 54321)) {
-      std::cerr << "Failed to bind to TCP port" << std::endl;
-      return 1;
-  }
+  //cass::TCP::GetEvent get_event;
+  //cass::TCP::GetHistogram get_histogram;
+  //cass::TCP::Server server(get_event, get_histogram,qApp);
+  ////setup the connections//
+  //QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
+  //QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  //QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  ////let the server listen to port 54321//
+  //if(! server.listen(QHostAddress::Any, 54321)) {
+  //    std::cerr << "Failed to bind to TCP port" << std::endl;
+  //    return 1;
+  //}
 
   // start Qt event loop
   int retval(app.exec());
 
   // clean up
-//  delete window;
 //  delete workerrate;
 //  delete inputrate;
   delete workers;

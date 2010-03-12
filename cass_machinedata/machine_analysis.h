@@ -23,7 +23,7 @@ namespace cass
     {
     public:
       Parameter()     {beginGroup("MachineData");}
-      ~Parameter()    {save();endGroup();}
+      ~Parameter()    {endGroup();}
       void load();
       void save();
 
