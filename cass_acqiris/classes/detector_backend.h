@@ -3,6 +3,7 @@
 #ifndef _DETECTOR_BACKEND_H_
 #define _DETECTOR_BACKEND_H_
 
+#include <iostream>
 #include <QtCore/QSettings>
 #include "cass_acqiris.h"
 
@@ -16,8 +17,8 @@ namespace cass
       DetectorBackend(DetectorType type)
           :_type(type)           {}
       virtual ~DetectorBackend() {}
-      virtual void loadParameters(QSettings*){};
-      virtual void saveParameters(QSettings*){};
+      virtual void loadParameters(QSettings*)=0;
+      virtual void saveParameters(QSettings*)=0;
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
       DetectorType         type()const            {return _type;}

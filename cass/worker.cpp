@@ -34,6 +34,8 @@ void cass::Worker::run()
   //run als long as we are told not to stop//
   while(!_quit)
   {
+    //reset the cassevent//
+    cassevent=0;
     //retrieve a new cassevent from the eventbuffer//
     _ringbuffer.nextToProcess(cassevent, 1000);
 

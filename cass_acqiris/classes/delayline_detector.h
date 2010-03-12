@@ -24,13 +24,15 @@ namespace cass
     public:
       void loadParameters(QSettings *p,const char * layername)
       {
+        //std::cerr <<"loading settings for layer \""<<layername<<"\""<<std::endl;
         p->beginGroup(layername);
         _tsLow   = p->value("LowerTimeSumLimit",0.).toDouble();
         _tsHeigh  = p->value("UpperTimeSumLimit",20000.).toDouble();
         _sf      = p->value("Scalefactor",0.5).toDouble();
         _one.loadParameters(p,"One");
-        _one.loadParameters(p,"One");
+        _two.loadParameters(p,"Two");
         p->endGroup();
+        //std::cout <<"done"<<std::endl;
       }
       void saveParameters(QSettings *p,const char * layername)
       {
@@ -111,14 +113,16 @@ namespace cass
       ~DelaylineDetector() {}
 
     public:
-      void loadParameters(QSettings *p)
+      virtual void loadParameters(QSettings *p)
       {
+        //std::cout <<"loading"<<std::endl;
         //load the parameters for this detector//
         _name         = p->value("Name","IonDetector").toString().toStdString();
         _runtime      = p->value("Runtime",150).toDouble();
         _mcpRadius    = p->value("McpRadius",44.).toDouble();
         _mcp.loadParameters(p,"MCP");
         _analyzerType = static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
+        //std::cout <<"loaded analyzer type:"<<_analyzerType<<" should be "<<DelaylineSimple<<std::endl;
         //load parameters depending on which analyzer you use to analyze this detector//
         switch(_analyzerType)
         {
@@ -150,7 +154,7 @@ namespace cass
           break;
         }
       }
-      void saveParameters(QSettings *p)
+      virtual void saveParameters(QSettings *p)
       {
         //save the parameters//
         p->setValue("Name",_name.c_str());

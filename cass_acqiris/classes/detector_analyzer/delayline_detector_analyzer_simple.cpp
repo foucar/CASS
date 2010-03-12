@@ -11,7 +11,7 @@
 //___________________________________________________________________________________________________________________________________________________________
 void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::DetectorBackend& detector, const std::vector<cass::ACQIRIS::Channel>& channels)
 {
-//  std::cout << "do the sorting"<<std::endl;
+  //std::cout << "do the sorting"<<std::endl;
   //do a type conversion to have a delayline detector//
   DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
   //check what layer the user wants to use for calculating the pos//
@@ -21,21 +21,21 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
   {
   case(UV):
     {
-//      std::cout << "uv"<<std::endl;
+      //std::cout << "uv"<<std::endl;
       firstLayer = &d.layers()[U];
       secondLayer = &d.layers()[V];
       break;
     }
   case(UW):
     {
-//      std::cout << "uw"<<std::endl;
+      //std::cout << "uw"<<std::endl;
       firstLayer = &d.layers()[U];
       secondLayer = &d.layers()[W];
       break;
     }
   case(VW):
-    {
-//      std::cout << "vw"<<std::endl;
+    { 
+      //std::cout << "vw"<<std::endl;
       firstLayer = &d.layers()[V];
       secondLayer = &d.layers()[W];
       break;
@@ -43,16 +43,25 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
   default: break;
   }
   //extract the peaks for the signals of the detector from the channels//
+//  std::cerr<<"waveformanalyzertyp mcp "<<firstLayer->two().analyzerType()<<" chnbr:"<<d.mcp().channelNbr()<<std::endl;
   (*_waveformanalyzer)[d.mcp().analyzerType()]->analyze(channels[d.mcp().channelNbr()],d.mcp());
+
+  //std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->one().analyzerType()<<" chnbr:"<<firstLayer->one().channelNbr()<<std::endl;
   (*_waveformanalyzer)[firstLayer->one().analyzerType()]->analyze(channels[firstLayer->one().channelNbr()],firstLayer->one());
+
+  //std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->two().analyzerType()<<" chnbr:"<<firstLayer->two().channelNbr()<<std::endl;
   (*_waveformanalyzer)[firstLayer->two().analyzerType()]->analyze(channels[firstLayer->two().channelNbr()],firstLayer->two());
+
+  //std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->one().analyzerType()<<" chnbr:"<<secondLayer->one().channelNbr()<<std::endl;
   (*_waveformanalyzer)[secondLayer->one().analyzerType()]->analyze(channels[secondLayer->one().channelNbr()],secondLayer->one());
+
+  //std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->two().analyzerType()<<" chnbr:"<<secondLayer->two().channelNbr()<<std::endl;
   (*_waveformanalyzer)[secondLayer->two().analyzerType()]->analyze(channels[secondLayer->two().channelNbr()],secondLayer->two());
 
   //now sort these peaks for the layers timesum//
-//  std::cout << "sort for timesum"<<std::endl;
+  //std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,*firstLayer,*secondLayer);
-//  std::cout <<"done"<<std::endl;
+  //std::cout <<"done"<<std::endl;
 }
 
 

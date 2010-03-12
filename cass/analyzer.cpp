@@ -34,10 +34,10 @@ void cass::AnalysisParameter::load()
 {
   //sync before loading//
   sync();
-  _useCCD     = value("useComercialCCDAnalyzer",true).toBool();
+  _useCCD     = value("useComercialCCDAnalyzer",false).toBool();
   _useAcqiris = value("useAcqirisAnalyzer",true).toBool();
-  _useMachine = value("useMachineAnalyzer",true).toBool();
-  _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
+  _useMachine = value("useMachineAnalyzer",false).toBool();
+  _usepnCCD   = value("usepnCCDAnalyzer",false).toBool();
 }
 
 void cass::AnalysisParameter::save()

@@ -22,6 +22,7 @@ namespace cass
     public:
       void loadParameters(QSettings *p, const char * signalname)
       {
+        //std::cerr<<"loading wavefrom signal parameters for signal \""<<signalname<<"\""<<std::endl;
         p->beginGroup(signalname);
         _chNbr        = p->value("ChannelNumber",0).toInt();
         _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
@@ -32,6 +33,8 @@ namespace cass
         _fraction     = p->value("Fraction",0.6).toDouble();
         _walk         = p->value("Walk",0.).toDouble();
         _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
+        //std::cerr <<"anty "<<_analyzerType<<" should be "<<com16<<std::endl;
+        //std::cerr<<"done"<<std::endl;
         p->endGroup();
       }
       void saveParameters(QSettings *p, const char * signalname)

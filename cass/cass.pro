@@ -16,7 +16,6 @@ SOURCES +=  cass.cpp \
             format_converter.cpp \
             cass_event.cpp \
             #ratemeter.cpp \
-            #dialog.cpp \
             worker.cpp \
             tcpserver.cpp \
             event_getter.cpp \
@@ -32,7 +31,6 @@ HEADERS +=  analysis_backend.h \
             cass_event.h \
             xtciterator.h \
             #ratemeter.h \
-            #dialog.h \
             ringbuffer.h \
             ccd_detector.h \
             worker.h \

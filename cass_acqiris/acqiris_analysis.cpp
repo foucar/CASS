@@ -17,6 +17,8 @@ void cass::ACQIRIS::Parameter::load()
   sync();
 
   //delete the previous detector parameters//
+  for (AcqirisDevice::detectors_t::iterator it=_detectors.begin();it!=_detectors.end();++it)
+    delete (*it);
   _detectors.clear();
 
   //the detector parameters//
@@ -29,7 +31,7 @@ void cass::ACQIRIS::Parameter::load()
     //create a new detector according to the detectortype//
     switch(dettype)
     {
-    case Delayline : _detectors.push_back(DelaylineDetector()); break;
+    case Delayline : _detectors.push_back(new DelaylineDetector()); break;
     default:
       std::cerr<<"Acqris Analyzer: Detectortype \""<<dettype<<"\" is unknown"<<std::endl;
       endGroup();
@@ -37,7 +39,7 @@ void cass::ACQIRIS::Parameter::load()
       break;
     }
     //load the parameters of the detector//
-    _detectors[i].loadParameters(this);
+    _detectors[i]->loadParameters(this);
     endGroup(); //QString(i)
   }
   endGroup();//detectorcontainer
@@ -54,7 +56,7 @@ void cass::ACQIRIS::Parameter::save()
   for (size_t i = 0; i < _detectors.size();++i)
   {
     beginGroup(s.setNum(static_cast<uint32_t>(i)));
-    _detectors[i].saveParameters(this);
+    _detectors[i]->saveParameters(this);
     endGroup();
   }
   endGroup();//detectorcontainer
@@ -80,9 +82,6 @@ cass::ACQIRIS::Analysis::Analysis()
 
   //create the map with the detector analyzers//
   _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
-
-  //load the settings//
-  loadSettings();
 }
 
 
@@ -92,23 +91,74 @@ void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* cassevent)
   AcqirisDevice* dev =
       dynamic_cast<AcqirisDevice*>(cassevent->devices()[cass::CASSEvent::Acqiris]);
 
-  //ignore event if it is not initialized//
-  if (dev->channels().size())
+  //get a reference to the detector and channel container//
+  const AcqirisDevice::channels_t &chans = dev->channels();
+  AcqirisDevice::detectors_t &dets       = dev->detectors();
+
+  //ignore event if it is not initialized (there are no channels present)//
+  if (chans.size())
   {
     //copy the parameters to the event//
-    dev->detectors() = _param._detectors;
+    if(dev->detectors().size() !=_param._detectors.size())
+    {
+      //when both have not the same size, then delete all detectors in//
+      //the device and create them new from the parameters//
+      for (AcqirisDevice::detectors_t::iterator it=dets.begin();it!=dets.end();++it)
+        delete (*it);
+      dets.clear();
+      for (AcqirisDevice::detectors_t::iterator it=_param._detectors.begin();
+           it!=_param._detectors.end();
+           ++it)
+      {
+        switch((*it)->type())
+        {
+        case Delayline : dets.push_back(new DelaylineDetector(*dynamic_cast<DelaylineDetector*>(*it))); break;
+        default: break;
+        }
+      }
+    }
+    else
+    {
+      //otherwise go through all detectors and check whether they are//
+      //the same type//
+      AcqirisDevice::detectors_t::const_iterator iParDet= _param._detectors.begin();
+      AcqirisDevice::detectors_t::iterator       iDevDet= dets.begin();
+      for (;iParDet != _param._detectors.end();++iParDet,++iDevDet)
+      {
+        if ( (*iParDet)->type() != (*iDevDet)->type() )
+        {
+          //if they are not the same type, then delete the det in the device//
+          //and create a new one from the parameter//
+          delete (*iDevDet);
+
+          switch((*iParDet)->type())
+          {
+          case Delayline : (*iDevDet) 
+                             = new DelaylineDetector(*dynamic_cast<DelaylineDetector*>(*iParDet)); break;
+          default: break;
+          }
+        }
+        else
+        {
+          //otherwise just copy the info from the parameter detector//
+          //to the device detector//
+          (*(*iDevDet)) = (*(*iParDet));
+        }
+      }
+    }
+
 
     //analyze the detectors//
     //this has to be done for each detektor individually//
     for (size_t i=0; i<dev->detectors().size();++i)
     {
       //retrieve reference to the detector//
-      DetectorBackend &det = dev->detectors()[i];
+      DetectorBackend &det = *dev->detectors()[i];
       //analyze the detector using the requested analyzer//
       _detectoranalyzer[det.analyzerType()]->analyze(det, dev->channels());
     }
   }
-}
+} 
 
 
 

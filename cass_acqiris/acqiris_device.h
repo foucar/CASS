@@ -20,7 +20,7 @@ namespace cass
 
     public:
       typedef std::vector<Channel> channels_t;
-      typedef std::vector<DetectorBackend> detectors_t;
+      typedef std::vector<DetectorBackend*> detectors_t;
 
     public:
       void serialize(cass::Serializer&)const;
