@@ -89,6 +89,9 @@ cass::FormatConverter::FormatConverter()
   _usedConverters[Pds::TypeId::Id_EvrConfig]        = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_TM6740Config]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_ControlConfig]    = _availableConverters[Blank];
+
+  //now load the other converters//
+  loadSettings(0);
 }
 
 cass::FormatConverter::~FormatConverter()
