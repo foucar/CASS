@@ -77,8 +77,12 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
     :_workers(cass::NbrOfWorkers,0)
 {
   //create the worker instances//
+  //connect all workers output to this output//
   for (size_t i=0;i<_workers.size();++i)
+  {
     _workers[i] = new cass::Worker(ringbuffer, parent);
+    connect(_workers[i],SIGNAL(processedEvent()),this,SIGNAL(processedEvent()));
+  }
 }
 
 cass::Workers::~Workers()
@@ -89,6 +93,7 @@ cass::Workers::~Workers()
     delete _workers[i];
   std::cout<< "workers are closed" <<std::endl;
 }
+
 
 void cass::Workers::loadSettings(size_t what)
 {

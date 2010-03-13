@@ -56,6 +56,7 @@ namespace cass
 
   signals:
     void finished();
+    void processedEvent();
 
   private:
     std::vector<cass::Worker*> _workers; //list of workers
