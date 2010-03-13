@@ -41,7 +41,7 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
       break;
     }
   default:
-    std::cerr<<"the chosen layer combination \""<<d.layersToUse<<"\" does not exist"<<std::endl;
+    std::cerr<<"the chosen layer combination \""<<d.layersToUse()<<"\" does not exist"<<std::endl;
     return;
     break;
   }

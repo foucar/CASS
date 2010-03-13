@@ -52,8 +52,8 @@ int main(int argc, char **argv)
   cass::Ratemeter *workerrate(new cass::Ratemeter());
 
   //connect ratemeters//
-  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
-  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
+  QObject::connect(workers, SIGNAL(processedEvent()), workerrate, SLOT(count()));
+  QObject::connect(input,   SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
 
 
   // when the thread has finished, we want to close this application

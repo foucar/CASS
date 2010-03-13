@@ -117,14 +117,13 @@ namespace cass
         :DetectorBackend(Delayline),
          _name("Sucker"),
          _runtime(0),
+         _wLayerOffset(100),
          _mcpRadius(0),
-         _analyerType(DelaylineSimple),
-         _layerToUse(UV),
          _deadMcp(1000),
          _deadAnode(1000),
-         _wLayerOffset(100),
+         _layersToUse(UV),
          _delaylinetype(Hex)
-      {}
+      {_analyzerType=DelaylineSimple;}
       ~DelaylineDetector() {}
 
     public:

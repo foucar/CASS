@@ -21,11 +21,11 @@ namespace cass
          _trLow(0),
          _trHigh(0),
          _polarity(Bad),
-         _theshold(5000),
+         _threshold(5000),
          _delay(0),
          _fraction(5),
          _walk(200),
-         _analyzeType(com8)
+         _analyzerType(com8)
       {}
       ~Signal()   {}
 
