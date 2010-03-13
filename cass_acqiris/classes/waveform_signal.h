@@ -16,7 +16,17 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend    //the properties of one Wire-end of the Layerwire
     {
     public:
-      Signal()    {}
+      Signal()
+        :_chNbr(99),
+         _trLow(0),
+         _trHigh(0),
+         _polarity(Bad),
+         _theshold(5000),
+         _delay(0),
+         _fraction(5),
+         _walk(200),
+         _analyzeType(com8)
+      {}
       ~Signal()   {}
 
     public:

@@ -40,28 +40,62 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
       secondLayer = &d.layers()[W];
       break;
     }
-  default: break;
+  default:
+    std::cerr<<"the chosen layer combination \""<<d.layersToUse<<"\" does not exist"<<std::endl;
+    return;
+    break;
   }
+
   //extract the peaks for the signals of the detector from the channels//
+  //check whether the requested channel does exist//
+  if ((d.mcp().channelNbr() >= channels.size()))
+  {
+    std::cerr << "the requested channel for mcp \""<<d.mcp().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    return;
+  }
 //  std::cerr<<"waveformanalyzertyp mcp "<<firstLayer->two().analyzerType()<<" chnbr:"<<d.mcp().channelNbr()<<std::endl;
   (*_waveformanalyzer)[d.mcp().analyzerType()]->analyze(channels[d.mcp().channelNbr()],d.mcp());
 
-  //std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->one().analyzerType()<<" chnbr:"<<firstLayer->one().channelNbr()<<std::endl;
+  //check whether the requested channel does exist//
+  if ((firstLayer->one().channelNbr() >= channels.size()))
+  {
+    std::cerr << "the requested channel for first layer one \""<<firstLayer->one().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    return;
+  }
+  //  std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->one().analyzerType()<<" chnbr:"<<firstLayer->one().channelNbr()<<std::endl;
   (*_waveformanalyzer)[firstLayer->one().analyzerType()]->analyze(channels[firstLayer->one().channelNbr()],firstLayer->one());
 
-  //std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->two().analyzerType()<<" chnbr:"<<firstLayer->two().channelNbr()<<std::endl;
+  //check whether the requested channel does exist//
+  if ((firstLayer->two().channelNbr() >= channels.size()))
+  {
+    std::cerr << "the requested channel for first layer two \""<<firstLayer->two().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    return;
+  }
+  //  std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->two().analyzerType()<<" chnbr:"<<firstLayer->two().channelNbr()<<std::endl;
   (*_waveformanalyzer)[firstLayer->two().analyzerType()]->analyze(channels[firstLayer->two().channelNbr()],firstLayer->two());
 
-  //std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->one().analyzerType()<<" chnbr:"<<secondLayer->one().channelNbr()<<std::endl;
+  //check whether the requested channel does exist//
+  if ((secondLayer->one().channelNbr() >= channels.size()))
+  {
+    std::cerr << "the requested channel for second layer one \""<<secondLayer->one().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    return;
+  }
+  //  std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->one().analyzerType()<<" chnbr:"<<secondLayer->one().channelNbr()<<std::endl;
   (*_waveformanalyzer)[secondLayer->one().analyzerType()]->analyze(channels[secondLayer->one().channelNbr()],secondLayer->one());
 
-  //std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->two().analyzerType()<<" chnbr:"<<secondLayer->two().channelNbr()<<std::endl;
+  //check whether the requested channel does exist//
+  if ((secondLayer->two().channelNbr() >= channels.size()))
+  {
+    std::cerr << "the requested channel for second layer two \""<<secondLayer->two().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    return;
+  }
+  //  std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->two().analyzerType()<<" chnbr:"<<secondLayer->two().channelNbr()<<std::endl;
   (*_waveformanalyzer)[secondLayer->two().analyzerType()]->analyze(channels[secondLayer->two().channelNbr()],secondLayer->two());
 
   //now sort these peaks for the layers timesum//
-  //std::cout << "sort for timesum"<<std::endl;
+//  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,*firstLayer,*secondLayer);
-  //std::cout <<"done"<<std::endl;
+//  std::cout <<"done"<<std::endl;
 }
 
 

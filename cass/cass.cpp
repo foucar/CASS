@@ -47,15 +47,13 @@ int main(int argc, char **argv)
   //cass::Worker *worker(new cass::Worker(ringbuffer));
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
-//  cass::Ratemeter *inputrate(new cass::Ratemeter());
+  cass::Ratemeter *inputrate(new cass::Ratemeter());
   // create a ratemeter object for the worker//
-//  cass::Ratemeter *workerrate(new cass::Ratemeter());
+  cass::Ratemeter *workerrate(new cass::Ratemeter());
 
   //connect ratemeters//
-//  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
-//  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
-//  QObject::connect(workerrate, SIGNAL(rate(double)),     window,     SLOT(updateProcessRate(double)));
-//  QObject::connect(inputrate,  SIGNAL(rate(double)),     window,     SLOT(updateInputRate(double)));
+  QObject::connect(worker,     SIGNAL(processedEvent()), workerrate, SLOT(count()));
+  QObject::connect(input,      SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
 
 
   // when the thread has finished, we want to close this application
@@ -69,25 +67,25 @@ int main(int argc, char **argv)
   // start TCP server
 #warning fix setup of TCP server parameters
   //tell the server how to get an id or histogram//
-  //cass::TCP::GetEvent get_event;
-  //cass::TCP::GetHistogram get_histogram;
-  //cass::TCP::Server server(get_event, get_histogram,qApp);
-  ////setup the connections//
-  //QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
-  //QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
-  //QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
-  ////let the server listen to port 54321//
-  //if(! server.listen(QHostAddress::Any, 54321)) {
-  //    std::cerr << "Failed to bind to TCP port" << std::endl;
-  //    return 1;
-  //}
+  cass::TCP::GetEvent get_event;
+  cass::TCP::GetHistogram get_histogram;
+  cass::TCP::Server server(get_event, get_histogram,qApp);
+  //setup the connections//
+  QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
+  QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  //let the server listen to port 54321//
+  if(! server.listen(QHostAddress::Any, 54321)) {
+      std::cerr << "Failed to bind to TCP port" << std::endl;
+      return 1;
+  }
 
   // start Qt event loop
   int retval(app.exec());
 
   // clean up
-//  delete workerrate;
-//  delete inputrate;
+  delete workerrate;
+  delete inputrate;
   delete workers;
   delete input;
 

@@ -18,7 +18,11 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer    //the properties of one layer of the delayline-anode//
     {
     public:
-      AnodeLayer()  {}
+      AnodeLayer()
+        :_tsLow(0.),
+         _tsHeigh(0.),
+         _sf(1.)
+      {}
       ~AnodeLayer() {}
 
     public:
@@ -79,7 +83,8 @@ namespace cass
     public:
       DelaylineDetectorHit(double x, double y, double t)
           :_x_mm(x), _y_mm(y), _time(t)        {}
-      DelaylineDetectorHit()  {}
+      DelaylineDetectorHit()
+        :_x_mm(0), _y_mm(0), _time(0)          {}
       ~DelaylineDetectorHit() {}
 
     public:
