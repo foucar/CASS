@@ -1,4 +1,6 @@
-// Copyright (C) 2009 LMF
+// Copyright (C) 2009,2010 LMF
+
+#include <QMutexLocker>
 
 #include <iostream>
 #include <iomanip>
@@ -12,7 +14,9 @@ cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag, cass::RingBuffer
         _ringbuffer(ringbuffer),
         _partitionTag(partitionTag),
         _quit(false),
-        _converter(cass::FormatConverter::instance())
+        _converter(cass::FormatConverter::instance()),
+        _pause(false),
+        _paused(false)
 {
 }
 
@@ -23,7 +27,41 @@ cass::SharedMemoryInput::~SharedMemoryInput()
 
 void cass::SharedMemoryInput::loadSettings(size_t what)
 {
+  //pause yourselve//
+  suspend();
+  //wait until you are paused//
+  waitUntilSuspended();
+  //load settings//
   _converter->loadSettings(what);
+  //resume yourselve//
+  resume();
+}
+
+void cass::SharedMemoryInput::suspend()
+{
+  _pause=true;
+}
+
+void cass::SharedMemoryInput::resume()
+{
+  //if the thread has not been paused return here//
+  if(!_pause)
+    return;
+  //reset the pause flag;
+  _pause=false;
+  //tell run to resume via the waitcondition//
+  _pauseCondition.wakeOne();
+}
+
+void cass::SharedMemoryInput::waitUntilSuspended()
+{
+  //if it is already paused then retrun imidiatly//
+  if(_paused)
+    return;
+  //otherwise wait until the conditions has been called//
+  QMutex mutex;
+  QMutexLocker lock(&mutex);
+  _waitUntilpausedCondition.wait(&mutex);
 }
 
 void cass::SharedMemoryInput::run()
@@ -43,6 +81,23 @@ void cass::SharedMemoryInput::end()
 
 int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
 {
+  //pause execution if suspend has been called//
+  if (_pause)
+  {
+    //lock the mutex to prevent that more than one thread is calling pause//
+    _pauseMutex.lock();
+    //set the status flag to paused//
+    _paused=true;
+    //tell the wait until paused condtion that we are now pausing//
+    _waitUntilpausedCondition.wakeOne();
+    //wait until the condition is called again
+    _pauseCondition.wait(&_pauseMutex);
+    //set the status flag//
+    _paused=false;
+    //unlock the mutex, such that others can work again//
+    _pauseMutex.unlock();
+  }
+
   //make a pointer to a element in the ringbuffer//
   cass::CASSEvent *cassevent;
 

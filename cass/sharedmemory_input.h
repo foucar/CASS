@@ -1,4 +1,4 @@
-// Copyright (C) 2009 lmf
+// Copyright (C) 2009,2010 lmf
 
 #ifndef __SHAREDMEMORYINPUT_H__
 #define __SHAREDMEMORYINPUT_H__
@@ -6,6 +6,8 @@
 #include <QtCore/QObject>
 #include <QThread>
 #include <QMutex>
+#include <QWaitCondition>
+
 
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
@@ -24,6 +26,9 @@ namespace cass
     ~SharedMemoryInput();
 
     void run();
+    void suspend();
+    void resume();
+    void waitUntilSuspended();
     int  processDgram(Pds::Dgram*);
 
   signals:
@@ -35,10 +40,14 @@ namespace cass
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
-    char                                *_partitionTag;
-    bool                                 _quit;
-    FormatConverter                     *_converter;
-
+    char              *_partitionTag;
+    bool               _quit;
+    FormatConverter   *_converter;
+    QMutex             _pauseMutex;
+    QWaitCondition     _pauseCondition;
+    bool               _pause;
+    bool               _paused;
+    QWaitCondition     _waitUntilpausedCondition;
   };
 
 }//end namespace cass
