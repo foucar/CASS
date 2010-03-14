@@ -1,3 +1,7 @@
+//Copyright (C) 2009, 2010 lmf
+
+#include <QMutexLocker>
+
 #include "worker.h"
 #include "analyzer.h"
 #include "format_converter.h"
@@ -26,6 +30,34 @@ void cass::Worker::end()
   _quit = true;
 }
 
+void cass::Worker::suspend()
+{
+  _pause=true;
+}
+
+void cass::Worker::resume()
+{
+  //if the thread has not been paused return here//
+  if(!_pause)
+    return;
+  //reset the pause flag;
+  _pause=false;
+  //tell run to resume via the waitcondition//
+  _pauseCondition.wakeOne();
+}
+
+void cass::Worker::waitUntilSuspended()
+{
+  //if it is already paused then retrun imidiatly//
+  if(_paused)
+    return;
+  //otherwise wait until the conditions has been called//
+  QMutex mutex;
+  QMutexLocker lock(&mutex);
+  _waitUntilpausedCondition.wait(&mutex);
+}
+
+
 void cass::Worker::run()
 {
   std::cout << "worker \""<<std::hex<<this<<std::dec <<"\" is starting"<<std::endl;
@@ -34,6 +66,23 @@ void cass::Worker::run()
   //run als long as we are told not to stop//
   while(!_quit)
   {
+    //pause execution if suspend has been called//
+    if (_pause)
+    {
+      //lock the mutex to prevent that more than one thread is calling pause//
+      _pauseMutex.lock();
+      //set the status flag to paused//
+      _paused=true;
+      //tell the wait until paused condtion that we are now pausing//
+      _waitUntilpausedCondition.wakeOne();
+      //wait until the condition is called again
+      _pauseCondition.wait(&_pauseMutex);
+      //set the status flag//
+      _paused=false;
+      //unlock the mutex, such that others can work again//
+      _pauseMutex.unlock();
+    }
+
     //reset the cassevent//
     cassevent=0;
     //retrieve a new cassevent from the eventbuffer//
@@ -97,7 +146,19 @@ cass::Workers::~Workers()
 
 void cass::Workers::loadSettings(size_t what)
 {
+  //suspend all workers//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->suspend();
+  //wait until they are all suspended//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilSuspended();
+  //load the settings of one worker//
+  //since the workers have only singletons this will make sure//
+  //that the parameters are the same for all workers//
   _workers[0]->loadSettings(what);
+  //resume the workers tasks//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->resume();
 }
 
 void cass::Workers::start()

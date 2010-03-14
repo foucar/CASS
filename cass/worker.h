@@ -1,9 +1,12 @@
+//Copyright (C) 2009,2010 lmf
+
 #ifndef __WORKER_H__
 #define __WORKER_H__
 
 #include <QtCore/QObject>
 #include <QThread>
 #include <QMutex>
+#include <QWaitCondition>
 
 
 #include "cass.h"
@@ -24,6 +27,9 @@ namespace cass
     ~Worker();
 
     void run();
+    void suspend();
+    void resume();
+    void waitUntilSuspended();
 
   signals:
     void processedEvent();
@@ -38,6 +44,12 @@ namespace cass
     Analyzer      *_analyzer;
     PostProcessor *_postprocessor;
     bool           _quit;
+    QMutex         _pauseMutex;
+    QWaitCondition _pauseCondition;
+    bool           _pause;
+    bool           _paused;
+    QWaitCondition _waitUntilpausedCondition;
+
   };
 
   //a class that will handle the requested amount of workers
