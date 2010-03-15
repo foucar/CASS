@@ -20,14 +20,14 @@ endif
 
 ifneq ($(strip $(findstring i386-linux,$(tgt_arch)) \
                $(findstring x86_64-linux,$(tgt_arch))),)
-projects := pdsdata \
-	    acqiris \
-	    evgr \
-	    leutron \
-	    qt \
-	    qwt \
-	    epics \
-	    offlinedb \
+projects := pdsdata #\
+#	    acqiris \
+#	    evgr \
+#	    leutron \
+#	    qt \
+#	    qwt \
+#	    epics \
+#	    offlinedb \
 #	    pds \
 #	    pdsapp \
 #	    ami
