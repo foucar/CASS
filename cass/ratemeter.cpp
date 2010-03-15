@@ -15,9 +15,6 @@ cass::Ratemeter::Ratemeter(QObject *parent)
 
 cass::Ratemeter::~Ratemeter()
 {
-  //stop timer and delete it//
-  _timer->stop();
-  delete _time;
 }
 
 double cass::Ratemeter::calculateRate()

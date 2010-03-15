@@ -16,13 +16,17 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
   _timer.start(1000);
 }
 
-cass::RatePlotter::plot()
+cass::RatePlotter::~RatePlotter()
+{
+}
+
+void cass::RatePlotter::plot()
 {
   //store the original flags of cout//
   std::ios_base::fmtflags original_flags = std::cout.flags();
   //set the precision for floating point to 2//
-  std::cout.setf(ios::fixed, ios::floatfield);
-  std::cout.setf(ios::showpoint);
+  std::cout.setf(std::ios::fixed, std::ios::floatfield);
+  std::cout.setf(std::ios::showpoint);
   std::cout.precision(2);
   std::cout.width(4);
 
