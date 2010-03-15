@@ -10,6 +10,7 @@
 #include "ringbuffer.h"
 #include "format_converter.h"
 #include "ratemeter.h"
+#include "rate_plotter.h"
 #include "tcpserver.h"
 #include "worker.h"
 
@@ -47,9 +48,11 @@ int main(int argc, char **argv)
   //cass::Worker *worker(new cass::Worker(ringbuffer));
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
-  cass::Ratemeter *inputrate(new cass::Ratemeter());
+  cass::Ratemeter *inputrate(new cass::Ratemeter(qApp));
   // create a ratemeter object for the worker//
-  cass::Ratemeter *workerrate(new cass::Ratemeter());
+  cass::Ratemeter *workerrate(new cass::Ratemeter(qApp));
+  // create a rate plotter//
+  cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
 
   //connect ratemeters//
   QObject::connect(workers, SIGNAL(processedEvent()), workerrate, SLOT(count()));

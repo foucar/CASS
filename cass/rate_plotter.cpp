@@ -30,7 +30,7 @@ void cass::RatePlotter::plot()
   std::cout.precision(2);
   std::cout.width(4);
 
-  std::cout<<"\rInput: "<<_inputrate.calculateRate()<<"Hz | Analyze: "<<_analyzerate.calculateRate()<<"Hz"<<std::endl;
+  std::cout<<"\rInput: "<<_inputrate.calculateRate()<<"Hz | Analyze: "<<_analyzerate.calculateRate()<<"Hz"<<std::flush;
   //restore the flags//
   std::cout.flags(original_flags);
 }
