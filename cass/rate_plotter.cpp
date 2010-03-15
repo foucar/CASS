@@ -27,7 +27,7 @@ void cass::RatePlotter::plot()
   //set the precision for floating point to 2//
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   std::cout.setf(std::ios::showpoint);
-  std::cout.precision(2);
+  std::cout.precision(1);
   std::cout.width(4);
 
   std::cout<<"\rInput: "<<_inputrate.calculateRate()<<"Hz | Analyze: "<<_analyzerate.calculateRate()<<"Hz"<<std::flush;
