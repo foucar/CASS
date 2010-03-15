@@ -59,7 +59,7 @@ void cass::Worker::waitUntilSuspended()
 
 const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Worker::histograms()const
 {
-
+  return _postprocessor->histograms();
 }
 
 void cass::Worker::run()
@@ -149,7 +149,7 @@ cass::Workers::~Workers()
 
 const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Workers::histograms()const
 {
-
+  return _workers[0]->histograms();
 }
 
 void cass::Workers::loadSettings(size_t what)
