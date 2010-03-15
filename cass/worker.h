@@ -8,6 +8,8 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+#include <map>
+#include <utility>
 
 #include "cass.h"
 #include "ringbuffer.h"
@@ -18,6 +20,8 @@ namespace cass
 {
   class Analyzer;
   class PostProcessor;
+  class HistogramBackend;
+
 
   class CASSSHARED_EXPORT Worker : public QThread
   {
@@ -30,6 +34,9 @@ namespace cass
     void suspend();
     void resume();
     void waitUntilSuspended();
+
+    const std::map<std::pair<size_t, size_t>, HistogramBackend*>& histograms()const;
+
 
   signals:
     void processedEvent();
@@ -61,6 +68,7 @@ namespace cass
     ~Workers();
 
     void start();
+    const std::map<std::pair<size_t, size_t>, HistogramBackend*>& histograms()const;
 
   public slots:
     void end();

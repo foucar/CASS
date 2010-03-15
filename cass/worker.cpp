@@ -57,6 +57,10 @@ void cass::Worker::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
+histograms_t cass::Worker::histograms()const
+{
+
+}
 
 void cass::Worker::run()
 {
@@ -143,6 +147,10 @@ cass::Workers::~Workers()
   std::cout<< "workers are closed" <<std::endl;
 }
 
+histograms_t cass::Workers::histograms()const
+{
+
+}
 
 void cass::Workers::loadSettings(size_t what)
 {
