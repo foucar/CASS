@@ -1,33 +1,32 @@
-#ifndef CASS_RATEMETER_H
-#define CASS_RATEMETER_H
+//Copyright (C) 2010 lmf
+
+#ifndef _CASS_RATEMETER_H_
+#define _CASS_RATEMETER_H_
 
 #include <vector>
+
 #include <QtCore/QObject>
 #include <QtCore/QTime>
-#include <QtCore/QTimer>
+
+#include "cass.h"
 
 namespace cass
 {
-  class Ratemeter : public QObject
+  class CASSSHARED_EXPORT Ratemeter : public QObject
   {
     Q_OBJECT;
 
   public:
-    Ratemeter();
+    Ratemeter(QObject *parent=0);
     ~Ratemeter();
 
-  signals:
-    void rate(double);
-
-  private slots:
-    void calculateRate();
+    double calculateRate();
 
   public slots:
     void count();
 
   private:
-    QTime              *_time;
-    QTimer             *_timer;
+    QTime               _time;
     std::vector<double> _counter;
     std::vector<double> _times;
     size_t              _idx;

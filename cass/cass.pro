@@ -20,6 +20,7 @@ SOURCES +=  cass.cpp \
             tcpserver.cpp \
             event_getter.cpp \
             histogram_getter.cpp \
+            rate_plotter.cpp \
             ./postprocessing/post_processor.cpp
 
 HEADERS +=  analysis_backend.h \
@@ -39,6 +40,7 @@ HEADERS +=  analysis_backend.h \
             histogram_getter.h \
             histogram.h \
             serializer.h \
+            rate_plotter.h \
             ./postprocessing/post_processor.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
