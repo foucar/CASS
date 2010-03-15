@@ -57,7 +57,7 @@ void cass::Worker::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
-cass::PostProcessor::histograms_t cass::Worker::histograms()const
+const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Worker::histograms()const
 {
 
 }
@@ -147,7 +147,7 @@ cass::Workers::~Workers()
   std::cout<< "workers are closed" <<std::endl;
 }
 
-cass::PostProcessor::histograms_t cass::Workers::histograms()const
+const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Workers::histograms()const
 {
 
 }
