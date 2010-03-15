@@ -16,3 +16,8 @@ bool Pds::ClockTime::ClockTime::operator>(const ClockTime& t) const
 {
   return (_high > t._high) || (_high == t._high && _low > t._low);
 }
+
+bool Pds::ClockTime::ClockTime::operator==(const ClockTime& t) const
+{
+  return (_high == t._high) && (_low == t._low);
+}

@@ -7,6 +7,10 @@ namespace Pds {
 
   class TypeId {
   public:
+    /*
+     * Notice: New enum values should be appended to the end of the enum list, since
+     *   the old values have already been recorded in the existing xtc files. 
+     */
     enum Type {Any, 
            Id_Xtc,          // generic hierarchical container
            Id_Frame,        // raw image
@@ -24,6 +28,9 @@ namespace Pds {
            Id_FEEGasDetEnergy,
            Id_EBeam,
            Id_PhaseCavity,
+           Id_PrincetonFrame,
+           Id_PrincetonConfig,
+           Id_EvrData,
            NumberOf};
 
     TypeId() {}

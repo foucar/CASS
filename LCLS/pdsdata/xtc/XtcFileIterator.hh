@@ -2,7 +2,7 @@
 #define Pds_XtcFileIterator_hh
 
 #include "pdsdata/xtc/Dgram.hh"
-#include <new>
+
 #include <stdio.h>
 
 namespace Pds {

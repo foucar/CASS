@@ -10,7 +10,7 @@ namespace Pds {
       Map, Unmap,
       Configure, Unconfigure,
       BeginRun, EndRun,
-      Pause, Resume,
+      BeginCalibCycle, EndCalibCycle,
       Enable, Disable,
       L1Accept,
       NumberOf };

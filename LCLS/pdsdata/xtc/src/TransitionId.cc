@@ -13,8 +13,8 @@ const char* TransitionId::name(TransitionId::Value id)
     "Unconfigure",
     "BeginRun",
     "EndRun",
-    "Pause",
-    "Resume",
+    "BeginCalibCycle",
+    "EndCalibCycle",
     "Enable",
     "Disable",
     "L1Accept"

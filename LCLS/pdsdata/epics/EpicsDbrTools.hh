@@ -1,7 +1,6 @@
 #ifndef EPICS_DBR_TOOLS_H
 #define EPICS_DBR_TOOLS_H
 
-#include <cstring>
 #include <string>
 #include <stdint.h>
 
@@ -327,8 +326,17 @@ extern const char *dbr_text[35];
 namespace EpicsDbrTools
 {
     
-const int iSizeBasicDbrTypes = 7; // Summarized from Epics namespace
-const int iSizeAllDbrTypes = 35; // Summarized from Epics namespace
+const int iSizeBasicDbrTypes  = 7;  // Summarized from Epics namespace
+const int iSizeAllDbrTypes    = 35; // Summarized from Epics namespace
+
+/**
+ *  Maximum PV Name Length: 
+ * 
+ *  Manually defined hered. By convention, formal Epics PV names are usually less than 40 characters, 
+ *  so here we use a big enough value as the buffer size.
+ *  Note that this value corresponds to some epics data structure size in existing xtc files.
+ **/
+const int iMaxPvNameLength    = 64; 
 
 using namespace Epics;
 /*

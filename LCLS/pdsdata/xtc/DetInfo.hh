@@ -10,10 +10,13 @@ namespace Pds {
 
   class DetInfo : public Src {
   public:
-
+    /*
+     * Notice: New enum values should be appended to the end of the enum list, since
+     *   the old values have already been recorded in the existing xtc files. 
+     */
     enum Detector {NoDetector,AmoIms,AmoGasdet,AmoETof,AmoITof,AmoMbes,AmoVmi,AmoBps,
                    Camp,EpicsArch,BldEb,NumDetector};
-    enum Device   {NoDevice,Evr,Acqiris,Opal1000,TM6740,pnCCD,NumDevice};
+    enum Device   {NoDevice,Evr,Acqiris,Opal1000,TM6740,pnCCD,Princeton,NumDevice};
 
     DetInfo() {}
     DetInfo(uint32_t processId,

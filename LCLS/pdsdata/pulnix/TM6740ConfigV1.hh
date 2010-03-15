@@ -16,6 +16,8 @@ namespace Pds {
       enum Depth     { Eight_bit, Ten_bit };
       enum Binning   { x1, x2, x4 };
       enum LookupTable { Gamma, Linear };
+      enum { Row_Pixels = 480 };
+      enum { Column_Pixels = 640 };
 
       TM6740ConfigV1();
       //  hard-code video output order (mode 'c')

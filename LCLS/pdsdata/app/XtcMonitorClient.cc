@@ -53,7 +53,7 @@ int XtcMonitorClient::run(char * tag)
   strcat(shmName, tag);
   strcat(toServerQname, tag);
   strcat(fromServerQname, tag);
-  char* myShm;
+  char* myShm = NULL;
   unsigned pageSize = (unsigned)sysconf(_SC_PAGESIZE);
   unsigned priority = 0;
   struct mq_attr mymq_attr;
@@ -117,12 +117,17 @@ int XtcMonitorClient::run(char * tag)
         if (myShm == MAP_FAILED) perror("mmap");
         else printf("Shared memory at %p\n", (void*)myShm);
       }
-      dg = (Dgram*) (myShm + (myMsg.sizeOfBuffers() * myMsg.bufferIndex()));
-      error = this->processDgram(dg); //with return value we can controll this eventloop
-      if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), priority))
-      {
-        perror("mq_send back buffer");
-        error++;
+      int i = myMsg.bufferIndex();
+      if ( (i>=0) && (i<myMsg.numberOfBuffers())) {
+	dg = (Dgram*) (myShm + (myMsg.sizeOfBuffers() * i));
+	error += this->processDgram(dg);
+	if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), priority)) {
+	  perror("mq_send back buffer");
+	  error++;
+	}
+      } else {
+        fprintf(stderr, "ILLEGAL BUFFER INDEX %d\n", i);
+	error++;
       }
     }
   }

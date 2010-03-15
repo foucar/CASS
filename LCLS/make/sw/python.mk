@@ -1,14 +1,29 @@
+# Call sip interpreter for python wrappers
+$(objdir)/%_sip_wrap.o: $(objdir)/%_sip_wrap.cpp
+	@echo "[CX] Compiling $<"
+	$(quiet)$(CXX) $(incdirs_$*_sip_wrap.cpp) $(DEFINES) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+
+$(objdir)/%_sip_wrap.cpp: %_sip_wrap.sip
+	@echo "[WG] Python sip $<"
+	$(quiet)sip $(SIPFLAGS) -e -j 1 -c $(objdir)/ $<
+	cp $(objdir)/sip$*part0.cpp .
+	$(quiet)mv $(objdir)/sip$*part0.cpp $@
+
+# $(incdirs_$*_sip_wrap.cpp)
+
+
 # Call swig interpreter for python wrappers
 $(objdir)/%_swig_wrap.o: $(objdir)/%_swig_wrap.c
 	@echo "[CC] Compiling $<"
-	$(quiet)$(CC) $(incdirs_$*_swig_wrap.c) $(CPPFLAGS) $(DEFINES) $(CFLAGS) -c $< -o $@
+	$(quiet)$(CC) $(incdirs_$*_swig_wrap.c) $(DEFINES) $(CFLAGS) -c $< -o $@
 
 $(objdir)/%_swig_wrap.c: %_swig_wrap.i
 	@echo "[WG] Python swig $<"
-	$(quiet)$(RELEASE_DIR)/build/swig/bin/swig -Wall -python -o $@ $<
+	$(quiet)swig $(incdirs_$*_swig_wrap.c) -Wall -python -o $@ $<
 
 SWGDEPSED = sed '\''s!$(notdir $*)\_swig_wrap_wrap.c!$(objdir)/$*\_swig_wrap.c $@!g'\'' 
-SWGDEP = swig $(DEPFLAGS) $(incdirs_$<)
+SWGDEP = swig $(DEPFLAGS) $(incdirs_$*_swig_wrap.c)
 
 $(depdir)/%_swig_wrap.d: %_swig_wrap.i
 	@echo "[DI] Dependencies for $<" 

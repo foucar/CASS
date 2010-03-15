@@ -12,7 +12,8 @@ namespace Pds {
       OutOfOrder             = 12,
       OutOfSynch             = 13,
       UserDefined            = 14,
-      IncompleteContribution = 15
+      IncompleteContribution = 15,
+      ContainsIncomplete     = 16
     };
     Damage(uint32_t v) : _damage(v) {}
     uint32_t  value() const             { return _damage; }

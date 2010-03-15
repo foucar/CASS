@@ -16,7 +16,8 @@ namespace Pds {
 
   public:
     ClockTime& operator=(const ClockTime&);
-    bool operator>(const ClockTime&) const; 
+    bool operator> (const ClockTime&) const; 
+    bool operator==(const ClockTime&) const; 
 
   private:
     uint32_t _low;

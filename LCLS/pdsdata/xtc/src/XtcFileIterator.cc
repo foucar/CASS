@@ -17,10 +17,9 @@ Dgram* XtcFileIterator::next() {
   Dgram& dg = *(Dgram*)_buf;
   fread(&dg, sizeof(dg), 1, _file);
   if (feof(_file)) return 0;
-  unsigned payloadSize = dg.xtc.sizeofPayload();
+  size_t payloadSize = dg.xtc.sizeofPayload();
   if ((payloadSize+sizeof(dg))>_maxDgramSize) {
-    printf("Datagram size 0x%zu larger than maximum: 0x%zu\n",payloadSize+sizeof(dg),
-           _maxDgramSize);
+    printf("Datagram size %zu larger than maximum: %zu\n", payloadSize+sizeof(dg), _maxDgramSize);
     return 0;
   }
   fread(dg.xtc.payload(), payloadSize, 1, _file);

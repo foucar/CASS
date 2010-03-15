@@ -37,9 +37,8 @@ using namespace Pds;
 
 void XtcIterator::iterate(Xtc* root) 
   {
-    if (root->damage.value() & ( 1 << Damage::IncompleteContribution)){
+    if (root->damage.value() & ( 1 << Damage::IncompleteContribution))
       return;
-    }
 
     Xtc* xtc     = (Xtc*)root->payload();
     int remaining = root->sizeofPayload();

@@ -8,6 +8,8 @@
 
 namespace Pds {
 
+#pragma pack(4)
+
   namespace ControlData {
 
     class PVControl {
@@ -15,6 +17,7 @@ namespace Pds {
       enum { NameSize=32 };
     public:
       PVControl();
+      PVControl(const char* pvname, double setValue);
       PVControl(const char* pvname, unsigned index, double setValue);
       PVControl(const PVControl&);
       ~PVControl();
@@ -22,6 +25,7 @@ namespace Pds {
       bool operator<(const PVControl&) const;
     public:
       const char* name () const;
+      bool        array() const;
       unsigned    index() const;
       double      value() const;
     private:
@@ -32,6 +36,7 @@ namespace Pds {
 
   };
 
+#pragma pack()
 };
 
 #endif

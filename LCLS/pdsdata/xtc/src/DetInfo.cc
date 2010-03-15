@@ -47,6 +47,7 @@ const char* DetInfo::name(Device dev) {
     "Opal1000",
     "TM6740",
     "pnCCD",
+    "Princeton",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

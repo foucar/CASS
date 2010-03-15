@@ -18,6 +18,7 @@ namespace Pds {
       uint32_t coupling()  const;
       uint32_t bandwidth() const;
       double   slope()     const;
+      void     dump()      const;
       enum Coupling  {GND,DC,AC,DC50ohm,AC50ohm};
       enum Bandwidth {None,MHz25,MHz700,MHz200,MHz20,MHz35};
     private:
@@ -38,6 +39,7 @@ namespace Pds {
       double   delayTime()        const;
       uint32_t nbrSamples()       const;
       uint32_t nbrSegments()      const;
+      void     dump()             const;
     private:
       double   _sampInterval;
       double   _delayTime;
@@ -48,22 +50,23 @@ namespace Pds {
     class TrigV1 {
     public:
       TrigV1();
-      TrigV1(uint32_t trigCoupling,
-             uint32_t trigInput,
-             uint32_t trigSlope,
-             double   trigLevel);
-      uint32_t trigCoupling()     const;
-      uint32_t trigInput()        const;
-      uint32_t trigSlope()        const;
-      double   trigLevel()        const;
+      TrigV1(uint32_t coupling,
+             uint32_t input,
+             uint32_t slope,
+             double   level);
+      uint32_t coupling()     const;
+      uint32_t input()        const;
+      uint32_t slope()        const;
+      double   level()        const;
+      void     dump()         const;
       enum Source   {Internal=1,External=-1};
       enum Coupling {DC=0,AC=1,HFreject=2,DC50ohm=3,AC50ohm=4};
       enum Slope    {Positive,Negative,OutOfWindow,IntoWindow,HFDivide,SpikeStretcher};
     private:
-      uint32_t _trigCoupling;
-      uint32_t _trigInput;
-      uint32_t _trigSlope;
-      double   _trigLevel;
+      uint32_t _coupling;
+      uint32_t _input;
+      uint32_t _slope;
+      double   _level;
     };
 
     class ConfigV1 {
@@ -71,6 +74,7 @@ namespace Pds {
       enum {Version=1};
       enum {MaxChan=20};
       ConfigV1 ();
+      ~ConfigV1 ();
       ConfigV1 (uint32_t nbrConvertersPerChannel,
                 uint32_t channelMask,
                 uint32_t nbrBanks,
@@ -88,6 +92,8 @@ namespace Pds {
       const TrigV1& trig() const;
       const VertV1& vert(uint32_t channel) const;
       static Pds::TypeId typeId();
+
+      void dump() const;
     private:
       uint32_t _nbrConvertersPerChannel;
       uint32_t _channelMask;

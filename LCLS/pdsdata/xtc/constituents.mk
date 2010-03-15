@@ -1,5 +1,6 @@
 libnames := xtcdata
 libsrcs_xtcdata := src/TypeId.cc \
+                   src/BldInfo.cc \
                    src/XtcIterator.cc \
                    src/Src.cc \
                    src/TransitionId.cc \

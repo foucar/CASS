@@ -1,6 +1,7 @@
 
 #include "pdsdata/acqiris/ConfigV1.hh"
 #include "pdsdata/acqiris/DataDescV1.hh"
+#include <stdio.h>
 
 using namespace Pds;
 
@@ -13,6 +14,22 @@ Pds::TypeId ConfigV1::typeId() {
 }
 
 ConfigV1::ConfigV1() {}
+
+ConfigV1::~ConfigV1() {}
+
+void ConfigV1::dump() const {
+  printf("------Acqiris Config-------------\n");
+  printf("Channel mask 0x%x\n",channelMask());
+  printf("Number of converters per channel %d\n",nbrConvertersPerChannel());
+  printf("------Trigger--------------------\n");
+  trig().dump();
+  printf("------Horizontal-----------------\n");
+  horiz().dump();
+  for (unsigned i=0;i<nbrChannels();i++) {
+    printf("----Vertical (Channel %d)--------\n",i);
+    vert(i).dump();
+  }
+}
 
 HorizV1::HorizV1() {}
 
@@ -31,22 +48,34 @@ double   HorizV1::delayTime()    const {return _delayTime;}
 uint32_t HorizV1::nbrSamples()   const {return _nbrSamples;}
 uint32_t HorizV1::nbrSegments()  const {return _nbrSegments;}
 
+void HorizV1::dump() const {
+  printf("Sample time %e seconds\n",_sampInterval);
+  printf("Delay %f\n",_delayTime);
+}
+
 TrigV1::TrigV1() {}
 
-TrigV1::TrigV1(uint32_t trigCoupling,
-               uint32_t trigInput,   
-               uint32_t trigSlope,   
-               double   trigLevel) :
-  _trigCoupling(trigCoupling),
-  _trigInput   (trigInput),   
-  _trigSlope   (trigSlope),   
-  _trigLevel   (trigLevel)
+TrigV1::TrigV1(uint32_t coupling,
+               uint32_t input,   
+               uint32_t slope,   
+               double   level) :
+  _coupling(coupling),
+  _input   (input),   
+  _slope   (slope),   
+  _level   (level)
 {}
 
-uint32_t TrigV1::trigCoupling() const {return _trigCoupling;}
-uint32_t TrigV1::trigInput()    const {return _trigInput;}
-uint32_t TrigV1::trigSlope()    const {return _trigSlope;}
-double   TrigV1::trigLevel()    const {return _trigLevel;}
+uint32_t TrigV1::coupling() const {return _coupling;}
+uint32_t TrigV1::input()    const {return _input;}
+uint32_t TrigV1::slope()    const {return _slope;}
+double   TrigV1::level()    const {return _level;}
+
+void TrigV1::dump() const {
+  printf("Coupling %d\n",_coupling);
+  printf("Input %d\n",_input);
+  printf("Slope %d\n",_slope);
+  printf("Level %e volts\n",_level);
+}
 
 VertV1::VertV1() {}
 VertV1::VertV1(double   fullScale,
@@ -63,11 +92,18 @@ ConfigV1::ConfigV1 (uint32_t nbrConvertersPerChannel,
                     const HorizV1& horiz,
                     const VertV1* vert) :
   _nbrConvertersPerChannel(nbrConvertersPerChannel),
-  _channelMask(channelMask),_trig(trig),
+  _channelMask(channelMask),_nbrBanks(nbrBanks),_trig(trig),
   _horiz(horiz) {
   for (unsigned i=0;i<MaxChan;i++) {
     _vert[i]=vert[i];
   }
+}
+
+void VertV1::dump() const {
+  printf("Fullscale %f\n",_fullScale);
+  printf("Offset %f\n",_offset);
+  printf("Coupling %d\n",_coupling);
+  printf("Bandwidth %d\n",_bandwidth);
 }
 
 // this constants reflects two things:

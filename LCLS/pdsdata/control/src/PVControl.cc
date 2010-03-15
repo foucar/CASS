@@ -3,8 +3,18 @@
 using namespace Pds::ControlData;
 
 #include <string.h>
+#include <limits>
+
+static const uint32_t NoArray=std::numeric_limits<uint32_t>::max();
 
 PVControl::PVControl() {}
+
+PVControl::PVControl(const char* pvname, double setValue) :
+  _index(NoArray ),
+  _value(setValue)
+{
+  strncpy(_name, pvname, NameSize);
+}
 
 PVControl::PVControl(const char* pvname, unsigned index, double setValue) :
   _index(index   ),
@@ -29,6 +39,8 @@ bool PVControl::operator<(const PVControl& m) const
 }
 
 const char* PVControl::name() const { return _name; }
+
+bool PVControl::array() const { return _index!=NoArray; }
 
 unsigned PVControl::index() const { return _index; }
 

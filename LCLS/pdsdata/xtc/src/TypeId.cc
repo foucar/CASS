@@ -34,6 +34,8 @@ const char* TypeId::name(Type type)
     "FEEGasDetEnergy",
     "EBeamBld",
     "PhaseCavity"
+    "princetonFrame",
+    "princetonConfig",    
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

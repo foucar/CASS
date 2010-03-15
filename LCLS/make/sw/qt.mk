@@ -1,10 +1,14 @@
+#
+#  Qt meta object compilation is signaled by including <source>_moc.cc in the {lib,tgt}srcs directive
+#
+
 # Call Qt meta object compiler (moc)
 MOC := $(RELEASE_DIR)/build/qt/bin/moc
 
-$(objdir)/%_moc.o: %_moc.cc
+$(objdir)/%_moc.o: $(objdir)/%_moc.cc
 	@echo "[CX] Compiling $<"
-	$(quiet)$(CXX) $(incdirs_$<) $(DEFINES) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(incdirs_$(<F)) $(DEFINES) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-%_moc.cc: %.hh
+$(objdir)/%_moc.cc: %.hh
 	@echo "[MOC] Qt moc $<"
-	$(quiet)$(MOC) $< -o $@
+	$(MOC) $< -o $@

@@ -55,7 +55,7 @@ private:
 class EpicsPvCtrlHeader : public EpicsPvHeader
 {
 private:     
-    const static int _iMaxPvNameLength = 64;    
+    const static int _iMaxPvNameLength = EpicsDbrTools::iMaxPvNameLength;    
 public:
     /** 
      * Layout of the EpicsPvCtrlHeader
