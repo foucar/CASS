@@ -67,12 +67,11 @@ int main(int argc, char **argv)
   input->start();
   workers->start();
 
-  // start TCP server
-#warning fix setup of TCP server parameters
-  //tell the server how to get an id or histogram//
-  cass::TCP::GetEvent get_event;
-  cass::TCP::GetHistogram get_histogram;
-  cass::TCP::Server server(get_event, get_histogram,qApp);
+  // TCP server
+  // tell the server how to get an id or histogram
+  cass::EventGetter get_event(ringbuffer);
+  cass::HistogramGetter get_histogram(workers->histograms());
+  cass::TCP::Server server(get_event, get_histogram, qApp);
   //setup the connections//
   QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
   QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));

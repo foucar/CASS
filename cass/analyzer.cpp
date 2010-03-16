@@ -77,7 +77,7 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
   //use the analyzers to analyze the event//
   //iterate through all active analyzers and send the cassevent to them//
   for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
-    (*_analyzer[*it])(cassevent);
+      (*_analyzer[*it])(cassevent);
 }
 
 void cass::Analyzer::loadSettings(size_t)

@@ -11,6 +11,8 @@
 #include <QtNetwork/QTcpSocket>
 
 #include "cass_event.h"
+#include "event_getter.h"
+#include "histogram_getter.h"
 
 
 namespace cass
@@ -20,75 +22,6 @@ namespace TCP
 
 /** possible TCP commands */
 enum cmd_t { READINI, EVENT, HISTOGRAM, QUIT };
-
-
-/** Event retrievel parameters
-
-@author Jochen Küpper
-*/
-struct EventParameter {
-
-    EventParameter(size_t _what, unsigned _t1, unsigned _t2)
-        : what(_what), t1(_t1), t2(_t2)
-        {};
-
-    size_t what;
-    unsigned int t1, t2;
-};
-
-
-/** Histogram retrievel parameters
-
-@author Jochen Küpper
-*/
-struct HistogramParameter {
-
-    HistogramParameter(size_t _type)
-        : type(_type)
-        {};
-
-    size_t type;
-};
-
-
-
-/** Provide a common container class for all histograms
-
-This must be done much smarter... and in hitogram.h */
-class Histogram
-{
-public:
-    void *hist;
-};
-
-
-
-#warning Replace class GetEvent by real implementation
-class GetEvent
-{
-public:
-
-    /** @return Event -- must provide operator>> */
-    CASSEvent operator()(const EventParameter&) const {
-        CASSEvent event;
-        return event;
-    };
-};
-
-
-
-#warning Replace class GetHistogram by real implementation
-class GetHistogram
-{
-public:
-
-    /** @return Histogram -- must provide operator>> */
-    Histogram operator()(const HistogramParameter&) const {
-        Histogram hist;
-        return hist;
-    };
-};
-
 
 
 /** @brief TCP server Socket handler
@@ -191,7 +124,7 @@ public:
     @param hist Specify get_histogram functor
     @param parent Qt parent object (default none)
     */
-    Server(const GetEvent& event, const GetHistogram& hist, QObject *parent=0)
+    Server(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
         : QTcpServer(parent), get_event(event), get_histogram(hist)
         {};
 
@@ -213,10 +146,10 @@ protected slots:
 protected:
 
     /** get_event functor */
-    const GetEvent& get_event;
+    const EventGetter& get_event;
 
     /** get_histogram functor */
-    const GetHistogram& get_histogram;
+    const HistogramGetter& get_histogram;
 
     /** handle incoming client connections */
     void incomingConnection(int);

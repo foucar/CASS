@@ -133,10 +133,12 @@ namespace cass
   //2D Histogram for Detector Pictures etc...
   class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
   {
-    //constructor creating histo//
-    explicit Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
-                              size_t nbrYBins, float yLow, float yUp)
-                                :HistogramFloatBase(2)
+  public:
+
+      //constructor creating histo//
+      explicit Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
+                                size_t nbrYBins, float yLow, float yUp)
+          : HistogramFloatBase(2)
     {
       //create memory, reserve space for under/over quadrants
       _memory.resize(nbrXBins*nbrYBins+8,0);
@@ -157,7 +159,7 @@ namespace cass
 
 //---------------Axis-------------------------------
 inline
-void cass::AxisProperty::serialize(cass::Serializer &out)const
+void cass::AxisProperty::serialize(cass::Serializer &out) const
 {
   //the version//
   out.addUint16(_version);
@@ -187,7 +189,7 @@ void cass::AxisProperty::deserialize(cass::Serializer &in)
 
 //-----------------Base class-----------------------
 inline
-void cass::HistogramFloatBase::serialize(cass::Serializer &out)const
+void cass::HistogramFloatBase::serialize(cass::Serializer &out) const
 {
   //the version//
   out.addUint16(_version);

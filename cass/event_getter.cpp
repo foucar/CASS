@@ -1,13 +1,18 @@
+// Copyright (C) 2010 Jochen Küpper
+
+#include <string>
+
 #include "event_getter.h"
 #include "serializer.h"
 
+using namespace cass;
 
 cass::EventGetter::EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
   :_ringbuffer(ringbuffer)
 {
 }
 
-const std::string cass::EventGetter::operator()(const TCP::EventParameter& ep)
+const std::string EventGetter::operator()(const EventParameter& ep) const
 {
   //retrieve a cassevent from the ringbuffer based on the parameter//
   CASSEvent *cassevent=0;

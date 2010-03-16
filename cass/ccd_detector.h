@@ -52,7 +52,15 @@ namespace cass
     ~CCDDetector() {}
 
   public:
+
+    /** Linear array of CCD data
+
+    For definition of frame_t format see
+    - pnCCDConverter
+    - Pulnix -> ask Chris O'Grady
+    */
     typedef std::vector<pixel_t> frame_t;
+    
     typedef std::vector<Pixel> pixelList_t;
 
   public:

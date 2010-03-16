@@ -4,6 +4,7 @@
 // Copyright (C) 2010 Uwe Hoppe, FHI Berlin
 
 #include <iostream>
+#include <string>
 #include <QtNetwork>
 
 #include "tcpserver.h"
@@ -61,14 +62,14 @@ void Socket::readClient()
     case EVENT: {
         quint32 t1, t2;
         in >> what >> t1 >> t2;
-        CASSEvent event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
+        const std::string event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
 #warning send event back
         break;
     }
     case HISTOGRAM: {
         quint32 type;
         in >> type;
-        Histogram hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
+        std::string hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
 #warning send histogram back
         break;
     }

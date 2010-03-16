@@ -7,24 +7,40 @@
 
 #include "cass.h"
 #include "cass_event.h"
-#include "tcpserver.h"
 #include "ringbuffer.h"
 
 namespace cass
 {
-  class Serializer;
+class Serializer;
 
-  class CASSSHARED_EXPORT EventGetter
-  {
-  public:
-    EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&);
+/** Event retrievel parameters
 
-  public:
-    const std::string operator()(const cass::TCP::EventParameter&);
+@author Jochen Küpper
+*/
+struct EventParameter {
 
-  private:
+    EventParameter(size_t _what, unsigned _t1, unsigned _t2)
+        : what(_what), t1(_t1), t2(_t2)
+        {};
+
+    size_t what;
+    unsigned int t1, t2;
+};
+
+
+
+class CASSSHARED_EXPORT EventGetter
+{
+public:
+
+    EventGetter(cass::RingBuffer<cass::CASSEvent, cass::RingBufferSize>&);
+
+    const std::string operator()(const EventParameter&) const;
+
+protected:
+
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
-  };
+};
 
 } //end namespace cass
 

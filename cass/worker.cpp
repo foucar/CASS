@@ -1,5 +1,6 @@
 //Copyright (C) 2009, 2010 lmf
 
+#include <exception>
 #include <QMutexLocker>
 
 #include "worker.h"
@@ -149,7 +150,9 @@ cass::Workers::~Workers()
 
 const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Workers::histograms()const
 {
-  return _workers[0]->histograms();
+    if(_workers.empty())
+        throw std::bad_exception();
+    return _workers[0]->histograms();
 }
 
 void cass::Workers::loadSettings(size_t what)
