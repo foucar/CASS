@@ -3,6 +3,7 @@
 // Copyright (C) 2010 Jochen Küpper
 // Copyright (C) 2010 Uwe Hoppe, FHI Berlin
 
+#include <cassert>
 #include <iostream>
 #include <map>
 #include <string>
@@ -82,8 +83,9 @@ void Socket::readClient()
         in >> what >> t1 >> t2;
         const std::string event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
         QByteArray block(event.c_str());
-        quint64 size(block.size());
-        block.push_front(size);
+        uint64_t size(block.size());
+        assert(8 == sizeof(size));
+        block.prepend((char *)(&size), sizeof(size));
         write(block);
         break;
         }
@@ -92,8 +94,9 @@ void Socket::readClient()
         in >> type;
         std::string hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
         QByteArray block(hist.c_str());
-        quint64 size(block.size());
-        block.push_front(size);
+        uint64_t size(block.size());
+        assert(8 == sizeof(size));
+        block.prepend((char *)(&size), sizeof(size));
         write(block);
         break;
         }
