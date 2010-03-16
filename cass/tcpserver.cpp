@@ -4,6 +4,7 @@
 // Copyright (C) 2010 Uwe Hoppe, FHI Berlin
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <QtNetwork>
 
@@ -14,6 +15,8 @@ namespace cass
 {
 namespace TCP
 {
+
+using namespace std;
 
 
 void Server::incomingConnection(int id)
@@ -39,10 +42,8 @@ Socket::Socket(QObject *parent)
 
 void Socket::readClient()
 {
-    // create datastream
     QDataStream in(this);
     in.setVersion(QDataStream::Qt_4_3);
-    // read next cmd
     if(_nextblocksize == 0) {
         if(bytesAvailable() < qint64(sizeof(quint16)))
             return;
@@ -50,41 +51,69 @@ void Socket::readClient()
     }
     if(bytesAvailable() < _nextblocksize)
         return;
-    quint16 cmd(0);
-    in >> cmd;
-    quint32 what(0);
-    // evaluate cmd
-    switch(cmd) {
-    case READINI:
+    map<QString, cmd_t> commands;
+    map<QString, cmd_t>::const_iterator cit;
+    commands.insert(make_pair("CASS:READINI", READINI));
+    commands.insert(make_pair("CASS:EVENT", EVENT));
+    commands.insert(make_pair("CASS:HISTOGRAM", HISTOGRAM));
+    commands.insert(make_pair("CASS:QUIT", QUIT));
+    QString str;
+    in >> str;
+    cit = commands.find(str.section(':', 0, 1));
+    switch(cit->second) {
+    case READINI: {
+        quint32 what;
         in >> what;
-        emit readini(size_t(what));
+        emit readini(what);
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_3);
+        out << quint64(0)
+            << quint16(READINI)
+            << quint16(0xFFFF);
+        out.device()->seek(0);
+        out << quint64(block.size() - sizeof(quint64));
+        write(block);
         break;
+        }
     case EVENT: {
+        quint32 what;
         quint32 t1, t2;
         in >> what >> t1 >> t2;
         const std::string event(dynamic_cast<Server *>(parent())->get_event(EventParameter(what, t1, t2)));
-#warning send event back
+        QByteArray block(event.c_str());
+        quint64 size(block.size());
+        block.push_front(size);
+        write(block);
         break;
-    }
+        }
     case HISTOGRAM: {
         quint32 type;
         in >> type;
         std::string hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(type)));
-#warning send histogram back
+        QByteArray block(hist.c_str());
+        quint64 size(block.size());
+        block.push_front(size);
+        write(block);
         break;
-    }
-    case QUIT:
+        }
+    case QUIT: {
         emit quit();
         close();
         return;
+        }
     default:
-        std::cerr << "Unknown command requested !" << std::endl;
-        QDataStream out(this);
-        out << quint16(0xFFFE);
-        return;
+        cerr << "Unknown command requested !" << endl;
+        QByteArray block;
+        QDataStream out(&block, QIODevice::WriteOnly);
+        out.setVersion(QDataStream::Qt_4_3);
+        out << quint64(0)
+            << "CASS:ERROR"
+            << quint16(0xFFFF);
+        out.device()->seek(0);
+        out << quint64(block.size() - sizeof(quint64));
+        write(block);
     }
-    QDataStream out(this);
-    out << quint16(0xFFFF);
     _nextblocksize = 0;
 }
 
