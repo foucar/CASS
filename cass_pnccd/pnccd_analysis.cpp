@@ -187,7 +187,7 @@ void cass::pnCCD::Analysis::loadSettings()
   _param._nbrDarkframes.resize(_param._darkcal_fnames.size());
   _param._ROImask.resize(_param._darkcal_fnames.size());
   _param._ROIiterator.resize(_param._darkcal_fnames.size());
-
+  size_t number_of_pixelsettozero=0;
   //std::cout<<"size "<< _param._nbrDarkframes.size()<<std::endl;
   // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
@@ -260,6 +260,8 @@ void cass::pnCCD::Analysis::loadSettings()
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * _param.detROI[iDet]._ROI[iROI].xsize + 1)
             * (2 * _param.detROI[iDet]._ROI[iROI].ysize + 1);
+        //remember how many pixels I have masked
+        //number_of_pixelsettozero+=indexROI_max;
         std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
         if(_param.detROI[iDet]._ROI[iROI].name=="circ" || _param.detROI[iDet]._ROI[iROI].name=="circle"  )
         {
@@ -280,6 +282,8 @@ void cass::pnCCD::Analysis::loadSettings()
                   pow(ylocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].ysize),2) ) <= radius2 )
             {
               _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              //remember how many pixels I have masked
+              number_of_pixelsettozero++;
 #ifdef debug
               std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
@@ -293,8 +297,10 @@ void cass::pnCCD::Analysis::loadSettings()
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
             xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize +1);
-            ylocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].ysize +1);
+            ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize +1);
             _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+            //remember how many pixels I have masked
+            number_of_pixelsettozero++;
 #ifdef debug
             std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param.detROI[iDet]._ROI[iROI].ycentre
                      << " "<<_param.detROI[iDet]._ROI[iROI].ycentre - _param.detROI[iDet]._ROI[iROI].ysize
@@ -334,6 +340,8 @@ void cass::pnCCD::Analysis::loadSettings()
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
                 _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
               else if(ylocal-1<(4*ysize - 2* ysize/xsize*xlocal_f)
                       && xlocal>static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize))
@@ -342,6 +350,8 @@ void cass::pnCCD::Analysis::loadSettings()
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
                 _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
             }
           }
@@ -364,19 +374,23 @@ void cass::pnCCD::Analysis::loadSettings()
                          + 2 * ysize)
                  && xlocal<static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize + 1))
               {
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
 #ifdef debug
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
               else if(ylocal+1>(-2*ysize +
                               2 * ysize/xsize*xlocal_f)
                       && xlocal>static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize))
               {
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
 #ifdef debug
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
             }
           }
@@ -398,6 +412,8 @@ void cass::pnCCD::Analysis::loadSettings()
               if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
               {
                 _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
             }
           }
@@ -418,6 +434,8 @@ void cass::pnCCD::Analysis::loadSettings()
               if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
               {
                 _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
               }
             }
           }
@@ -439,7 +457,8 @@ void cass::pnCCD::Analysis::loadSettings()
       }
       */
       size_t nextPixel=1;
-      for(size_t iPixel=0;iPixel<_param._ROIiterator[iDet].size(); ++iPixel)
+      _param._ROIiterator[iDet].resize(_param._ROImask[iDet].size()-number_of_pixelsettozero);
+      for(size_t iPixel=0;iPixel<_param._ROImask[iDet].size(); ++iPixel)
       {
         // the "pointer" is the location/index of the next pixel to be used
         if(_param._ROImask[iDet][iPixel]!=0)
@@ -448,7 +467,8 @@ void cass::pnCCD::Analysis::loadSettings()
           nextPixel++;
         }
       }
-      std::cout <<"Roiit "<< iDet<<" "<<_param._ROImask[iDet].size()<<std::endl;
+      std::cout <<"Roiit sizes "<< iDet<<" "<<_param._ROImask[iDet].size()<<" " 
+                <<_param._ROIiterator[iDet].size() <<std::endl;
       for(size_t i=0;i<_param._ROIiterator[iDet].size();i++)
       {
         if(i%16==0) std::cout <<"Roiit"<<iDet<<" ";
@@ -630,6 +650,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #endif
     //retrieve a reference to the raw frame of the detector//
     const cass::pnCCD::pnCCDDetector::frame_t &rf = det.rawFrame();
+    static size_t ii=0;
+
+    //retrieve a reference to the ROI mask and/or iterator
+    const std::vector<uint16_t> &mask = _param._ROImask[iDet];
+    const std::vector<uint32_t> &iter = _param._ROIiterator[iDet];
+
     //retrieve a reference to the nonrecombined photon hits of the detector//
     //cass::pnCCD::pnCCDDetector::photonHits_t &phs = det.nonrecombined();
     //retrieve a reference to the noise vector of this detector//
@@ -645,7 +671,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //retrieve a reference to the rebinfactor of this detector//
     uint32_t &rebinfactor = _param._rebinfactors[iDet];
     //retrieve a reference to the damping coefficent of this detector//
-    const double damping = _param._dampingCoefficient[iDet];
+    // I am not using it anymore??
+    //const double damping = _param._dampingCoefficient[iDet];
 
 //     std::cout<<iDet<< " "<<pnccdevent.detectors().size()<<" "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<<rf.size()<< " "<<_pnccd_analyzer[iDet]<<std::endl;
 
@@ -699,6 +726,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         //std::cout <<"we fill the corrected frame"<<std::endl;
         std::vector<double>::iterator itOffset = offset.begin();
         std::vector<double>::iterator itNoise  = noise.begin();
+        std::vector<uint32_t>::const_iterator itROI  = iter.begin();
         cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
 #ifdef bit32
         cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
@@ -718,9 +746,19 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
                ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
 #else
-        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
+#define simple
+#ifdef simple
+        for ( ; itRawFrame != rf.end() ; ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
+#else
+        for ( ; itROI != iter.end() /*&& skip the last few pixels*/ ; ++itROI)
+#endif
 #endif
         {
+#ifndef simple
+          itRawFrame=itROI;
+          itCorFrame=itROI;
+          itOffset=itROI;
+#endif
           //statistics//
           //  const double mean =  *itOffset / nDarkframes;
           const double mean = *itOffset; 
@@ -823,6 +861,15 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
       gettimeofday(&tvBegin, NULL);
       //rebin image frame if requested//
+      std::cout << "integrals: " << det.integral() << std::endl;
+      if(iDet==1)ii++;
+      if(ii<10)
+      {
+          std::cout << "frame ";
+          for (size_t iInt=0; iInt<cf.size() ;++iInt) std::cout <<cf[iInt] << " " ;
+          std::cout << std::endl;
+      }
+
       if (rebinfactor != 1)
       {
         //if the rebinfactor doesn't fit the original dimensions//
