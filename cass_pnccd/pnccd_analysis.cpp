@@ -200,6 +200,7 @@ void cass::pnCCD::Analysis::loadSettings()
       std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
       //find how big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
+      std::cout<<"the size is going to be "<<i <<" " <<size<<" "<<sizeof(double)<<std::endl;
       //go to the beginning of the file
       in.seekg(0,std::ios::beg);
       //resize the vectors to the right size//
@@ -212,7 +213,7 @@ void cass::pnCCD::Analysis::loadSettings()
       //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[i])), sizeof(double));
       in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
       in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
-      std::cout<<"Darkframes "<< _param._nbrDarkframes[i]<<std::endl;
+      std::cout<<"Darkframes "<<i<<" "<< _param._nbrDarkframes[i]<<std::endl;
 
     }
     else
