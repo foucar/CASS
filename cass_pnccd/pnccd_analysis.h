@@ -11,6 +11,8 @@
 #include "parameter_backend.h"
 
 //#include <QtGui/QImage>
+#include <QtCore/QMutex>
+#include <QtCore/QObject>
 
 
 namespace cass
@@ -23,7 +25,10 @@ namespace cass
     {
     /* inserting the "definition" of a ROI
        each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-       shapes:=circ,triangle,square <=Do I need many squares per frame?
+       shapes:=circ(==circle),triangle(isosceles),square <=Do I need many squares per frame?
+       AAAA there is a problem with a triangular shape... the orientation!!!
+       the orientation is used only in the case of a triangular shape
+
        I think also a "double triangle bottle-like shape could be helpful
 
        xsize,ysize and center are in pixel units
@@ -32,6 +37,7 @@ namespace cass
     */
     public:
       // the shape name(s)
+      // or   enum NameTypes {circ=0, triangle=1, square=2};
       std::string name;
       // the size(s) along the x axis
       uint32_t xsize;
@@ -41,6 +47,15 @@ namespace cass
       uint32_t xcentre;
       // the centre(s) along the y axis
       uint32_t ycentre;
+      /*
+           the orientation is used only in the case of a triangular shape
+            /\           ----         |\           /|
+           /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
+           ----           \/          | /         \ |
+                                      |/           \|
+      */
+      // the orientation
+      int32_t orientation;
     };
 
     class detROI_t
@@ -69,6 +84,11 @@ namespace cass
       void load();
       void save();
 
+      //flag to set the dark/not-dark run condition
+      bool _This_is_a_dark_run;
+        //std::vector<size_t> _pnCCDOriginalRows;
+        //std::vector<size_t> _pnCCDOriginalCols;
+
       //rebin factors for each detector//
       std::vector<uint32_t> _rebinfactors;
       //offsets for each detector//
@@ -92,7 +112,10 @@ namespace cass
 
       typedef std::vector<detROI_t> _detROI;
       _detROI detROI;
-
+      //the ROI mask for each detector//
+      std::vector<std::vector<uint16_t> > _ROImask;
+      //the ROI index-pointer-mask for each detector//
+      std::vector<std::vector<uint32_t> > _ROIiterator;
     };
 
 
@@ -112,10 +135,14 @@ namespace cass
       Put the pnCCDEvent object through the analysis chain. The original data
       remain unchanged, a new corrected pnCCD image is generated and X-ray
       photon hits are extracted if the user wishes to so. In addition, some
-      basic parameters are reacorded, e.g. the number of detected events
+      basic parameters are recorded, e.g. the number of detected events
       in the frame.
       */
       void operator() (cass::CASSEvent*);
+    protected:
+        /** @brief Singleton operation locker in a multi-threaded environment. */
+        static QMutex _mutex;
+
     private:
       Parameter _param;
 
