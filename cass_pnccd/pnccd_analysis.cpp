@@ -5,16 +5,20 @@
 #include "pnccd_analysis.h"
 #include "pnccd_event.h"
 #include "cass_event.h"
-#include "remi_event.h"
+//#include "remi_event.h"
 #include "pnccd_analysis_lib.h"
 
 #include <vector>
 #include <sys/time.h>
 
+QMutex cass::pnCCD::Analysis::_mutex;
+
 
 void cass::pnCCD::Parameter::load()
 {
-  std::cout <<"loading"<<std::endl;
+  //the dark-frames calculations are not threadable for the moment
+  // do improve it
+  std::cout <<"loading Params"<<std::endl;
   //sting for the container index//
   QString s;
   //sync before loading//
@@ -22,8 +26,22 @@ void cass::pnCCD::Parameter::load()
   //clear the containers before adding new stuff to them//
   _rebinfactors.clear();
   _darkcal_fnames.clear();
+
+  //added the next..
+  _save_darkcal_fnames.clear();
+  _sigmaMultiplier.clear();
+  _adu2eV.clear();
+  _dampingCoefficient.clear();
+
+  //clear the containers before adding new stuff to them//
+  detROI.clear();
+/*
+  _pnCCDOriginalRows.clear();
+  _pnCCDOriginalCols.clear();
+*/
   //the light indicator channel of the acqiris//
   _lightIndicatorChannel = value("LightIndicatorChannel",9).toUInt();
+  _This_is_a_dark_run = value("This_is_a_dark_run",0).toBool();
   for (size_t iDet=0; iDet<value("size",1).toUInt(); ++iDet)
   {
     beginGroup(s.setNum(static_cast<int>(iDet)));
@@ -41,6 +59,40 @@ void cass::pnCCD::Parameter::load()
     _adu2eV.push_back(value("Adu2eV",1).toDouble());
     //the daming coefficent//
     _dampingCoefficient.push_back(value("DampingCoefficient",5).toDouble());
+
+//    _pnCCDOriginalRows.push_back(1024);
+//    _pnCCDOriginalCols.push_back(1024);
+
+    detROI.push_back(detROI_t());
+    detROI[iDet].detID=iDet;
+    beginGroup("ROIs");
+    for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
+    {
+      beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
+      detROI[iDet]._ROI.push_back(ROIsimple());
+      //the shape of the ROI//
+      detROI[iDet]._ROI[iROI].name = value("ROIShapeName","square").toString().toStdString();
+      // the size(s) along the x axis
+      detROI[iDet]._ROI[iROI].xsize = value("XSize",1).toUInt();
+      // the size(s) along the y axis
+      detROI[iDet]._ROI[iROI].ysize = value("YSize",1).toUInt();
+      // the centre(s) along the x axis
+      detROI[iDet]._ROI[iROI].xcentre = value("XCentre",1).toUInt();
+      // the centre(s) along the y axis
+      detROI[iDet]._ROI[iROI].ycentre = value("YCentre",1).toUInt();
+      // the orientation is used only in the case of a triangular shape
+      detROI[iDet]._ROI[iROI].orientation = value("orientation",1).toInt();
+      endGroup();
+      std::cout <<"ROI loaded "<< iROI << " " << detROI[iDet]._ROI[iROI].xsize 
+                <<" " << detROI[iDet]._ROI[iROI].ysize 
+                <<" " << detROI[iDet]._ROI[iROI].xcentre
+                <<" " << detROI[iDet]._ROI[iROI].ycentre 
+                <<" " << detROI[iDet]._ROI[iROI].orientation<<std::endl;
+    }
+    endGroup();
+    std::cout << "done ROI load "<< detROI[iDet]._ROI.size() << " of pnCCD" << iDet << std::endl;
+    std::cout << "global size of pnCCD ROIs " << detROI.size() << std::endl;
+
     endGroup();
   }
   std::cout << "done"<< std::endl;
@@ -52,6 +104,7 @@ void cass::pnCCD::Parameter::save()
   //sting for the container index//
   QString s;
   setValue("LightIndicatorChannel",_lightIndicatorChannel);
+  setValue("This_is_a_dark_run",_This_is_a_dark_run);
   setValue("size",static_cast<uint32_t>(_rebinfactors.size()));
   for (size_t iDet=0; iDet<_rebinfactors.size(); ++iDet)
   {
@@ -61,14 +114,29 @@ void cass::pnCCD::Parameter::save()
     setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
     setValue("Adu2eV",_adu2eV[iDet]);
     setValue("DampingCoefficient",_dampingCoefficient[iDet]);
+
+    setValue("ROIsize",static_cast<uint32_t>(detROI[iDet]._ROI.size()));
+    beginGroup("ROIs");
+    for (size_t iROI=0; iROI< detROI[iDet]._ROI.size(); ++iROI)
+    {
+        beginGroup(s.setNum(static_cast<int>(iROI)));
+        setValue("ROIShapeName",detROI[iDet]._ROI[iROI].name.c_str());
+        setValue("XSize",detROI[iDet]._ROI[iROI].xsize);
+        setValue("YSize",detROI[iDet]._ROI[iROI].ysize);
+        setValue("XCentre",detROI[iDet]._ROI[iROI].xcentre);
+        setValue("YCentre",detROI[iDet]._ROI[iROI].ycentre);
+        // the orientation is used only in the case of a triangular shape
+        setValue("orientation",detROI[iDet]._ROI[iROI].orientation);
+        endGroup();
+    }
+    endGroup();
+
     endGroup();
   }
 }
 
 
 //______________________________________________________________________________
-
-
 
 
 
@@ -109,12 +177,18 @@ cass::pnCCD::Analysis::~Analysis()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
-  std::cout <<"load"<<std::endl;
+  std::cout <<"load pnCCD settings"<<std::endl;
+  QMutexLocker locker(&_mutex);
   //load the settings
   _param.load();
   //resize the vector containers to the right size//
   _param._offsets.resize(_param._darkcal_fnames.size());
   _param._noise.resize(_param._darkcal_fnames.size());
+  _param._nbrDarkframes.resize(_param._darkcal_fnames.size());
+  _param._ROImask.resize(_param._darkcal_fnames.size());
+  _param._ROIiterator.resize(_param._darkcal_fnames.size());
+
+  //std::cout<<"size "<< _param._nbrDarkframes.size()<<std::endl;
   // Set the dark calibration data in the new analysis instance//
   for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
   {
@@ -131,13 +205,261 @@ void cass::pnCCD::Analysis::loadSettings()
       //resize the vectors to the right size//
       _param._offsets[i].resize(size);
       _param._noise[i].resize(size);
+      _param._ROImask[i].resize(size);
+      _param._ROIiterator[i].resize(size);
       //read the parameters stored in the file//
+      //add the next??
+      //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[i])), sizeof(double));
       in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
       in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
+      std::cout<<"Darkframes "<< _param._nbrDarkframes[i]<<std::endl;
+
+    }
+    else
+    {
+      //safe net in case there is no file yet
+      _param._offsets[i].resize(1024 * 1024);
+      _param._noise[i].resize(1024 * 1024);
+      _param._ROImask[i].resize(1024 * 1024);
+      _param._ROIiterator[i].resize(1024 * 1024);
+
+//      _param._offsets[i].resize(_param.pnCCDoriginalrows[i] * _param.pnCCDoriginalcols[i]);
+//      _param._noise[i].resize(_param.pnCCDoriginalrows[i] * _param.pnCCDoriginalcols[i]);
     }
   }
-  
-  std::cout <<"done"<<std::endl;
+  //if this is a darkcalibration run I reset the values in the frames
+  if(_param._This_is_a_dark_run==1)
+  {
+    for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
+    {
+      //std::cout<<"safe size "<<_param._offsets[i].size()<<std::endl;
+      _param._offsets[i].assign(_param._offsets[i].size(),0);
+      _param._noise[i].assign(_param._noise[i].size(),0);
+      //_param._nbrDarkframes[i].push_back(0);
+    }
+    _param._nbrDarkframes.resize(_param._darkcal_fnames.size(),0);
+  }
+
+  // I need the ROI only if I am really running with the FEL
+  if(_param._This_is_a_dark_run==0)
+  {
+    std::cout <<"rebin size is "<<_param._rebinfactors.size()<<std::endl;
+    for(size_t iDet=0;iDet<_param._rebinfactors.size(); ++iDet)
+    {
+      // "enable" all  pixel as default
+      _param._ROImask[iDet].assign(_param._ROImask[iDet].size(),1);
+      for(size_t iROI=0;iROI<_param.detROI[iDet]._ROI.size(); ++iROI)
+      {
+        size_t index_of_center=_param.detROI[iDet]._ROI[iROI].xcentre
+            + 1024 * _param.detROI[iDet]._ROI[iROI].ycentre;
+        size_t index_min=_param.detROI[iDet]._ROI[iROI].xcentre - _param.detROI[iDet]._ROI[iROI].xsize
+            + 1024 * (_param.detROI[iDet]._ROI[iROI].ycentre - _param.detROI[iDet]._ROI[iROI].ysize);
+        size_t index_max=_param.detROI[iDet]._ROI[iROI].xcentre + _param.detROI[iDet]._ROI[iROI].xsize
+            + 1024 * (_param.detROI[iDet]._ROI[iROI].ycentre + _param.detROI[iDet]._ROI[iROI].ysize);
+        std::cout << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+        size_t indexROI_min=0;
+        size_t indexROI_max=(2 * _param.detROI[iDet]._ROI[iROI].xsize + 1)
+            * (2 * _param.detROI[iDet]._ROI[iROI].ysize + 1);
+        std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+        if(_param.detROI[iDet]._ROI[iROI].name=="circ" || _param.detROI[iDet]._ROI[iROI].name=="circle"  )
+        {
+          int32_t  xlocal,ylocal;
+          const uint32_t radius2 =  static_cast<uint32_t>(pow(_param.detROI[iDet]._ROI[iROI].xsize,2)
+           /*+pow(_param.detROI[iDet]._ROI[iROI].ysize,2) */);
+          std::cout << "circ seen with radius^2= " <<radius2 <<std::endl;
+          for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+          {
+            xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+            ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+#ifdef debug
+            std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param.detROI[iDet]._ROI[iROI].xsize<< " " 
+                     <<pow(xlocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize),2)
+                     <<std::endl;
+#endif
+            if( ( pow(xlocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize),2) +
+                  pow(ylocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].ysize),2) ) <= radius2 )
+            {
+              _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+#ifdef debug
+              std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+            }
+          }
+        }
+        if(_param.detROI[iDet]._ROI[iROI].name=="square")
+        {
+          uint32_t  xlocal,ylocal;
+          std::cout << "square seen" <<std::endl;
+          for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+          {
+            xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize +1);
+            ylocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].ysize +1);
+            _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+#ifdef debug
+            std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param.detROI[iDet]._ROI[iROI].ycentre
+                     << " "<<_param.detROI[iDet]._ROI[iROI].ycentre - _param.detROI[iDet]._ROI[iROI].ysize
+                     <<std::endl;
+#endif
+          }
+        }
+        if(_param.detROI[iDet]._ROI[iROI].name=="triangle")
+        {
+          int32_t  xlocal,ylocal;
+          float xlocal_f,ylocal_f;
+          float xsize,ysize;
+          xsize=static_cast<float>(_param.detROI[iDet]._ROI[iROI].xsize);
+          ysize=static_cast<float>(_param.detROI[iDet]._ROI[iROI].ysize);
+
+          std::cout << "triangle seen" <<std::endl;
+          if(_param.detROI[iDet]._ROI[iROI].orientation==+1)
+          {
+            std::cout << "triangle seen vertex upwards" <<std::endl;
+            //the triangle is at least isosceles
+            for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+            {
+              xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              xlocal_f=static_cast<float>(xlocal);
+              ylocal_f=static_cast<float>(ylocal);
+
+#ifdef debug
+              std::cout<<"local "<<xlocal<<" "<<ylocal
+                       << " " <<2 * ysize/xsize*xlocal_f << " " <<4*ysize - 2* ysize/xsize*xlocal_f
+                       <<std::endl;
+#endif
+              if(ylocal-1<(2 * ysize/xsize*xlocal_f)
+                 && xlocal<static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize + 1))
+              {
+#ifdef debug
+                std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+              }
+              else if(ylocal-1<(4*ysize - 2* ysize/xsize*xlocal_f)
+                      && xlocal>static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize))
+              {
+#ifdef debug
+                std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+              }
+            }
+          }
+          if(_param.detROI[iDet]._ROI[iROI].orientation==-1)
+          {
+            std::cout << "triangle seen vertex downwards" <<std::endl;
+            for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+            {
+              xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              xlocal_f=static_cast<float>(xlocal);
+              ylocal_f=static_cast<float>(ylocal);
+#ifdef debug
+              std::cout<<"local "<<xlocal<<" "<<ylocal
+                       << " " <<(-2 * ysize/xsize*xlocal_f) + 2 * ysize << " "<<-2*ysize + 2 *  ysize/xsize*xlocal
+                       <<std::endl;
+#endif
+
+              if(ylocal+1>((-2 * ysize/xsize*xlocal_f)
+                         + 2 * ysize)
+                 && xlocal<static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize + 1))
+              {
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+#ifdef debug
+                std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+              }
+              else if(ylocal+1>(-2*ysize +
+                              2 * ysize/xsize*xlocal_f)
+                      && xlocal>static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize))
+              {
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+#ifdef debug
+                std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+              }
+            }
+          }
+          if(_param.detROI[iDet]._ROI[iROI].orientation==+2)
+          {
+            std::cout << "triangle seen vertex towards right" <<std::endl;
+            for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+            {
+              // not debugged
+              xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize + 1);
+              xlocal_f=static_cast<float>(xlocal);
+              ylocal_f=static_cast<float>(ylocal);
+#ifdef debug
+              std::cout<<"local "<<xlocal<<" "<<ylocal
+                       << " " <<(ysize/xsize*xlocal_f) << " "<<- ysize/xsize*xlocal_f + 4 * ylocal_f
+                       <<std::endl;
+#endif
+              if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
+              {
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+              }
+            }
+          }
+          if(_param.detROI[iDet]._ROI[iROI].orientation==-2)
+          {
+            std::cout << "triangle seen vertex towards left" <<std::endl;
+            for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+            {
+              // not debugged
+              xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize);
+              ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize);
+              xlocal_f=static_cast<float>(xlocal);
+              ylocal_f=static_cast<float>(ylocal);
+#ifdef debug
+              std::cout<<"local "<<xlocal<<" "<<ylocal<<" "
+                       <<std::endl;
+#endif
+              if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
+              {
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
+              }
+            }
+          }
+        }
+      } // end iROI loop
+
+//#ifdef debug
+      std::cout <<"ROI "<< iDet<<" "<<_param._ROImask[iDet].size()<<" ";
+      for(size_t i=0;i<_param._ROImask[iDet].size();i++)
+          std::cout << _param._ROImask[iDet][i]<< " ";
+      std::cout<<std::endl;
+//#endif
+      // now I know which pixel should be masked!
+      /*
+      for(size_t iPixel=0;iPixel<_param._ROIiterator[iDet].size(); ++iPixel)
+      {
+        // the "pointer" is the location/index of the next pixel to be used, and the default should be that a[i]=i+1
+        _param._ROIiterator[iDet][iPixel]=iPixel+1;
+      }
+      */
+      size_t nextPixel=1;
+      for(size_t iPixel=0;iPixel<_param._ROIiterator[iDet].size(); ++iPixel)
+      {
+        // the "pointer" is the location/index of the next pixel to be used
+        if(_param._ROImask[iDet][iPixel]!=0)
+        {
+          _param._ROIiterator[iDet][nextPixel]=iPixel+1;
+          nextPixel++;
+        }
+      }
+      std::cout <<"Roiit "<< iDet<<" "<<_param._ROImask[iDet].size()<<std::endl;
+      for(size_t i=0;i<_param._ROIiterator[iDet].size();i++)
+      {
+        if(i%16==0) std::cout <<"Roiit"<<iDet<<" ";
+        std::cout << _param._ROIiterator[iDet][i]<< " ";
+        if(i%16==15) std::cout<<std::endl;
+      }
+      std::cout<<std::endl;
+      
+    } // end iDet loop
+  } // end This_is_a_dark_run if
+  std::cout <<"done loading pnCCD settings"<<std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -146,19 +468,77 @@ void cass::pnCCD::Analysis::saveSettings()
   //save settings//
   _param.save();
   //now save the noise and the offset vectors to the designated files//
-  for (size_t i=0; i<_param._save_darkcal_fnames.size() ; ++i)
+  // and this means: only if it was a dark run!!
+  if(_param._This_is_a_dark_run==1)
   {
-    //only if the vectors have some information inside//
-    if (!_param._offsets[i].empty() && !_param._noise[i].empty())
+    QMutexLocker locker(&_mutex);
+    for (size_t i=0; i<_param._save_darkcal_fnames.size() ; ++i)
     {
-      //create a output file//
-      ofstream out(_param._save_darkcal_fnames[i].c_str(), std::ios::binary);
-      if (out.is_open())
+      //only if the vectors have some information inside//
+      if (!_param._offsets[i].empty() && !_param._noise[i].empty())
       {
-        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._save_darkcal_fnames[i].c_str()<<"\""<<std::endl;
-        //write the parameters to the file//
-        out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
-        out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
+#ifdef debug_darkmaps
+        std::cout<<"sizes "<<_param._offsets[i].size()<<" "<<_param._noise[i].size()<<std::endl;
+#endif
+        //normalise the values
+        for(size_t j=0;j<_param._offsets[i].size();j++)
+        {
+#ifdef debug_darkmaps
+          std::cout<<"off "<<i<<" "<<_param._offsets[i][j] << " " <<_param._nbrDarkframes[i]<<" "<<
+              _param._offsets[i][j]/_param._nbrDarkframes[i]<<" ";
+#endif
+          _param._offsets[i][j]=_param._offsets[i][j]/_param._nbrDarkframes[i];
+#ifdef debug_darkmaps
+          std::cout<<_param._offsets[i][j]<<" ";
+          std::cout<<"noise "<<_param._noise[i][j] << " "<< _param._noise[i][j]/_param._nbrDarkframes[i]<<" "
+                   <<_param._offsets[i][j] * _param._offsets[i][j]<<" " <<
+              _param._noise[i][j] / _param._nbrDarkframes[i] - _param._offsets[i][j] * _param._offsets[i][j];
+#endif
+          _param._noise[i][j]=sqrt(
+              _param._noise[i][j] / _param._nbrDarkframes[i] - _param._offsets[i][j] * _param._offsets[i][j]);
+#ifdef debug_darkmaps
+          std::cout<<" "<<    _param._noise[i][j] <<" "<< j <<std::endl;
+#endif
+        }
+/*
+        for(size_t j=0;j<_param._offsets[i].size();j++)
+        {
+#ifdef debug_darkmaps
+          std::cout<<"off "<<_param._offsets[i][j] << " " <<_param._nbrDarkframes[i]<<" ";
+#endif
+          _param._offsets[i][j]=_param._offsets[i][j]/_param._nbrDarkframes[i];
+#ifdef debug_darkmaps
+          std::cout<<_param._offsets[i][j] <<std::endl;
+#endif
+        }
+*/
+/*
+        for(size_t j=0;j<_param._noise[i].size();j++)
+        {
+#ifdef debug_darkmaps
+          std::cout<<"noise "<<_param._noise[i][j]/_param._nbrDarkframes[i] << " " 
+                   <<_param._offsets[i][j] * _param._offsets[i][j]<<" "
+                   << _param._noise[i][j]/_param._nbrDarkframes[i] - _param._offsets[i][j] 
+              * _param._offsets[i][j]<<" ";
+#endif
+          _param._noise[i][j]=sqrt(
+              _param._noise[i][j] / _param._nbrDarkframes[i] - _param._offsets[i][j] * _param._offsets[i][j]);
+#ifdef debug_darkmaps
+          std::cout<<_param._noise[i][j] <<std::endl;
+#endif
+        }
+*/
+        //create a output file//
+        ofstream out(_param._save_darkcal_fnames[i].c_str(), std::ios::binary);
+        if (out.is_open())
+        {
+          std::cout <<"writing pnccd "<<i<<" to file \""<<_param._save_darkcal_fnames[i].c_str()<<"\""<<std::endl;
+          //write the parameters to the file//
+          //add the next??
+          //out.write(reinterpret_cast<char*>(&(_param._nbrDarkframes[i])), sizeof(double));
+          out.write(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
+          out.write(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
+        }
       }
     }
   }
@@ -226,18 +606,26 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     cass::pnCCD::pnCCDDetector &det = pnccdevent.detectors()[iDet];
     //retrieve a reference to the corrected frame of the detector//
 #ifdef bit32
+#ifdef debug
     std::cout << "signed 32 bits version" <<std::endl;
+#endif
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf = det.correctedFrame();
 #elif defined(fbit32)
+#ifdef debug
     std::cout << "float 32 bits version" <<std::endl;
+#endif
     cass::pnCCD::pnCCDDetector::frame_f32_t &cf = det.correctedFrame();
 #elif defined(every)
+#ifdef debug
     std::cout << "all versions" <<std::endl;
+#endif
     cass::pnCCD::pnCCDDetector::frame_i32_t &cf32i = det.correctedFrame32i();
     cass::pnCCD::pnCCDDetector::frame_f32_t &cf32f = det.correctedFrame32f();
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame16u();
 #else
+#ifdef debug
     std::cout << "unsigned 16 bits version" <<std::endl;
+#endif
     cass::pnCCD::pnCCDDetector::frame_t &cf = det.correctedFrame();
 #endif
     //retrieve a reference to the raw frame of the detector//
@@ -286,110 +674,90 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     const uint16_t nRows = det.originalrows();
     const uint16_t nCols = det.originalcolumns();
 
-
-    //to find out whether there was light in the chamber we test to see a signal//
-    //on one of the acqiris channels idealy on the intensity monitor signal//
-    //create the offset and noise vector//
-    //check wether the light indicator channel is present//
-/*    if (cassevent->REMIEvent().channels().size()-1 >= _param._lightIndicatorChannel)
-    {*/
-      //check if in the light indicator channel is at least one signal//
-      //this proves that there was light in the chamber//
-//       if (cassevent->REMIEvent().channels()[_param._lightIndicatorChannel].peaks().empty())
-//       {
-
-    //take the average over the first and last 3 rows//
-    cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
-    cass::pnCCD::pnCCDDetector::frame_t::const_iterator ritFrame = rf.end()-1024*3;
-    
-    for (size_t iOff=0; iOff<1024*3;++itFrame,++ritFrame,++iOff)
+    if(_param._This_is_a_dark_run==0)
     {
-      offset[iOff%1024] = (offset[iOff%1024] * damping + *itFrame) / (damping+1.);
-      noise[iOff%1024]  = ( noise[iOff%1024] * damping + *ritFrame)/ (damping+1.);
-    }
-      
+      std::cout<<"this is not a dark run"<<std::endl;
+
+#ifdef no_dark_possible
+      //take the average over the first and last 3 rows//
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator ritFrame = rf.end()-1024*3;
     
-        //add this frame to the offset and noise vectors
-//        std::vector<double>::iterator itOffset = offset.begin();
-//        std::vector<double>::iterator itNoise = noise.begin();
-//        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
-//        for (; itFrame != rf.end(); ++itFrame,++itNoise,++itOffset)
-//        {
-//          *itOffset +=  *itFrame;
-//          *itOffset = (*itOffset * damping + *itFrame) / (damping+1.);
-//          *itNoise  += (*itFrame)*(*itFrame);
-//        }
-        ++nDarkframes;
-/*      }
-      else printf("not able to decide %i\n",nDarkframes);*/
-//     }
-    //nDarkframes=0;
-    //do the selfmade "massaging" of the detector//
-    //only if we have already enough darkframes//
-    if (nDarkframes > 1)
-    {
-      //std::cout <<"we fill the corrected frame"<<std::endl;
-      std::vector<double>::iterator itOffset = offset.begin();
-      std::vector<double>::iterator itNoise  = noise.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
-#ifdef bit32
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
-#elif defined(fbit32)
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
-#elif defined(every)
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
-#else
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+      for (size_t iOff=0; iOff<1024*3;++itFrame,++ritFrame,++iOff)
+      {
+        offset[iOff%1024] = (offset[iOff%1024] * damping + *itFrame) / (damping+1.);
+        noise[iOff%1024]  = ( noise[iOff%1024] * damping + *ritFrame)/ (damping+1.);
+        //                                                 ^this seems an error!!
+      }
+      ++nDarkframes;
+
+      //do the selfmade "massaging" of the detector//
+      //only if we have already enough darkframes//
+      if (nDarkframes > 1)
+      {
 #endif
-      size_t pixelidx=0;
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-      gettimeofday(&tvBegin, NULL);
+        //std::cout <<"we fill the corrected frame"<<std::endl;
+        std::vector<double>::iterator itOffset = offset.begin();
+        std::vector<double>::iterator itNoise  = noise.begin();
+        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+#ifdef bit32
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+#elif defined(fbit32)
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
+#elif defined(every)
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
+#else
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+#endif
+        size_t pixelidx=0;
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+        gettimeofday(&tvBegin, NULL);
 #ifdef every
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
                ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
 #else
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
 #endif
-      {
-        //statistics//
-//        const double mean =  *itOffset / nDarkframes;
-//        const double mean = *itOffset; 
-        const double mean = (pixelidx < 1024*512) ? offset[pixelidx%1024] : noise[pixelidx%1024]; 
-//        const double meansquared =  mean * mean;
-//        const double sumofsquare = *itNoise;
-//        const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
-        //remove the offset of the frame and copy it into the corrected frame//
-        //*itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
-        // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
-        // and give wider range, I have anyway to do some "If" statements
+        {
+          //statistics//
+          //  const double mean =  *itOffset / nDarkframes;
+          const double mean = *itOffset; 
+          //const double mean = (pixelidx < 1024*512) ? offset[pixelidx%1024] : noise[pixelidx%1024]; 
+          //  const double meansquared =  mean * mean;
+          //  const double sumofsquare = *itNoise;
+          //  const double sigma = sqrt( 1/nDarkframes * sumofsquare - meansquared ); 
+          //remove the offset of the frame and copy it into the corrected frame//
+          //*itCorFrame = static_cast<int16_t>(*itRawFrame - mean);
+          // I could reset to zero if negative.. This would allow to use uint16 instead of int16...
+          // and give wider range, I have anyway to do some "If" statements
 #ifdef bit32
-        if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
-        else *itCorFrame=0;
+          if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
+          else *itCorFrame=0;
 #elif defined(fbit32)
-        if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
-        else *itCorFrame=0;
+          if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
+          else *itCorFrame=0;
 #elif defined(every)
-        if(*itRawFrame> mean)
-        {
-           *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
-           *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
-           *itCorFrame16u = static_cast<uint16_t>(*itRawFrame - mean);
-        }
-        else
-        {
-           *itCorFrame32i=0;
-           *itCorFrame32f=0;
-           *itCorFrame16u=0;
-        }
+          if(*itRawFrame> mean)
+          {
+            *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
+            *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
+            *itCorFrame16u = static_cast<uint16_t>(*itRawFrame - mean);
+          }
+          else
+          {
+            *itCorFrame32i=0;
+            *itCorFrame32f=0;
+            *itCorFrame16u=0;
+          }
 #else
-        if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
-        else *itCorFrame=0;
+          if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
+          else *itCorFrame=0;
 #endif
-        //find out whether this pixel is a photon hit//
-        /*if (*itCorFrame > (sigmaMultiplier * sigma) )
-        {
+          //find out whether this pixel is a photon hit//
+          /*if (*itCorFrame > (sigmaMultiplier * sigma) )
+          {
           //create a photon hit//
           cass::pnCCD::PhotonHit ph;
           //set the values of the photon hit//
@@ -398,134 +766,107 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           ph.energy()    = ph.amplitude() * adu2eV;
           //add it to the vector of photon hits//
           phs.push_back(ph);
-        }*/
+          }*/
+        }
+        gettimeofday(&tvEnd, NULL);
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+        
+#ifdef no_dark_possible
       }
-      gettimeofday(&tvEnd, NULL);
-      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
-
-    }
-    else
-    {
-      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
-      gettimeofday(&tvBegin, NULL);
-#ifdef bit32
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
-        *itCorFrame = static_cast<int32_t>(*itRawFrame);
-#elif defined(fbit32)
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
-        *itCorFrame = static_cast<float>(*itRawFrame);
-#elif defined(every)
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
-               ++itCorFrame32f,++itCorFrame16u)
+      else
       {
-        *itCorFrame32i = static_cast<int32_t>(*itRawFrame);
-        *itCorFrame32f = static_cast<float>(*itRawFrame);
-        *itCorFrame16u = static_cast<uint16_t>(*itRawFrame);
-      }
+        cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
+        gettimeofday(&tvBegin, NULL);
+#ifdef bit32
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+            *itCorFrame = static_cast<int32_t>(*itRawFrame);
+#elif defined(fbit32)
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+            *itCorFrame = static_cast<float>(*itRawFrame);
+#elif defined(every)
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
+                  ++itCorFrame32f,++itCorFrame16u)
+        {
+          *itCorFrame32i = static_cast<int32_t>(*itRawFrame);
+          *itCorFrame32f = static_cast<float>(*itRawFrame);
+          *itCorFrame16u = static_cast<uint16_t>(*itRawFrame);
+        }
 #else
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-      for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
-        *itCorFrame = static_cast<uint16_t>(*itRawFrame);
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+        for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame)
+            *itCorFrame = static_cast<uint16_t>(*itRawFrame);
 #endif
-       gettimeofday(&tvEnd, NULL);
+        gettimeofday(&tvEnd, NULL);
 
-    }
+      }
+#endif
+      timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
+#ifdef debug
+      printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+#endif
+      printf("doing_math_took %lld ns\n", timeDiff(&now, &start));
 
-    timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-    printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
-    printf("doing_math_took %lld ns\n", timeDiff(&now, &start));
-
-
-//the rearrangement has been moved to the converter//
-//    //do the munich "massaging" of the detector//
-//    //and find the photon hits/
-////    if(!_pnccd_analyzer[iDet]->processPnCCDDetectorData(&det))
-//    if (true)
-//    {
-//      //NC the following is increadibly slow...
-//      //maybe we could shift it downwards, to have a "downsized copy"
-//
-//      //if nothing was done then rearrange the frame to the right geometry//
-//      //go through the complete frame and copy the first row to the first row//
-//      //and the next row to the last row and so on//
-//      size_t sourceindex=0;
-//      for (size_t i=0; i<nRows/2 ;++i)
-//      {
-//        memcpy(&cf[i*nCols],
-//               &rf[sourceindex*nCols],
-//               1024*sizeof(int16_t));
-//        ++sourceindex;
-//        memcpy(&cf[(nCols-1-i)*nCols],
-//               &rf[sourceindex*nCols],
-//               1024*sizeof(int16_t));
-//        ++sourceindex;
-//      }
-//    }
-//    else
-//      det.calibrated()=true;
-
-    
-    //calc the integral (the sum of all bins)//
-    det.integral() = 0;
-    for (size_t iInt=0; iInt<cf.size() ;++iInt)
+      //calc the integral (the sum of all bins)//
+      det.integral() = 0;
+      for (size_t iInt=0; iInt<cf.size() ;++iInt)
 #ifdef fbit32
-      det.integral() += static_cast<uint64_t>(cf[iInt]); // in this case it could just be a copy 
+          det.integral() += static_cast<uint64_t>(cf[iInt]); // in this case it could just be a copy 
                                                            //if det.int would be float32
 #else
       det.integral() += static_cast<uint64_t>(cf[iInt]);
 #endif
 
-    gettimeofday(&tvBegin, NULL);
-    //rebin image frame if requested//
-    if (rebinfactor != 1)
-    {
-      //if the rebinfactor doesn't fit the original dimensions//
-      //checks whether rebinfactor is of power of 2//
-      //look for the next smaller number that is a power of 2//
-      if(nRows % rebinfactor != 0)
+      gettimeofday(&tvBegin, NULL);
+      //rebin image frame if requested//
+      if (rebinfactor != 1)
       {
-        rebinfactor = static_cast<uint32_t>(pow(2,int(log2(rebinfactor))));
-        saveSettings();
-      }
-      //get the new dimensions//
-      const size_t newRows = nRows / rebinfactor;
-      const size_t newCols = nCols / rebinfactor;
-      //set the new dimensions in the detector//
-      det.rows()    = newRows;
-      det.columns() = newCols;
-      //resize the temporary container to fit the rebinned image
-      //initialize it with 0
+        //if the rebinfactor doesn't fit the original dimensions//
+        //checks whether rebinfactor is of power of 2//
+        //look for the next smaller number that is a power of 2//
+        if(nRows % rebinfactor != 0)
+        {
+          rebinfactor = static_cast<uint32_t>(pow(2,int(log2(rebinfactor))));
+          saveSettings();
+        }
+        //get the new dimensions//
+        const size_t newRows = nRows / rebinfactor;
+        const size_t newCols = nCols / rebinfactor;
+        //set the new dimensions in the detector//
+        det.rows()    = newRows;
+        det.columns() = newCols;
+        //resize the temporary container to fit the rebinned image
+        //initialize it with 0
 #ifdef fbit32
-      _tmpf.assign(newRows * newCols,0.);
+        _tmpf.assign(newRows * newCols,0.);
 #else
-      _tmp.assign(newRows * newCols,0);
+        _tmp.assign(newRows * newCols,0);
 #endif
 
-      //go through the whole corrected frame//
-      for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
-      {
-        //calculate the row and column of the current Index//
-        const size_t row = iIdx / nCols;
-        const size_t col = iIdx % nCols;
-        //calculate the index of the rebinned frame//
-        const size_t newRow = row / rebinfactor;
-        const size_t newCol = col / rebinfactor;
-        //calculate the index in the rebinned frame//
-        //that newRow and newCol belongs to//
-        const size_t newIndex = newRow*newCols + newCol;
-        //add this index value to the newIndex value//
+        //go through the whole corrected frame//
+        for (size_t iIdx=0; iIdx<cf.size() ;++iIdx)
+        {
+          //calculate the row and column of the current Index//
+          const size_t row = iIdx / nCols;
+          const size_t col = iIdx % nCols;
+          //calculate the index of the rebinned frame//
+          const size_t newRow = row / rebinfactor;
+          const size_t newCol = col / rebinfactor;
+          //calculate the index in the rebinned frame//
+          //that newRow and newCol belongs to//
+          const size_t newIndex = newRow*newCols + newCol;
+          //add this index value to the newIndex value//
 #ifdef fbit32
-        _tmpf[newIndex] += cf[iIdx];
+          _tmpf[newIndex] += cf[iIdx];
 #else
-        _tmp[newIndex] += cf[iIdx];
+          _tmp[newIndex] += cf[iIdx];
 #endif
 
-        /*// instead of doing the prev line, I could:
+          /*// instead of doing the prev line, I could:
           #ifdef signedframeonly
           // "stop" at 32k
           // do not add if already over max allowed
@@ -547,49 +888,75 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           // "invent" some math
           //_tmp[newIndex] += cf[iIdx];
           //if( _tmp[newIndex] & 0x8000 ) _tmp[newIndex]=0x7FFF;*/
-      }
-      //make the correctedframe the right size//
-      cf.resize(newRows*newCols);
-      //copy the tempframe to the corrected frame//
-      //make sure that each pixel is scaled to avoid//
-      //decreasing the dynamic range//
+        }
+        //make the correctedframe the right size//
+        cf.resize(newRows*newCols);
+        //copy the tempframe to the corrected frame//
+        //make sure that each pixel is scaled to avoid//
+        //decreasing the dynamic range//
 #ifdef bit32
-      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
-      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
-        *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
+        std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
+        for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+            *itCorFrame = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
 #elif defined(fbit32)
-      std::vector<float>::const_iterator itTemp = _tmpf.begin();
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
-      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
-        *itCorFrame = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+        std::vector<float>::const_iterator itTemp = _tmpf.begin();
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame = cf.begin();
+        for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+            *itCorFrame = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
 #elif defined(every)
-      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
-      cf32i.resize(newRows*newCols);
-      cf32f.resize(newRows*newCols);
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
-      for (; itCorFrame16u!=cf.end() ;++itCorFrame16u,++itTemp)
-        *itCorFrame16u = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
-      itTemp = _tmp.begin();
-      cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
-      for (; itCorFrame32i!=cf32i.end() ;++itCorFrame32i,++itTemp)
-        *itCorFrame32i = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
-      itTemp = _tmp.begin();
-      cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
-      for (; itCorFrame32f!=cf32f.end() ;++itCorFrame32f,++itTemp)
-        *itCorFrame32f = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
+        std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+        cf32i.resize(newRows*newCols);
+        cf32f.resize(newRows*newCols);
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame16u = cf.begin();
+        for (; itCorFrame16u!=cf.end() ;++itCorFrame16u,++itTemp)
+            *itCorFrame16u = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
+        itTemp = _tmp.begin();
+        cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame32i = cf32i.begin();
+        for (; itCorFrame32i!=cf32i.end() ;++itCorFrame32i,++itTemp)
+            *itCorFrame32i = static_cast<int32_t>(*itTemp / (rebinfactor*rebinfactor));
+        itTemp = _tmp.begin();
+        cass::pnCCD::pnCCDDetector::frame_f32_t::iterator itCorFrame32f = cf32f.begin();
+        for (; itCorFrame32f!=cf32f.end() ;++itCorFrame32f,++itTemp)
+            *itCorFrame32f = static_cast<float>(*itTemp / (rebinfactor*rebinfactor));
 #else
-      std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
-      cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
-      for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
-        *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
+        std::vector<uint64_t>::const_iterator itTemp = _tmp.begin();
+        cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
+        for (; itCorFrame!=cf.end() ;++itCorFrame,++itTemp)
+            *itCorFrame = static_cast<uint16_t>(*itTemp / (rebinfactor*rebinfactor));
 #endif
+      }
+      gettimeofday(&tvEnd, NULL);
+      timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
+      if (rebinfactor != 1) printf("rebin_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+
     }
-    gettimeofday(&tvEnd, NULL);
-    timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-    printf("rebin_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+    else
+    {
+      QMutexLocker locker(&_mutex);
+      cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
+      std::vector<double>::iterator itOffset = offset.begin();
+      std::vector<double>::iterator itNoise  = noise.begin();
+      //size_t tts=0;
+      for (; itOffset!=offset.end() ;++itOffset,++itFrame,++itNoise)
+      {
+        *itOffset += static_cast<double>(*itFrame);
+        *itNoise  += static_cast<double>(*itFrame) * static_cast<double>(*itFrame);
+        /*std::cout << "offs/noi/this/this*this "<< tts<<" "
+                  << *itOffset <<" "<< *itNoise <<" "<< static_cast<double>(*itFrame)
+        <<" "<<static_cast<double>(*itFrame) * static_cast<double>(*itFrame) << std::endl;
+        tts++;*/
+        /*offset[iOff%1024] = (offset[iOff%1024] * damping + *itFrame) / (damping+1.);
+        noise[iOff%1024]  = ( noise[iOff%1024] * damping + *ritFrame)/ (damping+1.);*/
+      }
+      ++nDarkframes;
+      /*std::cout<<"this is supposed to be a dark run ";
+      std::cout<<nDarkframes<<" "<<_param._nbrDarkframes[iDet]<<" "<< iDet<<std::endl;*/
+    }
 
   }
+
+
 }
 
 
