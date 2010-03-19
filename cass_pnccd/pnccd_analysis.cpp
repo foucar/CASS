@@ -83,11 +83,11 @@ void cass::pnCCD::Parameter::load()
       // the orientation is used only in the case of a triangular shape
       detROI[iDet]._ROI[iROI].orientation = value("orientation",1).toInt();
       endGroup();
-      std::cout <<"ROI loaded "<< iROI << " " << detROI[iDet]._ROI[iROI].xsize 
-                <<" " << detROI[iDet]._ROI[iROI].ysize 
-                <<" " << detROI[iDet]._ROI[iROI].xcentre
-                <<" " << detROI[iDet]._ROI[iROI].ycentre 
-                <<" " << detROI[iDet]._ROI[iROI].orientation<<std::endl;
+      std::cout <<"ROI loaded "<< iROI << " xsiz " << detROI[iDet]._ROI[iROI].xsize 
+                <<" ysiz " << detROI[iDet]._ROI[iROI].ysize 
+                <<" xc " << detROI[iDet]._ROI[iROI].xcentre
+                <<" yc " << detROI[iDet]._ROI[iROI].ycentre 
+                <<" ori " << detROI[iDet]._ROI[iROI].orientation<<std::endl;
     }
     endGroup();
     std::cout << "done ROI load "<< detROI[iDet]._ROI.size() << " of pnCCD" << iDet << std::endl;
@@ -411,6 +411,8 @@ void cass::pnCCD::Analysis::loadSettings()
     {
       // "enable" all  pixel as default
       _param._ROImask[iDet].assign(_param._ROImask[iDet].size(),1);
+      //I need to reset the number of masked pixel per frame
+      number_of_pixelsettozero=0;
       for(size_t iROI=0;iROI<_param.detROI[iDet]._ROI.size(); ++iROI)
       {
         size_t index_of_center=_param.detROI[iDet]._ROI[iROI].xcentre
@@ -444,9 +446,13 @@ void cass::pnCCD::Analysis::loadSettings()
             if( ( pow(xlocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize),2) +
                   pow(ylocal-static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].ysize),2) ) <= radius2 )
             {
-              _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              //I do not need to set again to zero a pixel that was already masked!
+              if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+              {
+                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
 #ifdef debug
               std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
@@ -461,9 +467,13 @@ void cass::pnCCD::Analysis::loadSettings()
           {
             xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize +1);
             ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize +1);
-            _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-            //remember how many pixels I have masked
-            number_of_pixelsettozero++;
+            //I do not need to set again to zero a pixel that was already masked!
+            if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            {
+              _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              //remember how many pixels I have masked
+              number_of_pixelsettozero++;
+            }
 #ifdef debug
             std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param.detROI[iDet]._ROI[iROI].ycentre
                      << " "<<_param.detROI[iDet]._ROI[iROI].ycentre - _param.detROI[iDet]._ROI[iROI].ysize
@@ -502,9 +512,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
               else if(ylocal-1<(4*ysize - 2* ysize/xsize*xlocal_f)
                       && xlocal>static_cast<int32_t>(_param.detROI[iDet]._ROI[iROI].xsize))
@@ -512,9 +525,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
             }
           }
@@ -540,9 +556,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
               else if(ylocal+1>(-2*ysize +
                               2 * ysize/xsize*xlocal_f)
@@ -551,9 +570,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
             }
           }
@@ -574,9 +596,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
               if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
               {
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
             }
           }
@@ -596,9 +621,12 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
               if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
               {
-                _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal) ]=0;
-                //remember how many pixels I have masked
-                number_of_pixelsettozero++;
+                if (_param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                {
+                  _param._ROImask[iDet][index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
             }
           }
@@ -619,8 +647,8 @@ void cass::pnCCD::Analysis::loadSettings()
         _param._ROIiterator[iDet][iPixel]=iPixel+1;
       }
       */
-      size_t nextPixel=1;
-      _param._ROIiterator[iDet].resize(_param._ROImask[iDet].size()-number_of_pixelsettozero);
+      size_t nextPixel=0;
+      _param._ROIiterator[iDet].resize(_param._ROImask[iDet].size()-number_of_pixelsettozero-1);
       for(size_t iPixel=0;iPixel<_param._ROImask[iDet].size(); ++iPixel)
       {
         // the "pointer" is the location/index of the next pixel to be used
@@ -631,7 +659,8 @@ void cass::pnCCD::Analysis::loadSettings()
         }
       }
       std::cout <<"Roiit sizes "<< iDet<<" "<<_param._ROImask[iDet].size()<<" " 
-                <<_param._ROIiterator[iDet].size() <<std::endl;
+                <<_param._ROIiterator[iDet].size()<< " "
+                <<number_of_pixelsettozero <<std::endl;
 #ifdef debug
       for(size_t i=0;i<_param._ROIiterator[iDet].size();i++)
       {
@@ -685,34 +714,6 @@ void cass::pnCCD::Analysis::saveSettings()
           std::cout<<" "<<    _param._noise[i][j] <<" "<< j <<std::endl;
 #endif
         }
-/*
-        for(size_t j=0;j<_param._offsets[i].size();j++)
-        {
-#ifdef debug_darkmaps
-          std::cout<<"off "<<_param._offsets[i][j] << " " <<_param._nbrDarkframes[i]<<" ";
-#endif
-          _param._offsets[i][j]=_param._offsets[i][j]/_param._nbrDarkframes[i];
-#ifdef debug_darkmaps
-          std::cout<<_param._offsets[i][j] <<std::endl;
-#endif
-        }
-*/
-/*
-        for(size_t j=0;j<_param._noise[i].size();j++)
-        {
-#ifdef debug_darkmaps
-          std::cout<<"noise "<<_param._noise[i][j]/_param._nbrDarkframes[i] << " " 
-                   <<_param._offsets[i][j] * _param._offsets[i][j]<<" "
-                   << _param._noise[i][j]/_param._nbrDarkframes[i] - _param._offsets[i][j] 
-              * _param._offsets[i][j]<<" ";
-#endif
-          _param._noise[i][j]=sqrt(
-              _param._noise[i][j] / _param._nbrDarkframes[i] - _param._offsets[i][j] * _param._offsets[i][j]);
-#ifdef debug_darkmaps
-          std::cout<<_param._noise[i][j] <<std::endl;
-#endif
-        }
-*/
         //create a output file//
         ofstream out(_param._save_darkcal_fnames[i].c_str(), std::ios::binary);
         if (out.is_open())
@@ -892,6 +893,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         std::vector<double>::iterator itOffset = offset.begin();
         std::vector<double>::iterator itNoise  = noise.begin();
         std::vector<uint32_t>::const_iterator itROI  = iter.begin();
+        size_t pixelidx=0;
         cass::pnCCD::pnCCDDetector::frame_t::const_iterator itRawFrame = rf.begin();
 #ifdef bit32
         cass::pnCCD::pnCCDDetector::frame_i32_t::iterator itCorFrame = cf.begin();
@@ -904,29 +906,39 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #else
         cass::pnCCD::pnCCDDetector::frame_t::iterator itCorFrame = cf.begin();
 #endif
-        size_t pixelidx=0;
+//#define simple
         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
         gettimeofday(&tvBegin, NULL);
 #ifdef every
         for ( ; itRawFrame != rf.end(); ++itRawFrame,++itCorFrame32i,
-               ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
+                  ++itCorFrame32f,++itCorFrame16u,++itOffset,++pixelidx)
 #else
-#define simple
 #ifdef simple
         for ( ; itRawFrame != rf.end() ; ++itRawFrame,++itCorFrame,++itOffset,++pixelidx)
 #else
-        for ( ; itROI != iter.end() /*&& skip the last few pixels*/ ; ++itROI)
+        for ( ; itROI != iter.end(); ++itROI,++pixelidx)
 #endif
 #endif
         {
 #ifndef simple
-          itRawFrame=itROI;
-          itCorFrame=itROI;
-          itOffset=itROI;
+
+#ifdef debug
+          if(iDet==1)
+          {
+            std::cout<<"itROI "<<*itROI<<" "<<*(itROI+1)<<" " << distance(itROI,(itROI+1))
+                     <<" " << iter[pixelidx]<<" "<<iter[pixelidx+1]-iter[pixelidx] <<std::endl;
+            //if(mask[pixelidx]==0)std::cout<<"s_itROI "<<*itROI<<" "<<*(itROI+1)<<std::endl;
+          }
+#endif
+          advance(itRawFrame,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itCorFrame,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
 #endif
           //statistics//
           //  const double mean =  *itOffset / nDarkframes;
-          const double mean = *itOffset; 
+          const double mean = *itOffset;
+          //in case the darkframes are not properly computed
+          //const double mean = 0;
           //const double mean = (pixelidx < 1024*512) ? offset[pixelidx%1024] : noise[pixelidx%1024]; 
           //  const double meansquared =  mean * mean;
           //  const double sumofsquare = *itNoise;
@@ -937,12 +949,21 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           // and give wider range, I have anyway to do some "If" statements
 #ifdef bit32
           if(*itRawFrame> mean) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
+#ifdef simple
+          if(*itRawFrame> mean && mask[pixelidx]!=0) *itCorFrame = static_cast<int32_t>(*itRawFrame - mean);
+#endif
           else *itCorFrame=0;
 #elif defined(fbit32)
           if(*itRawFrame> mean) *itCorFrame = static_cast<float>(*itRawFrame - mean);
+#ifdef simple
+          if(*itRawFrame> mean && mask[pixelidx]!=0) *itCorFrame = static_cast<float>(*itRawFrame - mean);
+#endif
           else *itCorFrame=0;
 #elif defined(every)
           if(*itRawFrame> mean)
+#ifdef simple
+          if(*itRawFrame> mean && mask[pixelidx]!=0)
+#endif
           {
             *itCorFrame32i = static_cast<int32_t>(*itRawFrame - mean);
             *itCorFrame32f = static_cast<float>(*itRawFrame - mean);
@@ -1009,10 +1030,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       }
 #endif
       timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-#ifdef debug
-      printf("time_diff is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
-#endif
-      printf("doing_math_took %lld ns\n", timeDiff(&now, &start));
+//#ifdef debug
+      printf("time_diff is %ld.%06ld s\n", tvDiff.tv_sec, tvDiff.tv_usec);
+//#endif
+//      printf("doing_math_took %ld.%06ld\n", timeDiff(&now, &start)/1000);
+      printf("doing_math_took %lld.%03lld ms\n", timeDiff(&now, &start)/1000000, timeDiff(&now, &start)%1000);
 
       //calc the integral (the sum of all bins)//
       det.integral() = 0;
@@ -1028,14 +1050,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //rebin image frame if requested//
       std::cout << "integrals: " << det.integral() << std::endl;
       if(iDet==1)ii++;
-#ifdef debug
-      if(ii<10)
+//#ifdef debug
+      if(ii<5&& iDet==1)
       {
           std::cout << "frame ";
           for (size_t iInt=0; iInt<cf.size() ;++iInt) std::cout <<cf[iInt] << " " ;
           std::cout << std::endl;
       }
-#endif
+//#endif
 
       if (rebinfactor != 1)
       {

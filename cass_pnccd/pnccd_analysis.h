@@ -53,6 +53,9 @@ namespace cass
            /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
            ----           \/          | /         \ |
                                       |/           \|
+         if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
+         please remember to use the rotated frame wrt standard-natural frame
+         orientation!!
       */
       // the orientation
       int32_t orientation;
