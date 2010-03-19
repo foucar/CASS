@@ -190,42 +190,204 @@ void cass::pnCCD::Analysis::loadSettings()
   size_t number_of_pixelsettozero=0;
   //std::cout<<"size "<< _param._nbrDarkframes.size()<<std::endl;
   // Set the dark calibration data in the new analysis instance//
-  for(size_t i=0; i<_param._darkcal_fnames.size() ;++i)
+  for(size_t iDet=0; iDet<_param._darkcal_fnames.size() ;++iDet)
   {
-//    _pnccd_analyzer[i]->loadDarkCalDataFromFile(_param._darkcal_fnames[i]);
+//    _pnccd_analyzer[iDet]->loadDarkCalDataFromFile(_param._darkcal_fnames[iDet]);
     //open the file that should contain the darkframes//
-    ifstream in(_param._darkcal_fnames[i].c_str(), std::ios::binary|std::ios::ate);
+    ifstream in(_param._darkcal_fnames[iDet].c_str(), std::ios::binary|std::ios::ate);
     if (in.is_open())
     {
-      std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
+      std::cout <<"reading pnccd "<<iDet<<" from file \""<<_param._darkcal_fnames[iDet].c_str()<<"\""<<std::endl;
       //find how big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
-      std::cout<<"the size is going to be "<<i <<" " <<size<<" "<<sizeof(double)<<std::endl;
-      //go to the beginning of the file
-      in.seekg(0,std::ios::beg);
-      //resize the vectors to the right size//
-      _param._offsets[i].resize(size);
-      _param._noise[i].resize(size);
-      _param._ROImask[i].resize(size);
-      _param._ROIiterator[i].resize(size);
-      //read the parameters stored in the file//
-      //add the next??
-      //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[i])), sizeof(double));
-      in.read(reinterpret_cast<char*>(&(_param._offsets[i][0])), _param._offsets[i].size()*sizeof(double));
-      in.read(reinterpret_cast<char*>(&(_param._noise[i][0])), _param._noise[i].size()*sizeof(double));
-      std::cout<<"Darkframes "<<i<<" "<< _param._nbrDarkframes[i]<<std::endl;
+      std::cout<<"the size is going to be "<<iDet <<" " <<size<<" "<<sizeof(double)<<std::endl;
 
+      //what if the file is not in "our" format ....
+      if(size%(1024*1024)!=0)
+      {
+        in.close();
+        in.clear();
+        in.open(_param._darkcal_fnames[iDet].c_str(),std::ios::in);
+
+        // read info from a Xonline kind of file-format
+        char               read_buffer[2048];
+        uint32_t           width, height, length;
+        size_t           statmap_bytesz, bpxmap_bytesz;
+        std::string        ftest_string;
+        std::istringstream header_istream;
+        std::ostringstream error_msg_;
+        // Read the header data first:
+        in.read(read_buffer,1024);
+        if( in.gcount() < 1024 )
+        {
+          // No statistics data are defined in this file: close, clear,
+          // and stop reading:
+            error_msg_.str("");
+            error_msg_ << "Error in readPixelStatMapToFile_(), in file: "
+                       << __FILE__ << " , in line: " << __LINE__
+                       << " , the file with the name '"
+                       << _param._darkcal_fnames[iDet].c_str()
+                       << "' does not contain pixel statistics data! "<<in.gcount();
+            std::cout << error_msg_.str() << std::endl;
+            //do not return, just create default-size maps
+            _param._offsets[iDet].resize(1024 * 1024);
+            _param._noise[iDet].resize(1024 * 1024);
+            _param._ROImask[iDet].resize(1024 * 1024);
+            _param._ROIiterator[iDet].resize(1024 * 1024);
+        }
+        else
+        {
+          // Try to find the sequence "HE pixel statistics" :
+          ftest_string = std::string(read_buffer,24);
+          if( ftest_string.find("HE pixel statistics map")
+              == std::string::npos )
+          {
+            // The sequence is not found: this is not a valid pixel statistics
+            // data file. Stop further attempts to read the data.
+            error_msg_.str("");
+            error_msg_ << "Error in readPixelStatMapToFile_(), in file: "
+                       << __FILE__ << " , in line: " << __LINE__
+                       << " , the file with the name '"
+                       << _param._darkcal_fnames[iDet].c_str()
+                       << "' does not contain pixel statistics data!";
+            std::cout << error_msg_.str() << std::endl;
+            //do not return, just create default-size maps
+            _param._offsets[iDet].resize(1024 * 1024);
+            _param._noise[iDet].resize(1024 * 1024);
+            _param._ROImask[iDet].resize(1024 * 1024);
+            _param._ROIiterator[iDet].resize(1024 * 1024);
+          }
+          else
+          {
+            // Put the header data into an istringstream:
+            header_istream.str(std::string(read_buffer,1024));
+            // Put the read pointer to the position just before the
+            // 'width' entry of the header:
+            header_istream.seekg(24,std::ios::beg);
+            // Read the width, height, and length information into the
+            // corresponding variables:
+            header_istream.read(reinterpret_cast<char*>(&width),4);
+            header_istream.read(reinterpret_cast<char*>(&height),4);
+            header_istream.read(reinterpret_cast<char*>(&length),4);
+
+            // Test: print the values in the shell window:
+            std::cout << "\n Reading calib data: "
+                      << " width  = " << width
+                      << " , height = " << height
+                      << " , length = " << length << "\n" << std::flush;
+            // Check the width, height, and length information:
+            if( width*height != length )
+            {
+              error_msg_.str("");
+              error_msg_ << "Error in readPixelStatMapToFile_(), in file: "
+                         << __FILE__ << " , in line: " << __LINE__
+                         << " , the array size information in the file '"
+                         << _param._darkcal_fnames[iDet].c_str()
+                         << "' is not consistent!";
+              std::cout << error_msg_.str() << std::endl;
+              //do not return, just create default-size maps
+              _param._offsets[iDet].resize(1024 * 1024);
+              _param._noise[iDet].resize(1024 * 1024);
+              _param._ROImask[iDet].resize(1024 * 1024);
+              _param._ROIiterator[iDet].resize(1024 * 1024);
+            }
+            else
+            {
+              // Accept the size information in the file:
+              /*frame_width_  = width;
+              frame_height_ = height;*/
+              size_t pix_count_    = static_cast<size_t>(length);
+              _param._offsets[iDet].resize(pix_count_);
+              _param._noise[iDet].resize(pix_count_);
+              _param._ROImask[iDet].resize(pix_count_);
+              _param._ROIiterator[iDet].resize(pix_count_);
+              statmap_bytesz = sizeof(staDataType)*pix_count_;
+              bpxmap_bytesz  = sizeof(char)*pix_count_;
+              std::vector<staDataType> pixel_stat_map_;
+              pixel_stat_map_.resize(pix_count_);
+              char        *badpix_map_[pix_count_];
+              std::cout<< sizeof(pixel_stat_map_)<<" "<<pixel_stat_map_.size() <<" "<<statmap_bytesz<<std::endl;
+
+              // Read the pixel statistics data:
+              in.read(
+                  reinterpret_cast<char*>(&(pixel_stat_map_[0])),
+                  statmap_bytesz);
+              // Read the bad pixel flag data:
+              in.read(
+                  reinterpret_cast<char*>(badpix_map_),
+                  bpxmap_bytesz);
+
+//              pix_count_=0;
+
+/*
+              //get the pointer to the config for this detector//
+              Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[iDet];
+              //find out the total size of this frame//
+              //Get the frame from the xtc
+              const Pds::PNCCD::FrameV1* frameSegment =
+                  reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
+              const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
+              const size_t NbrOfSegments = pnccdConfig->numLinks();
+              const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
+              std::cout<<"pnCCD sizes from Config "<<iDet <<" "<<sizeOfOneSegment<<" "
+                       <<NbrOfSegments <<" " <<FrameSize<<std::endl;
+*/
+
+//I should also "reorder" the darkframes 
+              //double      *offsetmap_ptr;
+              staDataType *pix_stats;
+              //offsetmap_ptr = offset_map_;
+              //pix_stats     = pixel_stat_map_;
+              // Loop over all array entries:
+              for(size_t ipix=0; ipix<pix_count_; ipix++, /*offsetmap_ptr++,*/ pix_stats++ ) {
+                  //*offsetmap_ptr = pix_stats->offset;
+                  //std::cout<<"hai "<<ipix<<std::endl;
+                  pix_stats     = &pixel_stat_map_[ipix];
+                  _param._offsets[iDet][ipix] = pix_stats->offset;
+                  _param._noise[iDet][ipix] = pix_stats->sigma;
+              }
+              /*
+              double      *noisemap_ptr;
+              noisemap_ptr  = noise_map_;
+              pix_stats     = pixel_stat_map_;
+               Loop over all array entries:
+              for(size_t i=0; i<pix_count_; i++, noisemap_ptr++, pix_stats++ ) {
+                  *noisemap_ptr = pix_stats->sigma;
+              }
+              */
+
+            }
+          }
+        }
+      }
+      else
+      {
+        //go to the beginning of the file
+        in.seekg(0,std::ios::beg);
+        //resize the vectors to the right size//
+        _param._offsets[iDet].resize(size);
+        _param._noise[iDet].resize(size);
+        _param._ROImask[iDet].resize(size);
+        _param._ROIiterator[iDet].resize(size);
+        //read the parameters stored in the file//
+        //add the next??
+        //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[iDet])), sizeof(double));
+        in.read(reinterpret_cast<char*>(&(_param._offsets[iDet][0])), _param._offsets[iDet].size()*sizeof(double));
+        in.read(reinterpret_cast<char*>(&(_param._noise[iDet][0])), _param._noise[iDet].size()*sizeof(double));
+        std::cout<<"Darkframes "<<iDet<<" "<< _param._nbrDarkframes[iDet]<<" " 
+                 << static_cast<size_t>(_param._offsets[iDet][0])<<std::endl;
+      }
     }
     else
     {
       //safe net in case there is no file yet
-      _param._offsets[i].resize(1024 * 1024);
-      _param._noise[i].resize(1024 * 1024);
-      _param._ROImask[i].resize(1024 * 1024);
-      _param._ROIiterator[i].resize(1024 * 1024);
+      _param._offsets[iDet].resize(1024 * 1024);
+      _param._noise[iDet].resize(1024 * 1024);
+      _param._ROImask[iDet].resize(1024 * 1024);
+      _param._ROIiterator[iDet].resize(1024 * 1024);
 
-//      _param._offsets[i].resize(_param.pnCCDoriginalrows[i] * _param.pnCCDoriginalcols[i]);
-//      _param._noise[i].resize(_param.pnCCDoriginalrows[i] * _param.pnCCDoriginalcols[i]);
+//      _param._offsets[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
+//      _param._noise[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
     }
   }
   //if this is a darkcalibration run I reset the values in the frames
@@ -443,12 +605,12 @@ void cass::pnCCD::Analysis::loadSettings()
         }
       } // end iROI loop
 
-//#ifdef debug
+#ifdef debug
       std::cout <<"ROI "<< iDet<<" "<<_param._ROImask[iDet].size()<<" ";
       for(size_t i=0;i<_param._ROImask[iDet].size();i++)
           std::cout << _param._ROImask[iDet][i]<< " ";
       std::cout<<std::endl;
-//#endif
+#endif
       // now I know which pixel should be masked!
       /*
       for(size_t iPixel=0;iPixel<_param._ROIiterator[iDet].size(); ++iPixel)
@@ -470,6 +632,7 @@ void cass::pnCCD::Analysis::loadSettings()
       }
       std::cout <<"Roiit sizes "<< iDet<<" "<<_param._ROImask[iDet].size()<<" " 
                 <<_param._ROIiterator[iDet].size() <<std::endl;
+#ifdef debug
       for(size_t i=0;i<_param._ROIiterator[iDet].size();i++)
       {
         if(i%16==0) std::cout <<"Roiit"<<iDet<<" ";
@@ -477,6 +640,7 @@ void cass::pnCCD::Analysis::loadSettings()
         if(i%16==15) std::cout<<std::endl;
       }
       std::cout<<std::endl;
+#endif
       
     } // end iDet loop
   } // end This_is_a_dark_run if
@@ -864,12 +1028,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //rebin image frame if requested//
       std::cout << "integrals: " << det.integral() << std::endl;
       if(iDet==1)ii++;
+#ifdef debug
       if(ii<10)
       {
           std::cout << "frame ";
           for (size_t iInt=0; iInt<cf.size() ;++iInt) std::cout <<cf[iInt] << " " ;
           std::cout << std::endl;
       }
+#endif
 
       if (rebinfactor != 1)
       {
