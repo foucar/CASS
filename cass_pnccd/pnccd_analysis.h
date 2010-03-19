@@ -153,8 +153,28 @@ namespace cass
       std::vector<uint64_t> _tmp;
       std::vector<float> _tmpf;
 
+        //is this the best place??
       typedef std::vector<uint16_t>   maskframe_t;
       std::vector<maskframe_t>       mask_frame;
+
+      //inherited from fformat.h
+      typedef  int16_t        pxType;
+      //inherited from xonline_data_types.h
+      typedef struct
+      {
+        //    int          count;       // internal use
+        double sum;         // internal use
+        //    pxType mean;      // offset mean value of pixel (common mode corrected)
+        double offset;      // offset mean value of pixel (raw)
+        double sigma;       // noise sigma value of pixel
+        double sumSq;       // internal use
+        int    count;       // internal use
+        pxType mean;        // offset mean value of pixel (common mode corrected)
+
+      } staDataType;
+
+
+
     };
 
 
