@@ -77,11 +77,15 @@ namespace cass
 
 
 
-  //base class for floats from which all float histograms inherit
+// base class for floats from which all float histograms inherit
   class CASSSHARED_EXPORT HistogramFloatBase : public HistogramBackend
   {
   public:
-    explicit HistogramFloatBase(size_t dim)
+
+      typedef std::vector<float> histo_t;
+
+
+      explicit HistogramFloatBase(size_t dim)
       :HistogramBackend(dim)
     {}
     HistogramFloatBase(Serializer& in)
@@ -92,15 +96,17 @@ namespace cass
     virtual ~HistogramFloatBase()      {}
     virtual void serialize(Serializer&)const;
     virtual void deserialize(Serializer&);
-  protected:
-    typedef std::vector<float> histo_t;
+
+    /** @return const reference to histogram data */
+    const histo_t &memory() const {return _memory;}
+
+    /** @overload */
+    histo_t       &memory()          {return _memory;}
+
   protected:
     //reset the histogram//
     virtual void   reset()           {_memory.assign(_memory.size(),0);}
-    //setters and getters
-    const histo_t &memory()const     {return _memory;}
-    histo_t       &memory()          {return _memory;}
-  protected:
+
     //the memory contains the histogram in range nbins
     //after that there are some reservered spaces for over/underflow statistics
     histo_t        _memory;
@@ -301,3 +307,13 @@ void cass::Histogram2DFloat::fill(float x, float y, float weight)
 
 
 #endif // HISTOGRAM_H
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:

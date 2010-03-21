@@ -4,10 +4,11 @@
 #ifndef __POSTPROCESSOR_H__
 #define __POSTPROCESSOR_H__
 
-#include <QtCore/QMutex>
-
+#include <cassert>
 #include <map>
 #include <utility>
+
+#include <QtCore/QMutex>
 
 #include "cass.h"
 #include "histogram.h"
@@ -24,11 +25,18 @@ class PostProcessors
 {
 public:
 
+    /** List of all currently registered postprocessors
+
+    Keep this list synchronized with the documntation of the TCP server in tcpserver.h!
+    */
+    enum id_t {PnccdLastImage1=1, PnccdLastImage2=2,
+    };
+
     /** Container of all currently available histograms */
-    typedef std::map<size_t, HistogramBackend*> histograms_t;
+    typedef std::map<id_t, HistogramBackend*> histograms_t;
 
     /** Container of all currently actice postprocessors */
-    typedef std::map<size_t, PostprocessorBackend*> postprocessors_t;
+    typedef std::map<id_t, PostprocessorBackend*> postprocessors_t;
 
     /** create the instance if not it does not exist already */
     static PostProcessors *instance(const char* OutputFileName);
@@ -47,7 +55,7 @@ public:
     void saveSettings() {}
 
     /** @return Histogram storage */
-    const histograms_t  &histograms() const { return _histograms; };
+    const histograms_t &histograms() const { return _histograms; };
 
     /** @overload
 
@@ -82,7 +90,6 @@ private:
 
     /** Singleton operation locker */
     static QMutex _mutex;
-
 };
 
 
@@ -92,8 +99,9 @@ class PostprocessorBackend
 {
 public:
 
-    PostprocessorBackend(HistogramBackend * & backend)
-        : _backend(backend) {};
+    PostprocessorBackend(PostProcessors::histograms_t& hs, PostProcessors::id_t id)
+        : _id(id), _histograms(hs)
+        {};
 
     virtual ~PostprocessorBackend()
         {};
@@ -102,32 +110,60 @@ public:
 
 protected:
 
-    size_t _id;
+    /** @return histogram of the actual postprocessor we call this for */
+    virtual HistogramBackend *histogram() { return _histograms[_id]; };
 
-    HistogramBackend *_backend;
+    /** @overload
+
+    @return histogram of the requested postprocessor */
+    virtual HistogramBackend *histogram(PostProcessors::id_t id) { return _histograms[id]; };
+
+    PostProcessors::id_t _id;
+
+    PostProcessors::histograms_t& _histograms;
 };
 
 
 
-class PostprocessorAveragePnCCD : public PostprocessorBackend
+class PostprocessorPnccdLastImage : public PostprocessorBackend
 {
 public:
 
-    PostprocessorAveragePnCCD(HistogramBackend * & backend)
-        : PostprocessorBackend(backend)
+    PostprocessorPnccdLastImage(PostProcessors::histograms_t& hist, PostProcessors::id_t id)
+        : PostprocessorBackend(hist, id),
+          _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
         {
-            _backend = new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023);
+            switch(id) {
+            case PostProcessors::PnccdLastImage1:
+                _detector = 0;
+                break;
+            case PostProcessors::PnccdLastImage2:
+                _detector = 1;
+                break;
+            };
+            // save storage in PostProcessors container
+            assert(hist == _histograms);
+            _histograms[_id] = _image;
         };
 
+    /** Free _image spcae */
+    virtual ~PostprocessorPnccdLastImage()
+        { delete _image; _image = 0; };
+
+    /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
+
 
 protected:
 
-    Histogram2DFloat *_backend;
+    size_t _detector;
+
+    Histogram2DFloat *_image;
 };
 
 
-}
+
+} // namespace cass
 
 
 #endif

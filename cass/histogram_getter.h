@@ -21,11 +21,11 @@ class Histogram;
 */
 struct HistogramParameter {
 
-    HistogramParameter(size_t _type)
+    HistogramParameter(PostProcessors::id_t _type)
         : type(_type)
         {};
 
-    size_t type;
+    PostProcessors::id_t type;
 };
 
 
