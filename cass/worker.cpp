@@ -59,7 +59,7 @@ void cass::Worker::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
-const cass::PostProcessors::histograms_t cass::Worker::histograms()const
+const cass::PostProcessors::histograms_t& cass::Worker::histograms()const
 {
   return _postprocessor->histograms();
 }
@@ -193,3 +193,13 @@ void cass::Workers::end()
   //emit that all workers are finished//
   emit finished();
 }
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:

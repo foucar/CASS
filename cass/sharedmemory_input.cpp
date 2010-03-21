@@ -116,10 +116,10 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
 
   //tell the buffer that we are done, but also let it know whether it is a good event//
   _ringbuffer.doneFilling(cassevent,isGood);
-  
+
   //for ratemeter purposes send a signal that we added a new event//
   emit newEventAdded();
-  
+
   //return the quit code//
   return _quit;
 }

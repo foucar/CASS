@@ -35,7 +35,7 @@ namespace cass
     void resume();
     void waitUntilSuspended();
 
-    const cass::PostProcessors::histograms_t histograms()const;
+    const PostProcessors::histograms_t& histograms()const;
 
 
   signals:
@@ -85,3 +85,13 @@ namespace cass
 }
 
 #endif
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:
