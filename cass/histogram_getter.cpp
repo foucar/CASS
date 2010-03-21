@@ -1,6 +1,9 @@
+// Copyright (C) 2010 Jochen Küpper
+
+#include "histogram.h"
 #include "histogram_getter.h"
 #include "serializer.h"
-#include "histogram.h"
+#include "post_processor.h"
 
 
 using namespace cass;
@@ -8,14 +11,11 @@ using namespace cass;
 
 const std::string HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-    //create a serializer that will serialize the cassevent//
     Serializer serializer;
-    //serialize the wanted histogram using the serializer//
-#warning: we need to decide how to retrieve a sub histogram a given postanalyzer
-    std::map<std::pair<size_t, size_t>, HistogramBackend*>::const_iterator iter(_histograms.find(std::make_pair(hp.type,0)));
-
+    // serialize the wanted histogram using the serializer
+    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
     iter->second->serialize(serializer);
-    //return the buffer (std::string) of the serializer)
+    //return the buffer (std::string) of the serializer
     return serializer.buffer();
 }
 

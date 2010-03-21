@@ -35,7 +35,7 @@ class CASSSHARED_EXPORT HistogramGetter
 {
 public:
 
-    HistogramGetter(const cass::PostProcessor::histograms_t& histograms)
+    HistogramGetter(const cass::PostProcessors::histograms_t& histograms)
         : _histograms(histograms)
         {};
 
@@ -43,7 +43,7 @@ public:
 
 protected:
 
-    const cass::PostProcessor::histograms_t &_histograms;
+    const cass::PostProcessors::histograms_t &_histograms;
 };
 
 } //end namespace cass

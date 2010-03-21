@@ -1,4 +1,5 @@
-//Copyright (C) 2009, 2010 lmf
+// Copyright (C) 2009, 2010 lmf
+// Copyright (C) 2010 Jochen Küpper
 
 #include <exception>
 #include <QMutexLocker>
@@ -12,7 +13,7 @@ cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &rin
   :QThread(parent),
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
-    _postprocessor(cass::PostProcessor::instance("")),
+    _postprocessor(cass::PostProcessors::instance("")),
     _quit(false)
 {
 }
@@ -58,7 +59,7 @@ void cass::Worker::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
-const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Worker::histograms()const
+const cass::PostProcessors::histograms_t cass::Worker::histograms()const
 {
   return _postprocessor->histograms();
 }
@@ -100,7 +101,7 @@ void cass::Worker::run()
       _analyzer->processEvent(cassevent);
 
       //here the usercode that will work on the cassevent will be called//
-      _postprocessor->postProcess(*cassevent);
+      _postprocessor->process(*cassevent);
 
       //we are done, so tell the ringbuffer//
       _ringbuffer.doneProcessing(cassevent);
@@ -148,7 +149,7 @@ cass::Workers::~Workers()
   std::cout<< "workers are closed" <<std::endl;
 }
 
-const std::map<std::pair<size_t, size_t>, cass::HistogramBackend*>& cass::Workers::histograms()const
+const cass::PostProcessors::histograms_t& cass::Workers::histograms() const
 {
     if(_workers.empty())
         throw std::bad_exception();

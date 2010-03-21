@@ -14,12 +14,12 @@
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
+#include "post_processor.h"
 
 
 namespace cass
 {
   class Analyzer;
-  class PostProcessor;
   class HistogramBackend;
 
 
@@ -35,7 +35,7 @@ namespace cass
     void resume();
     void waitUntilSuspended();
 
-    const std::map<std::pair<size_t, size_t>, HistogramBackend*>& histograms()const;
+    const cass::PostProcessors::histograms_t histograms()const;
 
 
   signals:
@@ -49,7 +49,7 @@ namespace cass
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
     Analyzer      *_analyzer;
-    PostProcessor *_postprocessor;
+    PostProcessors *_postprocessor;
     bool           _quit;
     QMutex         _pauseMutex;
     QWaitCondition _pauseCondition;
@@ -68,7 +68,7 @@ namespace cass
     ~Workers();
 
     void start();
-    const std::map<std::pair<size_t, size_t>, HistogramBackend*>& histograms()const;
+    const cass::PostProcessors::histograms_t& histograms()const;
 
   public slots:
     void end();
