@@ -5,6 +5,7 @@
 #define __POSTPROCESSOR_H__
 
 #include <cassert>
+#include <list>
 #include <map>
 #include <utility>
 
@@ -29,7 +30,8 @@ public:
 
     Keep this list synchronized with the documntation of the TCP server in tcpserver.h!
     */
-    enum id_t {PnccdLastImage1=1, PnccdLastImage2=2,
+    enum id_t {
+        PnccdLastImage1=1, PnccdLastImage2=2,
     };
 
     /** Container of all currently available histograms */
@@ -64,7 +66,20 @@ public:
     histograms_t &histograms() { return _histograms; };
 
 
+public slots:
+
+    /** @brief reset set of active postprocessors/histograms based on cass.ini */
+    void readIni();
+
+
 protected:
+
+    /** @brief (ordered) list of active postprocessors/histograms
+
+    This list has order, i.e., postprocessors are called in the specified order. You can rely on the
+    result of a postprocessor earlier in the list, but not on one that only occurs further back...
+    */
+    std::list<id_t> _active;
 
     /** container for all histograms */
     histograms_t _histograms;

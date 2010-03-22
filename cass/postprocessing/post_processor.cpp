@@ -2,6 +2,7 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <QtCore/QMutex>
+#include <QtCore/QSettings>
 
 #include "post_processor.h"
 #include "cass_event.h"
@@ -16,8 +17,18 @@ PostProcessors *cass::PostProcessors::_instance(0);
 QMutex PostProcessors::_mutex;
 
 
+// file-local helper function -- convert QVariant to id_t
+static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
+{
+    return PostProcessors::id_t(i.toInt());
+}
+
+
+
+
 PostProcessors::PostProcessors(const char *)
 {
+    // set up set of all active postprocessors/histograms
     // fill maps of histograms and postprocessors
     // For histograms we simply make sure the pointer is 0 and let the postprocessor
     // correctly initialize it whenever it wants to
@@ -29,7 +40,7 @@ PostProcessors::PostProcessors(const char *)
 
 
 // create an instance of the singleton
-cass::PostProcessors *PostProcessors::instance(const char *OutputFileName)
+PostProcessors *PostProcessors::instance(const char *OutputFileName)
 {
     QMutexLocker locker(&_mutex);
     if(0 == _instance)
@@ -39,7 +50,7 @@ cass::PostProcessors *PostProcessors::instance(const char *OutputFileName)
 
 
 // destroy the instance of the singleton
-void cass::PostProcessors::destroy()
+void PostProcessors::destroy()
 {
     QMutexLocker locker(&_mutex);
     delete _instance;
@@ -48,12 +59,22 @@ void cass::PostProcessors::destroy()
 
 
 
-void cass::PostProcessors::process(cass::CASSEvent& event)
+void PostProcessors::process(cass::CASSEvent& event)
 {
     for(postprocessors_t::iterator iter(_postprocessors.begin()); iter != _postprocessors.end(); ++iter)
         (*(iter->second))(event);
 }
 
+
+
+void PostProcessors::readIni()
+{
+    QSettings settings;
+    settings.beginGroup("postprocessors");
+    QVariantList list(settings.value("active").toList());
+    _active.resize(list.size());
+    transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
+}
 
 
 
