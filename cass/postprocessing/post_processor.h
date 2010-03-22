@@ -93,16 +93,19 @@ protected:
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();
 
+
 private:
 
+    /** Private constructor of singleton */
     PostProcessors(const char* OutputFileName);
 
-    /** Prevent copy-construction */
+    /** Prevent copy-construction of singleton */
     PostProcessors(const PostProcessors&);
 
-    /** Prevent assignment (potentially resulting in a copy) */
+    /** Prevent assignment (potentially resulting in a copy) of singleton */
     PostProcessors& operator=(const PostProcessors&);
 
+    /** Prevent destruction unless going through destroy */
     ~PostProcessors() {};
 
     /** pointer to the singleton instance */
