@@ -87,6 +87,11 @@ protected:
     /** container for registered (active) postprocessors */
     postprocessors_t _postprocessors;
 
+    /** Create new Postprocessor for specified id and using the specified histogram container */
+    PostprocessorBackend * create(histograms_t hs, id_t id);
+
+    /** Set up _histograms and _postprocessors using current _active*/
+    void setup();
 
 private:
 

@@ -12,6 +12,8 @@
 namespace cass
 {
 
+using namespace std;
+
 // define static members of singleton -- do not touch
 PostProcessors *cass::PostProcessors::_instance(0);
 QMutex PostProcessors::_mutex;
@@ -28,15 +30,11 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 PostProcessors::PostProcessors(const char *)
 {
-    // set up set of all active postprocessors/histograms
-    // fill maps of histograms and postprocessors
-    // For histograms we simply make sure the pointer is 0 and let the postprocessor
-    // correctly initialize it whenever it wants to
-    _histograms[PnccdLastImage1] = 0;
-    _postprocessors[PnccdLastImage1] = new PostprocessorPnccdLastImage(_histograms, PnccdLastImage1);
-    _histograms[PnccdLastImage2] = 0;
-    _postprocessors[PnccdLastImage2] = new PostprocessorPnccdLastImage(_histograms, PnccdLastImage2);
+    // set up list of all active postprocessors/histograms
+    // and fill maps of histograms and postprocessors
+    readIni();
 }
+
 
 
 // create an instance of the singleton
@@ -47,6 +45,7 @@ PostProcessors *PostProcessors::instance(const char *OutputFileName)
         _instance = new PostProcessors(OutputFileName);
     return _instance;
 }
+
 
 
 // destroy the instance of the singleton
@@ -61,8 +60,8 @@ void PostProcessors::destroy()
 
 void PostProcessors::process(cass::CASSEvent& event)
 {
-    for(postprocessors_t::iterator iter(_postprocessors.begin()); iter != _postprocessors.end(); ++iter)
-        (*(iter->second))(event);
+    for(list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+        (*(_postprocessors[*iter]))(event);
 }
 
 
@@ -74,6 +73,39 @@ void PostProcessors::readIni()
     QVariantList list(settings.value("active").toList());
     _active.resize(list.size());
     transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
+    setup();
+}
+
+
+
+void PostProcessors::setup()
+{
+    // delete all unused PostProcessors
+    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+        if(_active.end() == find(_active.begin(), _active.end(), iter->first))
+            _postprocessors.erase(iter);
+    // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
+    // the postprocessor correctly initialize it whenever it wants to
+    for(list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter) {
+        if(_postprocessors.end() == _postprocessors.find(*iter)) {
+            _histograms[*iter] = 0;
+            _postprocessors[*iter] = create(_histograms, *iter);
+        }
+    }
+}
+
+
+
+PostprocessorBackend * PostProcessors::create(histograms_t hs, id_t id)
+{
+    PostprocessorBackend * processor(0);
+    switch(id) {
+    case PnccdLastImage1:
+    case PnccdLastImage2:
+        processor = new PostprocessorPnccdLastImage(hs, id);
+        break;
+    }
+    return processor;
 }
 
 
