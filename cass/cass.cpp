@@ -17,8 +17,13 @@
 
 int main(int argc, char **argv)
 {
-  // construct Qt application object
-  QApplication app(argc, argv,false);
+    // construct Qt application object
+    QApplication app(argc, argv,false);
+    // set up details for QSettings and Co. (So we can simply use QSettings settings; everywhere else.)
+    Qcoreapplication::setOrganizationName("CFEL-ASG");
+    QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
+    QCoreApplication::setApplicationName("CASS");
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
   //create a container for the partition tag
   int c;
