@@ -92,8 +92,7 @@ void Socket::readClient()
     case HISTOGRAM: {
         quint32 type;
         in >> type;
-        std::string hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(
-                                                                             PostProcessors::id_t(type))));
+        std::string hist(dynamic_cast<Server *>(parent())->get_histogram(HistogramParameter(PostProcessors::id_t(type))));
         QByteArray block(hist.c_str());
         uint64_t size(block.size());
         assert(8 == sizeof(size));

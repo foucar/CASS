@@ -100,10 +100,12 @@ PostprocessorBackend * PostProcessors::create(histograms_t hs, id_t id)
 {
     PostprocessorBackend * processor(0);
     switch(id) {
-    case PnccdLastImage1:
-    case PnccdLastImage2:
+    case Pnccd1LastImage:
+    case Pnccd2LastImage:
         processor = new PostprocessorPnccdLastImage(hs, id);
         break;
+    default:
+        throw std::invalid_argument("Impossible postprocessor id for PostprocessorPnccdLastImage");
     }
     return processor;
 }
@@ -117,6 +119,50 @@ void PostprocessorPnccdLastImage::operator()(const CASSEvent& event)
     const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
     copy(frame.begin(), frame.end(), _image->memory().begin());
 }
+
+
+
+PostprocessorPnccdBinnedRunningAverage::PostprocessorPnccdBinnedRunningAverage(
+    PostProcessors::histograms_t& hist, PostProcessors::id_t id)
+    : PostprocessorBackend(hist, id)
+{
+    readIni();
+    // _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
+    //     {
+    //         switch(id) {
+    //         case PostProcessors::PnccdLastImage1:
+    //             _detector = 0;
+    //             break;
+    //         case PostProcessors::PnccdLastImage2:
+    //             _detector = 1;
+    //             break;
+    //         };
+    //         // save storage in PostProcessors container
+    //         assert(hist == _histograms);
+    //         _histograms[_id] = _image;
+    //     };
+}
+
+
+
+void PostprocessorPnccdBinnedRunningAverage::readIni()
+{
+    QSettings settings;
+    settings.beginGroup("postprocessors");
+    settings.beginGroup(QString("processor_") + QString::number(_id));
+    _binning = make_pair(settings.value("bin_vertical").toUInt(), settings.value("bin_vertical").toUInt());
+}
+
+
+
+void PostprocessorPnccdBinnedRunningAverage::operator()(const CASSEvent& event)
+{
+    using namespace pnCCD;
+    const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
+    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    copy(frame.begin(), frame.end(), _image->memory().begin());
+}
+
 
 
 

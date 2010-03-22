@@ -101,14 +101,7 @@ Get current histogram of type <type>, which is a unsigned integer value.
 This command calls the supplied get_histogram functor.
 
 
-The defined histogram types are
-
-    1: Last plain image from pnCCD-1
-    2: Last plain image from pnCCD 2
-  101: Running average of pnCCD-1 images with
-       - an average length of cass.ini:cass/histogram/101/average
-       - geometric binning (x and y) of cass.ini:cass/histogram/101/binning
-       - background subtraction of the images specified in cass.ini:cass/histogram/101/background
+The defined histogram types are documented in @class Postprocessors
 */
 class Server : public QTcpServer
 {

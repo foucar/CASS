@@ -5,11 +5,13 @@
 #define __POSTPROCESSOR_H__
 
 #include <cassert>
+#include <stdexcept>
 #include <list>
 #include <map>
 #include <utility>
 
 #include <QtCore/QMutex>
+#include <QtCore/QObject>
 
 #include "cass.h"
 #include "histogram.h"
@@ -21,17 +23,34 @@ class PostprocessorBackend;
 
 
 
-/** @brief container and call handler for all registered postprocessors */
+/** @brief container and call handler for all registered postprocessors
+
+The currently registered postprocessors are:
+
+00001: Last plain image from pnCCD-1
+00002: Last plain image from pnCCD-2
+00101: Running average of pnCCD-1 images with
+       - geometric binning (x and y) of postprocessors/101/binning
+       - an average length of postprocessors/101/average
+00102: Histogram 101 with
+       - background subtraction of the image file specified in postprocessors/102/background
+00121: Running average of VMI camera
+00131: Scalar value of the <cos^2\theta>_{2D} derived from the 121 image
+*/
 class PostProcessors
 {
+    // Q_OBJECT;
+
 public:
 
     /** List of all currently registered postprocessors
 
-    Keep this list synchronized with the documntation of the TCP server in tcpserver.h!
+    Keep this fully list synchronized with the documentation in the class header!
     */
     enum id_t {
-        PnccdLastImage1=1, PnccdLastImage2=2,
+        Pnccd1LastImage=1, Pnccd2LastImage=2,
+        Pnccd1BinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
+        VmiRunningAverage=121, VmiAlignment=201,
     };
 
     /** Container of all currently available histograms */
@@ -131,6 +150,11 @@ public:
 
     virtual void operator()(const CASSEvent&) = 0;
 
+    /** @brief Provide default implementation of readIni that does nothing */
+    virtual void readIni() {};
+
+
+
 protected:
 
     /** @return histogram of the actual postprocessor we call this for */
@@ -157,12 +181,14 @@ public:
           _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
         {
             switch(id) {
-            case PostProcessors::PnccdLastImage1:
+            case PostProcessors::Pnccd1LastImage:
                 _detector = 0;
                 break;
-            case PostProcessors::PnccdLastImage2:
+            case PostProcessors::Pnccd2LastImage:
                 _detector = 1;
                 break;
+            default:
+                throw std::invalid_argument("Impossible postprocessor id for PostprocessorPnccdLastImage");
             };
             // save storage in PostProcessors container
             assert(hist == _histograms);
@@ -181,6 +207,35 @@ protected:
 
     size_t _detector;
 
+    Histogram2DFloat *_image;
+};
+
+
+
+class PostprocessorPnccdBinnedRunningAverage : public PostprocessorBackend
+{
+public:
+
+    PostprocessorPnccdBinnedRunningAverage(PostProcessors::histograms_t& hist, PostProcessors::id_t id);
+
+    /** Free _image spcae */
+    virtual ~PostprocessorPnccdBinnedRunningAverage()
+        { delete _image; _image = 0; };
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void readIni();
+
+protected:
+
+    /** how many pixels to bin in vertical and horizontal direction */
+    std::pair<unsigned, unsigned> _binning;
+
+    /** pnCCD detector to work on */
+    size_t _detector;
+
+    /** current image */
     Histogram2DFloat *_image;
 };
 
