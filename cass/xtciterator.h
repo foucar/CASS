@@ -14,18 +14,20 @@
 
 namespace cass
 {
+  //class that will iterate over an xtc using the xtciterator provided by the lcls libary
   class XtcIterator : public Pds::XtcIterator
   {
   public:
     enum {Stop, Continue};
-    XtcIterator(Pds::Xtc* xtc, FormatConverter::usedConverters_t& converters, CASSEvent *cassevent, unsigned depth) :
-        Pds::XtcIterator(xtc),
-        _depth(depth),
-        _converters(converters),
-        _cassevent(cassevent)
-    {
-    }
+    XtcIterator(Pds::Xtc* xtc, FormatConverter::usedConverters_t& converters, CASSEvent *cassevent, unsigned depth)
+      :Pds::XtcIterator(xtc),
+      _depth(depth),
+      _converters(converters),
+      _cassevent(cassevent)
+    {}
 
+
+    //overloaded function that is called for each xtc found in the xtc//
     int process(Pds::Xtc* xtc)
     {
       //if it is another xtc, then iterate through it//
@@ -47,9 +49,9 @@ namespace cass
       return Continue;
     }
   private:
-    unsigned _depth;
-    FormatConverter::usedConverters_t& _converters;
-    CASSEvent *_cassevent;
+    unsigned                           _depth;      //counts the recursivness of this
+    FormatConverter::usedConverters_t &_converters; //reference to the converters
+    CASSEvent                         *_cassevent;  //pointer to the cassevent to work on
   };
 }//end namespace cass
 

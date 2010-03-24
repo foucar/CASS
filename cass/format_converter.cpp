@@ -80,24 +80,39 @@ cass::FormatConverter::FormatConverter()
   _availableConverters[MachineData] = new MachineData::Converter();
   _availableConverters[Blank]       = new BlankConverter();
 
-  // now initialze the uniteresting xtc ids with blank converters//
+  // now initialze all xtc ids with blank converters to be on the save side//
   _usedConverters[Pds::TypeId::Any]                 = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_Xtc]              = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_TwoDGaussian]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_Opal1kConfig]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_FrameFexConfig]   = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_EvrConfig]        = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_TM6740Config]     = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_ControlConfig]    = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_PrincetonFrame]   = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_PrincetonConfig]  = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
 
-  //now load the other converters//
+
+  //now load the converters, that the user want to use//
   loadSettings(0);
 }
 
 cass::FormatConverter::~FormatConverter()
 {
   // destruct all the individual format converters
-  for (availableConverters_t::iterator it=_availableConverters.begin() ; it != _availableConverters.end(); ++it )
+  for (availableConverters_t::iterator it=_availableConverters.begin();
+       it!=_availableConverters.end();
+       ++it)
     delete (it->second);
 }
 

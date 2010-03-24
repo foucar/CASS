@@ -21,6 +21,7 @@ namespace cass
   //@author Jochen Küpper,lmf
   //@version 0.2
 
+  //the parameters for the converter//
   class CASSSHARED_EXPORT ConverterParameter : public cass::ParameterBackend
   {
   public:
@@ -36,6 +37,7 @@ namespace cass
     bool _useMachine;
   };
 
+  //the formatconverter that contains all converters
   class CASSSHARED_EXPORT FormatConverter : public QObject
   {
     Q_OBJECT;
