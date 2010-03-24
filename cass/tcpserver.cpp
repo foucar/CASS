@@ -85,7 +85,8 @@ void Socket::readClient()
         QByteArray block(event.c_str());
         uint64_t size(block.size());
         assert(8 == sizeof(size));
-        block.prepend((char *)(&size), sizeof(size));
+        // Qt >= 4.6: block.prepend((char *)(&size), sizeof(size));
+        block.insert(0, QByteArray((const char *)(&size), sizeof(size)));
         write(block);
         break;
         }
@@ -96,7 +97,8 @@ void Socket::readClient()
         QByteArray block(hist.c_str());
         uint64_t size(block.size());
         assert(8 == sizeof(size));
-        block.prepend((char *)(&size), sizeof(size));
+        // Qt >= 4.6: block.prepend((char *)(&size), sizeof(size));
+        block.insert(0, QByteArray((const char *)(&size), sizeof(size)));
         write(block);
         break;
         }
