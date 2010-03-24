@@ -82,7 +82,7 @@ void PostProcessors::setup()
 {
     // delete all unused PostProcessors
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-        if(_active.end() == find(_active.begin(), _active.end(), iter->first))
+        if(_active.end() != find(_active.begin(), _active.end(), iter->first))
             _postprocessors.erase(iter);
     // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
     // the postprocessor correctly initialize it whenever it wants to
