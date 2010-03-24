@@ -6,8 +6,6 @@ Prerequisites
 
 The following software packages need to be installed and available for building and running CASS:
   - Qt version 4.5.x or 4.6.x
-  - LCLS package, available within the CASS repository or from 
-    http://confluence.slac.stanford.edu/display/PCDS/Online+Analysis+And+Monitoring
 
 
 Needed Environment Variables
