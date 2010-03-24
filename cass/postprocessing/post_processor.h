@@ -30,6 +30,27 @@ The currently registered postprocessors are:
 
 00001: Last plain image from pnCCD-1
 00002: Last plain image from pnCCD-2
+00003: Last plain image from VMI ccd
+00004: Last waveform of Camp Acqiris Channel 00
+00005: Last waveform of Camp Acqiris Channel 01
+00006: Last waveform of Camp Acqiris Channel 02
+00007: Last waveform of Camp Acqiris Channel 03
+00008: Last waveform of Camp Acqiris Channel 04
+00009: Last waveform of Camp Acqiris Channel 05
+00010: Last waveform of Camp Acqiris Channel 06
+00011: Last waveform of Camp Acqiris Channel 07
+00012: Last waveform of Camp Acqiris Channel 08
+00013: Last waveform of Camp Acqiris Channel 09
+00014: Last waveform of Camp Acqiris Channel 10
+00015: Last waveform of Camp Acqiris Channel 11
+00016: Last waveform of Camp Acqiris Channel 12
+00017: Last waveform of Camp Acqiris Channel 13
+00017: Last waveform of Camp Acqiris Channel 14
+00019: Last waveform of Camp Acqiris Channel 15
+00020: Last waveform of Camp Acqiris Channel 16
+00021: Last waveform of Camp Acqiris Channel 17
+00022: Last waveform of Camp Acqiris Channel 18
+00023: Last waveform of Camp Acqiris Channel 19
 00101: Running average of pnCCD-1 images with
        - geometric binning (x and y) of postprocessors/101/binning
        - an average length of postprocessors/101/average
