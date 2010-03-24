@@ -18,7 +18,7 @@ void cass::pnCCD::Parameter::load()
 {
   //the dark-frames calculations are not threadable for the moment
   // do improve it
-  std::cout <<"loading Params"<<std::endl;
+  std::cout <<"loading pnCCD Params"<<std::endl;
   //sting for the container index//
   QString s;
   //sync before loading//
@@ -339,29 +339,20 @@ void cass::pnCCD::Analysis::loadSettings()
                        <<NbrOfSegments <<" " <<FrameSize<<std::endl;
 */
 
-//I should also "reorder" the darkframes 
               //double      *offsetmap_ptr;
               staDataType *pix_stats;
               //offsetmap_ptr = offset_map_;
               //pix_stats     = pixel_stat_map_;
               // Loop over all array entries:
-              for(size_t ipix=0; ipix<pix_count_; ipix++, /*offsetmap_ptr++,*/ pix_stats++ ) {
-                  //*offsetmap_ptr = pix_stats->offset;
-                  //std::cout<<"hai "<<ipix<<std::endl;
-                  pix_stats     = &pixel_stat_map_[ipix];
-                  _param._offsets[iDet][ipix] = pix_stats->offset;
-                  _param._noise[iDet][ipix] = pix_stats->sigma;
+              for(size_t ipix=0; ipix<pix_count_; ipix++, /*offsetmap_ptr++,*/ pix_stats++ )
+              {
+                //I should also "reorder" the Xonline-darkframes
+                // at the moment I just read in the Xonline order!!
+                pix_stats     = &pixel_stat_map_[ipix];
+                _param._offsets[iDet][ipix] = pix_stats->offset;
+                _param._noise[iDet][ipix] = pix_stats->sigma;
               }
               //should I use also the badpixelmap??
-              /*
-              double      *noisemap_ptr;
-              noisemap_ptr  = noise_map_;
-              pix_stats     = pixel_stat_map_;
-               Loop over all array entries:
-              for(size_t i=0; i<pix_count_; i++, noisemap_ptr++, pix_stats++ ) {
-                  *noisemap_ptr = pix_stats->sigma;
-              }
-              */
 
             }
           }
@@ -819,7 +810,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //retrieve a reference to the ROI mask and/or iterator
     const std::vector<uint16_t> &mask = _param._ROImask[iDet];
     const std::vector<uint32_t> &iter = _param._ROIiterator[iDet];
-
+    const uint32_t &ShouldIuseCommonMode= _param._useCommonMode[iDet];
     //retrieve a reference to the nonrecombined photon hits of the detector//
     //cass::pnCCD::pnCCDDetector::photonHits_t &phs = det.nonrecombined();
     //retrieve a reference to the noise vector of this detector//
@@ -867,8 +858,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
     if(_param._This_is_a_dark_run==0)
     {
+#ifdef DEBUG
       std::cout<<"this is not a dark run"<<std::endl;
-
+#endif
 #ifdef no_dark_possible
       //take the average over the first and last 3 rows//
       cass::pnCCD::pnCCDDetector::frame_t::const_iterator itFrame = rf.begin();
@@ -977,6 +969,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           if(*itRawFrame> mean) *itCorFrame = static_cast<uint16_t>(*itRawFrame - mean);
           else *itCorFrame=0;
 #endif
+
+          if(ShouldIuseCommonMode)
+          {
+            //merd
+              std::cout<<"I need to do something"<<std::endl;
+          }
           //find out whether this pixel is a photon hit//
           /*if (*itCorFrame > (sigmaMultiplier * sigma) )
           {
@@ -1028,9 +1026,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       }
 #endif
       timeval_subtract(&tvDiff, &tvEnd, &tvBegin);
-//#ifdef debug
+#ifdef debug
       printf("time_diff is %ld.%06ld s\n", tvDiff.tv_sec, tvDiff.tv_usec);
-//#endif
+#endif
 //      printf("doing_math_took %ld.%06ld\n", timeDiff(&now, &start)/1000);
       printf("doing_math_took %lld.%03lld ms\n", timeDiff(&now, &start)/1000000, timeDiff(&now, &start)%1000);
 
@@ -1046,10 +1044,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
       gettimeofday(&tvBegin, NULL);
       //rebin image frame if requested//
-      std::cout << "integrals: " << det.integral() << std::endl;
+      //std::cout << "integrals: " << det.integral() << std::endl;
       if(iDet==1)ii++;
 //#ifdef debug
-      if(ii<5&& iDet==1)
+      if(ii<2&& iDet==1)
       {
           std::cout << "frame ";
           for (size_t iInt=0; iInt<cf.size() ;++iInt) std::cout <<cf[iInt] << " " ;

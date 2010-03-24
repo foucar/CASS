@@ -81,10 +81,13 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       {
         //get a reference to the detector we are working on right now//
         cass::pnCCD::pnCCDDetector& det = pnccdevent.detectors()[detectorId];
-//        std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() << " " << det.originalrows() << " " <<det.originalcolumns()<<" "<< pnccdevent.detectors().size() <<std::endl;
+//        std::cout<<detectorId<< " a "<< det.rows() << " " <<  det.columns() 
+//                 << " " << det.originalrows() << " " <<det.originalcolumns()
+//                 <<" "<< pnccdevent.detectors().size() <<std::endl;
 
         //get the pointer to the config for this detector//
         Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
+        //std::cout<<"test "<< _param.detROI[detectorId]._ROI[0].xsize<<std::endl;
 
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
