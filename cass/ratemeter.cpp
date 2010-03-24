@@ -1,13 +1,13 @@
 //Copyright (C) 2010 lmf
 #include <iostream>
+#include <cmath>
 
 #include "ratemeter.h"
 
-cass::Ratemeter::Ratemeter(QObject *parent)
+cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
     :QObject(parent),
-    _counter(4,0),
-    _times(4,0),
-    _idx(0)
+    _counts(0),
+    _averagetime(averagetime)
 {
   //start the clock//
   _time.start();
@@ -19,31 +19,25 @@ cass::Ratemeter::~Ratemeter()
 
 double cass::Ratemeter::calculateRate()
 {
-  //remember the time//
-  _times[_idx%4] = _time.elapsed();
-  //calculate the complete times and counts//
-  double time = 0;
-  double counts = 0;
-  for (size_t i=0; i<_times.size() ;++i)
-  {
-    time   += _times[i];
-    counts += _counter[i];
-  }
-   
-  //now calculate and emit the rate
-  double r = counts / (time*1e-3);
-  //restart the timer and advance the index//
-  _time.restart();
-  ++_idx;
+  //how long since the last calculation?//
+  const double time = _time.elapsed();
+
+  //use formular found in wiki at
+  //http://en.wikipedia.org/wiki/Moving_average//
+  //in this the running average time is 2s//
+  _rate = (1 - std::exp(-time/_averagetime))*_counts + 
+               std::exp(-time/_averagetime)*_rate;
   
   //reset the curent counter before adding//
-  _counter[_idx%4] = 0.;
-
+  _counts = 0.;
+ //restart the timer and advance the index//
+  _time.restart();
+ 
   //return the calculated rate//
-  return r;
+  return _rate;
 }
 
 void cass::Ratemeter::count()
 {
-  _counter[_idx%4] += 1.;
+  _counts += 1.;
 }

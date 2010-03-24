@@ -52,9 +52,9 @@ int main(int argc, char **argv)
   // create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
-  cass::Ratemeter *inputrate(new cass::Ratemeter(qApp));
+  cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
   // create a ratemeter object for the worker//
-  cass::Ratemeter *workerrate(new cass::Ratemeter(qApp));
+  cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
   // create a rate plotter that will plot the rate of the worker and input//
   cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
 

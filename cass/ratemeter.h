@@ -12,24 +12,29 @@
 
 namespace cass
 {
+  //class calculating a rate in Hz//
+  //slot count has to be called to increase the count//
+  //the current rate will be updated once the rate is retrieved//
   class CASSSHARED_EXPORT Ratemeter : public QObject
   {
     Q_OBJECT;
 
   public:
-    Ratemeter(QObject *parent=0);
+    Ratemeter(const double averagetime=1, QObject *parent=0);
     ~Ratemeter();
 
+    //retrieve the rate//
     double calculateRate();
 
   public slots:
+    //increase the counts
     void count();
 
   private:
-    QTime               _time;
-    std::vector<double> _counter;
-    std::vector<double> _times;
-    size_t              _idx;
+    QTime         _time;        //the time to stop the timeinterval
+    double        _counts;      //a counter that will increase with each call to count
+    double        _rate;        //the current rate
+    const double  _averagetime; //time constant with which the rate will decrease
   };
 }
 
