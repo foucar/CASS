@@ -20,10 +20,11 @@ QTDIR:   needs to point where Qt is installed
 Building CASS
 -------------
 Compile the LCLS libraries
-  cd LCLS
+  cd ${CASS top-level directory}/LCLS
   make x86_64-linux
 
-Use qmake with appropriate options to create Makefiles, i. e.,
+Go back to the CASS top-level directory and use qmake with appropriate options to create Makefiles, i. e.,
+  cd ${CASS top-level directory}
   qmake -r
 then run
   make
