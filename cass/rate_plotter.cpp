@@ -11,7 +11,7 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
     _inputrate(inputrate),
     _analyzerate(analyzerate)
 {
-  //start the timer//
+  //start the timer that will call the plot() function//
   connect (&_timer,SIGNAL(timeout()),this,SLOT(plot()));
   _timer.start(1000);
 }
@@ -29,7 +29,7 @@ void cass::RatePlotter::plot()
   std::cout.setf(std::ios::showpoint);
   std::cout.precision(1);
   std::cout.width(4);
-
+  //write the rate to the console//
   std::cout<<"\rInput: "<<_inputrate.calculateRate()<<"Hz | Analyze: "<<_analyzerate.calculateRate()<<"Hz  "<<std::flush;
   //restore the flags//
   std::cout.flags(original_flags);

@@ -11,40 +11,34 @@
 
 namespace cass
 {
-class Serializer;
-class Histogram;
 
-
-/** Histogram retrievel parameters
-
-@author Jochen Küpper
-*/
-struct HistogramParameter {
-
+  /** Histogram retrievel parameters
+  @author Jochen Küpper
+  */
+  struct HistogramParameter
+  {
     HistogramParameter(PostProcessors::id_t _type)
-        : type(_type)
-        {};
-
+      : type(_type)
+    {};
     PostProcessors::id_t type;
-};
+  };
 
 
 
+  //class that will retrive a histogram from the histogram container//
+  class CASSSHARED_EXPORT HistogramGetter
+  {
+  public:
 
-class CASSSHARED_EXPORT HistogramGetter
-{
-public:
-
-    HistogramGetter(const cass::PostProcessors::histograms_t& histograms)
-        : _histograms(histograms)
-        {};
-
+    HistogramGetter(const PostProcessors::histograms_t& histograms)
+      : _histograms(histograms)
+    {}
+    //function that will serializethe requested histogram to a string and return it
     const std::string operator()(const HistogramParameter&) const;
 
-protected:
-
-    const cass::PostProcessors::histograms_t &_histograms;
-};
+  protected:
+    const PostProcessors::histograms_t &_histograms;  //histogram container
+  };
 
 } //end namespace cass
 

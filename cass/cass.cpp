@@ -49,14 +49,13 @@ int main(int argc, char **argv)
   ringbuffer.behaviour(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer,qApp));
-  // create a worker//
-  //cass::Worker *worker(new cass::Worker(ringbuffer));
+  // create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(qApp));
   // create a ratemeter object for the worker//
   cass::Ratemeter *workerrate(new cass::Ratemeter(qApp));
-  // create a rate plotter//
+  // create a rate plotter that will plot the rate of the worker and input//
   cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
 
   //connect ratemeters//
@@ -91,6 +90,7 @@ int main(int argc, char **argv)
   int retval(app.exec());
 
   // clean up
+  delete rateplotter;
   delete workerrate;
   delete inputrate;
   delete workers;

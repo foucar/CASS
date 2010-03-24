@@ -9,8 +9,7 @@ using namespace cass;
 
 cass::EventGetter::EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
   :_ringbuffer(ringbuffer)
-{
-}
+{}
 
 const std::string EventGetter::operator()(const EventParameter& ep) const
 {
