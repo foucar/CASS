@@ -9,7 +9,18 @@
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
 #include "pnccd_event.h"
+#include "pnccd_analysis.h"
 
+#include <sys/time.h>
+
+int timeval_subtract1(struct timeval *result, struct timeval *t2, struct timeval *t1)
+{
+    long int diff = (t2->tv_usec + 1000000 * t2->tv_sec) - (t1->tv_usec + 1000000 * t1->tv_sec);
+    result->tv_sec = diff / 1000000;
+    result->tv_usec = diff % 1000000;
+
+    return (diff<0);
+}
 
 cass::pnCCD::Converter::Converter()
 {
@@ -46,6 +57,10 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
   case (Pds::TypeId::Id_pnCCDframe) :
     {
+#ifdef debug
+      struct timeval tvBegin, tvEnd, tvDiff;
+      gettimeofday(&tvBegin, NULL);
+#endif
       // Get a reference to the pnCCDEvent:
       pnCCDEvent &pnccdevent = cassevent->pnCCDEvent();
       //Get the frame from the xtc
@@ -99,6 +114,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //calc the Number of Rows and Colums in one Segment//
         const size_t rowsOfSegment = det.rows() / 2;
         const size_t columnsOfSegment = det.columns() / 2;
+        //if(_param._This_is_a_dark_run==0) std::cout<<"this is not a dark run"<<std::endl;
 
         //reorient the xtc segements to real frame segments//
         frameSegmentPointers[0] = xtcSegmentPointers[0];
@@ -158,6 +174,11 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
             *it++ = *frameSegmentPointers[3]--;
         }
       }
+#ifdef debug
+      gettimeofday(&tvEnd, NULL);
+      timeval_subtract1(&tvDiff, &tvEnd, &tvBegin);
+      printf("time_diff_converter is %ld.%06ld\n", tvDiff.tv_sec, tvDiff.tv_usec);
+#endif
     }
     break;
 
