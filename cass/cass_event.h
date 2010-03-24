@@ -13,6 +13,8 @@ namespace cass
   class DeviceBackend;
   class Serializer;
 
+  //a cassevent that stores all information comming from
+  //the machine, and also some calculated information
   class CASSSHARED_EXPORT CASSEvent
   {
   public:
@@ -27,7 +29,7 @@ namespace cass
     void serialize(Serializer&)const;
     void deserialize(Serializer&);
 
-  public:
+  public: //setters/getters
     uint64_t         id()const        {return _id;}
     uint64_t        &id()             {return _id;}
     char            *datagrambuffer() {return _datagrambuffer;}
