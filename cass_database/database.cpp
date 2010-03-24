@@ -328,6 +328,17 @@ void cass::database::Database::add(cass::CASSEvent* cassevent)
 
   cass::MachineData::MachineDataEvent *machinedata = &cassevent->MachineDataEvent();
   T->SetBranchAddress("MachineEventBranch",&machinedata);
+#ifdef debug
+  std::cout << "power " << machinedata->f_11_ENRC() << " " << machinedata->f_21_ENRC() << std::endl;
+#endif
+  cass::MachineData::MachineDataEvent::EpicsDataMap::iterator ito;
+
+  /*for( ito=machinedata->EpicsData().begin();
+          ito!=machinedata->EpicsData().end();ito++)
+  { 
+    //    if((*ito).second != 0)
+    std::cout << (*ito).first << " has value " << (*ito).second << std::endl;
+    }*/
 
   if(_param._useREMI)
   {
