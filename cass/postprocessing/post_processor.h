@@ -9,6 +9,7 @@
 #include <list>
 #include <map>
 #include <utility>
+#include <algorithm>
 
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
