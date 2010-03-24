@@ -58,6 +58,27 @@ The currently registered postprocessors are:
        - background subtraction of the image file specified in postprocessors/102/background
 00121: Running average of VMI camera
 00131: Scalar value of the <cos^2\theta>_{2D} derived from the 121 image
+00500: Averaged waveform of Camp Acqiris Channel 00
+00501: Averaged waveform of Camp Acqiris Channel 01
+00502: Averaged waveform of Camp Acqiris Channel 02
+00503: Averaged waveform of Camp Acqiris Channel 03
+00504: Averaged waveform of Camp Acqiris Channel 04
+00505: Averaged waveform of Camp Acqiris Channel 05
+00506: Averaged waveform of Camp Acqiris Channel 06
+00507: Averaged waveform of Camp Acqiris Channel 07
+00508: Averaged waveform of Camp Acqiris Channel 08
+00509: Averaged waveform of Camp Acqiris Channel 09
+00510: Averaged waveform of Camp Acqiris Channel 10
+00511: Averaged waveform of Camp Acqiris Channel 11
+00512: Averaged waveform of Camp Acqiris Channel 12
+00513: Averaged waveform of Camp Acqiris Channel 13
+00514: Averaged waveform of Camp Acqiris Channel 14
+00515: Averaged waveform of Camp Acqiris Channel 15
+00516: Averaged waveform of Camp Acqiris Channel 16
+00517: Averaged waveform of Camp Acqiris Channel 17
+00518: Averaged waveform of Camp Acqiris Channel 18
+00519: Averaged waveform of Camp Acqiris Channel 19
+
 */
 class PostProcessors
 {
