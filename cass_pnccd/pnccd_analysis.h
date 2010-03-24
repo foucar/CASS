@@ -106,6 +106,8 @@ namespace cass
       std::vector<double> _sigmaMultiplier;
       //the conversion factor to convert "adu's" to eV//
       std::vector<double> _adu2eV;
+      //need to know if I need to use a common mode subtraction scheme//
+      std::vector<uint32_t> _useCommonMode;
       //the remichannel to that will tell us whether there is light in the chamber//
       uint32_t _lightIndicatorChannel;
       // Dark frame calibration file names for each detector//

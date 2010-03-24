@@ -31,6 +31,7 @@ void cass::pnCCD::Parameter::load()
   _save_darkcal_fnames.clear();
   _sigmaMultiplier.clear();
   _adu2eV.clear();
+  _useCommonMode.clear();
   _dampingCoefficient.clear();
 
   //clear the containers before adding new stuff to them//
@@ -57,6 +58,8 @@ void cass::pnCCD::Parameter::load()
     _sigmaMultiplier.push_back(value("SigmaMultiplier",4).toDouble());
     //the conversion factor for adu's to eV//
     _adu2eV.push_back(value("Adu2eV",1).toDouble());
+    //need to know if I need to use a common mode subtraction scheme//
+    _useCommonMode.push_back(value("useCommonMode",0).toUInt());
     //the daming coefficent//
     _dampingCoefficient.push_back(value("DampingCoefficient",5).toDouble());
 
@@ -113,6 +116,7 @@ void cass::pnCCD::Parameter::save()
     setValue("DarkCalibrationFilePath",_darkcal_fnames[iDet].c_str());
     setValue("SigmaMultiplier",_sigmaMultiplier[iDet]);
     setValue("Adu2eV",_adu2eV[iDet]);
+    setValue("useCommonMode",_useCommonMode[iDet]);
     setValue("DampingCoefficient",_dampingCoefficient[iDet]);
 
     setValue("ROIsize",static_cast<uint32_t>(detROI[iDet]._ROI.size()));
@@ -197,12 +201,15 @@ void cass::pnCCD::Analysis::loadSettings()
     ifstream in(_param._darkcal_fnames[iDet].c_str(), std::ios::binary|std::ios::ate);
     if (in.is_open())
     {
-      std::cout <<"reading pnccd "<<iDet<<" from file \""<<_param._darkcal_fnames[iDet].c_str()<<"\""<<std::endl;
+      std::cout <<"reading pnccd "<<iDet<<" from file \""
+                <<_param._darkcal_fnames[iDet].c_str()<<"\""<<std::endl;
       //find how big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
       std::cout<<"the size is going to be "<<iDet <<" " <<size<<" "<<sizeof(double)<<std::endl;
 
       //what if the file is not in "our" format ....
+      //if the next line was addes to the darkframe files remember to add 1-double to the next number!!!
+      //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[iDet])), sizeof(double));
       if(size%(1024*1024)!=0)
       {
         in.close();
@@ -222,18 +229,18 @@ void cass::pnCCD::Analysis::loadSettings()
         {
           // No statistics data are defined in this file: close, clear,
           // and stop reading:
-            error_msg_.str("");
-            error_msg_ << "Error in readPixelStatMapToFile_(), in file: "
-                       << __FILE__ << " , in line: " << __LINE__
-                       << " , the file with the name '"
-                       << _param._darkcal_fnames[iDet].c_str()
-                       << "' does not contain pixel statistics data! "<<in.gcount();
-            std::cout << error_msg_.str() << std::endl;
-            //do not return, just create default-size maps
-            _param._offsets[iDet].resize(1024 * 1024);
-            _param._noise[iDet].resize(1024 * 1024);
-            _param._ROImask[iDet].resize(1024 * 1024);
-            _param._ROIiterator[iDet].resize(1024 * 1024);
+          error_msg_.str("");
+          error_msg_ << "Error in readPixelStatMapToFile_(), in file: "
+                     << __FILE__ << " , in line: " << __LINE__
+                     << " , the file with the name '"
+                     << _param._darkcal_fnames[iDet].c_str()
+                     << "' does not contain pixel statistics data! "<<in.gcount();
+          std::cout << error_msg_.str() << std::endl;
+          //do not return, just create default-size maps
+          _param._offsets[iDet].resize(1024 * 1024);
+          _param._noise[iDet].resize(1024 * 1024);
+          _param._ROImask[iDet].resize(1024 * 1024);
+          _param._ROIiterator[iDet].resize(1024 * 1024);
         }
         else
         {
@@ -306,7 +313,8 @@ void cass::pnCCD::Analysis::loadSettings()
               std::vector<staDataType> pixel_stat_map_;
               pixel_stat_map_.resize(pix_count_);
               char        *badpix_map_[pix_count_];
-              std::cout<< sizeof(pixel_stat_map_)<<" "<<pixel_stat_map_.size() <<" "<<statmap_bytesz<<std::endl;
+              std::cout<< sizeof(pixel_stat_map_)<<" "<<pixel_stat_map_.size() 
+                       <<" "<<statmap_bytesz<<std::endl;
 
               // Read the pixel statistics data:
               in.read(
@@ -316,8 +324,6 @@ void cass::pnCCD::Analysis::loadSettings()
               in.read(
                   reinterpret_cast<char*>(badpix_map_),
                   bpxmap_bytesz);
-
-//              pix_count_=0;
 
 /*
               //get the pointer to the config for this detector//
@@ -346,6 +352,7 @@ void cass::pnCCD::Analysis::loadSettings()
                   _param._offsets[iDet][ipix] = pix_stats->offset;
                   _param._noise[iDet][ipix] = pix_stats->sigma;
               }
+              //should I use also the badpixelmap??
               /*
               double      *noisemap_ptr;
               noisemap_ptr  = noise_map_;
@@ -370,7 +377,7 @@ void cass::pnCCD::Analysis::loadSettings()
         _param._ROImask[iDet].resize(size);
         _param._ROIiterator[iDet].resize(size);
         //read the parameters stored in the file//
-        //add the next??
+        //add the next line??
         //in.read(reinterpret_cast<char*>(&(_param._nbrDarkframes[iDet])), sizeof(double));
         in.read(reinterpret_cast<char*>(&(_param._offsets[iDet][0])), _param._offsets[iDet].size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(_param._noise[iDet][0])), _param._noise[iDet].size()*sizeof(double));
@@ -386,8 +393,8 @@ void cass::pnCCD::Analysis::loadSettings()
       _param._ROImask[iDet].resize(1024 * 1024);
       _param._ROIiterator[iDet].resize(1024 * 1024);
 
-//      _param._offsets[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
-//      _param._noise[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
+      //_param._offsets[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
+      //_param._noise[iDet].resize(_param.pnCCDoriginalrows[iDet] * _param.pnCCDoriginalcols[iDet]);
     }
   }
   //if this is a darkcalibration run I reset the values in the frames
@@ -545,8 +552,8 @@ void cass::pnCCD::Analysis::loadSettings()
               ylocal_f=static_cast<float>(ylocal);
 #ifdef debug
               std::cout<<"local "<<xlocal<<" "<<ylocal
-                       << " " <<(-2 * ysize/xsize*xlocal_f) + 2 * ysize << " "<<-2*ysize + 2 *  ysize/xsize*xlocal
-                       <<std::endl;
+                       << " " <<(-2 * ysize/xsize*xlocal_f) + 2 * ysize
+                       << " "<<-2*ysize + 2 *  ysize/xsize*xlocal <<std::endl;
 #endif
 
               if(ylocal+1>((-2 * ysize/xsize*xlocal_f)
@@ -610,14 +617,12 @@ void cass::pnCCD::Analysis::loadSettings()
             std::cout << "triangle seen vertex towards left" <<std::endl;
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
-              // not debugged
               xlocal=iFrame%(2* _param.detROI[iDet]._ROI[iROI].xsize);
               ylocal=iFrame/(2* _param.detROI[iDet]._ROI[iROI].xsize);
               xlocal_f=static_cast<float>(xlocal);
               ylocal_f=static_cast<float>(ylocal);
 #ifdef debug
-              std::cout<<"local "<<xlocal<<" "<<ylocal<<" "
-                       <<std::endl;
+              std::cout<<"local "<<xlocal<<" "<<ylocal<<" " <<std::endl;
 #endif
               if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
               {
@@ -640,13 +645,6 @@ void cass::pnCCD::Analysis::loadSettings()
       std::cout<<std::endl;
 #endif
       // now I know which pixel should be masked!
-      /*
-      for(size_t iPixel=0;iPixel<_param._ROIiterator[iDet].size(); ++iPixel)
-      {
-        // the "pointer" is the location/index of the next pixel to be used, and the default should be that a[i]=i+1
-        _param._ROIiterator[iDet][iPixel]=iPixel+1;
-      }
-      */
       size_t nextPixel=0;
       _param._ROIiterator[iDet].resize(_param._ROImask[iDet].size()-number_of_pixelsettozero-1);
       for(size_t iPixel=0;iPixel<_param._ROImask[iDet].size(); ++iPixel)
