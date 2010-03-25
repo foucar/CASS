@@ -128,16 +128,17 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //we need to do the reordering of the segments here
         //go through the all rows of the first two segments and //
         //do first row , first row, second row , second row ...//
-        //also do a overflow / underflow chekc of each pixel and set it//
-        //accordingly
+        //The HLL People said the one needs to ignore the upper two bits//
+        //so ignore them//
+
         for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
         {
           //copy the row of first segment//
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = checkOverAndUnderflow(*frameSegmentPointers[0]++);
+            *it++ =  *frameSegmentPointers[0]++ & 0x3fff;
           //copy the row of second segment//
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = checkOverAndUnderflow(*frameSegmentPointers[1]++);
+            *it++ =  *frameSegmentPointers[1]++ & 0x3fff;
         }
         //go through the all rows of the next two segments and //
         //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
@@ -149,10 +150,10 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         {
           //copy row of 3rd segment reversed
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = checkOverAndUnderflow(*frameSegmentPointers[2]--);
+            *it++ = *frameSegmentPointers[2]-- & 0x3fff;
           //copy row of 4th segement reversed
           for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-            *it++ = checkOverAndUnderflow(*frameSegmentPointers[3]--);
+            *it++ = *frameSegmentPointers[3]--  & 0x3fff;
         }
       }
     }
