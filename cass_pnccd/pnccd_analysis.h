@@ -121,6 +121,10 @@ namespace cass
       std::vector<std::vector<uint16_t> > _ROImask;
       //the ROI index-pointer-mask for each detector//
       std::vector<std::vector<uint32_t> > _ROIiterator;
+      //the transformed (in the input original shape) ROI mask for each detector//
+      std::vector<std::vector<uint16_t> > _ROImask_converter;
+      //the transformed (in the input original shape) ROI index-pointer-mask for each detector//
+      std::vector<std::vector<uint32_t> > _ROIiterator_converter;
     };
 
 
