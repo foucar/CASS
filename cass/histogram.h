@@ -52,13 +52,14 @@ namespace cass
     virtual ~HistogramBackend(){}
     virtual void serialize(Serializer&)const=0;
     virtual void deserialize(Serializer&)=0;
-  protected: //setters , getters
+  public: //setters , getters
     size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t  &nbrOfFills()      {return _nbrOfFills;}
-    size_t   dimension()       {return _dimension;}
-  protected:
+    size_t   dimension()const  {return _dimension;}
+    const axis_t  &axis()const {return _axis;}
+  public:
     typedef std::vector<AxisProperty> axis_t;
-  protected:
+  public:
     enum Axis{xAxis=0,yAxis,zAxis}; //choose easier the axis
     enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight, //choose easier the over/
                   Left,                     Right,      //underflow quadrant (2D hist)
