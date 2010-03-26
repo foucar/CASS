@@ -35,8 +35,7 @@ namespace cass
     AverageWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
-    virtual ~AverageWaveform()
-    { delete _waveform;waveform=0;}
+    virtual ~AverageWaveform();
 
     //read the average factor from cass.ini//
     virtual void loadParameters();
