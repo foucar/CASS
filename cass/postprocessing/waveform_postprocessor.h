@@ -30,7 +30,7 @@ namespace cass
   //class that lets you average the waveforms
   //depending on the factor it will make a cumulative average or
   //an exponential moving average
-  class AverageWavefrom : public PostprocessorBackend
+  class AverageWaveform : public PostprocessorBackend
   {
     AverageWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
