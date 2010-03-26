@@ -98,6 +98,50 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
   case Pnccd2LastImage:
     processor = new PostprocessorPnccdLastImage(hs, id);
     break;
+  case CampChannel00LastWaveform:
+  case CampChannel01LastWaveform:
+  case CampChannel02LastWaveform:
+  case CampChannel03LastWaveform:
+  case CampChannel04LastWaveform:
+  case CampChannel05LastWaveform:
+  case CampChannel06LastWaveform:
+  case CampChannel07LastWaveform:
+  case CampChannel08LastWaveform:
+  case CampChannel09LastWaveform:
+  case CampChannel10LastWaveform:
+  case CampChannel11LastWaveform:
+  case CampChannel12LastWaveform:
+  case CampChannel13LastWaveform:
+  case CampChannel14LastWaveform:
+  case CampChannel15LastWaveform:
+  case CampChannel16LastWaveform:
+  case CampChannel17LastWaveform:
+  case CampChannel18LastWaveform:
+  case CampChannel19LastWaveform:
+    processor = new LastWaveform(hs,id);
+    break;
+  case CampChannel00AveragedWaveform:
+  case CampChannel01AveragedWaveform:
+  case CampChannel02AveragedWaveform:
+  case CampChannel03AveragedWaveform:
+  case CampChannel04AveragedWaveform:
+  case CampChannel05AveragedWaveform:
+  case CampChannel06AveragedWaveform:
+  case CampChannel07AveragedWaveform:
+  case CampChannel08AveragedWaveform:
+  case CampChannel09AveragedWaveform:
+  case CampChannel10AveragedWaveform:
+  case CampChannel11AveragedWaveform:
+  case CampChannel12AveragedWaveform:
+  case CampChannel13AveragedWaveform:
+  case CampChannel14AveragedWaveform:
+  case CampChannel15AveragedWaveform:
+  case CampChannel16AveragedWaveform:
+  case CampChannel17AveragedWaveform:
+  case CampChannel18AveragedWaveform:
+  case CampChannel19AveragedWaveform:
+    processor = new AverageWaveform(hs,id);
+    break;
   default:
     throw std::invalid_argument("Impossible postprocessor id for PostprocessorPnccdLastImage");
   }
