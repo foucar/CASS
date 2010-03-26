@@ -115,6 +115,12 @@ cass::AverageWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProces
   }
 }
 
+cass::AverageWavefrom::~AverageWavefrom()
+{ 
+  delete _waveform;
+  waveform=0;
+}
+
 cass::AverageWavefrom::loadParameters()
 {
   QSettings parameter;
