@@ -40,8 +40,7 @@ namespace cass
     PostprocessorPnccdBinnedRunningAverage(PostProcessors::histograms_t& hist, PostProcessors::id_t id);
 
     /** Free _image spcae */
-    virtual ~PostprocessorPnccdBinnedRunningAverage()
-    { delete _image; _image = 0; }
+    virtual ~PostprocessorPnccdBinnedRunningAverage();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);

@@ -56,7 +56,7 @@ void cass::PostprocessorPnccdLastImage::operator()(const cass::CASSEvent& event)
 
 
 
-cass::PostprocessorPnccdBinnedRunningAverage::cass::PostprocessorPnccdBinnedRunningAverage(
+cass::PostprocessorPnccdBinnedRunningAverage::PostprocessorPnccdBinnedRunningAverage(
   cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
   : cass::PostprocessorBackend(hist, id)
 {
@@ -76,6 +76,14 @@ cass::PostprocessorPnccdBinnedRunningAverage::cass::PostprocessorPnccdBinnedRunn
   //         _histograms[_id] = _image;
   //     };
 }
+
+
+cass::PostprocessorPnccdBinnedRunningAverage::~PostprocessorPnccdBinnedRunningAverage()
+{
+  delete _image; 
+  _image = 0; 
+}
+
 
 void cass::PostprocessorPnccdBinnedRunningAverage::loadSettings(size_t)
 {
