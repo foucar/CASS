@@ -1,14 +1,18 @@
 //Copyright (C) 2010 lmf
 
+#include <stdexcept>
+
 #include "waveform_postprocessor.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
+#include "histogram.h"
+
 
 //the last wavefrom copier
 cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
-  :cass::PostProcessorBackend(hist,id),
-  _waveform(0),
-  _channel(300)
+  :cass::PostprocessorBackend(hist,id),
+  _channel(300),
+  _waveform(0)
 {
   switch(_id)
   {
@@ -39,7 +43,7 @@ cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass:
 cass::LastWaveform::~LastWaveform()
 { 
   delete _waveform;
-  waveform=0;
+  _waveform=0;
 }
 
 void cass::LastWaveform::operator()(const CASSEvent &cassevent)
@@ -47,7 +51,7 @@ void cass::LastWaveform::operator()(const CASSEvent &cassevent)
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent->devices()[CASSEvent::Acqiris]);
+      dynamic_cast<const AcqirisDevice*>(cassevent.devices()[CASSEvent::Acqiris]);
   const Channel &channel = dev->channels(_channel);
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
@@ -136,7 +140,7 @@ cass::AverageWavefrom::operator ()(const cass::CASSEvent & cassevent)
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent->devices()[CASSEvent::Acqiris]);
+      dynamic_cast<const AcqirisDevice*>(cassevent.devices()[CASSEvent::Acqiris]);
   const Channel &channel = dev->channels(_channel);
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//

@@ -4,6 +4,7 @@
 #define _WAVEFORM_POSTPROCESSOR_H_
 
 #include "post_processor.h"
+#include "postprocessor_backend.h"
 
 namespace cass
 {
