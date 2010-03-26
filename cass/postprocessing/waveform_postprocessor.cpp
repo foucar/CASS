@@ -7,7 +7,8 @@
 //the last wavefrom copier
 cass::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
   :cass::PostProcessorBackend(hist,id),
-  _waveform(0)
+  _waveform(0),
+  _channel(300)
 {
   switch(_id)
   {

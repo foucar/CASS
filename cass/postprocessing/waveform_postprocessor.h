@@ -9,6 +9,7 @@ namespace cass
 {
   //forward declarations
   class CASSEvent;
+  class Histogram1DFloat;
 
   //class to show the last wavefrom of a channel
   class LastWaveform : public PostprocessorBackend
