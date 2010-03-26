@@ -39,7 +39,7 @@ namespace cass
     virtual ~AverageWaveform();
 
     //read the average factor from cass.ini//
-    virtual void loadParameters();
+    virtual void loadParameters(size_t);
 
     //copy the last waveform from the expected channel//
     virtual void operator()(const CASSEvent&);

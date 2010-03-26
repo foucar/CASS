@@ -90,8 +90,8 @@ namespace cass
 }
 
 //the average waveform creator//
-cass::AverageWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
-  :cass::PostProcessorBackend(hist,id)
+cass::AverageWaveform::AverageWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
 {
   switch (_id)
   {
@@ -119,13 +119,13 @@ cass::AverageWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProces
   }
 }
 
-cass::AverageWavefrom::~AverageWavefrom()
+cass::AverageWaveform::~AverageWaveform()
 { 
   delete _waveform;
-  waveform=0;
+  _waveform=0;
 }
 
-cass::AverageWavefrom::loadParameters()
+cass::AverageWaveform::loadParameters(size_t)
 {
   QSettings parameter;
   parameter.beginGroup("postprocessors");
@@ -135,7 +135,7 @@ cass::AverageWavefrom::loadParameters()
   _alpha = static_cast<float>(1./N);
 }
 
-cass::AverageWavefrom::operator ()(const cass::CASSEvent & cassevent)
+cass::AverageWaveform::operator ()(const cass::CASSEvent & cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
