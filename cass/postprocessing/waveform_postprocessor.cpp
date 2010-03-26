@@ -1,11 +1,13 @@
 //Copyright (C) 2010 lmf
 
 #include <stdexcept>
+#include <cmath>
+#include <algorithm>
 
 #include "waveform_postprocessor.h"
+#include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
-#include "histogram.h"
 
 
 //the last wavefrom copier
@@ -46,13 +48,13 @@ cass::LastWaveform::~LastWaveform()
   _waveform=0;
 }
 
-void cass::LastWaveform::operator()(const CASSEvent &cassevent)
+void cass::LastWaveform::operator()(const cass::CASSEvent &cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent.devices()[CASSEvent::Acqiris]);
-  const Channel &channel = dev->channels(_channel);
+      dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
+  const Channel &channel = dev->channels()[_channel];
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of //
@@ -61,7 +63,7 @@ void cass::LastWaveform::operator()(const CASSEvent &cassevent)
     _waveform = new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    delete waveform;
+    delete _waveform;
     _waveform = new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
   }
   //copy the waveform to our storage histogram//
@@ -77,6 +79,7 @@ namespace cass
   //binary operator for averaging//
   class Average
   {
+  public:
     explicit Average(float alpha)
       :_alpha(alpha)
     {}
@@ -125,7 +128,7 @@ cass::AverageWaveform::~AverageWaveform()
   _waveform=0;
 }
 
-cass::AverageWaveform::loadParameters(size_t)
+void cass::AverageWaveform::loadParameters(size_t)
 {
   QSettings parameter;
   parameter.beginGroup("postprocessors");
@@ -135,13 +138,13 @@ cass::AverageWaveform::loadParameters(size_t)
   _alpha = static_cast<float>(1./N);
 }
 
-cass::AverageWaveform::operator ()(const cass::CASSEvent & cassevent)
+void cass::AverageWaveform::operator ()(const cass::CASSEvent & cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent.devices()[CASSEvent::Acqiris]);
-  const Channel &channel = dev->channels(_channel);
+      dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
+  const Channel &channel = dev->channels()[_channel];
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of //
@@ -151,7 +154,7 @@ cass::AverageWaveform::operator ()(const cass::CASSEvent & cassevent)
         new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    delete waveform;
+    delete _waveform;
     _waveform =
         new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
   }
