@@ -5,7 +5,7 @@
 #include "acqiris_device.h"
 
 //the last wavefrom copier
-cass::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
+cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
   :cass::PostProcessorBackend(hist,id),
   _waveform(0),
   _channel(300)
@@ -34,6 +34,12 @@ cass::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessor
   case PostProcessors::CampChannel19LastWaveform: _channel=19;break;
   default: throw std::invalid_argument("channel does not exist in argument list");
   }
+}
+
+cass::LastWaveform::~LastWaveform()
+{ 
+  delete _waveform;
+  waveform=0;
 }
 
 void cass::LastWaveform::operator()(const CASSEvent &cassevent)

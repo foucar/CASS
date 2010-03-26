@@ -17,8 +17,7 @@ namespace cass
     LastWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
-    virtual ~LastWaveform()
-    { delete _waveform;waveform=0;}
+    virtual ~LastWaveform();
 
     //copy the last waveform from the expected channel//
     virtual void operator()(const CASSEvent&);
