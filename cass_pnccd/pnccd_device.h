@@ -1,7 +1,10 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 lmf, Nicola Coppola
 
 #ifndef _PNCCD_DEVICE_H
 #define _PNCCD_DEVICE_H
+
+#define pnCCD_default_size    1024
+#define pnCCD_default_size_sq 1024*1024
 
 #include <iostream>
 #include <vector>
