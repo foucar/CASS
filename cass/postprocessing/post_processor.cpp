@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <algorithm>
 
 #include "post_processor.h"
 #include "ccd_postprocessor.h"
@@ -22,11 +23,11 @@ cass::PostProcessors *cass::PostProcessors::instance()
 {
   QMutexLocker locker(&_mutex);
   if(0 == _instance)
-    _instance = new PostProcessors(OutputFileName);
+    _instance = new PostProcessors();
   return _instance;
 }
 // destroy the instance of the singleton
-void PostProcessors::destroy()
+void cass::PostProcessors::destroy()
 {
   QMutexLocker locker(&_mutex);
   delete _instance;
@@ -43,7 +44,7 @@ static inline cass::PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 
-cass::PostProcessors::PostProcessors(const char *)
+cass::PostProcessors::PostProcessors()
 {
   // set up list of all active postprocessors/histograms
   // and fill maps of histograms and postprocessors
@@ -53,7 +54,7 @@ cass::PostProcessors::PostProcessors(const char *)
 
 void cass::PostProcessors::process(cass::CASSEvent& event)
 {
-  for(list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+  for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
     (*(_postprocessors[*iter]))(event);
 }
 
