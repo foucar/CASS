@@ -4,6 +4,7 @@
 #include <utility>
 #include <algorithm>
 #include <cassert>
+#include <stdexcept>
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
@@ -12,6 +13,7 @@
 #include "pnccd_device.h"
 #include "histogram.h"
 #include "post_processor.h"
+#include "cass_event.h"
 
 
 

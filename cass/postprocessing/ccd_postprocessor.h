@@ -45,7 +45,7 @@ namespace cass
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
-    virtual void loadSettings();
+    virtual void loadSettings(size_t);
 
   protected:
 
