@@ -21,6 +21,25 @@ namespace cass
     virtual void load()=0;
     virtual void save()=0;
   };
+
+  class CASSSHARED_EXPORT ROIBackend : public QSettings
+  {
+  public:
+    ROIBackend():
+      QSettings("./cass.ini",QSettings::IniFormat)
+      {
+        beginGroup("cass");
+      }
+
+      virtual ~ROIBackend()
+      {
+        endGroup();
+      }
+
+      virtual void load()=0;
+      virtual void save()=0;
+  };
+
 }//end namespace cass
 
 #endif // PARAMETER_BACKEND_H
