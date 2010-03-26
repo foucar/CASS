@@ -13,7 +13,7 @@ cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &rin
   :QThread(parent),
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
-    _postprocessor(cass::PostProcessors::instance("")),
+    _postprocessor(cass::PostProcessors::instance()),
     _quit(false)
 {
 }
