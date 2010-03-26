@@ -89,12 +89,12 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
-        det.rows() = det.columns() = 1024;
-        det.originalrows() = det.originalcolumns() = 1024;
+        det.rows() = det.columns() = pnCCD_default_size;
+        det.originalrows() = det.originalcolumns() = pnCCD_default_size;
 
         //the dim of one frame segment is also not provided//
-        const size_t rowsOfSegment = 512;
-        const size_t columnsOfSegment = 512;
+        const size_t rowsOfSegment = pnCCD_default_size/2;
+        const size_t columnsOfSegment = pnCCD_default_size/2;
 
         //find out the total size of this frame//
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
