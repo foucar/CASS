@@ -21,7 +21,7 @@ namespace cass
     virtual void load()=0;
     virtual void save()=0;
   };
-
+/* maybe not needed
   class CASSSHARED_EXPORT ROIBackend : public QSettings
   {
   public:
@@ -39,6 +39,7 @@ namespace cass
       virtual void load()=0;
       virtual void save()=0;
   };
+*/
 
 }//end namespace cass
 
