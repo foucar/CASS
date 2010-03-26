@@ -75,7 +75,7 @@ namespace cass
   00519: Averaged waveform of Camp Acqiris Channel 19
   */
 
-  class CASSSHARED_EXPORT PostProcessors
+  class CASSSHARED_EXPORT PostProcessors : public QObject
   {
     Q_OBJECT;
 
