@@ -15,6 +15,8 @@ namespace cass
   //class to show the last wavefrom of a channel
   class LastWaveform : public PostprocessorBackend
   {
+  public:
+
     LastWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
@@ -33,6 +35,7 @@ namespace cass
   //an exponential moving average
   class AverageWaveform : public PostprocessorBackend
   {
+  public:
     AverageWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
