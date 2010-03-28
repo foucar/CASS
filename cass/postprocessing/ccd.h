@@ -59,6 +59,9 @@ namespace cass
         /** Length of average */
         unsigned _average;
 
+        /** Scaling factor of new data to approximate running average */
+        float _scale;
+
         /** how many pixels to bin in horizontal and vertical direction */
         std::pair<unsigned, unsigned> _binning;
 

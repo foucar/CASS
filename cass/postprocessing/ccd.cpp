@@ -88,6 +88,7 @@ void cass::pp101::loadSettings(size_t)
     settings.beginGroup("postprocessors");
     settings.beginGroup(QString("processor_") + QString::number(_id));
     _average = settings.value("average").toUInt();
+    _scale = 1. - 1./_average;
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal").toUInt(),
                                                          settings.value("bin_vertical").toUInt()));
     if((binning.first != _binning.first) ||(binning.second != _binning.second)) {
@@ -113,7 +114,22 @@ void cass::pp101::operator()(const CASSEvent& event)
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
     const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
-#warning Implement!
+    // running average binned data:
+    //   new_average = new_sum = f * old_sum + data
+    unsigned rows(dev->detectors()[_detector].rows()), cols(dev->detectors()[_detector].columns());
+    for(unsigned r=0; r<rows; r+=_binning.first) {
+        for(unsigned c=0; c<cols; c+=_binning.second) {
+            pixel_t sum(0);
+            for(unsigned row=r; row<r+_binning.first; ++row) {
+                for(unsigned col=c; col<c+_binning.second; ++col) {
+#warning Check and fix major/minor axis
+                    sum += frame[row * cols + col];
+                }
+            }
+            _image->memory()[r * cols/_binning.second + c] *= _scale;
+            _image->memory()[r * cols/_binning.second + c] += sum / (_binning.first * _binning.second);
+        }
+    }
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 
