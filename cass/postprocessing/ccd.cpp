@@ -9,7 +9,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
-#include "ccd_postprocessor.h"
+#include "ccd.h"
 #include "pnccd_device.h"
 #include "histogram.h"
 #include "post_processor.h"

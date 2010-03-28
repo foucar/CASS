@@ -22,8 +22,8 @@ SOURCES +=  cass.cpp \
             histogram_getter.cpp \
             rate_plotter.cpp \
             ./postprocessing/post_processor.cpp \
-            ./postprocessing/ccd_postprocessor.cpp \
-            ./postprocessing/alignment_postprocessor.cpp \
+            ./postprocessing/ccd.cpp \
+            ./postprocessing/alignment.cpp \
             ./postprocessing/waveform_postprocessor.cpp \
 
 HEADERS +=  analysis_backend.h \
@@ -46,8 +46,8 @@ HEADERS +=  analysis_backend.h \
             rate_plotter.h \
             ./postprocessing/post_processor.h \
             ./postprocessing/postprocessor_backend.h \
-            ./postprocessing/ccd_postprocessor.h \
-            ./postprocessing/alignment_postprocessor.h \
+            ./postprocessing/ccd.h \
+            ./postprocessing/alignment.h \
             ./postprocessing/waveform_postprocessor.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
