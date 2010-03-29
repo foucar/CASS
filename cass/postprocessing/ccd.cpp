@@ -9,12 +9,12 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
-#include "ccd.h"
 #include "ccd_device.h"
 #include "pnccd_device.h"
 #include "histogram.h"
-#include "post_processor.h"
 #include "cass_event.h"
+#include "postprocessing/postprocessor.h"
+#include "postprocessing/ccd.h"
 
 
 using namespace cass;

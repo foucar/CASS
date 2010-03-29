@@ -3,7 +3,7 @@
 #ifndef _WAVEFORM_POSTPROCESSOR_H_
 #define _WAVEFORM_POSTPROCESSOR_H_
 
-#include "post_processor.h"
+#include "postprocessing/postprocessor.h"
 #include "postprocessing/backend.h"
 
 namespace cass

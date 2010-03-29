@@ -5,7 +5,7 @@
 #define _POSTPROCESSOR_BACKEND_H_
 
 #include "cass.h"
-#include "post_processor.h"
+#include "postprocessing/postprocessor.h"
 
 namespace cass
 {

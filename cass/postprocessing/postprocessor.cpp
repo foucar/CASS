@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "post_processor.h"
+#include "postprocessing/postprocessor.h"
 #include "postprocessing/ccd.h"
 #include "postprocessing/waveform.h"
 #include "postprocessing/alignment.h"

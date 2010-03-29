@@ -21,7 +21,7 @@ SOURCES +=  cass.cpp \
             event_getter.cpp \
             histogram_getter.cpp \
             rate_plotter.cpp \
-            ./postprocessing/post_processor.cpp \
+            ./postprocessing/postprocessor.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/waveform.cpp \
@@ -44,7 +44,7 @@ HEADERS +=  analysis_backend.h \
             histogram.h \
             serializer.h \
             rate_plotter.h \
-            ./postprocessing/post_processor.h \
+            ./postprocessing/postprocessor.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
             ./postprocessing/alignment.h \
