@@ -34,10 +34,12 @@ void cass::AnalysisParameter::load()
 {
   //sync before loading//
   sync();
-  _useCCD     = value("useComercialCCDAnalyzer",true).toBool();
+  _useCCD     = value("useCommercialCCDAnalyzer",true).toBool();
   _useAcqiris = value("useAcqirisAnalyzer",true).toBool();
   _useMachine = value("useMachineAnalyzer",true).toBool();
   _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
+  std::cout<<"useCommercialCCDAnalyzer "<<_useCCD<<std::endl;
+  std::cout<<QSettings::scope () <<" "<<QSettings::status ()<<std::endl;
 }
 
 void cass::AnalysisParameter::save()
