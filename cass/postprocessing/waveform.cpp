@@ -4,7 +4,7 @@
 #include <cmath>
 #include <algorithm>
 
-#include "waveform_postprocessor.h"
+#include "waveform.h"
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
@@ -43,7 +43,7 @@ cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass:
 }
 
 cass::LastWaveform::~LastWaveform()
-{ 
+{
   delete _waveform;
   _waveform=0;
 }
@@ -123,7 +123,7 @@ cass::AverageWaveform::AverageWaveform(cass::PostProcessors::histograms_t &hist,
 }
 
 cass::AverageWaveform::~AverageWaveform()
-{ 
+{
   delete _waveform;
   _waveform=0;
 }

@@ -4,13 +4,14 @@
 #ifndef _CCD_POSTPROCESSOR_H_
 #define _CCD_POSTPROCESSOR_H_
 
-#include "postprocessor_backend.h"
+#include "postprocessing/backend.h"
 
 namespace cass
 {
     //forward declaration
     class Histogram2DFloat;
 
+    /** @brief Last pnCCD image */
     class pp1 : public PostprocessorBackend
     {
     public:
@@ -33,7 +34,34 @@ namespace cass
 
 
 
-    /** @ Averaged binned pnCCD image
+
+    /** @brief Last CCD image
+
+    @todo This should be merged with pp1
+    */
+    class pp3 : public PostprocessorBackend
+    {
+    public:
+
+        pp3(PostProcessors::histograms_t&, PostProcessors::id_t);
+
+        /** Free _image spcae */
+        virtual ~pp3();
+
+        /** copy image from CASS event to histogram storage */
+        virtual void operator()(const CASSEvent&);
+
+
+    protected:
+
+        size_t _detector;
+
+        Histogram2DFloat *_image;
+    };
+
+
+
+    /** @brief Averaged binned pnCCD image
 
     Running average of pnCCD-1 images with
     - an averaging length of postprocessors/101/average

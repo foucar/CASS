@@ -14,7 +14,7 @@ cass::CASSEvent::CASSEvent()
      _version(1)
 {
   //add all devices that are available
-  _devices[ccd]         = new cass::CCD::CCDDevice();
+  _devices[CCD]         = new cass::CCD::CCDDevice();
   _devices[MachineData] = new cass::MachineData::MachineDataDevice();
   _devices[Acqiris]     = new cass::ACQIRIS::AcqirisDevice();
   _devices[pnCCD]       = new cass::pnCCD::pnCCDDevice();

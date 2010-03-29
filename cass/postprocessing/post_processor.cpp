@@ -9,9 +9,9 @@
 #include <algorithm>
 
 #include "post_processor.h"
-#include "ccd_postprocessor.h"
-#include "waveform_postprocessor.h"
-#include "alignment_postprocessor.h"
+#include "postprocessing/ccd.h"
+#include "postprocessing/waveform.h"
+#include "postprocessing/alignment.h"
 
 
 // ============define static members (do not touch)==============

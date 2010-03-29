@@ -29,7 +29,7 @@ namespace cass
 
     00001: Last plain image from pnCCD-1 (pnCCD)
     00002: Last plain image from pnCCD-2 (pnCCD)
-    00003: Last plain image from VMI ccd (VMI)
+    00003: Last plain image from VMI ccd camera (VMI)
     00004: Last waveform of Camp Acqiris Channel 00
     00005: Last waveform of Camp Acqiris Channel 01
     00006: Last waveform of Camp Acqiris Channel 02
@@ -55,7 +55,7 @@ namespace cass
            - an average length of postprocessors/101/average
     00102: Histogram 101 with
            - background subtraction of the image file specified in postprocessors/102/background
-    00121: Running average of VMI camera
+    00121: Running average of VMI (???) camera
     00131: Scalar value of the <cos^2\theta>_{2D} derived from the 121 image
     00500: Averaged waveform of Camp Acqiris Channel 00
     00501: Averaged waveform of Camp Acqiris Channel 01

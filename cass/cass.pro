@@ -24,7 +24,7 @@ SOURCES +=  cass.cpp \
             ./postprocessing/post_processor.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
-            ./postprocessing/waveform_postprocessor.cpp \
+            ./postprocessing/waveform.cpp \
 
 HEADERS +=  analysis_backend.h \
             conversion_backend.h \
@@ -45,10 +45,10 @@ HEADERS +=  analysis_backend.h \
             serializer.h \
             rate_plotter.h \
             ./postprocessing/post_processor.h \
-            ./postprocessing/postprocessor_backend.h \
+            ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
             ./postprocessing/alignment.h \
-            ./postprocessing/waveform_postprocessor.h \
+            ./postprocessing/waveform.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
                 ../cass_acqiris \

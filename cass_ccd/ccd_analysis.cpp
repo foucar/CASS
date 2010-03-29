@@ -30,8 +30,7 @@ void cass::CCD::Parameter::save()
 void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
   //retrieve a pointer to the ccd device we are working on//
-  cass::CCD::CCDDevice* dev = 
-    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::ccd]);
+  cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //retrieve a reference to the pulnix detector//
   cass::CCDDetector& det = dev->detector();
 

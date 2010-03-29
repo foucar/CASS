@@ -31,6 +31,7 @@ namespace cass
   }
 }
 
+
 inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)const
 {
   //the version//
@@ -38,6 +39,8 @@ inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)const
   //the detector//
   _detector.serialize(out);
 }
+
+
 inline void cass::CCD::CCDDevice::deserialize(cass::Serializer& in)
 {
   //check whether the version fits//

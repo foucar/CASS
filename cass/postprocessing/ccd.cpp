@@ -10,6 +10,7 @@
 #include <QtCore/QString>
 
 #include "ccd.h"
+#include "ccd_device.h"
 #include "pnccd_device.h"
 #include "histogram.h"
 #include "post_processor.h"
@@ -18,6 +19,8 @@
 
 using namespace cass;
 
+
+// *** postprocessors 1, 2 ***
 
 pp1::pp1(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
     : PostprocessorBackend(hist, id),
@@ -51,6 +54,43 @@ void pp1::operator()(const cass::CASSEvent& event)
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
     const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    std::copy(frame.begin(), frame.end(), _image->memory().begin());
+}
+
+
+
+
+// *** postprocessor 3 ***
+
+pp3::pp3(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(hist, id)
+{
+    /*
+    // create _image storage
+    using namespace cass::CCD;
+    const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
+    const CCDDetector *detector(dev->detector());
+    const CCDDetector::frame_t& frame(detector.frame());
+    _image = new Histogram2DFloat(detector->rows(), detector-columns());
+    // save storage in PostProcessors container
+    assert(hist == _histograms);
+    _histograms[_id] = _image;
+    */
+}
+
+
+pp3::~pp3()
+{
+    delete _image;
+    _image = 0;
+}
+
+
+void pp3::operator()(const cass::CASSEvent& event)
+{
+    using namespace cass::CCD;
+    const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
+    const CCDDetector::frame_t& frame(dev->detector().frame());
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 

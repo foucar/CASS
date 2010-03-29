@@ -22,8 +22,12 @@ namespace cass
     ~CASSEvent();
 
   public:
-    enum Device{pnCCD,Acqiris,ccd,MachineData};
-    typedef std::map<Device,DeviceBackend*> devices_t;
+
+    /** known devices */
+    enum Device{pnCCD, Acqiris, CCD, MachineData};
+
+    /** mapping from device type to handler instance */
+    typedef std::map<Device, DeviceBackend*> devices_t;
 
   public:
     void serialize(Serializer&)const;

@@ -12,11 +12,10 @@
 void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
   //retrieve a reference to the frame contained int the xtc//
-  const Pds::Camera::FrameV1 &frame = 
+  const Pds::Camera::FrameV1 &frame =
     *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
   //retrieve a pointer to the ccd device we are working on//
-  cass::CCD::CCDDevice* dev = 
-    dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::ccd]);
+  cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //retrieve a reference to the pulnix detector//
   cass::CCDDetector& det = dev->detector();
 
