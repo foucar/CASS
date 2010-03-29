@@ -3,9 +3,6 @@
 #ifndef _PNCCD_DEVICE_H
 #define _PNCCD_DEVICE_H
 
-#define pnCCD_default_size    1024
-#define pnCCD_default_size_sq 1024*1024
-
 #include <iostream>
 #include <vector>
 #include <stdint.h>
@@ -24,6 +21,9 @@ namespace cass
     public:
       pnCCDDevice(void)    {_version=1;}
       ~pnCCDDevice()       {}
+
+#define pnCCD_default_size    1024
+#define pnCCD_default_size_sq 1024*1024
 
     public:
       typedef std::vector<CCDDetector> detectors_t;
