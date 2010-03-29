@@ -27,6 +27,7 @@ namespace cass
     handling multiple histograms) and placed in the file for the most appropriate group according to
     their content.
 
+    @verbatim
     00001: Last plain image from pnCCD-1 (pnCCD)
     00002: Last plain image from pnCCD-2 (pnCCD)
     00003: Last plain image from VMI ccd camera (VMI)
@@ -57,6 +58,12 @@ namespace cass
            - background subtraction of the image file specified in postprocessors/102/background
     00121: Running average of VMI (???) camera
     00131: Scalar value of the <cos^2\theta>_{2D} derived from the 121 image
+    00141: Sum-intensity of image pp3
+    00142: Sum-intensity of image pp121
+    00143: Gaussian width of image pp3
+    00144: Gaussian height of image pp3
+    00145: Gaussian width of image pp121
+    00146: Gaussian height of image pp121
     00500: Averaged waveform of Camp Acqiris Channel 00
     00501: Averaged waveform of Camp Acqiris Channel 01
     00502: Averaged waveform of Camp Acqiris Channel 02
@@ -77,8 +84,8 @@ namespace cass
     00517: Averaged waveform of Camp Acqiris Channel 17
     00518: Averaged waveform of Camp Acqiris Channel 18
     00519: Averaged waveform of Camp Acqiris Channel 19
+    @endverbatim
     */
-
     class CASSSHARED_EXPORT PostProcessors : public QObject
     {
         Q_OBJECT;

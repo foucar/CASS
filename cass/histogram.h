@@ -74,27 +74,44 @@ private:
 class CASSSHARED_EXPORT HistogramBackend
 {
 public:
+
+    /** constructor */
     explicit HistogramBackend(size_t dim)
-        :_dimension(dim),
-        _nbrOfFills(0),
-        _version(1)
-        {}
+        : _dimension(dim), _nbrOfFills(0), _version(1)
+    {}
+
     virtual ~HistogramBackend(){}
+
+    /** @brief Serialize this object to a string */
     virtual void serialize(Serializer&)const=0;
+
+    /** @brief Deserialize this object from a string */
     virtual void deserialize(Serializer&)=0;
-public:
+
     typedef std::vector<AxisProperty> axis_t;
-public: //setters , getters
+
     size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t  &nbrOfFills()      {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
-public:
-    enum Axis{xAxis=0,yAxis,zAxis}; //choose easier the axis
-    enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight, //choose easier the over/
-                  Left,                     Right,      //underflow quadrant (2D hist)
+
+    /** possible axes
+
+    convenience type to allow for easier choosing of the axis
+    */
+    enum Axis{xAxis=0,yAxis,zAxis};
+
+    /** possible over/underflow quadrants
+
+    convenience type to allow for easier choosing of the over-/underflow quadrant (2D histograms)
+    */
+    enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight,
+                  Left,                     Right,
                   LowerLeft  , LowerMiddle, LowerRight};
-    enum OverUnderFlow{Overflow=0, Underflow};    //the over/underflow bin (1D hist)
+
+    /** the over/underflow bin (1D hist) */
+    enum OverUnderFlow{Overflow=0, Underflow};
+
 protected:
     size_t    _dimension;
     axis_t    _axis;

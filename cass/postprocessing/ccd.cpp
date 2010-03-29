@@ -17,10 +17,11 @@
 #include "postprocessing/ccd.h"
 
 
-using namespace cass;
+namespace cass
+{
 
 
-// *** postprocessors 1, 2 ***
+// *** postprocessors 1, 2 -- last images from pnCCD ***
 
 pp1::pp1(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
     : PostprocessorBackend(hist, id),
@@ -60,7 +61,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 
 
 
-// *** postprocessor 3 ***
+// *** postprocessor 3 -- last image from VMI CCD***
 
 pp3::pp3(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
     : PostprocessorBackend(hist, id)
@@ -79,11 +80,13 @@ pp3::pp3(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id
 }
 
 
+
 pp3::~pp3()
 {
     delete _image;
     _image = 0;
 }
+
 
 
 void pp3::operator()(const cass::CASSEvent& event)
@@ -99,11 +102,10 @@ void pp3::operator()(const cass::CASSEvent& event)
 // *** postprocessors 101, 102 ***
 
 pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : cass::PostprocessorBackend(hist, id)
+    : PostprocessorBackend(hist, id)
 {
     assert(hist == _histograms);
     loadSettings(0);
-    // save more setup parameters
     switch(id) {
     case PostProcessors::Pnccd1BinnedRunningAverage:
         _detector = 0;
@@ -136,9 +138,9 @@ void cass::pp101::loadSettings(size_t)
         // create new histogram storage
         size_t horizontal(1024/_binning.first);
         size_t vertical(1024/_binning.second);
-#warning multithreding: block access to _image
+#warning multithreading: block access to _image
         delete _image;
-        _image = new Histogram2DFloat(horizontal, 0, horizontal-1, vertical, 0, vertical-1);
+        _image = new Histogram2DFloat(horizontal, vertical);
     }
     // save storage in PostProcessors container
     _histograms[_id] = _image;
@@ -187,6 +189,9 @@ void cass::pp101::operator()(const CASSEvent& event)
 // */
 // }
 
+
+
+} // end namespace cass
 
 
 
