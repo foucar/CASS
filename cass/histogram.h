@@ -14,7 +14,7 @@
 namespace cass
 {
 
-/** Axis properties for histograms
+/*! Axis properties for histograms
 
 this describes the properties of the axis of the histogram
 */
@@ -34,37 +34,40 @@ public:
     void serialize(Serializer&)const;
     void deserialize(Serializer&);
 
-    /** @return size (nuber of bins) of axis */
+    /*! @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
 
-    /** Convenience function - @see size() */
+    /*! Convenience function
+
+    @deprecated Use size() instead    @see size()
+    */
     size_t nbrBins() const {return size();}
 
-    /** Lower limit of axis */
+    /*! Lower limit of axis */
     float lowerLimit()const {return _low;};
 
-    /** Upper limit of axis */
+    /*! Upper limit of axis */
     float upperLimit()const {return _up;}
 
-    /** bin-index for position x */
+    /*! bin-index for position x */
     size_t bin(float x);
 
 
 protected:
 
-    /** the number of bins in this axis */
+    /*! the number of bins in this axis */
     size_t _size;
 
-    /** lower limit of the axis */
+    /*! lower limit of the axis */
     float _low;
 
-    /** upper limit of the axis */
+    /*! upper limit of the axis */
     float _up;
 
 
 private:
 
-    /** internal version for de/serializing */
+    /*! internal version for de/serializing */
     uint16_t _version;
 };
 
@@ -82,10 +85,10 @@ public:
 
     virtual ~HistogramBackend(){}
 
-    /** @brief Serialize this object to a string */
+    /*! Serialize this object to a string */
     virtual void serialize(Serializer&)const=0;
 
-    /** @brief Deserialize this object from a string */
+    /*! Deserialize this object from a string */
     virtual void deserialize(Serializer&)=0;
 
     typedef std::vector<AxisProperty> axis_t;
@@ -95,13 +98,13 @@ public:
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
 
-    /** possible axes
+    /*! possible axes
 
     convenience type to allow for easier choosing of the axis
     */
     enum Axis{xAxis=0,yAxis,zAxis};
 
-    /** possible over/underflow quadrants
+    /*! possible over/underflow quadrants
 
     convenience type to allow for easier choosing of the over-/underflow quadrant (2D histograms)
     */
@@ -109,7 +112,7 @@ public:
                   Left,                     Right,
                   LowerLeft  , LowerMiddle, LowerRight};
 
-    /** the over/underflow bin (1D hist) */
+    /*! the over/underflow bin (1D hist) */
     enum OverUnderFlow{Overflow=0, Underflow};
 
 protected:
