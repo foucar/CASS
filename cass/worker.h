@@ -14,7 +14,7 @@
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
-#include "post_processor.h"
+#include "postprocessing/postprocessor.h"
 
 
 namespace cass

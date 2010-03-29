@@ -7,7 +7,7 @@
 #include "worker.h"
 #include "analyzer.h"
 #include "format_converter.h"
-#include "post_processor.h"
+#include "postprocessing/postprocessor.h"
 
 cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, QObject *parent)
   :QThread(parent),
