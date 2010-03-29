@@ -137,12 +137,12 @@ public:
     typedef std::vector<value_t> storage_t;
 
 
-    explicit HistogramFloatBase(size_t dim)
-        : HistogramBackend(dim)
+    explicit HistogramFloatBase(size_t dim, size_t memory_size=0)
+        : HistogramBackend(dim), _memory(memory_size, 0.)
     {}
 
     HistogramFloatBase(Serializer& in)
-        :HistogramBackend(0)
+        : HistogramBackend(0)
     {
         deserialize(in);
     }
@@ -151,27 +151,49 @@ public:
     virtual void deserialize(Serializer&);
 
     /** @return const reference to histogram data */
-    const storage_t &memory() const {return _memory;}
+    const storage_t& memory() const {return _memory;}
 
     /** @overload */
-    storage_t       &memory()          {return _memory;}
+    storage_t& memory() { return _memory; };
 
 protected:
     //reset the histogram//
-    virtual void   reset()           {_memory.assign(_memory.size(),0);}
+    virtual void reset() { _memory.assign(_memory.size(), 0); }
 
     //the memory contains the histogram in range nbins
     //after that there are some reservered spaces for over/underflow statistics
-    storage_t        _memory;
+    storage_t _memory;
 };
 
 
-// 1D Histogram for Graphs, ToF's etc...
+
+
+/*! "0D Histogram" scalar value */
+class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
+{
+public:
+
+    /*! Create a 0d histogram of a single float */
+    explicit Histogram0DFloat()
+        : HistogramFloatBase(0, 1)
+    {};
+
+    /*! Constructor for reading a histogram from a stream */
+    Histogram0DFloat(Serializer &in)
+        : HistogramFloatBase(in)
+    {};
+
+    void fill(value_t value=0.) {_memory[0] = value; };
+};
+
+
+
+/*! 1D Histogram for Graphs, ToF's etc... */
 class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
 {
 public:
 
-    /** Create a 1d histogram of floats */
+    /*! Create a 1d histogram of floats */
     explicit Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
         : HistogramFloatBase(1)
     {
@@ -181,12 +203,12 @@ public:
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     };
 
-    /** Constructor for reading a histogram from a stream */
+    /*! Constructor for reading a histogram from a stream */
     Histogram1DFloat(Serializer &in)
         : HistogramFloatBase(in)
     {};
 
-    void fill(float x, float weight=1);
+    void fill(float x, value_t weight=1.);
 };
 
 
@@ -246,7 +268,7 @@ public:
     @param x, y Position of datum
     @param weight value of datum
     */
-    void fill(float x, float y, float weight=1);
+    void fill(float x, float y, value_t weight=1.);
 };
 
 
