@@ -1,10 +1,12 @@
 // Copyright (C) 2010 lmf
 // Copyright (C) 2010 Jochen Küpper
 
-#include <utility>
 #include <algorithm>
 #include <cassert>
+#include <functional>
+#include <numeric>
 #include <stdexcept>
+#include <utility>
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
@@ -174,6 +176,40 @@ void cass::pp101::operator()(const CASSEvent& event)
     }
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
+
+
+
+// *** postprocessor 141 -- integral over last image from VMI CCD ***
+
+pp141::pp141(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+{
+    // save storage in PostProcessors container
+    assert(hist == _histograms);
+    _histograms[_id] = _value;
+}
+
+
+
+pp141::~pp141()
+{
+    delete _value;
+    _value = 0;
+}
+
+
+
+void pp141::operator()(const cass::CASSEvent&)
+{
+    const HistogramFloatBase *hist(dynamic_cast<HistogramFloatBase *>(_histograms[PostProcessors::VmiCcdLastImage]));
+    const HistogramFloatBase::storage_t& val(hist->memory());
+    HistogramFloatBase::value_t sum(0);
+    std::accumulate(val.begin(), val.end(), sum);
+    *_value = sum;
+}
+
+
+
 
 
 

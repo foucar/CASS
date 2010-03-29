@@ -184,6 +184,9 @@ public:
     {};
 
     void fill(value_t value=0.) {_memory[0] = value; };
+
+    /*! Simple assignment ot the single value */
+    Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
 };
 
 

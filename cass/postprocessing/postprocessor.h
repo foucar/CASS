@@ -98,8 +98,7 @@ namespace cass
         */
         enum id_t
         {
-            Pnccd1LastImage=1,
-            Pnccd2LastImage=2,
+            Pnccd1LastImage=1, Pnccd2LastImage=2, VmiCcdLastImage=3,
             CampChannel00LastWaveform=4,
             CampChannel01LastWaveform=5,
             CampChannel02LastWaveform=6,
@@ -120,10 +119,10 @@ namespace cass
             CampChannel17LastWaveform=21,
             CampChannel18LastWaveform=22,
             CampChannel19LastWaveform=23,
-            Pnccd1BinnedRunningAverage=101,
-            Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
-            VmiRunningAverage=121,
-            VmiAlignment=201,
+            Pnccd1BinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
+            VmiRunningAverage=121, VmiCos2Theta=131,
+            Integral3=141, Integral121=142,
+            GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
             CampChannel00AveragedWaveform=500,
             CampChannel01AveragedWaveform=501,
             CampChannel02AveragedWaveform=502,
@@ -177,14 +176,18 @@ namespace cass
 
     public slots:
 
-        /** @brief reset set of active postprocessors/histograms based on cass.ini */
+        /*! Load active postprocessors and histograms
+
+        Reset set of active postprocessors/histograms based on cass.ini */
         void loadSettings(size_t);
+
+        /*! Save active postprocessors and histograms */
         void saveSettings() {}
 
 
     protected:
 
-        /** @brief (ordered) list of active postprocessors/histograms
+        /*! @brief (ordered) list of active postprocessors/histograms
 
         This list has order, i.e., postprocessors are called in the specified order. You can rely on the
         result of a postprocessor earlier in the list, but not on one that only occurs further back...

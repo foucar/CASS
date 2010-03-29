@@ -14,9 +14,14 @@
 #include "postprocessing/alignment.h"
 
 
+namespace cass
+{
+
+
 // ============define static members (do not touch)==============
 cass::PostProcessors *cass::PostProcessors::_instance(0);
 QMutex cass::PostProcessors::_mutex;
+
 
 // create an instance of the singleton
 cass::PostProcessors *cass::PostProcessors::instance()
@@ -26,6 +31,9 @@ cass::PostProcessors *cass::PostProcessors::instance()
         _instance = new PostProcessors();
     return _instance;
 }
+
+
+
 // destroy the instance of the singleton
 void cass::PostProcessors::destroy()
 {
@@ -33,18 +41,22 @@ void cass::PostProcessors::destroy()
     delete _instance;
     _instance = 0;
 }
-// file-local helper function -- convert QVariant to id_t
-static inline cass::PostProcessors::id_t QVarianttoId_t(QVariant i)
-{
-    return cass::PostProcessors::id_t(i.toInt());
-}
 //===============================================================
 
 
 
+/**! Internal helper function to  convert QVariant to id_t */
+static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
+{
+    return PostProcessors::id_t(i.toInt());
+}
 
 
-cass::PostProcessors::PostProcessors()
+
+
+
+
+PostProcessors::PostProcessors()
 {
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
@@ -59,32 +71,56 @@ void cass::PostProcessors::process(cass::CASSEvent& event)
 }
 
 
-void cass::PostProcessors::loadSettings(size_t)
+void PostProcessors::loadSettings(size_t)
 {
     QSettings settings;
     settings.beginGroup("postprocessors");
     QVariantList list(settings.value("active").toList());
     _active.resize(list.size());
     std::transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
+    // remove duplicates (keep first occurence)
+    _active.unique();
     setup();
 }
 
 
 void cass::PostProcessors::setup()
 {
+    using namespace std;
     // delete all unused PostProcessors
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
         if(_active.end() != find(_active.begin(), _active.end(), iter->first))
             _postprocessors.erase(iter);
     // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
     // the postprocessor correctly initialize it whenever it wants to
-    for(std::list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter)
-    {
-        if(_postprocessors.end() == _postprocessors.find(*iter))
-        {
+    list<id_t>::iterator iter(_active.begin());
+    while(iter != _active.end()) {
+        // check that the postprocessor is not already implemented
+        if(_postprocessors.end() == _postprocessors.find(*iter)) {
+            // create postprocessor
             _histograms[*iter] = 0;
             _postprocessors[*iter] = create(_histograms, *iter);
+            // check for dependencies; if there are any open dependencies put all of them in front
+            // of us
+            bool update(false);
+            list<id_t> deps(_postprocessors[*iter]->dependencies());
+            for(list<id_t>::iterator d=deps.begin(); d!=deps.end(); ++d) {
+                if(_postprocessors.end() != _postprocessors.find(*d)) {
+                    _active.insert(iter, *d);
+                    list<id_t>::iterator remove(find(iter, _active.end(), *d));
+                    if(_active.end() != remove)
+                        _active.erase(remove);
+                    update = true;
+                }
+            }
+            // if we have updated _active, start over again
+            if(update) {
+                // start over
+                iter = _active.begin();
+                continue;
+            }
         }
+        ++iter;
     }
 }
 
@@ -150,6 +186,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
     }
     return processor;
 }
+
+} // end namespace cass
 
 
 
