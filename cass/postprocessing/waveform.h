@@ -13,14 +13,14 @@ namespace cass
   class Histogram1DFloat;
 
   //class to show the last wavefrom of a channel
-  class LastWaveform : public PostprocessorBackend
+  class pp4 : public PostprocessorBackend
   {
   public:
 
-    LastWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
+    pp4(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
-    virtual ~LastWaveform();
+    virtual ~pp4();
 
     //copy the last waveform from the expected channel//
     virtual void operator()(const CASSEvent&);
@@ -33,13 +33,13 @@ namespace cass
   //class that lets you average the waveforms
   //depending on the factor it will make a cumulative average or
   //an exponential moving average
-  class AverageWaveform : public PostprocessorBackend
+  class pp500 : public PostprocessorBackend
   {
   public:
-    AverageWaveform(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
+    pp500(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
     //delete the histogram when you are destroyed//
-    virtual ~AverageWaveform();
+    virtual ~pp500();
 
     //read the average factor from cass.ini//
     virtual void loadParameters(size_t);

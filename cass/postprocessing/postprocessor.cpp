@@ -157,7 +157,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
     case CampChannel17LastWaveform:
     case CampChannel18LastWaveform:
     case CampChannel19LastWaveform:
-        processor = new LastWaveform(hs,id);
+        processor = new pp4(hs,id);
         break;
     case CampChannel00AveragedWaveform:
     case CampChannel01AveragedWaveform:
@@ -179,7 +179,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
     case CampChannel17AveragedWaveform:
     case CampChannel18AveragedWaveform:
     case CampChannel19AveragedWaveform:
-        processor = new AverageWaveform(hs,id);
+        processor = new pp500(hs,id);
         break;
     default:
         throw std::invalid_argument("Postprocessor id not available");

@@ -11,7 +11,7 @@
 
 
 //the last wavefrom copier
-cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
+cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id),
   _channel(300),
   _waveform(0)
@@ -42,13 +42,13 @@ cass::LastWaveform::LastWaveform(cass::PostProcessors::histograms_t &hist, cass:
   }
 }
 
-cass::LastWaveform::~LastWaveform()
+cass::pp4::~pp4()
 {
   delete _waveform;
   _waveform=0;
 }
 
-void cass::LastWaveform::operator()(const cass::CASSEvent &cassevent)
+void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
@@ -93,7 +93,7 @@ namespace cass
 }
 
 //the average waveform creator//
-cass::AverageWaveform::AverageWaveform(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
+cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
   switch (_id)
@@ -122,13 +122,13 @@ cass::AverageWaveform::AverageWaveform(cass::PostProcessors::histograms_t &hist,
   }
 }
 
-cass::AverageWaveform::~AverageWaveform()
+cass::pp500::~pp500()
 {
   delete _waveform;
   _waveform=0;
 }
 
-void cass::AverageWaveform::loadParameters(size_t)
+void cass::pp500::loadParameters(size_t)
 {
   QSettings parameter;
   parameter.beginGroup("postprocessors");
@@ -138,7 +138,7 @@ void cass::AverageWaveform::loadParameters(size_t)
   _alpha = static_cast<float>(1./N);
 }
 
-void cass::AverageWaveform::operator ()(const cass::CASSEvent & cassevent)
+void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
