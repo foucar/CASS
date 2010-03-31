@@ -12,6 +12,26 @@ namespace cass
 {
   namespace ACQIRIS
   {
+    //helperclass for evaluating the first good hit in a given range//
+    class PeakInRange
+    {
+    public:
+      PeakInRange(double from, double to)
+        :_from(from),
+        _to(to)
+      {}
+
+      //return wether the time of the peak is in the requested range
+      bool operator()(const Peak &peak)
+      {
+        return (_from  < peak.time() && peak.time() < _to);
+      }
+
+    private:
+      double _from;
+      double _to;
+    };
+
     //----------------------------------------------------------------------------------
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend    //the properties of one Wire-end of the Layerwire
     {
@@ -37,6 +57,8 @@ namespace cass
         _chNbr        = p->value("ChannelNumber",0).toInt();
         _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
         _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
+        _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
+        _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
         _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
         _threshold    = p->value("Threshold",50.).toInt();
         _delay        = p->value("Delay",5).toInt();
@@ -53,6 +75,8 @@ namespace cass
         p->setValue("ChannelNumber",static_cast<int>(_chNbr));
         p->setValue("LowerTimeRangeLimit",_trLow);
         p->setValue("UpperTimeRangeLimit",_trHigh);
+        p->setValue("LowerGoodTimeRangeLimit",_grLow);
+        p->setValue("UpperGoodTimeRangeLimit",_grHigh);
         p->setValue("Polarity",static_cast<int>(_polarity));
         p->setValue("Threshold",_threshold);
         p->setValue("Delay",_delay);
@@ -66,18 +90,29 @@ namespace cass
       typedef std::vector<Peak> peaks_t;
 
     public:
-      peaks_t           &peaks()             {return _peaks;}
-      const peaks_t     &peaks()const        {return _peaks;}
+      peaks_t           &peaks()              {return _peaks;}
+      const peaks_t     &peaks()const         {return _peaks;}
+
+    public:
+      double             firstGood()const
+      {
+        //find first occurence of peak that is in the given timerange//
+        peaks_t::iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
+        //if it is not there retrun 0, otherwise the time of the found peak//
+        return it==_peaks.end()? 0. : *it.time();
+      }
 
     public:
       size_t             channelNbr()const    {return _chNbr;}
       size_t            &channelNbr()         {return _chNbr;}
       double             trLow()const         {return _trLow;}
       double            &trLow()              {return _trLow;}
-      double             grLow()const         {return _grLow;}
-      double            &grLow()              {return _grLow;}
       double             trHigh()const        {return _trHigh;}
       double            &trHigh()             {return _trHigh;}
+      double             grLow()const         {return _grLow;}
+      double            &grLow()              {return _grLow;}
+      double             grHigh()const        {return _grHigh;}
+      double            &grHigh()             {return _grHigh;}
       Polarity           polarity()const      {return _polarity;}
       Polarity          &polarity()           {return _polarity;}
       int16_t            threshold()const     {return _threshold;}

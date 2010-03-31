@@ -50,9 +50,10 @@ namespace cass
       }
 
     public:
+      //the timesum condition for this anode layer
       double         ts()const      {return 0.5*(_tsLow+_tsHeigh);}
 
-    public:
+    public: //setters/getters
       double         tsLow()const   {return _tsLow;}
       double        &tsLow()        {return _tsLow;}
       double         tsHigh()const  {return _tsHeigh;}
