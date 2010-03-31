@@ -84,6 +84,65 @@ namespace cass
     00517: Averaged waveform of Camp Acqiris Channel 17
     00518: Averaged waveform of Camp Acqiris Channel 18
     00519: Averaged waveform of Camp Acqiris Channel 19
+    00551: Hex Anode Number of Peaks in MCP
+    00553: Hex Anode Number of Peaks in U1
+    00555: Hex Anode Number of Peaks in U2
+    00557: Hex Anode Number of Peaks in V1
+    00559: Hex Anode Number of Peaks in V2
+    00561: Hex Anode Number of Peaks in W1
+    00563: Hex Anode Number of Peaks in W2
+    00564: Hex Anode Hit Ratio U1 / U2
+    00565: Hex Anode Hit Ratio U1 / MCP
+    00566: Hex Anode Hit Ratio U2 / MCP
+    00567: Hex Anode Hit Ratio V1 / V2
+    00568: Hex Anode Hit Ratio V1 / MCP
+    00569: Hex Anode Hit Ratio V2 / MCP
+    00570: Hex Anode Hit Ratio W1 / W2
+    00571: Hex Anode Hit Ratio W1 / MCP
+    00572: Hex Anode Hit Ratio W2 / MCP
+    00573: Hex Anode Hit Ratio Reconstructed / MCP
+    00574: Hex Anode First Hit on MCP
+    00575: Hex Anode First Hit on U1
+    00576: Hex Anode First Hit on U2
+    00577: Hex Anode First Hit on V1
+    00578: Hex Anode First Hit on V2
+    00579: Hex Anode First Hit on W1
+    00580: Hex Anode First Hit on W2
+    00581: Hex Anode All Hits on MCP
+    00582: Hex Anode Delayline Timesum U
+    00583: Hex Anode Delayline Timesum V
+    00584: Hex Anode Delayline Timesum W
+    00585: Hex Anode Delayline Timesum U vs Pos U
+    00586: Hex Anode Delayline Timesum V vs Pos V
+    00587: Hex Anode Delayline Timesum W vs Pos W
+    00588: Hex Anode Delayline Picture of First Hit UV Layers in ns
+    00589: Hex Anode Delayline Picture of First Hit UW Layers in ns
+    00590: Hex Anode Delayline Picture of First Hit VW Layers in ns
+    00591: Hex Anode Delayline Picture of First Hit All Layers in ns
+    00592: Hex Anode Delayline Picture all Hits in mm
+    00593: Hex Anode Delayline X vs Tof
+    00594: Hex Anode Delayline Y vs Tof
+    00600: Quad Anode Number of Peaks in MCP
+    00601: Quad Anode Number of Peaks in X1
+    00602: Quad Anode Number of Peaks in X2
+    00603: Quad Anode Number of Peaks in Y1
+    00604: Quad Anode Number of Peaks in Y2
+    00605: Quad Anode Hit Ratio X1 / X2
+    00606: Quad Anode Hit Ratio X1 / MCP
+    00607: Quad Anode Hit Ratio X2 / MCP
+    00608: Quad Anode Hit Ratio Y1 / Y2
+    00609: Quad Anode Hit Ratio Y1 / MCP
+    00610: Quad Anode Hit Ratio Y2 / MCP
+    00611: Quad Anode Hit Ratio Reconstructed / MCP
+    00612: Quad Anode All Hits on MCP
+    00613: Quad Anode Delayline Timesum X
+    00614: Quad Anode Delayline Timesum Y
+    00615: Quad Anode Delayline Timesum X vs Pos X
+    00616: Quad Anode Delayline Timesum Y vs Pos Y
+    00617: Quad Anode Delayline Picture of First Hit in ns
+    00618: Quad Anode Delayline Picture all Hits in mm
+    00619: Quad Anode Delayline X vs Tof
+    00620: Quad Anode Delayline Y vs Tof
     @endverbatim
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
