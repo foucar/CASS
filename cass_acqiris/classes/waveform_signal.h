@@ -111,7 +111,7 @@ namespace cass
         return _goodHit;
       }
 
-    public:
+    public: //setters /getters
       size_t             channelNbr()const    {return _chNbr;}
       size_t            &channelNbr()         {return _chNbr;}
       double             trLow()const         {return _trLow;}
@@ -134,6 +134,8 @@ namespace cass
       double            &walk()               {return _walk;}
       WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
+      bool               isNewEvent()const    {return _isNewEvent;}
+      bool              &isNewEvent()         {return _isNewEvent;}
 
     private:
       //things important to know how to analyze the waveform//

@@ -92,6 +92,12 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
   //  std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->two().analyzerType()<<" chnbr:"<<secondLayer->two().channelNbr()<<std::endl;
   (*_waveformanalyzer)[secondLayer->two().analyzerType()]->analyze(channels[secondLayer->two().channelNbr()],secondLayer->two());
 
+  ////tell the signals that you have updated it//
+  //d.mcp().isNewEvent() = true;
+  //firstLayer->one().isNewEvent() = true;
+  //firstLayer->two().isNewEvent() = true;
+  //secondLayer->one().isNewEvent() = true;
+  //secondLayer->two().isNewEvent() = true;
   //now sort these peaks for the layers timesum//
 //  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,*firstLayer,*secondLayer);
