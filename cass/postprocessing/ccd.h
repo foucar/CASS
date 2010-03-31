@@ -117,7 +117,7 @@ public:
 
     pp141(PostProcessors::histograms_t&, PostProcessors::id_t);
 
-    /** Free _image spcae */
+    /** Free _image space */
     virtual ~pp141();
 
     /** copy image from CASS event to histogram storage

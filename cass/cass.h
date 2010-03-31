@@ -3,6 +3,7 @@
 #ifndef CASS_GLOBAL_H
 #define CASS_GLOBAL_H
 
+#include <cassert>
 #include <iterator>
 #include <list>
 #include <vector>
