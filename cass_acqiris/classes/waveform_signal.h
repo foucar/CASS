@@ -47,7 +47,8 @@ namespace cass
          _delay(0),
          _fraction(5),
          _walk(200),
-         _analyzerType(com8)
+         _analyzerType(com8),
+         _isNewEvent(true)
       {}
       ~Signal()   {}
 
@@ -98,10 +99,16 @@ namespace cass
     public:
       double firstGood() const
       {
-        //find first occurence of peak that is in the given timerange//
-        peaks_t::const_iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
-        //if it is not there retrun 0, otherwise the time of the found peak//
-        return it==_peaks.end()? 0. : it->time();
+        //if this is called for the new event for the first time, then evaluate//
+        if(_isNewEvent)
+        {
+          //find first occurence of peak that is in the given timerange//
+          peaks_t::const_iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
+          //if it is not there retrun 0, otherwise the time of the found peak//
+          _goodHit = (it==_peaks.end())? 0. : it->time();
+          _isNewEvent = false;
+        }
+        return _goodHit;
       }
 
     public:
@@ -144,7 +151,8 @@ namespace cass
       WaveformAnalyzers _analyzerType;  //type of analysis to analyze this channel
       //container for the results of the waveform analysis
       peaks_t           _peaks;         //container for the peaks of the waveform
-      double            _goodHit;       //time of the first peak in the "good" range
+      mutable double    _goodHit;       //time of the first peak in the "good" range
+      mutable bool      _isNewEvent;    //flag to tell when we are working on a new event
     };
   }//end namespace acqiris
 }//end namespace cass
