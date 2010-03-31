@@ -134,8 +134,8 @@ namespace cass
       double            &walk()               {return _walk;}
       WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
-      bool               isNewEvent()const    {return _isNewEvent;}
-      bool              &isNewEvent()         {return _isNewEvent;}
+      //bool               isNewEvent()const    {return _isNewEvent;}
+      //bool              &isNewEvent()         {return _isNewEvent;}
 
     private:
       //things important to know how to analyze the waveform//

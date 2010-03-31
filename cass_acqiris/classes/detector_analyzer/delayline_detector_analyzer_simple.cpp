@@ -98,6 +98,7 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
   //firstLayer->two().isNewEvent() = true;
   //secondLayer->one().isNewEvent() = true;
   //secondLayer->two().isNewEvent() = true;
+  
   //now sort these peaks for the layers timesum//
 //  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,*firstLayer,*secondLayer);
