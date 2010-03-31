@@ -74,6 +74,8 @@ namespace cass
       size_t            &channelNbr()         {return _chNbr;}
       double             trLow()const         {return _trLow;}
       double            &trLow()              {return _trLow;}
+      double             grLow()const         {return _grLow;}
+      double            &grLow()              {return _grLow;}
       double             trHigh()const        {return _trHigh;}
       double            &trHigh()             {return _trHigh;}
       Polarity           polarity()const      {return _polarity;}
@@ -95,6 +97,8 @@ namespace cass
       size_t            _chNbr;         //This Channels Number in the Acqiris Crate
       double            _trLow;         //lower edge of the timerange events can happen in
       double            _trHigh;        //upper edge of the timerange events can happen in
+      double            _grLow;         //lower edge of the timerange good single events can happen in
+      double            _grHigh;        //upper edge of the timerange good single  events can happen in
       Polarity          _polarity;      //the Polarity the Signal has
       int16_t           _threshold;     //the Noiselevel for this channel (in adc bytes)
       int32_t           _delay;         //the delay of the cfd
@@ -103,6 +107,7 @@ namespace cass
       WaveformAnalyzers _analyzerType;  //type of analysis to analyze this channel
       //container for the results of the waveform analysis
       peaks_t           _peaks;         //container for the peaks of the waveform
+      double            _goodHit;       //time of the first peak in the "good" range
     };
   }//end namespace acqiris
 }//end namespace cass
