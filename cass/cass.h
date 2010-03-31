@@ -19,7 +19,7 @@
 namespace cass
 {
 const size_t RingBufferSize=4;
-const size_t NbrOfWorkers=4;
+const size_t NbrOfWorkers=16;
 const size_t DatagramBufferSize=0x1000000;
 typedef float pixel_t;
 
