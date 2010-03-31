@@ -97,6 +97,7 @@ namespace cass
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:
+      //return the time of the first peak in the "good" time range
       double firstGood() const
       {
         //if this is called for the new event for the first time, then evaluate//
