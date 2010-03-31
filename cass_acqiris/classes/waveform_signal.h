@@ -23,8 +23,8 @@ namespace cass
         _to(to)
       {}
 
-      //return wether the time of the peak is in the requested range
-      bool operator()(const Peak &peak)
+      //return whether the time of the peak is in the requested range
+      bool operator()(const Peak &peak)const
       {
         return (_from  < peak.time() && peak.time() < _to);
       }
@@ -96,10 +96,10 @@ namespace cass
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:
-      double firstGood()
+      double firstGood() const
       {
         //find first occurence of peak that is in the given timerange//
-        peaks_t::iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
+        peaks_t::const_iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
         //if it is not there retrun 0, otherwise the time of the found peak//
         return it==_peaks.end()? 0. : it->time();
       }

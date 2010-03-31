@@ -51,7 +51,11 @@ namespace cass
 
     public:
       //the timesum condition for this anode layer
-      double         ts()const      {return 0.5*(_tsLow+_tsHeigh);}
+      double ts()const      {return 0.5*(_tsLow+_tsHeigh);}
+      //the timesum of the first good hit of this layer//
+      double timesum()const {return _one.firstGood() + _two.firstGood();}
+      //the position of the first good hit//
+      double position()const{return _one.firstGood() - _two.firstGood();}
 
     public: //setters/getters
       double         tsLow()const   {return _tsLow;}
@@ -212,10 +216,30 @@ namespace cass
       typedef std::vector<AnodeLayer> anodelayers_t;
 
     public:
+      //retrieve the timesum of the first good hit for a given layer//
+      double timesum(LayerTypes layer) const
+      {
+        return _anodelayers[layer].timesum() - 2.* _mcp.firstGood();
+      }
+
+      //retrieve whether the first "good" hit fullfilles the timesum condition//
+      bool timesumcondtion(LayerTypes layer) const
+      {
+        return (_anodelayers[layer].tsLow() < timesum(layer) && 
+                timesum(layer) < _anodelayers[layer].tsHigh());
+      }
+
+      //retrieve the position of the first good hit for a given layer//
+      double position(LayerTypes layer) const
+      {
+        return _anodelayers[layer].position();
+      }
+
+    public: //setter/getter
       const dethits_t     &hits()const            {return _hits;}
       dethits_t           &hits()                 {return _hits;}
 
-    public:
+    public: //setter/getter
       const std::string   &name()const            {return _name;}
       std::string         &name()                 {return _name;}
       double               runtime()const         {return _runtime;}
