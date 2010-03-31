@@ -3,6 +3,8 @@
 #ifndef _SIGNAL_H_
 #define _SIGNAL_H_
 
+#include <algorithm>
+
 #include <QtCore/QSettings>
 #include "cass_acqiris.h"
 #include "results_backend.h"
@@ -94,12 +96,12 @@ namespace cass
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:
-      double             firstGood()const
+      double firstGood()
       {
         //find first occurence of peak that is in the given timerange//
         peaks_t::iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
         //if it is not there retrun 0, otherwise the time of the found peak//
-        return it==_peaks.end()? 0. : *it.time();
+        return it==_peaks.end()? 0. : it->time();
       }
 
     public:
