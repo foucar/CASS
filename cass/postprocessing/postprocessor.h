@@ -84,44 +84,36 @@ namespace cass
     00517: Averaged waveform of Camp Acqiris Channel 17
     00518: Averaged waveform of Camp Acqiris Channel 18
     00519: Averaged waveform of Camp Acqiris Channel 19
-    00551: Hex Anode Number of Peaks in MCP
-    00553: Hex Anode Number of Peaks in U1
-    00555: Hex Anode Number of Peaks in U2
-    00557: Hex Anode Number of Peaks in V1
-    00559: Hex Anode Number of Peaks in V2
-    00561: Hex Anode Number of Peaks in W1
-    00563: Hex Anode Number of Peaks in W2
-    00564: Hex Anode Hit Ratio U1 / U2
-    00565: Hex Anode Hit Ratio U1 / MCP
-    00566: Hex Anode Hit Ratio U2 / MCP
-    00567: Hex Anode Hit Ratio V1 / V2
-    00568: Hex Anode Hit Ratio V1 / MCP
-    00569: Hex Anode Hit Ratio V2 / MCP
-    00570: Hex Anode Hit Ratio W1 / W2
-    00571: Hex Anode Hit Ratio W1 / MCP
-    00572: Hex Anode Hit Ratio W2 / MCP
-    00573: Hex Anode Hit Ratio Reconstructed / MCP
-    00574: Hex Anode First Hit on MCP
-    00575: Hex Anode First Hit on U1
-    00576: Hex Anode First Hit on U2
-    00577: Hex Anode First Hit on V1
-    00578: Hex Anode First Hit on V2
-    00579: Hex Anode First Hit on W1
-    00580: Hex Anode First Hit on W2
-    00581: Hex Anode All Hits on MCP
-    00582: Hex Anode Delayline Timesum U
-    00583: Hex Anode Delayline Timesum V
-    00584: Hex Anode Delayline Timesum W
-    00585: Hex Anode Delayline Timesum U vs Pos U
-    00586: Hex Anode Delayline Timesum V vs Pos V
-    00587: Hex Anode Delayline Timesum W vs Pos W
-    00588: Hex Anode Delayline Picture of First Hit UV Layers in ns
-    00589: Hex Anode Delayline Picture of First Hit UW Layers in ns
-    00590: Hex Anode Delayline Picture of First Hit VW Layers in ns
-    00591: Hex Anode Delayline Picture of First Hit All Layers in ns
-    00592: Hex Anode Delayline Picture all Hits in mm
-    00593: Hex Anode Delayline X vs Tof
-    00594: Hex Anode Delayline Y vs Tof
+    00550: Hex Anode Number of Peaks in MCP
+    00551: Hex Anode Number of Peaks in U1
+    00552: Hex Anode Number of Peaks in U2
+    00553: Hex Anode Number of Peaks in V1
+    00554: Hex Anode Number of Peaks in V2
+    00555: Hex Anode Number of Peaks in W1
+    00556: Hex Anode Number of Peaks in W2
+    00557: Hex Anode Hit Ratio U1 / U2
+    00558: Hex Anode Hit Ratio U1 / MCP
+    00559: Hex Anode Hit Ratio U2 / MCP
+    00560: Hex Anode Hit Ratio V1 / V2
+    00561: Hex Anode Hit Ratio V1 / MCP
+    00562: Hex Anode Hit Ratio V2 / MCP
+    00563: Hex Anode Hit Ratio W1 / W2
+    00564: Hex Anode Hit Ratio W1 / MCP
+    00565: Hex Anode Hit Ratio W2 / MCP
+    00566: Hex Anode Hit Ratio Reconstructed / MCP
+    00567: Hex Anode Delayline Timesum U
+    00568: Hex Anode Delayline Timesum V
+    00569: Hex Anode Delayline Timesum W
+    00570: Hex Anode Delayline Timesum U vs Pos U
+    00571: Hex Anode Delayline Timesum V vs Pos V
+    00572: Hex Anode Delayline Timesum W vs Pos W
+    00573: Hex Anode Delayline Picture of First Hit UV Layers in ns
+    00574: Hex Anode Delayline Picture of First Hit UW Layers in ns
+    00575: Hex Anode Delayline Picture of First Hit VW Layers in ns
+    00576: Hex Anode Delayline Picture of First Hit All Layers in ns
+    00578: Hex Anode Delayline Picture all Hits in mm
+    00579: Hex Anode Delayline X vs Tof
+    00580: Hex Anode Delayline Y vs Tof
     00600: Quad Anode Number of Peaks in MCP
     00601: Quad Anode Number of Peaks in X1
     00602: Quad Anode Number of Peaks in X2
