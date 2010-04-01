@@ -14,7 +14,7 @@
 
 
 //--function to set the histogram properties from the cass.ini file--//
-void set1DHist(Histogram1DFloat*& hist, size_t id)
+void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
 {
   //delete old histogram//
   delete hist;
@@ -23,11 +23,11 @@ void set1DHist(Histogram1DFloat*& hist, size_t id)
   param.beginGroup("postprocessors");
   param.beginGroup(QString("processor_") + QString::number(id));
   //create new histogram using the parameters//
-  hist = new Histogram1DFloat(param.value("XNbrBins",1),
-                              param.value("XLow",0),
-                              param.value("XUp",0));
+  hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
+                                    param.value("XLow",0).toFloat(),
+                                    param.value("XUp",0).toFloat());
 }
-void set2DHist(Histogram2DFloat*& hist, size_t id)
+void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
 {
   //delete old histogram//
   delete hist;
@@ -36,12 +36,12 @@ void set2DHist(Histogram2DFloat*& hist, size_t id)
   param.beginGroup("postprocessors");
   param.beginGroup(QString("processor_") + QString::number(id));
   //create new histogram using the parameters//
-  hist = new Histogram2DFloat(param.value("XNbrBins",1),
-                              param.value("XLow",0),
-                              param.value("XUp",0),
-                              param.value("YNbrBins",1),
-                              param.value("YLow",0),
-                              param.value("YUp",0));
+  hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
+                                    param.value("XLow",0).toFloat(),
+                                    param.value("XUp",0).toFloat(),
+                                    param.value("YNbrBins",1).toUInt(),
+                                    param.value("YLow",0).toFloat(),
+                                    param.value("YUp",0).toFloat());
 }
 
 
@@ -65,20 +65,20 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   loadSettings(0);
 }
 
-cass::pp551::~pp551()
+cass::pp550::~pp550()
 {
   delete _nbrSignals;
   _nbrSignals=0;
 }
 
-void cass::pp551::loadParameters(size_t)
+void cass::pp550::loadParameters(size_t)
 {
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
 }
 
-void cass::pp551::operator()(const cass::CASSEvent &evt)
+void cass::pp550::operator()(const cass::CASSEvent &evt)
 {
 }
 
@@ -155,7 +155,7 @@ cass::pp557::~pp557()
 {
 }
 
-void cass::pp550::loadParameters(size_t)
+void cass::pp557::loadParameters(size_t)
 {
 }
 
@@ -180,7 +180,7 @@ cass::pp558::~pp558()
 {
 }
 
-void cass::pp550::loadParameters(size_t)
+void cass::pp558::loadParameters(size_t)
 {
 }
 
@@ -206,7 +206,7 @@ cass::pp566::~pp566()
 {
 }
 
-void cass::pp550::loadParameters(size_t)
+void cass::pp566::loadParameters(size_t)
 {
 }
 
