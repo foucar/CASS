@@ -236,6 +236,7 @@ namespace cass
 
 //----function implementation----
 //-----------Anode Layer--------
+inline
 void cass::ACQIRIS::AnodeLayer::loadParameters(QSettings *p,const char * layername)
 {
   //std::cerr <<"loading settings for layer \""<<layername<<"\""<<std::endl;
@@ -248,6 +249,7 @@ void cass::ACQIRIS::AnodeLayer::loadParameters(QSettings *p,const char * layerna
   p->endGroup();
   //std::cout <<"done"<<std::endl;
 }
+inline
 void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layername)
 {
   p->beginGroup(layername);
@@ -261,6 +263,7 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 
 
 //-----------Detector--------
+inline
 void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
   //std::cout <<"loading"<<std::endl;
@@ -301,6 +304,7 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
     break;
   }
 }
+inline
 void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
 {
   //save the parameters//
