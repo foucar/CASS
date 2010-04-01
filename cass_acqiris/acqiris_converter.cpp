@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2009, 2010 lmf
 
 #include "acqiris_converter.h"
 #include "cass_event.h"
@@ -12,7 +12,7 @@
 
 void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
-  //check whether xtc is a configuration or a event//
+/*  //check whether xtc is a configuration or a event//
   switch (xtc->contains.id())
   {
   //if it is a configuration then check for which Acqiris
@@ -96,5 +96,6 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
     std::cout<<"xtc type \""<<Pds::TypeId::name(xtc->contains.id())<<"\" is not handled by REMIConverter"<<std::endl;
     break;
   }
+*/
 }
 

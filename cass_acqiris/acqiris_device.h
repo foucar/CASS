@@ -25,7 +25,7 @@ namespace cass
     {
     public:
       Instrument()
-        :_version(1)
+        :Serializable(1)
       {}
 
     public:
@@ -47,8 +47,6 @@ namespace cass
     private:
       /** Container for all Channels */
       channels_t _channels;
-      /** version for de/serializing*/
-      uint16_t _version;
     };
 
 
@@ -72,9 +70,9 @@ namespace cass
     public:
       /** @typedef a map of available detectors,
       that can be attached to an acqiris channel*/
-      typedef std::map<cass::ACQIRIS::Detectors,DetectorBackend*> detectors_t;
+      typedef std::map<Detectors,DetectorBackend*> detectors_t;
       /** @typedef a map of all instruments available*/
-      typedef std::map<cass::ACQIRIS::Instruments, Instrument> instruments_t;
+      typedef std::map<Instruments, Instrument> instruments_t;
 
     public:
       /** will serialize all channels to Serializer*/

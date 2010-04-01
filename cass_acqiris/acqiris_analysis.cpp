@@ -11,7 +11,7 @@
 
 void cass::ACQIRIS::Parameter::load()
 {
-  //string for the container index//
+ /* //string for the container index//
   QString s;
   //sync before loading//
   sync();
@@ -42,12 +42,12 @@ void cass::ACQIRIS::Parameter::load()
     _detectors[i]->loadParameters(this);
     endGroup(); //QString(i)
   }
-  endGroup();//detectorcontainer
+ */ endGroup();//detectorcontainer
 }
 
 void cass::ACQIRIS::Parameter::save()
 {
-  //string for the container index//
+/*  //string for the container index//
   QString s;
   //the detector parameters//
   beginGroup("DetectorContainer");
@@ -59,7 +59,7 @@ void cass::ACQIRIS::Parameter::save()
     _detectors[i]->saveParameters(this);
     endGroup();
   }
-  endGroup();//detectorcontainer
+*/  endGroup();//detectorcontainer
 }
 
 
@@ -87,7 +87,7 @@ cass::ACQIRIS::Analysis::Analysis()
 
 void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* cassevent)
 {
-  //get the remievent from the cassevent//
+/*  //get the remievent from the cassevent//
   AcqirisDevice* dev =
       dynamic_cast<AcqirisDevice*>(cassevent->devices()[cass::CASSEvent::Acqiris]);
 
@@ -158,7 +158,8 @@ void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* cassevent)
       _detectoranalyzer[det.analyzerType()]->analyze(det, dev->channels());
     }
   }
-} 
+*/
+}
 
 
 
