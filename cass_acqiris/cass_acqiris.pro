@@ -11,6 +11,7 @@ OBJECTS_DIR = ./obj
 
 SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
+           acqiris_device.cpp \
            ./classes/waveformanalyzer/cfd.cpp \
            ./classes/waveformanalyzer/com.cpp \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
