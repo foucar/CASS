@@ -13,28 +13,33 @@
 
 namespace cass
 {
-// *** postprocessors 143 and 144 -- Gussian height and width from averaged VMI CCD image ***
-
-
-/*! Helper for postprocessors 143-144
+/*! Helper for postprocessors 131,
 
 This class actually does all the work; see individual postprocessors for details.
 */
-class pp143_144_helper
+class helper_alignment_2
 {
 public:
 
     /*! create the instance if not it does not exist already */
-    static pp143_144_helper * instance();
+    static helper_alignment_2 * instance();
 
     /*! destroy the instance */
     static void destroy();
 
-    /*! Gaussian width */
-    float width(const CASSEvent& event) { validate(event); return _values[event.id()].first; };
+    /*! center row of image */
+    float center_row(const CASSEvent& event) { validate(event); return _values[event.id()][0]; };
 
-    /*! Gaussian height */
-    float height(const CASSEvent& event) { validate(event); return _values[event.id()].second; };
+    /*! center column of image */
+    float center_column(const CASSEvent& event) { validate(event); return _values[event.id()][1]; };
+
+    /*! \f$<cos^2\theta>\f$ */
+    float cos2theta(const CASSEvent& event) { validate(event); return _values[event.id()][2]; };
+
+    /*! Postprocessor dependencies of this helper */
+    static std::list<PostProcessors::id_t> dependencies() {
+        return std::list<PostProcessors::id_t>(1, PostProcessors::VmiRunningAverage);
+    };
 
 
 protected:
@@ -45,15 +50,142 @@ protected:
     */
     void validate(const CASSEvent& event) {
         if(_processed.end() == find(_processed.begin(), _processed.end(), event.id())) {
-            // reduce 2d histogram to row- and column-integrated 1d histograms,
-            // perform Gauss-fits to 1d histograms,and store FWHM
-            _values[event.id()] = std::make_pair(float(0.), float(0.));
-            _processed.push_front(event.id());
+            process(event);
             while(5 < _processed.size()) {
                 _values.erase(_processed.back());
                 _processed.pop_back();
             }
         }
+    };
+
+    /*! Process event
+
+    Do the actual calculations to derive all relevant paramters.
+
+    @param event CASSEvent to process by us
+    */
+    void process(const CASSEvent& event);
+
+    /*! list of processed (and available) event ids
+
+    This is our houskeeping list for deleting the oldest ids in order.
+    Newest events are added in front, whereas the oldest (the last)
+    events are delted when appropriate.
+    */
+    std::list<uint64_t> _processed;
+
+    /*! map of values for the available ids
+
+    For each id we determine a vector of floats:
+    0 -- center row
+    1 -- center column
+    2 -- \f$<cos^2\theta>\f$
+    */
+    std::map<uint64_t, std::vector<float> > _values;
+
+
+private:
+
+    /*! Private constructor of singleton */
+    helper_alignment_2() {};
+
+    /*! Prevent copy-construction of singleton */
+    helper_alignment_2(const helper_alignment_2&);
+
+    /*! Prevent assignment (potentially resulting in a copy) of singleton */
+    helper_alignment_2& operator=(const helper_alignment_2);
+
+    /*! Prevent destruction unless going through destroy */
+    ~helper_alignment_2() {};
+
+    /*! pointer to the singleton instance */
+    static helper_alignment_2 *_instance;
+
+    /*! Singleton operation locker */
+    static QMutex _mutex;
+};
+helper_alignment_2 *helper_alignment_2::_instance(0);
+QMutex helper_alignment_2::_mutex;
+helper_alignment_2 * helper_alignment_2::instance() {
+    QMutexLocker locker(&_mutex);
+    if(0 == _instance)
+        _instance = new helper_alignment_2();
+    return _instance;
+}
+void helper_alignment_2::destroy() {
+    QMutexLocker locker(&_mutex);
+    delete _instance;
+    _instance = 0;
+}
+void helper_alignment_2::process(const CASSEvent& event)
+{
+    // determine (and store) center position of image
+    float center_row, center_col;
+    _values[event.id()][0] = center_row = 512;
+    _values[event.id()][1] = center_col = 512;
+    // calculate
+    _values[event.id()][2] = 0.5;
+    _processed.push_front(event.id());
+};
+
+
+
+
+/*! Helper for postprocessors 143-144
+
+This class actually does all the work; see individual postprocessors for details.
+*/
+class helper_alignment_1
+{
+public:
+
+    /*! create the instance if not it does not exist already */
+    static helper_alignment_1 * instance();
+
+    /*! destroy the instance */
+    static void destroy();
+
+    /*! Gaussian width */
+    float width(const CASSEvent& event) { validate(event); return _values[event.id()].first; };
+
+    /*! Gaussian height */
+    float height(const CASSEvent& event) { validate(event); return _values[event.id()].second; };
+
+    /*! Postprocessor dependencies of this helper */
+    static std::list<PostProcessors::id_t> dependencies() {
+        return std::list<PostProcessors::id_t>(1, PostProcessors::VmiRunningAverage);
+    };
+
+
+protected:
+
+    /*! Validate and, if necessary, process event
+
+    @param event CASSEvent to process by us
+    */
+    void validate(const CASSEvent& event) {
+        if(_processed.end() == find(_processed.begin(), _processed.end(), event.id())) {
+            process(event);
+            while(5 < _processed.size()) {
+                _values.erase(_processed.back());
+                _processed.pop_back();
+            }
+        }
+    };
+
+    /*! Process event
+
+    Calculate the following properties of the given histogram:
+    - Gaussian width
+    - Gaussian height
+
+    @param event CASSEvent to process by us
+    */
+    void process(const CASSEvent& event) {
+        // reduce 2d histogram to row- and column-integrated 1d histograms,
+        // perform Gauss-fits to 1d histograms,and store FWHM
+        _values[event.id()] = std::make_pair(float(0.), float(0.));
+        _processed.push_front(event.id());
     };
 
     /*! list of processed (and available) event ids
@@ -71,37 +203,69 @@ protected:
 private:
 
     /*! Private constructor of singleton */
-    pp143_144_helper() {};
+    helper_alignment_1() {};
 
     /*! Prevent copy-construction of singleton */
-    pp143_144_helper(const pp143_144_helper&);
+    helper_alignment_1(const helper_alignment_1&);
 
     /*! Prevent assignment (potentially resulting in a copy) of singleton */
-    pp143_144_helper& operator=(const pp143_144_helper);
+    helper_alignment_1& operator=(const helper_alignment_1);
 
     /*! Prevent destruction unless going through destroy */
-    ~pp143_144_helper() {};
+    ~helper_alignment_1() {};
 
     /*! pointer to the singleton instance */
-    static pp143_144_helper *_instance;
+    static helper_alignment_1 *_instance;
 
     /*! Singleton operation locker */
     static QMutex _mutex;
 };
-pp143_144_helper *pp143_144_helper::_instance(0);
-QMutex pp143_144_helper::_mutex;
-pp143_144_helper * pp143_144_helper::instance() {
+helper_alignment_1 *helper_alignment_1::_instance(0);
+QMutex helper_alignment_1::_mutex;
+helper_alignment_1 * helper_alignment_1::instance() {
     QMutexLocker locker(&_mutex);
     if(0 == _instance)
-        _instance = new pp143_144_helper();
+        _instance = new helper_alignment_1();
     return _instance;
 }
-void pp143_144_helper::destroy() {
+void helper_alignment_1::destroy() {
     QMutexLocker locker(&_mutex);
     delete _instance;
     _instance = 0;
 }
 
+
+
+
+pp131::pp131(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+{
+    // save storage in PostProcessors container
+    assert(hist == _histograms);
+    _histograms[_id] = _value;
+}
+
+
+
+pp131::~pp131()
+{
+    delete _value;
+    _value = 0;
+}
+
+
+
+std::list<PostProcessors::id_t> pp131::dependencies()
+{
+    return helper_alignment_1::dependencies();
+};
+
+
+
+void pp131::operator()(const CASSEvent& event)
+{
+    *_value = helper_alignment_1::instance()->width(event);
+}
 
 
 
@@ -123,9 +287,16 @@ pp143::~pp143()
 
 
 
+std::list<PostProcessors::id_t> pp143::dependencies()
+{
+    return helper_alignment_1::dependencies();
+};
+
+
+
 void pp143::operator()(const CASSEvent& event)
 {
-    *_value = pp143_144_helper::instance()->width(event);
+    *_value = helper_alignment_1::instance()->width(event);
 }
 
 
@@ -150,8 +321,15 @@ pp144::~pp144()
 
 void pp144::operator()(const CASSEvent& event)
 {
-    *_value = pp143_144_helper::instance()->height(event);
+    *_value = helper_alignment_1::instance()->height(event);
 }
+
+
+
+std::list<PostProcessors::id_t> pp144::dependencies()
+{
+    return helper_alignment_1::dependencies();
+};
 
 
 

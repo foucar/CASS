@@ -11,6 +11,37 @@ namespace cass
 {
 class Histogram0DFloat;
 
+/*! <cos^2\theta> of CCD image
+
+This postprocessor reduces the running average of the CCD image (pp121) to a scalar that represents
+the <\cos^2\theta> (degree of alignment)
+
+@author Jochen Küpper
+*/
+class pp131 : public PostprocessorBackend
+{
+public:
+
+    /*! Construct postprocessor for Gaussian height of image */
+    pp131(PostProcessors::histograms_t&, PostProcessors::id_t);
+
+    /** Free _image space */
+    virtual ~pp131();
+
+    /*! Determine Gaussian width of image */
+    virtual void operator()(const CASSEvent&);
+
+    /*! Define postprocessor dependency on pp121 (averaged VMI image) */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+
+protected:
+
+    Histogram0DFloat *_value;
+};
+
+
+
 /*! Gaussian width of CCD image
 
 This reduced the running average of the CCD image (pp121) to a scalar
@@ -32,8 +63,7 @@ public:
     virtual void operator()(const CASSEvent&);
 
     /*! Define postprocessor dependency on pp121 (averaged VMI image) */
-    virtual std::list<PostProcessors::id_t> dependencies() {
-        return std::list<PostProcessors::id_t>(1, PostProcessors::VmiRunningAverage); };
+    virtual std::list<PostProcessors::id_t> dependencies();
 
 
 protected:
@@ -65,8 +95,7 @@ public:
     virtual void operator()(const CASSEvent&);
 
     /*! Define postprocessor dependency on pp121 (averaged VMI image) */
-    virtual std::list<PostProcessors::id_t> dependencies() {
-        return std::list<PostProcessors::id_t>(1, PostProcessors::VmiRunningAverage); };
+    virtual std::list<PostProcessors::id_t> dependencies();
 
 
 protected:
