@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 #include <vector>
 
@@ -57,6 +58,9 @@ public:
 
     /*! bin-index for position x */
     size_t bin(float x);
+
+    /*! position for bin-index idx */
+    float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
 
 
 protected:
@@ -197,7 +201,11 @@ public:
 
 
 
-/*! 1D Histogram for Graphs, ToF's etc... */
+/*! 1D Histogram for Graphs, ToF's etc...
+
+@author Lutz Foucar
+@author Jochen Küpper
+*/
 class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
 {
 public:
@@ -217,18 +225,36 @@ public:
         : HistogramFloatBase(in)
     {};
 
-    /*! Return histogram bin that contains x */
-    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
-
-    /*! Return histogram bin */
-    value_t& bin(size_t bin) { return _memory[bin]; };
-
     /*! Add datum to histogram
 
     @param x, y Position of datum
     @param weight value of datum
     */
     void fill(float x, value_t weight=1.);
+
+    /*! Return histogram bin that contains x */
+    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
+
+    /*! Return histogram bin */
+    value_t& bin(size_t bin) { return _memory[bin]; };
+
+    /*! center of histogram */
+    float center() const {
+        using namespace std;
+        storage_t partial(_memory.size());
+        accumulate(_memory.begin(), _memory.end(), partial.begin());
+        storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
+        return _axis[0].position((center - partial.begin()));
+    };
+
+    /*! Sum of all values */
+    value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
+
+    /*! Reduce the 1D histogram to a scalar (integrate/sum all values)
+
+    @see sum()
+    */
+    value_t reduce() const { return sum(); };
 };
 
 
