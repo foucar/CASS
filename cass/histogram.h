@@ -238,7 +238,10 @@ public:
     /*! Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
 
-    /*! center of histogram */
+    /*! center of histogram
+
+    @todo check and improve
+    */
     float center() const {
         using namespace std;
         storage_t partial(_memory.size());
