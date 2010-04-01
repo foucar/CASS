@@ -120,10 +120,10 @@ void helper_alignment_2::destroy() {
 void helper_alignment_2::process(const CASSEvent& event)
 {
     // determine (and store) center position of image
-    float center_row, center_col;
-    _values[event.id()][0] = center_row = 512;
-    _values[event.id()][1] = center_col = 512;
-    // calculate
+    std::pair<float, float> center(0., 0.); // (_histograms[PostProcessors::VmiRunningAverage].center());
+    _values[event.id()][0] = center.first;
+    _values[event.id()][1] = center.second;
+    // calculate <cos2theta>
     _values[event.id()][2] = 0.5;
     _processed.push_front(event.id());
 };
