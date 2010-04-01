@@ -8,6 +8,7 @@
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
+#include <algorithm>
 #include <vector>
 
 #include "serializer.h"
