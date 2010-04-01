@@ -29,6 +29,11 @@ public:
     {
         deserialize(in);
     }
+
+    /*! Destructor
+
+    does nothing
+    */
     ~AxisProperty() {}
 
     void serialize(Serializer&)const;
@@ -39,15 +44,16 @@ public:
 
     /*! Convenience function
 
-    @deprecated Use size() instead    @see size()
+    @deprecated Use size() instead
+    @see size()
     */
     size_t nbrBins() const {return size();}
 
     /*! Lower limit of axis */
-    float lowerLimit()const {return _low;};
+    float lowerLimit() const {return _low;};
 
     /*! Upper limit of axis */
-    float upperLimit()const {return _up;}
+    float upperLimit() const {return _up;}
 
     /*! bin-index for position x */
     size_t bin(float x);
@@ -102,7 +108,7 @@ public:
 
     convenience type to allow for easier choosing of the axis
     */
-    enum Axis{xAxis=0,yAxis,zAxis};
+    enum Axis {xAxis=0, yAxis, zAxis};
 
     /*! possible over/underflow quadrants
 
@@ -211,20 +217,34 @@ public:
         : HistogramFloatBase(in)
     {};
 
+    /*! Return histogram bin that contains x */
+    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
+
+    /*! Return histogram bin */
+    value_t& bin(size_t bin) { return _memory[bin]; };
+
+    /*! Add datum to histogram
+
+    @param x, y Position of datum
+    @param weight value of datum
+    */
     void fill(float x, value_t weight=1.);
 };
 
 
 
-/** @brief 2D Histogram
+/*! 2D Histogram
 
 for detector images, i.e., pnCCD, VMI CCD, etc...
+
+@author Lutz Foucar
+@autho Jochen Küpper
 */
 class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
 {
 public:
 
-    /** create histogram */
+    /*! create histogram */
     explicit Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                               size_t nbrYBins, float yLow, float yUp)
         : HistogramFloatBase(2)
@@ -236,7 +256,7 @@ public:
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    /** create default histogram
+    /*! create default histogram
 
     @overload
 
@@ -260,18 +280,32 @@ public:
         : HistogramFloatBase(in)
     {}
 
-    /** Return histogram bin that contains (x,y) */
+    /*! Return histogram bin that contains (x,y) */
     value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };
 
-    /** Return histogram bin (row,col) */
+    /*! Return histogram bin (row,col) */
+    const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
+
+    /*! Return histogram bin (row,col)
+
+    @overlaod
+    */
     value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
 
-    /** Add datum to histogram
+    /*! Add datum to histogram
 
     @param x, y Position of datum
     @param weight value of datum
+
+    @todo Fix type-mismatch between size_t and long.
     */
     void fill(float x, float y, value_t weight=1.);
+
+    /*! Reduce the 2D histogram to a 1D integral along a specified axis
+
+    @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
+    */
+    Histogram1DFloat reduce(Axis axis) const;
 };
 
 
@@ -397,27 +431,23 @@ void cass::Histogram1DFloat::fill(float x, float weight)
 }
 
 //-----------------2D Hist--------------------------
-inline
-void cass::Histogram2DFloat::fill(float x, float y, float weight)
+inline void Histogram2DFloat::fill(float x, float y, float weight)
 {
-    //calc the xbin//
-    const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
+    // calc the xbin
+    const long nxBins   = long(_axis[xAxis].size());
     const float xlow    = _axis[xAxis].lowerLimit();
     const float xup     = _axis[xAxis].upperLimit();
-    const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
-
-    //calc the ybin//
-    const int nyBins    = static_cast<const int>(_axis[yAxis].nbrBins());
+    const long xBin     = long(nxBins * (x - xlow) / (xup-xlow));
+    // calc the ybin
+    const long nyBins   = long(_axis[yAxis].size());
     const float ylow    = _axis[yAxis].lowerLimit();
     const float yup     = _axis[yAxis].upperLimit();
-    const int yBin = static_cast<int>( nyBins * (y - ylow) / (yup-ylow));
-
-    //fill the memory or the over/underflow quadrant bins//
-    const size_t maxSize = nyBins*nxBins;
+    const long yBin     = long(nyBins * (y - ylow) / (yup-ylow));
+    // fill the memory or the over/underflow quadrant bins
+    const long maxSize  = nyBins*nxBins;
     const bool xInRange = 0<=xBin && xBin<nxBins;
     const bool yInRange = 0<=yBin && yBin<nyBins;
-    //if both are in range fill the memory other wise figure out which qadrant
-    //needs to be filled//
+    // if both bin coordinates are in range, fill the memory, otherwise figure out which quadrant needs to be filled
     if (xInRange && yInRange)
         _memory[yBin*nxBins + yBin]+= weight;
     if (xBin <0 && yBin <0)
@@ -436,10 +466,32 @@ void cass::Histogram2DFloat::fill(float x, float y, float weight)
         _memory[maxSize+UpperMiddle]+=1;
     else if (xBin >= nxBins && yBin >= nyBins)
         _memory[maxSize+UpperRight]+=1;
-
-    //increase the number of fills//
-    ++(_nbrOfFills);
+    // increase the number of fills
+    ++_nbrOfFills;
 }
+
+
+
+inline Histogram1DFloat Histogram2DFloat::reduce(Histogram2DFloat::Axis axis) const
+{
+    Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit());
+    size_t columns(_axis[1].size()), rows(_axis[0].size());
+    switch(axis) {
+    case xAxis: // reduce along rows (integrate rows)
+        for(size_t col=0; col<columns; ++col)
+            for(size_t row=0; row<rows; ++row)
+                hist.bin(col) += bin(row, col);
+        break;
+    case yAxis: // reduce along columns (integrate rows)
+        for(size_t row=0; row<rows; ++row)
+            for(size_t col=0; col<columns; ++col)
+                hist.bin(row) += bin(row, col);
+        break;
+    case zAxis:
+        throw std::out_of_range("Cannot reduce 2D histogram along 3rd (z) axis!");
+    }
+}
+
 
 } //end namespace cass
 
