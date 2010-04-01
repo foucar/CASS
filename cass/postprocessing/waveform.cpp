@@ -50,7 +50,7 @@ cass::pp4::~pp4()
 
 void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 {
-  using namespace cass::ACQIRIS;
+/*  using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
       dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
@@ -75,6 +75,7 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   //copy the waveform to our storage histogram//
   std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
+*/
 }
 
 
@@ -147,7 +148,7 @@ void cass::pp500::loadParameters(size_t)
 
 void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
 {
-  using namespace cass::ACQIRIS;
+/*  using namespace cass::ACQIRIS;
   //retrieve a reference to the wavefrom of the wanted channel//
   const AcqirisDevice *dev =
       dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
@@ -184,4 +185,4 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
                  Average(alpha));
   //tell the histogram that we just filled it//
   ++_waveform->nbrOfFills();
-}
+*/}
