@@ -43,6 +43,7 @@ HEADERS +=  analysis_backend.h \
             event_getter.h \
             histogram_getter.h \
             histogram.h \
+            serializable.h \
             serializer.h \
             rate_plotter.h \
             ./postprocessing/postprocessor.h \
