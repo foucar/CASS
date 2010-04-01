@@ -27,7 +27,7 @@ namespace cass
       /*! default constructor*/
       AnodeLayer()
         :_tsLow(0.),
-         _tsHeigh(0.),
+         _tsHigh(0.),
          _sf(1.)
       {}
 
@@ -41,11 +41,11 @@ namespace cass
       void saveParameters(QSettings *p,const char * layername);
     public:
       /*! @returns the timesum condition for this anode layer*/
-      double ts()const      {return 0.5*(_tsLow+_tsHeigh);}
+      double ts()const      {return 0.5*(_tsLow+_tsHigh);}
       /*! @returns the timesum of the first good hit of this layer*/
-      double timesum()const {return _one.firstGood() + _two.firstGood();}
+      double timesum()const {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
       /*! @returns the position of the first good hit*/
-      double position()const{return _one.firstGood() - _two.firstGood();}
+      double position()const{return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
 
     public:
       /*! setters/getters */
@@ -55,8 +55,8 @@ namespace cass
       double            &tsHigh()       {return _tsHigh;}
       double             sf()const      {return _sf;}
       double            &sf()           {return _sf;}
-      const wireends_t  &wireend()const {return _wireends;}
-      wireends_t        &wireend()      {return _wireends;}
+      const wireends_t  &wireend()const {return _wireend;}
+      wireends_t        &wireend()      {return _wireend;}
 
     private:
       /*! lower edge of the timesum condition*/
@@ -261,7 +261,7 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 
 
 //-----------Detector--------
-virtual void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
+void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
   //std::cout <<"loading"<<std::endl;
   //load the parameters for this detector//
@@ -301,7 +301,7 @@ virtual void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
     break;
   }
 }
-virtual void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
+void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
 {
   //save the parameters//
   p->setValue("Name",_name.c_str());
