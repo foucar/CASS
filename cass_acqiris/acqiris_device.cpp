@@ -17,14 +17,15 @@ cass::ACQIRIS::Device::Device()
 
 cass::ACQIRIS::Device::~Device()
 {
-  //delete all detectors
+ /* //delete all detectors
   for (detectors_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
     delete (it->second);
+*/
 }
 
 void cass::ACQIRIS::Device::serialize(cass::Serializer &out) const
 {
-  //the version//
+/*  //the version//
   out.addUint16(_version);
 
   //the instruments
@@ -32,11 +33,11 @@ void cass::ACQIRIS::Device::serialize(cass::Serializer &out) const
       it != _instruments.end();
       ++it)
     it->second->serialize(out);
-}
+*/}
 
 void cass::ACQIRIS::Device::deserialize(cass::Serializer &in)
 {
-  //check whether the version fits//
+/*  //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
@@ -48,7 +49,7 @@ void cass::ACQIRIS::Device::deserialize(cass::Serializer &in)
       it != _instruments.end();
       ++it)
     it->second->deserialize(in);
-}
+*/}
 
 
 
@@ -57,18 +58,18 @@ void cass::ACQIRIS::Device::deserialize(cass::Serializer &in)
 
 void cass::ACQIRIS::Instrument::serialize(cass::Serializer &out) const
 {
-  //the version//
+/*  //the version//
   out.addUint16(_version);
   //copy the size of the channels and then all channels//
   size_t nChannels = _channels.size();
   out.addSizet(nChannels);
   for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
     it->serialize(out);
-}
+*/}
 
 void cass::ACQIRIS::Instrument::deserialize(cass::Serializer &in)
 {
-  //check whether the version fits//
+/*  //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
@@ -82,4 +83,4 @@ void cass::ACQIRIS::Instrument::deserialize(cass::Serializer &in)
   //deserialize all channels//
   for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
     it->deserialize(in);
-}
+*/}
