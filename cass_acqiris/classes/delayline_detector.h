@@ -43,9 +43,9 @@ namespace cass
       /*! @returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
       /*! @returns the timesum of the first good hit of this layer*/
-      double timesum()const {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
+      double timesum()const {return 0/*_wireend['1'].firstGood() + _wireend['2'].firstGood()*/;}
       /*! @returns the position of the first good hit*/
-      double position()const{return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
+      double position()const{return 0/*_wireend['1'].firstGood() + _wireend['2'].firstGood()*/;}
 
     public:
       /*! setters/getters */
@@ -158,20 +158,20 @@ namespace cass
       /** @returns the timesum of the first good hit for a given layer*/
       double timesum(char layer) const
       {
-        return _anodelayers[layer].timesum() - 2.* _mcp.firstGood();
+        return 0/*_anodelayers[layer].timesum() - 2.* _mcp.firstGood()*/;
       }
 
       /** @returns whether the first "good" hit fullfilles the timesum condition*/
       bool timesumcondtion(char layer) const
       {
-        return (_anodelayers[layer].tsLow() < timesum(layer) && 
-                timesum(layer) < _anodelayers[layer].tsHigh());
+        return 0/*(_anodelayers[layer].tsLow() < timesum(layer) && 
+                timesum(layer) < _anodelayers[layer].tsHigh())*/;
       }
 
       /** @returns the position of the first good hit for a given layer*/
       double position(char layer) const
       {
-        return _anodelayers[layer].position();
+        return 0/*_anodelayers[layer].position()*/;
       }
 
     public:
