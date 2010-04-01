@@ -22,35 +22,35 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
   {
   case Hex :
     {
-    switch (d.layersToUse())
-    {
-    case(UV):
+      switch (d.layersToUse())
       {
-        //std::cout << "uv"<<std::endl;
-        firstLayer = &d.layers()['U'];
-        secondLayer = &d.layers()['V'];
+      case(UV):
+        {
+          //std::cout << "uv"<<std::endl;
+          firstLayer = &d.layers()['U'];
+          secondLayer = &d.layers()['V'];
+          break;
+        }
+      case(UW):
+        {
+          //std::cout << "uw"<<std::endl;
+          firstLayer = &d.layers()['U'];
+          secondLayer = &d.layers()['W'];
+          break;
+        }
+      case(VW):
+        {
+          //std::cout << "vw"<<std::endl;
+          firstLayer = &d.layers()['V'];
+          secondLayer = &d.layers()['W'];
+          break;
+        }
+      default:
+        throw std::invalid_argument("the chosen layer combination does not exist");
+        return;
         break;
       }
-    case(UW):
-      {
-        //std::cout << "uw"<<std::endl;
-        firstLayer = &d.layers()['U'];
-        secondLayer = &d.layers()['W'];
-        break;
-      }
-    case(VW):
-      {
-        //std::cout << "vw"<<std::endl;
-        firstLayer = &d.layers()['V'];
-        secondLayer = &d.layers()['W'];
-        break;
-      }
-    default:
-      throw std::invalid_argument("the chosen layer combination does not exist");
-      return;
-      break;
     }
-  }
   case Quad:
     firstLayer = &d.layers['X'];
     secondLayer = &d.layers['Y'];
