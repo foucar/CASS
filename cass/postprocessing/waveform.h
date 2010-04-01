@@ -12,45 +12,59 @@ namespace cass
   class CASSEvent;
   class Histogram1DFloat;
 
-  //class to show the last wavefrom of a channel
+  /*! Last Waveforms
+
+  class to show the last wavefrom of a channel
+
+  @author lmf
+  */
   class pp4 : public PostprocessorBackend
   {
   public:
 
     pp4(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
 
-    //delete the histogram when you are destroyed//
+    /*! delete the histogram when you are destroyed*/
     virtual ~pp4();
 
-    //copy the last waveform from the expected channel//
+    /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
 
   protected:
-    size_t             _channel;  //the Acqiris channel Nbr of this processor
-    Histogram1DFloat  *_waveform; //this is where we store the last waveform
+    /*! the Acqiris channel Nbr of this processor*/
+    size_t             _channel;
+    /*! this is where we store the last waveform */
+    Histogram1DFloat  *_waveform;
   };
 
-  //class that lets you average the waveforms
-  //depending on the factor it will make a cumulative average or
-  //an exponential moving average
+
+
+  /*! Averaged Wavefrom
+
+  class that lets you average the waveforms
+  depending on the factor it will make a cumulative average or
+  in exponential moving average
+
+  @author lmf
+  */
   class pp500 : public PostprocessorBackend
   {
   public:
     pp500(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
-
-    //delete the histogram when you are destroyed//
+    /*! delete the histogram when you are destroyed */
     virtual ~pp500();
-
-    //read the average factor from cass.ini//
+    /*! read the average factor from cass.ini*/
     virtual void loadParameters(size_t);
-
-    //copy the last waveform from the expected channel//
+    /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
 
   protected:
-    size_t             _channel;  //the Acqiris channel Nbr of this processor
-    Histogram1DFloat  *_waveform; //this is where we store the averaged waveform
-    float              _alpha;    //the averaging factor
+    /*! the Acqiris channel Nbr of this processor*/
+    size_t _channel;
+    /*! this is where we store the averaged waveform*/
+    Histogram1DFloat *_waveform;
+    /*! the averaging factor */
+    float _alpha;
   };
 }
 

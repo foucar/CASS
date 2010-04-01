@@ -60,11 +60,18 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   //and is still valid for the now incomming wavefrom of //
   //this channel//
   if(!_waveform)
-    _waveform = new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+  {
+    _waveform =
+        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+    _histograms[_id] = _waveform;
+  }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     delete _waveform;
-    _waveform = new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+    _waveform =
+        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+    _histograms[_id] = _waveform;
+
   }
   //copy the waveform to our storage histogram//
   std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
@@ -150,13 +157,17 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   //and is still valid for the now incomming wavefrom of //
   //this channel//
   if(!_waveform)
+  {
     _waveform =
         new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+    _histograms[_id] = _waveform;
+  }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     delete _waveform;
     _waveform =
         new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+    _histograms[_id] = _waveform;
   }
   //choose which kind of average we want to have//
   //if alpha is 1 then we want a cummulative average,//
