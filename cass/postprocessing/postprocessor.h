@@ -194,6 +194,20 @@ namespace cass
             CampChannel17AveragedWaveform=517,
             CampChannel18AveragedWaveform=518,
             CampChannel19AveragedWaveform=519,
+            HexMCPNbrSignals=550,
+            HexU1NbrSignals=551,
+            HexU2NbrSignals=552,
+            HexV1NbrSignals=553,
+            HexV2NbrSignals=554,
+            HexW1NbrSignals=555,
+            HexW2NbrSignals=556,
+
+            QuadMCPNbrSignals=600,
+            QuadU1NbrSignals=601,
+            QuadU2NbrSignals=602,
+            QuadV1NbrSignals=603,
+            QuadV2NbrSignals=604,
+
         };
 
         /** Container of all currently available histograms */
