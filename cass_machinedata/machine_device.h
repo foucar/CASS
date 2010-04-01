@@ -19,11 +19,10 @@ namespace cass
     {
     public:
       MachineDataDevice()
-        :_energy(0),
+        :DeviceBackend(1),
+        _energy(0),
         _wavelength(0)
-      {
-        _version=1;
-      }
+      {}
 
       ~MachineDataDevice()  {}
 

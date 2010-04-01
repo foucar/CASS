@@ -4,19 +4,29 @@
 #define CASS_DEVICEBACKEND_H
 
 #include "cass.h"
+#include "serializable.h"
 
 namespace cass
 {
-  class Serializer;
+  /*! A Baseclass for all Devices in the CASSEvent
 
-  class CASSSHARED_EXPORT DeviceBackend
+  All devices need to be serializable, therefore this class
+  inerhits from serializable
+  @author lmf
+  */
+  class CASSSHARED_EXPORT DeviceBackend : public cass::Serializable
   {
   public:
+    /** constructor already initializing the serialization version*/
+    DeviceBackend(uint16_t version)
+      :Serializable(version)
+    {}
+    /** serializer is still pure virtual*/
+    virtual void serialize(cass::Serializer &) const=0;
+    /** deserializer is still pure virtual*/
+    virtual void deserialize(cass::Serializer &)=0;
+    /** virtual desctructor*/
     virtual ~DeviceBackend() {}
-    virtual void serialize(Serializer&)const=0;
-    virtual void deserialize(Serializer&)=0;
-  protected:
-    uint16_t _version;
   };
 }//end namespace cass
 

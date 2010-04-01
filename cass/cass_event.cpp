@@ -10,13 +10,13 @@
 
 
 cass::CASSEvent::CASSEvent()
-    :_id(0),
-     _version(1)
+  :cass::Serializable(1),
+  _id(0)
 {
   //add all devices that are available
   _devices[CCD]         = new cass::CCD::CCDDevice();
   _devices[MachineData] = new cass::MachineData::MachineDataDevice();
-  _devices[Acqiris]     = new cass::ACQIRIS::AcqirisDevice();
+  _devices[Acqiris]     = new cass::ACQIRIS::Device();
   _devices[pnCCD]       = new cass::pnCCD::pnCCDDevice();
 }
 

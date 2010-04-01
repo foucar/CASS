@@ -1,4 +1,5 @@
-//Copyright (C) 2010 lmf, Nicola Coppola
+//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Nicola Coppola
 
 #ifndef _PNCCD_DEVICE_H
 #define _PNCCD_DEVICE_H
@@ -19,7 +20,9 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT pnCCDDevice : public DeviceBackend
     {
     public:
-      pnCCDDevice(void)    {_version=1;}
+      pnCCDDevice(void)
+        :DeviceBackend(1)
+      {}
       ~pnCCDDevice()       {}
 
 #define pnCCD_default_size    1024

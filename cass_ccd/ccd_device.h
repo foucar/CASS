@@ -15,7 +15,9 @@ namespace cass
     class CASS_CCDSHARED_EXPORT CCDDevice : public cass::DeviceBackend
     {
     public:
-      CCDDevice()   {_version=1;}
+      CCDDevice()
+        :DeviceBackend(1)
+      {}
       ~CCDDevice()  {}
 
     public:
