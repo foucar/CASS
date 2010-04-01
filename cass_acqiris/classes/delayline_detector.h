@@ -131,7 +131,7 @@ namespace cass
       /** default constructor */
       DelaylineDetector()
         :DetectorBackend(Delayline),
-        DetectorBackend::_analyzerType(DelaylineSimple),
+       
          _name("Sucker"),
          _runtime(0),
          _wLayerOffset(100),
@@ -140,7 +140,7 @@ namespace cass
          _deadAnode(1000),
          _layersToUse(UV),
          _delaylinetype(Hex)
-      {}
+      { _analyzerType =DelaylineSimple;}
 
     public:
       /** load the values from cass.ini */
