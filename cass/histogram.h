@@ -321,6 +321,12 @@ public:
     */
     value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
 
+    /*! center of histogram
+
+    @todo check and improve
+    */
+    std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); };
+
     /*! Add datum to histogram
 
     @param x, y Position of datum
