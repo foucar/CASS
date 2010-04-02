@@ -54,13 +54,13 @@ namespace cass
   {
   public:
     /** initialize the key in the constructor*/
-    IsKey(uint64_t key):_key(key){}
+    IsKey(const uint64_t key):_key(key){}
     /** compares the first element of the pair to the key*/
     bool operator()(const std::pair<uint64_t,DetectorBackend*>& p)const
     { return (p.first == _key); }
   private:
     /** the key that we will compare to in the operator*/
-    uint64_t _key;
+    const uint64_t _key;
   };
 
   /*! Helper for Acqiris related Postprocessors
@@ -75,23 +75,41 @@ namespace cass
     static HelperAcqirisDetectors * instance(Detectors);
     /** destroy the selected instance*/
     static void destory(Detectors);
-    /** return the detector of this instance*/
-    DetectorBackend * detector(const CASSEvent& evt) {validate(evt);return _detector;}
+    /** after validating that the event for this detector exists,
+    return the detector from our list*/
+    DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
     /** tell the detector owned by this instance to reload its settings*/
     void loadParameters(size_t);
   protected:
+    /** typdef defining the list of detectors for more readable code*/
+    typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
     /** validate whether we have already seen this event
     if not than add a detector, that is copy constructed or
-    assigned from the detector this instance owns, to the list */
-    void validate(const CASSEvent &evt)
+    assigned from the detector this instance owns, to the list.
+    return the pointer to this detector*/
+    DetectorBackend * validate(const CASSEvent &evt)
     {
+    /*//find the pair containing the detector//
+      detectorList::iterator it =
+        std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
+      //check wether id is not already on the list//
+      if(_detectorList.end() == it)
+      {
+        //take the last element and get the the detector from it//
+        //assign this detector to it (this might already fill it with all necessary variables)//
+        //let the detector know which event it should be working on//
+        //create a new key from the id with the newly created detector and put it//
+        //to the beginning of the list//
+        //make the iterator pointing to the just added element of the list//
+      }*/
+      return 0; //it->second
     }
   protected:
     /*! list of pairs of id-detectors
     The contents are copy constructed from the detector that this helper instance owns.
     Needs to be at least the size of workers that can possibly call this helper simultaniously,
     but should be shrinked if it get much bigger than the nbr of workers*/
-    std::list<std::pair<uint64_t, DetectorBackend*> > _detectorList;
+    detectorList_t _detectorList;
     /** the detector that is belongs to this instance of the helper*/
     DetectorBackend *_detector;
   private:
