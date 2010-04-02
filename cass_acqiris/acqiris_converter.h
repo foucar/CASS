@@ -3,10 +3,12 @@
 #ifndef _ACQIRIS_CONVERTER_H
 #define _ACQIRIS_CONVERTER_H
 
+#include <iostream>
+#include <map>
+
 #include "cass_acqiris.h"
 #include "conversion_backend.h"
 #include "acqiris_device.h"
-#include <iostream>
 
 
 namespace cass
@@ -23,17 +25,12 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      /** default constructor */
-      Converter()
-        :_numberOfChannels(0)
-      {}
-
       /** takes the xtc and copies the data to cassevent*/
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
-
     private:
-      /** the number of channels for the device is only send once*/
-      size_t _numberOfChannels;
+      /** the number of channels for the device is only send with a configure transition
+      we store them in a map for each instrument*/
+      std::map<Instruments,size_t> _numberOfChannels;
     };
   }//end namespace acqiris
 }//end namespace cass

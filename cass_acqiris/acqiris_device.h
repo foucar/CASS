@@ -66,8 +66,14 @@ namespace cass
       Device();
 
     public:
-      /** @typedef a map of all instruments available*/
+      /** @typedef instruments_t a map of all instruments available*/
       typedef std::map<Instruments, Instrument> instruments_t;
+
+    public:
+      /** instrument setter*/
+      instruments_t &instruments()  {return _instruments;}
+      /** instrument getter*/
+      const instruments_t &instruments()const  {return _instruments;}
 
     public:
       /** will serialize all channels to Serializer*/
