@@ -29,7 +29,7 @@ namespace cass
       void load();
       void save();
 
-      Device::detectors_t  _detectors; //the detector parameters (are the dets itselve)
+      //Device::detectors_t  _detectors; //the detector parameters (are the dets itselve)
     };
 
 

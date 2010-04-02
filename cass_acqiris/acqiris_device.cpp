@@ -9,17 +9,8 @@
 cass::ACQIRIS::Device::Device()
   :cass::DeviceBackend(1)
 {
-  //create all detectors that will be attached to the instruments//
-//  _detectors[HexDetector] = new DelaylineDetector();
-//  _detectors[QuadDetector] = new DelaylineDetector();
-}
-
-cass::ACQIRIS::Device::~Device()
-{
- /* //delete all detectors
-  for (detectors_t::iterator it=_devices.begin() ; it != _devices.end(); ++it )
-    delete (it->second);
-*/
+  //create all instruments
+  _instruments[Camp1] = Instrument();
 }
 
 void cass::ACQIRIS::Device::serialize(cass::Serializer &out) const

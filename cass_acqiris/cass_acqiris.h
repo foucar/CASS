@@ -1,4 +1,4 @@
-//Copyright (C) 2009 Jochen Küpper
+//Copyright (C) 2009 Jochen Kuepper
 //Copyright (C) 2009,2010 lmf
 
 #ifndef _ACQIRIS_GLOBAL_H_

@@ -62,11 +62,8 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Device : public cass::DeviceBackend
     {
     public:
-      /** default constructor creates all detectors*/
+      /** default constructor creates all instruments*/
       Device();
-
-      /** destructor deletes all detectors*/
-      ~Device();
 
     public:
       /** @typedef a map of all instruments available*/
