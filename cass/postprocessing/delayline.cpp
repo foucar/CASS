@@ -12,36 +12,105 @@
 #include "cass_event.h"
 #include "acqiris_device.h"
 
+namespace cass
+{
+  /** function to set the 1d histogram properties from the cass.ini file*/
+  void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
+  {
+    //delete old histogram//
+    delete hist;
+    //open the settings//
+    QSettings param;
+    param.beginGroup("postprocessors");
+    param.beginGroup(QString("processor_") + QString::number(id));
+    //create new histogram using the parameters//
+    hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
+                                      param.value("XLow",0).toFloat(),
+                                      param.value("XUp",0).toFloat());
+  }
+  /** function to set the 2d histogram properties from the cass.ini file*/
+  void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
+  {
+    //delete old histogram//
+    delete hist;
+    //open the settings//
+    QSettings param;
+    param.beginGroup("postprocessors");
+    param.beginGroup(QString("processor_") + QString::number(id));
+    //create new histogram using the parameters//
+    hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
+                                      param.value("XLow",0).toFloat(),
+                                      param.value("XUp",0).toFloat(),
+                                      param.value("YNbrBins",1).toUInt(),
+                                      param.value("YLow",0).toFloat(),
+                                      param.value("YUp",0).toFloat());
+  }
 
-//--function to set the histogram properties from the cass.ini file--//
-void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
+  using namespace cass::ACQIRIS;
+  /*! Helper for Acqiris related Postprocessors
+  This class will retrun the requested detector, which signals are going to
+  a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
+  can call it without knowing about it.*/
+  class HelperAcqirisDetectors
+  {
+  public:
+    /** create an instance of an helper for the requested detector,
+    if it doesn't exist already*/
+    static HelperAcqirisDetectors * instance(Detectors);
+    /** destroy the selected instance*/
+    static void destory(Detectors);
+    /** return the detector of this instance*/
+    DetectorBackend * detector(const CASSEvent& evt) {validate(evt);return _detector;}
+  private:
+    /** prevent people from constructin other than using instance()*/
+    HelperAcqirisDetectors() {}
+    /** prevent copy-construction*/
+    HelperAcqirisDetectors(const HelperAcqirisDetectors&);
+    /** prevent destruction other than trhough destroy(),
+    delete the detector for this instance*/
+    ~HelperAcqirisDetectors() {delete _detector;}
+    /** prevent assingment */
+    HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
+    /** the instances of this class put into map
+    one instance for each available detector*/
+    static std::map<Detectors,HelperAcqirisDetectors*> _instances;
+    /** Singleton Mutex to lock write operations*/
+    static QMutex _mutex;
+  protected:
+    /** validate whether we have already seen this event
+    if not than add a detector, that is copy constructed from
+    the detector this instance owns, to the list */
+    void validate(const CASSEvent &evt)
+    {
+    }
+
+  private:
+    /*! map of detectors, one for each id.
+    The contents are copy constructed from the detector that this helper instance owns.
+    Needs to be at least the size of workers that can possibly call this helper simultaniously,
+    but should be shrinked if it get much bigger than the nbr of workers*/
+    std::map<uint64_t, DetectorBackend> _detectorList;
+    /** the detector that is belongs to this instance of the helper*/
+    DetectorBackend *_detector;
+  };
+
+}//end namespace
+
+
+//--the helper--
+//initialize static members//
+std::map<cass::ACQIRIS::Detectors,cass::HelperAcqirisDetectors*> HelperAcqirisDetectors::_instances;
+QMutex HelperAcqirisDetectors::_mutex;
+
+cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(Detectors)
 {
-  //delete old histogram//
-  delete hist;
-  //open the settings//
-  QSettings param;
-  param.beginGroup("postprocessors");
-  param.beginGroup(QString("processor_") + QString::number(id));
-  //create new histogram using the parameters//
-  hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
-                                    param.value("XLow",0).toFloat(),
-                                    param.value("XUp",0).toFloat());
+  //check if an instance of the helper class already exists//
+  //return it, otherwise create one and return it//
+  return 0;
 }
-void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
+void cass::HelperAcqirisDetectors::destory(Detectors)
 {
-  //delete old histogram//
-  delete hist;
-  //open the settings//
-  QSettings param;
-  param.beginGroup("postprocessors");
-  param.beginGroup(QString("processor_") + QString::number(id));
-  //create new histogram using the parameters//
-  hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
-                                    param.value("XLow",0).toFloat(),
-                                    param.value("XUp",0).toFloat(),
-                                    param.value("YNbrBins",1).toUInt(),
-                                    param.value("YLow",0).toFloat(),
-                                    param.value("YUp",0).toFloat());
+  //delete the requested instance of the helper class//
 }
 
 
