@@ -61,7 +61,7 @@ protected:
     /*! Process event
 
     Do the actual calculations to derive all relevant paramters.
-
+    This method must be called through validate in order to correctly clean up _values.
     @param event CASSEvent to process by us
     */
     void process(const CASSEvent& event);
