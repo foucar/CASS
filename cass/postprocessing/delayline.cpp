@@ -53,15 +53,16 @@ namespace cass
   class IsKey
   {
   public:
+    /** initialize the key in the constructor*/
     IsKey(uint64_t key):_key(key){}
+    /** compares the first element of the pair to the key*/
     bool operator()(const std::pair<uint64_t,DetectorBackend*>& p)const
-    {
-      return (p.first == _key);
-    }
-
+    { return (p.first == _key); }
   private:
+    /** the key that we will compare to in the operator*/
     uint64_t _key;
   };
+
   /*! Helper for Acqiris related Postprocessors
   This class will retrun the requested detector, which signals are going to
   a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
