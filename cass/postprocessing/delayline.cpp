@@ -11,6 +11,7 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
+#include "detector_backend.h"
 
 namespace cass
 {

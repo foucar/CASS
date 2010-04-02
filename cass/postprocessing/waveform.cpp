@@ -4,6 +4,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <QtCore/QSettings>
+
 #include "waveform.h"
 #include "histogram.h"
 #include "cass_event.h"
