@@ -89,7 +89,7 @@ namespace cass
     The contents are copy constructed from the detector that this helper instance owns.
     Needs to be at least the size of workers that can possibly call this helper simultaniously,
     but should be shrinked if it get much bigger than the nbr of workers*/
-    std::map<uint64_t, DetectorBackend> _detectorList;
+    std::map<uint64_t, DetectorBackend*> _detectorList;
     /** the detector that is belongs to this instance of the helper*/
     DetectorBackend *_detector;
   };
