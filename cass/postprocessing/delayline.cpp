@@ -61,6 +61,23 @@ namespace cass
     static void destory(Detectors);
     /** return the detector of this instance*/
     DetectorBackend * detector(const CASSEvent& evt) {validate(evt);return _detector;}
+    /** tell the detector owned by this instance to reload its settings*/
+    void loadParameters(size_t);
+  protected:
+    /** validate whether we have already seen this event
+    if not than add a detector, that is copy constructed from
+    the detector this instance owns, to the list */
+    void validate(const CASSEvent &evt)
+    {
+    }
+  protected:
+    /*! map of detectors, one for each id.
+    The contents are copy constructed from the detector that this helper instance owns.
+    Needs to be at least the size of workers that can possibly call this helper simultaniously,
+    but should be shrinked if it get much bigger than the nbr of workers*/
+    std::map<uint64_t, DetectorBackend*> _detectorList;
+    /** the detector that is belongs to this instance of the helper*/
+    DetectorBackend *_detector;
   private:
     /** prevent people from constructin other than using instance()*/
     HelperAcqirisDetectors() {}
@@ -76,22 +93,6 @@ namespace cass
     static std::map<Detectors,HelperAcqirisDetectors*> _instances;
     /** Singleton Mutex to lock write operations*/
     static QMutex _mutex;
-  protected:
-    /** validate whether we have already seen this event
-    if not than add a detector, that is copy constructed from
-    the detector this instance owns, to the list */
-    void validate(const CASSEvent &evt)
-    {
-    }
-
-  private:
-    /*! map of detectors, one for each id.
-    The contents are copy constructed from the detector that this helper instance owns.
-    Needs to be at least the size of workers that can possibly call this helper simultaniously,
-    but should be shrinked if it get much bigger than the nbr of workers*/
-    std::map<uint64_t, DetectorBackend*> _detectorList;
-    /** the detector that is belongs to this instance of the helper*/
-    DetectorBackend *_detector;
   };
 
 }//end namespace
@@ -111,6 +112,13 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(Detectors)
 void cass::HelperAcqirisDetectors::destory(Detectors)
 {
   //delete the requested instance of the helper class//
+}
+void cass::HelperAcqirisDetectors::loadParameters(size_t)
+{
+  //QSettings par;
+  //par.beginGroup("postprocessors");
+  //par.beginGroup("AcqirisDetectors");
+  //_detector->loadParameters(&par);
 }
 
 
