@@ -4,8 +4,9 @@
 #define _ACQIRIS_DEVICE_H_
 
 #include <vector>
+#include <map>
+
 #include "cass_acqiris.h"
-#include "detector_backend.h"
 #include "device_backend.h"
 #include "channel.h"
 #include "serializable.h"
@@ -68,9 +69,6 @@ namespace cass
       ~Device();
 
     public:
-      /** @typedef a map of available detectors,
-      that can be attached to an acqiris channel*/
-      typedef std::map<Detectors,DetectorBackend*> detectors_t;
       /** @typedef a map of all instruments available*/
       typedef std::map<Instruments, Instrument> instruments_t;
 
@@ -80,17 +78,9 @@ namespace cass
       /** will deserialize all channels from the Serializer*/
       virtual void deserialize(cass::Serializer &);
 
-    public:
-      /** @returns the detectors attached to the Acqiris instruments*/
-      const detectors_t &detectors()const {return _detectors;}
-      /** @overload @returns the detectors attached to the Acqiris instruments to modify them*/
-      detectors_t &detectors()  {return _detectors;}
-
     private:
       /** Container for all Instruments*/
       instruments_t _instruments;
-      /** Container for all Detektors attached to the instruments*/
-      detectors_t _detectors;
     };
   }//end namespace acqiris
 }//end namespace cass
