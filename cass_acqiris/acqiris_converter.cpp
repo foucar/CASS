@@ -25,7 +25,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
       //retrieve a reference to the nbr of Channels for this instrument//
       size_t &nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
       //make sure the number is smaller than 20
-      assert(nbrChannels < 20);
+      assert(nbrChannels <= 20);
       unsigned version = xtc->contains.version();
       switch (version)
       {
@@ -56,7 +56,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
       //retrieve  the nbr of Channels for this instrument//
       const size_t nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
       //make sure the number is smaller than 20
-      assert(nbrChannels < 20);
+      assert(nbrChannels <= 20);
       //extract the datadescriptor (waveform etc) from the xtc//
       const Pds::Acqiris::DataDescV1 *datadesc =
           reinterpret_cast<const Pds::Acqiris::DataDescV1*>(xtc->payload());
@@ -93,11 +93,11 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         mywaveform.resize(dd.nbrSamplesInSeg());
         //copy the datapoints of the waveform//
         //we have to swap the byte order for some reason that still has to be determined//
-        for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
-          mywaveform[iWave] = (waveform[iWave]&0x00ff<<8) | (waveform[iWave]&0xff00>>8);
+//        for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
+//          mywaveform[iWave] = (waveform[iWave]&0x00ff<<8) | (waveform[iWave]&0xff00>>8);
 
         //change to the next Channel//
-        datadesc = datadesc->nextChannel();
+//        datadesc = datadesc->nextChannel();
       }
     }
     break;
