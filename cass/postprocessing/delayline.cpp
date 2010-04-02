@@ -74,7 +74,7 @@ namespace cass
     if it doesn't exist already*/
     static HelperAcqirisDetectors * instance(Detectors);
     /** destroy the selected instance*/
-    static void destory(Detectors);
+    static void destroy(Detectors);
     /** after validating that the event for this detector exists,
     return the detector from our list*/
     DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
@@ -143,7 +143,7 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(Detectors)
   //return it, otherwise create one and return it//
   return 0;
 }
-void cass::HelperAcqirisDetectors::destory(Detectors)
+void cass::HelperAcqirisDetectors::destroy(Detectors)
 {
   //delete the requested instance of the helper class//
 }
