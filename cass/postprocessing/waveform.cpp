@@ -87,7 +87,7 @@ namespace cass
   /*! binary operator for averaging
     capable of performing a Cumulative moving average and
     a Exponential moving average.
-    See http://en.wikipedia.org/wiki/Moving_average
+   @see http://en.wikipedia.org/wiki/Moving_average
   @author Lutz Foucar
   */
   class Average

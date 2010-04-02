@@ -65,8 +65,8 @@ namespace cass
     void loadParameters(size_t);
   protected:
     /** validate whether we have already seen this event
-    if not than add a detector, that is copy constructed from
-    the detector this instance owns, to the list */
+    if not than add a detector, that is copy constructed or
+    assigned from the detector this instance owns, to the list */
     void validate(const CASSEvent &evt)
     {
     }
