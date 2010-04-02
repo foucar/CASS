@@ -17,22 +17,22 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /** @enum the Polarity of a Signal in the waveform (Peak)*/
+    /** the Polarity of a Signal in the waveform (Peak)*/
     enum Polarity {Bad,Positive,Negative};
-    /** @enum the layercombination choice for evaluating the detector hits
+    /** the layercombination choice for evaluating the detector hits
     this is used by the simple delayline detektor hit sorter*/
     enum LayersToUse {UV,UW,VW};
-    /** @enum the types of detectors that are available */
+    /** the types of detectors that are available */
     enum DetectorType {Delayline, ToF};
-    /** @enum the types of delayline detectors that are available */
+    /** the types of delayline detectors that are available */
     enum DelaylineType {Quad,Hex};
-    /** @enum the waveformanalyzers that are available */
+    /** the waveformanalyzers that are available */
     enum WaveformAnalyzers {com8,com16,cfd8,cfd16};
-    /** @enum all available instruments at the site*/
+    /** all available instruments at the site*/
     enum Instruments{Camp1=8,Camp2=4,Camp3=5};
-    /** @enum all available detectors*/
+    /** all available detectors*/
     enum Detectors{HexDetector, QuadDetector, VMIMcp, IntensityMonitor, Photodiode};
-    /** @enum the available detector analyzers*/
+    /** the available detector analyzers*/
     enum DetectorAnalyzers {DelaylineSimple};
   }
 }
