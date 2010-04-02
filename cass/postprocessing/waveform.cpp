@@ -84,18 +84,29 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 
 namespace cass
 {
-  //binary operator for averaging//
+  /*! binary operator for averaging
+    capable of performing a Cumulative moving average and
+    a Exponential moving average.
+    See http://en.wikipedia.org/wiki/Moving_average
+  @author Lutz Foucar
+  */
   class Average
   {
   public:
+    /** constructor initializing the \f$\alpha\f$ value*/
     explicit Average(float alpha)
       :_alpha(alpha)
     {}
+    /** the operator calculates the average using the function
+      \f$Y_n = \alpha(y-Y_{n-1})\f$
+      where when \alpha is equal to N it is a cumulative moving average,
+      otherwise it will be a exponential moving average.*/
     float operator()(float Average_Nm1, float currentValue)
     {
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
     }
   protected:
+    /** \f$\alpha\f$ for the average calculation \f$ */
     float _alpha;
   };
 }
