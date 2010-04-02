@@ -99,8 +99,8 @@ namespace cass
 
 //--the helper--
 //initialize static members//
-std::map<cass::ACQIRIS::Detectors,cass::HelperAcqirisDetectors*> HelperAcqirisDetectors::_instances;
-QMutex HelperAcqirisDetectors::_mutex;
+std::map<cass::ACQIRIS::Detectors,cass::HelperAcqirisDetectors*> cass::HelperAcqirisDetectors::_instances;
+QMutex cass::HelperAcqirisDetectors::_mutex;
 
 cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(Detectors)
 {
