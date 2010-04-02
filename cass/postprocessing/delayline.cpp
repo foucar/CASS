@@ -47,6 +47,21 @@ namespace cass
   }
 
   using namespace cass::ACQIRIS;
+  /*! predicate class for finding the right key in the list of pairs
+    @see HelperAcqirisDetectors::_detectorList
+    @author Lutz Foucar*/
+  class IsKey
+  {
+  public:
+    IsKey(uint64_t key):_key(key){}
+    bool operator()(const std::pair<uint64_t,DetectorBackend*>& p)const
+    {
+      return (p.first == _key);
+    }
+
+  private:
+    uint64_t _key;
+  };
   /*! Helper for Acqiris related Postprocessors
   This class will retrun the requested detector, which signals are going to
   a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
@@ -71,11 +86,11 @@ namespace cass
     {
     }
   protected:
-    /*! map of detectors, one for each id.
+    /*! list of pairs of id-detectors
     The contents are copy constructed from the detector that this helper instance owns.
     Needs to be at least the size of workers that can possibly call this helper simultaniously,
     but should be shrinked if it get much bigger than the nbr of workers*/
-    std::map<uint64_t, DetectorBackend*> _detectorList;
+    std::list<std::pair<uint64_t, DetectorBackend*> > _detectorList;
     /** the detector that is belongs to this instance of the helper*/
     DetectorBackend *_detector;
   private:
