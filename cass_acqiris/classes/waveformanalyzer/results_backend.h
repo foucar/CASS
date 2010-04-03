@@ -1,3 +1,5 @@
+//Copyright (C) Lutz Foucar
+
 #ifndef _RESULTS_BACKEND_H_
 #define _RESULTS_BACKEND_H_
 
@@ -7,11 +9,14 @@ namespace cass
 {
   namespace ACQIRIS
   {
+    /*! @brief Base class of Results
+        used to retrun results of the waveform analysis
+        @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT ResultsBackend
     {
     public:
-      virtual ~ResultsBackend()         {}
+      virtual ~ResultsBackend() {}
     };
-  }//end namespace remi
+  }//end namespace acqiris
 }//end namespace cass
 #endif

@@ -1,3 +1,5 @@
+//Copyright (C) 2009,2010 Lutz Foucar
+
 #ifndef _CHANNEL_H_
 #define _CHANNEL_H_
 
@@ -7,50 +9,67 @@
 #include <vector>
 #include "cass_acqiris.h"
 #include "serializer.h"
+#include "serializable.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
-    class CASS_ACQIRISSHARED_EXPORT Channel
+    /*! @brief A Channel of an Acqiris Instrument
+
+      contains all information that an Acqiris instrument will provide about
+      a channel
+      @author Lutz Foucar*/
+    class CASS_ACQIRISSHARED_EXPORT Channel : public Serializable
     {
-      public:
-      Channel():_version(1)  {}
-        ~Channel() {}
+    public:
+      /** constructor that will set the serialize version*/
+      Channel():Serializable(1)  {}
 
-      public:
-        typedef std::vector<int16_t> waveform_t;
+    public:
+      /** @typedef waveform_t A wavefrom is just an array (vector) of integers,
+        this typedef is for more readable code*/
+      typedef std::vector<int16_t> waveform_t;
 
-      public:
-        void serialize(cass::Serializer&)const;
-        void deserialize(cass::Serializer&);
+    public:
+      /** will serialize this channel to the serializer*/
+      void serialize(cass::Serializer&)const;
+      /** deserialize this channel from the serializer*/
+      void deserialize(cass::Serializer&);
 
-      public:
-        double             horpos()const          {return _horpos;}
-        double            &horpos()               {return _horpos;}
-        double             offset()const          {return _offset;}
-        double            &offset()               {return _offset;}
-        double             gain()const            {return _gain;}
-        double            &sampleInterval()       {return _sampleInterval;}
-        double             sampleInterval()const  {return _sampleInterval;}
-        double            &gain()                 {return _gain;}
-        const waveform_t  &waveform()const        {return _waveform;}
-        waveform_t        &waveform()             {return _waveform;}
+    public:
+      /** setter & getters*/
+      double             horpos()const          {return _horpos;}
+      double            &horpos()               {return _horpos;}
+      double             offset()const          {return _offset;}
+      double            &offset()               {return _offset;}
+      double             gain()const            {return _gain;}
+      double            &sampleInterval()       {return _sampleInterval;}
+      double             sampleInterval()const  {return _sampleInterval;}
+      double            &gain()                 {return _gain;}
+      const waveform_t  &waveform()const        {return _waveform;}
+      waveform_t        &waveform()             {return _waveform;}
 
-      public:
-        size_t             channelNbr()const      {return _chNbr;}
-        size_t            &channelNbr()           {return _chNbr;}
-        double             fullscale()const       {return _gain*0xffff;}
+    public:
+      size_t             channelNbr()const      {return _chNbr;}
+      size_t            &channelNbr()           {return _chNbr;}
+      /** will calculate the fullscale from the gain value, provided by the instrument*/
+      double             fullscale()const       {return _gain*0xffff;}
 
-      private:
-        size_t      _chNbr;         //This Channels Number in the Acqiris Crate
-        //values extracted from the acqiris//
-        double      _horpos;        //Horizontal position of first data point with respect to the trigger
-        double      _offset;        //the offset for this channel (in V)
-        double      _gain;          //Vertical gain in Volts/LSB. (V = vGain * data - vOffset)
-        double      _sampleInterval;//the time between two consecutive datapoints in s
-        waveform_t  _waveform;      //the waveform
-        uint16_t    _version;       //the version for de/serialization
+    private:
+      /** This Channels Number in the Acqiris Instrument*/
+      size_t _chNbr;
+      //values extracted from the acqiris//
+      /** Horizontal position of first data point with respect to the trigger*/
+      double _horpos;
+      /** the vertical offset of this channel (in V)*/
+      double _offset;
+      /** Vertical gain in Volts/LSB. (V = vGain * data - vOffset)*/
+      double _gain;
+      /** the time between two consecutive datapoints in seconds*/
+      double _sampleInterval;
+      /** the waveform of this channel*/
+      waveform_t  _waveform;      //
     };
   }//end namespace remi
 }//end namespace cass
