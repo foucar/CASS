@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #include <stdexcept>
 #include <cmath>
@@ -18,28 +18,29 @@ cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::i
   _channel(300),
   _waveform(0)
 {
+  using namespace cass::ACQIRIS;
   switch(_id)
   {
-  case PostProcessors::CampChannel00LastWaveform: _channel=0;break;
-  case PostProcessors::CampChannel01LastWaveform: _channel=1;break;
-  case PostProcessors::CampChannel02LastWaveform: _channel=2;break;
-  case PostProcessors::CampChannel03LastWaveform: _channel=3;break;
-  case PostProcessors::CampChannel04LastWaveform: _channel=4;break;
-  case PostProcessors::CampChannel05LastWaveform: _channel=5;break;
-  case PostProcessors::CampChannel06LastWaveform: _channel=6;break;
-  case PostProcessors::CampChannel07LastWaveform: _channel=7;break;
-  case PostProcessors::CampChannel08LastWaveform: _channel=8;break;
-  case PostProcessors::CampChannel09LastWaveform: _channel=9;break;
-  case PostProcessors::CampChannel10LastWaveform: _channel=10;break;
-  case PostProcessors::CampChannel11LastWaveform: _channel=11;break;
-  case PostProcessors::CampChannel12LastWaveform: _channel=12;break;
-  case PostProcessors::CampChannel13LastWaveform: _channel=13;break;
-  case PostProcessors::CampChannel14LastWaveform: _channel=14;break;
-  case PostProcessors::CampChannel15LastWaveform: _channel=15;break;
-  case PostProcessors::CampChannel16LastWaveform: _channel=16;break;
-  case PostProcessors::CampChannel17LastWaveform: _channel=17;break;
-  case PostProcessors::CampChannel18LastWaveform: _channel=18;break;
-  case PostProcessors::CampChannel19LastWaveform: _channel=19;break;
+  case PostProcessors::CampChannel00LastWaveform: _channel=0;_instrument=Camp1;break;
+  case PostProcessors::CampChannel01LastWaveform: _channel=1;_instrument=Camp1;break;
+  case PostProcessors::CampChannel02LastWaveform: _channel=2;_instrument=Camp1;break;
+  case PostProcessors::CampChannel03LastWaveform: _channel=3;_instrument=Camp1;break;
+  case PostProcessors::CampChannel04LastWaveform: _channel=4;_instrument=Camp1;break;
+  case PostProcessors::CampChannel05LastWaveform: _channel=5;_instrument=Camp1;break;
+  case PostProcessors::CampChannel06LastWaveform: _channel=6;_instrument=Camp1;break;
+  case PostProcessors::CampChannel07LastWaveform: _channel=7;_instrument=Camp1;break;
+  case PostProcessors::CampChannel08LastWaveform: _channel=8;_instrument=Camp1;break;
+  case PostProcessors::CampChannel09LastWaveform: _channel=9;_instrument=Camp1;break;
+  case PostProcessors::CampChannel10LastWaveform: _channel=10;_instrument=Camp1;break;
+  case PostProcessors::CampChannel11LastWaveform: _channel=11;_instrument=Camp1;break;
+  case PostProcessors::CampChannel12LastWaveform: _channel=12;_instrument=Camp1;break;
+  case PostProcessors::CampChannel13LastWaveform: _channel=13;_instrument=Camp1;break;
+  case PostProcessors::CampChannel14LastWaveform: _channel=14;_instrument=Camp1;break;
+  case PostProcessors::CampChannel15LastWaveform: _channel=15;_instrument=Camp1;break;
+  case PostProcessors::CampChannel16LastWaveform: _channel=16;_instrument=Camp1;break;
+  case PostProcessors::CampChannel17LastWaveform: _channel=17;_instrument=Camp1;break;
+  case PostProcessors::CampChannel18LastWaveform: _channel=18;_instrument=Camp1;break;
+  case PostProcessors::CampChannel19LastWaveform: _channel=19;_instrument=Camp1;break;
   default: throw std::invalid_argument("channel does not exist in argument list");
   }
 }
@@ -52,11 +53,15 @@ cass::pp4::~pp4()
 
 void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 {
-/*  using namespace cass::ACQIRIS;
-  //retrieve a reference to the wavefrom of the wanted channel//
-  const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
-  const Channel &channel = dev->channels()[_channel];
+  using namespace cass::ACQIRIS;
+  //retrieve a pointer to the Acqiris device//
+  const Device *dev =
+      dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
+  //retrieve a reference to the right instument//
+  const Instrument &instr = dev->instruments().find(_instrument)->second;
+  //retrieve a reference to the right channel//
+  const Channel &channel =instr.channels()[_channel];
+  //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of //
@@ -77,7 +82,6 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   //copy the waveform to our storage histogram//
   std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
-*/
 }
 
 
@@ -117,29 +121,30 @@ namespace cass
 cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
+  using namespace cass::ACQIRIS;
   switch (_id)
   {
-  case PostProcessors::CampChannel00AveragedWaveform: _channel=0;break;
-  case PostProcessors::CampChannel01AveragedWaveform: _channel=1;break;
-  case PostProcessors::CampChannel02AveragedWaveform: _channel=2;break;
-  case PostProcessors::CampChannel03AveragedWaveform: _channel=3;break;
-  case PostProcessors::CampChannel04AveragedWaveform: _channel=4;break;
-  case PostProcessors::CampChannel05AveragedWaveform: _channel=5;break;
-  case PostProcessors::CampChannel06AveragedWaveform: _channel=6;break;
-  case PostProcessors::CampChannel07AveragedWaveform: _channel=7;break;
-  case PostProcessors::CampChannel08AveragedWaveform: _channel=8;break;
-  case PostProcessors::CampChannel09AveragedWaveform: _channel=9;break;
-  case PostProcessors::CampChannel10AveragedWaveform: _channel=10;break;
-  case PostProcessors::CampChannel11AveragedWaveform: _channel=11;break;
-  case PostProcessors::CampChannel12AveragedWaveform: _channel=12;break;
-  case PostProcessors::CampChannel13AveragedWaveform: _channel=13;break;
-  case PostProcessors::CampChannel14AveragedWaveform: _channel=14;break;
-  case PostProcessors::CampChannel15AveragedWaveform: _channel=15;break;
-  case PostProcessors::CampChannel16AveragedWaveform: _channel=16;break;
-  case PostProcessors::CampChannel17AveragedWaveform: _channel=17;break;
-  case PostProcessors::CampChannel18AveragedWaveform: _channel=18;break;
-  case PostProcessors::CampChannel19AveragedWaveform: _channel=19;break;
-  default: throw std::invalid_argument("channel does not exist in argument list");
+  case PostProcessors::CampChannel00AveragedWaveform: _channel=0;_instrument=Camp1;break;
+  case PostProcessors::CampChannel01AveragedWaveform: _channel=1;_instrument=Camp1;break;
+  case PostProcessors::CampChannel02AveragedWaveform: _channel=2;_instrument=Camp1;break;
+  case PostProcessors::CampChannel03AveragedWaveform: _channel=3;_instrument=Camp1;break;
+  case PostProcessors::CampChannel04AveragedWaveform: _channel=4;_instrument=Camp1;break;
+  case PostProcessors::CampChannel05AveragedWaveform: _channel=5;_instrument=Camp1;break;
+  case PostProcessors::CampChannel06AveragedWaveform: _channel=6;_instrument=Camp1;break;
+  case PostProcessors::CampChannel07AveragedWaveform: _channel=7;_instrument=Camp1;break;
+  case PostProcessors::CampChannel08AveragedWaveform: _channel=8;_instrument=Camp1;break;
+  case PostProcessors::CampChannel09AveragedWaveform: _channel=9;_instrument=Camp1;break;
+  case PostProcessors::CampChannel10AveragedWaveform: _channel=10;_instrument=Camp1;break;
+  case PostProcessors::CampChannel11AveragedWaveform: _channel=11;_instrument=Camp1;break;
+  case PostProcessors::CampChannel12AveragedWaveform: _channel=12;_instrument=Camp1;break;
+  case PostProcessors::CampChannel13AveragedWaveform: _channel=13;_instrument=Camp1;break;
+  case PostProcessors::CampChannel14AveragedWaveform: _channel=14;_instrument=Camp1;break;
+  case PostProcessors::CampChannel15AveragedWaveform: _channel=15;_instrument=Camp1;break;
+  case PostProcessors::CampChannel16AveragedWaveform: _channel=16;_instrument=Camp1;break;
+  case PostProcessors::CampChannel17AveragedWaveform: _channel=17;_instrument=Camp1;break;
+  case PostProcessors::CampChannel18AveragedWaveform: _channel=18;_instrument=Camp1;break;
+  case PostProcessors::CampChannel19AveragedWaveform: _channel=19;_instrument=Camp1;break;
+  default: throw std::invalid_argument("the requested postprocessor is not handled by this one");
   }
 }
 
@@ -161,11 +166,15 @@ void cass::pp500::loadParameters(size_t)
 
 void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
 {
-/*  using namespace cass::ACQIRIS;
-  //retrieve a reference to the wavefrom of the wanted channel//
-  const AcqirisDevice *dev =
-      dynamic_cast<const AcqirisDevice*>(cassevent.devices().find(cass::CASSEvent::pnCCD)->second);
-  const Channel &channel = dev->channels()[_channel];
+  using namespace cass::ACQIRIS;
+  //retrieve a pointer to the Acqiris device//
+  const Device *dev =
+      dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
+  //retrieve a reference to the right instument//
+  const Instrument &instr = dev->instruments().find(_instrument)->second;
+  //retrieve a reference to the right channel//
+  const Channel &channel =instr.channels()[_channel];
+  //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of //
@@ -198,4 +207,4 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
                  Average(alpha));
   //tell the histogram that we just filled it//
   ++_waveform->nbrOfFills();
-*/}
+}

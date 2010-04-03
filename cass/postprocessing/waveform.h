@@ -5,6 +5,7 @@
 
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/backend.h"
+#include "cass_acqiris.h"
 
 namespace cass
 {
@@ -15,7 +16,7 @@ namespace cass
   /*! Last Waveforms
 
   class to show the last wavefrom of a channel
-  @todo modify such that it works with multiple instruments
+  @todo include also the other instruments
   @author Lutz Foucar
   */
   class pp4 : public PostprocessorBackend
@@ -31,8 +32,10 @@ namespace cass
     virtual void operator()(const CASSEvent&);
 
   protected:
+    /** the instrument for this postprocessor*/
+    cass::ACQIRIS::Instruments _instrument;
     /*! the Acqiris channel Nbr of this processor*/
-    size_t             _channel;
+    size_t _channel;
     /*! this is where we store the last waveform */
     Histogram1DFloat  *_waveform;
   };
@@ -45,7 +48,8 @@ namespace cass
   depending on the factor it will make a cumulative average or
   in exponential moving average
 
-  @author lmf
+  @todo include also the other instruments
+  @author Lutz Foucar
   */
   class pp500 : public PostprocessorBackend
   {
@@ -59,6 +63,8 @@ namespace cass
     virtual void operator()(const CASSEvent&);
 
   protected:
+    /** the instrument for this postprocessor*/
+    cass::ACQIRIS::Instruments _instrument;
     /*! the Acqiris channel Nbr of this processor*/
     size_t _channel;
     /*! this is where we store the averaged waveform*/
