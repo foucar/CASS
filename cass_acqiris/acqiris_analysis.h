@@ -31,7 +31,7 @@ namespace cass
 
 
 
-    /*! @fbrief  Preanalyzer for Acqiris Data
+    /*! @brief  Preanalyzer for Acqiris Data
 
       This class is not needed anymore, since all calculation are done in
       the postprocessors for the Acqiris detectors only when needed.
