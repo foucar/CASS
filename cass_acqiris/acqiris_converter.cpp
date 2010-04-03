@@ -22,9 +22,13 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
     {
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      //we need to make sure that only instruments we know of are present//
+      assert(static_cast<int>(info.detector()) == static_cast<int>(Camp1) ||
+             static_cast<int>(info.detector()) == static_cast<int>(Camp2) ||
+             static_cast<int>(info.detector()) == static_cast<int>(Camp3));
       //retrieve a reference to the nbr of Channels for this instrument//
       size_t &nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
-      //make sure the number is smaller than 20
+      //make sure the number is smaller than 20, which is the maximum nbr of channels//
       assert(nbrChannels <= 20);
       unsigned version = xtc->contains.version();
       switch (version)
@@ -46,6 +50,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         break;
       }
     }
+    break;
 
 
     //if it is a event then extract all information from the event//
@@ -53,6 +58,10 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
     {
       //extract the detectorinfo//
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      //we need to make sure that only instruments we know of are present//
+      assert(static_cast<int>(info.detector()) == static_cast<int>(Camp1) ||
+             static_cast<int>(info.detector()) == static_cast<int>(Camp2) ||
+             static_cast<int>(info.detector()) == static_cast<int>(Camp3));
       //retrieve  the nbr of Channels for this instrument//
       const size_t nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
       //make sure the number is smaller than 20
@@ -93,11 +102,11 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         mywaveform.resize(dd.nbrSamplesInSeg());
         //copy the datapoints of the waveform//
         //we have to swap the byte order for some reason that still has to be determined//
-//        for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
-//          mywaveform[iWave] = (waveform[iWave]&0x00ff<<8) | (waveform[iWave]&0xff00>>8);
+        for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
+          mywaveform[iWave] = (waveform[iWave]&0x00ff<<8) | (waveform[iWave]&0xff00>>8);
 
         //change to the next Channel//
-//        datadesc = datadesc->nextChannel();
+        datadesc = datadesc->nextChannel();
       }
     }
     break;
