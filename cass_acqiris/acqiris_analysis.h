@@ -31,15 +31,22 @@ namespace cass
 
 
 
+    /*! @fbrief  Preanalyzer for Acqiris Data
 
+      This class is not needed anymore, since all calculation are done in
+      the postprocessors for the Acqiris detectors only when needed.
+      @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
+      /** default constructor (does nothing)*/
       Analysis();
-      ~Analysis()         {}
+      /** needs to be overwritten, since its pure virtual in base (does nothing)*/
       void loadSettings() {/*_param.load();*/}
+      /** needs to be overwritten, since its pure virtual in base (does nothing)*/
       void saveSettings() {/*_param.save();*/}
-      //called for every event//
+      /** should evalutate acqiris part of the cassevent, now its an empty stub
+        which does nothing*/
       void operator()(cass::CASSEvent*);
 
 //    private:
