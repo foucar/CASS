@@ -1,66 +1,60 @@
 // Copyright (C) 2010 lmf
 
 #include "acqiris_analysis.h"
-#include "acqiris_device.h"
-#include "cass_event.h"
-#include "com.h"
-#include "cfd.h"
-#include "delayline_detector_analyzer_simple.h"
-#include "delayline_detector.h"
 
 
-void cass::ACQIRIS::Parameter::load()
-{
- /* //string for the container index//
-  QString s;
-  //sync before loading//
-  sync();
-
-  //delete the previous detector parameters//
-  for (AcqirisDevice::detectors_t::iterator it=_detectors.begin();it!=_detectors.end();++it)
-    delete (*it);
-  _detectors.clear();
-
-  //the detector parameters//
-  beginGroup("DetectorContainer");
-  for (size_t i = 0; i < value("size",1).toUInt();++i)
-  {
-    beginGroup(s.setNum(static_cast<uint32_t>(i)));
-    //find out which type the detector is//
-    DetectorType dettype = static_cast<DetectorType>(value("DetectorType",Delayline).toInt());
-    //create a new detector according to the detectortype//
-    switch(dettype)
-    {
-    case Delayline : _detectors.push_back(new DelaylineDetector()); break;
-    default:
-      std::cerr<<"Acqris Analyzer: Detectortype \""<<dettype<<"\" is unknown"<<std::endl;
-      endGroup();
-      continue;
-      break;
-    }
-    //load the parameters of the detector//
-    _detectors[i]->loadParameters(this);
-    endGroup(); //QString(i)
-  }
- */ endGroup();//detectorcontainer
-}
-
-void cass::ACQIRIS::Parameter::save()
-{
-/*  //string for the container index//
-  QString s;
-  //the detector parameters//
-  beginGroup("DetectorContainer");
-  //how many detectors are there//
-  setValue("size",static_cast<uint32_t>(_detectors.size()));
-  for (size_t i = 0; i < _detectors.size();++i)
-  {
-    beginGroup(s.setNum(static_cast<uint32_t>(i)));
-    _detectors[i]->saveParameters(this);
-    endGroup();
-  }
-*/  endGroup();//detectorcontainer
-}
+//void cass::ACQIRIS::Parameter::load()
+//{
+// /* //string for the container index//
+//  QString s;
+//  //sync before loading//
+//  sync();
+//
+//  //delete the previous detector parameters//
+//  for (AcqirisDevice::detectors_t::iterator it=_detectors.begin();it!=_detectors.end();++it)
+//    delete (*it);
+//  _detectors.clear();
+//
+//  //the detector parameters//
+//  beginGroup("DetectorContainer");
+//  for (size_t i = 0; i < value("size",1).toUInt();++i)
+//  {
+//    beginGroup(s.setNum(static_cast<uint32_t>(i)));
+//    //find out which type the detector is//
+//    DetectorType dettype = static_cast<DetectorType>(value("DetectorType",Delayline).toInt());
+//    //create a new detector according to the detectortype//
+//    switch(dettype)
+//    {
+//    case Delayline : _detectors.push_back(new DelaylineDetector()); break;
+//    default:
+//      std::cerr<<"Acqris Analyzer: Detectortype \""<<dettype<<"\" is unknown"<<std::endl;
+//      endGroup();
+//      continue;
+//      break;
+//    }
+//    //load the parameters of the detector//
+//    _detectors[i]->loadParameters(this);
+//    endGroup(); //QString(i)
+//  }
+// */ endGroup();//detectorcontainer
+//}
+//
+//void cass::ACQIRIS::Parameter::save()
+//{
+///*  //string for the container index//
+//  QString s;
+//  //the detector parameters//
+//  beginGroup("DetectorContainer");
+//  //how many detectors are there//
+//  setValue("size",static_cast<uint32_t>(_detectors.size()));
+//  for (size_t i = 0; i < _detectors.size();++i)
+//  {
+//    beginGroup(s.setNum(static_cast<uint32_t>(i)));
+//    _detectors[i]->saveParameters(this);
+//    endGroup();
+//  }
+//*/  endGroup();//detectorcontainer
+//}
 
 
 
@@ -74,14 +68,14 @@ void cass::ACQIRIS::Parameter::save()
 
 cass::ACQIRIS::Analysis::Analysis()
 {
-  //create the map with the waveform analyzers//
-  _waveformanalyzer[cfd8]  = new CFD8Bit();
-  _waveformanalyzer[cfd16] = new CFD16Bit();
-  _waveformanalyzer[com8]  = new CoM8Bit();
-  _waveformanalyzer[com16] = new CoM16Bit();
-
-  //create the map with the detector analyzers//
-  _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
+//  //create the map with the waveform analyzers//
+//  _waveformanalyzer[cfd8]  = new CFD8Bit();
+//  _waveformanalyzer[cfd16] = new CFD16Bit();
+//  _waveformanalyzer[com8]  = new CoM8Bit();
+//  _waveformanalyzer[com16] = new CoM16Bit();
+//
+//  //create the map with the detector analyzers//
+//  _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
 }
 
 

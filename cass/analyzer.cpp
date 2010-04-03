@@ -35,7 +35,7 @@ void cass::AnalysisParameter::load()
   //sync before loading//
   sync();
   _useCCD     = value("useCommercialCCDAnalyzer",true).toBool();
-  _useAcqiris = value("useAcqirisAnalyzer",true).toBool();
+  _useAcqiris = value("useAcqirisAnalyzer",false).toBool();
   _useMachine = value("useMachineAnalyzer",true).toBool();
   _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
   std::cout<<"useCommercialCCDAnalyzer "<<_useCCD<<std::endl;

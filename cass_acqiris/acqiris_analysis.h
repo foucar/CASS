@@ -1,15 +1,12 @@
-// Copyright (C)2009 Jochen Küpper,lmf
+//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2009 Jochen Küpper
 
 
 #ifndef _ACQIRIS_ANALYSIS_H_
 #define _ACQIRIS_ANALYSIS_H_
 
-#include <string>
-#include <vector>
 #include "cass_acqiris.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
-#include "acqiris_device.h"
 
 namespace cass 
 {
@@ -17,20 +14,20 @@ namespace cass
 
   namespace ACQIRIS
   {
-    class WaveformAnalyzerBackend;
-    class DetectorAnalyzerBackend;
-
-    class CASS_ACQIRISSHARED_EXPORT Parameter : public cass::ParameterBackend
-    {
-    public:
-      Parameter()  {beginGroup("Acqiris");}
-      ~Parameter() {endGroup();}
-
-      void load();
-      void save();
-
-      //Device::detectors_t  _detectors; //the detector parameters (are the dets itselve)
-    };
+//    class WaveformAnalyzerBackend;
+//    class DetectorAnalyzerBackend;
+//
+//    class CASS_ACQIRISSHARED_EXPORT Parameter : public cass::ParameterBackend
+//    {
+//    public:
+//      Parameter()  {beginGroup("Acqiris");}
+//      ~Parameter() {endGroup();}
+//
+//      void load();
+//      void save();
+//
+//      //Device::detectors_t  _detectors; //the detector parameters (are the dets itselve)
+//    };
 
 
 
@@ -40,19 +37,19 @@ namespace cass
     public:
       Analysis();
       ~Analysis()         {}
-      void loadSettings() {_param.load();}
-      void saveSettings() {_param.save();}
+      void loadSettings() {/*_param.load();*/}
+      void saveSettings() {/*_param.save();*/}
       //called for every event//
       void operator()(cass::CASSEvent*);
 
-    private:
-      typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
-      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
-
-    private:
-      waveformanalyzer_t  _waveformanalyzer;
-      detectoranalyzer_t  _detectoranalyzer;
-      Parameter           _param;
+//    private:
+//      typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
+//      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
+//
+//    private:
+//      waveformanalyzer_t  _waveformanalyzer;
+//      detectoranalyzer_t  _detectoranalyzer;
+//      Parameter           _param;
     };
   } //end namespace acqiris
 } //end namespace cass
