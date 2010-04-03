@@ -29,7 +29,7 @@ public:
     
     int printPv() const;
 
-    static void* operator new(size_t size, char* p)     { return p; }
+    static void* operator new(size_t /*size*/, char* p)     { return p; }
     // Disable ordinary (non-placement) new: only placement new and memory mapped objects are allowed
     // Disable placement delete: Not allow to delete memory mapped objects
     

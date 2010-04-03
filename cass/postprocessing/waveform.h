@@ -1,4 +1,4 @@
-// Copyright (C) 2010 lmf
+// Copyright (C) 2010 Lutz Foucar
 
 #ifndef _WAVEFORM_POSTPROCESSOR_H_
 #define _WAVEFORM_POSTPROCESSOR_H_
@@ -15,8 +15,8 @@ namespace cass
   /*! Last Waveforms
 
   class to show the last wavefrom of a channel
-
-  @author lmf
+  @todo modify such that it works with multiple instruments
+  @author Lutz Foucar
   */
   class pp4 : public PostprocessorBackend
   {

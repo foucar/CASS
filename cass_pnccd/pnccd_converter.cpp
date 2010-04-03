@@ -11,7 +11,7 @@
 #include "pnccd_device.h"
 #include "ccd_detector.h"
 
-inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
+/*inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
 {
   //if pixel over or underflow//
   if (pixel & 0xc000)
@@ -32,7 +32,7 @@ inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
   //otherwise just return pixel
   else
     return pixel;
-}
+}*/
 
 
 

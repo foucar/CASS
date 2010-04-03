@@ -460,7 +460,7 @@ void printCtrlFields(TCtrl& pvCtrlVal)
 }
 
 template <> inline 
-void printCtrlFields(const dbr_sts_string& pvCtrlVal) {}
+void printCtrlFields(const dbr_sts_string& /*pvCtrlVal*/) {}
 
 template <> inline 
 void printCtrlFields(const dbr_ctrl_enum& pvCtrlVal) 

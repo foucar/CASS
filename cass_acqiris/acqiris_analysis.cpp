@@ -79,7 +79,7 @@ cass::ACQIRIS::Analysis::Analysis()
 }
 
 
-void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* cassevent)
+void cass::ACQIRIS::Analysis::operator()(cass::CASSEvent* /*evt*/)
 {
 /*  //get the remievent from the cassevent//
   AcqirisDevice* dev =
