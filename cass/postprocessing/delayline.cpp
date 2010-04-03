@@ -67,7 +67,13 @@ namespace cass
   /*! Helper for Acqiris related Postprocessors
   This class will retrun the requested detector, which signals are going to
   a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
-  can call it without knowing about it.*/
+  can call it without knowing about it.
+  @todo how do I have only one container which contains all waveform analyzer and other analyzers,
+        mabye we can make it such that we don't need them, since they are only functions. But we have
+        to create pointers to classes since we need the choice... Therefore we need to make sure, that
+        the analyzers don't contain to much info, such that we can easily create once function class
+        for each detector / signal of the detector??
+*/
   class HelperAcqirisDetectors
   {
   public:

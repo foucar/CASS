@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _SIGNAL_H_
 #define _SIGNAL_H_
@@ -14,30 +14,43 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    //helperclass for evaluating the first good hit in a given range//
+    /*! helperclass for evaluating the first good hit in a given range
+
+      This class is beeing used by std::find_if as Predicate
+      @author Lutz Foucar*/
     class PeakInRange
     {
     public:
+      /** constructor intializing the range*/
       PeakInRange(double from, double to)
-        :_from(from),
-        _to(to)
+        :_from(from),_to(to)
       {}
-
-      //return whether the time of the peak is in the requested range
+      /** operator used by find_if
+      return whether the time of the peak is in the requested range*/
       bool operator()(const Peak &peak)const
       {
         return (_from  < peak.time() && peak.time() < _to);
       }
 
     private:
+      /** the lower end of the interesting range*/
       double _from;
+      /** the upper end of the interesting range*/
       double _to;
     };
 
-    //----------------------------------------------------------------------------------
-    class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend    //the properties of one Wire-end of the Layerwire
+
+
+
+
+    /*! Class containing information about how to extract the signals of a waveform
+      @todo add possibilty to extract information from an instrument
+      @author Lutz Foucar*/
+    class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
     {
     public:
+      /** default constructor intializing the variables describing the extraction
+        with nonsense, since they have to be loaded by loadParameters from cass.ini*/
       Signal()
         :_chNbr(99),
          _trLow(0),
@@ -50,61 +63,37 @@ namespace cass
          _analyzerType(com8),
          _isNewEvent(true)
       {}
-      ~Signal()   {}
 
     public:
-      void loadParameters(QSettings *p, const char * signalname)
-      {
-        //std::cerr<<"loading wavefrom signal parameters for signal \""<<signalname<<"\""<<std::endl;
-        p->beginGroup(signalname);
-        _chNbr        = p->value("ChannelNumber",0).toInt();
-        _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
-        _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
-        _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
-        _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
-        _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
-        _threshold    = p->value("Threshold",50.).toInt();
-        _delay        = p->value("Delay",5).toInt();
-        _fraction     = p->value("Fraction",0.6).toDouble();
-        _walk         = p->value("Walk",0.).toDouble();
-        _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
-        //std::cerr <<"anty "<<_analyzerType<<" should be "<<com16<<std::endl;
-        //std::cerr<<"done"<<std::endl;
-        p->endGroup();
-      }
-      void saveParameters(QSettings *p, const char * signalname)
-      {
-        p->beginGroup(signalname);
-        p->setValue("ChannelNumber",static_cast<int>(_chNbr));
-        p->setValue("LowerTimeRangeLimit",_trLow);
-        p->setValue("UpperTimeRangeLimit",_trHigh);
-        p->setValue("LowerGoodTimeRangeLimit",_grLow);
-        p->setValue("UpperGoodTimeRangeLimit",_grHigh);
-        p->setValue("Polarity",static_cast<int>(_polarity));
-        p->setValue("Threshold",_threshold);
-        p->setValue("Delay",_delay);
-        p->setValue("Fraction",_fraction);
-        p->setValue("Walk",_walk);
-        p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
-        p->endGroup();
-      }
+      /** loads the parameters from cass.ini, should only be called by class containing this class*/
+      void loadParameters(QSettings *p, const char * signalname);
+      /** save your parameters to cass.ini, should only be called by parent*/
+      void saveParameters(QSettings *p, const char * signalname);
 
     public:
+      /** @typedef peaks_t convience for easier readable code, is a vector of Peak*/
       typedef std::vector<Peak> peaks_t;
 
     public:
+      /** setter
+      @todo we should make sure, that it will not be needed anymore, since the getter should
+            make sure that all peaks are set using the correct function*/
       peaks_t           &peaks()              {return _peaks;}
+      /** getter
+      @todo when calling this we should check whether it has alredy been called for the event
+            if not so, then create the peaks using the requested waveform analysis*/
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:
-      //return the time of the first peak in the "good" time range
+      /** return the time of the first peak in the "good" time range*/
       double firstGood() const
       {
         //if this is called for the new event for the first time, then evaluate//
         if(_isNewEvent)
         {
           //find first occurence of peak that is in the given timerange//
-          peaks_t::const_iterator it = std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
+          peaks_t::const_iterator it =
+              std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
           //if it is not there retrun 0, otherwise the time of the found peak//
           _goodHit = (it==_peaks.end())? 0. : it->time();
           _isNewEvent = false;
@@ -141,23 +130,75 @@ namespace cass
     private:
       //things important to know how to analyze the waveform//
       //set by the user via parameters//
-      size_t            _chNbr;         //This Channels Number in the Acqiris Crate
-      double            _trLow;         //lower edge of the timerange events can happen in
-      double            _trHigh;        //upper edge of the timerange events can happen in
-      double            _grLow;         //lower edge of the timerange good single events can happen in
-      double            _grHigh;        //upper edge of the timerange good single  events can happen in
-      Polarity          _polarity;      //the Polarity the Signal has
-      int16_t           _threshold;     //the Noiselevel for this channel (in adc bytes)
-      int32_t           _delay;         //the delay of the cfd
-      double            _fraction;      //the fraction of the cfd
-      double            _walk;          //the walk of the cfd
-      WaveformAnalyzers _analyzerType;  //type of analysis to analyze this channel
+      /** This Channels Number in the Acqiris Instrument*/
+      size_t _chNbr;
+      /** lower edge of the timerange events can happen in*/
+      double _trLow;
+      /** upper edge of the timerange events can happen in*/
+      double _trHigh;
+      /** lower edge of the timerange good single events can happen in*/
+      double _grLow;
+      /** upper edge of the timerange good single  events can happen in*/
+      double _grHigh;
+      /** the Polarity the Signal has*/
+      Polarity _polarity;
+      /** the Noiselevel for this channel (in adc bytes)*/
+      int16_t _threshold;
+      /** the delay of the cfd*/
+      int32_t _delay;
+      /** the fraction of the cfd*/
+      double _fraction;
+      /** the walk of the cfd*/
+      double _walk;
+      /** type of analysis to analyze this channel*/
+      WaveformAnalyzers _analyzerType;
+
       //container for the results of the waveform analysis
-      peaks_t           _peaks;         //container for the peaks of the waveform
-      mutable double    _goodHit;       //time of the first peak in the "good" range
-      mutable bool      _isNewEvent;    //flag to tell when we are working on a new event
+      /** container for the peaks of the waveform*/
+      peaks_t _peaks;
+      /** time of the first peak in the "good" range*/
+      mutable double _goodHit;
+      /** flag to tell when we are working on a new event*/
+      mutable bool _isNewEvent;
     };
   }//end namespace acqiris
 }//end namespace cass
+
+
+inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * signalname)
+{
+  //std::cerr<<"loading wavefrom signal parameters for signal \""<<signalname<<"\""<<std::endl;
+  p->beginGroup(signalname);
+  _chNbr        = p->value("ChannelNumber",0).toInt();
+  _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
+  _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
+  _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
+  _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
+  _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
+  _threshold    = p->value("Threshold",50.).toInt();
+  _delay        = p->value("Delay",5).toInt();
+  _fraction     = p->value("Fraction",0.6).toDouble();
+  _walk         = p->value("Walk",0.).toDouble();
+  _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
+  //std::cerr <<"anty "<<_analyzerType<<" should be "<<com16<<std::endl;
+  //std::cerr<<"done"<<std::endl;
+  p->endGroup();
+}
+inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * signalname)
+{
+  p->beginGroup(signalname);
+  p->setValue("ChannelNumber",static_cast<int>(_chNbr));
+  p->setValue("LowerTimeRangeLimit",_trLow);
+  p->setValue("UpperTimeRangeLimit",_trHigh);
+  p->setValue("LowerGoodTimeRangeLimit",_grLow);
+  p->setValue("UpperGoodTimeRangeLimit",_grHigh);
+  p->setValue("Polarity",static_cast<int>(_polarity));
+  p->setValue("Threshold",_threshold);
+  p->setValue("Delay",_delay);
+  p->setValue("Fraction",_fraction);
+  p->setValue("Walk",_walk);
+  p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
+  p->endGroup();
+}
 
 #endif
