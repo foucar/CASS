@@ -20,6 +20,8 @@ namespace cass
             first time they are requested.
       @todo we need to include what kind of analysis should be used to extract the time information
             from the singal.
+      @todo find a more meaningful name for this class (maybe this one should be called signal,
+            since it represents a signal in the waveform
       @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT Peak
     {

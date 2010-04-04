@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <vector>
+
 #include "cass_acqiris.h"
 #include "serializer.h"
 #include "serializable.h"

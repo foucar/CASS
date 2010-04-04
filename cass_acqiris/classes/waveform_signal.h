@@ -14,8 +14,7 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! helperclass for evaluating the first good hit in a given range
-
+    /*! @brief helperclass for evaluating the first good hit in a given range
       This class is beeing used by std::find_if as Predicate
       @author Lutz Foucar*/
     class PeakInRange
@@ -43,8 +42,11 @@ namespace cass
 
 
 
-    /*! Class containing information about how to extract the signals of a waveform
-      @todo add possibilty to extract information from an instrument
+    /*! Class containing information about how to extract the signals of a waveform.
+      It also contains an array of signals (called peaks for now)
+      @todo rename this class to somehting more meaningful
+            In the delayline it represents the wireends of the anodelayers and the mcp output
+            In the tof it should just represent the way to extract the singals and the signals itselve
       @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
     {
@@ -52,7 +54,8 @@ namespace cass
       /** default constructor intializing the variables describing the extraction
         with nonsense, since they have to be loaded by loadParameters from cass.ini*/
       Signal()
-        :_chNbr(99),
+        :_instrument(Camp1),
+         _chNbr(99),
          _trLow(0),
          _trHigh(0),
          _polarity(Bad),
