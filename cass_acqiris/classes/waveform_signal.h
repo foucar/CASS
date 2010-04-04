@@ -123,6 +123,8 @@ namespace cass
       double            &fraction()           {return _fraction;}
       double             walk()const          {return _walk;}
       double            &walk()               {return _walk;}
+      Instruments        instrument()const    {return _instrument;}
+      Instruments       &instrument()         {return _instrument;}
       WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
       //bool               isNewEvent()const    {return _isNewEvent;}
@@ -132,7 +134,7 @@ namespace cass
       //things important to know how to analyze the waveform//
       //set by the user via parameters//
       /** the Instrument that the channel will be in*/
-      //Instrument _instrument;
+      Instruments _instrument;
       /** This Channels Number in the Acqiris Instrument*/
       size_t _chNbr;
       /** lower edge of the timerange events can happen in*/

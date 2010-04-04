@@ -34,9 +34,8 @@ namespace cass
       }
       /** the function creating the detectorhit list
         @todo rename it to operator () to clearify that it is only a function
-        @todo make sure, that we will extract the info about the instrument
-*/
-      void analyze(DetectorBackend&,const std::vector<Channel>&);
+      */
+      void analyze(DetectorBackend&,const Device&);
 
     private:
       /** @todo this function should not be part of the class but rather a

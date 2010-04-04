@@ -10,7 +10,7 @@
 
 //****************************************The Class Implementation*******************************************************
 //___________________________________________________________________________________________________________________________________________________________
-void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::DetectorBackend& detector, const std::vector<cass::ACQIRIS::Channel>& channels)
+void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
 {
   //std::cout << "do the sorting"<<std::endl;
   //do a type conversion to have a delayline detector//
@@ -61,49 +61,87 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::Dete
 
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
-  if ((d.mcp().channelNbr() >= channels.size()))
+  //first retrieve the right Instruments / Channels for the signals
+  Signal & MCP = d.mcp();
+  const Instruments &MCPInstr = MCP.instrument();
+  const size_t MCPChanNbr = MCP.channelNbr();
+  const WaveformAnalyzers &MCPAnal= MCP.analyzerType();
+  const Instrument::channels_t &MCPInstrChans = dev.instruments().find(MCPInstr)->second.channels();
+  const Channel &MCPChan = MCPInstrChans[MCPChanNbr];
+
+
+  Signal &F1 = firstLayer->wireend()['1'];
+  const Instruments &F1Instr = F1.instrument();
+  const size_t F1ChanNbr = F1.channelNbr();
+  const WaveformAnalyzers &F1Anal= F1.analyzerType();
+  const Instrument::channels_t &F1InstrChans = dev.instruments().find(F1Instr)->second.channels();
+  const Channel &F1Chan = F1InstrChans[F1ChanNbr];
+
+  Signal &F2 = firstLayer->wireend()['2'];
+  const Instruments &F2Instr = F2.instrument();
+  const size_t F2ChanNbr = F2.channelNbr();
+  const WaveformAnalyzers &F2Anal= F2.analyzerType();
+  const Instrument::channels_t &F2InstrChans = dev.instruments().find(F2Instr)->second.channels();
+  const Channel &F2Chan = F2InstrChans[F2ChanNbr];
+
+
+  Signal &S1 = secondLayer->wireend()['1'];
+  const Instruments &S1Instr = S1.instrument();
+  const size_t S1ChanNbr = S1.channelNbr();
+  const WaveformAnalyzers &S1Anal= S1.analyzerType();
+  const Instrument::channels_t &S1InstrChans = dev.instruments().find(S1Instr)->second.channels();
+  const Channel &S1Chan = S1InstrChans[S1ChanNbr];
+
+  Signal &S2 = secondLayer->wireend()['2'];
+  const Instruments &S2Instr = S2.instrument();
+  const size_t S2ChanNbr = S2.channelNbr();
+  const WaveformAnalyzers &S2Anal= S2.analyzerType();
+  const Instrument::channels_t &S2InstrChans = dev.instruments().find(S2Instr)->second.channels();
+  const Channel &S2Chan = S2InstrChans[S2ChanNbr];
+
+  //now extract values//
+  if ((MCPChanNbr >= MCPInstrChans.size()))
   {
-    std::cerr << "the requested channel for mcp \""<<d.mcp().channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    std::cerr << "the requested channel for mcp \""<<MCPChanNbr<<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
-  //  std::cerr<<"waveformanalyzertyp mcp "<<firstLayer->wireend()['2'].analyzerType()<<" chnbr:"<<d.mcp().channelNbr()<<std::endl;
-  (*_waveformanalyzer)[d.mcp().analyzerType()]->analyze(channels[d.mcp().channelNbr()],d.mcp());
+  (*_waveformanalyzer)[MCPAnal]->analyze(MCPChan,MCP);
 
   //check whether the requested channel does exist//
-  if ((firstLayer->wireend()['1'].channelNbr() >= channels.size()))
+  if ((F1ChanNbr >= F1InstrChans.size()))
   {
-    std::cerr << "the requested channel for first layer one \""<<firstLayer->wireend()['1'].channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    std::cerr << "the requested channel for first layer one \""<<F1ChanNbr<<"\" is not present. We only have \""<<F1InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->wireend()['1'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['1'].channelNbr()<<std::endl;
-  (*_waveformanalyzer)[firstLayer->wireend()['1'].analyzerType()]->analyze(channels[firstLayer->wireend()['1'].channelNbr()],firstLayer->wireend()['1']);
+  (*_waveformanalyzer)[F1Anal]->analyze(F1Chan,F1);
 
   //check whether the requested channel does exist//
-  if ((firstLayer->wireend()['2'].channelNbr() >= channels.size()))
+  if ((F2ChanNbr >= F2InstrChans.size()))
   {
-    std::cerr << "the requested channel for first layer two \""<<firstLayer->wireend()['2'].channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    std::cerr << "the requested channel for first layer two \""<<F2ChanNbr<<"\" is not present. We only have \""<<F2InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->wireend()['2'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['2'].channelNbr()<<std::endl;
-  (*_waveformanalyzer)[firstLayer->wireend()['2'].analyzerType()]->analyze(channels[firstLayer->wireend()['2'].channelNbr()],firstLayer->wireend()['2']);
+  (*_waveformanalyzer)[F2Anal]->analyze(F2Chan,F2);
 
   //check whether the requested channel does exist//
-  if ((secondLayer->wireend()['1'].channelNbr() >= channels.size()))
+  if ((S1ChanNbr >= S1InstrChans.size()))
   {
-    std::cerr << "the requested channel for second layer one \""<<secondLayer->wireend()['1'].channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    std::cerr << "the requested channel for second layer one \""<<S1ChanNbr<<"\" is not present. We only have \""<<S1InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->wireend()['1'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['1'].channelNbr()<<std::endl;
-  (*_waveformanalyzer)[secondLayer->wireend()['1'].analyzerType()]->analyze(channels[secondLayer->wireend()['1'].channelNbr()],secondLayer->wireend()['1']);
+  (*_waveformanalyzer)[S1Anal]->analyze(S1Chan,S1);
 
   //check whether the requested channel does exist//
-  if ((secondLayer->wireend()['2'].channelNbr() >= channels.size()))
+  if ((S2ChanNbr >= S2InstrChans.size()))
   {
-    std::cerr << "the requested channel for second layer two \""<<secondLayer->wireend()['2'].channelNbr()<<"\" is not present. We only have \""<<channels.size()<<"\" channels"<<std::endl;
+    std::cerr << "the requested channel for second layer two \""<<S2ChanNbr<<"\" is not present. We only have \""<<S2InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->wireend()['2'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['2'].channelNbr()<<std::endl;
-  (*_waveformanalyzer)[secondLayer->wireend()['2'].analyzerType()]->analyze(channels[secondLayer->wireend()['2'].channelNbr()],secondLayer->wireend()['2']);
+  (*_waveformanalyzer)[S2Anal]->analyze(S2Chan,S2);
 
   ////tell the signals that you have updated it//
   //d.mcp().isNewEvent() = true;

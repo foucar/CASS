@@ -29,7 +29,7 @@ namespace cass
               operator ()
         @todo instead of the channel list, we have to give the whole device, since
               a detector only knows in which instrument the channels are in*/
-      virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
+      virtual void analyze(DetectorBackend&,const Device&)=0;
     };
   }//end namespace acqiris
 }//end namespace cass

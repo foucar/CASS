@@ -5,7 +5,7 @@
 
 #include <map>
 #include "cass_acqiris.h"
-#include "channel.h"
+#include "acqiris_device.h"
 
 namespace cass
 {
@@ -31,7 +31,7 @@ namespace cass
       /** virtual destructor*/
       virtual ~DetectorAnalyzerBackend() {}
       /** analyze the detector using the channels*/
-      virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
+      virtual void analyze(DetectorBackend&,const Device&)=0;
     protected:
       /** the map with all availabe detector analyzers*/
       waveformanalyzers_t *_waveformanalyzer;
