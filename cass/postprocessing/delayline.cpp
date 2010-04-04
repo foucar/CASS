@@ -110,7 +110,7 @@ namespace cass
         //create a new key from the id with the newly created detector and put it//
         //to the beginning of the list//
         //make the iterator pointing to the just added element of the list//
-        //process the newly added detector using the detectors analyzers in a global container
+        //process the newly added detector using the detectors analyzers in a global contaxiner
       }*/
       return 0; //it->second
     }

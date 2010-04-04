@@ -132,7 +132,6 @@ namespace cass
     char _layer;
     /*! The Signal of the layer detector we are there for*/
     char _wireend;
-
     /*! The Histogram storing the info*/
     Histogram1DFloat  *_ratio;
   };
