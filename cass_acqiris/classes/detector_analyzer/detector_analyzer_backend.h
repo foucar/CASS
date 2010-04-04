@@ -30,8 +30,8 @@ namespace cass
           :_waveformanalyzer(waveformanalyzer) {}
       /** virtual destructor*/
       virtual ~DetectorAnalyzerBackend() {}
-      /** analyze the detector using the channels*/
-      virtual void analyze(DetectorBackend&,const Device&)=0;
+      /** analyze the detector using the data from the device*/
+      virtual void operator()(DetectorBackend&,const Device&)=0;
     protected:
       /** the map with all availabe detector analyzers*/
       waveformanalyzers_t *_waveformanalyzer;

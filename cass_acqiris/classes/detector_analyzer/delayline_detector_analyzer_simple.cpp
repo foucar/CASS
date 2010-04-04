@@ -10,7 +10,7 @@
 
 //****************************************The Class Implementation*******************************************************
 //___________________________________________________________________________________________________________________________________________________________
-void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::analyze(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
+void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
 {
   //std::cout << "do the sorting"<<std::endl;
   //do a type conversion to have a delayline detector//

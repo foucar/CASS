@@ -35,7 +35,7 @@ namespace cass
       /** the function creating the detectorhit list
         @todo rename it to operator () to clearify that it is only a function
       */
-      void analyze(DetectorBackend&,const Device&);
+      virtual void operator()(DetectorBackend&,const Device&);
 
     private:
       /** @todo this function should not be part of the class but rather a

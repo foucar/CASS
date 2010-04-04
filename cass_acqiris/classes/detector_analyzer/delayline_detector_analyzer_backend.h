@@ -24,12 +24,8 @@ namespace cass
           :DetectorAnalyzerBackend(waveformanalyzer) {}
       /** virtual destructor*/
       virtual ~DelaylineDetectorAnalyzerBackend() {}
-      /** create the list of detector hits
-        @todo to make more clear that this is a function we should rename this to
-              operator ()
-        @todo instead of the channel list, we have to give the whole device, since
-              a detector only knows in which instrument the channels are in*/
-      virtual void analyze(DetectorBackend&,const Device&)=0;
+      /** create the list of detector hits */
+      virtual void operator()(DetectorBackend&,const Device&)=0;
     };
   }//end namespace acqiris
 }//end namespace cass
