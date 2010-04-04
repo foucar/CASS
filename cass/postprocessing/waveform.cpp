@@ -112,7 +112,7 @@ namespace cass
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
     }
   protected:
-    /** \f$\alpha\f$ for the average calculation \f$ */
+    /** \f$\alpha\f$ for the average calculation */
     float _alpha;
   };
 }
