@@ -105,7 +105,7 @@ namespace cass
     {}
     /** the operator calculates the average using the function
       \f$Y_n = \alpha(y-Y_{n-1})\f$
-      where when \alpha is equal to N it is a cumulative moving average,
+      where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
       otherwise it will be a exponential moving average.*/
     float operator()(float Average_Nm1, float currentValue)
     {
