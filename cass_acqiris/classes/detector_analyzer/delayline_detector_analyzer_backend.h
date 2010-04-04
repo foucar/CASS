@@ -26,7 +26,9 @@ namespace cass
       virtual ~DelaylineDetectorAnalyzerBackend() {}
       /** create the list of detector hits
         @todo to make more clear that this is a function we should rename this to
-              operator ()*/
+              operator ()
+        @todo instead of the channel list, we have to give the whole device, since
+              a detector only knows in which instrument the channels are in*/
       virtual void analyze(DetectorBackend&,const std::vector<Channel>&)=0;
     };
   }//end namespace acqiris

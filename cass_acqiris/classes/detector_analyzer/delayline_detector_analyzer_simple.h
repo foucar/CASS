@@ -33,12 +33,16 @@ namespace cass
         std::cout << "adding simple delayline detector analyzer"<<std::endl;
       }
       /** the function creating the detectorhit list
-        @todo rename it to operator () to clearify that it is only a function*/
+        @todo rename it to operator () to clearify that it is only a function
+        @todo make sure, that we will extract the info about the instrument
+*/
       void analyze(DetectorBackend&,const std::vector<Channel>&);
 
     private:
       /** @todo this function should not be part of the class but rather a
-                convenience function inside the implementation file*/
+                convenience function inside the implementation file
+          @todo make anode layer a std::pair for more convenient parameters parsing
+      */
       void sortForTimesum(DelaylineDetector&,AnodeLayer &x,AnodeLayer &y);
     };
 
