@@ -65,7 +65,8 @@ namespace cass
       {}
 
     public:
-      /** loads the parameters from cass.ini, should only be called by class containing this class*/
+      /** loads the parameters from cass.ini, should only be called by class containing this class
+        @todo load also instrument information*/
       void loadParameters(QSettings *p, const char * signalname);
       /** save your parameters to cass.ini, should only be called by parent*/
       void saveParameters(QSettings *p, const char * signalname);
@@ -130,6 +131,8 @@ namespace cass
     private:
       //things important to know how to analyze the waveform//
       //set by the user via parameters//
+      /** the Instrument that the channel will be in*/
+      //Instrument _instrument;
       /** This Channels Number in the Acqiris Instrument*/
       size_t _chNbr;
       /** lower edge of the timerange events can happen in*/
