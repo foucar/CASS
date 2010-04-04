@@ -228,7 +228,7 @@ public:
 
     /*! Add datum to histogram
 
-    @param x, y Position of datum
+    @param x y Position of datum
     @param weight value of datum
     */
     void fill(float x, value_t weight=1.);
@@ -268,7 +268,7 @@ public:
 for detector images, i.e., pnCCD, VMI CCD, etc...
 
 @author Lutz Foucar
-@autho Jochen Küpper
+@author Jochen Küpper
 */
 class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
 {
@@ -318,7 +318,7 @@ public:
 
     /*! Return histogram bin (row,col)
 
-    @overlaod
+    @overload
     */
     value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
 
