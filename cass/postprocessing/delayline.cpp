@@ -93,7 +93,9 @@ namespace cass
     /** validate whether we have already seen this event
     if not than add a detector, that is copy constructed or
     assigned from the detector this instance owns, to the list.
-    return the pointer to this detector*/
+    return the pointer to this detector
+    @todo make another memeber, process that will do exactly the same thing that the acqiris analyzer has done,
+          but just for this single one detector. This is done for just now, to make it work as fast as possible*/
     DetectorBackend * validate(const CASSEvent &evt)
     {
     /*//find the pair containing the detector//
