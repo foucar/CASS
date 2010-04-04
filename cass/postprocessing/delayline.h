@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _DELAYLINE_POSTPROCESSOR_H_
 #define _DELAYLINE_POSTPROCESSOR_H_
@@ -12,12 +12,12 @@ namespace cass
   class Histogram1DFloat;
   class Histogram2DFloat;
 
-  /*! Number of Signals in MCP Waveform
+  /*! @brief Number of Signals in MCP Waveform
 
   This postprocessor will output how many Signals have been found
-  in the acqiris channel for the layers
+  in the acqiris channel for the layers (pp 550 & pp600).
 
-  @author lmf
+  @author Lutz Foucar
   */
   class pp550 : public PostprocessorBackend
   {
@@ -41,12 +41,12 @@ namespace cass
 
 
 
-  /*! Number of Signals in Anode Layers Waveform
+  /*! @brief Number of Signals in Anode Layers Waveform
 
   This postprocessor will output how many Signals have been found
-  in the acqiris channel for the layers
+  in the acqiris channel for the layers (pp551-556 & pp601-604)
 
-  @author lmf
+  @author Lutz Foucar
   */
   class pp551 : public PostprocessorBackend
   {
@@ -74,12 +74,12 @@ namespace cass
 
 
 
-  /*! Ratio of Peaks for two layers
+  /*! @brief Ratio of Peaks for two layers
 
   This postprocessor will output the Ratio of the Number
-  of Signals with Respect to the other layer
+  of Signals with Respect to the other layer (pp577, 560 563, 605, 608)
 
-  @author lmf
+  @author Lutz Foucar
   */
   class pp557 : public PostprocessorBackend
   {
@@ -105,13 +105,13 @@ namespace cass
 
 
 
-  /*! Ratio of Signals for Signal vs MCP
+  /*! @brief Ratio of Signals for Signal vs MCP
 
   This postprocessor will output the Ratio of the Number
   of Signals with Respect to the the number of Singals in
-  the MCP Channel
+  the MCP Channel (pp558-559, pp561-562, pp564-565, pp606-507, pp609-610)
 
-  @author lmf
+  @author Lutz Foucar
   */
   class pp558 : public PostprocessorBackend
   {
@@ -140,13 +140,13 @@ namespace cass
 
 
 
-  /*! Ratio of Signals for Rekonstukted Hits vs MCP Hits
+  /*! @brief Ratio of Signals for Rekonstukted Hits vs MCP Hits
 
   This postprocessor will output the Ratio of the Number
   rekonstructed detector hits with respect to the the number
-  of Singals in the MCP Channel
+  of Singals in the MCP Channel (pp566, pp611)
 
-  @author lmf
+  @author Lutz Foucar
   */
   class pp566 : public PostprocessorBackend
   {
