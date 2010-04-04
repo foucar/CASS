@@ -94,7 +94,7 @@ namespace cass
     if not than add a detector, that is copy constructed or
     assigned from the detector this instance owns, to the list.
     return the pointer to this detector
-    @todo make another memeber, process that will do exactly the same thing that the acqiris analyzer has done,
+    @todo make another member, process that will do exactly the same thing that the acqiris analyzer has done,
           but just for this single one detector. This is done for just now, to make it work as fast as possible*/
     DetectorBackend * validate(const CASSEvent &evt)
     {
@@ -110,6 +110,7 @@ namespace cass
         //create a new key from the id with the newly created detector and put it//
         //to the beginning of the list//
         //make the iterator pointing to the just added element of the list//
+        //process the newly added detector using the detectors analyzers in a global container
       }*/
       return 0; //it->second
     }
