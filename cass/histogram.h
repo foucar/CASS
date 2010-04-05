@@ -84,7 +84,13 @@ private:
 
 
 
-//histogram backend, every type of histogram inherits from here//
+/*! @brief histogram backend,
+every type of histogram inherits from here
+@todo add a mutex, that will allow us to let only one thread write to the memory using fill
+@todo how do we make sure that only one thread writes to memory, when it retrieves the memory
+      to write to it itselve?
+@author Lutz Foucar*/
+
 class CASSSHARED_EXPORT HistogramBackend
 {
 public:
