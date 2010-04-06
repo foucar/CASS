@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+.//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _DELAYLINE_DETECTOR_H_
 #define _DELAYLINE_DETECTOR_H_
@@ -21,7 +21,7 @@ namespace cass
     class containing the properties of a
     anode layer of the detector
 
-    @author lmf
+    @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer
     {
@@ -81,7 +81,7 @@ namespace cass
     class containing the properties of a Hit on the
     delayline detector.
 
-    @author lmf
+    @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorHit
     {
@@ -125,7 +125,7 @@ namespace cass
     all information that is needed in order to sort the signals in the
     waveforms to detector hits
 
-    @author lmf
+    @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public DetectorBackend
     {

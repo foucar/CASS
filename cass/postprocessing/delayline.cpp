@@ -561,3 +561,188 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
   _ratio->fill(rek/mcp);
 }
 
+
+
+
+
+
+
+
+
+//----------------MCP Hits (Tof)------------------------------
+//------------------------------pp567, pp612-----------------------------------
+cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexAllMcp:
+    _detector = HexDetector;break;
+  case PostProcessors::QuadAllMcp:
+    _detector = QuadDetector;break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp567::~pp567()
+{
+  delete _ratio;
+  _tof=0;
+  _histograms[_id] =  _tof;
+}
+
+void cass::pp567::loadParameters(size_t)
+{
+  //create the histogram
+  set1DHist(_tof,_id);
+  _histograms[_id] =  _tof;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp567::operator()(const cass::CASSEvent &evt)
+{
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //reference to all found peaks of the mcp channel//
+  const DelaylineDetector::dethits_t &mcpSignals = det->mcp().peaks();
+  //fill all found peaks into the histogram//
+  for (DelaylineDetector::dethits_t::const_iterator it = mcpSignals.begin();
+       it != mcpSignals.end();
+       ++it)
+    _tof->fill(it->time());
+*/
+}
+
+
+
+
+
+
+
+
+//----------------Timesum for the layers---------------------------------------
+//-----------pp568-570, pp613-614----------------------------------------------
+cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexTimesumU:
+    _detector = HexDetector; _layer = 'U'; break;
+  case PostProcessors::HexTimesumV:
+    _detector = HexDetector; _layer = 'V'; break;
+  case PostProcessors::HexTimesumW:
+    _detector = HexDetector; _layer = 'W'; break;
+
+  case PostProcessors::QuadTimesumX:
+    _detector = QuadDetector; _layer = 'X'; break;
+  case PostProcessors::QuadTimesumY:
+    _detector = QuadDetector; _layer = 'Y'; break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp568::~pp568()
+{
+  delete _timesum;
+  _timesum=0;
+  _histograms[_id] =  _timesum;
+}
+
+void cass::pp568::loadParameters(size_t)
+{
+  //create the histogram
+  set1DHist(_timesum,_id);
+  _histograms[_id] =  _timesum;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp568::operator()(const cass::CASSEvent &evt)
+{
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _timesum->fill(det->timesum(_layer));
+*/
+}
+
+
+
+
+
+
+
+
+
+//----------------Timesum vs Postition for the layers--------------------------
+//-----------pp571-573, pp615-616----------------------------------------------
+cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexTimesumUvsU:
+    _detector = HexDetector; _layer = 'U'; break;
+  case PostProcessors::HexTimesumVvsV:
+    _detector = HexDetector; _layer = 'V'; break;
+  case PostProcessors::HexTimesumWvsW:
+    _detector = HexDetector; _layer = 'W'; break;
+
+  case PostProcessors::QuadTimesumXvsX:
+    _detector = QuadDetector; _layer = 'X'; break;
+  case PostProcessors::QuadTimesumYvsY:
+    _detector = QuadDetector; _layer = 'Y'; break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp571::~pp571()
+{
+  delete _timesumvsPos;
+  _timesumvsPos=0;
+  _histograms[_id] =  _timesumvsPos;
+}
+
+void cass::pp571::loadParameters(size_t)
+{
+  //create the histogram
+  set2DHist(_timesumvsPos,_id);
+  _histograms[_id] =  _timesumvsPos;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp571::operator()(const cass::CASSEvent &evt)
+{
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _timesum->fill(det->position(_layer),det->timesum(_layer));
+*/
+}
+
+

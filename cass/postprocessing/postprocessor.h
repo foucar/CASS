@@ -101,16 +101,17 @@ namespace cass
     00564: Hex Anode Hit Ratio W1 / MCP
     00565: Hex Anode Hit Ratio W2 / MCP
     00566: Hex Anode Hit Ratio Reconstructed / MCP
-    00567: Hex Anode Delayline Timesum U
-    00568: Hex Anode Delayline Timesum V
-    00569: Hex Anode Delayline Timesum W
-    00570: Hex Anode Delayline Timesum U vs Pos U
-    00571: Hex Anode Delayline Timesum V vs Pos V
-    00572: Hex Anode Delayline Timesum W vs Pos W
-    00573: Hex Anode Delayline Picture of First Hit UV Layers in ns
-    00574: Hex Anode Delayline Picture of First Hit UW Layers in ns
-    00575: Hex Anode Delayline Picture of First Hit VW Layers in ns
-    00576: Hex Anode Delayline Picture of First Hit All Layers in ns
+    00567: Hex Anode All Hits on MCP
+    00568: Hex Anode Delayline Timesum U
+    00569: Hex Anode Delayline Timesum V
+    00570: Hex Anode Delayline Timesum W
+    00571: Hex Anode Delayline Timesum U vs Pos U
+    00572: Hex Anode Delayline Timesum V vs Pos V
+    00573: Hex Anode Delayline Timesum W vs Pos W
+    00574: Hex Anode Delayline Picture of First Hit UV Layers in ns
+    00575: Hex Anode Delayline Picture of First Hit UW Layers in ns
+    00576: Hex Anode Delayline Picture of First Hit VW Layers in ns
+    00577: Hex Anode Delayline Picture of First Hit All Layers in ns
     00578: Hex Anode Delayline Picture all Hits in mm
     00579: Hex Anode Delayline X vs Tof
     00580: Hex Anode Delayline Y vs Tof
@@ -211,6 +212,13 @@ namespace cass
             HexW1McpRatio=564,
             HexW2McpRatio=565,
             HexRekMcpRatio=566,
+            HexAllMcp=567,
+            HexTimesumU=568,
+            HexTimesumV=569,
+            HexTimesumW=570,
+            HexTimesumUvsU=571,
+            HexTimesumVvsV=572,
+            HexTimesumWvsW=573,
 
             QuadMCPNbrSignals=600,
             QuadX1NbrSignals=601,
@@ -224,6 +232,11 @@ namespace cass
             QuadY1McpRatio=609,
             QuadY2McpRatio=610,
             QuadRekMcpRatio=611,
+            QuadAllMcp=612,
+            QuadTimesumX=613,
+            QuadTimesumY=614,
+            QuadTimesumXvsX=615,
+            QuadTimesumYvsY=616,
         };
 
         /** Container of all currently available histograms */

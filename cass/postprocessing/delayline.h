@@ -168,6 +168,104 @@ namespace cass
     Histogram1DFloat  *_ratio;
   };
 
+
+
+
+
+  /*! @brief All Mcp Hits
+
+  This postprocessor will output the times of all found MCP Hits.
+  This is more or less just a Time of Flight Spektrum
+ (pp567, pp612)
+
+  @author Lutz Foucar
+  */
+  class pp567 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor*/
+    pp567(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp567();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The Histogram storing the info*/
+    Histogram1DFloat  *_tof;
+  };
+
+
+
+
+
+
+  /*! @brief Timesum of Delayline
+
+  This postprocessor will output Timesum of a Delayline Anode for
+  the first hit in a selectable good range
+ (pp568-570, pp613-614)
+
+  @author Lutz Foucar
+  */
+  class pp568 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor*/
+    pp568(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp568();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The layer of the detector detector we are there for*/
+    char _layer;
+    /*! The Histogram storing the info*/
+    Histogram1DFloat  *_timesum;
+  };
+
+
+
+
+
+  /*! @brief Timesum of Delayline Anode vs Position of Anode
+
+  This postprocessor will output Timesum of a Delayline Anode
+  versus the position of the delayline. This is used to know the value
+  for extracting the detectorhits.(pp571-573, pp615-616)
+
+  @author Lutz Foucar
+  */
+  class pp571 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor */
+    pp571(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp571();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The layer of the detector detector we are there for*/
+    char _layer;
+    /*! The Histogram storing the info*/
+    Histogram2DFloat  *_timesumvsPos;
+  };
+
 }//end cass
 
 #endif
