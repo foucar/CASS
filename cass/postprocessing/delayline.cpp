@@ -451,27 +451,28 @@ cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-//  case PostProcessors::HexU1McpRatio:
-//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
-//  case PostProcessors::HexU2McpRatio:
-//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
-//  case PostProcessors::HexV1McpRatio:
-//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
-//  case PostProcessors::HexV2McpRatio:
-//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
-//  case PostProcessors::HexW1McpRatio:
-//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
-//  case PostProcessors::HexW2McpRatio:
-//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
+  case PostProcessors::HexU1McpRatio:
+    _detector = HexDetector; _layer = 'U'; _wireend = '1';break;
+  case PostProcessors::HexU2McpRatio:
+    _detector = HexDetector; _layer = 'U'; _wireend = '2';break;
+  case PostProcessors::HexV1McpRatio:
+    _detector = HexDetector; _layer = 'V'; _wireend = '1';break;
+  case PostProcessors::HexV2McpRatio:
+    _detector = HexDetector; _layer = 'V'; _wireend = '2';break;
+  case PostProcessors::HexW1McpRatio:
+    _detector = HexDetector; _layer = 'W'; _wireend = '1';break;
+  case PostProcessors::HexW2McpRatio:
+    _detector = HexDetector; _layer = 'W'; _wireend = '2';break;
 
-//  case PostProcessors::QuadX1McpRatio:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
-//  case PostProcessors::QuadX2McpRatio:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
-//  case PostProcessors::QuadY1McpRatio:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
-//  case PostProcessors::QuadY2McpRatio:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
+  case PostProcessors::QuadX1McpRatio:
+    _detector = QuadDetector; _layer = 'X'; _wireend = '1';break;
+  case PostProcessors::QuadX2McpRatio:
+    _detector = QuadDetector; _layer = 'X'; _wireend = '2';break;
+  case PostProcessors::QuadY1McpRatio:
+    _detector = QuadDetector; _layer = 'Y'; _wireend = '1';break;
+  case PostProcessors::QuadY2McpRatio:
+    _detector = QuadDetector; _layer = 'Y'; _wireend = '2';break;
+
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
   }
@@ -492,20 +493,18 @@ void cass::pp558::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp558::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  const float wireend = det->layers()[layer].wireend()[_wireend].peaks().size();
+  const float wireend = det->layers()[_layer].wireend()[_wireend].peaks().size();
   const float mcp = det->mcp().peaks().size();
   _ratio->fill(wireend/mcp);
-*/
 }
 
 
