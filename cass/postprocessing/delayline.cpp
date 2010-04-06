@@ -324,27 +324,27 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-//  case PostProcessors::HexU1NbrSignals:
-//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
-//  case PostProcessors::HexU2NbrSignals:
-//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
-//  case PostProcessors::HexV1NbrSignals:
-//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
-//  case PostProcessors::HexV2NbrSignals:
-//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
-//  case PostProcessors::HexW1NbrSignals:
-//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
-//  case PostProcessors::HexW2NbrSignals:
-//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
-//
-//  case PostProcessors::QuadX1NbrSignals:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
-//  case PostProcessors::QuadX2NbrSignals:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
-//  case PostProcessors::QuadY1NbrSignals:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
-//  case PostProcessors::QuadY2NbrSignals:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
+  case PostProcessors::HexU1NbrSignals:
+    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
+  case PostProcessors::HexU2NbrSignals:
+    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
+  case PostProcessors::HexV1NbrSignals:
+    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
+  case PostProcessors::HexV2NbrSignals:
+    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
+  case PostProcessors::HexW1NbrSignals:
+    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
+  case PostProcessors::HexW2NbrSignals:
+    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
+
+  case PostProcessors::QuadX1NbrSignals:
+    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
+  case PostProcessors::QuadX2NbrSignals:
+    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
+  case PostProcessors::QuadY1NbrSignals:
+    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
+  case PostProcessors::QuadY2NbrSignals:
+    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
@@ -366,18 +366,16 @@ void cass::pp551::loadParameters(size_t)
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
   //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp551::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  _nbrSignals->fill(det->layers()[layer].wireend()[_signal].peaks().size());
-*/
+  _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
 }
 
 

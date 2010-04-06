@@ -63,7 +63,7 @@ namespace cass
 
   protected:
     /*! The detector we are there for*/
-    size_t _detector;
+    ACQIRIS::Detectors _detector;
     /*! The layer of the detector detector we are there for*/
     char _layer;
     /*! The Signal of the layer detector we are there for*/
@@ -96,7 +96,7 @@ namespace cass
 
   protected:
     /*! The detector we are there for*/
-    size_t _detector;
+    ACQIRIS::Detectors _detector;
     /*! The layer of the detector detector we are there for*/
     char _layer;
 
@@ -128,7 +128,7 @@ namespace cass
 
   protected:
     /*! The detector we are there for*/
-    size_t _detector;
+    ACQIRIS::Detectors _detector;
     /*! The layer of the detector detector we are there for*/
     char _layer;
     /*! The Signal of the layer detector we are there for*/
@@ -162,7 +162,7 @@ namespace cass
 
   protected:
     /*! The detector we are there for*/
-    size_t _detector;
+    ACQIRIS::Detectors _detector;
 
     /*! The Histogram storing the info*/
     Histogram1DFloat  *_ratio;
