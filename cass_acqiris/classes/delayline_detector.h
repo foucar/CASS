@@ -1,4 +1,4 @@
-.//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _DELAYLINE_DETECTOR_H_
 #define _DELAYLINE_DETECTOR_H_
