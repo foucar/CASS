@@ -11,11 +11,19 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
-#include "com.h"
-#include "cfd.h"
-#include "delayline_detector_analyzer_simple.h"
-#include "delayline_detector.h"
-
+//#include "com.h"
+//#include "cfd.h"
+//#include "delayline_detector_analyzer_simple.h"
+//#include "delayline_detector.h"
+#include "detector_backend.h"
+namespace cass
+{
+  namespace ACQIRIS
+  {
+    class DetectorAnalyzerBackend;
+    class WaveformAnalyzerBackend;
+  }
+}
 namespace cass
 {
   /** function to set the 1d histogram properties from the cass.ini file*/
@@ -146,8 +154,8 @@ namespace cass
     /** prevent copy-construction*/
     HelperAcqirisDetectors(const HelperAcqirisDetectors&);
     /** prevent destruction other than trhough destroy(),
-    delete the detector for this instance*/
-    ~HelperAcqirisDetectors() {delete _detector;}
+    delete the detector and the detectorlist for this instance*/
+    ~HelperAcqirisDetectors();
     /** prevent assingment */
     HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
     /** the instances of this class put into map
