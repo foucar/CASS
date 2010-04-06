@@ -221,7 +221,7 @@ namespace cass
       /** enum telling which Layers should be used
           to calculate the position when using simple sorting*/
       LayersToUse _layersToUse;
-      /** @enum type of the delayline (hex or quad)*/
+      /** @enum _delaylinetype type of the delayline (hex or quad)*/
       DelaylineType _delaylinetype;
       /** properties of layers*/
       anodelayers_t _anodelayers;
