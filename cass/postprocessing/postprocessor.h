@@ -217,13 +217,13 @@ namespace cass
             QuadX2NbrSignals=602,
             QuadY1NbrSignals=603,
             QuadY2NbrSignals=604,
-            QuadX1X2Ratio=557,
-            QuadX1McpRatio=558,
-            QuadX2McpRatio=559,
-            QuadY1Y2Ratio=560,
-            QuadY1McpRatio=561,
-            QuadY2McpRatio=562,
-            QuadRekMcpRatio=566,
+            QuadX1X2Ratio=605,
+            QuadX1McpRatio=606,
+            QuadX2McpRatio=607,
+            QuadY1Y2Ratio=608,
+            QuadY1McpRatio=609,
+            QuadY2McpRatio=610,
+            QuadRekMcpRatio=611,
         };
 
         /** Container of all currently available histograms */

@@ -391,17 +391,17 @@ cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-//  case PostProcessors::HexU1U2Ratio:
-//    _detector = HexDetector; _layer = 'U';break;
-//  case PostProcessors::HexV1V2Ratio:
-//    _detector = HexDetector; _layer = 'V';break;
-//  case PostProcessors::HexW1W2Ratio:
-//    _detector = HexDetector; _layer = 'W';break;
-//
-//  case PostProcessors::HexX1X2Ratio:
-//    _detector = QuadDetector; _layer = 'X';break;
-//  case PostProcessors::HexY1Y2Ratio:
-//    _detector = QuadDetector; _layer = 'X';break;
+  case PostProcessors::HexU1U2Ratio:
+    _detector = HexDetector; _layer = 'U';break;
+  case PostProcessors::HexV1V2Ratio:
+    _detector = HexDetector; _layer = 'V';break;
+  case PostProcessors::HexW1W2Ratio:
+    _detector = HexDetector; _layer = 'W';break;
+
+  case PostProcessors::QuadX1X2Ratio:
+    _detector = QuadDetector; _layer = 'X';break;
+  case PostProcessors::QuadY1Y2Ratio:
+    _detector = QuadDetector; _layer = 'X';break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
@@ -423,20 +423,18 @@ void cass::pp557::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp557::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  const float one = det->layers()[layer].wireend()['1'].peaks().size();
-  const float two = det->layers()[layer].wireend()['2'].peaks().size();
+  const float one = det->layers()[_layer].wireend()['1'].peaks().size();
+  const float two = det->layers()[_layer].wireend()['2'].peaks().size();
   _ratio->fill(one/two);
-*/
 }
 
 
