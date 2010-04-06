@@ -79,7 +79,11 @@ namespace cass
     /*! Detector Hits
 
     class containing the properties of a Hit on the
-    delayline detector.
+    delayline detector. A Hit on a Delaylinedetector consists
+    of a x, y and t value. Where x and y are the position on
+    the detector and t is the time the particle hit the detector.
+    All these values are stored in a map and can be extracted using
+    the appropriate name ('x','y','t').
 
     @author Lutz Foucar
     */
@@ -89,7 +93,11 @@ namespace cass
       /*! initiailzing constructor*/
       DelaylineDetectorHit(double x, double y, double t)
           :_x_mm(x), _y_mm(y), _time(t)
-      {}
+      {
+        _values['x']=x;
+        _values['y']=y;
+        _values['t']=t;
+      }
       /*! default constructor, initalizing every value to 0*/
       DelaylineDetectorHit()
         :_x_mm(0), _y_mm(0), _time(0)
@@ -102,6 +110,9 @@ namespace cass
       double &y()       {return _y_mm;}
       double  t()const  {return _time;}
       double &t()       {return _time;}
+      /** get the values of a hit*/
+      std::map<char,double> &values() {return _values;}
+
 
     private:
       /*! the x component of the detector in mm*/
@@ -110,6 +121,8 @@ namespace cass
       double  _y_mm;
       /*! the mcp time of this hit on the detector*/
       double  _time;
+      /** a map containing the three coordiantes of the hit*/
+      std::map<char,double> _values;
     };
 
 
