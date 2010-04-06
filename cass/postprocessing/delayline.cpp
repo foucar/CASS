@@ -522,10 +522,11 @@ cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-//  case PostProcessors::HexRekMcpRatio:
-//    _detector = HexDetector;break;
-//  case PostProcessors::QuadRekMcpRatio:
-//    _detector = QuadDetector;break;
+  case PostProcessors::HexRekMcpRatio:
+    _detector = HexDetector;break;
+  case PostProcessors::QuadRekMcpRatio:
+    _detector = QuadDetector;break;
+
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
   }
@@ -546,12 +547,11 @@ void cass::pp566::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp566::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
@@ -559,6 +559,5 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
   const float rek = det->hits().size();
   const float mcp = det->mcp().peaks().size();
   _ratio->fill(rek/mcp);
-*/
 }
 
