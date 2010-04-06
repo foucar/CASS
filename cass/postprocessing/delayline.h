@@ -266,8 +266,6 @@ namespace cass
     Histogram2DFloat  *_timesumvsPos;
   };
 
-}//end cass
-
 
 
 
