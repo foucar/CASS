@@ -103,21 +103,21 @@ namespace cass
     */
     DetectorBackend * validate(const CASSEvent &evt)
     {
-    /*//find the pair containing the detector//
-      detectorList::iterator it =
+      //find the pair containing the detector//
+      detectorList_t::iterator it =
         std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
       //check wether id is not already on the list//
       if(_detectorList.end() == it)
       {
         //retrieve a pointer to the acqiris device//
         Device *dev =
-            dynamic_cast<Device*>(evt->devices().find(cass::CASSEvent::Acqiris)->second);
+            dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
         //take the last element and get the the detector from it//
         DetectorBackend* det = _detectorList.back().second;
         //copy the informtion of our detector to this detector//
         *det = *_detector;
         //process the detector using the detectors analyzers in a global contaxiner
-        (*_detectoranalyzer[det->analyzerType()])(*det, dev->channels());
+        (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
         //create a new key from the id with the reloaded detector
         detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
         //put it to the beginning of the list//
@@ -126,11 +126,11 @@ namespace cass
         _detectorList.pop_back();
         //make the iterator pointing to the just added element of the list//
         it = _detectorList.begin();
-      }*/
-      return 0; //it->second
+      }
+      return it->second;
     }
   protected:
-    /*! list of pairs of id-detectors
+    /*! @brief list of pairs of id-detectors
     The contents are copy constructed from the detector that this helper instance owns.
     Needs to be at least the size of workers that can possibly call this helper simultaniously,
     but should be shrinked if it get much bigger than the nbr of workers*/
@@ -176,7 +176,8 @@ QMutex cass::HelperAcqirisDetectors::_mutex;
 
 cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIRIS::Detectors dettype)
 {
-  /*
+  //lock this//
+  QMutexLocker lock(&_mutex);
   using namespace cass::ACQIRIS;
   //if the maps with the analyzers are empty, fill them//
   if (_waveformanalyzer.empty())
@@ -194,13 +195,14 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIR
   //return it, otherwise create one and return it//
   if (0 == _instances[dettype])
     _instances[dettype] = new HelperAcqirisDetectors(dettype);
-  */
-  return 0; //_instances[dettype];
+  return _instances[dettype];
 }
 
 void cass::HelperAcqirisDetectors::destroy()
 {
-/*  //delete all instances of the helper class//
+  //lock this//
+  QMutexLocker lock(&_mutex);
+  //delete all instances of the helper class//
   for (std::map<ACQIRIS::Detectors,HelperAcqirisDetectors*>::iterator it=_instances.begin();
        it != _instances.end();
        ++it)
@@ -214,52 +216,49 @@ void cass::HelperAcqirisDetectors::destroy()
        it != _detectoranalyzer.end();
        ++it)
     delete it->second;
-*/
 }
 
 cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
 {
-/*  using namespace cass::ACQIRIS;
+  using namespace cass::ACQIRIS;
   //create the detector
   //create the detector list with twice the amount of elements than workers
   switch(dettype)
   {
   case HexDetector:
     {
-      _detector = new DelaylineDetector();
+      _detector = new DelaylineDetector(Hex);
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex)));
     }
   case QuadDetector:
     {
-      _detector = new DelaylineDetector();
+      _detector = new DelaylineDetector(Quad);
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad)));
     }
     break;
   default: throw std::invalid_argument("no such detector is present");
   }
-*/
 }
 
 cass::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 {
- /* //delete the detectorList
+  //delete the detectorList
   for (detectorList_t::iterator it=_detectorList.begin();
        it != _detectorList.end();
        ++it)
     delete it->second;
   //delete the detector
   delete _detector;
-*/
 }
 
 void cass::HelperAcqirisDetectors::loadParameters(size_t)
 {
-  //QSettings par;
-  //par.beginGroup("postprocessors");
-  //par.beginGroup("AcqirisDetectors");
-  //_detector->loadParameters(&par);
+  QSettings par;
+  par.beginGroup("postprocessors");
+  par.beginGroup("AcqirisDetectors");
+  _detector->loadParameters(&par);
 }
 
 
@@ -276,10 +275,10 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-//  case PostProcessors::HexMCPNbrSignals:
-//    _detector = HexDelayline;break;
-//  case PostProcessors::QuadMCPNbrSignals:
-//    _detector = QuadDelayline;break;
+  case PostProcessors::HexMCPNbrSignals:
+    _detector = HexDetector;break;
+  case PostProcessors::QuadMCPNbrSignals:
+    _detector = QuadDetector;break;
   default:
     throw std::invalid_argument("this postprocessor is not responsible for Nbr Signals Postprocessor");
   }
@@ -300,18 +299,16 @@ void cass::pp550::loadParameters(size_t)
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
   //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp550::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   _nbrSignals->fill(det->mcp().peaks().size());
-*/
 }
 
 
@@ -328,26 +325,26 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   switch (_id)
   {
 //  case PostProcessors::HexU1NbrSignals:
-//    _detector = HexDelayline; _layer = 'U'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
 //  case PostProcessors::HexU2NbrSignals:
-//    _detector = HexDelayline; _layer = 'U'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
 //  case PostProcessors::HexV1NbrSignals:
-//    _detector = HexDelayline; _layer = 'V'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
 //  case PostProcessors::HexV2NbrSignals:
-//    _detector = HexDelayline; _layer = 'V'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
 //  case PostProcessors::HexW1NbrSignals:
-//    _detector = HexDelayline; _layer = 'W'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
 //  case PostProcessors::HexW2NbrSignals:
-//    _detector = HexDelayline; _layer = 'W'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
 //
 //  case PostProcessors::QuadX1NbrSignals:
-//    _detector = QuadDelayline; _layer = 'X'; _signal = '1';break;
+//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
 //  case PostProcessors::QuadX2NbrSignals:
-//    _detector = QuadDelayline; _layer = 'X'; _signal = '2';break;
+//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
 //  case PostProcessors::QuadY1NbrSignals:
-//    _detector = QuadDelayline; _layer = 'Y'; _signal = '1';break;
+//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
 //  case PostProcessors::QuadY2NbrSignals:
-//    _detector = QuadDelayline; _layer = 'Y'; _signal = '2';break;
+//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
@@ -397,16 +394,16 @@ cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   switch (_id)
   {
 //  case PostProcessors::HexU1U2Ratio:
-//    _detector = HexDelayline; _layer = 'U';break;
+//    _detector = HexDetector; _layer = 'U';break;
 //  case PostProcessors::HexV1V2Ratio:
-//    _detector = HexDelayline; _layer = 'V';break;
+//    _detector = HexDetector; _layer = 'V';break;
 //  case PostProcessors::HexW1W2Ratio:
-//    _detector = HexDelayline; _layer = 'W';break;
+//    _detector = HexDetector; _layer = 'W';break;
 //
 //  case PostProcessors::HexX1X2Ratio:
-//    _detector = QuadDelayline; _layer = 'X';break;
+//    _detector = QuadDetector; _layer = 'X';break;
 //  case PostProcessors::HexY1Y2Ratio:
-//    _detector = QuadDelayline; _layer = 'X';break;
+//    _detector = QuadDetector; _layer = 'X';break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
@@ -459,26 +456,26 @@ cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   switch (_id)
   {
 //  case PostProcessors::HexU1McpRatio:
-//    _detector = HexDelayline; _layer = 'U'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
 //  case PostProcessors::HexU2McpRatio:
-//    _detector = HexDelayline; _layer = 'U'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
 //  case PostProcessors::HexV1McpRatio:
-//    _detector = HexDelayline; _layer = 'V'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
 //  case PostProcessors::HexV2McpRatio:
-//    _detector = HexDelayline; _layer = 'V'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
 //  case PostProcessors::HexW1McpRatio:
-//    _detector = HexDelayline; _layer = 'W'; _signal = '1';break;
+//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
 //  case PostProcessors::HexW2McpRatio:
-//    _detector = HexDelayline; _layer = 'W'; _signal = '2';break;
+//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
 
 //  case PostProcessors::QuadX1McpRatio:
-//    _detector = QuadDelayline; _layer = 'X'; _signal = '1';break;
+//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
 //  case PostProcessors::QuadX2McpRatio:
-//    _detector = QuadDelayline; _layer = 'X'; _signal = '2';break;
+//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
 //  case PostProcessors::QuadY1McpRatio:
-//    _detector = QuadDelayline; _layer = 'Y'; _signal = '1';break;
+//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
 //  case PostProcessors::QuadY2McpRatio:
-//    _detector = QuadDelayline; _layer = 'Y'; _signal = '2';break;
+//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
   }
@@ -531,9 +528,9 @@ cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   switch (_id)
   {
 //  case PostProcessors::HexRekMcpRatio:
-//    _detector = HexDelayline;break;
+//    _detector = HexDetector;break;
 //  case PostProcessors::QuadRekMcpRatio:
-//    _detector = QuadDelayline;break;
+//    _detector = QuadDetector;break;
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
   }

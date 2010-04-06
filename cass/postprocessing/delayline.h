@@ -5,6 +5,7 @@
 
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/backend.h"
+#include "cass_acqiris.h"
 
 namespace cass
 {
@@ -33,7 +34,7 @@ namespace cass
 
   protected:
     /*! The detector we are there for*/
-    size_t _detector;
+    ACQIRIS::Detectors _detector;
 
     /*! The Histogram storing the info*/
     Histogram1DFloat  *_nbrSignals;
