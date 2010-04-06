@@ -1,5 +1,5 @@
 // Copyright (C) 2010 lmf
-// Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Jochen Kuepper
 
 #ifndef __POSTPROCESSOR_H__
 #define __POSTPROCESSOR_H__
@@ -201,13 +201,29 @@ namespace cass
             HexV2NbrSignals=554,
             HexW1NbrSignals=555,
             HexW2NbrSignals=556,
+            HexU1U2Ratio=557,
+            HexU1McpRatio=558,
+            HexU2McpRatio=559,
+            HexV1V2Ratio=560,
+            HexV1McpRatio=561,
+            HexV2McpRatio=562,
+            HexW1W2Ratio=563,
+            HexW1McpRatio=564,
+            HexW2McpRatio=565,
+            HexRekMcpRatio=566,
 
             QuadMCPNbrSignals=600,
-            QuadU1NbrSignals=601,
-            QuadU2NbrSignals=602,
-            QuadV1NbrSignals=603,
-            QuadV2NbrSignals=604,
-
+            QuadX1NbrSignals=601,
+            QuadX2NbrSignals=602,
+            QuadY1NbrSignals=603,
+            QuadY2NbrSignals=604,
+            QuadX1X2Ratio=557,
+            QuadX1McpRatio=558,
+            QuadX2McpRatio=559,
+            QuadY1Y2Ratio=560,
+            QuadY1McpRatio=561,
+            QuadY2McpRatio=562,
+            QuadRekMcpRatio=566,
         };
 
         /** Container of all currently available histograms */
