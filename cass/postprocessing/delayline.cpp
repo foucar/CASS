@@ -591,7 +591,7 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp567::~pp567()
 {
-  delete _ratio;
+  delete _tof;
   _tof=0;
   _histograms[_id] =  _tof;
 }
