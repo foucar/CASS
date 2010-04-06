@@ -271,73 +271,73 @@ namespace cass
 
 
 
-/*! @brief Detector Picture of First Hit
+  /*! @brief Detector Picture of First Hit
 
-This postprocessor will output the Detector picture of the first Hit
-in the selectable good range. The added Hit fullfilles the timesum.
-(pp574-577, pp617)
+  This postprocessor will output the Detector picture of the first Hit
+  in the selectable good range. The added Hit fullfilles the timesum.
+  (pp574-577, pp617)
 
-@author Lutz Foucar
+  @author Lutz Foucar
+  */
+  class pp574 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor */
+    pp574(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp574();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The first layer of the detector for the position */
+    char _first;
+    /*! The second layer of the detector for the position */
+    char _second;
+    /*! The Histogram storing the info*/
+    Histogram2DFloat  *_pos;
+  };
+
+
+
+
+
+
+  /*! @brief Detector Hits Values
+
+  This postprocessor will output the Detector Hit values reqeuested.
+  depending on the postprocessor id, it will histogram 2 of the 3 values
+  of an detectorhit.
+  (pp578-580, pp618-620)
+
+  @author Lutz Foucar
 */
-class pp574 : public PostprocessorBackend
-{
-public:
-  /*! Constructor */
-  pp574(PostProcessors::histograms_t&, PostProcessors::id_t);
-  /** Free _image space */
-  virtual ~pp574();
-  /*! Retrieve the number of Signals and histogram it */
-  virtual void operator()(const CASSEvent&);
-  /*! load the histogram settings from file*/
-  virtual void loadParameters(size_t);
+  class pp578 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor */
+    pp578(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp578();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
 
-protected:
-  /*! The detector we are there for*/
-  ACQIRIS::Detectors _detector;
-  /*! The first layer of the detector for the position */
-  char _first;
-  /*! The second layer of the detector for the position */
-  char _second;
-  /*! The Histogram storing the info*/
-  Histogram2DFloat  *_pos;
-};
-
-
-
-
-
-
-/*! @brief Detector Hits Values
-
-This postprocessor will output the Detector Hit values reqeuested.
-depending on the postprocessor id, it will histogram 2 of the 3 values
-of an detectorhit.
-(pp578-580, pp618-620)
-
-@author Lutz Foucar
-*/
-class pp578 : public PostprocessorBackend
-{
-public:
-  /*! Constructor */
-  pp578(PostProcessors::histograms_t&, PostProcessors::id_t);
-  /** Free _image space */
-  virtual ~pp578();
-  /*! Retrieve the number of Signals and histogram it */
-  virtual void operator()(const CASSEvent&);
-  /*! load the histogram settings from file*/
-  virtual void loadParameters(size_t);
-
-protected:
-  /*! The detector we are there for*/
-  ACQIRIS::Detectors _detector;
-  /*! The first value of the detector hit */
-  char _first;
-  /*! The second value of the detector */
-  char _second;
-  /*! The Histogram storing the info*/
-  Histogram2DFloat  *_det;
-};
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The first value of the detector hit */
+    char _first;
+    /*! The second value of the detector */
+    char _second;
+    /*! The Histogram storing the info*/
+    Histogram2DFloat  *_hist;
+  };
 
 }//end cass
 

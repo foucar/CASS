@@ -607,19 +607,17 @@ void cass::pp567::loadParameters(size_t)
 
 void cass::pp567::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //reference to all found peaks of the mcp channel//
-  const DelaylineDetector::dethits_t &mcpSignals = det->mcp().peaks();
+  const Signal::peaks_t &mcpSignals = det->mcp().peaks();
   //fill all found peaks into the histogram//
-  for (DelaylineDetector::dethits_t::const_iterator it = mcpSignals.begin();
+  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
        it != mcpSignals.end();
        ++it)
     _tof->fill(it->time());
-*/
 }
 
 
@@ -674,13 +672,11 @@ void cass::pp568::loadParameters(size_t)
 
 void cass::pp568::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   _timesum->fill(det->timesum(_layer));
-*/
 }
 
 
@@ -736,13 +732,11 @@ void cass::pp571::loadParameters(size_t)
 
 void cass::pp571::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  _timesum->fill(det->position(_layer),det->timesum(_layer));
-*/
+  _timesumvsPos->fill(det->position(_layer),det->timesum(_layer));
 }
 
 
@@ -797,24 +791,22 @@ void cass::pp574::loadParameters(size_t)
 
 void cass::pp574::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //get the requested layers//
-  const AnodeLayer &f = det->layers()[_first];
-  const AnodeLayer &s = det->layers()[_second];
+  AnodeLayer &f = det->layers()[_first];
+  AnodeLayer &s = det->layers()[_second];
   //get the timesums for the layers//
-  const double tsf = set->timesum(_first);
-  const double tss = set->timesum(_second);
+  const double tsf = det->timesum(_first);
+  const double tss = det->timesum(_second);
   //check timesum//
   const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
   const bool css = (s.tsLow() < tss && tss < s.tsHigh());
   //only fill when timesum is fullfilled
   if (csf && css)
     _pos->fill(f.position(),s.position());
-*/
 }
 
 
@@ -858,23 +850,22 @@ cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp578::~pp578()
 {
-  delete _det;
-  _det=0;
-  _histograms[_id] =  _det;
+  delete _hist;
+  _hist=0;
+  _histograms[_id] =  _hist;
 }
 
 void cass::pp578::loadParameters(size_t)
 {
   //create the histogram
-  set2DHist(_det,_id);
-  _histograms[_id] =  _det;
+  set2DHist(_hist,_id);
+  _histograms[_id] =  _hist;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp578::operator()(const cass::CASSEvent &evt)
 {
-/*
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det =
@@ -886,9 +877,8 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
        it != hits.end();
        ++it)
   {
-    _det.fill(it->values()[_first],it->values()[_second]);
+    _hist->fill(it->values()[_first],it->values()[_second]);
   }
-*/
 }
 
 
