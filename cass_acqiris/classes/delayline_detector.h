@@ -130,10 +130,9 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public DetectorBackend
     {
     public:
-      /** default constructor */
-      DelaylineDetector()
+      /** constructor telling what kind of delayline detector we are*/
+      DelaylineDetector(DelaylineType type)
         :DetectorBackend(Delayline),
-       
          _name("Sucker"),
          _runtime(0),
          _wLayerOffset(100),
@@ -141,7 +140,7 @@ namespace cass
          _deadMcp(1000),
          _deadAnode(1000),
          _layersToUse(UV),
-         _delaylinetype(Hex)
+         _delaylinetype(type)
       { _analyzerType =DelaylineSimple;}
 
     public:
@@ -289,7 +288,6 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
     _wLayerOffset = p->value("WLayerOffset",0.).toDouble();
     break;
   }
-  _delaylinetype   = static_cast<DelaylineType>(p->value("DelaylineType",Quad).toInt());
   //add and load layers according the the delayline type//
   switch (_delaylinetype)
   {
@@ -328,7 +326,6 @@ void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
     break;
   }
   //save according to the delayline type//
-  p->setValue("DelaylineType",static_cast<int>(_delaylinetype));
   switch (_delaylinetype)
   {
   case Hex:
