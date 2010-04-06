@@ -67,16 +67,11 @@ namespace cass
     const uint64_t _key;
   };
 
-  /*! Helper for Acqiris related Postprocessors
-  This class will retrun the requested detector, which signals are going to
+  /*! @brief Helper for Acqiris related Postprocessors
+  This class will return the requested detector, which signals are going to
   a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
   can call it without knowing about it.
-  @todo how do I have only one container which contains all waveform analyzer and other analyzers,
-        mabye we can make it such that we don't need them, since they are only functions. But we have
-        to create pointers to classes since we need the choice... Therefore we need to make sure, that
-        the analyzers don't contain to much info, such that we can easily create once function class
-        for each detector / signal of the detector??
-*/
+  */
   class HelperAcqirisDetectors
   {
   public:
@@ -93,7 +88,7 @@ namespace cass
     return the detector from our list*/
     DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
     /** tell the detector owned by this instance to reload its settings*/
-    void loadParameters(size_t);
+    void loadParameters(size_t=0);
   protected:
     /** typdef defining the list of detectors for more readable code*/
     typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
@@ -122,7 +117,7 @@ namespace cass
         //copy the informtion of our detector to this detector//
         *det = *_detector;
         //process the detector using the detectors analyzers in a global contaxiner
-        _detectoranalyzer[det->analyzerType()]->analyze(*det, dev->channels());
+        (*_detectoranalyzer[det->analyzerType()])(*det, dev->channels());
         //create a new key from the id with the reloaded detector
         detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
         //put it to the beginning of the list//
@@ -286,16 +281,17 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 //  case PostProcessors::QuadMCPNbrSignals:
 //    _detector = QuadDelayline;break;
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument("this postprocessor is not responsible for Nbr Signals Postprocessor");
   }
   //create the histogram by loading the settings//
-  loadSettings(0);
+  loadParameters(0);
 }
 
 cass::pp550::~pp550()
 {
   delete _nbrSignals;
   _nbrSignals=0;
+  _histograms[_id] =  _nbrSignals;
 }
 
 void cass::pp550::loadParameters(size_t)
@@ -303,10 +299,19 @@ void cass::pp550::loadParameters(size_t)
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
+  //load the detectors settings
+//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp550::operator()(const cass::CASSEvent &evt)
 {
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->fill(det->mcp().peaks().size());
+*/
 }
 
 
@@ -323,36 +328,39 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   switch (_id)
   {
 //  case PostProcessors::HexU1NbrSignals:
-//    _detector = ; _layer = 'U'; _signal = '1';break;
+//    _detector = HexDelayline; _layer = 'U'; _signal = '1';break;
 //  case PostProcessors::HexU2NbrSignals:
-//    _detector = ; _layer = 'U'; _signal = '2';break;
+//    _detector = HexDelayline; _layer = 'U'; _signal = '2';break;
 //  case PostProcessors::HexV1NbrSignals:
-//    _detector = ; _layer = 'V'; _signal = '1';break;
+//    _detector = HexDelayline; _layer = 'V'; _signal = '1';break;
 //  case PostProcessors::HexV2NbrSignals:
-//    _detector = ; _layer = 'V'; _signal = '2';break;
+//    _detector = HexDelayline; _layer = 'V'; _signal = '2';break;
 //  case PostProcessors::HexW1NbrSignals:
-//    _detector = ; _layer = 'W'; _signal = '1';break;
+//    _detector = HexDelayline; _layer = 'W'; _signal = '1';break;
 //  case PostProcessors::HexW2NbrSignals:
-//    _detector = ; _layer = 'W'; _signal = '2';break;
+//    _detector = HexDelayline; _layer = 'W'; _signal = '2';break;
 //
 //  case PostProcessors::QuadX1NbrSignals:
-//    _detector = ; _layer = 'X'; _signal = '1';break;
+//    _detector = QuadDelayline; _layer = 'X'; _signal = '1';break;
 //  case PostProcessors::QuadX2NbrSignals:
-//    _detector = ; _layer = 'X'; _signal = '2';break;
+//    _detector = QuadDelayline; _layer = 'X'; _signal = '2';break;
 //  case PostProcessors::QuadY1NbrSignals:
-//    _detector = ; _layer = 'Y'; _signal = '1';break;
+//    _detector = QuadDelayline; _layer = 'Y'; _signal = '1';break;
 //  case PostProcessors::QuadY2NbrSignals:
-//    _detector = ; _layer = 'Y'; _signal = '2';break;
+//    _detector = QuadDelayline; _layer = 'Y'; _signal = '2';break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
   }
+  //create the histogram by loading the settings//
+  loadParameters(0);
 }
 
 cass::pp551::~pp551()
 {
   delete _nbrSignals;
   _nbrSignals=0;
+  _histograms[_id] =  _nbrSignals;
 }
 
 void cass::pp551::loadParameters(size_t)
@@ -360,10 +368,19 @@ void cass::pp551::loadParameters(size_t)
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
+  //load the detectors settings
+//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp551::operator()(const cass::CASSEvent &evt)
 {
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->fill(det->layers()[layer].wireend()[_signal].peaks().size());
+*/
 }
 
 
@@ -376,18 +393,55 @@ void cass::pp551::operator()(const cass::CASSEvent &evt)
 cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+//  case PostProcessors::HexU1U2Ratio:
+//    _detector = HexDelayline; _layer = 'U';break;
+//  case PostProcessors::HexV1V2Ratio:
+//    _detector = HexDelayline; _layer = 'V';break;
+//  case PostProcessors::HexW1W2Ratio:
+//    _detector = HexDelayline; _layer = 'W';break;
+//
+//  case PostProcessors::HexX1X2Ratio:
+//    _detector = QuadDelayline; _layer = 'X';break;
+//  case PostProcessors::HexY1Y2Ratio:
+//    _detector = QuadDelayline; _layer = 'X';break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
 }
 
 cass::pp557::~pp557()
 {
+  delete _ratio;
+  _ratio=0;
+  _histograms[_id] =  _ratio;
 }
 
 void cass::pp557::loadParameters(size_t)
 {
+  //create the histogram
+  set1DHist(_ratio,_id);
+  _histograms[_id] =  _ratio;
+  //load the detectors settings
+//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp557::operator()(const cass::CASSEvent &evt)
 {
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  const float one = det->layers()[layer].wireend()['1'].peaks().size();
+  const float two = det->layers()[layer].wireend()['2'].peaks().size();
+  _ratio->fill(one/two);
+*/
 }
 
 
@@ -401,18 +455,64 @@ void cass::pp557::operator()(const cass::CASSEvent &evt)
 cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+//  case PostProcessors::HexU1McpRatio:
+//    _detector = HexDelayline; _layer = 'U'; _signal = '1';break;
+//  case PostProcessors::HexU2McpRatio:
+//    _detector = HexDelayline; _layer = 'U'; _signal = '2';break;
+//  case PostProcessors::HexV1McpRatio:
+//    _detector = HexDelayline; _layer = 'V'; _signal = '1';break;
+//  case PostProcessors::HexV2McpRatio:
+//    _detector = HexDelayline; _layer = 'V'; _signal = '2';break;
+//  case PostProcessors::HexW1McpRatio:
+//    _detector = HexDelayline; _layer = 'W'; _signal = '1';break;
+//  case PostProcessors::HexW2McpRatio:
+//    _detector = HexDelayline; _layer = 'W'; _signal = '2';break;
+
+//  case PostProcessors::QuadX1McpRatio:
+//    _detector = QuadDelayline; _layer = 'X'; _signal = '1';break;
+//  case PostProcessors::QuadX2McpRatio:
+//    _detector = QuadDelayline; _layer = 'X'; _signal = '2';break;
+//  case PostProcessors::QuadY1McpRatio:
+//    _detector = QuadDelayline; _layer = 'Y'; _signal = '1';break;
+//  case PostProcessors::QuadY2McpRatio:
+//    _detector = QuadDelayline; _layer = 'Y'; _signal = '2';break;
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
 }
 
 cass::pp558::~pp558()
 {
+  delete _ratio;
+  _ratio=0;
+  _histograms[_id] =  _ratio;
 }
 
 void cass::pp558::loadParameters(size_t)
 {
+  //create the histogram
+  set1DHist(_ratio,_id);
+  _histograms[_id] =  _ratio;
+  //load the detectors settings
+//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp558::operator()(const cass::CASSEvent &evt)
 {
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  const float wireend = det->layers()[layer].wireend()[_wireend].peaks().size();
+  const float mcp = det->mcp().peaks().size();
+  _ratio->fill(wireend/mcp);
+*/
 }
 
 
@@ -427,17 +527,46 @@ void cass::pp558::operator()(const cass::CASSEvent &evt)
 cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+//  case PostProcessors::HexRekMcpRatio:
+//    _detector = HexDelayline;break;
+//  case PostProcessors::QuadRekMcpRatio:
+//    _detector = QuadDelayline;break;
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
 }
 
 cass::pp566::~pp566()
 {
+  delete _ratio;
+  _ratio=0;
+  _histograms[_id] =  _ratio;
 }
 
 void cass::pp566::loadParameters(size_t)
 {
+  //create the histogram
+  set1DHist(_ratio,_id);
+  _histograms[_id] =  _ratio;
+  //load the detectors settings
+//  HelperAcqirisDetectors::instance(_detector)->loadParameters();
 }
 
 void cass::pp566::operator()(const cass::CASSEvent &evt)
 {
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  const float rek = det->hits().size();
+  const float mcp = det->mcp().peaks().size();
+  _ratio->fill(rek/mcp);
+*/
 }
 
