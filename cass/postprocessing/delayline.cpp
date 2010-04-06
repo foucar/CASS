@@ -746,3 +746,149 @@ void cass::pp571::operator()(const cass::CASSEvent &evt)
 }
 
 
+
+
+
+
+
+
+
+
+//----------------Detector First Hit-------------------------------------------
+//-----------pp574-577, pp617--------------------------------------------------
+cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexFirstUV:
+    _detector = HexDetector; _first = 'U'; _second = 'V'; break;
+  case PostProcessors::HexFirstUW:
+    _detector = HexDetector; _first = 'U'; _second = 'W'; break;
+  case PostProcessors::HexFirstVW:
+    _detector = HexDetector; _first = 'V'; _second = 'W'; break;
+
+  case PostProcessors::QuadFirstXY:
+    _detector = QuadDetector; _first = 'X'; _second = 'Y'; break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp574::~pp574()
+{
+  delete _pos;
+  _pos=0;
+  _histograms[_id] =  _pos;
+}
+
+void cass::pp574::loadParameters(size_t)
+{
+  //create the histogram
+  set2DHist(_pos,_id);
+  _histograms[_id] =  _pos;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp574::operator()(const cass::CASSEvent &evt)
+{
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //get the requested layers//
+  const AnodeLayer &f = det->layers()[_first];
+  const AnodeLayer &s = det->layers()[_second];
+  //get the timesums for the layers//
+  const double tsf = set->timesum(_first);
+  const double tss = set->timesum(_second);
+  //check timesum//
+  const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
+  const bool css = (s.tsLow() < tss && tss < s.tsHigh());
+  //only fill when timesum is fullfilled
+  if (csf && css)
+    _pos->fill(f.position(),s.position());
+*/
+}
+
+
+
+
+
+
+
+
+
+
+
+//----------------Detector Values----------------------------------------------
+//-----------pp578-580, pp61-620-----------------------------------------------
+cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexXY:
+    _detector = HexDetector; _first = 'x'; _second = 'y'; break;
+  case PostProcessors::HexXT:
+    _detector = HexDetector; _first = 't'; _second = 'x'; break;
+  case PostProcessors::HexYT:
+    _detector = HexDetector; _first = 'x'; _second = 'y'; break;
+
+  case PostProcessors::QuadXY:
+    _detector = QuadDetector; _first = 'x'; _second = 'y'; break;
+  case PostProcessors::QuadXT:
+    _detector = QuadDetector; _first = 't'; _second = 'x'; break;
+  case PostProcessors::QuadYT:
+    _detector = QuadDetector; _first = 't'; _second = 'y'; break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp578::~pp578()
+{
+  delete _det;
+  _det=0;
+  _histograms[_id] =  _det;
+}
+
+void cass::pp578::loadParameters(size_t)
+{
+  //create the histogram
+  set2DHist(_det,_id);
+  _histograms[_id] =  _det;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp578::operator()(const cass::CASSEvent &evt)
+{
+/*
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //get the hits//
+  DelaylineDetector::dethits_t &hits = det->hits();
+  //go through all hits of the detector//
+  for (DelaylineDetector::dethits_t::iterator it = hits.begin();
+       it != hits.end();
+       ++it)
+  {
+    _det.fill(it->values()[_first],it->values()[_second]);
+  }
+*/
+}
+
+
