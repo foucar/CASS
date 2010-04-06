@@ -11,7 +11,10 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
-#include "detector_backend.h"
+#include "com.h"
+#include "cfd.h"
+#include "delayline_detector_analyzer_simple.h"
+#include "delayline_detector.h"
 
 namespace cass
 {
@@ -78,10 +81,14 @@ namespace cass
   {
   public:
     /** create an instance of an helper for the requested detector,
-    if it doesn't exist already*/
+    if it doesn't exist already. Create the maps with analyzers
+    @todo creating the list of analyzers might be more useful inside the constuctor. But
+          then there would be a map for each detector.. We need to change this to
+          let the detectors calculate the requested vaules lazly in the near future
+  */
     static HelperAcqirisDetectors * instance(Detectors);
-    /** destroy the selected instance*/
-    static void destroy(Detectors);
+    /** destroy the whole helper*/
+    static void destroy();
     /** after validating that the event for this detector exists,
     return the detector from our list*/
     DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
@@ -90,12 +97,15 @@ namespace cass
   protected:
     /** typdef defining the list of detectors for more readable code*/
     typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
+    /** typdef defining the list of detectoranalyzers*/
+    typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
+    /** typdef defining the list of waveformanalyzers*/
+    typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
     /** validate whether we have already seen this event
     if not than add a detector, that is copy constructed or
     assigned from the detector this instance owns, to the list.
     return the pointer to this detector
-    @todo make another member, process that will do exactly the same thing that the acqiris analyzer has done,
-          but just for this single one detector. This is done for just now, to make it work as fast as possible*/
+    */
     DetectorBackend * validate(const CASSEvent &evt)
     {
     /*//find the pair containing the detector//
@@ -104,13 +114,23 @@ namespace cass
       //check wether id is not already on the list//
       if(_detectorList.end() == it)
       {
+        //retrieve a pointer to the acqiris device//
+        Device *dev =
+            dynamic_cast<Device*>(evt->devices().find(cass::CASSEvent::Acqiris)->second);
         //take the last element and get the the detector from it//
-        //assign this detector to it (this might already fill it with all necessary variables)//
-        //let the detector know which event it should be working on//
-        //create a new key from the id with the newly created detector and put it//
-        //to the beginning of the list//
+        DetectorBackend* det = _detectorList.back().second;
+        //copy the informtion of our detector to this detector//
+        *det = *_detector;
+        //process the detector using the detectors analyzers in a global contaxiner
+        _detectoranalyzer[det->analyzerType()]->analyze(*det, dev->channels());
+        //create a new key from the id with the reloaded detector
+        detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
+        //put it to the beginning of the list//
+        _detectorList.push_front(newPair);
+        //erase the outdated element at the back//
+        _detectorList.pop_back();
         //make the iterator pointing to the just added element of the list//
-        //process the newly added detector using the detectors analyzers in a global contaxiner
+        it = _detectorList.begin();
       }*/
       return 0; //it->second
     }
@@ -123,8 +143,11 @@ namespace cass
     /** the detector that is belongs to this instance of the helper*/
     DetectorBackend *_detector;
   private:
-    /** prevent people from constructin other than using instance()*/
+    /** prevent people from constructin other than using instance().*/
     HelperAcqirisDetectors() {}
+    /** create our instance of the detector depending on the detector type
+        and the list of detectors */
+    HelperAcqirisDetectors(Detectors);
     /** prevent copy-construction*/
     HelperAcqirisDetectors(const HelperAcqirisDetectors&);
     /** prevent destruction other than trhough destroy(),
@@ -135,6 +158,10 @@ namespace cass
     /** the instances of this class put into map
     one instance for each available detector*/
     static std::map<Detectors,HelperAcqirisDetectors*> _instances;
+    /** global list of analyzers for waveforms */
+    static waveformanalyzer_t _waveformanalyzer;
+    /** global list of analyzers for detectors */
+    static detectoranalyzer_t _detectoranalyzer;
     /** Singleton Mutex to lock write operations*/
     static QMutex _mutex;
   };
@@ -144,19 +171,94 @@ namespace cass
 
 //--the helper--
 //initialize static members//
-std::map<cass::ACQIRIS::Detectors,cass::HelperAcqirisDetectors*> cass::HelperAcqirisDetectors::_instances;
+std::map<cass::ACQIRIS::Detectors,cass::HelperAcqirisDetectors*>
+    cass::HelperAcqirisDetectors::_instances;
+std::map<cass::ACQIRIS::DetectorAnalyzers, cass::ACQIRIS::DetectorAnalyzerBackend*>
+    cass::HelperAcqirisDetectors::_detectoranalyzer;
+std::map<cass::ACQIRIS::WaveformAnalyzers, cass::ACQIRIS::WaveformAnalyzerBackend*>
+    cass::HelperAcqirisDetectors::_waveformanalyzer;
 QMutex cass::HelperAcqirisDetectors::_mutex;
 
-cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(Detectors)
+cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIRIS::Detectors dettype)
 {
+  /*
+  using namespace cass::ACQIRIS;
+  //if the maps with the analyzers are empty, fill them//
+  if (_waveformanalyzer.empty())
+  {
+    _waveformanalyzer[cfd8]  = new CFD8Bit();
+    _waveformanalyzer[cfd16] = new CFD16Bit();
+    _waveformanalyzer[com8]  = new CoM8Bit();
+    _waveformanalyzer[com16] = new CoM16Bit();
+  }
+  if (_detectoranalyzer.empty())
+  {
+    _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
+  }
   //check if an instance of the helper class already exists//
   //return it, otherwise create one and return it//
-  return 0;
+  if (0 == _instances[dettype])
+    _instances[dettype] = new HelperAcqirisDetectors(dettype);
+  */
+  return 0; //_instances[dettype];
 }
-void cass::HelperAcqirisDetectors::destroy(Detectors)
+
+void cass::HelperAcqirisDetectors::destroy()
 {
-  //delete the requested instance of the helper class//
+/*  //delete all instances of the helper class//
+  for (std::map<ACQIRIS::Detectors,HelperAcqirisDetectors*>::iterator it=_instances.begin();
+       it != _instances.end();
+       ++it)
+    delete it->second;
+  //destroy all analyzers//
+  for (waveformanalyzer_t::iterator it=_waveformanalyzer.begin();
+       it != _waveformanalyzer.end();
+       ++it)
+    delete it->second;
+  for (detectoranalyzer_t::iterator it=_detectoranalyzer.begin();
+       it != _detectoranalyzer.end();
+       ++it)
+    delete it->second;
+*/
 }
+
+cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
+{
+/*  using namespace cass::ACQIRIS;
+  //create the detector
+  //create the detector list with twice the amount of elements than workers
+  switch(dettype)
+  {
+  case HexDetector:
+    {
+      _detector = new DelaylineDetector();
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex)));
+    }
+  case QuadDetector:
+    {
+      _detector = new DelaylineDetector();
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad)));
+    }
+    break;
+  default: throw std::invalid_argument("no such detector is present");
+  }
+*/
+}
+
+cass::HelperAcqirisDetectors::~HelperAcqirisDetectors()
+{
+ /* //delete the detectorList
+  for (detectorList_t::iterator it=_detectorList.begin();
+       it != _detectorList.end();
+       ++it)
+    delete it->second;
+  //delete the detector
+  delete _detector;
+*/
+}
+
 void cass::HelperAcqirisDetectors::loadParameters(size_t)
 {
   //QSettings par;
@@ -164,6 +266,10 @@ void cass::HelperAcqirisDetectors::loadParameters(size_t)
   //par.beginGroup("AcqirisDetectors");
   //_detector->loadParameters(&par);
 }
+
+
+
+
 
 
 //----------------Nbr of Peaks MCP-------------------------------------------------
