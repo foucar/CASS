@@ -1,4 +1,7 @@
-# Copyright (C) 2009 ncoppola, lmf, Jochen KÃpper
+# Copyright (C) 2009 Jochen Kuepper
+# Copyright (C) 2009,2010 Lutz Foucar
+# Copyright (C) 2009 Nicola Coppola
+
 TEMPLATE = app
 CONFIG += static
 QT += network
@@ -56,6 +59,8 @@ HEADERS +=  analysis_backend.h \
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
                 ../cass_acqiris \
                 ../cass_acqiris/classes \
+                ../cass_acqiris/classes/detector_analyzer \
+                ../cass_acqiris/classes/waveformanalyzer \
                 ../cass_ccd \
                 ../cass_pnccd \
                 ../cass_machinedata \

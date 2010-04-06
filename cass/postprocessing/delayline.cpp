@@ -11,19 +11,11 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
-//#include "com.h"
-//#include "cfd.h"
-//#include "delayline_detector_analyzer_simple.h"
-//#include "delayline_detector.h"
-#include "detector_backend.h"
-namespace cass
-{
-  namespace ACQIRIS
-  {
-    class DetectorAnalyzerBackend;
-    class WaveformAnalyzerBackend;
-  }
-}
+#include "com.h"
+#include "cfd.h"
+#include "delayline_detector_analyzer_simple.h"
+#include "delayline_detector.h"
+
 namespace cass
 {
   /** function to set the 1d histogram properties from the cass.ini file*/
