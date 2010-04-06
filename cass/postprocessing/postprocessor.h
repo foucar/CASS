@@ -111,7 +111,6 @@ namespace cass
     00574: Hex Anode Delayline Picture of First Hit UV Layers in ns
     00575: Hex Anode Delayline Picture of First Hit UW Layers in ns
     00576: Hex Anode Delayline Picture of First Hit VW Layers in ns
-    00577: Hex Anode Delayline Picture of First Hit All Layers in ns
     00578: Hex Anode Delayline Picture all Hits in mm
     00579: Hex Anode Delayline X vs Tof
     00580: Hex Anode Delayline Y vs Tof
@@ -219,6 +218,12 @@ namespace cass
             HexTimesumUvsU=571,
             HexTimesumVvsV=572,
             HexTimesumWvsW=573,
+            HexFirstUV=574,
+            HexFirstUW=575,
+            HexFirstVW=576,
+            HexXY=578,
+            HexXT=579,
+            HexYT=580,
 
             QuadMCPNbrSignals=600,
             QuadX1NbrSignals=601,
@@ -237,6 +242,10 @@ namespace cass
             QuadTimesumY=614,
             QuadTimesumXvsX=615,
             QuadTimesumYvsY=616,
+            QuadFirstXY=617,
+            QuadXY=618,
+            QuadXT=619,
+            QuadYT=620,
         };
 
         /** Container of all currently available histograms */
