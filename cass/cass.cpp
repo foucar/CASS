@@ -18,12 +18,13 @@
 
 /*!
 @mainpage CASS (<b>C</b>FEL <b>A</b>SG <b>S</b>oftware <b>S</b>uite)
-@author Lutz Foucar\n Copyright (C) 2009,2010
-@author Nicola Coppola\n Copyright (C) 2009,2010
-@author Jochen Kuepper\n Copyright (C) 2009,2010
-@section Getting CASS
+@author Lutz Foucar Copyright (C) 2009,2010
+@author Nicola Coppola Copyright (C) 2009,2010
+@author Jochen Kuepper Copyright (C) 2009,2010
+@section download Getting CASS
 You can access cass via svn from the following Repository:\n
 https://www.mpi-hd.mpg.de/repos/lutz/diode
+(please contact Lutz Foucar for access)
 */
 
 
