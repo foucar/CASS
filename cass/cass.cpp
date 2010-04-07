@@ -24,21 +24,31 @@ https://www.mpi-hd.mpg.de/repos/lutz/diode \n
 The version we are working with right now is to be found in /branches/lutz
 (please contact Lutz Foucar for access)
 @section desc Brief description about program flow
-
--Shared mem
-  -get lcls data
-  -takes out a cassevent from ringbuffer
-  -converter covnerts lcls -> cassevent
-  -puts it back to ringbuffer
--worker (mulitple)
-  -takes cassevent out of ringbuffer
-  -puts it to
-    -analyzer
-      -puts it to preanalyzers of different devices
-    -postanalyzers
-      -list of userdefined analyzers that extract info from cassevent and put results it in histograms
-  -puts it back to ringbuffer
-
+<ul>
+<li>Shared mem
+  <ul>
+  <li>get lcls data
+  <li>takes out a cassevent from ringbuffer
+  <li>converter covnerts lcls -> cassevent
+  <li>puts it back to ringbuffer
+  </ul>
+<li>worker (mulitple)
+  <ul>
+  <li>takes cassevent out of ringbuffer
+  <li>puts it to
+    <ul>
+    <li>analyzer
+      <ul>
+      <li>puts it to preanalyzers of different devices
+      </ul>
+    <li>postanalyzers
+      <ul>
+      <li>list of userdefined analyzers that extract info from cassevent and put results it in histograms
+      </ul>
+    </ul>
+  <li>puts it back to ringbuffer
+  </ul>
+<ul>
 program control is done via a tcpip interface
 accesss histograms vi tcpip interface
 
