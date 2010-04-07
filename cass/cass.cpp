@@ -38,7 +38,7 @@ The version we are working with right now is to be found in /branches/lutz
 \li\li\li    postanalyzers
 \li\li\li\li      list of userdefined analyzers that extract info from cassevent and put results it in histograms
 \li\li  puts it back to ringbuffer
-
+</ul>
 program control is done via a tcpip interface
 accesss histograms vi tcpip interface
 
