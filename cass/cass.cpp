@@ -17,7 +17,7 @@
 
 
 /*!
-@mainpage CASS (<b>C</b>FEL <b>A</b>SG <b>S</b>oftware <b>S</b>uite)
+@mainpage CASS (CFEL ASG Software Suite)
 @section download Getting CASS
 You can access cass via svn from the following Repository:\n
 https://www.mpi-hd.mpg.de/repos/lutz/diode \n
@@ -53,9 +53,9 @@ program control is done via a tcpip interface\n
 accesss histograms vi tcpip interface
 
 
-@author Nicola Coppola Copyright (C) 2009,2010
-@author Lutz Foucar Copyright (C) 2009,2010
-@author Jochen Kuepper Copyright (C) 2009,2010
+@author Nicola Coppola
+@author Lutz Foucar
+@author Jochen Kuepper
 @date 2009-2010
 */
 
