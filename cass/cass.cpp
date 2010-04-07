@@ -18,13 +18,33 @@
 
 /*!
 @mainpage CASS (<b>C</b>FEL <b>A</b>SG <b>S</b>oftware <b>S</b>uite)
-@author Lutz Foucar Copyright (C) 2009,2010
-@author Nicola Coppola Copyright (C) 2009,2010
-@author Jochen Kuepper Copyright (C) 2009,2010
 @section download Getting CASS
 You can access cass via svn from the following Repository:\n
-https://www.mpi-hd.mpg.de/repos/lutz/diode
+https://www.mpi-hd.mpg.de/repos/lutz/diode \n
+The version we are working with right now is to be found in /branches/lutz
 (please contact Lutz Foucar for access)
+@section desc Brief description about program flow
+Shared mem
+  get lcls data
+  takes out a cassevent from ringbuffer
+  converter covnerts lcls -> cassevent
+  puts it back to ringbuffer
+worker (mulitple)
+  takes cassevent out of ringbuffer
+  puts it to
+    analyzer
+      puts it to preanalyzers of different devices
+    postanalyzers
+      list of userdefined analyzers that extract info from cassevent and put results it in histograms
+  puts it back to ringbuffer
+
+program control is done via a tcpip interface
+accesss histograms vi tcpip interface
+
+
+@author Nicola Coppola Copyright (C) 2009,2010
+@author Lutz Foucar Copyright (C) 2009,2010
+@author Jochen Kuepper Copyright (C) 2009,2010
 */
 
 
