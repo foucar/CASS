@@ -49,7 +49,7 @@ The version we are working with right now is to be found in /branches/lutz
   <li>puts it back to ringbuffer
   </ul>
 <ul>
-program control is done via a tcpip interface
+program control is done via a tcpip interface\n
 accesss histograms vi tcpip interface
 
 
