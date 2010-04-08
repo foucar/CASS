@@ -25,19 +25,23 @@ namespace cass
 
 
 
-  //class that will retrive a histogram from the histogram container//
+  /*! class that will retrive a histogram from the histogram container
+    @author Lutz Foucar
+    */
   class CASSSHARED_EXPORT HistogramGetter
   {
   public:
-
+    /** constructor
+      @param histograms container of all histogram, we will retrieve the requested histograms from there
+      */
     HistogramGetter(const PostProcessors::histograms_t& histograms)
       : _histograms(histograms)
     {}
-    //function that will serializethe requested histogram to a string and return it
+    //! function that will serializethe requested histogram to a string and return it
     const std::string operator()(const HistogramParameter&) const;
 
   protected:
-    const PostProcessors::histograms_t &_histograms;  //histogram container
+    const PostProcessors::histograms_t &_histograms;  //!< histogram container
   };
 
 } //end namespace cass
