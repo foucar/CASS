@@ -101,6 +101,13 @@ cass::FormatConverter::FormatConverter()
   _usedConverters[Pds::TypeId::Id_PrincetonFrame]   = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_PrincetonConfig]  = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_FrameFccdConfig]  = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_FccdConfig]       = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_IpimbData]        = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_IpimbConfig]      = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_EncoderData]      = _availableConverters[Blank];
+  _usedConverters[Pds::TypeId::Id_EncoderConfig]    = _availableConverters[Blank];
+
 
 
   //now load the converters, that the user want to use//
@@ -138,6 +145,7 @@ void cass::FormatConverter::addConverter(cass::FormatConverter::Converters conve
     _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
     _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
     _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
+    _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[MachineData];
     break;
   default:
     break;
@@ -165,6 +173,7 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
     _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
     _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
     _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
     break;
   default:
     break;
