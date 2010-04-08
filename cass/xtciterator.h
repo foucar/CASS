@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _XTCITERATOR_H_
 #define _XTCITERATOR_H_
@@ -14,12 +14,27 @@
 
 namespace cass
 {
-  //class that will iterate over an xtc using the xtciterator provided by the lcls libary
+  /*! Iteration over XTC's
+
+  class that will iterate over an xtc using the xtciterator
+  provided by the lcls libary
+  @author Lutz Foucar
+  */
   class XtcIterator : public Pds::XtcIterator
   {
   public:
+    /** enum for more convenient code*/
     enum {Stop, Continue};
-    XtcIterator(Pds::Xtc* xtc, FormatConverter::usedConverters_t& converters, CASSEvent *cassevent, unsigned depth)
+    /** constructor taking a xtc that we will iterate over
+      @param xtc the xtc which contents we iterate over
+      @param converters the map that contains the used converters
+      @param cassevent our event to write the information from the xtc to
+      @param depth The Depth of recursion when called recursivly
+      */
+    XtcIterator(Pds::Xtc* xtc,
+                FormatConverter::usedConverters_t& converters,
+                CASSEvent *cassevent,
+                unsigned depth)
       :Pds::XtcIterator(xtc),
       _depth(depth),
       _converters(converters),
@@ -27,7 +42,11 @@ namespace cass
     {}
 
 
-    //overloaded function that is called for each xtc found in the xtc//
+    /** overloaded function that is called for each xtc found in the xtc
+
+      will check whether its an id or another xtc. if its another xtc it will call this
+      with increased recursion depth, otherwise it will call the format converter for the id.
+    */
     int process(Pds::Xtc* xtc)
     {
       //if it is another xtc, then iterate through it//
@@ -49,9 +68,9 @@ namespace cass
       return Continue;
     }
   private:
-    unsigned                           _depth;      //counts the recursivness of this
-    FormatConverter::usedConverters_t &_converters; //reference to the converters
-    CASSEvent                         *_cassevent;  //pointer to the cassevent to work on
+    unsigned                           _depth;      //!< counts the recursivness of this
+    FormatConverter::usedConverters_t &_converters; //!< reference to the converters
+    CASSEvent                         *_cassevent;  //!< pointer to the cassevent to work on
   };
 }//end namespace cass
 
