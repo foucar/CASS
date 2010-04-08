@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef __EVENT_GETTER_H__
 #define __EVENT_GETTER_H__
@@ -25,17 +25,24 @@ namespace cass
   };
 
 
-  //class that will retrieve an cassevent from the ringbuffer
-  //using the requested arguments
+  /*! Retrieve a CASSEvent from the ringbuffer
+
+    class that will retrieve an cassevent from the ringbuffer
+    using the requested arguments
+   @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT EventGetter
   {
   public:
-    EventGetter(RingBuffer<CASSEvent, RingBufferSize>&);
-    //function to retrieve the event using the event parameters//
+    /** constructor
+      @param rb Reference to the Ringbuffer to retrieve the events from
+      */
+    EventGetter(RingBuffer<CASSEvent, RingBufferSize>&rb);
+    /** function to retrieve the event using the event parameters*/
     const std::string operator()(const EventParameter&) const;
 
   protected:
-    RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer; // the ringbuffer
+    RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer; //!< the ringbuffer
   };
 
 } //end namespace cass
