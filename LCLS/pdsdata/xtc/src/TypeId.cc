@@ -1,4 +1,3 @@
-
 #include "pdsdata/xtc/TypeId.hh"
 
 using namespace Pds;
@@ -17,7 +16,7 @@ TypeId::Type TypeId::id() const {return (TypeId::Type)(_value&0xffff);}
 const char* TypeId::name(Type type)
 { 
   static const char* _names[] = {
-    "Unknown",
+    "Any",
     "Xtc",
     "Frame",
     "AcqWaveform",
@@ -33,9 +32,14 @@ const char* TypeId::name(Type type)
     "Epics",    
     "FEEGasDetEnergy",
     "EBeamBld",
-    "PhaseCavity"
-    "princetonFrame",
-    "princetonConfig",    
+    "PhaseCavity",
+    "PrincetonFrame",
+    "PrincetonConfig",    
+    "EvrData",
+    "FrameFccdConfig",
+    "FccdConfig",  
+    "IpimbData",
+    "IpimbConfig",
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

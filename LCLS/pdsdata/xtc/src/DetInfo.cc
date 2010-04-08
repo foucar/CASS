@@ -34,8 +34,9 @@ const char* DetInfo::name(Detector det){
     "amoBPS",
     "Camp",
     "epicsArch",    
-    "BldEb"
-  };
+    "BldEb",
+    "SxrBeamline",
+    "SxrEndstation"};
   return (det < NumDetector ? _detNames[det] : "-Invalid-");
 }
 
@@ -48,6 +49,8 @@ const char* DetInfo::name(Device dev) {
     "TM6740",
     "pnCCD",
     "Princeton",
+    "Fccd",
+    "Ipimb",
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

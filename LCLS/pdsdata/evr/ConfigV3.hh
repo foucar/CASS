@@ -33,8 +33,6 @@ class ConfigV3
    */
 public:
   enum { Version = 3 };
-  enum RateCode { r120Hz, r60Hz, r30Hz, r10Hz, r5Hz, r1Hz, r0_5Hz, Single, NumberOfRates };
-  enum BeamCode { Off, On };
   
   typedef EventCodeV3   EventCodeType;  
   typedef PulseConfigV3 PulseType;  
@@ -59,12 +57,6 @@ public:
 
   //  size including appended EventCode's, PulseConfigV3's and OutputMap's
   unsigned        size() const;
-
-  /*
-   * public static functions
-   */
-  static unsigned size(unsigned maxNumEventCodes, unsigned maxNumPulses, unsigned maxNumOutputMaps) ;
-  static uint8_t  opcodeFromBeamRate(BeamCode bc, RateCode rc);
   
 private:
   uint32_t _neventcodes;

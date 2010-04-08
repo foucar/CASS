@@ -14,7 +14,7 @@ class EventCodeV3
 {
 public:
   EventCodeV3(
-    uint8_t  u8Code,
+    uint16_t u16Code,
     bool     bReadout,
     bool     bTerminator,    
     uint32_t u32MaskTrigger = 0,
@@ -23,9 +23,9 @@ public:
     
   EventCodeV3() {} // For array initialization
 
-  uint8_t   code        () const { return _u8Code; }
-  bool      isReadout   () const { return ( _u8MaskEventAttr & (1<<EventAttrBitReadout) )     != 0; }
-  bool      isTerminator() const { return ( _u8MaskEventAttr & (1<<EventAttrBitTerminator) )  != 0; }
+  uint16_t  code        () const { return _u16Code; }
+  bool      isReadout   () const { return ( _u16MaskEventAttr & (1<<EventAttrBitReadout) )     != 0; }
+  bool      isTerminator() const { return ( _u16MaskEventAttr & (1<<EventAttrBitTerminator) )  != 0; }
   uint32_t  maskTrigger () const { return _u32MaskTrigger; }
   uint32_t  maskSet     () const { return _u32MaskSet; }
   uint32_t  maskClear   () const { return _u32MaskClear; }
@@ -33,8 +33,8 @@ public:
 private:
   enum EventAttrBitEnum { EventAttrBitReadout = 0, EventAttrBitTerminator = 1 };
     
-  uint8_t  _u8Code;
-  uint8_t  _u8MaskEventAttr;
+  uint16_t _u16Code;
+  uint16_t _u16MaskEventAttr;
   uint32_t _u32MaskTrigger;
   uint32_t _u32MaskSet;
   uint32_t _u32MaskClear;

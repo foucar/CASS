@@ -6,15 +6,15 @@ using namespace Pds;
 using namespace EvrData;
 
 EventCodeV3::EventCodeV3(
-  uint8_t  u8Code,
+  uint16_t u16Code,
   bool     bReadout,
   bool     bTerminator,
   uint32_t u32MaskTrigger,
   uint32_t u32MaskSet, 
   uint32_t u32MaskClear
   ) :
-  _u8Code           (u8Code),
-  _u8MaskEventAttr  ((bReadout?    (1 << EventAttrBitReadout)    :0) | 
+  _u16Code          (u16Code),
+  _u16MaskEventAttr ((bReadout?    (1 << EventAttrBitReadout)    :0) | 
                      (bTerminator? (1 << EventAttrBitTerminator) :0)),
   _u32MaskTrigger   (u32MaskTrigger),
   _u32MaskSet       (u32MaskSet),

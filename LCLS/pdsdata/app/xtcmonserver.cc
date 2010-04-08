@@ -11,6 +11,7 @@
 #ifdef _POSIX_MESSAGE_PASSING
 #include <mqueue.h>
 #endif
+#include <new>
 
 #include "pdsdata/xtc/DetInfo.hh"
 #include "pdsdata/xtc/ProcInfo.hh"
@@ -69,12 +70,7 @@ Dgram* next(FILE* _file, unsigned _maxDgramSize, char* _bufferP) {
   unsigned header = sizeof(dg);
   fread(&dg, header, 1, _file);
   if (feof(_file)) {
-   if (loop) {
-     rewind(_file);
-     return next(_file, _maxDgramSize, _bufferP);
-   } else {
-     return 0;
-   }
+    return 0;
   }
   unsigned payloadSize = dg.xtc.sizeofPayload();
   if ((payloadSize+header)>_maxDgramSize) {
@@ -83,17 +79,30 @@ Dgram* next(FILE* _file, unsigned _maxDgramSize, char* _bufferP) {
    }
    fread(_bufferP+header, payloadSize, 1, _file);
    if (feof(_file)) {
-     if (loop) {
-       rewind(_file);
-       return next(_file, _maxDgramSize, _bufferP);
-     }
-     else {
-       return 0;
-     }
+     return 0;
    }
    return &dg;
 }
 
+//
+//  Insert a simulated transition
+//
+void insert(TransitionId::Value tr, mqd_t myInputQueue, mqd_t myOutputQueue, 
+	    char* myShm, unsigned sizeOfBuffers, Msg& myMsg)
+{
+  unsigned priority;
+  char* bufferP;
+  if (mq_receive(myInputQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0) perror("mq_receive buffer");
+  else {
+    bufferP = myShm + (sizeOfBuffers * myMsg.bufferIndex());
+    Dgram* dg = (Dgram*)bufferP;
+    new((void*)&dg->seq) Sequence(Sequence::Event, tr, ClockTime(0,0), TimeStamp(0,0,0,0));
+    new((char*)&dg->xtc) Xtc(TypeId(TypeId::Id_Xtc,0),ProcInfo(Level::Recorder,0,0));
+    if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), 0)) perror("mq_send buffer");
+    printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x, using buffer %d\n",TransitionId::name(dg->seq.service()),
+	   dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload(), myMsg.bufferIndex());
+  }
+}
 
 int main(int argc, char* argv[]) {
   int c;
@@ -178,7 +187,7 @@ int main(int argc, char* argv[]) {
 
   long long int period = 1000000000 / rate;
   sleepTime.tv_sec = 0;
-  long long int busyTime;
+  long long int busyTime = period;
 
   struct mq_attr mymq_attr;
   mymq_attr.mq_maxmsg = numberOfBuffers+4;
@@ -213,31 +222,38 @@ int main(int argc, char* argv[]) {
     if (mq_send(myInputQueue, (const char *)myMsg.bufferIndex(i), sizeof(Msg), 0)) perror("mq_send inQueueStuffing");
   }
 
-  Dgram* dg;
   do {
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
-    if (mq_receive(myInputQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0) perror("mq_receive buffer");
-    else {
-      bufferP = myShm + (sizeOfBuffers * myMsg.bufferIndex());
-      if ((dg = next(file, sizeOfBuffers, bufferP))) {
-	if ((dg->seq.service()==TransitionId::L1Accept) && loop) L1AcceptOnly = true;
-	else if (L1AcceptOnly) {
-	  while (dg->seq.service()!=TransitionId::L1Accept) {
-	    dg = next(file, sizeOfBuffers, bufferP);
-	  }
-	}
-	if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), 0)) perror("mq_send buffer");
-	printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x, using buffer %d, spareTime %lld\n",TransitionId::name(dg->seq.service()),
+
+    insert(TransitionId::Map, myInputQueue, myOutputQueue, myShm, sizeOfBuffers, myMsg);
+
+    Dgram* dg;
+
+    do {
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start);
+      if (mq_receive(myInputQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0) perror("mq_receive buffer");
+      else {
+	bufferP = myShm + (sizeOfBuffers * myMsg.bufferIndex());
+	if ((dg = next(file, sizeOfBuffers, bufferP))) {
+	  if (mq_send(myOutputQueue, (const char *)&myMsg, sizeof(myMsg), 0)) perror("mq_send buffer");
+	  printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x, using buffer %d, spareTime %lld\n",TransitionId::name(dg->seq.service()),
 		 dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload(), myMsg.bufferIndex(), period - busyTime);
+	}
       }
-    }
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
-    busyTime = timeDiff(&now, &start);
-    if (period > busyTime) {
-      sleepTime.tv_nsec = period - busyTime;
-      if (nanosleep(&sleepTime, &now)<0) perror("nanosleep");
-    }
-  } while (dg);
+      clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
+      busyTime = timeDiff(&now, &start);
+      if (period > busyTime) {
+	sleepTime.tv_nsec = period - busyTime;
+	if (nanosleep(&sleepTime, &now)<0) perror("nanosleep");
+      }
+    } while (dg);
+
+    if (mq_send(myInputQueue, (const char *)&myMsg, sizeof(Msg), 0)) perror("mq_send inQueueStuffing");
+    insert(TransitionId::Unconfigure, myInputQueue, myOutputQueue, myShm, sizeOfBuffers, myMsg);
+    insert(TransitionId::Unmap, myInputQueue, myOutputQueue, myShm, sizeOfBuffers, myMsg);
+
+    rewind(file);
+
+  } while(loop);
 
   fclose(file);
   sigfunc(0);

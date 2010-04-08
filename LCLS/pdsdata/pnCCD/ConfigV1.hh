@@ -14,7 +14,7 @@ namespace Pds {
       ConfigV1(uint32_t width, uint32_t height);
       uint32_t numLinks()           const;
       uint32_t payloadSizePerLink() const; // in bytes
-
+      unsigned size()               const;
     private:
       uint32_t _numLinks;
       uint32_t _payloadSizePerLink;

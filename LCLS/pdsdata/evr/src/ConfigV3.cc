@@ -73,28 +73,3 @@ unsigned ConfigV3::size() const
    _npulses     * sizeof(PulseConfigV3) + 
    _noutputs    * sizeof(OutputMap));
 }
-
-unsigned ConfigV3::size(unsigned maxNumEventCodes, unsigned maxNumPulses, unsigned maxNumOutputMaps)
-{
-  return (sizeof(ConfigV3) + 
-    maxNumEventCodes * sizeof(EventCodeV3) +
-    maxNumPulses     * sizeof(PulseConfigV3) + 
-    maxNumOutputMaps    * sizeof(OutputMap));
-}
-  
-uint8_t ConfigV3::opcodeFromBeamRate(BeamCode bc, RateCode rc) 
-{
-  static const unsigned beamOn     = 100;
-  static const unsigned baseRate   = 40;
-  static const unsigned singleShot = 150;
-  
-  unsigned v;
-  if (rc==Single) {
-    v = singleShot;
-  }
-  else {
-    v = baseRate+unsigned(rc);
-    if (bc==On) v += beamOn;
-  }
-  return v; 
-}

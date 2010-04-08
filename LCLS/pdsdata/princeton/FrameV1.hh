@@ -22,14 +22,6 @@ namespace Princeton
 
 class ConfigV1;
 
-/**
- * class FrameV1
- *
- * Usage:
- *   Before the object constructor FrameV1() is called, user need to call initStatic() to initialize the associated config object
- *   fot the future frame objects. Because some important attributes, such as image width, height and binning factors are stored
- *   in the config object.
- */
 class FrameV1 
 {
 public:

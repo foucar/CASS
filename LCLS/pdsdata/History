@@ -1,3 +1,5 @@
+2010-Apr5       jbt                     Removed SxrSpectrometer from DetInfo.hh - never used, never will be.
+2010-Apr2       jbt                     Added Encoder to DetInfo Detector enum.
 2010-Mar13      cpo                     Switch from -1 to the max() function in <limits> for "largest 
                                         integer".  Also add in Tomy's new event code sequencing
                                         classes in evr.

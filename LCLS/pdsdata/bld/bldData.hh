@@ -12,6 +12,7 @@ class BldDataFEEGasDetEnergy
 {
     // PV names: GDET:FEE1:11:ENRC,GDET:FEE1:12:ENRC,GDET:FEE1:21:ENRC,GDET:FEE1:22:ENRC
 public:
+  enum { version=0 };
     double f_11_ENRC;   /* in mJ */ 
     double f_12_ENRC;   /* in mJ */ 
     double f_21_ENRC;   /* in mJ */
@@ -58,6 +59,7 @@ class BldDataPhaseCavity
     // PV names: UND:R02:IOC:16:BAT:FitTime1, UND:R02:IOC:16:BAT:FitTime2, 
     //           UND:R02:IOC:16:BAT:Charge1,  UND:R02:IOC:16:BAT:Charge2
 public:
+  enum { version=0 };
     double fFitTime1;   /* in pico-seconds */ 
     double fFitTime2;   /* in pico-seconds */ 
     double fCharge1;    /* in pico-columbs */ 

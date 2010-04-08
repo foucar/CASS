@@ -13,27 +13,26 @@ ConfigV1::ConfigV1(
  uint32_t         uOrgY, 
  uint32_t         uBinX, 
  uint32_t         uBinY,
- int16_t          i16CoolingTemp, 
- EnumExposureMode enumExposureMode, 
  float            f32ExposureTime, 
- int16_t          i16ReadoutSpeedIndex,
- uint8_t          u8DelayMode) :
+ float            f32CoolingTemp, 
+ uint32_t         u32ReadoutSpeedIndex,
+ uint16_t         u16ReadoutEventCode, 
+ uint16_t         u16DelayMode) :
  _uWidth  (uWidth), 
  _uHeight (uHeight), 
  _uOrgX   (uOrgX), 
  _uOrgY   (uOrgY), 
  _uBinX   (uBinX), 
  _uBinY   (uBinY),
- _i16CoolingTemp        (i16CoolingTemp), 
- _i16ExposureMode       ((int16_t)enumExposureMode), 
  _f32ExposureTime       (f32ExposureTime),
- _i16ReadoutSpeedIndex  (i16ReadoutSpeedIndex), 
- _u8DelayMode           (u8DelayMode)
+ _f32CoolingTemp        (f32CoolingTemp), 
+ _u32ReadoutSpeedIndex  (u32ReadoutSpeedIndex), 
+ _u16ReadoutEventCode   (u16ReadoutEventCode),
+ _u16DelayMode          (u16DelayMode)
  {}
 
 int ConfigV1::frameSize() const
 {
-  //return sizeof(FrameV1) + _uWidth* _uHeight * 2; // 2 -> 16 bit color depth
-  return sizeof(FrameV1) + 4*1024*1024*2; // 2 -> 16 bit color depth // !! debug
-  //return sizeof(FrameV1) + 0; // 2 -> 16 bit color depth // !! debug
+  return sizeof(FrameV1) + _uWidth* _uHeight * 2; // 2 -> 16 bit color depth
+  //return sizeof(FrameV1) + 4*1024*1024*2; // 2 -> 16 bit color depth // !! debug
 }

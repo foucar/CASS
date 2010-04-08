@@ -12,3 +12,4 @@ ConfigV1::ConfigV1(uint32_t numLinks, uint32_t payloadSizePerLink) :
 
 uint32_t ConfigV1::numLinks()           const {return _numLinks;}
 uint32_t ConfigV1::payloadSizePerLink() const {return _payloadSizePerLink;} // bytes
+unsigned ConfigV1::size() const { return sizeof(*this); }
