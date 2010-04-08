@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _SERIALIZER_H_
 #define _SERIALIZER_H_
@@ -9,47 +9,53 @@
 
 namespace cass
 {
-  //class that will serialize / de serialize things to a stringstream
+  /*! class that will serialize / de serialize things to a stringstream
+
+    @author Lutz Foucar
+    */
   class CASSSHARED_EXPORT Serializer
   {
   public:
+    /** constructor will open the stream in binary writin mode*/
     Serializer()
       :_stream(std::ios_base::binary|std::ios_base::in)
-    {
-    }
+    {}
+    /** constructor that will open the provided string for reading in
+      binary mode
+      @param string the string that we want to read from
+      */
     Serializer(const std::string &string)
       :_stream(string,std::ios_base::binary|std::ios_base::out)
-    {
-    }
+    {}
+    /** retrieve a const reference to the string*/
     const std::string buffer()const  {return _stream.str();}
-    virtual ~Serializer() {}
 
-    void addString(const std::string&);
-    void addUint16(const uint16_t);
-    void addInt16(const int16_t);
-    void addUint32(const uint32_t);
-    void addInt32(const int32_t);
-    void addUint64(const uint64_t);
-    void addInt64(const int64_t);
-    void addSizet(const size_t);
-    void addDouble(const double);
-    void addFloat(const float);
-    void addBool(const bool);
+    void addString(const std::string&); //!< add string to serialized buffer
+    void addUint16(const uint16_t);     //!< add uint16 to serialized buffer
+    void addInt16(const int16_t);       //!< add int16 to serialized buffer
+    void addUint32(const uint32_t);     //!< add uint32 to serialized buffer
+    void addInt32(const int32_t);       //!< add int32 to serialized buffer
+    void addUint64(const uint64_t);     //!< add uint64 to serialized buffer
+    void addInt64(const int64_t);       //!< add int64 to serialized buffer
+    void addSizet(const size_t);        //!< add size_t to serialized buffer
+    void addDouble(const double);       //!< add double to serialized buffer
+    void addFloat(const float);         //!< add float to serialized buffer
+    void addBool(const bool);           //!< add bool to serialized buffer
 
-    std::string retrieveString();
-    uint16_t    retrieveUint16();
-    int16_t     retrieveInt16();
-    uint32_t    retrieveUint32();
-    int32_t     retrieveInt32();
-    uint64_t    retrieveUint64();
-    int64_t     retrieveInt64();
-    size_t      retrieveSizet();
-    double      retrieveDouble();
-    float       retrieveFloat();
-    bool        retrieveBool();
+    std::string retrieveString();   //!< retrieve string from serialized buffer
+    uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
+    int16_t     retrieveInt16();    //!< retrieve string from serialized buffer
+    uint32_t    retrieveUint32();   //!< retrieve string from serialized buffer
+    int32_t     retrieveInt32();    //!< retrieve string from serialized buffer
+    uint64_t    retrieveUint64();   //!< retrieve string from serialized buffer
+    int64_t     retrieveInt64();    //!< retrieve string from serialized buffer
+    size_t      retrieveSizet();    //!< retrieve string from serialized buffer
+    double      retrieveDouble();   //!< retrieve string from serialized buffer
+    float       retrieveFloat();    //!< retrieve string from serialized buffer
+    bool        retrieveBool();     //!< retrieve string from serialized buffer
 
   protected:
-    std::stringstream _stream;
+    std::stringstream _stream;    //!< the string to serialize the objects to (buffer)
   };
 }//end namespace
 
