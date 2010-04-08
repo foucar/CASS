@@ -72,8 +72,8 @@ namespace cass
   public:
     uint32_t        &integral()              {return _integral;}
     uint32_t         integral()const         {return _integral;}
-    uint16_t        &maxPixelValue()         {return _maxPixelValue;}
-    uint16_t         maxPixelValue()const    {return _maxPixelValue;}
+    pixel_t         &maxPixelValue()         {return _maxPixelValue;}
+    pixel_t          maxPixelValue()const    {return _maxPixelValue;}
     uint16_t        &columns()               {return _columns;}
     uint16_t         columns()const          {return _columns;}
     uint16_t        &rows()                  {return _rows;}
@@ -102,7 +102,7 @@ namespace cass
 
     //data that gets calculated in Analysis//
     uint32_t        _integral;               //the sum of all pixelvalues
-    uint16_t        _maxPixelValue;          //the highest pixelvalue
+    pixel_t         _maxPixelValue;          //the highest pixelvalue
     pixelList_t     _pixellist;              //list of pixels above a given threshold
   };
 }//end namespace cass

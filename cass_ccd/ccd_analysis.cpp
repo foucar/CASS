@@ -82,7 +82,7 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       maxpixelvalue = pixel;
   }
   //write the found integral and maximum Pixel value to the event//
-  det.integral()     = integral;
+  det.integral()     = static_cast<uint32_t>(integral);
   det.maxPixelValue()= maxpixelvalue;
 
   //rebinning the frame//

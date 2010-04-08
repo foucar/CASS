@@ -118,7 +118,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       if (fabs(fsx-fsx_1) < 1e-8) p.polarity() = cass::ACQIRIS::Bad;            //Peak has Bad Pol
 
       //--start and stop of the puls--//
-      cass::ACQIRIS::startstop<T>(c,p,threshold);
+      cass::ACQIRIS::startstop<T>(c,p,static_cast<const int32_t>(threshold));
 
       //--height of peak--//
       cass::ACQIRIS::maximum<T>(c,p);
@@ -127,7 +127,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       cass::ACQIRIS::fwhm<T>(c,p);
 
       //--the com and integral--//
-      cass::ACQIRIS::CoM<T>(c,p,threshold);
+      cass::ACQIRIS::CoM<T>(c,p,static_cast<const int32_t>(threshold));
 
       //--add peak to signal if it fits the conditions--//
       if(p.polarity() == s.polarity())  //if it has the right polarity

@@ -50,7 +50,7 @@ template <typename T>
         cass::ACQIRIS::fwhm<T>(c,p);
 
         //--center of mass stuff--//
-        cass::ACQIRIS::CoM<T>(c,p,threshold);
+        cass::ACQIRIS::CoM<T>(c,p,static_cast<const int32_t>(threshold));
 
         //--Time is the Center of Mass--//
         p.time()= p.com();
