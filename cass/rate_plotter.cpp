@@ -16,10 +16,6 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
   _timer.start(1000);
 }
 
-cass::RatePlotter::~RatePlotter()
-{
-}
-
 void cass::RatePlotter::plot()
 {
   //store the original flags of cout//

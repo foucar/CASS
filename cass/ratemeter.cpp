@@ -13,9 +13,6 @@ cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
   _time.start();
 }
 
-cass::Ratemeter::~Ratemeter()
-{
-}
 
 double cass::Ratemeter::calculateRate()
 {
