@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2009, 2010 Lutz Foucar
 
 #ifndef _MACHINEDATADEVICE_H_
 #define _MACHINEDATADEVICE_H_
@@ -15,26 +15,44 @@ namespace cass
 {
   namespace MachineData
   {
+    /*! Container for all Machine related Data
+
+      This device contains all data that is machine related
+      <ul>
+      <li>Beamline Data
+      <li>Epics Data
+      <li>Evr Data
+      </ul>
+      @todo include the evr shot by shot statuses
+      @author Lutz Foucar
+    */
     class CASS_MACHINEDATASHARED_EXPORT MachineDataDevice : public cass::DeviceBackend
     {
     public:
+      /** constructor initializing values to meaningful data*/
       MachineDataDevice()
         :DeviceBackend(1),
         _energy(0),
         _wavelength(0)
       {}
 
-      ~MachineDataDevice()  {}
-
     public:
+      /** typedef for more readable code*/
       typedef std::map<std::string,double> epicsDataMap_t;
+      /** typedef for more readable code*/
       typedef std::map<std::string,double> bldMap_t;
 
     public:
+      /** serialize the device to the serializer*/
       void serialize(cass::Serializer&)const;
+      /** deserialize the device from the serializer
+      @todo make sure that all variables have a known size
+      */
       void deserialize(cass::Serializer&);
 
     public:
+      /** setters and getters*/
+
       const epicsDataMap_t &EpicsData()const  {return _epicsdata;}
       epicsDataMap_t &EpicsData()             {return _epicsdata;}
 
@@ -49,12 +67,12 @@ namespace cass
 
     private:
       //beamline data//
-      bldMap_t       _blddata;  //map containing the beamlinedata
-      epicsDataMap_t _epicsdata;//a map containing all epics data in the xtc stream
+      bldMap_t       _blddata;  //!< map containing the beamlinedata
+      epicsDataMap_t _epicsdata;//!< a map containing all epics data in the xtc stream
 
       //data that gets calculated in Analysis//
-      double        _energy;    //the calculated puls energy
-      double        _wavelength;//the corrosponding wavelength
+      double        _energy;    //!< the calculated puls energy
+      double        _wavelength;//!< the corrosponding wavelength
 
     };
   }//end namespace machinedata
