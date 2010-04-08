@@ -4,6 +4,7 @@
 #define _MACHINEDATADEVICE_H_
 
 #include <map>
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -23,7 +24,6 @@ namespace cass
       <li>Epics Data
       <li>Evr Data
       </ul>
-      @todo include the evr shot by shot statuses
       @author Lutz Foucar
     */
     class CASS_MACHINEDATASHARED_EXPORT MachineDataDevice : public cass::DeviceBackend
@@ -32,6 +32,7 @@ namespace cass
       /** constructor initializing values to meaningful data*/
       MachineDataDevice()
         :DeviceBackend(1),
+        _evrdata(8,false),
         _energy(0),
         _wavelength(0)
       {}
@@ -41,6 +42,8 @@ namespace cass
       typedef std::map<std::string,double> epicsDataMap_t;
       /** typedef for more readable code*/
       typedef std::map<std::string,double> bldMap_t;
+      /** typedef for more readable code*/
+      typedef std::vector<bool> evrStatus_t;
 
     public:
       /** serialize the device to the serializer*/
@@ -59,6 +62,9 @@ namespace cass
       const bldMap_t &BeamlineData()const     {return _blddata;}
       bldMap_t       &BeamlineData()          {return _blddata;}
 
+      const evrStatus_t &EvrData()const       {return _evrdata;}
+      evrStatus_t    &EvrData()               {return _evrdata;}
+
       double          energy()const           {return _energy;}
       double         &energy()                {return _energy;}
 
@@ -69,11 +75,11 @@ namespace cass
       //beamline data//
       bldMap_t       _blddata;  //!< map containing the beamlinedata
       epicsDataMap_t _epicsdata;//!< a map containing all epics data in the xtc stream
+      evrStatus_t    _evrdata;  //!< a vector of bools describing the evr status
 
       //data that gets calculated in Analysis//
-      double        _energy;    //!< the calculated puls energy
-      double        _wavelength;//!< the corrosponding wavelength
-
+      double        _energy;    //!< the calculated puls energy @todo might not be needed anymore when calc is moved to postanalzyers
+      double        _wavelength;//!< the corrosponding wavelength @todo might not be needed anymore when calc is moved to postanalzyers
     };
   }//end namespace machinedata
 }//end namespace cass
