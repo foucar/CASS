@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Jochen Küpper,lmf
+// Copyright (C) 2009 Jochen Kuepper
+// Copyright (C) 2009,2010 Lutz Foucar
 
 #ifndef CASS_CONVERSIONBACKEND_H
 #define CASS_CONVERSIONBACKEND_H
@@ -17,10 +18,18 @@ namespace cass
 {
   class CASSEvent;
 
+  /*! Base class for Converters
+
+    Inherit from this class if you would like to add a new Converter
+    @author Lutz Foucar
+    @author Jochen Kuepper
+    */
   class CASSSHARED_EXPORT ConversionBackend
   {
   public:
+    /** virtual destructor to make clear this is a base class*/
     virtual ~ConversionBackend() {}
+    /** pure virtual operator call this to convert the xtc to the cass event*/
     virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
   };
 }//end namespace cass
