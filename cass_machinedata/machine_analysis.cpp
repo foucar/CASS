@@ -1,6 +1,4 @@
-/*
-*  lmf
-*/
+// Copyright (C) 2010 Lutz Foucar
 
 #include "machine_analysis.h"
 #include "cass_event.h"

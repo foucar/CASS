@@ -31,7 +31,7 @@ namespace cass
       typedef std::map<int,std::string> indexMap_t;
 
     private:
-      indexMap_t        _index2name;  //!< map to convert epics indexes to strings
+      indexMap_t _index2name;  //!< map to convert epics indexes to strings
       //! a container for the machindata values
       /** this is necessary, since not every shot there is info about the epics values*/
       MachineDataDevice _store;
