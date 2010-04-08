@@ -50,9 +50,6 @@ namespace cass
                 l.erase(i2);
         }
     }
-
-
-
 }
 
 
