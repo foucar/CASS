@@ -17,39 +17,56 @@
 
 namespace cass
 {
+  //forward declaration
   class CASSEvent;
 
   namespace CCD
   {
+    /*! Parameters of the commercial ccd analysis
+
+      @author Lutz Foucar
+    */
     class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
     public:
+      /** constructor creates group "CCD" */
       Parameter()     {beginGroup("CCD");}
+      /** constructor closes group "CCD" */
       ~Parameter()    {endGroup();}
+      /** load the parameters from cass.ini*/
       void load();
+      /** save the parameters to cass.ini*/
       void save();
 
     public:
-      uint16_t   _threshold;    //the threshold above which pixels are identified
-      uint32_t   _rebinfactor;
+      uint16_t   _threshold;    //!< the threshold above which pixels are identified
+      uint32_t   _rebinfactor;  //!< the rebinning factor by which the image gets rebinned
     };
 
+    /*! Analysis of the commercial CCD
 
+      Analyses the vmi image and calculates parameters
+      @todo find out whether this will run in a multithreaded environment,
+            since it needs a temporary frame that will be written.
+      @author Lutz Foucar
+    */
     class CASS_CCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
+      /** constructor will load the settings*/
       Analysis()            {loadSettings();}
-      ~Analysis()           {}
+      /** load the settings, lock it first*/
       void loadSettings()   {QMutexLocker locker(&_mutex);_param.load();}
+      /** save the settings, lock it first*/
       void saveSettings()   {QMutexLocker locker(&_mutex);_param.save();}
 
-      //called for every event//
+      //! called for every event will calculate the things
       void operator()(CASSEvent*);
 
     private:
-      QMutex                      _mutex; //mutex to block the tmp frame + parameter
-      Parameter                   _param; //the parameters to analyze
-      cass::CCDDetector::frame_t  _tmp;   //temp frame for rebinning
+      QMutex                      _mutex; //!< mutex to block the tmp frame + parameter
+      Parameter                   _param; //!< the parameters to analyze
+      cass::CCDDetector::frame_t  _tmp;   //!< temp frame for rebinning
     };
   }//end namespace ccd
 }//end namespace cass
