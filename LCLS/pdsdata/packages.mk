@@ -2,6 +2,6 @@
 ifneq ($(findstring ppc-rtems-rce,$(tgt_arch)),)
 packages := xtc
 else
-packages := ipimb encoder pnCCD acqiris camera evr opal1k pulnix control xtc \
+packages := ipimb pnCCD acqiris camera evr opal1k pulnix control xtc \
 	    epics bld princeton app
 endif
