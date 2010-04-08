@@ -18,7 +18,10 @@
 
 namespace cass
 {
-  /** function to set the 1d histogram properties from the cass.ini file*/
+  /** function to set the 1d histogram properties from the cass.ini file
+    @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
+    @param[in] id the id of the postprocessor too look up in cass.ini
+ */
   void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
   {
     //delete old histogram//
@@ -32,7 +35,10 @@ namespace cass
                                       param.value("XLow",0).toFloat(),
                                       param.value("XUp",0).toFloat());
   }
-  /** function to set the 2d histogram properties from the cass.ini file*/
+  /** function to set the 2d histogram properties from the cass.ini file
+  @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
+  @param[in] id the id of the postprocessor too look up in cass.ini
+  */
   void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
   {
     //delete old histogram//
