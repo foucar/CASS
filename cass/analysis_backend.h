@@ -1,4 +1,5 @@
-// Copyright (C) 2009 Jochen Küpper,lmf
+// Copyright (C) 2009 Jochen Kuepper
+// Copyright (C) 2009, 2010 Lutz Foucar
 
 #ifndef CASS_ANALYSISBACKEND_H
 #define CASS_ANALYSISBACKEND_H
@@ -7,19 +8,27 @@
 
 namespace cass
 {
-    class CASSEvent;
+  //forward declarations
+  class CASSEvent;
+  /*! Base class for preanalyzers
 
-    class CASSSHARED_EXPORT AnalysisBackend
-    {
-    public:
-        AnalysisBackend()           {}
-        virtual ~AnalysisBackend()  {}
+    The Base class for all Preanalyzers.
+    @author Lutz Foucar
+    @author Jochen Kuepper
+    */
+  class CASSSHARED_EXPORT AnalysisBackend
+  {
+  public:
+    /** virtual desctructor */
+    virtual ~AnalysisBackend()  {}
 
-        virtual void loadSettings() = 0;
-        virtual void saveSettings() = 0;
-
-        virtual void operator()(CASSEvent*) = 0;
-    };
+    /** this function is called when the analyzer should load its settings*/
+    virtual void loadSettings() = 0;
+    /** this function is called when the analyzer should save its settings*/
+    virtual void saveSettings() = 0;
+    /** this function is called for all cassevents*/
+    virtual void operator()(CASSEvent*) = 0;
+  };
 }
 
 #endif
