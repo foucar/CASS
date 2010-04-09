@@ -52,6 +52,26 @@ The version we are working with right now is to be found in /branches/lutz
 program control is done via a tcpip interface\n
 accesss histograms vi tcpip interface\n
 parameters are loaded using qt's qsettings.
+@section inst Installing CASS
+@subsection pre Prerequisites
+The following software packages need to be installed and available for building and running CASS:\n
+  - Qt version 4.5.x or 4.6.x
+@subsection env Needed Environment Variables
+LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder\n
+LCLSSYSLIB: needs to point to the folder the build libraries are in.\n
+QTDIR:   needs to point where Qt is installed\n
+@subsection build Building CASS
+@subsubsection build_LCLS Compile the LCLS libraries
+cd ${CASS top-level directory}/LCLS \n
+make x86_64-linux
+@subsubsection build_CASS Compile CASS
+Go back to the CASS top-level directory and use qmake with appropriate options to create Makefiles, i. e.,\n
+  cd ${CASS top-level directory}\n
+  qmake -r\n
+then run\n
+  make\n
+  (optional)sudo make install\n
+to build and install the software.
 @section run Running CASS
 In Order to run the cass you need to start it with a parameter, the partition tag. When running
 at LCLS in the daq state you need to provide the partition tag of the shared memory server you
@@ -59,7 +79,7 @@ want to connect to. \n
 User settable parameters are to be found in "cass.ini". The later has to be in the folder where
 you start CASS from.
 @subsection testing Testing CASS in offline modus
-For testing you can create the shared memory using xtcmonserver located in the
+For testing CASS you can create the shared memory using xtcmonserver located in the
 build directory of the LCLS subfolder. This will take a xtc file and put the contents into the
 shared memory. You have to give it serval commands which are documented when you run it without
 any command. A typical start command will look like this:\n
@@ -78,7 +98,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 depreciated cass_database\n
 depreciated cass_dictionary\n
 new pnCCD analysis\n
-Region of Interest implementation\n
+Region of Interest (ROI) implementation\n
 CASS testing, debug and development
 
 @author Lutz Foucar \n
