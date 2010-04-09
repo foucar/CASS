@@ -39,7 +39,7 @@ inline
 void cass::ACQIRIS::TofDetector::loadParameters(QSettings *p)
 {
   p->beginGroup(_name.c_str());
-  _tof.loadParameters(p,"Signal");
+  _mcp.loadParameters(p,"Signal");
   p->endGroup();
 }
 
