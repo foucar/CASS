@@ -233,10 +233,9 @@ namespace cass
       double _deadMcp;
       /** the deadtime between to Signals on the Layers */
       double _deadAnode;
-      /** enum telling which Layers should be used
-          to calculate the position when using simple sorting*/
+      /** enum telling which Layers should be used to calculate the position when using simple sorting*/
       LayersToUse _layersToUse;
-      /** @enum _delaylinetype type of the delayline (hex or quad)*/
+      /** type of the delayline (hex or quad)*/
       DelaylineType _delaylinetype;
       /** properties of layers*/
       anodelayers_t _anodelayers;
