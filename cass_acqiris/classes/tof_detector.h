@@ -18,19 +18,29 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT TofDetector : public DetectorBackend
     {
     public:
-      /** constructor*/
-      TofDetector()
-        :DetectorBackend(ToF)
+      /** constructor
+        @param[in] name the name of the detector
+      */
+      TofDetector(const std::string name)
+        :DetectorBackend(name)
       {_analyzerType = ToFSimple;}
       /** load the values from cass.ini */
-      virtual void loadParameters(QSettings *p){};
+      virtual void loadParameters(QSettings *p);
       /** save values to cass.ini */
-      virtual void saveParameters(QSettings *p){};
+      virtual void saveParameters(QSettings *){};
     private:
       /** the actual tof peaks*/
       Signal _tof;
     };
   }
+}
+
+inline
+void cass::ACQIRIS::TofDetector::loadParameters(QSettings *p)
+{
+  p->beginGroup(_name.c_str());
+  _tof.loadParameters(p,"Signal");
+  p->endGroup();
 }
 
 #endif

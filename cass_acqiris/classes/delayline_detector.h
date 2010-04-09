@@ -143,10 +143,12 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public DetectorBackend
     {
     public:
-      /** constructor telling what kind of delayline detector we are*/
-      DelaylineDetector(DelaylineType type)
-        :DetectorBackend(Delayline),
-         _name("Sucker"),
+      /** constructor
+      @param[in] type the delayline type
+      @param[in] name the name of this detector
+      */
+      DelaylineDetector(DelaylineType type, const std::string name)
+        :DetectorBackend(name),
          _runtime(0),
          _wLayerOffset(100),
          _mcpRadius(0),
@@ -193,7 +195,7 @@ namespace cass
     public:
       /** @return the found detector hits*/
       const dethits_t     &hits()const            {return _hits;}
-      /** @overload */
+      /** @overload hits()const*/
       dethits_t           &hits()                 {return _hits;}
 
     public: /** setters & getters */
@@ -219,8 +221,6 @@ namespace cass
       LayersToUse         &layersToUse()          {return _layersToUse;}
 
     private:
-      /** the name of this detector*/
-      std::string _name;
       /** the runtime of a signal over the anode */
       double _runtime;
       /** the offset of w-layer towards u and v-layer, only used for hex detectors*/
@@ -284,7 +284,7 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
   //std::cout <<"loading"<<std::endl;
   //load the parameters for this detector//
-  _name         = p->value("Name","IonDetector").toString().toStdString();
+  p->beginGroup(_name.c_str());
   _runtime      = p->value("Runtime",150).toDouble();
   _mcpRadius    = p->value("McpRadius",44.).toDouble();
   _mcp.loadParameters(p,"MCP");
@@ -318,10 +318,12 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
   default:
     break;
   }
+  p->endGroup();
 }
 inline
 void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
 {
+  p->beginGroup(_name.c_str());
   //save the parameters//
   p->setValue("Name",_name.c_str());
   p->setValue("Runtime",_runtime);
@@ -355,6 +357,7 @@ void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
   default:
     break;
   }
+  p->endGroup();
 }
 
 #endif

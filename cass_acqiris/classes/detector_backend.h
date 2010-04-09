@@ -12,13 +12,18 @@ namespace cass
   namespace ACQIRIS
   {
     /*! @brief Base class for all Detectors attached to an Acqiris Instrument
-      @author Lutz Foucar*/
+
+      @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT DetectorBackend
     {
     public:
-      /** while creating the backend we need to know what kind of detector we are*/
-      DetectorBackend(DetectorType type)
-          :_type(type)           {}
+      /** constructor
+        @param[in] name the name of the detector
+      */
+      DetectorBackend(const std::string name)
+          :_name(name)
+      {}
       /** virtual desctructor*/
       virtual ~DetectorBackend() {}
       /** pure virtual function that will load the detector parameters from cass.ini*/
@@ -32,13 +37,18 @@ namespace cass
               calculate its properties it selve*/
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
-      /** @returns  the detector type*/
-      DetectorType         type()const            {return _type;}
+      /** the detector name*/
+      const std::string name()const {return _name;}
     protected:
       /** which analyzer should be used*/
       DetectorAnalyzers _analyzerType;
-      /** what typ is this detector*/
-      DetectorType _type;
+      /** the name of the detector. used for qsettings group*/
+      std::string _name;
+    private:
+      /** default constructor should not be called therefore its privat*/
+      DetectorBackend()
+          :_name("unamed")
+      {}
     };
   }
 }//end namespace cass

@@ -15,6 +15,8 @@
 #include "cfd.h"
 #include "delayline_detector_analyzer_simple.h"
 #include "delayline_detector.h"
+#include "tof_analyzer_simple.h"
+#include "tof_detector.h"
 
 namespace cass
 {
@@ -196,6 +198,7 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIR
   if (_detectoranalyzer.empty())
   {
     _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
+    _detectoranalyzer[ToFSimple] = new ToFAnalyzerSimple(&_waveformanalyzer);
   }
   //check if an instance of the helper class already exists//
   //return it, otherwise create one and return it//
@@ -233,15 +236,33 @@ cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors de
   {
   case HexDetector:
     {
-      _detector = new DelaylineDetector(Hex);
+      _detector = new DelaylineDetector(Hex,"HexDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex)));
+        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex,"HexDetector")));
     }
   case QuadDetector:
     {
-      _detector = new DelaylineDetector(Quad);
+      _detector = new DelaylineDetector(Quad,"QuadDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad)));
+        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad,"QuadDetector")));
+    }
+  case VMIMcp:
+    {
+      _detector = new TofDetector("VMIMcp");
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
+    }
+  case IntensityMonitor:
+    {
+      _detector = new TofDetector("IntensityMonitor");
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new TofDetector("IntensityMonitor")));
+    }
+  case Photodiode:
+    {
+      _detector = new TofDetector("Photodiode");
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new TofDetector("Photodiode")));
     }
     break;
   default: throw std::invalid_argument("no such detector is present");
