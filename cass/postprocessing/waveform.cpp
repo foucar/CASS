@@ -80,6 +80,8 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
     _histograms[_id] = _waveform;
 
   }
+  //lock the copy operation in multithreaded environment//
+  QMutexLocker lock(_waveform->mutex());
   //copy the waveform to our storage histogram//
   std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
 }
@@ -199,7 +201,8 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const float alpha = (std::abs(_alpha-1.)<1e-15)?
                       1./(_waveform->nbrOfFills()+1.)
                         : _alpha;
-
+  //lock this operation//
+  QMutexLocker lock(_waveform->mutex());
   //average the waveform and put the result in the averaged waveform//
   std::transform(waveform.begin(),waveform.end(),
                  _waveform->memory().begin(),
