@@ -150,6 +150,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       for (size_t i=0;i<nbrFifoEvents;++i)
       {
         const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
+        uint32_t eventcode = fifoEvent.EventCode;
       }
     }
   break;
