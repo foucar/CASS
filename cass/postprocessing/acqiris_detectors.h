@@ -16,7 +16,8 @@ namespace cass
   /*! @brief Number of Signals in MCP Waveform
 
   This postprocessor will output how many Signals have been found
-  in the acqiris channel for the layers (pp 550 & pp600).
+  in the acqiris channel for the mcp of the detector
+  (pp550, pp600, pp650, pp660, pp670).
 
   @author Lutz Foucar
   */
@@ -174,9 +175,9 @@ namespace cass
 
   /*! @brief All Mcp Hits
 
-  This postprocessor will output the times of all found MCP Hits.
-  This is more or less just a Time of Flight Spektrum
- (pp567, pp612)
+  This postprocessor will output the times of all found Hits on the Mcp.
+  This is more or less a Time of Flight Spektrum
+  (pp567, pp612, pp651, pp661, pp671)
 
   @author Lutz Foucar
   */
