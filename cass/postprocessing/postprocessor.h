@@ -119,6 +119,14 @@ namespace cass
     00578: Hex Anode Delayline Picture all Hits in mm
     00579: Hex Anode Delayline X vs Tof
     00580: Hex Anode Delayline Y vs Tof
+    00581: Hex Anode Height vs. Fwhm MCP
+    00582: Hex Anode Height vs. Fwhm U1
+    00583: Hex Anode Height vs. Fwhm U2
+    00584: Hex Anode Height vs. Fwhm V1
+    00585: Hex Anode Height vs. Fwhm V2
+    00586: Hex Anode Height vs. Fwhm W1
+    00587: Hex Anode Height vs. Fwhm W2
+
 
     00600: Quad Anode Number of Peaks in MCP
     00601: Quad Anode Number of Peaks in X1
@@ -141,15 +149,23 @@ namespace cass
     00618: Quad Anode Delayline Picture all Hits in mm
     00619: Quad Anode Delayline X vs Tof
     00620: Quad Anode Delayline Y vs Tof
+    00621: Quad Anode Height vs. Fwhm MCP
+    00622: Quad Anode Height vs. Fwhm X1
+    00623: Quad Anode Height vs. Fwhm X2
+    00624: Quad Anode Height vs. Fwhm Y1
+    00625: Quad Anode Height vs. Fwhm Y2
 
     00650: VMIMcp Number of Peaks in Waveform
     00651: VMIMcp AllHits on Mcp
+    00652: VMIMcp Height vs. Fwhm
 
     00660: IntensityMonitor Number of Peaks in Waveform
     00661: IntensityMonitor AllHits on Mcp
+    00662: IntensityMonitor Height vs. Fwhm
 
     00670: Photodiode Number of Peaks in Waveform
     00671: Photodiode AllHits on Mcp
+    00672: Photodiode Height vs. Fwhm
     @endverbatim
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
@@ -239,6 +255,13 @@ namespace cass
             HexXY=578,
             HexXT=579,
             HexYT=580,
+            HexHeightvsFwhmMcp=581,
+            HexHeightvsFwhmU1=582,
+            HexHeightvsFwhmU2=583,
+            HexHeightvsFwhmV1=584,
+            HexHeightvsFwhmV2=585,
+            HexHeightvsFwhmW1=586,
+            HexHeightvsFwhmW2=587,
 
             QuadMCPNbrSignals=600,
             QuadX1NbrSignals=601,
@@ -261,6 +284,24 @@ namespace cass
             QuadXY=618,
             QuadXT=619,
             QuadYT=620,
+            QuadHeightvsFwhmMcp=621,
+            QuadHeightvsFwhmX1=622,
+            QuadHeightvsFwhmX2=623,
+            QuadHeightvsFwhmY1=624,
+            QuadHeightvsFwhmY2=625,
+
+            VMIMcpNbrSignals=650,
+            VMIMcpAllMcp=651,
+            VMIMcpHeightvsFwhmMcp=652,
+
+            IntensityMonitorNbrSignals=660,
+            IntensityMonitorAllMcp=661,
+            IntensityMonitorHeightvsFwhmMcp=662,
+
+            PhotodiodeNbrSignals=670,
+            PhotodiodeAllMcp=671,
+            PhotodiodeHeightvsFwhmMcp=672,
+
         };
 
         /** Container of all currently available histograms */
