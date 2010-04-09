@@ -17,11 +17,12 @@ namespace cass
     /*! @brief Base class for all detector analyzers
       @todo check whether we need a base class, since it might be good
             if all detectors could have their own function
-      @author Lutz Foucar*/
+      @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
     protected:
-      /** @typedef waveformanalyzers_t make code more readable
+      /** typedef to make code more readable
         @todo might not be used anymore*/
       typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
     public:

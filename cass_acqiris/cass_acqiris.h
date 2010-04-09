@@ -33,7 +33,7 @@ namespace cass
     /** all available detectors*/
     enum Detectors{HexDetector, QuadDetector, VMIMcp, IntensityMonitor, Photodiode};
     /** the available detector analyzers*/
-    enum DetectorAnalyzers {DelaylineSimple};
+    enum DetectorAnalyzers {DelaylineSimple, ToFSimple};
   }
 }
 
