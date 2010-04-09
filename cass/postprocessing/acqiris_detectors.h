@@ -340,6 +340,36 @@ namespace cass
     Histogram2DFloat  *_hist;
   };
 
+
+  /*! @brief FWHM vs. Height of MCP Signals
+
+  This postprocessor will make a histogram of the fwhm and height of
+  all MCP Signals in a detector.
+  (pp581, pp621, pp652, pp662 pp672)
+
+  @author Lutz Foucar
+  */
+  class pp581 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor*/
+    pp581(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp581();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The Histogram storing the info*/
+    Histogram2DFloat  *_sigprop;
+  };
+
+
+
 }//end cass
 
 #endif

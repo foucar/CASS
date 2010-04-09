@@ -920,4 +920,68 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
   }
 }
 
+//----------------MCP Fwhm vs. height------------------------------------------
+//-------------pp581, pp621, pp652, pp662, pp672-------------------------------
+cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexAllMcp:
+    _detector = HexDetector;break;
+  case PostProcessors::QuadAllMcp:
+    _detector = QuadDetector;break;
+  case PostProcessors::VMIMcpNbrSignals:
+    _detector = VMIMcp;break;
+  case PostProcessors::IntensityMonitorNbrSignals:
+    _detector = IntensityMonitor;break;
+  case PostProcessors::PhotodiodeNbrSignals:
+    _detector = Photodiode;break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp581::~pp581()
+{
+  delete _sigprop;
+  _sigprop=0;
+  _histograms[_id] =  _sigprop;
+}
+
+void cass::pp581::loadParameters(size_t)
+{
+  //create the histogram
+  set2DHist(_sigprop,_id);
+  _histograms[_id] =  _sigprop;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp581::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  TofDetector *det =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //reference to all found peaks of the mcp channel//
+  const Signal::peaks_t &mcpSignals = det->mcp().peaks();
+  //fill all found peaks into the histogram//
+  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
+       it != mcpSignals.end();
+       ++it)
+    _sigprop->fill(it->fwhm(),it->height());
+}
+
+
+
+
+
+
+
+
 
