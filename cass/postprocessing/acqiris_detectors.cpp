@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #include <stdexcept>
 #include <cmath>
@@ -7,7 +7,7 @@
 #include <QtCore/QSettings>
 #include <QtCore/QString>
 
-#include "delayline.h"
+#include "acqiris_detectors.h"
 #include "histogram.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
@@ -293,8 +293,8 @@ void cass::HelperAcqirisDetectors::loadParameters(size_t)
 
 
 
-//----------------Nbr of Peaks MCP-------------------------------------------------
-//--------------------------pp550, pp600-------------------------------------------
+//----------------Nbr of Peaks MCP---------------------------------------------
+//-----------pp550, pp600, pp650, pp660, pp670---------------------------------
 cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id),
   _nbrSignals(0)
@@ -306,6 +306,12 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = HexDetector;break;
   case PostProcessors::QuadMCPNbrSignals:
     _detector = QuadDetector;break;
+  case PostProcessors::VMIMcpNbrSignals:
+    _detector = VMIMcp;break;
+  case PostProcessors::IntensityMonitorNbrSignals:
+    _detector = IntensityMonitor;break;
+  case PostProcessors::PhotodiodeNbrSignals:
+    _detector = Photodiode;break;
   default:
     throw std::invalid_argument("this postprocessor is not responsible for Nbr Signals Postprocessor");
   }
@@ -596,8 +602,8 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
 
 
 
-//----------------MCP Hits (Tof)------------------------------
-//------------------------------pp567, pp612-----------------------------------
+//----------------MCP Hits (Tof)-----------------------------------------------
+//-------------pp567, pp612, pp651, pp661, pp671-------------------------------
 cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id)
 {
@@ -608,6 +614,12 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = HexDetector;break;
   case PostProcessors::QuadAllMcp:
     _detector = QuadDetector;break;
+  case PostProcessors::VMIMcpNbrSignals:
+    _detector = VMIMcp;break;
+  case PostProcessors::IntensityMonitorNbrSignals:
+    _detector = IntensityMonitor;break;
+  case PostProcessors::PhotodiodeNbrSignals:
+    _detector = Photodiode;break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
