@@ -30,7 +30,7 @@ namespace cass
       virtual void saveParameters(QSettings *){};
     private:
       /** the actual tof peaks*/
-      Signal _tof;
+      Signal _mcp;
     };
   }
 }
