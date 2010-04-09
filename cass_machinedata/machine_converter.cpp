@@ -6,6 +6,8 @@
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/bld/bldData.hh"
 #include "pdsdata/epics/EpicsPvData.hh"
+#include "pdsdata/evr/DataV3.hh"
+
 #include "cass_event.h"
 #include "machine_device.h"
 
@@ -140,6 +142,17 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       }
       break;
     }
+  case(Pds::TypeId::Id_EvrData):
+    {
+      const Pds::EvrData::DataV3 &evrData =
+          *reinterpret_cast<const Pds::EvrData::DataV3*>(xtc->payload());
+      const uint32_t nbrFifoEvents = evrData.numFifoEvents();
+      for (size_t i=0;i<nbrFifoEvents;++i)
+      {
+        const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
+      }
+    }
+  break;
 
   default: break;
   }
