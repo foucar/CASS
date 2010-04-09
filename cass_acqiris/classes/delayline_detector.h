@@ -157,15 +157,17 @@ namespace cass
       { _analyzerType =DelaylineSimple;}
 
     public:
-      /** load the values from cass.ini */
+      /** load the values from cass.ini
+      @todo make sure we create a unificaly group for each detector (maybe using a name?)
+      */
       virtual void loadParameters(QSettings *p);
       /** save values to cass.ini */
       virtual void saveParameters(QSettings *p);
 
     public:
-      /** @typedef a vector of detector hits are the detector hits */
+      /** a vector of detector hits are the detector hits */
       typedef std::vector<DelaylineDetectorHit> dethits_t;
-      /** @typedef a map of anodelayers */
+      /** a map of anodelayers */
       typedef std::map<char,AnodeLayer> anodelayers_t;
 
     public:
