@@ -210,7 +210,7 @@ every type of histogram inherits from here
       : HistogramFloatBase(in)
     {};
 
-    void fill(value_t value=0.) {_memory[0] = value; };
+    void fill(value_t value=0.) {QMutexLocker lock(&_mutex);_memory[0] = value; };
 
     /*! Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
@@ -244,6 +244,7 @@ every type of histogram inherits from here
 
     /*! Add datum to histogram
 
+    this operation will lock the memory before attempting to fill the right bin
     @param x y Position of datum
     @param weight value of datum
     */
@@ -346,6 +347,7 @@ every type of histogram inherits from here
 
     /*! Add datum to histogram
 
+      this operation will lock the memory before attempting to fill the right bin
     @param x, y Position of datum
     @param weight value of datum
 
@@ -367,8 +369,7 @@ every type of histogram inherits from here
 
   //---------------Axis-------------------------------
 
-  inline
-      void cass::AxisProperty::serialize(cass::Serializer &out) const
+  inline void cass::AxisProperty::serialize(cass::Serializer &out) const
   {
     //the version//
     out.addUint16(_version);
@@ -381,8 +382,7 @@ every type of histogram inherits from here
 
 
 
-  inline
-      void cass::AxisProperty::deserialize(cass::Serializer &in)
+  inline void cass::AxisProperty::deserialize(cass::Serializer &in)
   {
     //check whether the version fits//
     uint16_t ver = in.retrieveUint16();
@@ -416,8 +416,7 @@ every type of histogram inherits from here
 
 
   //-----------------Base class-----------------------
-  inline
-      void cass::HistogramFloatBase::serialize(cass::Serializer &out) const
+  inline void cass::HistogramFloatBase::serialize(cass::Serializer &out) const
   {
     //the version//
     out.addUint16(_version);
@@ -458,15 +457,16 @@ every type of histogram inherits from here
 
 
   //-----------------1D Hist--------------------------
-  inline
-      void cass::Histogram1DFloat::fill(float x, float weight)
+  inline void cass::Histogram1DFloat::fill(float x, float weight)
   {
     //calc the bin//
     const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
     const float xlow    = _axis[xAxis].lowerLimit();
     const float xup     = _axis[xAxis].upperLimit();
-    const int xBin = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
+    const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
+    //lock the write operation//
+    QMutexLocker lock(&_mutex);
     //check whether the fill is in the right range//
     const bool xInRange = 0<=xBin && xBin<nxBins;
     //if in range fill the memory otherwise figure out//
@@ -499,6 +499,8 @@ every type of histogram inherits from here
     const long maxSize  = nyBins*nxBins;
     const bool xInRange = 0<=xBin && xBin<nxBins;
     const bool yInRange = 0<=yBin && yBin<nyBins;
+    //lock the write operation//
+    QMutexLocker lock(&_mutex);
     // if both bin coordinates are in range, fill the memory, otherwise figure out which quadrant needs to be filled
     if (xInRange && yInRange)
       _memory[yBin*nxBins + yBin]+= weight;
