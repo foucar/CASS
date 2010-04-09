@@ -50,12 +50,50 @@ The version we are working with right now is to be found in /branches/lutz
   </ul>
 </ul>
 program control is done via a tcpip interface\n
-accesss histograms vi tcpip interface
+accesss histograms vi tcpip interface\n
+parameters are loaded using qt's qsettings.
+@section run Running CASS
+In Order to run the cass you need to start it with a parameter, the partition tag. When running
+at LCLS in the daq state you need to provide the partition tag of the shared memory server you
+want to connect to. \n
+User settable parameters are to be found in "cass.ini". The later has to be in the folder where
+you start CASS from.
+@subsection testing Testing CASS in offline modus
+For testing you can create the shared memory using xtcmonserver located in the
+build directory of the LCLS subfolder. This will take a xtc file and put the contents into the
+shared memory. You have to give it serval commands which are documented when you run it without
+any command. A typical start command will look like this:\n
 
+LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0193-s00-c00.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
+<ul>
+<li>f: filename of file that you want to create the shared memory with
+<li>n: number of datagrams to be stored in the buffer
+<li>s: size of the buffer for that stores one datagram
+<li>p: the name of the partition tag
+<li>r: the rate that you want to simulate
+<li>l: loop. If the end of the file has been reached start from the beginning
+</ul>
 
-@author Nicola Coppola
-@author Lutz Foucar
-@author Jochen Kuepper
+@author Nicola Coppola \n
+depreciated cass_database\n
+depreciated cass_dictionary\n
+new pnCCD analysis\n
+Region of Interest implementation\n
+CASS testing, debug and development
+
+@author Lutz Foucar \n
+general leader \n
+cass, cass_acqiris, cass_ccd, cass_machinedata implementation \n
+CASS design, infrastructure development
+
+@author Nils Kimmel \n
+original pnCCD analysis
+
+@author Jochen Kuepper \n
+CASS design, infrastructure development\n
+cass framework implementation\n
+TCP server\n
+
 @date 2009-2010
 */
 
