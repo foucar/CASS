@@ -32,9 +32,7 @@ namespace cass
       {
         std::cout << "adding simple delayline detector analyzer"<<std::endl;
       }
-      /** the function creating the detectorhit list
-        @todo rename it to operator () to clearify that it is only a function
-      */
+      /** the function creating the detectorhit list*/
       virtual void operator()(DetectorBackend&,const Device&);
 
     private:
