@@ -419,7 +419,8 @@ void cass::pp551::operator()(const cass::CASSEvent &evt)
 //----------------Ratio of Layers----------------------------------------------
 //-----------pp557, pp560, pp563, pp605, pp608---------------------------------
 cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _ratio(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -479,7 +480,8 @@ void cass::pp557::operator()(const cass::CASSEvent &evt)
 //----------------Ratio of Signals vs. MCP-------------------------------------
 //-----------pp558-559, pp561-562, pp564-565, pp606-607, pp609-610-------------
 cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _ratio(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -550,7 +552,8 @@ void cass::pp558::operator()(const cass::CASSEvent &evt)
 //----------------Ratio of rec. Hits vs. MCP Hits------------------------------
 //------------------------------pp566, pp611-----------------------------------
 cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _ratio(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -605,7 +608,8 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
 //----------------MCP Hits (Tof)-----------------------------------------------
 //-------------pp567, pp612, pp651, pp661, pp671-------------------------------
 cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _tof(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -614,11 +618,11 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = HexDetector;break;
   case PostProcessors::QuadAllMcp:
     _detector = QuadDetector;break;
-  case PostProcessors::VMIMcpNbrSignals:
+  case PostProcessors::VMIMcpAllMcp:
     _detector = VMIMcp;break;
-  case PostProcessors::IntensityMonitorNbrSignals:
+  case PostProcessors::IntensityMonitorAllMcp:
     _detector = IntensityMonitor;break;
-  case PostProcessors::PhotodiodeNbrSignals:
+  case PostProcessors::PhotodiodeAllMcp:
     _detector = Photodiode;break;
 
   default:
@@ -669,7 +673,8 @@ void cass::pp567::operator()(const cass::CASSEvent &evt)
 //----------------Timesum for the layers---------------------------------------
 //-----------pp568-570, pp613-614----------------------------------------------
 cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _timesum(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -729,7 +734,8 @@ void cass::pp568::operator()(const cass::CASSEvent &evt)
 //----------------Timesum vs Postition for the layers--------------------------
 //-----------pp571-573, pp615-616----------------------------------------------
 cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _timesumvsPos(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -790,7 +796,8 @@ void cass::pp571::operator()(const cass::CASSEvent &evt)
 //----------------Detector First Hit-------------------------------------------
 //-----------pp574-577, pp617--------------------------------------------------
 cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _pos(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -861,7 +868,9 @@ void cass::pp574::operator()(const cass::CASSEvent &evt)
 //----------------Detector Values----------------------------------------------
 //-----------pp578-580, pp61-620-----------------------------------------------
 cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _hist(0)
+
 {
   //find out which detector and Signal we should work on
   switch (_id)
@@ -920,23 +929,31 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
   }
 }
 
+
+
+
+
+
+
+
 //----------------MCP Fwhm vs. height------------------------------------------
 //-------------pp581, pp621, pp652, pp662, pp672-------------------------------
 cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _sigprop(0)
 {
   //find out which detector and Signal we should work on
   switch (_id)
   {
-  case PostProcessors::HexAllMcp:
+  case PostProcessors::HexHeightvsFwhmMcp:
     _detector = HexDetector;break;
-  case PostProcessors::QuadAllMcp:
+  case PostProcessors::QuadHeightvsFwhmMcp:
     _detector = QuadDetector;break;
-  case PostProcessors::VMIMcpNbrSignals:
+  case PostProcessors::VMIMcpHeightvsFwhmMcp:
     _detector = VMIMcp;break;
-  case PostProcessors::IntensityMonitorNbrSignals:
+  case PostProcessors::IntensityMonitorHeightvsFwhmMcp:
     _detector = IntensityMonitor;break;
-  case PostProcessors::PhotodiodeNbrSignals:
+  case PostProcessors::PhotodiodeHeightvsFwhmMcp:
     _detector = Photodiode;break;
 
   default:
@@ -976,6 +993,86 @@ void cass::pp581::operator()(const cass::CASSEvent &evt)
        ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }
+
+
+
+
+
+
+
+
+
+
+//----------------FWHM vs. Height of Wireend Signals---------------------------
+//-----------pp582-587, pp622-625----------------------------------------------
+cass::pp582::pp582(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(hist,id),
+  _sigprop(0)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexU1NbrSignals:
+    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
+  case PostProcessors::HexU2NbrSignals:
+    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
+  case PostProcessors::HexV1NbrSignals:
+    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
+  case PostProcessors::HexV2NbrSignals:
+    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
+  case PostProcessors::HexW1NbrSignals:
+    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
+  case PostProcessors::HexW2NbrSignals:
+    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
+
+  case PostProcessors::QuadX1NbrSignals:
+    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
+  case PostProcessors::QuadX2NbrSignals:
+    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
+  case PostProcessors::QuadY1NbrSignals:
+    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
+  case PostProcessors::QuadY2NbrSignals:
+    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
+
+  default:
+    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp582::~pp582()
+{
+  delete _sigprop;
+  _sigprop=0;
+  _histograms[_id] =  _sigprop;
+}
+
+void cass::pp582::loadParameters(size_t)
+{
+  //create the histogram
+  set2DHist(_sigprop,_id);
+  _histograms[_id] =  _sigprop;
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+}
+
+void cass::pp582::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //go through all peaks of the wireend//
+  //reference to all found peaks of the wireend channel//
+  const Signal::peaks_t &mcpSignals = det->layers()[_layer].wireend()[_signal].peaks();
+  //fill all found peaks into the histogram//
+  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
+       it != mcpSignals.end();
+       ++it)
+    _sigprop->fill(it->fwhm(),it->height());
+}
+
 
 
 

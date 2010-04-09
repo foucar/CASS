@@ -370,6 +370,40 @@ namespace cass
 
 
 
+  /*! @brief FWHM vs. Height of Wireend Signals
+
+  This postprocessor will make a histogram of the fwhm and height of
+  all Wireend Signals in a delaylinedetector.
+  (pp582-587, pp622-625)
+
+  @author Lutz Foucar
+  */
+  class pp582 : public PostprocessorBackend
+  {
+  public:
+    /*! Constructor for Number of Signals*/
+    pp582(PostProcessors::histograms_t&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp582();
+    /*! Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /*! load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+
+  protected:
+    /*! The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /*! The layer of the detector detector we are there for*/
+    char _layer;
+    /*! The Signal of the layer detector we are there for*/
+    char _signal;
+
+    /*! The Histogram storing the info*/
+    Histogram2DFloat  *_sigprop;
+  };
+
+
+
 }//end cass
 
 #endif
