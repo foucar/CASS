@@ -30,7 +30,9 @@ namespace cass
     @verbatim
     00001: Last plain image from pnCCD-1 (pnCCD)
     00002: Last plain image from pnCCD-2 (pnCCD)
+
     00003: Last plain image from VMI ccd camera (VMI)
+
     00004: Last waveform of Camp Acqiris Channel 00
     00005: Last waveform of Camp Acqiris Channel 01
     00006: Last waveform of Camp Acqiris Channel 02
@@ -51,6 +53,7 @@ namespace cass
     00021: Last waveform of Camp Acqiris Channel 17
     00022: Last waveform of Camp Acqiris Channel 18
     00023: Last waveform of Camp Acqiris Channel 19
+
     00101: Running average of pnCCD-1 images with
            - geometric binning (x and y) of postprocessors/101/binning
            - an average length of postprocessors/101/average
@@ -64,6 +67,7 @@ namespace cass
     00144: Gaussian height of image pp3
     00145: Gaussian width of image pp121
     00146: Gaussian height of image pp121
+
     00500: Averaged waveform of Camp Acqiris Channel 00
     00501: Averaged waveform of Camp Acqiris Channel 01
     00502: Averaged waveform of Camp Acqiris Channel 02
@@ -84,6 +88,7 @@ namespace cass
     00517: Averaged waveform of Camp Acqiris Channel 17
     00518: Averaged waveform of Camp Acqiris Channel 18
     00519: Averaged waveform of Camp Acqiris Channel 19
+
     00550: Hex Anode Number of Peaks in MCP
     00551: Hex Anode Number of Peaks in U1
     00552: Hex Anode Number of Peaks in U2
@@ -114,6 +119,7 @@ namespace cass
     00578: Hex Anode Delayline Picture all Hits in mm
     00579: Hex Anode Delayline X vs Tof
     00580: Hex Anode Delayline Y vs Tof
+
     00600: Quad Anode Number of Peaks in MCP
     00601: Quad Anode Number of Peaks in X1
     00602: Quad Anode Number of Peaks in X2
@@ -135,6 +141,15 @@ namespace cass
     00618: Quad Anode Delayline Picture all Hits in mm
     00619: Quad Anode Delayline X vs Tof
     00620: Quad Anode Delayline Y vs Tof
+
+    00650: VMIMcp Number of Peaks in Waveform
+    00651: VMIMcp AllHits on Mcp
+
+    00660: IntensityMonitor Number of Peaks in Waveform
+    00661: IntensityMonitor AllHits on Mcp
+
+    00670: Photodiode Number of Peaks in Waveform
+    00671: Photodiode AllHits on Mcp
     @endverbatim
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
