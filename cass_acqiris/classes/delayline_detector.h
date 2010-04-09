@@ -7,7 +7,7 @@
 #include <algorithm>
 
 #include "cass_acqiris.h"
-#include "detector_backend.h"
+#include "tof_detector.h"
 #include "waveform_signal.h"
 
 
@@ -134,13 +134,15 @@ namespace cass
 
     /*! The delayline detector
 
+    A delayline detector is a tof detector with the ability to also
+    have position information.
     class that can be a Hex or Quad delayline detector. it contains
     all information that is needed in order to sort the signals in the
     waveforms to detector hits
 
     @author Lutz Foucar
     */
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public DetectorBackend
+    class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public TofDetector
     {
     public:
       /** constructor
@@ -148,7 +150,7 @@ namespace cass
       @param[in] name the name of this detector
       */
       DelaylineDetector(DelaylineType type, const std::string name)
-        :DetectorBackend(name),
+        :TofDetector(name),
          _runtime(0),
          _wLayerOffset(100),
          _mcpRadius(0),
@@ -227,8 +229,6 @@ namespace cass
       double _wLayerOffset;
       /** the radius of the MCP in mm*/
       double _mcpRadius;
-      /** properties of MCP Signals for this detektor*/
-      Signal _mcp;
       /** the Deadtime between to Signals on the MCP*/
       double _deadMcp;
       /** the deadtime between to Signals on the Layers */

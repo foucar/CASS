@@ -32,8 +32,8 @@ namespace cass
       const Signal        &mcp()const {return _mcp;}
       /** setter for the singal*/
       Signal              &mcp() {return _mcp;}
-    private:
-      /** the actual tof peaks*/
+    protected:
+      /** the properties of the mcp of the tofdetector*/
       Signal _mcp;
     };
   }

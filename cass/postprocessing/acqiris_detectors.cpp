@@ -339,8 +339,8 @@ void cass::pp550::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
-  DelaylineDetector *det =
-      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector *det =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   _nbrSignals->fill(det->mcp().peaks().size());
 }
 
@@ -648,8 +648,8 @@ void cass::pp567::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
-  DelaylineDetector *det =
-      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector *det =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //reference to all found peaks of the mcp channel//
   const Signal::peaks_t &mcpSignals = det->mcp().peaks();
   //fill all found peaks into the histogram//
