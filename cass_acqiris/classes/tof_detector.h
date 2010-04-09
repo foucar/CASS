@@ -28,6 +28,10 @@ namespace cass
       virtual void loadParameters(QSettings *p);
       /** save values to cass.ini */
       virtual void saveParameters(QSettings *){};
+      /** getter for the signal*/
+      const Signal        &mcp()const {return _mcp;}
+      /** setter for the singal*/
+      Signal              &mcp() {return _mcp;}
     private:
       /** the actual tof peaks*/
       Signal _mcp;
