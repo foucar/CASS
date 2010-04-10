@@ -78,7 +78,7 @@ namespace cass
       void saveParameters(QSettings *p, const char * signalname);
 
     public:
-      /** @typedef peaks_t convience for easier readable code, is a vector of Peak*/
+      /** convience for easier readable code, is a vector of Peak*/
       typedef std::vector<Peak> peaks_t;
 
     public:
