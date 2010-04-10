@@ -360,7 +360,11 @@ namespace cass
         /** container for registered (active) postprocessors */
         postprocessors_t _postprocessors;
 
-        /** Create new Postprocessor for specified id and using the specified histogram container */
+        /** Create new Postprocessor for specified id and using the specified histogram container
+
+          @param[in] hs the histogram container
+          @param[in] id the id of the postprocessor
+        */
         PostprocessorBackend * create(histograms_t hs, id_t id);
 
         /** Set up _histograms and _postprocessors using current _active*/
