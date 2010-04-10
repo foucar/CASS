@@ -93,10 +93,11 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 namespace cass
 {
   /*! binary operator for averaging
+
     capable of performing a Cumulative moving average and
     a Exponential moving average.
    @see http://en.wikipedia.org/wiki/Moving_average
-  @author Lutz Foucar
+   @author Lutz Foucar
   */
   class Average
   {
