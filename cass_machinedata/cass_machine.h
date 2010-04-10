@@ -19,8 +19,7 @@ namespace cass
   {
     /** we are assigned a given eventcode range which is 8 long
         this range does not start at 0 but at the offset which
-        is defined here.
-    */
+        is defined here.*/
     const uint32_t EVREventCodeOffset=67;
   }
 }

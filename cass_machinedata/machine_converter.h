@@ -18,7 +18,7 @@ namespace cass
       Will convert Beamline data, Cavity data, Epics Data and EVR Data
       @todo split this to several converters for the different data types
       @author Lutz Foucar
-      */
+    */
     class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:

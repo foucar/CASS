@@ -18,7 +18,8 @@ namespace cass
        @todo we should let this class only identify the Signals and create the
              Signal list. The further analysis of the Signal should be done,
              when the user requests a property.
-    @author Lutz Foucar */
+    @author Lutz Foucar
+  */
     class CASS_ACQIRISSHARED_EXPORT CFD8Bit : public WaveformAnalyzerBackend
     {
     public:
@@ -34,7 +35,8 @@ namespace cass
 
     /*! @brief Finds signals in a 16 bit waveform
         @see class CoM8Bit
-        @author Lutz Foucar*/
+        @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public WaveformAnalyzerBackend
     {
     public:
