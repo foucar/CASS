@@ -116,6 +116,8 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 
 @date 2009-2010
 
+@todo create a client for the tcpserver that will retrieve
+      the postprocessors histgrams and display them
 @todo make detector evaluation lazy by having the getters calc
       all values.
 @todo look whether pnccd offsetcorrection works
