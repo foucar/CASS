@@ -122,6 +122,9 @@ TCP server\n
 @todo look whether pnccd offsetcorrection works
 @todo look whether photonit extraction works
 @todo copy todo list from google to here
+@todo ask Matt about an updated version of xtcmonserver.cc,
+      that is capable of having the new send configure transition
+      first capability included
 */
 
 

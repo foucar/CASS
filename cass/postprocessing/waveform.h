@@ -16,7 +16,7 @@ namespace cass
   /*! Last Waveforms
 
   class to show the last wavefrom of a channel
-  @todo include also the other instruments
+  @todo include also the other Acqiris instruments
   @author Lutz Foucar
   */
   class pp4 : public PostprocessorBackend
@@ -48,7 +48,7 @@ namespace cass
   depending on the factor it will make a cumulative average or
   in exponential moving average
 
-  @todo include also the other instruments
+  @todo include also the other Acqiris instruments
   @author Lutz Foucar
   */
   class pp500 : public PostprocessorBackend
