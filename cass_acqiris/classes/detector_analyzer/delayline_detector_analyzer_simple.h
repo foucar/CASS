@@ -13,14 +13,14 @@ namespace cass
     class DelaylineDetector;
     class AnodeLayer;
 
-    /*! @brief a simple rekonstructor
+    /*! A simple reconstructor.
       class that will take an detector get the infos from it
       and then after creating the list of signals from the waveform uses the timesum
       to rekonstruct detectorhits from these signals.
       This is only done for two layers, even though a hex anode might also be used
       @todo after making sure that the waveform signal container will create the list of
-            singals / peaks itselve, we no longer will need the info about the wavefrom
-            analyzers. then we would only need the delaylinedetector
+            singals / peaks itselve, we no longer will need the info about the waveform
+            analyzers in the constructor
       @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
         : public DelaylineDetectorAnalyzerBackend
@@ -34,13 +34,6 @@ namespace cass
       }
       /** the function creating the detectorhit list*/
       virtual void operator()(DetectorBackend&,const Device&);
-
-    private:
-      /** @todo this function should not be part of the class but rather a
-                convenience function inside the implementation file
-          @todo make anode layer a std::pair for more convenient parameters parsing
-      */
-      void sortForTimesum(DelaylineDetector&,AnodeLayer &x,AnodeLayer &y);
     };
 
   }//end namespace acqiris

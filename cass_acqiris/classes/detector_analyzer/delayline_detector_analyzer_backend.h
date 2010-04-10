@@ -9,10 +9,9 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief base class for delayline detector analysis
-      @todo since there is more than 1 way to rekonstruct the detectorhits
-            we might still need this base class
-      @author Lutz Foucar*/
+    /*! base class for delayline detector analysis.
+    @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerBackend
         : public DetectorAnalyzerBackend
     {
