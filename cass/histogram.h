@@ -263,6 +263,7 @@ every type of histogram inherits from here
     float center() const {
       using namespace std;
       storage_t partial(_memory.size());
+      /** @warning this gives a warning at SLAC "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"*/
       accumulate(_memory.begin(), _memory.end(), partial.begin());
       storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
       return _axis[0].position((center - partial.begin()));
