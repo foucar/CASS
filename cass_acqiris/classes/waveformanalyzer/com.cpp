@@ -100,13 +100,13 @@ template <typename T>
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CoM8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CoM8Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   com<char>(c,r);
 }
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CoM16Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CoM16Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   com<short>(c,r);
 }

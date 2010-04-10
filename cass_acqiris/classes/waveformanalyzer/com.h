@@ -25,8 +25,12 @@ namespace cass
     public:
       /** constructor*/
       CoM8Bit()    {std::cout << "adding 8 bit Center of Mass waveformanalyzer"<<std::endl;}
-      /** the actual functor that does all the work*/
-      void analyze(const Channel&, ResultsBackend&);
+      /** the actual functor that does all the work
+        @return void
+        @param c the channel to work on
+        @param r the waveform signal that contains the peak list, that will be filley by this
+      */
+      virtual void operator()(const Channel&c, ResultsBackend&r);
     };
 
     /*! @brief Finds singals in a 16 bit waveform
@@ -37,7 +41,7 @@ namespace cass
     {
     public:
       CoM16Bit()    {std::cout << "adding 16 bit Center of Mass waveformanalyzer"<<std::endl;}
-      void analyze(const Channel&, ResultsBackend&);
+      virtual void operator()(const Channel&, ResultsBackend&);
     };
   }//end namespace acqiris
 }//end namespace cass

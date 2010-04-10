@@ -30,7 +30,7 @@ namespace cass
         @param c The channel that we need to analyze
         @param r The found peaks go to the result
       */
-      void analyze(const Channel&c, ResultsBackend&r);
+      virtual void operator()(const Channel&c, ResultsBackend&r);
     };
 
     /*! @brief Finds signals in a 16 bit waveform
@@ -41,7 +41,7 @@ namespace cass
     {
     public:
       CFD16Bit()    {std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
-      void analyze(const Channel&, ResultsBackend&);
+      virtual void operator()(const Channel&, ResultsBackend&);
     };
 
   }//end namespace acqiris

@@ -22,9 +22,11 @@ namespace cass
       /** virtual destructor*/
       virtual ~WaveformAnalyzerBackend(){}
       /** pure virtual function stub for all analyzers that analyze a waveform
-        @todo to make this more clearly a function this should be renamed to operator ()
-        */
-      virtual void analyze(const Channel&, ResultsBackend&) = 0;
+        @return void
+        @param[in] c The channel to work on
+        @param[out] r the results of the analysis go here
+      */
+      virtual void operator()(const Channel& c, ResultsBackend& r) = 0;
     };
   }//end namespace acqiris
 }//end namespace cass

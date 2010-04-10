@@ -139,14 +139,14 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CFD8Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CFD8Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   cfd<char>(c,r);
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CFD16Bit::analyze(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+void cass::ACQIRIS::CFD16Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
 {
   cfd<short>(c,r);
 }
