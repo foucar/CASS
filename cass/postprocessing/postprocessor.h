@@ -156,15 +156,15 @@ namespace cass
     00625: Quad Anode Height vs. Fwhm Y2
 
     00650: VMIMcp Number of Peaks in Waveform
-    00651: VMIMcp AllHits on Mcp
+    00651: VMIMcp All Hits on Mcp
     00652: VMIMcp Height vs. Fwhm
 
     00660: IntensityMonitor Number of Peaks in Waveform
-    00661: IntensityMonitor AllHits on Mcp
+    00661: IntensityMonitor All Hits on Mcp
     00662: IntensityMonitor Height vs. Fwhm
 
     00670: Photodiode Number of Peaks in Waveform
-    00671: Photodiode AllHits on Mcp
+    00671: Photodiode All Hits on Mcp
     00672: Photodiode Height vs. Fwhm
     @endverbatim
     */
@@ -225,6 +225,7 @@ namespace cass
             CampChannel17AveragedWaveform=517,
             CampChannel18AveragedWaveform=518,
             CampChannel19AveragedWaveform=519,
+
             HexMCPNbrSignals=550,
             HexU1NbrSignals=551,
             HexU2NbrSignals=552,

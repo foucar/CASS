@@ -12,6 +12,7 @@
 #include "postprocessing/ccd.h"
 #include "postprocessing/waveform.h"
 #include "postprocessing/alignment.h"
+#include "acqiris_detectors.h"
 
 
 namespace cass
@@ -182,6 +183,103 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
   case CampChannel19AveragedWaveform:
     processor = new pp500(hs,id);
     break;
+  case HexMCPNbrSignals:
+  case QuadMCPNbrSignals:
+  case VMIMcpNbrSignals:
+  case IntensityMonitorNbrSignals:
+  case PhotodiodeNbrSignals:
+    processor = new pp550(hs,id);
+    break;
+  case HexU1NbrSignals:
+  case HexU2NbrSignals:
+  case HexV1NbrSignals:
+  case HexV2NbrSignals:
+  case HexW1NbrSignals:
+  case HexW2NbrSignals:
+  case QuadX1NbrSignals:
+  case QuadX2NbrSignals:
+  case QuadY1NbrSignals:
+  case QuadY2NbrSignals:
+    processor = new pp551(hs,id);
+    break;
+  case HexU1U2Ratio:
+  case HexV1V2Ratio:
+  case HexW1W2Ratio:
+  case QuadX1X2Ratio:
+  case QuadY1Y2Ratio:
+    processor = new pp557(hs,id);
+    break;
+  case HexU1McpRatio:
+  case HexU2McpRatio:
+  case HexV1McpRatio:
+  case HexV2McpRatio:
+  case HexW1McpRatio:
+  case HexW2McpRatio:
+  case QuadX1McpRatio:
+  case QuadX2McpRatio:
+  case QuadY1McpRatio:
+  case QuadY2McpRatio:
+    processor = new pp558(hs,id);
+    break;
+  case HexRekMcpRatio:
+  case QuadRekMcpRatio:
+    processor = new pp566(hs,id);
+    break;
+  case HexAllMcp:
+  case QuadAllMcp:
+  case VMIMcpAllMcp:
+  case IntensityMonitorAllMcp:
+  case PhotodiodeAllMcp:
+    processor = new pp567(hs,id);
+    break;
+  case HexTimesumU:
+  case HexTimesumV:
+  case HexTimesumW:
+  case QuadTimesumX:
+  case QuadTimesumY:
+    processor = new pp568(hs,id);
+    break;
+  case HexTimesumUvsU:
+  case HexTimesumVvsV:
+  case HexTimesumWvsW:
+  case QuadTimesumXvsX:
+  case QuadTimesumYvsY:
+    processor = new pp571(hs,id);
+    break;
+  case HexFirstUV:
+  case HexFirstUW:
+  case HexFirstVW:
+  case QuadFirstXY:
+    processor = new pp574(hs,id);
+    break;
+  case HexXY:
+  case HexXT:
+  case HexYT:
+  case QuadXY:
+  case QuadXT:
+  case QuadYT:
+    processor = new pp578(hs,id);
+    break;
+  case HexHeightvsFwhmMcp:
+  case QuadHeightvsFwhmMcp:
+  case VMIMcpHeightvsFwhmMcp:
+  case IntensityMonitorHeightvsFwhmMcp:
+  case PhotodiodeHeightvsFwhmMcp:
+    processor = new pp581(hs,id);
+    break;
+  case HexHeightvsFwhmU1:
+  case HexHeightvsFwhmU2:
+  case HexHeightvsFwhmV1:
+  case HexHeightvsFwhmV2:
+  case HexHeightvsFwhmW1:
+  case HexHeightvsFwhmW2:
+  case QuadHeightvsFwhmX1:
+  case QuadHeightvsFwhmX2:
+  case QuadHeightvsFwhmY1:
+  case QuadHeightvsFwhmY2:
+    processor = new pp582(hs,id);
+    break;
+
   default:
     throw std::invalid_argument("Postprocessor id not available");
   }

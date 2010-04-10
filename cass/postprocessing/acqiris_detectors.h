@@ -79,7 +79,8 @@ namespace cass
   /*! @brief Ratio of Peaks for two layers
 
   This postprocessor will output the Ratio of the Number
-  of Signals with Respect to the other layer (pp577, 560 563, 605, 608)
+  of Signals with Respect to the other layer
+  (pp577, pp560, pp563, pp605, pp608)
 
   @author Lutz Foucar
   */
