@@ -30,7 +30,7 @@ namespace cass
       {}
 
     public:
-      /** @typedef a vector of Channels for more readable code*/
+      /** a vector of Channels */
       typedef std::vector<Channel> channels_t;
 
     public:
@@ -66,7 +66,7 @@ namespace cass
       Device();
 
     public:
-      /** @typedef instruments_t a map of all instruments available*/
+      /** a map of all instruments available*/
       typedef std::map<Instruments, Instrument> instruments_t;
 
     public:
