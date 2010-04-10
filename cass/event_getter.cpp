@@ -7,7 +7,7 @@
 
 using namespace cass;
 
-cass::EventGetter::EventGetter(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer)
+EventGetter::EventGetter(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer)
   :_ringbuffer(ringbuffer)
 {}
 

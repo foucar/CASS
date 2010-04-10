@@ -25,8 +25,7 @@ namespace cass
   };
 
 
-  /*! Retrieve a CASSEvent from the ringbuffer
-
+  /*! Retrieve a CASSEvent from the ringbuffer.
     class that will retrieve an cassevent from the ringbuffer
     using the requested arguments
    @author Lutz Foucar
