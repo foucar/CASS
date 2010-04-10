@@ -16,11 +16,11 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief A Channel of an Acqiris Instrument
-
+    /*! @brief A Channel of an Acqiris Instrument.
       contains all information that an Acqiris instrument will provide about
       a channel
-      @author Lutz Foucar*/
+      @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT Channel : public Serializable
     {
     public:
@@ -28,8 +28,8 @@ namespace cass
       Channel():Serializable(1)  {}
 
     public:
-      /** @typedef waveform_t A wavefrom is just an array (vector) of integers,
-        this typedef is for more readable code*/
+      /** A wavefrom is just an array (vector) of integers,
+          this typedef is for more readable code*/
       typedef std::vector<int16_t> waveform_t;
 
     public:
