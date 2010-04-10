@@ -38,7 +38,10 @@ namespace cass
       {}
 
     public:
-      /** typedef for more readable code*/
+      /** typedef for more readable code
+        @todo instead of double as second one could make it a QVariant to be able to
+              also store strings.
+      */
       typedef std::map<std::string,double> epicsDataMap_t;
       /** typedef for more readable code*/
       typedef std::map<std::string,double> bldMap_t;
