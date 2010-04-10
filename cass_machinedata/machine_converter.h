@@ -17,7 +17,6 @@ namespace cass
     /*! Converter for Beamline-, Cavity-, Epics- and EVR Data
 
       Will convert Beamline data, Cavity data, Epics Data and EVR Data
-      @todo include EVR Data
       @todo split this to several converters for the different data types
       @author Lutz Foucar
       */

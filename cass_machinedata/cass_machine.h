@@ -5,6 +5,7 @@
 #define CASS_MACHINE_GLOBAL_H
 
 #include <QtCore/qglobal.h>
+#include <stdint.h>
 
 #if defined(CASS_MACHINEDATA_LIBRARY)
 #  define CASS_MACHINEDATASHARED_EXPORT Q_DECL_EXPORT
@@ -20,7 +21,7 @@ namespace cass
         this range does not start at 0 but at the offset which
         is defined here.
       */
-    const int EVREventCodeOffset=67;
+    const uint32_t EVREventCodeOffset=67;
   }
 }
 #endif // CASS_MACHINE_GLOBAL_H
