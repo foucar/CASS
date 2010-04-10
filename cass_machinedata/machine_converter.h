@@ -14,8 +14,7 @@ namespace cass
 
   namespace MachineData
   {
-    /*! Converter for Beamline-, Cavity-, Epics- and EVR Data
-
+    /*! Converter for Beamline-, Cavity-, Epics- and EVR Data.
       Will convert Beamline data, Cavity data, Epics Data and EVR Data
       @todo split this to several converters for the different data types
       @author Lutz Foucar
@@ -23,8 +22,12 @@ namespace cass
     class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      //! called for appropriate xtc part//
-      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+      /** called for appropriate xtc part.
+        @return void
+        @param xtc the xtc that contains evr, epics, beamlinedata info
+        @param evt pointer to the event that we will write the data to.
+      */
+      void operator()(const Pds::Xtc*xtc, cass::CASSEvent*evt);
 
     private:
       /** convenience typedef for easier readable code*/
