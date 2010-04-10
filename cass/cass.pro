@@ -29,6 +29,7 @@ SOURCES +=  cass.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
+            ./postprocessing/imaging.cpp \
 
 HEADERS +=  analysis_backend.h \
             conversion_backend.h \
@@ -55,6 +56,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/alignment.h \
             ./postprocessing/waveform.h \
             ./postprocessing/acqiris_detectors.h \
+            ./postprocessing/imaging.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
                 ../cass_acqiris \
