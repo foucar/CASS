@@ -95,24 +95,24 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 </ul>
 
 @author Nicola Coppola \n
-depreciated cass_database\n
-depreciated cass_dictionary\n
-new pnCCD analysis\n
-Region of Interest (ROI) implementation\n
-CASS testing, debug and development\n
+-depreciated cass_database\n
+-depreciated cass_dictionary\n
+-new pnCCD analysis\n
+-Region of Interest (ROI) implementation\n
+-CASS testing, debug and development\n
 
 @author Lutz Foucar \n
-general leader \n
-cass, cass_acqiris, cass_ccd, cass_machinedata implementation \n
-CASS design, infrastructure development\n
+-general leader \n
+-cass, cass_acqiris, cass_ccd, cass_machinedata implementation \n
+-CASS design, infrastructure development\n
 
 @author Nils Kimmel \n
-original pnCCD analysis\n
+-original pnCCD analysis\n
 
 @author Jochen Kuepper \n
-CASS design, infrastructure development\n
-cass framework implementation\n
-TCP server\n
+-CASS design, infrastructure development\n
+-cass framework implementation\n
+-TCP server\n
 
 @date 2009-2010
 
