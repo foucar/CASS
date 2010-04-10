@@ -14,9 +14,12 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief helperclass for evaluating the first good hit in a given range
+    /*! @brief helperclass for evaluating the first good hit in a given range.
       This class is beeing used by std::find_if as Predicate
-      @author Lutz Foucar*/
+      @todo replace this class by stl bind2nd, logical_and, less, less_equal
+            therefore peak has to have an bool operator<()(double)
+      @author Lutz Foucar
+    */
     class PeakInRange
     {
     public:
@@ -47,7 +50,8 @@ namespace cass
       @todo rename this class to somehting more meaningful
             In the delayline it represents the wireends of the anodelayers and the mcp output
             In the tof it should just represent the way to extract the singals and the signals itselve
-      @author Lutz Foucar*/
+      @author Lutz Foucar
+    */
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
     {
     public:
@@ -68,8 +72,7 @@ namespace cass
       {}
 
     public:
-      /** loads the parameters from cass.ini, should only be called by class containing this class
-        @todo load also instrument information*/
+      /** loads the parameters from cass.ini, should only be called by class containing this class */
       void loadParameters(QSettings *p, const char * signalname);
       /** save your parameters to cass.ini, should only be called by parent*/
       void saveParameters(QSettings *p, const char * signalname);
@@ -177,6 +180,7 @@ inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * sig
 {
   //std::cerr<<"loading wavefrom signal parameters for signal \""<<signalname<<"\""<<std::endl;
   p->beginGroup(signalname);
+  _instrument   = static_cast<Instruments>(p->value("AcqirisInstrument",Camp1).toInt());
   _chNbr        = p->value("ChannelNumber",0).toInt();
   _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
   _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
@@ -195,6 +199,7 @@ inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * sig
 inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * signalname)
 {
   p->beginGroup(signalname);
+  p->setValue("AcqirisInstrument",static_cast<int>(_instrument));
   p->setValue("ChannelNumber",static_cast<int>(_chNbr));
   p->setValue("LowerTimeRangeLimit",_trLow);
   p->setValue("UpperTimeRangeLimit",_trHigh);
