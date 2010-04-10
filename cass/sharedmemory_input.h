@@ -31,7 +31,9 @@ namespace cass
   public:
     /** constructor creates the thread
       @param PartitionTag the name of the partition tag we want to connect to
-      @param buffer the ringbuffer, that we take events out and fill it with the incomming information*/
+      @param buffer the ringbuffer, that we take events out and fill it with the incomming information
+      @param parent the parent of this object
+   */
     SharedMemoryInput(char * PartitionTag, cass::RingBuffer<cass::CASSEvent,4>& buffer, QObject *parent=0);
     /** deletes the thread*/
     ~SharedMemoryInput();
