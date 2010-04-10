@@ -11,10 +11,10 @@ namespace cass
 {
 class Histogram0DFloat;
 
-/*! <cos^2\theta> of CCD image
+/*! \f$\cos^2\theta\f$ of CCD image
 
 This postprocessor reduces the running average of the CCD image (pp121) to a scalar that represents
-the <\cos^2\theta> (degree of alignment)
+the \f$\cos^2\theta\f$ (degree of alignment)
 
 @author Jochen Küpper
 */
