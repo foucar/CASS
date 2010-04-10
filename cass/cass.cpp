@@ -125,6 +125,8 @@ TCP server\n
 @todo ask Matt about an updated version of xtcmonserver.cc,
       that is capable of having the new send configure transition
       first capability included
+@todo find out why there are the warning messages about const
+      iterators (size_t) when compiling at SLAC
 */
 
 
