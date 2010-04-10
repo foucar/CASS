@@ -11,7 +11,7 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief Finds Signals in a waveform
+    /*! @brief Finds Signals in a waveform.
        Analyzes a waveform and find signals using a constant fraction algorithm.
        It then does all the further analysis of the identified Signal.
        This class will work on waveforms of old 8 Bit Acqiris Instruments.
@@ -24,11 +24,15 @@ namespace cass
     public:
       /** constructor*/
       CFD8Bit()    {std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
-      /** the actual functor that does all the work*/
-      void analyze(const Channel&, ResultsBackend&);
+      /** analzye the waveform of the channel.
+        @return void
+        @param c The channel that we need to analyze
+        @param r The found peaks go to the result
+      */
+      void analyze(const Channel&c, ResultsBackend&r);
     };
 
-    /*! @brief Finds singals in a 16 bit waveform
+    /*! @brief Finds signals in a 16 bit waveform
         @see class CoM8Bit
         @author Lutz Foucar*/
     class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public WaveformAnalyzerBackend
