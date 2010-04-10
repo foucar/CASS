@@ -127,6 +127,7 @@ TCP server\n
       first capability included
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
+@todo document the parameters by the analyze functions of Acqiris
 */
 
 
