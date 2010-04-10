@@ -99,15 +99,15 @@ depreciated cass_database\n
 depreciated cass_dictionary\n
 new pnCCD analysis\n
 Region of Interest (ROI) implementation\n
-CASS testing, debug and development
+CASS testing, debug and development\n
 
 @author Lutz Foucar \n
 general leader \n
 cass, cass_acqiris, cass_ccd, cass_machinedata implementation \n
-CASS design, infrastructure development
+CASS design, infrastructure development\n
 
 @author Nils Kimmel \n
-original pnCCD analysis
+original pnCCD analysis\n
 
 @author Jochen Kuepper \n
 CASS design, infrastructure development\n
@@ -115,6 +115,13 @@ cass framework implementation\n
 TCP server\n
 
 @date 2009-2010
+
+@todo make authornames bold to destinguish more
+@todo make detector evaluation lazy by having the getters calc
+      all values.
+@todo look whether pnccd offsetcorrection works
+@todo look whether photonit extraction works
+@todo copy todo list from google to here
 */
 
 
