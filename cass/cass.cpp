@@ -127,6 +127,8 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
 @todo document the parameters by the analyze functions of Acqiris
+@todo Talk to Chris what range of event sequencing codes we will be
+      assinged. Make sure that the range will be consequtive.
 */
 
 
