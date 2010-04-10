@@ -94,7 +94,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 <li>l: loop. If the end of the file has been reached start from the beginning
 </ul>
 
-@author <b>Nicola Coppola</b> \n
+@author Nicola Coppola \n
 - depreciated cass_database\n
 - depreciated cass_dictionary\n
 - new pnCCD analysis\n
@@ -116,7 +116,6 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 
 @date 2009-2010
 
-@todo make authornames bold to destinguish more
 @todo make detector evaluation lazy by having the getters calc
       all values.
 @todo look whether pnccd offsetcorrection works
@@ -131,7 +130,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 */
 
 
-
+/** the main program*/
 int main(int argc, char **argv)
 {
     // construct Qt application object
