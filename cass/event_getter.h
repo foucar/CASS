@@ -35,9 +35,9 @@ namespace cass
   {
   public:
     /** constructor
-      @param rb Reference to the Ringbuffer to retrieve the events from
+      @param ringbuffer Reference to the Ringbuffer to retrieve the events from
       */
-    EventGetter(RingBuffer<CASSEvent, RingBufferSize>&rb);
+    EventGetter(RingBuffer<CASSEvent, RingBufferSize>&ringbuffer);
     /** function to retrieve the event using the event parameters*/
     const std::string operator()(const EventParameter&) const;
 
