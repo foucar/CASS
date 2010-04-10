@@ -157,9 +157,7 @@ namespace cass
       { _analyzerType =DelaylineSimple;}
 
     public:
-      /** load the values from cass.ini
-      @todo make sure we create a unificaly group for each detector (maybe using a name?)
-      */
+      /** load the values from cass.ini*/
       virtual void loadParameters(QSettings *p);
       /** save values to cass.ini */
       virtual void saveParameters(QSettings *p);
