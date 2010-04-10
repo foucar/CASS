@@ -94,7 +94,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 <li>l: loop. If the end of the file has been reached start from the beginning
 </ul>
 
-@author Nicola Coppola \n
+@author <b>Nicola Coppola</b> \n
 - depreciated cass_database\n
 - depreciated cass_dictionary\n
 - new pnCCD analysis\n
