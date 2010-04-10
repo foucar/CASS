@@ -230,7 +230,7 @@ namespace cass
     /*! extract full width at half maximum (fwhm)
 
       @param[in] c the channel that the peak is found in
-      @param[in,out] the peak that we found
+      @param[in,out] p the peak that we found
 
       @author Lutz Foucar
     */
