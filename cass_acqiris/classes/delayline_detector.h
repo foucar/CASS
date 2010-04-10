@@ -16,12 +16,10 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! The Anode Layer of the delayline detector
-
-    class containing the properties of a
-    anode layer of the detector
-
-    @author Lutz Foucar
+    /*! The Anode Layer of the delayline detector.
+      class containing the properties of a
+      anode layer of the detector
+      @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer
     {
@@ -34,7 +32,7 @@ namespace cass
       {}
 
     public:
-      /** @typedef map of signals that form the wireends of the layer*/
+      /** map of signals that form the wireends of the layer*/
       typedef std::map<char,Signal> wireends_t;
     public:
       /*! load values from cass.ini, should only be called by the detector*/
@@ -42,11 +40,11 @@ namespace cass
       /*! save values to cass.ini, should only be called by the detector*/
       void saveParameters(QSettings *p,const char * layername);
     public:
-      /*! @returns the timesum condition for this anode layer*/
+      /*! returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
-      /*! @returns the timesum of the first good hit of this layer*/
+      /*! returns the timesum of the first good hit of this layer*/
       double timesum() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
-      /*! @returns the position of the first good hit*/
+      /*! returns the position of the first good hit*/
       double position() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
 
     public:
@@ -76,16 +74,14 @@ namespace cass
 
 
 
-    /*! Detector Hits
-
-    class containing the properties of a Hit on the
-    delayline detector. A Hit on a Delaylinedetector consists
-    of a x, y and t value. Where x and y are the position on
-    the detector and t is the time the particle hit the detector.
-    All these values are stored in a map and can be extracted using
-    the appropriate name ('x','y','t').
-
-    @author Lutz Foucar
+    /*! Detector Hits.
+      class containing the properties of a Hit on the
+      delayline detector. A Hit on a Delaylinedetector consists
+      of a x, y and t value. Where x and y are the position on
+      the detector and t is the time the particle hit the detector.
+      All these values are stored in a map and can be extracted using
+      the appropriate name ('x','y','t').
+      @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorHit
     {
