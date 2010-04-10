@@ -244,8 +244,11 @@ every type of histogram inherits from here
 
     /*! Add datum to histogram
 
-    this operation will lock the memory before attempting to fill the right bin
-    @param x y Position of datum
+    this operation will lock the memory before attempting to fill the right bin.
+    It will find the right bin for the x-value. If the histogram the bin should not
+    be increased by one, but by a user defined value, then this can be given as the
+    second paramenter.
+    @param x x value that should be histogrammed
     @param weight value of datum
     */
     void fill(float x, value_t weight=1.);
