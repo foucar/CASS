@@ -120,13 +120,8 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
       all values.
 @todo look whether pnccd offsetcorrection works
 @todo look whether photonit extraction works
-@todo copy todo list from google to here
-@todo ask Matt about an updated version of xtcmonserver.cc,
-      that is capable of having the new send configure transition
-      first capability included
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
-@todo document the parameters by the analyze functions of Acqiris
 @todo create another acqiris detector, that will just measure the
       volatage on a given channel
 */
