@@ -1,4 +1,5 @@
-// Copytight (C) 2009 Jochen Küpper
+// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009,2010 Lutz Foucar
 
 #include <iostream>
 #include <QtCore/QMutexLocker>

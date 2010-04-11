@@ -43,11 +43,8 @@ namespace cass
       uint32_t   _rebinfactor;  //!< the rebinning factor by which the image gets rebinned
     };
 
-    /*! Analysis of the commercial CCD
-
+    /*! Analysis of the commercial CCD.
       Analyses the vmi image and calculates parameters
-      @todo find out whether this will run in a multithreaded environment,
-            since it needs a temporary frame that will be written.
       @author Lutz Foucar
     */
     class CASS_CCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
