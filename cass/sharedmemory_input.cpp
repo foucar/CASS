@@ -29,8 +29,6 @@ void cass::SharedMemoryInput::loadSettings(size_t what)
 {
   //pause yourselve//
   suspend();
-  //wait until you are paused//
-  waitUntilSuspended();
   //load settings//
   _converter->loadSettings(what);
   //resume yourselve//
@@ -40,6 +38,8 @@ void cass::SharedMemoryInput::loadSettings(size_t what)
 void cass::SharedMemoryInput::suspend()
 {
   _pause=true;
+  //wait until you are paused//
+  waitUntilSuspended();
 }
 
 void cass::SharedMemoryInput::resume()
