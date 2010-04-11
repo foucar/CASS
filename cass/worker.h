@@ -58,15 +58,15 @@ namespace cass
 
 
   signals:
-    //! emit signal when you are done with one event//
+    //! emit signal when you are done with one event
     void processedEvent();
 
   public slots:
-    //! sets the flag to end this thread//
+    //! sets the flag to end this thread
     void end();
-    //! tells the thread to load the settings//
+    //! tells the thread to load the settings
     void loadSettings(size_t what);
-    //! save the settings//
+    //! save the settings
     void saveSettings();
 
   protected:
@@ -87,9 +87,10 @@ namespace cass
 
   };
 
-  /** a class that will handle the requested amount of workers threads
+  /** a class that will handle the requested amount of workers threads.
+    The amount of threads can be set in cass.h via parameters @see cass::NbrOfWorkers
     @author Lutz Foucar
-    */
+  */
   class CASSSHARED_EXPORT Workers : public QObject
   {
     Q_OBJECT;
@@ -102,21 +103,21 @@ namespace cass
     /** deletes all workers*/
     ~Workers();
 
-    //! starts the threads//
+    //! starts the threads
     void start();
-    //! use this to retrive the histogram container in postprocessor//
+    //! use this to retrive the histogram container in postprocessor
     const cass::PostProcessors::histograms_t& histograms()const;
 
   public slots:
-    //! will set the flags to end the threads//
+    //! will set the flags to end the threads
     void end();
-    //! will cause the loading of the settings from the cass.ini file//
+    //! will cause the loading of the settings from the cass.ini file
     void loadSettings(size_t what);
 
   signals:
-    //! this is emmitted once all workers have stoped//
+    //! this is emmitted once all workers have stoped
     void finished();
-    //! this is emmitted when a worker is finished with an event//
+    //! this is emmitted when a worker is finished with an event
     void processedEvent();
 
   private:
