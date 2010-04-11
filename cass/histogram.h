@@ -291,8 +291,7 @@ namespace cass
       : HistogramFloatBase(in)
     {}
 
-    /**
-     * Add datum to histogram.
+    /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
      * It will find the right bin for the x-value. If the histogram the bin should not
      * be increased by one, but by a user defined value, then this can be given as the
