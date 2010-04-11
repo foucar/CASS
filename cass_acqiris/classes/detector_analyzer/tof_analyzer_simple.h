@@ -14,7 +14,7 @@ namespace cass
 
       will just take an event and feed it to the right
       waveform analyzer
-      @todo might not be needed anymore, once the list of peaks
+      @note might not be needed anymore, once the list of peaks
             is created by the Signal itselve
       @author Lutz Foucar
     */

@@ -17,8 +17,9 @@ namespace cass
     {
     public:
       /** constructor
-        @todo does this need to know what kind of waveform analyzers are present?
-              the list of Singals / Peak should be created by the class Signal itselve?*/
+        @note does this need to know what kind of waveform analyzers are present?
+              the list of Singals / Peak should be created by the class Signal itselve?
+      */
       DelaylineDetectorAnalyzerBackend(waveformanalyzers_t* waveformanalyzer)
           :DetectorAnalyzerBackend(waveformanalyzer) {}
       /** virtual destructor*/

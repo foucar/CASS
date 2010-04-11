@@ -80,12 +80,14 @@ namespace cass
 
     public:
       /** setter
-      @todo we should make sure, that it will not be needed anymore, since the getter should
-            make sure that all peaks are set using the correct function*/
+      @note we should make sure, that it will not be needed anymore, since the getter should
+            make sure that all peaks are set using the correct function
+      */
       peaks_t           &peaks()              {return _peaks;}
       /** getter
-      @todo when calling this we should check whether it has alredy been called for the event
-            if not so, then create the peaks using the requested waveform analysis*/
+      @note when calling this we should check whether it has alredy been called for the event
+            if not so, then create the peaks using the requested waveform analysis
+      */
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:

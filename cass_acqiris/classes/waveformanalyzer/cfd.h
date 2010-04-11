@@ -15,7 +15,7 @@ namespace cass
        Analyzes a waveform and find signals using a constant fraction algorithm.
        It then does all the further analysis of the identified Signal.
        This class will work on waveforms of old 8 Bit Acqiris Instruments.
-       @todo we should let this class only identify the Signals and create the
+       @note we should let this class only identify the Signals and create the
              Signal list. The further analysis of the Signal should be done,
              when the user requests a property.
     @author Lutz Foucar

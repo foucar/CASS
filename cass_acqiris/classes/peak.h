@@ -16,11 +16,10 @@ namespace cass
     /*! @brief A Signal found inside a waveform
       This class contains all information one can extract from a singal in the wavefrom.
       The name peak comes historically.
-      @todo can make make it such that the properties are calculated only the
-            first time they are requested.
-      @todo we need to include what kind of analysis should be used to extract the time information
-            from the singal.
-      @todo to be able to calculate the values lazy, one could create pair<bool, value>
+      @note can make make it such that the properties are calculated only the
+            first time they are requested. Then we need to include what kind of
+            analysis should be used to extract the time information from the singal.
+      @note to be able to calculate the values lazy, one could create pair<bool, value>
             where the bool indicates whether the value has already been calculated for
             the event.
       @todo find a more meaningful name for this class (maybe this one should be called signal,

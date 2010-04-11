@@ -15,15 +15,16 @@ namespace cass
     class DetectorBackend;
     class WaveformAnalyzerBackend;
     /*! @brief Base class for all detector analyzers
-      @todo check whether we need a base class, since it might be good
-            if all detectors could have their own function
+      @note we won't need a base class, since when we calc the values
+            of all detectors lazyly they could have their own functions.
+            Then one would only have to have a base class once there
+            are several ways of analyzing the detector
       @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
     protected:
-      /** typedef to make code more readable
-        @todo might not be used anymore*/
+      /** typedef to make code more readable*/
       typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
     public:
       /** constructor needs to know what waveform analyzers are available*/

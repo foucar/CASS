@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2003 - 2010 Lutz Foucar
 #ifndef __COM_H__
 #define __COM_H__
 
@@ -10,14 +10,16 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief Finds Signals in a waveform
+    /*! Finds Signals in a waveform.
        Analyzes a waveform and find signals when they have three consecutive
        points above the defined threshold. It then does all the further analysis
        of the identified Signal.
        This class will work on waveforms of old 8 Bit Acqiris Instruments.
-       @todo we should let this class only identify the Signals and create the
+       @note we should let this class only identify the Signals and create the
              Signal list. The further analysis of the Signal should be done,
              when the user requests a property.
+       @note when the above is done we need to rename this to something
+             that describes the functors class much better.
        @author Lutz Foucar
     */
     class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public WaveformAnalyzerBackend
@@ -33,7 +35,7 @@ namespace cass
       virtual void operator()(const Channel&c, ResultsBackend&r);
     };
 
-    /*! @brief Finds singals in a 16 bit waveform
+    /*! Finds singals in a 16 bit waveform.
         @see class CoM8Bit
         @author Lutz Foucar
     */

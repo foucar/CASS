@@ -85,7 +85,7 @@ namespace cass
   public:
     /** create an instance of an helper for the requested detector,
     if it doesn't exist already. Create the maps with analyzers
-    @todo creating the list of analyzers might be more useful inside the constuctor. But
+    @note creating the list of analyzers might be more useful inside the constuctor. But
           then there would be a map for each detector.. We need to change this to
           let the detectors calculate the requested vaules lazly in the near future
   */

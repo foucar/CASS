@@ -26,7 +26,8 @@ namespace cass
       </ul>
       @author Lutz Foucar
     */
-    class CASS_MACHINEDATASHARED_EXPORT MachineDataDevice : public cass::DeviceBackend
+    class CASS_MACHINEDATASHARED_EXPORT MachineDataDevice
+      : public cass::DeviceBackend
     {
     public:
       /** constructor initializing values to meaningful data*/
@@ -39,7 +40,7 @@ namespace cass
 
     public:
       /** typedef for more readable code
-        @todo instead of double as second one could make it a QVariant to be able to
+        @note instead of double as second one could make it a QVariant to be able to
               also store strings.
       */
       typedef std::map<std::string,double> epicsDataMap_t;

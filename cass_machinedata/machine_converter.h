@@ -16,7 +16,9 @@ namespace cass
   {
     /*! Converter for Beamline-, Cavity-, Epics- and EVR Data.
       Will convert Beamline data, Cavity data, Epics Data and EVR Data
-      @todo split this to several converters for the different data types
+      @note maybe split this to several converters for the different data types
+            will this work. ie is only the epics map copied or the whole
+            event?
       @author Lutz Foucar
     */
     class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
