@@ -56,9 +56,9 @@ namespace cass
       /** constructor will load the settings*/
       Analysis()            {loadSettings();}
       /** load the settings, lock it first*/
-      void loadSettings()   {QMutexLocker locker(&_mutex);_param.load();}
+      void loadSettings()   {_param.load();}
       /** save the settings, lock it first*/
-      void saveSettings()   {QMutexLocker locker(&_mutex);_param.save();}
+      void saveSettings()   {_param.save();}
 
       //! called for every event will calculate the things
       void operator()(CASSEvent*);
