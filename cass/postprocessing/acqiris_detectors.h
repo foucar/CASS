@@ -17,7 +17,7 @@ namespace cass
 
   This postprocessor will output how many Signals have been found
   in the acqiris channel for the mcp of the detector
-  (pp550, pp600, pp650, pp660, pp670).
+  (pp550, pp600, pp650, pp660, pp670, pp680).
 
   @author Lutz Foucar
   */
@@ -178,7 +178,7 @@ namespace cass
 
   This postprocessor will output the times of all found Hits on the Mcp.
   This is more or less a Time of Flight Spektrum
-  (pp567, pp612, pp651, pp661, pp671)
+  (pp567, pp612, pp651, pp661, pp671, pp681)
 
   @author Lutz Foucar
   */
@@ -346,7 +346,7 @@ namespace cass
 
   This postprocessor will make a histogram of the fwhm and height of
   all MCP Signals in a detector.
-  (pp581, pp621, pp652, pp662 pp672)
+  (pp581, pp621, pp652, pp662, pp672, pp682)
 
   @author Lutz Foucar
   */

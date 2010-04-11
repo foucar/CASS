@@ -187,7 +187,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
   case QuadMCPNbrSignals:
   case VMIMcpNbrSignals:
   case IntensityMonitorNbrSignals:
-  case PhotodiodeNbrSignals:
+  case YAGPhotodiodeNbrSignals:
+  case FsPhotodiodeNbrSignals:
     processor = new pp550(hs,id);
     break;
   case HexU1NbrSignals:
@@ -229,7 +230,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
   case QuadAllMcp:
   case VMIMcpAllMcp:
   case IntensityMonitorAllMcp:
-  case PhotodiodeAllMcp:
+  case YAGPhotodiodeAllMcp:
+  case FsPhotodiodeAllMcp:
     processor = new pp567(hs,id);
     break;
   case HexTimesumU:
@@ -264,7 +266,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t 
   case QuadHeightvsFwhmMcp:
   case VMIMcpHeightvsFwhmMcp:
   case IntensityMonitorHeightvsFwhmMcp:
-  case PhotodiodeHeightvsFwhmMcp:
+  case YAGPhotodiodeHeightvsFwhmMcp:
+  case FsPhotodiodeHeightvsFwhmMcp:
     processor = new pp581(hs,id);
     break;
   case HexHeightvsFwhmU1:

@@ -258,11 +258,17 @@ cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors de
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("IntensityMonitor")));
     }
-  case Photodiode:
+  case YAGPhotodiode:
     {
-      _detector = new TofDetector("Photodiode");
+      _detector = new TofDetector("YAGPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("Photodiode")));
+        _detectorList.push_front(std::make_pair(0,new TofDetector("YAGPhotodiode")));
+    }
+  case FsPhotodiode:
+    {
+      _detector = new TofDetector("FsPhotodiode");
+      for (size_t i=0; i<NbrOfWorkers*2;++i)
+        _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
     }
     break;
   default: throw std::invalid_argument("no such detector is present");
@@ -294,7 +300,7 @@ void cass::HelperAcqirisDetectors::loadParameters(size_t)
 
 
 //----------------Nbr of Peaks MCP---------------------------------------------
-//-----------pp550, pp600, pp650, pp660, pp670---------------------------------
+//-----------pp550, pp600, pp650, pp660, pp670, pp680--------------------------
 cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id),
   _nbrSignals(0)
@@ -310,8 +316,10 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = VMIMcp;break;
   case PostProcessors::IntensityMonitorNbrSignals:
     _detector = IntensityMonitor;break;
-  case PostProcessors::PhotodiodeNbrSignals:
-    _detector = Photodiode;break;
+  case PostProcessors::YAGPhotodiodeNbrSignals:
+    _detector = YAGPhotodiode;break;
+  case PostProcessors::FsPhotodiodeNbrSignals:
+    _detector = FsPhotodiode;break;
   default:
     throw std::invalid_argument("this postprocessor is not responsible for Nbr Signals Postprocessor");
   }
@@ -606,7 +614,7 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
 
 
 //----------------MCP Hits (Tof)-----------------------------------------------
-//-------------pp567, pp612, pp651, pp661, pp671-------------------------------
+//-------------pp567, pp612, pp651, pp661, pp671, pp681------------------------
 cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id),
   _tof(0)
@@ -622,8 +630,10 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = VMIMcp;break;
   case PostProcessors::IntensityMonitorAllMcp:
     _detector = IntensityMonitor;break;
-  case PostProcessors::PhotodiodeAllMcp:
-    _detector = Photodiode;break;
+  case PostProcessors::YAGPhotodiodeAllMcp:
+    _detector = YAGPhotodiode;break;
+  case PostProcessors::FsPhotodiodeAllMcp:
+    _detector = FsPhotodiode;break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
@@ -937,7 +947,7 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
 
 
 //----------------MCP Fwhm vs. height------------------------------------------
-//-------------pp581, pp621, pp652, pp662, pp672-------------------------------
+//-------------pp581, pp621, pp652, pp662, pp672, pp682------------------------
 cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   :cass::PostprocessorBackend(hist,id),
   _sigprop(0)
@@ -953,8 +963,10 @@ cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = VMIMcp;break;
   case PostProcessors::IntensityMonitorHeightvsFwhmMcp:
     _detector = IntensityMonitor;break;
-  case PostProcessors::PhotodiodeHeightvsFwhmMcp:
-    _detector = Photodiode;break;
+  case PostProcessors::YAGPhotodiodeHeightvsFwhmMcp:
+    _detector = YAGPhotodiode;break;
+  case PostProcessors::FsPhotodiodeHeightvsFwhmMcp:
+    _detector = FsPhotodiode;break;
 
   default:
     throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");

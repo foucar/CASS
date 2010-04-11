@@ -127,7 +127,6 @@ namespace cass
     00586: Hex Anode Height vs. Fwhm W1
     00587: Hex Anode Height vs. Fwhm W2
 
-
     00600: Quad Anode Number of Peaks in MCP
     00601: Quad Anode Number of Peaks in X1
     00602: Quad Anode Number of Peaks in X2
@@ -163,9 +162,13 @@ namespace cass
     00661: IntensityMonitor All Hits on Mcp
     00662: IntensityMonitor Height vs. Fwhm
 
-    00670: Photodiode Number of Peaks in Waveform
-    00671: Photodiode All Hits on Mcp
-    00672: Photodiode Height vs. Fwhm
+    00670: YAG Laser Photodiode Number of Peaks in Waveform
+    00671: YAG Laser Photodiode All Hits on Mcp
+    00672: YAG Laser Photodiode Height vs. Fwhm
+
+    00680: Femtosecond Laser Photodiode Number of Peaks in Waveform
+    00681: Femtosecond Laser Photodiode All Hits on Mcp
+    00682: Femtosecond Laser Photodiode Height vs. Fwhm
     @endverbatim
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
@@ -299,9 +302,13 @@ namespace cass
             IntensityMonitorAllMcp=661,
             IntensityMonitorHeightvsFwhmMcp=662,
 
-            PhotodiodeNbrSignals=670,
-            PhotodiodeAllMcp=671,
-            PhotodiodeHeightvsFwhmMcp=672,
+            YAGPhotodiodeNbrSignals=670,
+            YAGPhotodiodeAllMcp=671,
+            YAGPhotodiodeHeightvsFwhmMcp=672,
+
+            FsPhotodiodeNbrSignals=680,
+            FsPhotodiodeAllMcp=681,
+            FsPhotodiodeHeightvsFwhmMcp=682,
 
         };
 
