@@ -35,6 +35,7 @@ void cass::Worker::end()
 void cass::Worker::suspend()
 {
   _pause=true;
+  waitUntilSuspended();
 }
 
 void cass::Worker::resume()
@@ -161,9 +162,6 @@ void cass::Workers::loadSettings(size_t what)
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
-  //wait until they are all suspended//
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->waitUntilSuspended();
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//

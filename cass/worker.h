@@ -22,9 +22,8 @@ namespace cass
   //forward declarations
   class Analyzer;
 
-  /*! a worker thread
-
-    the thread will do the following tasks in a loop:
+  /*! The worker thread.
+    The thread will do the following tasks in a loop:
     <ul>
     <li>retrive an event form the buffer,
     <li>analyze it using the analyzer,
@@ -32,7 +31,7 @@ namespace cass
     <li>put the event back to the buffer,
     </ul>
     @author Lutz Foucar
-    */
+  */
   class CASSSHARED_EXPORT Worker : public QThread
   {
     Q_OBJECT;
@@ -48,15 +47,13 @@ namespace cass
     /*! this will be called by the start member of the thread
       contains a while loop to do the job*/
     void run();
-    //! will set the pause flag of the thread//
+    /** will suspend the thread when it is done working on the event.
+        @returns when thread is suspended.*/
     void suspend();
-    //! will continue the thread//
+    //! will continue the thread
     void resume();
-    /** once the pause flag is set, then this function waits
-    until the thread is really suspended*/
-    void waitUntilSuspended();
 
-    //! retrieve the histogram container from the postprocessor//
+    //! retrieve the histogram container from the postprocessor
     const PostProcessors::histograms_t& histograms()const;
 
 
@@ -71,6 +68,11 @@ namespace cass
     void loadSettings(size_t what);
     //! save the settings//
     void saveSettings();
+
+  protected:
+    /** once the pause flag is set, then this function waits
+    until the thread is really suspended*/
+    void waitUntilSuspended();
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer; //!< the ringbuffer
