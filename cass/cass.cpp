@@ -84,7 +84,7 @@ build directory of the LCLS subfolder. This will take a xtc file and put the con
 shared memory. You have to give it serval commands which are documented when you run it without
 any command. A typical start command will look like this:\n
 
-LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0193-s00-c00.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
+LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
 <ul>
 <li>f: filename of file that you want to create the shared memory with
 <li>n: number of datagrams to be stored in the buffer
@@ -125,7 +125,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f /lfs/l3/lcls/amo02809/e17-r0
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
 @todo create another acqiris detector, that will just measure the
-      volatage on a given channel
+      voltage on a given channel
 */
 
 
