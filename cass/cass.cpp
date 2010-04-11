@@ -18,40 +18,60 @@
 
 /*!
 @mainpage CASS (CFEL ASG Software Suite)
+
+@section toc Table of Contents
+<ul>
+ <li> @ref download
+ <li> @ref desc
+ <li> @ref inst
+ <ul>
+  <li> @ref pre
+  <li> @ref env
+  <li> @ref build
+  <ul>
+   <li> @ref build_LCLS
+   <li> @ref build_CASS
+  </ul>
+ </ul>
+ <li> @ref run
+</ul>
+
 @section download Getting CASS
 You can access cass via svn from the following Repository:\n
 https://www.mpi-hd.mpg.de/repos/lutz/diode \n
 The version we are working with right now is to be found in /branches/lutz
 (please contact Lutz Foucar for access)
+
 @section desc Brief description about program flow
 <ul>
-<li>Shared mem
-  <ul>
+ <li>Shared mem
+ <ul>
   <li>get lcls data
   <li>takes out a cassevent from ringbuffer
   <li>converter covnerts lcls -> cassevent
   <li>puts it back to ringbuffer
-  </ul>
-<li>worker (mulitple)
-  <ul>
+ </ul>
+ <li>worker (mulitple)
+ <ul>
   <li>takes cassevent out of ringbuffer
   <li>puts it to
-    <ul>
-    <li>analyzer
-      <ul>
-      <li>puts it to preanalyzers of different devices
-      </ul>
-    <li>postanalyzers
-      <ul>
-      <li>list of userdefined analyzers that extract info from cassevent and put results it in histograms
-      </ul>
-    </ul>
-  <li>puts it back to ringbuffer
+  <ul>
+   <li>analyzer
+   <ul>
+    <li>puts it to preanalyzers of different devices
+   </ul>
+   <li>postanalyzers
+   <ul>
+    <li>list of userdefined analyzers that extract info from cassevent and put results it in histograms
+   </ul>
   </ul>
+  <li>puts it back to ringbuffer
+ </ul>
 </ul>
 program control is done via a tcpip interface\n
 accesss histograms vi tcpip interface\n
 parameters are loaded using qt's qsettings.
+
 @section inst Installing CASS
 @subsection pre Prerequisites
 The following software packages need to be installed and available for building and running CASS:\n
@@ -72,6 +92,7 @@ then run\n
   make\n
   (optional)sudo make install\n
 to build and install the software.
+
 @section run Running CASS
 In Order to run the cass you need to start it with a parameter, the partition tag. When running
 at LCLS in the daq state you need to provide the partition tag of the shared memory server you
@@ -86,12 +107,12 @@ any command. A typical start command will look like this:\n
 
 LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
 <ul>
-<li>f: filename of file that you want to create the shared memory with
-<li>n: number of datagrams to be stored in the buffer
-<li>s: size of the buffer for that stores one datagram
-<li>p: the name of the partition tag
-<li>r: the rate that you want to simulate
-<li>l: loop. If the end of the file has been reached start from the beginning
+ <li>f: filename of file that you want to create the shared memory with
+ <li>n: number of datagrams to be stored in the buffer
+ <li>s: size of the buffer for that stores one datagram
+ <li>p: the name of the partition tag
+ <li>r: the rate that you want to simulate
+ <li>l: loop. If the end of the file has been reached start from the beginning
 </ul>
 
 @author Nicola Coppola \n
@@ -125,7 +146,6 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x100000
 @todo describe how to use Nicolas ROI.
 @todo add to mainpage a describtion how to add a custom
       build postprocessor
-@todo make at toc in the main page
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
 @todo create GUI for setting the cass.ini variables
