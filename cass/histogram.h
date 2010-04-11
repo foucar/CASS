@@ -579,7 +579,8 @@ namespace cass
   {
     Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit());
     size_t columns(_axis[1].size()), rows(_axis[0].size());
-    switch(axis) {
+    switch(axis)
+    {
     case xAxis: // reduce along rows (integrate rows)
       for(size_t col=0; col<columns; ++col)
         for(size_t row=0; row<rows; ++row)
