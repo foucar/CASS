@@ -14,8 +14,7 @@ namespace cass
 
   namespace MachineData
   {
-    /*! Parameters fo the Machine Data Analysis
-
+    /*! Parameters for the Machine Data Analysis.
       @author Lutz Foucar
     */
     class CASS_MACHINEDATASHARED_EXPORT Parameter : public cass::ParameterBackend
@@ -36,12 +35,10 @@ namespace cass
     };
 
 
-    /*! The Machine Data pre analysis
-
-      functor doing some calculations on the machine data
+    /*! The Machine Data Analyzis.
+      functor doing calculations on the machine data.
       This uses Rick K. code at psexport.slac.stanford.edu:/reg/neh/home/rkirian/ana2
       to calculate the photon energy and wavelength from the Beamlinedata
-      @todo maybe move all this to postanalyzers
       @author Lutz Foucar
       */
     class CASS_MACHINEDATASHARED_EXPORT Analysis : public cass::AnalysisBackend

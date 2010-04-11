@@ -51,9 +51,7 @@ namespace cass
     public:
       /** serialize the device to the serializer*/
       void serialize(cass::Serializer&)const;
-      /** deserialize the device from the serializer
-      @todo make sure that all variables have a known size
-      */
+      /** deserialize the device from the serializer*/
       void deserialize(cass::Serializer&);
 
     public:
@@ -81,8 +79,8 @@ namespace cass
       evrStatus_t    _evrdata;  //!< a vector of bools describing the evr status
 
       //data that gets calculated in Analysis//
-      double        _energy;    //!< the calculated puls energy @todo might not be needed anymore when calc is moved to postanalzyers
-      double        _wavelength;//!< the corrosponding wavelength @todo might not be needed anymore when calc is moved to postanalzyers
+      double        _energy;    //!< the calculated puls energy
+      double        _wavelength;//!< the corrosponding wavelength
     };
   }//end namespace machinedata
 }//end namespace cass
