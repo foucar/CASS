@@ -14,31 +14,28 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief helperclass for evaluating the first good hit in a given range.
+    /*! Functor returning whether Peak is in Range.
       This class is beeing used by std::find_if as Predicate
-      @todo replace this class by stl bind2nd, logical_and, less, less_equal
-            therefore peak has to have an bool operator<()(double)
       @author Lutz Foucar
     */
     class PeakInRange
     {
     public:
       /** constructor intializing the range*/
-      PeakInRange(double from, double to)
-        :_from(from),_to(to)
+      PeakInRange(double low, double up)
+        :_range(std::make_pair(low,up))
       {}
       /** operator used by find_if
-      return whether the time of the peak is in the requested range*/
+        @return peak is smaller than or equal to up AND greater than low
+      */
       bool operator()(const Peak &peak)const
       {
-        return (_from  < peak.time() && peak.time() < _to);
+        return (peak >_range.first && peak <= _range.second);
       }
 
     private:
-      /** the lower end of the interesting range*/
-      double _from;
-      /** the upper end of the interesting range*/
-      double _to;
+      /** the range*/
+      std::pair<double,double> _range;
     };
 
 
@@ -100,7 +97,16 @@ namespace cass
         {
           //find first occurence of peak that is in the given timerange//
           peaks_t::const_iterator it =
-              std::find_if(_peaks.begin(),_peaks.end(),PeakInRange(_grLow,_grHigh));
+              std::find_if(_peaks.begin(),_peaks.end(),
+                           PeakInRange(_grLow,_grHigh));
+                           //std::logical_and<bool>,bind2nd(less_equal<???>(),_grHigh);
+          /*std::vector<int>::iterator int_it=std::find_if(
+            ints.begin(),
+            ints.end(),
+            boost::bind(std::logical_and<bool>(),
+              boost::bind(std::greater<int>(),_1,5),
+              boost::bind(std::less_equal<int>(),_1,10)));*/
+
           //if it is not there retrun 0, otherwise the time of the found peak//
           _goodHit = (it==_peaks.end())? 0. : it->time();
           _isNewEvent = false;

@@ -33,6 +33,18 @@ namespace cass
       Peak():_used(false)  {}
 
     public:
+      /** a peak is smaller or equal when time of the peak is smaller or equal
+         than the input
+        @return true when the time is smaller than the value
+        @param rhs the right hand side of the comparison
+      */
+      bool operator<=(double rhs)const {return _time <= rhs;}
+      /** a peak is greater when its not smaller
+        @return negate smaller or equal than operator
+        @param rhs the right hand side of the comparison
+      */
+      bool operator>(double rhs)const {return _time > rhs;}
+    public:
       /** setter / getters*/
       double      time()const         {return _time;}
       double     &time()              {return _time;}
