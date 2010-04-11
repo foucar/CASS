@@ -123,8 +123,6 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x100000
 @todo look whether pnccd offsetcorrection is build in and  works
 @todo look whether photonit extraction is build in and works
 @todo describe how to use Nicolas ROI.
-@todo make all information how I think one can do the
-      lazy evalutaion a note instead of todo
 @todo add to mainpage a describtion how to add a custom
       build postprocessor
 @todo make at toc in the main page
