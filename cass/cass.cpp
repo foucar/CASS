@@ -118,14 +118,23 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x100000
 
 @todo create a client for the tcpserver that will retrieve
       the postprocessors histgrams and display them
-@todo make detector evaluation lazy by having the getters calc
-      all values.
-@todo look whether pnccd offsetcorrection works
-@todo look whether photonit extraction works
+@todo get updated xtcmonserver.cc from matt so that we
+      can start testing.
+@todo look whether pnccd offsetcorrection is build in and  works
+@todo look whether photonit extraction is build in and works
+@todo describe how to use Nicolas ROI.
+@todo make all information how I think one can do the
+      lazy evalutaion a note instead of todo
+@todo add to mainpage a describtion how to add a custom
+      build postprocessor
+@todo make at toc in the main page
 @todo find out why there are the warning messages about const
       iterators (size_t) when compiling at SLAC
+@todo create GUI for setting the cass.ini variables
 @todo create another acqiris detector, that will just measure the
       voltage on a given channel
+@todo make detector evaluation lazy by having the getters calc
+      all values.
 */
 
 
