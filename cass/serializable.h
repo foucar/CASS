@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _SERIALIZABLE_H_
 #define _SERIALIZABLE_H_
@@ -10,26 +10,27 @@ namespace cass
   //forward declaration
   class Serializer;
 
-  /*! Serializable
-
-  pure virtual class that all serializable classes should inherit from.
-
-  @author lmf
-  */
+  /** Serializable
+   * pure virtual class that all serializable classes should inherit from.
+   * This makes sure that all classes that should be serializable
+   * @author Lutz Foucar
+   */
   class Serializable
   {
   public:
     /** constructor initializing the version*/
-    Serializable(uint16_t version)
+    explicit Serializable(uint16_t version)
       :_version(version)
     {}
-    /** virtual destructor to avoid warning with gcc  4.1.2  */
+    /** virtual destructor to avoid warning with gcc 4.1.2 */
     virtual ~Serializable(){}
-    /** pure virtual function that needs to be defined by the derived class
-      will serialize an object to the Serializer class */
+    /** pure virtual function that needs to be defined by the derived class.
+     * will serialize an object to the Serializer class
+     */
     virtual void serialize(cass::Serializer&)const=0;
-    /** pure virtual function that needs to be defined by the derived class
-      will deserialize an object from the Serializer class */
+    /** pure virtual function that needs to be defined by the derived class.
+     * will deserialize an object from the Serializer class
+     */
     virtual void deserialize(cass::Serializer&)=0;
   protected:
     /** the version for de/serializing*/

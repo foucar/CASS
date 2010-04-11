@@ -15,43 +15,61 @@
 #include <QtCore/QMutexLocker>
 
 #include "serializer.h"
+#include "serializable.h"
 
 namespace cass
 {
 
-  /*! Axis properties for histograms
-
-this describes the properties of the axis of the histogram
-*/
-  class CASSSHARED_EXPORT AxisProperty
+  /** Axis properties for histograms.
+   * This describes the properties of the axis of the histogram. And is
+   * de / serializable.
+   * @author Lutz Foucar
+   */
+  class CASSSHARED_EXPORT AxisProperty : public Serializable
   {
   public:
+    /** Constructor.
+     * will set the properties in the initializtion list. Will also set the version
+     * for the de / serialization.
+     * @param nbrBins The Number of Bins the axis contains
+     * @param lowerLimit The lower end of the axis
+     * @param upperLimit The upper end of the axis
+     */
     AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit)
-      : _size(nbrBins), _low(lowerLimit), _up(upperLimit)
+      : Serializable(1),
+      _size(nbrBins), _low(lowerLimit), _up(upperLimit)
     {}
 
+    /** read axis property from serializer.
+     * This constructor will create a axis property that has been serialized to the
+     * serializer. Will call @see deserialize(Serializer&).
+     * @param{in] in The Serializer that we read the histogram from
+     */
     AxisProperty(Serializer &in)
+      :Serializable(1)
     {
       deserialize(in);
     }
 
-    /*! Destructor
+    /** Serialize this class.
+     * serializes this to the Serializer
+     * @param out The Serializer that we will serialize this to
+     */
+    void serialize(Serializer& out)const;
 
-    does nothing
-    */
-    ~AxisProperty() {}
-
-    void serialize(Serializer&)const;
-    void deserialize(Serializer&);
+    /** Deserialize this class.
+     * deserializes this from the Serializer
+     * @param out The Serializer that we will deserialize this from
+     */
+    void deserialize(Serializer& in);
 
     /*! @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
 
-    /*! Convenience function
-
-    @deprecated Use size() instead
-    @see size()
-    */
+    /** Convenience function.
+     * @deprecated Use size() instead
+     * @see size()
+     */
     size_t nbrBins() const {return size();}
 
     /*! Lower limit of axis */
@@ -66,78 +84,88 @@ this describes the properties of the axis of the histogram
     /*! position for bin-index idx */
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
 
-
   protected:
-
-    /*! the number of bins in this axis */
-    size_t _size;
-
-    /*! lower limit of the axis */
-    float _low;
-
-    /*! upper limit of the axis */
-    float _up;
-
-
-  private:
-
-    /*! internal version for de/serializing */
-    uint16_t _version;
+    size_t _size; //!< the number of bins in this axis
+    float _low;   //!< lower end of the axis
+    float _up;    //!< upper end of the axis
   };
 
 
 
-  /*! @brief histogram backend
-every type of histogram inherits from here
-@author Lutz Foucar
-*/
-
+  /** histogram base class.
+   * every type of histogram inherits from this. It contains information
+   * about the dimesion of the histogram. Also it contains all of the properties
+   * and information a histogram has. It does not contain the histograms memory.
+   * We are serializable.
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT HistogramBackend
+    : public Serializable
   {
-  public:
-
-    /** constructor */
-    explicit HistogramBackend(size_t dim)
-      : _dimension(dim), _nbrOfFills(0), _version(1)
+  protected:
+    /** constructor.
+     * initializing the properties and sets the Serialization version
+     * @param dim the Dimension of the histogram ie. 1d,2d
+     * @param ver The version for de / serializing.
+     */
+    explicit HistogramBackend(size_t dim, uint16_t ver)
+      : Serializable(ver), _dimension(dim), _nbrOfFills(0)
     {}
 
+    /** destructor.
+     * virtual destructor, since its a baseclass. Does nothing
+     */
     virtual ~HistogramBackend(){}
 
-    /*! Serialize this object to a string */
-    virtual void serialize(Serializer&)const=0;
+  public:
+    /** serialize this object to a serializer.
+     * This function is pure virtual since it overwrites the
+     * serializables serialize function. Needs to be implemented by the classes
+     * inheriting from here
+     * @param out The Serializer we serialize this to
+     */
+    virtual void serialize(Serializer &out)const=0;
 
-    /*! Deserialize this object from a string */
-    virtual void deserialize(Serializer&)=0;
+    /** serialize this object from a serializer.
+     * This function is pure virtual since it overwrites the
+     * serializables deserialize function. Needs to be implemented by the
+     * classes inheriting from this
+     * @param in The Serializer we serialize this from
+     */
+    virtual void deserialize(Serializer &in)=0;
 
+    /** typedef for more readable code*/
     typedef std::vector<AxisProperty> axis_t;
 
+    /** getters and setters*/
     size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t  &nbrOfFills()      {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
 
-    /*! possible axes
-
-    convenience type to allow for easier choosing of the axis
-    */
+    /** possible axes.
+     * convenience type to allow for easier choosing of the axis
+     */
     enum Axis {xAxis=0, yAxis, zAxis};
 
-    /*! possible over/underflow quadrants
-
-    convenience type to allow for easier choosing of the over-/underflow quadrant (2D histograms)
-    */
+    /** possible over/underflow quadrants.
+     * convenience type to allow for easier choosing of the
+     * over-/underflow quadrant (2D histograms)
+     */
     enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight,
                   Left,                     Right,
                   LowerLeft  , LowerMiddle, LowerRight};
 
-    /*! the over/underflow bin (1D hist) */
+    /** the over/underflow bin.
+     * convenience type for easier chosing the over and
+     * underflow bins (1D hist).
+     */
     enum OverUnderFlow{Overflow=0, Underflow};
 
   protected:
-    size_t    _dimension;
-    axis_t    _axis;
-    size_t    _nbrOfFills;
-    uint16_t  _version;
+    size_t    _dimension;   //!< dimension of the histogram
+    axis_t    _axis;        //!< the axis of this histogram
+    size_t    _nbrOfFills;  //!< how many times has this histogram been filled
   };
 
 
@@ -146,27 +174,39 @@ every type of histogram inherits from here
 
 
 
-  /*! base class for floats from which all float histograms inherit
-
-  @author Lutz Foucar
-  */
-  class CASSSHARED_EXPORT HistogramFloatBase : public HistogramBackend
+  /** base class for float histograms.
+   * from this all float histograms should inherit
+   * @author Lutz Foucar
+   */
+  class CASSSHARED_EXPORT HistogramFloatBase
+    : public HistogramBackend
   {
   public:
-
+    /** typedef describing the type of the values stored in memory*/
     typedef float value_t;
+    /** typedef describing the storage type*/
     typedef std::vector<value_t> storage_t;
 
-
-    explicit HistogramFloatBase(size_t dim, size_t memory_size=0)
-      : HistogramBackend(dim), _memory(memory_size, 0.)
+    /** constructor.
+     * @param dim The dimension of the histogram
+     * @param memory_size size of the memory, used for special cases
+     */
+    HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
+      : HistogramBackend(dim,ver), _memory(memory_size, 0.)
     {}
 
+    /** read histogram from serializer.
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Will call @see deserialize(Serializer&).
+     * @param{in] in The Serializer that we read the histogram from
+     */
     HistogramFloatBase(Serializer& in)
-      : HistogramBackend(0)
+      : HistogramBackend(0,1)
     {
       deserialize(in);
     }
+
+    /** virtual desctructor, since this a base class*/
     virtual ~HistogramFloatBase()      {}
     /** serialize this histogram to the serializer*/
     virtual void serialize(Serializer&)const;
@@ -175,18 +215,20 @@ every type of histogram inherits from here
 
     /** @return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
-    /** @overload */
+    /** @return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
 
-    /** retrieve the mutex, so that when having the memory one can lock
-      operations on it from outside here*/
+    /** @return \p to our mutex
+     * when having the memory one can lock operations on it from outside here
+     */
     QMutex *mutex() {return &_mutex;}
   protected:
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
-    /** the memory contains the histogram in range nbins
-    after that there are some reservered spaces for over/underflow statistics
-    */
+    /** histogram strage.
+     * the memory contains the histogram in range nbins,
+     * after that there are some reservered spaces for over/underflow statistics
+     */
     storage_t _memory;
     /** Mutex to lock write operations on the memory*/
     QMutex _mutex;
@@ -195,14 +237,16 @@ every type of histogram inherits from here
 
 
 
-  /*! "0D Histogram" scalar value */
+  /** "0D Histogram" scalar value.
+   * @author Jochen Kuepper
+   */
   class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
   {
   public:
 
     /*! Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
-      : HistogramFloatBase(0, 1)
+      : HistogramFloatBase(0, 1, 1)
     {};
 
     /*! Constructor for reading a histogram from a stream */
@@ -218,39 +262,44 @@ every type of histogram inherits from here
 
 
 
-  /*! 1D Histogram for Graphs, ToF's etc...
-
-@author Lutz Foucar
-@author Jochen Küpper
-*/
+  /** 1D Histogram.
+   * can be used for Graphs, ToF's etc.
+   * @author Lutz Foucar
+   * @author Jochen Küpper
+   */
   class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
   {
   public:
 
-    /*! Create a 1d histogram of floats */
-    explicit Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
-      : HistogramFloatBase(1)
+    /** constructor.
+     * Create a 1d histogram of floats
+     * @param nbrXBins, xLow, xUp The properties of the x-axis
+     */
+    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
+      : HistogramFloatBase(1,nbrXBins+2,1)
     {
-      //resize the memory, reserve space for the over/underflow bin
-      _memory.resize(nbrXBins+2,0);
       //set up the axis
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-    };
+    }
 
-    /*! Constructor for reading a histogram from a stream */
+    /** read histogram from serializer while creating.
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Serialization is done in the baseclass.
+     * @param{in] in The Serializer that we read the histogram from
+     */
     Histogram1DFloat(Serializer &in)
       : HistogramFloatBase(in)
-    {};
+    {}
 
-    /*! Add datum to histogram
-
-    this operation will lock the memory before attempting to fill the right bin.
-    It will find the right bin for the x-value. If the histogram the bin should not
-    be increased by one, but by a user defined value, then this can be given as the
-    second paramenter.
-    @param x x value that should be histogrammed
-    @param weight value of datum
-    */
+    /**
+     * Add datum to histogram.
+     * This operation will lock the memory before attempting to fill the right bin.
+     * It will find the right bin for the x-value. If the histogram the bin should not
+     * be increased by one, but by a user defined value, then this can be given as the
+     * second paramenter.
+     * @param x x value that should be histogrammed
+     * @param weight value of datum
+     */
     void fill(float x, value_t weight=1.);
 
     /*! Return histogram bin that contains x */
@@ -259,74 +308,72 @@ every type of histogram inherits from here
     /*! Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
 
-    /*! center of histogram
-
-    @todo check and improve
-    */
-    float center() const {
+    /** center of histogram
+     * @todo check and improve
+     * @todo check the warning that the compiler at slac give: "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"
+     */
+    float center() const
+    {
       using namespace std;
       storage_t partial(_memory.size());
-      /** @warning this gives a warning at SLAC "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"*/
       accumulate(_memory.begin(), _memory.end(), partial.begin());
       storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
       return _axis[0].position((center - partial.begin()));
-    };
+    }
 
-    /*! Sum of all values */
+    /** Sum of all values */
     value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
 
-    /*! Reduce the 1D histogram to a scalar (integrate/sum all values)
-
-    @see sum()
-    */
+    /** Reduce the 1D histogram to a scalar (integrate/sum all values).
+     * @see sum()
+     */
     value_t reduce() const { return sum(); };
   };
 
 
 
-  /*! 2D Histogram
-
-  for detector images, i.e., pnCCD, VMI CCD, etc...
-
-  @author Lutz Foucar
-  @author Jochen Küpper
-  */
+  /** 2D Histogram.
+   * can be used for detector images, i.e., pnCCD, VMI CCD, etc...
+   * @author Lutz Foucar
+   * @author Jochen Küpper
+   */
   class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
   {
   public:
 
-    /*! create histogram */
-    explicit Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
-                              size_t nbrYBins, float yLow, float yUp)
-                                : HistogramFloatBase(2)
+    /** create a 2d histogram.
+     * This is used when constructing a histogram
+     * @param nbrXBins, xLow, xUp The properties of the x-axis
+     * @param nbrYBins, yLow, yUp The properties of the y-axis
+     */
+    Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
+                     size_t nbrYBins, float yLow, float yUp)
+                       : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)
     {
-      //create memory, reserve space for under/over quadrants
-      _memory.resize(nbrXBins*nbrYBins+8,0);
       //set up the two axis of the 2d hist
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
       _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
     }
 
-    /*! create default histogram
-
-    @overload
-
-    This constructor creates a histogram with integer positions, i.e., it will have positions
-    (0,0), (0,1), ... (0,cols-1), (1,0), ... (rows-1,cols-1)
-
-    @param rows, cols Number of bins per row and column.
-    */
-    explicit Histogram2DFloat(size_t rows, size_t cols)
-      : HistogramFloatBase(2)
+    /** create default histogram.
+     * @overload
+     * This constructor creates a histogram with integer positions, i.e., it will have positions
+     * (0,0), (0,1), ... (0,cols-1), (1,0), ... (rows-1,cols-1)
+     * @param rows, cols Number of bins per row and column.
+     */
+    Histogram2DFloat(size_t rows, size_t cols)
+      : HistogramFloatBase(2,rows * cols + 8,1)
     {
-      // create memory, reserve space for under/over quadrants
-      _memory.resize(rows * cols + 8, 0);
       // set up the two axis of the 2d hist
       _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
       _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
     }
 
-
+    /** read histogram from serializer.
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Serialization is done in the baseclass.
+     * @param{in] in The Serializer that we read the histogram from
+     */
     Histogram2DFloat(Serializer &in)
       : HistogramFloatBase(in)
     {}
@@ -337,32 +384,30 @@ every type of histogram inherits from here
     /*! Return histogram bin (row,col) */
     const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
 
-    /*! Return histogram bin (row,col)
-
-    @overload
-    */
+    /** Return histogram bin (row,col).
+     * @overload
+     */
     value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
 
-    /*! center of histogram
-
-    @todo check and improve
-    */
+    /** center of histogram.
+     * @todo check and improve
+     */
     std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); };
 
-    /*! Add datum to histogram
-
-      this operation will lock the memory before attempting to fill the right bin
-    @param x, y Position of datum
-    @param weight value of datum
-
-    @todo Fix type-mismatch between size_t and long.
-    */
+    /** Add datum to histogram.
+     * This operation will lock the memory before attempting to fill the right bin.
+     * @param x, y Position of datum
+     * @param weight value of datum
+     * @todo Fix type-mismatch between size_t and long.
+     */
     void fill(float x, float y, value_t weight=1.);
 
-    /*! Reduce the 2D histogram to a 1D integral along a specified axis
-
-    @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
-    */
+    /** Reduce the 2D histogram to a 1D integral along a specified axis.
+     * @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
+     * @note we should rename this to procject, since it more or less does just a
+     *       projection of the 2d hist to onto one axis. Then we should also include
+     *       a range on the other axis.
+     */
     Histogram1DFloat reduce(Axis axis) const;
   };
 
