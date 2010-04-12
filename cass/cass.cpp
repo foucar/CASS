@@ -114,7 +114,7 @@
  *  <li>l: loop. If the end of the file has been reached start from the beginning
  *  <li>v: verbose output. Includes the spare time, which can be used to calculate the time in ns it took to
  *         read the event from file and put it into the shared memory (buisy time).
- *         sparetime= 1e9 / rate - buisy time
+ *         sparetime= 1e9 / rate - buisy time.
  * </ul>
  *
  * @author Nicola Coppola \n
