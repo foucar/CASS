@@ -22,7 +22,10 @@ namespace cass
   /** Shared Memory Input.
    * This class is a thread that connects to the sahred memory of LCLS. The
    * baseclass does all the connection and once there is new data available
-   * it calles processDatagram, where we can add code that we want to use
+   * it calles processDatagram, where we can add code that we want to use.
+   * The first datagram that will be send to this class is a datagram
+   * containing the last known configure transition. This is to make sure that
+   * when starting the program we will always get the latest state of the DAQ.
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT SharedMemoryInput
