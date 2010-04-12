@@ -19,34 +19,37 @@ namespace cass
   //forward declaration//
   class FormatConverter;
 
-  /*! Shared Memory Input.
-    This class is a thread that connects to the sahred memory of LCLS. The baseclass
-    does all the connection and once there is new data available it calles processDatagram,
-    where we can add code tha we want to use
-    @author Lutz Foucar
-  */
+  /** Shared Memory Input.
+   * This class is a thread that connects to the sahred memory of LCLS. The baseclass
+   * does all the connection and once there is new data available it calles processDatagram,
+   * where we can add code tha we want to use
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT SharedMemoryInput : public QThread, Pds::XtcMonitorClient
   {
     Q_OBJECT;
   public:
-    /** constructor creates the thread
-      @param PartitionTag the name of the partition tag we want to connect to
-      @param buffer the ringbuffer, that we take events out and fill it with the incomming information
-      @param parent the parent of this object
-   */
+    /** constructor creates the thread.
+     * @param PartitionTag the name of the partition tag we want to connect to
+     * @param buffer the ringbuffer, that we take events out and fill it with the incomming information
+     * @param parent the parent of this object
+     */
     SharedMemoryInput(char * PartitionTag, cass::RingBuffer<cass::CASSEvent,4>& buffer, QObject *parent=0);
     /** deletes the thread*/
     ~SharedMemoryInput();
     /** starts the thread*/
     void run();
-    /** suspends the thread after it has executed the event we are working on right now*/
+    /** suspends the thread after it has executed the event we are working on right now.
+     * will return only when the thread has really suspenden by calling
+     * @see waitUntilSuspended() internally.
+     */
     void suspend();
     /** resumes the thread, when it was suspended. Otherwise it just retruns*/
     void resume();
-    /** overwrite the base class function with our code
-      @return the errorcode, when != 0, then the baseclasses run will exit its loop
-      @param[in] dg The datagram we can work on
-    */
+    /** overwrite the base class function with our code.
+     * @return the errorcode, when != 0, then the baseclasses run will exit its loop
+     * @param[in] dg The datagram we can work on
+     */
     int  processDgram(Pds::Dgram*dg);
 
   signals:
@@ -61,8 +64,10 @@ namespace cass
     void loadSettings(size_t what);
 
   protected:
-    /** function that will wait until we really suspended. Should be called after calling suspend
-      to make sure we are done when we call other functions*/
+    /** function that will wait until we really suspended.
+     * will be called by suspend, so that it returns only when thread has really
+     * suspended.
+     */
     void waitUntilSuspended();
   private:
     /** the Ringbuffer we take events out and fill them with the incomming data*/
