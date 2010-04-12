@@ -42,32 +42,32 @@
  * (please contact Lutz Foucar for access)
  *
  * @section desc Brief description about program flow
- * <ul>
+ * <ol>
  *  <li>Shared mem
- *  <ul>
+ *  <ol>
  *   <li>get lcls data
  *   <li>takes out a cassevent from ringbuffer
  *   <li>converter covnerts lcls -> cassevent
  *   <li>puts it back to ringbuffer
- *  </ul>
+ *  </ol>
  *   <li>worker (mulitple)
- *  <ul>
+ *  <ol>
  *   <li>takes cassevent out of ringbuffer
  *   <li>puts it to
- *   <ul>
+ *   <ol>
  *    <li>analyzer
- *    <ul>
+ *    <ol>
  *     <li>puts it to preanalyzers of different devices
- *    </ul>
+ *    </ol>
  *    <li>postanalyzers
- *    <ul>
+ *    <ol>
  *     <li>list of userdefined analyzers that extract info from cassevent and
  *         put results it in histograms.
- *    </ul>
- *   </ul>
+ *    </ol>
+ *   </ol>
  *   <li>puts it back to ringbuffer
- *  </ul>
- * </ul>
+ *  </ol>
+ * </ol>
  * program control is done via a tcpip interface\n
  * accesss histograms vi tcpip interface\n
  * parameters are loaded using qt's qsettings.
@@ -202,13 +202,13 @@ int main(int argc, char **argv)
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
                                                              ringbuffer,
                                                              qApp));
-  // create workers//
+  //create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
-  // create a ratemeter object for the worker//
+  //create a ratemeter object for the worker//
   cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
-  // create a rate plotter that will plot the rate of the worker and input//
+  //create a rate plotter that will plot the rate of the worker and input//
   cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
 
   //connect ratemeters//
@@ -216,16 +216,16 @@ int main(int argc, char **argv)
   QObject::connect(input,   SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
 
 
-  // when the thread has finished, we want to close this application
+  //when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
-  // start input and worker threads
+  //start input and worker threads
   input->start();
   workers->start();
 
-  // TCP server
-  // tell the server how to get an id or histogram
+  //TCP server
+  //tell the server how to get an id or histogram
   cass::EventGetter get_event(ringbuffer);
   cass::HistogramGetter get_histogram(workers->histograms());
   cass::TCP::Server server(get_event, get_histogram, qApp);
@@ -234,22 +234,23 @@ int main(int argc, char **argv)
   QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   //let the server listen to port 54321//
-  if(! server.listen(QHostAddress::Any, 54321)) {
+  if(! server.listen(QHostAddress::Any, 54321))
+  {
       std::cerr << "Failed to bind to TCP port" << std::endl;
       return 1;
   }
 
-  // start Qt event loop
+  //start Qt event loop
   int retval(app.exec());
 
-  // clean up
+  //clean up
   delete rateplotter;
   delete workerrate;
   delete inputrate;
   delete workers;
   delete input;
 
-  // finish
+  //finish
   return retval;
 }
 
