@@ -202,6 +202,7 @@ void cass::FormatConverter::saveSettings()
 bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 {
   //intialize the return value//
+  // the return value reflects the whether the datagram was a L1Transition(an event)
   bool retval = false;
   //get the datagram from the cassevent//
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
@@ -211,38 +212,15 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   std::cout << "0x"<< std::hex<<datagram->xtc.damage.value()<<std::dec<<" ";
   std::cout << "0x"<<std::hex<< datagram->seq.clock().seconds()<<" ";
   std::cout << "0x"<<std::hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<" ";
-  std::cout << std::dec <<std::endl;*/
-
-  //if this is the firsttime we run we want to load a config that was stored to disk//
-  /*if(_firsttime)
-  {
-    //reset the flag//
-    _firsttime = false;
-    //open the file//
-    std::ifstream oldconfigtransition;
-    oldconfigtransition.open("oldconfig.xtc",std::ios::binary|std::ios::in);
-    //if there was such a file then we want to load it//
-    if (oldconfigtransition.is_open())
-    {
-      //read the datagram from the file//
-      char * buffer =  new char [0x1000000];
-      Pds::Dgram& dg = *reinterpret_cast<Dgram*>(buffer);
-      oldconfigtransition.read(buffer,sizeof(dg));
-      oldconfigtransition.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-      //done reading.. close file//
-      oldconfigtransition.close();
-      //now iterate through the config datagram//
-      XtcIterator iter(&(dg.xtc),_converter,0,0);
-      iter.iterate();
-    }
-  }*/
+  std::cout << std::dec <<std::endl;
+*/
 
   //if datagram is configuration or an event (L1Accept) then we will iterate through it//
   //otherwise we ignore the datagram//
   if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
       (datagram->seq.service() == Pds::TransitionId::L1Accept))
   {
-    //if the datagram is an event create the id from time and fiducial//
+    //if the datagram is an event, create the id from time and fiducial//
     if (datagram->seq.service() == Pds::TransitionId::L1Accept)
     {
       //extract the bunchId from the datagram//
@@ -253,20 +231,6 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       //when the datagram was an event we need to tell the caller//
       retval = true;
     }
-    /*//if it is a configure transition we want to store it to file//
-    else if(datagram->seq.service() == Pds::TransitionId::Configure)
-    {
-      //open the file//
-      std::ofstream configtransition;
-      configtransition.open("oldconfig.xtc",std::ios::binary|std::ios::out);
-      if (configtransition.is_open())
-      {
-        //write the datagram to file//
-        configtransition.write(reinterpret_cast<char*>(datagram),sizeof(Pds::Dgram));
-        configtransition.write(datagram->xtc.payload(),datagram->xtc.sizeofPayload());
-        configtransition.close();
-      }
-    }*/
 
     //iterate through the datagram and find the wanted information//
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);

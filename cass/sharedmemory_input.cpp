@@ -9,14 +9,16 @@
 #include "pdsdata/xtc/Dgram.hh"
 
 
-cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag, cass::RingBuffer<cass::CASSEvent,4>& ringbuffer, QObject *parent)
-       :QThread(parent),
-        _ringbuffer(ringbuffer),
-        _partitionTag(partitionTag),
-        _quit(false),
-        _converter(cass::FormatConverter::instance()),
-        _pause(false),
-        _paused(false)
+cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
+                                           cass::RingBuffer<cass::CASSEvent,4>& ringbuffer,
+                                           QObject *parent)
+                                             :QThread(parent),
+                                             _ringbuffer(ringbuffer),
+                                             _partitionTag(partitionTag),
+                                             _quit(false),
+                                             _converter(cass::FormatConverter::instance()),
+                                             _pause(false),
+                                             _paused(false)
 {
 }
 
@@ -68,7 +70,8 @@ void cass::SharedMemoryInput::run()
 {
   //start the xtcmonitorclient//
   //this eventqueue will subscripe to a partitiontag//
-  std::cout << "starting shared memory in put with partition Tag: \""<<_partitionTag <<"\""<<std::endl;
+  std::cout << "starting shared memory in put with partition Tag: \""
+      <<_partitionTag <<"\""<<std::endl;
   Pds::XtcMonitorClient::run(_partitionTag);
   std::cout << "shared memory input is closing down"<<std::endl;
 }
@@ -108,10 +111,11 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
   if (datagram->xtc.sizeofPayload() > static_cast<int>(cass::DatagramBufferSize))
-    std::cout << "datagram size is bigger than the maximum buffer size of "<<cass::DatagramBufferSize/1024/1024<<" MB. Something is wrong"<<std::endl;
+    std::cout << "datagram size is bigger than the maximum buffer size of "
+        <<cass::DatagramBufferSize/1024/1024<<" MB. Something is wrong"<<std::endl;
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
-  ////now convert the datagram to a cassevent//
+  //now convert the datagram to a cassevent//
   const bool isGood = _converter->processDatagram(cassevent);
 
   //tell the buffer that we are done, but also let it know whether it is a good event//
