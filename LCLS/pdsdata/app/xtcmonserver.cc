@@ -307,7 +307,8 @@ public:
   Dgram* next(int fd) {
     Dgram& dg = *(Dgram*)dgramBuffer;
     unsigned header = sizeof(dg);
-    if (::read(fd, dgramBuffer, header) == -1)
+    int sz;
+    if ((sz=::read(fd, dgramBuffer, header)) != int(header))
       return 0;
 
     unsigned payloadSize = dg.xtc.sizeofPayload();
@@ -318,8 +319,10 @@ public:
       return 0;
     }
     
-    if (::read(fd, dgramBuffer+header, payloadSize) == -1)
+    if ((sz=::read(fd, dgramBuffer+header, payloadSize)) != int(payloadSize)) {
+      printf("Read payload found %d/%d bytes\n",sz,payloadSize);
       return 0;
+    }
 
     events(&dg);
     return &dg;
@@ -484,9 +487,15 @@ int main(int argc, char* argv[]) {
     apps->insert(TransitionId::Unconfigure);
     apps->insert(TransitionId::Unmap);
 
-    if (::lseek(fd, 0, SEEK_SET) != 0) {
-      printf("Failed to rewind\n");
-      break;
+    if (loop) {
+      ::close(fd);
+      fd = ::open(xtcname,O_LARGEFILE,O_RDONLY);
+      if (fd == -1) {
+	char s[120];
+	sprintf(s, "Unable to open file %s ", xtcname);
+	perror(s);
+	exit(2);
+      }
     }
 
   } while(loop);
