@@ -14,7 +14,9 @@ cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &rin
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
     _postprocessor(cass::PostProcessors::instance()),
-    _quit(false)
+    _quit(false),
+    _pause(false),
+    _paused(false)
 {
 }
 
@@ -129,8 +131,9 @@ void cass::Worker::saveSettings()
 
 
 //-----------------------the wrapper for more than 1 worker--------------------
-cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, QObject *parent)
-    :_workers(cass::NbrOfWorkers,0)
+cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
+                       QObject *parent)
+                         :_workers(cass::NbrOfWorkers,0)
 {
   //create the worker instances//
   //connect all workers output to this output//
