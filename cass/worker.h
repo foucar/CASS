@@ -22,40 +22,45 @@ namespace cass
   //forward declarations
   class Analyzer;
 
-  /*! The worker thread.
-    The thread will do the following tasks in a loop:
-    <ul>
-    <li>retrive an event form the buffer,
-    <li>analyze it using the analyzer,
-    <li>postanalyze it using the selected postanalyzers,
-    <li>put the event back to the buffer,
-    </ul>
-    @author Lutz Foucar
-  */
+  /** The worker thread.
+   * The thread will do the following tasks in a loop:
+   * <ul>
+   *  <li>retrive an event form the buffer,
+   *  <li>analyze it using the analyzer,
+   *  <li>postanalyze it using the selected postanalyzers,
+   *  <li>put the event back to the buffer,
+   * </ul>
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT Worker : public QThread
   {
     Q_OBJECT;
   public:
-    /** constructor
-      @param rb the rinbguffer we get the events from
-      @param parent the qt parent of this object
-    */
-    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb , QObject *parent=0);
+    /** constructor.
+     * @param rb the rinbguffer we get the events from
+     * @param parent the qt parent of this object
+     */
+    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb ,
+           QObject *parent=0);
     /** will destory the analyzer and the postprocessors*/
     ~Worker();
 
-    /*! this will be called by the start member of the thread
-      contains a while loop to do the job*/
+    /** start the thread.
+     * this will be called by the start member of the thread
+     * contains a while loop to do the job.
+     */
     void run();
-    /** will suspend the thread when it is done working on the event.
-        @returns when thread is suspended.*/
+    /** suspend thread.
+     * will suspend the thread when it is done working on the event.
+     * by calling @see waitUntilSuspended() it makes sure only to return when
+     * the thread is really suspended.
+     * @returns when thread is suspended.
+     */
     void suspend();
     //! will continue the thread
     void resume();
-
     //! retrieve the histogram container from the postprocessor
     const PostProcessors::histograms_t& histograms()const;
-
 
   signals:
     //! emit signal when you are done with one event
@@ -70,8 +75,10 @@ namespace cass
     void saveSettings();
 
   protected:
-    /** once the pause flag is set, then this function waits
-    until the thread is really suspended*/
+    /** waits until thread is suspended.
+     * once the pause flag is set, then this function waits
+     * until the thread is really suspended
+     */
     void waitUntilSuspended();
 
   private:
@@ -87,18 +94,21 @@ namespace cass
 
   };
 
-  /** a class that will handle the requested amount of workers threads.
-    The amount of threads can be set in cass.h via parameters @see cass::NbrOfWorkers
-    @author Lutz Foucar
-  */
+  /** Worker Thread Handler.
+   * a class that will handle the requested amount of workers threads.
+   * The amount of threads can be set in cass.h via parameters
+   * @see cass::NbrOfWorkers.
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT Workers : public QObject
   {
     Q_OBJECT;
   public:
-    /** constructor
-      @param rb the rinbguffer we get the events from
-      @param parent the qt parent of this object
-    */
+    /** constructor.
+     * will create the requested amount of threads.
+     * @param rb the rinbguffer we get the events from
+     * @param parent the qt parent of this object
+     */
     Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb, QObject *parent=0);
     /** deletes all workers*/
     ~Workers();

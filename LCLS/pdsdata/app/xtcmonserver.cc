@@ -124,7 +124,7 @@ public:
 	  ;  // best effort
       }
 
-      _flushQueue(_myOutputEvQueue);
+      _moveQueue(_myOutputEvQueue, _myInputEvQueue);
     }
   }
 
@@ -197,7 +197,8 @@ public:
     shq_attr.mq_maxmsg  = _numberOfEvBuffers;
     shq_attr.mq_msgsize = (long int)sizeof(ShMsg);
     shq_attr.mq_flags   = O_NONBLOCK;
-    _shuffleQueue = _openQueue("/PdsShuffleQueue", shq_attr);
+    sprintf(toQname, "/PdsShuffleQueue_%s",p);
+    _shuffleQueue = _openQueue(toQname, shq_attr);
     { ShMsg m; _flushQueue(_shuffleQueue,(char*)&m, sizeof(m)); }
 
     _pfd[1].fd = _shuffleQueue;
@@ -288,7 +289,23 @@ private:
     do {
       mq_getattr(q, &attr);
       if (attr.mq_curmsgs)
-           mq_receive(q, m, sz, &_priority);
+	mq_receive(q, m, sz, &_priority);
+     } while (attr.mq_curmsgs);
+  }
+
+  void _moveQueue(mqd_t iq, mqd_t oq) {
+    Msg m;
+    struct mq_attr attr;
+    do {
+      mq_getattr(iq, &attr);
+      if (attr.mq_curmsgs) {
+	if (mq_receive(iq, (char*)&m, sizeof(m), &_priority) == -1)
+	  perror("moveQueue: mq_receive");
+	if (mq_send   (oq, (char*)&m, sizeof(m), 0) == -1) {
+	  printf("Failed to reclaim buffer %i : %s\n",
+		 m.bufferIndex(), strerror(errno));
+	}
+      }
      } while (attr.mq_curmsgs);
   }
 
@@ -390,12 +407,13 @@ int main(int argc, char* argv[]) {
   int rate = 1;
   unsigned nclients = 1;
   bool loop = false;
+  bool verbose = false;
   int numberOfBuffers = 0;
   unsigned sizeOfBuffers = 0;
   struct timespec start, now, sleepTime;
   (void) signal(SIGINT, sigfunc);
 
-  while ((c = getopt(argc, argv, "hf:r:n:s:p:lc:")) != -1) {
+  while ((c = getopt(argc, argv, "hf:r:n:s:p:lvc:")) != -1) {
     switch (c) {
     case 'h':
       usage(argv[0]);
@@ -421,6 +439,9 @@ int main(int argc, char* argv[]) {
     case 'l':
       loop = true;
       printf("Enabling infinite looping\n");
+      break;
+    case 'v':
+      verbose = true;
       break;
     default:
       fprintf(stderr, "I don't understand %c!\n", c);
@@ -470,7 +491,7 @@ int main(int argc, char* argv[]) {
 
       if ((dg = apps->next(fd))) {
 	apps->routine();
-	if (dg->seq.service() != TransitionId::L1Accept)
+	if (dg->seq.service() != TransitionId::L1Accept || verbose)
 	  printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x, spareTime %lld\n",
 		 TransitionId::name(dg->seq.service()),
 		 dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),

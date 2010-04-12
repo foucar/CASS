@@ -1,5 +1,6 @@
 // Copyright (C) 2009 Jochen Küpper
 #include <iostream>
+
 #include <iomanip>
 #include <fstream>
 #include <QtCore/QMutexLocker>
@@ -198,7 +199,7 @@ void cass::FormatConverter::saveSettings()
 }
 
 
-//this slot is called once the eventqueue has new data available//
+
 bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 {
   //intialize the return value//
@@ -206,8 +207,8 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   bool retval = false;
   //get the datagram from the cassevent//
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
-
-/*  std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
+/*
+  std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
   std::cout << "0x"<< std::hex<< datagram->xtc.sizeofPayload()<<std::dec<<"  ";
   std::cout << "0x"<< std::hex<<datagram->xtc.damage.value()<<std::dec<<" ";
   std::cout << "0x"<<std::hex<< datagram->seq.clock().seconds()<<" ";
@@ -236,6 +237,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
     iter.iterate();
   }
+//  std::cout<< std::boolalpha<<retval<<std::endl;
   return retval;
 }
 

@@ -61,6 +61,7 @@ namespace cass
     /** resumes the thread, when it was suspended. Otherwise it just retruns*/
     void resume();
     /** overwrite the base class function with our code.
+     * This is called once the eventqueue has new data available.
      * @return the errorcode, when != 0, then the baseclasses will exit its loop
      * @param[in] dg The datagram we can work on
      */
