@@ -61,7 +61,8 @@
  *    </ul>
  *    <li>postanalyzers
  *    <ul>
- *     <li>list of userdefined analyzers that extract info from cassevent and put results it in histograms
+ *     <li>list of userdefined analyzers that extract info from cassevent and
+ *         put results it in histograms.
  *    </ul>
  *   </ul>
  *   <li>puts it back to ringbuffer
@@ -73,10 +74,12 @@
  *
  * @section inst Installing CASS
  * @subsection pre Prerequisites
- * The following software packages need to be installed and available for building and running CASS:\n
+ * The following software packages need to be installed and available for
+ * building and running CASS:\n
  * - Qt version 4.5.x or 4.6.x
  * @subsection env Needed Environment Variables
- * - LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder\n
+ * - LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that
+ *   contains the pdsdata folder\n
  * - LCLSSYSLIB: needs to point to the folder the build libraries are in.\n
  * - QTDIR:   needs to point where Qt is installed\n
  * @subsection build Building CASS
@@ -84,7 +87,8 @@
  * cd ${CASS top-level directory}/LCLS \n
  * make x86_64-linux
  * @subsubsection build_CASS Compile CASS
- * Go back to the CASS top-level directory and use qmake with appropriate options to create Makefiles, i. e.,\n
+ * Go back to the CASS top-level directory and use qmake with appropriate
+ * options to create Makefiles, i. e.,\n
  *  cd ${CASS top-level directory}\n
  *  qmake -r\n
  * then run\n
@@ -93,18 +97,20 @@
  * to build and install the software.
  *
  * @section run Running CASS
- * In Order to run the cass you need to start it with a parameter, the partition tag. When running
- * at LCLS in the daq state you need to provide the partition tag of the shared memory server you
- * want to connect to. \n
- * User settable parameters are to be found in "cass.ini". The later has to be in the folder where
- * you start CASS from.
+ * In Order to run the cass you need to start it with a parameter, the partition
+ * tag. When running at LCLS in the daq state you need to provide the partition
+ * tag of the shared memory server you want to connect to. \n
+ * User settable parameters are to be found in "cass.ini". The later has to be
+ * in the folder where you start CASS from.
  * @subsection testing Testing CASS in offline modus
- * For testing CASS you can create the shared memory using xtcmonserver located in the
- * build directory of the LCLS subfolder. This will take a xtc file and put the contents into the
- * shared memory. You have to give it serval commands which are documented when you run it without
- * any command. A typical start command will look like this:\n
+ * For testing CASS you can create the shared memory using xtcmonserver located
+ * in the build directory of the LCLS subfolder. This will take a xtc file and
+ * put the contents into the shared memory. You have to give it serval commands
+ * which are documented when you run it without any command. A typical start
+ * command will look like this:\n
  *
- * LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
+ * LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4
+ * -s 0x1000000 -p test -r 120 -l\n
  * <ul>
  *  <li>f: filename of file that you want to create the shared memory with
  *  <li>n: number of datagrams to be stored in the buffer
@@ -112,8 +118,9 @@
  *  <li>p: the name of the partition tag
  *  <li>r: the rate that you want to simulate
  *  <li>l: loop. If the end of the file has been reached start from the beginning
- *  <li>v: verbose output. Includes the spare time, which can be used to calculate the time in ns it took to
- *         read the event from file and put it into the shared memory (buisy time).
+ *  <li>v: verbose output. Includes the spare time, which can be used to
+ *         calculate the time in ns it took to read the event from file and put
+ *         it into the shared memory (buisy time).\n
  *         sparetime= 1e9 / rate - buisy time.
  * </ul>
  *
@@ -141,9 +148,7 @@
  *
  * @todo create a client for the tcpserver that will retrieve
  *       the postprocessors histgrams and display them
- * @todo get updated xtcmonserver.cc from matt so that we
- *       can start testing.
- * @todo look whether pnccd offsetcorrection is build in and  works
+ * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
  * @todo describe how to use Nicolas ROI.
  * @todo add to mainpage a describtion how to add a custom
@@ -163,7 +168,8 @@ int main(int argc, char **argv)
 {
     // construct Qt application object
     QApplication app(argc, argv,false);
-    // set up details for QSettings and Co. (So we can simply use QSettings settings; everywhere else.)
+    // set up details for QSettings and Co.
+    // (So we can simply use QSettings settings; everywhere else.)
     QCoreApplication::setOrganizationName("CFEL-ASG");
     QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
     QCoreApplication::setApplicationName("CASS");
@@ -190,9 +196,12 @@ int main(int argc, char **argv)
 
   //a nonblocking ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
-  ringbuffer.behaviour(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
+  ringbuffer.behaviour
+      (cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
-  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,ringbuffer,qApp));
+  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
+                                                             ringbuffer,
+                                                             qApp));
   // create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
   //create a ratemeter object for the input//
