@@ -101,10 +101,10 @@
  * tag. When running at LCLS in the daq state you need to provide the partition
  * tag of the shared memory server you want to connect to. \n
  * User settable parameters are to be found in "CASS.ini". The latter can be found
- * in the user scope path. From the QSettings documentary
- * @see http://doc.trolltech.com/4.6/qsettings.html#setPath : "The default UserScope
+ * in the user scope path. From the QSettings documentary: "The default UserScope
  * paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings) can be overridden
  * by the user by setting the XDG_CONFIG_HOME environment variable."
+ * @see http://doc.trolltech.com/4.6/qsettings.html#setPath
  * @subsection testing Testing CASS in offline modus
  * For testing CASS you can create the shared memory using xtcmonserver located
  * in the build directory of the LCLS subfolder. This will take a xtc file and
