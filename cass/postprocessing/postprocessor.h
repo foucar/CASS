@@ -178,8 +178,9 @@ namespace cass
     * - overloaded void operator()(const cass::CASSEvent&) which gets called for each event
     * - (optionaly you could have a pointer the histogram in the histogram container)
     * - you are responsible that the histogram get allocated and destructed.
-    * @subsection steps Steps to take
-    * Steps that one has to take in order to have a custom build postprocessor:
+    * @subsection steps Register postprocessor
+    * Steps that one has to take in order to have a custom build postprocessor
+    * registered to the list of postprocessors:
     * - add your number to the above list an shortly describe what the postprocessor
     *   will be doing.
     * - add a describtive enum to the id_t enum
