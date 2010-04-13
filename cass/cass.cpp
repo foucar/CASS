@@ -150,8 +150,6 @@
  * @todo describe how to use Nicolas ROI.
  * @todo find out why there are the warning messages about const
  *       iterators (size_t) when compiling at SLAC
- * @todo make implementation (.cpp files source code) also available
- *       through doxygen documentation
  * @todo create GUI for setting the cass.ini variables
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
