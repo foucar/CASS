@@ -43,7 +43,7 @@ namespace cass
     /** read axis property from serializer.
      * This constructor will create a axis property that has been serialized to the
      * serializer. Will call @see deserialize(Serializer&).
-     * @param{in] in The Serializer that we read the histogram from
+     * @param[in] in The Serializer that we read the histogram from
      */
     AxisProperty(Serializer &in)
       :Serializable(1)
