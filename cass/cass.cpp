@@ -100,8 +100,11 @@
  * In Order to run the cass you need to start it with a parameter, the partition
  * tag. When running at LCLS in the daq state you need to provide the partition
  * tag of the shared memory server you want to connect to. \n
- * User settable parameters are to be found in "cass.ini". The later has to be
- * in the folder where you start CASS from.
+ * User settable parameters are to be found in "CASS.ini". The latter can be found
+ * in the user scope path. From the QSettings documentary
+ * @see http://doc.trolltech.com/4.6/qsettings.html#setPath : "The default UserScope
+ * paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings) can be overridden
+ * by the user by setting the XDG_CONFIG_HOME environment variable."
  * @subsection testing Testing CASS in offline modus
  * For testing CASS you can create the shared memory using xtcmonserver located
  * in the build directory of the LCLS subfolder. This will take a xtc file and
@@ -166,14 +169,14 @@
 /** The main program*/
 int main(int argc, char **argv)
 {
-    // construct Qt application object
-    QApplication app(argc, argv,false);
-    // set up details for QSettings and Co.
-    // (So we can simply use QSettings settings; everywhere else.)
-    QCoreApplication::setOrganizationName("CFEL-ASG");
-    QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
-    QCoreApplication::setApplicationName("CASS");
-    QSettings::setDefaultFormat(QSettings::IniFormat);
+  // construct Qt application object
+  QApplication app(argc, argv,false);
+  // set up details for QSettings and Co.
+  // (So we can simply use QSettings settings; everywhere else.)
+  QCoreApplication::setOrganizationName("CFEL-ASG");
+  QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
+  QCoreApplication::setApplicationName("CASS");
+  QSettings::setDefaultFormat(QSettings::IniFormat);
 
   //create a container for the partition tag
   int c;
