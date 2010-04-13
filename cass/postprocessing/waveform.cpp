@@ -105,7 +105,10 @@ namespace cass
   class Average
   {
   public:
-    /** constructor initializing the \f$\alpha\f$ value*/
+    /** constructor.
+     * initializes the \f$\alpha\f$ value
+     * @param alpha The \f$\alpha\f$ value
+     */
     explicit Average(float alpha)
       :_alpha(alpha)
     {}
