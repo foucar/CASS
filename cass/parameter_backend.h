@@ -10,7 +10,7 @@ namespace cass
   {
   public:
     ParameterBackend():
-        QSettings("./cass.ini",QSettings::IniFormat)
+        QSettings(/*"./cass.ini",QSettings::IniFormat*/)
     {
     }
 
