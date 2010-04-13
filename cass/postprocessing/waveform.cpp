@@ -216,10 +216,20 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   //lock this operation//
   QMutexLocker lock(_waveform->mutex());
   //average the waveform and put the result in the averaged waveform//
-  std::transform(waveform.begin(),waveform.end(),
-                 _waveform->memory().begin(),
-                 _waveform->memory().begin(),
-                 Average(alpha));
+  //transform id doing an operation like
+  //  template < class InputIterator, class OutputIterator, class BinaryOperator >
+  //    OutputIterator transform ( InputIterator first1, InputIterator last1,
+  //                               InputIterator2 first2, OutputIterator result,
+  //                               OutputIterator result, BinaryOperator op )
+  //  {
+  //    while (first1 != last1)
+  //       *result++=binary_op(*first1++,*first2++);
+  //    return result;
+  //  }
+  std::transform(waveform.begin(),waveform.end(), //start and one beyond stop of src
+                 _waveform->memory().begin(),     //start of second src
+                 _waveform->memory().begin(),     //start of result
+                 Average(alpha));                 //the binary operator
   //tell the histogram that we just filled it//
   ++_waveform->nbrOfFills();
 }
