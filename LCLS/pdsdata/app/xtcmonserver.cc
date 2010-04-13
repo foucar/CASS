@@ -492,10 +492,10 @@ int main(int argc, char* argv[]) {
       if ((dg = apps->next(fd))) {
 	apps->routine();
 	if (dg->seq.service() != TransitionId::L1Accept || verbose)
-	  printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x, spareTime %lld\n",
+    printf("\r%s transition: time 0x%x/0x%x, payloadSize 0x%x, spareTime %lld ns, rate %lf Hz",
 		 TransitionId::name(dg->seq.service()),
 		 dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),
-		 dg->xtc.sizeofPayload(), period - busyTime);
+     dg->xtc.sizeofPayload(), period - busyTime, 1./(busyTime*1e-9));
       }
       clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now);
       busyTime = timeDiff(&now, &start);
