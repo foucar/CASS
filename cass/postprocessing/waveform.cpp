@@ -113,7 +113,7 @@ namespace cass
       :_alpha(alpha)
     {}
     /** the operator calculates the average using the function
-     * \f$Y_n = Y_n + \alpha(y-Y_{n-1})\f$
+     * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
      * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
      * otherwise it will be a exponential moving average.
      */
