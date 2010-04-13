@@ -187,7 +187,10 @@ namespace cass
     * - add your postprossor in the switch statement of cass::PostProcessors::create
     *   - if the Object you are writing is responsible for more than one postprocessor
     *     just follow the example of the last pnccd processor(pp1).
-    *
+    * @subsection doc Documentation
+    * Please document what your postprocessor does so that other people now what it does.
+    * When documenting please use doxygen style as then your documentation will be available
+    * on the webserver.
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
     {

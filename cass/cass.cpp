@@ -43,35 +43,28 @@
  * (please contact Lutz Foucar for access)
  *
  * @section desc Brief description about program flow
- * <ol>
- *  <li>Shared mem
- *  <ol>
- *   <li>get lcls data
- *   <li>takes out a cassevent from ringbuffer
- *   <li>converter covnerts lcls -> cassevent
- *   <li>puts it back to ringbuffer
- *  </ol>
- *   <li>worker (mulitple)
- *  <ol>
- *   <li>takes cassevent out of ringbuffer
- *   <li>puts it to
- *   <ol>
- *    <li>analyzer
- *    <ol>
- *     <li>puts it to preanalyzers of different devices
- *    </ol>
- *    <li>postanalyzers
- *    <ol>
- *     <li>list of userdefined analyzers that extract info from cassevent and
+ * There are two types of threads running. They are both accessing a shared entity
+ * the ringbuffer. The producer thread is the shared memory input. The are several
+ * worker threads that will work on the created cassevents. Here is a short
+ * describtion of what the two thread types will do:
+ * -# Shared Memory Thread (single thread)
+ *   -# get lcls data
+ *   -# takes out a cassevent from ringbuffer
+ *   -# converter converts lcls -> cassevent
+ *   -# puts it back to ringbuffer
+ * -# Worker Thread (optional multiple threads)
+ *   -# takes cassevent out of ringbuffer
+ *   -# puts it to
+ *    -# analyzer
+ *      -# puts it to the preanalyzers of different devices
+ *    -# postanalyzers
+ *      -# list of userdefined analyzers that extract info from cassevent and
  *         put results it in histograms.
- *    </ol>
- *   </ol>
- *   <li>puts it back to ringbuffer
- *  </ol>
- * </ol>
- * program control is done via a tcpip interface\n
- * accesss histograms vi tcpip interface\n
- * parameters are loaded using qt's qsettings.
+ *   -# puts worked on cassevent back to ringbuffer to be filled again
+ *
+ * - Program control is done via a tcpip interface
+ * - Accesss histograms created by postprocessors via tcpip interface
+ * - Parameters are loaded using qt's qsettings. @see @ref run
  *
  * @section inst Installing CASS
  * @subsection pre Prerequisites
@@ -89,12 +82,12 @@
  * make x86_64-linux
  * @subsubsection build_CASS Compile CASS
  * Go back to the CASS top-level directory and use qmake with appropriate
- * options to create Makefiles, i. e.,\n
- * - cd ${CASS top-level directory}\n
- * - qmake -r\n
- * then run\n
- * - make\n
- * - (optional)sudo make install\n
+ * options to create Makefiles, i. e.,
+ * - cd ${CASS top-level directory}
+ * - qmake -r
+ * then run
+ * - make
+ * - (optional)sudo make install
  * to build and install the software.
  *
  * @section run Running CASS
@@ -155,8 +148,6 @@
  * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
  * @todo describe how to use Nicolas ROI.
- * @todo add to mainpage a describtion how to add a custom
- *       build postprocessor
  * @todo find out why there are the warning messages about const
  *       iterators (size_t) when compiling at SLAC
  * @todo create GUI for setting the cass.ini variables
