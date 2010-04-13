@@ -89,11 +89,11 @@
  * @subsubsection build_CASS Compile CASS
  * Go back to the CASS top-level directory and use qmake with appropriate
  * options to create Makefiles, i. e.,\n
- *  cd ${CASS top-level directory}\n
- *  qmake -r\n
+ * - cd ${CASS top-level directory}\n
+ * - qmake -r\n
  * then run\n
- *  make\n
- *  (optional)sudo make install\n
+ * - make\n
+ * - (optional)sudo make install\n
  * to build and install the software.
  *
  * @section run Running CASS
