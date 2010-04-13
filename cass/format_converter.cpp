@@ -56,6 +56,11 @@ void cass::ConverterParameter::load()
   _useAcqiris = value("useAcqirisConverter",true).toBool();
   _useMachine = value("useMachineConverter",true).toBool();
   _usepnCCD   = value("usepnCCDConverter",true).toBool();
+
+  std::cout << std::boolalpha<<"using Commercial ccd converter "<<_useCCD<<std::endl;
+  std::cout << std::boolalpha<<"using acqiris converter "<<_useAcqiris<<std::endl;
+  std::cout << std::boolalpha<<"using machine converter "<<_useMachine<<std::endl;
+  std::cout << std::boolalpha<<"using Pn ccd converter "<<_usepnCCD<<std::endl;
 }
 //save the settings
 void cass::ConverterParameter::save()
