@@ -59,7 +59,7 @@ namespace cass
 
     /** Deserialize this class.
      * deserializes this from the Serializer
-     * @param out The Serializer that we will deserialize this from
+     * @param in The Serializer that we will deserialize this from
      */
     void deserialize(Serializer& in);
 
@@ -190,6 +190,7 @@ namespace cass
     /** constructor.
      * @param dim The dimension of the histogram
      * @param memory_size size of the memory, used for special cases
+     * @param ver the serialization version
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
       : HistogramBackend(dim,ver), _memory(memory_size, 0.)
@@ -198,7 +199,7 @@ namespace cass
     /** read histogram from serializer.
      * This constructor will create a histogram that has been serialized to the
      * serializer. Will call @see deserialize(Serializer&).
-     * @param{in] in The Serializer that we read the histogram from
+     * @param[in] in The Serializer that we read the histogram from
      */
     HistogramFloatBase(Serializer& in)
       : HistogramBackend(0,1)
@@ -285,7 +286,7 @@ namespace cass
     /** read histogram from serializer while creating.
      * This constructor will create a histogram that has been serialized to the
      * serializer. Serialization is done in the baseclass.
-     * @param{in] in The Serializer that we read the histogram from
+     * @param[in] in The Serializer that we read the histogram from
      */
     Histogram1DFloat(Serializer &in)
       : HistogramFloatBase(in)
@@ -371,7 +372,7 @@ namespace cass
     /** read histogram from serializer.
      * This constructor will create a histogram that has been serialized to the
      * serializer. Serialization is done in the baseclass.
-     * @param{in] in The Serializer that we read the histogram from
+     * @param[in] in The Serializer that we read the histogram from
      */
     Histogram2DFloat(Serializer &in)
       : HistogramFloatBase(in)

@@ -47,7 +47,7 @@ void cass::PostProcessors::destroy()
 
 
 
-/**! Internal helper function to  convert QVariant to id_t */
+/** Internal helper function to  convert QVariant to id_t */
 static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 {
   std::cout <<"Adding Postprocessor "<< i.toInt()<<" to the active list"<<std::endl;
@@ -58,7 +58,7 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 
-PostProcessors::PostProcessors()
+cass::PostProcessors::PostProcessors()
 {
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
