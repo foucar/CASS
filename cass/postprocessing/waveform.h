@@ -13,12 +13,11 @@ namespace cass
   class CASSEvent;
   class Histogram1DFloat;
 
-  /*! Last Waveforms
-
-  class to show the last wavefrom of a channel
-  @todo include also the other Acqiris instruments
-  @author Lutz Foucar
-  */
+  /** Last Waveforms.
+   * class to show the last wavefrom of a channel
+   * @todo include also the other Acqiris instruments
+   * @author Lutz Foucar
+   */
   class pp4 : public PostprocessorBackend
   {
   public:
@@ -42,15 +41,13 @@ namespace cass
 
 
 
-  /*! Averaged Wavefrom
-
-  class that lets you average the waveforms
-  depending on the factor it will make a cumulative average or
-  in exponential moving average
-
-  @todo include also the other Acqiris instruments
-  @author Lutz Foucar
-  */
+  /** Averaged Wavefrom.
+   * class that lets you average the waveforms
+   * depending on the factor it will make a cumulative average or
+   * in exponential moving average
+   * @todo include also the other Acqiris instruments
+   * @author Lutz Foucar
+   */
   class pp500 : public PostprocessorBackend
   {
   public:
