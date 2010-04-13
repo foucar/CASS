@@ -177,6 +177,7 @@ int main(int argc, char **argv)
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("CASS");
   QSettings::setDefaultFormat(QSettings::IniFormat);
+  
 
   //create a container for the partition tag
   int c;

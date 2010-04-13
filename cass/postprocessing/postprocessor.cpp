@@ -7,6 +7,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <algorithm>
+#include <iostream>
 
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/ccd.h"
@@ -49,9 +50,9 @@ void cass::PostProcessors::destroy()
 /**! Internal helper function to  convert QVariant to id_t */
 static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 {
-    return PostProcessors::id_t(i.toInt());
+  std::cout <<"Adding Postprocessor "<< i.toInt()<<" to the active list"<<std::endl;
+  return PostProcessors::id_t(i.toInt());
 }
-
 
 
 
@@ -74,6 +75,7 @@ void cass::PostProcessors::process(cass::CASSEvent& event)
 
 void PostProcessors::loadSettings(size_t)
 {
+  std::cout<< "Postprocessor load settings"<<std::endl;
     QSettings settings;
     settings.beginGroup("postprocessors");
     QVariantList list(settings.value("active").toList());
@@ -82,6 +84,8 @@ void PostProcessors::loadSettings(size_t)
     // remove duplicates (keep first occurence)
     _active.unique();
     setup();
+    std::cout <<"done with setting Postprocessor up for analysis"<<std::endl;
+
 }
 
 
