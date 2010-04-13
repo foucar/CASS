@@ -43,6 +43,7 @@ cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::i
   case PostProcessors::CampChannel19LastWaveform: _channel=19;_instrument=Camp1;break;
   default: throw std::invalid_argument("channel does not exist in argument list");
   }
+  std::cout<< this<< " will work on Channel "<< _channel<<" of Instrument "<<_instrument<<std::endl;
 }
 
 cass::pp4::~pp4()
@@ -64,21 +65,24 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
-  //and is still valid for the now incomming wavefrom of //
+  //and is still valid for the now incomming wavefrom of//
   //this channel//
   if(!_waveform)
   {
     _waveform =
-        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+        new Histogram1DFloat(waveform.size(),
+                             0,
+                             channel.fullscale()*channel.sampleInterval());
     _histograms[_id] = _waveform;
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     delete _waveform;
     _waveform =
-        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+        new Histogram1DFloat(waveform.size(),
+                             0,
+                             channel.fullscale()*channel.sampleInterval());
     _histograms[_id] = _waveform;
-
   }
   //lock the copy operation in multithreaded environment//
   QMutexLocker lock(_waveform->mutex());
@@ -92,13 +96,12 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 
 namespace cass
 {
-  /*! binary operator for averaging
-
-    capable of performing a Cumulative moving average and
-    a Exponential moving average.
-   @see http://en.wikipedia.org/wiki/Moving_average
-   @author Lutz Foucar
-  */
+  /** binary operator for averaging.
+   * this operator is capable of performing a Cumulative moving average and
+   * a Exponential moving average.
+   * @see http://en.wikipedia.org/wiki/Moving_average
+   * @author Lutz Foucar
+   */
   class Average
   {
   public:
@@ -107,9 +110,10 @@ namespace cass
       :_alpha(alpha)
     {}
     /** the operator calculates the average using the function
-      \f$Y_n = \alpha(y-Y_{n-1})\f$
-      where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
-      otherwise it will be a exponential moving average.*/
+     * \f$Y_n = \alpha(y-Y_{n-1})\f$
+     * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
+     * otherwise it will be a exponential moving average.
+     */
     float operator()(float Average_Nm1, float currentValue)
     {
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
@@ -122,7 +126,8 @@ namespace cass
 
 //the average waveform creator//
 cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id)
+  :cass::PostprocessorBackend(hist,id),
+  _waveform(0)
 {
   using namespace cass::ACQIRIS;
   switch (_id)
@@ -149,6 +154,8 @@ cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessor
   case PostProcessors::CampChannel19AveragedWaveform: _channel=19;_instrument=Camp1;break;
   default: throw std::invalid_argument("the requested postprocessor is not handled by this one");
   }
+  std::cout<< this<< " will average Channel "<< _channel<<" of Instrument "<<_instrument<<std::endl;
+  loadParameters(0);
 }
 
 cass::pp500::~pp500()
@@ -160,11 +167,11 @@ cass::pp500::~pp500()
 void cass::pp500::loadParameters(size_t)
 {
   QSettings parameter;
-  parameter.beginGroup("postprocessors");
   parameter.beginGroup(QString("processor_") + QString::number(_id));
   //load the nbr of averages, and calculate the alpha from it//
   uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
   _alpha = static_cast<float>(1./N);
+  std::cout <<this<<" is averaging over " << N<<" events"<<std::endl;
 }
 
 void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
@@ -185,14 +192,18 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   if(!_waveform)
   {
     _waveform =
-        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+        new Histogram1DFloat(waveform.size(),
+                             0,
+                             channel.fullscale()*channel.sampleInterval());
     _histograms[_id] = _waveform;
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
     delete _waveform;
     _waveform =
-        new Histogram1DFloat(waveform.size(),0,channel.fullscale()*channel.sampleInterval());
+        new Histogram1DFloat(waveform.size(),
+                             0,
+                             channel.fullscale()*channel.sampleInterval());
     _histograms[_id] = _waveform;
   }
   //choose which kind of average we want to have//
