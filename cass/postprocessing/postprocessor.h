@@ -60,7 +60,7 @@ namespace cass
     00102: Histogram 101 with
            - background subtraction of the image file specified in postprocessors/102/background
     00121: Running average of VMI (???) camera
-    00131: Scalar value of the \f$ cos^2\theta_{2D} \f$ derived from the 121 image
+    00131: Scalar value of the \f$ \cos^2\theta_{2D} \f$ derived from the 121 image
     00141: Sum-intensity of image pp3
     00142: Sum-intensity of image pp121
     00143: Gaussian width of image pp3
