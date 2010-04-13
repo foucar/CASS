@@ -130,7 +130,7 @@ void cass::PostProcessors::setup()
 }
 
 
-cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t hs, id_t id)
+cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t &hs, id_t id)
 {
   PostprocessorBackend * processor(0);
   switch(id)
