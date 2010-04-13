@@ -16,11 +16,11 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! The Anode Layer of the delayline detector.
-      class containing the properties of a
-      anode layer of the detector
-      @author Lutz Foucar
-    */
+    /** A anode layer of the delayline detector.
+     * class containing the properties of a
+     * anode layer of the detector
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer
     {
     public:
@@ -74,19 +74,22 @@ namespace cass
 
 
 
-    /*! Detector Hits.
-      class containing the properties of a Hit on the
-      delayline detector. A Hit on a Delaylinedetector consists
-      of a x, y and t value. Where x and y are the position on
-      the detector and t is the time the particle hit the detector.
-      All these values are stored in a map and can be extracted using
-      the appropriate name ('x','y','t').
-      @author Lutz Foucar
-    */
+    /** a hit on the delayline detector.
+     * class containing the properties of a Hit on the
+     * delayline detector. A hit on a Delaylinedetector consists
+     * of a x, y and t value. Where x and y are the position on
+     * the detector and t is the time the particle hit the detector.
+     * All these values are stored in a map and can be extracted using
+     * the appropriate name ('x','y','t').
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorHit
     {
     public:
-      /*! initiailzing constructor*/
+      /** constructor.
+       * @param x,y the position on the detector where the particle hit the detector
+       * @param t the time when the particle hit the detector
+       */
       DelaylineDetectorHit(double x, double y, double t)
           :_x_mm(x), _y_mm(y), _time(t)
       {
@@ -128,23 +131,21 @@ namespace cass
 
 
 
-    /*! The delayline detector
-
-    A delayline detector is a tof detector with the ability to also
-    have position information.
-    class that can be a Hex or Quad delayline detector. it contains
-    all information that is needed in order to sort the signals in the
-    waveforms to detector hits
-
-    @author Lutz Foucar
-    */
+    /** A delayline detector.
+     * A delayline detector is a tof detector with the ability to also
+     * have position information.
+     * class that can be a Hex or Quad delayline detector. it contains
+     * all information that is needed in order to sort the signals in the
+     * waveforms to detector hits
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public TofDetector
     {
     public:
-      /** constructor
-      @param[in] type the delayline type
-      @param[in] name the name of this detector
-      */
+      /** constructor.
+       * @param[in] type the delayline type is an enum either Hex or Quad
+       * @param[in] name the name of this detector
+       */
       DelaylineDetector(DelaylineType type, const std::string name)
         :TofDetector(name),
          _runtime(0),
@@ -227,7 +228,10 @@ namespace cass
       double _deadMcp;
       /** the deadtime between to Signals on the Layers */
       double _deadAnode;
-      /** enum telling which Layers should be used to calculate the position when using simple sorting*/
+      /** layer combination.
+       * enum telling which Layers should be used to calculate the position when
+       * using simple sorting
+       */
       LayersToUse _layersToUse;
       /** type of the delayline (hex or quad)*/
       DelaylineType _delaylinetype;
