@@ -170,6 +170,23 @@ namespace cass
     00681: Femtosecond Laser Photodiode All Hits on Mcp
     00682: Femtosecond Laser Photodiode Height vs. Fwhm
     @endverbatim
+
+    * @section add_pp Howto add custom postprocessors
+    * @subsection nec Things that a postprocessor needs to have
+    * Your postprocessor needs to have the following members
+    * - a constructor that takes the a reference to the histogram container and the processor id
+    * - overloaded void operator()(const cass::CASSEvent&) which gets called for each event
+    * - (optionaly you could have a pointer the histogram in the histogram container)
+    * - you are responsible that the histogram get allocated and destructed.
+    * @subsection steps Steps to take
+    * Steps that one has to take in order to have a custom build postprocessor:
+    * - add your number to the above list an shortly describe what the postprocessor
+    *   will be doing.
+    * - add a describtive enum to the id_t enum
+    * - add your postprossor in the switch statement of cass::PostProcessors::create
+    *   - if the Object you are writing is responsible for more than one postprocessor
+    *     just follow the example of the last pnccd processor(pp1).
+    *
     */
     class CASSSHARED_EXPORT PostProcessors : public QObject
     {

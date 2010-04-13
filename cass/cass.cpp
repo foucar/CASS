@@ -33,6 +33,7 @@
  *   </ul>
  *  </ul>
  *  <li> @ref run
+ *  <li> @ref add_pp
  * </ul>
  *
  * @section download Getting CASS
@@ -124,7 +125,7 @@
  *  <li>v: verbose output. Includes the spare time, which can be used to
  *         calculate the time in ns it took to read the event from file and put
  *         it into the shared memory (buisy time).\n
- *         sparetime= 1e9 / rate - buisy time.
+ *         sparetime = 1e9 / rate - buisy time.
  * </ul>
  *
  * @author Nicola Coppola \n
