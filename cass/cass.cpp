@@ -151,6 +151,7 @@
  *       the postprocessors histgrams and display them
  * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
+ * @todo only retrieve the last ccd / waveform when requested
  * @todo describe how to use Nicolas ROI.
  * @todo find out why there are the warning messages about const
  *       iterators (size_t) when compiling at SLAC
