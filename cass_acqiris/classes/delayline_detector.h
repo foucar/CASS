@@ -102,13 +102,21 @@ namespace cass
         :_x_mm(0), _y_mm(0), _time(0)
       {}
 
-    public: /*! getters & setters*/
+    public:
+      //@{
+      /** getter.
+       */
       double  x()const  {return _x_mm;}
-      double &x()       {return _x_mm;}
       double  y()const  {return _y_mm;}
-      double &y()       {return _y_mm;}
       double  t()const  {return _time;}
+      //@}
+      //@{
+      /** setter.
+       */
+      double &x()       {return _x_mm;}
+      double &y()       {return _y_mm;}
       double &t()       {return _time;}
+      //@}
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}
 
