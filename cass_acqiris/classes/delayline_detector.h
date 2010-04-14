@@ -97,7 +97,7 @@ namespace cass
         _values['y']=y;
         _values['t']=t;
       }
-      /*! default constructor, initalizing every value to 0*/
+      /** default constructor, initalizing every value to 0*/
       DelaylineDetectorHit()
         :_x_mm(0), _y_mm(0), _time(0)
       {}
@@ -105,6 +105,7 @@ namespace cass
     public:
       //@{
       /** getter.
+       * use this function to retrieve the properties of a hit.
        */
       double  x()const  {return _x_mm;}
       double  y()const  {return _y_mm;}
@@ -112,6 +113,9 @@ namespace cass
       //@}
       //@{
       /** setter.
+       * use this function to set the properties of a hit.
+       * @todo check if we still need to set a detector hits
+       *       properties after creating it.
        */
       double &x()       {return _x_mm;}
       double &y()       {return _y_mm;}
