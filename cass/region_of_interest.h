@@ -48,7 +48,6 @@ namespace cass
    * cass::ROI::roi_t roi = cass::ROI::create("pnCCD01",cass::ROI::ROIIterator);
    * @todo add to the example how to iterate over the frame
    * @author Nicola Coppola
-   * @author Lutz Foucar
    */
   struct ROI
   {
