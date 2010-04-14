@@ -39,8 +39,12 @@
  * @section download Getting CASS
  * You can access cass via svn from the following Repository:\n
  * https://www.mpi-hd.mpg.de/repos/lutz/diode \n
- * The version we are working with right now is to be found in /branches/lutz
- * (please contact Lutz Foucar for access)
+ * The version we are working with right now is to be found in\n
+ * /branches/lutz\n
+ * an "anonymous" readonly access for checking out can be done using\n
+ * username: asg
+ * password: cass
+ * (please contact Lutz Foucar for write access)
  *
  * @section desc Brief description about program flow
  * There are two types of threads running. They are both accessing a shared entity
