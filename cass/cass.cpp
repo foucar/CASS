@@ -42,8 +42,8 @@
  * The version we are working with right now is to be found in\n
  * /branches/lutz\n
  * an "anonymous" readonly access for checking out can be done using\n
- * username: asg
- * password: cass
+ * username: asg\n
+ * password: cass\n
  * (please contact Lutz Foucar for write access)
  *
  * @section desc Brief description about program flow
