@@ -146,6 +146,9 @@ public:
     static void destroy();
 
     /*! Gaussian width */
+    float cos2theta(const CASSEvent& event) { validate(event); return _values[event.id()].first; };
+
+    /*! Gaussian width */
     float width(const CASSEvent& event) { validate(event); return _values[event.id()].first; };
 
     /*! Gaussian height */
@@ -264,7 +267,7 @@ std::list<PostProcessors::id_t> pp131::dependencies()
 
 void pp131::operator()(const CASSEvent& event)
 {
-    *_value = helper_alignment_1::instance()->width(event);
+    *_value = helper_alignment_1::instance()->cos2theta(event);
 }
 
 
