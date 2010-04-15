@@ -45,8 +45,10 @@ namespace cass
       void loadSettings() {/*_param.load();*/}
       /** needs to be overwritten, since its pure virtual in base (does nothing)*/
       void saveSettings() {/*_param.save();*/}
-      /** should evalutate acqiris part of the cassevent, now its an empty stub
-        which does nothing*/
+      /** the operator.
+       * should evalutate acqiris part of the cassevent, now its an empty stub
+       * which does nothing
+       */
       void operator()(cass::CASSEvent*);
 
 //    private:
