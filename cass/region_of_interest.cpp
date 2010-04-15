@@ -15,13 +15,13 @@ struct ROIShape
 {
   /** name describing what type this shape is*/
   std::string shapetype;
-  /** the size(s) along the x axis*/
+  /** the size(s) along the x axis in pixel units*/
   uint32_t xsize;
-  //! the size(s) along the y axis
+  //! the size(s) along the y axis in pixel units
   uint32_t ysize;
-  //! the centre(s) along the x axis
+  //! the centre(s) along the x axis in pixel units
   uint32_t xcentre;
-  //! the centre(s) along the y axis
+  //! the centre(s) along the y axis in pixel units
   uint32_t ycentre;
   /** the orientation @see cass::ROI*/
   int32_t orientation;

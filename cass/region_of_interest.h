@@ -31,7 +31,6 @@ namespace cass
    *
    * @note I think also a "double triangle bottle-like shape could be helpful
    *
-   * xsize,ysize and center are in pixel units
    * this will create
    * - a ROI Mask
    * - a ROI Iterator, which is a list of indizes of the frame that are not
@@ -43,6 +42,7 @@ namespace cass
    * depending on the input parameter. All of these entities are vectors of unsigned
    * integers.
    * The info how to create the roi map is contained in cass.ini.
+   *
    * Example usage:
    * @code
    * //create a list of "good indizes in the frame//
@@ -53,6 +53,7 @@ namespace cass
    * @todo explain what the different kind of entities are and what they do.
    * @todo decide whether this should be moved to another namespace
    * @todo add examples how to iterate over the frame
+   * @todo cleanup the documentation make it more clear
    * @author Nicola Coppola
    */
   struct ROI
