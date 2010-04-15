@@ -23,6 +23,7 @@ namespace cass
    * This will connect to the selected unix signals and emit
    * Qt Signals to be able to use the Qt Signal - Slot mechanism with them.
    * ideas taken from http://qt.nokia.com/doc/4.6/unix-signals.html.
+   * currently it is implemented to intercept SIGQUIT and SIGTERM.
    * @author Nicola Coppola
    */
   class CASSSHARED_EXPORT UnixSignalDaemon : public QObject
