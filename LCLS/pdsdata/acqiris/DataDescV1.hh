@@ -79,7 +79,7 @@ namespace Pds {
 
       // this is a copy of AqDataDescriptor in AcqirisDataTypes.h
       // to break dependencies with acqiris software.
-      uint32_t _returnedSamplesPerSeg;//Total number of data samples actually returned. DataArray[indexFirstPoint]… DataArray[indexFirstPoint+ returnedSamplesPerSeg-1]
+      uint32_t _returnedSamplesPerSeg;//Total number of data samples actually returned. DataArray[indexFirstPoint] DataArray[indexFirstPoint+ returnedSamplesPerSeg-1]
       uint32_t _indexFirstPoint; // indexFirstPoint is the first valid point. 
       //!< Note: Not valid for 'readMode = ReadModeSeqRawW'.
       double   _sampTime;
