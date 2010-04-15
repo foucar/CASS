@@ -43,10 +43,6 @@ namespace cass
    * @note Do I need to shrink the ROI if I am rebinning??
    * @todo explain what the different kind of entities are and what they do.
    * @todo decide whether this should be moved to another namespace
-   * @example
-   * //create a list of "good" indizes in the frame//
-   * //for the first pnccd detector//
-   * cass::ROI::roi_t roi = cass::ROI::create("pnCCD01",cass::ROI::ROIIterator);
    * @todo add to the example how to iterate over the frame
    * @author Nicola Coppola
    */
