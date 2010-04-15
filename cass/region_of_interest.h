@@ -10,27 +10,11 @@ namespace cass
 {
 
   /** functor creating a region of interest.
-   * a region of interest is created from a list of simple shapes. Each simple shape
-   * needs the following "attributes": shape, xsize, ysize, xcenter, ycenter
-   * there are several shapes types:=circ(==circle),triangle(isosceles),square.
-   * The attributes will be loaded from cass.ini.
+   * a region of interest is created from a list of simple shapes.
+   * @see cass::ROIShape
    * @note Do I need many squares per frame?
-   * @warning there is a problem with a triangular shape... the orientation!!!
    *
-   * the orientation is used only in the case of a triangular shape.
-   * @verbatim
-       /\           ----         |\           /|
-      /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
-      ----           \/          | /         \ |
-                                 |/           \|@endverbatim
-   * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
-   *
-   * @note please remember to use the rotated frame wrt standard-natural frame
-   * orientation!!
-   *
-   * @note I think also a "double triangle bottle-like shape could be helpful
-   *
-   * this will create
+   * this function will create
    * - a ROI Mask
    * - a ROI Iterator, which is a list of indizes of the frame that are not
    *   masked as uniteresting
@@ -40,7 +24,6 @@ namespace cass
    *   original shape) ROI index-pointer-mask for each detector
    * depending on the input parameter. All of these entities are vectors of unsigned
    * integers.
-   * The info how to create the roi map is contained in cass.ini.
    *
    * Example usage:
    * @code
@@ -51,7 +34,8 @@ namespace cass
    *
    * @note Do I need to shrink the ROI if I am rebinning??
    * @todo explain what the different kind of entities are and what they do.
-   * @todo decide whether this should be moved to another namespace
+   * @todo decide whether this should be moved to another namespace, maybe
+   *       it should be just a function instead of a struct? (lutz)
    * @todo add examples how to iterate over the frame
    * @todo cleanup the documentation make it more clear
    * @author Nicola Coppola

@@ -9,24 +9,46 @@
 /** A Region of Interest Shape.
  * this is a simple shape the region of interest mask we
  * be created by a list of these shapes.
+ * Each simple shape needs the following "attributes": shape, xsize, ysize,
+ * xcenter, ycenter there are several shapes types:
+ * circ(==circle),triangle(isosceles),square.
+ * The attributes will be loaded from cass.ini.
+ * @note I think also a "double triangle bottle-like shape could be helpful
+ *
+ * @warning there is a problem with a triangular shape... the orientation!!!
+ *
  * @author Nicola Coppola
  */
-struct ROIShape
+namespace cass
 {
-  /** name describing what type this shape is*/
-  std::string shapetype;
-  /** the size(s) along the x axis in pixel units*/
-  uint32_t xsize;
-  //! the size(s) along the y axis in pixel units
-  uint32_t ysize;
-  //! the centre(s) along the x axis in pixel units
-  uint32_t xcentre;
-  //! the centre(s) along the y axis in pixel units
-  uint32_t ycentre;
-  /** the orientation @see cass::ROI*/
-  int32_t orientation;
-};
-
+  struct ROIShape
+  {
+    /** name describing what type this shape is*/
+    std::string shapetype;
+    /** the size(s) along the x axis in pixel units*/
+    uint32_t xsize;
+    //! the size(s) along the y axis in pixel units
+    uint32_t ysize;
+    //! the centre(s) along the x axis in pixel units
+    uint32_t xcentre;
+    //! the centre(s) along the y axis in pixel units
+    uint32_t ycentre;
+    /** the orientation.
+     * the orientation is used only in the case of a triangular shape.
+@verbatim
+ /\           ----         |\           /|
+/  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
+----           \/          | /         \ |
+                           |/           \|
+@endverbatim
+     * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
+     *
+     * @note please remember to use the rotated frame wrt standard-natural frame
+     * orientation!!
+     */
+    int32_t orientation;
+  };
+}
 cass::ROI::create(const std::string detectorname, entity_t entity)const
 {
   //Create a parameter from which we will read the attibutes
