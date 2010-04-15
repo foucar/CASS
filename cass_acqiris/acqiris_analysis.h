@@ -31,11 +31,11 @@ namespace cass
 
 
 
-    /*! @brief  Preanalyzer for Acqiris Data
-
-      This class is not needed anymore, since all calculation are done in
-      the postprocessors for the Acqiris detectors only when needed.
-      @author Lutz Foucar*/
+    /** Preanalyzer for Acqiris Data.
+     * This class is not needed anymore, since all calculation are done in
+     * the postprocessors for the Acqiris detectors only when needed.
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
