@@ -1,0 +1,4 @@
+cd cass 
+soapcpp2 -S -i soapserver.h
+cd ..
+qmake -r

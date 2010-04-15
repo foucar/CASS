@@ -177,7 +177,7 @@ int main(int argc, char **argv)
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("CASS");
   QSettings::setDefaultFormat(QSettings::IniFormat);
-  
+
 
   //create a container for the partition tag
   int c;
@@ -232,23 +232,23 @@ int main(int argc, char **argv)
   input->start();
   workers->start();
 
-  //TCP server
-  //tell the server how to get an id or histogram
-  cass::EventGetter get_event(ringbuffer);
-  cass::HistogramGetter get_histogram(workers->histograms());
-  cass::TCP::Server server(get_event, get_histogram, qApp);
-  //setup the connections//
-  QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
-  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
-  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
-  QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
-  QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
-  //let the server listen to port 54321//
-  if(! server.listen(QHostAddress::Any, 54321))
-  {
-      std::cerr << "Failed to bind to TCP port" << std::endl;
-      return 1;
-  }
+  // TCP server
+  // // tell the server how to get an id or histogram
+  // cass::EventGetter get_event(ringbuffer);
+  // cass::HistogramGetter get_histogram(workers->histograms());
+  // cass::TCP::Server server(get_event, get_histogram, qApp);
+  // // setup the connections
+  // QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
+  // QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
+  // QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
+  // QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  // QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  // //let the server listen to port 54321//
+  // if(! server.listen(QHostAddress::Any, 54321))
+  // {
+  //     std::cerr << "Failed to bind to TCP port" << std::endl;
+  //     return 1;
+  // }
 
   //start Qt event loop
   int retval(app.exec());

@@ -13,22 +13,19 @@
 
 //gsoap ns schema namespace: urn:CASSsoap
 
-#include <string>
-typedef std::string xsd__string;
-
 /*** tool methods ***/
 
-// tell server to reread ini file -- why do I need an argument?
-int ns__readini(bool *success);
+// tell server to reread ini file (or |what| part of it)
+int ns__readini(size_t what, bool *success);
 
-// quit server -- why do I need an argument?
+// quit server
 int ns__quit(bool *success);
 
 // get CASSEvent from server
-int ns__getEvent(int type, bool *sucess);
+int ns__getEvent(size_t type, bool *sucess);
 
 // get histogram from server
-int ns__getHistogram(int type, bool *sucess);
+int ns__getHistogram(size_t type, bool *sucess);
 
 // get image from server in format |format| (possible formats: 1 == TIFF)  --how can I return QImage *result?
-int ns__getImage(int format, int type, bool *success);
+int ns__getImage(size_t format, size_t type, bool *success);
