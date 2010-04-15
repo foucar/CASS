@@ -1,10 +1,44 @@
-// Copyright (C) 2010 NC POSIX signal treatment
-#include "daemon.h"
-int cass::Daemon::sigquitFd[2];
-int cass::Daemon::sigtermFd[2];
-#include <iostream>
+// Copyright (C) 2010 Nicola Coppola
+// Copyright (C) 2010 Lutz Foucar
 
-cass::Daemon::Daemon(QObject *parent)
+#include "daemon.h"
+
+#include <iostream>
+#include <stdio.h>
+#include <signal.h>
+
+
+//initialize static memebers
+int cass::UnixSignalDaemon::sigquitFd[2];
+int cass::UnixSignalDaemon::sigtermFd[2];
+
+//installation of Unix singal handlers//
+int cass::setup_unix_signal_handlers()
+{
+  struct sigaction quit, term;
+  std::cout << "what to do in case signal to exit "<<std::endl;
+
+  quit.sa_handler = cass::UnixSignalDaemon::quitSignalHandler;
+  sigemptyset(&quit.sa_mask);
+  quit.sa_flags = 0;
+  quit.sa_flags |= SA_RESTART;
+
+  if (sigaction(SIGQUIT, &quit, 0) > 0)
+    return 1;
+
+  std::cout << "what to do in case signal to quit "<<std::endl;
+  term.sa_handler = cass::UnixSignalDaemon::termSignalHandler;
+  sigemptyset(&term.sa_mask);
+  term.sa_flags |= SA_RESTART;
+
+  if (sigaction(SIGTERM, &term, 0) > 0)
+    return 2;
+
+  return 0;
+}
+
+cass::UnixSignalDaemon::UnixSignalDaemon(QObject *parent)
+  :QObject(parent)
 {
   if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigquitFd))
       qFatal("Couldn't create QUIT socketpair");
@@ -17,18 +51,15 @@ cass::Daemon::Daemon(QObject *parent)
   connect(snTerm, SIGNAL(activated(int)), this, SLOT(handleSigTerm()));
 }
 
-cass::Daemon::~Daemon()
-{
-}
 
-void cass::Daemon::quitSignalHandler(int)
+void cass::UnixSignalDaemon::quitSignalHandler(int)
 {
   std::cout<<"quit signal seen"<<std::endl;
   char a = 1;
   ::write(sigquitFd[0], &a, sizeof(a));
 }
 
-void cass::Daemon::handleSigQuit()
+void cass::UnixSignalDaemon::handleSigQuit()
 {
   std::cout<<"quit signal handle"<<std::endl;
   snQuit->setEnabled(false);
@@ -40,7 +71,7 @@ void cass::Daemon::handleSigQuit()
 }
 
 
-void cass::Daemon::termSignalHandler(int)
+void cass::UnixSignalDaemon::termSignalHandler(int)
 {
   std::cout<<"term signal seen"<<std::endl;
   char a = 1;
@@ -48,7 +79,7 @@ void cass::Daemon::termSignalHandler(int)
 }
 
 
-void cass::Daemon::handleSigTerm()
+void cass::UnixSignalDaemon::handleSigTerm()
 {
   std::cout<<"term signal handle"<<std::endl;
   snTerm->setEnabled(false);

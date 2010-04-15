@@ -13,7 +13,8 @@ CODECFORTR = UTF-8
 OBJECTS_DIR = ./obj
 MOC_DIR = ./obj
 
-SOURCES +=  cass.cpp \
+SOURCES +=  daemon.cpp \
+            cass.cpp \
             analyzer.cpp \
             sharedmemory_input.cpp \
             format_converter.cpp \
@@ -46,6 +47,7 @@ HEADERS +=  analysis_backend.h \
             ringbuffer.h \
             ccd_detector.h \
             worker.h \
+            daemon.h \
             tcpserver.h \
             event_getter.h \
             serializable.h \

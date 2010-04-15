@@ -13,6 +13,7 @@
 #include "rate_plotter.h"
 #include "tcpserver.h"
 #include "worker.h"
+#include "daemon.h"
 
 
 
@@ -215,6 +216,10 @@ int main(int argc, char **argv)
   cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
   //create a rate plotter that will plot the rate of the worker and input//
   cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
+  //create deamon task to capture POSIX signals //
+  cass::setup_unix_signal_handlers();
+  cass::UnixSignalDaemon *signaldaemon(new cass::UnixSignalDaemon(qApp));
+
 
   //connect ratemeters//
   QObject::connect(workers, SIGNAL(processedEvent()), workerrate, SLOT(count()));
@@ -236,6 +241,8 @@ int main(int argc, char **argv)
   cass::TCP::Server server(get_event, get_histogram, qApp);
   //setup the connections//
   QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
   QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   //let the server listen to port 54321//

@@ -1,10 +1,10 @@
-// Copyright (C) 2010 NC POSIX signal treatment
-#ifndef CASS_DAEMON_H
-#define CASS_DAEMON_H
+// Copyright (C) 2010 Nicola Coppola
+// Copyright (C) 2010 Lutz Foucar
+
+#ifndef _CASS_DAEMON_H_
+#define _CASS_DAEMON_H_
 
 #include <QtCore/QObject>
-#include <QThread>
-#include <QMutex>
 #include <QtCore/QSocketNotifier>
 
 #include <signal.h>
@@ -15,34 +15,57 @@
 
 namespace cass
 {
-  class CASSSHARED_EXPORT Daemon : public QThread
+  /** function that will install Unix signal handlers with sigaction(2)*/
+  int setup_unix_signal_handlers();
+
+
+  /** a deamon that will intercept chosen unix signals.
+   * This will connect to the selected unix signals and emit
+   * Qt Signals to be able to use the Qt Signal - Slot mechanism with them.
+   * ideas taken from http://qt.nokia.com/doc/4.6/unix-signals.html.
+   * @author Nicola Coppola
+   */
+  class CASSSHARED_EXPORT UnixSignalDaemon : public QObject
   {
     Q_OBJECT;
   public:
-    Daemon(QObject *parent=0);
-    ~Daemon();
+    /** constructor.
+     * Here we will create the socket notifieres and connect the unix signals
+     * to them.
+     * @param parent The parent object that we belong to
+     */
+    UnixSignalDaemon(QObject *parent=0);
 
-    //void run();
-    // Unix signal handlers.
+    //@{
+    /** Unix signal handlers.
+     * @param unused this parameter is not used
+     */
     static void quitSignalHandler(int unused);
     static void termSignalHandler(int unused);
+    //@}
 
   signals:
-      void QuitSignal(); 
-      void TermSignal(); 
+    /** signal emitted when unix SIGQUIT has been send*/
+    void QuitSignal();
+    /** signal emitted when unix SIGTERM has been send*/
+    void TermSignal();
 
   public slots:
-    //void end();
-    // Qt signal handlers.
+    //@{
+    /** slots to handle the UNIX signal*/
     void handleSigQuit();
     void handleSigTerm();
+    //@}
 
   private:
-    static int                           sigquitFd[2];
-    static int                           sigtermFd[2];
-
-    QSocketNotifier                     *snQuit;
-    QSocketNotifier                     *snTerm;
+    /** the socket descriptor for SIGQUIT*/
+    static int sigquitFd[2];
+    /** the socket descriptor for SIGTERM*/
+    static int sigtermFd[2];
+    /** the socket notfier that will handle SIGQUIT*/
+    QSocketNotifier *snQuit;
+    /** the socket notfier that will handle SIGTERM*/
+    QSocketNotifier *snTerm;
   };
 
 }//end namespace cass
