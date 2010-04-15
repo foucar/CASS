@@ -23,11 +23,14 @@ namespace cass
    *  ----           \/          | /         \ |
    *                             |/           \|
    * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
+   * @todo the above doesn't look good in the doc. maybe put pics instead of code
+   *       there.
    *
    * @note please remember to use the rotated frame wrt standard-natural frame
    * orientation!!
    *
    * @note I think also a "double triangle bottle-like shape could be helpful
+   *
    * xsize,ysize and center are in pixel units
    * this will create
    * - a ROI Mask
@@ -39,11 +42,17 @@ namespace cass
    *   original shape) ROI index-pointer-mask for each detector
    * depending on the input parameter. All of these entities are vectors of unsigned
    * integers.
-   * The info how to create the
+   * The info how to create the roi map is contained in cass.ini.
+   * Example usage:
+   * @code
+   * //create a list of "good indizes in the frame//
+   * //for the first pnccd detector//
+   * cass::ROI::roi_t roi = cass::ROI::create("pnCCD01",cass::ROI::ROIIterator);
+   * @endcode
    * @note Do I need to shrink the ROI if I am rebinning??
    * @todo explain what the different kind of entities are and what they do.
    * @todo decide whether this should be moved to another namespace
-   * @todo add to the example how to iterate over the frame
+   * @todo add examples how to iterate over the frame
    * @author Nicola Coppola
    */
   struct ROI
