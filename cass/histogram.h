@@ -223,6 +223,8 @@ namespace cass
      * when having the memory one can lock operations on it from outside here
      */
     QMutex *mutex() {return &_mutex;}
+
+
   protected:
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
@@ -377,6 +379,9 @@ namespace cass
     Histogram2DFloat(Serializer &in)
       : HistogramFloatBase(in)
     {}
+
+    /*! @return shape of histogram (rows, columns) */
+    std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); };
 
     /*! Return histogram bin that contains (x,y) */
     value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };

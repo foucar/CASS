@@ -1,4 +1,4 @@
-# Copyright (C) 2009 Jochen Kuepper
+# Copyright (C) 2009,2010 Jochen Küpper
 # Copyright (C) 2009,2010 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
@@ -32,12 +32,15 @@ SOURCES +=  cass.cpp \
             ./postprocessing/imaging.cpp \
 
 HEADERS +=  analysis_backend.h \
+            cass.h \
+            cass_event.h \
             conversion_backend.h \
             sharedmemory_input.h \
             analyzer.h \
             format_converter.h \
-            cass.h \
-            cass_event.h \
+            histogram.h \
+            histogram_getter.h \
+            image.h \
             xtciterator.h \
             ratemeter.h \
             ringbuffer.h \
@@ -45,8 +48,6 @@ HEADERS +=  analysis_backend.h \
             worker.h \
             tcpserver.h \
             event_getter.h \
-            histogram_getter.h \
-            histogram.h \
             serializable.h \
             serializer.h \
             rate_plotter.h \
