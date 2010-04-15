@@ -15,7 +15,13 @@
 
 namespace cass
 {
-  /** function that will install Unix signal handlers with sigaction(2)*/
+  /** function that will install Unix signal handlers with sigaction(2)
+   * This function will setup SIGTERM and SIGQUIT to be handled by
+   * QSocketNotifiers. They will then be used to signal our program
+   * using the qt signal - slot mechanism. @see UnixSignalDaemon
+   * This implemented from the example found at
+   * http://qt.nokia.com/doc/4.6/unix-signals.html
+   */
   int setup_unix_signal_handlers();
 
 
