@@ -214,7 +214,7 @@ int main(int argc, char **argv)
   cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
   //create a rate plotter that will plot the rate of the worker and input//
   cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
-  //create deamon task to capture POSIX signals //
+  //create deamon to capture UNIX signals//
   cass::setup_unix_signal_handlers();
   cass::UnixSignalDaemon *signaldaemon(new cass::UnixSignalDaemon(qApp));
 
