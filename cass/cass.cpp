@@ -157,6 +157,8 @@
  *       iterators (size_t) when compiling at SLAC
  * @todo include the fuctionality that this will quit gratiously
  *       using crtl+\
+ * @todo solve the issue with the multithreading (program has more than one thread
+ *       but seems to run only with one active thread)
  * @todo create GUI for setting the cass.ini variables
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
