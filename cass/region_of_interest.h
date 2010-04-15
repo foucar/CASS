@@ -18,13 +18,13 @@ namespace cass
    * @warning there is a problem with a triangular shape... the orientation!!!
    *
    * the orientation is used only in the case of a triangular shape.
+   * @verbatim
    *   /\           ----         |\           /|
    *  /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
    *  ----           \/          | /         \ |
    *                             |/           \|
+   * @endverbatim
    * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
-   * @todo the above doesn't look good in the doc. maybe put pics instead of code
-   *       there.
    *
    * @note please remember to use the rotated frame wrt standard-natural frame
    * orientation!!
