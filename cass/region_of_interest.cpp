@@ -23,7 +23,7 @@ struct ROIShape
   uint32_t xcentre;
   //! the centre(s) along the y axis
   uint32_t ycentre;
-  /** the orientation @see ROI*/
+  /** the orientation @see cass::ROI*/
   int32_t orientation;
 };
 
