@@ -22,6 +22,7 @@
  *
  * @section toc Table of Contents
  * <ul>
+ *  <li> @ref licence
  *  <li> @ref download
  *  <li> @ref desc
  *  <li> @ref inst
@@ -37,6 +38,10 @@
  *  <li> @ref run
  *  <li> @ref add_pp
  * </ul>
+ *
+ * @section licence License
+ * CASS is delveloped under the terms of the GNU General Public
+ * License, version 3 as of 29 June 2007. See @ref casslicense for details.
  *
  * @section download Getting CASS
  * You can access cass via svn from the following Repository:\n
@@ -145,6 +150,11 @@
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
  *       all values.
+ */
+
+/** \page casslicense License
+ * @include "License"
+ * @include "License.GPLv3"
  */
 
 /** \page cassinstall INSTALL
