@@ -59,9 +59,24 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   const Device *dev =
       dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
   //retrieve a reference to the right instument//
-  const Instrument &instr = dev->instruments().find(_instrument)->second;
+  instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
+  //check if instrument exists//
+  if (instrI == dev->instruments().end())
+  {
+    std::cerr << "did not find the requested Acqiris instrument: "<<_instrument
+        << " maybe the Acqiris converter is not active"<<std::endl;
+    return;
+  }
+  const Instrument &instr = instrI->second;
   //retrieve a reference to the right channel//
-  const Channel &channel =instr.channels()[_channel];
+  if (instr.channels().size() <= _channel)
+  {
+    std::cerr << "In the current configuration now instrument "<<_instrument
+        << " does not have channel "<< _channel
+        << ". Check the configuration"<<std::endl;
+    return;
+  }
+  const Channel &channel = instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
   //check wether the wavefrom histogram has been created//
@@ -184,8 +199,23 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const Device *dev =
       dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
   //retrieve a reference to the right instument//
-  const Instrument &instr = dev->instruments().find(_instrument)->second;
+  instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
+  //check if instrument exists//
+  if (instrI == dev->instruments().end())
+  {
+    std::cerr << "did not find the requested Acqiris instrument: "<<_instrument
+        << " maybe the Acqiris converter is not active"<<std::endl;
+    return;
+  }
+  const Instrument &instr = instrI->second;
   //retrieve a reference to the right channel//
+  if (instr.channels().size() <= _channel)
+  {
+    std::cerr << "In the current configuration now instrument "<<_instrument
+        << " does not have channel "<< _channel
+        << ". Check the configuration"<<std::endl;
+    return;
+  }
   const Channel &channel =instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
