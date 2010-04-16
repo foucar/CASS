@@ -16,6 +16,7 @@ These are esome guidelines for the CASS software development.
 
 * Do not bloat the code by useless empty lines, comments without
   content (i.e., essentially duplicating the code), etc.
+  But please do structure/document header files well.
 
 
 Software repository
