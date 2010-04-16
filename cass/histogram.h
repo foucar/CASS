@@ -13,6 +13,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtGui/QImage>
 
 #include "serializer.h"
 #include "serializable.h"
@@ -219,15 +220,24 @@ namespace cass
     /** @return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
 
+    /*! Minimum value in current histogram */
+    value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
+
+    /*! Maximum value in current histogram */
+    value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
+
     /** @return \p to our mutex
      * when having the memory one can lock operations on it from outside here
      */
     QMutex *mutex() {return &_mutex;}
 
 
+
   protected:
+
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
+
     /** histogram strage.
      * the memory contains the histogram in range nbins,
      * after that there are some reservered spaces for over/underflow statistics
@@ -414,6 +424,20 @@ namespace cass
      *       a range on the other axis.
      */
     Histogram1DFloat reduce(Axis axis) const;
+
+    /*! Create a QImage of this histogram
+
+    @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
+
+    @return QImage of this histogram
+    */
+    QImage qimage() const {
+        QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+        for(size_t r=0; r<shape().first; ++r)
+            for(size_t c=0; c<shape().second; ++c)
+                qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
+        return qi;
+    };
   };
 
 

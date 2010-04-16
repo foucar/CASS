@@ -20,6 +20,15 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
 }
 
 
+QImage HistogramGetter::qimage(const HistogramParameter& hp) const
+{
+    // get an iterator to the requested histogram
+    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
+    // and return the QImage of that histogram
+    return dynamic_cast<Histogram2DFloat *>(iter->second)->qimage();
+}
+
+
 
 // Local Variables:
 // coding: utf-8
