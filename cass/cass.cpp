@@ -2,6 +2,7 @@
 // Copyright (C) 2009,2010 Lutz Foucar
 
 #include <iostream>
+#include <QtCore/QStringList>
 #include <QtGui/QApplication>
 
 #include "cass.h"
@@ -179,14 +180,18 @@ int main(int argc, char **argv)
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("CASS");
   QSettings::setDefaultFormat(QSettings::IniFormat);
-
+  QSettings settings;
+  // QStringList keys(settings.allKeys());
+  // for(QStringList::iterator iter = keys.begin(); iter != keys.end(); ++iter)
+  //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
+  settings.sync();
 
   //create a container for the partition tag
   int c;
   char partitionTag[128];
 
   //get the partition string
-  while ((c = getopt(argc, argv, "p:")) != -1)
+  while((c = getopt(argc, argv, "p:")) != -1)
   {
     switch (c)
     {
@@ -202,8 +207,7 @@ int main(int argc, char **argv)
 
   //a nonblocking ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
-  ringbuffer.behaviour
-      (cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
+  ringbuffer.behaviour(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
                                                              ringbuffer,
@@ -257,6 +261,9 @@ int main(int argc, char **argv)
   delete inputrate;
   delete workers;
   delete input;
+
+  // one last sync of settings file
+  settings.sync();
 
   //finish
   return retval;
