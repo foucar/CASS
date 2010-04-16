@@ -80,13 +80,12 @@ INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
 
 
 unix{
-SOURCES += $$(LCLSSYSINCLUDE)/pdsdata/app/XtcMonitorClient.cc # we have to live with this hack until lcls has made this part of their library
 QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
 LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata \
+        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
         -L$$(GSOAP)/lib -lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
