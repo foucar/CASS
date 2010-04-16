@@ -73,14 +73,17 @@ static bool _handleDg(XtcMonitorClient& client, mqd_t iq, mqd_t oq, char*& myShm
   } else {
     
     int i = myMsg.bufferIndex();
-    if ( (i>=0) && (i<myMsg.numberOfBuffers())) {
+    if ( (i>=0) && (i<myMsg.numberOfBuffers()))
+    {
       Dgram* dg = (Dgram*) (myShm + (myMsg.sizeOfBuffers() * i));
-      if (client.processDgram(dg))
-	return false;
-      if (oq != -1 && mq_send(oq, (const char *)&myMsg, sizeof(myMsg), priority)) {
-	perror("mq_send back buffer");
-	return false;
+      int error = client.processDgram(dg);
+      if (oq != -1 && mq_send(oq, (const char *)&myMsg, sizeof(myMsg), priority))
+      {
+        perror("mq_send back buffer");
+        return false;
       }
+      if (error)
+        return false;
     }
     else {
       fprintf(stderr, "ILLEGAL BUFFER INDEX %d\n", i);
