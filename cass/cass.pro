@@ -21,12 +21,12 @@ SOURCES +=  daemon.cpp \
             cass_event.cpp \
             ratemeter.cpp \
             worker.cpp \
-            tcpserver.cpp \
+            #tcpserver.cpp \
             event_getter.cpp \
             histogram_getter.cpp \
             rate_plotter.cpp \
-            soapCASSsoapService.cpp \
-            soapC.cpp \
+            #soapCASSsoapService.cpp \
+            #soapC.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
@@ -54,10 +54,10 @@ HEADERS +=  analysis_backend.h \
             serializable.h \
             serializer.h \
             rate_plotter.h \
-            soapCASSsoapService.h \
-            soapH.h \
-            soapStub.h \
-            tcpserver.h \
+            #soapCASSsoapService.h \
+            #soapH.h \
+            #soapStub.h \
+            #tcpserver.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
@@ -67,7 +67,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/imaging.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
-                $$(GSOAPINCLUDE) \
+#                $$(GSOAPINCLUDE) \
                 ../cass_acqiris \
                 ../cass_acqiris/classes \
                 ../cass_acqiris/classes/detector_analyzer \
@@ -87,14 +87,13 @@ LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        -L$$(LCLSSYSLIB) -L$$(GSOAPLIB) \
-        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
-        -levrdata -lgsoap++ -lgsoap
+        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata\
+         #-lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
-                ../cass_pnccd/libcass_pnccd.a \
-                ../cass_ccd/libcass_ccd.a \
-				../cass_machinedata/libcass_machinedata.a \
+              ../cass_pnccd/libcass_pnccd.a \
+              ../cass_ccd/libcass_ccd.a \
+              ../cass_machinedata/libcass_machinedata.a \
 }
 
 

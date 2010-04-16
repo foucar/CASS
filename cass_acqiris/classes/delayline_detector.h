@@ -107,9 +107,9 @@ namespace cass
       /** getter.
        * use this function to retrieve the properties of a hit.
        */
-      double  x()const  {return _x_mm;}
-      double  y()const  {return _y_mm;}
-      double  t()const  {return _time;}
+//      double  x()const  {return _x_mm;}
+//      double  y()const  {return _y_mm;}
+//      double  t()const  {return _time;}
       //@}
       //@{
       /** setter.
@@ -117,9 +117,9 @@ namespace cass
        * @todo check if we still need to set a detector hits
        *       properties after creating it.
        */
-      double &x()       {return _x_mm;}
-      double &y()       {return _y_mm;}
-      double &t()       {return _time;}
+//      double &x()       {return _x_mm;}
+//      double &y()       {return _y_mm;}
+//      double &t()       {return _time;}
       //@}
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}

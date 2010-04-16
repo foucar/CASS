@@ -48,6 +48,12 @@ INCLUDEPATH += $$(LCLSSYSINCLUDE) \
                ./classes/detector_analyzer \
                ./
 
+DEPENDPATH +=  ../cass \
+               ./classes \
+               ./classes/waveformanalyzer \
+               ./classes/detector_analyzer \
+               ./
+
 INSTALLBASE     = /usr/local/cass
 header.path     = $$INSTALLBASE/include
 libs.path       = $$INSTALLBASE/libs

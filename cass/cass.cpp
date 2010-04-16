@@ -228,6 +228,10 @@ int main(int argc, char **argv)
   QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
+  //close the programm when sigquit or sigterm were received//
+  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
+
   //start input and worker threads
   input->start();
   workers->start();
@@ -239,8 +243,6 @@ int main(int argc, char **argv)
   // cass::TCP::Server server(get_event, get_histogram, qApp);
   // // setup the connections
   // QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
-  // QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
-  // QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
   // QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   // QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   // //let the server listen to port 54321//
