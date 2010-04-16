@@ -141,6 +141,11 @@
  *
  * @todo create a client for the tcpserver that will retrieve
  *       the postprocessors histgrams and display them
+ * @todo find out how to create gsoap file as part of the project
+ *       to omit the manual running of the ./createMakefiles.
+ * @todo find out how to create the LCLS libraries as part of the project
+ *       so that when something in the library has changed it will
+ *       automatically rebuild.
  * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
  * @todo only retrieve the last ccd / waveform when requested
@@ -150,7 +155,6 @@
  * @todo solve the issue with the multithreading (program has more than one thread
  *       but seems to run only with one active thread)
  * @todo create GUI for setting the cass.ini variables
- * @todo make an LCLS library from XtcMonClient.hh / cc
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
