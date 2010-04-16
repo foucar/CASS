@@ -7,6 +7,16 @@ CONFIG += static
 QT += network
 TARGET = cass
 DEFINES += CASS_LIBRARY DWITH_NONAMESPACES
+
+#make the cass project compile the LCLS Library before compiling cass itself
+lclstarget.target = LCLSLibrary
+lclstarget.commands = @echo "creating LCLS Library"; cd $$(LCLSSYSINCLUDE) ; make x86_64-linux ; cd ..
+lclstarget.depends =  FORCE
+
+
+PRE_TARGETDEPS += LCLSLibrary
+QMAKE_EXTRA_TARGETS += lclstarget
+
 VERSION = 0.1.0
 CODECFORTR = UTF-8
 
