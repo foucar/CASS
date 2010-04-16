@@ -50,8 +50,7 @@ void cass::PostProcessors::destroy()
 /** Internal helper function to  convert QVariant to id_t */
 static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 {
-  std::cout <<"Adding Postprocessor "<< i.toInt()<<" to the active list"<<std::endl;
-  return PostProcessors::id_t(i.toInt());
+    return PostProcessors::id_t(i.toInt());
 }
 
 
@@ -75,7 +74,7 @@ void cass::PostProcessors::process(cass::CASSEvent& event)
 
 void PostProcessors::loadSettings(size_t)
 {
-  std::cout<< "Postprocessor load settings"<<std::endl;
+    std::cout << "Postprocessor::loadSettings"<<std::endl;
     QSettings settings;
     settings.beginGroup("postprocessors");
     QVariantList list(settings.value("active").toList());
@@ -83,8 +82,14 @@ void PostProcessors::loadSettings(size_t)
     std::transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
     // remove duplicates (keep first occurence)
     _active.unique();
+    std::cout << "   Number of unique postprocessor activations: " << _active.size() << std::endl;
+    std::cout << "   Active postprocessor(s): ";
+    for(std::list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter)
+        std::cout << *iter << " ";
+    std::cout << std::endl;
+
     setup();
-    std::cout <<"done with setting Postprocessor up for analysis"<<std::endl;
+    std::cout << "   done with setting Postprocessor up for analysis"<<std::endl;
 
 }
 
