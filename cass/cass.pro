@@ -66,6 +66,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/imaging.h \
 
 INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
+                $$(GSOAP)/include \
                 ../cass_acqiris \
                 ../cass_acqiris/classes \
                 ../cass_acqiris/classes/detector_analyzer \
@@ -86,7 +87,7 @@ LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
         -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata \
-        -lgsoap++ -lgsoap
+        -L$$(GSOAP)/lib -lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
               ../cass_pnccd/libcass_pnccd.a \
