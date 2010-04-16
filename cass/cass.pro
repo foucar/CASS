@@ -43,7 +43,6 @@ HEADERS +=  analysis_backend.h \
             format_converter.h \
             histogram.h \
             histogram_getter.h \
-            image.h \
             xtciterator.h \
             ratemeter.h \
             ringbuffer.h \
