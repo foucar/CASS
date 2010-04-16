@@ -37,6 +37,7 @@
  *  </ul>
  *  <li> @ref run
  *  <li> @ref add_pp
+    <li> @ref cred
  * </ul>
  *
  * @section licence License
@@ -115,26 +116,26 @@
  *         sparetime = 1e9 / rate - buisy time.
  * </ul>
  *
- * @author Nicola Coppola \n
- * - depreciated cass_database\n
- * - depreciated cass_dictionary\n
- * - new pnCCD analysis\n
- * - Region of Interest (ROI) implementation\n
- * - CASS testing, debug and development\n
- *
- * @author Lutz Foucar \n
- * - general leader \n
- * - cass, cass_acqiris, cass_ccd, cass_machinedata implementation \n
- * - CASS design, infrastructure development\n
- *
- * @author Nils Kimmel \n
- * - original pnCCD analysis\n
- *
- * @author Jochen Kuepper
+ * @section cred Credits
+ * @par Authors:
+ * - Nicola Coppola
+ *   - depreciated cass_database
+ *   - depreciated cass_dictionary
+ *   - new pnCCD analysis
+ *   - Region of Interest (ROI) implementation
+ *   - CASS testing, debug and development
+ * - Nils Kimmel
+ *   - original pnCCD analysis
+ * - Jochen Kuepper
+ *   - CASS design, infrastructure development
+ *   - cass framework implementation
+ *   - postprocessor setup
+ *   - TCP/SOAP server
+ * @par Project admin:
+ * Lutz Foucar
+ * - cass, cass_acqiris, cass_ccd, cass_machinedata implementation
  * - CASS design, infrastructure development
- * - cass framework implementation
- * - postprocessor setup
- * - TCP/SOAP server
+ *
  *
  * @date 2009-2010
  *
