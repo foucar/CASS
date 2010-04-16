@@ -11,6 +11,7 @@
 #include "cass_event.h"
 #include "event_getter.h"
 #include "histogram_getter.h"
+#include "soapCASSsoapService.h"
 
 
 namespace cass
@@ -21,9 +22,10 @@ class SoapServer : public QObject
 {
     Q_OBJECT;
 
-public:
+    friend class ::CASSsoapService;
 
-    friend class CASSsoapService;
+
+public:
 
     /** create the instance if not it does not exist already */
     static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist);
@@ -66,7 +68,8 @@ protected:
 private:
 
     /** Constructor */
-    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0);
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
+        : QObject(parent), get_event(event), get_histogram(hist) {};
 
     SoapServer();
 

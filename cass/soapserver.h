@@ -22,7 +22,7 @@ int ns__readini(size_t what, bool *success);
 int ns__quit(bool *success);
 
 // get CASSEvent from server
-int ns__getEvent(size_t type, bool *sucess);
+int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *sucess);
 
 // get histogram from server
 int ns__getHistogram(size_t type, bool *sucess);
