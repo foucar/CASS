@@ -2,6 +2,7 @@
 
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
+#include <QtGui/QColor>
 #include <QtGui/QImage>
 
 #include "CASSsoap.nsmap"
@@ -93,16 +94,33 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
     std::cout << "CASSsoapService::getImage" << std::endl;
     int result;
     try {
-        QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
+        // QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
+        QImage image(1024, 1024, QImage::Format_Indexed8);
+        image.setColorCount(256);
+        for(unsigned i=0; i<256; ++i)
+            image.setColor(i, QColor(i, i, i).rgb());
+        image.fill(type);
         QByteArray ba;
         QBuffer buffer(&ba);
         buffer.open(QIODevice::WriteOnly);
+        std::cout << "CASSsoapService::getImage - buffer opened" << std::endl;
         switch(format) {
         case 1:  // TIFF
             image.save(&buffer, "TIFF");
+            buffer.close();
+            std::cout << "CASSsoapService::getImage - image saved" << std::endl;
             *success = true;
-            soap_set_dime(this); // enable dime
+            soap_set_dime(this); // enable dime.
+            std::cout << "CASSsoapService::getImage - sizeof(ba.data()): " << sizeof(ba.data()) << std::endl;
             result = soap_set_dime_attachment(this, ba.data(), sizeof(ba.data()), "image/tiff", NULL, 0, NULL);
+            break;
+        case 2:  // PNG
+            image.save(&buffer, "PNG");
+            std::cout << "CASSsoapService::getImage - image saved" << std::endl;
+            *success = true;
+            soap_set_dime(this); // enable dime.
+            std::cout << "CASSsoapService::getImage - sizeof(ba.data()): " << sizeof(ba.data()) << std::endl;
+            result = soap_set_dime_attachment(this, ba.data(), sizeof(ba.data()), "image/png", NULL, 0, NULL);
             break;
         default:
             success = false;

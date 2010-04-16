@@ -13,6 +13,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
+    bool ret;
+
     if(argc < 2) {
         cerr << "Must specify 'server:port' on commandline!" << endl;
         return 1;
@@ -22,8 +24,8 @@ int main(int argc, char *argv[])
     CASSsoapProxy cass;
     cass.soap_endpoint = argv[1];
 
-    bool ret;
-    cass.getImage(1, 101, &ret);
+    // get an image
+    cass.getImage(2, 101, &ret);
     if(ret)
         cout << "return value: 'true'" << endl;
     else
@@ -36,11 +38,21 @@ int main(int argc, char *argv[])
         cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << endl;
         cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
         QByteArray data((*attachment).ptr, (*attachment).size);
-        QFile imgfile("image.tiff");
+        QFile imgfile("image.png");
         imgfile.open(QIODevice::WriteOnly);
         imgfile.write(data);
         imgfile.close();
     }
+
+
+    // // quit server
+    // cass.quit(&ret);
+    // if(ret)
+    //     cout << "quit server return value: 'true'" << endl;
+    // else
+    //     cout << "quit server return value is 'false'" << endl;
+
+
     return 0;
 }
 

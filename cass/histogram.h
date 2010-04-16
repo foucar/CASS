@@ -13,6 +13,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtGui/QColor>
 #include <QtGui/QImage>
 
 #include "serializer.h"
@@ -444,6 +445,9 @@ public:
     */
     QImage qimage() const {
         QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+        qi.setColorCount(256);
+        for(unsigned i=0; i<256; ++i)
+            qi.setColor(i, QColor(i, i, i).rgb());
         for(size_t r=0; r<shape().first; ++r)
             for(size_t c=0; c<shape().second; ++c)
                 qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
