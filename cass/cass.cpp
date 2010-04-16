@@ -74,28 +74,6 @@
  *
  * @section inst Installing CASS
  * See the @ref cassinstall file as the primary installation documentation.
- * @subsection pre Prerequisites
- * The following software packages need to be installed and available for
- * building and running CASS:\n
- * - Qt version 4.5.x or 4.6.x
- * @subsection env Needed Environment Variables
- * - LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that
- *   contains the pdsdata folder\n
- * - LCLSSYSLIB: needs to point to the folder the build libraries are in.\n
- * - QTDIR:   needs to point where Qt is installed\n
- * @subsection build Building CASS
- * @subsubsection build_LCLS Compile the LCLS libraries
- * cd ${CASS top-level directory}/LCLS \n
- * make x86_64-linux
- * @subsubsection build_CASS Compile CASS
- * Go back to the CASS top-level directory and use qmake with appropriate
- * options to create Makefiles, i. e.,
- * - cd ${CASS top-level directory}
- * - qmake -r
- * then run
- * - make
- * - (optional)sudo make install
- * to build and install the software.
  *
  * @section run Running CASS
  * In Order to run the cass you need to start it with a parameter, the partition
