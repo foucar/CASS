@@ -104,7 +104,8 @@ void pp3::operator()(const cass::CASSEvent& event)
 // *** postprocessors 101, 102 ***
 
 pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id), _image(0)
+    : PostprocessorBackend(hist, id),
+      _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
     assert(hist == _histograms);
     loadSettings(0);
@@ -174,7 +175,6 @@ void cass::pp101::operator()(const CASSEvent& event)
             _image->memory()[r * cols/_binning.second + c] += sum / (_binning.first * _binning.second);
         }
     }
-    std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 
 
