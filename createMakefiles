@@ -1,4 +1,3 @@
-cd cass 
-soapcpp2 -S -i soapserver.h
-cd ..
+cd cass && soapcpp2 -S -i soapserver.h && cd ..
+cd jk-client && soapcpp2 -C -i ../cass/soapserver.h && cd ..
 qmake -r
