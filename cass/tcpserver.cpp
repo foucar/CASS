@@ -107,12 +107,11 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
         switch(format) {
         case 1:  // TIFF
             image.save(&buffer, "TIFF");
-            buffer.close();
             std::cout << "CASSsoapService::getImage - image saved" << std::endl;
             *success = true;
             soap_set_dime(this); // enable dime.
             std::cout << "CASSsoapService::getImage - sizeof(ba.data()): " << sizeof(ba.data()) << std::endl;
-            result = soap_set_dime_attachment(this, ba.data(), sizeof(ba.data()), "image/tiff", NULL, 0, NULL);
+            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/tiff", NULL, 0, NULL);
             break;
         case 2:  // PNG
             image.save(&buffer, "PNG");
@@ -120,7 +119,7 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
             *success = true;
             soap_set_dime(this); // enable dime.
             std::cout << "CASSsoapService::getImage - sizeof(ba.data()): " << sizeof(ba.data()) << std::endl;
-            result = soap_set_dime_attachment(this, ba.data(), sizeof(ba.data()), "image/png", NULL, 0, NULL);
+            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/png", NULL, 0, NULL);
             break;
         default:
             success = false;
