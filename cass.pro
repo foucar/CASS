@@ -17,9 +17,9 @@ QMAKE_CXXFLAGS += -fopenmp -march=native
 QMAKE_CXXFLAGS_DEBUG   += -g -O0
 QMAKE_CXXFLAGS_RELEASE += -O3 -ftree-vectorize
 
-SUBDIRS = \
-          cass_acqiris \
+SUBDIRS = cass_acqiris \
           cass_ccd \
           cass_pnccd \
           cass_machinedata \
           cass \
+          jk-client
