@@ -68,8 +68,7 @@ protected:
 private:
 
     /** Constructor */
-    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
-        : QObject(parent), get_event(event), get_histogram(hist) {};
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0);
 
     SoapServer();
 
@@ -77,13 +76,16 @@ private:
 
     SoapServer& operator=(const SoapServer&);
 
-    ~SoapServer() {};
+    ~SoapServer() { delete _soap; };
 
     /** pointer to the singleton instance */
     static SoapServer *_instance;
 
     /** Singleton operation locker */
     static QMutex _mutex;
+
+    /** the service */
+    CASSsoapService *_soap;
 };
 
 }

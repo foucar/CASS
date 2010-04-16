@@ -17,7 +17,6 @@ QMutex SoapServer::_mutex;
 
 
 SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist)
-// create an instance of the singleton
 {
     QMutexLocker locker(&_mutex);
     if(0 == _instance)
@@ -27,13 +26,23 @@ SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter
 
 
 
-// destroy the instance of the singleton
 void SoapServer::destroy()
 {
     QMutexLocker locker(&_mutex);
     delete _instance;
     _instance = 0;
 }
+
+
+
+SoapServer::SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent)
+    : QObject(parent), get_event(event), get_histogram(hist),
+      _soap(new CASSsoapService)
+{
+    // start SOAP
+    std::cerr << "soap.run() says " << _soap->run(12321) << std::endl;
+}
+
 
 } // end namespace cass
 
@@ -81,6 +90,7 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
 
 int CASSsoapService::getImage(size_t format, size_t type, bool *success)
 {
+    std::cout << "CASSsoapService::getImage" << std::endl;
     int result;
     try {
         QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
@@ -103,6 +113,7 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
         success = false;
         return SOAP_FATAL_ERROR;
     }
+    std::cout << "CASSsoapService::getImage done" << std::endl;
     return result;
 }
 
