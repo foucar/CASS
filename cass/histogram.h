@@ -194,7 +194,7 @@ namespace cass
      * @param ver the serialization version
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
-      : HistogramBackend(dim,ver), _memory(memory_size, 0.)
+        : HistogramBackend(dim,ver), _memory(memory_size, 0.)
     {}
 
     /** read histogram from serializer.
@@ -210,13 +210,16 @@ namespace cass
 
     /** virtual desctructor, since this a base class*/
     virtual ~HistogramFloatBase()      {}
+
     /** serialize this histogram to the serializer*/
     virtual void serialize(Serializer&)const;
+
     /** deserialize this histogram from the serializer*/
     virtual void deserialize(Serializer&);
 
     /** @return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
+
     /** @return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
 
@@ -227,8 +230,9 @@ namespace cass
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
 
     /** @return \p to our mutex
-     * when having the memory one can lock operations on it from outside here
-     */
+
+    when having the memory one can lock operations on it from outside here
+    */
     QMutex *mutex() {return &_mutex;}
 
 
@@ -238,11 +242,13 @@ namespace cass
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
 
-    /** histogram strage.
-     * the memory contains the histogram in range nbins,
-     * after that there are some reservered spaces for over/underflow statistics
-     */
+    /** histogram storage
+
+    The memory contains the histogram in range nbins,
+    after that there are some reservered spaces for over/underflow statistics
+    */
     storage_t _memory;
+
     /** Mutex to lock write operations on the memory*/
     QMutex _mutex;
   };
@@ -250,28 +256,29 @@ namespace cass
 
 
 
-  /** "0D Histogram" scalar value.
-   * @author Jochen Kuepper
-   */
-  class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
-  {
-  public:
+/*! "0D Histogram" (scalar value)
+
+@author Jochen Kuepper
+*/
+class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
+{
+public:
 
     /*! Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
-      : HistogramFloatBase(0, 1, 1)
+        : HistogramFloatBase(0, 1, 1)
     {};
 
     /*! Constructor for reading a histogram from a stream */
     Histogram0DFloat(Serializer &in)
-      : HistogramFloatBase(in)
+        : HistogramFloatBase(in)
     {};
 
-    void fill(value_t value=0.) {QMutexLocker lock(&_mutex);_memory[0] = value; };
+    void fill(value_t value=0.) {QMutexLocker lock(&_mutex); _memory[0] = value; };
 
     /*! Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
-  };
+};
 
 
 
@@ -305,13 +312,14 @@ namespace cass
     {}
 
     /** Add datum to histogram.
-     * This operation will lock the memory before attempting to fill the right bin.
-     * It will find the right bin for the x-value. If the histogram the bin should not
-     * be increased by one, but by a user defined value, then this can be given as the
-     * second paramenter.
-     * @param x x value that should be histogrammed
-     * @param weight value of datum
-     */
+
+    * This operation will lock the memory before attempting to fill the right bin.
+    * It will find the right bin for the x-value. If the histogram the bin should not
+    * be increased by one, but by a user defined value, then this can be given as the
+    * second paramenter.
+    * @param x x value that should be histogrammed
+    * @param weight value of datum
+    */
     void fill(float x, value_t weight=1.);
 
     /*! Return histogram bin that contains x */
@@ -336,22 +344,25 @@ namespace cass
     /** Sum of all values */
     value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
 
-    /** Reduce the 1D histogram to a scalar (integrate/sum all values).
-     * @see sum()
-     */
+    /*! Reduce the 1D histogram to a scalar (integrate/sum all values)
+
+    @see sum()
+    */
     value_t reduce() const { return sum(); };
   };
 
 
 
-  /** 2D Histogram.
-   * can be used for detector images, i.e., pnCCD, VMI CCD, etc...
-   * @author Lutz Foucar
-   * @author Jochen Küpper
-   */
-  class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
-  {
-  public:
+/** 2D Histogram.
+
+can be used for detector images, i.e., pnCCD, VMI CCD, etc...
+
+@author Lutz Foucar
+@author Jochen Küpper
+*/
+class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
+{
+public:
 
     /** create a 2d histogram.
      * This is used when constructing a histogram
@@ -438,7 +449,7 @@ namespace cass
                 qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
         return qi;
     };
-  };
+};
 
 
 
