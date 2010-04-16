@@ -104,7 +104,7 @@ void pp3::operator()(const cass::CASSEvent& event)
 // *** postprocessors 101, 102 ***
 
 pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id)
+    : PostprocessorBackend(hist, id), _image(0)
 {
     assert(hist == _histograms);
     loadSettings(0);
@@ -131,11 +131,11 @@ void cass::pp101::loadSettings(size_t)
     QSettings settings;
     settings.beginGroup("postprocessors");
     settings.beginGroup(QString("processor_") + QString::number(_id));
-    _average = settings.value("average").toUInt();
+    _average = settings.value("average", 1).toUInt();
     _scale = 1. - 1./_average;
-    std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal").toUInt(),
-                                                         settings.value("bin_vertical").toUInt()));
-    if((binning.first != _binning.first) ||(binning.second != _binning.second)) {
+    std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
+                                                         settings.value("bin_vertical", 1).toUInt()));
+    if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
         // create new histogram storage
         size_t horizontal(1024/_binning.first);
