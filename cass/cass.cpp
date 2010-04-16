@@ -73,7 +73,7 @@
  * - Parameters are loaded using qt's qsettings. @see @ref run
  *
  * @section inst Installing CASS
- * See the INSTALL file as the primary installation documentation.
+ * See the @ref cassinstall file as the primary installation documentation.
  * @subsection pre Prerequisites
  * The following software packages need to be installed and available for
  * building and running CASS:\n
@@ -167,6 +167,10 @@
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
  *       all values.
+ */
+
+/** \page cassinstall INSTALL
+ * @include "INSTALL"
  */
 
 
