@@ -11,16 +11,24 @@
 using namespace std;
 
 
-int main()
+int main(int argc, char *argv[])
 {
+    if(argc < 2) {
+        cerr << "Must specify 'server:port' on commandline!" << endl;
+        return 1;
+    }
+    cout << "Connecting to server at " << argv[1] << endl;
     // define proxy instance
-    const char server[] = "xfhix.rz-berlin.mpg.de:23432";
     CASSsoapProxy cass;
-    cass.soap_endpoint = server;
+    cass.soap_endpoint = argv[1];
 
     bool ret;
-    cass.getImage(1, 213, &ret);
-    cout << "return value: " << (ret?"true":"false") << endl;
+    cass.getImage(1, 101, &ret);
+    if(ret)
+        cout << "return value: 'true'" << endl;
+    else
+        cout << "return value is 'false'" << endl;
+
     for(soap_multipart::iterator attachment = cass.dime.begin(); attachment != cass.dime.end(); ++attachment) {
         cout << "DIME attachment:" << endl;
         cout << "Memory=" << (void*)(*attachment).ptr << endl;
