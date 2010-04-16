@@ -162,6 +162,7 @@
  * @todo solve the issue with the multithreading (program has more than one thread
  *       but seems to run only with one active thread)
  * @todo create GUI for setting the cass.ini variables
+ * @todo make an LCLS library from XtcMonClient.hh / cc
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
