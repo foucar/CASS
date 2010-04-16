@@ -85,8 +85,7 @@ LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        -L$$(LCLSSYSLIB) \
-        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata \
+        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata \
         -lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
