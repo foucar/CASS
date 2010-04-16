@@ -1,45 +1,45 @@
 // Copyright (C) 2010 Jochen Küpper
 
-#include <stdexcept>
-
 #include "soapCASSsoapService.h"
 #include "CASSsoap.nsmap"
 #include "tcpserver.h"
 
 
+namespace cass
+{
 
-// cass::SoapServerHelper *cass::SoapServerHelper::_instance(0);
-// QMutex cass::SoapServerHelper::_mutex;
-
-
-// // create an instance of the singleton
-// cass::SoapServerHelper *cass::SoapServerHelper::instance(const EventGetter& event, const HistogramGetter& hist)
-// {
-//     QMutexLocker locker(&_mutex);
-//     if(0 == _instance)
-//         _instance = new SoapServerHelper(event, hist);
-//     return _instance;
-// }
+SoapServer *SoapServer::_instance(0);
+QMutex SoapServer::_mutex;
 
 
+SoapServer::SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent)
+    : QObject(parent), get_event(event), get_histogram(hist)
+{ // leave thsi definition here (out-lined) so GCC knows how to make a vtable
+}
 
-// cass::SoapServerHelper *cass::SoapServerHelper::instance()
-// {
-//     QMutexLocker locker(&_mutex);
-//     if(0 == _instance)
-//         throw std::runtime_error("SoapServerHelper does not exist");
-//     return _instance;
-// }
+
+SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist)
+// create an instance of the singleton
+{
+    QMutexLocker locker(&_mutex);
+    if(0 == _instance)
+        _instance = new SoapServer(event, hist);
+    return _instance;
+}
 
 
 
-// // destroy the instance of the singleton
-// void cass::SoapServerHelper::destroy()
-// {
-//     QMutexLocker locker(&_mutex);
-//     delete _instance;
-//     _instance = 0;
-// }
+// destroy the instance of the singleton
+void SoapServer::destroy()
+{
+    QMutexLocker locker(&_mutex);
+    delete _instance;
+    _instance = 0;
+}
+
+
+
+} // end namespace cass
 
 
 

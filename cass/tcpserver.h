@@ -5,6 +5,7 @@
 #ifndef CASS_TCPSERVER_H
 #define CASS_TCPSERVER_H
 
+#include <stdexcept>
 #include <QtCore/QObject>
 
 #include "cass_event.h"
@@ -15,63 +16,72 @@
 namespace cass
 {
 
-// class SoapServerHelper : public QObject
-// {
-//     Q_OBJECT;
 
-// public:
+class SoapServer : public QObject
+{
+    Q_OBJECT;
 
-//     /** create the instance if not it does not exist already */
-//     static SoapServerHelper *instance(const EventGetter& event, const HistogramGetter& hist);
+public:
 
-//     /** return instance -- if it doesn't exist, throw exception */
-//     static SoapServerHelper *instance();
+    friend class CASSsoapService;
 
-//     /** destroy the instance */
-//     static void destroy();
+    /** create the instance if not it does not exist already */
+    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist);
 
-//     /** get_event functor */
-//     const EventGetter& get_event;
-
-//     /** get_histogram functor */
-//     const HistogramGetter& get_histogram;
+    /** destroy the instance */
+    static void destroy();
 
 
-// public slots:
+signals:
 
-//     void emit_quit() { emit quit(); };
+    void quit();
 
-//     void emit_readini(size_t what) { emit readini(what); };
-
-
-// signals:
-
-//     void quit();
-
-//     void readini(size_t what);
+    void readini(size_t what);
 
 
-// protected:
+protected:
 
-//     /** Constructor */
-//     SoapServerHelper(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
-//         : QObject(parent), get_event(event), get_histogram(hist)
-//         {};
+    /** return existing instance for our friends -- if it doesn't exist, throw exception */
+    static SoapServer *instance() {
+        QMutexLocker locker(&_mutex);
+        if(0 == _instance)
+            throw std::runtime_error("SoapServer does not exist");
+        return _instance;
+    };
 
-//     SoapServerHelper();
 
-//     SoapServerHelper(const SoapServerHelper&);
+    /** get_event functor */
+    const EventGetter& get_event;
 
-//     SoapServerHelper& operator=(const SoapServerHelper&);
+    /** get_histogram functor */
+    const HistogramGetter& get_histogram;
 
-//     ~SoapServerHelper() {};
+    /** allow our friends to emit the quit() signal */
+    void emit_quit() { emit quit(); };
 
-//     /** pointer to the singleton instance */
-//     static SoapServerHelper *_instance;
+    /** allow our friends to emit the readinin() signal */
+    void emit_readini(size_t what) { emit readini(what); };
 
-//     /** Singleton operation locker */
-//     static QMutex _mutex;
-// };
+
+private:
+
+    /** Constructor */
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0);
+
+    SoapServer();
+
+    SoapServer(const SoapServer&);
+
+    SoapServer& operator=(const SoapServer&);
+
+    ~SoapServer() {};
+
+    /** pointer to the singleton instance */
+    static SoapServer *_instance;
+
+    /** Singleton operation locker */
+    static QMutex _mutex;
+};
 
 }
 
