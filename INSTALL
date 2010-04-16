@@ -14,11 +14,11 @@ Needed Environment Variables
 
 LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder
 LCLSSYSLIB: needs to point to the folder the build libraries are in.
+GSOAP: needs to point to gSOAP installation directory
+QTDIR: needs to point to the Qt installation directory
 
-Furhtermore, you need fully administratively installed Qt and gSOAP
-libraries, i.e., the environment variable QTDIR needs to point to Qt
-installation director and CPLUS_INCLUDE_PATH and LIBRARY_PATH need to
-include the header and library dirs, repsectvely, for Qt and gSOAP.
+Furthermore, you need fully administratively installed Qt and gSOAP
+libraries.
 
 
 Building CASS
