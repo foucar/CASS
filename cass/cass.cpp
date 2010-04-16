@@ -42,6 +42,10 @@
  * @section licence License
  * CASS is delveloped under the terms of the GNU General Public
  * License, version 3 as of 29 June 2007. See @ref casslicense for details.
+ * If you use this software for publishable work, please cite and
+ * acknowledge the authors and the CASS collaboration in your
+ * publication. The suggested reference is:\n
+ * CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2010.
  *
  * @section download Getting CASS
  * You can access cass via svn from the following Repository:\n
