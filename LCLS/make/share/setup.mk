@@ -40,13 +40,9 @@ ifeq ($(verbose),y)
   quiet :=
   MAKEFLAGS :=
 else
-#  quiet :=
-#  MAKEFLAGS :=
   quiet := @
   MAKEFLAGS := -s
 endif
-#  quiet :=
-#  MAKEFLAGS :=
 
 # Target variable
 # ---------------

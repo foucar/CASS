@@ -22,36 +22,6 @@ depdir  := $(RELEASE_DIR)/build/$(prj_name)/dep/$(tgt_arch)/$(pkg_name)
 prod_dirs := $(strip $(bindir) $(libdir))
 temp_dirs  = $(strip $(sort $(foreach o,$(depends) $(objects),$(dir $(o)))))
 
-# Dummy shared library search (RTEMS only)
-# ----------------------------------------
-
-# In order to get a dynamic symbol table into a target it's necessary
-# (but not sufficient) to search at least one shared library. Why a
-# dynamic symbol table rather than a regular one? A dynamic symbol
-# table is part of a loadable segment (and section) so ELF-loaders
-# will automatically copy the table into memory; no painful hacks are
-# required to extract the table and find a safe place for it. As a
-# bonus we get a hash table to speed our lookups.
-
-# Make each target (executable) depend on the "dummy" library of
-# package rce/ldtools. We can just append to the list of libraries
-# for a target because the command line arguments generated
-# for the final linking of the target don't depend on the type
-# of library. It's up to rce/ldtools to make sure that the dummy
-# library is indeed a shared library.
-
-ifeq ($(tgt_os),rtems)
-
-define adddummylib
-ifndef tgtlibs_$(tgt)
-tgtlibs_$(tgt) :=
-endif
-tgtlibs_$(tgt) += rce/dummy
-endef
-
-$(foreach tgt,$(tgtnames),$(eval $(adddummylib)))
-endif
-
 
 # Procedures
 # ----------

@@ -27,6 +27,7 @@ CXXFLAGS := $(CFLAGS)
 CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
 LDFLAGS  := -m32 -shared
 LXFLAGS  := -m32
+USRLIBDIR := /usr/lib
 else
 ifneq ($(findstring x86_64,$(tgt_arch)),)
 AS  := as
@@ -45,6 +46,7 @@ CXXFLAGS := $(CFLAGS)
 CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
 LDFLAGS  := -m64 -shared
 LXFLAGS  := -m64
+USRLIBDIR := /usr/lib64
 else
 # Sparc Solaris specific flags
 ifneq ($(findstring sparc-solaris,$(tgt_arch)),)
