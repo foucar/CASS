@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     cass.soap_endpoint = argv[1];
 
     // get an image
-    cass.getImage(2, 101, &ret);
+    cass.getImage(1, 101, &ret);
     if(ret)
         cout << "return value: 'true'" << endl;
     else
@@ -37,10 +37,9 @@ int main(int argc, char *argv[])
         cout << "Size=" << (*attachment).size << endl;
         cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << endl;
         cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-        QByteArray data((*attachment).ptr, (*attachment).size);
-        QFile imgfile("image.png");
+        QFile imgfile("image.tiff");
         imgfile.open(QIODevice::WriteOnly);
-        imgfile.write(data);
+        imgfile.write((*attachment).ptr, (*attachment).size);
         imgfile.close();
     }
 
