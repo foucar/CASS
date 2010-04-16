@@ -10,7 +10,7 @@ DEFINES += CASS_LIBRARY DWITH_NONAMESPACES
 
 #make the cass project compile the LCLS Library before compiling cass itself
 lclstarget.target = LCLSLibrary
-lclstarget.commands = @echo "creating LCLS Library"; cd $$(LCLSSYSINCLUDE) ; make x86_64-linux ; cd ..
+lclstarget.commands = @echo "creating LCLS Library"; cd $$(LCLSSYSINCLUDE) ; make x86_64-linux ; cd -
 lclstarget.depends =  FORCE
 
 
