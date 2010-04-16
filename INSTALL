@@ -14,7 +14,9 @@ Needed Environment Variables
 LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder
 LCLSSYSLIB: needs to point to the folder the build libraries are in.
 
-QTDIR:   needs to point where Qt is installed
+Furhtermore, you need fully administratively installed Qt and gSOAP libraries, i.e., the environment variable
+   QTDIR needs to point to Qt installation director
+and CPLUS_INCLUDE_PATH and LIBRARY_PATH need to include the header and library dirs, repsectvely, for Qt and gSOAP.
 
 
 Building CASS
@@ -23,19 +25,18 @@ Compile the LCLS libraries
   cd ${CASS top-level directory}/LCLS
   make x86_64-linux
 
-Go back to the CASS top-level directory and use qmake with appropriate options to create Makefiles, i. e.,
+Go back to the CASS top-level directory and use createMakefiles to createMakefiles, i. e.,
   cd ${CASS top-level directory}
-  qmake -r
+  ./createmakefiles
 then run
   make
-  sudo make install
+  make install
 to build and install the software.
 
 
 Running CASS
 ------------
-in order to run cass the LD_LIBRARY_PATH should be properly set
+in order to run cass the LD_LIBRARY_PATH or equivalent environment should be properly set
 
 <tcsh>  setenv LD_LIBRARY $QTDIR/lib
-<bash>  LD_LIBRARY_PATH=$QTDIR/lib
-        export LD_LIBRARY_PATH
+<bash>  export LD_LIBRARY_PATH=$QTDIR/lib
