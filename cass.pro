@@ -1,8 +1,7 @@
-# Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009, 2010Jochen Küpper
 
 CONFIG += release
 CONFIG += thread warn_on exceptions rtti sse2 stl
-#CONFIG += debug
 
 VERSION = 0.1.0
 
@@ -22,4 +21,4 @@ SUBDIRS = cass_acqiris \
           cass_pnccd \
           cass_machinedata \
           cass \
-          #jk-client
+          jk-client
