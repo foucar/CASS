@@ -1,3 +1,4 @@
+// Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 #ifndef CASS_GLOBAL_H
