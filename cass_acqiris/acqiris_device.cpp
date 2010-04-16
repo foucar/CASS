@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #include <iostream>
 
@@ -10,7 +10,7 @@ cass::ACQIRIS::Device::Device()
   :cass::DeviceBackend(1)
 {
   //create all instruments
-  _instruments[Camp1] = Instrument();
+//  _instruments[Camp1] = Instrument();
 }
 
 void cass::ACQIRIS::Device::serialize(cass::Serializer &out) const
