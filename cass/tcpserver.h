@@ -15,63 +15,63 @@
 namespace cass
 {
 
-class SoapServerHelper : public QObject
-{
-    Q_OBJECT;
+// class SoapServerHelper : public QObject
+// {
+//     Q_OBJECT;
 
-public:
+// public:
 
-    /** create the instance if not it does not exist already */
-    static SoapServerHelper *instance(const EventGetter& event, const HistogramGetter& hist);
+//     /** create the instance if not it does not exist already */
+//     static SoapServerHelper *instance(const EventGetter& event, const HistogramGetter& hist);
 
-    /** return instance -- if it doesn't exist, throw exception */
-    static SoapServerHelper *instance();
+//     /** return instance -- if it doesn't exist, throw exception */
+//     static SoapServerHelper *instance();
 
-    /** destroy the instance */
-    static void destroy();
+//     /** destroy the instance */
+//     static void destroy();
 
-    /** get_event functor */
-    const EventGetter& get_event;
+//     /** get_event functor */
+//     const EventGetter& get_event;
 
-    /** get_histogram functor */
-    const HistogramGetter& get_histogram;
-
-
-public slots:
-
-    void emit_quit() { emit quit(); };
-
-    void emit_readini(size_t what) { emit readini(what); };
+//     /** get_histogram functor */
+//     const HistogramGetter& get_histogram;
 
 
-signals:
+// public slots:
 
-    void quit();
+//     void emit_quit() { emit quit(); };
 
-    void readini(size_t what);
+//     void emit_readini(size_t what) { emit readini(what); };
 
 
-protected:
+// signals:
 
-    /** Constructor */
-    SoapServerHelper(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
-        : QObject(parent), get_event(event), get_histogram(hist)
-        {};
+//     void quit();
 
-    SoapServerHelper();
+//     void readini(size_t what);
 
-    SoapServerHelper(const SoapServerHelper&);
 
-    SoapServerHelper& operator=(const SoapServerHelper&);
+// protected:
 
-    ~SoapServerHelper() {};
+//     /** Constructor */
+//     SoapServerHelper(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
+//         : QObject(parent), get_event(event), get_histogram(hist)
+//         {};
 
-    /** pointer to the singleton instance */
-    static SoapServerHelper *_instance;
+//     SoapServerHelper();
 
-    /** Singleton operation locker */
-    static QMutex _mutex;
-};
+//     SoapServerHelper(const SoapServerHelper&);
+
+//     SoapServerHelper& operator=(const SoapServerHelper&);
+
+//     ~SoapServerHelper() {};
+
+//     /** pointer to the singleton instance */
+//     static SoapServerHelper *_instance;
+
+//     /** Singleton operation locker */
+//     static QMutex _mutex;
+// };
 
 }
 

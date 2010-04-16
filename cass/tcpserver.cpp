@@ -8,38 +8,38 @@
 
 
 
-cass::SoapServerHelper *cass::SoapServerHelper::_instance(0);
-QMutex cass::SoapServerHelper::_mutex;
+// cass::SoapServerHelper *cass::SoapServerHelper::_instance(0);
+// QMutex cass::SoapServerHelper::_mutex;
 
 
-// create an instance of the singleton
-cass::SoapServerHelper *cass::SoapServerHelper::instance(const EventGetter& event, const HistogramGetter& hist)
-{
-    QMutexLocker locker(&_mutex);
-    if(0 == _instance)
-        _instance = new SoapServerHelper(event, hist);
-    return _instance;
-}
-
-
-
-cass::SoapServerHelper *cass::SoapServerHelper::instance()
-{
-    QMutexLocker locker(&_mutex);
-    if(0 == _instance)
-        throw std::runtime_error("SoapServerHelper does not exist");
-    return _instance;
-}
+// // create an instance of the singleton
+// cass::SoapServerHelper *cass::SoapServerHelper::instance(const EventGetter& event, const HistogramGetter& hist)
+// {
+//     QMutexLocker locker(&_mutex);
+//     if(0 == _instance)
+//         _instance = new SoapServerHelper(event, hist);
+//     return _instance;
+// }
 
 
 
-// destroy the instance of the singleton
-void cass::SoapServerHelper::destroy()
-{
-    QMutexLocker locker(&_mutex);
-    delete _instance;
-    _instance = 0;
-}
+// cass::SoapServerHelper *cass::SoapServerHelper::instance()
+// {
+//     QMutexLocker locker(&_mutex);
+//     if(0 == _instance)
+//         throw std::runtime_error("SoapServerHelper does not exist");
+//     return _instance;
+// }
+
+
+
+// // destroy the instance of the singleton
+// void cass::SoapServerHelper::destroy()
+// {
+//     QMutexLocker locker(&_mutex);
+//     delete _instance;
+//     _instance = 0;
+// }
 
 
 
