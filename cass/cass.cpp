@@ -72,6 +72,7 @@
  * - Parameters are loaded using qt's qsettings. @see @ref run
  *
  * @section inst Installing CASS
+ * See the INSTALL file as the primary installation documentation.
  * @subsection pre Prerequisites
  * The following software packages need to be installed and available for
  * building and running CASS:\n
@@ -141,10 +142,11 @@
  * @author Nils Kimmel \n
  * - original pnCCD analysis\n
  *
- * @author Jochen Kuepper \n
- * - CASS design, infrastructure development\n
- * - cass framework implementation\n
- * - TCP server\n
+ * @author Jochen Kuepper
+ * - CASS design, infrastructure development
+ * - cass framework implementation
+ * - postprocessor setup
+ * - TCP/SOAP server
  *
  * @date 2009-2010
  *
@@ -236,21 +238,15 @@ int main(int argc, char **argv)
   input->start();
   workers->start();
 
-  // TCP server
-  // // tell the server how to get an id or histogram
-  // cass::EventGetter get_event(ringbuffer);
-  // cass::HistogramGetter get_histogram(workers->histograms());
-  // cass::TCP::Server server(get_event, get_histogram, qApp);
-  // // setup the connections
-  // QObject::connect(&server, SIGNAL(quit()), input, SLOT(end()));
-  // QObject::connect(&server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
-  // QObject::connect(&server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
-  // //let the server listen to port 54321//
-  // if(! server.listen(QHostAddress::Any, 54321))
-  // {
-  //     std::cerr << "Failed to bind to TCP port" << std::endl;
-  //     return 1;
-  // }
+  // TCP/SOAP server
+  // tell the server how to get an id or histogram
+  cass::EventGetter get_event(ringbuffer);
+  cass::HistogramGetter get_histogram(workers->histograms());
+  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram));
+  // setup the connections
+  QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
+  QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
 
   //start Qt event loop
   int retval(app.exec());
