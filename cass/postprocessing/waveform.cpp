@@ -59,7 +59,7 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   const Device *dev =
       dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
   //retrieve a reference to the right instument//
-  instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
+  Device::instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
   //check if instrument exists//
   if (instrI == dev->instruments().end())
   {
@@ -199,7 +199,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const Device *dev =
       dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
   //retrieve a reference to the right instument//
-  instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
+  Device::instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
   //check if instrument exists//
   if (instrI == dev->instruments().end())
   {
