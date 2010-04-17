@@ -1,4 +1,5 @@
 # Copyright (C) 2010 Jochen Küpper
+# Copyright (C) 2010 Lutz Foucar
 
 TEMPLATE = app
 CONFIG  += static
