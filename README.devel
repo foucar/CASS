@@ -33,6 +33,12 @@ Software repository
 * Please check in often and keep the changes small.
 
 * Make sure the committed code always compiles!
+  - if you made changes to the project, so that it will probably
+    not compile for the other users. Write a detailed description
+    what one has to do in order to compile again to the cass
+    mailinglist and into the INSTALL file
+    ie. a detailed example what you have changed in order to make
+    the program compile on your machine.
 
 * Please provide details on your changes in the commit message.
 
