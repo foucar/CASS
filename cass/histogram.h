@@ -13,6 +13,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtCore/QWaitCondition>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
 
@@ -178,6 +179,7 @@ namespace cass
 
   /** base class for float histograms.
    * from this all float histograms should inherit
+   * @todo check whether the wait until fill mechanism works
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT HistogramFloatBase
@@ -188,14 +190,16 @@ namespace cass
     typedef float value_t;
     /** typedef describing the storage type*/
     typedef std::vector<value_t> storage_t;
-
     /** constructor.
      * @param dim The dimension of the histogram
      * @param memory_size size of the memory, used for special cases
      * @param ver the serialization version
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
-      : HistogramBackend(dim,ver), _memory(memory_size, 0.)
+      :HistogramBackend(dim,ver),
+      _memory(memory_size, 0.),
+      _fillwhenserialized(false),
+      _shouldbefilled(!_fillwhenserialized)
     {}
 
     /** read histogram from serializer.
@@ -208,57 +212,56 @@ namespace cass
     {
       deserialize(in);
     }
-
     /** virtual desctructor, since this a base class*/
     virtual ~HistogramFloatBase()      {}
-
     /** serialize this histogram to the serializer*/
     virtual void serialize(Serializer&)const;
-
     /** deserialize this histogram from the serializer*/
     virtual void deserialize(Serializer&);
-
     /** @return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
-
     /** @return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
-
     /*! Minimum value in current histogram */
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
-
     /*! Maximum value in current histogram */
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
-
     /** @return \p to our mutex.
      * when having the memory one can lock operations on it from outside here
      */
     QMutex *mutex() {return &_mutex;}
-
-
-
+    /** return whether the histogram should be filled.
+     * this means that someone wants to have the histogram serialized
+     */
+    bool shouldBeFilled() {return _shouldbefilled;}
+    /** notify histogram that is has been filled*/
+    void notify(){_fillcondition.wakeAll();}
   protected:
-
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
-
     /** histogram storage.
      * The memory contains the histogram in range nbins,
      * after that there are some reservered spaces for over/underflow statistics
      */
     storage_t _memory;
-
     /** Mutex to lock write operations on the memory*/
     QMutex _mutex;
+    /** flag to tell whether histogram needs to only be filled when serialized*/
+    bool _fillwhenserialized;
+    /** flag to signal the postprocessor to fill the histogram*/
+    mutable bool _shouldbefilled;
+    /** mutex for waiting until we are filled*/
+    mutable QMutex _waitMutex;
+    /** condition that we will wait on until we were filled by the postprocessor*/
+    mutable QWaitCondition _fillcondition;
   };
 
 
 
 
-  /*! "0D Histogram" (scalar value)
-
-@author Jochen Kuepper
-*/
+  /** "0D Histogram" (scalar value).
+   * @author Jochen Kuepper
+   */
   class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
   {
   public:
@@ -311,7 +314,6 @@ namespace cass
     {}
 
     /** Add datum to histogram.
-
     * This operation will lock the memory before attempting to fill the right bin.
     * It will find the right bin for the x-value. If the histogram the bin should not
     * be increased by one, but by a user defined value, then this can be given as the
@@ -327,7 +329,7 @@ namespace cass
     /*! Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
 
-    /** center of histogram
+    /** center of histogram.
      * @todo check and improve
      * @todo check the warning that the compiler at slac give: "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"
      */
@@ -343,10 +345,9 @@ namespace cass
     /** Sum of all values */
     value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
 
-    /*! Reduce the 1D histogram to a scalar (integrate/sum all values)
-
-    @see sum()
-    */
+    /** Reduce the 1D histogram to a scalar (integrate/sum all values).
+     * @see sum()
+     */
     value_t reduce() const { return sum(); };
   };
 
@@ -505,6 +506,15 @@ namespace cass
   //-----------------Base class-----------------------
   inline void cass::HistogramFloatBase::serialize(cass::Serializer &out) const
   {
+    //if we need to wait until the histogram is filled before serialization//
+    //wait here and set the flag that this histogram needs to be filled//
+    if(_fillwhenserialized)
+    {
+      //tell that we should be filled//
+      _shouldbefilled = true;
+      //wait until we have been filled an can proceed//
+      _fillcondition.wait(&_waitMutex);
+    }
     //the version//
     out.addUint16(_version);
     //the dimension//
@@ -518,10 +528,13 @@ namespace cass
     //the memory//
     for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
       out.addFloat(*it);
+    //we have been filled and serialized so we need to tell that we don't want //
+    //to be filled again//
+    if(_fillwhenserialized)
+      _shouldbefilled=false;
   }
 
-  inline
-      void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
+  inline void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
   {
     //check whether the version fits//
     uint16_t ver = in.retrieveUint16();
