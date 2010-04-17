@@ -195,7 +195,7 @@ namespace cass
      * @param ver the serialization version
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
-        : HistogramBackend(dim,ver), _memory(memory_size, 0.)
+      : HistogramBackend(dim,ver), _memory(memory_size, 0.)
     {}
 
     /** read histogram from serializer.
@@ -230,10 +230,9 @@ namespace cass
     /*! Maximum value in current histogram */
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
 
-    /** @return \p to our mutex
-
-    when having the memory one can lock operations on it from outside here
-    */
+    /** @return \p to our mutex.
+     * when having the memory one can lock operations on it from outside here
+     */
     QMutex *mutex() {return &_mutex;}
 
 
@@ -243,11 +242,10 @@ namespace cass
     /** reset the histogram*/
     virtual void reset() { _memory.assign(_memory.size(), 0); }
 
-    /** histogram storage
-
-    The memory contains the histogram in range nbins,
-    after that there are some reservered spaces for over/underflow statistics
-    */
+    /** histogram storage.
+     * The memory contains the histogram in range nbins,
+     * after that there are some reservered spaces for over/underflow statistics
+     */
     storage_t _memory;
 
     /** Mutex to lock write operations on the memory*/
@@ -257,29 +255,29 @@ namespace cass
 
 
 
-/*! "0D Histogram" (scalar value)
+  /*! "0D Histogram" (scalar value)
 
 @author Jochen Kuepper
 */
-class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
-{
-public:
+  class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
+  {
+  public:
 
     /*! Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
-        : HistogramFloatBase(0, 1, 1)
+      : HistogramFloatBase(0, 1, 1)
     {};
 
     /*! Constructor for reading a histogram from a stream */
     Histogram0DFloat(Serializer &in)
-        : HistogramFloatBase(in)
+      : HistogramFloatBase(in)
     {};
 
     void fill(value_t value=0.) {QMutexLocker lock(&_mutex); _memory[0] = value; };
 
     /*! Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
-};
+  };
 
 
 
@@ -354,16 +352,14 @@ public:
 
 
 
-/** 2D Histogram.
-
-can be used for detector images, i.e., pnCCD, VMI CCD, etc...
-
-@author Lutz Foucar
-@author Jochen Küpper
-*/
-class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
-{
-public:
+  /** 2D Histogram.
+   * can be used for detector images, i.e., pnCCD, VMI CCD, etc...
+   * @author Lutz Foucar
+   * @author Jochen Küpper
+   */
+  class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
+  {
+  public:
 
     /** create a 2d histogram.
      * This is used when constructing a histogram
@@ -437,23 +433,21 @@ public:
      */
     Histogram1DFloat reduce(Axis axis) const;
 
-    /*! Create a QImage of this histogram
-
-    @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
-
-    @return QImage of this histogram
-    */
+    /** Create a QImage of this histogram.
+     * @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
+     * @return QImage of this histogram
+     */
     QImage qimage() const {
-        QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
-        qi.setColorCount(256);
-        for(unsigned i=0; i<256; ++i)
-            qi.setColor(i, QColor(i, i, i).rgb());
-        for(size_t r=0; r<shape().first; ++r)
-            for(size_t c=0; c<shape().second; ++c)
-                qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
-        return qi;
+      QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+      qi.setColorCount(256);
+      for(unsigned i=0; i<256; ++i)
+        qi.setColor(i, QColor(i, i, i).rgb());
+      for(size_t r=0; r<shape().first; ++r)
+        for(size_t c=0; c<shape().second; ++c)
+          qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
+      return qi;
     };
-};
+  };
 
 
 
