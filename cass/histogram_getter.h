@@ -39,7 +39,7 @@ namespace cass
   public:
     /** constructor.
      * @param histograms container of all histogram,
-              we will retrieve the requested histograms from there
+     *        we will retrieve the requested histograms from there
      */
     HistogramGetter(const PostProcessors::histograms_t& histograms)
       : _histograms(histograms)
