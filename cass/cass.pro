@@ -15,7 +15,7 @@ lclstarget.depends = FORCE
 
 SOAPFiles.target = soapStub.h
 SOAPFiles.commands = @echo "creating SOAP Server Files" && soapcpp2 -S -i soapserver.h
-SOAPFiles.depends = soapserver.h
+SOAPFiles.depends = FORCE
 
 PRE_TARGETDEPS += soapStub.h LCLSLibrary
 QMAKE_EXTRA_TARGETS += SOAPFiles lclstarget

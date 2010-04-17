@@ -9,7 +9,7 @@ CODECFORTR = UTF-8
 
 SOAPFiles.target = soapStub.h
 SOAPFiles.commands = @echo "creating SOAP Client Files" && soapcpp2 -C -i ../cass/soapserver.h
-SOAPFiles.depends = ../cass/soapserver.h
+SOAPFiles.depends = FORCE
 
 PRE_TARGETDEPS += soapStub.h
 QMAKE_EXTRA_TARGETS += SOAPFiles
