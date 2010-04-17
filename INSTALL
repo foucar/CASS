@@ -20,9 +20,11 @@ Furthermore, you need fully administratively installed Qt and gSOAP libraries, t
 PATH/path, CPLUS_INCLUDE_PATH, and LIBRARY_PATH must be set up.
 
 The above means the following, set up the following envionment variables:
+
 GSOAP: pointing to the directory where gsoap is installed
-CPLUS_INCLUDE_PATH: $GSOAP/include
-LIBRARY_PATH: $GSOAP/lib
+
+CPLUS_INCLUDE_PATH: $GSOAP/include:$LCLSSYSINCLUDE
+LIBRARY_PATH: $GSOAP/lib:$LCLSSYSLIB
 
 
 

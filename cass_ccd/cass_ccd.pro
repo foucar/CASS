@@ -1,5 +1,6 @@
 # Copyright (C) 2009 Jochen Küpper
-#modified Copyright (C) 2009 N Coppola
+# Copyright (C) 2009 N Coppola
+# Copyright (C) 2009,2010 Lutz Foucar
 
 CONFIG += static
 QT -= core gui
@@ -24,8 +25,7 @@ HEADERS += ../cass/analysis_backend.h \
            cass_ccd.h \
            ccd_device.h
 
-INCLUDEPATH += $$(LCLSSYSINCLUDE) \
-               ../cass \
+INCLUDEPATH += ../cass \
 
 
 

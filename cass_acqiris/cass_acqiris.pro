@@ -1,5 +1,7 @@
 # Copyright (C) 2009 Jochen Küpper
-#modified Copyright (C) 2009 N Coppola,lmf
+# Copyright (C) 2009 N Coppola
+# Copyright (C) 2009, 2010 Lutz Foucar
+
 CONFIG += static
 QT -= core gui
 TEMPLATE = lib
@@ -41,8 +43,7 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
-INCLUDEPATH += $$(LCLSSYSINCLUDE) \
-               ../cass \
+INCLUDEPATH += ../cass \
                ./classes \
                ./classes/waveformanalyzer \
                ./classes/detector_analyzer \

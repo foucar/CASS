@@ -1,4 +1,5 @@
 # Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009,2010 Lutz Foucar
 
 CONFIG += static
 QT -= core gui
@@ -23,8 +24,7 @@ HEADERS += ../cass/analysis_backend.h \
            machine_device.h \
 
 
-INCLUDEPATH += $$(LCLSSYSINCLUDE) \
-               ../cass \
+INCLUDEPATH += ../cass \
 
 
 

@@ -78,9 +78,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/imaging.h \
 
-INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
-                $$(GSOAP)/include \
-                ../cass_acqiris \
+INCLUDEPATH +=  ../cass_acqiris \
                 ../cass_acqiris/classes \
                 ../cass_acqiris/classes/detector_analyzer \
                 ../cass_acqiris/classes/waveformanalyzer \
@@ -89,17 +87,18 @@ INCLUDEPATH +=  $$(LCLSSYSINCLUDE) \
                 ../cass_machinedata \
                 ./postprocessing \
                 ./
-
+                #$$(LCLSSYSINCLUDE) \
 
 
 unix{
-QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
+#QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
 LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        -L$$(LCLSSYSLIB) -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
-        -L$$(GSOAP)/lib -lgsoap++ -lgsoap
+        #-L$$(LCLSSYSLIB)
+        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
+        -lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
               ../cass_pnccd/libcass_pnccd.a \
