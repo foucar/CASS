@@ -7,6 +7,14 @@ DEFINES +=  DWITH_NONAMESPACES
 VERSION  = 0.0.1
 CODECFORTR = UTF-8
 
+SOAPFiles.target = soapStub.h
+SOAPFiles.commands = @echo "creating SOAP Client Files" && soapcpp2 -C -i ../cass/soapserver.h
+SOAPFiles.depends = ../cass/soapserver.h
+
+PRE_TARGETDEPS += soapStub.h
+QMAKE_EXTRA_TARGETS += SOAPFiles
+
+
 OBJECTS_DIR = ./obj
 MOC_DIR = ./obj
 

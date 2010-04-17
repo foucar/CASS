@@ -11,11 +11,14 @@ DEFINES += CASS_LIBRARY DWITH_NONAMESPACES
 #make the cass project compile the LCLS Library before compiling cass itself
 lclstarget.target = LCLSLibrary
 lclstarget.commands = @echo "creating LCLS Library"; cd $$(LCLSSYSINCLUDE) ; make x86_64-linux ; cd -
-lclstarget.depends =  FORCE
+lclstarget.depends = FORCE
 
+SOAPFiles.target = soapStub.h
+SOAPFiles.commands = @echo "creating SOAP Server Files" && soapcpp2 -S -i soapserver.h
+SOAPFiles.depends = soapserver.h
 
-PRE_TARGETDEPS += LCLSLibrary
-QMAKE_EXTRA_TARGETS += lclstarget
+PRE_TARGETDEPS += soapStub.h LCLSLibrary
+QMAKE_EXTRA_TARGETS += SOAPFiles lclstarget
 
 VERSION = 0.1.0
 CODECFORTR = UTF-8

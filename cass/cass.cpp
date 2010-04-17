@@ -141,11 +141,7 @@
  *
  * @todo create a client for the tcpserver that will retrieve
  *       the postprocessors histgrams and display them
- * @todo find out how to create gsoap file as part of the project
- *       to omit the manual running of the ./createMakefiles.
- * @todo find out how to create the LCLS libraries as part of the project
- *       so that when something in the library has changed it will
- *       automatically rebuild.
+ * @todo find out why signal - slot mechanism is not working anymore
  * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
  * @todo only retrieve the last ccd / waveform when requested
