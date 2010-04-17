@@ -28,17 +28,15 @@ LIBRARY_PATH: $GSOAP/lib
 
 Building CASS
 -------------
-Compile the LCLS libraries
-  cd ${CASS top-level directory}/LCLS
-  make x86_64-linux
-
-Go back to the CASS top-level directory and use createMakefiles to, well, create the Makefiles, i. e.,
+Do the following
   cd ${CASS top-level directory}
-  ./createMakefiles
-then run
+  qmake -r
   make
   make install
 to build and install the software.
+The qmake command will output warnings when run for the first time. The files it is
+complaining about not beeing there will be created by the MAKEFILES qmake will create
+from the project files.
 
 
 Running CASS
