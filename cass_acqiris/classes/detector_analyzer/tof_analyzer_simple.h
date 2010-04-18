@@ -57,7 +57,8 @@ inline void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::Detecto
   //now extract values//
   if ((MCPChanNbr >= MCPInstrChans.size()))
   {
-    std::cerr << "TofAnalzerSimple: the requested channel for mcp \""<<MCPChanNbr<<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "TofAnalzerSimple: the requested channel for mcp \""<<MCPChanNbr
+        <<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   (*(*_waveformanalyzer)[MCPAnal])(MCPChan,MCP);
