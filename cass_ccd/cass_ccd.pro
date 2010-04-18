@@ -25,7 +25,7 @@ HEADERS += ../cass/analysis_backend.h \
            cass_ccd.h \
            ccd_device.h
 
-INCLUDEPATH += ../cass \
+INCLUDEPATH += ../LCLS ../cass 
 
 
 

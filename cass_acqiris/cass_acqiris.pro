@@ -43,7 +43,8 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
-INCLUDEPATH += ../cass \
+INCLUDEPATH += ../LCLS \
+	       ../cass \
                ./classes \
                ./classes/waveformanalyzer \
                ./classes/detector_analyzer \

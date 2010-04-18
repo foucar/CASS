@@ -10,7 +10,7 @@ DEFINES += CASS_LIBRARY DWITH_NONAMESPACES
 
 #make the cass project compile the LCLS Library before compiling cass itself
 lclstarget.target = LCLSLibrary
-lclstarget.commands = @echo "creating LCLS Library"; cd $$(LCLSSYSINCLUDE) ; make x86_64-linux ; cd -
+lclstarget.commands = @echo "creating LCLS Library"; cd ../LCLS && make x86_64-linux ; cd -
 lclstarget.depends = FORCE
 
 SOAPFiles.target = soapStub.h
@@ -86,8 +86,9 @@ INCLUDEPATH +=  ../cass_acqiris \
                 ../cass_pnccd \
                 ../cass_machinedata \
                 ./postprocessing \
-                ./
-                #$$(LCLSSYSINCLUDE) \
+                ../LCLS \
+                .
+                
 
 
 unix{
@@ -96,8 +97,9 @@ LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_pnccd -lcass_pnccd \
         -L../cass_ccd -lcass_ccd \
         -L../cass_machinedata -lcass_machinedata \
-        #-L$$(LCLSSYSLIB)
-        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
+        -L../LCLS/build/pdsdata/lib/x86_64-linux \
+        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
+        -levrdata -lappdata \
         -lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
