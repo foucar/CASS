@@ -29,8 +29,12 @@ namespace cass
       ToFAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
         :DetectorAnalyzerBackend(waveformanalyzer)
       {}
-      /** function that calles the right waveform analyzer*/
-      virtual void operator()(DetectorBackend&,const Device&);
+      /** analyze the ToF Detector.
+       * @return void
+       * @param det The ToF Detector that we want to analyze
+       * @param dev The Acqiris Device from the CASSEvent
+       */
+      virtual void operator()(DetectorBackend&det,const Device&dev);
     };
   }
 }
