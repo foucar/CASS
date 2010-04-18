@@ -38,7 +38,7 @@ namespace cass
 inline void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::DetectorBackend& det,const cass::ACQIRIS::Device& dev)
 {
   //do a type conversion to have a delayline detector//
-  TofDetector &d = dynamic_cast<TofDetector&>(detector);
+  TofDetector &d = dynamic_cast<TofDetector&>(det);
 
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
