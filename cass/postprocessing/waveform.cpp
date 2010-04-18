@@ -243,9 +243,9 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   //if alpha is 1 then we want a cummulative average,//
   //so alpha needs to be 1/nbrofFills+1//
   //otherwise we just use the calculated alpha//
-  const float alpha = (std::abs(_alpha-1.)<1e-15)?
-                      1./(_waveform->nbrOfFills()+1.)
-                        : _alpha;
+  const float alpha = (std::abs(_alpha-1.)<1e-15) ?
+                      1./(_waveform->nbrOfFills()+1.) :
+                      _alpha;
   //lock this operation//
   QMutexLocker lock(_waveform->mutex());
   //average the waveform and put the result in the averaged waveform//

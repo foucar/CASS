@@ -21,9 +21,9 @@
 namespace cass
 {
   /** function to set the 1d histogram properties from the cass.ini file
-    @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
-    @param[in] id the id of the postprocessor too look up in cass.ini
- */
+   * @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
+   * @param[in] id the id of the postprocessor too look up in cass.ini
+   */
   void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
   {
     //delete old histogram//
@@ -38,9 +38,9 @@ namespace cass
                                       param.value("XUp",0).toFloat());
   }
   /** function to set the 2d histogram properties from the cass.ini file
-  @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
-  @param[in] id the id of the postprocessor too look up in cass.ini
-  */
+   * @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
+   * @param[in] id the id of the postprocessor too look up in cass.ini
+   */
   void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
   {
     //delete old histogram//
@@ -59,9 +59,11 @@ namespace cass
   }
 
   using namespace cass::ACQIRIS;
-  /*! predicate class for finding the right key in the list of pairs
-    @see HelperAcqirisDetectors::_detectorList
-    @author Lutz Foucar*/
+  /** predicate class for find_if.
+   * this helps finding the right key in the list of pairs
+   * @see HelperAcqirisDetectors::_detectorList
+   * @author Lutz Foucar
+   */
   class IsKey
   {
   public:
@@ -75,25 +77,28 @@ namespace cass
     const uint64_t _key;
   };
 
-  /*! @brief Helper for Acqiris related Postprocessors
-  This class will return the requested detector, which signals are going to
-  a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
-  can call it without knowing about it.
-  */
+  /** Helper for Acqiris related Postprocessors.
+   * This class will return the requested detector, which signals are going to
+   * a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
+   * can call it without knowing about it.
+   */
   class HelperAcqirisDetectors
   {
   public:
-    /** create an instance of an helper for the requested detector,
-    if it doesn't exist already. Create the maps with analyzers
-    @note creating the list of analyzers might be more useful inside the constuctor. But
-          then there would be a map for each detector.. We need to change this to
-          let the detectors calculate the requested vaules lazly in the near future
-  */
+    /** static function creating instance of this.
+     * create an instance of an helper for the requested detector.
+     * if it doesn't exist already. Create the maps with analyzers
+     * @note creating the list of analyzers might be more useful inside the constuctor. But
+     *       then there would be a map for each detector.. We need to change this to
+     *       let the detectors calculate the requested vaules lazly in the near future
+     */
     static HelperAcqirisDetectors * instance(Detectors);
     /** destroy the whole helper*/
     static void destroy();
-    /** after validating that the event for this detector exists,
-    return the detector from our list*/
+    /** retrieve detector for event.
+     * after validating that the event for this detector exists,
+     * return the detector from our list
+     */
     DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
     /** tell the detector owned by this instance to reload its settings*/
     void loadParameters(size_t=0);
@@ -104,11 +109,13 @@ namespace cass
     typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
     /** typdef defining the list of waveformanalyzers*/
     typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
-    /** validate whether we have already seen this event
-    if not than add a detector, that is copy constructed or
-    assigned from the detector this instance owns, to the list.
-    return the pointer to this detector
-    */
+    /** validation of event.
+     * validate whether we have already seen this event
+     * if not than add a detector, that is copy constructed or
+     * assigned from the detector this instance owns, to the list.
+     * @return the pointer to this detector
+     * @param evt the cass event to validate
+     */
     DetectorBackend * validate(const CASSEvent &evt)
     {
       //find the pair containing the detector//
@@ -124,7 +131,7 @@ namespace cass
         DetectorBackend* det = _detectorList.back().second;
         //copy the informtion of our detector to this detector//
         *det = *_detector;
-        //process the detector using the detectors analyzers in a global contaxiner
+        //process the detector using the detectors analyzers in a global container
         (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
         //create a new key from the id with the reloaded detector
         detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
@@ -138,10 +145,11 @@ namespace cass
       return it->second;
     }
   protected:
-    /*! @brief list of pairs of id-detectors
-    The contents are copy constructed from the detector that this helper instance owns.
-    Needs to be at least the size of workers that can possibly call this helper simultaniously,
-    but should be shrinked if it get much bigger than the nbr of workers*/
+    /** list of pairs of id-detectors.
+     * The contents are copy constructed from the detector that this helper instance owns.
+     * Needs to be at least the size of workers that can possibly call this helper simultaniously,
+     * but should be shrinked if it get much bigger than the nbr of workers
+     */
     detectorList_t _detectorList;
     /** the detector that is belongs to this instance of the helper*/
     DetectorBackend *_detector;
@@ -153,13 +161,17 @@ namespace cass
     HelperAcqirisDetectors(Detectors);
     /** prevent copy-construction*/
     HelperAcqirisDetectors(const HelperAcqirisDetectors&);
-    /** prevent destruction other than trhough destroy(),
-    delete the detector and the detectorlist for this instance*/
+    /** private desctuctor.
+     * prevent destruction other than trhough destroy(),
+     * delete the detector and the detectorlist for this instance
+     */
     ~HelperAcqirisDetectors();
     /** prevent assingment */
     HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
-    /** the instances of this class put into map
-    one instance for each available detector*/
+    /** the helperclass instances.
+     * the instances of this class put into map
+     * one instance for each available detector
+     */
     static std::map<Detectors,HelperAcqirisDetectors*> _instances;
     /** global list of analyzers for waveforms */
     static waveformanalyzer_t _waveformanalyzer;
@@ -1084,13 +1096,3 @@ void cass::pp582::operator()(const cass::CASSEvent &evt)
        ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }
-
-
-
-
-
-
-
-
-
-
