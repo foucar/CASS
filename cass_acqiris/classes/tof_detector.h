@@ -17,7 +17,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT TofDetector : public DetectorBackend
     {
     public:
-      /** constructor
+      /** constructor.
        * @param[in] name the name of the detector
        */
       TofDetector(const std::string name)
