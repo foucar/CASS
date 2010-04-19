@@ -61,7 +61,11 @@ cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::TofDetector::operator= (const cas
   {
     //copy the signal from the right hand side
     //to the signal that belongs to this//
-    _mcp = dynamic_cast<const TofDetector&>(rhs)._mcp;
+    _mcp          = dynamic_cast<const TofDetector&>(rhs)._mcp;
+    //backend's stuff//
+    _analyzerType = dynamic_cast<const TofDetector&>(rhs)._analyzerType;
+    _name         = dynamic_cast<const TofDetector&>(rhs)._name;
+
   }
   //return a reference to this//
   return *this;
