@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <stdexcept>
 
 #include "cass_acqiris.h"
 #include "tof_detector.h"
@@ -167,7 +168,15 @@ namespace cass
          _deadAnode(1000),
          _layersToUse(UV),
          _delaylinetype(type)
-      { _analyzerType =DelaylineSimple;}
+      {_analyzerType =DelaylineSimple;}
+      /** overwritten assignment operator.
+       * this will overwrite the virtual assignment operator of the detectorbackend.
+       * we need to do this to be able to easily copy the info of this detector in
+       * the acqiris helper @see cass::HelperAcqirisDetectors::validate
+       * @return a reference to this
+       * @param rhs the right hand side of the operator
+       */
+      DetectorBackend& operator= (const DetectorBackend& rhs);
 
     public:
       /** load the values from cass.ini*/
@@ -264,7 +273,8 @@ namespace cass
 inline
 void cass::ACQIRIS::AnodeLayer::loadParameters(QSettings *p,const char * layername)
 {
-  //std::cerr <<"loading settings for layer \""<<layername<<"\""<<std::endl;
+  std::cerr <<"Anode Layer load parameters: loading  for layer \""<<layername<<"\""
+      <<" of detector " << p->group().toStdString()<<std::endl;
   p->beginGroup(layername);
   _tsLow  = p->value("LowerTimesumConditionLimit",0.).toDouble();
   _tsHigh = p->value("UpperTimesumConditionLimit",20000.).toDouble();
@@ -272,7 +282,7 @@ void cass::ACQIRIS::AnodeLayer::loadParameters(QSettings *p,const char * layerna
   _wireend['1'].loadParameters(p,"One");
   _wireend['2'].loadParameters(p,"Two");
   p->endGroup();
-  //std::cout <<"done"<<std::endl;
+  std::cout <<"Anode Layer load parameters: done loading"<<std::endl;
 }
 inline
 void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layername)
@@ -291,7 +301,8 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 inline
 void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
-  //std::cout <<"loading"<<std::endl;
+  std::cout<< "Delayline Detector load parameters: loading "<<_name<<"'s parameters. It is a "
+      <<((_delaylinetype==Hex)?"Hex-":"Quad-")<<"Detector"<<std::endl;
   //load the parameters for this detector//
   p->beginGroup(_name.c_str());
   _runtime      = p->value("Runtime",150).toDouble();
@@ -299,11 +310,13 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
   _mcp.loadParameters(p,"MCP");
   _analyzerType =
       static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
-  //std::cout <<"loaded analyzer type:"<<_analyzerType<<" should be "<<DelaylineSimple<<std::endl;
+  std::cout <<"Delayline Detector load parameters: loaded analyzer type:"<<_analyzerType
+      <<" should be "<<DelaylineSimple<<std::endl;
   //load parameters depending on which analyzer you use to analyze this detector//
   switch(_analyzerType)
   {
   case DelaylineSimple :
+    std::cout << "Delayline Detector load parameters: we use Delayline Simple to analyze us"<<std::endl;
     _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
     break;
   default:
@@ -325,9 +338,11 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
     _anodelayers['Y'].loadParameters(p,"YLayer");
     break;
   default:
+    throw std::invalid_argument("delayline type does not exist");
     break;
   }
   p->endGroup();
+  std::cout << "Delayline Detector load parameters: done loading "<<_name<< "'s parameters"<<std::endl;
 }
 inline
 void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
@@ -367,6 +382,12 @@ void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
     break;
   }
   p->endGroup();
+}
+
+inline
+    cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(const cass::ACQIRIS::DetectorBackend& rhs)
+{
+  return *this;
 }
 
 #endif
