@@ -1,5 +1,6 @@
 // Copyright (C) 2010 Jochen Küpper
 
+#include <stdexcept>
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
 #include <QtGui/QColor>
@@ -15,6 +16,18 @@ namespace cass
 
 SoapServer *SoapServer::_instance(0);
 QMutex SoapServer::_mutex;
+const size_t SoapServer::_backlog(100);
+const size_t SoapServer::_port(12321);
+
+
+
+void SoapHandler::run()
+{
+    _soap->serve();   // serve request
+    _soap->destroy(); // dealloc C++ data, dealloc data and clean up (destroy + end)
+    exit();           // terminate thread
+}
+
 
 
 SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist)
@@ -38,9 +51,31 @@ void SoapServer::destroy()
 
 void SoapServer::run()
 {
+    // define timeouts and such for individual requests
+    _soap->send_timeout   =   60; // 60 seconds
+    _soap->recv_timeout   =   60; // 60 seconds
+    _soap->accept_timeout = 3600; // server stops after 1 hour of inactivity
+    _soap->max_keep_alive =  100; // max keep-alive sequence
     // start SOAP
-    std::cerr << "soap.run() says " << _soap->run(12321) << std::endl;
+    if(SOAP_INVALID_SOCKET == _soap->bind(NULL, _port, _backlog))
+        throw std::runtime_error("No valid socket for SOAP server");
+    while(true) {
+        if(SOAP_INVALID_SOCKET == _soap->accept()) {
+            if(_soap->errnum) {
+                _soap->soap_stream_fault(std::cerr);
+                throw std::runtime_error("No valid socket for SOAP connection");
+            }
+            throw std::runtime_error("Server timeout for SOAP connection");
+            break;
+        }
+        CASSsoapService *tsoap(_soap->copy()); // make a safe copy
+        if(! tsoap)
+            break;
+        SoapHandler *handler(new SoapHandler(tsoap));
+        handler->run();
+    }
 }
+
 } // end namespace cass
 
 

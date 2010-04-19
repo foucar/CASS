@@ -17,6 +17,30 @@
 namespace cass
 {
 
+/*! Handle a single SOAP request */
+class SoapHandler : public QThread
+{
+    Q_OBJECT;
+
+public:
+
+    SoapHandler(CASSsoapService *soap)
+        : _soap(soap)
+        {};
+
+    virtual ~SoapHandler() { delete _soap; };
+
+    /** handle request and terminate*/
+    virtual void run();
+
+
+protected:
+
+    /** the service */
+    CASSsoapService *_soap;
+};
+
+
 
 class SoapServer : public QThread
 {
@@ -67,6 +91,15 @@ protected:
     /** allow our friends to emit the readinin() signal */
     void emit_readini(size_t what) { emit readini(what); };
 
+    /** the service */
+    CASSsoapService *_soap;
+
+    /** maximum backlog of open requests */
+    static const size_t _backlog;
+
+    /** server port */
+    static const size_t _port;
+
 
 private:
 
@@ -82,16 +115,13 @@ private:
 
     SoapServer& operator=(const SoapServer&);
 
-    ~SoapServer() { delete _soap; };
+    ~SoapServer() { _soap->destroy(); delete _soap; };
 
     /** pointer to the singleton instance */
     static SoapServer *_instance;
 
     /** Singleton operation locker */
     static QMutex _mutex;
-
-    /** the service */
-    CASSsoapService *_soap;
 };
 
 }
