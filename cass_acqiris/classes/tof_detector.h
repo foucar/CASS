@@ -11,16 +11,15 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! A Time of Flight Detector
-
-      @author Lutz Foucar
-    */
+    /** A Time of Flight Detector.
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT TofDetector : public DetectorBackend
     {
     public:
       /** constructor
-        @param[in] name the name of the detector
-      */
+       * @param[in] name the name of the detector
+       */
       TofDetector(const std::string name)
         :DetectorBackend(name)
       {_analyzerType = ToFSimple;}
