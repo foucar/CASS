@@ -15,7 +15,7 @@ namespace cass
      * will just take an event and feed it to the right
      * waveform analyzer
      * @note might not be needed anymore, once the list of peaks
-     *       is created by the Signal itselve
+     *       is created by the Signal itself
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT ToFAnalyzerSimple
@@ -41,13 +41,14 @@ namespace cass
 
 inline void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::DetectorBackend& det,const cass::ACQIRIS::Device& dev)
 {
+//  std::cout <<"ToFAnalyzerSimple: entering"<<std::endl;
   //do a type conversion to have a delayline detector//
   TofDetector &d = dynamic_cast<TofDetector&>(det);
 
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
   //first retrieve the right Instruments / Channels for the signals
-  Signal & MCP = d.mcp();
+  Signal &MCP = d.mcp();
   const Instruments &MCPInstr = MCP.instrument();
   const size_t MCPChanNbr = MCP.channelNbr();
   const WaveformAnalyzers &MCPAnal= MCP.analyzerType();
@@ -61,7 +62,9 @@ inline void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::Detecto
         <<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
+//  std::cout <<"ToFAnalyzerSimple: MCP Analysis:"<<MCPAnal<<std::endl;
   (*(*_waveformanalyzer)[MCPAnal])(MCPChan,MCP);
+//  std::cout <<"ToFAnalyzerSimple: leaving"<<std::endl;
 }
 
 #endif
