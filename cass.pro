@@ -6,8 +6,18 @@ CONFIG        += staticlib
 TEMPLATE       = subdirs
 VERSION        = 0.1.0
 
-SUBDIRS = cass_acqiris \
-          cass_ccd \
-          cass_pnccd \
-          cass_machinedata \
-          cass
+SUBDIRS        = cass_acqiris \
+                 cass_ccd \
+                 cass_pnccd \
+                 cass_machinedata \
+                 cass \
+                 jk-client
+
+
+
+
+## Local Variables:
+## coding: utf-8
+## mode: makefile
+## fill-column: 100
+## End:

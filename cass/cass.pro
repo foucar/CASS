@@ -11,13 +11,15 @@ TARGET         = cass
 TEMPLATE       = app
 VERSION        = 0.1.0
 
-OBJECTS_DIR = ./obj
-MOC_DIR = ./obj
+OBJECTS_DIR    = ./obj
+MOC_DIR        = ./obj
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
 
 # compile the LCLS libraries before compiling cass itself
-lclstarget.target = LCLSLibrary
-lclstarget.commands = @echo "creating LCLS Library"; cd ../LCLS && make x86_64-linux ; cd -
-lclstarget.depends = FORCE
+lclstarget.target   = LCLSLibrary
+lclstarget.commands = cd ../LCLS && make x86_64-linux ; cd -
+lclstarget.depends  = FORCE
 lclstarget.path     =  $$INSTALLBASE/lib
 lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
@@ -32,16 +34,15 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libprincetondata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libpulnixdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libxtcdata.so
-INSTALLS += lclstarget
+QMAKE_CLEAN        += $$lclstarget.files
+INSTALLS           += lclstarget
 
-# SOAPFiles.target = soapStub.h
-# SOAPFiles.commands = @echo "creating SOAP Server Files" && soapcpp2 -S -i soapserver.h
-# SOAPFiles.depends = FORCE
+SOAPFiles.target    = soapStub.h
+SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
+QMAKE_CLEAN        += soapCASSsoapService.cpp, soapCASSsoapService.h, soapC.cpp, soapH.h, soapserver.h, soapStub.h
 
-# PRE_TARGETDEPS += soapStub.h LCLSLibrary
-# QMAKE_EXTRA_TARGETS += SOAPFiles lclstarget
-PRE_TARGETDEPS      += LCLSLibrary
-QMAKE_EXTRA_TARGETS += lclstarget
+PRE_TARGETDEPS     += soapStub.h LCLSLibrary
+QMAKE_EXTRA_TARGETS+= SOAPFiles lclstarget
 
 SOURCES +=  daemon.cpp \
             cass.cpp \
@@ -59,10 +60,10 @@ SOURCES +=  daemon.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
-            ./postprocessing/imaging.cpp
-            # soapCASSsoapService.cpp \
-            # soapC.cpp \
-	    # tcpserver.cpp
+            ./postprocessing/imaging.cpp \
+	    soapCASSsoapService.cpp \
+            soapC.cpp \
+	    tcpserver.cpp
 
 HEADERS +=  analysis_backend.h \
             cass.h \
@@ -89,40 +90,38 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/alignment.h \
             ./postprocessing/waveform.h \
             ./postprocessing/acqiris_detectors.h \
-            ./postprocessing/imaging.h
-            # soapCASSsoapService.h \
-            # soapH.h \
-            # soapStub.h \
-            # tcpserver.h
+            ./postprocessing/imaging.h \
+            soapCASSsoapService.h \
+            soapH.h \
+            soapStub.h \
+            tcpserver.h
 
-INCLUDEPATH +=  ../cass_acqiris \
-                ../cass_acqiris/classes \
-                ../cass_acqiris/classes/detector_analyzer \
-                ../cass_acqiris/classes/waveformanalyzer \
-                ../cass_ccd \
-                ../cass_pnccd \
-                ../cass_machinedata \
-                ./postprocessing \
-                ../LCLS \
-                .
+INCLUDEPATH += postprocessing \
+               ../cass_acqiris \
+               ../cass_acqiris/classes \
+               ../cass_acqiris/classes/detector_analyzer \
+               ../cass_acqiris/classes/waveformanalyzer \
+               ../cass_ccd \
+               ../cass_pnccd \
+               ../cass_machinedata \
+               ../LCLS \
+               .
 
 
-unix{
-#QMAKE_LFLAGS += -Wl,-rpath,$$(LCLSSYSLIB)
-LIBS += -L../cass_acqiris -lcass_acqiris \
-        -L../cass_pnccd -lcass_pnccd \
-        -L../cass_ccd -lcass_ccd \
-        -L../cass_machinedata -lcass_machinedata \
-        -L../LCLS/build/pdsdata/lib/x86_64-linux \
-        -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
-        -levrdata -lappdata
-        # -lgsoap++ -lgsoap
+LIBS          += -L../cass_acqiris -lcass_acqiris \
+                 -L../cass_pnccd -lcass_pnccd \
+                 -L../cass_ccd -lcass_ccd \
+                 -L../cass_machinedata -lcass_machinedata \
+                 -L../LCLS/build/pdsdata/lib/x86_64-linux \
+                 -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
+                 -levrdata -lappdata \
+                 -lgsoap++ -lgsoap
 
-TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
-              ../cass_pnccd/libcass_pnccd.a \
-              ../cass_ccd/libcass_ccd.a \
-              ../cass_machinedata/libcass_machinedata.a \
-}
+TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
+                 ../cass_pnccd/libcass_pnccd.a \
+                 ../cass_ccd/libcass_ccd.a \
+                 ../cass_machinedata/libcass_machinedata.a \
+
 
 
 bin.path       = $$INSTALLBASE/bin
