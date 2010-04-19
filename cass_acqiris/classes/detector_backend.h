@@ -11,15 +11,15 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! Base class for all Detectors attached to an Acqiris Instrument.
-      @author Lutz Foucar
-    */
+    /** Base class for all Detectors attached to an Acqiris Instrument.
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT DetectorBackend
     {
     public:
       /** constructor
-        @param[in] name the name of the detector
-      */
+       * @param[in] name the name of the detector
+       */
       DetectorBackend(const std::string name)
           :_name(name)
       {}
@@ -28,16 +28,16 @@ namespace cass
       /** pure virtual function that will load the detector parameters from cass.ini*/
       virtual void loadParameters(QSettings*)=0;
       /** pure virtual function that will save the detector parameters to cass.ini
-        @todo check whether we need to save settings at all, since the program should
-              not change any parameters
-      */
+       * @todo check whether we need to save settings at all, since the program should
+       *       not change any parameters
+       */
       virtual void saveParameters(QSettings*)=0;
       /** the type of analysis used to analyze this detector
-        @note once we calc everything lazyly we might not need this,
-              since the detector should calculate its properties it selve.
-              But when there are several ways then the analyzer type should be
-              part of the detector not the base class.
-      */
+       * @note once we calc everything lazyly we might not need this,
+       *       since the detector should calculate its properties it selve.
+       *       But when there are several ways then the analyzer type should be
+       *       part of the detector not the base class.
+       */
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
       /** the detector name*/
