@@ -377,11 +377,15 @@ cass::pp550::~pp550()
 
 void cass::pp550::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Nbr of Mcp Peaks"
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp550::operator()(const cass::CASSEvent &evt)
@@ -444,11 +448,17 @@ cass::pp551::~pp551()
 
 void cass::pp551::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Nbr of Anode Layer Peaks "
+      <<" of detector "<<_detector
+      <<" layer "<<_layer
+      <<" wireend "<<_signal<<std::endl;
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _histograms[_id] =  _nbrSignals;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp551::operator()(const cass::CASSEvent &evt)
@@ -502,11 +512,16 @@ cass::pp557::~pp557()
 
 void cass::pp557::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Ratio of Anode Layer Peaks"
+      <<" of detector "<<_detector
+      <<" layer "<<_layer<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp557::operator()(const cass::CASSEvent &evt)
@@ -573,11 +588,17 @@ cass::pp558::~pp558()
 
 void cass::pp558::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Ratio of Anode Layer wireend Peaks vs Mcp Peaks "<<_layer
+      <<" of detector "<<_detector
+      << "layer "<<_layer
+      <<" wireend "<<_wireend<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp558::operator()(const cass::CASSEvent &evt)
@@ -628,11 +649,15 @@ cass::pp566::~pp566()
 
 void cass::pp566::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the ratio of reconstructed hits vs. Mcp peaks"
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
   _histograms[_id] =  _ratio;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp566::operator()(const cass::CASSEvent &evt)
@@ -692,11 +717,15 @@ cass::pp567::~pp567()
 
 void cass::pp567::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms times of the found MCP Hits"
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_tof,_id);
   _histograms[_id] =  _tof;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp567::operator()(const cass::CASSEvent &evt)
@@ -758,8 +787,8 @@ cass::pp568::~pp568()
 
 void cass::pp568::loadParameters(size_t)
 {
-  std::cout << "load the parameters of postprocessor "<<_id
-      <<" it histogram the timesum for layer "<<_layer
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the timesum of layer "<<_layer
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_timesum,_id);
@@ -823,11 +852,15 @@ cass::pp571::~pp571()
 
 void cass::pp571::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the timesum vs Postion on layer "<<_layer
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_timesumvsPos,_id);
   _histograms[_id] =  _timesumvsPos;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp571::operator()(const cass::CASSEvent &evt)
@@ -883,11 +916,17 @@ cass::pp574::~pp574()
 
 void cass::pp574::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms a detector picture of the first Hit on the detector created"
+      <<" from  Layers "<<_first
+      << " and "<<_second
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_pos,_id);
   _histograms[_id] =  _pos;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp574::operator()(const cass::CASSEvent &evt)
@@ -935,7 +974,7 @@ cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   case PostProcessors::HexXT:
     _detector = HexDetector; _first = 't'; _second = 'x'; break;
   case PostProcessors::HexYT:
-    _detector = HexDetector; _first = 'x'; _second = 'y'; break;
+    _detector = HexDetector; _first = 't'; _second = 'y'; break;
 
   case PostProcessors::QuadXY:
     _detector = QuadDetector; _first = 'x'; _second = 'y'; break;
@@ -960,11 +999,16 @@ cass::pp578::~pp578()
 
 void cass::pp578::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Property "<<_second
+      <<" vs. "<<_first
+      <<" of the reconstructed Detectorhits of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_hist,_id);
   _histograms[_id] =  _hist;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp578::operator()(const cass::CASSEvent &evt)
@@ -1029,11 +1073,15 @@ cass::pp581::~pp581()
 
 void cass::pp581::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the FWHM vs the height of the found MCP Peaks"
+      <<" of  detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_sigprop,_id);
   _histograms[_id] =  _sigprop;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp581::operator()(const cass::CASSEvent &evt)
@@ -1107,11 +1155,16 @@ cass::pp582::~pp582()
 
 void cass::pp582::loadParameters(size_t)
 {
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the FWHM vs the height of layer "<<_layer
+      << " wireend "<<_signal
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_sigprop,_id);
   _histograms[_id] =  _sigprop;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp582::operator()(const cass::CASSEvent &evt)
