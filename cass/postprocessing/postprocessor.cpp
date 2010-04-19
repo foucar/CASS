@@ -293,7 +293,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(histograms_t &hs, id_t
     break;
 
   default:
-    throw std::invalid_argument("Postprocessor id not available");
+    throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
   }
   return processor;
 }
