@@ -237,45 +237,64 @@ namespace cass
       _behaviour = behaviour;
     }
 
-    //liefere das naechste nicht bearbeitete aber gefuellte Element zurueck
-    //entweder das neu hinzugefuegt oder wenn dies schon bearbeitet wurde
-    //das davor hinzugefuegte
+    /** return the next filled but non processed element.
+     * This function will return the next filled element, which will
+     * either be the one just filled by the shared memory input or
+     * one or more before, depending on how fast elements are retrieved
+     * before they are filled again.
+     * When there are no Elements that we can work on, this function will wait
+     * until there is a new element that we can process.
+     * @note this can be the reason why only one of the threads is working at
+     *       a time.
+     * @return void
+     * @param[out] element reference to a pointer to an element,
+     *             we copy the to be processed element pointer to the reference.
+     * @param[in] timeout Time that we will wait that a new element is beeing put into
+     *            the buffer. It is defaulted to ULONG_MAX
+     */
     void nextToProcess(reference element, int timeout=ULONG_MAX)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
       while (!findNextProcessable())
       {
-        //wenn nichts gefunden wurd warte bis wir benachrichtigt werden//
-        //dass ein neues element hinzugefuegt wurde//
+        //if nothing was found, wait unitil we get noticed that
+        //a new element was added to the buffer//
         if(!_processcondition.wait(lock.mutex(),timeout))
         {
           element = 0;
           return;
         }
       }
-      //setze die eigenschaften und weise den pointer zu//
+      //set the property flags of that element and assign the pointer//
       _nextToProcess->inBearbeitung = true;
       element = _nextToProcess->element;
-      //wir erwarten dass als naechstes, wenn nichts gefuellt wird,//
-      //das vorherige element genutzt wird//
+      //we expect that the next element that will be asked for is the previous
+      //one. Unless a new element to be processed has been added to the buffer//
+      //therefore let the iterator point to the previous element//
       if (_nextToProcess == _buffer.begin())
         _nextToProcess = _buffer.end()-1;
       else
       --_nextToProcess;
     }
 
-    //wenn die funktion, die das element abgeholt hat, fertig ist mit dem
-    //bearbeiten, dann soll sie bescheid geben
+    /** putting the processed element back to the buffer.
+     * This function will put the element that we just processed back to the buffer.
+     * It will will search the buffer for the element and then set the
+     * flags of that element according to its current state.
+     * @return void
+     * @return[in] element reference to the pointer of the element
+     */
     void doneProcessing(reference element)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
-      //finde den index des elements und setze den dazugehoerigen status um
+      //find the iterator that points to the element that the user wants to submit//
       iterator_t iElement = _buffer.begin();
       for ( ; iElement != _buffer.end() ; ++iElement)
         if (iElement->element == element)
           break;
+      //set its flags according to its state//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = true;
       iElement->gefuellt      = false;
@@ -285,10 +304,17 @@ namespace cass
       _fillcondition.wakeOne();
     }
 
-    //liefere das naechste abgearbeitete Element zurueck
-    //wenn der buffer non-blocking ist, liefere auch ein noch nicht
-    //abgearbeitete element zurueck
-    //anderenfalls warte bis mindestens ein element abgearbeitete wurde
+    /** retrieve the "to be filled" element.
+     * This function will retrieve the next element that we can fill.
+     * Depending on the behaviour of the ringbuffer, we check whether
+     * it has been processed or not. When the behaviour is blocking then
+     * we only retrieve elements that are processed, if not then we just
+     * return the next element that is not in process.
+     * In the blocking case this function will only return when a processed
+     * event was put into the buffer.
+     * @return void
+     * @param[out] element A reference to the pointer of the Element.
+     */
     void nextToFill(reference element)
     {
       //create lock//
@@ -307,34 +333,45 @@ namespace cass
           _fillcondition.wait(lock.mutex());
         }
       }
-      //nun haben wir eins gefunden//
-      //setze die eigenschaften und weise den pointer zu//
+      //we found an element. Set the flags accordingly//
       _nextToFill->inBearbeitung = true;
       element = _nextToFill->element;
-      //wir erwarten dass das naechste element genutzt wird//
+      //we expect that the next element is the one that we are going//
+      //to fill next. Therefore advance the iterator by one//
       if (_nextToFill == _buffer.end()-1)
         _nextToFill = _buffer.begin();
       else
         ++_nextToFill;
     }
 
-    //wenn die funktion, die das element abgeholt hat, fertig ist mit dem
-    //fuellen, dann soll sie bescheid geben
+    /** putting the filled element back to the buffer.
+     * This function will put the element that we just filled back to the buffer.
+     * It will will search the buffer for the element and then set the
+     * flags of that element according to its current state and depending on the
+     * fillstatus. Using the fillstatus we can say that this element should be processed
+     * or not.
+     * @return void
+     * @return[in] element reference to the pointer of the element
+     * @return[in] fillstatus True when the element should be processed,
+     *             false if not.
+     */
     void doneFilling(reference element, bool fillstatus=true)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
-      //finde den index des elements und setze den dazugehoerigen status um
+      //search for the element the user wants to put back.//
+      //Retrieve the iterator for the element//
       iterator_t iElement = _buffer.begin();
       for ( ; iElement != _buffer.end() ; ++iElement)
         if (iElement->element == element)
           break;
+      //now set the status properties according to the fillstatus//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = !fillstatus;
       iElement->gefuellt      = fillstatus;
-      //setze den process iterator auf dieses element//
-      //so dass dieser das naechste mal das neu hinzugefuegte element//
-      //zurueckliefert//
+      //set the next to process iterator to this element, since its
+      //the next element that we should process. This should shorten
+      //the time we are searching for the next processable element
       _nextToProcess = iElement;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
@@ -342,43 +379,56 @@ namespace cass
       _processcondition.wakeOne();
     }
 
-    //hole das letzt hinzugefügte element des processors, wenn das schon abgeholt wurde, das davor...//
-    //ein element ist anzuschauen, wenn es gefüllt und processiert wurde//
+    /** retrieve the "to be viewed" element.
+     * This function will retrieve the next element that we can serialize.
+     * @return void
+     * @param[out] element reference to a pointer to an element,
+     *             we copy the to be serialized element pointer to the reference.
+     * @param[in] timeout Time that we will wait that a new viewableelement is beeing
+     *            put into the buffer. It is defaulted to ULONG_MAX
+     */
    void nextToView(reference element, int timeout=ULONG_MAX)
    {
       //create a lock//
       QMutexLocker lock(&_mutex);
       while (!findNextViewable())
       {
-        //wenn nichts gefunden wurd warte bis wir benachrichtigt werden//
-        //dass ein neues element hinzugefuegt wurde//
+        //if we did not find a serializable element, wait until a processed event//
+        //is put into the buffer//
         if(!_viewcondition.wait(lock.mutex(),timeout))
         {
           element = 0;
           return;
         }
       }
-      //setze die eigenschaften und weise den pointer zu//
+      //assign the properties and the pointer//
       _nextToView->inBearbeitung = true;
       element = _nextToView->element;
-      //wir erwarten dass als naechstes, wenn nichts gefuellt wird,//
-      //das vorherige element genutzt wird//
+      //we expect that the next element that the user wants to serialize is the//
+      //previous one, so set the iterator to the previous one.//
       if (_nextToView == _buffer.begin())
         _nextToView = _buffer.end()-1;
       else
       --_nextToView;
     }
-    //wenn die funktion, die das element abgeholt hat, fertig ist mit dem
-    //anschauen, dann soll sie bescheid geben
+
+   /** putting the serilized element back to the buffer.
+    * This function will put the element that we just serialized back to the buffer.
+    * It will will search the buffer for the element and then set the
+    * flags of that element according to its current state.
+    * @return void
+    * @return[in] element reference to the pointer of the element
+    */
     void doneViewing(reference element)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
-      //finde den index des elements und setze den dazugehoerigen status um
+      //retrieve iterator the the element that the user wants to put back to the buffer//
       iterator_t iElement = _buffer.begin();
       for ( ; iElement != _buffer.end() ; ++iElement)
         if (iElement->element == element)
           break;
+      //set the property flags accordingly//
       iElement->inBearbeitung = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
