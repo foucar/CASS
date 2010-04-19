@@ -390,7 +390,7 @@ cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(con
   //if we are not self assigning//
   if (this != &righthandside)
   {
-    std::cout << "copy is using delayline's copying"<<std::endl;
+//    std::cout << "copy is using delayline's copying"<<std::endl;
     //for easier writing get the right reference of the right hand side//
     const DelaylineDetector &rhs = dynamic_cast<const DelaylineDetector&>(righthandside);
     //copy all members from the right hand side to us//
