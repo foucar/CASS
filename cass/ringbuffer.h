@@ -412,7 +412,7 @@ namespace cass
       --_nextToView;
     }
 
-   /** putting the serilized element back to the buffer.
+   /** putting the serialized element back to the buffer.
     * This function will put the element that we just serialized back to the buffer.
     * It will will search the buffer for the element and then set the
     * flags of that element according to its current state.
