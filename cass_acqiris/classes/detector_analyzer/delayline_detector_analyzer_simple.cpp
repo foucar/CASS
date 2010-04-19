@@ -194,7 +194,7 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
 //___________________________________________________________________________________________________________________________________________________________
 void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
 {
-  //std::cout << "do the sorting"<<std::endl;
+//  std::cout << "DelaylineDetectorAnalyzerSimple: entering"<<std::endl;
   //do a type conversion to have a delayline detector//
   DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
   //check what layer the user wants to use for calculating the pos//
@@ -206,12 +206,15 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
       switch (d.layersToUse())
       {
       case(UV):
+//        std::cout <<"hex det using uv layers"<<std::endl;
         anode = std::make_pair(&d.layers()['U'],&d.layers()['V']);
         break;
       case(UW):
+//        std::cout <<"hex det using uw layers"<<std::endl;
         anode = std::make_pair(&d.layers()['U'],&d.layers()['W']);
         break;
       case(VW):
+//        std::cout <<"hex det using vw layers"<<std::endl;
         anode = std::make_pair(&d.layers()['V'],&d.layers()['W']);
       default:
         throw std::invalid_argument("the chosen layer combination does not exist");
@@ -219,7 +222,9 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
         break;
       }
     }
+    break;
   case Quad:
+//    std::cout <<"quad det using xy layers"<<std::endl;
     anode = std::make_pair(&d.layers()['X'],&d.layers()['Y']);
     break;
   default:
@@ -328,5 +333,5 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //now sort these peaks for the layers timesum//
   //  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,anode);
-  //  std::cout <<"done"<<std::endl;
+//  std::cout << "DelaylineDetectorAnalyzerSimple: leaving"<<std::endl;
 }
