@@ -14,8 +14,8 @@ VERSION        = 0.1.0
 
 OBJECTS_DIR    = ./obj
 MOC_DIR        = ./obj
-QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += ${OBJECTS_DIR}/*.o
+QMAKE_CLEAN   += ${MOC_DIR}/moc_*
 
 # compile the LCLS libraries before compiling cass itself
 lclstarget.target   = LCLSLibrary
@@ -38,7 +38,8 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
 QMAKE_CLEAN        += $$lclstarget.files
 INSTALLS           += lclstarget
 
-SOAPFiles.target    = soapStub.h
+SOAPFiles.input     = soapserver.h
+SOAPFiles.target    = soapCASSsoapService.cpp
 SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
 QMAKE_CLEAN        += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
 	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
@@ -46,7 +47,7 @@ QMAKE_CLEAN        += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
 		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 
-PRE_TARGETDEPS     += soapStub.h LCLSLibrary
+PRE_TARGETDEPS     += soapCASSsoapService.cpp LCLSLibrary
 QMAKE_EXTRA_TARGETS+= SOAPFiles lclstarget
 
 SOURCES +=  daemon.cpp \

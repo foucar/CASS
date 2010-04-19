@@ -9,11 +9,11 @@ VERSION             = 0.0.1
 
 OBJECTS_DIR         = ./obj
 MOC_DIR             = ./obj
-QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_*
+QMAKE_CLEAN        += ${OBJECTS_DIR}/*.o ${MOC_DIR}/moc_*
 
-SOAPFiles.target    = soapStub.h
+SOAPFiles.input     = ../cass/soapserver.h
+SOAPFiles.target    = soapCASSsoapProxy.cpp
 SOAPFiles.commands  = soapcpp2 -C -i ../cass/soapserver.h
-SOAPFiles.depends   = FORCE
 QMAKE_CLEAN         = soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
 		      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
@@ -21,7 +21,7 @@ QMAKE_CLEAN         = soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
 		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl \
 	              jk-client
 
-PRE_TARGETDEPS     += soapStub.h
+PRE_TARGETDEPS     += soapCASSsoapProxy.cpp
 QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 

@@ -6,7 +6,7 @@
 #define CASS_TCPSERVER_H
 
 #include <stdexcept>
-#include <QtCore/QObject>
+#include <QtCore/QThread>
 
 #include "cass_event.h"
 #include "event_getter.h"
@@ -18,7 +18,7 @@ namespace cass
 {
 
 
-class SoapServer : public QObject
+class SoapServer : public QThread
 {
     Q_OBJECT;
 
@@ -42,6 +42,9 @@ signals:
 
 
 protected:
+
+    /** perform thread-work */
+    virtual void run();
 
     /** return existing instance for our friends -- if it doesn't exist, throw exception */
     static SoapServer *instance() {
@@ -68,7 +71,10 @@ protected:
 private:
 
     /** Constructor */
-    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0);
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
+        : QThread(parent), get_event(event), get_histogram(hist),
+          _soap(new CASSsoapService)
+        {};
 
     SoapServer();
 

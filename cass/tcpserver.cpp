@@ -36,9 +36,7 @@ void SoapServer::destroy()
 
 
 
-SoapServer::SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent)
-    : QObject(parent), get_event(event), get_histogram(hist),
-      _soap(new CASSsoapService)
+void SoapServer::run()
 {
     // start SOAP
     std::cerr << "soap.run() says " << _soap->run(12321) << std::endl;
