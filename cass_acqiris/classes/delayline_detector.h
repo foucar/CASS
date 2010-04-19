@@ -385,8 +385,30 @@ void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
 }
 
 inline
-    cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(const cass::ACQIRIS::DetectorBackend& rhs)
+cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(const cass::ACQIRIS::DetectorBackend& righthandside)
 {
+  //if we are not self assigning//
+  if (this != &righthandside)
+  {
+    std::cout << "copy is using delayline's copying"<<std::endl;
+    //for easier writing get the right reference of the right hand side//
+    const DelaylineDetector &rhs = dynamic_cast<const DelaylineDetector&>(righthandside);
+    //copy all members from the right hand side to us//
+    _runtime        = rhs._runtime;
+    _wLayerOffset   = rhs._wLayerOffset;
+    _mcpRadius      = rhs._mcpRadius;
+    _deadMcp        = rhs._deadMcp;
+    _deadAnode      = rhs._deadAnode;
+    _layersToUse    = rhs._layersToUse;
+    _delaylinetype  = rhs._delaylinetype;
+    _anodelayers    = rhs._anodelayers;
+    _hits           = rhs._hits;
+    //tof detectors stuff//
+    _mcp            = rhs._mcp;
+    //backend's stuff//
+    _analyzerType   = rhs._analyzerType;
+    _name           = rhs._name;
+  }
   return *this;
 }
 
