@@ -362,7 +362,7 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   case PostProcessors::FsPhotodiodeNbrSignals:
     _detector = FsPhotodiode;break;
   default:
-    throw std::invalid_argument("this postprocessor is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not for Nbr MCP Signals").arg(_id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -429,7 +429,7 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Nbr Anode Signals").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -487,7 +487,7 @@ cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _layer = 'X';break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Layers").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -558,7 +558,7 @@ cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _layer = 'Y'; _wireend = '2';break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Signals vs. MCP").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -613,7 +613,7 @@ cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector;break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of reconstructed Hits vs MCP Hits").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -677,7 +677,7 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = FsPhotodiode;break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for All MCP Hits").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -743,7 +743,7 @@ cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _layer = 'Y'; break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Timesum").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -808,7 +808,7 @@ cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _layer = 'Y'; break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Timesum vs. Pos").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -868,7 +868,7 @@ cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _first = 'X'; _second = 'Y'; break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Picture of First Hit").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -945,7 +945,7 @@ cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = QuadDetector; _first = 't'; _second = 'y'; break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Values").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -1014,7 +1014,7 @@ cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
     _detector = FsPhotodiode;break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of MCP").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
@@ -1069,30 +1069,30 @@ cass::pp582::pp582(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
   //find out which detector and Signal we should work on
   switch (_id)
   {
-  case PostProcessors::HexU1NbrSignals:
+  case PostProcessors::HexHeightvsFwhmU1:
     _detector = HexDetector; _layer = 'U'; _signal = '1';break;
-  case PostProcessors::HexU2NbrSignals:
+  case PostProcessors::HexHeightvsFwhmU2:
     _detector = HexDetector; _layer = 'U'; _signal = '2';break;
-  case PostProcessors::HexV1NbrSignals:
+  case PostProcessors::HexHeightvsFwhmV1:
     _detector = HexDetector; _layer = 'V'; _signal = '1';break;
-  case PostProcessors::HexV2NbrSignals:
+  case PostProcessors::HexHeightvsFwhmV2:
     _detector = HexDetector; _layer = 'V'; _signal = '2';break;
-  case PostProcessors::HexW1NbrSignals:
+  case PostProcessors::HexHeightvsFwhmW1:
     _detector = HexDetector; _layer = 'W'; _signal = '1';break;
-  case PostProcessors::HexW2NbrSignals:
+  case PostProcessors::HexHeightvsFwhmW2:
     _detector = HexDetector; _layer = 'W'; _signal = '2';break;
 
-  case PostProcessors::QuadX1NbrSignals:
+  case PostProcessors::QuadHeightvsFwhmX1:
     _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
-  case PostProcessors::QuadX2NbrSignals:
+  case PostProcessors::QuadHeightvsFwhmX2:
     _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
-  case PostProcessors::QuadY1NbrSignals:
+  case PostProcessors::QuadHeightvsFwhmY1:
     _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
-  case PostProcessors::QuadY2NbrSignals:
+  case PostProcessors::QuadHeightvsFwhmY2:
     _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
 
   default:
-    throw std::invalid_argument("id is not responsible for Nbr Signals Postprocessor");
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
   loadParameters(0);
