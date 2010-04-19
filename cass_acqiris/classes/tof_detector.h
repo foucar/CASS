@@ -23,6 +23,13 @@ namespace cass
       TofDetector(const std::string name)
         :DetectorBackend(name)
       {_analyzerType = ToFSimple;}
+      /** virtual destructor*/
+      virtual ~TofDetector() {}
+      /** overwrite the DetectorBackend assignment operator.
+       * this is needed to provide easy copying of this members in
+       * the Helper function of Acqiris. @see cass::HelperAcqirisDetectors::validate
+       */
+      virtual DetectorBackend& operator= (const DetectorBackend& rhs);
       /** load the values from cass.ini */
       virtual void loadParameters(QSettings *p);
       /** save values to cass.ini */
@@ -44,6 +51,20 @@ void cass::ACQIRIS::TofDetector::loadParameters(QSettings *p)
   p->beginGroup(_name.c_str());
   _mcp.loadParameters(p,"Signal");
   p->endGroup();
+}
+
+inline
+cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::TofDetector::operator= (const cass::ACQIRIS::DetectorBackend& rhs)
+{
+  //if we are not self assigning//
+  if (&rhs != this)
+  {
+    //copy the signal from the right hand side
+    //to the signal that belongs to this//
+    _mcp = dynamic_cast<const TofDetector&>(rhs)._mcp;
+  }
+  //return a reference to this//
+  return *this;
 }
 
 #endif
