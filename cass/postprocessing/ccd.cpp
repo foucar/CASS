@@ -122,6 +122,7 @@ pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
 
 cass::pp101::~pp101()
 {
+    QMutexLocker lock(_image->mutex());
     delete _image;
     _image = 0;
 }
@@ -141,11 +142,14 @@ void cass::pp101::loadSettings(size_t)
         // create new histogram storage
         size_t horizontal(1024/_binning.first);
         size_t vertical(1024/_binning.second);
-#warning multithreading: block access to _image
+        if(_image)
+            QMutexLocker lock(_image->mutex());
         delete _image;
         _image = new Histogram2DFloat(horizontal, vertical);
     }
     // save storage in PostProcessors container
+    if(_histograms[_id])
+        QMutexLocker lock(_histograms[_id]->mutex());
     _histograms[_id] = _image;
 }
 
@@ -162,6 +166,7 @@ void cass::pp101::operator()(const CASSEvent& event)
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
     unsigned rows(dev->detectors()[_detector].rows()), cols(dev->detectors()[_detector].columns());
+    QMutexLocker lock(_image->mutex());
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
             pixel_t sum(0);

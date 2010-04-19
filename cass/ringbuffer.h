@@ -1,4 +1,4 @@
-//copyright by Lutz Foucar
+//Copyright (C) 2008-2010 Lutz Foucar
 
 #ifndef _RINGBUFFER_H
 #define _RINGBUFFER_H
@@ -12,55 +12,71 @@
 
 namespace cass
 {
-  // ringbuffer dessen elemente auf dem Heap erzeugt werden
-  // T = Elementetyp, cap = Kapazitaet des Ringpuffers
-  // Zwei solche Ringpuffer sind nur dann von gleichem Typ,
-  // wenn sie in Elementetyp und Kapazitaet uebereinstimmen.
-
-  //todo ob es blockable oder nicht blockabel in die//
-  //compilezeit uebernehmen//
+  /** A Ringbuffer.
+   * The Ringbuffers Elements will be created on the Heap.
+   * @note can we create the ringbuffer to have the blockable / nonblockable property
+   *       already at compile time?
+   * @tparam T Element typ
+   * @tparam cap Capacity of the ringbuffer
+   * @author Lutz Foucar
+   */
   template <typename T, size_t cap>
   class RingBuffer
   {
   private:
-    //ein Element des Rinbuffers//
-    //enthaellt den Status des Elements und//
-    //ein Zeiger auf das eigentliche Element//
+    /** an element of the ringbuffer.
+     * contains the status of the element and a pointer
+     * to the actual element.
+     * @author Lutz Foucar
+     */
     class Element
     {
     public:
+      /** constructor.
+       * will initalize the status flags correcty.
+       */
       Element()
         :element(),
-         bearbeitet(true),
-         gefuellt(false),
-         inBearbeitung(false)
-      {
-      }
-
-      ~Element()
-      {
-      }
-
+        bearbeitet(true),
+        gefuellt(false),
+        inBearbeitung(false)
+      {}
+      /** Comparison of two elements.
+       * Two Ringbuffers are the same only when their elements type and
+       * capacity are equal
+       */
       bool operator==(const T*& rhs)
       {
         return (element == rhs);
       }
-
+      /** the pointer to the element*/
       T   *element;
+      /** status whether the element has been worked on*/
       bool bearbeitet;
+      /** status whether the element has been filled*/
       bool gefuellt;
+      /** status whether the element is workend on right now*/
       bool inBearbeitung;
     };
 
   public:
+    /** enum describing the behaviour of the ringbuffer*/
     enum behaviour_t{blocking,nonblocking};
+    /** typedef describing the container of all elements*/
     typedef std::vector<Element> buffer_t;
+    /** typedef describing an interator for the elements of the container*/
     typedef typename buffer_t::iterator iterator_t;
+    /** typedef describing a reference to the elements of the container*/
     typedef T*& reference;
+    /** typedef describing a const reference to the elements of the container*/
     typedef const T*& const_reference;
+    /** typedef describing a pointer to the elements of the container*/
     typedef T* value_t;
 
-
+    /** constructor.
+     * will create the buffer and fill it with the requested amount of elements
+     * and initialize the iterators.
+     */
     RingBuffer() 
       : _behaviour(blocking),
         _buffer(cap,Element()),
@@ -71,7 +87,9 @@ namespace cass
       for (size_t i=0; i<_buffer.size(); ++i)
         _buffer[i].element = new T();
     }
-
+    /** destructor.
+     * deletes all elements of the buffer
+     */
     ~RingBuffer()
     {
       //delete all elements in the ringbuffer//
@@ -80,84 +98,97 @@ namespace cass
     }
 
   private:
-    //some function to retrieve the right elements
+    /** finds the processable element.
+     * will go through the ringbuffer backwards starting at the
+     * position where we added the filled element. It will check
+     * whether the current element is not currently processed and has already
+     * been filled.
+     * @return true when a processable element has been found
+     */
     bool findNextProcessable()
     {
-      //merke dir wo wir enden sollten//
-      //dies sollte spaetestens dort passieren wo der next fillable steht sein//
-      //da die elemente davor entweder schon bearbeitet worden sind//
-      //oder noch bearbeitet werden//
+      //remember where we should end our loop//
+      //we should end where the next fillable element is, because elements//
+      //before the next fillable are already processed or are in processing/
       iterator_t letztesFreiesElement = _nextToFill;
-      //wenn das aktuelle element gerade bearbeitet wird oder nicht gefuellt ist//
-      //probiere es mit dem naechsten//
+      //if the current element is currently processed or not filled yet//
+      //try the next one//
       while (_nextToProcess->inBearbeitung || !_nextToProcess->gefuellt)
       {
-
-        //wenn wir wieder am dort wo der filler steht angekommen sind//
-        //dann ist nichts da zu bearbeiten//
+        //if we are at the position where the next fillable is,//
+        //then there is nothing to work on anymore//
         if (_nextToProcess == letztesFreiesElement)
           return false;
 
-        //wir sollen rueckwaerts durch den buffer gehen//
-        //um das jeweilig vorherige event zu erreichen//
-        //wenn wir mit dem iterator am anfang angekommen sind//
-        //fangen wir wieder von hinten an//
+        //we go backwards through the buffer to have always the latestest element
+        //to process. If we come to the beginning of the vector, then we
+        //we have to jump to the back//
         if (_nextToProcess == _buffer.begin())
           _nextToProcess = _buffer.end()-1;
         else
           --_nextToProcess;
       }
-      //wir haben ein freies gefunden
+      //we have found an element that we can work on
       return true;
     }
-    //some function to retrieve the right elements
+    /** finds a viewable element for serialization
+     * will go through the buffer and find an element that
+     * can be retrieved by the client
+     * @note check whether this will work. It has just been implemented
+     *       to have the event_getter workable.
+     * @return true when a viewable element has been found
+     */
     bool findNextViewable()
     {
-      //merke dir wo wir enden sollten//
-      //dies sollte spaetestens dort passieren wo der next fillable steht sein//
-      //da die elemente davor entweder schon bearbeitet worden sind//
-      //oder noch bearbeitet werden//
+      //remember where we should end our loop//
+      //we should end where the next fillable element is, because elements//
+      //before the next fillable are already processed or are in processing/
       iterator_t letztesElement = _nextToView;
-      //wenn das aktuelle element gerade bearbeitet wird oder nicht gefuellt ist//
-      //probiere es mit dem naechsten//
+      //if the current element is currently processed or not filled yet//
+      //try the next one//
       while (_nextToView->inBearbeitung || !_nextToView->bearbeitet)
       {
 
-        //wenn wir wieder am dort wo der filler steht angekommen sind//
-        //dann ist nichts da zu bearbeiten//
+        //if we are at the position where the next fillable is,//
+        //then there is nothing to retrieve on anymore//
         if (_nextToView == letztesElement)
           return false;
 
-        //wir sollen rueckwaerts durch den buffer gehen//
-        //um das jeweilig vorherige event zu erreichen//
-        //wenn wir mit dem iterator am anfang angekommen sind//
-        //fangen wir wieder von hinten an//
+        //we go backwards through the buffer to have always the latestest element
+        //to process. If we come to the beginning of the vector, then we
+        //we have to jump to the back//
         if (_nextToView == _buffer.begin())
           _nextToView = _buffer.end()-1;
         else
           --_nextToView;
       }
-      //wir haben ein anschaubares gefunden
+      //we have found an element that we can serialize
       return true;
     }
 
+    /** finds the next fillable element.
+     * this function is used when the behaviour of the ringbuffer is blockable
+     * it will iterate through the buffer and checks the elements for the
+     * status in progress (inBearbeitung) and processed (bearbeitet)
+     * it will only return true when its not in progress and already processed.
+     * @return true when a fillable element has been found
+     */
     bool findNextFillableBlockable()
     {
-      //merke dir wo wir starten//
+      //remember where you are starting//
       iterator_t start =
           (_nextToFill == _buffer.begin()) ? _buffer.end()-1 :_nextToFill-1;
-      //wenn das aktuelle element gerade bearbeitet wird// 
-      //oder noch nicht bearbeitet wurde//
-      //probiere es mit dem naechsten//
+      //if the current element is currently processed or has not been processed//
+      //try the next element//
       while (_nextToFill->inBearbeitung || !_nextToFill->bearbeitet)
       {
-        //wenn wir wieder am start angekommen sind
-        //sind sie entweder noch nicht bearbeitet oder noch in Bearbeitung//
+        //if we end up where we started, then the elements are not yet processed//
+        //or still in progress, so retrun that we have not found anything yet.//
         if (_nextToFill == start)
           return false;
 
-        //wenn wir mit dem iterator am ende angekommen sind//
-        //fangen wir wieder von vorne an//
+        //if we hit the end of the vector, then we will jump to the
+        //beginning of the vector//
         if (_nextToFill == _buffer.end()-1)
           _nextToFill = _buffer.begin();
         else
@@ -165,22 +196,29 @@ namespace cass
       }
       return true;
     }
+    /** finds the next fillable element.
+     * this function is used when the behaviour of the ringbuffer is nonblockable
+     * it will iterate through the buffer and checks the elements for
+     * only the status in progress (inBearbeitung).
+     * it will only return true when its not in progress.
+     * @return true when a fillable element has been found
+     */
     bool findNextFillableNonBlockable()
     {
-      //merke dir wo wir starten//
+      //remember where you are starting//
       iterator_t start =
           (_nextToFill == _buffer.begin()) ? _buffer.end()-1 :_nextToFill-1;
-      //wenn das aktuelle element gerade bearbeitet wird// 
-      //probiere es mit dem naechsten//
+      //if the current element is currently processed//
+      //try the next element//
       while (_nextToFill->inBearbeitung)
       {
-        //wenn wir wieder am start angekommen sind//
-        //dann ist keins da das frei ist um es zu fuellen//
+        //if we end up where we started, then the elements are not yet processed//
+        //so retrun that we have not found anything yet.//
         if (_nextToFill == start)
           return false;
 
-        //wenn wir mit dem iterator am ende angekommen sind//
-        //fangen wir wieder von vorne an//
+        //if we hit the end of the vector, then we will jump to the
+        //beginning of the vector//
         if (_nextToFill == _buffer.end()-1)
           _nextToFill = _buffer.begin();
         else
@@ -190,9 +228,10 @@ namespace cass
     }
 
   public:
-    //user accesable functions
-    
-    //um das verhalten zu setzen
+    /** sets the behaviour of the ringbuffer.
+     * @return void
+     * @param behaviour the behaviour that the ringbuffer should have
+     */
     void behaviour(behaviour_t behaviour)
     {
       _behaviour = behaviour;
@@ -348,15 +387,15 @@ namespace cass
     }
 
   private:
-    QMutex            _mutex;             // mutex to sync the processing part
-    QWaitCondition    _fillcondition;     // condition to sync the filling part
-    QWaitCondition    _processcondition;  // condition to sync the processing part
-    QWaitCondition    _viewcondition;     // condition to sync the viewing part
-    behaviour_t       _behaviour;         // verhalten des containers
-    buffer_t          _buffer;            // der Container
-    iterator_t        _nextToProcess;     // Iterator des naechsten zu bearbeitenden elements
-    iterator_t        _nextToView;        // Iterator des naechsten zu anzschauenden elements
-    iterator_t        _nextToFill;        // Iterator des naechsten zu fuellenden elements
+    QMutex            _mutex;             //!< mutex to sync the processing part
+    QWaitCondition    _fillcondition;     //!< condition to sync the filling part
+    QWaitCondition    _processcondition;  //!< condition to sync the processing part
+    QWaitCondition    _viewcondition;     //!< condition to sync the viewing part
+    behaviour_t       _behaviour;         //!< container's behaviour
+    buffer_t          _buffer;            //!< the Container
+    iterator_t        _nextToProcess;     //!< Iterator pointing to the next processable element
+    iterator_t        _nextToView;        //!< Iterator pointing to the next viewable element
+    iterator_t        _nextToFill;        //!< Iterator pointing to the next fillable element
   };
 }
 #endif

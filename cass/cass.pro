@@ -1,27 +1,28 @@
-# Copyright (C) 2009,2010 Jochen Küpper
+# Copyright (C) 2009, 2010 Jochen Küpper
 # Copyright (C) 2009,2010 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
 TEMPLATE       = app
-CONFIG        += static staticlib
-CONFIG        += thread warn_on exceptions rtti sse2 stl
-QT            += network
 TARGET         = cass
+CONFIG        += release
+CONFIG        += thread warn_on exceptions rtti sse2 stl
+CONFIG        += static staticlib
+QT            += network
 
 CODECFORTR     = UTF-8
 DEFINES       += CASS_LIBRARY
-VERSION        = 0.1.0
-
-OBJECTS_DIR    = ./obj
 MOC_DIR        = ./obj
-QMAKE_CLEAN   += ${OBJECTS_DIR}/*.o
-QMAKE_CLEAN   += ${MOC_DIR}/moc_*
+OBJECTS_DIR    = ./obj
+QMAKE_STRIP    =
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += cass
+VERSION        = 0.1.0
 
 # compile the LCLS libraries before compiling cass itself
 lclstarget.target   = LCLSLibrary
-lclstarget.commands = cd ../LCLS && make x86_64-linux ; cd -
+lclstarget.commands = @cd ../LCLS && make x86_64-linux
 lclstarget.depends  = FORCE
-lclstarget.path     =  $$INSTALLBASE/lib
 lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
@@ -35,21 +36,25 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libprincetondata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libpulnixdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libxtcdata.so
+lclstarget.path     = $$INSTALLBASE/lib
 QMAKE_CLEAN        += $$lclstarget.files
 INSTALLS           += lclstarget
 
-SOAPFiles.input     = soapserver.h
+# create SOAP sources and descriptions
 SOAPFiles.target    = soapCASSsoapService.cpp
 SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
-QMAKE_CLEAN        += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
+SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
 	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
 		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
+SOAPFiles.input     = soapserver.h
+QMAKE_CLEAN        += $$SOAPFiles.files
 
 PRE_TARGETDEPS     += soapCASSsoapService.cpp LCLSLibrary
 QMAKE_EXTRA_TARGETS+= SOAPFiles lclstarget
 
+# our own stuff
 SOURCES +=  daemon.cpp \
             cass.cpp \
             analyzer.cpp \
@@ -118,8 +123,7 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L../cass_ccd -lcass_ccd \
                  -L../cass_machinedata -lcass_machinedata \
                  -L../LCLS/build/pdsdata/lib/x86_64-linux \
-                 -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
-                 -levrdata -lappdata \
+                 -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
                  -lgsoap++ -lgsoap
 
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
@@ -127,14 +131,13 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_ccd/libcass_ccd.a \
                  ../cass_machinedata/libcass_machinedata.a
 
-bin.path       = $$INSTALLBASE/bin
-header.path    = $$INSTALLBASE/include
-libs.path      = $$INSTALLBASE/lib
 bin.files      = cass
+bin.path       = $$INSTALLBASE/bin
 header.files   = $$HEADERS
-libs.files     = libcass.a
+header.path    = $$INSTALLBASE/include
+libs.files     =
+libs.path      = $$INSTALLBASE/lib
 
-QMAKE_CLEAN   += cass
 INSTALLS      += header libs bin
 
 

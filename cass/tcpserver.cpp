@@ -65,6 +65,7 @@ void SoapServer::run()
                 _soap->soap_stream_fault(std::cerr);
                 throw std::runtime_error("No valid socket for SOAP connection");
             }
+#warning What is the right action to do here?
             throw std::runtime_error("Server timeout for SOAP connection");
             break;
         }

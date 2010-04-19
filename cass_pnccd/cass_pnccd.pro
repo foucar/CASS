@@ -32,3 +32,12 @@ libs.path      = $$INSTALLBASE/lib
 header.files   = $$HEADERS
 libs.files     = libcass_pnccd.a
 INSTALLS      += header libs
+
+
+
+
+## Local Variables:
+## coding: utf-8
+## mode: makefile
+## fill-column: 100
+## End:

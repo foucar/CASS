@@ -2,21 +2,24 @@
 # Copyright (C) 2009 N Coppola
 # Copyright (C) 2009, 2010 Lutz Foucar
 
-CONFIG += static staticlib
-QT -= core gui
-TEMPLATE = lib
-TARGET = cass_acqiris
-DEFINES += CASS_ACQIRIS_LIBRARY
+CONFIG        += release
+CONFIG        += thread warn_on exceptions rtti sse2 stl
+CONFIG        += static staticlib
+QT            -= core gui
+TARGET         = cass_acqiris
+TEMPLATE       = lib
+DEFINES       += CASS_ACQIRIS_LIBRARY
 
-OBJECTS_DIR = ./obj
-
+OBJECTS_DIR    = ./obj
+QMAKE_CLEAN    = $$OBJETCS_DIR/*.o \
+                 libcass_acqiris.a
 
 SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
            acqiris_device.cpp \
            ./classes/waveformanalyzer/cfd.cpp \
            ./classes/waveformanalyzer/com.cpp \
-           ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
+           ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp
 
 HEADERS += acqiris_analysis.h \
            acqiris_converter.h \
@@ -48,16 +51,25 @@ INCLUDEPATH += ../LCLS \
                ./classes \
                ./classes/waveformanalyzer \
                ./classes/detector_analyzer \
-               ./
+               .
 
 DEPENDPATH +=  ../cass \
                ./classes \
                ./classes/waveformanalyzer \
                ./classes/detector_analyzer \
-               ./
+               .
 
-header.path     = $$INSTALLBASE/include
-libs.path       = $$INSTALLBASE/lib
-header.files    = $$HEADERS
-libs.files      = libcass_acqiris*
-INSTALLS        += header libs
+header.path    = $$INSTALLBASE/include
+libs.path      = $$INSTALLBASE/lib
+header.files   = $$HEADERS}
+libs.files     = libcass_acqiris.a
+INSTALLS      += header libs
+
+
+
+
+## Local Variables:
+## coding: utf-8
+## mode: makefile
+## fill-column: 100
+## End:

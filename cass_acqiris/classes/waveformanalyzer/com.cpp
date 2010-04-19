@@ -1,4 +1,6 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2003-2010 Lutz Foucar
+#include <typeinfo>
+
 #include "com.h"
 
 #include "helperfunctionsforstdc.h"
@@ -10,11 +12,14 @@
 template <typename T>
     void com(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
+  using namespace cass::ACQIRIS;
 //  std::cout<<"com"<<sizeof(T)<<": entering"<<std::endl;
+  //make sure that we are the right one for the waveform_t//
+  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
   //get reference to the signal//
-  cass::ACQIRIS::Signal &s = dynamic_cast<cass::ACQIRIS::Signal&>(result);
+  Signal &s = dynamic_cast<Signal&>(result);
   //extract infos from channel//
-  const cass::ACQIRIS::Channel::waveform_t Data = c.waveform();
+  const Channel::waveform_t Data = c.waveform();
   const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
   const size_t wLength    = c.waveform().size();
   //extract info how to analyse from signal
@@ -38,33 +43,33 @@ template <typename T>
       if (risingEdge)            //if we had a rising edge before we know that it was a real peak
       {
         //--create a new peak--//
-        cass::ACQIRIS::Peak p;
+        Peak p;
         //                std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
         //--set all known settings--//
         p.startpos() = startpos;
         p.stoppos()  = i-1;
 
         //--height stuff--//
-        cass::ACQIRIS::maximum<T>(c,p);
+        maximum<T>(c,p);
 
         //--fwhm stuff--//
-        cass::ACQIRIS::fwhm<T>(c,p);
+        fwhm<T>(c,p);
 
         //--center of mass stuff--//
-        cass::ACQIRIS::CoM<T>(c,p,static_cast<const int32_t>(threshold));
+        CoM<T>(c,p,static_cast<const int32_t>(threshold));
 
         //--Time is the Center of Mass--//
         p.time()= p.com();
 
         //--check the polarity--//
         if (Data[p.maxpos()]-vOffset == p.maximum())       //positive
-          p.polarity() = cass::ACQIRIS::Positive;
+          p.polarity() = Positive;
         else if (Data[p.maxpos()]-vOffset == -p.maximum()) //negative
-          p.polarity() = cass::ACQIRIS::Negative;
+          p.polarity() = Negative;
         else
         {
           std::cout << "error: polarity not found"<<std::endl;
-          p.polarity() = cass::ACQIRIS::Bad;
+          p.polarity() = Bad;
         }
         //--add peak to signal if it fits the conditions--//
         if(p.polarity() == s.polarity())  //if it has the right polarity

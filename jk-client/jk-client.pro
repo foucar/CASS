@@ -1,25 +1,29 @@
 # Copyright (C) 2010 Jochen Küpper
 # Copyright (C) 2010 Lutz Foucar
 
-CODECFORTR          = UTF-8
-CONFIG             += static
 TARGET              = jk-client
 TEMPLATE            = app
+CONFIG             += release
+CONFIG             += thread warn_on exceptions rtti sse2 stl
+CONFIG             += static
 VERSION             = 0.0.1
 
+CODECFORTR          = UTF-8
 OBJECTS_DIR         = ./obj
 MOC_DIR             = ./obj
-QMAKE_CLEAN        += ${OBJECTS_DIR}/*.o ${MOC_DIR}/moc_*
+QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
+	              jk-client
+QMAKE_STRIP         =
 
-SOAPFiles.input     = ../cass/soapserver.h
 SOAPFiles.target    = soapCASSsoapProxy.cpp
 SOAPFiles.commands  = soapcpp2 -C -i ../cass/soapserver.h
-QMAKE_CLEAN         = soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
+SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
 		      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
-		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl \
-	              jk-client
+		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
+SOAPFiles.input     = ../cass/soapserver.h
+QMAKE_CLEAN        += $$SOAPFiles.files
 
 PRE_TARGETDEPS     += soapCASSsoapProxy.cpp
 QMAKE_EXTRA_TARGETS+= SOAPFiles
@@ -36,13 +40,8 @@ HEADERS       += soapH.h \
 
 LIBS          += -lgsoap++ -lgsoap
 
+bin.files      = jk-client
 bin.path       = $$INSTALLBASE/bin
-header.path    = $$INSTALLBASE/include
-libs.path      = $$INSTALLBASE/libs
-bin.files      = cass.app
-header.files   = $$HEADERS
-libs.files     = libcass.a
-
 INSTALLS      += bin
 
 
