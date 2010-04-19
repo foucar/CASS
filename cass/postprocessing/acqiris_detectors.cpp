@@ -30,7 +30,7 @@ namespace cass
     delete hist;
     //open the settings//
     QSettings param;
-    param.beginGroup("postprocessors");
+//    param.beginGroup("postprocessors");
     param.beginGroup(QString("processor_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
@@ -47,7 +47,7 @@ namespace cass
     delete hist;
     //open the settings//
     QSettings param;
-    param.beginGroup("postprocessors");
+//    param.beginGroup("postprocessors");
     param.beginGroup(QString("processor_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
@@ -129,8 +129,14 @@ namespace cass
             dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
         //take the last element and get the the detector from it//
         DetectorBackend* det = _detectorList.back().second;
-        //copy the informtion of our detector to this detector//
+        //copy the information of our detector to this detector//
         *det = *_detector;
+        std::cout<<"Acqiris Helper validate: our det mcp chan:"<< dynamic_cast<DelaylineDetector*>(_detector)->mcp().channelNbr()
+            <<" list det mcp chan:"<<dynamic_cast<DelaylineDetector*>(det)->mcp().channelNbr()
+            <<" our det u1 chan:"<<dynamic_cast<DelaylineDetector*>(_detector)->layers()['U'].wireend()['1'].channelNbr()
+            <<" list det u1 chan:"<<dynamic_cast<DelaylineDetector*>(det)->layers()['U'].wireend()['1'].channelNbr()
+            <<" our det ana type:"<<dynamic_cast<DelaylineDetector*>(_detector)->analyzerType()
+            <<" list det ana type:"<<dynamic_cast<DelaylineDetector*>(det)->analyzerType() <<std::endl;
         //process the detector using the detectors analyzers in a global container
         (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
         //create a new key from the id with the reloaded detector
@@ -156,8 +162,10 @@ namespace cass
   private:
     /** prevent people from constructin other than using instance().*/
     HelperAcqirisDetectors() {}
-    /** create our instance of the detector depending on the detector type
-        and the list of detectors */
+    /** private constructor.
+     * create our instance of the detector depending on the detector type
+     * and the list of detectors.
+     */
     HelperAcqirisDetectors(Detectors);
     /** prevent copy-construction*/
     HelperAcqirisDetectors(const HelperAcqirisDetectors&);
@@ -202,6 +210,7 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIR
   //if the maps with the analyzers are empty, fill them//
   if (_waveformanalyzer.empty())
   {
+    std::cout << "the list of waveform analyzers is empty, we need to inflate it"<<std::endl;
     _waveformanalyzer[cfd8]  = new CFD8Bit();
     _waveformanalyzer[cfd16] = new CFD16Bit();
     _waveformanalyzer[com8]  = new CoM8Bit();
@@ -209,13 +218,17 @@ cass::HelperAcqirisDetectors* cass::HelperAcqirisDetectors::instance(cass::ACQIR
   }
   if (_detectoranalyzer.empty())
   {
+    std::cout << "the list of detector analyzers is empty, we need to inflate it"<<std::endl;
     _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
     _detectoranalyzer[ToFSimple] = new ToFAnalyzerSimple(&_waveformanalyzer);
   }
   //check if an instance of the helper class already exists//
   //return it, otherwise create one and return it//
   if (0 == _instances[dettype])
+  {
+    std::cout << "creating an instance of the Acqiris Detector Helper for detector type "<<dettype<<std::endl;
     _instances[dettype] = new HelperAcqirisDetectors(dettype);
+  }
   return _instances[dettype];
 }
 
@@ -241,6 +254,7 @@ void cass::HelperAcqirisDetectors::destroy()
 
 cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
 {
+  std::cout << "AcqirisDetectorHelper constructor: we are responsible for det type "<<dettype<<", which name is ";
   using namespace cass::ACQIRIS;
   //create the detector
   //create the detector list with twice the amount of elements than workers
@@ -248,36 +262,47 @@ cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors de
   {
   case HexDetector:
     {
+      std::cout <<"HexDetector"<<std::endl;
       _detector = new DelaylineDetector(Hex,"HexDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex,"HexDetector")));
     }
+    break;
   case QuadDetector:
     {
+      std::cout <<"QuadDetector"<<std::endl;
       _detector = new DelaylineDetector(Quad,"QuadDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad,"QuadDetector")));
     }
+    break;
   case VMIMcp:
     {
+      std::cout <<"VMIMcp"<<std::endl;
       _detector = new TofDetector("VMIMcp");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
     }
+    break;
   case IntensityMonitor:
     {
+      std::cout <<"IntensityMonitor"<<std::endl;
       _detector = new TofDetector("IntensityMonitor");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("IntensityMonitor")));
     }
+    break;
   case YAGPhotodiode:
     {
+      std::cout <<"YAGPhotodiode"<<std::endl;
       _detector = new TofDetector("YAGPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("YAGPhotodiode")));
     }
+    break;
   case FsPhotodiode:
     {
+      std::cout <<"FsPhotodiode"<<std::endl;
       _detector = new TofDetector("FsPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
@@ -300,10 +325,12 @@ cass::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 
 void cass::HelperAcqirisDetectors::loadParameters(size_t)
 {
+  std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl;
   QSettings par;
-  par.beginGroup("postprocessors");
+//  par.beginGroup("postprocessors");
   par.beginGroup("AcqirisDetectors");
   _detector->loadParameters(&par);
+  std::cout << "Acqiris Helper load Parameters: done loading for "<< _detector->name()<<std::endl;
 }
 
 
@@ -729,11 +756,15 @@ cass::pp568::~pp568()
 
 void cass::pp568::loadParameters(size_t)
 {
+  std::cout << "load the parameters of postprocessor "<<_id
+      <<" it histogram the timesum for layer "<<_layer
+      <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_timesum,_id);
   _histograms[_id] =  _timesum;
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
 void cass::pp568::operator()(const cass::CASSEvent &evt)
