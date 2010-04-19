@@ -1,8 +1,8 @@
-# Copyright (C) 2009 Jochen Küpper
+# Copyright (C) 2009, 2010Jochen Küpper
 # Copyright (C) 2009 N Coppola
 # Copyright (C) 2009, 2010 Lutz Foucar
 
-CONFIG += static
+CONFIG += static staticlib
 QT -= core gui
 TEMPLATE = lib
 TARGET = cass_acqiris
@@ -56,10 +56,8 @@ DEPENDPATH +=  ../cass \
                ./classes/detector_analyzer \
                ./
 
-INSTALLBASE     = /usr/local/cass
 header.path     = $$INSTALLBASE/include
-libs.path       = $$INSTALLBASE/libs
-
+libs.path       = $$INSTALLBASE/lib
 header.files    = $$HEADERS
 libs.files      = libcass_acqiris*
 INSTALLS        += header libs

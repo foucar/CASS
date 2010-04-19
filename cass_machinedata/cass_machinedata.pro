@@ -27,11 +27,8 @@ HEADERS += ../cass/analysis_backend.h \
 INCLUDEPATH += ../LCLS ../cass
 
 
-
-INSTALLBASE    = /usr/local/cass
 header.path    = $$INSTALLBASE/include
-libs.path      = $$INSTALLBASE/libs
-
+libs.path      = $$INSTALLBASE/lib
 header.files   = $$HEADERS
 libs.files     = libcass_machinedata.a
 INSTALLS      += header libs

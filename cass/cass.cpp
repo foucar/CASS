@@ -243,13 +243,13 @@ int main(int argc, char **argv)
 
   // TCP/SOAP server
   // tell the server how to get an id or histogram
-  cass::EventGetter get_event(ringbuffer);
-  cass::HistogramGetter get_histogram(workers->histograms());
-  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram));
-  // setup the connections
-  QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
-  QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
-  QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  // cass::EventGetter get_event(ringbuffer);
+  // cass::HistogramGetter get_histogram(workers->histograms());
+  // cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram));
+  // // setup the connections
+  // QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
+  // QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  // QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
 
   //start Qt event loop
   int retval(app.exec());
