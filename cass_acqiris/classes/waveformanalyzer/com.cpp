@@ -10,6 +10,7 @@
 template <typename T>
     void com(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
+//  std::cout<<"com"<<sizeof(T)<<": entering"<<std::endl;
   //get reference to the signal//
   cass::ACQIRIS::Signal &s = dynamic_cast<cass::ACQIRIS::Signal&>(result);
   //extract infos from channel//
@@ -94,6 +95,8 @@ template <typename T>
       }
     }
   }
+//  std::cout<<"com"<<sizeof(T)<<": leaving"<<std::endl;
+
 }
 
 
