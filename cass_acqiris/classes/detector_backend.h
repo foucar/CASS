@@ -32,7 +32,7 @@ namespace cass
        *       not change any parameters
        */
       virtual void saveParameters(QSettings*)=0;
-      /** the type of analysis used to analyze this detector
+      /** the type of analysis used to analyze this detector.
        * @note once we calc everything lazyly we might not need this,
        *       since the detector should calculate its properties it selve.
        *       But when there are several ways then the analyzer type should be
