@@ -2,13 +2,14 @@
 # Copyright (C) 2009,2010 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
-CODECFORTR     = UTF-8
+TEMPLATE       = app
 CONFIG        += static staticlib
 CONFIG        += thread warn_on exceptions rtti sse2 stl
-DEFINES       += CASS_LIBRARY
 QT            += network
 TARGET         = cass
-TEMPLATE       = app
+
+CODECFORTR     = UTF-8
+DEFINES       += CASS_LIBRARY
 VERSION        = 0.1.0
 
 OBJECTS_DIR    = ./obj
@@ -39,7 +40,11 @@ INSTALLS           += lclstarget
 
 SOAPFiles.target    = soapStub.h
 SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
-QMAKE_CLEAN        += soapCASSsoapService.cpp, soapCASSsoapService.h, soapC.cpp, soapH.h, soapserver.h, soapStub.h
+QMAKE_CLEAN        += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
+	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
+		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
+                      CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
+		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 
 PRE_TARGETDEPS     += soapStub.h LCLSLibrary
 QMAKE_EXTRA_TARGETS+= SOAPFiles lclstarget
@@ -96,17 +101,16 @@ HEADERS +=  analysis_backend.h \
             soapStub.h \
             tcpserver.h
 
-INCLUDEPATH += postprocessing \
-               ../cass_acqiris \
-               ../cass_acqiris/classes \
-               ../cass_acqiris/classes/detector_analyzer \
-               ../cass_acqiris/classes/waveformanalyzer \
-               ../cass_ccd \
-               ../cass_pnccd \
-               ../cass_machinedata \
-               ../LCLS \
-               .
-
+INCLUDEPATH   += postprocessing \
+                 ../cass_acqiris \
+                 ../cass_acqiris/classes \
+                 ../cass_acqiris/classes/detector_analyzer \
+                 ../cass_acqiris/classes/waveformanalyzer \
+                 ../cass_ccd \
+                 ../cass_pnccd \
+                 ../cass_machinedata \
+                 ../LCLS \
+                 .
 
 LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L../cass_pnccd -lcass_pnccd \
@@ -120,17 +124,16 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_pnccd/libcass_pnccd.a \
                  ../cass_ccd/libcass_ccd.a \
-                 ../cass_machinedata/libcass_machinedata.a \
-
-
+                 ../cass_machinedata/libcass_machinedata.a
 
 bin.path       = $$INSTALLBASE/bin
 header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/lib
-bin.files      = cass.app
+bin.files      = cass
 header.files   = $$HEADERS
 libs.files     = libcass.a
 
+QMAKE_CLEAN   += cass
 INSTALLS      += header libs bin
 
 
