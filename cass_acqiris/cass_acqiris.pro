@@ -44,7 +44,7 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
 INCLUDEPATH += ../LCLS \
-	       ../cass \
+               ../cass \
                ./classes \
                ./classes/waveformanalyzer \
                ./classes/detector_analyzer \
