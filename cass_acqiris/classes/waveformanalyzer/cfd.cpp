@@ -1,4 +1,5 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2003-2010 Lutz Foucar
+#include <typeinfo>
 #include <cmath>
 
 #include "cfd.h"
@@ -11,8 +12,12 @@
 template <typename T>
 void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
+  using namespace cass::ACQIRIS;
+  //make sure that we are the right one for the waveform_t//
+  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
+
   //get reference to the signal//
-  cass::ACQIRIS::Signal &s = dynamic_cast<cass::ACQIRIS::Signal&>(result);
+  Signal &s = dynamic_cast<Signal&>(result);
   //now extract information from the Channel
   const double sampleInterval = c.sampleInterval()*1e9;    //convert the s to ns
   const double horpos     = c.horpos()*1.e9;
@@ -20,7 +25,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
   const int32_t vOff      = static_cast<int32_t>(c.offset() / vGain);       //mV -> ADC Bytes
 
   const int32_t idxToFiPoint = 0;
-  const cass::ACQIRIS::Channel::waveform_t Data = c.waveform();
+  const Channel::waveform_t Data = c.waveform();
   const size_t wLength    = c.waveform().size();
 
   //--get the right cfd settings--//
@@ -93,14 +98,14 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       double mslope,cslope;
       const double xslope[3] = {i-delay,i+1-delay,i+2-delay};
       const double yslope[3] = {fxd,fxd_1,fxd_2};
-      cass::ACQIRIS::linearRegression<T>(3,xslope,yslope,mslope,cslope);
+      linearRegression<T>(3,xslope,yslope,mslope,cslope);
 
       //--find x with a cubic polynomial interpolation between four points--//
       //--do this with the Newtons interpolation Polynomial--//
       const double x[4] = {i-1,i,i+1,i+2};          //x vector
       const double y[4] = {fsx_m1,fsx,fsx_1,fsx_2}; //y vector
       double coeff[4] = {0,0,0,0};                  //Newton coeff vector
-      cass::ACQIRIS::createNewtonPolynomial<T>(x,y,coeff);
+      createNewtonPolynomial<T>(x,y,coeff);
 
       //--numericaly solve the Newton Polynomial--//
       //--give the lineare approach for x as Start Value--//
@@ -108,26 +113,26 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
       const double pos = xPoly + static_cast<double>(idxToFiPoint) + horpos;
 
       //--create a new peak--//
-      cass::ACQIRIS::Peak p;
+      Peak p;
 
       //add the info//
       p.cfd()     = pos*sampleInterval;
       p.time()    = pos*sampleInterval;
-      if (fsx > fsx_1) p.polarity()            = cass::ACQIRIS::Negative;       //Peak has Neg Pol
-      if (fsx < fsx_1) p.polarity()            = cass::ACQIRIS::Positive;       //Peak has Pos Pol
-      if (fabs(fsx-fsx_1) < 1e-8) p.polarity() = cass::ACQIRIS::Bad;            //Peak has Bad Pol
+      if (fsx > fsx_1) p.polarity()            = Negative;       //Peak has Neg Pol
+      if (fsx < fsx_1) p.polarity()            = Positive;       //Peak has Pos Pol
+      if (fabs(fsx-fsx_1) < 1e-8) p.polarity() = Bad;            //Peak has Bad Pol
 
       //--start and stop of the puls--//
-      cass::ACQIRIS::startstop<T>(c,p,static_cast<const int32_t>(threshold));
+      startstop<T>(c,p,static_cast<const int32_t>(threshold));
 
       //--height of peak--//
-      cass::ACQIRIS::maximum<T>(c,p);
+      maximum<T>(c,p);
 
       //--width & fwhm of peak--//
-      cass::ACQIRIS::fwhm<T>(c,p);
+      fwhm<T>(c,p);
 
       //--the com and integral--//
-      cass::ACQIRIS::CoM<T>(c,p,static_cast<const int32_t>(threshold));
+      CoM<T>(c,p,static_cast<const int32_t>(threshold));
 
       //--add peak to signal if it fits the conditions--//
       if(p.polarity() == s.polarity())  //if it has the right polarity
