@@ -269,7 +269,11 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //now extract values//
   if ((MCPChanNbr >= MCPInstrChans.size()))
   {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for mcp \""<<MCPChanNbr<<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for mcp \""
+        <<MCPChanNbr<<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"
+        <<" Detector:"<<d.name()
+        <<" Instrument:"<<MCPInstr
+        <<" Ana type:"<< MCPAnal<<std::endl;
     return;
   }
   (*(*_waveformanalyzer)[MCPAnal])(MCPChan,MCP);
@@ -277,7 +281,8 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //check whether the requested channel does exist//
   if ((F1ChanNbr >= F1InstrChans.size()))
   {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer one \""<<F1ChanNbr<<"\" is not present. We only have \""<<F1InstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer one \""
+        <<F1ChanNbr<<"\" is not present. We only have \""<<F1InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->wireend()['1'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['1'].channelNbr()<<std::endl;
@@ -286,7 +291,8 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //check whether the requested channel does exist//
   if ((F2ChanNbr >= F2InstrChans.size()))
   {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer two \""<<F2ChanNbr<<"\" is not present. We only have \""<<F2InstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer two \""
+        <<F2ChanNbr<<"\" is not present. We only have \""<<F2InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->wireend()['2'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['2'].channelNbr()<<std::endl;
@@ -295,7 +301,8 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //check whether the requested channel does exist//
   if ((S1ChanNbr >= S1InstrChans.size()))
   {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer one \""<<S1ChanNbr<<"\" is not present. We only have \""<<S1InstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer one \""
+        <<S1ChanNbr<<"\" is not present. We only have \""<<S1InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->wireend()['1'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['1'].channelNbr()<<std::endl;
@@ -304,7 +311,8 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //check whether the requested channel does exist//
   if ((S2ChanNbr >= S2InstrChans.size()))
   {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer two \""<<S2ChanNbr<<"\" is not present. We only have \""<<S2InstrChans.size()<<"\" channels"<<std::endl;
+    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer two \""
+        <<S2ChanNbr<<"\" is not present. We only have \""<<S2InstrChans.size()<<"\" channels"<<std::endl;
     return;
   }
   //  std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->wireend()['2'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['2'].channelNbr()<<std::endl;
