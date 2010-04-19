@@ -28,7 +28,7 @@ namespace cass
        */
       ToFAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
         :DetectorAnalyzerBackend(waveformanalyzer)
-      {}
+      {std::cout << "adding simple tof detector analyzer"<<std::endl;}
       /** analyze the ToF Detector.
        * @return void
        * @param det The ToF Detector that we want to analyze
