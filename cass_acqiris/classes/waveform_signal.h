@@ -14,10 +14,10 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! Functor returning whether Peak is in Range.
-      This class is beeing used by std::find_if as Predicate
-      @author Lutz Foucar
-    */
+    /** Functor returning whether Peak is in Range.
+     * This class is beeing used by std::find_if as Predicate
+     * @author Lutz Foucar
+     */
     class PeakInRange
     {
     public:
@@ -25,9 +25,9 @@ namespace cass
       PeakInRange(double low, double up)
         :_range(std::make_pair(low,up))
       {}
-      /** operator used by find_if
-        @return peak is smaller than or equal to up AND greater than low
-      */
+      /** operator used by find_if.
+       * @return peak is smaller than or equal to up AND greater than low
+       */
       bool operator()(const Peak &peak)const
       {
         return (peak >_range.first && peak <= _range.second);
@@ -42,18 +42,20 @@ namespace cass
 
 
 
-    /*! Class containing information about how to extract the signals of a waveform.
-      It also contains an array of signals (called peaks for now)
-      @todo rename this class to somehting more meaningful
-            In the delayline it represents the wireends of the anodelayers and the mcp output
-            In the tof it should just represent the way to extract the singals and the signals itselve
-      @author Lutz Foucar
-    */
+    /** Class containing information about how to extract the signals of a waveform.
+     * It also contains an array of signals (called peaks for now)
+     * @todo rename this class to somehting more meaningful
+     *       In the delayline it represents the wireends of the anodelayers and the mcp output
+     *       In the tof it should just represent the way to extract the singals and the signals itselve
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
     {
     public:
-      /** default constructor intializing the variables describing the extraction
-        with nonsense, since they have to be loaded by loadParameters from cass.ini*/
+      /** default constructor.
+       * intializing the variables describing the extraction with nonsense,
+       * since they have to be loaded by loadParameters from cass.ini
+       */
       Signal()
         :_instrument(Camp1),
          _chNbr(99),
@@ -80,41 +82,19 @@ namespace cass
 
     public:
       /** setter
-      @note we should make sure, that it will not be needed anymore, since the getter should
-            make sure that all peaks are set using the correct function
-      */
+       * @note we should make sure, that it will not be needed anymore, since the getter should
+       *     make sure that all peaks are set using the correct function
+       */
       peaks_t           &peaks()              {return _peaks;}
       /** getter
-      @note when calling this we should check whether it has alredy been called for the event
-            if not so, then create the peaks using the requested waveform analysis
-      */
+       * @note when calling this we should check whether it has alredy been called for the event
+       *     if not so, then create the peaks using the requested waveform analysis
+       */
       const peaks_t     &peaks()const         {return _peaks;}
 
     public:
       /** return the time of the first peak in the "good" time range*/
-      double firstGood() const
-      {
-        //if this is called for the new event for the first time, then evaluate//
-        if(_isNewEvent)
-        {
-          //find first occurence of peak that is in the given timerange//
-          peaks_t::const_iterator it =
-              std::find_if(_peaks.begin(),_peaks.end(),
-                           PeakInRange(_grLow,_grHigh));
-                           //std::logical_and<bool>,bind2nd(less_equal<???>(),_grHigh);
-          /*std::vector<int>::iterator int_it=std::find_if(
-            ints.begin(),
-            ints.end(),
-            boost::bind(std::logical_and<bool>(),
-              boost::bind(std::greater<int>(),_1,5),
-              boost::bind(std::less_equal<int>(),_1,10)));*/
-
-          //if it is not there retrun 0, otherwise the time of the found peak//
-          _goodHit = (it==_peaks.end())? 0. : it->time();
-          _isNewEvent = false;
-        }
-        return _goodHit;
-      }
+      double firstGood() const;
 
     public: //setters /getters
       size_t             channelNbr()const    {return _chNbr;}
@@ -186,10 +166,13 @@ namespace cass
 
 inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * signalname)
 {
-  //std::cerr<<"loading wavefrom signal parameters for signal \""<<signalname<<"\""<<std::endl;
+  std::cerr<<"Signal load parameters:  load signal parameters for signal \""<<signalname<<"\""
+      <<" of  "<< p->group().toStdString()<<std::endl;
   p->beginGroup(signalname);
   _instrument   = static_cast<Instruments>(p->value("AcqirisInstrument",Camp1).toInt());
+  std::cerr <<"Signal load parameters: Instrument "<<_instrument<<std::endl;
   _chNbr        = p->value("ChannelNumber",0).toInt();
+  std::cerr <<"Signal load parameters: chNbr "<<_chNbr<<std::endl;
   _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
   _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
   _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
@@ -200,8 +183,8 @@ inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * sig
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
   _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
-  //std::cerr <<"anty "<<_analyzerType<<" should be "<<com16<<std::endl;
-  //std::cerr<<"done"<<std::endl;
+  std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl;
+  std::cerr<<"Signal load parameters: done loading"<<std::endl;
   p->endGroup();
 }
 inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * signalname)
@@ -220,6 +203,30 @@ inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * sig
   p->setValue("Walk",_walk);
   p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
   p->endGroup();
+}
+
+inline double cass::ACQIRIS::Signal::firstGood() const
+{
+  //if this is called for the new event for the first time, then evaluate//
+  if(_isNewEvent)
+  {
+    //find first occurence of peak that is in the given timerange//
+    peaks_t::const_iterator it =
+        std::find_if(_peaks.begin(),_peaks.end(),
+                     PeakInRange(_grLow,_grHigh));
+                     //std::logical_and<bool>,bind2nd(less_equal<???>(),_grHigh);
+    /*std::vector<int>::iterator int_it=std::find_if(
+      ints.begin(),
+      ints.end(),
+      boost::bind(std::logical_and<bool>(),
+        boost::bind(std::greater<int>(),_1,5),
+        boost::bind(std::less_equal<int>(),_1,10)));*/
+
+    //if it is not there retrun 0, otherwise the time of the found peak//
+    _goodHit = (it==_peaks.end())? 0. : it->time();
+    _isNewEvent = false;
+  }
+  return _goodHit;
 }
 
 #endif
