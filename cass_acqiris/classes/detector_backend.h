@@ -17,7 +17,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DetectorBackend
     {
     public:
-      /** constructor
+      /** constructor.
        * @param[in] name the name of the detector
        */
       DetectorBackend(const std::string name)
