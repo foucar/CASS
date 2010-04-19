@@ -131,12 +131,14 @@ namespace cass
         DetectorBackend* det = _detectorList.back().second;
         //copy the information of our detector to this detector//
         *det = *_detector;
-        std::cout<<"Acqiris Helper validate: our det mcp chan:"<< dynamic_cast<DelaylineDetector*>(_detector)->mcp().channelNbr()
-            <<" list det mcp chan:"<<dynamic_cast<DelaylineDetector*>(det)->mcp().channelNbr()
-            <<" our det u1 chan:"<<dynamic_cast<DelaylineDetector*>(_detector)->layers()['U'].wireend()['1'].channelNbr()
-            <<" list det u1 chan:"<<dynamic_cast<DelaylineDetector*>(det)->layers()['U'].wireend()['1'].channelNbr()
-            <<" our det ana type:"<<dynamic_cast<DelaylineDetector*>(_detector)->analyzerType()
-            <<" list det ana type:"<<dynamic_cast<DelaylineDetector*>(det)->analyzerType() <<std::endl;
+//        std::cout<<"Acqiris Helper validate: our det mcp chan:"<< dynamic_cast<DelaylineDetector*>(_detector)->mcp().channelNbr()
+//            <<" list det mcp chan:"<<dynamic_cast<DelaylineDetector*>(det)->mcp().channelNbr()
+//            <<" our det u1 chan:"<<dynamic_cast<DelaylineDetector*>(_detector)->layers()['U'].wireend()['1'].channelNbr()
+//            <<" list det u1 chan:"<<dynamic_cast<DelaylineDetector*>(det)->layers()['U'].wireend()['1'].channelNbr()
+//            <<" our det ana type:"<<dynamic_cast<DelaylineDetector*>(_detector)->analyzerType()
+//            <<" list det ana type:"<<dynamic_cast<DelaylineDetector*>(det)->analyzerType()
+//            <<" our mcp ana type:"<<dynamic_cast<DelaylineDetector*>(_detector)->mcp().analyzerType()
+//            <<" list mcp ana type:"<<dynamic_cast<DelaylineDetector*>(det)->mcp().analyzerType() <<std::endl;
         //process the detector using the detectors analyzers in a global container
         (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
         //create a new key from the id with the reloaded detector
