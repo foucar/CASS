@@ -121,6 +121,15 @@ namespace cass
     virtual ~HistogramBackend(){}
 
   public:
+    /** Write-lock mutex
+
+    When having the memory one can lock operations on it from outside using this mutex, this is used
+    cooperatively, so please do lock the mutex whereever you access the internal data-storage.
+
+    @return \p to our mutex.
+    */
+    QMutex *mutex() {return &_mutex;}
+
     /** serialize this object to a serializer.
      * This function is pure virtual since it overwrites the
      * serializables serialize function. Needs to be implemented by the classes
@@ -166,9 +175,18 @@ namespace cass
     enum OverUnderFlow{Overflow=0, Underflow};
 
   protected:
-    size_t    _dimension;   //!< dimension of the histogram
-    axis_t    _axis;        //!< the axis of this histogram
-    size_t    _nbrOfFills;  //!< how many times has this histogram been filled
+
+    //!< dimension of the histogram
+    size_t    _dimension;
+    //!< the axis of this histogram
+    axis_t    _axis;
+    //!< how many times has this histogram been filled
+    size_t    _nbrOfFills;
+    /** Mutex to lock write operations
+
+    This is especially useful for derived classes with internal memory that needs to be locked
+    */
+    QMutex _mutex;
   };
 
 
@@ -226,10 +244,6 @@ namespace cass
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
     /*! Maximum value in current histogram */
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
-    /** @return \p to our mutex.
-     * when having the memory one can lock operations on it from outside here
-     */
-    QMutex *mutex() {return &_mutex;}
     /** return whether the histogram should be filled.
      * this means that someone wants to have the histogram serialized
      */
@@ -244,8 +258,6 @@ namespace cass
      * after that there are some reservered spaces for over/underflow statistics
      */
     storage_t _memory;
-    /** Mutex to lock write operations on the memory*/
-    QMutex _mutex;
     /** flag to tell whether histogram needs to only be filled when serialized*/
     bool _fillwhenserialized;
     /** flag to signal the postprocessor to fill the histogram*/
