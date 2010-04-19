@@ -41,8 +41,6 @@ void SoapServer::run()
     // start SOAP
     std::cerr << "soap.run() says " << _soap->run(12321) << std::endl;
 }
-
-
 } // end namespace cass
 
 
