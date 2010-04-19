@@ -32,7 +32,7 @@ Building CASS
 -------------
 Do the following
   cd ${CASS top-level directory}
-  qmake -r
+  qmake -r INSTALLBASE=some/path
   make
   make install
 to build and install the software.
