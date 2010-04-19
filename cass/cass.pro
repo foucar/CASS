@@ -23,7 +23,7 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libcamdata.so \
-	              ../LCLS/build/pdsdata/lib/x86_64-linux/libcontroldata.so \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux/libcontroldata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libepics.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libevrdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libipimbdata.so \
@@ -59,10 +59,10 @@ SOURCES +=  daemon.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
-            ./postprocessing/imaging.cpp
+            ./postprocessing/imaging.cpp \
             # soapCASSsoapService.cpp \
             # soapC.cpp \
-	    # tcpserver.cpp
+            # tcpserver.cpp
 
 HEADERS +=  analysis_backend.h \
             cass.h \
@@ -115,8 +115,8 @@ LIBS += -L../cass_acqiris -lcass_acqiris \
         -L../cass_machinedata -lcass_machinedata \
         -L../LCLS/build/pdsdata/lib/x86_64-linux \
         -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata \
-        -levrdata -lappdata
-        # -lgsoap++ -lgsoap
+        -levrdata -lappdata \
+        #-lgsoap++ -lgsoap
 
 TARGETDEPS +=	../cass_acqiris/libcass_acqiris.a \
               ../cass_pnccd/libcass_pnccd.a \
