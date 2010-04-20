@@ -50,6 +50,8 @@ protected:
 @author Jochen Küpper
 
 @todo Update getImage to actually return an direct (i.e., unscaled) TIFF image of the float values
+@todo Provide a multi-content query -- with the SOAP-attachment strategy, we can very well/easily deliver
+multiple histograms/images within one message. Let's do it...(requires a smart updated API).
 */
 class SoapServer : public QThread
 {
