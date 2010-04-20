@@ -17,7 +17,10 @@
 namespace cass
 {
 
-/*! Handle a single SOAP request */
+/*! Handle a single SOAP request
+
+@author Jochen Küpper
+*/
 class SoapHandler : public QThread
 {
     Q_OBJECT;
@@ -42,6 +45,12 @@ protected:
 
 
 
+/** SOAP server
+
+@author Jochen Küpper
+
+@todo Update getImage to actually return an direct (i.e., unscaled) TIFF image of the float values
+*/
 class SoapServer : public QThread
 {
     Q_OBJECT;
@@ -109,12 +118,19 @@ private:
           _soap(new CASSsoapService)
         {};
 
+    /** Disabled constructor */
     SoapServer();
 
+    /** Disabled copy constructor */
     SoapServer(const SoapServer&);
 
+    /** Disabled assignment */
     SoapServer& operator=(const SoapServer&);
 
+    /** Destructor
+
+    clean up SOAP
+    */
     ~SoapServer() { _soap->destroy(); delete _soap; };
 
     /** pointer to the singleton instance */

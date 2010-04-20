@@ -56,6 +56,8 @@ void SoapServer::run()
     _soap->recv_timeout   =   60; // 60 seconds
     _soap->accept_timeout = 3600; // server stops after 1 hour of inactivity
     _soap->max_keep_alive =  100; // max keep-alive sequence
+    // allow immediate re-use of address/socket
+    _soap->bind_flags = SO_REUSEADDR;
     // start SOAP
     if(SOAP_INVALID_SOCKET == _soap->bind(NULL, _port, _backlog))
         throw std::runtime_error("No valid socket for SOAP server");
@@ -104,8 +106,8 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
     std::string data(cass::SoapServer::instance()->get_event(cass::EventParameter(type, t1, t2)));
     *success = true;
     soap_set_dime(this); // enable dime
-    return soap_set_dime_attachment(this, (char *)data.c_str(), sizeof(data.c_str()),
-                                    "application/octet-stream", NULL, 0, NULL);
+    return soap_set_dime_attachment(this, (char *)data.c_str(), sizeof(data.c_str()), "application/octet-stream",
+                                    QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
 
@@ -113,45 +115,37 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
     std::string data(cass::SoapServer::instance()->get_histogram(cass::HistogramParameter(type)));
+    std::cerr << "CASSsoapService::getHistogram -- size = " << data.size() << std::endl;
     *success = true;
     soap_set_dime(this); // enable dime
-    return soap_set_dime_attachment(this, (char *)data.c_str(), sizeof(data.c_str()),
-                                    "application/octet-stream", NULL, 0, NULL);
+    return soap_set_dime_attachment(this, (char *)data.data(), data.size(), "application/octet-stream",
+                                    QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
 
 
 int CASSsoapService::getImage(size_t format, size_t type, bool *success)
 {
-    std::cout << "CASSsoapService::getImage" << std::endl;
     int result;
     try {
-        // QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
-        QImage image(1024, 1024, QImage::Format_Indexed8);
-        image.setColorCount(256);
-        for(unsigned i=0; i<256; ++i)
-            image.setColor(i, QColor(i, i, i).rgb());
-        image.fill(type);
+        QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
         QByteArray ba;
         QBuffer buffer(&ba);
         buffer.open(QIODevice::WriteOnly);
-        std::cout << "CASSsoapService::getImage - buffer opened" << std::endl;
         switch(format) {
         case 1:  // TIFF
             image.save(&buffer, "TIFF");
-            std::cout << "CASSsoapService::getImage - image saved" << std::endl;
             *success = true;
             soap_set_dime(this); // enable dime
-            std::cout << "CASSsoapService::getImage - ba.size(): " << ba.size() << std::endl;
-            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/tiff", NULL, 0, NULL);
+            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/tiff",
+                                              QString::number(type).toStdString().c_str(), 0, NULL);
             break;
         case 2:  // PNG
             image.save(&buffer, "PNG");
-            std::cout << "CASSsoapService::getImage - image saved" << std::endl;
             *success = true;
             soap_set_dime(this); // enable dime.
-            std::cout << "CASSsoapService::getImage - ba.size(): " << ba.size() << std::endl;
-            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/png", NULL, 0, NULL);
+            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/png",
+                                              QString::number(type).toStdString().c_str(), 0, NULL);
             break;
         default:
             success = false;
@@ -162,7 +156,6 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
         success = false;
         return SOAP_FATAL_ERROR;
     }
-    std::cout << "CASSsoapService::getImage done" << std::endl;
     return result;
 }
 

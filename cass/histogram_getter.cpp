@@ -19,19 +19,20 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
     QMutexLocker lock(mutex);
     iter->second->serialize(serializer);
     //return the buffer (std::string) of the serializer
+    std::cerr << "HistogramGetter::operator() -- string size = " << serializer.buffer().size() << std::endl;
     return serializer.buffer();
 }
 
 
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
+    std::cerr << "HistogramGetter::qimage" << std::endl;
     // get an iterator to the requested histogram
     PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
-    // lock access
-    QMutex *mutex(iter->second->mutex());
-    QMutexLocker lock(mutex);
     // and return the QImage of that histogram
-    return dynamic_cast<Histogram2DFloat *>(iter->second)->qimage();
+    QImage image(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
+    std::cerr << "    got image" << std::endl;
+    return image;
 }
 
 

@@ -104,16 +104,17 @@ PRE_TARGETDEPS     += CASSsoapService LCLSLibrary LCLSApplication
 QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs lclsapps
 
 # our own stuff
-SOURCES +=  daemon.cpp \
+SOURCES +=  analyzer.cpp \
             cass.cpp \
-            analyzer.cpp \
-            sharedmemory_input.cpp \
-            format_converter.cpp \
             cass_event.cpp \
+            daemon.cpp \
+            event_getter.cpp \
+            format_converter.cpp \
+            histogram.cpp \
+            histogram_getter.cpp \
+            sharedmemory_input.cpp \
             ratemeter.cpp \
             worker.cpp \
-            event_getter.cpp \
-            histogram_getter.cpp \
             rate_plotter.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/ccd.cpp \

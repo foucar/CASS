@@ -14,7 +14,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWaitCondition>
-#include <QtGui/QColor>
 #include <QtGui/QImage>
 
 #include "serializer.h"
@@ -447,19 +446,14 @@ namespace cass
     Histogram1DFloat reduce(Axis axis) const;
 
     /** Create a QImage of this histogram.
-     * @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
-     * @return QImage of this histogram
-     */
-    QImage qimage() const {
-      QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
-      qi.setColorCount(256);
-      for(unsigned i=0; i<256; ++i)
-        qi.setColor(i, QColor(i, i, i).rgb());
-      for(size_t r=0; r<shape().first; ++r)
-        for(size_t c=0; c<shape().second; ++c)
-          qi.setPixel(r, c, unsigned(uint8_t((bin(r, c) - min()) / (max()-min()) * 0xff)));
-      return qi;
-    };
+
+    This method does the necessary locking itself!
+    (This is the oly reason this method is not const.)
+
+    @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
+    @return QImage of this histogram
+    */
+    QImage qimage();
   };
 
 
