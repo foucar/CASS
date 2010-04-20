@@ -1,12 +1,23 @@
 # Copyright (C) 2009 Jochen Küpper
 # Copyright (C) 2009,2010 Lutz Foucar
 
-CONFIG        += static
-QT            -= core gui
 TEMPLATE       = lib
 TARGET         = cass_machinedata
+CONFIG        += release
+CONFIG        += thread warn_on exceptions rtti sse2 stl
+CONFIG        += static staticlib
+QT            -= core gui
+
+CODECFORTR     = UTF-8
 DEFINES       += CASS_MACHINEDATA_LIBRARY
-VERSION        = 0.0.1
+INCLUDEPATH   += ../LCLS ../cass
+MOC_DIR        = ./obj
+OBJECTS_DIR    = ./obj
+QMAKE_STRIP    =
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += cass
+VERSION        = 0.1.0
 
 OBJECTS_DIR    = ./obj
 QMAKE_CLEAN   += $$OBJECTS_DIR/*.o \
@@ -24,9 +35,6 @@ HEADERS += ../cass/analysis_backend.h \
            machine_converter.h \
            cass_machine.h \
            machine_device.h \
-
-
-INCLUDEPATH   += ../LCLS ../cass
 
 
 header.path    = $$INSTALLBASE/include

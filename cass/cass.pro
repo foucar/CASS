@@ -90,7 +90,7 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
                       ../LCLS/build/pdsdata/obj/x86_64-linux/pulnix/src/TM6740ConfigV1.o
 
 # create SOAP sources and descriptions
-SOAPFiles.target    = soapCASSsoapService.cpp
+SOAPFiles.target    = CASSsoapService
 SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
 	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
@@ -100,7 +100,7 @@ SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
 SOAPFiles.input     = soapserver.h
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += soapCASSsoapService.cpp LCLSLibrary LCLSApplication
+PRE_TARGETDEPS     += CASSsoapService LCLSLibrary LCLSApplication
 QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs lclsapps
 
 # our own stuff

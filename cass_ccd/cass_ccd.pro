@@ -2,16 +2,23 @@
 # Copyright (C) 2009 N Coppola
 # Copyright (C) 2009,2010 Lutz Foucar
 
-CONFIG        += static
-QT            -= core gui
 TEMPLATE       = lib
 TARGET         = cass_ccd
-DEFINES       += CASS_CCD_LIBRARY
-VERSION        = 0.0.1
+CONFIG        += release
+CONFIG        += thread warn_on exceptions rtti sse2 stl
+CONFIG        += static staticlib
+QT            -= core gui
 
+CODECFORTR     = UTF-8
+DEFINES       += CASS_CCD_LIBRARY
+INCLUDEPATH   += ../LCLS ../cass
+MOC_DIR        = ./obj
 OBJECTS_DIR    = ./obj
-QMAKE_CLEAN    = $$OBJECTS_DIR/*.o \
-                 libcass_ccd.a
+QMAKE_STRIP    =
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += cass
+VERSION        = 0.1.0
 
 SOURCES       += ccd_analysis.cpp \
                  ccd_converter.cpp
@@ -26,8 +33,6 @@ HEADERS       += ../cass/analysis_backend.h \
                  ccd_converter.h \
                  cass_ccd.h \
                  ccd_device.h
-
-INCLUDEPATH   += ../LCLS ../cass 
 
 header.path    = $$INSTALLBASE/include
 libs.path      = $$INSTALLBASE/lib
