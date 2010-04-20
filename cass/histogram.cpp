@@ -29,7 +29,6 @@ protected:
 
 QImage Histogram2DFloat::qimage()
 {
-    std::cerr << "Histogram::qimage" << std::endl;
     QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
     qi.setColorCount(256);
     for(unsigned i=0; i<256; ++i)
@@ -39,7 +38,6 @@ QImage Histogram2DFloat::qimage()
     value2pixel converter(min(), max());
     QMutexLocker lock(mutex());
     std::transform(_memory.begin(), _memory.end(), data, converter);
-    std::cerr << "    image done" << std::endl;
     return qi;
 }
 
