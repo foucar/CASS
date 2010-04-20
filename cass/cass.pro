@@ -20,10 +20,10 @@ QMAKE_CLEAN   += cass
 VERSION        = 0.1.0
 
 # compile the LCLS libraries before compiling cass itself
-lclstarget.target   = LCLSLibrary
-lclstarget.commands = @cd ../LCLS && make x86_64-linux
-lclstarget.depends  = FORCE
-lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
+lclslibs.target     = LCLSLibrary
+lclslibs.commands   = @cd ../LCLS && make x86_64-linux
+lclslibs.depends    = FORCE
+lclslibs.files      = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libcamdata.so \
@@ -36,9 +36,16 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libprincetondata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libpulnixdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libxtcdata.so
-lclstarget.path     = $$INSTALLBASE/lib
-QMAKE_CLEAN        += $$lclstarget.files
-INSTALLS           += lclstarget
+lclslibs.path       = $$INSTALLBASE/lib
+
+lclsapps.target     = LCLSApplication
+lclsapps.commands   = @cd ../LCLS && make x86_64-linux
+lclsapps.depends    = FORCE
+lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver
+lclsapps.path       = $$INSTALLBASE/bin
+
+QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files
+INSTALLS           += lclslibs lclsapps
 
 # create SOAP sources and descriptions
 SOAPFiles.target    = soapCASSsoapService.cpp
@@ -51,8 +58,8 @@ SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
 SOAPFiles.input     = soapserver.h
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += soapCASSsoapService.cpp LCLSLibrary
-QMAKE_EXTRA_TARGETS+= SOAPFiles lclstarget
+PRE_TARGETDEPS     += soapCASSsoapService.cpp LCLSLibrary LCLSApplication
+QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs lclsapps
 
 # our own stuff
 SOURCES +=  daemon.cpp \
