@@ -140,11 +140,14 @@ namespace cass
     /** typedef for more readable code*/
     typedef std::vector<AxisProperty> axis_t;
 
-    /** getters and setters*/
-    size_t   nbrOfFills()const {return _nbrOfFills;}
+    /** setter*/
     size_t  &nbrOfFills()      {return _nbrOfFills;}
+    //@{
+    /** getters*/
+    size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
+    //@}
 
     /** possible axes.
      * convenience type to allow for easier choosing of the axis
