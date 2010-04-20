@@ -44,8 +44,50 @@ lclsapps.depends    = FORCE
 lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver
 lclsapps.path       = $$INSTALLBASE/bin
 
-QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files
 INSTALLS           += lclslibs lclsapps
+QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/PulseConfigV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/OutputMap.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/PulseConfig.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/EventCodeV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV2.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/DataV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsPvData.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsXtcSettings.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsDbrTools.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/app/xtcmonserver.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/app/XtcMonitorClient.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/opal1k/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/pnCCD/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/pnCCD/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/ipimb/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/ipimb/src/DataV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/acqiris/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/acqiris/src/DataDescV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/PVControl.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/PVMonitor.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/FrameFexConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/TwoDGaussianV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/XtcIterator.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TransitionId.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/BldInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/DetInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/XtcFileIterator.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Src.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Level.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TypeId.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/ClockTime.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TimeStamp.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/ProcInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Sequence.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/bld/src/bldData.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/princeton/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/princeton/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux/pulnix/src/TM6740ConfigV1.o
 
 # create SOAP sources and descriptions
 SOAPFiles.target    = soapCASSsoapService.cpp
