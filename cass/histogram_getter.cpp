@@ -1,4 +1,5 @@
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Lutz Foucar
 
 #include "histogram.h"
 #include "histogram_getter.h"
