@@ -174,9 +174,14 @@ $(prod_dirs) $(temp_dirs):
 
 
 # Libraries
-$(libdir)/lib%.$(LIBEXTNS):
-	@echo "[LD] Build library $*"
+$(libdir)/lib%.so:
+	@echo "[LD] Build dynamic library $*"
 	$(quiet)$(LD) $(LDFLAGS) $(ifversnflags_$*) $(linkflags_$*) $^ -o $@
+
+$(libdir)/lib%.a:
+	@echo "[LD] Build library archive $*"
+	$(quiet)$(AR) $(ifversnflags_$*) $(linkflags_$*) $@ $^
+
 
 
 # Exceutables
