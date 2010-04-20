@@ -21,24 +21,13 @@
 /** @mainpage CASS (CFEL ASG Software Suite)
  *
  * @section toc Table of Contents
- * <ul>
- *  <li> @ref licence
- *  <li> @ref download
- *  <li> @ref desc
- *  <li> @ref inst
- *  <ul>
- *   <li> @ref pre
- *   <li> @ref env
- *   <li> @ref build
- *   <ul>
- *    <li> @ref build_LCLS
- *    <li> @ref build_CASS
- *   </ul>
- *  </ul>
- *  <li> @ref run
- *  <li> @ref add_pp
-    <li> @ref cred
- * </ul>
+ * -# @ref licence
+ * -# @ref download
+ * -# @ref desc
+ * -# @ref inst
+ * -# @ref run
+ * -# @ref add_pp
+ * -# @ref cred
  *
  * @section licence License
  * CASS is delveloped under the terms of the GNU General Public
@@ -52,7 +41,7 @@
  * You can access cass via svn from the following Repository:\n
  * https://www.mpi-hd.mpg.de/repos/lutz/diode \n
  * The version we are working with right now is to be found in\n
- * /branches/lutz\n
+ * /trunk\n
  * an "anonymous" readonly access for checking out can be done using\n
  * username: asg\n
  * password: cass\n
@@ -256,6 +245,7 @@ int main(int argc, char **argv)
   int retval(app.exec());
 
   //clean up
+  server->destroy();
   delete rateplotter;
   delete workerrate;
   delete inputrate;

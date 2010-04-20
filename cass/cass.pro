@@ -27,7 +27,7 @@ lclstarget.files    = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libcamdata.so \
-	              ../LCLS/build/pdsdata/lib/x86_64-linux/libcontroldata.so \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux/libcontroldata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libepics.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libevrdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libipimbdata.so \
