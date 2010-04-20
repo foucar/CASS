@@ -107,19 +107,19 @@
  *
  * @section cred Credits
  * @par Authors:
- * - Nicola Coppola
- *   - depreciated cass_database
- *   - depreciated cass_dictionary
- *   - new pnCCD analysis
- *   - Region of Interest (ROI) implementation
- *   - CASS testing, debug and development
- * - Nils Kimmel
- *   - original pnCCD analysis
- * - Jochen Kuepper
- *   - CASS design, infrastructure development
- *   - cass framework implementation
- *   - postprocessor setup
- *   - TCP/SOAP server
+ * Nicola Coppola
+ * - depreciated cass_database
+ * - depreciated cass_dictionary
+ * - new pnCCD analysis
+ * - Region of Interest (ROI) implementation
+ * - CASS testing, debug and development
+ * Nils Kimmel
+ * - original pnCCD analysis
+ * Jochen Kuepper
+ * - CASS design, infrastructure development
+ * - cass framework implementation
+ * - postprocessor setup
+ * - TCP/SOAP server
  * @par Project admin:
  * Lutz Foucar
  * - cass, cass_acqiris, cass_ccd, cass_machinedata implementation
@@ -130,7 +130,6 @@
  *
  * @todo create a client for the tcpserver that will retrieve
  *       the postprocessors histgrams and display them
- * @todo find out why signal - slot mechanism is not working anymore
  * @todo look whether pnccd offsetcorrection is build in and works
  * @todo look whether photonit extraction is build in and works
  * @todo only retrieve the last ccd / waveform when requested

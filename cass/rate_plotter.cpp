@@ -1,8 +1,8 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
+
 #include <iostream>
 
 #include "rate_plotter.h"
-
 #include "ratemeter.h"
 
 cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObject *parent)

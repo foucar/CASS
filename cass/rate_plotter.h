@@ -15,20 +15,20 @@ namespace cass
   //forward declarations
   class Ratemeter;
 
-  /*! class that will plot the rates calculated in the given ratemeters
-
-    @author Lutz Foucar
-    */
+  /** Plotting the rate of input and prcessing threads.
+   * class that will plot the rates calculated in the given Ratemeter's
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT RatePlotter : public QObject
   {
     Q_OBJECT;
 
   public:
-    /** constructor
-      @param inputrate the rate of the input thread
-      @param analyzerate the rate how fast the workers work on the events
-      @param parent the qt parent of this object
-      */
+    /** constructor.
+     * @param inputrate the rate of the input thread
+     * @param analyzerate the rate how fast the workers work on the events
+     * @param parent the qt parent of this object
+     */
     RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObject *parent=0);
 
   private slots:
