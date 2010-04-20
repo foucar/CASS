@@ -12,7 +12,7 @@
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
-#include "tcpserver.h"
+//#include "tcpserver.h"
 #include "worker.h"
 #include "daemon.h"
 
