@@ -229,8 +229,9 @@ namespace cass
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
     /*! Maximum value in current histogram */
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
-    /** @return \p to our mutex.
+    /** return \p to our mutex.
      * when having the memory one can lock operations on it from outside here
+     * @return pointer to mutex
      */
     QMutex *mutex() {return &_mutex;}
     /** return whether the histogram should be filled.
