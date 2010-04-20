@@ -172,6 +172,9 @@ int main(int argc, char **argv)
   //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
 
+  // register size_t as Qt meta type
+  qRegisterMetaType<size_t>("size_t");
+
   //create a container for the partition tag
   int c;
   char partitionTag[128];
