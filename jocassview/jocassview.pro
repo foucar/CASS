@@ -1,7 +1,7 @@
 # Copyright (C) 2010 Jochen Küpper
 # Copyright (C) 2010 Lutz Foucar
 
-TARGET              = jk-client
+TARGET              = jocassview
 TEMPLATE            = app
 CONFIG             += release
 CONFIG             += thread warn_on exceptions rtti sse2 stl
@@ -12,7 +12,7 @@ CODECFORTR          = UTF-8
 OBJECTS_DIR         = ./obj
 MOC_DIR             = ./obj
 QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
-	              jk-client
+	              jocassview
 QMAKE_STRIP         =
 
 SOAPFiles.target    = soapCASSsoapProxy.cpp
@@ -30,7 +30,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 
 
-SOURCES       += jk-client.cpp \
+SOURCES       += jocassview.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 
@@ -40,7 +40,7 @@ HEADERS       += soapH.h \
 
 LIBS          += -lgsoap++ -lgsoap
 
-bin.files      = jk-client
+bin.files      = jocassview
 bin.path       = $$INSTALLBASE/bin
 INSTALLS      += bin
 
