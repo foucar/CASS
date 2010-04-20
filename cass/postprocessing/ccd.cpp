@@ -165,7 +165,8 @@ void cass::pp101::operator()(const CASSEvent& event)
     const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
-    unsigned rows(dev->detectors()[_detector].rows()), cols(dev->detectors()[_detector].columns());
+    size_t rows(dev->detectors()[_detector].rows() / _binning.first);
+    size_t cols(dev->detectors()[_detector].columns() / _binning.second);
     QMutexLocker lock(_image->mutex());
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
