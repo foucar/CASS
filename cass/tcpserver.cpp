@@ -85,6 +85,7 @@ void SoapServer::run()
 
 int CASSsoapService::quit(bool *success)
 {
+    std::cerr << "CASSsoapService::quit" << std::endl;
     cass::SoapServer::instance()->emit_quit();
     *success = true;;
     return SOAP_OK;
@@ -94,6 +95,7 @@ int CASSsoapService::quit(bool *success)
 
 int CASSsoapService::readini(size_t what, bool *success)
 {
+    std::cerr << "CASSsoapService::readini(what=" << what << ")" << std::endl;
     cass::SoapServer::instance()->emit_readini(what);
     *success = true;;
     return SOAP_OK;
