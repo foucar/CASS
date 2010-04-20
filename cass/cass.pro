@@ -19,85 +19,85 @@ QMAKE_CLEAN   += $$MOC_DIR/moc_*
 QMAKE_CLEAN   += cass
 VERSION        = 0.1.0
 
-# compile the LCLS libraries before compiling cass itself
+# build the LCLS libraries and programs before compiling cass itself
 lclslibs.target     = LCLSLibrary
-lclslibs.commands   = @cd ../LCLS && make x86_64-linux
+lclslibs.commands   = @cd ../LCLS && make x86_64-linux-static-opt
 lclslibs.depends    = FORCE
 lclslibs.path       = $$INSTALLBASE/lib
-lclslibs.files      = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libcamdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libcontroldata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libepics.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libevrdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libipimbdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libopal1kdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libpnccddata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libprincetondata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libpulnixdata.so \
-                      ../LCLS/build/pdsdata/lib/x86_64-linux/libxtcdata.so
+lclslibs.files      = ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
+                      ../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 
 lclsapps.target     = LCLSApplication
-lclsapps.commands   = @cd ../LCLS && make x86_64-linux
+lclsapps.commands   = @cd ../LCLS && make x86_64-linux-static-opt
 lclsapps.depends    = FORCE
 lclsapps.path       = $$INSTALLBASE/bin
-lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver
+lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
 
-INSTALLS           += lclslibs lclsapps
+INSTALLS           += lclsapps
 QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV3.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/PulseConfigV3.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/OutputMap.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/PulseConfig.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/EventCodeV3.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/ConfigV2.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/evr/src/DataV3.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsPvData.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsXtcSettings.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/epics/src/EpicsDbrTools.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/app/xtcmonserver.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/app/XtcMonitorClient.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/opal1k/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/pnCCD/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/pnCCD/src/FrameV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/ipimb/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/ipimb/src/DataV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/acqiris/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/acqiris/src/DataDescV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/PVControl.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/PVMonitor.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/control/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/FrameFexConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/TwoDGaussianV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/camera/src/FrameV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/XtcIterator.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TransitionId.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/BldInfo.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/DetInfo.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/XtcFileIterator.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Src.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Level.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TypeId.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/ClockTime.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/TimeStamp.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/ProcInfo.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/xtc/src/Sequence.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/bld/src/bldData.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/princeton/src/ConfigV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/princeton/src/FrameV1.o \
-                      ../LCLS/build/pdsdata/obj/x86_64-linux/pulnix/src/TM6740ConfigV1.o
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/PulseConfigV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/OutputMap.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/PulseConfig.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/EventCodeV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/ConfigV2.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/evr/src/DataV3.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsPvData.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsXtcSettings.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/epics/src/EpicsDbrTools.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/xtcmonserver.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/app/XtcMonitorClient.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/opal1k/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pnCCD/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/ipimb/src/DataV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/acqiris/src/DataDescV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/PVControl.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/PVMonitor.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/control/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/FrameFexConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/TwoDGaussianV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/camera/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/XtcIterator.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TransitionId.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/BldInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/DetInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/XtcFileIterator.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Src.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Level.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TypeId.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/ClockTime.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/TimeStamp.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/ProcInfo.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/xtc/src/Sequence.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/bld/src/bldData.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/ConfigV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/FrameV1.o \
+                      ../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/TM6740ConfigV1.o
 
 # create SOAP sources and descriptions
+# use "newer" to make sure soapcpp2 is only run when necessary (this should be done by qmake, though!)
 SOAPFiles.target    = CASSsoapService
-SOAPFiles.commands  = soapcpp2 -S -i soapserver.h
+SOAPFiles.commands  = newer soapCASSsoapService.h soapserver.h || soapcpp2 -S -i soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
 	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
 		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
-SOAPFiles.input     = soapserver.h
 QMAKE_CLEAN        += $$SOAPFiles.files
 
 PRE_TARGETDEPS     += CASSsoapService LCLSLibrary LCLSApplication
@@ -171,8 +171,8 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L../cass_pnccd -lcass_pnccd \
                  -L../cass_ccd -lcass_ccd \
                  -L../cass_machinedata -lcass_machinedata \
-                 -L../LCLS/build/pdsdata/lib/x86_64-linux \
-                 -lacqdata -lxtcdata -lpulnixdata -lcamdata -lpnccddata -levrdata -lappdata \
+                 -L../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
+                 -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap
 
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \

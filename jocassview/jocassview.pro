@@ -15,17 +15,16 @@ QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
 	              jocassview
 QMAKE_STRIP         =
 
-SOAPFiles.target    = soapCASSsoapProxy.cpp
-SOAPFiles.commands  = soapcpp2 -C -i ../cass/soapserver.h
+SOAPFiles.target    = soapCASSsoapProxy
+SOAPFiles.commands  = newer soapCASSsoapProxy.h ../cass/soapserver.h || soapcpp2 -C -i ../cass/soapserver.h
 SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
 		      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
 		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
-SOAPFiles.input     = ../cass/soapserver.h
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += soapCASSsoapProxy.cpp
+PRE_TARGETDEPS     += soapCASSsoapProxy
 QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 
