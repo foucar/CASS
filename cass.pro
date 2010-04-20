@@ -13,7 +13,7 @@ SUBDIRS        = cass_acqiris \
                  cass_pnccd \
                  cass_machinedata \
                  cass \
-                 jk-client
+                 jocassview
 
 
 
