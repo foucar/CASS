@@ -1,0 +1,19 @@
+This file contains an alphabetical list of all major contributors to CASS
+
+- Lutz Foucar
+  general leader
+  cass_REMI, cass_VMI implementation 
+  CASS design
+
+- Nils Kimmel
+  cass_pnCCD
+
+- Jochen Küpper
+  CASS design, infrastructure development
+  cass framework implementation
+  TCP server
+
+- Nicola Coppola
+  cass_database
+  cass_dictionary
+  CASS testing, debug and development

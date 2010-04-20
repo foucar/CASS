@@ -1,0 +1,48 @@
+Install instructions for CASS
+=============================
+
+Prerequisites
+-------------
+
+The following software packages need to be installed and available for building and running CASS:
+  - Qt version 4.5.x or 4.6.x
+  - gSOAP 2.7.x
+
+
+Needed Environment Variables
+----------------------------
+
+LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder
+LCLSSYSLIB: needs to point to the folder the build libraries are in.
+QTDIR: needs to point to the Qt installation directory
+
+Furthermore, you need fully administratively installed Qt and gSOAP libraries, that is, 
+PATH/path, CPLUS_INCLUDE_PATH, and LIBRARY_PATH must be set up.
+
+The above means the following, set up the following envionment variables:
+
+GSOAP: pointing to the directory where gsoap is installed
+
+CPLUS_INCLUDE_PATH: $GSOAP/include:$LCLSSYSINCLUDE
+LIBRARY_PATH: $GSOAP/lib:$LCLSSYSLIB
+
+
+
+Building CASS
+-------------
+Do the following
+  cd ${CASS top-level directory}
+  qmake -r INSTALLBASE=some/path
+  make
+  make install
+to build and install the software.
+The qmake command will output warnings when run for the first time. The files it is
+complaining about not beeing there will be created by the MAKEFILES qmake will create
+from the project files.
+
+
+Running CASS
+------------
+in order to run cass the LD_LIBRARY_PATH or equivalent environment should be properly set; for example:
+  <tcsh>  setenv LD_LIBRARY $QTDIR/lib
+  <bash>  export LD_LIBRARY_PATH=$QTDIR/lib
