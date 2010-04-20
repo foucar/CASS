@@ -120,6 +120,7 @@ namespace cass
     virtual ~HistogramBackend(){}
 
   public:
+
     /** Write-lock mutex
 
     When having the memory one can lock operations on it from outside using this mutex, this is used
@@ -148,11 +149,14 @@ namespace cass
     /** typedef for more readable code*/
     typedef std::vector<AxisProperty> axis_t;
 
-    /** getters and setters*/
-    size_t   nbrOfFills()const {return _nbrOfFills;}
+    /** setter*/
     size_t  &nbrOfFills()      {return _nbrOfFills;}
+    //@{
+    /** getters*/
+    size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
+    //@}
 
     /** possible axes.
      * convenience type to allow for easier choosing of the axis
@@ -235,9 +239,9 @@ namespace cass
     virtual void serialize(Serializer&)const;
     /** deserialize this histogram from the serializer*/
     virtual void deserialize(Serializer&);
-    /** @return const reference to histogram data */
+    /** return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
-    /** @return reference to histogram data, so that one can manipulate the data */
+    /** return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
     /*! Minimum value in current histogram */
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };

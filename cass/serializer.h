@@ -9,21 +9,24 @@
 
 namespace cass
 {
-  /*! class that will serialize / de serialize things to a stringstream
-
-    @author Lutz Foucar
-    */
+  /** A serializer.
+   * class that will serialize / de serialize
+   * Serializable classes to a stringstream
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT Serializer
   {
   public:
-    /** constructor will open the stream in binary writin mode*/
+    /** constructor.
+     * will open the stream in binary writing mode
+     */
     Serializer()
       :_stream(std::ios_base::binary|std::ios_base::in)
     {}
-    /** constructor that will open the provided string for reading in
-      binary mode
-      @param string the string that we want to read from
-      */
+    /** constructor.
+     * will open the provided string for reading in binary mode
+     * @param string the string that we want to read from
+     */
     Serializer(const std::string &string)
       :_stream(string,std::ios_base::binary|std::ios_base::out)
     {}

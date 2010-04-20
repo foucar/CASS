@@ -1,4 +1,5 @@
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Lutz Foucar
 
 #include "histogram.h"
 #include "histogram_getter.h"
@@ -17,7 +18,7 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
     // lock access
     QMutex *mutex(iter->second->mutex());
     QMutexLocker lock(mutex);
-    iter->second->serialize(serializer);
+    dynamic_cast<HistogramFloatBase*>(iter->second)->serialize(serializer);
     //return the buffer (std::string) of the serializer
     std::cerr << "HistogramGetter::operator() -- string size = " << serializer.buffer().size() << std::endl;
     return serializer.buffer();
