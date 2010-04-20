@@ -221,9 +221,9 @@ namespace cass
     virtual void serialize(Serializer&)const;
     /** deserialize this histogram from the serializer*/
     virtual void deserialize(Serializer&);
-    /** @return const reference to histogram data */
+    /** return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
-    /** @return reference to histogram data, so that one can manipulate the data */
+    /** return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
     /*! Minimum value in current histogram */
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
