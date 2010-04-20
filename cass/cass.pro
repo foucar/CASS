@@ -23,6 +23,7 @@ VERSION        = 0.1.0
 lclslibs.target     = LCLSLibrary
 lclslibs.commands   = @cd ../LCLS && make x86_64-linux
 lclslibs.depends    = FORCE
+lclslibs.path       = $$INSTALLBASE/lib
 lclslibs.files      = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libappdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libbld.so \
@@ -36,13 +37,12 @@ lclslibs.files      = ../LCLS/build/pdsdata/lib/x86_64-linux/libacqdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libprincetondata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libpulnixdata.so \
                       ../LCLS/build/pdsdata/lib/x86_64-linux/libxtcdata.so
-lclslibs.path       = $$INSTALLBASE/lib
 
 lclsapps.target     = LCLSApplication
 lclsapps.commands   = @cd ../LCLS && make x86_64-linux
 lclsapps.depends    = FORCE
-lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver
 lclsapps.path       = $$INSTALLBASE/bin
+lclsapps.files      = ../LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver
 
 INSTALLS           += lclslibs lclsapps
 QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
@@ -180,12 +180,12 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_ccd/libcass_ccd.a \
                  ../cass_machinedata/libcass_machinedata.a
 
-bin.files      = cass
 bin.path       = $$INSTALLBASE/bin
-header.files   = $$HEADERS
+bin.files      = cass
 header.path    = $$INSTALLBASE/include
-libs.files     =
+header.files   = $$HEADERS
 libs.path      = $$INSTALLBASE/lib
+libs.files     =
 
 INSTALLS      += header libs bin
 
