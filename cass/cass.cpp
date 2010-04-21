@@ -143,6 +143,9 @@
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
  *       all values.
+ * @todo right now we cannot define a postprocessors dependency on the
+ *       converter that it needs. We need to include this dependency.
+ *       Maybe using cass.ini?
  */
 
 /** \page casslicense License
