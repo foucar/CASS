@@ -375,7 +375,7 @@ namespace cass
       _nextToProcess = iElement;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-      lock.unlock();
+//      lock.unlock();
       _processcondition.wakeOne();
     }
 
