@@ -113,8 +113,10 @@
  * - new pnCCD analysis
  * - Region of Interest (ROI) implementation
  * - CASS testing, debug and development
+ *
  * Nils Kimmel
  * - original pnCCD analysis
+ *
  * Jochen Kuepper
  * - CASS design, infrastructure development
  * - cass framework implementation
