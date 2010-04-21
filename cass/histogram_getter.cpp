@@ -15,7 +15,7 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
     Serializer serializer;
     // serialize the wanted histogram using the serializer
     PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
-    dynamic_cast<HistogramFloatBase*>(iter->second)->serialize(serializer);
+    iter->second->serialize(serializer);
     //return the buffer (std::string) of the serializer
     return serializer.buffer();
 }
