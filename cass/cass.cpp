@@ -219,6 +219,7 @@ int main(int argc, char **argv)
 
   //when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
+  QObject::connect(input, SIGNAL(terminated()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
   //close the programm when sigquit or sigterm were received//

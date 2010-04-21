@@ -67,7 +67,7 @@ namespace cass
     void processedEvent();
 
   public slots:
-    //! sets the flag to end this thread
+    //! sets the flag to end this thread and waits until the thread finished
     void end();
     //! tells the thread to load the settings
     void loadSettings(size_t what);
