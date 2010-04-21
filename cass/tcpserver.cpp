@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
+#include <QtCore/QQueue>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
 
@@ -55,7 +56,7 @@ void SoapServer::run()
     _soap->send_timeout   =   60; // 60 seconds
     _soap->recv_timeout   =   60; // 60 seconds
     _soap->accept_timeout = 3600; // server stops after 1 hour of inactivity
-    _soap->max_keep_alive =  100; // max keep-alive sequence
+    _soap->max_keep_alive = 1000; // max keep-alive sequence
     // allow immediate re-use of address/socket
     _soap->bind_flags = SO_REUSEADDR;
     // start SOAP
@@ -65,10 +66,9 @@ void SoapServer::run()
         if(SOAP_INVALID_SOCKET == _soap->accept()) {
             if(_soap->errnum) {
                 _soap->soap_stream_fault(std::cerr);
-                throw std::runtime_error("No valid socket for SOAP connection");
-            }
-#warning What is the right action to do here?
-            throw std::runtime_error("Server timeout for SOAP connection");
+                std::cerr << "*** No valid socket for SOAP connection ***" << std::endl;
+            } else
+                std::cerr << "*** Server timeout for SOAP connection ***" << std::endl;
             break;
         }
         CASSsoapService *tsoap(_soap->copy()); // make a safe copy
@@ -105,10 +105,14 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
-    std::string data(cass::SoapServer::instance()->get_event(cass::EventParameter(type, t1, t2)));
+    static QQueue<std::string *> queue;
+    std::string *data(new std::string(cass::SoapServer::instance()->get_event(cass::EventParameter(type, t1, t2))));
+    queue.enqueue(data);
+    if(10 < queue.size())
+        queue.dequeue();
     *success = true;
     soap_set_dime(this); // enable dime
-    return soap_set_dime_attachment(this, (char *)data.c_str(), sizeof(data.c_str()), "application/octet-stream",
+    return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/octet-stream",
                                     QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
@@ -116,11 +120,16 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
-    std::string data(cass::SoapServer::instance()->get_histogram(cass::HistogramParameter(type)));
-    std::cerr << "CASSsoapService::getHistogram -- size = " << data.size() << std::endl;
+    // keep bytes around for a while -- this should mitigate the "zeros" problem
+    static QQueue<std::string *> queue;
+    std::string *data(new std::string(cass::SoapServer::instance()->get_histogram(cass::HistogramParameter(type))));
+    queue.enqueue(data);
+    if(10 < queue.size())
+        delete queue.dequeue();
+    std::cerr << "CASSsoapService::getHistogram -- size = " << data->size() << std::endl;
     *success = true;
     soap_set_dime(this); // enable dime
-    return soap_set_dime_attachment(this, (char *)data.data(), data.size(), "application/octet-stream",
+    return soap_set_dime_attachment(this, (char *)data->data(), data->size(), "application/octet-stream",
                                     QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
@@ -128,25 +137,29 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
 
 int CASSsoapService::getImage(size_t format, size_t type, bool *success)
 {
+    // keep bytes around for a while -- this should mitigate the "zeros" problem
+    static QQueue<QByteArray *> queue;
     int result;
     try {
+        QByteArray *ba(new QByteArray);
+        QBuffer buffer(ba);
+        // get image from histogram
         QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
-        QByteArray ba;
-        QBuffer buffer(&ba);
+        // save image to bytearray and attach it to SOAP message
         buffer.open(QIODevice::WriteOnly);
         switch(format) {
         case 1:  // TIFF
             image.save(&buffer, "TIFF");
             *success = true;
             soap_set_dime(this); // enable dime
-            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/tiff",
+            result = soap_set_dime_attachment(this, ba->data(), ba->size(), "image/tiff",
                                               QString::number(type).toStdString().c_str(), 0, NULL);
             break;
         case 2:  // PNG
             image.save(&buffer, "PNG");
             *success = true;
             soap_set_dime(this); // enable dime.
-            result = soap_set_dime_attachment(this, ba.data(), ba.size(), "image/png",
+            result = soap_set_dime_attachment(this, ba->data(), ba->size(), "image/png",
                                               QString::number(type).toStdString().c_str(), 0, NULL);
             break;
         default:
@@ -154,6 +167,9 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
             result = SOAP_FATAL_ERROR;
             break;
         }
+        queue.enqueue(ba);
+        if(10 < queue.size())
+            delete queue.dequeue();
     } catch(std::exception) {
         success = false;
         return SOAP_FATAL_ERROR;
