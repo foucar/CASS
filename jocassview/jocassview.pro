@@ -16,7 +16,7 @@ QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
 QMAKE_STRIP         =
 
 SOAPFiles.target    = soapCASSsoapProxy
-SOAPFiles.commands  = newer soapCASSsoapProxy.h ../cass/soapserver.h || soapcpp2 -C -i ../cass/soapserver.h
+SOAPFiles.commands  = newer soapCASSsoapProxy.h $$PWD/../cass/soapserver.h || soapcpp2 -C -i $$PWD/../cass/soapserver.h
 SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
 		      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
 		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
