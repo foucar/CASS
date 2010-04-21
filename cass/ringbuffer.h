@@ -300,7 +300,7 @@ namespace cass
       iElement->gefuellt      = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-      lock.unlock();
+//      lock.unlock();
       _fillcondition.wakeOne();
     }
 
@@ -432,7 +432,7 @@ namespace cass
       iElement->inBearbeitung = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-      lock.unlock();
+//      lock.unlock();
       _fillcondition.wakeOne();
     }
 
