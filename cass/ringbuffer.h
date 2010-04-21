@@ -252,7 +252,7 @@ namespace cass
      * @param[in] timeout Time that we will wait that a new element is beeing put into
      *            the buffer. It is defaulted to ULONG_MAX
      */
-    void nextToProcess(reference element, int timeout=ULONG_MAX)
+    void nextToProcess(reference element, unsigned long timeout=ULONG_MAX)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
