@@ -1,6 +1,6 @@
 // Copyright (C) 2009,2010 LMF
 
-#include <QMutexLocker>
+#include <QtCore/QMutexLocker>
 
 #include <iostream>
 #include <iomanip>

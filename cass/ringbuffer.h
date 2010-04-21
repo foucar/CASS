@@ -3,12 +3,13 @@
 #ifndef _RINGBUFFER_H
 #define _RINGBUFFER_H
 
-#include <QMutex>
-#include <QWaitCondition>
+#include <QtCore/QMutex>
+#include <QtCore/QWaitCondition>
+
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <algorithm>
 
 namespace cass
 {

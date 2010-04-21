@@ -2,7 +2,7 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <exception>
-#include <QMutexLocker>
+#include <QtCore/QMutexLocker>
 
 #include "worker.h"
 #include "analyzer.h"

@@ -3,11 +3,10 @@
 #ifndef __SHAREDMEMORYINPUT_H__
 #define __SHAREDMEMORYINPUT_H__
 
+#include <QtCore/QMutex>
 #include <QtCore/QObject>
-#include <QThread>
-#include <QMutex>
-#include <QWaitCondition>
-
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
 
 #include "cass.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
