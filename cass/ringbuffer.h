@@ -77,7 +77,7 @@ namespace cass
      * will create the buffer and fill it with the requested amount of elements
      * and initialize the iterators.
      */
-    RingBuffer() 
+    RingBuffer()
       : _behaviour(blocking),
         _buffer(cap,Element()),
         _nextToProcess(_buffer.begin()),
