@@ -79,6 +79,7 @@ void cass::SharedMemoryInput::run()
 void cass::SharedMemoryInput::end()
 {
   std::cout << "shared memory input got signal to close"<<std::endl;
+  //tell the loop that it should quit
   _quit=true;
 }
 
