@@ -42,7 +42,7 @@ namespace cass
      * @param parent the parent of this object
      */
     SharedMemoryInput(char * PartitionTag,
-                      cass::RingBuffer<cass::CASSEvent,4>& buffer,
+                      cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
                       QObject *parent=0);
     /** deletes the thread*/
     ~SharedMemoryInput();
