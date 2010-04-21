@@ -230,8 +230,8 @@ int main(int argc, char **argv)
   QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
 
   //start input and worker threads
-  input->start();
   workers->start();
+  input->start();
 
   // TCP/SOAP server
   // tell the server how to get an id or histogram
