@@ -31,25 +31,24 @@ void cass::Analyzer::destroy()
 //===================================================
 
 
-void cass::AnalysisParameter::load()
-{
-  //sync before loading//
-  sync();
-  _useCCD     = value("useCommercialCCDAnalyzer",true).toBool();
-  _useAcqiris = value("useAcqirisAnalyzer",false).toBool();
-  _useMachine = value("useMachineAnalyzer",true).toBool();
-  _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
-  std::cout<<"useCommercialCCDAnalyzer "<<_useCCD<<std::endl;
-  std::cout<<QSettings::scope () <<" "<<QSettings::status ()<<std::endl;
-}
-
-void cass::AnalysisParameter::save()
-{
-  setValue("useComercialCCDAnalyzer",_useCCD);
-  setValue("useAcqirisAnalyzer",_useAcqiris);
-  setValue("useMachineAnalyzer",_useMachine);
-  setValue("usepnCCDAnalyzer",_usepnCCD);
-}
+//void cass::AnalysisParameter::load()
+//{
+//  //sync before loading//
+//  sync();
+//  _useCCD     = value("useCommercialCCDAnalyzer",true).toBool();
+//  _useAcqiris = value("useAcqirisAnalyzer",false).toBool();
+//  _useMachine = value("useMachineAnalyzer",true).toBool();
+//  _usepnCCD   = value("usepnCCDAnalyzer",true).toBool();
+//  std::cout<<std::boolalpha<<"useCommercialCCDAnalyzer "<<_useCCD<<std::endl;
+//}
+//
+//void cass::AnalysisParameter::save()
+//{
+//  setValue("useComercialCCDAnalyzer",_useCCD);
+//  setValue("useAcqirisAnalyzer",_useAcqiris);
+//  setValue("useMachineAnalyzer",_useMachine);
+//  setValue("usepnCCDAnalyzer",_usepnCCD);
+//}
 
 
 
@@ -85,13 +84,14 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 
 void cass::Analyzer::loadSettings(size_t)
 {
-  //load the parameters to find out what analyzers the user want to be working//
-  _param.load();
+  QSettings param;
+  param.beginGroup("PreAnalyzer");
   //install the requested analyzers//
-  if(_param._useCCD)    _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
-  if(_param._useAcqiris)_activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
-  if(_param._usepnCCD)  _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
-  if(_param._useMachine)_activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
+  if(param.value("useCommercialCCDAnalyzer",true).toBool()) _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
+  if(param.value("useAcqirisAnalyzer",false).toBool())      _activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
+  if(param.value("usepnCCDAnalyzer",true).toBool())         _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
+  if(param.value("useMachineAnalyzer",false).toBool())      _activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
+  param.endGroup();
 
   //iterate through all analyzers and load the settings of them//
   for (analyzers_t::iterator it=_analyzer.begin();it != _analyzer.end();++it )
@@ -100,9 +100,8 @@ void cass::Analyzer::loadSettings(size_t)
 
 void cass::Analyzer::saveSettings()
 {
-  //save the AnalyzerParameters//
-  _param.save();
-
+//  //save the AnalyzerParameters//
+//  _param.save();
   //iterate through all analyzers and load the settings of them//
   for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->saveSettings();

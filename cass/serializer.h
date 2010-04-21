@@ -21,16 +21,18 @@ namespace cass
      * will open the stream in binary writing mode
      */
     Serializer()
-      :_stream(std::ios_base::binary|std::ios_base::in)
+      :_stream(std::ios_base::binary|std::ios_base::out)
     {}
     /** constructor.
      * will open the provided string for reading in binary mode
      * @param string the string that we want to read from
      */
     Serializer(const std::string &string)
-      :_stream(string,std::ios_base::binary|std::ios_base::out)
+      :_stream(string,std::ios_base::binary|std::ios_base::in)
     {}
-    /** retrieve a const reference to the string*/
+    /** retrieve a const reference to the string.
+     * @return const string of our stringstream
+     */
     const std::string buffer()const  {return _stream.str();}
 
     void addString(const std::string&); //!< add string to serialized buffer

@@ -143,6 +143,9 @@
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
  *       all values.
+ * @todo right now we cannot define a postprocessors dependency on the
+ *       converter that it needs. We need to include this dependency.
+ *       Maybe using cass.ini?
  */
 
 /** \page casslicense License
@@ -222,6 +225,7 @@ int main(int argc, char **argv)
 
   //when the thread has finished, we want to close this application
   QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
+  QObject::connect(input, SIGNAL(terminated()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
   //close the programm when sigquit or sigterm were received//
@@ -229,8 +233,8 @@ int main(int argc, char **argv)
   QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
 
   //start input and worker threads
-  input->start();
   workers->start();
+  input->start();
 
   // TCP/SOAP server
   // tell the server how to get an id or histogram

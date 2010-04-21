@@ -22,21 +22,26 @@ cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &rin
 
 cass::Worker::~Worker()
 {
-  std::cout <<"worker "<<this<<" is closing"<<std::endl;
+  std::cout <<"worker "<<this<<" will be deleted"<<std::endl;
   _postprocessor->destroy();
   _analyzer->destroy();
-  std::cout<< "worker "<<this<<" is closed" <<std::endl;
+  std::cout<< "worker "<<this<<" is deleted" <<std::endl;
 }
 
 void cass::Worker::end()
 {
-  std::cout << "worker "<<this<<" got signal to close"<<std::endl;
+  std::cout << "worker "<<this<<" is told to close"<<std::endl;
+  //tell run that we want to close
   _quit = true;
+  //wait until we run has really finished
+  wait();
 }
 
 void cass::Worker::suspend()
 {
+  //set flag to pause//
   _pause=true;
+  //wait until it is suspended//
   waitUntilSuspended();
 }
 
@@ -146,11 +151,11 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
 
 cass::Workers::~Workers()
 {
-  std::cout <<"workers are closing"<<std::endl;
+  std::cout <<"workers are beeing deleted"<<std::endl;
   //delete the worker instances//
   for (size_t i=0;i<_workers.size();++i)
     delete _workers[i];
-  std::cout<< "workers are closed" <<std::endl;
+  std::cout<< "workers are deleted" <<std::endl;
 }
 
 const cass::PostProcessors::histograms_t& cass::Workers::histograms() const
@@ -162,16 +167,24 @@ const cass::PostProcessors::histograms_t& cass::Workers::histograms() const
 
 void cass::Workers::loadSettings(size_t what)
 {
+  std::cout << "Workers: Load Settings: suspend all workers before laoding settings"
+      <<std::endl;
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
+  std::cout << "Workers: Load Settings: Workers are suspend. Load Settings of one Worker,"
+      <<" which shares all settings."<<std::endl;
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
   _workers[0]->loadSettings(what);
   //resume the workers tasks//
+  std::cout << "Workers: Load Settings: Done Loading. Now resume all workers"
+      <<std::endl;
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
+  std::cout << "Workers: Load Settings: Workers are resumed"
+      <<std::endl;
 }
 
 void cass::Workers::start()
@@ -188,9 +201,6 @@ void cass::Workers::end()
   //tell all workers that they should quit//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
-  //now wait until all have finished//
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->wait();
   //emit that all workers are finished//
   emit finished();
 }

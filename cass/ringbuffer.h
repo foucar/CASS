@@ -19,6 +19,8 @@ namespace cass
    * @tparam T Element typ
    * @tparam cap Capacity of the ringbuffer
    * @author Lutz Foucar
+
+  @todo Change to English variable names
    */
   template <typename T, size_t cap>
   class RingBuffer
@@ -252,7 +254,7 @@ namespace cass
      * @param[in] timeout Time that we will wait that a new element is beeing put into
      *            the buffer. It is defaulted to ULONG_MAX
      */
-    void nextToProcess(reference element, int timeout=ULONG_MAX)
+    void nextToProcess(reference element, unsigned long timeout=ULONG_MAX)
     {
       //create a lock//
       QMutexLocker lock(&_mutex);
@@ -300,7 +302,7 @@ namespace cass
       iElement->gefuellt      = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-      lock.unlock();
+//      lock.unlock();
       _fillcondition.wakeOne();
     }
 
@@ -432,7 +434,7 @@ namespace cass
       iElement->inBearbeitung = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-      lock.unlock();
+//      lock.unlock();
       _fillcondition.wakeOne();
     }
 

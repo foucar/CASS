@@ -370,6 +370,7 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp550::~pp550()
 {
+  QMutexLocker lock(_nbrSignals->mutex());
   delete _nbrSignals;
   _nbrSignals=0;
   _histograms[_id] =  _nbrSignals;
@@ -441,6 +442,7 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp551::~pp551()
 {
+  QMutexLocker lock(_nbrSignals->mutex());
   delete _nbrSignals;
   _nbrSignals=0;
   _histograms[_id] =  _nbrSignals;
@@ -505,6 +507,7 @@ cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp557::~pp557()
 {
+  QMutexLocker lock(_ratio->mutex());
   delete _ratio;
   _ratio=0;
   _histograms[_id] =  _ratio;
@@ -581,6 +584,7 @@ cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp558::~pp558()
 {
+  QMutexLocker lock(_ratio->mutex());
   delete _ratio;
   _ratio=0;
   _histograms[_id] =  _ratio;
@@ -642,6 +646,7 @@ cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp566::~pp566()
 {
+  QMutexLocker lock(_ratio->mutex());
   delete _ratio;
   _ratio=0;
   _histograms[_id] =  _ratio;
@@ -710,6 +715,7 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp567::~pp567()
 {
+  QMutexLocker lock(_tof->mutex());
   delete _tof;
   _tof=0;
   _histograms[_id] =  _tof;
@@ -780,6 +786,7 @@ cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp568::~pp568()
 {
+  QMutexLocker lock(_timesum->mutex());
   delete _timesum;
   _timesum=0;
   _histograms[_id] =  _timesum;
@@ -845,6 +852,7 @@ cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp571::~pp571()
 {
+  QMutexLocker lock(_timesumvsPos->mutex());
   delete _timesumvsPos;
   _timesumvsPos=0;
   _histograms[_id] =  _timesumvsPos;
@@ -909,6 +917,7 @@ cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp574::~pp574()
 {
+  QMutexLocker lock(_pos->mutex());
   delete _pos;
   _pos=0;
   _histograms[_id] =  _pos;
@@ -992,6 +1001,7 @@ cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp578::~pp578()
 {
+  QMutexLocker lock(_hist->mutex());
   delete _hist;
   _hist=0;
   _histograms[_id] =  _hist;
@@ -1066,6 +1076,7 @@ cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp581::~pp581()
 {
+  QMutexLocker lock(_sigprop->mutex());
   delete _sigprop;
   _sigprop=0;
   _histograms[_id] =  _sigprop;
@@ -1148,6 +1159,7 @@ cass::pp582::pp582(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp582::~pp582()
 {
+  QMutexLocker lock(_sigprop->mutex());
   delete _sigprop;
   _sigprop=0;
   _histograms[_id] =  _sigprop;
