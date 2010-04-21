@@ -19,158 +19,156 @@ namespace cass
     class HistogramBackend;
 
 
-    /** @brief container and call handler for all registered postprocessors
+    /** container and call handler for all registered postprocessors.
+     * All currently registered postprocessors are listed here, specifying their id, a description, and
+     * (in parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The
+     * postprocessor classes are named according to their number (or the first number for classes
+     * handling multiple histograms) and placed in the file for the most appropriate group according to
+     * their content.
+     * @section pplist List of Postprocessors
+@verbatim
+00001: Last plain image from pnCCD-1 (pnCCD)
+00002: Last plain image from pnCCD-2 (pnCCD)
 
-    All currently registered postprocessors are listed here, specifying their id, a description, and
-    (in parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The
-    postprocessor classes are named according to their number (or the first number for classes
-    handling multiple histograms) and placed in the file for the most appropriate group according to
-    their content.
+00003: Last plain image from VMI ccd camera (VMI)
 
-    @verbatim
-    00001: Last plain image from pnCCD-1 (pnCCD)
-    00002: Last plain image from pnCCD-2 (pnCCD)
+00004: Last waveform of Camp Acqiris Channel 00
+00005: Last waveform of Camp Acqiris Channel 01
+00006: Last waveform of Camp Acqiris Channel 02
+00007: Last waveform of Camp Acqiris Channel 03
+00008: Last waveform of Camp Acqiris Channel 04
+00009: Last waveform of Camp Acqiris Channel 05
+00010: Last waveform of Camp Acqiris Channel 06
+00011: Last waveform of Camp Acqiris Channel 07
+00012: Last waveform of Camp Acqiris Channel 08
+00013: Last waveform of Camp Acqiris Channel 09
+00014: Last waveform of Camp Acqiris Channel 10
+00015: Last waveform of Camp Acqiris Channel 11
+00016: Last waveform of Camp Acqiris Channel 12
+00017: Last waveform of Camp Acqiris Channel 13
+00017: Last waveform of Camp Acqiris Channel 14
+00019: Last waveform of Camp Acqiris Channel 15
+00020: Last waveform of Camp Acqiris Channel 16
+00021: Last waveform of Camp Acqiris Channel 17
+00022: Last waveform of Camp Acqiris Channel 18
+00023: Last waveform of Camp Acqiris Channel 19
 
-    00003: Last plain image from VMI ccd camera (VMI)
+00101: Running average of pnCCD-1 images with
+       - geometric binning (x and y) of postprocessors/101/binning
+       - an average length of postprocessors/101/average
+00102: Histogram 101 with
+       - background subtraction of the image file specified in postprocessors/102/background
+00121: Running average of VMI (Opal) camera
+00131: Scalar value of the <cos^2\theta> derived from the 121 image
+00141: Sum-intensity of image pp3
+00142: Sum-intensity of image pp121
+00143: Gaussian width of image pp3
+00144: Gaussian height of image pp3
+00145: Gaussian width of image pp121
+00146: Gaussian height of image pp121
 
-    00004: Last waveform of Camp Acqiris Channel 00
-    00005: Last waveform of Camp Acqiris Channel 01
-    00006: Last waveform of Camp Acqiris Channel 02
-    00007: Last waveform of Camp Acqiris Channel 03
-    00008: Last waveform of Camp Acqiris Channel 04
-    00009: Last waveform of Camp Acqiris Channel 05
-    00010: Last waveform of Camp Acqiris Channel 06
-    00011: Last waveform of Camp Acqiris Channel 07
-    00012: Last waveform of Camp Acqiris Channel 08
-    00013: Last waveform of Camp Acqiris Channel 09
-    00014: Last waveform of Camp Acqiris Channel 10
-    00015: Last waveform of Camp Acqiris Channel 11
-    00016: Last waveform of Camp Acqiris Channel 12
-    00017: Last waveform of Camp Acqiris Channel 13
-    00017: Last waveform of Camp Acqiris Channel 14
-    00019: Last waveform of Camp Acqiris Channel 15
-    00020: Last waveform of Camp Acqiris Channel 16
-    00021: Last waveform of Camp Acqiris Channel 17
-    00022: Last waveform of Camp Acqiris Channel 18
-    00023: Last waveform of Camp Acqiris Channel 19
+00500: Averaged waveform of Camp Acqiris Channel 00
+00501: Averaged waveform of Camp Acqiris Channel 01
+00502: Averaged waveform of Camp Acqiris Channel 02
+00503: Averaged waveform of Camp Acqiris Channel 03
+00504: Averaged waveform of Camp Acqiris Channel 04
+00505: Averaged waveform of Camp Acqiris Channel 05
+00506: Averaged waveform of Camp Acqiris Channel 06
+00507: Averaged waveform of Camp Acqiris Channel 07
+00508: Averaged waveform of Camp Acqiris Channel 08
+00509: Averaged waveform of Camp Acqiris Channel 09
+00510: Averaged waveform of Camp Acqiris Channel 10
+00511: Averaged waveform of Camp Acqiris Channel 11
+00512: Averaged waveform of Camp Acqiris Channel 12
+00513: Averaged waveform of Camp Acqiris Channel 13
+00514: Averaged waveform of Camp Acqiris Channel 14
+00515: Averaged waveform of Camp Acqiris Channel 15
+00516: Averaged waveform of Camp Acqiris Channel 16
+00517: Averaged waveform of Camp Acqiris Channel 17
+00518: Averaged waveform of Camp Acqiris Channel 18
+00519: Averaged waveform of Camp Acqiris Channel 19
 
-    00101: Running average of pnCCD-1 images with
-           - geometric binning (x and y) of postprocessors/101/binning
-           - an average length of postprocessors/101/average
-    00102: Histogram 101 with
-           - background subtraction of the image file specified in postprocessors/102/background
-    00121: Running average of VMI (Opal) camera
-    00131: Scalar value of the <cos^2\theta> derived from the 121 image
-    00141: Sum-intensity of image pp3
-    00142: Sum-intensity of image pp121
-    00143: Gaussian width of image pp3
-    00144: Gaussian height of image pp3
-    00145: Gaussian width of image pp121
-    00146: Gaussian height of image pp121
+00550: Hex Anode Number of Peaks in MCP
+00551: Hex Anode Number of Peaks in U1
+00552: Hex Anode Number of Peaks in U2
+00553: Hex Anode Number of Peaks in V1
+00554: Hex Anode Number of Peaks in V2
+00555: Hex Anode Number of Peaks in W1
+00556: Hex Anode Number of Peaks in W2
+00557: Hex Anode Hit Ratio U1 / U2
+00558: Hex Anode Hit Ratio U1 / MCP
+00559: Hex Anode Hit Ratio U2 / MCP
+00560: Hex Anode Hit Ratio V1 / V2
+00561: Hex Anode Hit Ratio V1 / MCP
+00562: Hex Anode Hit Ratio V2 / MCP
+00563: Hex Anode Hit Ratio W1 / W2
+00564: Hex Anode Hit Ratio W1 / MCP
+00565: Hex Anode Hit Ratio W2 / MCP
+00566: Hex Anode Hit Ratio Reconstructed / MCP
+00567: Hex Anode All Hits on MCP
+00568: Hex Anode Delayline Timesum U
+00569: Hex Anode Delayline Timesum V
+00570: Hex Anode Delayline Timesum W
+00571: Hex Anode Delayline Timesum U vs Pos U
+00572: Hex Anode Delayline Timesum V vs Pos V
+00573: Hex Anode Delayline Timesum W vs Pos W
+00574: Hex Anode Delayline Picture of First Hit UV Layers in ns
+00575: Hex Anode Delayline Picture of First Hit UW Layers in ns
+00576: Hex Anode Delayline Picture of First Hit VW Layers in ns
+00578: Hex Anode Delayline Picture all Hits in mm
+00579: Hex Anode Delayline X vs Tof
+00580: Hex Anode Delayline Y vs Tof
+00581: Hex Anode Height vs. Fwhm MCP
+00582: Hex Anode Height vs. Fwhm U1
+00583: Hex Anode Height vs. Fwhm U2
+00584: Hex Anode Height vs. Fwhm V1
+00585: Hex Anode Height vs. Fwhm V2
+00586: Hex Anode Height vs. Fwhm W1
+00587: Hex Anode Height vs. Fwhm W2
 
-    00500: Averaged waveform of Camp Acqiris Channel 00
-    00501: Averaged waveform of Camp Acqiris Channel 01
-    00502: Averaged waveform of Camp Acqiris Channel 02
-    00503: Averaged waveform of Camp Acqiris Channel 03
-    00504: Averaged waveform of Camp Acqiris Channel 04
-    00505: Averaged waveform of Camp Acqiris Channel 05
-    00506: Averaged waveform of Camp Acqiris Channel 06
-    00507: Averaged waveform of Camp Acqiris Channel 07
-    00508: Averaged waveform of Camp Acqiris Channel 08
-    00509: Averaged waveform of Camp Acqiris Channel 09
-    00510: Averaged waveform of Camp Acqiris Channel 10
-    00511: Averaged waveform of Camp Acqiris Channel 11
-    00512: Averaged waveform of Camp Acqiris Channel 12
-    00513: Averaged waveform of Camp Acqiris Channel 13
-    00514: Averaged waveform of Camp Acqiris Channel 14
-    00515: Averaged waveform of Camp Acqiris Channel 15
-    00516: Averaged waveform of Camp Acqiris Channel 16
-    00517: Averaged waveform of Camp Acqiris Channel 17
-    00518: Averaged waveform of Camp Acqiris Channel 18
-    00519: Averaged waveform of Camp Acqiris Channel 19
+00600: Quad Anode Number of Peaks in MCP
+00601: Quad Anode Number of Peaks in X1
+00602: Quad Anode Number of Peaks in X2
+00603: Quad Anode Number of Peaks in Y1
+00604: Quad Anode Number of Peaks in Y2
+00605: Quad Anode Hit Ratio X1 / X2
+00606: Quad Anode Hit Ratio X1 / MCP
+00607: Quad Anode Hit Ratio X2 / MCP
+00608: Quad Anode Hit Ratio Y1 / Y2
+00609: Quad Anode Hit Ratio Y1 / MCP
+00610: Quad Anode Hit Ratio Y2 / MCP
+00611: Quad Anode Hit Ratio Reconstructed / MCP
+00612: Quad Anode All Hits on MCP
+00613: Quad Anode Delayline Timesum X
+00614: Quad Anode Delayline Timesum Y
+00615: Quad Anode Delayline Timesum X vs Pos X
+00616: Quad Anode Delayline Timesum Y vs Pos Y
+00617: Quad Anode Delayline Picture of First Hit in ns
+00618: Quad Anode Delayline Picture all Hits in mm
+00619: Quad Anode Delayline X vs Tof
+00620: Quad Anode Delayline Y vs Tof
+00621: Quad Anode Height vs. Fwhm MCP
+00622: Quad Anode Height vs. Fwhm X1
+00623: Quad Anode Height vs. Fwhm X2
+00624: Quad Anode Height vs. Fwhm Y1
+00625: Quad Anode Height vs. Fwhm Y2
 
-    00550: Hex Anode Number of Peaks in MCP
-    00551: Hex Anode Number of Peaks in U1
-    00552: Hex Anode Number of Peaks in U2
-    00553: Hex Anode Number of Peaks in V1
-    00554: Hex Anode Number of Peaks in V2
-    00555: Hex Anode Number of Peaks in W1
-    00556: Hex Anode Number of Peaks in W2
-    00557: Hex Anode Hit Ratio U1 / U2
-    00558: Hex Anode Hit Ratio U1 / MCP
-    00559: Hex Anode Hit Ratio U2 / MCP
-    00560: Hex Anode Hit Ratio V1 / V2
-    00561: Hex Anode Hit Ratio V1 / MCP
-    00562: Hex Anode Hit Ratio V2 / MCP
-    00563: Hex Anode Hit Ratio W1 / W2
-    00564: Hex Anode Hit Ratio W1 / MCP
-    00565: Hex Anode Hit Ratio W2 / MCP
-    00566: Hex Anode Hit Ratio Reconstructed / MCP
-    00567: Hex Anode All Hits on MCP
-    00568: Hex Anode Delayline Timesum U
-    00569: Hex Anode Delayline Timesum V
-    00570: Hex Anode Delayline Timesum W
-    00571: Hex Anode Delayline Timesum U vs Pos U
-    00572: Hex Anode Delayline Timesum V vs Pos V
-    00573: Hex Anode Delayline Timesum W vs Pos W
-    00574: Hex Anode Delayline Picture of First Hit UV Layers in ns
-    00575: Hex Anode Delayline Picture of First Hit UW Layers in ns
-    00576: Hex Anode Delayline Picture of First Hit VW Layers in ns
-    00578: Hex Anode Delayline Picture all Hits in mm
-    00579: Hex Anode Delayline X vs Tof
-    00580: Hex Anode Delayline Y vs Tof
-    00581: Hex Anode Height vs. Fwhm MCP
-    00582: Hex Anode Height vs. Fwhm U1
-    00583: Hex Anode Height vs. Fwhm U2
-    00584: Hex Anode Height vs. Fwhm V1
-    00585: Hex Anode Height vs. Fwhm V2
-    00586: Hex Anode Height vs. Fwhm W1
-    00587: Hex Anode Height vs. Fwhm W2
+00650: VMIMcp Number of Peaks in Waveform
+00651: VMIMcp All Hits on Mcp
+00652: VMIMcp Height vs. Fwhm
 
-    00600: Quad Anode Number of Peaks in MCP
-    00601: Quad Anode Number of Peaks in X1
-    00602: Quad Anode Number of Peaks in X2
-    00603: Quad Anode Number of Peaks in Y1
-    00604: Quad Anode Number of Peaks in Y2
-    00605: Quad Anode Hit Ratio X1 / X2
-    00606: Quad Anode Hit Ratio X1 / MCP
-    00607: Quad Anode Hit Ratio X2 / MCP
-    00608: Quad Anode Hit Ratio Y1 / Y2
-    00609: Quad Anode Hit Ratio Y1 / MCP
-    00610: Quad Anode Hit Ratio Y2 / MCP
-    00611: Quad Anode Hit Ratio Reconstructed / MCP
-    00612: Quad Anode All Hits on MCP
-    00613: Quad Anode Delayline Timesum X
-    00614: Quad Anode Delayline Timesum Y
-    00615: Quad Anode Delayline Timesum X vs Pos X
-    00616: Quad Anode Delayline Timesum Y vs Pos Y
-    00617: Quad Anode Delayline Picture of First Hit in ns
-    00618: Quad Anode Delayline Picture all Hits in mm
-    00619: Quad Anode Delayline X vs Tof
-    00620: Quad Anode Delayline Y vs Tof
-    00621: Quad Anode Height vs. Fwhm MCP
-    00622: Quad Anode Height vs. Fwhm X1
-    00623: Quad Anode Height vs. Fwhm X2
-    00624: Quad Anode Height vs. Fwhm Y1
-    00625: Quad Anode Height vs. Fwhm Y2
+00660: IntensityMonitor Number of Peaks in Waveform
+00661: IntensityMonitor All Hits on Mcp
+00662: IntensityMonitor Height vs. Fwhm
 
-    00650: VMIMcp Number of Peaks in Waveform
-    00651: VMIMcp All Hits on Mcp
-    00652: VMIMcp Height vs. Fwhm
+00670: YAG Laser Photodiode Number of Peaks in Waveform
+00671: YAG Laser Photodiode All Hits on Mcp
+00672: YAG Laser Photodiode Height vs. Fwhm
 
-    00660: IntensityMonitor Number of Peaks in Waveform
-    00661: IntensityMonitor All Hits on Mcp
-    00662: IntensityMonitor Height vs. Fwhm
-
-    00670: YAG Laser Photodiode Number of Peaks in Waveform
-    00671: YAG Laser Photodiode All Hits on Mcp
-    00672: YAG Laser Photodiode Height vs. Fwhm
-
-    00680: Femtosecond Laser Photodiode Number of Peaks in Waveform
-    00681: Femtosecond Laser Photodiode All Hits on Mcp
-    00682: Femtosecond Laser Photodiode Height vs. Fwhm
-    @endverbatim
-
+00680: Femtosecond Laser Photodiode Number of Peaks in Waveform
+00681: Femtosecond Laser Photodiode All Hits on Mcp
+00682: Femtosecond Laser Photodiode Height vs. Fwhm
+@endverbatim
     * @section add_pp Howto add custom postprocessors
     * @subsection nec Things that a postprocessor needs to have
     * Your postprocessor needs to have the following members

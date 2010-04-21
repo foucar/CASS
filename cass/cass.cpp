@@ -27,6 +27,7 @@
  * -# @ref inst
  * -# @ref run
  * -# @ref add_pp
+ * -# @ref pplist
  * -# @ref cred
  *
  * @section licence License
