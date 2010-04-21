@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 #include <QtCore/QSettings>
 
@@ -41,13 +42,15 @@ cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::i
   case PostProcessors::CampChannel17LastWaveform: _channel=17;_instrument=Camp1;break;
   case PostProcessors::CampChannel18LastWaveform: _channel=18;_instrument=Camp1;break;
   case PostProcessors::CampChannel19LastWaveform: _channel=19;_instrument=Camp1;break;
-  default: throw std::invalid_argument("channel does not exist in argument list");
+  default: throw std::invalid_argument(QString("postprocessor %1 is not for the last waveform").arg(_id).toStdString());
   }
-  std::cout<< this<< " will work on Channel "<< _channel<<" of Instrument "<<_instrument<<std::endl;
+  std::cout<<std::endl<< "postprocessor "<<id<< " will work on Channel "<< _channel
+      <<" of Instrument "<<_instrument<<std::endl;
 }
 
 cass::pp4::~pp4()
 {
+  QMutexLocker lock(_waveform->mutex());
   delete _waveform;
   _waveform=0;
 }
@@ -92,6 +95,7 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
+    QMutexLocker lock(_waveform->mutex());
     delete _waveform;
     _waveform =
         new Histogram1DFloat(waveform.size(),
@@ -170,14 +174,16 @@ cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessor
   case PostProcessors::CampChannel17AveragedWaveform: _channel=17;_instrument=Camp1;break;
   case PostProcessors::CampChannel18AveragedWaveform: _channel=18;_instrument=Camp1;break;
   case PostProcessors::CampChannel19AveragedWaveform: _channel=19;_instrument=Camp1;break;
-  default: throw std::invalid_argument("the requested postprocessor is not handled by this one");
+  default: throw std::invalid_argument(QString("postprocessor %1 is not for averaging waveforms").arg(_id).toStdString());
   }
-  std::cout<< this<< " will average Channel "<< _channel<<" of Instrument "<<_instrument<<std::endl;
+  std::cout<< "postprocessor "<<id<< " will average Channel "<< _channel
+      <<" of Instrument "<<_instrument<<std::endl;
   loadParameters(0);
 }
 
 cass::pp500::~pp500()
 {
+  QMutexLocker lock(_waveform->mutex());
   delete _waveform;
   _waveform=0;
 }
@@ -189,7 +195,7 @@ void cass::pp500::loadParameters(size_t)
   //load the nbr of averages, and calculate the alpha from it//
   uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
   _alpha = static_cast<float>(1./N);
-  std::cout <<this<<" is averaging over " << N<<" events"<<std::endl;
+  std::cout <<"postprocessor "<<_id<<" is averaging over "<< N<<" events"<<std::endl;
 }
 
 void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
@@ -232,6 +238,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
+    QMutexLocker lock(_waveform->mutex());
     delete _waveform;
     _waveform =
         new Histogram1DFloat(waveform.size(),
