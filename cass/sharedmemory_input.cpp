@@ -10,7 +10,7 @@
 
 
 cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
-                                           cass::RingBuffer<cass::CASSEvent,4>& ringbuffer,
+                                           cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer,
                                            QObject *parent)
                                              :QThread(parent),
                                              _ringbuffer(ringbuffer),
