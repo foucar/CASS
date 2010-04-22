@@ -122,9 +122,7 @@ pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
 
 cass::pp101::~pp101()
 {
-#warning Here we should lock the _histograms map
-    _image->lock.lockForWrite();
-    delete _image;
+    PostProcessors::instance()->histograms_delete(_id);
     _image = 0;
 }
 
@@ -138,17 +136,13 @@ void cass::pp101::loadSettings(size_t)
     _scale = 1. - 1./_average;
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
-#warning Here we should lock the _histograms map
     if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
-        // create new histogram storage
+        // create new histogram storage and save it in PostProcessors container
         size_t horizontal(1024/_binning.first);
         size_t vertical(1024/_binning.second);
-        delete _image;
-        _image = new Histogram2DFloat(horizontal, vertical);
+        PostProcessors::instance()->histograms_replace(_id, new Histogram2DFloat(horizontal, vertical));
     }
-    // save storage in PostProcessors container
-    _histograms[_id] = _image;
 }
 
 
@@ -189,17 +183,14 @@ void cass::pp101::operator()(const CASSEvent& event)
 pp141::pp141(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
     : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
 {
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _value;
+    PostProcessors::instance()->histograms_replace(_id, _value);
 }
 
 
 
 pp141::~pp141()
 {
-    delete _value;
-    _value = 0;
+    PostProcessors::instance()->histograms_delete(_id);
 }
 
 
@@ -210,7 +201,9 @@ void pp141::operator()(const cass::CASSEvent&)
     const HistogramFloatBase::storage_t& val(hist->memory());
     HistogramFloatBase::value_t sum(0);
     std::accumulate(val.begin(), val.end(), sum);
+    _value->lock.lockForWrite();
     *_value = sum;
+    _value->lock.unlock();
 }
 
 
