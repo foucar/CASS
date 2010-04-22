@@ -510,6 +510,8 @@ namespace cass
   //-----------------Base class-----------------------
   inline void cass::HistogramFloatBase::serialize(cass::Serializer &out) const
   {
+    //lock the serialization//
+    QMutexLocker lock(&_mutex);
     //if we need to wait until the histogram is filled before serialization//
     //wait here and set the flag that this histogram needs to be filled//
     if(_fillwhenserialized)
