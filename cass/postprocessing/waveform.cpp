@@ -50,9 +50,9 @@ cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::i
 
 cass::pp4::~pp4()
 {
-  QMutexLocker lock(_waveform->mutex());
-  delete _waveform;
-  _waveform=0;
+#warning Here we should lock the _histograms map
+    delete _waveform;
+    _waveform=0;
 }
 
 void cass::pp4::operator()(const cass::CASSEvent &cassevent)
@@ -95,18 +95,17 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    QMutexLocker lock(_waveform->mutex());
-    delete _waveform;
-    _waveform =
-        new Histogram1DFloat(waveform.size(),
-                             0,
-                             channel.fullscale()*channel.sampleInterval());
-    _histograms[_id] = _waveform;
+#warning Here we should lock the _histograms map
+      delete _waveform;
+      _waveform = new Histogram1DFloat(waveform.size(),
+                                       0,
+                                       channel.fullscale()*channel.sampleInterval());
+      _histograms[_id] = _waveform;
   }
-  //lock the copy operation in multithreaded environment//
-  QMutexLocker lock(_waveform->mutex());
-  //copy the waveform to our storage histogram//
+  //copy the waveform to our storage histogram
+  _waveform->lock.lockForWrite();
   std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
+  _waveform->lock.unlock();
 }
 
 
@@ -183,9 +182,9 @@ cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessor
 
 cass::pp500::~pp500()
 {
-  QMutexLocker lock(_waveform->mutex());
-  delete _waveform;
-  _waveform=0;
+#warning Here we should lock the _histograms map
+    delete _waveform;
+    _waveform=0;
 }
 
 void cass::pp500::loadParameters(size_t)
@@ -238,13 +237,12 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    QMutexLocker lock(_waveform->mutex());
-    delete _waveform;
-    _waveform =
-        new Histogram1DFloat(waveform.size(),
-                             0,
-                             channel.fullscale()*channel.sampleInterval());
-    _histograms[_id] = _waveform;
+#warning Here we should lock the _histograms map
+      delete _waveform;
+      _waveform = new Histogram1DFloat(waveform.size(),
+                                       0,
+                                       channel.fullscale()*channel.sampleInterval());
+      _histograms[_id] = _waveform;
   }
   //choose which kind of average we want to have//
   //if alpha is 1 then we want a cummulative average,//
@@ -253,8 +251,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const float alpha = (std::abs(_alpha-1.)<1e-15) ?
                       1./(_waveform->nbrOfFills()+1.) :
                       _alpha;
-  //lock this operation//
-  QMutexLocker lock(_waveform->mutex());
+  _waveform->lock.lockForWrite();
   //average the waveform and put the result in the averaged waveform//
   //transform id doing an operation like
   //  template < class InputIterator, class OutputIterator, class BinaryOperator >
@@ -270,6 +267,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
                  _waveform->memory().begin(),     //start of second src
                  _waveform->memory().begin(),     //start of result
                  Average(alpha));                 //the binary operator
+  _waveform->lock.unlock();
   //tell the histogram that we just filled it//
   ++_waveform->nbrOfFills();
 }

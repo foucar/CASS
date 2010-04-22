@@ -122,7 +122,8 @@ pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
 
 cass::pp101::~pp101()
 {
-    QMutexLocker lock(_image->mutex());
+#warning Here we should lock the _histograms map
+    _image->lock.lockForWrite();
     delete _image;
     _image = 0;
 }
@@ -137,19 +138,16 @@ void cass::pp101::loadSettings(size_t)
     _scale = 1. - 1./_average;
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
+#warning Here we should lock the _histograms map
     if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
         // create new histogram storage
         size_t horizontal(1024/_binning.first);
         size_t vertical(1024/_binning.second);
-        if(_image)
-            QMutexLocker lock(_image->mutex());
         delete _image;
         _image = new Histogram2DFloat(horizontal, vertical);
     }
     // save storage in PostProcessors container
-    if(_histograms[_id])
-        QMutexLocker lock(_histograms[_id]->mutex());
     _histograms[_id] = _image;
 }
 
@@ -167,7 +165,7 @@ void cass::pp101::operator()(const CASSEvent& event)
     //   new_average = new_sum = f * old_sum + data
     size_t rows(dev->detectors()[_detector].rows() / _binning.first);
     size_t cols(dev->detectors()[_detector].columns() / _binning.second);
-    QMutexLocker lock(_image->mutex());
+    _image->lock.lockForWrite();
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
             pixel_t sum(0);
@@ -181,6 +179,7 @@ void cass::pp101::operator()(const CASSEvent& event)
             _image->memory()[r * cols/_binning.second + c] += sum / (_binning.first * _binning.second);
         }
     }
+    _image->lock.unlock();
 }
 
 

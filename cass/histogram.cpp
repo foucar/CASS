@@ -36,8 +36,9 @@ QImage Histogram2DFloat::qimage()
     qi.fill(0);
     uint8_t *data(qi.bits());
     value2pixel converter(min(), max());
-    QMutexLocker lock(mutex());
+    lock.lockForRead();
     std::transform(_memory.begin(), _memory.end(), data, converter);
+    lock.unlock();
     return qi;
 }
 

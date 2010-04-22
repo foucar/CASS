@@ -12,7 +12,7 @@
 #include <vector>
 
 #include <QtCore/QMutex>
-#include <QtCore/QMutexLocker>
+#include <QtCore/QReadWriteLock>
 #include <QtCore/QWaitCondition>
 #include <QtGui/QImage>
 
@@ -111,24 +111,23 @@ namespace cass
      * @param ver The version for de / serializing.
      */
     explicit HistogramBackend(size_t dim, uint16_t ver)
-      : Serializable(ver), _dimension(dim), _nbrOfFills(0)
+        : Serializable(ver), _dimension(dim), _nbrOfFills(0)
     {}
 
     /** destructor.
-     * virtual destructor, since its a baseclass. Does nothing
-     */
+    * virtual destructor, since its a baseclass. Does nothing
+    */
     virtual ~HistogramBackend(){}
 
   public:
 
-    /** Write-lock mutex
+    /** Read-write lock for internal memory/data
 
-    When having the memory one can lock operations on it from outside using this mutex, this is used
-    cooperatively, so please do lock the mutex whereever you access the internal data-storage.
-
-    @return \p to our mutex.
+    This is a public property of every histogram. It must be locked for all access to the histogram.
+    Mostly, this is done internally, but you have to use it if you directly access memory of a
+    histogram (appropriately for reading and writing).
     */
-    QMutex *mutex() {return &_mutex;}
+    QReadWriteLock lock;
 
     /** serialize this object to a serializer.
      * This function is pure virtual since it overwrites the
@@ -185,11 +184,6 @@ namespace cass
     axis_t    _axis;
     //!< how many times has this histogram been filled
     size_t    _nbrOfFills;
-    /** Mutex to lock write operations
-
-    This is especially useful for derived classes with internal memory that needs to be locked
-    */
-    QMutex _mutex;
   };
 
 
@@ -291,7 +285,7 @@ namespace cass
       : HistogramFloatBase(in)
     {};
 
-    void fill(value_t value=0.) {QMutexLocker lock(&_mutex); _memory[0] = value; };
+    void fill(value_t value=0.) {lock.lockForWrite(); _memory[0] = value; lock.unlock(); };
 
     /*! Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
@@ -575,19 +569,17 @@ namespace cass
     const float xup     = _axis[xAxis].upperLimit();
     const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
-    //lock the write operation//
-    QMutexLocker lock(&_mutex);
     //check whether the fill is in the right range//
     const bool xInRange = 0<=xBin && xBin<nxBins;
-    //if in range fill the memory otherwise figure out//
-    //whether over of underflow occured//
+    lock.lockForWrite();
+    // if in range fill the memory otherwise figure out whether over of underflow occured//
     if (xInRange)
       _memory[xBin] += weight;
     else if (xBin >= nxBins)
       _memory[nxBins+Overflow] += 1;
     else if (xBin < 0)
       _memory[nxBins+Underflow] += 1;
-
+    lock.unlock();
     //increase the number of fills//
     ++(_nbrOfFills);
   }
@@ -610,7 +602,7 @@ namespace cass
     const bool xInRange = 0<=xBin && xBin<nxBins;
     const bool yInRange = 0<=yBin && yBin<nyBins;
     //lock the write operation//
-    QMutexLocker lock(&_mutex);
+    lock.lockForRead();
     // if both bin coordinates are in range, fill the memory, otherwise figure out which quadrant needs to be filled
     if (xInRange && yInRange)
       _memory[yBin*nxBins + yBin]+= weight;
@@ -630,6 +622,7 @@ namespace cass
       _memory[maxSize+UpperMiddle]+=1;
     else if (xBin >= nxBins && yBin >= nyBins)
       _memory[maxSize+UpperRight]+=1;
+    lock.unlock();
     // increase the number of fills
     ++_nbrOfFills;
   }
