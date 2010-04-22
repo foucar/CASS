@@ -361,6 +361,11 @@ namespace cass
         */
         histograms_t &histograms() { return _histograms; };
 
+        /** make sure a specific histogram exists and is not 0 */
+        bool valid(id_t type) {
+            return (_histograms.end() != _histograms.find(type)) && (0 != _histograms[type]);
+        };
+
 
     public slots:
 
