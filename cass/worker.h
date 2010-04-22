@@ -57,6 +57,11 @@ namespace cass
      * @returns when thread is suspended.
      */
     void suspend();
+    /** waits until thread is suspended.
+     * once the pause flag is set, then this function waits
+     * until the thread is really suspended
+     */
+    void waitUntilSuspended();
     //! will continue the thread
     void resume();
     //! retrieve the histogram container from the postprocessor
@@ -75,11 +80,6 @@ namespace cass
     void saveSettings();
 
   protected:
-    /** waits until thread is suspended.
-     * once the pause flag is set, then this function waits
-     * until the thread is really suspended
-     */
-    void waitUntilSuspended();
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer; //!< the ringbuffer
@@ -91,7 +91,6 @@ namespace cass
     bool           _pause;            //!< flag to suspend the thread
     bool           _paused;           //!< flag to retrieve the state of the thread
     QWaitCondition _waitUntilpausedCondition; //!< condition to notice once the thread has been paused
-
   };
 
   /** Worker Thread Handler.
@@ -132,6 +131,7 @@ namespace cass
 
   private:
     std::vector<cass::Worker*> _workers; //!< container of workers
+    QMutex                     _mutex;   //!< mutex to make loadSettings reentrant
   };
 
 }
