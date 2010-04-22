@@ -98,6 +98,11 @@ void PostProcessors::loadSettings(size_t)
 void PostProcessors::histograms_delete(id_t type)
 {
     _histlock.lockForWrite();
+    /** @todo is this correct?*/
+    //in case the histogram is not on the list,
+    //this will return 0, so we can savely delete the pointer//
+//    HistogramBackend *hist = _histograms[type];
+//    delete hist;
     _histograms.erase(type);
     _histlock.unlock();
 }
