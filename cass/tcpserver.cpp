@@ -120,6 +120,11 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
+    // make sure the histogram is valid
+    if(! cass::PostProcessors::instance()->valid(cass::PostProcessors::id_t(type))) {
+        *success = false;
+        return SOAP_FATAL_ERROR;
+    }
     // keep bytes around for a while -- this should mitigate the "zeros" problem
     static QQueue<std::string *> queue;
     std::string *data(new std::string(cass::SoapServer::instance()->get_histogram(cass::HistogramParameter(type))));
@@ -137,6 +142,11 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
 
 int CASSsoapService::getImage(size_t format, size_t type, bool *success)
 {
+    // make sure the histogram is valid
+    if(! cass::PostProcessors::instance()->valid(cass::PostProcessors::id_t(type))) {
+        *success = false;
+        return SOAP_FATAL_ERROR;
+    }
     // keep bytes around for a while -- this should mitigate the "zeros" problem
     static QQueue<QByteArray *> queue;
     int result;
