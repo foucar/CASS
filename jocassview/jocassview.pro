@@ -29,7 +29,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 
 
-SOURCES       += jocassview.cpp \
+SOURCES       += jocassview_cli.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 
