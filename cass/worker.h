@@ -59,8 +59,7 @@ namespace cass
     void suspend();
     //! will continue the thread
     void resume();
-    //! retrieve the histogram container from the postprocessor
-    const PostProcessors::histograms_t& histograms()const;
+
 
   signals:
     //! emit signal when you are done with one event
@@ -104,23 +103,26 @@ namespace cass
   {
     Q_OBJECT;
   public:
+
     /** constructor.
      * will create the requested amount of threads.
      * @param rb the rinbguffer we get the events from
      * @param parent the qt parent of this object
      */
     Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb, QObject *parent=0);
+
     /** deletes all workers*/
     ~Workers();
 
     //! starts the threads
     void start();
-    //! use this to retrive the histogram container in postprocessor
-    const cass::PostProcessors::histograms_t& histograms()const;
+
 
   public slots:
+
     //! will set the flags to end the threads
     void end();
+
     //! will cause the loading of the settings from the cass.ini file
     void loadSettings(size_t what);
 

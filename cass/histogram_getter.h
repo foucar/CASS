@@ -32,9 +32,12 @@ struct HistogramParameter
 
 
 
-/** class that will retrive a histogram from the histogram container.
+/** retrive a histogram from the histogram container
 
 @author Lutz Foucar
+@author Jochen Küpper
+
+@todo Make independent of global PostProcessors singleton (by passing it in here)
 */
 class CASSSHARED_EXPORT HistogramGetter
 {
@@ -45,9 +48,7 @@ public:
     @param histograms container of all histogram, we will retrieve the requested histograms from
     there
     */
-    HistogramGetter(const PostProcessors::histograms_t& histograms)
-        : _histograms(histograms)
-    {}
+    HistogramGetter() {};
 
     /*! Serialize histogram
 
@@ -57,12 +58,6 @@ public:
 
     /** Create an QImage from the histogram */
     QImage qimage(const HistogramParameter&) const;
-
-
-protected:
-
-    //!< histogram container
-    const PostProcessors::histograms_t& _histograms;
 };
 
 } //end namespace cass

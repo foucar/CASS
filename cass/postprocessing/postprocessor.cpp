@@ -90,6 +90,26 @@ void PostProcessors::loadSettings(size_t)
 }
 
 
+
+void PostProcessors::histograms_delete(id_t type)
+{
+    _histlock.lockForWrite();
+    _histograms.erase(type);
+    _histlock.unlock();
+}
+
+
+
+void PostProcessors::histograms_replace(id_t type, HistogramBackend *hist)
+{
+    histograms_delete(type);
+    _histlock.lockForWrite();
+    _histograms.insert(std::make_pair(type, hist));
+    _histlock.unlock();
+}
+
+
+
 void PostProcessors::setup()
 {
     using namespace std;

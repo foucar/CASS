@@ -14,8 +14,9 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
 {
     Serializer serializer;
     // serialize the wanted histogram using the serializer
-    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
+    PostProcessors::histograms_t::const_iterator iter(PostProcessors::instance()->histograms_checkout().find(hp.type));
     iter->second->serialize(serializer);
+    PostProcessors::instance()->histograms_release();
     //return the buffer (std::string) of the serializer
     return serializer.buffer();
 }
@@ -24,7 +25,8 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
     // get an iterator to the requested histogram
-    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
+    PostProcessors::histograms_t::const_iterator iter(PostProcessors::instance()->histograms_checkout().find(hp.type));
+    PostProcessors::instance()->histograms_release();
     // and return the QImage of that histogram
     return dynamic_cast<Histogram2DFloat *>(iter->second)->qimage();
 }
