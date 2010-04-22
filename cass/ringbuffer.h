@@ -41,7 +41,7 @@ namespace cass
         gefuellt(false),
         inBearbeitung(false)
       {}
-      /** Comparison of two elements.
+      /** Comparison an element with the element of the Element.
        * Two Ringbuffers are the same only when their elements type and
        * capacity are equal
        */
@@ -290,17 +290,21 @@ namespace cass
       //create a lock//
       QMutexLocker lock(&_mutex);
       //find the iterator that points to the element that the user wants to submit//
-      iterator_t iElement = _buffer.begin();
-      for ( ; iElement != _buffer.end() ; ++iElement)
-        if (iElement->element == element)
-          break;
+      iterator_t iElement =
+          std::find(_buffer.begin(),_buffer.end(),element);
+
+//      iterator_t iElement = _buffer.begin();
+//      for ( ; iElement != _buffer.end() ; ++iElement)
+//        if (iElement->element == element)
+//          break;
+      *iElement == element;
       //set its flags according to its state//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = true;
       iElement->gefuellt      = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-//      lock.unlock();
+      lock.unlock();
       _fillcondition.wakeOne();
     }
 
@@ -375,7 +379,7 @@ namespace cass
       _nextToProcess = iElement;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-//      lock.unlock();
+      lock.unlock();
       _processcondition.wakeOne();
     }
 
@@ -432,7 +436,7 @@ namespace cass
       iElement->inBearbeitung = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-//      lock.unlock();
+      lock.unlock();
       _fillcondition.wakeOne();
     }
 
