@@ -74,7 +74,7 @@ const cass::PostProcessors::histograms_t& cass::Worker::histograms()const
 
 void cass::Worker::run()
 {
-  std::cout << "worker \""<<std::hex<<this<<std::dec <<"\" is starting"<<std::endl;
+  std::cout << "worker \""<<this <<"\" is starting"<<std::endl;
   //a pointer that we use//
   cass::CASSEvent *cassevent=0;
   //run als long as we are told not to stop//
@@ -160,13 +160,18 @@ cass::Workers::~Workers()
 
 const cass::PostProcessors::histograms_t& cass::Workers::histograms() const
 {
-    if(_workers.empty())
-        throw std::bad_exception();
-    return _workers[0]->histograms();
+  if(_workers.empty())
+    throw std::bad_exception();
+  return _workers[0]->histograms();
 }
 
 void cass::Workers::loadSettings(size_t what)
 {
+  //make sure there is at least one worker//
+  if(_workers.empty())
+    throw std::bad_exception();
+  //lock this from here on, so that it is reentrant
+  QMutexLocker lock(&_mutex);
   std::cout << "Workers: Load Settings: suspend all workers before laoding settings"
       <<std::endl;
   //suspend all workers//
