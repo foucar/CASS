@@ -290,14 +290,14 @@ namespace cass
       //create a lock//
       QMutexLocker lock(&_mutex);
       //find the iterator that points to the element that the user wants to submit//
-      iterator_t iElement =
-          std::find(_buffer.begin(),_buffer.end(),element);
+//      iterator_t iElement =
+//          std::find(_buffer.begin(),_buffer.end(),element);
 
-//      iterator_t iElement = _buffer.begin();
-//      for ( ; iElement != _buffer.end() ; ++iElement)
-//        if (iElement->element == element)
-//          break;
-      *iElement == element;
+      iterator_t iElement = _buffer.begin();
+      for ( ; iElement != _buffer.end() ; ++iElement)
+        if (iElement->element == element)
+          break;
+//      *iElement == element;
       //set its flags according to its state//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = true;
