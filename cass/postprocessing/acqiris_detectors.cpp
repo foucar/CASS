@@ -118,6 +118,8 @@ namespace cass
      */
     DetectorBackend * validate(const CASSEvent &evt)
     {
+      //lock this so that only one helper will retrieve the detector at a time//
+      QMutexLocker lock(&_helperMutex);
       //find the pair containing the detector//
       detectorList_t::iterator it =
         std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
@@ -189,6 +191,8 @@ namespace cass
     static detectoranalyzer_t _detectoranalyzer;
     /** Singleton Mutex to lock write operations*/
     static QMutex _mutex;
+    /** Mutex for each helper*/
+    QMutex _helperMutex;
   };
 
 }//end namespace

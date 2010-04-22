@@ -19,8 +19,8 @@ class CASSSHARED_EXPORT PostprocessorBackend
 {
 public:
 
-    PostprocessorBackend(PostProcessors::histograms_t& hs, PostProcessors::id_t id)
-        : _id(id), _histograms(hs)
+    PostprocessorBackend(PostProcessors& pp, PostProcessors::id_t id)
+        : _id(id), _pp(pp)
     {}
 
     virtual ~PostprocessorBackend() {}
@@ -34,25 +34,32 @@ public:
 
     The dependencies must be run before the actual postprocessor is run by itself.
     */
-    virtual std::list<PostProcessors::id_t> dependencies() {return std::list<PostProcessors::id_t>(); };
+    virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
 
 
 protected:
 
     /** @return histogram of the actual postprocessor we call this for */
-    virtual HistogramBackend *histogram() { return _histograms[_id]; };
+    virtual HistogramBackend *histogram() { return histogram(_id); };
 
     /** @overload
 
     @return histogram of the requested postprocessor */
-    virtual HistogramBackend *histogram(PostProcessors::id_t id) { return _histograms[id]; };
+    virtual HistogramBackend *histogram(PostProcessors::id_t id) {
+        if(_pp.valid(id)) {
+            PostProcessors::histograms_t hist(_pp.histograms_checkout());
+            return hist[id];
+        }
+        return 0;
+    };
 
-    //the postprocessors id (see post_processor.h for an list of ids)//
+    // the postprocessors id (see post_processor.h for an list of ids)//
     PostProcessors::id_t _id;
 
-    //reference to the container of all histograms//
-    PostProcessors::histograms_t& _histograms;
+    // reference to the PostProcessors container
+    PostProcessors& _pp;
 };
+
 } //end namespace cass
 
 #endif

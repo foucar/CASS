@@ -27,6 +27,7 @@
  * -# @ref inst
  * -# @ref run
  * -# @ref add_pp
+ * -# @ref pplist
  * -# @ref cred
  *
  * @section licence License
@@ -113,8 +114,10 @@
  * - new pnCCD analysis
  * - Region of Interest (ROI) implementation
  * - CASS testing, debug and development
+ *
  * Nils Kimmel
  * - original pnCCD analysis
+ *
  * Jochen Kuepper
  * - CASS design, infrastructure development
  * - cass framework implementation
@@ -206,7 +209,7 @@ int main(int argc, char **argv)
                                                              ringbuffer,
                                                              qApp));
   //create workers//
-  cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
+  cass::Workers *workers(new cass::Workers(ringbuffer, qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
   //create a ratemeter object for the worker//

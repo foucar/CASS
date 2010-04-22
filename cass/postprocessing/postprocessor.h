@@ -22,18 +22,17 @@ class HistogramBackend;
 
 /** @brief container and call handler for all registered postprocessors
 
-All currently registered postprocessors are listed here, specifying their id, a description, and
-(in parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The
-postprocessor classes are named according to their number (or the first number for classes
-handling multiple histograms) and placed in the file for the most appropriate group according to
-their content.
+All currently registered postprocessors are listed here, specifying their id, a description, and (in
+parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
+classes are named according to their number (or the first number for classes handling multiple
+histograms) and placed in the file for the most appropriate group according to their content.
+
+@section pplist List of Postprocessors
 
 @verbatim
 00001: Last plain image from pnCCD-1 (pnCCD)
 00002: Last plain image from pnCCD-2 (pnCCD)
-
 00003: Last plain image from VMI ccd camera (VMI)
-
 00004: Last waveform of Camp Acqiris Channel 00
 00005: Last waveform of Camp Acqiris Channel 01
 00006: Last waveform of Camp Acqiris Channel 02
@@ -54,7 +53,6 @@ their content.
 00021: Last waveform of Camp Acqiris Channel 17
 00022: Last waveform of Camp Acqiris Channel 18
 00023: Last waveform of Camp Acqiris Channel 19
-
 00101: Running average of pnCCD-1 images with
 - geometric binning (x and y) of postprocessors/101/binning
 - an average length of postprocessors/101/average
@@ -68,7 +66,6 @@ their content.
 00144: Gaussian height of image pp3
 00145: Gaussian width of image pp121
 00146: Gaussian height of image pp121
-
 00500: Averaged waveform of Camp Acqiris Channel 00
 00501: Averaged waveform of Camp Acqiris Channel 01
 00502: Averaged waveform of Camp Acqiris Channel 02
@@ -89,7 +86,6 @@ their content.
 00517: Averaged waveform of Camp Acqiris Channel 17
 00518: Averaged waveform of Camp Acqiris Channel 18
 00519: Averaged waveform of Camp Acqiris Channel 19
-
 00550: Hex Anode Number of Peaks in MCP
 00551: Hex Anode Number of Peaks in U1
 00552: Hex Anode Number of Peaks in U2
@@ -127,7 +123,6 @@ their content.
 00585: Hex Anode Height vs. Fwhm V2
 00586: Hex Anode Height vs. Fwhm W1
 00587: Hex Anode Height vs. Fwhm W2
-
 00600: Quad Anode Number of Peaks in MCP
 00601: Quad Anode Number of Peaks in X1
 00602: Quad Anode Number of Peaks in X2
@@ -154,46 +149,72 @@ their content.
 00623: Quad Anode Height vs. Fwhm X2
 00624: Quad Anode Height vs. Fwhm Y1
 00625: Quad Anode Height vs. Fwhm Y2
-
+00600: Quad Anode Number of Peaks in MCP
+00601: Quad Anode Number of Peaks in X1
+00602: Quad Anode Number of Peaks in X2
+00603: Quad Anode Number of Peaks in Y1
+00604: Quad Anode Number of Peaks in Y2
+00605: Quad Anode Hit Ratio X1 / X2
+00606: Quad Anode Hit Ratio X1 / MCP
+00607: Quad Anode Hit Ratio X2 / MCP
+00608: Quad Anode Hit Ratio Y1 / Y2
+00609: Quad Anode Hit Ratio Y1 / MCP
+00610: Quad Anode Hit Ratio Y2 / MCP
+00611: Quad Anode Hit Ratio Reconstructed / MCP
+00612: Quad Anode All Hits on MCP
+00613: Quad Anode Delayline Timesum X
+00614: Quad Anode Delayline Timesum Y
+00615: Quad Anode Delayline Timesum X vs Pos X
+00616: Quad Anode Delayline Timesum Y vs Pos Y
+00617: Quad Anode Delayline Picture of First Hit in ns
+00618: Quad Anode Delayline Picture all Hits in mm
+00619: Quad Anode Delayline X vs Tof
+00620: Quad Anode Delayline Y vs Tof
+00621: Quad Anode Height vs. Fwhm MCP
+00622: Quad Anode Height vs. Fwhm X1
+00623: Quad Anode Height vs. Fwhm X2
+00624: Quad Anode Height vs. Fwhm Y1
+00625: Quad Anode Height vs. Fwhm Y2
 00650: VMIMcp Number of Peaks in Waveform
 00651: VMIMcp All Hits on Mcp
 00652: VMIMcp Height vs. Fwhm
-
 00660: IntensityMonitor Number of Peaks in Waveform
 00661: IntensityMonitor All Hits on Mcp
 00662: IntensityMonitor Height vs. Fwhm
-
 00670: YAG Laser Photodiode Number of Peaks in Waveform
 00671: YAG Laser Photodiode All Hits on Mcp
 00672: YAG Laser Photodiode Height vs. Fwhm
-
 00680: Femtosecond Laser Photodiode Number of Peaks in Waveform
 00681: Femtosecond Laser Photodiode All Hits on Mcp
 00682: Femtosecond Laser Photodiode Height vs. Fwhm
 @endverbatim
 
-* @section add_pp Howto add custom postprocessors
-* @subsection nec Things that a postprocessor needs to have
-* Your postprocessor needs to have the following members
-* - a constructor that takes the a reference to the histogram container and the processor id
-* - overloaded void operator()(const cass::CASSEvent&) which gets called for each event
-* - (optionaly you could have a pointer the histogram in the histogram container)
-* - you are responsible that the histogram get allocated and destructed.
-* @subsection steps Register postprocessor
-* Steps that one has to take in order to have a custom build postprocessor
-* registered to the list of postprocessors:
-* - add your number to the above list an shortly describe what the postprocessor
-*   will be doing.
-* - add a describtive enum to the id_t enum
-* - add your postprossor in the switch statement of cass::PostProcessors::create
-*   - if the Object you are writing is responsible for more than one postprocessor
-*     just follow the example of the last pnccd processor(pp1).
-* @subsection doc Documentation
-* Please document what your postprocessor does so that other people now what it does.
-* When documenting please use doxygen style as then your documentation will be available
-* on the webserver.
+@section add_pp Howto add custom postprocessors
+
+@subsection nec Things that a postprocessor needs to have
+
+Your postprocessor needs to have the following members
+- a constructor that takes the a reference to the histogram container and the processor id
+- overloaded void operator()(const cass::CASSEvent&) which gets called for each event
+- (optionaly you could have a pointer the histogram in the histogram container)
+- you are responsible that the histogram get allocated and destructed.
+
+@subsection steps Register postprocessor
+
+Steps that one has to take in order to have a custom build postprocessor registered to the list of postprocessors:
+- add your number to the above list an shortly describe what the postprocessor
+will be doing.
+- add a describtive enum to the id_t enum
+- add your postprossor in the switch statement of cass::PostProcessors::create
+- if the Object you are writing is responsible for more than one postprocessor
+just follow the example of the last pnccd processor(pp1).
+
+@subsection doc Documentation
+
+Please document what your postprocessor does so that other people now what it does. When documenting
+please use doxygen style as then your documentation will be available on the webserver.
 */
-    class CASSSHARED_EXPORT PostProcessors : public QObject
+class CASSSHARED_EXPORT PostProcessors : public QObject
 {
     Q_OBJECT;
 
@@ -413,7 +434,7 @@ protected:
     @param[in] hs reference to the histogram container
     @param[in] id the id of the postprocessor
     */
-    PostprocessorBackend * create(histograms_t &hs, id_t id);
+    PostprocessorBackend * create(id_t id);
 
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();

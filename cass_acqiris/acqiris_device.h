@@ -35,7 +35,7 @@ namespace cass
 
     public:
       /** will serialize all channels to Serializer*/
-      virtual void serialize(cass::Serializer &) const;
+      virtual void serialize(cass::Serializer &);
       /** will deserialize all channels from the Serializer*/
       virtual void deserialize(cass::Serializer &);
 
@@ -77,7 +77,7 @@ namespace cass
 
     public:
       /** will serialize all channels to Serializer*/
-      virtual void serialize(cass::Serializer &) const;
+      virtual void serialize(cass::Serializer &);
       /** will deserialize all channels from the Serializer*/
       virtual void deserialize(cass::Serializer &);
 

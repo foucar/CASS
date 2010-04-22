@@ -27,7 +27,7 @@ cass::CASSEvent::~CASSEvent()
     delete (it->second);
 }
 
-void cass::CASSEvent::serialize(cass::Serializer& out)const
+void cass::CASSEvent::serialize(cass::Serializer& out)
 {
   //the version//
   out.addUint16(_version);

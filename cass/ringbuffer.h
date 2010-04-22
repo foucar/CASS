@@ -3,25 +3,32 @@
 #ifndef _RINGBUFFER_H
 #define _RINGBUFFER_H
 
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
-
-#include <algorithm>
+#include <QMutex>
+#include <QWaitCondition>
 #include <iostream>
 #include <iomanip>
 #include <vector>
+#include <algorithm>
 
 namespace cass
 {
-  /** A Ringbuffer.
-   * The Ringbuffers Elements will be created on the Heap.
+  /** A Ringbuffer, handles communication between Input and Worker Threads.
+   * The ringbuffer handles the main communication between the single producer
+   * (shared memory input) and the multiple consumers (worker).
+   * It is designed in such a way, that in the nonblocking case, the consumers
+   * do not block the producer from putting new entries into the ringbuffer.
+   * If the producers velocity in filling the buffer varies, then this buffer
+   * will make sure, that it can be faster than the consumers. When the producer
+   * fills elements slower than the consumers consume them, then the consumers
+   * can consume the elements that have already been put into the buffer.
+   * They will do this by going backwards through the buffer from the last
+   * element that the producer has put into the buffer.
+   * The ringbuffers' elements will be created on the Heap.
    * @note can we create the ringbuffer to have the blockable / nonblockable property
    *       already at compile time?
    * @tparam T Element typ
    * @tparam cap Capacity of the ringbuffer
    * @author Lutz Foucar
-
-  @todo Change to English variable names
    */
   template <typename T, size_t cap>
   class RingBuffer
@@ -44,7 +51,7 @@ namespace cass
         gefuellt(false),
         inBearbeitung(false)
       {}
-      /** Comparison of two elements.
+      /** Comparison an element with the element of the Element.
        * Two Ringbuffers are the same only when their elements type and
        * capacity are equal
        */
@@ -293,17 +300,21 @@ namespace cass
       //create a lock//
       QMutexLocker lock(&_mutex);
       //find the iterator that points to the element that the user wants to submit//
+//      iterator_t iElement =
+//          std::find(_buffer.begin(),_buffer.end(),element);
+
       iterator_t iElement = _buffer.begin();
       for ( ; iElement != _buffer.end() ; ++iElement)
         if (iElement->element == element)
           break;
+//      *iElement == element;
       //set its flags according to its state//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = true;
       iElement->gefuellt      = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-//      lock.unlock();
+      lock.unlock();
       _fillcondition.wakeOne();
     }
 
@@ -435,7 +446,7 @@ namespace cass
       iElement->inBearbeitung = false;
       //notify the waiting condition that something new is in the buffer//
       //we need to unlock the lock before//
-//      lock.unlock();
+      lock.unlock();
       _fillcondition.wakeOne();
     }
 
@@ -452,14 +463,3 @@ namespace cass
   };
 }
 #endif
-
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 2))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:

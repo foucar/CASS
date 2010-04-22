@@ -24,7 +24,7 @@ namespace cass
       const cass::CCDDetector &detector()const  {return _detector;}
       cass::CCDDetector &detector()             {return _detector;}
 
-      void serialize(cass::Serializer&)const;
+      void serialize(cass::Serializer&);
       void deserialize(cass::Serializer&);
 
     private:
@@ -34,7 +34,7 @@ namespace cass
 }
 
 
-inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)const
+inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)
 {
   //the version//
   out.addUint16(_version);

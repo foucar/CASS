@@ -51,7 +51,7 @@ namespace cass
 
     public:
       /** serialize the device to the serializer*/
-      void serialize(cass::Serializer&)const;
+      void serialize(cass::Serializer&);
       /** deserialize the device from the serializer*/
       void deserialize(cass::Serializer&);
 
@@ -86,7 +86,7 @@ namespace cass
   }//end namespace machinedata
 }//end namespace cass
 
-inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &out) const
+inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &out)
 {
   //the version//
   out.addUint16(_version);

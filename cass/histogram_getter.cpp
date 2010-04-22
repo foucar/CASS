@@ -12,23 +12,36 @@ using namespace cass;
 
 const std::string HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-    Serializer serializer;
+    // check out histograms storage map
+    PostProcessors *pp(PostProcessors::instance());
+    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+    // make sure the requested histogram is valid
+    if(! pp->valid(hp.type))
+        throw std::runtime_error(QString("histogram %1 not valid for serialization").arg(hp.type).toStdString());
     // serialize the wanted histogram using the serializer
-    PostProcessors::histograms_t::const_iterator iter(PostProcessors::instance()->histograms_checkout().find(hp.type));
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    Serializer serializer;
     iter->second->serialize(serializer);
-    PostProcessors::instance()->histograms_release();
-    //return the buffer (std::string) of the serializer
+    // release and return
+    pp->histograms_release();
     return serializer.buffer();
 }
 
 
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
-    // get an iterator to the requested histogram
-    PostProcessors::histograms_t::const_iterator iter(PostProcessors::instance()->histograms_checkout().find(hp.type));
-    PostProcessors::instance()->histograms_release();
-    // and return the QImage of that histogram
-    return dynamic_cast<Histogram2DFloat *>(iter->second)->qimage();
+    // check out histograms storage map
+    PostProcessors *pp(PostProcessors::instance());
+    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+    // make sure the requested histogram is valid
+    if(! pp->valid(hp.type))
+        throw std::runtime_error(QString("histogram %1 not valid for serialization").arg(hp.type).toStdString());
+    // create the image
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    // create the QImage, release, return
+    QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
+    pp->histograms_release();
+    return qi;
 }
 
 

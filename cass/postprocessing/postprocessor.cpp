@@ -28,9 +28,13 @@ QMutex PostProcessors::_mutex;
 // create an instance of the singleton
 PostProcessors *PostProcessors::instance()
 {
+    static int n(0), create(0);
+    std::cerr << "PostProcessors::instance -- call " << ++n << std::endl;
     QMutexLocker locker(&_mutex);
-    if(0 == _instance)
+    if(0 == _instance) {
+        std::cerr << "PostProcessors::instance -- create " << ++create << std::endl;
         _instance = new PostProcessors();
+    }
     return _instance;
 }
 
@@ -125,7 +129,7 @@ void PostProcessors::setup()
         if(_postprocessors.end() == _postprocessors.find(*iter)) {
             // create postprocessor
             _histograms[*iter] = 0;
-            _postprocessors[*iter] = create(_histograms, *iter);
+            _postprocessors[*iter] = create(*iter);
             // check for dependencies; if there are any open dependencies put all of them in front
             // of us
             bool update(false);
@@ -151,18 +155,19 @@ void PostProcessors::setup()
 }
 
 
-PostprocessorBackend * PostProcessors::create(histograms_t &hs, id_t id)
+PostprocessorBackend * PostProcessors::create(id_t id)
 {
     PostprocessorBackend * processor(0);
     switch(id) {
     case Pnccd1LastImage:
     case Pnccd2LastImage:
-        processor = new pp1(hs, id);
+        processor = new pp1(*this, id);
         break;
     case Pnccd1BinnedRunningAverage:
     case Pnccd1BackgroundCorrectedBinnedRunnngAverage:
-        processor = new pp101(hs, id);
+        processor = new pp101(*this, id);
         break;
+/*
     case CampChannel00LastWaveform:
     case CampChannel01LastWaveform:
     case CampChannel02LastWaveform:
@@ -183,7 +188,7 @@ PostprocessorBackend * PostProcessors::create(histograms_t &hs, id_t id)
     case CampChannel17LastWaveform:
     case CampChannel18LastWaveform:
     case CampChannel19LastWaveform:
-        processor = new pp4(hs,id);
+        processor = new pp4(*this,id);
         break;
     case CampChannel00AveragedWaveform:
     case CampChannel01AveragedWaveform:
@@ -205,7 +210,7 @@ PostprocessorBackend * PostProcessors::create(histograms_t &hs, id_t id)
     case CampChannel17AveragedWaveform:
     case CampChannel18AveragedWaveform:
     case CampChannel19AveragedWaveform:
-        processor = new pp500(hs,id);
+        processor = new pp500(*this,id);
         break;
     case HexMCPNbrSignals:
     case QuadMCPNbrSignals:
@@ -306,6 +311,7 @@ PostprocessorBackend * PostProcessors::create(histograms_t &hs, id_t id)
     case QuadHeightvsFwhmY2:
         processor = new pp582(hs,id);
         break;
+*/
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }

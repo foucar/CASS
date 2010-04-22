@@ -21,7 +21,7 @@ class pp1 : public PostprocessorBackend
 {
 public:
 
-    pp1(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp1(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image spcae */
     virtual ~pp1();
@@ -48,7 +48,7 @@ class pp3 : public PostprocessorBackend
 {
 public:
 
-    pp3(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp3(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image spcae */
     virtual ~pp3();
@@ -80,7 +80,7 @@ class pp101 : public PostprocessorBackend
 {
 public:
 
-    pp101(PostProcessors::histograms_t& hist, PostProcessors::id_t id);
+    pp101(PostProcessors& hist, PostProcessors::id_t id);
 
     /** Free _image spcae */
     virtual ~pp101();
@@ -115,7 +115,7 @@ class pp141 : public PostprocessorBackend
 {
 public:
 
-    pp141(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp141(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image space */
     virtual ~pp141();

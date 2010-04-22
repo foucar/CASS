@@ -70,7 +70,7 @@ void cass::Worker::waitUntilSuspended()
 
 void cass::Worker::run()
 {
-  std::cout << "worker \""<<std::hex<<this<<std::dec <<"\" is starting"<<std::endl;
+  std::cout << "worker \""<<this <<"\" is starting"<<std::endl;
   //a pointer that we use//
   cass::CASSEvent *cassevent=0;
   //run als long as we are told not to stop//
@@ -156,11 +156,18 @@ cass::Workers::~Workers()
 
 void cass::Workers::loadSettings(size_t what)
 {
+  //make sure there is at least one worker//
+  if(_workers.empty())
+    throw std::bad_exception();
+  //lock this from here on, so that it is reentrant
+  QMutexLocker lock(&_mutex);
   std::cout << "Workers: Load Settings: suspend all workers before laoding settings"
       <<std::endl;
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilSuspended();
   std::cout << "Workers: Load Settings: Workers are suspend. Load Settings of one Worker,"
       <<" which shares all settings."<<std::endl;
   //load the settings of one worker//
@@ -190,6 +197,9 @@ void cass::Workers::end()
   //tell all workers that they should quit//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
+  //wait until we run has really finished
+  for (size_t i=0;i<_workers.size();++i)
+  _workers[i]->wait();
   //emit that all workers are finished//
   emit finished();
 }

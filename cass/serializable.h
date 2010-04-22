@@ -27,7 +27,7 @@ namespace cass
     /** pure virtual function that needs to be defined by the derived class.
      * will serialize an object to the Serializer class
      */
-    virtual void serialize(cass::Serializer&)const=0;
+    virtual void serialize(cass::Serializer&)=0;
     /** pure virtual function that needs to be defined by the derived class.
      * will deserialize an object from the Serializer class
      */
