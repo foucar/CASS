@@ -33,15 +33,14 @@ int main(int argc, char *argv[])
             cout << "quit server return value: 'true'" << endl;
         else
             cout << "quit server return value is 'false'" << endl;
-    } else {
+    } else if(0 == QString(argv[2]).toInt()) {
         // reread CASS.ini
         cass.readini(0, &ret);
         if(ret)
             cout << "readini server return value: 'true'" << endl;
         else
             cout << "readini server return value is 'false'" << endl;
-        // wait a moment for the server to update
-        usleep(100);
+    } else {
         // get an image
         cass.getImage(2, QString(argv[2]).toInt(), &ret);
         if(ret)
