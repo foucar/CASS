@@ -111,8 +111,7 @@ protected:
     * @param ver The version for de / serializing.
     */
     explicit HistogramBackend(size_t dim, uint16_t ver)
-        : Serializable(ver), _dimension(dim), _nbrOfFills(0),
-        lock(QReadWriteLock::Recursive)
+        : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
     {};
 
     /** destructor.
