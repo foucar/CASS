@@ -12,8 +12,18 @@
 
 namespace cass
 {
-  /** A Ringbuffer.
-   * The Ringbuffers Elements will be created on the Heap.
+  /** A Ringbuffer, handles communication between Input and Worker Threads.
+   * The ringbuffer handles the main communication between the single producer
+   * (shared memory input) and the multiple consumers (worker).
+   * It is designed in such a way, that in the nonblocking case, the consumers
+   * do not block the producer from putting new entries into the ringbuffer.
+   * If the producers velocity in filling the buffer varies, then this buffer
+   * will make sure, that it can be faster than the consumers. When the producer
+   * fills elements slower than the consumers consume them, then the consumers
+   * can consume the elements that have already been put into the buffer.
+   * They will do this by going backwards through the buffer from the last
+   * element that the producer has put into the buffer.
+   * The ringbuffers' elements will be created on the Heap.
    * @note can we create the ringbuffer to have the blockable / nonblockable property
    *       already at compile time?
    * @tparam T Element typ
