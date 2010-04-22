@@ -143,7 +143,7 @@ namespace cass
     /** setter*/
     size_t  &nbrOfFills()      {return _nbrOfFills;}
     //@{
-    /** getters*/
+    /** getter*/
     size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
@@ -229,7 +229,7 @@ namespace cass
     value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
     /*! Maximum value in current histogram */
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
-    /** return \p to our mutex.
+    /** return pointer to our mutex.
      * when having the memory one can lock operations on it from outside here
      * @return pointer to mutex
      */
@@ -249,7 +249,7 @@ namespace cass
      */
     storage_t _memory;
     /** Mutex to lock write operations on the memory*/
-    QMutex _mutex;
+    mutable QMutex _mutex;
     /** flag to tell whether histogram needs to only be filled when serialized*/
     bool _fillwhenserialized;
     /** flag to signal the postprocessor to fill the histogram*/
