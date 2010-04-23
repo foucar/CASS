@@ -169,7 +169,6 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case Pnccd1BackgroundCorrectedBinnedRunnngAverage:
         processor = new pp101(*this, id);
         break;
-/*
     case CampChannel00LastWaveform:
     case CampChannel01LastWaveform:
     case CampChannel02LastWaveform:
@@ -220,7 +219,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case IntensityMonitorNbrSignals:
     case YAGPhotodiodeNbrSignals:
     case FsPhotodiodeNbrSignals:
-        processor = new pp550(hs,id);
+        processor = new pp550(*this, id);
         break;
     case HexU1NbrSignals:
     case HexU2NbrSignals:
@@ -232,14 +231,14 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadX2NbrSignals:
     case QuadY1NbrSignals:
     case QuadY2NbrSignals:
-        processor = new pp551(hs,id);
+        processor = new pp551(*this, id);
         break;
     case HexU1U2Ratio:
     case HexV1V2Ratio:
     case HexW1W2Ratio:
     case QuadX1X2Ratio:
     case QuadY1Y2Ratio:
-        processor = new pp557(hs,id);
+        processor = new pp557(*this, id);
         break;
     case HexU1McpRatio:
     case HexU2McpRatio:
@@ -251,11 +250,11 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadX2McpRatio:
     case QuadY1McpRatio:
     case QuadY2McpRatio:
-        processor = new pp558(hs,id);
+        processor = new pp558(*this, id);
         break;
     case HexRekMcpRatio:
     case QuadRekMcpRatio:
-        processor = new pp566(hs,id);
+        processor = new pp566(*this, id);
         break;
     case HexAllMcp:
     case QuadAllMcp:
@@ -263,27 +262,27 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case IntensityMonitorAllMcp:
     case YAGPhotodiodeAllMcp:
     case FsPhotodiodeAllMcp:
-        processor = new pp567(hs,id);
+        processor = new pp567(*this, id);
         break;
     case HexTimesumU:
     case HexTimesumV:
     case HexTimesumW:
     case QuadTimesumX:
     case QuadTimesumY:
-        processor = new pp568(hs,id);
+        processor = new pp568(*this, id);
         break;
     case HexTimesumUvsU:
     case HexTimesumVvsV:
     case HexTimesumWvsW:
     case QuadTimesumXvsX:
     case QuadTimesumYvsY:
-        processor = new pp571(hs,id);
+        processor = new pp571(*this, id);
         break;
     case HexFirstUV:
     case HexFirstUW:
     case HexFirstVW:
     case QuadFirstXY:
-        processor = new pp574(hs,id);
+        processor = new pp574(*this, id);
         break;
     case HexXY:
     case HexXT:
@@ -291,7 +290,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadXY:
     case QuadXT:
     case QuadYT:
-        processor = new pp578(hs,id);
+        processor = new pp578(*this, id);
         break;
     case HexHeightvsFwhmMcp:
     case QuadHeightvsFwhmMcp:
@@ -299,7 +298,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case IntensityMonitorHeightvsFwhmMcp:
     case YAGPhotodiodeHeightvsFwhmMcp:
     case FsPhotodiodeHeightvsFwhmMcp:
-        processor = new pp581(hs,id);
+        processor = new pp581(*this, id);
         break;
     case HexHeightvsFwhmU1:
     case HexHeightvsFwhmU2:
@@ -311,9 +310,8 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadHeightvsFwhmX2:
     case QuadHeightvsFwhmY1:
     case QuadHeightvsFwhmY2:
-        processor = new pp582(hs,id);
+        processor = new pp582(*this, id);
         break;
-*/
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }
