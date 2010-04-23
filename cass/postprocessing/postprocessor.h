@@ -6,6 +6,8 @@
 
 #include <list>
 #include <map>
+#include <sstream>
+#include <stdexcept>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -18,6 +20,33 @@ namespace cass
 class CASSEvent;
 class PostprocessorBackend;
 class HistogramBackend;
+
+
+
+/** Exception thrown when accessing invalid histograms
+
+@author Jochen Küpper
+*/
+class InvalidHistogramError : public std::out_of_range
+{
+public:
+
+    InvalidHistogramError(size_t id)
+        : std::out_of_range("Invalid histogram requested!"), _id(id)
+        {};
+
+    virtual const char* what() const throw() {
+        std::ostringstream msg;
+        msg << "Invalid histogram " << _id << " requested!";
+        return msg.str().c_str();
+    };
+
+
+protected:
+
+    size_t _id;
+};
+
 
 
 /** @brief container and call handler for all registered postprocessors
@@ -385,21 +414,27 @@ public:
     /*! release read-lock for histograms container */
     void histograms_release() { _histlock.unlock(); };
 
+    /*! Replaqce histogram in storage
+
+    @param type Histogram to replace
+    @param hist New histogram to store
+    */
+    void histograms_delete(id_t type) { _histlock.lockForWrite(); _delete(type); _histlock.unlock(); };
+
     /*! Remove histogram from storage
 
     @param type Histogram to remove
     */
-    void histograms_delete(id_t type);
+    void histograms_replace(id_t type, HistogramBackend *hist) {
+        _histlock.lockForWrite(); _replace(type, hist);_histlock.unlock(); };
 
-    /*! Remove histogram from storage
+    /** make sure a specific histogram exists and is not 0
 
-    @param type Histogram to remove
+    This requires that locking is done outside!
     */
-    void histograms_replace(id_t type, HistogramBackend *hist);
-
-    /** make sure a specific histogram exists and is not 0 */
-    bool valid(id_t type) {
-        return (_histograms.end() != _histograms.find(type)) && (0 != _histograms[type]);
+    void validate(id_t type) {
+        if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
+            throw InvalidHistogramError(type);
     };
 
 
@@ -439,6 +474,23 @@ protected:
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();
 
+    /*! Internal method to actually remove histogram from storage
+
+    This requires that locking is done outside!
+
+    @param type Histogram to remove
+    */
+    void _delete(id_t type);
+
+    /*! Internal method to actually replace histogram from storage
+
+    This requires that locking is done outside!
+
+    @param type Histogram to replace
+    @param hist New histogram to store
+    */
+    void _replace(id_t type, HistogramBackend *hist);
+
     /** histogram container lock */
     QReadWriteLock _histlock;
 
@@ -462,6 +514,12 @@ private:
     /** Singleton operation locker */
     static QMutex _mutex;
 };
+
+
+
+
+
+
 
 } // namespace cass
 

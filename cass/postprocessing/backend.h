@@ -23,7 +23,7 @@ public:
         : _id(id), _pp(pp)
     {}
 
-    virtual ~PostprocessorBackend() {}
+    virtual ~PostprocessorBackend() { }
 
     virtual void operator()(const CASSEvent&) = 0;
 
@@ -40,18 +40,22 @@ public:
 protected:
 
     /** @return histogram of the actual postprocessor we call this for */
-    virtual HistogramBackend *histogram() { return histogram(_id); };
+    virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_id); };
 
     /** @overload
 
     @return histogram of the requested postprocessor */
-    virtual HistogramBackend *histogram(PostProcessors::id_t id) {
-        if(_pp.valid(id)) {
+    virtual HistogramBackend *histogram_checkout(PostProcessors::id_t id) {
+        try {
             PostProcessors::histograms_t hist(_pp.histograms_checkout());
+            _pp.validate(id);
             return hist[id];
+        } catch (InvalidHistogramError *) {
+            return 0;
         }
-        return 0;
     };
+
+    void histogram_release() { _pp.histograms_release(); };
 
     // the postprocessors id (see post_processor.h for an list of ids)//
     PostProcessors::id_t _id;
@@ -69,7 +73,7 @@ protected:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
 // c-file-style: "Stroustrup"
+// c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

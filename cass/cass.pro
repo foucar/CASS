@@ -119,42 +119,42 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
-	    soapCASSsoapService.cpp \
-            soapC.cpp \
-      tcpserver.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
+	    soapCASSsoapService.cpp \
+            soapC.cpp \
+	    tcpserver.cpp
 
 HEADERS +=  analysis_backend.h \
+            analyzer.h \
             cass.h \
             cass_event.h \
+            ccd_detector.h \
             conversion_backend.h \
-            sharedmemory_input.h \
-            analyzer.h \
+            daemon.h \
+            event_getter.h \
             format_converter.h \
             histogram.h \
             histogram_getter.h \
-            xtciterator.h \
             ratemeter.h \
             ringbuffer.h \
-            ccd_detector.h \
-            worker.h \
-            daemon.h \
-            event_getter.h \
+            rate_plotter.h \
             serializable.h \
             serializer.h \
-            rate_plotter.h \
-            ./postprocessing/postprocessor.h \
-            ./postprocessing/backend.h \
-            ./postprocessing/ccd.h \
-            ./postprocessing/alignment.h \
-            ./postprocessing/imaging.h \
+            sharedmemory_input.h \
             soapCASSsoapService.h \
             soapH.h \
             soapStub.h \
             tcpserver.h \
-            ./postprocessing/waveform.h \
+            worker.h \
+            xtciterator.h \
+            ./postprocessing/postprocessor.h \
             ./postprocessing/acqiris_detectors.h \
+            ./postprocessing/alignment.h \
+            ./postprocessing/backend.h \
+            ./postprocessing/ccd.h \
+            ./postprocessing/imaging.h \
+            ./postprocessing/waveform.h
 
 INCLUDEPATH   += postprocessing \
                  ../cass_acqiris \

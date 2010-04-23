@@ -5,15 +5,15 @@
 #include <QtCore/QSettings>
 
 #include <cassert>
-#include <stdexcept>
 #include <algorithm>
 #include <iostream>
 
-#include "postprocessing/postprocessor.h"
-#include "postprocessing/ccd.h"
-#include "postprocessing/waveform.h"
-#include "postprocessing/alignment.h"
 #include "acqiris_detectors.h"
+#include "histogram.h"
+#include "postprocessing/ccd.h"
+#include "postprocessing/alignment.h"
+#include "postprocessing/postprocessor.h"
+#include "postprocessing/waveform.h"
 
 
 namespace cass
@@ -95,26 +95,20 @@ void PostProcessors::loadSettings(size_t)
 
 
 
-void PostProcessors::histograms_delete(id_t type)
+void PostProcessors::_delete(id_t type)
 {
-    _histlock.lockForWrite();
-    /** @todo is this correct?*/
-    //in case the histogram is not on the list,
-    //this will return 0, so we can savely delete the pointer//
-//    HistogramBackend *hist = _histograms[type];
-//    delete hist;
-    _histograms.erase(type);
-    _histlock.unlock();
+    histograms_t::iterator iter(_histograms.find(type));
+    HistogramBackend *hist(iter->second);
+    _histograms.erase(iter);
+    delete hist;
 }
 
 
 
-void PostProcessors::histograms_replace(id_t type, HistogramBackend *hist)
+void PostProcessors::_replace(id_t type, HistogramBackend *hist)
 {
-    histograms_delete(type);
-    _histlock.lockForWrite();
+    _delete(type);
     _histograms.insert(std::make_pair(type, hist));
-    _histlock.unlock();
 }
 
 
@@ -124,8 +118,11 @@ void PostProcessors::setup()
     using namespace std;
     // delete all unused PostProcessors
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-        if(_active.end() != find(_active.begin(), _active.end(), iter->first))
+        if(_active.end() != find(_active.begin(), _active.end(), iter->first)) {
+            PostprocessorBackend *pp(iter->second);
             _postprocessors.erase(iter);
+            delete pp;
+        }
     // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
     // the postprocessor correctly initialize it whenever it wants to
     list<id_t>::iterator iter(_active.begin());

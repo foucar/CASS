@@ -15,9 +15,7 @@ const std::string HistogramGetter::operator()(const HistogramParameter& hp) cons
     // check out histograms storage map
     PostProcessors *pp(PostProcessors::instance());
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
-    // make sure the requested histogram is valid
-    if(! pp->valid(hp.type))
-        throw std::runtime_error(QString("histogram %1 not valid for serialization").arg(hp.type).toStdString());
+    pp->validate(hp.type);
     // serialize the wanted histogram using the serializer
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
     Serializer serializer;
@@ -34,8 +32,7 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     PostProcessors *pp(PostProcessors::instance());
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
     // make sure the requested histogram is valid
-    if(! pp->valid(hp.type))
-        throw std::runtime_error(QString("histogram %1 not valid for serialization").arg(hp.type).toStdString());
+    pp->validate(hp.type);
     // create the image
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
     // create the QImage, release, return

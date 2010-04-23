@@ -30,6 +30,7 @@ namespace cass
 class CASSSHARED_EXPORT AxisProperty : public Serializable
 {
 public:
+
     /** Constructor.
     * will set the properties in the initializtion list. Will also set the version
     * for the de / serialization.
@@ -105,6 +106,7 @@ class CASSSHARED_EXPORT HistogramBackend
     : public Serializable
 {
 protected:
+
     /** constructor.
     * initializing the properties and sets the Serialization version
     * @param dim the Dimension of the histogram ie. 1d,2d
@@ -114,13 +116,13 @@ protected:
         : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
     {};
 
+public:
+
     /** destructor.
 
     virtual destructor, since it is a baseclass. Does nothing
     */
     virtual ~HistogramBackend() {};
-
-public:
 
     /** Read-write lock for internal memory/data
 
@@ -186,9 +188,6 @@ protected:
     //!< how many times has this histogram been filled
     size_t    _nbrOfFills;
 };
-
-
-
 
 
 
@@ -687,7 +686,7 @@ inline Histogram1DFloat Histogram2DFloat::reduce(Histogram2DFloat::Axis axis) co
 // Local Variables:
 // coding: utf-8
 // mode: C++
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
 // fill-column: 100
 // End:
