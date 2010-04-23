@@ -29,13 +29,17 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 
 
-SOURCES       += jocassview_cli.cpp \
+SOURCES       += jocassview.cpp \
+		 imageviewer.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 
 HEADERS       += soapH.h \
+		 imageviewer.h \
                  soapCASSsoapProxy.h \
                  soapStub.h
+
+FORMS         += imageviewer.ui
 
 LIBS          += -lgsoap++ -lgsoap
 
