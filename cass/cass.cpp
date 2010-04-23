@@ -149,6 +149,7 @@
  * @todo right now we cannot define a postprocessors dependency on the
  *       converter that it needs. We need to include this dependency.
  *       Maybe using cass.ini?
+ * @todo implement that we can use conditions.
  */
 
 /** \page casslicense License
