@@ -63,7 +63,7 @@ class SoapServer : public QThread
 public:
 
     /** create the instance if not it does not exist already */
-    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist);
+    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist, size_t port=12321);
 
     /** destroy the instance */
     static void destroy();
@@ -109,15 +109,15 @@ protected:
     static const size_t _backlog;
 
     /** server port */
-    static const size_t _port;
+    const size_t _port;
 
 
 private:
 
     /** Constructor */
-    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0)
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, size_t port, QObject *parent=0)
         : QThread(parent), get_event(event), get_histogram(hist),
-          _soap(new CASSsoapService)
+          _soap(new CASSsoapService), _port(port)
         {};
 
     /** Disabled constructor */
@@ -153,7 +153,7 @@ private:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
 // c-file-style: "Stroustrup"
+// c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

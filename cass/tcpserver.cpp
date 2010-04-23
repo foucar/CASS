@@ -19,7 +19,6 @@ namespace cass
 SoapServer *SoapServer::_instance(0);
 QMutex SoapServer::_mutex;
 const size_t SoapServer::_backlog(100);
-const size_t SoapServer::_port(12321);
 
 
 
@@ -32,11 +31,11 @@ void SoapHandler::run()
 
 
 
-SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist)
+SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist, size_t port)
 {
     QMutexLocker locker(&_mutex);
     if(0 == _instance)
-        _instance = new SoapServer(event, hist);
+        _instance = new SoapServer(event, hist, port);
     return _instance;
 }
 

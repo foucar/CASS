@@ -108,6 +108,9 @@
  *
  * @section cred Credits
  * @par Authors:
+ *
+ * @see AUTHORS file in distribution for details
+ *
  * Nicola Coppola
  * - depreciated cass_database
  * - depreciated cass_dictionary
@@ -185,14 +188,19 @@ int main(int argc, char **argv)
   //create a container for the partition tag
   int c;
   char partitionTag[128];
+  // SOAP server port (default: 12321)
+  size_t soap_port(12321);
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:")) != -1)
+  while((c = getopt(argc, argv, "p:s:")) != -1)
   {
     switch (c)
     {
       case 'p':
         strcpy(partitionTag, optarg);
+        break;
+      case 's':
+        soap_port = strtol(optarg, 0, 0);
         break;
       default:
         std::cout << "please give me a partition tag" <<std::endl;
@@ -241,12 +249,10 @@ int main(int argc, char **argv)
   input->start();
 
   // TCP/SOAP server
-  // tell the server how to get an id or histogram
   cass::EventGetter get_event(ringbuffer);
   cass::HistogramGetter get_histogram;
-  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram));
+  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
   server->start();
-  // setup the connections
   QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
   QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
@@ -275,7 +281,7 @@ int main(int argc, char **argv)
 // Local Variables:
 // coding: utf-8
 // mode: C++
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
 // fill-column: 100
 // End:
