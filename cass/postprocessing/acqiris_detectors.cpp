@@ -26,11 +26,8 @@ namespace cass
    */
   void set1DHist(cass::Histogram1DFloat*& hist, size_t id)
   {
-    //delete old histogram//
-    delete hist;
     //open the settings//
     QSettings param;
-//    param.beginGroup("postprocessors");
     param.beginGroup(QString("processor_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
@@ -43,11 +40,8 @@ namespace cass
    */
   void set2DHist(cass::Histogram2DFloat*& hist, size_t id)
   {
-    //delete old histogram//
-    delete hist;
     //open the settings//
     QSettings param;
-//    param.beginGroup("postprocessors");
     param.beginGroup(QString("processor_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
@@ -81,6 +75,8 @@ namespace cass
    * This class will return the requested detector, which signals are going to
    * a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
    * can call it without knowing about it.
+   * @todo make sure that the detectors are protected from beeing written
+   *       while they are read from
    */
   class HelperAcqirisDetectors
   {
@@ -346,8 +342,8 @@ void cass::HelperAcqirisDetectors::loadParameters(size_t)
 
 //----------------Nbr of Peaks MCP---------------------------------------------
 //-----------pp550, pp600, pp650, pp660, pp670, pp680--------------------------
-cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp550::pp550(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _nbrSignals(0)
 {
   //find out which detector and Signal we should work on
@@ -374,10 +370,8 @@ cass::pp550::pp550(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp550::~pp550()
 {
-#warning Here we should lock the _histograms map
-    delete _nbrSignals;
-    _nbrSignals=0;
-    _histograms[_id] = _nbrSignals;
+  _pp.histograms_delete(_id);
+  _nbrSignals=0;
 }
 
 void cass::pp550::loadParameters(size_t)
@@ -387,7 +381,7 @@ void cass::pp550::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_nbrSignals,_id);
-  _histograms[_id] =  _nbrSignals;
+  _pp.histograms_replace(_id,_nbrSignals);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -408,8 +402,8 @@ void cass::pp550::operator()(const cass::CASSEvent &evt)
 
 //----------------Nbr of Peaks Anode-------------------------------------------
 //-----------pp551 - pp556 & pp601 - 604---------------------------------------
-cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp551::pp551(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _nbrSignals(0)
 {
   //find out which detector and Signal we should work on
@@ -446,10 +440,8 @@ cass::pp551::pp551(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp551::~pp551()
 {
-#warning Here we should lock the _histograms map
-  delete _nbrSignals;
+  _pp.histograms_delete(_id);
   _nbrSignals=0;
-  _histograms[_id] =  _nbrSignals;
 }
 
 void cass::pp551::loadParameters(size_t)
@@ -461,7 +453,7 @@ void cass::pp551::loadParameters(size_t)
       <<" wireend "<<_signal<<std::endl;
   //create the histogram
   set1DHist(_nbrSignals,_id);
-  _histograms[_id] =  _nbrSignals;
+  _pp.histograms_replace(_id,_nbrSignals);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -483,8 +475,8 @@ void cass::pp551::operator()(const cass::CASSEvent &evt)
 
 //----------------Ratio of Layers----------------------------------------------
 //-----------pp557, pp560, pp563, pp605, pp608---------------------------------
-cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp557::pp557(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _ratio(0)
 {
   //find out which detector and Signal we should work on
@@ -511,10 +503,8 @@ cass::pp557::pp557(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp557::~pp557()
 {
-#warning Here we should lock the _histograms map
-  delete _ratio;
+  _pp.histograms_delete(_id);
   _ratio=0;
-  _histograms[_id] =  _ratio;
 }
 
 void cass::pp557::loadParameters(size_t)
@@ -525,7 +515,7 @@ void cass::pp557::loadParameters(size_t)
       <<" layer "<<_layer<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
-  _histograms[_id] =  _ratio;
+  _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -550,8 +540,8 @@ void cass::pp557::operator()(const cass::CASSEvent &evt)
 
 //----------------Ratio of Signals vs. MCP-------------------------------------
 //-----------pp558-559, pp561-562, pp564-565, pp606-607, pp609-610-------------
-cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp558::pp558(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _ratio(0)
 {
   //find out which detector and Signal we should work on
@@ -588,10 +578,8 @@ cass::pp558::pp558(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp558::~pp558()
 {
-#warning Here we should lock the _histograms map
-  delete _ratio;
+  _pp.histograms_delete(_id);
   _ratio=0;
-  _histograms[_id] =  _ratio;
 }
 
 void cass::pp558::loadParameters(size_t)
@@ -603,7 +591,7 @@ void cass::pp558::loadParameters(size_t)
       <<" wireend "<<_wireend<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
-  _histograms[_id] =  _ratio;
+  _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -629,8 +617,8 @@ void cass::pp558::operator()(const cass::CASSEvent &evt)
 
 //----------------Ratio of rec. Hits vs. MCP Hits------------------------------
 //------------------------------pp566, pp611-----------------------------------
-cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp566::pp566(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _ratio(0)
 {
   //find out which detector and Signal we should work on
@@ -650,10 +638,8 @@ cass::pp566::pp566(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp566::~pp566()
 {
-#warning Here we should lock the _histograms map
-  delete _ratio;
+  _pp.histograms_delete(_id);
   _ratio=0;
-  _histograms[_id] =  _ratio;
 }
 
 void cass::pp566::loadParameters(size_t)
@@ -663,7 +649,7 @@ void cass::pp566::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_ratio,_id);
-  _histograms[_id] =  _ratio;
+  _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -690,8 +676,8 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
 
 //----------------MCP Hits (Tof)-----------------------------------------------
 //-------------pp567, pp612, pp651, pp661, pp671, pp681------------------------
-cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp567::pp567(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _tof(0)
 {
   //find out which detector and Signal we should work on
@@ -719,10 +705,8 @@ cass::pp567::pp567(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp567::~pp567()
 {
-#warning Here we should lock the _histograms map
-  delete _tof;
+  _pp.histograms_delete(_id);
   _tof=0;
-  _histograms[_id] =  _tof;
 }
 
 void cass::pp567::loadParameters(size_t)
@@ -732,7 +716,7 @@ void cass::pp567::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_tof,_id);
-  _histograms[_id] =  _tof;
+  _pp.histograms_replace(_id,_tof);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -762,8 +746,8 @@ void cass::pp567::operator()(const cass::CASSEvent &evt)
 
 //----------------Timesum for the layers---------------------------------------
 //-----------pp568-570, pp613-614----------------------------------------------
-cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp568::pp568(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _timesum(0)
 {
   //find out which detector and Signal we should work on
@@ -790,10 +774,8 @@ cass::pp568::pp568(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp568::~pp568()
 {
-#warning Here we should lock the _histograms map
-  delete _timesum;
+  _pp.histograms_delete(_id);
   _timesum=0;
-  _histograms[_id] =  _timesum;
 }
 
 void cass::pp568::loadParameters(size_t)
@@ -803,7 +785,7 @@ void cass::pp568::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set1DHist(_timesum,_id);
-  _histograms[_id] =  _timesum;
+  _pp.histograms_replace(_id,_timesum);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -828,8 +810,8 @@ void cass::pp568::operator()(const cass::CASSEvent &evt)
 
 //----------------Timesum vs Postition for the layers--------------------------
 //-----------pp571-573, pp615-616----------------------------------------------
-cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp571::pp571(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _timesumvsPos(0)
 {
   //find out which detector and Signal we should work on
@@ -856,10 +838,8 @@ cass::pp571::pp571(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp571::~pp571()
 {
-#warning Here we should lock the _histograms map
-  delete _timesumvsPos;
+  _pp.histograms_delete(_id);
   _timesumvsPos=0;
-  _histograms[_id] =  _timesumvsPos;
 }
 
 void cass::pp571::loadParameters(size_t)
@@ -869,7 +849,7 @@ void cass::pp571::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_timesumvsPos,_id);
-  _histograms[_id] =  _timesumvsPos;
+  _pp.histograms_replace(_id,_timesumvsPos);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -895,8 +875,8 @@ void cass::pp571::operator()(const cass::CASSEvent &evt)
 
 //----------------Detector First Hit-------------------------------------------
 //-----------pp574-577, pp617--------------------------------------------------
-cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp574::pp574(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _pos(0)
 {
   //find out which detector and Signal we should work on
@@ -921,10 +901,8 @@ cass::pp574::pp574(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp574::~pp574()
 {
-#warning Here we should lock the _histograms map
-  delete _pos;
+  _pp.histograms_delete(_id);
   _pos=0;
-  _histograms[_id] =  _pos;
 }
 
 void cass::pp574::loadParameters(size_t)
@@ -936,7 +914,7 @@ void cass::pp574::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_pos,_id);
-  _histograms[_id] =  _pos;
+  _pp.histograms_replace(_id,_pos);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -974,8 +952,8 @@ void cass::pp574::operator()(const cass::CASSEvent &evt)
 
 //----------------Detector Values----------------------------------------------
 //-----------pp578-580, pp61-620-----------------------------------------------
-cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp578::pp578(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _hist(0)
 
 {
@@ -1005,10 +983,8 @@ cass::pp578::pp578(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp578::~pp578()
 {
-#warning Here we should lock the _histograms map
-  delete _hist;
+  _pp.histograms_delete(_id);
   _hist=0;
-  _histograms[_id] =  _hist;
 }
 
 void cass::pp578::loadParameters(size_t)
@@ -1019,7 +995,7 @@ void cass::pp578::loadParameters(size_t)
       <<" of the reconstructed Detectorhits of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_hist,_id);
-  _histograms[_id] =  _hist;
+  _pp.histograms_replace(_id,_hist);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -1051,8 +1027,8 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
 
 //----------------MCP Fwhm vs. height------------------------------------------
 //-------------pp581, pp621, pp652, pp662, pp672, pp682------------------------
-cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp581::pp581(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _sigprop(0)
 {
   //find out which detector and Signal we should work on
@@ -1080,10 +1056,8 @@ cass::pp581::pp581(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp581::~pp581()
 {
-#warning Here we should lock the _histograms map
-  delete _sigprop;
+  _pp.histograms_delete(_id);
   _sigprop=0;
-  _histograms[_id] =  _sigprop;
 }
 
 void cass::pp581::loadParameters(size_t)
@@ -1093,7 +1067,7 @@ void cass::pp581::loadParameters(size_t)
       <<" of  detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_sigprop,_id);
-  _histograms[_id] =  _sigprop;
+  _pp.histograms_replace(_id,_sigprop);
   //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
@@ -1125,8 +1099,8 @@ void cass::pp581::operator()(const cass::CASSEvent &evt)
 
 //----------------FWHM vs. Height of Wireend Signals---------------------------
 //-----------pp582-587, pp622-625----------------------------------------------
-cass::pp582::pp582(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp582::pp582(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _sigprop(0)
 {
   //find out which detector and Signal we should work on
@@ -1163,10 +1137,8 @@ cass::pp582::pp582(PostProcessors::histograms_t &hist, PostProcessors::id_t id)
 
 cass::pp582::~pp582()
 {
-#warning Here we should lock the _histograms map
-  delete _sigprop;
+  _pp.histograms_delete(_id);
   _sigprop=0;
-  _histograms[_id] =  _sigprop;
 }
 
 void cass::pp582::loadParameters(size_t)
@@ -1177,8 +1149,8 @@ void cass::pp582::loadParameters(size_t)
       <<" of detector "<<_detector<<std::endl;
   //create the histogram
   set2DHist(_sigprop,_id);
-  _histograms[_id] =  _sigprop;
-  //load the detectors settings
+  _pp.histograms_replace(_id,_sigprop);
+    //load the detectors settings
   HelperAcqirisDetectors::instance(_detector)->loadParameters();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }

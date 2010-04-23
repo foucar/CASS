@@ -123,7 +123,7 @@ SOURCES +=  analyzer.cpp \
             soapC.cpp \
       tcpserver.cpp \
             ./postprocessing/waveform.cpp \
-            # ./postprocessing/acqiris_detectors.cpp \
+            ./postprocessing/acqiris_detectors.cpp \
 
 HEADERS +=  analysis_backend.h \
             cass.h \
@@ -154,7 +154,7 @@ HEADERS +=  analysis_backend.h \
             soapStub.h \
             tcpserver.h \
             ./postprocessing/waveform.h \
-            # ./postprocessing/acqiris_detectors.h \
+            ./postprocessing/acqiris_detectors.h \
 
 INCLUDEPATH   += postprocessing \
                  ../cass_acqiris \
