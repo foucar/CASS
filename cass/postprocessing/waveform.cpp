@@ -13,10 +13,9 @@
 #include "acqiris_device.h"
 
 
-//the last wavefrom copier
-cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
-  _channel(300),
+//the last wavefrom postprocessor
+cass::pp4::pp4(cass::PostProcessors &pp, cass::PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
   _waveform(0)
 {
   using namespace cass::ACQIRIS;
@@ -50,9 +49,8 @@ cass::pp4::pp4(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::i
 
 cass::pp4::~pp4()
 {
-#warning Here we should lock the _histograms map
-    delete _waveform;
-    _waveform=0;
+  _pp.histograms_delete(_id);
+  _waveform=0;
 }
 
 void cass::pp4::operator()(const cass::CASSEvent &cassevent)
@@ -82,6 +80,8 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   const Channel &channel = instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
+  //from here on only one thread should work at a time//
+  QMutexLocker lock(&_mutex);
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of//
   //this channel//
@@ -91,16 +91,15 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
         new Histogram1DFloat(waveform.size(),
                              0,
                              channel.fullscale()*channel.sampleInterval());
-    _histograms[_id] = _waveform;
+    _pp.histograms_replace(_id,_waveform);
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-#warning Here we should lock the _histograms map
-      delete _waveform;
-      _waveform = new Histogram1DFloat(waveform.size(),
-                                       0,
-                                       channel.fullscale()*channel.sampleInterval());
-      _histograms[_id] = _waveform;
+    _pp.histograms_delete(_id);
+    _waveform = new Histogram1DFloat(waveform.size(),
+                                     0,
+                                     channel.fullscale()*channel.sampleInterval());
+    _pp.histograms_replace(_id,_waveform);
   }
   //copy the waveform to our storage histogram
   _waveform->lock.lockForWrite();
@@ -146,8 +145,8 @@ namespace cass
 }
 
 //the average waveform creator//
-cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessors::id_t id)
-  :cass::PostprocessorBackend(hist,id),
+cass::pp500::pp500(cass::PostProcessors &ppc, cass::PostProcessors::id_t id)
+  :cass::PostprocessorBackend(ppc,id),
   _waveform(0)
 {
   using namespace cass::ACQIRIS;
@@ -182,9 +181,8 @@ cass::pp500::pp500(cass::PostProcessors::histograms_t &hist, cass::PostProcessor
 
 cass::pp500::~pp500()
 {
-#warning Here we should lock the _histograms map
-    delete _waveform;
-    _waveform=0;
+  _pp.histograms_delete(_id);
+  _waveform=0;
 }
 
 void cass::pp500::loadParameters(size_t)
@@ -224,6 +222,8 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const Channel &channel =instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
   const Channel::waveform_t &waveform = channel.waveform();
+  //from here on only one thread should work at a time//
+  QMutexLocker lock(&_mutex);
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of //
   //this channel//
@@ -233,24 +233,25 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
         new Histogram1DFloat(waveform.size(),
                              0,
                              channel.fullscale()*channel.sampleInterval());
-    _histograms[_id] = _waveform;
+    _pp.histograms_replace(_id,_waveform);
   }
   else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-#warning Here we should lock the _histograms map
-      delete _waveform;
-      _waveform = new Histogram1DFloat(waveform.size(),
-                                       0,
-                                       channel.fullscale()*channel.sampleInterval());
-      _histograms[_id] = _waveform;
+    _pp.histograms_delete(_id);
+    _waveform = new Histogram1DFloat(waveform.size(),
+                                     0,
+                                     channel.fullscale()*channel.sampleInterval());
+    _pp.histograms_replace(_id,_waveform);
   }
   //choose which kind of average we want to have//
   //if alpha is 1 then we want a cummulative average,//
   //so alpha needs to be 1/nbrofFills+1//
   //otherwise we just use the calculated alpha//
+  _waveform->lock.lockForRead();
   const float alpha = (std::abs(_alpha-1.)<1e-15) ?
                       1./(_waveform->nbrOfFills()+1.) :
                       _alpha;
+  _waveform->lock.unlock();
   _waveform->lock.lockForWrite();
   //average the waveform and put the result in the averaged waveform//
   //transform id doing an operation like
@@ -267,7 +268,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
                  _waveform->memory().begin(),     //start of second src
                  _waveform->memory().begin(),     //start of result
                  Average(alpha));                 //the binary operator
-  _waveform->lock.unlock();
   //tell the histogram that we just filled it//
   ++_waveform->nbrOfFills();
+  _waveform->lock.unlock();
 }

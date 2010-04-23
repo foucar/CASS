@@ -121,8 +121,8 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/imaging.cpp \
 	    soapCASSsoapService.cpp \
             soapC.cpp \
-	    tcpserver.cpp
-            # ./postprocessing/waveform.cpp \
+      tcpserver.cpp \
+            ./postprocessing/waveform.cpp \
             # ./postprocessing/acqiris_detectors.cpp \
 
 HEADERS +=  analysis_backend.h \
@@ -152,8 +152,8 @@ HEADERS +=  analysis_backend.h \
             soapCASSsoapService.h \
             soapH.h \
             soapStub.h \
-            tcpserver.h
-	    # ./postprocessing/waveform.h \
+            tcpserver.h \
+            ./postprocessing/waveform.h \
             # ./postprocessing/acqiris_detectors.h \
 
 INCLUDEPATH   += postprocessing \
