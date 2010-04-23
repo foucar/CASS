@@ -2,8 +2,11 @@ This file contains an alphabetical list of all major contributors to CASS
 
 - Lutz Foucar
   general leader
-  cass_REMI, cass_VMI implementation 
+  cass_REMI, cass_VMI implementation
   CASS design
+
+- Uwe Hoppe
+  jocassview - SOAP client/imageviewer
 
 - Nils Kimmel
   cass_pnCCD
@@ -11,7 +14,8 @@ This file contains an alphabetical list of all major contributors to CASS
 - Jochen Küpper
   CASS design, infrastructure development
   cass framework implementation
-  TCP server
+  postprocessor setup and synchronization
+  TCP (SOAP) server and client
 
 - Nicola Coppola
   cass_database

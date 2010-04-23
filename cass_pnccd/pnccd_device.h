@@ -32,7 +32,7 @@ namespace cass
       typedef std::vector<CCDDetector> detectors_t;
 
     public:
-      void serialize(cass::Serializer&)const;
+      void serialize(cass::Serializer&);
       void deserialize(cass::Serializer&);
 
     public:
@@ -45,7 +45,7 @@ namespace cass
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
-inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out) const
+inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out)
 {
   //the version//
   out.addUint16(_version);

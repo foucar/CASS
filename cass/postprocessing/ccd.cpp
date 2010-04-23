@@ -25,11 +25,10 @@ namespace cass
 
 // *** postprocessors 1, 2 -- last images from pnCCD ***
 
-pp1::pp1(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id),
+pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id),
       _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
 {
-    assert(hist == _histograms);
     switch(id) {
     case PostProcessors::Pnccd1LastImage:
         _detector = 0;
@@ -41,7 +40,7 @@ pp1::pp1(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id
         throw std::invalid_argument("Impossible postprocessor id for PostprocessorPnccdLastImage");
     };
     // save storage in PostProcessors container
-    _histograms[_id] = _image;
+    _pp.histograms_replace(_id, _image);
 }
 
 
@@ -65,8 +64,8 @@ void pp1::operator()(const cass::CASSEvent& event)
 
 // *** postprocessor 3 -- last image from VMI CCD***
 
-pp3::pp3(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id)
+pp3::pp3(cass::PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id)
 {
     /*
     // create _image storage
@@ -103,11 +102,10 @@ void pp3::operator()(const cass::CASSEvent& event)
 
 // *** postprocessors 101, 102 ***
 
-pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id),
+pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id),
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
-    assert(hist == _histograms);
     loadSettings(0);
     switch(id) {
     case PostProcessors::Pnccd1BinnedRunningAverage:
@@ -122,7 +120,7 @@ pp101::pp101(PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
 
 cass::pp101::~pp101()
 {
-    delete _image;
+    _pp.histograms_delete(_id);
     _image = 0;
 }
 
@@ -138,15 +136,12 @@ void cass::pp101::loadSettings(size_t)
                                                          settings.value("bin_vertical", 1).toUInt()));
     if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
-        // create new histogram storage
+        // create new histogram storage and save it in PostProcessors container
         size_t horizontal(1024/_binning.first);
         size_t vertical(1024/_binning.second);
-#warning multithreading: block access to _image
-        delete _image;
         _image = new Histogram2DFloat(horizontal, vertical);
+        _pp.histograms_replace(_id, _image);
     }
-    // save storage in PostProcessors container
-    _histograms[_id] = _image;
 }
 
 
@@ -161,7 +156,9 @@ void cass::pp101::operator()(const CASSEvent& event)
     const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
-    unsigned rows(dev->detectors()[_detector].rows()), cols(dev->detectors()[_detector].columns());
+    size_t rows(dev->detectors()[_detector].rows() / _binning.first);
+    size_t cols(dev->detectors()[_detector].columns() / _binning.second);
+    _image->lock.lockForWrite();
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
             pixel_t sum(0);
@@ -175,37 +172,40 @@ void cass::pp101::operator()(const CASSEvent& event)
             _image->memory()[r * cols/_binning.second + c] += sum / (_binning.first * _binning.second);
         }
     }
+    _image->lock.unlock();
 }
 
 
 
 // *** postprocessor 141 -- integral over last image from VMI CCD ***
 
-pp141::pp141(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+pp141::pp141(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _value;
+    _pp.histograms_replace(_id, _value);
 }
 
 
 
 pp141::~pp141()
 {
-    delete _value;
-    _value = 0;
+    _pp.histograms_delete(_id);
 }
 
 
 
 void pp141::operator()(const cass::CASSEvent&)
 {
-    const HistogramFloatBase *hist(dynamic_cast<HistogramFloatBase *>(_histograms[PostProcessors::VmiCcdLastImage]));
+    HistogramFloatBase *hist(dynamic_cast<HistogramFloatBase *>(_pp.histograms_checkout().find(PostProcessors::VmiCcdLastImage)->second));
+    _pp.histograms_release();
+    hist->lock.lockForRead();
     const HistogramFloatBase::storage_t& val(hist->memory());
     HistogramFloatBase::value_t sum(0);
     std::accumulate(val.begin(), val.end(), sum);
+    hist->lock.unlock();
+    _value->lock.lockForWrite();
     *_value = sum;
+    _value->lock.unlock();
 }
 
 

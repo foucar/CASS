@@ -6,7 +6,7 @@
 #define CASS_TCPSERVER_H
 
 #include <stdexcept>
-#include <QtCore/QObject>
+#include <QtCore/QThread>
 
 #include "cass_event.h"
 #include "event_getter.h"
@@ -17,8 +17,43 @@
 namespace cass
 {
 
+/*! Handle a single SOAP request
 
-class SoapServer : public QObject
+@author Jochen Küpper
+*/
+class SoapHandler : public QThread
+{
+    Q_OBJECT;
+
+public:
+
+    SoapHandler(CASSsoapService *soap)
+        : _soap(soap)
+        {};
+
+    virtual ~SoapHandler() { delete _soap; };
+
+    /** handle request and terminate*/
+    virtual void run();
+
+
+protected:
+
+    /** the service */
+    CASSsoapService *_soap;
+};
+
+
+
+/** SOAP server
+
+@author Jochen Küpper
+
+@todo Update getImage to actually return an direct (i.e., unscaled) TIFF image of the float values
+@todo Provide a multi-content query -- with the SOAP-attachment strategy, we can very well/easily deliver
+multiple histograms/images within one message. Let's do it...(requires a smart updated API).
+*/
+class SoapServer : public QThread
 {
     Q_OBJECT;
 
@@ -28,7 +63,7 @@ class SoapServer : public QObject
 public:
 
     /** create the instance if not it does not exist already */
-    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist);
+    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist, size_t port=12321);
 
     /** destroy the instance */
     static void destroy();
@@ -42,6 +77,9 @@ signals:
 
 
 protected:
+
+    /** perform thread-work */
+    virtual void run();
 
     /** return existing instance for our friends -- if it doesn't exist, throw exception */
     static SoapServer *instance() {
@@ -64,28 +102,44 @@ protected:
     /** allow our friends to emit the readinin() signal */
     void emit_readini(size_t what) { emit readini(what); };
 
+    /** the service */
+    CASSsoapService *_soap;
+
+    /** maximum backlog of open requests */
+    static const size_t _backlog;
+
+    /** server port */
+    const size_t _port;
+
 
 private:
 
     /** Constructor */
-    SoapServer(const EventGetter& event, const HistogramGetter& hist, QObject *parent=0);
+    SoapServer(const EventGetter& event, const HistogramGetter& hist, size_t port, QObject *parent=0)
+        : QThread(parent), get_event(event), get_histogram(hist),
+          _soap(new CASSsoapService), _port(port)
+        {};
 
+    /** Disabled constructor */
     SoapServer();
 
+    /** Disabled copy constructor */
     SoapServer(const SoapServer&);
 
+    /** Disabled assignment */
     SoapServer& operator=(const SoapServer&);
 
-    ~SoapServer() { delete _soap; };
+    /** Destructor
+
+    clean up SOAP
+    */
+    ~SoapServer() { _soap->destroy(); delete _soap; };
 
     /** pointer to the singleton instance */
     static SoapServer *_instance;
 
     /** Singleton operation locker */
     static QMutex _mutex;
-
-    /** the service */
-    CASSsoapService *_soap;
 };
 
 }
@@ -99,7 +153,7 @@ private:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
 // c-file-style: "Stroustrup"
+// c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

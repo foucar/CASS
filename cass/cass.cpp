@@ -7,14 +7,14 @@
 
 #include "cass.h"
 #include "analyzer.h"
-#include "sharedmemory_input.h"
-#include "ringbuffer.h"
+#include "daemon.h"
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
-//#include "tcpserver.h"
+#include "ringbuffer.h"
+#include "sharedmemory_input.h"
+#include "tcpserver.h"
 #include "worker.h"
-#include "daemon.h"
 
 
 
@@ -108,6 +108,9 @@
  *
  * @section cred Credits
  * @par Authors:
+ *
+ * @see AUTHORS file in distribution for details
+ *
  * Nicola Coppola
  * - depreciated cass_database
  * - depreciated cass_dictionary
@@ -149,6 +152,7 @@
  * @todo right now we cannot define a postprocessors dependency on the
  *       converter that it needs. We need to include this dependency.
  *       Maybe using cass.ini?
+ * @todo implement that we can use conditions.
  */
 
 /** \page casslicense License
@@ -178,17 +182,25 @@ int main(int argc, char **argv)
   //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
 
+  // register size_t as Qt meta type
+  qRegisterMetaType<size_t>("size_t");
+
   //create a container for the partition tag
   int c;
   char partitionTag[128];
+  // SOAP server port (default: 12321)
+  size_t soap_port(12321);
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:")) != -1)
+  while((c = getopt(argc, argv, "p:s:")) != -1)
   {
     switch (c)
     {
       case 'p':
         strcpy(partitionTag, optarg);
+        break;
+      case 's':
+        soap_port = strtol(optarg, 0, 0);
         break;
       default:
         std::cout << "please give me a partition tag" <<std::endl;
@@ -206,7 +218,7 @@ int main(int argc, char **argv)
                                                              ringbuffer,
                                                              qApp));
   //create workers//
-  cass::Workers *workers(new cass::Workers(ringbuffer,qApp));
+  cass::Workers *workers(new cass::Workers(ringbuffer, qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
   //create a ratemeter object for the worker//
@@ -237,20 +249,19 @@ int main(int argc, char **argv)
   input->start();
 
   // TCP/SOAP server
-  // tell the server how to get an id or histogram
-  // cass::EventGetter get_event(ringbuffer);
-  // cass::HistogramGetter get_histogram(workers->histograms());
-  // cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram));
-  // // setup the connections
-  // QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
-  // QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
-  // QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  cass::EventGetter get_event(ringbuffer);
+  cass::HistogramGetter get_histogram;
+  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
+  server->start();
+  QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
+  QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
 
   //start Qt event loop
   int retval(app.exec());
 
   //clean up
-//  server->destroy();
+  server->destroy();
   delete rateplotter;
   delete workerrate;
   delete inputrate;
@@ -270,7 +281,7 @@ int main(int argc, char **argv)
 // Local Variables:
 // coding: utf-8
 // mode: C++
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
 // fill-column: 100
 // End:

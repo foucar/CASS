@@ -7,23 +7,29 @@ These are esome guidelines for the CASS software development.
   details and doxygen comments for interfaces and implementation
   choices.
   Use javastyle documentation ie:
-  /** short description.
-   * detailed description
-   */
-  note the period after the short description.
+  /** short description title
+  
+  detailed description
+
+  parameters and return values using @param and @return.
+  */
 
 * Prefer standard language features (including the C++ standard
   library) over external libraries. If you don't, please document your
   decision.
 
-* Please keep the indentation style consistent.
-  Indentation should be 2 spaces.
-  Indent whenever a curly bracket opens a block.
-  Do not use tabs, use spaces instead!
+* Please keep the indentation style consistent. Generally, indentation
+  should be 4 spaces. Indent whenever a curly bracket opens a block.
+  Do not use tabs, use spaces instead! (Define the indentation stye
+  for Emacs users in the local variabales list for automatic
+  indentation. )
 
-* Do not bloat the code by useless empty lines, comments without
-  content (i.e., essentially duplicating the code), etc.
-  But please do structure/document header files well.
+* Do not bloat the code (impleentation) by useless empty lines,
+  comments without content (i.e., essentially duplicating the code),
+  etc.
+
+* But please do structure/document header files well (this does
+  include empty lines!)
 
 
 

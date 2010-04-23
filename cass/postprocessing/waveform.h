@@ -13,27 +13,32 @@ namespace cass
   class CASSEvent;
   class Histogram1DFloat;
 
-  /** Last Waveforms.
-   * class to show the last wavefrom of a channel
+  /** Last Waveform.
+   * Class to show the last wavefrom of a channel. Objects created from this
+   * class will work as postprocessor 4-23.
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
    */
   class pp4 : public PostprocessorBackend
   {
   public:
-
-    pp4(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
-
+    /** constructor.
+     * @param ppc reference to the postprocessor container that contains
+     *        this postprocessor.
+     * @param id the id of this postprocessor object
+     */
+    pp4(PostProcessors &ppc, PostProcessors::id_t id);
     /*! delete the histogram when you are destroyed*/
     virtual ~pp4();
-
     /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
 
   protected:
-    /** the instrument for this postprocessor*/
+    /** Mutex for locking this postprocessor*/
+    QMutex _mutex;
+    /** the instrument that contains the channel this postprocessor will work on*/
     cass::ACQIRIS::Instruments _instrument;
-    /*! the Acqiris channel Nbr of this processor*/
+    /*! the Acqiris channel number of this processor*/
     size_t _channel;
     /*! this is where we store the last waveform */
     Histogram1DFloat  *_waveform;
@@ -44,14 +49,20 @@ namespace cass
   /** Averaged Wavefrom.
    * class that lets you average the waveforms
    * depending on the factor it will make a cumulative average or
-   * in exponential moving average
+   * in exponential moving average.
+   * Objects created from this class will work as postprocessor 500-519.
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
    */
   class pp500 : public PostprocessorBackend
   {
   public:
-    pp500(PostProcessors::histograms_t &hist, PostProcessors::id_t id);
+    /** constructor.
+     * @param ppc reference to the postprocessor container that contains
+     *        this postprocessor.
+     * @param id the id of this postprocessor object
+     */
+    pp500(PostProcessors &ppc, PostProcessors::id_t id);
     /*! delete the histogram when you are destroyed */
     virtual ~pp500();
     /*! read the average factor from cass.ini*/
@@ -60,7 +71,9 @@ namespace cass
     virtual void operator()(const CASSEvent&);
 
   protected:
-    /** the instrument for this postprocessor*/
+    /** Mutex for locking this postprocessor*/
+    QMutex _mutex;
+    /** the instrument that contains the channel this postprocessor will work on*/
     cass::ACQIRIS::Instruments _instrument;
     /*! the Acqiris channel Nbr of this processor*/
     size_t _channel;

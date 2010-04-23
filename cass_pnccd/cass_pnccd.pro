@@ -3,14 +3,22 @@
 # Copyright (C) 2009 Nicola Coppola
 # Copyright (C) 2009,2010 Lutz Foucar
 
+TEMPLATE       = lib
+TARGET         = cass_pnccd
+CONFIG        += release
+CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 QT            -= core gui
-TARGET         = cass_pnccd
-TEMPLATE       = lib
 
+CODECFORTR     = UTF-8
 DEFINES       += CASS_PNCCD_LIBRARY
 INCLUDEPATH   +=  ../LCLS ../cass
+MOC_DIR        = ./obj
 OBJECTS_DIR    = ./obj
+QMAKE_STRIP    =
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += cass
 VERSION        = 0.1.0
 
 SOURCES       += pnccd_analysis.cpp \
@@ -32,3 +40,12 @@ libs.path      = $$INSTALLBASE/lib
 header.files   = $$HEADERS
 libs.files     = libcass_pnccd.a
 INSTALLS      += header libs
+
+
+
+
+## Local Variables:
+## coding: utf-8
+## mode: makefile
+## fill-column: 100
+## End:

@@ -2,7 +2,7 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <exception>
-#include <QMutexLocker>
+#include <QtCore/QMutexLocker>
 
 #include "worker.h"
 #include "analyzer.h"
@@ -67,10 +67,6 @@ void cass::Worker::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
-const cass::PostProcessors::histograms_t& cass::Worker::histograms()const
-{
-  return _postprocessor->histograms();
-}
 
 void cass::Worker::run()
 {
@@ -156,13 +152,6 @@ cass::Workers::~Workers()
   for (size_t i=0;i<_workers.size();++i)
     delete _workers[i];
   std::cout<< "workers are deleted" <<std::endl;
-}
-
-const cass::PostProcessors::histograms_t& cass::Workers::histograms() const
-{
-  if(_workers.empty())
-    throw std::bad_exception();
-  return _workers[0]->histograms();
 }
 
 void cass::Workers::loadSettings(size_t what)

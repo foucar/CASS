@@ -1,6 +1,6 @@
 # Architecture flags
 # ------------------
-arch_tgts := ppc-rtems-rce405 ppc-rtems-ml405 i386-linux x86_64-linux sparc-solaris
+arch_tgts := ppc-rtems-rce405 ppc-rtems-ml405 i386-linux x86_64-linux x86_64-linux-static sparc-solaris
 arch_opts := opt dbg
 
 define arch_opt_template
@@ -29,7 +29,27 @@ LDFLAGS  := -m32 -shared
 LXFLAGS  := -m32
 USRLIBDIR := /usr/lib
 else
-ifneq ($(findstring x86_64,$(tgt_arch)),)
+ifneq ($(findstring x86_64-linux-static,$(tgt_arch)),)
+AR  := ar -rs
+AS  := as
+CPP := gcc -E
+CC  := gcc
+CXX := g++
+LD  := g++
+LX  := g++
+
+LIBEXTNS := a
+DEPFLAGS := -MM
+DEFINES  := -fPIC -D_REENTRANT -D__pentium__ -Wall
+CPPFLAGS :=
+CFLAGS   := -m64
+CXXFLAGS := $(CFLAGS)
+CASFLAGS := -x assembler-with-cpp -P $(CFLAGS)
+LDFLAGS  := -m64
+LXFLAGS  := -m64
+USRLIBDIR := /usr/lib64
+else
+ifneq ($(findstring x86_64-linux,$(tgt_arch)),)
 AS  := as
 CPP := gcc -E
 CC  := gcc
@@ -98,7 +118,7 @@ endif
 endif
 endif
 endif
-
+endif
 
 ifneq ($(findstring -opt,$(tgt_arch)),)
 DEFINES += -O4

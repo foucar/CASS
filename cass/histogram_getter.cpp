@@ -12,34 +12,33 @@ using namespace cass;
 
 const std::string HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-    Serializer serializer;
+    // check out histograms storage map
+    PostProcessors *pp(PostProcessors::instance());
+    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+    pp->validate(hp.type);
     // serialize the wanted histogram using the serializer
-    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
-    //throw an exeption when requested histogram is not present
-    if (iter == _histograms.end())
-      throw std::runtime_error(QString("histogram %1 not found for serialization").arg(hp.type).toStdString());
-    //thow exeption when requested histogram is not created//
-    if (!iter->second)
-      throw std::runtime_error(QString("histogram %1 has not been created").arg(hp.type).toStdString());
-    //serialize requested histogram
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    Serializer serializer;
     iter->second->serialize(serializer);
-    //return the buffer (std::string) of the serializer
+    // release and return
+    pp->histograms_release();
     return serializer.buffer();
 }
 
 
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
-    // get an iterator to the requested histogram
-    PostProcessors::histograms_t::const_iterator iter(_histograms.find(hp.type));
-    //throw an exeption when requested histogram is not present
-    if (iter == _histograms.end())
-      throw std::runtime_error(QString("histogram %1 not found for convertion to qimage").arg(hp.type).toStdString());
-    //thow exeption when requested histogram is not created//
-    if (!iter->second)
-      throw std::runtime_error(QString("histogram %1 has not been created").arg(hp.type).toStdString());
-    // and return the QImage of that histogram
-    return dynamic_cast<Histogram2DFloat *>(iter->second)->qimage();
+    // check out histograms storage map
+    PostProcessors *pp(PostProcessors::instance());
+    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+    // make sure the requested histogram is valid
+    pp->validate(hp.type);
+    // create the image
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    // create the QImage, release, return
+    QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
+    pp->histograms_release();
+    return qi;
 }
 
 

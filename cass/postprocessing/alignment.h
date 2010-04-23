@@ -23,7 +23,7 @@ class pp131 : public PostprocessorBackend
 public:
 
     /*! Construct postprocessor for Gaussian height of image */
-    pp131(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp131(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image space */
     virtual ~pp131();
@@ -54,7 +54,7 @@ class pp143 : public PostprocessorBackend
 public:
 
     /*! Construct postprocessor for Gaussian height of image */
-    pp143(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp143(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image space */
     virtual ~pp143();
@@ -86,7 +86,7 @@ class pp144 : public PostprocessorBackend
 public:
 
     /*! Construct postprocessor for Gaussian width of image */
-    pp144(PostProcessors::histograms_t&, PostProcessors::id_t);
+    pp144(PostProcessors&, PostProcessors::id_t);
 
     /*! Free _image space */
     virtual ~pp144();

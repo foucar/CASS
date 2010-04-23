@@ -240,20 +240,17 @@ void helper_alignment_1::destroy() {
 
 
 
-pp131::pp131(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+pp131::pp131(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _value;
+    _pp.histograms_replace(_id, _value);
 }
 
 
 
 pp131::~pp131()
 {
-    delete _value;
-    _value = 0;
+    _pp.histograms_delete(_id);
 }
 
 
@@ -272,20 +269,17 @@ void pp131::operator()(const CASSEvent& event)
 
 
 
-pp143::pp143(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+pp143::pp143(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _value;
+    _pp.histograms_replace(_id, _value);
 }
 
 
 
 pp143::~pp143()
 {
-    delete _value;
-    _value = 0;
+    _pp.histograms_delete(_id);
 }
 
 
@@ -299,25 +293,24 @@ std::list<PostProcessors::id_t> pp143::dependencies()
 
 void pp143::operator()(const CASSEvent& event)
 {
+    _value->lock.lockForWrite();
     *_value = helper_alignment_1::instance()->width(event);
+    _value->lock.unlock();
 }
 
 
 
-pp144::pp144(cass::PostProcessors::histograms_t& hist, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(hist, id), _value(new Histogram0DFloat)
+pp144::pp144(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _value;
+    _pp.histograms_replace(_id, _value);
 }
 
 
 
 pp144::~pp144()
 {
-    delete _value;
-    _value = 0;
+    _pp.histograms_delete(_id);
 }
 
 

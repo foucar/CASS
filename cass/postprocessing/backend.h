@@ -1,4 +1,4 @@
-// Copyright (C) 2010 lmf
+// Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 #ifndef _POSTPROCESSOR_BACKEND_H_
@@ -19,11 +19,11 @@ class CASSSHARED_EXPORT PostprocessorBackend
 {
 public:
 
-    PostprocessorBackend(PostProcessors::histograms_t& hs, PostProcessors::id_t id)
-        : _id(id), _histograms(hs)
+    PostprocessorBackend(PostProcessors& pp, PostProcessors::id_t id)
+        : _id(id), _pp(pp)
     {}
 
-    virtual ~PostprocessorBackend() {}
+    virtual ~PostprocessorBackend() { }
 
     virtual void operator()(const CASSEvent&) = 0;
 
@@ -34,25 +34,36 @@ public:
 
     The dependencies must be run before the actual postprocessor is run by itself.
     */
-    virtual std::list<PostProcessors::id_t> dependencies() {return std::list<PostProcessors::id_t>(); };
+    virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
 
 
 protected:
 
     /** @return histogram of the actual postprocessor we call this for */
-    virtual HistogramBackend *histogram() { return _histograms[_id]; };
+    virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_id); };
 
     /** @overload
 
     @return histogram of the requested postprocessor */
-    virtual HistogramBackend *histogram(PostProcessors::id_t id) { return _histograms[id]; };
+    virtual HistogramBackend *histogram_checkout(PostProcessors::id_t id) {
+        try {
+            PostProcessors::histograms_t hist(_pp.histograms_checkout());
+            _pp.validate(id);
+            return hist[id];
+        } catch (InvalidHistogramError *) {
+            return 0;
+        }
+    };
 
-    //the postprocessors id (see post_processor.h for an list of ids)//
+    void histogram_release() { _pp.histograms_release(); };
+
+    // the postprocessors id (see post_processor.h for an list of ids)//
     PostProcessors::id_t _id;
 
-    //reference to the container of all histograms//
-    PostProcessors::histograms_t& _histograms;
+    // reference to the PostProcessors container
+    PostProcessors& _pp;
 };
+
 } //end namespace cass
 
 #endif
@@ -62,7 +73,7 @@ protected:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
 // c-file-style: "Stroustrup"
+// c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

@@ -30,3 +30,13 @@ void cass::RatePlotter::plot()
   //restore the flags//
   std::cout.flags(original_flags);
 }
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:
