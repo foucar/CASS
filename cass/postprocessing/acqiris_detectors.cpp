@@ -286,12 +286,12 @@ cass::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors de
         _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
     }
     break;
-  case IntensityMonitor:
+  case FELBeamMonitor:
     {
-      std::cout <<"IntensityMonitor"<<std::endl;
-      _detector = new TofDetector("IntensityMonitor");
+      std::cout <<"Beamdump"<<std::endl;
+      _detector = new TofDetector("FELBeamMonitor");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("IntensityMonitor")));
+        _detectorList.push_front(std::make_pair(0,new TofDetector("FELBeamMonitor")));
     }
     break;
   case YAGPhotodiode:
@@ -355,8 +355,8 @@ cass::pp550::pp550(PostProcessors &pp, PostProcessors::id_t id)
     _detector = QuadDetector;break;
   case PostProcessors::VMIMcpNbrSignals:
     _detector = VMIMcp;break;
-  case PostProcessors::IntensityMonitorNbrSignals:
-    _detector = IntensityMonitor;break;
+  case PostProcessors::FELBeamMonitorNbrSignals:
+    _detector = FELBeamMonitor;break;
   case PostProcessors::YAGPhotodiodeNbrSignals:
     _detector = YAGPhotodiode;break;
   case PostProcessors::FsPhotodiodeNbrSignals:
@@ -689,8 +689,8 @@ cass::pp567::pp567(PostProcessors &pp, PostProcessors::id_t id)
     _detector = QuadDetector;break;
   case PostProcessors::VMIMcpAllMcp:
     _detector = VMIMcp;break;
-  case PostProcessors::IntensityMonitorAllMcp:
-    _detector = IntensityMonitor;break;
+  case PostProcessors::FELBeamMonitorAllMcp:
+    _detector = FELBeamMonitor;break;
   case PostProcessors::YAGPhotodiodeAllMcp:
     _detector = YAGPhotodiode;break;
   case PostProcessors::FsPhotodiodeAllMcp:
@@ -1040,8 +1040,8 @@ cass::pp581::pp581(PostProcessors &pp, PostProcessors::id_t id)
     _detector = QuadDetector;break;
   case PostProcessors::VMIMcpHeightvsFwhmMcp:
     _detector = VMIMcp;break;
-  case PostProcessors::IntensityMonitorHeightvsFwhmMcp:
-    _detector = IntensityMonitor;break;
+  case PostProcessors::FELBeamMonitorHeightvsFwhmMcp:
+    _detector = FELBeamMonitor;break;
   case PostProcessors::YAGPhotodiodeHeightvsFwhmMcp:
     _detector = YAGPhotodiode;break;
   case PostProcessors::FsPhotodiodeHeightvsFwhmMcp:

@@ -216,7 +216,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case HexMCPNbrSignals:
     case QuadMCPNbrSignals:
     case VMIMcpNbrSignals:
-    case IntensityMonitorNbrSignals:
+    case FELBeamMonitorNbrSignals:
     case YAGPhotodiodeNbrSignals:
     case FsPhotodiodeNbrSignals:
         processor = new pp550(*this, id);
@@ -259,7 +259,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case HexAllMcp:
     case QuadAllMcp:
     case VMIMcpAllMcp:
-    case IntensityMonitorAllMcp:
+    case FELBeamMonitorAllMcp:
     case YAGPhotodiodeAllMcp:
     case FsPhotodiodeAllMcp:
         processor = new pp567(*this, id);
@@ -295,7 +295,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case HexHeightvsFwhmMcp:
     case QuadHeightvsFwhmMcp:
     case VMIMcpHeightvsFwhmMcp:
-    case IntensityMonitorHeightvsFwhmMcp:
+    case FELBeamMonitorHeightvsFwhmMcp:
     case YAGPhotodiodeHeightvsFwhmMcp:
     case FsPhotodiodeHeightvsFwhmMcp:
         processor = new pp581(*this, id);
