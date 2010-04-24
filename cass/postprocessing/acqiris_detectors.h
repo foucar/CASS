@@ -367,6 +367,34 @@ namespace cass
 
 
 
+
+  /** Pipico spectra.
+   * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra
+   * (pp700)
+   * @author Lutz Foucar
+   */
+  class pp700 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp700(PostProcessors&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp700();
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /** load the histogram settings from file*/
+    virtual void loadParameters(size_t);
+  protected:
+    /** The first detector of the cooincdence*/
+    ACQIRIS::Detectors _detector01;
+    /** The second detector of the cooincdence*/
+    ACQIRIS::Detectors _detector02;
+    /** The Histogram storing the info*/
+    Histogram2DFloat  *_pipico;
+  };
+
+
+
 }//end cass
 
 #endif

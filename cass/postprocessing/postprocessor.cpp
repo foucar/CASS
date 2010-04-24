@@ -312,6 +312,10 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadHeightvsFwhmY2:
         processor = new pp582(*this, id);
         break;
+    case HexPIPICO:
+    case HexQuadPIPICO:
+        processor = new pp700(*this,id);
+        break;
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }

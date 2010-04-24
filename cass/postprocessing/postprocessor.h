@@ -223,6 +223,9 @@ histograms) and placed in the file for the most appropriate group according to t
 00680: Femtosecond Laser Photodiode Number of Peaks in Waveform
 00681: Femtosecond Laser Photodiode All Hits on Mcp
 00682: Femtosecond Laser Photodiode Height vs. Fwhm
+
+00700: PIPICo on Hexdetector
+00701: PIPICo of Hex and QuadDetector
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -389,6 +392,8 @@ public:
         FsPhotodiodeAllMcp=681,
         FsPhotodiodeHeightvsFwhmMcp=682,
 
+        HexPIPICO=700,
+        HexQuadPIPICO=701
     };
 
     /** Container of all currently available histograms */

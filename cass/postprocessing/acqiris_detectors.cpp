@@ -1170,3 +1170,81 @@ void cass::pp582::operator()(const cass::CASSEvent &evt)
        ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }
+
+
+
+
+
+
+
+
+
+
+//----------------PIPICO-------------------------------------------------------
+//-----------pp582-587, pp622-625----------------------------------------------
+cass::pp700::pp700(PostProcessors &pp, PostProcessors::id_t id)
+  :cass::PostprocessorBackend(pp,id),
+  _pipico(0)
+{
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::HexPIPICO:
+    _detector01 = HexDetector; _detector02 = HexDetector; break;
+  case PostProcessors::HexQuadPIPICO:
+    _detector01 = HexDetector; _detector02 = QuadDetector; break;
+
+  default:
+    throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
+  }
+  //create the histogram by loading the settings//
+  loadParameters(0);
+}
+
+cass::pp700::~pp700()
+{
+  _pp.histograms_delete(_id);
+  _pipico=0;
+}
+
+void cass::pp700::loadParameters(size_t)
+{
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it create a PIPICO Histogram"
+      <<" of detectors "<<_detector01
+      <<" and "<<_detector02<<std::endl;
+  //create the histogram
+  set2DHist(_pipico,_id);
+  _pp.histograms_replace(_id,_pipico);
+    //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector01)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector02)->loadParameters();
+  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
+}
+
+void cass::pp700::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get first detector from the helper
+  TofDetector *det01 =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt));
+  //get second detector from the helper
+  TofDetector *det02 =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt));
+  //get iterator of the peaks in the first detector//
+  Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
+  //draw all found hits vs another//
+  for (; it01 != det01->mcp().peaks().end();++it01)
+  {
+    //if both detectors are the same, then the second iterator should start
+    //i+1, otherwise we will just draw all hits vs. all hits
+    Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
+                                         it01+1 :
+                                         det02->mcp().peaks().begin());
+
+    for (; it02 != det02->mcp().peaks().end(); ++it02)
+    {
+      _pipico->fill(it01->time(),it02->time());
+    }
+  }
+}
