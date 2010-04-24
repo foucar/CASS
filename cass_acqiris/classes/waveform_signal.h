@@ -183,7 +183,7 @@ inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * sig
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
   _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
-  std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl;
+//  std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl;
   std::cerr<<"Signal load parameters: done loading"<<std::endl;
   p->endGroup();
 }
