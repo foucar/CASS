@@ -93,23 +93,19 @@
  *
  * LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4
  * -s 0x1000000 -p test -r 120 -l\n
- * <ul>
- *  <li>f: filename of file that you want to create the shared memory with
- *  <li>n: number of datagrams to be stored in the buffer
- *  <li>s: size of the buffer for that stores one datagram
- *  <li>p: the name of the partition tag
- *  <li>r: the rate that you want to simulate
- *  <li>l: loop. If the end of the file has been reached start from the beginning
- *  <li>v: verbose output. Includes the spare time, which can be used to
+ * - f: filename of file that you want to create the shared memory with
+ * - n: number of datagrams to be stored in the buffer
+ * - s: size of the buffer for that stores one datagram
+ * - p: the name of the partition tag
+ * - r: the rate that you want to simulate
+ * - l: loop. If the end of the file has been reached start from the beginning
+ * - v: verbose output. Includes the spare time, which can be used to
  *         calculate the time in ns it took to read the event from file and put
  *         it into the shared memory (buisy time).\n
  *         sparetime = 1e9 / rate - buisy time.
- * </ul>
  *
  * @section cred Credits
  * @par Authors:
- *
- * @see AUTHORS file in distribution for details
  *
  * Nicola Coppola
  * - depreciated cass_database
@@ -126,11 +122,13 @@
  * - cass framework implementation
  * - postprocessor setup
  * - TCP/SOAP server
+ *
  * @par Project admin:
  * Lutz Foucar
  * - cass, cass_acqiris, cass_ccd, cass_machinedata implementation
  * - CASS design, infrastructure development
  *
+ * @see @ref authors file in distribution for details
  *
  * @date 2009-2010
  *
@@ -153,6 +151,13 @@
  *       converter that it needs. We need to include this dependency.
  *       Maybe using cass.ini?
  * @todo implement that we can use conditions.
+ * @todo create pp: PIPICO for Tof detectors
+ * @todo create pp: cummulative average commercial ccd image with condition on
+ *       tof and pos on delayline detector
+ */
+
+/** \page authors Authors
+ * @include "AUTHORS"
  */
 
 /** \page casslicense License
