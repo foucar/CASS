@@ -33,28 +33,34 @@ struct HistogramParameter
 
 
 /** retrive a histogram from the histogram container
-
-@author Lutz Foucar
-@author Jochen Küpper
-
-@todo Make independent of global PostProcessors singleton (by passing it in here)
-*/
+ *
+ * @author Lutz Foucar
+ * @author Jochen Küpper
+ *
+ * @todo Make independent of global PostProcessors singleton (by passing it in here)
+ */
 class CASSSHARED_EXPORT HistogramGetter
 {
 public:
 
-    /*! constructor
-
-    @param histograms container of all histogram, we will retrieve the requested histograms from
-    there
-    */
+    /** constructor.
+     *
+     * @param histograms container of all histogram, we will retrieve the requested histograms from
+     *        there
+     */
     HistogramGetter() {};
 
-    /*! Serialize histogram
-
-    function that will serialize the requested histogram to a string and return it
-    */
+    /** Serialize histogram.
+     * function that will serialize the requested histogram to a string and return it
+     */
     const std::string operator()(const HistogramParameter&) const;
+
+    /** clear histogram.
+     * function that will clear a requested histogram.
+     * @return void
+     * @param hp Histogram parameter, contains info which histogram to clear
+     */
+    void clear(const HistogramParameter& hp)const;
 
     /** Create an QImage from the histogram */
     QImage qimage(const HistogramParameter&) const;
