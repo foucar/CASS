@@ -23,31 +23,31 @@ namespace cass
 {
 
 /** Axis properties for histograms.
-* This describes the properties of the axis of the histogram. And is
-* de / serializable.
-* @author Lutz Foucar
-*/
+ * This describes the properties of the axis of the histogram. And is
+ * de / serializable.
+ * @author Lutz Foucar
+ */
 class CASSSHARED_EXPORT AxisProperty : public Serializable
 {
 public:
 
     /** Constructor.
-    * will set the properties in the initializtion list. Will also set the version
-    * for the de / serialization.
-    * @param nbrBins The Number of Bins the axis contains
-    * @param lowerLimit The lower end of the axis
-    * @param upperLimit The upper end of the axis
-    */
+     * will set the properties in the initializtion list. Will also set the version
+     * for the de / serialization.
+     * @param nbrBins The Number of Bins the axis contains
+     * @param lowerLimit The lower end of the axis
+     * @param upperLimit The upper end of the axis
+     */
     AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit)
         : Serializable(1),
         _size(nbrBins), _low(lowerLimit), _up(upperLimit)
     {}
 
     /** read axis property from serializer.
-    * This constructor will create a axis property that has been serialized to the
-    * serializer. Will call @see deserialize(Serializer&).
-    * @param[in] in The Serializer that we read the histogram from
-    */
+     * This constructor will create a axis property that has been serialized to the
+     * serializer. Will call @see deserialize(Serializer&).
+     * @param[in] in The Serializer that we read the histogram from
+     */
     AxisProperty(Serializer &in)
         :Serializable(1)
     {
@@ -55,15 +55,15 @@ public:
     }
 
     /** Serialize this class.
-    * serializes this to the Serializer
-    * @param out The Serializer that we will serialize this to
-    */
+     * serializes this to the Serializer
+     * @param out The Serializer that we will serialize this to
+     */
     void serialize(Serializer& out);
 
     /** Deserialize this class.
-    * deserializes this from the Serializer
-    * @param in The Serializer that we will deserialize this from
-    */
+     * deserializes this from the Serializer
+     * @param in The Serializer that we will deserialize this from
+     */
     void deserialize(Serializer& in);
 
     /*! @return size (nuber of bins) of axis */
@@ -96,22 +96,22 @@ protected:
 
 
 /** histogram base class.
-* every type of histogram inherits from this. It contains information
-* about the dimesion of the histogram. Also it contains all of the properties
-* and information a histogram has. It does not contain the histograms memory.
-* We are serializable.
-* @author Lutz Foucar
-*/
+ * every type of histogram inherits from this. It contains information
+ * about the dimesion of the histogram. Also it contains all of the properties
+ * and information a histogram has. It does not contain the histograms memory.
+ * We are serializable.
+ * @author Lutz Foucar
+ */
 class CASSSHARED_EXPORT HistogramBackend
     : public Serializable
 {
 protected:
 
     /** constructor.
-    * initializing the properties and sets the Serialization version
-    * @param dim the Dimension of the histogram ie. 1d,2d
-    * @param ver The version for de / serializing.
-    */
+     * initializing the properties and sets the Serialization version
+     * @param dim the Dimension of the histogram ie. 1d,2d
+     * @param ver The version for de / serializing.
+     */
     explicit HistogramBackend(size_t dim, uint16_t ver)
         : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
     {};
@@ -119,9 +119,8 @@ protected:
 public:
 
     /** destructor.
-
-    virtual destructor, since it is a baseclass. Does nothing
-    */
+     * virtual destructor, since it is a baseclass. Does nothing
+     */
     virtual ~HistogramBackend() {};
 
     /** Read-write lock for internal memory/data
@@ -133,20 +132,23 @@ public:
     QReadWriteLock lock;
 
     /** serialize this object to a serializer.
-    * This function is pure virtual since it overwrites the
-    * serializables serialize function. Needs to be implemented by the classes
-    * inheriting from here
-    * @param out The Serializer we serialize this to
-    */
+     * This function is pure virtual since it overwrites the
+     * serializables serialize function. Needs to be implemented by the classes
+     * inheriting from here
+     * @param out The Serializer we serialize this to
+     */
     virtual void serialize(Serializer &out)=0;
 
     /** serialize this object from a serializer.
-    * This function is pure virtual since it overwrites the
-    * serializables deserialize function. Needs to be implemented by the
-    * classes inheriting from this
-    * @param in The Serializer we serialize this from
-    */
+     * This function is pure virtual since it overwrites the
+     * serializables deserialize function. Needs to be implemented by the
+     * classes inheriting from this
+     * @param in The Serializer we serialize this from
+     */
     virtual void deserialize(Serializer &in)=0;
+    /** clear the histogram*/
+    virtual void clear()=0;
+
 
     /** typedef for more readable code*/
     typedef std::vector<AxisProperty> axis_t;
@@ -161,22 +163,22 @@ public:
     //@}
 
     /** possible axes.
-    * convenience type to allow for easier choosing of the axis
-    */
+     * convenience type to allow for easier choosing of the axis
+     */
     enum Axis {xAxis=0, yAxis, zAxis};
 
     /** possible over/underflow quadrants.
-    * convenience type to allow for easier choosing of the
-    * over-/underflow quadrant (2D histograms)
-    */
+     * convenience type to allow for easier choosing of the
+     * over-/underflow quadrant (2D histograms)
+     */
     enum Quadrant{UpperLeft=0, UpperMiddle, UpperRight,
                   Left,                     Right,
                   LowerLeft  , LowerMiddle, LowerRight};
 
     /** the over/underflow bin.
-    * convenience type for easier chosing the over and
-    * underflow bins (1D hist).
-    */
+     * convenience type for easier chosing the over and
+     * underflow bins (1D hist).
+     */
     enum OverUnderFlow{Overflow=0, Underflow};
 
 protected:
@@ -193,10 +195,10 @@ protected:
 
 
 /** base class for float histograms.
-* from this all float histograms should inherit
-* @todo check whether the wait until fill mechanism works
-* @author Lutz Foucar
-*/
+ * from this all float histograms should inherit
+ * @todo check whether the wait until fill mechanism works
+ * @author Lutz Foucar
+ */
 class CASSSHARED_EXPORT HistogramFloatBase
     : public HistogramBackend
 {
@@ -205,11 +207,12 @@ public:
     typedef float value_t;
     /** typedef describing the storage type*/
     typedef std::vector<value_t> storage_t;
+
     /** constructor.
-    * @param dim The dimension of the histogram
-    * @param memory_size size of the memory, used for special cases
-    * @param ver the serialization version
-    */
+     * @param dim The dimension of the histogram
+     * @param memory_size size of the memory, used for special cases
+     * @param ver the serialization version
+     */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
         :HistogramBackend(dim,ver),
         _memory(memory_size, 0.),
@@ -218,10 +221,10 @@ public:
         {}
 
     /** read histogram from serializer.
-    * This constructor will create a histogram that has been serialized to the
-    * serializer. Will call @see deserialize(Serializer&).
-    * @param[in] in The Serializer that we read the histogram from
-    */
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Will call @see deserialize(Serializer&).
+     * @param[in] in The Serializer that we read the histogram from
+     */
     HistogramFloatBase(Serializer& in)
         : HistogramBackend(0,1)
     {
@@ -243,24 +246,22 @@ public:
     value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
 
     /** return whether the histogram should be filled.
-
-    this means that someone wants to have the histogram serialized
-    */
+     *this means that someone wants to have the histogram serialized
+     */
     bool shouldBeFilled() {return _shouldbefilled;}
+
+    /** clear the histogram memory*/
+    virtual void clear() {lock.lockForWrite();std::fill(_memory.begin(),_memory.end(),0);}
 
     /** notify histogram that is has been filled*/
     void notify(){_fillcondition.wakeAll();}
 
 protected:
 
-    /** reset the histogram*/
-    virtual void reset() { _memory.assign(_memory.size(), 0); }
-
     /** histogram storage.
-
-    The memory contains the histogram in range nbins, after that there are some reservered spaces
-    for over/underflow statistics
-    */
+     * The memory contains the histogram in range nbins, after that there are some reservered spaces
+     * for over/underflow statistics
+     */
     storage_t _memory;
 
     /** flag to tell whether histogram needs to only be filled when serialized*/
@@ -306,42 +307,42 @@ public:
 
 
 /** 1D Histogram.
-* can be used for Graphs, ToF's etc.
-* @author Lutz Foucar
-* @author Jochen Küpper
-*/
+ * can be used for Graphs, ToF's etc.
+ * @author Lutz Foucar
+ * @author Jochen Küpper
+ */
 class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
 {
 public:
 
     /** constructor.
-    * Create a 1d histogram of floats
-    * @param nbrXBins, xLow, xUp The properties of the x-axis
-    */
+     * Create a 1d histogram of floats
+     * @param nbrXBins, xLow, xUp The properties of the x-axis
+     */
     Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
         : HistogramFloatBase(1,nbrXBins+2,1)
     {
-        //set up the axis
-        _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      //set up the axis
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     }
 
     /** read histogram from serializer while creating.
-    * This constructor will create a histogram that has been serialized to the
-    * serializer. Serialization is done in the baseclass.
-    * @param[in] in The Serializer that we read the histogram from
-    */
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Serialization is done in the baseclass.
+     * @param[in] in The Serializer that we read the histogram from
+     */
     Histogram1DFloat(Serializer &in)
         : HistogramFloatBase(in)
     {}
 
     /** Add datum to histogram.
-    * This operation will lock the memory before attempting to fill the right bin.
-    * It will find the right bin for the x-value. If the histogram the bin should not
-    * be increased by one, but by a user defined value, then this can be given as the
-    * second paramenter.
-    * @param x x value that should be histogrammed
-    * @param weight value of datum
-    */
+     * This operation will lock the memory before attempting to fill the right bin.
+     * It will find the right bin for the x-value. If the histogram the bin should not
+     * be increased by one, but by a user defined value, then this can be given as the
+     * second paramenter.
+     * @param x x value that should be histogrammed
+     * @param weight value of datum
+     */
     void fill(float x, value_t weight=1.);
 
     /*! Return histogram bin that contains x */
@@ -375,22 +376,19 @@ public:
 
 
 /** 2D Histogram.
-
-can be used for detector images, i.e., pnCCD, VMI CCD, etc...
-
-@author Lutz Foucar
-@author Jochen Küpper
-*/
+ * can be used for detector images, i.e., pnCCD, VMI CCD, etc...
+ * @author Lutz Foucar
+ * @author Jochen Küpper
+ */
 class CASSSHARED_EXPORT Histogram2DFloat : public HistogramFloatBase
 {
 public:
 
     /** create a 2d histogram.
-
-    This is used when constructing a histogram
-    @param nbrXBins, xLow, xUp The properties of the x-axis
-    @param nbrYBins, yLow, yUp The properties of the y-axis
-    */
+     * This is used when constructing a histogram
+     * @param nbrXBins, xLow, xUp The properties of the x-axis
+     * @param nbrYBins, yLow, yUp The properties of the y-axis
+     */
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                      size_t nbrYBins, float yLow, float yUp)
         : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)
@@ -417,12 +415,10 @@ public:
     }
 
     /** read histogram from serializer.
-
-    This constructor will create a histogram that has been serialized to the
-    serializer. Serialization is done in the baseclass.
-
-    @param[in] in The Serializer that we read the histogram from
-    */
+     * This constructor will create a histogram that has been serialized to the
+     * serializer. Serialization is done in the baseclass.
+     * @param[in] in The Serializer that we read the histogram from
+     */
     Histogram2DFloat(Serializer &in)
         : HistogramFloatBase(in)
     {}
@@ -447,11 +443,11 @@ public:
     std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); };
 
     /** Add datum to histogram.
-    * This operation will lock the memory before attempting to fill the right bin.
-    * @param x, y Position of datum
-    * @param weight value of datum
-    * @todo Fix type-mismatch between size_t and long.
-    */
+     * This operation will lock the memory before attempting to fill the right bin.
+     * @param x, y Position of datum
+     * @param weight value of datum
+     * @todo Fix type-mismatch between size_t and long.
+     */
     void fill(float x, float y, value_t weight=1.);
 
     /** Reduce the 2D histogram to a 1D integral along a specified axis.
@@ -482,30 +478,30 @@ public:
 
 inline void cass::AxisProperty::serialize(cass::Serializer &out)
 {
-    //the version//
-    out.addUint16(_version);
+  //the version//
+  out.addUint16(_version);
 
-    //number of bins, lower & upper limit
-    out.addSizet(_size);
-    out.addFloat(_low);
-    out.addFloat(_up);
+  //number of bins, lower & upper limit
+  out.addSizet(_size);
+  out.addFloat(_low);
+  out.addFloat(_up);
 }
 
 
 
 inline void cass::AxisProperty::deserialize(cass::Serializer &in)
 {
-    //check whether the version fits//
-    uint16_t ver = in.retrieveUint16();
-    if(ver!=_version)
-    {
-        std::cerr<<"version conflict in Axisproperty of Histogram: "<<ver<<" "<<_version<<std::endl;
-        return;
-    }
-    //number of bins, lower & upper limit
-    _size     = in.retrieveSizet();
-    _low      = in.retrieveFloat();
-    _up       = in.retrieveFloat();
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in Axisproperty of Histogram: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  //number of bins, lower & upper limit
+  _size     = in.retrieveSizet();
+  _low      = in.retrieveFloat();
+  _up       = in.retrieveFloat();
 }
 
 
@@ -529,127 +525,128 @@ inline size_t AxisProperty::bin(float pos)
 //-----------------Base class-----------------------
 inline void cass::HistogramFloatBase::serialize(cass::Serializer &out)
 {
-    //if we need to wait until the histogram is filled before serialization//
-    //wait here and set the flag that this histogram needs to be filled//
-    if(_fillwhenserialized)
-    {
-        //tell that we should be filled//
-        _shouldbefilled = true;
-        //wait until we have been filled an can proceed//
-        _fillcondition.wait(&_waitMutex);
-    }
-    lock.lockForRead();
-    //the version//
-    out.addUint16(_version);
-    //the dimension//
-    out.addSizet(_dimension);
-    //the axis properties//
-    for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
-        it->serialize(out);
-    //size of the memory//
-    size_t size = _memory.size();
-    out.addSizet(size);
-    //the memory//
-    for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
-        out.addFloat(*it);
-    //we have been filled and serialized so we need to tell that we don't want //
-    //to be filled again//
-    if(_fillwhenserialized)
-        _shouldbefilled=false;
-    lock.unlock();
+  //if we need to wait until the histogram is filled before serialization//
+  //wait here and set the flag that this histogram needs to be filled//
+  if(_fillwhenserialized)
+  {
+    //tell that we should be filled//
+    _shouldbefilled = true;
+    //wait until we have been filled an can proceed//
+    _fillcondition.wait(&_waitMutex);
+  }
+  lock.lockForRead();
+  //the version//
+  out.addUint16(_version);
+  //the dimension//
+  out.addSizet(_dimension);
+  //the axis properties//
+  for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
+    it->serialize(out);
+  //size of the memory//
+  size_t size = _memory.size();
+  out.addSizet(size);
+  //the memory//
+  for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
+    out.addFloat(*it);
+  //we have been filled and serialized so we need to tell that we don't want //
+  //to be filled again//
+  if(_fillwhenserialized)
+    _shouldbefilled=false;
+  lock.unlock();
 }
 
 
 
 inline void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
 {
-    //check whether the version fits//
-    uint16_t ver = in.retrieveUint16();
-    if(ver!=_version)
-    {
-        std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
-        return;
-    }
-    lock.lockForWrite();
-    //the dimension//
-    _dimension = in.retrieveSizet();
-    //initialize axis for all dimensions//
-    for (size_t i=0; i<_dimension;++i)
-        _axis.push_back(AxisProperty(in));
-    //the memory//
-    size_t size = in.retrieveSizet();
-    _memory.resize(size);
-    for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
-        *it = in.retrieveFloat();
-    lock.unlock();
+  //check whether the version fits//
+  uint16_t ver = in.retrieveUint16();
+  if(ver!=_version)
+  {
+    std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
+    return;
+  }
+  lock.lockForWrite();
+  //the dimension//
+  _dimension = in.retrieveSizet();
+  //initialize axis for all dimensions//
+  for (size_t i=0; i<_dimension;++i)
+    _axis.push_back(AxisProperty(in));
+  //the memory//
+  size_t size = in.retrieveSizet();
+  _memory.resize(size);
+  for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
+    *it = in.retrieveFloat();
+  lock.unlock();
 }
 
 
 //-----------------1D Hist--------------------------
 inline void cass::Histogram1DFloat::fill(float x, float weight)
 {
-    //calc the bin//
-    const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
-    const float xlow    = _axis[xAxis].lowerLimit();
-    const float xup     = _axis[xAxis].upperLimit();
-    const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
+  //calc the bin//
+  const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
+  const float xlow    = _axis[xAxis].lowerLimit();
+  const float xup     = _axis[xAxis].upperLimit();
+  const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
-    //check whether the fill is in the right range//
-    const bool xInRange = 0<=xBin && xBin<nxBins;
-    lock.lockForWrite();
-    // if in range fill the memory otherwise figure out whether over of underflow occured//
-    if (xInRange)
-        _memory[xBin] += weight;
-    else if (xBin >= nxBins)
-        _memory[nxBins+Overflow] += 1;
-    else if (xBin < 0)
-        _memory[nxBins+Underflow] += 1;
-    lock.unlock();
-    //increase the number of fills//
-    ++(_nbrOfFills);
+  //check whether the fill is in the right range//
+  const bool xInRange = 0<=xBin && xBin<nxBins;
+  lock.lockForWrite();
+  // if in range fill the memory otherwise figure out whether over of underflow occured//
+  if (xInRange)
+    _memory[xBin] += weight;
+  else if (xBin >= nxBins)
+    _memory[nxBins+Overflow] += 1;
+  else if (xBin < 0)
+    _memory[nxBins+Underflow] += 1;
+  lock.unlock();
+  //increase the number of fills//
+  ++(_nbrOfFills);
 }
 
 //-----------------2D Hist--------------------------
 inline void Histogram2DFloat::fill(float x, float y, float weight)
 {
-    // calc the xbin
-    const long nxBins   = long(_axis[xAxis].size());
-    const float xlow    = _axis[xAxis].lowerLimit();
-    const float xup     = _axis[xAxis].upperLimit();
-    const long xBin     = long(nxBins * (x - xlow) / (xup-xlow));
-    // calc the ybin
-    const long nyBins   = long(_axis[yAxis].size());
-    const float ylow    = _axis[yAxis].lowerLimit();
-    const float yup     = _axis[yAxis].upperLimit();
-    const long yBin     = long(nyBins * (y - ylow) / (yup-ylow));
-    // fill the memory or the over/underflow quadrant bins
-    const long maxSize  = nyBins*nxBins;
-    const bool xInRange = 0<=xBin && xBin<nxBins;
-    const bool yInRange = 0<=yBin && yBin<nyBins;
-    //lock the write operation//
-    lock.lockForRead();
-    // if both bin coordinates are in range, fill the memory, otherwise figure out which quadrant needs to be filled
-    if (xInRange && yInRange)
-        _memory[yBin*nxBins + yBin]+= weight;
-    if (xBin <0 && yBin <0)
-        _memory[maxSize+LowerLeft]+=1;
-    else if (xInRange && yBin <0)
-        _memory[maxSize+LowerMiddle]+=1;
-    else if (xBin >= nxBins && yBin >=nyBins)
-        _memory[maxSize+LowerRight]+=1;
-    else if (xBin < 0 && yInRange)
-        _memory[maxSize+Left]+=1;
-    else if (xBin >= nxBins && yInRange)
-        _memory[maxSize+Right]+=1;
-    else if (xBin < 0 && yBin >= nyBins)
-        _memory[maxSize+UpperLeft]+=1;
-    else if (xInRange && yBin >= nyBins)
-        _memory[maxSize+UpperMiddle]+=1;
-    else if (xBin >= nxBins && yBin >= nyBins)
-        _memory[maxSize+UpperRight]+=1;
-    lock.unlock();
-    // increase the number of fills
-    ++_nbrOfFills;
+  // calc the xbin
+  const long nxBins   = long(_axis[xAxis].size());
+  const float xlow    = _axis[xAxis].lowerLimit();
+  const float xup     = _axis[xAxis].upperLimit();
+  const long xBin     = long(nxBins * (x - xlow) / (xup-xlow));
+  // calc the ybin
+  const long nyBins   = long(_axis[yAxis].size());
+  const float ylow    = _axis[yAxis].lowerLimit();
+  const float yup     = _axis[yAxis].upperLimit();
+  const long yBin     = long(nyBins * (y - ylow) / (yup-ylow));
+  // fill the memory or the over/underflow quadrant bins
+  const long maxSize  = nyBins*nxBins;
+  const bool xInRange = 0<=xBin && xBin<nxBins;
+  const bool yInRange = 0<=yBin && yBin<nyBins;
+  //lock the write operation//
+  lock.lockForRead();
+  // if both bin coordinates are in range, fill the memory,//
+  //otherwise figure out which quadrant needs to be filled//
+  if (xInRange && yInRange)
+    _memory[yBin*nxBins + yBin]+= weight;
+  if (xBin <0 && yBin <0)
+    _memory[maxSize+LowerLeft]+=1;
+  else if (xInRange && yBin <0)
+    _memory[maxSize+LowerMiddle]+=1;
+  else if (xBin >= nxBins && yBin >=nyBins)
+    _memory[maxSize+LowerRight]+=1;
+  else if (xBin < 0 && yInRange)
+    _memory[maxSize+Left]+=1;
+  else if (xBin >= nxBins && yInRange)
+    _memory[maxSize+Right]+=1;
+  else if (xBin < 0 && yBin >= nyBins)
+    _memory[maxSize+UpperLeft]+=1;
+  else if (xInRange && yBin >= nyBins)
+    _memory[maxSize+UpperMiddle]+=1;
+  else if (xBin >= nxBins && yBin >= nyBins)
+    _memory[maxSize+UpperRight]+=1;
+  lock.unlock();
+  // increase the number of fills
+  ++_nbrOfFills;
 }
 
 
