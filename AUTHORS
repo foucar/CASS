@@ -1,9 +1,10 @@
-This file contains an list of all major contributors to CASS
+This file contains a list of all major contributors to CASS
 
 - Lutz Foucar
   general leader
-  cass_REMI, cass_VMI implementation
-  CASS design
+  cass, cass_acqiris, cass_ccd, cass_machinedata implementation
+  CASS design, infrastructure development
+  all acqiris related postprocessors
 
 - Uwe Hoppe
   jocassview - SOAP client/imageviewer
@@ -20,4 +21,6 @@ This file contains an list of all major contributors to CASS
 - Nicola Coppola
   cass_database
   cass_dictionary
+  new pnCCD analysis
+  Region of Interest (ROI) implementation
   CASS testing, debug and development
