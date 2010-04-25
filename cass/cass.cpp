@@ -152,6 +152,8 @@
  *       Maybe using cass.ini?
  * @todo create pp: cummulative average commercial ccd image with condition on
  *       tof and pos on delayline detector
+ * @todo create pp: postprocessor that will display the photonhits (to average out
+ *       inhomogeniousity of the phosphor). Maybe make this an moving average (how)?
  */
 
 /** \page authors Authors
