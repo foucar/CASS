@@ -729,11 +729,9 @@ void cass::pp567::operator()(const cass::CASSEvent &evt)
   TofDetector *det =
       dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //reference to all found peaks of the mcp channel//
-  const Signal::peaks_t &mcpSignals = det->mcp().peaks();
+  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
   //fill all found peaks into the histogram//
-  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
-       it != mcpSignals.end();
-       ++it)
+  for (; it != det->mcp().peaks().end(); ++it)
     _tof->fill(it->time());
 }
 
@@ -1022,12 +1020,10 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  //get the hits//
-  DelaylineDetector::dethits_t &hits = det->hits();
+  //get iterator to the hits//
+  DelaylineDetector::dethits_t::iterator it = det->hits().begin();
   //go through all hits of the detector//
-  for (DelaylineDetector::dethits_t::iterator it = hits.begin();
-       it != hits.end();
-       ++it)
+  for (; it != det->hits().end(); ++it)
   {
     if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
       _hist->fill(it->values()[_first],it->values()[_second]);
@@ -1096,11 +1092,9 @@ void cass::pp581::operator()(const cass::CASSEvent &evt)
   TofDetector *det =
       dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //reference to all found peaks of the mcp channel//
-  const Signal::peaks_t &mcpSignals = det->mcp().peaks();
+  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
   //fill all found peaks into the histogram//
-  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
-       it != mcpSignals.end();
-       ++it)
+  for (;it != det->mcp().peaks().end(); ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }
 
@@ -1179,11 +1173,9 @@ void cass::pp582::operator()(const cass::CASSEvent &evt)
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //go through all peaks of the wireend//
   //reference to all found peaks of the wireend channel//
-  const Signal::peaks_t &mcpSignals = det->layers()[_layer].wireend()[_signal].peaks();
+  Signal::peaks_t::const_iterator it = det->layers()[_layer].wireend()[_signal].peaks().begin();
   //fill all found peaks into the histogram//
-  for (Signal::peaks_t::const_iterator it = mcpSignals.begin();
-       it != mcpSignals.end();
-       ++it)
+  for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }
 
