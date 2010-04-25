@@ -306,9 +306,18 @@ namespace cass
     char _first;
     /** The second value of the detector */
     char _second;
+    /** The third value of the detector, that we will check the condition for*/
+    char _third;
+    /** The condition that we impose on the third component*/
+    std::pair<float, float> _condition;
     /** The Histogram storing the info*/
     Histogram2DFloat  *_hist;
   };
+
+
+
+
+
 
 
   /** FWHM vs. Height of MCP Signals.

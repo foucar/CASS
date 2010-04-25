@@ -961,18 +961,18 @@ cass::pp578::pp578(PostProcessors &pp, PostProcessors::id_t id)
   switch (_id)
   {
   case PostProcessors::HexXY:
-    _detector = HexDetector; _first = 'x'; _second = 'y'; break;
+    _detector = HexDetector; _first = 'x'; _second = 'y'; _third = 't'; break;
   case PostProcessors::HexXT:
-    _detector = HexDetector; _first = 't'; _second = 'x'; break;
+    _detector = HexDetector; _first = 't'; _second = 'x'; _third = 'y'; break;
   case PostProcessors::HexYT:
-    _detector = HexDetector; _first = 't'; _second = 'y'; break;
+    _detector = HexDetector; _first = 't'; _second = 'y'; _third = 'x'; break;
 
   case PostProcessors::QuadXY:
-    _detector = QuadDetector; _first = 'x'; _second = 'y'; break;
+    _detector = QuadDetector; _first = 'x'; _second = 'y'; _third = 't'; break;
   case PostProcessors::QuadXT:
-    _detector = QuadDetector; _first = 't'; _second = 'x'; break;
+    _detector = QuadDetector; _first = 't'; _second = 'x'; _third = 'y'; break;
   case PostProcessors::QuadYT:
-    _detector = QuadDetector; _first = 't'; _second = 'y'; break;
+    _detector = QuadDetector; _first = 't'; _second = 'y'; _third = 'x'; break;
 
   default:
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Values").arg(id).toStdString());
@@ -989,10 +989,25 @@ cass::pp578::~pp578()
 
 void cass::pp578::loadParameters(size_t)
 {
+  QSettings param;
+  param.beginGroup(QString("processor_") + QString::number(_id));
+  //load the condition on the third component//
+  float f = param.value("ConditionLow",-50000.).toFloat();
+  float s = param.value("ConditionHigh",50000.).toFloat();
+  param.endGroup();
+  //make sure that the first value of the condition is the lower and second the higher value//
+  _condition.first = (f<=s)?f:s;
+  _condition.second = (s>f)?s:f;
+  //tell the user what is loaded//
+
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Property "<<_second
       <<" vs. "<<_first
-      <<" of the reconstructed Detectorhits of detector "<<_detector<<std::endl;
+      <<" of the reconstructed Detectorhits of detector "<<_detector
+      <<" condition Low "<<_condition.first
+      <<" High "<<_condition.second
+      <<" on Property "<< _third
+      <<std::endl;
   //create the histogram
   set2DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
@@ -1014,7 +1029,8 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
        it != hits.end();
        ++it)
   {
-    _hist->fill(it->values()[_first],it->values()[_second]);
+    if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
+      _hist->fill(it->values()[_first],it->values()[_second]);
   }
 }
 
@@ -1181,7 +1197,7 @@ void cass::pp582::operator()(const cass::CASSEvent &evt)
 
 
 //----------------PIPICO-------------------------------------------------------
-//-----------pp582-587, pp622-625----------------------------------------------
+//-----------pp700-701---------------------------------------------------------
 cass::pp700::pp700(PostProcessors &pp, PostProcessors::id_t id)
   :cass::PostprocessorBackend(pp,id),
   _pipico(0)

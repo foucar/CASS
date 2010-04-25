@@ -157,8 +157,14 @@ histograms) and placed in the file for the most appropriate group according to t
 00576: Hex Anode Delayline Picture of First Hit VW Layers in ns
 
 00578: Hex Anode Delayline Picture all Hits in mm
+  -with condition on the tof.
+  -processor_578 ConditionLow, ConditionHigh
 00579: Hex Anode Delayline X vs Tof
+  -with condition on the Y Komponent.
+  -processor_579 ConditionLow, ConditionHigh
 00580: Hex Anode Delayline Y vs Tof
+  -with condition on the X Komponent.
+  -processor_580 ConditionLow, ConditionHigh
 
 00581: Hex Anode Height vs. Fwhm MCP
 00582: Hex Anode Height vs. Fwhm U1
@@ -195,8 +201,14 @@ histograms) and placed in the file for the most appropriate group according to t
 00617: Quad Anode Delayline Picture of First Hit in ns
 
 00618: Quad Anode Delayline Picture all Hits in mm
+  -with condition on the tof.
+  -processor_618 ConditionLow, ConditionHigh
 00619: Quad Anode Delayline X vs Tof
+  -with condition on the Y Komponent.
+  -processor_619 ConditionLow, ConditionHigh
 00620: Quad Anode Delayline Y vs Tof
+  -with condition on the X Komponent.
+  -processor_620 ConditionLow, ConditionHigh
 
 00621: Quad Anode Height vs. Fwhm MCP
 00622: Quad Anode Height vs. Fwhm X1
