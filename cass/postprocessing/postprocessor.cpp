@@ -169,6 +169,11 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case Pnccd1BackgroundCorrectedBinnedRunnngAverage:
         processor = new pp101(*this, id);
         break;
+    case VMIPhotonHits:
+    case PnCCDFrontPhotonHits:
+    case PnCCDBackPhotonHits:
+        processor = new pp110(*this,id);
+        break;
     case CampChannel00LastWaveform:
     case CampChannel01LastWaveform:
     case CampChannel02LastWaveform:

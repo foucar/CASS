@@ -220,11 +220,14 @@ cass::pp110::~pp110()
 }
 
 
-void cass::pp110::operator()(const CASSEvent& event)
+void cass::pp110::operator()(const CASSEvent& evt)
 {
     //retrieve the detector's photon hits of the device we are working for.
-//    const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-//    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    const CCDDetector::pixelList_t& pixellist
+        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+    CCDDetector::pixelList_t::const_iterator it(pixellist.begin());
+    for (; it != pixellist.end();++it)
+      _image->fill(it->x(),it->y());
 }
 
 
