@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _CCD_DETECTOR_H_
 #define _CCD_DETECTOR_H_
@@ -11,15 +11,18 @@
 
 namespace cass
 {
+  /** Pixel of a CCD Detector.
+   * This class defines a pixel in a ccd detector.
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT Pixel
   {
   public:
     Pixel(uint16_t X, uint16_t Y, pixel_t Z)
         :_x(X),_y(Y),_z(Z)
-    {
-    }
+    {}
     Pixel()       {}
-    ~Pixel()      {}
+    virtual ~Pixel()      {}
 
   public:
     uint16_t &x()       {return _x;}
@@ -30,12 +33,17 @@ namespace cass
     pixel_t   z()const  {return _z;}
 
   private:
-    uint16_t _x;        //x coordinate of the coordinate
-    uint16_t _y;        //y part of the coordinate
-    pixel_t  _z;        //the pixel value
+    uint16_t _x;        //!< x coordinate of the coordinate
+    uint16_t _y;        //!< y part of the coordinate
+    pixel_t  _z;        //!< the pixel value
   };
 
 
+  /** A CCD Detector.
+   * This class will be used by the commercial ccd and the
+   * pnCCD Devices.
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT CCDDetector
   {
   public:
@@ -49,16 +57,15 @@ namespace cass
         _integral(0),
         _maxPixelValue(0)
     {}
-    ~CCDDetector() {}
+    virtual ~CCDDetector() {}
 
   public:
 
     /** Linear array of CCD data
-
-    For definition of frame_t format see
-    - pnCCDConverter
-    - Pulnix -> ask Chris O'Grady
-    */
+     * For definition of frame_t format see
+     * - pnCCDConverter
+     * - Pulnix -> ask Chris O'Grady
+     */
     typedef std::vector<pixel_t> frame_t;
     
     typedef std::vector<Pixel> pixelList_t;
@@ -89,21 +96,20 @@ namespace cass
     pixelList_t       &pixellist()           {return _pixellist;}
 
   private:
-    //data//
-    frame_t         _frame;                  //the ccd frame
-    uint16_t        _columns;                //Nbr of columns of the frame
-    uint16_t        _rows;                   //Nbr of rows of the frame
-    uint16_t        _originalcolumns;        //Nbr of columns of the frame before rebinning
-    uint16_t        _originalrows;           //Nbr of rows of the frame before rebinning
-    uint16_t        _version;                //the version for de/serializing
+    frame_t         _frame;                  //!< the ccd frame
+    uint16_t        _columns;                //!< Nbr of columns of the frame
+    uint16_t        _rows;                   //!< Nbr of rows of the frame
+    uint16_t        _originalcolumns;        //!< Nbr of columns of the frame before rebinning
+    uint16_t        _originalrows;           //!< Nbr of rows of the frame before rebinning
+    uint16_t        _version;                //!< the version for de/serializing
 
     //status that is set by analysis, derived by cass.ini//
-    bool            _isDarkframe;            //is this ccd frame a darkframe
+    bool            _isDarkframe;            //!< is this ccd frame a darkframe
 
     //data that gets calculated in Analysis//
-    uint32_t        _integral;               //the sum of all pixelvalues
-    pixel_t         _maxPixelValue;          //the highest pixelvalue
-    pixelList_t     _pixellist;              //list of pixels above a given threshold
+    uint32_t        _integral;               //!< the sum of all pixelvalues
+    pixel_t         _maxPixelValue;          //!< the highest pixelvalue
+    pixelList_t     _pixellist;              //!< list of pixels above a given threshold
   };
 }//end namespace cass
 
