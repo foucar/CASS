@@ -33,8 +33,8 @@ namespace cass
       void deserialize(cass::Serializer&);
 
     public:
-      const detectors_t   &detectors()const   {return _detectors;}
-      detectors_t         &detectors()        {return _detectors;}
+      const detectors_t   *detectors()const   {return &_detectors;}
+      detectors_t         *detectors()        {return &_detectors;}
 
     private:
       detectors_t          _detectors;        //!< a vector containing all ccd detectors

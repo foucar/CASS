@@ -19,7 +19,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //retrieve a reference to the pulnix detector//
-  cass::CCDDetector& det = dev->detectors()[0];
+  cass::CCDDetector& det = (*dev->detectors())[0];
 
   //copy the values status values from the frame to the detector//
   det.columns()          = frame.width();

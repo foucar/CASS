@@ -74,15 +74,15 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const size_t detectorId = info.devId();
 
       //if necessary resize the detector container//
-      if (detectorId >= dev.detectors().size())
-        dev.detectors().resize(detectorId+1);
+      if (detectorId >= dev.detectors()->size())
+        dev.detectors()->resize(detectorId+1);
 
       //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
       if (_pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
-        cass::CCDDetector& det = dev.detectors()[detectorId];
+        cass::CCDDetector& det = (*dev.detectors())[detectorId];
 
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];

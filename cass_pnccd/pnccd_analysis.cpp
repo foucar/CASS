@@ -161,15 +161,15 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
 
   //clear the pixellist of all detectors in the device//
-  for (size_t i=0; i<dev.detectors().size();++i)
-    dev.detectors()[i].pixellist().clear();
+  for (size_t i=0; i<dev.detectors()->size();++i)
+    (*dev.detectors())[i].pixellist().clear();
 
   //check if we have enough detector parameters for the amount of detectors//
   //increase it if necessary
-  if(dev.detectors().size() > _param._detectorparameters.size())
+  if(dev.detectors()->size() > _param._detectorparameters.size())
   {
     //resize detectorparameters and initialize with the new settings//
-    _param._detectorparameters.resize(dev.detectors().size());
+    _param._detectorparameters.resize(dev.detectors()->size());
     for (size_t iDet=0; iDet<_param._detectorparameters.size();++iDet)
       _param.loadDetectorParameter(iDet);
   }
@@ -183,12 +183,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   }
 
   //go through all detectors//
-  for (size_t iDet=0; iDet<dev.detectors().size();++iDet)
+  for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
   {
     //retrieve a reference to the detector parameter for det we are working on//
     DetectorParameter &dp = _param._detectorparameters[iDet];
     //retrieve a reference to the detector we are working on right now//
-    cass::CCDDetector &det = dev.detectors()[iDet];
+    cass::CCDDetector &det = (*dev.detectors())[iDet];
     //retrieve a reference to the frame of the detector//
     cass::CCDDetector::frame_t &f = det.frame();
 

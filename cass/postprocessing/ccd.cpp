@@ -55,7 +55,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 {
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    const CCDDetector::frame_t& frame((*dev->detectors())[_detector].frame());
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 
@@ -94,7 +94,7 @@ void pp3::operator()(const cass::CASSEvent& event)
 {
     using namespace cass::CCD;
     const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
-    const CCDDetector::frame_t& frame(dev->detectors()[0].frame());
+    const CCDDetector::frame_t& frame((*dev->detectors())[0].frame());
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 
@@ -151,11 +151,11 @@ void cass::pp101::operator()(const CASSEvent& event)
     // cass::pnCCD;
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    const CCDDetector::frame_t& frame((*dev->detectors())[_detector].frame());
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
-    size_t rows(dev->detectors()[_detector].rows() / _binning.first);
-    size_t cols(dev->detectors()[_detector].columns() / _binning.second);
+    size_t rows((*dev->detectors())[_detector].rows() / _binning.first);
+    size_t cols((*dev->detectors())[_detector].columns() / _binning.second);
     _image->lock.lockForWrite();
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {

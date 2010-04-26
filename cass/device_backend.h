@@ -29,7 +29,11 @@ namespace cass
     /** detector getter.
      * Must be implemented by commercial and pnccd devices
      */
-//    virtual const CCDDetector&
+    virtual const detectors_t *detectors()const
+    {
+      std::cerr<<"this device has no detectors"<<std::endl;
+      return 0;
+    }
   };
 }//end namespace cass
 
