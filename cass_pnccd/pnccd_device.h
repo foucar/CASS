@@ -1,4 +1,4 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
 //Copyright (C) 2010 Nicola Coppola
 
 #ifndef _PNCCD_DEVICE_H
@@ -29,9 +29,6 @@ namespace cass
 #define pnCCD_default_size_sq 1024*1024
 
     public:
-      typedef std::vector<CCDDetector> detectors_t;
-
-    public:
       void serialize(cass::Serializer&);
       void deserialize(cass::Serializer&);
 
@@ -40,7 +37,7 @@ namespace cass
       detectors_t         &detectors()        {return _detectors;}
 
     private:
-      detectors_t          _detectors;        //a vector containing all ccd detectors
+      detectors_t          _detectors;        //!< a vector containing all ccd detectors
     };
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
