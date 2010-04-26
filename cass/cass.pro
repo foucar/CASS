@@ -9,7 +9,7 @@ CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 
 CODECFORTR     = UTF-8
-DEFINES       += CASS_LIBRARY
+DEFINES       += CASS_LIBRARY NDEBUG
 MOC_DIR        = ./obj
 OBJECTS_DIR    = ./obj
 QMAKE_STRIP    =

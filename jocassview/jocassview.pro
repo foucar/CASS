@@ -9,6 +9,7 @@ CONFIG             += static
 VERSION             = 0.0.1
 
 CODECFORTR          = UTF-8
+DEFINES            += NDEBUG
 OBJECTS_DIR         = ./obj
 MOC_DIR             = ./obj
 QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
