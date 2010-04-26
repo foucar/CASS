@@ -5,6 +5,7 @@
 #define _CCD_POSTPROCESSOR_H_
 
 #include "postprocessing/backend.h"
+#include "cass_event.h"
 
 namespace cass
 {
@@ -107,6 +108,44 @@ protected:
     /** current image */
     Histogram2DFloat *_image;
 };
+
+
+
+
+
+
+/** PhotonHits of CCD's.
+ * This postprocessor will fill a 2d histogram with the detected Photonhits.
+ * Photonhits will be detected in the commercial Pre Analyzer. They will
+ * be just summed up. One needs to clear this histogram, when something has changed
+ */
+class pp110 : public PostprocessorBackend
+{
+public:
+
+    pp110(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image spcae */
+    virtual ~pp110();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+protected:
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** detector to work on */
+    size_t _detector;
+
+    /** current image */
+    Histogram2DFloat *_image;
+};
+
+
+
+
+
 
 
 

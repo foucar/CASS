@@ -90,6 +90,20 @@ histograms) and placed in the file for the most appropriate group according to t
 - an average length of postprocessors/101/average
 00102: Histogram 101 with
 - background subtraction of the image file specified in postprocessors/102/background
+
+00110: Commercial CCD Image with just the detected photonHits
+  - 2d Histogram, Bins are increased by one for each detected photonhit
+  - photonHits are detected in the pre Analyzer.
+  - check pre analyzer for threshold parameters
+00111: Front pnCCD Image with just the detected photonHits
+  - 2d Histogram, Bins are increased by one for each detected photonhit
+  - photonHits are detected in the pre Analyzer.
+  - check pre analyzer for threshold parameters
+00112: Back pnCCD Image with just the detected photonHits
+  - 2d Histogram, Bins are increased by one for each detected photonhit
+  - photonHits are detected in the pre Analyzer.
+  - check pre analyzer for threshold parameters
+
 00121: Running average of VMI (Opal) camera
 00131: Scalar value of the <cos^2\theta> derived from the 121 image
 00141: Sum-intensity of image pp3
@@ -299,6 +313,7 @@ public:
         CampChannel18LastWaveform=22,
         CampChannel19LastWaveform=23,
         Pnccd1BinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
+        VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
         VmiRunningAverage=121, VmiCos2Theta=131,
         Integral3=141, Integral121=142,
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
