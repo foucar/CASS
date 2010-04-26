@@ -203,17 +203,17 @@ int main(int argc, char **argv)
   {
     switch (c)
     {
-      case 'p':
-        strcpy(partitionTag, optarg);
-        break;
-      case 's':
-        soap_port = strtol(optarg, 0, 0);
-        break;
+    case 'p':
+      strcpy(partitionTag, optarg);
+      break;
+    case 's':
+      soap_port = strtol(optarg, 0, 0);
+      break;
     case 'c':
-        index = strtol(optarg, 0, 0);
-      default:
-        std::cout << "please give me a partition tag" <<std::endl;
-        break;
+      index = strtol(optarg, 0, 0);
+    default:
+      std::cout << "please give me a partition tag" <<std::endl;
+      break;
     }
   }
 
