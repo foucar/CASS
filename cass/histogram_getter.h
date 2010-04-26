@@ -53,7 +53,7 @@ public:
     /** Serialize histogram.
      * function that will serialize the requested histogram to a string and return it
      */
-    const std::string operator()(const HistogramParameter&) const;
+    const std::pair<size_t, std::string> operator()(const HistogramParameter&) const;
 
     /** clear histogram.
      * function that will clear a requested histogram.

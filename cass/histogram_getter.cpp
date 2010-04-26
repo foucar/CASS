@@ -10,19 +10,21 @@
 using namespace cass;
 
 
-const std::string HistogramGetter::operator()(const HistogramParameter& hp) const
+const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
     // check out histograms storage map
     PostProcessors *pp(PostProcessors::instance());
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
     pp->validate(hp.type);
-    // serialize the wanted histogram using the serializer
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    // get dimension
+    size_t dim(iter->second->dimension());
+    // serialize the wanted histogram using the serializer
     Serializer serializer;
     iter->second->serialize(serializer);
     // release and return
     pp->histograms_release();
-    return serializer.buffer();
+    return make_pair(dim, serializer.buffer());
 }
 
 
