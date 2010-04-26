@@ -112,7 +112,7 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
         queue.dequeue();
     *success = true;
     soap_set_dime(this); // enable dime
-    return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/octet-stream",
+    return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/cassevent",
                                     QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
@@ -120,18 +120,35 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
+    static QQueue<std::pair<size_t, std::string> *> queue;
     try {
+        // get data
+        cass::SoapServer *server(cass::SoapServer::instance());
+        std::pair<size_t, std::string> *data(new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
+        // MIME type
+        std::string mimetype;
+        switch(data->first) {
+        case 0:
+            mimetype = std::string("application/cass0Dhistogram");
+            break;
+        case 1:
+            mimetype = std::string("application/cass1Dhistogram");
+            break;
+        case 2:
+            mimetype = std::string("application/cass2Dhistogram");
+            break;
+        default:
+            mimetype = std::string("application/casshistogram");
+            break;
+        }
         // keep bytes around for a while -- this should mitigate the "zeros" problem
-        static QQueue<std::string *> queue;
-        std::string *data(new std::string(cass::SoapServer::instance()->get_histogram(cass::HistogramParameter(type))));
         queue.enqueue(data);
         if(10 < queue.size())
             delete queue.dequeue();
         // answer request
-        std::cerr << "CASSsoapService::getHistogram -- size = " << data->size() << std::endl;
         *success = true;
         soap_set_dime(this);
-        return soap_set_dime_attachment(this, (char *)data->data(), data->size(), "application/octet-stream",
+        return soap_set_dime_attachment(this, (char *)data->second.data(), data->second.size(), mimetype.c_str(),
                                         QString::number(type).toStdString().c_str(), 0, NULL);
     } catch(cass::InvalidHistogramError&) {
         *success = false;
