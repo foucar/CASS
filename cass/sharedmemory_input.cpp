@@ -10,11 +10,13 @@
 
 
 cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
+                                           int index,
                                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& ringbuffer,
                                            QObject *parent)
                                              :QThread(parent),
                                              _ringbuffer(ringbuffer),
                                              _partitionTag(partitionTag),
+                                             _index(index),
                                              _quit(false),
                                              _converter(cass::FormatConverter::instance()),
                                              _pause(false),
@@ -82,8 +84,9 @@ void cass::SharedMemoryInput::run()
   //start the xtcmonitorclient//
   //this eventqueue will subscripe to a partitiontag//
   std::cout << "starting shared memory in put with partition Tag: \""
-      <<_partitionTag <<"\""<<std::endl;
-  Pds::XtcMonitorClient::run(_partitionTag);
+      <<_partitionTag <<"\""
+      << " and Client Index "<< _index<<std::endl;
+  Pds::XtcMonitorClient::run(_partitionTag,_index);
   std::cout << "shared memory input is closing down"<<std::endl;
 }
 
