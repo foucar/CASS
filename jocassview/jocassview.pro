@@ -1,5 +1,4 @@
 # Copyright (C) 2010 Jochen Küpper
-# Copyright (C) 2010 Lutz Foucar
 
 TARGET              = jocassview
 TEMPLATE            = app
