@@ -29,9 +29,9 @@ namespace cass
     /** the type of a pixel of a ccd image*/
     typedef float pixel_t;
     //forward decalration//
-    class CCDDetector;
+    class PixelDetector;
     /** type of the container for ccd detectors */
-    typedef std::vector<CCDDetector> detectors_t;
+    typedef std::vector<PixelDetector> detectors_t;
 
 
 
