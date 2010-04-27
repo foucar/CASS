@@ -83,7 +83,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       if (_pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
-        cass::PixelDetector& det = dev.detectors()[detectorId];
+        cass::PixelDetector& det = (*dev.detectors())[detectorId];
 
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
