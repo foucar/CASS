@@ -15,6 +15,10 @@ namespace cass
   /** A Ringbuffer, handles communication between Input and Worker Threads.
    * The ringbuffer handles the main communication between the single producer
    * (shared memory input) and the multiple consumers (worker).
+   *
+   * The ringbuffer can be compiled or non blocking by defining RINGBUFFER_BLOCKING
+   * or not, respectively.
+   *
    * It is designed in such a way, that in the nonblocking case, the consumers
    * do not block the producer from putting new entries into the ringbuffer.
    * If the producers velocity in filling the buffer varies, then this buffer
@@ -24,8 +28,7 @@ namespace cass
    * They will do this by going backwards through the buffer from the last
    * element that the producer has put into the buffer.
    * The ringbuffers' elements will be created on the Heap.
-   * @note can we create the ringbuffer to have the blockable / nonblockable property
-   *       already at compile time?
+   *
    * @tparam T Element typ
    * @tparam cap Capacity of the ringbuffer
    * @author Lutz Foucar
@@ -33,11 +36,28 @@ namespace cass
   template <typename T, size_t cap>
   class RingBuffer
   {
+  public:
+
+    /** enum describing the behaviour of the ringbuffer*/
+    enum behaviour_t {blocking, nonblocking};
+
+    /** type for references to the elements of the container*/
+    typedef T*& reference;
+
+    /** type for const references to the elements of the container*/
+    typedef const T*& const_reference;
+
+    /** type for pointers to the elements of the container*/
+    typedef T* value_t;
+
+
   private:
+
     /** an element of the ringbuffer.
      * contains the status of the element and a pointer
      * to the actual element.
      * @author Lutz Foucar
+     * @todo Internationalize variable names
      */
     class Element
     {
@@ -51,14 +71,12 @@ namespace cass
         gefuellt(false),
         inBearbeitung(false)
       {}
-      /** Comparison an element with the element of the Element.
-       * Two Ringbuffers are the same only when their elements type and
-       * capacity are equal
+      /** Element equality.
+       *
+       * Two elements are equal when their addresses are equal.
+       * @param Element to compare me to.
        */
-      bool operator==(const T*& rhs)
-      {
-        return (element == rhs);
-      }
+      bool operator==(const_reference rhs) { return (element == rhs); }
       /** the pointer to the element*/
       T   *element;
       /** status whether the element has been worked on*/
@@ -69,34 +87,35 @@ namespace cass
       bool inBearbeitung;
     };
 
+
   public:
-    /** enum describing the behaviour of the ringbuffer*/
-    enum behaviour_t{blocking,nonblocking};
-    /** typedef describing the container of all elements*/
+
+    /** type of the container of all elements*/
     typedef std::vector<Element> buffer_t;
-    /** typedef describing an interator for the elements of the container*/
+
+    /** type of the interator over the elements of the container*/
     typedef typename buffer_t::iterator iterator_t;
-    /** typedef describing a reference to the elements of the container*/
-    typedef T*& reference;
-    /** typedef describing a const reference to the elements of the container*/
-    typedef const T*& const_reference;
-    /** typedef describing a pointer to the elements of the container*/
-    typedef T* value_t;
+
 
     /** constructor.
-     * will create the buffer and fill it with the requested amount of elements
+     * This will create the buffer, fill it with the requested amount of elements,
      * and initialize the iterators.
      */
     RingBuffer()
-      : _behaviour(blocking),
-        _buffer(cap,Element()),
+      : _buffer(cap,Element()),
         _nextToProcess(_buffer.begin()),
-        _nextToFill(_buffer.begin())
+        _nextToFill(_buffer.begin()),
+#ifdef RINGBUFFER_BLOCKING
+        _behaviour(blocking)
+#else
+        _behaviour(nonblocking)
+#endif
     {
       //create the elements in the ringbuffer//
       for (size_t i=0; i<_buffer.size(); ++i)
         _buffer[i].element = new T();
     }
+
     /** destructor.
      * deletes all elements of the buffer
      */
@@ -120,7 +139,7 @@ namespace cass
       //remember where we should end our loop//
       //we should end where the next fillable element is, because elements//
       //before the next fillable are already processed or are in processing/
-      iterator_t letztesFreiesElement = _nextToFill;
+      iterator_t letztesFreiesElement(_nextToFill);
       //if the current element is currently processed or not filled yet//
       //try the next one//
       while (_nextToProcess->inBearbeitung || !_nextToProcess->gefuellt)
@@ -177,53 +196,31 @@ namespace cass
     }
 
     /** finds the next fillable element.
+     *
      * this function is used when the behaviour of the ringbuffer is blockable
      * it will iterate through the buffer and checks the elements for the
      * status in progress (inBearbeitung) and processed (bearbeitet)
      * it will only return true when its not in progress and already processed.
-     * @return true when a fillable element has been found
-     */
-    bool findNextFillableBlockable()
-    {
-      //remember where you are starting//
-      iterator_t start =
-          (_nextToFill == _buffer.begin()) ? _buffer.end()-1 :_nextToFill-1;
-      //if the current element is currently processed or has not been processed//
-      //try the next element//
-      while (_nextToFill->inBearbeitung || !_nextToFill->bearbeitet)
-      {
-        //if we end up where we started, then the elements are not yet processed//
-        //or still in progress, so retrun that we have not found anything yet.//
-        if (_nextToFill == start)
-          return false;
-
-        //if we hit the end of the vector, then we will jump to the
-        //beginning of the vector//
-        if (_nextToFill == _buffer.end()-1)
-          _nextToFill = _buffer.begin();
-        else
-          ++_nextToFill;
-      }
-      return true;
-    }
-    /** finds the next fillable element.
+     *
      * this function is used when the behaviour of the ringbuffer is nonblockable
      * it will iterate through the buffer and checks the elements for
      * only the status in progress (inBearbeitung).
      * it will only return true when its not in progress.
      * @return true when a fillable element has been found
      */
-    bool findNextFillableNonBlockable()
+    bool findNextFillable()
     {
       //remember where you are starting//
-      iterator_t start =
-          (_nextToFill == _buffer.begin()) ? _buffer.end()-1 :_nextToFill-1;
-      //if the current element is currently processed//
+      iterator_t start((_nextToFill == _buffer.begin()) ? _buffer.end()-1 : _nextToFill-1);
+      //if the current element is currently processed or has not been processed//
       //try the next element//
-      while (_nextToFill->inBearbeitung)
-      {
+#ifdef RINGBUFFER_BLOCKING
+      while (_nextToFill->inBearbeitung || !_nextToFill->bearbeitet) {
+#else
+      while (_nextToFill->inBearbeitung) {
+#endif
         //if we end up where we started, then the elements are not yet processed//
-        //so retrun that we have not found anything yet.//
+        //or still in progress, so retrun that we have not found anything yet.//
         if (_nextToFill == start)
           return false;
 
@@ -242,10 +239,7 @@ namespace cass
      * @return void
      * @param behaviour the behaviour that the ringbuffer should have
      */
-    void behaviour(behaviour_t behaviour)
-    {
-      _behaviour = behaviour;
-    }
+    void behaviour(behaviour_t behaviour) { _behaviour = behaviour; }
 
     /** return the next filled but non processed element.
      * This function will return the next filled element, which will
@@ -333,19 +327,8 @@ namespace cass
     {
       //create lock//
       QMutexLocker lock(&_mutex);
-      if (_behaviour == blocking)
-      {
-        while(!findNextFillableBlockable())
-        {
-          _fillcondition.wait(lock.mutex());
-        }
-      }
-      else
-      {
-        while(!findNextFillableNonBlockable())
-        {
-          _fillcondition.wait(lock.mutex());
-        }
+      while(!findNextFillable()) {
+        _fillcondition.wait(lock.mutex());
       }
       //we found an element. Set the flags accordingly//
       _nextToFill->inBearbeitung = true;
@@ -451,15 +434,15 @@ namespace cass
     }
 
   private:
-    QMutex            _mutex;             //!< mutex to sync the processing part
-    QWaitCondition    _fillcondition;     //!< condition to sync the filling part
-    QWaitCondition    _processcondition;  //!< condition to sync the processing part
-    QWaitCondition    _viewcondition;     //!< condition to sync the viewing part
-    behaviour_t       _behaviour;         //!< container's behaviour
+    QMutex            _mutex;             //!< sync the processing part
+    QWaitCondition    _fillcondition;     //!< sync the filling part
+    QWaitCondition    _processcondition;  //!< sync the processing part
+    QWaitCondition    _viewcondition;     //!< sync the viewing part
     buffer_t          _buffer;            //!< the Container
-    iterator_t        _nextToProcess;     //!< Iterator pointing to the next processable element
-    iterator_t        _nextToView;        //!< Iterator pointing to the next viewable element
-    iterator_t        _nextToFill;        //!< Iterator pointing to the next fillable element
+    iterator_t        _nextToProcess;     //!< the next processable element
+    iterator_t        _nextToView;        //!< the next viewable element
+    iterator_t        _nextToFill;        //!< the next fillable element
+    const behaviour_t _behaviour;         //!< container's behaviour
   };
 }
 #endif

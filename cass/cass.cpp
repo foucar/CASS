@@ -218,10 +218,8 @@ int main(int argc, char **argv)
   }
 
 
-  //a nonblocking ringbuffer for the cassevents//
+  //a ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
-  ringbuffer.behaviour
-      (cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
                                                              index,
