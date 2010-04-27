@@ -24,9 +24,6 @@ void cass::CCD::Parameter::save()
 
 
 
-
-
-
 void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
   //retrieve a pointer to the ccd device we are working on//
