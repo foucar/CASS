@@ -14,6 +14,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
   QString s;
   //retrieve reference to the detector parameter//
+  sync();
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
   beginGroup(s.setNum(static_cast<int>(idx)));
