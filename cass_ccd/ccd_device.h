@@ -24,11 +24,11 @@ namespace cass
         :DeviceBackend(1)
       {}
       ~CCDDevice()  {}
-
+      /*
     public:
       const cass::PixelDetector &detector()const  {return _detector;}
       cass::PixelDetector &detector()             {return _detector;}
-
+      */
       void serialize(cass::Serializer&);
       void deserialize(cass::Serializer&);
 
@@ -37,7 +37,8 @@ namespace cass
       detectors_t       *detectors()        {return &_detectors;}
 
     private:
-      cass::PixelDetector   _detector;  //the ccd detector of this device
+      //cass::PixelDetector   _detector;  //the ccd detector of this device
+      detectors_t   _detectors;  // !< a vector containing all pixel detectors
     };
   }
 }
