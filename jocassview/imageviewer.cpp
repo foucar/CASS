@@ -2,7 +2,6 @@
 
 #include "imageviewer.h"
 
-#include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
 
 using namespace std;
@@ -12,14 +11,64 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
         : QMainWindow(parent, flags)
 {
     _ui.setupUi(this);
+    QSettings settings;
 
-    _servername = new QLineEdit("compute-0-0");
+    _servername = new QLineEdit(settings.value("servername", "server?").toString());
+    _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    connect(_servername, SIGNAL(editingFinished()), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_servername);
-
     _serverport = new QSpinBox();
+    _serverport->setKeyboardTracking(false);
     _serverport->setRange(1000, 50000);
-    _serverport->setValue(12321);
+    _serverport->setValue(settings.value("serverport", 10000).toInt());
+    connect(_serverport, SIGNAL(valueChanged(int)), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_serverport);
+
+    QWidget *spacer1 = new QWidget();
+    spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _ui.toolBar->addWidget(spacer1);
+
+/*
+    _picture = new QSpinBox();
+    _picture->setRange(1, 50000);
+    _picture->setValue(101);
+    _ui.toolBar->addWidget(_picture);
+*/
+    _pictureformat = new QComboBox();
+    QStringList formats;
+#warning only write formats ?
+    formats << "BMP" << "GIF" << "JPG" << "JPEG" << "PNG" << "PBM"
+            << "PGM" << "PPM" << "TIFF" << "XBM" << "XPM";
+    _ui.toolBar->addWidget(_pictureformat);
+    _pictureformat->insertItems(0, formats);
+    _pictureformat->setCurrentIndex(settings.value("pictureformat", 4).toInt());
+
+    _zoom = new QDoubleSpinBox();
+    _zoom->setKeyboardTracking(false);
+    _zoom->setDecimals(1);
+    _zoom->setRange(-50000., 50000.);
+    _zoom->setValue(settings.value("zoom", 100.).toDouble());
+    connect(_zoom, SIGNAL(valueChanged(double)), this, SLOT(zoomChanged(double)));
+    _ui.toolBar->addWidget(_zoom);
+    QLabel *zunit = new QLabel;
+    zunit->setText("%");
+    _ui.toolBar->addWidget(zunit);
+
+    QWidget *spacer2 = new QWidget();
+    spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    _ui.toolBar->addWidget(spacer2);
+
+    _running = new QCheckBox();
+    connect(_running, SIGNAL(released()), this, SLOT(running()));
+    _ui.toolBar->addWidget(_running);
+
+    _period = new QDoubleSpinBox();
+    _period->setRange(0.01, 100.);
+    _period->setValue(settings.value("period", 10.).toDouble());
+    _ui.toolBar->addWidget(_period);
+    QLabel *punit = new QLabel;
+    punit->setText("Hz");
+    _ui.toolBar->addWidget(punit);
 
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
@@ -30,6 +79,38 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
+
+    _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
+
+    updateServer();
+}
+
+
+void ImageViewer::closeEvent(QCloseEvent *event)
+{
+    cout << "closeEvent" << endl;
+    QSettings settings;
+    settings.setValue("pictureformat", _pictureformat->currentIndex());
+    settings.setValue("servername", _servername->text());
+    settings.setValue("serverport", _serverport->value());
+    settings.setValue("period", _period->value());
+    settings.setValue("zoom", _zoom->value());
+    settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
+
+    event->accept();
+}
+
+
+void ImageViewer::running()
+{
+    cout << "running" << endl;
+    while(_running->isChecked()) {
+        _time.start();
+        on_open_triggered();
+        statusBar()->showMessage(QString().setNum(1000./_time.elapsed(),'g',2)+" Hz");
+        usleep(int(1000000./_period->value()));
+        qApp->processEvents(QEventLoop::AllEvents);
+    }
 }
 
 /*
@@ -45,7 +126,7 @@ void ImageViewer::on_open_triggered()
             return;
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));
-        scaleFactor = 1.0;
+        _scaleFactor = 1.0;
 
         _ui.print->setEnabled(true);
         _ui.fitToWindow->setEnabled(true);
@@ -57,23 +138,25 @@ void ImageViewer::on_open_triggered()
 }
 */
 
+void ImageViewer::updateServer()
+{
+    cout << "updateServer" << endl;
+    _cass.soap_endpoint = (_servername->text() + ":" +
+            _serverport->text()).toStdString().c_str();
+}
+
 
 void ImageViewer::on_open_triggered()
 {
     bool ret;
-    CASSsoapProxy cass;
-    cass.soap_endpoint = (_servername->text() + ":" + _serverport->text()).toStdString().c_str();
-//    cass.soap_endpoint = "xfhix:12321";
-
-    cass.getImage(2, 101, &ret);
+    _cass.getImage(2, 101, &ret);
     if(ret)
         cout << "return value: 'true'" << endl;
     else {
         cout << "return value is 'false'" << endl;
         return;
     }
-
-    soap_multipart::iterator attachment = cass.dime.begin();
+    soap_multipart::iterator attachment = _cass.dime.begin();
 
     cout << "DIME attachment:" << endl;
     cout << "Memory=" << (void*)(*attachment).ptr << endl;
@@ -83,7 +166,7 @@ void ImageViewer::on_open_triggered()
     QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size, "PNG"));
 
     imageLabel->setPixmap(QPixmap::fromImage(image));
-    scaleFactor = 1.0;
+    _scaleFactor = 1.0;
 
     _ui.print->setEnabled(true);
     _ui.fitToWindow->setEnabled(true);
@@ -91,6 +174,18 @@ void ImageViewer::on_open_triggered()
 
     if(!_ui.fitToWindow->isChecked())
         imageLabel->adjustSize();
+}
+
+
+void ImageViewer::on_readIni_triggered()
+{
+    cout << "readIni" << endl;
+}
+
+
+void ImageViewer::on_quitServer_triggered()
+{
+    cout << "quitServer" << endl;
 }
 
 
@@ -112,6 +207,13 @@ void ImageViewer::on_print_triggered()
 }
 
 
+void ImageViewer::zoomChanged(double value)
+{
+    cout << "zoomChanged: value=" << value << endl;
+
+}
+
+
 void ImageViewer::on_zoomIn_triggered()
 {
     scaleImage(1.25);
@@ -127,7 +229,7 @@ void ImageViewer::on_zoomOut_triggered()
 void ImageViewer::on_normalSize_triggered()
 {
     imageLabel->adjustSize();
-    scaleFactor = 1.0;
+    _scaleFactor = 1.0;
 }
 
 
@@ -172,14 +274,14 @@ void ImageViewer::updateActions()
 void ImageViewer::scaleImage(double factor)
 {
     Q_ASSERT(imageLabel->pixmap());
-    scaleFactor *= factor;
-    imageLabel->resize(scaleFactor * imageLabel->pixmap()->size());
+    _scaleFactor *= factor;
+    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
 
     adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
     adjustScrollBar(scrollArea->verticalScrollBar(), factor);
 
-    _ui.zoomIn->setEnabled(scaleFactor < 3.0);
-    _ui.zoomOut->setEnabled(scaleFactor > 0.333);
+    _ui.zoomIn->setEnabled(_scaleFactor < 3.0);
+    _ui.zoomOut->setEnabled(_scaleFactor > 0.333);
 }
 
 

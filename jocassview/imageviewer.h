@@ -6,12 +6,17 @@
 #include <QMainWindow>
 #include <QPrinter>
 #include <QSpinBox>
-
-class QScrollArea;
-class QScrollBar;
+#include <QDoubleSpinBox>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QScrollArea>
+#include <QScrollBar>
 #include <QLabel>
+#include <QTime>
 
 #include "ui_imageviewer.h"
+#include "soapCASSsoapProxy.h"
+
 
 class ImageViewer : public QMainWindow
 {
@@ -29,24 +34,40 @@ private slots:
     void on_zoomOut_triggered();
     void on_normalSize_triggered();
     void on_fitToWindow_triggered();
+    void on_readIni_triggered();
+    void on_quitServer_triggered();
     void on_about_triggered();
+
+    void updateServer();
+    void zoomChanged(double);
+    void running();
 
 private:
 
+    void closeEvent(QCloseEvent *event);
+
     void updateActions();
+
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
     QLabel *imageLabel;
     QScrollArea *scrollArea;
-    double scaleFactor;
+    double _scaleFactor;
 
 #ifndef QT_NO_PRINTER
     QPrinter printer;
 #endif
 
+    CASSsoapProxy _cass;
     QLineEdit *_servername;
     QSpinBox *_serverport;
+    QDoubleSpinBox *_period;
+    QComboBox *_pictureformat;
+    QDoubleSpinBox *_zoom;
+    QCheckBox *_running;
+
+    QTime _time;
 
     Ui::ImageViewer _ui;
 
