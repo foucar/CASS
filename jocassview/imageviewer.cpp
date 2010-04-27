@@ -211,7 +211,6 @@ void ImageViewer::zoomChanged(double value)
 {
     cout << "zoomChanged: value=" << value << endl;
     scaleImage(value / _scaleFactor / 100);
-
 }
 
 
@@ -275,6 +274,7 @@ void ImageViewer::updateActions()
     _ui.zoomIn->setEnabled(!_ui.fitToWindow->isChecked());
     _ui.zoomOut->setEnabled(!_ui.fitToWindow->isChecked());
     _ui.normalSize->setEnabled(!_ui.fitToWindow->isChecked());
+    _zoom->setEnabled(!_ui.fitToWindow->isChecked());
 }
 
 
