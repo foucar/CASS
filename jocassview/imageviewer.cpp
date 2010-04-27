@@ -140,9 +140,10 @@ void ImageViewer::on_open_triggered()
 
 void ImageViewer::updateServer()
 {
-    cout << "updateServer" << endl;
+    cout << "updateServer: ";
     _cass.soap_endpoint = (_servername->text() + ":" +
             _serverport->text()).toStdString().c_str();
+    cout << _cass.soap_endpoint << endl;
 }
 
 
