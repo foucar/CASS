@@ -99,8 +99,8 @@ SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += CASSsoapService LCLSLibrary LCLSApplication
-QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs lclsapps
+PRE_TARGETDEPS     += CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
+QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs #lclsapps <this is completely useless the makefile for lclsapps==lclslibs!!!
 
 # our own stuff
 SOURCES +=  analyzer.cpp \
@@ -114,6 +114,7 @@ SOURCES +=  analyzer.cpp \
             sharedmemory_input.cpp \
             ratemeter.cpp \
             worker.cpp \
+            pixel_detector.cpp \
             rate_plotter.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/ccd.cpp \
@@ -147,6 +148,7 @@ HEADERS +=  analysis_backend.h \
             soapStub.h \
             tcpserver.h \
             worker.h \
+            pixel_detector.h \
             xtciterator.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/acqiris_detectors.h \
