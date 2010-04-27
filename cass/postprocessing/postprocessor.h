@@ -448,7 +448,11 @@ public:
 
     @return Histogram storage
     */
-    const histograms_t &histograms_checkout() { _histlock.lockForRead(); return _histograms; };
+    const histograms_t &histograms_checkout() {
+      if(! _histlock.tryLockForRead(50))
+        _histlock.lockForWrite();
+      return _histograms;
+    };
 
     /*! release read-lock for histograms container */
     void histograms_release() { _histlock.unlock(); };
