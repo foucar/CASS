@@ -67,7 +67,7 @@ namespace cass
      * - Pulnix -> ask Chris O'Grady
      */
     typedef std::vector<pixel_t> frame_t;
-    
+
     typedef std::vector<Pixel> pixelList_t;
 
   public:
