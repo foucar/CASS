@@ -210,18 +210,25 @@ void ImageViewer::on_print_triggered()
 void ImageViewer::zoomChanged(double value)
 {
     cout << "zoomChanged: value=" << value << endl;
+    scaleImage(value / _scaleFactor / 100);
 
 }
 
 
 void ImageViewer::on_zoomIn_triggered()
 {
+    _zoom->blockSignals(true);
+    _zoom->setValue(1.25 * _scaleFactor * 100.);
+    _zoom->blockSignals(false);
     scaleImage(1.25);
 }
 
 
 void ImageViewer::on_zoomOut_triggered()
 {
+    _zoom->blockSignals(true);
+    _zoom->setValue(0.8 * _scaleFactor * 100.);
+    _zoom->blockSignals(false);
     scaleImage(0.8);
 }
 
