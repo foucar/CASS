@@ -28,6 +28,12 @@ public:
 
 private slots:
 
+    /** Open file.
+      *
+      * Load data from disc.
+      * @todo Actually load from Disc
+      * @todo Provide Control->getData for single shot data requests.
+      */
     void on_open_triggered();
     void on_print_triggered();
     void on_zoomIn_triggered();
