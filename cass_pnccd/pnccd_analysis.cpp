@@ -540,8 +540,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   }
 
   //clear the pixellist of all detectors in the device//
-  for (size_t i=0; i<dev.detectors().size();++i)
-    dev.detectors()[i].pixellist().clear();
+  for (size_t i=0; i<dev.detectors()->size();++i)
+    (*dev.detectors())[i].pixellist().clear();
 
   //go through all detectors//
   for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
@@ -549,7 +549,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //retrieve a reference to the detector parameter for det we are working on//
     DetectorParameter &dp = _param._detectorparameters[iDet];
     //retrieve a reference to the detector we are working on right now//
-    cass::PixelDetector &det = dev.detectors()[iDet];
+    cass::PixelDetector &det = (*dev.detectors())[iDet];
     //retrieve a reference to the frame of the detector//
     cass::PixelDetector::frame_t &f = det.frame();
 
@@ -611,8 +611,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             //itFrame is already offset-subtructed
             if( *itFrame> dp._sigmaMultiplier * *itNoise )
             {
-              this_pixel.x()=iter[pixelidx]/det.columns();
-              this_pixel.y()=iter[pixelidx]%det.columns();
+              this_pixel.x()=iter[pixelidx]%det.columns();
+              this_pixel.y()=iter[pixelidx]/det.columns();
               this_pixel.z()=*itFrame;
               det.pixellist().push_back(this_pixel);
             }
@@ -630,10 +630,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
-  for (size_t iDet=0; iDet<dev.detectors().size();++iDet)
+  for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
   {
     //retrieve a reference to the detector we are working on right now//
-    cass::PixelDetector &det = dev.detectors()[iDet];
+    cass::PixelDetector &det = (*dev.detectors())[iDet];
     //retrieve a reference to the frame of the detector//
     cass::PixelDetector::frame_t &f = det.frame();
     //retrieve a reference to the detector parameters we are working on right now//
