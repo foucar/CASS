@@ -1,5 +1,6 @@
 /*
  *  Created by Lutz Foucar on 23.02.2010
+ *  Modified by Nicola Coppola from 25.02.2010
  */
 
 #include <cmath>
@@ -369,19 +370,23 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
 {
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
-  //retrieve a reference to the pulnix detector//
-  cass::PixelDetector &det = dev->detector();
+  //go through all detectors and do your stuff//
+  detectors_t::iterator detIt (dev->detectors()->begin());
+  for (; detIt != dev->detectors()->end(); ++detIt)
+  {
+    //retrieve a reference to the ccd detector from the iterator//
+    cass::PixelDetector& det(*detIt);
 
     //clear the pixel list//
     det.pixellist().clear();
 
-  //initialize the start values for integral and max pixel value//
-  pixel_t maxpixelvalue                       = 0;
-  float integral                              = 0;
-  uint16_t framewidth                         = det.columns();
-  uint16_t frameheight                        = det.rows();
-  const cass::PixelDetector::frame_t& frame      = det.frame();
-  if(frame.size()!=CCD_default_size_sq) 
+    //initialize the start values for integral and max pixel value//
+    pixel_t maxpixelvalue                       = 0;
+    float integral                              = 0;
+    uint16_t framewidth                         = det.columns();
+    uint16_t frameheight                        = det.rows();
+    const cass::PixelDetector::frame_t& frame      = det.frame();
+    //if(frame.size()!=CCD_default_size_sq) 
 
     //go through all pixels of the frame//
     for (size_t i=0; i<frame.size(); ++i)
@@ -413,8 +418,8 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
               frame[i+framewidth]   < pixel && //lower middle
               frame[i+framewidth+1] < pixel)   //lower right
           {
-        det.pixellist().push_back(Pixel(xcoordinate,ycoordinate,pixel));
-      }
+            det.pixellist().push_back(Pixel(xcoordinate,ycoordinate,pixel));
+          }
 
       //get the maximum pixel value//
       if (maxpixelvalue < pixel)
