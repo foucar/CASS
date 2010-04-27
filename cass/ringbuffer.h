@@ -38,9 +38,6 @@ namespace cass
   {
   public:
 
-    /** enum describing the behaviour of the ringbuffer*/
-    enum behaviour_t {blocking, nonblocking};
-
     /** type for references to the elements of the container*/
     typedef T*& reference;
 
@@ -104,12 +101,7 @@ namespace cass
     RingBuffer()
       : _buffer(cap,Element()),
         _nextToProcess(_buffer.begin()),
-        _nextToFill(_buffer.begin()),
-#ifdef RINGBUFFER_BLOCKING
-        _behaviour(blocking)
-#else
-        _behaviour(nonblocking)
-#endif
+        _nextToFill(_buffer.begin())
     {
       //create the elements in the ringbuffer//
       for (size_t i=0; i<_buffer.size(); ++i)
@@ -127,6 +119,7 @@ namespace cass
     }
 
   private:
+
     /** finds the processable element.
      * will go through the ringbuffer backwards starting at the
      * position where we added the filled element. It will check
@@ -160,6 +153,7 @@ namespace cass
       //we have found an element that we can work on
       return true;
     }
+
     /** finds a viewable element for serialization
      * will go through the buffer and find an element that
      * can be retrieved by the client
@@ -235,11 +229,6 @@ namespace cass
     }
 
   public:
-    /** sets the behaviour of the ringbuffer.
-     * @return void
-     * @param behaviour the behaviour that the ringbuffer should have
-     */
-    void behaviour(behaviour_t behaviour) { _behaviour = behaviour; }
 
     /** return the next filled but non processed element.
      * This function will return the next filled element, which will
@@ -442,7 +431,6 @@ namespace cass
     iterator_t        _nextToProcess;     //!< the next processable element
     iterator_t        _nextToView;        //!< the next viewable element
     iterator_t        _nextToFill;        //!< the next fillable element
-    const behaviour_t _behaviour;         //!< container's behaviour
   };
 }
 #endif
