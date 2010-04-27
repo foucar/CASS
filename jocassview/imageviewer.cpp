@@ -141,8 +141,8 @@ void ImageViewer::on_open_triggered()
 void ImageViewer::updateServer()
 {
     cout << "updateServer: ";
-    _cass.soap_endpoint = (_servername->text() + ":" +
-            _serverport->text()).toStdString().c_str();
+    _server = (_servername->text() + ":" +_serverport->text()).toStdString();
+    _cass.soap_endpoint = _server.c_str();
     cout << _cass.soap_endpoint << endl;
 }
 
@@ -152,13 +152,12 @@ void ImageViewer::on_open_triggered()
     bool ret;
     _cass.getImage(2, 101, &ret);
     if(ret)
-        cout << "return value: 'true'" << endl;
+        cout << "return value is 'true'" << endl;
     else {
         cout << "return value is 'false'" << endl;
         return;
     }
-    soap_multipart::iterator attachment = _cass.dime.begin();
-
+    soap_multipart::iterator attachment(_cass.dime.begin());
     cout << "DIME attachment:" << endl;
     cout << "Memory=" << (void*)(*attachment).ptr << endl;
     cout << "Size=" << (*attachment).size << endl;

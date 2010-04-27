@@ -3,7 +3,10 @@
 #ifndef IMAGEVIEWER_H
 #define IMAGEVIEWER_H
 
-#include <QMainWindow>
+#include <string>
+
+#include <QtGui/QMainWindow>
+#warning Fix includes
 #include <QPrinter>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
@@ -17,7 +20,7 @@
 #include "ui_imageviewer.h"
 #include "soapCASSsoapProxy.h"
 
-
+#warning put everything in namespace jocassview
 class ImageViewer : public QMainWindow
 {
     Q_OBJECT
@@ -77,6 +80,7 @@ private:
 
     Ui::ImageViewer _ui;
 
+    std::string _server;
 };
 
 #endif
