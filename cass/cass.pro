@@ -93,10 +93,10 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
 SOAPFiles.target    = CASSsoapService
 SOAPFiles.commands  = newer soapCASSsoapService.h $$PWD/soapserver.h || soapcpp2 -S -i $$PWD/soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
-	              CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
-		      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
+                      CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
+                      CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
-		      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
+                      ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
 PRE_TARGETDEPS     += CASSsoapService LCLSLibrary LCLSApplication
@@ -121,9 +121,9 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/imaging.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
-	    soapCASSsoapService.cpp \
+            soapCASSsoapService.cpp \
             soapC.cpp \
-	    tcpserver.cpp
+            tcpserver.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
