@@ -93,7 +93,6 @@ namespace cass
     /** type of the interator over the elements of the container*/
     typedef typename buffer_t::iterator iterator_t;
 
-
     /** constructor.
      * This will create the buffer, fill it with the requested amount of elements,
      * and initialize the iterators.
@@ -228,6 +227,7 @@ namespace cass
       return true;
     }
 
+
   public:
 
     /** return the next filled but non processed element.
@@ -283,6 +283,7 @@ namespace cass
       //create a lock//
       QMutexLocker lock(&_mutex);
       //find the iterator that points to the element that the user wants to submit//
+#warning Why not use the find?
 //      iterator_t iElement =
 //          std::find(_buffer.begin(),_buffer.end(),element);
 
