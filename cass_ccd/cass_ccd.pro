@@ -28,6 +28,7 @@ HEADERS       += ../cass/analysis_backend.h \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/ccd_detector.h \
+                 ../cass/pixel_detector.h \
                  ../cass/serializer.h \
                  ccd_analysis.h \
                  ccd_converter.h \

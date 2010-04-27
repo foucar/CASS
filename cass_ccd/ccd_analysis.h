@@ -5,6 +5,13 @@
 #ifndef _CCD_ANALYSIS_H_
 #define _CCD_ANALYSIS_H_
 
+#define CCD_default_size    1024
+#define CCD_default_size_sq 1024*1024
+
+#define pulnixCCD_default_height  480
+#define pulnixCCD_default_width   640
+#define pulnixCCD_default_size_sq 640*480
+
 #include <QtCore/QPoint>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -13,7 +20,8 @@
 #include "cass_ccd.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
-#include "ccd_detector.h"
+//#include "ccd_detector.h"
+#include "pixel_detector.h"
 
 namespace cass
 {
@@ -41,6 +49,12 @@ namespace cass
     public:
       uint16_t   _threshold;    //!< the threshold above which pixels are identified
       uint32_t   _rebinfactor;  //!< the rebinning factor by which the image gets rebinned
+      bool       _This_is_a_dark_run;//flag to set the dark/not-dark run condition
+      cass::detROI_ _detROI;
+      cass::ROI::ROImask_t _ROImask;//The ROI mask
+      //cass::ROI_t::ROImask_t _ROImask_converter;
+      cass::ROI::ROIiterator_t _ROIiterator;//The ROI iterators
+      //cass::ROI_t::ROIiterator_t _ROIiterator_converter;
     };
 
     /*! Analysis of the commercial CCD.
@@ -53,7 +67,8 @@ namespace cass
       /** constructor will load the settings*/
       Analysis()            {loadSettings();}
       /** load the settings, lock it first*/
-      void loadSettings()   {_param.load();}
+      void loadSettings();
+      //void loadSettings()   {_param.load();}
       /** save the settings, lock it first*/
       void saveSettings()   {_param.save();}
 
@@ -63,7 +78,7 @@ namespace cass
     private:
       QMutex                      _mutex; //!< mutex to block the tmp frame + parameter
       Parameter                   _param; //!< the parameters to analyze
-      cass::CCDDetector::frame_t  _tmp;   //!< temp frame for rebinning
+      cass::PixelDetector::frame_t  _tmp;   //!< temp frame for rebinning
     };
   }//end namespace ccd
 }//end namespace cass

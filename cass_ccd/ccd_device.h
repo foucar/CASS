@@ -6,7 +6,8 @@
 #include <iostream>
 #include "cass_ccd.h"
 #include "device_backend.h"
-#include "ccd_detector.h"
+//#include "ccd_detector.h"
+#include "pixel_detector.h"
 
 namespace cass
 {
@@ -24,6 +25,10 @@ namespace cass
       {}
       ~CCDDevice()  {}
 
+    public:
+      const cass::PixelDetector &detector()const  {return _detector;}
+      cass::PixelDetector &detector()             {return _detector;}
+
       void serialize(cass::Serializer&);
       void deserialize(cass::Serializer&);
 
@@ -32,7 +37,7 @@ namespace cass
       detectors_t       *detectors()        {return &_detectors;}
 
     private:
-      detectors_t       _detectors;        //!< a vector containing all ccd detectors
+      cass::PixelDetector   _detector;  //the ccd detector of this device
     };
   }
 }

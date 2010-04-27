@@ -8,7 +8,8 @@
 #include "pdsdata/xtc/DetInfo.hh"
 #include "cass_event.h"
 #include "ccd_device.h"
-#include "ccd_detector.h"
+//#include "ccd_detector.h"
+#include "pixel_detector.h"
 
 
 
@@ -26,7 +27,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   if (detectorId >= dev->detectors()->size())
     dev->detectors()->resize(detectorId+1);
   //retrieve a reference to the pulnix detector//
-  cass::CCDDetector& det = (*dev->detectors())[detectorId];
+  cass::PixelDetector& det = dev->detector();
 
   //copy the values status values from the frame to the detector//
   det.columns()          = frame.width();
