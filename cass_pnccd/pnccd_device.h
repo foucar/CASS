@@ -8,7 +8,8 @@
 #include <vector>
 #include <stdint.h>
 
-#include "ccd_detector.h"
+//#include "ccd_detector.h"
+#include "pixel_detector.h"
 #include "cass_pnccd.h"
 #include "device_backend.h"
 
@@ -27,6 +28,9 @@ namespace cass
 
 #define pnCCD_default_size    1024
 #define pnCCD_default_size_sq 1024*1024
+
+    public:
+      typedef std::vector<PixelDetector> detectors_t;
 
     public:
       void serialize(cass::Serializer&);

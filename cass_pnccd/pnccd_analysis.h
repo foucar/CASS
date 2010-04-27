@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf
+// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf, Nicola Coppola
 
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include "cass_pnccd.h"
-#include "ccd_detector.h"
+#include "pixel_detector.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
 
@@ -25,6 +25,7 @@ namespace cass
     public:
       typedef std::vector<double> correctionmap_t;
     public:
+      size_t          _nbrDarkframes;     //the number of fills for each detector//
       correctionmap_t _offset;            //offsetmap
       correctionmap_t _noise;             //noise map
       uint32_t        _rebinfactor;       //the rebinfactor for rebinning
@@ -32,7 +33,16 @@ namespace cass
       double          _adu2eV;            //conversion from adu to eV
       bool            _createPixellist;   //flag to switch pixellist on / off
       bool            _doOffsetCorrection;//flag to switch offsetcorrection on / off
+      bool            _useCommonMode;     //need to know if I need to use a common mode subtraction scheme//
+      uint32_t        _thres_for_integral;   //the thresold for special integral
       std::string     _darkcalfilename;   //filename of file containing dark & noisemap
+      std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
+      cass::detROI_ _detROI;
+
+      cass::ROI::ROImask_t _ROImask;//The ROI mask
+      //cass::ROI_t::ROImask_t _ROImask_converter;
+      cass::ROI::ROIiterator_t _ROIiterator;//The ROI iterators
+      //cass::ROI_t::ROIiterator_t _ROIiterator_converter;
     };
 
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
@@ -49,6 +59,8 @@ namespace cass
     public:
       detparameters_t _detectorparameters;  //the parameters of the detector
       bool            _isDarkframe;         //switch telling whether we are collecting darkframes right now
+      //flag to set the dark/not-dark run condition
+      bool _This_is_a_dark_run;
     };
 
 
@@ -75,25 +87,16 @@ namespace cass
       void operator() (cass::CASSEvent*);
 
     private:
-      void createOffsetAndNoiseMap(const pnCCDDevice&) {}
+      //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
+      void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
       void rebin(){}
 
     private:
       QMutex                      _mutex; //a mutex to lock write operations
       Parameter                   _param; //the parameters used to analyze the pnccd detectors
-      cass::CCDDetector::frame_t  _tmp;   //temporary storage for rebinning frames
+      cass::PixelDetector::frame_t  _tmp;   //temporary storage for rebinning frames
     };
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
 #endif
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
