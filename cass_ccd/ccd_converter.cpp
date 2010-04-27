@@ -27,7 +27,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   if (detectorId >= dev->detectors()->size())
     dev->detectors()->resize(detectorId+1);
   //retrieve a reference to the pulnix detector//
-  cass::PixelDetector& det = dev->detector();
+  cass::PixelDetector& det = (*dev->detectors())[detectorId];
 
   //copy the values status values from the frame to the detector//
   det.columns()          = frame.width();
