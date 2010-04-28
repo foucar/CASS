@@ -32,6 +32,7 @@ namespace cass
    * @tparam T Element typ
    * @tparam cap Capacity of the ringbuffer
    * @author Lutz Foucar
+   * @todo find out how one can use std::find to find the right element
    */
   template <typename T, size_t cap>
   class RingBuffer
@@ -283,7 +284,7 @@ namespace cass
       //create a lock//
       QMutexLocker lock(&_mutex);
       //find the iterator that points to the element that the user wants to submit//
-#warning Why not use the find?
+//#warning Why not use the find?
 //      iterator_t iElement =
 //          std::find(_buffer.begin(),_buffer.end(),element);
 
