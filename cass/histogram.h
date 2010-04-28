@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <vector>
+#include <limits>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -232,18 +233,28 @@ public:
     }
     /** virtual desctructor, since this a base class*/
     virtual ~HistogramFloatBase()      {}
+
     /** serialize this histogram to the serializer*/
     virtual void serialize(Serializer&);
+
     /** deserialize this histogram from the serializer*/
     virtual void deserialize(Serializer&);
+
     /** return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
+
     /** return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
-    /*! Minimum value in current histogram */
-    value_t min() const { return *(std::min_element(_memory.begin(), _memory.end())); };
-    /*! Maximum value in current histogram */
-    value_t max() const { return *(std::max_element(_memory.begin(), _memory.end())); };
+
+    /** Minimum value in current histogram.
+     * needs to be implemented in the histogram, since we need to mask out over /  underflow bins
+     */
+    virtual value_t min() const {return std::numeric_limits<value_t>::min();}
+
+    /** Maximum value in current histogram.
+     * needs to be implemented in the histogram, since we need to mask out over /  underflow bins
+     */
+    virtual value_t max() const {return std::numeric_limits<value_t>::max();}
 
     /** return whether the histogram should be filled.
      *this means that someone wants to have the histogram serialized
@@ -345,6 +356,16 @@ public:
      */
     void fill(float x, value_t weight=1.);
 
+    /** Minimum value in current histogram.
+     * Avoid checking over / underflow bins.
+     */
+    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); };
+
+    /** Maximum value in current histogram.
+     * Avoid checking over / underflow bins.
+     */
+    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); };
+
     /*! Return histogram bin that contains x */
     value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
 
@@ -431,6 +452,16 @@ public:
 
     /*! Return histogram bin (row,col) */
     const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
+
+    /** Minimum value in current histogram.
+     * Avoid checking over / underflow bins.
+     */
+    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-8)); };
+
+    /** Maximum value in current histogram.
+     * Avoid checking over / underflow bins.
+     */
+    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); };
 
     /** Return histogram bin (row,col).
     * @overload
@@ -623,7 +654,19 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
   const bool xInRange = 0<=xBin && xBin<nxBins;
   const bool yInRange = 0<=yBin && yBin<nyBins;
   //lock the write operation//
-//  std::cout<<yBin<<" "<<nxBins<<" "<<xBin<<" "<<x<<" "<<y<<std::endl;
+//  std::cout
+//      <<std::boolalpha
+//      <<" X:"<<x
+//      <<" NbrXbins"<<nxBins
+//      <<" Xbin:"<<xBin
+//      <<" XinRange:"<<xInRange
+//      <<"    "
+//      <<" Y:"<<y
+//      <<" NbrYbins:"<<nyBins
+//      <<" Ybin:"<<yBin
+//      <<" YinRange:"<<yInRange
+//      <<std::endl;
+
   lock.lockForRead();
   // if both bin coordinates are in range, fill the memory,//
   //otherwise figure out which quadrant needs to be filled//

@@ -86,11 +86,12 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
   Signal::peaks_t &s1p  = s1.peaks();
   Signal::peaks_t &s2p =  s2.peaks();
 
-  //  std::cout <<mcpp.size() <<" ";
-  //  std::cout <<d.u().wireend()['1'].peaks().size() <<" ";
-  //  std::cout <<d.u().wireend()['2'].peaks().size() <<" ";
-  //  std::cout <<d.v().wireend()['1'].peaks().size() <<" ";
-  //  std::cout <<d.v().wireend()['2'].peaks().size() <<std::endl;
+//  std::cout <<"mcp: "<<mcpp.size() <<" ";
+//  std::cout <<"f1: "<<f1.peaks().size() <<" ";
+//  std::cout <<"f2: "<<f2.peaks().size() <<" ";
+//  std::cout <<"s1: "<<s1.peaks().size() <<" ";
+//  std::cout <<"s2: "<<s2.peaks().size() <<std::endl;
+
   for (size_t iMcp=0;iMcp<mcpp.size();++iMcp)
   {
     //    std::cout << mcpp[iMcp]->isUsed()<<std::endl;
@@ -103,12 +104,12 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
     findBoundriesForSorting(s1,mcp,tsy,runttime,iY1min,iY1max);
     findBoundriesForSorting(s2,mcp,tsy,runttime,iY2min,iY2max);
 
-    //  std::cout <<iMcp <<" ";
-    //  std::cout <<"x1low:"<<iX1min <<" x1high:"<<iX1max;
-    //  std::cout <<"x2low:"<<iX2min <<" x2high:"<<iX2max;
-    //  std::cout <<"y1low:"<<iY1min <<" y1high:"<<iY1max;
-    //  std::cout <<"y2low:"<<iY2min <<" y2high:"<<iY2max;
-    //  std::cout <<std::endl;
+//    std::cout <<iMcp <<" ";
+//    std::cout <<" x1low:"<<iX1min <<" x1high:"<<iX1max;
+//    std::cout <<" x2low:"<<iX2min <<" x2high:"<<iX2max;
+//    std::cout <<" y1low:"<<iY1min <<" y1high:"<<iY1max;
+//    std::cout <<" y2low:"<<iY2min <<" y2high:"<<iY2max;
+//    std::cout <<std::endl;
 
     //go through all possible combinations//
     for (int iX1=iX1min;iX1<=iX1max;++iX1)
@@ -164,16 +165,15 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
 
             const double radius_mm = sqrt(x_mm*x_mm + y_mm*y_mm);
 
-
             //check wether the timesum is correct//
             if ( (sumx > tsxLow) && (sumx < tsxHigh) )
             if ( (sumy > tsyLow) && (sumy < tsyHigh) )
             //check wether the hit is inside the radius of the MCP//
             if (radius_mm < radius)
             {
+              //std::cout << "found hit"<<std::endl;
               //add a DetektorHit to the Detektor
               d.hits().push_back(DelaylineDetectorHit(x_mm,y_mm,mcp));
-
               //remember that this mcp Peak has already been used//
               mcpp[iMcp].isUsed()    = true;
               f1p[iX1].isUsed() = true;
@@ -194,7 +194,7 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
 //___________________________________________________________________________________________________________________________________________________________
 void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
 {
-//  std::cout << "DelaylineDetectorAnalyzerSimple: entering"<<std::endl;
+  //std::cout << "DelaylineDetectorAnalyzerSimple: entering"<<std::endl;
   //do a type conversion to have a delayline detector//
   DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
   //check what layer the user wants to use for calculating the pos//
@@ -206,15 +206,15 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
       switch (d.layersToUse())
       {
       case(UV):
-//        std::cout <<"hex det using uv layers"<<std::endl;
+        //std::cout <<"hex det using uv layers"<<std::endl;
         anode = std::make_pair(&d.layers()['U'],&d.layers()['V']);
         break;
       case(UW):
-//        std::cout <<"hex det using uw layers"<<std::endl;
+        //std::cout <<"hex det using uw layers"<<std::endl;
         anode = std::make_pair(&d.layers()['U'],&d.layers()['W']);
         break;
       case(VW):
-//        std::cout <<"hex det using vw layers"<<std::endl;
+        ///std::cout <<"hex det using vw layers"<<std::endl;
         anode = std::make_pair(&d.layers()['V'],&d.layers()['W']);
       default:
         throw std::invalid_argument("the chosen layer combination does not exist");
@@ -224,7 +224,7 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
     }
     break;
   case Quad:
-//    std::cout <<"quad det using xy layers"<<std::endl;
+    //std::cout <<"quad det using xy layers"<<std::endl;
     anode = std::make_pair(&d.layers()['X'],&d.layers()['Y']);
     break;
   default:
@@ -372,5 +372,6 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //now sort these peaks for the layers timesum//
   //  std::cout << "sort for timesum"<<std::endl;
   sortForTimesum(d,anode);
-//  std::cout << "DelaylineDetectorAnalyzerSimple: leaving"<<std::endl;
+  //std::cout<<"DelaylineDetectorAnalyzerSimple:"<<d.hits().size()<<std::endl;
+  //std::cout << "DelaylineDetectorAnalyzerSimple: leaving"<<std::endl;
 }
