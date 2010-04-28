@@ -198,6 +198,13 @@ int main(int argc, char **argv)
   size_t soap_port(12321);
   //the sharememory client index
   int index(0);
+  //check if at least 1 param is given
+  if(argc<2) 
+  {
+    std::cout << "please give me at least the partition tag" <<std::endl;
+    return 1;
+  }
+
   //get the partition string
   while((c = getopt(argc, argv, "p:s:c:")) != -1)
   {
@@ -213,6 +220,7 @@ int main(int argc, char **argv)
       index = strtol(optarg, 0, 0);
     default:
       std::cout << "please give me a partition tag" <<std::endl;
+      return 2;
       break;
     }
   }
