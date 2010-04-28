@@ -107,7 +107,7 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     loadSettings(0);
     switch(id) {
     case PostProcessors::Pnccd1BinnedRunningAverage:
-        _detector = 0;
+        _detector = 0; _device=CASSEvent::pnCCD;
         break;
     default:
         throw std::invalid_argument("Impossible postprocessor id for pp101");
@@ -149,13 +149,17 @@ void cass::pp101::operator()(const CASSEvent& event)
     // Running average of pnCCD-1 images with geometric binning (x and y) of
     // postprocessors/101/binning and average length of postprocessors/101/average using namespace
     // cass::pnCCD;
-    using namespace cass::pnCCD;
-    const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const PixelDetector::frame_t& frame((*dev->detectors())[_detector].frame());
+
+    //check whether detector exists
+    if (event.devices().find(_device)->second->detectors()->size() < _detector)
+        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+
+    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+    const PixelDetector::frame_t& frame(det.frame());
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
-    size_t rows((*dev->detectors())[_detector].rows() / _binning.first);
-    size_t cols((*dev->detectors())[_detector].columns() / _binning.second);
+    size_t rows(det.rows() / _binning.first);
+    size_t cols(det.columns() / _binning.second);
     _image->lock.lockForWrite();
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
@@ -222,6 +226,9 @@ cass::pp110::~pp110()
 
 void cass::pp110::operator()(const CASSEvent& evt)
 {
+    //check whether detector exists
+    if (evt.devices().find(_device)->second->detectors()->size() >= _detector)
+        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());

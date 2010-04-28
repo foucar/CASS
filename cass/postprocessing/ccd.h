@@ -70,9 +70,9 @@ protected:
 
 
 
-/** @brief Averaged binned pnCCD image
+/** @brief Averaged binned pnCCD / commercial ccd image
 
-Running average of pnCCD-1 images with
+Running average of pnCCD or commercial ccd images with
 - an averaging length of postprocessors/101/average
 - geometric binning (x and y) of postprocessors/101/{bin_horizontal|bin_vertical}.
 Binning must be a fraction of 1024.
@@ -104,6 +104,9 @@ protected:
 
     /** pnCCD detector to work on */
     size_t _detector;
+
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
 
     /** current image */
     Histogram2DFloat *_image;
