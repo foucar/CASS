@@ -61,6 +61,10 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     connect(_running, SIGNAL(released()), this, SLOT(running()));
     _ui.toolBar->addWidget(_running);
 
+    _ristatus = new QRadioButton();
+    readIniStatusLED(0, false);
+    _ui.toolBar->addWidget(_ristatus);
+
     _period = new QDoubleSpinBox();
     _period->setRange(0.01, 100.);
     _period->setValue(settings.value("period", 10.).toDouble());
@@ -111,6 +115,7 @@ void ImageViewer::running()
         usleep(int(1000000./_period->value()));
         qApp->processEvents(QEventLoop::AllEvents);
     }
+    readIniStatusLED(0, false);
 }
 
 /*
@@ -149,12 +154,15 @@ void ImageViewer::updateServer()
 
 void ImageViewer::on_open_triggered()
 {
-    bool ret;
-    _cass.getImage(2, 101, &ret);
-    if(ret)
+    _cass.getImage(2, _attachId->value(), &_ret);
+//    _cass.getImage(_picturetype->currentIndex(), _attachId->value(), &_ret);
+    if(_ret) {
         cout << "return value is 'true'" << endl;
+        readIniStatusLED(0, true);
+    }
     else {
         cout << "return value is 'false'" << endl;
+        readIniStatusLED(1, true);
         return;
     }
     soap_multipart::iterator attachment(_cass.dime.begin());
@@ -180,21 +188,17 @@ void ImageViewer::on_open_triggered()
 void ImageViewer::on_readIni_triggered()
 {
     cout << "readIni" << endl;
-    bool ret;
-    _cass.readini(0, &ret);
-    if(ret)
-        cout << "readini server return value is 'true'" << endl;
-    else
-        cout << "readini server return value is 'false'" << endl;
+    _cass.readini(0, &_ret);
+    if(!_ret)
+        statusBar()->showMessage("Error: Cann't read ini");
 }
 
 
 void ImageViewer::on_quitServer_triggered()
 {
     cout << "quitServer" << endl;
-    bool ret;
-    _cass.quit(&ret);
-    if(ret)
+    _cass.quit(&_ret);
+    if(_ret)
         cout << "quit server return value is 'true'" << endl;
     else
         cout << "quit server return value is 'false'" << endl;
@@ -271,6 +275,26 @@ void ImageViewer::on_about_triggered()
             tr("<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
 }
 
+
+void ImageViewer::readIniStatusLED(int color, bool on)
+{
+    QPalette palette;
+    QBrush brush(Qt::SolidPattern);
+    switch(color)
+    {
+    case 0: // green
+        brush.setColor(QColor(0, 255, 0, 255));
+        break;
+    case 1: // red
+        brush.setColor(QColor(255, 0, 0, 255));
+        break;
+    default:
+        return;
+    }
+    palette.setBrush(QPalette::Active, QPalette::Text, brush);
+    _ristatus->setPalette(palette);
+    _ristatus->setChecked(on);
+}
 
 
 void ImageViewer::updateActions()

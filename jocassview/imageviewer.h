@@ -12,6 +12,7 @@
 #include <QDoubleSpinBox>
 #include <QComboBox>
 #include <QCheckBox>
+#include <QRadioButton>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QLabel>
@@ -60,6 +61,8 @@ private:
     void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
+    void readIniStatusLED(int color, bool on);
+
     QLabel *imageLabel;
     QScrollArea *scrollArea;
     double _scaleFactor;
@@ -76,9 +79,11 @@ private:
     QDoubleSpinBox *_zoom;
     QCheckBox *_running;
     QSpinBox *_attachId;
-
+    QRadioButton *_ristatus;
 
     QTime _time;
+
+    bool _ret;
 
     Ui::ImageViewer _ui;
 
