@@ -160,7 +160,7 @@ namespace cass
     //static ROImask_t create(const std::string detectorname)const;
     //static ROIiterator_t create(const std::string detectorname)const;
 
-    /*static*/ void load(detROI_*);
+    /*static*/ void load(/*detROI_**/);
     void save();
 
   };
@@ -223,8 +223,8 @@ namespace cass
     const pixelList_t &pixellist()const      {return _pixellist;}
     pixelList_t       &pixellist()           {return _pixellist;}
 
-    const cass::ROI::detROI_t   &detROI()const        {return _detROI;}
-    //cass::ROI::detROI_t        &detROI()             {return _detROI;}
+    const cass::ROI::detROI_t  &detROI()const   {return _detROI;}
+    cass::ROI::detROI_t        &detROI()        {return _detROI;}
     //typedef std::vector<detROI_> detROI_t;
     // //      _detROI detROI;
     //typedef std::vector<uint16_t> ROImask_t;//the ROI mask for each detector//

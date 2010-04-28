@@ -27,12 +27,13 @@ namespace cass
 {
   //forward declaration
   class CASSEvent;
-
   namespace CCD
   {
+    //class CCDDevice;
     /*! Parameters of the commercial ccd analysis
 
       @author Lutz Foucar
+      @modif NC
     */
     class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
@@ -65,7 +66,7 @@ namespace cass
     {
     public:
       /** constructor will load the settings*/
-      Analysis()            {loadSettings();}
+      Analysis()          {/*std::cout <<"cacca"<<std::endl;*/loadSettings();}
       /** load the settings, lock it first*/
       void loadSettings();
       //void loadSettings()   {_param.load();}

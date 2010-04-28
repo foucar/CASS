@@ -4,7 +4,7 @@
 
 TEMPLATE       = app
 TARGET         = cass
-CONFIG        += release
+CONFIG        += debug #release
 CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 

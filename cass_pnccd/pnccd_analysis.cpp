@@ -12,9 +12,11 @@
 
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
+
   QString s;
   //retrieve reference to the detector parameter//
   sync();
+  std::cout<<"I am here 4"<<std::endl;
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
   beginGroup(s.setNum(static_cast<int>(idx)));
@@ -62,14 +64,15 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   }
   endGroup();
   std::cout << "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
-  
+  endGroup();
   endGroup();
 
-  endGroup();
 }
 
 void cass::pnCCD::Parameter::load()
 {
+  std::cout<<"I am here 3"<<std::endl;
+
   //the flag//
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
@@ -83,6 +86,7 @@ void cass::pnCCD::Parameter::load()
   //resize the detector parameter container before adding new stuff//
   _detectorparameters.resize(value("size",2).toUInt(),DetectorParameter());
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
+  std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
   {
@@ -90,11 +94,13 @@ void cass::pnCCD::Parameter::load()
     std::cout<<"Going to load parameters for detector #"<< iDet<<std::endl;
     loadDetectorParameter(iDet);
   }
+
 }
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Parameter::save()
 {
+
   //the flag//
   setValue("IsDarkFrames",_isDarkframe);
 
@@ -120,25 +126,21 @@ void cass::pnCCD::Parameter::save()
     beginGroup("ROIs");
     for (size_t iROI=0; iROI< dp._detROI._ROI.size(); ++iROI)
     {
-        beginGroup(s.setNum(static_cast<int>(iROI)));
-        setValue("ROIShapeName",dp._detROI._ROI[iROI].name.c_str());
-        setValue("XSize",dp._detROI._ROI[iROI].xsize);
-        setValue("YSize",dp._detROI._ROI[iROI].ysize);
-        setValue("XCentre",dp._detROI._ROI[iROI].xcentre);
-        setValue("YCentre",dp._detROI._ROI[iROI].ycentre);
-        // the orientation is used only in the case of a triangular shape
-        setValue("orientation",dp._detROI._ROI[iROI].orientation);
-        endGroup();
+      beginGroup(s.setNum(static_cast<int>(iROI)));
+      setValue("ROIShapeName",dp._detROI._ROI[iROI].name.c_str());
+      setValue("XSize",dp._detROI._ROI[iROI].xsize);
+      setValue("YSize",dp._detROI._ROI[iROI].ysize);
+      setValue("XCentre",dp._detROI._ROI[iROI].xcentre);
+      setValue("YCentre",dp._detROI._ROI[iROI].ycentre);
+      // the orientation is used only in the case of a triangular shape
+      setValue("orientation",dp._detROI._ROI[iROI].orientation);
+      endGroup();
     }
     endGroup();
-
-
     endGroup();
   }
+
 }
-
-
-
 
 
 
@@ -150,20 +152,25 @@ void cass::pnCCD::Parameter::save()
 
 
 //------------------------------------------------------------------------------
-cass::pnCCD::Analysis::Analysis(void)
+cass::pnCCD::Analysis::Analysis()
 {
   //load the settings//
-  loadSettings();
+  std::cout<<"I am here 1"<<std::endl;
+  //loadSettings();
 }
 
 //------------------------------------------------------------------------------
-cass::pnCCD::Analysis::~Analysis()
+/*cass::pnCCD::Analysis::~Analysis()
 {
-}
+}*/
+
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
+
+  std::cout<<"I am here 2"<<std::endl;
+  //return;
   QMutexLocker locker(&_mutex);
   //load the settings
   _param.load();
@@ -178,7 +185,7 @@ void cass::pnCCD::Analysis::loadSettings()
     //This Code is completely unsafe vs human mistakes, if Xonline files
     // are used the sizes are completey wrong as the values that are read in!!!
     //read only if this is NOT a dark-frame run
-    if (in.is_open() && !_param._isDarkframe/*!_This_is_a_dark_run*/ )
+    if (in.is_open() && !_param._isDarkframe)
     {
       //std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
       //find how big the vectors have to be//
@@ -242,7 +249,7 @@ void cass::pnCCD::Analysis::loadSettings()
         {
           int32_t  xlocal,ylocal;
           const uint32_t radius2 =  static_cast<uint32_t>(pow(dp._detROI._ROI[iROI].xsize,2)
-           /*+pow(dp._detROI._ROI[iROI].ysize,2) */);
+           );
           std::cout << "circ seen with radius^2= " <<radius2 <<std::endl;
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
@@ -474,11 +481,13 @@ void cass::pnCCD::Analysis::loadSettings()
 
     }
   }
+
 }
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::saveSettings()
 {
+
   QMutexLocker locker(&_mutex);
   //save settings//
   _param.save();
@@ -486,11 +495,11 @@ void cass::pnCCD::Analysis::saveSettings()
   for (size_t iDet=0;iDet<_param._detectorparameters.size();++iDet)
   {
     //retrieve a reference to the detector parameter
-    /*const*/ //I need to "normalize the values
+    //I need to "normalize the values
     DetectorParameter &dp = _param._detectorparameters[iDet];
     //save only if the vectors have some information inside//
     //save only if this is a dark-frame run
-    if (!dp._offset.empty() && !dp._noise.empty() && /*_This_is_a_dark_run*/_param._isDarkframe )
+    if (!dp._offset.empty() && !dp._noise.empty() && _param._isDarkframe )
     {
       //normalise the values
       if(dp._nbrDarkframes)
@@ -511,15 +520,18 @@ void cass::pnCCD::Analysis::saveSettings()
       else std::cout<<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
     }
   }
+
 }
 
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
+
   //extract a reference to the pnccddevice//
   cass::pnCCD::pnCCDDevice &dev =
       *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
 
+  std::cout<<"I have arrived here"<<std::endl;
   //check if we have enough detector parameters for the amount of detectors//
   //increase it if necessary
   if(dev.detectors()->size() > _param._detectorparameters.size())
@@ -535,7 +547,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   if(_param._isDarkframe)
   {
     QMutexLocker locker(&_mutex);
-    createOffsetAndNoiseMap(dev);
+    //<>createOffsetAndNoiseMap(dev);
+    createOffsetAndNoiseMap();
+
 
     return;
   }
@@ -566,8 +580,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       //retrieve a reference to the frame of the detector//
       cass::PixelDetector::frame_t &f = det.frame();
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
-      std::vector<double>::const_iterator itOffset = dp._offset.begin();
-      std::vector<double>::const_iterator itNoise  = dp._noise.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
+      //std::vector<double>::const_iterator itOffset = dp._offset.begin();
+      //std::vector<double>::const_iterator itNoise  = dp._noise.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator  itNoise  = dp._noise.begin();
       //const std::vector<double> &offset = dp._offset;
       const cass::ROI::ROImask_t &mask = dp._ROImask;
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
@@ -626,11 +642,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     if(dp._rebinfactor > 1)
       rebin();
   }
+
 }
 
-
+/*
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
+
   for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
   {
     //retrieve a reference to the detector we are working on right now//
@@ -641,8 +659,10 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     DetectorParameter &dp = _param._detectorparameters[iDet];
 
     cass::PixelDetector::frame_t::const_iterator itFrame = f.begin();
-    std::vector<double>::iterator itOffset = dp._offset.begin();
-    std::vector<double>::iterator itNoise  = dp._noise.begin();
+    cass::pnCCD::DetectorParameter::correctionmap_t::iterator itOffset = dp._offset.begin();
+    cass::pnCCD::DetectorParameter::correctionmap_t::iterator  itNoise  = dp._noise.begin();
+    //std::vector<double>::iterator itOffset = dp._offset.begin();
+    //std::vector<double>::iterator itNoise  = dp._noise.begin();
     for (; itOffset!=dp._offset.end() ;++itOffset,++itFrame,++itNoise)
     {
       *itOffset += static_cast<double>(*itFrame);
@@ -650,5 +670,7 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     }
     ++dp._nbrDarkframes;
   }
+
 }
 
+*/

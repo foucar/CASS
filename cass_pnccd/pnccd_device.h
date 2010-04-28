@@ -9,10 +9,9 @@
 #include <stdint.h>
 
 //#include "ccd_detector.h"
-#include "pixel_detector.h"
 #include "cass_pnccd.h"
 #include "device_backend.h"
-
+#include "pixel_detector.h"
 
 namespace cass
 {
@@ -21,7 +20,7 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT pnCCDDevice : public DeviceBackend
     {
     public:
-      pnCCDDevice(void)
+      pnCCDDevice()
         :DeviceBackend(1)
       {}
       ~pnCCDDevice()       {}

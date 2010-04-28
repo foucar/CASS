@@ -3,14 +3,16 @@
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
 
+#include <QtCore/QPoint>
 #include <QtCore/QMutex>
+#include <QtCore/QMutexLocker>
 #include <map>
 #include <string>
 #include <vector>
 #include "cass_pnccd.h"
-#include "pixel_detector.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
+#include "pixel_detector.h"
 
 
 namespace cass
@@ -18,7 +20,6 @@ namespace cass
   class CASSEvent;
   namespace pnCCD
   {
-    class pnCCDDevice;
 
     class CASS_PNCCDSHARED_EXPORT DetectorParameter
     {
@@ -37,7 +38,7 @@ namespace cass
       uint32_t        _thres_for_integral;   //the thresold for special integral
       std::string     _darkcalfilename;   //filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
-      cass::detROI_ _detROI;
+      cass::detROI_   _detROI;
 
       cass::ROI::ROImask_t _ROImask;//The ROI mask
       //cass::ROI_t::ROImask_t _ROImask_converter;
@@ -48,7 +49,7 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
     public:
-      Parameter(void) {beginGroup("pnCCD");}
+      Parameter() {beginGroup("pnCCD");}
       ~Parameter()    {endGroup();}
       void load();
       void save();
@@ -60,18 +61,18 @@ namespace cass
       detparameters_t _detectorparameters;  //the parameters of the detector
       bool            _isDarkframe;         //switch telling whether we are collecting darkframes right now
       //flag to set the dark/not-dark run condition
-      bool _This_is_a_dark_run;
+      bool            _This_is_a_dark_run;
     };
 
 
 
-
+    //class pnCCDDevice;
 
     class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
-      Analysis(void);
-      ~Analysis();
+      Analysis(); // {loadSettings();}
+      //~Analysis();
       /*
       initialize AnalysisBackend with new set of parameters
       */
@@ -88,7 +89,8 @@ namespace cass
 
     private:
       //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
-      void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
+      //<>void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
+      void createOffsetAndNoiseMap() {;}
       void rebin(){}
 
     private:

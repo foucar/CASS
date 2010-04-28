@@ -13,6 +13,7 @@
 
 void cass::CCD::Parameter::load()
 {
+  std::cout<<"I am here 2bis"<<std::endl;
   //sync before loading//
   sync();
   //sting for the container index//
@@ -351,7 +352,7 @@ void cass::CCD::Analysis::loadSettings()
       nextPixel++;
     }
   }
-  std::cout <<"Roiit sizes "<<_param._ROImask.size()<<" " 
+  std::cout <<"Commercial CCD Roiit sizes "<<_param._ROImask.size()<<" " 
             <<_param._ROIiterator.size()<< " "
             <<number_of_pixelsettozero <<std::endl;
 #ifdef debug

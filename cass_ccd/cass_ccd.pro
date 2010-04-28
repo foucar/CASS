@@ -4,7 +4,7 @@
 
 TEMPLATE       = lib
 TARGET         = cass_ccd
-CONFIG        += release
+CONFIG        += debug #release
 CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 QT            -= core gui
