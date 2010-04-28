@@ -13,7 +13,7 @@
 
 void cass::CCD::Parameter::load()
 {
-  std::cout<<"I am here 2bis"<<std::endl;
+  //std::cout<<"I am here 2bis"<<std::endl;
   //sync before loading//
   sync();
   //sting for the container index//
@@ -25,6 +25,7 @@ void cass::CCD::Parameter::load()
   beginGroup(s.setNum(static_cast<uint32_t>(idx)));
     _threshold    = value("Threshold",0).toUInt();
     _rebinfactor  = value("RebinFactor",1).toUInt();
+    _detROI._ROI.clear();
 
     beginGroup("ROIs");
     for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)

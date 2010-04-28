@@ -13,9 +13,10 @@
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
 
+  sync();
+  //sting for the container index//
   QString s;
   //retrieve reference to the detector parameter//
-  sync();
   std::cout<<"I am here 4"<<std::endl;
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
@@ -84,7 +85,7 @@ void cass::pnCCD::Parameter::load()
   //sync before loading//
   sync();
   //resize the detector parameter container before adding new stuff//
-  _detectorparameters.resize(value("size",2).toUInt(),DetectorParameter());
+  _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter());
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
@@ -213,7 +214,11 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._ROIiterator.resize(pnCCD_default_size_sq);
       }
     }
-    else std::cout<<"Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
+    else
+    {
+      std::cout<<"Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
+      dp._ROImask.resize(pnCCD_default_size_sq);
+    }
     //in case this is a Dark-Run
     if(_param._isDarkframe)
     {
@@ -454,6 +459,7 @@ void cass::pnCCD::Analysis::loadSettings()
           std::cout << dp._ROImask[i]<< " ";
       std::cout<<std::endl;
 #endif
+      std::cout<<"I am here 5 "<<dp._ROImask.size()<<std::endl;
       // now I know which pixel should be masked!
       size_t nextPixel=0;
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1);
@@ -547,8 +553,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   if(_param._isDarkframe)
   {
     QMutexLocker locker(&_mutex);
-    //<>createOffsetAndNoiseMap(dev);
-    createOffsetAndNoiseMap();
+    createOffsetAndNoiseMap(dev);
+    //createOffsetAndNoiseMap();
 
 
     return;
@@ -645,7 +651,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
 }
 
-/*
+
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
 
@@ -672,5 +678,3 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
   }
 
 }
-
-*/

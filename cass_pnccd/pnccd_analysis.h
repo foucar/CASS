@@ -6,8 +6,8 @@
 #include <QtCore/QPoint>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
-#include <map>
-#include <string>
+//#include <map>
+//#include <string>
 #include <vector>
 #include "cass_pnccd.h"
 #include "analysis_backend.h"
@@ -17,6 +17,7 @@
 
 namespace cass
 {
+  //forward declaration
   class CASSEvent;
   namespace pnCCD
   {
@@ -49,9 +50,13 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
     public:
+      /** constructor creates group "pnCCD" */
       Parameter() {beginGroup("pnCCD");}
+      /** constructor closes group "CCD" */
       ~Parameter()    {endGroup();}
+      /** load the parameters from cass.ini*/
       void load();
+      /** save the parameters to cass.ini*/
       void save();
       void loadDetectorParameter(size_t DetectorIndex);
 
@@ -66,7 +71,7 @@ namespace cass
 
 
 
-    //class pnCCDDevice;
+    class pnCCDDevice;
 
     class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
@@ -85,12 +90,12 @@ namespace cass
       basic parameters are reacorded, e.g. the number of detected events
       in the frame.
       */
-      void operator() (cass::CASSEvent*);
+      void operator() (CASSEvent*);
 
     private:
       //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
-      //<>void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
-      void createOffsetAndNoiseMap() {;}
+      void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
+      //void createOffsetAndNoiseMap() {;}
       void rebin(){}
 
     private:
