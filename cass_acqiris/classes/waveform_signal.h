@@ -109,8 +109,8 @@ namespace cass
       double            &grHigh()             {return _grHigh;}
       Polarity           polarity()const      {return _polarity;}
       Polarity          &polarity()           {return _polarity;}
-      int16_t            threshold()const     {return _threshold;}
-      int16_t           &threshold()          {return _threshold;}
+      double             threshold()const     {return _threshold;}
+      double            &threshold()          {return _threshold;}
       int32_t            delay()const         {return _delay;}
       int32_t           &delay()              {return _delay;}
       double             fraction()const      {return _fraction;}
@@ -142,7 +142,7 @@ namespace cass
       /** the Polarity the Signal has*/
       Polarity _polarity;
       /** the Noiselevel for this channel (in adc bytes)*/
-      int16_t _threshold;
+      double _threshold;
       /** the delay of the cfd*/
       int32_t _delay;
       /** the fraction of the cfd*/
@@ -178,7 +178,8 @@ inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * sig
   _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
   _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
   _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
-  _threshold    = p->value("Threshold",50.).toInt();
+  _threshold    = p->value("Threshold",0.05).toDouble();
+  std::cerr <<"Signal load parameters: Threshold "<<_threshold<<std::endl;
   _delay        = p->value("Delay",5).toInt();
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
