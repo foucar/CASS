@@ -1024,9 +1024,15 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //get iterator to the hits//
   DelaylineDetector::dethits_t::iterator it = det->hits().begin();
+//  std::cout << det->hits().size()<<std::endl;
   //go through all hits of the detector//
   for (; it != det->hits().end(); ++it)
   {
+//    std::cout
+//        <<" "<<_first<<":"<<it->values()[_first]
+//        <<" "<<_second<<":"<<it->values()[_second]
+//        <<" "<<_third<<":"<<it->values()[_third]
+//        <<std::endl;
     if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
       _hist->fill(it->values()[_first],it->values()[_second]);
   }
