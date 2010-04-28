@@ -45,7 +45,7 @@ namespace cass
   public:
     /** list of known individual analyzers*/
     enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
-    /** creates an instace if not it does not exist already*/
+    /** creates an instance if it does not exist already*/
     static Analyzer *instance();
     /** this destroys the the instance*/
     static void destroy();

@@ -84,7 +84,7 @@ void cass::pnCCD::Parameter::load()
   //sync before loading//
   sync();
   //resize the detector parameter container before adding new stuff//
-  _detectorparameters.resize(value("size",2).toUInt(),DetectorParameter());
+  _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter());
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
@@ -546,7 +546,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   if(_param._isDarkframe)
   {
     QMutexLocker locker(&_mutex);
-    createOffsetAndNoiseMap(dev);
+    //<>createOffsetAndNoiseMap(dev);
+    createOffsetAndNoiseMap();
 
     return;
   }
@@ -642,7 +643,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
 }
 
-
+/*
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
 
@@ -670,3 +671,4 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
 
 }
 
+*/

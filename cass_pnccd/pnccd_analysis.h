@@ -3,6 +3,7 @@
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
 
+#include <QtCore/QPoint>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <map>
@@ -19,7 +20,6 @@ namespace cass
   class CASSEvent;
   namespace pnCCD
   {
-    class pnCCDDevice;
 
     class CASS_PNCCDSHARED_EXPORT DetectorParameter
     {
@@ -66,7 +66,7 @@ namespace cass
 
 
 
-
+    //class pnCCDDevice;
 
     class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
@@ -89,7 +89,8 @@ namespace cass
 
     private:
       //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
-      void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
+      //<>void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
+      void createOffsetAndNoiseMap() {;}
       void rebin(){}
 
     private:

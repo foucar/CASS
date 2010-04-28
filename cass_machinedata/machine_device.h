@@ -37,6 +37,8 @@ namespace cass
         _energy(0),
         _wavelength(0)
       {}
+      // the following was missing
+      ~MachineDataDevice() {}
 
     public:
       /** typedef for more readable code

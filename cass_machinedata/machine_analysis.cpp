@@ -27,6 +27,7 @@ void cass::MachineData::Parameter::save()
 
 void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
 {
+
   //retrive refernce to the machinedevice//
   MachineDataDevice& machinedata = 
     *dynamic_cast<MachineDataDevice*>(cassevent->devices()[cass::CASSEvent::MachineData]);

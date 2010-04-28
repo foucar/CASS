@@ -29,9 +29,11 @@ namespace cass
   class CASSEvent;
   namespace CCD
   {
+    //class CCDDevice;
     /*! Parameters of the commercial ccd analysis
 
       @author Lutz Foucar
+      @modif NC
     */
     class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
