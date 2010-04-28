@@ -90,6 +90,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         //retrieve a reference to the channel we are working on//
         Channel &chan         = *it;
         //extract the infos from the datadesc//
+        chan.channelNbr()     = 99;
         chan.horpos()         = dd.timestamp(0).horPos();
         chan.offset()         = dd.offset();
         chan.gain()           = dd.gain();
@@ -99,9 +100,17 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         //we need to shift the pointer so that it looks at the first real point of the waveform//
         waveform += dd.indexFirstPoint();
         //retrieve a reference to our waveform//
-        Channel::waveform_t mywaveform = chan.waveform();
+        Channel::waveform_t &mywaveform = chan.waveform();
         //resize our waveform vector to hold all the entries of the waveform//
         mywaveform.resize(dd.nbrSamplesInSeg());
+//        std::cout <<"AcqirisConverter: "
+//            <<"gain:"<<dd.gain()<<" "
+//            <<"nbrSamples:"<<dd.nbrSamplesInSeg()<<" "
+//            <<"idxFiPoint:"<<dd.indexFirstPoint()<< " "
+//            <<"offset:"<<dd.offset()<< " "
+//            <<"sampInter:"<<dd.sampleInterval()<< " "
+//            <<std::endl;
+//        printf("*** %e %d %d %e %e\n",dd.gain(),dd.nbrSamplesInSeg(),dd.indexFirstPoint(),dd.offset(),dd.sampleInterval());
         //copy the datapoints of the waveform//
         //we have to swap the byte order for some reason that still has to be determined//
         for (size_t iWave=0;iWave<dd.nbrSamplesInSeg();++iWave)
