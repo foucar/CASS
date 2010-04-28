@@ -40,6 +40,9 @@ QImage Histogram2DFloat::qimage()
     qi.fill(0);
     uint8_t *data(qi.bits());
     value2pixel converter(min(), max());
+//    std::cout << "min:" <<min()
+//        <<" max:"<<max()
+//        <<std::endl;
     lock.lockForRead();
     std::transform(_memory.begin(), _memory.end(), data, converter);
     lock.unlock();
