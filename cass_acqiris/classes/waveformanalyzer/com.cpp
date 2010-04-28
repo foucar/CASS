@@ -13,7 +13,7 @@ template <typename T>
     void com(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
   using namespace cass::ACQIRIS;
-//  std::cout<<"com"<<sizeof(T)<<": entering"<<std::endl;
+//  std::cout<<"com"<<sizeof(T)*8<<": entering"<<std::endl;
   //make sure that we are the right one for the waveform_t//
   assert(typeid(Channel::waveform_t::value_type) == typeid(T));
   //get reference to the signal//
@@ -23,8 +23,18 @@ template <typename T>
   const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
   const size_t wLength    = c.waveform().size();
   //extract info how to analyse from signal
-  const double threshold  = s.threshold() / c.gain();    //mV -> ADC Bytes
-  //    std::cout << "in waveformanalyzer threshold of channel "<<c.channelNbr()<<" is "<<c.threshold()<<" "<<c.offset()<<std::endl;
+  double thres = s.threshold();
+  const double threshold  = thres / c.gain();    //mV -> ADC Bytes
+//  std::cout << "com: values of channel "<<c.channelNbr()<<" is "
+//      <<s.threshold()<<" "
+//      <<c.gain()<<" "
+//      <<10/2e-5<<" "
+//      <<threshold<<" "
+//      <<c.fullscale()<<" "
+//      <<vOffset<<" "
+//      <<c.offset()<<" "
+//      <<wLength<<" "
+//      <<std::endl;
 
   //initialize values for finding peaks//
   bool risingEdge         = false;
@@ -34,9 +44,10 @@ template <typename T>
   //--go through the waveform--//
   for (size_t i=3; i<wLength;++i)
   {
-    //      if (c.channelNbr()== 17)std::cout <<i<<" "<< Data[i]*c.gain() << " " <<(Data[i]-vOffset)*c.gain()<<std::endl;
+    //std::cout <<i<<" "<< Data[i]*c.gain() << " " <<(Data[i]-vOffset)*c.gain()<<std::endl;
+    //std::cout <<i<<" "<<(Data[i]-vOffset)<<" "<<threshold<<std::endl;
     //check wether we have an indication of a peak in the signal//
-    if (   (abs(Data[i] - vOffset) <= threshold)                    //checking for inside noise
+    if (   (abs(Data[i] - vOffset) <= threshold)                  //checking for inside noise
       || ( i == wLength-1)                                        //check if we are at the second to last index
       || ( ( (Data[i]-vOffset)*(Data[i-1]-vOffset) ) < 0.))       //check wether we go through the zero
       {
@@ -44,7 +55,7 @@ template <typename T>
       {
         //--create a new peak--//
         Peak p;
-        //                std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
+        //std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
         //--set all known settings--//
         p.startpos() = startpos;
         p.stoppos()  = i-1;
@@ -71,6 +82,8 @@ template <typename T>
           std::cout << "error: polarity not found"<<std::endl;
           p.polarity() = Bad;
         }
+//        std::cout<<"com: found peak has polarity"<<p.polarity()
+//            <<" should have polarity "<<s.polarity()<<std::endl;
         //--add peak to signal if it fits the conditions--//
         if(p.polarity() == s.polarity())  //if it has the right polarity
           if(p.time() > s.trLow() && p.time() < s.trHigh()) //if signal is in the right timerange
@@ -100,7 +113,7 @@ template <typename T>
       }
     }
   }
-//  std::cout<<"com"<<sizeof(T)<<": leaving"<<std::endl;
+//  std::cout<<"com"<<sizeof(T)*8<<": leaving"<<std::endl;
 
 }
 

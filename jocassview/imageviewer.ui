@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Image Viewer</string>
+   <string>jocassviewer</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -49,8 +49,16 @@
     <addaction name="about"/>
     <addaction name="aboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuControl">
+    <property name="title">
+     <string>Control</string>
+    </property>
+    <addaction name="readIni"/>
+    <addaction name="quitServer"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuControl"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -135,6 +143,16 @@
   <action name="aboutQt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="readIni">
+   <property name="text">
+    <string>Read Ini</string>
+   </property>
+  </action>
+  <action name="quitServer">
+   <property name="text">
+    <string>Quit Server</string>
    </property>
   </action>
  </widget>

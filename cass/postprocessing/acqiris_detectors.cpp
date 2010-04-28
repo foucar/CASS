@@ -139,6 +139,8 @@ namespace cass
 //            <<" list mcp ana type:"<<dynamic_cast<DelaylineDetector*>(det)->mcp().analyzerType() <<std::endl;
         //process the detector using the detectors analyzers in a global container
         (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
+//        std::cout << "validate: "<<dynamic_cast<TofDetector*>(det)->mcp().peaks().size()
+//            <<" analyzer type: "<<det->analyzerType()<<std::endl;
         //create a new key from the id with the reloaded detector
         detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
         //put it to the beginning of the list//
@@ -1094,6 +1096,8 @@ void cass::pp581::operator()(const cass::CASSEvent &evt)
   //reference to all found peaks of the mcp channel//
   Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
   //fill all found peaks into the histogram//
+//  std::cout<<det->mcp().peaks().size()<<std::endl;
+
   for (;it != det->mcp().peaks().end(); ++it)
     _sigprop->fill(it->fwhm(),it->height());
 }

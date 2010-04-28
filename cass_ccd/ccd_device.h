@@ -24,9 +24,13 @@ namespace cass
         :DeviceBackend(1)
       {}
       ~CCDDevice()  {}
-
-      /*public:
-        typedef std::vector<PixelDetector> detectors_t;*/
+      /*
+    public:
+      const cass::PixelDetector &detector()const  {return _detector;}
+      cass::PixelDetector &detector()             {return _detector;}
+      */
+    public:
+        typedef std::vector<PixelDetector> detectors_t;
 
     public:
       /*

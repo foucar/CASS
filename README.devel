@@ -1,12 +1,16 @@
 CASS developer notes
 ====================
 
-These are esome guidelines for the CASS software development.
+These are some guidelines for the CASS software development.
+
+* Prefer standard language features (including the C++ standard library)
+  over external libraries. If you don't, please document your decision.
+
+* Favor initialization over assignment
+  (because initialization will always occur).
 
 * Please document the code using inline comments on implementation
-  details and doxygen comments for interfaces and implementation
-  choices.
-  Use javastyle documentation ie:
+  details and doxygen comments for interfaces and implementation choices:
   /** short description title.
    * detailed description
    * parameters and return values using @param and @return.
@@ -18,22 +22,19 @@ These are esome guidelines for the CASS software development.
     *
     * parameters and return values using @param and @return.
     */
+  Do not duplicate the code in the comment, augment it!
 
-* Prefer standard language features (including the C++ standard
-  library) over external libraries. If you don't, please document your
-  decision.
+* Do not bloat the code (implementation) by useless empty lines,
+  comments without content (i.e., essentially duplicating the code),
+  etc.
+  But please do structure/document header files well
 
 * Please keep the indentation style consistent. Generally, indentation
   should be 2 spaces. Indent whenever a curly bracket opens a block.
-  Do not use tabs, use spaces instead! (Define the indentation stye
-  for Emacs users in the local variabales list for automatic
-  indentation. )
+  Do not use tabs, use spaces instead!
+  (Define the indentation style for Emacs users in the Local Variables
+  list for automatic indentation.)
 
-* Do not bloat the code (impleentation) by useless empty lines,
-  comments without content (i.e., essentially duplicating the code),
-  etc.
-
-* But please do structure/document header files well
 
 
 
@@ -44,11 +45,8 @@ Software repository
 
 * Make sure the committed code always compiles!
   - if you made changes to the project, so that it will probably
-    not compile for the other users. Write a detailed description
+    not compile for the other users, write a detailed description
     what one has to do in order to compile again to the cass
-    mailinglist and into the INSTALL file
-    ie. a detailed example what you have changed in order to make
-    the program compile on your machine.
+    mailinglist and into the INSTALL file.
 
 * Please provide details on your changes in the commit message.
-

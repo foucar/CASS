@@ -7,6 +7,10 @@
 
 namespace cass
 {
+/** Convert Histogram2DFloat::value_t to uint8_t
+
+@author Jochen Küpper
+*/
 class value2pixel
 {
 public:

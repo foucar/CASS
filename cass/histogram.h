@@ -623,11 +623,12 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
   const bool xInRange = 0<=xBin && xBin<nxBins;
   const bool yInRange = 0<=yBin && yBin<nyBins;
   //lock the write operation//
+//  std::cout<<yBin<<" "<<nxBins<<" "<<xBin<<" "<<x<<" "<<y<<std::endl;
   lock.lockForRead();
   // if both bin coordinates are in range, fill the memory,//
   //otherwise figure out which quadrant needs to be filled//
   if (xInRange && yInRange)
-    _memory[yBin*nxBins + yBin]+= weight;
+    _memory[yBin*nxBins + xBin]+= weight;
   if (xBin <0 && yBin <0)
     _memory[maxSize+LowerLeft]+=1;
   else if (xInRange && yBin <0)
