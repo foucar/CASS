@@ -28,20 +28,19 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
 
-/*
-    _picture = new QSpinBox();
-    _picture->setRange(1, 50000);
-    _picture->setValue(101);
-    _ui.toolBar->addWidget(_picture);
-*/
-    _pictureformat = new QComboBox();
+    _attachId = new QSpinBox();
+    _attachId->setRange(1, 50000);
+    _attachId->setValue(settings.value("attachId", 101).toInt());
+    _ui.toolBar->addWidget(_attachId);
+
+    _picturetype = new QComboBox();
     QStringList formats;
 #warning only write formats ?
     formats << "BMP" << "GIF" << "JPG" << "JPEG" << "PNG" << "PBM"
             << "PGM" << "PPM" << "TIFF" << "XBM" << "XPM";
-    _ui.toolBar->addWidget(_pictureformat);
-    _pictureformat->insertItems(0, formats);
-    _pictureformat->setCurrentIndex(settings.value("pictureformat", 4).toInt());
+    _ui.toolBar->addWidget(_picturetype);
+    _picturetype->insertItems(0, formats);
+    _picturetype->setCurrentIndex(settings.value("pictureformat", 4).toInt());
 
     _zoom = new QDoubleSpinBox();
     _zoom->setKeyboardTracking(false);
@@ -90,11 +89,12 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 {
     cout << "closeEvent" << endl;
     QSettings settings;
-    settings.setValue("pictureformat", _pictureformat->currentIndex());
+    settings.setValue("pictureformat", _picturetype->currentIndex());
     settings.setValue("servername", _servername->text());
     settings.setValue("serverport", _serverport->value());
     settings.setValue("period", _period->value());
     settings.setValue("zoom", _zoom->value());
+    settings.setValue("attachId", _attachId->value());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
 
     event->accept();
@@ -180,12 +180,24 @@ void ImageViewer::on_open_triggered()
 void ImageViewer::on_readIni_triggered()
 {
     cout << "readIni" << endl;
+    bool ret;
+    _cass.readini(0, &ret);
+    if(ret)
+        cout << "readini server return value is 'true'" << endl;
+    else
+        cout << "readini server return value is 'false'" << endl;
 }
 
 
 void ImageViewer::on_quitServer_triggered()
 {
     cout << "quitServer" << endl;
+    bool ret;
+    _cass.quit(&ret);
+    if(ret)
+        cout << "quit server return value is 'true'" << endl;
+    else
+        cout << "quit server return value is 'false'" << endl;
 }
 
 
@@ -236,6 +248,9 @@ void ImageViewer::on_normalSize_triggered()
 {
     imageLabel->adjustSize();
     _scaleFactor = 1.0;
+    _zoom->blockSignals(true);
+    _zoom->setValue(100.);
+    _zoom->blockSignals(false);
 }
 
 

@@ -72,9 +72,11 @@ private:
     QLineEdit *_servername;
     QSpinBox *_serverport;
     QDoubleSpinBox *_period;
-    QComboBox *_pictureformat;
+    QComboBox *_picturetype;
     QDoubleSpinBox *_zoom;
     QCheckBox *_running;
+    QSpinBox *_attachId;
+
 
     QTime _time;
 
