@@ -9,7 +9,8 @@
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
 #include "pnccd_device.h"
-#include "ccd_detector.h"
+//#include "ccd_detector.h"
+#include "pixel_detector.h"
 
 /*inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
 {
@@ -74,15 +75,15 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const size_t detectorId = info.devId();
 
       //if necessary resize the detector container//
-      if (detectorId >= dev.detectors().size())
-        dev.detectors().resize(detectorId+1);
+      if (detectorId >= dev.detectors()->size())
+        dev.detectors()->resize(detectorId+1);
 
       //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
       if (_pnccdConfig[detectorId])
       {
         //get a reference to the detector we are working on right now//
-        cass::CCDDetector& det = dev.detectors()[detectorId];
+        cass::PixelDetector& det = (*dev.detectors())[detectorId];
 
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
@@ -124,7 +125,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
         //go through each row of each element and align the data that it is//
         //create a iterator for the raw frame//
-        cass::CCDDetector::frame_t::iterator it = det.frame().begin();
+        cass::PixelDetector::frame_t::iterator it = det.frame().begin();
         //we need to do the reordering of the segments here
         //go through the all rows of the first two segments and //
         //do first row , first row, second row , second row ...//

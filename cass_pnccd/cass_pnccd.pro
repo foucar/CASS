@@ -5,7 +5,7 @@
 
 TEMPLATE       = lib
 TARGET         = cass_pnccd
-CONFIG        += release
+CONFIG        += debug #release
 CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 QT            -= core gui
@@ -30,6 +30,7 @@ HEADERS       += ../cass/analysis_backend.h \
                  ../cass/device_backend.h \
                  ../cass/ccd_detector.h \
                  ../cass/serializer.h \
+                 ../cass/pixel_detector.h \
                  pnccd_analysis.h \
                  pnccd_converter.h \
                  cass_pnccd.h \

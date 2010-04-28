@@ -41,6 +41,7 @@ namespace cass
      * @param parent the parent of this object
      */
     SharedMemoryInput(char * PartitionTag,
+                      int index,
                       cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
                       QObject *parent=0);
     /** deletes the thread*/
@@ -91,6 +92,8 @@ namespace cass
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
     /** the name of the partition tag we connect to*/
     char *_partitionTag;
+    /** the client index of the shared memory*/
+    int _index;
     /** a flag to tell the thread wther the user wants to quit, is set by @see end()*/
     bool _quit;
     /** a pointer to the format converter.

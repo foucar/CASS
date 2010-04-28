@@ -196,31 +196,41 @@ int main(int argc, char **argv)
   char partitionTag[128];
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
+  //the sharememory client index
+  int index(0);
+  //check if at least 1 param is given
+  if(argc<2) 
+  {
+    std::cout << "please give me at least the partition tag" <<std::endl;
+    return 1;
+  }
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:s:")) != -1)
+  while((c = getopt(argc, argv, "p:s:c:")) != -1)
   {
     switch (c)
     {
-      case 'p':
-        strcpy(partitionTag, optarg);
-        break;
-      case 's':
-        soap_port = strtol(optarg, 0, 0);
-        break;
-      default:
-        std::cout << "please give me a partition tag" <<std::endl;
-        break;
+    case 'p':
+      strcpy(partitionTag, optarg);
+      break;
+    case 's':
+      soap_port = strtol(optarg, 0, 0);
+      break;
+    case 'c':
+      index = strtol(optarg, 0, 0);
+    default:
+      std::cout << "please give me a partition tag" <<std::endl;
+      return 2;
+      break;
     }
   }
 
 
-  //a nonblocking ringbuffer for the cassevents//
+  //a ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
-  ringbuffer.behaviour
-      (cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>::nonblocking);
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
+                                                             index,
                                                              ringbuffer,
                                                              qApp));
   //create workers//

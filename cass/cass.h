@@ -28,6 +28,10 @@ namespace cass
     const size_t DatagramBufferSize=0x1000000;
     /** the type of a pixel of a ccd image*/
     typedef float pixel_t;
+    //forward decalration//
+    class PixelDetector;
+    /** type of the container for ccd detectors */
+    typedef std::vector<PixelDetector> detectors_t;
 
 
 

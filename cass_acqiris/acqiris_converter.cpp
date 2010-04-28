@@ -41,8 +41,10 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
               *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
           //extract how many channels are in the acqiris device//
           nbrChannels = config.nbrChannels();
-          std::cout <<"config:"<<std::endl;
-          std::cout <<" NbrChannels: "<<config.nbrChannels()<<std::endl;
+          std::cout <<"AcqirisConverter::ConfigXtc: Instrument "
+              <<info.detector() << " has "
+              <<config.nbrChannels()
+              <<" Channels"<<std::endl;
         }
         break;
       default:

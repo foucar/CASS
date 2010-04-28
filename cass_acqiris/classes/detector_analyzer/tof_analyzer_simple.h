@@ -52,7 +52,14 @@ inline void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::Detecto
   const Instruments &MCPInstr = MCP.instrument();
   const size_t MCPChanNbr = MCP.channelNbr();
   const WaveformAnalyzers &MCPAnal= MCP.analyzerType();
-  const Instrument::channels_t &MCPInstrChans = dev.instruments().find(MCPInstr)->second.channels();
+  Device::instruments_t::const_iterator MCPInstrIt = dev.instruments().find(MCPInstr);
+  if (MCPInstrIt == dev.instruments().end())
+  {
+    std::cerr<< "TofAnalyzerSimple::the requested Instrument "
+        <<MCPInstr<<" for MCP is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &MCPInstrChans = MCPInstrIt->second.channels();
   const Channel &MCPChan = MCPInstrChans[MCPChanNbr];
 
   //now extract values//

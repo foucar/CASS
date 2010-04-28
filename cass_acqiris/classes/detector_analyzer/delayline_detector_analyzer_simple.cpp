@@ -238,7 +238,14 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   const Instruments &MCPInstr = MCP.instrument();
   const size_t MCPChanNbr = MCP.channelNbr();
   const WaveformAnalyzers &MCPAnal= MCP.analyzerType();
-  const Instrument::channels_t &MCPInstrChans = dev.instruments().find(MCPInstr)->second.channels();
+  Device::instruments_t::const_iterator MCPInstrIt = dev.instruments().find(MCPInstr);
+  if (MCPInstrIt == dev.instruments().end())
+  {
+    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
+        <<MCPInstr<<" for MCP is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &MCPInstrChans = MCPInstrIt->second.channels();
   const Channel &MCPChan = MCPInstrChans[MCPChanNbr];
 
 
@@ -246,14 +253,30 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   const Instruments &F1Instr = F1.instrument();
   const size_t F1ChanNbr = F1.channelNbr();
   const WaveformAnalyzers &F1Anal= F1.analyzerType();
-  const Instrument::channels_t &F1InstrChans = dev.instruments().find(F1Instr)->second.channels();
+  Device::instruments_t::const_iterator F1InstrIt = dev.instruments().find(F1Instr);
+  if (F1InstrIt == dev.instruments().end())
+  {
+    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
+        <<F1Instr<<" for First Anode Signal 1"
+        <<" is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &F1InstrChans = F1InstrIt->second.channels();
   const Channel &F1Chan = F1InstrChans[F1ChanNbr];
 
   Signal &F2 = anode.first->wireend()['2'];
   const Instruments &F2Instr = F2.instrument();
   const size_t F2ChanNbr = F2.channelNbr();
   const WaveformAnalyzers &F2Anal= F2.analyzerType();
-  const Instrument::channels_t &F2InstrChans = dev.instruments().find(F2Instr)->second.channels();
+  Device::instruments_t::const_iterator F2InstrIt = dev.instruments().find(F2Instr);
+  if (F2InstrIt == dev.instruments().end())
+  {
+    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
+        <<F1Instr<<" for First Anode Signal 2"
+        <<" is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &F2InstrChans = F2InstrIt->second.channels();
   const Channel &F2Chan = F2InstrChans[F2ChanNbr];
 
 
@@ -261,14 +284,30 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   const Instruments &S1Instr = S1.instrument();
   const size_t S1ChanNbr = S1.channelNbr();
   const WaveformAnalyzers &S1Anal= S1.analyzerType();
-  const Instrument::channels_t &S1InstrChans = dev.instruments().find(S1Instr)->second.channels();
+  Device::instruments_t::const_iterator S1InstrIt = dev.instruments().find(S1Instr);
+  if (S1InstrIt == dev.instruments().end())
+  {
+    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
+        <<F1Instr<<" for Second Anode Signal 1"
+        <<" is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &S1InstrChans = S1InstrIt->second.channels();
   const Channel &S1Chan = S1InstrChans[S1ChanNbr];
 
   Signal &S2 = anode.second->wireend()['2'];
   const Instruments &S2Instr = S2.instrument();
   const size_t S2ChanNbr = S2.channelNbr();
   const WaveformAnalyzers &S2Anal= S2.analyzerType();
-  const Instrument::channels_t &S2InstrChans = dev.instruments().find(S2Instr)->second.channels();
+  Device::instruments_t::const_iterator S2InstrIt = dev.instruments().find(S2Instr);
+  if (S2InstrIt == dev.instruments().end())
+  {
+    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
+        <<F1Instr<<" for Second Anode Signal 2"
+        <<" is not in the datastream"<<std::endl;
+    return;
+  }
+  const Instrument::channels_t &S2InstrChans = S2InstrIt->second.channels();
   const Channel &S2Chan = S2InstrChans[S2ChanNbr];
 
   //now extract values//

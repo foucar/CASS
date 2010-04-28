@@ -1,4 +1,4 @@
-//Copyright (C) 2009,2010 lmf
+//Copyright (C) 2009,2010 Lutz Foucar
 
 #ifndef _ACQIRIS_DEVICE_H_
 #define _ACQIRIS_DEVICE_H_
@@ -15,13 +15,11 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! An Acqiris Instrument
-
-    An Acqiris Instrument represents the actual Acqiris (Multi)-Instrument,
-    which contains a lot of channels
-
-    @author lmf
-    */
+    /** An Acqiris Instrument.
+     * An Acqiris Instrument represents the actual Acqiris (Multi)-Instrument,
+     * which contains a lot of channels
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT Instrument : public cass::Serializable
     {
     public:
@@ -53,16 +51,17 @@ namespace cass
 
 
 
-    /*! The Acqiris device
-
-    The Acqiris device contains all availabe Acqiris instruments
-
-    @author lmf
-    */
+    /** The Acqiris device
+     * The Acqiris device contains all availabe Acqiris instruments
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT Device : public cass::DeviceBackend
     {
     public:
-      /** default constructor creates all instruments*/
+      /** constructor.
+       * Does nothing.
+       * All availabe instruments will be added when they are detected
+       */
       Device();
 
     public:

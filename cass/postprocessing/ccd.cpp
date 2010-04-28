@@ -55,7 +55,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 {
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    const PixelDetector::frame_t& frame((*dev->detectors())[_detector].frame());
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
 
@@ -72,7 +72,7 @@ pp3::pp3(cass::PostProcessors& pp, cass::PostProcessors::id_t id)
     using namespace cass::CCD;
     const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
     const CCDDetector *detector(dev->detector());
-    const CCDDetector::frame_t& frame(detector.frame());
+    const PixelDetector::frame_t& frame(detector.frame());
     _image = new Histogram2DFloat(detector->rows(), detector-columns());
     // save storage in PostProcessors container
     assert(hist == _histograms);
@@ -94,11 +94,9 @@ void pp3::operator()(const cass::CASSEvent& event)
 {
     using namespace cass::CCD;
     const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
-    const CCDDetector::frame_t& frame(dev->detector().frame());
+    const PixelDetector::frame_t& frame((*dev->detectors())[0].frame());
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
 }
-
-
 
 // *** postprocessors 101, 102 ***
 
@@ -153,11 +151,11 @@ void cass::pp101::operator()(const CASSEvent& event)
     // cass::pnCCD;
     using namespace cass::pnCCD;
     const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const CCDDetector::frame_t& frame(dev->detectors()[_detector].frame());
+    const PixelDetector::frame_t& frame((*dev->detectors())[_detector].frame());
     // running average binned data:
     //   new_average = new_sum = f * old_sum + data
-    size_t rows(dev->detectors()[_detector].rows() / _binning.first);
-    size_t cols(dev->detectors()[_detector].columns() / _binning.second);
+    size_t rows((*dev->detectors())[_detector].rows() / _binning.first);
+    size_t cols((*dev->detectors())[_detector].columns() / _binning.second);
     _image->lock.lockForWrite();
     for(unsigned r=0; r<rows; r+=_binning.first) {
         for(unsigned c=0; c<cols; c+=_binning.second) {
@@ -174,6 +172,74 @@ void cass::pp101::operator()(const CASSEvent& event)
     }
     _image->lock.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the photonhits of ccd detectors***
+// ***  used by postprocessors 110-112 ***
+
+pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id)
+{
+    switch(id)
+    {
+    case PostProcessors::VMIPhotonHits:
+        _device=CASSEvent::CCD; _detector = 0;
+        break;
+    case PostProcessors::PnCCDFrontPhotonHits:
+        _device=CASSEvent::pnCCD; _detector = 0;
+        break;
+    case PostProcessors::PnCCDBackPhotonHits:
+        _device=CASSEvent::pnCCD; _detector = 1;
+        break;
+    default:
+        throw std::invalid_argument("Impossible postprocessor id for pp110");
+        break;
+    };
+}
+
+
+cass::pp110::~pp110()
+{
+    _pp.histograms_delete(_id);
+    _image = 0;
+}
+
+
+void cass::pp110::operator()(const CASSEvent& evt)
+{
+    //retrieve the detector's photon hits of the device we are working for.
+    const PixelDetector::pixelList_t& pixellist
+        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+    for (; it != pixellist.end();++it)
+      _image->fill(it->x(),it->y());
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
