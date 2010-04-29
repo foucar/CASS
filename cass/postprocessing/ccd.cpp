@@ -106,8 +106,14 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
 {
     loadSettings(0);
     switch(id) {
-    case PostProcessors::Pnccd1BinnedRunningAverage:
+    case PostProcessors::PnccdFrontBinnedRunningAverage:
         _detector = 0; _device=CASSEvent::pnCCD;
+        break;
+    case PostProcessors::PnccdBackBinnedRunningAverage:
+        _detector = 1; _device=CASSEvent::pnCCD;
+        break;
+    case PostProcessors::CommercialCCDBinnedRunningAverage:
+        _detector = 0; _device=CASSEvent::CCD;
         break;
     default:
         throw std::invalid_argument("Impossible postprocessor id for pp101");
@@ -151,7 +157,7 @@ void cass::pp101::operator()(const CASSEvent& event)
     // cass::pnCCD;
 
     //check whether detector exists
-    if (event.devices().find(_device)->second->detectors()->size() < _detector)
+    if (event.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
@@ -227,7 +233,7 @@ cass::pp110::~pp110()
 void cass::pp110::operator()(const CASSEvent& evt)
 {
     //check whether detector exists
-    if (evt.devices().find(_device)->second->detectors()->size() >= _detector)
+    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist

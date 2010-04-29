@@ -165,7 +165,9 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case Pnccd2LastImage:
         processor = new pp1(*this, id);
         break;
-    case Pnccd1BinnedRunningAverage:
+    case PnccdFrontBinnedRunningAverage:
+    case PnccdBackBinnedRunningAverage:
+    case CommercialCCDBinnedRunningAverage:
     case Pnccd1BackgroundCorrectedBinnedRunnngAverage:
         processor = new pp101(*this, id);
         break;

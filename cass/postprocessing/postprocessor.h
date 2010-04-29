@@ -85,11 +85,17 @@ histograms) and placed in the file for the most appropriate group according to t
 00022: Last waveform of Camp Acqiris Channel 18
 00023: Last waveform of Camp Acqiris Channel 19
 
-00101: Running average of pnCCD-1 images with
+00101: Running average of front pnCCD images with
 - geometric binning (x and y) of postprocessors/101/binning
 - an average length of postprocessors/101/average
 00102: Histogram 101 with
 - background subtraction of the image file specified in postprocessors/102/background
+00103: Running average of back pnCCD images with
+- geometric binning (x and y) of postprocessors/103/binning
+- an average length of postprocessors/101/average
+00105: Running average of commercial ccd images with
+- geometric binning (x and y) of postprocessors/105/binning
+- an average length of postprocessors/101/average
 
 00110: Commercial CCD Image with just the detected photonHits
   - 2d Histogram, Bins are increased by one for each detected photonhit
@@ -312,7 +318,9 @@ public:
         CampChannel17LastWaveform=21,
         CampChannel18LastWaveform=22,
         CampChannel19LastWaveform=23,
-        Pnccd1BinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
+        PnccdFrontBinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
+        PnccdBackBinnedRunningAverage=103,
+        CommercialCCDBinnedRunningAverage=105,
         VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
         VmiRunningAverage=121, VmiCos2Theta=131,
         Integral3=141, Integral121=142,
