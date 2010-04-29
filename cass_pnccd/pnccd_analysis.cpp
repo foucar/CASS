@@ -21,9 +21,13 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   //retrieve the parameter settings//
   beginGroup(s.setNum(static_cast<int>(idx)));
     dp._rebinfactor = value("RebinFactor",1).toUInt();
+    std::cout<<"RebinFactor= "<<dp._rebinfactor<<std::endl;
     dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
+    std::cout<<"SigmaMultiplier= "<<dp._sigmaMultiplier<<std::endl;
     dp._adu2eV = value("Adu2eV",1).toDouble();
+    std::cout<<"Adu2ev= "<<dp._adu2eV<<std::endl;
     dp._createPixellist = value("CreatePixelList",false).toBool();
+    std::cout<<"Create Pixel List is "<<dp._createPixellist<<std::endl;
     dp._doOffsetCorrection = value("DoOffsetCorrection",true).toBool();
     if(dp._doOffsetCorrection) std::cout<<"Offset Correction will be applied for detector "<<idx<<std::endl;
     dp._useCommonMode = value("useCommonMode",false).toBool();
@@ -32,9 +36,9 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(dp._thres_for_integral) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
+    std::cout<<"name is "<<dp._darkcalfilename << std::endl;
     dp._savedarkcalfilename =
       value("DarkCalibrationSaveFileName",QString("darkcal_save_%1.cal").arg(idx)).toString().toStdString();
-    std::cout<<"name is "<<dp._darkcalfilename << std::endl;
     std::cout<<"name is "<<dp._savedarkcalfilename << std::endl;
 
     //cass::PixelDetector::ROIsimple::load();
