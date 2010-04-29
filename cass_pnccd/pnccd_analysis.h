@@ -98,6 +98,7 @@ namespace cass
       void rebin(){}
 
     private:
+      int                         last_dark_bright_changed;
       QMutex                      _mutex; //a mutex to lock write operations
       Parameter                   _param; //the parameters used to analyze the pnccd detectors
       cass::PixelDetector::frame_t  _tmp;   //temporary storage for rebinning frames
