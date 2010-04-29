@@ -34,22 +34,32 @@ private slots:
 
     /** Open file.
       *
-      * Load data from disc.
-      * @todo Actually load from Disc
-      * @todo Provide Control->getData for single shot data requests.
+      * Load Image from disc.
       */
     void on_open_triggered();
+
+    void on_getImage_triggered();
+
     void on_print_triggered();
+
     void on_zoomIn_triggered();
+
     void on_zoomOut_triggered();
+
     void on_normalSize_triggered();
+
     void on_fitToWindow_triggered();
+
     void on_readIni_triggered();
+
     void on_quitServer_triggered();
+
     void on_about_triggered();
 
     void updateServer();
+
     void zoomChanged(double);
+
     void running();
 
 private:
@@ -59,12 +69,15 @@ private:
     void updateActions();
 
     void scaleImage(double factor);
+
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
     void readIniStatusLED(int color, bool on);
 
     QLabel *imageLabel;
+
     QScrollArea *scrollArea;
+
     double _scaleFactor;
 
 #ifndef QT_NO_PRINTER
@@ -72,13 +85,21 @@ private:
 #endif
 
     CASSsoapProxy _cass;
+
     QLineEdit *_servername;
+
     QSpinBox *_serverport;
+
     QDoubleSpinBox *_period;
+
     QComboBox *_picturetype;
+
     QDoubleSpinBox *_zoom;
+
     QCheckBox *_running;
+
     QSpinBox *_attachId;
+
     QRadioButton *_ristatus;
 
     QTime _time;
