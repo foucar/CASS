@@ -1,5 +1,7 @@
 #include <QtGui>
 
+#include <deque>
+
 #include "imageviewer.h"
 
 #include "CASSsoap.nsmap"
@@ -108,10 +110,23 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 void ImageViewer::running()
 {
     cout << "running" << endl;
+    deque<double> ct;
+    deque<double>::iterator it;
+    size_t an(10);
+    double times(0.);
+
     while(_running->isChecked()) {
         _time.start();
         on_open_triggered();
-        statusBar()->showMessage(QString().setNum(1000./_time.elapsed(),'g',2)+" Hz");
+        ct.push_back(_time.elapsed());
+        times = 0.;
+        if(ct.size() > an)
+            ct.pop_front();
+        for(it=ct.begin(); it!=ct.end(); ++it)
+            times += *it;
+        times /= ct.size();
+        statusBar()->showMessage(QString().setNum(1000./times, 'g', 2) + " Hz (" +
+                QString().setNum(ct.size()) + ")");
         usleep(int(1000000./_period->value()));
         qApp->processEvents(QEventLoop::AllEvents);
     }
