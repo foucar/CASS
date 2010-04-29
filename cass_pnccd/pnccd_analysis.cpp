@@ -65,7 +65,6 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   endGroup();
   std::cout << "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
   endGroup();
-  endGroup();
 
 }
 
