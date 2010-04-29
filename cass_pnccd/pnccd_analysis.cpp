@@ -34,6 +34,9 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     dp._savedarkcalfilename =
       value("DarkCalibrationSaveFileName",QString("darkcal_save_%1.cal").arg(idx)).toString().toStdString();
+    std::cout<<"name is "<<dp._darkcalfilename << std::endl;
+    std::cout<<"name is "<<dp._savedarkcalfilename << std::endl;
+
     //cass::PixelDetector::ROIsimple::load();
     dp._detROI._ROI.clear();
 
@@ -83,7 +86,6 @@ void cass::pnCCD::Parameter::load()
   sync();
   //resize the detector parameter container before adding new stuff//
   _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter());
-  std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
@@ -486,7 +488,7 @@ void cass::pnCCD::Analysis::loadSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::saveSettings()
 {
-
+  std::cout<<"I have been asked to save the files"<<std::endl;
   QMutexLocker locker(&_mutex);
   //save settings//
   _param.save();
