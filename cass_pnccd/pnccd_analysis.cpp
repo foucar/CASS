@@ -217,14 +217,23 @@ void cass::pnCCD::Analysis::loadSettings()
     else
     {
       std::cout<<"Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
+      if(_param._isDarkframe) std::cout<<"and this is a Darkframe run"<<std::endl;
+      else std::cout<<"and this is NOT a Darkframe run"<<std::endl;
+
+      //Is this safe or I should just not do it for certain cases?
+      // in principle I do not need it if _param._isDarkframe==1
+      // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
+      // to load
       dp._ROImask.resize(pnCCD_default_size_sq);
     }
     //in case this is a Dark-Run
     if(_param._isDarkframe)
     {
-      dp._nbrDarkframes=0;
       dp._offset.resize(pnCCD_default_size_sq);
       dp._noise.resize(pnCCD_default_size_sq);
+      //reset the number of dark frames taken so far
+      dp._nbrDarkframes=0;
+      //resetting the offset/noise maps
       dp._offset.assign(dp._offset.size(),0);
       dp._noise.assign(dp._noise.size(),0);
     }
