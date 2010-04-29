@@ -1,7 +1,8 @@
+// Copyright (C) 2010 Uwe Hoppe
+
 #include <QtGui>
-
+#include <deque>
 #include "imageviewer.h"
-
 #include "CASSsoap.nsmap"
 
 using namespace std;
@@ -11,6 +12,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
         : QMainWindow(parent, flags)
 {
     _ui.setupUi(this);
+    connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     QSettings settings;
 
     _servername = new QLineEdit(settings.value("servername", "server?").toString());
@@ -82,10 +84,13 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
+    _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
 
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
 
     updateServer();
+#warning fix focus
+    _running->setFocus();
 }
 
 
@@ -100,25 +105,11 @@ void ImageViewer::closeEvent(QCloseEvent *event)
     settings.setValue("zoom", _zoom->value());
     settings.setValue("attachId", _attachId->value());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
-
+    settings.setValue("scaleFactor", _scaleFactor);
     event->accept();
 }
 
 
-void ImageViewer::running()
-{
-    cout << "running" << endl;
-    while(_running->isChecked()) {
-        _time.start();
-        on_open_triggered();
-        statusBar()->showMessage(QString().setNum(1000./_time.elapsed(),'g',2)+" Hz");
-        usleep(int(1000000./_period->value()));
-        qApp->processEvents(QEventLoop::AllEvents);
-    }
-    readIniStatusLED(0, false);
-}
-
-/*
 void ImageViewer::on_open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -126,13 +117,14 @@ void ImageViewer::on_open_triggered()
     if (!fileName.isEmpty()) {
         QImage image(fileName);
         if (image.isNull()) {
-            QMessageBox::information(this, tr("Image Viewer"),
-                                     tr("Cannot load %1.").arg(fileName));
+            QMessageBox::information(this, tr("jocassviewer"),
+                    tr("Cannot load %1.").arg(fileName));
             return;
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));
         _scaleFactor = 1.0;
 
+#warning Once only
         _ui.print->setEnabled(true);
         _ui.fitToWindow->setEnabled(true);
         updateActions();
@@ -141,27 +133,17 @@ void ImageViewer::on_open_triggered()
             imageLabel->adjustSize();
     }
 }
-*/
-
-void ImageViewer::updateServer()
-{
-    cout << "updateServer: ";
-    _server = (_servername->text() + ":" +_serverport->text()).toStdString();
-    _cass.soap_endpoint = _server.c_str();
-    cout << _cass.soap_endpoint << endl;
-}
 
 
-void ImageViewer::on_open_triggered()
+void ImageViewer::on_getImage_triggered()
 {
     _cass.getImage(2, _attachId->value(), &_ret);
+#warning fix image format
 //    _cass.getImage(_picturetype->currentIndex(), _attachId->value(), &_ret);
     if(_ret) {
-        cout << "return value is 'true'" << endl;
         readIniStatusLED(0, true);
     }
     else {
-        cout << "return value is 'false'" << endl;
         readIniStatusLED(1, true);
         return;
     }
@@ -171,17 +153,45 @@ void ImageViewer::on_open_triggered()
     cout << "Size=" << (*attachment).size << endl;
     cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << endl;
     cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-    QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size, "PNG"));
-
+    QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
+            _picturetype->currentText().toStdString().c_str()));
     imageLabel->setPixmap(QPixmap::fromImage(image));
-    _scaleFactor = 1.0;
 
+#warning Once only
     _ui.print->setEnabled(true);
     _ui.fitToWindow->setEnabled(true);
     updateActions();
 
-    if(!_ui.fitToWindow->isChecked())
-        imageLabel->adjustSize();
+    if(_ui.fitToWindow->isChecked())
+        return;
+    cout << "getImage: _scaleFactor=" << _scaleFactor << endl;
+    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+}
+
+
+void ImageViewer::running()
+{
+    cout << "running" << endl;
+    deque<double> ct;
+    deque<double>::iterator it;
+    size_t an(10);
+    double times(0.);
+    while(_running->isChecked()) {
+        _time.start();
+        on_getImage_triggered();
+        ct.push_back(_time.elapsed());
+        times = 0.;
+        if(ct.size() > an)
+            ct.pop_front();
+        for(it=ct.begin(); it!=ct.end(); ++it)
+            times += *it;
+        times /= ct.size();
+        statusBar()->showMessage(QString().setNum(1000./times, 'g', 2) + " Hz (" +
+                QString().setNum(ct.size()) + ")");
+        usleep(int(1000000./_period->value()));
+        qApp->processEvents(QEventLoop::AllEvents);
+    }
+    readIniStatusLED(0, false);
 }
 
 
@@ -190,7 +200,8 @@ void ImageViewer::on_readIni_triggered()
     cout << "readIni" << endl;
     _cass.readini(0, &_ret);
     if(!_ret)
-        statusBar()->showMessage("Error: Cann't read ini");
+        QMessageBox::information(this, tr("jocassviewer"),
+                tr("Error: Cann't read ini."));
 }
 
 
@@ -198,16 +209,16 @@ void ImageViewer::on_quitServer_triggered()
 {
     cout << "quitServer" << endl;
     _cass.quit(&_ret);
-    if(_ret)
-        cout << "quit server return value is 'true'" << endl;
-    else
-        cout << "quit server return value is 'false'" << endl;
+    if(!_ret)
+        QMessageBox::information(this, tr("jocassviewer"),
+                tr("Error: Cann't quit server."));
 }
 
 
 void ImageViewer::on_print_triggered()
 {
-    Q_ASSERT(imageLabel->pixmap());
+    if(!imageLabel->pixmap())
+        return;
 #ifndef QT_NO_PRINTER
     QPrintDialog dialog(&printer, this);
     if (dialog.exec()) {
@@ -225,7 +236,6 @@ void ImageViewer::on_print_triggered()
 
 void ImageViewer::zoomChanged(double value)
 {
-    cout << "zoomChanged: value=" << value << endl;
     scaleImage(value / _scaleFactor / 100);
 }
 
@@ -271,8 +281,8 @@ void ImageViewer::on_fitToWindow_triggered()
 
 void ImageViewer::on_about_triggered()
 {
-    QMessageBox::about(this, tr("About joCASSview"),
-            tr("<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
+    QMessageBox::about(this, tr("About joCASSview"), tr(
+            "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
 }
 
 
@@ -306,9 +316,20 @@ void ImageViewer::updateActions()
 }
 
 
+void ImageViewer::updateServer()
+{
+    cout << "updateServer: ";
+    _server = (_servername->text() + ":" +_serverport->text()).toStdString();
+    _cass.soap_endpoint = _server.c_str();
+    cout << _cass.soap_endpoint << endl;
+}
+
+
 void ImageViewer::scaleImage(double factor)
 {
-    Q_ASSERT(imageLabel->pixmap());
+    cout << "scaleImage: factor=" << factor << endl;
+    if(!imageLabel->pixmap())
+        return;
     _scaleFactor *= factor;
     imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
 

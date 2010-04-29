@@ -53,7 +53,9 @@
     <property name="title">
      <string>Control</string>
     </property>
+    <addaction name="getImage"/>
     <addaction name="readIni"/>
+    <addaction name="separator"/>
     <addaction name="quitServer"/>
    </widget>
    <addaction name="menuFile"/>
@@ -153,6 +155,14 @@
   <action name="quitServer">
    <property name="text">
     <string>Quit Server</string>
+   </property>
+  </action>
+  <action name="getImage">
+   <property name="text">
+    <string>Get &amp;Image</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
    </property>
   </action>
  </widget>

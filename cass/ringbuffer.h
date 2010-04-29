@@ -101,6 +101,7 @@ namespace cass
     RingBuffer()
       : _buffer(cap,Element()),
         _nextToProcess(_buffer.begin()),
+        _nextToView(_buffer.begin()),
         _nextToFill(_buffer.begin())
     {
       //create the elements in the ringbuffer//
