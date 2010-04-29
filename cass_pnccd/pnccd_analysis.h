@@ -53,7 +53,7 @@ namespace cass
       /** constructor creates group "pnCCD" */
       Parameter() {beginGroup("pnCCD");}
       /** constructor closes group "CCD" */
-      ~Parameter()    {endGroup();}
+      ~Parameter() {endGroup();}
       /** load the parameters from cass.ini*/
       void load();
       /** save the parameters to cass.ini*/
@@ -95,7 +95,6 @@ namespace cass
     private:
       //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
       void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
-      //void createOffsetAndNoiseMap() {;}
       void rebin(){}
 
     private:

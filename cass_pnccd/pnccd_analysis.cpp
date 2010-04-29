@@ -17,63 +17,60 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   //sting for the container index//
   QString s;
   //retrieve reference to the detector parameter//
-  std::cout<<"I am here 4"<<std::endl;
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
   beginGroup(s.setNum(static_cast<int>(idx)));
-  dp._rebinfactor = value("RebinFactor",1).toUInt();
-  dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
-  dp._adu2eV = value("Adu2eV",1).toDouble();
-  dp._createPixellist = value("CreatePixelList",false).toBool();
-  dp._doOffsetCorrection = value("DoOffsetCorrection",true).toBool();
-  if(dp._doOffsetCorrection) std::cout<<"Offset Correction will be applied for detector "<<idx<<std::endl;
-  dp._useCommonMode = value("useCommonMode",false).toBool();
-  if(dp._useCommonMode) std::cout<<"Common Mode Correction will be applied for detector "<<idx<<std::endl;
-  dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
-  if(dp._thres_for_integral) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
-  dp._darkcalfilename =
+    dp._rebinfactor = value("RebinFactor",1).toUInt();
+    dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
+    dp._adu2eV = value("Adu2eV",1).toDouble();
+    dp._createPixellist = value("CreatePixelList",false).toBool();
+    dp._doOffsetCorrection = value("DoOffsetCorrection",true).toBool();
+    if(dp._doOffsetCorrection) std::cout<<"Offset Correction will be applied for detector "<<idx<<std::endl;
+    dp._useCommonMode = value("useCommonMode",false).toBool();
+    if(dp._useCommonMode) std::cout<<"Common Mode Correction will be applied for detector "<<idx<<std::endl;
+    dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
+    if(dp._thres_for_integral) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
+    dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
-  dp._savedarkcalfilename =
+    dp._savedarkcalfilename =
       value("DarkCalibrationSaveFileName",QString("darkcal_save_%1.cal").arg(idx)).toString().toStdString();
-  //cass::PixelDetector::ROIsimple::load();
-  dp._detROI._ROI.clear();
+    //cass::PixelDetector::ROIsimple::load();
+    dp._detROI._ROI.clear();
 
-  //dp._detROI.push_back(detROI_t());
-  beginGroup("ROIs");
-  for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
-  {
-    beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
-    dp._detROI._ROI.push_back(ROIsimple());
-    //the shape of the ROI//
-    dp._detROI._ROI[iROI].name = value("ROIShapeName","square").toString().toStdString();
-    // the size(s) along the x axis
-    dp._detROI._ROI[iROI].xsize = value("XSize",1).toUInt();
-    // the size(s) along the y axis
-    dp._detROI._ROI[iROI].ysize = value("YSize",1).toUInt();
-    // the centre(s) along the x axis
-    dp._detROI._ROI[iROI].xcentre = value("XCentre",1).toUInt();
-    // the centre(s) along the y axis
-    dp._detROI._ROI[iROI].ycentre = value("YCentre",1).toUInt();
-    // the orientation is used only in the case of a triangular shape
-    dp._detROI._ROI[iROI].orientation = value("orientation",1).toInt();
+    //dp._detROI.push_back(detROI_t());
+    beginGroup("ROIs");
+    for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
+    {
+      beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
+        dp._detROI._ROI.push_back(ROIsimple());
+        //the shape of the ROI//
+        dp._detROI._ROI[iROI].name = value("ROIShapeName","square").toString().toStdString();
+        // the size(s) along the x axis
+        dp._detROI._ROI[iROI].xsize = value("XSize",1).toUInt();
+        // the size(s) along the y axis
+        dp._detROI._ROI[iROI].ysize = value("YSize",1).toUInt();
+        // the centre(s) along the x axis
+        dp._detROI._ROI[iROI].xcentre = value("XCentre",1).toUInt();
+        // the centre(s) along the y axis
+        dp._detROI._ROI[iROI].ycentre = value("YCentre",1).toUInt();
+        // the orientation is used only in the case of a triangular shape
+        dp._detROI._ROI[iROI].orientation = value("orientation",1).toInt();
+      endGroup();
+      std::cout <<"ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
+                <<" ysiz " << dp._detROI._ROI[iROI].ysize 
+                <<" xc " << dp._detROI._ROI[iROI].xcentre
+                <<" yc " << dp._detROI._ROI[iROI].ycentre 
+                <<" ori " << dp._detROI._ROI[iROI].orientation<<std::endl;
+    }
     endGroup();
-    std::cout <<"ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
-              <<" ysiz " << dp._detROI._ROI[iROI].ysize 
-              <<" xc " << dp._detROI._ROI[iROI].xcentre
-              <<" yc " << dp._detROI._ROI[iROI].ycentre 
-              <<" ori " << dp._detROI._ROI[iROI].orientation<<std::endl;
-  }
+    std::cout << "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
   endGroup();
-  std::cout << "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
-  endGroup();
-  endGroup();
+  //endGroup();
 
 }
 
 void cass::pnCCD::Parameter::load()
 {
-  std::cout<<"I am here 3"<<std::endl;
-
   //the flag//
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
@@ -156,7 +153,6 @@ void cass::pnCCD::Parameter::save()
 cass::pnCCD::Analysis::Analysis()
 {
   //load the settings//
-  std::cout<<"I am here 1"<<std::endl;
   //loadSettings();
 }
 
@@ -170,8 +166,6 @@ cass::pnCCD::Analysis::Analysis()
 void cass::pnCCD::Analysis::loadSettings()
 {
 
-  std::cout<<"I am here 2"<<std::endl;
-  //return;
   QMutexLocker locker(&_mutex);
   //load the settings
   _param.load();
@@ -459,7 +453,6 @@ void cass::pnCCD::Analysis::loadSettings()
           std::cout << dp._ROImask[i]<< " ";
       std::cout<<std::endl;
 #endif
-      std::cout<<"I am here 5 "<<dp._ROImask.size()<<std::endl;
       // now I know which pixel should be masked!
       size_t nextPixel=0;
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1);
@@ -537,7 +530,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   cass::pnCCD::pnCCDDevice &dev =
       *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
 
-  std::cout<<"I have arrived here"<<std::endl;
   //check if we have enough detector parameters for the amount of detectors//
   //increase it if necessary
   if(dev.detectors()->size() > _param._detectorparameters.size())
