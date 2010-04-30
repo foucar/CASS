@@ -654,6 +654,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         }
         else
         {
+          // the following work only if I am copying, not if I modify!!
+          // If I am modifying the pixel containt... This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
