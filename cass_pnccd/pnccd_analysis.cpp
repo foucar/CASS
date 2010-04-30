@@ -8,7 +8,9 @@
 #include "cass_event.h"
 
 #include <vector>
+#include <time.h>
 
+bool not_saved_yet;
 
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
@@ -16,6 +18,11 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   sync();
   //sting for the container index//
   QString s;
+  time_t rawtime;
+  struct tm * timeinfo;
+  size_t dateSize=9+4+1;
+  char date_and_time[dateSize];
+
   //retrieve reference to the detector parameter//
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
@@ -36,10 +43,15 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(dp._thres_for_integral) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
-    std::cout<<"name is "<<dp._darkcalfilename << std::endl;
+    std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
+
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );    
+    strftime(date_and_time,dateSize,"%Y%m%d_%H%m",timeinfo);
     dp._savedarkcalfilename =
-      value("DarkCalibrationSaveFileName",QString("darkcal_save_%1.cal").arg(idx)).toString().toStdString();
-    std::cout<<"name is "<<dp._savedarkcalfilename << std::endl;
+      value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time) 
+            ).toString().toStdString();
+    std::cout<<"Save filename is "<<dp._savedarkcalfilename << std::endl;
 
     //cass::PixelDetector::ROIsimple::load();
     dp._detROI._ROI.clear();
@@ -217,13 +229,16 @@ void cass::pnCCD::Analysis::loadSettings()
     {
       std::cout<<"Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
       if(_param._isDarkframe) std::cout<<"and this is a Darkframe run"<<std::endl;
-      else std::cout<<"and this is NOT a Darkframe run"<<std::endl;
+      else
+      {
+          std::cout<<"and this is NOT a Darkframe run"<<std::endl;
 
-      //Is this safe or I should just not do it for certain cases?
-      // in principle I do not need it if _param._isDarkframe==1
-      // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
-      // to load
-      dp._ROImask.resize(pnCCD_default_size_sq);
+          //Is this safe or I should just not do it for certain cases?
+          // in principle I do not need it if _param._isDarkframe==1
+          // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
+          // to load
+          dp._ROImask.resize(pnCCD_default_size_sq);
+      }
     }
     //in case this is a Dark-Run
     if(_param._isDarkframe)
@@ -500,6 +515,11 @@ void cass::pnCCD::Analysis::loadSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::saveSettings()
 {
+  time_t rawtime;
+  struct tm * timeinfo;
+  size_t dateSize=9+4+1;
+  char date_and_time[dateSize];
+
   std::cout<<"I have been asked to save the files"<<std::endl;
   QMutexLocker locker(&_mutex);
   //save settings//
@@ -521,11 +541,22 @@ void cass::pnCCD::Analysis::saveSettings()
           dp._offset[j]=dp._offset[j]/dp._nbrDarkframes;
           dp._noise[j]=sqrt(dp._noise[j] / dp._nbrDarkframes - dp._offset[j] * dp._offset[j]);
         }
+      //adjust the filenames
+      time ( &rawtime );
+      timeinfo = localtime ( &rawtime );    
+      strftime(date_and_time,dateSize,"%Y%m%d_%H%m",timeinfo);
+      dp._savedarkcalfilename =
+        QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time).toStdString();
+      /*dp._savedarkcalfilename =
+        value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time) 
+        ).toString().toStdString();*/
+      std::cout<<"name is "<<dp._savedarkcalfilename << std::endl;
+
       //create a output file//
       std::ofstream out(dp._savedarkcalfilename.c_str(), std::ios::binary);
       if (out.is_open())
       {
-//        std::cout <<"writing pnccd "<<i<<" to file \""<<_param._save_darkcal_fnames[i].c_str()<<"\""<<std::endl;
+//        std::cout <<"writing pnccd "<<iDet<<" to file \""<<dp._save_darkcalfilename.c_str()<<"\""<<std::endl;
         //write the parameters to the file//
         out.write(reinterpret_cast<const char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
@@ -681,6 +712,13 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
       *itNoise  += static_cast<double>(*itFrame) * static_cast<double>(*itFrame);
     }
     ++dp._nbrDarkframes;
+    if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
+      std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
+    if(dp._nbrDarkframes>51 && !not_yet_saved)
+    {
+      saveSettings();
+      not_saved_yet=false;
+    }
   }
 
 }
