@@ -96,7 +96,7 @@ namespace cass
     private:
       //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
       void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
-      void rebin(){}
+      void rebin(cass::pnCCD::pnCCDDevice&,size_t DetectorIndex);
 
     private:
       //int                         last_dark_bright_changed;

@@ -678,7 +678,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     }//end if OffsetCorrection
     //if the user requested rebinning then rebin//
     if(dp._rebinfactor > 1)
-      rebin();
+      rebin(dev);
   }//end loop iDet
 
 }
@@ -721,4 +721,8 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     }
     */
   }
+}
+
+void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev)
+{
 }
