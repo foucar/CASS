@@ -4,22 +4,16 @@
 
 TEMPLATE       = lib
 TARGET         = cass_acqiris
-CONFIG        += release
-CONFIG        += thread warn_on exceptions rtti sse2 stl
-CONFIG        += static staticlib
+
+CASS_ROOT = ../
+
+include($${CASS_ROOT}/cass_config.pri )
+
 QT            -= core gui
 
-CODECFORTR     = UTF-8
 DEFINES       += CASS_ACQIRIS_LIBRARY
-DEPENDPATH    +=  ../cass  ./classes ./classes/waveformanalyzer ./classes/detector_analyzer .
-INCLUDEPATH   += ../LCLS ../cass ./classes ./classes/waveformanalyzer ./classes/detector_analyzer .
-MOC_DIR        = ./obj
-OBJECTS_DIR    = ./obj
-QMAKE_STRIP    =
-QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN   += $$MOC_DIR/moc_*
-QMAKE_CLEAN   += cass
-VERSION        = 0.1.0
+INCLUDEPATH   += ../cass ./classes ./classes/waveformanalyzer ./classes/detector_analyzer . ../LCLS
+DEPENDPATH    += ../cass ./classes ./classes/waveformanalyzer ./classes/detector_analyzer .
 
 SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
@@ -53,11 +47,10 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
-header.path    = $$INSTALLBASE/include
-libs.path      = $$INSTALLBASE/lib
-header.files   = $$HEADERS
+headers.files   = $$HEADERS
 libs.files     = libcass_acqiris.a
-INSTALLS      += header libs
+
+INSTALLS      += headers libs
 
 
 

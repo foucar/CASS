@@ -1,25 +1,19 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
 # Copyright (C) 2009 Nils Kimmel
 # Copyright (C) 2009 Nicola Coppola
-# Copyright (C) 2009,2010 Lutz Foucar
+# Copyright (C) 2009, 2010 Lutz Foucar
 
 TEMPLATE       = lib
 TARGET         = cass_pnccd
-CONFIG        += release
-CONFIG        += thread warn_on exceptions rtti sse2 stl
-CONFIG        += static staticlib
+CASS_ROOT = ../
+
+include($${CASS_ROOT}/cass_config.pri )
+
 QT            -= core gui
 
-CODECFORTR     = UTF-8
 DEFINES       += CASS_PNCCD_LIBRARY
-INCLUDEPATH   +=  ../LCLS ../cass
-MOC_DIR        = ./obj
-OBJECTS_DIR    = ./obj
-QMAKE_STRIP    =
-QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN   += $$MOC_DIR/moc_*
-QMAKE_CLEAN   += cass
-VERSION        = 0.1.0
+INCLUDEPATH   += ../cass ../LCLS
+DEPENDPATH    += ../cass
 
 SOURCES       += pnccd_analysis.cpp \
                  pnccd_converter.cpp \
@@ -36,11 +30,10 @@ HEADERS       += ../cass/analysis_backend.h \
                  cass_pnccd.h \
                  pnccd_device.h
 
-header.path    = $$INSTALLBASE/include
-libs.path      = $$INSTALLBASE/lib
-header.files   = $$HEADERS
+headers.files   = $$HEADERS
 libs.files     = libcass_pnccd.a
-INSTALLS      += header libs
+
+INSTALLS      += headers libs
 
 
 
