@@ -20,12 +20,14 @@ namespace jocassview
 
         _servername = new QLineEdit(settings.value("servername", "server?").toString());
         _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        _servername->setToolTip("Name of the server to connect to.");
         connect(_servername, SIGNAL(editingFinished()), this, SLOT(updateServer()));
         _ui.toolBar->addWidget(_servername);
         _serverport = new QSpinBox();
         _serverport->setKeyboardTracking(false);
         _serverport->setRange(1000, 50000);
         _serverport->setValue(settings.value("serverport", 10000).toInt());
+        _serverport->setToolTip("Port of the server to connect to.");
         connect(_serverport, SIGNAL(valueChanged(int)), this, SLOT(updateServer()));
         _ui.toolBar->addWidget(_serverport);
 
@@ -35,6 +37,7 @@ namespace jocassview
 
         _attachId = new QSpinBox();
         _attachId->setRange(1, 50000);
+        _attachId->setToolTip("Attachment identifier.");
         _attachId->setValue(settings.value("attachId", 101).toInt());
         _ui.toolBar->addWidget(_attachId);
 
@@ -43,15 +46,17 @@ namespace jocassview
 #warning only write formats ?
         formats << "BMP" << "GIF" << "JPG" << "JPEG" << "PNG" << "PBM"
                 << "PGM" << "PPM" << "TIFF" << "XBM" << "XPM";
-        _ui.toolBar->addWidget(_picturetype);
+        _picturetype->setToolTip("Supported image respectively file format.");
         _picturetype->insertItems(0, formats);
         _picturetype->setCurrentIndex(settings.value("pictureformat", 4).toInt());
+        _ui.toolBar->addWidget(_picturetype);
 
         _zoom = new QDoubleSpinBox();
         _zoom->setKeyboardTracking(false);
         _zoom->setDecimals(1);
         _zoom->setRange(-50000., 50000.);
         _zoom->setValue(settings.value("zoom", 100.).toDouble());
+        _zoom->setToolTip("Set scalefactor for image.");
         connect(_zoom, SIGNAL(valueChanged(double)), this, SLOT(zoomChanged(double)));
         _ui.toolBar->addWidget(_zoom);
         QLabel *zunit = new QLabel;
@@ -64,6 +69,7 @@ namespace jocassview
 
         _running = new QCheckBox();
         connect(_running, SIGNAL(released()), this, SLOT(running()));
+        _running->setToolTip("If checked, continuously get and display images.");
         _ui.toolBar->addWidget(_running);
 
         _ristatus = new QRadioButton();
@@ -73,6 +79,7 @@ namespace jocassview
         _period = new QDoubleSpinBox();
         _period->setRange(0.01, 100.);
         _period->setValue(settings.value("period", 10.).toDouble());
+        _period->setToolTip("Given frequency of continuously get and display images.");
         _ui.toolBar->addWidget(_period);
         QLabel *punit = new QLabel;
         punit->setText("Hz");
@@ -90,6 +97,8 @@ namespace jocassview
         _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
 
         _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
+        statusBar()->setToolTip("Actual frequency to get and display "
+                "images averaged over (n) times.");
         updateServer();
     }
 

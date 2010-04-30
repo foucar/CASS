@@ -79,6 +79,9 @@
    <property name="text">
     <string>&amp;Open...</string>
    </property>
+   <property name="toolTip">
+    <string>Open image from file.</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
    </property>
@@ -86,6 +89,9 @@
   <action name="print">
    <property name="text">
     <string>&amp;Print...</string>
+   </property>
+   <property name="toolTip">
+    <string>Print current image.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -95,6 +101,9 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="toolTip">
+    <string>Exit jocassviewer.</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
@@ -102,6 +111,9 @@
   <action name="zoomIn">
    <property name="text">
     <string>Zoom In (25%)</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In (25%).</string>
    </property>
    <property name="shortcut">
     <string>Ctrl++</string>
@@ -111,6 +123,9 @@
    <property name="text">
     <string>Zoom Out (25%)</string>
    </property>
+   <property name="toolTip">
+    <string>Zoom Out (25%).</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
    </property>
@@ -118,6 +133,9 @@
   <action name="normalSize">
    <property name="text">
     <string>Normal &amp;Size</string>
+   </property>
+   <property name="toolTip">
+    <string>Normal Size.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -130,6 +148,9 @@
    <property name="text">
     <string>&amp;Fit to Window</string>
    </property>
+   <property name="toolTip">
+    <string>Fit to Window.</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
@@ -137,6 +158,9 @@
   <action name="about">
    <property name="text">
     <string>&amp;About</string>
+   </property>
+   <property name="toolTip">
+    <string>Show about message.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -146,20 +170,32 @@
    <property name="text">
     <string>About Qt</string>
    </property>
+   <property name="toolTip">
+    <string>Show about Qt.</string>
+   </property>
   </action>
   <action name="readIni">
    <property name="text">
     <string>Read Ini</string>
+   </property>
+   <property name="toolTip">
+    <string>Read Initialisation.</string>
    </property>
   </action>
   <action name="quitServer">
    <property name="text">
     <string>Quit Server</string>
    </property>
+   <property name="toolTip">
+    <string>Quit Server.</string>
+   </property>
   </action>
   <action name="getImage">
    <property name="text">
     <string>Get &amp;Image</string>
+   </property>
+   <property name="toolTip">
+    <string>Get single image from server.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
