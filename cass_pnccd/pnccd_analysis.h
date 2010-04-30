@@ -36,8 +36,8 @@ namespace cass
       double          _adu2eV;            //conversion from adu to eV
       bool            _createPixellist;   //flag to switch pixellist on / off
       bool            _doOffsetCorrection;//flag to switch offsetcorrection on / off
-      bool            _useCommonMode;     //need to know if I need to use a common mode subtraction scheme//
-      uint32_t        _thres_for_integral;   //the thresold for special integral
+      bool            _useCommonMode;     //flag to switch a common mode subtraction scheme//
+      uint32_t        _thres_for_integral;//the thresold for special integral
       std::string     _darkcalfilename;   //filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
       cass::detROI_   _detROI;
@@ -99,7 +99,7 @@ namespace cass
       void rebin(){}
 
     private:
-      int                         last_dark_bright_changed;
+      //int                         last_dark_bright_changed;
       QReadWriteLock              _RWlock; //a mutex to lock write operations but allow read
       QMutex                      _mutex; //a mutex to lock write operations
       Parameter                   _param; //the parameters used to analyze the pnccd detectors

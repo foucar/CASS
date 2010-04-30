@@ -5,7 +5,7 @@
 
 TEMPLATE       = lib
 TARGET         = cass_pnccd
-CONFIG        += release
+CONFIG        += debug #release
 CONFIG        += thread warn_on exceptions rtti sse2 stl
 CONFIG        += static staticlib
 QT            -= core gui

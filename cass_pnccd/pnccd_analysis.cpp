@@ -16,7 +16,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
   sync();
   //sting for the container index//
-  QString s;
+  QString s,c;
   time_t rawtime;
   struct tm * timeinfo;
   size_t dateSize=9+4+1;
@@ -39,7 +39,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._useCommonMode = value("useCommonMode",false).toBool();
     if(dp._useCommonMode) std::cout<<"Common Mode Correction will be applied for detector "<<idx<<std::endl;
     dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
-    if(dp._thres_for_integral) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
+    if(dp._thres_for_integral>0) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
@@ -60,7 +60,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     beginGroup("ROIs");
     for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
     {
-      beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
+      beginGroup(c.setNum(static_cast<uint32_t>(iROI)));
         dp._detROI._ROI.push_back(ROIsimple());
         //the shape of the ROI//
         dp._detROI._ROI[iROI].name = value("ROIShapeName","square").toString().toStdString();
@@ -121,7 +121,7 @@ void cass::pnCCD::Parameter::save()
   setValue("IsDarkFrames",_isDarkframe);
 
   //string for the container index//
-  QString s;
+  QString s,c;
   setValue("size",static_cast<uint32_t>(_detectorparameters.size()));
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
   {
@@ -142,7 +142,7 @@ void cass::pnCCD::Parameter::save()
     beginGroup("ROIs");
     for (size_t iROI=0; iROI< dp._detROI._ROI.size(); ++iROI)
     {
-      beginGroup(s.setNum(static_cast<int>(iROI)));
+      beginGroup(c.setNum(static_cast<int>(iROI)));
       setValue("ROIShapeName",dp._detROI._ROI[iROI].name.c_str());
       setValue("XSize",dp._detROI._ROI[iROI].xsize);
       setValue("YSize",dp._detROI._ROI[iROI].ysize);
@@ -630,30 +630,24 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       const cass::ROI::ROImask_t &mask = dp._ROImask;
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
-      const bool &ShouldIuseCommonMode= dp._useCommonMode;
+      //const bool ShouldIuseCommonMode= dp._useCommonMode;
       size_t pixelidx=0;
       //let's initialize a bit
       det.integral()=0;
       det.integral_overthres()=0;
       det.maxPixelValue()=0;
-
-      for ( ; itROI != iter.end(); ++itROI,++pixelidx)
+      if(dp._useCommonMode/*ShouldIuseCommonMode*/)
       {
-        advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
-        advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
-        advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
-        if(ShouldIuseCommonMode)
+        //merd
+        std::cout<<"I need to do something"<<std::endl;
+      }
+      else
+      {
+        for ( ; itROI != iter.end(); ++itROI,++pixelidx)
         {
-          //merd
-          std::cout<<"I need to do something"<<std::endl;
-
-          //if user wants to extract the pixels that are above threshold, do it//
-          if (dp._createPixellist)
-          {
-          }
-        }
-        else
-        {
+          advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel containt... This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
@@ -675,14 +669,17 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               det.pixellist().push_back(this_pixel);
             }
           }
-        }
-
-      }
-    }
+        }//end loop over frame
+      }// endif CommondMode Subtraction
+#ifdef debug
+      if(dp._createPixellist) std::cout<<"number of found photons on pnCCD " << iDet
+                                       << " is "<< det.pixellist().size()<<std::endl;
+#endif
+    }//end if OffsetCorrection
     //if the user requested rebinning then rebin//
     if(dp._rebinfactor > 1)
       rebin();
-  }
+  }//end loop iDet
 
 }
 
