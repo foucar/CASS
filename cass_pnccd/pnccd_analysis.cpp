@@ -28,6 +28,9 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   beginGroup(s.setNum(static_cast<int>(idx)));
     dp._rebinfactor = value("RebinFactor",1).toUInt();
     std::cout<<"RebinFactor= "<<dp._rebinfactor<<std::endl;
+    dp._max_noise = value("MaxNoise",1).toDouble();
+    std::cout<< "The max allowed noise level before mask is set to "<<dp._max_noise <<
+      " ADC counts, identified through 3x std dev"<<std::endl;
     dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
     std::cout<<"SigmaMultiplier= "<<dp._sigmaMultiplier<<std::endl;
     dp._adu2eV = value("Adu2eV",1).toDouble();
@@ -492,15 +495,26 @@ void cass::pnCCD::Analysis::loadSettings()
       // now I know which pixel should be masked!
       size_t nextPixel=0;
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1);
+      size_t extra_masked_pixel=0;
       for(size_t iPixel=0;iPixel<dp._ROImask.size(); ++iPixel)
       {
         // the "pointer" is the location/index of the next pixel to be used
         if(dp._ROImask[iPixel]!=0)
         {
-          dp._ROIiterator[nextPixel]=iPixel+1;
-          nextPixel++;
+          if(dp._noise[iPixel]<3*dp._max_noise)
+          {
+            dp._ROIiterator[nextPixel]=iPixel+1;
+            nextPixel++;
+          }
+          else
+          {
+            extra_masked_pixel++;
+            dp._ROImask[iPixel]=0;
+          }
         }
       }
+      dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1-extra_masked_pixel);
+      std::cout << "Extra masked pixel for detector "<< iDet<<" are "<<extra_masked_pixel<<std::endl;
       std::cout <<"Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" " 
                 <<dp._ROIiterator.size()<< " "
                 <<number_of_pixelsettozero <<std::endl;
@@ -654,6 +668,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]+1; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel containt... This method leave the masked-pixels unchanged!!
