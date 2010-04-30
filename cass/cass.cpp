@@ -231,8 +231,7 @@ int main(int argc, char **argv)
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
                                                              index,
-                                                             ringbuffer,
-                                                             qApp));
+                                                             ringbuffer));
   //create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer, qApp));
   //create a ratemeter object for the input//
