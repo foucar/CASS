@@ -23,7 +23,7 @@ namespace cass
     /** global variable to set the ring buffer size */
     const size_t RingBufferSize=4;
     /** global variable to set the number of worker threads*/
-    const size_t NbrOfWorkers=1; //it was 16
+    const size_t NbrOfWorkers=16;
     /** the maximum size of one datagram should be 10 MB*/
     const size_t DatagramBufferSize=0x1000000;
     /** the type of a pixel of a ccd image*/
