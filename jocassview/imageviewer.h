@@ -21,94 +21,100 @@
 #include "ui_imageviewer.h"
 #include "soapCASSsoapProxy.h"
 
-#warning put everything in namespace jocassview
-class ImageViewer : public QMainWindow
+namespace jocassview
 {
-    Q_OBJECT
 
-public:
+    class ImageViewer : public QMainWindow
+    {
+        Q_OBJECT
 
-    ImageViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
+    public:
 
-private slots:
+        ImageViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
 
-    /** Open file.
-      *
-      * Load Image from disc.
-      */
-    void on_open_triggered();
+    private slots:
 
-    void on_getImage_triggered();
+        /** Open file.
+        *
+        * Load Image from disc.
+        */
+        void on_open_triggered();
 
-    void on_print_triggered();
+        void on_getImage_triggered();
 
-    void on_zoomIn_triggered();
+        void on_print_triggered();
 
-    void on_zoomOut_triggered();
+        void on_zoomIn_triggered();
 
-    void on_normalSize_triggered();
+        void on_zoomOut_triggered();
 
-    void on_fitToWindow_triggered();
+        void on_normalSize_triggered();
 
-    void on_readIni_triggered();
+        void on_fitToWindow_triggered();
 
-    void on_quitServer_triggered();
+        void on_readIni_triggered();
 
-    void on_about_triggered();
+        void on_quitServer_triggered();
 
-    void updateServer();
+        void on_about_triggered();
 
-    void zoomChanged(double);
+        void updateServer();
 
-    void running();
+        void zoomChanged(double);
 
-private:
+        void running();
 
-    void closeEvent(QCloseEvent *event);
 
-    void updateActions();
+    private:
 
-    void scaleImage(double factor);
+        void closeEvent(QCloseEvent *event);
 
-    void adjustScrollBar(QScrollBar *scrollBar, double factor);
+        void updateActions();
 
-    void readIniStatusLED(int color, bool on);
+        void scaleImage(double factor);
 
-    QLabel *imageLabel;
+        void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
-    QScrollArea *scrollArea;
+        void readIniStatusLED(int color, bool on);
 
-    double _scaleFactor;
+        virtual void showEvent(QShowEvent *);
+
+        QLabel *imageLabel;
+
+        QScrollArea *scrollArea;
+
+        double _scaleFactor;
 
 #ifndef QT_NO_PRINTER
-    QPrinter printer;
+        QPrinter printer;
 #endif
 
-    CASSsoapProxy _cass;
+        CASSsoapProxy _cass;
 
-    QLineEdit *_servername;
+        QLineEdit *_servername;
 
-    QSpinBox *_serverport;
+        QSpinBox *_serverport;
 
-    QDoubleSpinBox *_period;
+        QDoubleSpinBox *_period;
 
-    QComboBox *_picturetype;
+        QComboBox *_picturetype;
 
-    QDoubleSpinBox *_zoom;
+        QDoubleSpinBox *_zoom;
 
-    QCheckBox *_running;
+        QCheckBox *_running;
 
-    QSpinBox *_attachId;
+        QSpinBox *_attachId;
 
-    QRadioButton *_ristatus;
+        QRadioButton *_ristatus;
 
-    QTime _time;
+        QTime _time;
 
-    bool _ret;
+        bool _ret;
 
-    Ui::ImageViewer _ui;
+        Ui::ImageViewer _ui;
 
-    std::string _server;
-};
+        std::string _server;
+    };
+}
 
 #endif
