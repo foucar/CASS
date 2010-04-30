@@ -6,6 +6,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
+#include <QtCore/QWriteLocker>
 //#include <map>
 //#include <string>
 #include <vector>
@@ -99,6 +100,7 @@ namespace cass
 
     private:
       int                         last_dark_bright_changed;
+      QReadWriteLock              _RWlock; //a mutex to lock write operations but allow read
       QMutex                      _mutex; //a mutex to lock write operations
       Parameter                   _param; //the parameters used to analyze the pnccd detectors
       cass::PixelDetector::frame_t  _tmp;   //temporary storage for rebinning frames

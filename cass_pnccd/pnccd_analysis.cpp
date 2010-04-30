@@ -14,7 +14,6 @@ bool not_saved_yet;
 
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
-
   sync();
   //sting for the container index//
   QString s;
@@ -44,19 +43,20 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
-
-    time ( &rawtime );
-    timeinfo = localtime ( &rawtime );    
-    strftime(date_and_time,dateSize,"%Y%m%d_%H%m",timeinfo);
-    dp._savedarkcalfilename =
-      value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time) 
-            ).toString().toStdString();
-    std::cout<<"Save filename is "<<dp._savedarkcalfilename << std::endl;
-
+    if(dp._isDarkframe)
+    {
+      time ( &rawtime );
+      timeinfo = localtime ( &rawtime );    
+      strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
+      std::cout<<"now is "<<date_and_time<<std::endl;
+      dp._savedarkcalfilename =
+        value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time) 
+              ).toString().toStdString();
+      std::cout<<"Save filename is something like "<<dp._savedarkcalfilename << std::endl;
+    }
     //cass::PixelDetector::ROIsimple::load();
     dp._detROI._ROI.clear();
 
-    //dp._detROI.push_back(detROI_t());
     beginGroup("ROIs");
     for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
     {
@@ -93,6 +93,7 @@ void cass::pnCCD::Parameter::load()
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
   {
+    //not_saved_yet=true;
     std::cout<<"This is a DarkFrame Run"<<std::endl;
   }
   //string for the container index//
@@ -520,51 +521,53 @@ void cass::pnCCD::Analysis::saveSettings()
   size_t dateSize=9+4+1;
   char date_and_time[dateSize];
 
-  std::cout<<"I have been asked to save the files"<<std::endl;
-  QMutexLocker locker(&_mutex);
+  //QMutexLocker locker(&_mutex);
   //save settings//
-  _param.save();
+  //I actually don't want to write in the CASS.ini file!!
+  //_param.save();
   //now save the noise and the offset maps to the designated files//
-  for (size_t iDet=0;iDet<_param._detectorparameters.size();++iDet)
+  if(dp._isDarkframe)
   {
-    //retrieve a reference to the detector parameter
-    //I need to "normalize the values
-    DetectorParameter &dp = _param._detectorparameters[iDet];
-    //save only if the vectors have some information inside//
-    //save only if this is a dark-frame run
-    if (!dp._offset.empty() && !dp._noise.empty() && _param._isDarkframe )
+    std::cout<<"I have been asked to save the files"<<std::endl;
+    for (size_t iDet=0;iDet<_param._detectorparameters.size();++iDet)
     {
-      //normalise the values
-      if(dp._nbrDarkframes)
-        for(size_t j=0;j<dp._offset.size();j++)
-        {
-          dp._offset[j]=dp._offset[j]/dp._nbrDarkframes;
-          dp._noise[j]=sqrt(dp._noise[j] / dp._nbrDarkframes - dp._offset[j] * dp._offset[j]);
-        }
-      //adjust the filenames
-      time ( &rawtime );
-      timeinfo = localtime ( &rawtime );    
-      strftime(date_and_time,dateSize,"%Y%m%d_%H%m",timeinfo);
-      dp._savedarkcalfilename =
-        QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time).toStdString();
-      /*dp._savedarkcalfilename =
-        value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time) 
-        ).toString().toStdString();*/
-      std::cout<<"name is "<<dp._savedarkcalfilename << std::endl;
-
-      //create a output file//
-      std::ofstream out(dp._savedarkcalfilename.c_str(), std::ios::binary);
-      if (out.is_open())
+      //retrieve a reference to the detector parameter
+      //I need to "normalize the values
+      DetectorParameter &dp = _param._detectorparameters[iDet];
+      //save only if the vectors have some information inside//
+      //save only if this is a dark-frame run
+      if (!dp._offset.empty() && !dp._noise.empty() && _param._isDarkframe )
       {
-//        std::cout <<"writing pnccd "<<iDet<<" to file \""<<dp._save_darkcalfilename.c_str()<<"\""<<std::endl;
-        //write the parameters to the file//
-        out.write(reinterpret_cast<const char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
-        out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+        //normalise the values
+        if(dp._nbrDarkframes)
+          for(size_t j=0;j<dp._offset.size();j++)
+          {
+            dp._offset[j]=dp._offset[j]/dp._nbrDarkframes;
+            dp._noise[j]=sqrt(dp._noise[j] / dp._nbrDarkframes - dp._offset[j] * dp._offset[j]);
+          }
+        //adjust the filenames
+        time ( &rawtime );
+        timeinfo = localtime ( &rawtime );    
+        strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
+        std::cout<<"now is "<<date_and_time<<std::endl;
+        dp._savedarkcalfilename =
+          QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time).toStdString();
+        std::cout<<"saved filename is "<<dp._savedarkcalfilename << std::endl;
+
+        //create a output file//
+        std::ofstream out(dp._savedarkcalfilename.c_str(), std::ios::binary);
+        if (out.is_open())
+        {
+          //std::cout <<"writing pnccd "<<iDet<<" to file \""<<dp._save_darkcalfilename.c_str()<<"\""<<std::endl;
+          //write the parameters to the file//
+          out.write(reinterpret_cast<const char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
+          out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+        }
+        else std::cout<<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
       }
-      else std::cout<<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
     }
   }
-
+  else std::cout<<"I have been asked to save the files, but this is not a darkcal-run, I will do nothing of that sort!"<<std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -589,11 +592,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   //and do no further analysis//
   if(_param._isDarkframe)
   {
-    QMutexLocker locker(&_mutex);
+    //QWriteLocker locker(&_RWlock);
+    // the following was uncommented. who did insert it??
+    //QMutexLocker locker(&_mutex);
     createOffsetAndNoiseMap(dev);
-    //createOffsetAndNoiseMap();
-
-
     return;
   }
 
@@ -624,10 +626,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::PixelDetector::frame_t &f = det.frame();
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
-      //std::vector<double>::const_iterator itOffset = dp._offset.begin();
-      //std::vector<double>::const_iterator itNoise  = dp._noise.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator  itNoise  = dp._noise.begin();
-      //const std::vector<double> &offset = dp._offset;
       const cass::ROI::ROImask_t &mask = dp._ROImask;
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
@@ -638,12 +637,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       det.integral_overthres()=0;
       det.maxPixelValue()=0;
 
-      //for (; itOffset!=dp._offset.end() ;++itOffset,++itFrame)
       for ( ; itROI != iter.end(); ++itROI,++pixelidx)
       {
         advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
-        //advance(itRawFrame,iter[pixelidx+1]-iter[pixelidx]);
-        //advance(itCorFrame,iter[pixelidx+1]-iter[pixelidx]);
         advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
         advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
         if(ShouldIuseCommonMode)
@@ -691,7 +687,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
-
+  QMutexLocker  locker(&_mutex);
+  //Insert read/write lock? But I get a Segfault...
+  //QWriteLocker  locker(&_RWlock);
   for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
   {
     //retrieve a reference to the detector we are working on right now//
@@ -704,8 +702,6 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     cass::PixelDetector::frame_t::const_iterator itFrame = f.begin();
     cass::pnCCD::DetectorParameter::correctionmap_t::iterator itOffset = dp._offset.begin();
     cass::pnCCD::DetectorParameter::correctionmap_t::iterator  itNoise  = dp._noise.begin();
-    //std::vector<double>::iterator itOffset = dp._offset.begin();
-    //std::vector<double>::iterator itNoise  = dp._noise.begin();
     for (; itOffset!=dp._offset.end() ;++itOffset,++itFrame,++itNoise)
     {
       *itOffset += static_cast<double>(*itFrame);
@@ -714,11 +710,16 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     ++dp._nbrDarkframes;
     if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
       std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
-    if(dp._nbrDarkframes>51 && !not_yet_saved)
+    /*
+    if(dp._nbrDarkframes>201 && not_saved_yet)
     {
+      //Only one of the Threads should save.... So I don't see why I should do it....
+      //This would be only a dirty trick!!!!
+      //cass::pnCCD::Analysis::saveSettings();
       saveSettings();
+      //std::cout<<"here "<<std::endl;
       not_saved_yet=false;
     }
+    */
   }
-
 }
