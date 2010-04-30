@@ -678,7 +678,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     }//end if OffsetCorrection
     //if the user requested rebinning then rebin//
     if(dp._rebinfactor > 1)
-      rebin(dev);
+      rebin(dev,iDet);
   }//end loop iDet
 
 }
@@ -723,6 +723,51 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
   }
 }
 
-void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev)
+void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
 {
+  QMutexLocker  locker(&_mutex);
+  //retrieve a reference to the detector and "chip" we are working on right now//
+  cass::PixelDetector &det = (*dev.detectors())[iDet];
+  //retrieve a reference to the detector parameters we are working on right now//
+  DetectorParameter &dp = _param._detectorparameters[iDet];
+  //I should not be here
+  if(dp._rebinfactor <=1) return;
+  //retrieve a reference to the frame of the detector//
+  cass::PixelDetector::frame_t &f = det.frame();
+
+  //else to the rebinnning;
+  //get the dimesions of the detector before the rebinning//
+  const uint16_t nRows = det.originalrows();
+  const uint16_t nCols = det.originalcolumns();
+  if(nRows % dp._rebinfactor != 0)
+  {
+    //the rebin factor is not a safe one
+    dp._rebinfactor = static_cast<uint32_t>(pow(2,int(log2(dp._rebinfactor))));
+  }
+  //get the new dimensions//
+  const size_t newRows = nRows / dp._rebinfactor;
+  const size_t newCols = nCols / dp._rebinfactor;
+  //set the new dimensions in the detector//
+  det.rows()    = newRows;
+  det.columns() = newCols;
+  _tmp.clear();
+  //resize the temporary container to fit the rebinned image
+  _tmp.resize(f.size()/dp._rebinfactor/dp._rebinfactor);
+  //initialize it with 0
+  _tmp.assign(newRows * newCols,0);
+  //go through the whole corrected frame//
+  for (size_t iIdx=0; iIdx<f.size() ;++iIdx)
+  {
+    //calculate the row and column of the current Index//
+    const size_t row = iIdx / nCols;
+    const size_t col = iIdx % nCols;
+    //calculate the index of the rebinned frame//
+    const size_t newRow = row / dp._rebinfactor;
+    const size_t newCol = col / dp._rebinfactor;
+    //calculate the index in the rebinned frame//
+    //that newRow and newCol belongs to//
+    const size_t newIndex = newRow*newCols + newCol;
+    //add this index value to the newIndex value//
+    _tmp[newIndex] += f[iIdx]/dp._rebinfactor/dp._rebinfactor;
+  }
 }
