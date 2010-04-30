@@ -161,7 +161,7 @@ void cass::Workers::loadSettings(size_t what)
     throw std::bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  std::cout << "Workers: Load Settings: suspend all workers before laoding settings"
+  std::cout << "Workers: Load Settings: suspend all workers before loading settings"
       <<std::endl;
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
@@ -176,6 +176,35 @@ void cass::Workers::loadSettings(size_t what)
   _workers[0]->loadSettings(what);
   //resume the workers tasks//
   std::cout << "Workers: Load Settings: Done Loading. Now resume all workers"
+      <<std::endl;
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->resume();
+  std::cout << "Workers: Load Settings: Workers are resumed"
+      <<std::endl;
+}
+
+void cass::Workers::saveSettings()
+{
+  //make sure there is at least one worker//
+  if(_workers.empty())
+    throw std::bad_exception();
+  //lock this from here on, so that it is reentrant
+  QMutexLocker lock(&_mutex);
+  std::cout << "Workers: Save Settings: suspend all workers before saving settings"
+      <<std::endl;
+  //suspend all workers//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->suspend();
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilSuspended();
+  std::cout << "Workers: Load Settings: Workers are suspend. Save Settings of one Worker,"
+      <<" which shares all settings."<<std::endl;
+  //load the settings of one worker//
+  //since the workers have only singletons this will make sure//
+  //that the parameters are the same for all workers//
+  _workers[0]->saveSettings();
+  //resume the workers tasks//
+  std::cout << "Workers: Save Settings: Done Saving. Now resume all workers"
       <<std::endl;
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
