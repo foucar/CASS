@@ -1,22 +1,17 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
-# Copyright (C) 2009,2010 Lutz Foucar
+# Copyright (C) 2009, 2010 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
 TEMPLATE       = app
 TARGET         = cass
-CONFIG        += debug #release
-CONFIG        += thread warn_on exceptions rtti sse2 stl
-CONFIG        += static staticlib
 
-CODECFORTR     = UTF-8
+CASS_ROOT = ../
+
+include($${CASS_ROOT}/cass_config.pri )
+
+CONFIG        -= gui
+
 DEFINES       += CASS_LIBRARY NDEBUG
-MOC_DIR        = ./obj
-OBJECTS_DIR    = ./obj
-QMAKE_STRIP    =
-QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN   += $$MOC_DIR/moc_*
-QMAKE_CLEAN   += $$TARGET
-VERSION        = 0.1.0
 
 # build the LCLS libraries and programs before compiling cass itself
 lclslibs.target     = LCLSLibrary
@@ -167,7 +162,6 @@ INCLUDEPATH   += postprocessing \
                  ../cass_pnccd \
                  ../cass_machinedata \
                  $$PWD/../LCLS \
-                 .
 
 LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L../cass_pnccd -lcass_pnccd \
@@ -182,14 +176,10 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_ccd/libcass_ccd.a \
                  ../cass_machinedata/libcass_machinedata.a
 
-bin.path       = $$INSTALLBASE/bin
 bin.files      = cass
-header.path    = $$INSTALLBASE/include
-header.files   = $$HEADERS
-libs.path      = $$INSTALLBASE/lib
-libs.files     =
+headers.files  = $$HEADERS
 
-INSTALLS      += header libs bin
+INSTALLS      += headers bin
 
 
 
