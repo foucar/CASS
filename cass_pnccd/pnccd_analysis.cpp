@@ -212,6 +212,8 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._noise.resize(size);
         dp._ROImask.resize(size);
         dp._ROIiterator.resize(size);
+        dp._ROImask_converter.resize(size);
+        dp._ROIiterator_converter.resize(size);
         //read the parameters stored in the file//
         //!!! needs to be tested, didnt work last time//
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
@@ -224,6 +226,8 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._noise.resize(pnCCD_default_size_sq);
         dp._ROImask.resize(pnCCD_default_size_sq);
         dp._ROIiterator.resize(pnCCD_default_size_sq);
+        dp._ROImask_converter.resize(pnCCD_default_size_sq);
+        dp._ROIiterator_converter.resize(pnCCD_default_size_sq);
       }
     }
     else
@@ -239,6 +243,7 @@ void cass::pnCCD::Analysis::loadSettings()
           // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
           // to load
           dp._ROImask.resize(pnCCD_default_size_sq);
+          dp._ROImask_converter.resize(pnCCD_default_size_sq);
       }
     }
     //in case this is a Dark-Run
@@ -257,6 +262,7 @@ void cass::pnCCD::Analysis::loadSettings()
     {
       // "enable" all  pixel as default
       dp._ROImask.assign(dp._ROImask.size(),1);
+      dp._ROImask.assign(dp._ROImask_converter.size(),1);
       //I need to reset the number of masked pixel per frame
       number_of_pixelsettozero=0;
       for(size_t iROI=0;iROI<dp._detROI._ROI.size(); ++iROI)
@@ -648,6 +654,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          for(size_t jj=iter[pixelidx]+1; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel containt... This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;

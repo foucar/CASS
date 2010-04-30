@@ -88,6 +88,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
 
+        //std::cout<<"t"<<_param._detectorparameters[detectorId]._ROIiterator.size()<<std::endl;
+        //DetectorParameter &dp = _param._detectorparameters[detectorId];
+
         //we need to set the rows and columns hardcoded since the information is not yet
         //provided by LCLS//
         det.rows() = det.columns() = pnCCD_default_size;

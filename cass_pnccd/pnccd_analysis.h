@@ -43,9 +43,9 @@ namespace cass
       cass::detROI_   _detROI;
 
       cass::ROI::ROImask_t _ROImask;//The ROI mask
-      //cass::ROI_t::ROImask_t _ROImask_converter;
+      cass::ROI::ROImask_t _ROImask_converter;
       cass::ROI::ROIiterator_t _ROIiterator;//The ROI iterators
-      //cass::ROI_t::ROIiterator_t _ROIiterator_converter;
+      cass::ROI::ROIiterator_t _ROIiterator_converter;
     };
 
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
