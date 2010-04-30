@@ -140,7 +140,7 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
   //connect all workers output to this output//
   for (size_t i=0;i<_workers.size();++i)
   {
-    _workers[i] = new cass::Worker(ringbuffer, parent);
+    _workers[i] = new cass::Worker(ringbuffer);
     connect(_workers[i],SIGNAL(processedEvent()),this,SIGNAL(processedEvent()));
   }
 }
