@@ -43,7 +43,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
-    if(dp._isDarkframe)
+    if(_isDarkframe)
     {
       time ( &rawtime );
       timeinfo = localtime ( &rawtime );    
@@ -526,7 +526,7 @@ void cass::pnCCD::Analysis::saveSettings()
   //I actually don't want to write in the CASS.ini file!!
   //_param.save();
   //now save the noise and the offset maps to the designated files//
-  if(dp._isDarkframe)
+  if(_param._isDarkframe)
   {
     std::cout<<"I have been asked to save the files"<<std::endl;
     for (size_t iDet=0;iDet<_param._detectorparameters.size();++iDet)
