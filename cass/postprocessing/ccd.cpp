@@ -23,7 +23,7 @@ namespace cass
 {
 
 
-// *** postprocessors 1, 2 -- last images from pnCCD ***
+// *** postprocessors 1, 2, 3 -- last images from a CCD ***
 
 pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
@@ -31,13 +31,16 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
 {
     switch(id) {
     case PostProcessors::Pnccd1LastImage:
-        _detector = 0;
+        _device=CASSEvent::pnCCD; _detector = 0;
         break;
     case PostProcessors::Pnccd2LastImage:
-        _detector = 1;
+        _device=CASSEvent::pnCCD; _detector = 1;
         break;
+    case PostProcessors::VmiCcdLastImage:
+        _device=CASSEvent::CCD; _detector = 0;
+
     default:
-        throw std::invalid_argument("Impossible postprocessor id for PostprocessorPnccdLastImage");
+        throw std::invalid_argument("class not responsible for requested postprocessor");
     };
     // save storage in PostProcessors container
     _pp.histograms_replace(_id, _image);
@@ -46,59 +49,36 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
 
 pp1::~pp1()
 {
-    delete _image;
+    _pp.histograms_delete(_id);
     _image = 0;
 }
 
 
 void pp1::operator()(const cass::CASSEvent& event)
 {
-    using namespace cass::pnCCD;
-    const pnCCDDevice *dev(dynamic_cast<const pnCCDDevice *>(event.devices().find(cass::CASSEvent::pnCCD)->second));
-    const PixelDetector::frame_t& frame((*dev->detectors())[_detector].frame());
+    //check whether detector exists
+    if (event.devices().find(_device)->second->detectors()->size() <= _detector)
+        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+
+    //get frame and fill image//
+    const PixelDetector::frame_t& frame
+        ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
+    _image->lock.lockForWrite();
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
+    _image->lock.unlock();
 }
 
 
 
 
-// *** postprocessor 3 -- last image from VMI CCD***
-
-pp3::pp3(cass::PostProcessors& pp, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(pp, id)
-{
-    /*
-    // create _image storage
-    using namespace cass::CCD;
-    const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
-    const CCDDetector *detector(dev->detector());
-    const PixelDetector::frame_t& frame(detector.frame());
-    _image = new Histogram2DFloat(detector->rows(), detector-columns());
-    // save storage in PostProcessors container
-    assert(hist == _histograms);
-    _histograms[_id] = _image;
-    */
-}
 
 
 
-pp3::~pp3()
-{
-    delete _image;
-    _image = 0;
-}
 
 
 
-void pp3::operator()(const cass::CASSEvent& event)
-{
-    using namespace cass::CCD;
-    const CCDDevice *dev(dynamic_cast<const CCDDevice *>(event.devices().find(cass::CASSEvent::CCD)->second));
-    const PixelDetector::frame_t& frame((*dev->detectors())[0].frame());
-    std::copy(frame.begin(), frame.end(), _image->memory().begin());
-}
 
-// *** postprocessors 101, 102 ***
+// *** postprocessors 101, 102, 105 ***
 
 pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
@@ -173,6 +153,7 @@ void cass::pp101::operator()(const CASSEvent& event)
             for(unsigned row=r; row<r+_binning.first; ++row) {
                 for(unsigned col=c; col<c+_binning.second; ++col) {
 #warning Check and fix major/minor axis
+#warning Neither the averging nor the rebinning seem to work correctly
                     sum += frame[row * cols + col];
                 }
             }
@@ -240,7 +221,7 @@ void cass::pp110::operator()(const CASSEvent& evt)
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
     for (; it != pixellist.end();++it)
-      _image->fill(it->x(),it->y());
+        _image->fill(it->x(),it->y());
 }
 
 
