@@ -28,7 +28,7 @@ void cass::CCD::Parameter::load()
     _detROI._ROI.clear();
 
     beginGroup("ROIs");
-    for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
+    for (size_t iROI=0; iROI<value("ROIsize",0).toUInt(); ++iROI)
     {
       beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
       _detROI._ROI.push_back(ROIsimple());
