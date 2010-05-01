@@ -17,11 +17,17 @@ class Histogram2DFloat;
 
 
 
-/** @brief Last pnCCD image */
+/** Last CCD image.
+ * Postprocessor will get the last image from all kinds of ccd's.
+ * Will work for postprocessors 1-3.
+ *
+ * @author Jochen Kuepper
+ * @author Lutz Foucar
+ */
 class pp1 : public PostprocessorBackend
 {
 public:
-
+    /** constructor.*/
     pp1(PostProcessors&, PostProcessors::id_t);
 
     /** Free _image spcae */
@@ -30,53 +36,34 @@ public:
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
-
 protected:
 
+    /** CCD detector that contains the requested image*/
     size_t _detector;
 
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** current image */
     Histogram2DFloat *_image;
 };
 
 
-
-
-/** @brief Last CCD image
-
-@todo This should be merged with pp1
-*/
-class pp3 : public PostprocessorBackend
-{
-public:
-
-    pp3(PostProcessors&, PostProcessors::id_t);
-
-    /** Free _image spcae */
-    virtual ~pp3();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-    /*! Define all postprocessors we depend on
-
-    The dependencies must be run before the actual postprocessor is run by itself.
-    */
-    virtual std::list<PostProcessors::id_t> dependencies() {return std::list<PostProcessors::id_t>(); };
-
-protected:
-
-    Histogram2DFloat *_image;
-};
 
 
 
 /** @brief Averaged binned pnCCD / commercial ccd image
-
-Running average of pnCCD or commercial ccd images with
-- an averaging length of postprocessors/101/average
-- geometric binning (x and y) of postprocessors/101/{bin_horizontal|bin_vertical}.
-Binning must be a fraction of 1024.
-*/
+ *
+ * Running average of pnCCD or commercial ccd images with
+ * - an averaging length of postprocessors/%pp_Number%/average
+ * - geometric binning (x and y) of
+ *   postprocessors/%pp_Number%/{bin_horizontal|bin_vertical}.
+ * Binning must be a fraction of 1024.
+ * Does implement postprocessors 101, 102, 103, 105
+ *
+ * @author Jochen Kuepper
+ * @author Lutz Foucar
+ */
 class pp101 : public PostprocessorBackend
 {
 public:
@@ -102,7 +89,7 @@ protected:
     /** how many pixels to bin in horizontal and vertical direction */
     std::pair<unsigned, unsigned> _binning;
 
-    /** pnCCD detector to work on */
+    /** CCD detector to work on */
     size_t _detector;
 
     /** device the ccd image comes from*/
@@ -172,7 +159,6 @@ public:
     /*! Define postprocessor dependency on pp3 (last VMI image) */
     virtual std::list<PostProcessors::id_t> dependencies() {
         return std::list<PostProcessors::id_t>(1, PostProcessors::VmiCcdLastImage); };
-
 
 protected:
 

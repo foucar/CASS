@@ -125,6 +125,9 @@ namespace cass
     //! will cause the loading of the settings from the cass.ini file
     void loadSettings(size_t what);
 
+    /** save the settings */
+    void saveSettings();
+
   signals:
     //! this is emmitted once all workers have stoped
     void finished();

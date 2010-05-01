@@ -477,7 +477,6 @@ public:
      * This operation will lock the memory before attempting to fill the right bin.
      * @param x, y Position of datum
      * @param weight value of datum
-     * @todo Fix type-mismatch between size_t and long.
      */
     void fill(float x, float y, value_t weight=1.);
 
@@ -640,15 +639,15 @@ inline void cass::Histogram1DFloat::fill(float x, float weight)
 inline void Histogram2DFloat::fill(float x, float y, float weight)
 {
   // calc the xbin
-  const long nxBins   = long(_axis[xAxis].size());
+  const long nxBins   = static_cast<long>(_axis[xAxis].size());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
-  const long xBin     = long(nxBins * (x - xlow) / (xup-xlow));
+  const long xBin     = static_cast<long>(nxBins * (x - xlow) / (xup-xlow));
   // calc the ybin
-  const long nyBins   = long(_axis[yAxis].size());
+  const long nyBins   = static_cast<long>(_axis[yAxis].size());
   const float ylow    = _axis[yAxis].lowerLimit();
   const float yup     = _axis[yAxis].upperLimit();
-  const long yBin     = long(nyBins * (y - ylow) / (yup-ylow));
+  const long yBin     = static_cast<long>(nyBins * (y - ylow) / (yup-ylow));
   // fill the memory or the over/underflow quadrant bins
   const long maxSize  = nyBins*nxBins;
   const bool xInRange = 0<=xBin && xBin<nxBins;
