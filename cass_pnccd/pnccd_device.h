@@ -5,12 +5,9 @@
 #define _PNCCD_DEVICE_H
 
 #include <iostream>
-#include <vector>
-#include <stdint.h>
-
-//#include "ccd_detector.h"
 #include "cass_pnccd.h"
 #include "device_backend.h"
+//#include "ccd_detector.h"
 #include "pixel_detector.h"
 
 namespace cass

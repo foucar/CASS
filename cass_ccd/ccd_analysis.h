@@ -29,7 +29,6 @@ namespace cass
   class CASSEvent;
   namespace CCD
   {
-    //class CCDDevice;
     /*! Parameters of the commercial ccd analysis
 
       @author Lutz Foucar
@@ -46,6 +45,8 @@ namespace cass
       void load();
       /** save the parameters to cass.ini*/
       void save();
+      // I will have to introduce something on this line
+      //void loadDetectorParameter(size_t DetectorIndex);
 
     public:
       uint16_t   _threshold;    //!< the threshold above which pixels are identified

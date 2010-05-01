@@ -151,7 +151,6 @@ namespace cass
      * @param entity tells the functor what type of entity we want it to return
      */
     detROI_t        _detROI;                 //the vector with the ROI(s) "inside"
-    //detROI_         _detROI;                 //the vector with the ROI(s) "inside"
     ROImask_t       _ROImask;
     ROIiterator_t   _ROIiterator;
     ROImask_converter_t       _ROImask_converter;
@@ -165,8 +164,6 @@ namespace cass
 
   };
 
-
-  //CCDDetector -> TwoDDetector??
   class CASSSHARED_EXPORT PixelDetector // : public cass::DeviceBackend
   {
   public:

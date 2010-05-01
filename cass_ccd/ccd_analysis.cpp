@@ -13,7 +13,7 @@
 
 void cass::CCD::Parameter::load()
 {
-  std::cout<<"I am here 2bis"<<std::endl;
+  //std::cout<<"I am here 2bis"<<std::endl;
   //sync before loading//
   sync();
   //sting for the container index//
@@ -25,9 +25,10 @@ void cass::CCD::Parameter::load()
   beginGroup(s.setNum(static_cast<uint32_t>(idx)));
     _threshold    = value("Threshold",0).toUInt();
     _rebinfactor  = value("RebinFactor",1).toUInt();
+    _detROI._ROI.clear();
 
     beginGroup("ROIs");
-    for (size_t iROI=0; iROI<value("ROIsize",1).toUInt(); ++iROI)
+    for (size_t iROI=0; iROI<value("ROIsize",0).toUInt(); ++iROI)
     {
       beginGroup(s.setNum(static_cast<uint32_t>(iROI)));
       _detROI._ROI.push_back(ROIsimple());
@@ -386,7 +387,7 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
     float integral                              = 0;
     uint16_t framewidth                         = det.columns();
     uint16_t frameheight                        = det.rows();
-    const cass::PixelDetector::frame_t& frame      = det.frame();
+    cass::PixelDetector::frame_t& frame      = det.frame();
     //if(frame.size()!=CCD_default_size_sq) 
 
     //go through all pixels of the frame//
@@ -396,7 +397,15 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       pixel_t pixel         = frame[i];
       uint16_t xcoordinate  = i % framewidth;
       uint16_t ycoordinate  = i / framewidth;
-
+      //do something only if there was some ROI defined
+      if(_param._ROImask.size()-_param._ROIiterator.size() > 1)
+      {
+        if(_param._ROImask[i]==0)
+        { 
+          frame[i]=0;
+          pixel=0;
+        }
+      }
       //calc integral//
       integral += pixel;
 
