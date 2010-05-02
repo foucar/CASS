@@ -3,7 +3,11 @@
 # this file will be read by all .pro files, so it contains all commonly used
 # config parameters
 
-CONFIG      += release
+INSTALLBASE  = ~/installs
+
+CONFIG      += silent
+
+CONFIG      += debug
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
