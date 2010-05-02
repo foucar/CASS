@@ -2,18 +2,12 @@
 
 TARGET              = jocassview
 TEMPLATE            = app
-CONFIG             += release
-CONFIG             += thread warn_on exceptions rtti sse2 stl
-CONFIG             += static
-VERSION             = 0.0.1
 
-CODECFORTR          = UTF-8
-DEFINES            += NDEBUG
-OBJECTS_DIR         = ./obj
-MOC_DIR             = ./obj
-QMAKE_CLEAN        += $$OBJECTS_DIR/*.o $$MOC_DIR/moc_* \
-                      jocassview
-QMAKE_STRIP         =
+CASS_ROOT = ../
+include($${CASS_ROOT}/cass_config.pri )
+
+QMAKE_CLEAN        += jocassview
+VERSION             = 0.0.1
 
 SOAPFiles.target    = soapCASSsoapProxy
 SOAPFiles.commands  = newer soapCASSsoapProxy.h $$PWD/../cass/soapserver.h || soapcpp2 -C -i $$PWD/../cass/soapserver.h

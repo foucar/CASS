@@ -6,12 +6,11 @@ TEMPLATE       = app
 TARGET         = cass
 
 CASS_ROOT = ../
-
 include($${CASS_ROOT}/cass_config.pri )
 
 CONFIG        -= gui
 
-DEFINES       += CASS_LIBRARY NDEBUG
+DEFINES       += CASS_LIBRARY
 
 # build the LCLS libraries and programs before compiling cass itself
 lclslibs.target     = LCLSLibrary

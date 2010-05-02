@@ -1,10 +1,9 @@
 # Copyright (C) 2010 Lutz Foucar
 
-#this file will be read by all .pro files, so it contains all commonly used
-#config parameters
+# this file will be read by all .pro files, so it contains all commonly used
+# config parameters
 
 CONFIG      += release
-
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
@@ -13,6 +12,12 @@ CONFIG      += sse2
 CONFIG      += stl
 CONFIG      += static
 CONFIG      += staticlib
+
+CONFIG(debug) {
+    DEFINES     += DEBUG VERBOSE QT_DEBUG
+} else {
+    DEFINES     += NDEBUG QT_NO_DEBUG
+}
 
 QMAKE_STRIP  =
 
@@ -30,3 +35,12 @@ CODECFORTR   = UTF-8
 bin.path     = $$INSTALLBASE/bin
 libs.path    = $$INSTALLBASE/lib
 headers.path = $$INSTALLBASE/include
+
+
+
+
+## Local Variables:
+## coding: utf-8
+## mode: makefile
+## fill-column: 100
+## End:
