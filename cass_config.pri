@@ -7,8 +7,6 @@ INSTALLBASE  = ~/installs
 
 CONFIG      += release
 
-CONFIG      += silent
-
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
