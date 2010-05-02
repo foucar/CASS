@@ -3,8 +3,6 @@
 #this file will be read by all .pro files, so it contains all commonly used
 #config parameters
 
-INSTALLBASE  = ~/installs
-
 CONFIG      += release
 
 CONFIG      += thread
@@ -30,5 +28,5 @@ VERSION      = 0.1.0
 CODECFORTR   = UTF-8
 
 bin.path     = $$INSTALLBASE/bin
-libs.path     = $$INSTALLBASE/lib
+libs.path    = $$INSTALLBASE/lib
 headers.path = $$INSTALLBASE/include
