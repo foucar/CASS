@@ -17,6 +17,25 @@
 #include "worker.h"
 
 
+namespace cass
+{
+
+const std::string imageformatname(ImageFormat fmt)
+{
+    std::string fmtname;
+    switch(fmt) {
+    case PNG:  fmtname = std::string("PNG"); break;
+    case TIFF: fmtname = std::string("TIFF"); break;
+    case JPEG: fmtname = std::string("JPEG"); break;
+    case GIF:  fmtname = std::string("GIF"); break;
+    case BMP:  fmtname = std::string("BMP"); break;
+    }
+    return fmtname;
+};
+
+} // end namespace cass
+
+
 
 /** @mainpage CASS (CFEL ASG Software Suite)
  *
@@ -199,7 +218,7 @@ int main(int argc, char **argv)
   //the sharememory client index
   int index(0);
   //check if at least 1 param is given
-  if(argc<2) 
+  if(argc<2)
   {
     std::cout << "please give me at least the partition tag" <<std::endl;
     return 1;
@@ -289,7 +308,6 @@ int main(int argc, char **argv)
   //finish
   return retval;
 }
-
 
 
 

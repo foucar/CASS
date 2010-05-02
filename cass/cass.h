@@ -20,19 +20,28 @@
 
 namespace cass
 {
-    /** global variable to set the ring buffer size */
-    const size_t RingBufferSize=4;
-    /** global variable to set the number of worker threads*/
-    const size_t NbrOfWorkers=16;
-    /** the maximum size of one datagram should be 10 MB*/
-    const size_t DatagramBufferSize=0x1000000;
-    /** the type of a pixel of a ccd image*/
-    typedef float pixel_t;
-    //forward decalration//
-    class PixelDetector;
-    /** type of the container for ccd detectors */
-    typedef std::vector<PixelDetector> detectors_t;
+/** global variable to set the ring buffer size */
+const size_t RingBufferSize=4;
+/** global variable to set the number of worker threads*/
+const size_t NbrOfWorkers=16;
+/** the maximum size of one datagram should be 10 MB*/
+const size_t DatagramBufferSize=0x1000000;
+/** the type of a pixel of a ccd image*/
+typedef float pixel_t;
+/** forward declaration */
+class PixelDetector;
+/** type of the container for ccd detectors */
+typedef std::vector<PixelDetector> detectors_t;
 
+/** known/supported Qt image formats */
+enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
+
+/** real-world names of known/supported Qt image formats
+
+@param ImageFormat
+@return Qt name of format
+*/
+const std::string imageformatname(ImageFormat fmt);
 
 
     /*! Helper function to delete duplicates from a std::list
