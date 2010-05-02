@@ -28,4 +28,4 @@ int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *sucess);
 int ns__getHistogram(size_t type, bool *sucess);
 
 // get image from server in format |format| (possible formats: 1 == TIFF)  --how can I return QImage *result?
-int ns__getImage(size_t format, size_t type, bool *success);
+int ns__getImage(int format, size_t type, bool *success);
