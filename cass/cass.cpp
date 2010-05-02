@@ -20,7 +20,7 @@
 namespace cass
 {
 
-const std::string imageformatname(ImageFormat fmt)
+const std::string imageformatName(ImageFormat fmt)
 {
     std::string fmtname;
     switch(fmt) {
@@ -29,6 +29,19 @@ const std::string imageformatname(ImageFormat fmt)
     case JPEG: fmtname = std::string("JPEG"); break;
     case GIF:  fmtname = std::string("GIF"); break;
     case BMP:  fmtname = std::string("BMP"); break;
+    }
+    return fmtname;
+};
+
+const std::string imageformatMIMEtype(ImageFormat fmt)
+{
+    std::string fmtname;
+    switch(fmt) {
+    case PNG:  fmtname = std::string("image/png"); break;
+    case TIFF: fmtname = std::string("image/tiff"); break;
+    case JPEG: fmtname = std::string("image/jpeg"); break;
+    case GIF:  fmtname = std::string("image/gif"); break;
+    case BMP:  fmtname = std::string("image/bmp"); break;
     }
     return fmtname;
 };

@@ -17,6 +17,14 @@
 #  define CASSSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
+// VERBOSEOUT macro definition
+#ifdef VERBOSE
+#include <iostream>
+#define VERBOSEOUT(a) (a)
+#else
+#define VERBOSEOUT(a) {}
+#endif
+
 
 namespace cass
 {
@@ -36,12 +44,19 @@ typedef std::vector<PixelDetector> detectors_t;
 /** known/supported Qt image formats */
 enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
 
-/** real-world names of known/supported Qt image formats
+/** Qt names of known/supported Qt image formats
 
 @param ImageFormat
 @return Qt name of format
 */
-const std::string imageformatname(ImageFormat fmt);
+const std::string imageformatName(ImageFormat fmt);
+
+/** MIMI names of known/supported Qt image formats
+
+@param ImageFormat
+@return MIME/type of format
+*/
+const std::string imageformatMIMEtype(ImageFormat fmt);
 
 
     /*! Helper function to delete duplicates from a std::list
