@@ -60,9 +60,8 @@ cass::Analyzer::Analyzer()
   _analyzer[ccd]          = new CCD::Analysis();
   _analyzer[Acqiris]      = new ACQIRIS::Analysis();
   _analyzer[MachineData]  = new MachineData::Analysis();
-//  _analyzer[pnCCD]        = new pnCCD::Analysis();
-
-  //look what analysis is interesting to the user//
+  // _analyzer[pnCCD]        = new pnCCD::Analysis();
+  // look what analysis is interesting to the user
   loadSettings(0);
 }
 
@@ -100,10 +99,19 @@ void cass::Analyzer::loadSettings(size_t)
 
 void cass::Analyzer::saveSettings()
 {
-//  //save the AnalyzerParameters//
-//  _param.save();
+  //  //save the AnalyzerParameters//
+  //  _param.save();
   //iterate through all analyzers and load the settings of them//
   for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
     it->second->saveSettings();
 }
 
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "gnu"
+// fill-column: 100
+// End:
