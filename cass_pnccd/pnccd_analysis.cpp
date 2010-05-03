@@ -247,14 +247,14 @@ void cass::pnCCD::Analysis::loadSettings()
       if(_param._isDarkframe) std::cout<<"and this is a Darkframe run"<<std::endl;
       else
       {
-          std::cout<<"and this is NOT a Darkframe run"<<std::endl;
+        std::cout<<"and this is NOT a Darkframe run"<<std::endl;
 
-          //Is this safe or I should just not do it for certain cases?
-          // in principle I do not need it if _param._isDarkframe==1
-          // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
-          // to load
-          dp._ROImask.resize(pnCCD_default_size_sq);
-          dp._ROImask_converter.resize(pnCCD_default_size_sq);
+        //Is this safe or I should just not do it for certain cases?
+        // in principle I do not need it if _param._isDarkframe==1
+        // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
+        // to load
+        dp._ROImask.resize(pnCCD_default_size_sq);
+        dp._ROImask_converter.resize(pnCCD_default_size_sq);
       }
       if(!dp._doOffsetCorrection)
       {
