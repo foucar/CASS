@@ -35,6 +35,7 @@ HEADERS       += soapH.h \
 
 FORMS         += imageviewer.ui
 
+INCLUDE       += $$PWD/..
 LIBS          += -lgsoap++ -lgsoap
 
 bin.files      = jocassview

@@ -1,5 +1,8 @@
-#include <QApplication>
-#include <QSettings>
+// Copyright (C) 2010 Uwe Hoppe
+// Copyright (C) 2010 Jochen Küpper
+
+#include <QtCore/QSettings>
+#include <QtGui/QApplication>
 
 #include "imageviewer.h"
 
@@ -16,3 +19,13 @@ int main(int argc, char *argv[])
     window.show();
     return app.exec();
 }
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "Stroustrup"
+// fill-column: 100
+// End:
