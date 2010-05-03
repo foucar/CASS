@@ -451,13 +451,13 @@ public:
 
     /*! Histogram storage access
 
-    We only allow read access to the histograms container. Obtaining acees will immediately put a
-    read-lock on the container. You must release this with histograms_release.
+    We only allow read access to the histograms container. Obtaining acces will immediately put a
+    lock on the container. You must release this with histograms_release.
 
     @return Histogram storage
     */
     const histograms_t &histograms_checkout() {
-      if(! _histlock.tryLockForRead(50))
+      if(! _histlock.tryLockForRead(100))
         _histlock.lockForWrite();
       return _histograms;
     };

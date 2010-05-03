@@ -28,11 +28,13 @@ QMutex PostProcessors::_mutex;
 // create an instance of the singleton
 PostProcessors *PostProcessors::instance()
 {
+#ifdef VERBOSE
     static int n(0), create(0);
-    std::cerr << "PostProcessors::instance -- call " << ++n << std::endl;
+#endif
+    VERBOSEOUT(std::cerr << "PostProcessors::instance -- call " << ++n << std::endl);
     QMutexLocker locker(&_mutex);
     if(0 == _instance) {
-        std::cerr << "PostProcessors::instance -- create " << ++create << std::endl;
+        VERBOSEOUT(std::cerr << "PostProcessors::instance -- create " << ++create << std::endl);
         _instance = new PostProcessors();
     }
     return _instance;
