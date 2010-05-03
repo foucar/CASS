@@ -157,8 +157,7 @@ void cass::pp101::operator()(const CASSEvent& event)
                     sum += frame[row * cols + col];
                 }
             }
-            _image->memory()[r * cols/_binning.second + c] *= _scale;
-            _image->memory()[r * cols/_binning.second + c] += sum / (_binning.first * _binning.second);
+            _image->memory()[r * cols/_binning.second + c] += _scale* (sum / (_binning.first * _binning.second) - _image->memory()[r * cols/_binning.second + c]);
         }
     }
     _image->lock.unlock();
