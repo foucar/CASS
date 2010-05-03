@@ -8,7 +8,7 @@ isEmpty ( INSTALLBASE ){
  INSTALLBASE = ~/installs
 }
 
-CONFIG      += debug
+CONFIG      += release
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
@@ -19,11 +19,9 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
-CONFIG(debug) {
-    DEFINES     += DEBUG VERBOSE QT_DEBUG
-} else {
-    DEFINES     += NDEBUG QT_NO_DEBUG
-}
+# CONFIG(debug):   DEFINES += DEBUG VERBOSE QT_DEBUG
+# CONFIG(release): DEFINES += NDEBUG QT_NO_DEBUG
+DEFINES     += NDEBUG QT_NO_DEBUG
 
 QMAKE_STRIP  =
 
