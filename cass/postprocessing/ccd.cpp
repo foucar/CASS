@@ -112,8 +112,8 @@ cass::pp101::~pp101()
 void cass::pp101::loadSettings(size_t)
 {
     QSettings settings;
-    settings.beginGroup("postprocessors");
-    settings.beginGroup(QString("processor_") + QString::number(_id));
+    settings.beginGroup("PostProcessor");
+    settings.beginGroup(QString("pp") + QString::number(_id));
     _average = settings.value("average", 1).toUInt();
     _scale = 1. - 1./_average;
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
