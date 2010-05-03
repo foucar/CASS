@@ -12,9 +12,14 @@ namespace Pds {
     virtual ~XtcMonitorClient() {};
     
   public:
-    int run(const char * partitionTag, int index=0);
+    //
+    //  tr_index must be unique among clients
+    //  unique values of ev_index produce a serial chain of clients sharing events
+    //  common values of ev_index produce a set of clients competing for events
+    //
+    int run(const char * partitionTag, int tr_index=0);
+    int run(const char * partitionTag, int tr_index, int ev_index);
     virtual int processDgram(Dgram*);
-    
   };
 }
 #endif
