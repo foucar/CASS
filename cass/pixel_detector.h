@@ -131,7 +131,7 @@ namespace cass
   class CASSSHARED_EXPORT ROI : public cass::ParameterBackend
   {
   public:
-    ROI(const std::string detectorname) {}
+    ROI(/*const std::string detectorname*/) {}
     ~ROI() {}
     /** an region of interest entity */
     //typedef std::vector<uint32_t> roi_t;

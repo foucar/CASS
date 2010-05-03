@@ -28,7 +28,7 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   beginGroup(s.setNum(static_cast<int>(idx)));
     dp._rebinfactor = value("RebinFactor",1).toUInt();
     std::cout<<"RebinFactor= "<<dp._rebinfactor<<std::endl;
-    dp._max_noise = value("MaxNoise",1).toDouble();
+    dp._max_noise = value("MaxNoise",1000).toDouble();
     std::cout<< "The max allowed noise level before mask is set to "<<dp._max_noise <<
       " ADC counts, identified through 3x std dev"<<std::endl;
     dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
@@ -42,7 +42,8 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._useCommonMode = value("useCommonMode",false).toBool();
     if(dp._useCommonMode) std::cout<<"Common Mode Correction will be applied for detector "<<idx<<std::endl;
     dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
-    if(dp._thres_for_integral>0) std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
+    if(dp._thres_for_integral>0) 
+      std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
@@ -104,7 +105,7 @@ void cass::pnCCD::Parameter::load()
   //sync before loading//
   sync();
   //resize the detector parameter container before adding new stuff//
-  _detectorparameters.resize(value("size",1).toUInt(),DetectorParameter());
+  _detectorparameters.resize(value("size",2).toUInt(),DetectorParameter());
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
@@ -647,7 +648,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator  itNoise  = dp._noise.begin();
-      const cass::ROI::ROImask_t &mask = dp._ROImask;
+      //const cass::ROI::ROImask_t &mask = dp._ROImask;
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
       //const bool ShouldIuseCommonMode= dp._useCommonMode;
