@@ -85,7 +85,7 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
-    loadSettings(0);
+    loadParameters(0);
     switch(id) {
     case PostProcessors::PnccdFrontBinnedRunningAverage:
         _detector = 0; _device=CASSEvent::pnCCD;
@@ -110,7 +110,7 @@ cass::pp101::~pp101()
 }
 
 
-void cass::pp101::loadSettings(size_t)
+void cass::pp101::loadParameters(size_t)
 {
     QSettings settings;
     settings.beginGroup("PostProcessor");
@@ -203,14 +203,23 @@ pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
     };
 }
 
-#warning load settings that will create the right size histogram is missing for pp110
-
 cass::pp110::~pp110()
 {
     _pp.histograms_delete(_id);
     _image = 0;
 }
 
+void cass::pp110::loadParameters(size_t)
+{
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Nbr of Mcp Peaks"
+      <<" of detector "<<_detector
+      <<" of device "<<_device
+      <<std::endl;
+  //create the histogram
+  set2DHist(_image,_id);
+  _pp.histograms_replace(_id,_image);
+}
 
 void cass::pp110::operator()(const CASSEvent& evt)
 {

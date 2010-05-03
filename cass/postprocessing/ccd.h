@@ -76,7 +76,7 @@ public:
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
-    virtual void loadSettings(size_t);
+    virtual void loadParameters(size_t);
 
 protected:
 
@@ -107,7 +107,8 @@ protected:
 /** PhotonHits of CCD's.
  * This postprocessor will fill a 2d histogram with the detected Photonhits.
  * Photonhits will be detected in the commercial Pre Analyzer. They will
- * be just summed up. One needs to clear this histogram, when something has changed
+ * be just summed up. One needs to clear this histogram, when something has changed.
+ * @author Lutz Foucar
  */
 class pp110 : public PostprocessorBackend
 {
@@ -120,6 +121,9 @@ public:
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadParameters(size_t);
 
 protected:
     /** device the ccd image comes from*/
