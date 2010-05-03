@@ -3,6 +3,13 @@
 # this file will be read by all .pro files, so it contains all commonly used
 # config parameters
 
+# if INSTALLBASE has not been set by the user, set a default value
+isEmpty ( INSTALLBASE ){
+ INSTALLBASE = ~/installs
+}
+
+CONFIG      += silent
+
 CONFIG      += debug
 CONFIG      += thread
 CONFIG      += warn_on
