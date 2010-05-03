@@ -60,7 +60,7 @@ cass::Analyzer::Analyzer()
   _analyzer[ccd]          = new CCD::Analysis();
   _analyzer[Acqiris]      = new ACQIRIS::Analysis();
   _analyzer[MachineData]  = new MachineData::Analysis();
-  // _analyzer[pnCCD]        = new pnCCD::Analysis();
+  _analyzer[pnCCD]        = new pnCCD::Analysis();
   // look what analysis is interesting to the user
   loadSettings(0);
 }
