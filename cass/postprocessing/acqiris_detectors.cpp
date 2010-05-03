@@ -29,7 +29,7 @@ namespace cass
     //open the settings//
     QSettings param;
     param.beginGroup("PostProcessor");
-    param.beginGroup(QString("p_") + QString::number(_id));
+    param.beginGroup(QString("p_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
@@ -44,7 +44,7 @@ namespace cass
     //open the settings//
     QSettings param;
     param.beginGroup("PostProcessor");
-    param.beginGroup(QString("p_") + QString::number(_id));
+    param.beginGroup(QString("p_") + QString::number(id));
     //create new histogram using the parameters//
     hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
