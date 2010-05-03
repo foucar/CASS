@@ -162,6 +162,8 @@ INCLUDEPATH   += postprocessing \
                  ../cass_machinedata \
                  $$PWD/../LCLS \
 
+DEPENDPATH    += ./postprocessing
+
 LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L../cass_pnccd -lcass_pnccd \
                  -L../cass_ccd -lcass_ccd \
