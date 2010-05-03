@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <time.h>
+#include <stdexcept>
 
 bool not_saved_yet;
 
@@ -106,8 +107,12 @@ void cass::pnCCD::Parameter::load()
   QString s;
   //sync before loading//
   sync();
+  size_t size_from_ini = value("size",1).toUInt();
+  //std::cout<<"test "<<_detectorparameters.size() << " "<<value("size",1).toUInt()<<std::endl;
   //resize the detector parameter container before adding new stuff//
-  _detectorparameters.resize(value("size",2).toUInt(),DetectorParameter());
+  if(size_from_ini>_detectorparameters.size())
+    _detectorparameters.resize(size_from_ini,DetectorParameter());
+
   std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
@@ -260,6 +265,13 @@ void cass::pnCCD::Analysis::loadSettings()
         //resetting the offset/noise maps
         dp._offset.assign(dp._offset.size(),0);
         dp._noise.assign(dp._noise.size(),0);
+      }
+      else
+      {
+        //I should not get here
+        throw std::runtime_error(
+          QString("I have been asked to Offset correct the frames, but there is no darkframe file named:\n\t "
+                  ).arg(dp._darkcalfilename.c_str()).toStdString());
       }
     }
     //in case this is a Dark-Run
@@ -617,8 +629,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   {
     //resize detectorparameters and initialize with the new settings//
     _param._detectorparameters.resize(dev.detectors()->size());
-    for (size_t iDet=0; iDet<_param._detectorparameters.size();++iDet)
-      _param.loadDetectorParameter(iDet);
+    /*for (size_t iDet=0; iDet<_param._detectorparameters.size();++iDet)
+      _param.loadDetectorParameter(iDet);*/
+    // the problem is that the prev line is not the whole truth...
+    loadSettings();
   }
 
   //if we are collecting darkframes right now then add frames to the off&noisemap//
