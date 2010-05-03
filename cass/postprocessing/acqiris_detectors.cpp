@@ -28,7 +28,8 @@ namespace cass
   {
     //open the settings//
     QSettings param;
-    param.beginGroup(QString("processor_") + QString::number(id));
+    param.beginGroup("PostProcessor");
+    param.beginGroup(QString("p_") + QString::number(_id));
     //create new histogram using the parameters//
     hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
@@ -42,7 +43,8 @@ namespace cass
   {
     //open the settings//
     QSettings param;
-    param.beginGroup(QString("processor_") + QString::number(id));
+    param.beginGroup("PostProcessor");
+    param.beginGroup(QString("p_") + QString::number(_id));
     //create new histogram using the parameters//
     hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
@@ -990,7 +992,8 @@ cass::pp578::~pp578()
 void cass::pp578::loadParameters(size_t)
 {
   QSettings param;
-  param.beginGroup(QString("processor_") + QString::number(_id));
+  param.beginGroup("PostProcessor");
+  param.beginGroup(QString("p_") + QString::number(_id));
   //load the condition on the third component//
   float f = param.value("ConditionLow",-50000.).toFloat();
   float s = param.value("ConditionHigh",50000.).toFloat();
