@@ -8,6 +8,8 @@ isEmpty ( INSTALLBASE ){
  INSTALLBASE = ~/installs
 }
 
+#CONFIG      += silent
+
 CONFIG      += debug
 CONFIG      += thread
 CONFIG      += warn_on
