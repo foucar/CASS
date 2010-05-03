@@ -1,4 +1,7 @@
-// Copyright (C) 2009 Jochen Küpper , Nils Kimmel,lmf, Nicola Coppola
+// Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009 Nils Kimmel
+// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009, 2010  Nicola Coppola
 
 #ifndef PNCCDANALYSIS_H
 #define PNCCDANALYSIS_H
