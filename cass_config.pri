@@ -19,17 +19,11 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
-
-
-# CONFIG(debug):   DEFINES += DEBUG VERBOSE QT_DEBUG
-# CONFIG(release): DEFINES += NDEBUG QT_NO_DEBUG
-# DEFINES     += NDEBUG QT_NO_DEBUG
-
 CONFIG(debug, debug|release) {
     DEFINES += DEBUG VERBOSE QT_DEBUG
 }
 else {
-	DEFINES += NDEBUG QT_NO_DEBUG
+    DEFINES += NDEBUG QT_NO_DEBUG
 }
 
 
