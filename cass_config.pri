@@ -3,10 +3,6 @@
 # this file will be read by all .pro files, so it contains all commonly used
 # config parameters
 
-INSTALLBASE  = ~/installs
-
-CONFIG      += silent
-
 CONFIG      += debug
 CONFIG      += thread
 CONFIG      += warn_on
@@ -14,6 +10,7 @@ CONFIG      += exceptions
 CONFIG      += rtti
 CONFIG      += sse2
 CONFIG      += stl
+CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 

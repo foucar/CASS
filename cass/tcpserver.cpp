@@ -16,6 +16,7 @@
 namespace cass
 {
 
+
 SoapServer *SoapServer::_instance(0);
 QMutex SoapServer::_mutex;
 const size_t SoapServer::_backlog(100);
@@ -85,7 +86,7 @@ void SoapServer::run()
 
 int CASSsoapService::quit(bool *success)
 {
-    std::cerr << "CASSsoapService::quit" << std::endl;
+    VERBOSEOUT(std::cerr << "CASSsoapService::quit" << std::endl);
     cass::SoapServer::instance()->emit_quit();
     *success = true;;
     return SOAP_OK;
@@ -105,6 +106,7 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
+    std::cerr << "CASSsoapService::getImage" << std::endl;
     static QQueue<std::string *> queue;
     std::string *data(new std::string(cass::SoapServer::instance()->get_event(cass::EventParameter(type, t1, t2))));
     queue.enqueue(data);
@@ -120,11 +122,13 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
+    std::cerr << "CASSsoapService::getHistogram" << std::endl;
     static QQueue<std::pair<size_t, std::string> *> queue;
     try {
         // get data
         cass::SoapServer *server(cass::SoapServer::instance());
-        std::pair<size_t, std::string> *data(new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
+        std::pair<size_t, std::string> *data(
+            new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
         // MIME type
         std::string mimetype;
         switch(data->first) {
@@ -158,8 +162,9 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
 
 
 
-int CASSsoapService::getImage(size_t format, size_t type, bool *success)
+int CASSsoapService::getImage(int format, size_t type, bool *success)
 {
+    std::cerr << "CASSsoapService::getImage" << std::endl;
     // keep bytes around for a while -- this should mitigate the "zeros" problem
     static QQueue<QByteArray *> queue;
     int result;
@@ -170,26 +175,12 @@ int CASSsoapService::getImage(size_t format, size_t type, bool *success)
         QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
         // save image to bytearray and attach it to SOAP message
         buffer.open(QIODevice::WriteOnly);
-        switch(format) {
-        case 1:  // TIFF
-            image.save(&buffer, "TIFF");
-            *success = true;
-            soap_set_dime(this); // enable dime
-            result = soap_set_dime_attachment(this, ba->data(), ba->size(), "image/tiff",
-                                              QString::number(type).toStdString().c_str(), 0, NULL);
-            break;
-        case 2:  // PNG
-            image.save(&buffer, "PNG");
-            *success = true;
-            soap_set_dime(this); // enable dime.
-            result = soap_set_dime_attachment(this, ba->data(), ba->size(), "image/png",
-                                              QString::number(type).toStdString().c_str(), 0, NULL);
-            break;
-        default:
-            success = false;
-            result = SOAP_FATAL_ERROR;
-            break;
-        }
+        image.save(&buffer, cass::imageformatName(cass::ImageFormat(format)).c_str());
+        *success = true;
+        soap_set_dime(this); // enable dime
+        result = soap_set_dime_attachment(this, ba->data(), ba->size(),
+                                          cass::imageformatMIMEtype(cass::ImageFormat(format)).c_str(),
+                                          QString::number(type).toStdString().c_str(), 0, NULL);
         queue.enqueue(ba);
         if(10 < queue.size())
             delete queue.dequeue();

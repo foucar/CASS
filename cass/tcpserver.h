@@ -17,6 +17,7 @@
 namespace cass
 {
 
+
 /*! Handle a single SOAP request
 
 @author Jochen Küpper
@@ -118,7 +119,9 @@ private:
     SoapServer(const EventGetter& event, const HistogramGetter& hist, size_t port, QObject *parent=0)
         : QThread(parent), get_event(event), get_histogram(hist),
           _soap(new CASSsoapService), _port(port)
-        {};
+        {
+            VERBOSEOUT(std::cout << "SoapServer starting on port " << _port << std::endl);
+        };
 
     /** Disabled constructor */
     SoapServer();
