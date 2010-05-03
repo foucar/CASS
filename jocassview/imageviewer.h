@@ -95,7 +95,7 @@ private:
 
     QSpinBox *_serverport;
 
-    QDoubleSpinBox *_period;
+    QDoubleSpinBox *_rate;
 
     QComboBox *_picturetype;
 
@@ -114,6 +114,9 @@ private:
     Ui::ImageViewer _ui;
 
     std::string _server;
+
+    /** internal image update timer */
+    QTimer *_updater;
 };
 
 } // end namespace jocassview

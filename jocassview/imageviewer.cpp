@@ -14,12 +14,13 @@ namespace jocassview
 using namespace std;
 
 ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
-    : QMainWindow(parent, flags)
+    : QMainWindow(parent, flags), _updater(new QTimer(this))
 {
+    QSettings settings;
     _ui.setupUi(this);
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    QSettings settings;
-
+    connect(_updater, SIGNAL(timeout()), this, SLOT(on_getImage_triggered()));
+    // create toolbar
     _servername = new QLineEdit(settings.value("servername", "server?").toString());
     _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     _servername->setToolTip("Name of the server to connect to.");
@@ -32,17 +33,14 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _serverport->setToolTip("Port of the server to connect to.");
     connect(_serverport, SIGNAL(valueChanged(int)), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_serverport);
-
     QWidget *spacer1(new QWidget());
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
-
     _attachId = new QSpinBox();
     _attachId->setRange(1, 50000);
     _attachId->setToolTip("Attachment identifier.");
     _attachId->setValue(settings.value("attachId", 101).toInt());
     _ui.toolBar->addWidget(_attachId);
-
     _picturetype = new QComboBox();
     QStringList formats;
 #warning use cass::imageformatName and such... see cass.h
@@ -68,19 +66,20 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _ui.toolBar->addWidget(spacer2);
     _running = new QCheckBox();
     connect(_running, SIGNAL(released()), this, SLOT(running()));
-    _running->setToolTip("If checked, continuously get and display images.");
+    _running->setToolTip("If checked, continuously retrieve and display images.");
     _ui.toolBar->addWidget(_running);
     _ristatus = new QRadioButton();
     readIniStatusLED(0, false);
     _ui.toolBar->addWidget(_ristatus);
-    _period = new QDoubleSpinBox();
-    _period->setRange(0.01, 100.);
-    _period->setValue(settings.value("period", 10.).toDouble());
-    _period->setToolTip("Given frequency of continuously get and display images.");
-    _ui.toolBar->addWidget(_period);
+    _rate = new QDoubleSpinBox();
+    _rate->setRange(0.01, 100.);
+    _rate->setValue(settings.value("rate", 10.).toDouble());
+    _rate->setToolTip("Image update frequency.");
+    _ui.toolBar->addWidget(_rate);
     QLabel *punit = new QLabel;
     punit->setText("Hz");
     _ui.toolBar->addWidget(punit);
+    // central label for image display
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -110,7 +109,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
     settings.setValue("pictureformat", _picturetype->currentIndex());
     settings.setValue("servername", _servername->text());
     settings.setValue("serverport", _serverport->value());
-    settings.setValue("period", _period->value());
+    settings.setValue("period", _rate->value());
     settings.setValue("zoom", _zoom->value());
     settings.setValue("attachId", _attachId->value());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
@@ -132,12 +131,9 @@ void ImageViewer::on_open_triggered()
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));
         _scaleFactor = 1.0;
-
-#warning Once only
-        _ui.print->setEnabled(true);
+#warning allow correctly _ui.print->setEnabled(true);
         _ui.fitToWindow->setEnabled(true);
         updateActions();
-
         if(!_ui.fitToWindow->isChecked())
             imageLabel->adjustSize();
     }
@@ -147,6 +143,8 @@ void ImageViewer::on_open_triggered()
 void ImageViewer::on_getImage_triggered()
 {
     VERBOSEOUT(cout << "Entering on_getImage_triggered" << endl);
+    static QTime time;
+    static float rate(0.);
     _cass.getImage(cass::PNG, _attachId->value(), &_ret);
 #warning fix image format -- use cass::imageformatName and such... see cass.h
     if(! _ret) {
@@ -155,10 +153,10 @@ void ImageViewer::on_getImage_triggered()
         return;
     }
     VERBOSEOUT(cout << "got image" << endl);
-    readIniStatusLED(0, true);
     soap_multipart::iterator attachment(_cass.dime.begin());
     if(_cass.dime.end() == attachment) {
         VERBOSEOUT(cout << "Did not get attachment!" << endl);
+        readIniStatusLED(1, true);
         return;
     }
     VERBOSEOUT(cout << "DIME attachment:" << endl);
@@ -168,15 +166,24 @@ void ImageViewer::on_getImage_triggered()
     VERBOSEOUT(cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
     QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
                                   _picturetype->currentText().toStdString().c_str()));
-    imageLabel->setPixmap(QPixmap::fromImage(image));
-#warning Once only
-    _ui.print->setEnabled(true);
-    _ui.fitToWindow->setEnabled(true);
+    // imageLabel->setPixmap(QPixmap::fromImage(image));
+#warning correctly implement _ui.print->setEnabled(true);
     updateActions();
-    if(_ui.fitToWindow->isChecked())
+    if(_ui.fitToWindow->isChecked()) {
+        _ui.fitToWindow->setEnabled(true);
         return;
-    cout << "getImage: _scaleFactor=" << _scaleFactor << endl;
-    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+    }
+    VERBOSEOUT(cout << "getImage: _scaleFactor=" << _scaleFactor << endl);
+    // imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+    // set rate info
+    int elapsed(time.restart());
+    if(rate < 0.01)
+        rate = 1000./elapsed;
+    else
+        rate = 0.95 * rate + 0.05 * 1000./elapsed;
+    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+    // update status
+    readIniStatusLED(0, false);
 }
 
 
@@ -184,26 +191,11 @@ void ImageViewer::on_getImage_triggered()
 void ImageViewer::running()
 {
     VERBOSEOUT(cout << "running" << endl);
-    deque<double> ct;
-    deque<double>::iterator it;
-    size_t an(10);
-    double times(0.);
-    while(_running->isChecked()) {
-        _time.start();
-        on_getImage_triggered();
-        ct.push_back(_time.elapsed());
-        times = 0.;
-        if(ct.size() > an)
-            ct.pop_front();
-        for(it=ct.begin(); it!=ct.end(); ++it)
-            times += *it;
-        times /= ct.size();
-        statusBar()->showMessage(QString().setNum(1000./times, 'g', 2) + " Hz (" +
-                                 QString().setNum(ct.size()) + ")");
-        usleep(int(1000000./_period->value()));
-        qApp->processEvents(QEventLoop::AllEvents);
+    if(_running->isChecked()) {
+        _updater->start(1000 / _rate->value());
+    } else {
+        _updater->stop();
     }
-    readIniStatusLED(0, false);
 }
 
 
@@ -321,10 +313,10 @@ void ImageViewer::readIniStatusLED(int color, bool on)
 
 void ImageViewer::updateActions()
 {
-    _ui.zoomIn->setEnabled(!_ui.fitToWindow->isChecked());
-    _ui.zoomOut->setEnabled(!_ui.fitToWindow->isChecked());
-    _ui.normalSize->setEnabled(!_ui.fitToWindow->isChecked());
-    _zoom->setEnabled(!_ui.fitToWindow->isChecked());
+    _ui.zoomIn->setEnabled(! _ui.fitToWindow->isChecked());
+    _ui.zoomOut->setEnabled(! _ui.fitToWindow->isChecked());
+    _ui.normalSize->setEnabled(! _ui.fitToWindow->isChecked());
+    _zoom->setEnabled(! _ui.fitToWindow->isChecked());
 }
 
 
