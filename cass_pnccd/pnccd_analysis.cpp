@@ -49,11 +49,11 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(_isDarkframe)
     {
       time ( &rawtime );
-      timeinfo = localtime ( &rawtime );    
+      timeinfo = localtime ( &rawtime );
       strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
       std::cout<<"now is "<<date_and_time<<std::endl;
       dp._savedarkcalfilename =
-        value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time) 
+        value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time)
               ).toString().toStdString();
       std::cout<<"Save filename is something like "<<dp._savedarkcalfilename << std::endl;
     }
@@ -78,10 +78,10 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
         // the orientation is used only in the case of a triangular shape
         dp._detROI._ROI[iROI].orientation = value("orientation",1).toInt();
       endGroup();
-      std::cout <<"ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
-                <<" ysiz " << dp._detROI._ROI[iROI].ysize 
+      std::cout <<"ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize
+                <<" ysiz " << dp._detROI._ROI[iROI].ysize
                 <<" xc " << dp._detROI._ROI[iROI].xcentre
-                <<" yc " << dp._detROI._ROI[iROI].ycentre 
+                <<" yc " << dp._detROI._ROI[iROI].ycentre
                 <<" ori " << dp._detROI._ROI[iROI].orientation<<std::endl;
     }
     endGroup();
@@ -294,7 +294,7 @@ void cass::pnCCD::Analysis::loadSettings()
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
             ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize + 1);
 #ifdef debug
-            std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<dp._detROI._ROI[iROI].xsize<< " " 
+            std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<dp._detROI._ROI[iROI].xsize<< " "
                      <<pow(xlocal-static_cast<int32_t>(dp._detROI._ROI[iROI].xsize),2)
                      <<std::endl;
 #endif
@@ -515,7 +515,7 @@ void cass::pnCCD::Analysis::loadSettings()
       }
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1-extra_masked_pixel);
       std::cout << "Extra masked pixel for detector "<< iDet<<" are "<<extra_masked_pixel<<std::endl;
-      std::cout <<"Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" " 
+      std::cout <<"Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" "
                 <<dp._ROIiterator.size()<< " "
                 <<number_of_pixelsettozero <<std::endl;
 #ifdef debug
@@ -567,7 +567,7 @@ void cass::pnCCD::Analysis::saveSettings()
           }
         //adjust the filenames
         time ( &rawtime );
-        timeinfo = localtime ( &rawtime );    
+        timeinfo = localtime ( &rawtime );
         strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
         std::cout<<"now is "<<date_and_time<<std::endl;
         dp._savedarkcalfilename =
@@ -680,7 +680,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
           if (dp._createPixellist)
-          {      
+          {
             Pixel this_pixel;
             //itFrame is already offset-subtructed
             if( *itFrame> dp._sigmaMultiplier * *itNoise )
@@ -729,7 +729,7 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
       *itNoise  += static_cast<double>(*itFrame) * static_cast<double>(*itFrame);
     }
     ++dp._nbrDarkframes;
-    if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
+    if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0)
       std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
     /*
     if(dp._nbrDarkframes>201 && not_saved_yet)
