@@ -1,4 +1,4 @@
-// Copyright (C) 2010 lmf
+// Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 #include <QtCore/QMutex>
