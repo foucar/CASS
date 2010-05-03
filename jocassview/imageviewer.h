@@ -23,6 +23,11 @@
 namespace jocassview
 {
 
+/** Image viewer
+
+@todo Fit to window needs to keep the aspect ratio
+@todo Separate getImage into its own thread
+*/
 class ImageViewer : public QMainWindow
 {
     Q_OBJECT
@@ -39,7 +44,9 @@ private slots:
     */
     void on_open_triggered();
 
-    /** @todo Use cass::imageformatName and such! */
+    /**
+    @todo IMPORTANT: Put actual getImage into separate thread!
+    @todo Use cass::imageformatName and such! */
     void on_getImage_triggered();
 
     void on_print_triggered();

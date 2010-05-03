@@ -44,7 +44,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _picturetype = new QComboBox();
     QStringList formats;
 #warning use cass::imageformatName and such... see cass.h
-    formats << "PNG";
+    formats << "TIFF";
     _picturetype->setToolTip("Supported image, respectively, file formats.");
     _picturetype->insertItems(1, formats);
     _picturetype->setCurrentIndex(settings.value("pictureformat", 4).toInt());
@@ -145,17 +145,17 @@ void ImageViewer::on_getImage_triggered()
     VERBOSEOUT(cout << "Entering on_getImage_triggered" << endl);
     static QTime time;
     static float rate(0.);
-    _cass.getImage(cass::PNG, _attachId->value(), &_ret);
+    _cass.getImage(cass::TIFF, _attachId->value(), &_ret);
 #warning fix image format -- use cass::imageformatName and such... see cass.h
     if(! _ret) {
-        VERBOSEOUT(cout << "did not get image" << endl);
+        cerr << "Did not get image" << endl;
         readIniStatusLED(1, true);
         return;
     }
     VERBOSEOUT(cout << "got image" << endl);
     soap_multipart::iterator attachment(_cass.dime.begin());
     if(_cass.dime.end() == attachment) {
-        VERBOSEOUT(cout << "Did not get attachment!" << endl);
+        cerr << "Did not get attachment!" << endl;
         readIniStatusLED(1, true);
         return;
     }
@@ -166,7 +166,7 @@ void ImageViewer::on_getImage_triggered()
     VERBOSEOUT(cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
     QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
                                   _picturetype->currentText().toStdString().c_str()));
-    // imageLabel->setPixmap(QPixmap::fromImage(image));
+    imageLabel->setPixmap(QPixmap::fromImage(image));
 #warning correctly implement _ui.print->setEnabled(true);
     updateActions();
     if(_ui.fitToWindow->isChecked()) {
@@ -174,7 +174,7 @@ void ImageViewer::on_getImage_triggered()
         return;
     }
     VERBOSEOUT(cout << "getImage: _scaleFactor=" << _scaleFactor << endl);
-    // imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
     // set rate info
     int elapsed(time.restart());
     if(rate < 0.01)
