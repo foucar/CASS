@@ -96,7 +96,7 @@ int CASSsoapService::quit(bool *success)
 
 int CASSsoapService::readini(size_t what, bool *success)
 {
-    std::cerr << "CASSsoapService::readini(what=" << what << ")" << std::endl;
+    VERBOSEOUT(std::cerr << "CASSsoapService::readini(what=" << what << ")" << std::endl);
     cass::SoapServer::instance()->emit_readini(what);
     *success = true;;
     return SOAP_OK;
@@ -106,7 +106,7 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
-    std::cerr << "CASSsoapService::getImage" << std::endl;
+    VERBOSEOUT(std::cerr << "CASSsoapService::getEvent" << std::endl);
     static QQueue<std::string *> queue;
     std::string *data(new std::string(cass::SoapServer::instance()->get_event(cass::EventParameter(type, t1, t2))));
     queue.enqueue(data);
@@ -122,7 +122,7 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(size_t type, bool *success)
 {
-    std::cerr << "CASSsoapService::getHistogram" << std::endl;
+    VERBOSEOUT(std::cerr << "CASSsoapService::getHistogram" << std::endl);
     static QQueue<std::pair<size_t, std::string> *> queue;
     try {
         // get data
@@ -164,7 +164,7 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
 
 int CASSsoapService::getImage(int format, size_t type, bool *success)
 {
-    std::cerr << "CASSsoapService::getImage" << std::endl;
+    VERBOSEOUT(std::cerr << "CASSsoapService::getImage" << std::endl);
     // keep bytes around for a while -- this should mitigate the "zeros" problem
     static QQueue<QByteArray *> queue;
     int result;
