@@ -12,6 +12,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QObject>
+#include <QtCore/QSettings>
 
 #include "cass.h"
 
@@ -20,7 +21,8 @@ namespace cass
 class CASSEvent;
 class PostprocessorBackend;
 class HistogramBackend;
-
+class Histogram1DFloat;
+class Histogram2DFloat;
 
 
 /** Exception thrown when accessing invalid histograms
@@ -46,6 +48,21 @@ protected:
 
     size_t _id;
 };
+
+
+/** function to set the 1d histogram properties from the cass.ini file
+ * @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[in] id the id of the postprocessor too look up in cass.ini
+ * @author Lutz Foucar
+ */
+void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
+
+/** function to set the 2d histogram properties from the cass.ini file
+ * @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[in] id the id of the postprocessor too look up in cass.ini
+ * @author Lutz Foucar
+ */
+void set2DHist(cass::Histogram2DFloat*& hist, size_t id);
 
 
 
