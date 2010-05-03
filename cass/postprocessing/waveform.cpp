@@ -188,7 +188,8 @@ cass::pp500::~pp500()
 void cass::pp500::loadParameters(size_t)
 {
   QSettings parameter;
-  parameter.beginGroup(QString("processor_") + QString::number(_id));
+  parameter.beginGroup("PostProcessor");
+  parameter.beginGroup(QString("p") + QString::number(_id));
   //load the nbr of averages, and calculate the alpha from it//
   uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
   _alpha = static_cast<float>(1./N);
