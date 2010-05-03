@@ -133,7 +133,7 @@ void cass::Worker::saveSettings()
 
 //-----------------------the wrapper for more than 1 worker--------------------
 cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
-                       QObject *parent)
+                       QObject */*parent*/)
                          :_workers(cass::NbrOfWorkers,0)
 {
   //create the worker instances//
