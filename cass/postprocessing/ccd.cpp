@@ -28,6 +28,7 @@ namespace cass
 pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
       _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
+#warning Do not use hardcoded dimensions here
 {
     switch(id) {
     case PostProcessors::Pnccd1LastImage:
@@ -113,7 +114,7 @@ void cass::pp101::loadSettings(size_t)
 {
     QSettings settings;
     settings.beginGroup("PostProcessor");
-    settings.beginGroup(QString("pp") + QString::number(_id));
+    settings.beginGroup(QString("p") + QString::number(_id));
     _average = settings.value("average", 1).toUInt();
     _scale = 1. - 1./_average;
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
@@ -202,6 +203,7 @@ pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
     };
 }
 
+#warning load settings that will create the right size histogram is missing for pp110
 
 cass::pp110::~pp110()
 {
