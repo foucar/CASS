@@ -209,6 +209,7 @@ void cass::pnCCD::Analysis::loadSettings()
     //This Code is completely unsafe vs human mistakes, if Xonline files
     // are used the sizes are completey wrong as the values that are read in!!!
     //read only if this is NOT a dark-frame run
+     std::cout<<"Trying to open file: "<<dp._darkcalfilename.c_str()<<std::endl;
     if (in.is_open() && !_param._isDarkframe)
     {
       //std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
@@ -229,6 +230,7 @@ void cass::pnCCD::Analysis::loadSettings()
         //!!! needs to be tested, didnt work last time//
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+        std::cout<<"offset and noise maps loaded for det# "<<iDet <<std::endl;
       }
       else
       {
