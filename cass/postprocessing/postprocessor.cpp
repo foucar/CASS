@@ -78,9 +78,9 @@ void PostProcessors::process(CASSEvent& event)
 
 void PostProcessors::loadSettings(size_t)
 {
-    std::cout << "Postprocessor::loadSettings"<<std::endl;
+    VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
     QSettings settings;
-    settings.beginGroup("postprocessors");
+    settings.beginGroup("PostProcessor");
     QVariantList list(settings.value("active").toList());
     _active.resize(list.size());
     std::transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
