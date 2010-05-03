@@ -1,7 +1,9 @@
 // Copyright (C) 2010 Uwe Hoppe
-// Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Jochen Kuepper
 
-#include <deque>
+#define VERBOSE 1
+
+//#include <deque>
 #include <QtGui>
 
 #include "cass/cass.h"
@@ -41,14 +43,16 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _attachId->setToolTip("Attachment identifier.");
     _attachId->setValue(settings.value("attachId", 101).toInt());
     _ui.toolBar->addWidget(_attachId);
+
     _picturetype = new QComboBox();
     QStringList formats;
 #warning use cass::imageformatName and such... see cass.h
-    formats << "TIFF";
+    formats << "PNG" << "TIFF";
     _picturetype->setToolTip("Supported image, respectively, file formats.");
     _picturetype->insertItems(1, formats);
     _picturetype->setCurrentIndex(settings.value("pictureformat", 4).toInt());
     _ui.toolBar->addWidget(_picturetype);
+
     // zoom setting
     _zoom = new QDoubleSpinBox();
     _zoom->setKeyboardTracking(false);
@@ -140,9 +144,31 @@ void ImageViewer::on_open_triggered()
 }
 
 
+getImageThread::getImageThread()
+{
+    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
+
+}
+
+void getImageThread::getImage()
+{
+    VERBOSEOUT(cout << "getImageThread::getImage" << endl);
+    start();
+}
+
+void getImageThread::run()
+{
+    VERBOSEOUT(cout << "getImageThread::run" << endl);
+
+
+}
+
+
 void ImageViewer::on_getImage_triggered()
 {
     VERBOSEOUT(cout << "Entering on_getImage_triggered" << endl);
+    _githread.getImage();
+
     static QTime time;
     static float rate(0.);
     _cass.getImage(cass::TIFF, _attachId->value(), &_ret);

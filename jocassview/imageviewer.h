@@ -6,6 +6,7 @@
 #include <string>
 
 #include <QtCore/QTime>
+#include <QtCore/QThread>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QDoubleSpinBox>
@@ -23,6 +24,23 @@
 namespace jocassview
 {
 
+    class getImageThread : public QThread
+    {
+        Q_OBJECT
+
+    public:
+
+        getImageThread();
+
+        void getImage();
+
+    protected:
+
+        /** Worker thread */
+        void run();
+    };
+
+
 /** Image viewer
 
 @todo Fit to window needs to keep the aspect ratio
@@ -35,6 +53,7 @@ class ImageViewer : public QMainWindow
     public:
 
     ImageViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
+
 
 private slots:
 
@@ -121,6 +140,8 @@ private:
     Ui::ImageViewer _ui;
 
     std::string _server;
+    
+    getImageThread _githread;
 
     /** internal image update timer */
     QTimer *_updater;
