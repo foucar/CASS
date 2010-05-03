@@ -8,7 +8,7 @@ isEmpty ( INSTALLBASE ){
  INSTALLBASE = ~/installs
 }
 
-CONFIG      += release
+CONFIG      += release debug
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
@@ -19,8 +19,11 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
+SUFFIX_STR =
+
 CONFIG(debug, debug|release) {
     DEFINES += DEBUG VERBOSE QT_DEBUG
+    SUFFIX_STR = _d
 }
 else {
     DEFINES += NDEBUG QT_NO_DEBUG
@@ -30,7 +33,7 @@ else {
 QMAKE_STRIP  =
 
 MOC_DIR      = moc
-OBJECTS_DIR  = obj
+OBJECTS_DIR  = obj$${SUFFIX_STR}
 
 QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
