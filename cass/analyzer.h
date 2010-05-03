@@ -16,21 +16,6 @@ namespace cass
   class CASSEvent;
   class AnalysisBackend;
 
-//  class CASSSHARED_EXPORT AnalysisParameter : public cass::ParameterBackend
-//  {
-//  public:
-//    AnalysisParameter()     {beginGroup("PreAnalyzer");}
-//    ~AnalysisParameter()    {endGroup();}
-//    void load();
-//    void save();
-//
-//  public:
-//    bool _useCCD;
-//    bool _useAcqiris;
-//    bool _usepnCCD;
-//    bool _useMachine;
-//  };
-
 
   /** Container and call handler for all Pre Analyzers.
    * All pre analyzer are here and are getting called depending
@@ -70,8 +55,6 @@ namespace cass
     typedef std::set<Analyzers> active_analyzers_t;
 
   protected:
-    //the parameters//
-//    AnalysisParameter _param;
     /** map of available analyzers*/
     analyzers_t _analyzer;
     /** a set of the active analyzers*/
