@@ -51,14 +51,16 @@ protected:
 
 
 /** function to set the 1d histogram properties from the cass.ini file
- * @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[out] hist pointer to the 1D Histogram whos properties should be updated
+ *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
 void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
 
 /** function to set the 2d histogram properties from the cass.ini file
- * @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[out] hist pointer to the 2D Histogram whos properties should be updated
+ *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
@@ -135,6 +137,10 @@ histograms) and placed in the file for the most appropriate group according to t
 00144: Gaussian height of image pp3
 00145: Gaussian width of image pp121
 00146: Gaussian height of image pp121
+00150: Scalar value of the <cos2\theta> from averaged Opal camera image
+  - fixed values for center of image
+  - fixed value for the symmetry angle
+  - fixed values for the width of the image
 
 00500: Averaged waveform of Camp Acqiris Channel 00
 00501: Averaged waveform of Camp Acqiris Channel 01

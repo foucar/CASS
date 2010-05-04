@@ -330,6 +330,33 @@ std::list<PostProcessors::id_t> pp144::dependencies()
 
 
 
+
+
+
+//----------------pp150--------------------------------------
+pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
+{
+    _pp.histograms_replace(_id, _value);
+}
+
+pp150::~pp150()
+{
+    _pp.histograms_delete(_id);
+    _value=0;
+}
+
+std::list<PostProcessors::id_t> pp150::dependencies()
+{
+    return helper_alignment_1::dependencies();
+};
+
+void pp150::operator()(const CASSEvent& event)
+{
+}
+
+
+
 } // end namespace cass
 
 

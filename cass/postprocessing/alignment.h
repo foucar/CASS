@@ -105,6 +105,35 @@ protected:
 
 
 }
+
+
+/** \f$\cos^2\theta\f$ of CCD image
+ *
+ * This postprocessor reduces the running average of the CCD image (pp121) to a scalar that represents
+ * the \f$\cos^2\theta\f$ (degree of alignment)
+ *
+ * @author Per Johnsson
+ * @author Lutz Foucar
+ *
+ */
+class pp150 : public PostprocessorBackend
+{
+public:
+    /*! Construct postprocessor for Gaussian height of image */
+    pp150(PostProcessors&, PostProcessors::id_t);
+    /** Free _image space */
+    virtual ~pp150();
+    /*! Determine Gaussian width of image */
+    virtual void operator()(const CASSEvent&);
+    /*! Define postprocessor dependency on pp121 (averaged VMI image) */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+protected:
+    /** the cos2theta value*/
+    Histogram0DFloat *_value;
+};
+
+
 #endif
 
 
