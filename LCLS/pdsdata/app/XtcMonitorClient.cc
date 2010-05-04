@@ -180,7 +180,7 @@ int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index) {
   //  Initialize shared memory from first message
   //  Seek the Map transition
   //
-  char* myShm;
+  char* myShm(0);
   bool init=false;
   do {
     XtcMonitorMsg myMsg;

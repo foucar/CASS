@@ -409,8 +409,8 @@ mqd_t XtcMonitorServer::_openQueue(const char* name, mq_attr& attr)
 	r_attr.mq_msgsize!= attr.mq_msgsize) {
       printf("Failed to set queue attributes the second time.\n");
       printf("open attr  %x %x %x  read attr %x %x %x\n",
-	     attr.mq_flags, attr.mq_maxmsg, attr.mq_msgsize,
-	     r_attr.mq_flags, r_attr.mq_maxmsg, r_attr.mq_msgsize);
+       (unsigned)attr.mq_flags, (unsigned)attr.mq_maxmsg, (unsigned)attr.mq_msgsize,
+       (unsigned)r_attr.mq_flags, (unsigned)r_attr.mq_maxmsg, (unsigned)r_attr.mq_msgsize);
     }
   }
 
