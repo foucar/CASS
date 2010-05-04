@@ -18,15 +18,6 @@ using namespace Pds;
 
 static char* dgramBuffer;
 
-static void printTransition(const Dgram* dg)
-{
-  printf("%18s transition: time %08x/%08x, payloadSize 0x%08x dmg 0x%x\n",
-	 TransitionId::name(dg->seq.service()),
-	 dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),
-	 dg->xtc.sizeofPayload(),
-	 dg->xtc.damage.value());
-}
-
 class MyMonitorServer : public XtcMonitorServer {
 public:
   MyMonitorServer(const char* tag,
@@ -40,7 +31,9 @@ public:
 		     numberofClients,
 		     sequenceLength) 
   {
-    for(unsigned i=0; i<numberofEvBuffers+XtcMonitorServer::numberofTrBuffers; i++)
+    //  sum of client queues (nEvBuffers) + clients + transitions + shuffleQ
+    unsigned depth = 2*numberofEvBuffers+XtcMonitorServer::numberofTrBuffers+numberofClients;
+    for(unsigned i=0; i<depth; i++)
       _pool.push(reinterpret_cast<Dgram*>(new char[sizeofBuffers]));
   }
   ~MyMonitorServer() 
@@ -56,9 +49,18 @@ public:
       _deleteDatagram(dg);
     return XtcMonitorServer::Deferred;
   }
-  Dgram* newDatagram() { Dgram* dg = _pool.front(); _pool.pop(); return dg; }
+  Dgram* newDatagram() 
+  { 
+    Dgram* dg = _pool.front(); 
+    _pool.pop(); 
+    return dg; 
+  }
+  void   deleteDatagram(Dgram* dg) { _deleteDatagram(dg); }
 private:
-  void   _deleteDatagram(Dgram* dg) { _pool.push(dg); }
+  void  _deleteDatagram(Dgram* dg)
+  {
+    _pool.push(dg); 
+  }
 private:
   std::queue<Dgram*> _pool;
 };
@@ -73,23 +75,38 @@ static Dgram* next(int fd, int sizeOfBuffers)
   Dgram& dg = *ndg;
   unsigned header = sizeof(dg);
   int sz;
-  if ((sz=::read(fd, b, header)) != int(header))
+  if ((sz=::read(fd, b, header)) != int(header)) {
+    if (sz == -1)
+      printf("Error reading event header : %s\n",strerror(errno));
+    apps->deleteDatagram(ndg);
     return 0;
+  }
 
   unsigned payloadSize = dg.xtc.sizeofPayload();
   if ((payloadSize+header)>unsigned(sizeOfBuffers)) {
     printf("Dgram size 0x%x larger than maximum: 0x%x\n",
 	   (unsigned)payloadSize+(unsigned)sizeof(dg), 
 	   sizeOfBuffers); 
+    apps->deleteDatagram(ndg);
     return 0;
   }
     
   if ((sz=::read(fd, b+header, payloadSize)) != int(payloadSize)) {
     printf("Read payload found %d/%d bytes\n",sz,payloadSize);
+    apps->deleteDatagram(ndg);
     return 0;
   }
 
-  return &dg;
+  return ndg;
+}
+
+static void printTransition(const Dgram* dg)
+{
+  printf("%18s transition: time %08x/%08x, payloadSize 0x%08x dmg 0x%x\n",
+	 TransitionId::name(dg->seq.service()),
+	 dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),
+	 dg->xtc.sizeofPayload(),
+	 dg->xtc.damage.value());
 }
 
 //
@@ -113,7 +130,7 @@ long long int timeDiff(struct timespec* end, struct timespec* start) {
 }
 
 void usage(char* progname) {
-  fprintf(stderr,"Usage: %s -f <filename> -n <numberOfBuffers> -s <sizeOfBuffers> [-r <ratePerSec>] [-p <partitionTag>] [-l] [-h]\n", progname);
+  fprintf(stderr,"Usage: %s -f <filename> -n <numberOfBuffers> -s <sizeOfBuffers> [-r <ratePerSec>] [-p <partitionTag>] [-c <# clients>] [-l] [-h]\n", progname);
 }
 
 void sigfunc(int sig_no) {

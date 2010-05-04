@@ -59,9 +59,6 @@ namespace Pds {
 
 using namespace Pds;
 
-static const int numberofTrBuffers = 8;
-
-
 XtcMonitorServer::XtcMonitorServer(const char* tag,
 				   unsigned sizeofBuffers, 
 				   unsigned numberofEvBuffers,
@@ -216,7 +213,7 @@ void XtcMonitorServer::routine()
 	//
 	//  Send this event to the first available client
 	//
-	for(unsigned i=0; i<_numberOfClients; i++)
+	for(unsigned i=0; i<=_numberOfClients; i++)
 	  if (mq_timedsend(_myOutputEvQueue[i], (const char*)&m.msg(), sizeof(m.msg()), 0, &_tmo))
 	    ; //	    printf("outputEv timedout to client %d\n",i);
 	  else
@@ -402,10 +399,19 @@ mqd_t XtcMonitorServer::_openQueue(const char* name, mq_attr& attr)
   if (r_attr.mq_maxmsg != attr.mq_maxmsg ||
       r_attr.mq_msgsize!= attr.mq_msgsize) {
 
-    printf("Failed to set queue attributes\n");
-    printf("open attr  %x %x %x  read attr %x %x %x\n",
-	   attr.mq_flags, attr.mq_maxmsg, attr.mq_msgsize,
-	   r_attr.mq_flags, r_attr.mq_maxmsg, r_attr.mq_msgsize);
+    printf("Failed to set queue attributes the first time.\n");
+    mq_close(q);
+
+    mqd_t q = mq_open(name,  O_CREAT|O_RDWR, PERMS, &attr);
+    mq_getattr(q,&r_attr);
+
+    if (r_attr.mq_maxmsg != attr.mq_maxmsg ||
+	r_attr.mq_msgsize!= attr.mq_msgsize) {
+      printf("Failed to set queue attributes the second time.\n");
+      printf("open attr  %x %x %x  read attr %x %x %x\n",
+	     attr.mq_flags, attr.mq_maxmsg, attr.mq_msgsize,
+	     r_attr.mq_flags, r_attr.mq_maxmsg, r_attr.mq_msgsize);
+    }
   }
 
   return q;
