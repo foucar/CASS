@@ -105,7 +105,6 @@ protected:
 };
 
 
-}
 
 
 /** \f$\cos^2\theta\f$ of CCD image
@@ -144,6 +143,7 @@ protected:
   Histogram0DFloat *_value;
 };
 
+}
 
 #endif
 
