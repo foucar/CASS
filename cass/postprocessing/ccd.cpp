@@ -58,6 +58,7 @@ pp1::~pp1()
 void pp1::operator()(const cass::CASSEvent& event)
 {
     //check whether detector exists
+    // std::cout<<"BLA"<< event.devices().find(_device)->second->detectors()->size() << " "<< _detector <<std::endl;
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 

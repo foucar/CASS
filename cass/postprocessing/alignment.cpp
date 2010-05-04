@@ -1,9 +1,12 @@
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Lutz Foucar
 
 #include <algorithm>
 #include <cassert>
 #include <list>
 #include <map>
+#include <cmath>
+#include <cstdlib>
 
 #include "postprocessing/alignment.h"
 #include "cass_event.h"
@@ -327,6 +330,110 @@ std::list<PostProcessors::id_t> pp144::dependencies()
     return helper_alignment_1::dependencies();
 };
 
+
+
+
+
+
+//---postprocessor calculating cos2theta of requested avaeraged image----------
+//----------------pp150--------------------------------------------------------
+pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
+{
+  _pp.histograms_replace(_id, _value);
+
+  //find out which detector and Signal we should work on
+  switch (_id)
+  {
+  case PostProcessors::VmiFixedCos2Theta:
+    _imageId = PostProcessors::CommercialCCDBinnedRunningAverage;break;
+
+  default:
+    throw std::invalid_argument(QString("postprocessor %1 can't calc cos2theta").arg(_id).toStdString());
+  }
+}
+
+pp150::~pp150()
+{
+    _pp.histograms_delete(_id);
+    _value=0;
+}
+
+std::list<PostProcessors::id_t> pp150::dependencies()
+{
+  return std::list<PostProcessors::id_t>(1, _imageId);
+}
+
+void cass::pp150::loadParameters(size_t)
+{
+  using namespace std;
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it calcluates cos2theta"
+      <<" of image "<<_imageId
+      <<std::endl;
+
+  QSettings param;
+  param.beginGroup("PostProcessor");
+  param.beginGroup(QString("p")+QString::number(_id));
+
+  // Set width and symmetry angle
+  _imageWith = param.value("ImageWidth",0).toInt();
+  _center = std::make_pair<float,float>(param.value("ImageXCenter",0).toFloat(),
+                                        param.value("ImageYCenter",0).toFloat());
+  _symAngle = param.value("SymmetryAngle",0).toFloat();
+
+  // Set the minimum radius within range
+  float tmpr = param.value("MaxIncludedRadius",0).toFloat();
+
+  tmpr = min(_center.first + 0.5f , tmpr);
+  tmpr = min(param.value("ImageHeight",0).toFloat()- _center.first -0.5f, tmpr);
+
+  tmpr = min(_center.second + 0.5f , tmpr);
+  tmpr = min(_imageWith- _center.second - 0.5f , tmpr);
+
+  _minRadius = min(tmpr - 1.0f , param.value("MinIncludedRadius",0).toFloat());
+  _minRadius = max(0.5f , _minRadius);
+
+  // Set number of points on grid
+  _nbrRadialPoints = static_cast<int32_t>(floor(tmpr-_minRadius));
+  _nbrAngularPoints = 360;
+}
+
+void pp150::operator()(const CASSEvent& /*event*/)
+{
+  using namespace std;
+
+  Histogram2DFloat *image
+      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_imageId)->second));
+  _pp.histograms_release();
+
+  float nom(0);
+  float denom(0);
+  float val(0);
+  const float PI = 4 * atan(1);
+
+  image->lock.lockForRead();
+  HistogramFloatBase::storage_t &imageMemory (image->memory());
+
+  for (int jr = 0; jr<_nbrRadialPoints; jr++)
+  {
+    for (int jth = 0; jth<_nbrAngularPoints; jth++)
+    {
+      const float radius = _minRadius + jr;
+      const float angle = 2*PI*jth/_nbrAngularPoints;
+      val = imageMemory[static_cast<int32_t>(round(_center.second + radius*sin(angle+_symAngle/180*PI))*_imageWith +
+                                                         round(_center.first  + radius*cos(angle+_symAngle/180*PI)))];
+      val *= pow(radius,2)*fabs(sin(angle));
+      denom += val;
+      nom += val*pow(cos(angle),2);
+    }
+  }
+  image->lock.unlock();
+
+  _value->lock.lockForWrite();
+  *_value = nom/denom;
+  _value->lock.unlock();
+}
 
 
 

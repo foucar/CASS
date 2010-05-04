@@ -8,7 +8,7 @@ isEmpty ( INSTALLBASE ){
  INSTALLBASE = ~/installs
 }
 
-CONFIG      += release debug
+CONFIG      += release
 CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions

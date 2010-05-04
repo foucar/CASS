@@ -51,14 +51,16 @@ protected:
 
 
 /** function to set the 1d histogram properties from the cass.ini file
- * @param[out] hist pointer to the 1D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[out] hist pointer to the 1D Histogram whos properties should be updated
+ *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
 void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
 
 /** function to set the 2d histogram properties from the cass.ini file
- * @param[out] hist pointer to the 2D Histogram whos properties should be updated (will be deleted and created with new settings)
+ * @param[out] hist pointer to the 2D Histogram whos properties should be updated
+ *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
@@ -135,6 +137,18 @@ histograms) and placed in the file for the most appropriate group according to t
 00144: Gaussian height of image pp3
 00145: Gaussian width of image pp121
 00146: Gaussian height of image pp121
+00150: Scalar value of the <cos2\theta> from averaged Opal camera image pp105
+  - fixed values for center of image
+    - PostProcessor/p150/ImageXCenter
+    - PostProcessor/p150/ImageYCenter
+  - fixed value for the symmetry angle
+    - PostProcessor/p150/SymmetryAngle
+  - fixed values for the dimensions of the image
+    - PostProcessor/p150/ImageWidth
+    - PostProcessor/p150/ImageHeight
+  - fixed values for the interesting radius range
+    - PostProcessor/p150/MaxIncludedRadius
+    - PostProcessor/p150/MinIncludedRadius
 
 00500: Averaged waveform of Camp Acqiris Channel 00
 00501: Averaged waveform of Camp Acqiris Channel 01
@@ -342,6 +356,8 @@ public:
         VmiRunningAverage=121, VmiCos2Theta=131,
         Integral3=141, Integral121=142,
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
+        VmiFixedCos2Theta=150,
+
         CampChannel00AveragedWaveform=500,
         CampChannel01AveragedWaveform=501,
         CampChannel02AveragedWaveform=502,

@@ -1,4 +1,5 @@
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Lutz Foucar
 
 #ifndef _ALGINMENT_POSTPROCESSOR_H_
 #define _ALGINMENT_POSTPROCESSOR_H_
@@ -6,6 +7,7 @@
 #include "postprocessing/alignment.h"
 #include "postprocessing/backend.h"
 #include "postprocessing/postprocessor.h"
+#include "cass_event.h"
 
 namespace cass
 {
@@ -104,7 +106,45 @@ protected:
 };
 
 
+
+
+/** \f$\cos^2\theta\f$ of a requested image
+ *
+ * This postprocessor reduces the running average of the requested image (pp101,103,105) to a scalar that represents
+ * the \f$\cos^2\theta\f$ (degree of alignment)
+ *
+ * @author Per Johnsson
+ * @author Lutz Foucar
+ */
+class pp150 : public PostprocessorBackend
+{
+public:
+  /** Construct postprocessor for Gaussian height of image */
+  pp150(PostProcessors&, PostProcessors::id_t);
+  /** Free _image space */
+  virtual ~pp150();
+  /** calculate \f$\cos^2\theta\f$ of averaged image */
+  virtual void operator()(const CASSEvent&);
+  /** Define postprocessor dependency on the requested image*/
+  virtual std::list<PostProcessors::id_t> dependencies();
+  /** load the histogram settings from cass.ini*/
+  virtual void loadParameters(size_t);
+
+protected:
+  /** image that we will calculate the \f$\cos^2\theta\f$ from*/
+  PostProcessors::id_t _imageId;
+  std::pair<float,float> _center; //!< Image center
+  float _minRadius;               //!< Minimum radius for analysis
+  float _symAngle;                //!< Symmetry angle
+  int32_t _imageWith;             //!< Image width
+  int32_t _nbrRadialPoints;       //!< Number of radial points
+  int32_t _nbrAngularPoints;      //!< Number of angular points
+  /** the cos2theta value*/
+  Histogram0DFloat *_value;
+};
+
 }
+
 #endif
 
 
