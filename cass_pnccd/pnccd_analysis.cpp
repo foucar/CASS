@@ -536,12 +536,13 @@ void cass::pnCCD::Analysis::loadSettings()
           else
           {
             extra_masked_pixel++;
-            dp._ROImask[iPixel]=0;
+            dp._ROImask[iPixel]=2; //I'll put it to 2 in this case instead
+                                   // so that I know that it was maked BAD...
           }
         }
       }
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1-extra_masked_pixel);
-      std::cout << "Extra masked pixel for detector "<< iDet<<" are "<<extra_masked_pixel<<std::endl;
+      std::cout << "Extra masked pixel(s) for detector "<< iDet<<" are "<<extra_masked_pixel<<std::endl;
       std::cout <<"Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" " 
                 <<dp._ROIiterator.size()<< " "
                 <<number_of_pixelsettozero <<std::endl;
@@ -675,8 +676,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::PixelDetector::frame_t &f = det.frame();
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
-      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator  itNoise  = dp._noise.begin();
-      //const cass::ROI::ROImask_t &mask = dp._ROImask;
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
       //const bool ShouldIuseCommonMode= dp._useCommonMode;
@@ -685,22 +685,20 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       det.integral()=0;
       det.integral_overthres()=0;
       det.maxPixelValue()=0;
-      if(dp._useCommonMode/*ShouldIuseCommonMode*/)
-      {
-        //merd
-        std::cout<<"I need to do something"<<std::endl;
-      }
-      else
+      if(!dp._useCommonMode/*I don't use CommonMode*/)
       {
         for ( ; itROI != iter.end(); ++itROI,++pixelidx)
         {
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          //I could execute the follwing line only if dp._useCommonMode==false
+          // and get rid of the if-statement if(!dp._useCommonMode...)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]+1; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
           // the following work only if I am copying, not if I modify!!
-          // If I am modifying the pixel containt... This method leave the masked-pixels unchanged!!
+          // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -718,10 +716,58 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               this_pixel.y()=iter[pixelidx]/det.columns();
               this_pixel.z()=*itFrame;
               det.pixellist().push_back(this_pixel);
+              //I could "tag" the pixel
+              // something like "mask[iFrame]=3"
             }
           }
         }//end loop over frame
-      }// endif CommondMode Subtraction
+      }
+      else
+      {
+        //const cass::ROI::ROImask_t &mask = dp._ROImask;
+        //merd
+        //std::cout<<"I need to do something"<<std::endl;
+        const size_t Num_pixel_per_line = 128;
+        const size_t num_lines = det.originalrows()* det.originalcolumns() /Num_pixel_per_line;
+        size_t i_pixel;
+        for (size_t i_line=0;i_line<num_lines;i_line++)
+        {
+          double common_level=0;
+          double Pixel_wo_offset;
+          size_t used_pixel=0;
+          for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          {
+            //I consider only the "good" pixels that are not to be masked
+            if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
+            {
+              Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
+              //I add only the pixel w/o a signal-photon
+              if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
+              {
+                common_level+= Pixel_wo_offset;
+                used_pixel++;
+              }
+            }
+          }
+          if(used_pixel>8)
+          {
+            common_level/=(used_pixel-1);
+#ifdef debug_a_lot
+            std::cout<<"Common mode subtraction value is "<< static_cast<pixel_t>(common_level)
+                     <<" based on "<<used_pixel <<" pixels" <<std::endl;
+#endif
+          }
+          else common_level=0;
+          //come back to the beginning of the line
+          advance(itFrame,-Num_pixel_per_line);
+          advance(itOffset,-Num_pixel_per_line);
+          advance(itNoise,-Num_pixel_per_line);
+          for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          {
+            *itFrame =  *itFrame - *itOffset - common_level ;
+          }
+        }//end loop over frame
+      }// endif CommonMode Subtraction
 #ifdef debug
       if(dp._createPixellist) std::cout<<"number of found photons on pnCCD " << iDet
                                        << " is "<< det.pixellist().size()<<std::endl;

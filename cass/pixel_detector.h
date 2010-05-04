@@ -43,18 +43,17 @@ namespace cass
 
   class CASSSHARED_EXPORT ROIsimple
   {
-    /* inserting the "definition" of a ROI
-       each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-       shapes:=circ(==circle),triangle(isosceles),square <=Do I need many squares per frame?
-       AAAA there is a problem with a triangular shape... the orientation!!!
-       the orientation is used only in the case of a triangular shape
+    /** inserting the "definition" of a ROI
+     *  each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
+     *  shapes:=circ(==circle),triangle(isosceles),square <=Do I need many squares per frame?
+     *  AAAA there is a problem with a triangular shape... the orientation!!!
+     *  the orientation is used only in the case of a triangular shape
+     *
+     *  I think also a "double triangle bottle-like shape could be helpful
+     *
+     *  xsize,ysize and center are in pixel units
 
-       I think also a "double triangle bottle-like shape could be helpful
-
-       xsize,ysize and center are in pixel units
-
-       Do I need to shrink the ROI if I am rebinning??
-    */
+     */
     /* I do not care it has only public...
        public:
        ROIsimple(std::string name,uint32_t xsize,uint32_t ysize,uint32_t xcentre,
@@ -69,19 +68,20 @@ namespace cass
     uint32_t xcentre;// the centre(s) along the x axis
     uint32_t ycentre;// the centre(s) along the y axis
     /*
-      the orientation is used only in the case of a triangular shape
-      /\           ----         |\           /|
-     /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
-     ----           \/          | /         \ |
-                                |/           \|
-      if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
-      please remember to use the rotated frame wrt standard-natural frame
-      orientation!!
-    */
+     * the orientation is used only in the case of a triangular shape
+     *       /\           ----         |\           /|
+     *      /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
+     *      ----           \/          | /         \ |
+     *                                 |/           \|
+     * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
+     * please remember to use the rotated frame wrt standard-natural frame
+     * orientation!!
+     */
     // the orientation
     int32_t orientation;
     ROIsimple()       {}
     ~ROIsimple()      {}
+    //The following is a "wish", that for the moment is not fullfilled (or needed)!
     //I want something like void ROIload(detROI_t *_detROI);
     //void load(cass::PixelDetector::detROI_t&);
     //void save(cass::PixelDetector::detROI_t *_detROI);
@@ -104,8 +104,11 @@ namespace cass
    * a region of interest is created from a list of simple shapes.
    * @see cass::ROIsimple
    *
-   * this function will create
-   * - a ROI Mask
+   * this function will define/create
+   * - a ROI Mask (the values are:
+   *          =1 pixel is to be used,
+   *          =2 pixel is declared BAD,
+   *          =0 pixel is masked
    * - a ROI Iterator, which is a list of indices of the frame that are not
    *   masked as uniteresting
    * - a ROI Mask Converter, which is the transformed (in the input original
@@ -114,18 +117,11 @@ namespace cass
    *   original shape) ROI index-pointer-mask for each detector.
    * All of these entities are vectors of unsigned integers.
    *
-   * Example usage (deprecated: the create should create everything):
-   * @code
-   * //create "everything"//
-   * //for the first pnccd detector//
-   * cass::ROI::roi_t roi = cass::ROI::create("pnCCD01",cass::ROI::ROIIterator);
-   * @endcode
+   * I have decided that I do not need to shrink the ROI if I am rebinning, 
+   * the rebinned frame is calculated from the uncorrected one, via the ROI Mask anyway
    *
-   * @note Do I need to shrink the ROI if I am rebinning??
-   * @todo explain what the different kind of entities are and what they do.
-   * @todo add examples how to iterate over the frame
-   * @todo cleanup the documentation make it more clear
-   * @todo this, most probably, should be a class and not a struct...
+   * @todo explain what the different kind of entities do.
+   * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
    * @author Nicola Coppola
    */
   class CASSSHARED_EXPORT ROI : public cass::ParameterBackend
@@ -134,8 +130,6 @@ namespace cass
     ROI(/*const std::string detectorname*/) {}
     ~ROI() {}
     /** an region of interest entity */
-    //typedef std::vector<uint32_t> roi_t;
-    //typedef std::vector<detROI_>  detROI_t;//the vector containin of elementary ROI(s)
     typedef detROI_ detROI_t;
     typedef std::vector<uint16_t> ROImask_t;//the ROI mask for each detector//
     typedef std::vector<uint32_t> ROIiterator_t;//the ROI index-pointer-mask for each detector//
@@ -143,12 +137,13 @@ namespace cass
     typedef std::vector<uint16_t> ROImask_converter_t;
     //the transformed (in the input original shape) ROI index-pointer-mask for each detector//
     typedef std::vector<uint32_t> ROIiterator_converter_t;
-    /** creating the roi entity.
-     * This functor will return the requested entity.
-     * @return the requested entity
+    /** creating the roi entities.
+     * This functor will calculate the requested entities.
+     * 
      * @param detectorname a unique name for which detector we create the mask
      *        we need this info, to be able to extract the right info from cass.ini
-     * @param entity tells the functor what type of entity we want it to return
+     *        (for the moment this is not needed, as the way that would allow to use it
+     *         is clearly NOT nice)
      */
     detROI_t        _detROI;                 //the vector with the ROI(s) "inside"
     ROImask_t       _ROImask;
@@ -222,10 +217,6 @@ namespace cass
 
     const cass::ROI::detROI_t  &detROI()const   {return _detROI;}
     cass::ROI::detROI_t        &detROI()        {return _detROI;}
-    //typedef std::vector<detROI_> detROI_t;
-    // //      _detROI detROI;
-    //typedef std::vector<uint16_t> ROImask_t;//the ROI mask for each detector//
-    //typedef std::vector<uint32_t> ROIiterator_t;//the ROI index-pointer-mask for each detector//
 
   private:
     //data//

@@ -216,8 +216,8 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
   std::cout << "0x"<< std::hex<< datagram->xtc.sizeofPayload()<<std::dec<<"  ";
   std::cout << "0x"<< std::hex<<datagram->xtc.damage.value()<<std::dec<<" ";
-  std::cout << "0x"<<std::hex<< datagram->seq.clock().seconds()<<" ";
-  std::cout << "0x"<<std::hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<" ";
+  std::cout << "0x"<< std::hex<< datagram->seq.clock().seconds()<<" ";
+  std::cout << "0x"<< std::hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<" ";
   std::cout << std::dec <<std::endl;
 */
 
