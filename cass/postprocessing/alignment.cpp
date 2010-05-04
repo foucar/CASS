@@ -380,8 +380,8 @@ void cass::pp150::loadParameters(size_t)
 //  r0 = max(0.5, r0);
 
   // Set number of points on grid
-  Nr = floor(tmpr-r0);
-  Nth = 360;
+//  Nr = floor(tmpr-r0);
+//  Nth = 360;
 
 }
 
