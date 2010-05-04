@@ -371,13 +371,13 @@ void cass::pp150::loadParameters(size_t)
   th0 = param.value("SymmetryAngle",0).toFloat();
 
   // Set radius within range
-  float tmpr = param.value("MaxIncludedRadius",0).toFloat();
-  tmpr = min(cx+0.5, tmpr);
-  tmpr = min(param.value("ImageHeight",0).toFloat()-cx-0.5, tmpr);
-  tmpr = min(cy+0.5, tmpr);
-  tmpr = min(Nx-cy-0.5, tmpr);
-  r0 = min(tmpr-1, param.value("MinIncludedRadius",0).toFloat());
-  r0 = max(0.5, r0);
+//  float tmpr = param.value("MaxIncludedRadius",0).toFloat();
+//  tmpr = min(cx+0.5, tmpr);
+//  tmpr = min(param.value("ImageHeight",0).toFloat()-cx-0.5, tmpr);
+//  tmpr = min(cy+0.5, tmpr);
+//  tmpr = min(Nx-cy-0.5, tmpr);
+//  r0 = min(tmpr-1, param.value("MinIncludedRadius",0).toFloat());
+//  r0 = max(0.5, r0);
 
   // Set number of points on grid
   Nr = floor(tmpr-r0);
@@ -387,28 +387,28 @@ void cass::pp150::loadParameters(size_t)
 
 void pp150::operator()(const CASSEvent& event)
 {
-  HistogramFloatBase::storage_t &averaged
-      ((dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout()
-                                        .find(CommercialCCDBinnedRunningAverage)))->memory());
-  // Helper variables
-  float nom = 0;
-  float denom = 0;
-  float r, th;
-  float val;
-
-  for (int jr = 0; jr<Nr; jr++)
-  {
-    for (int jth = 0; jth<Nth; jth++)
-    {
-      r = r0 + jr;
-      th = 2*PI*jth/Nth;
-      val = averaged[(int32_t) (round(cy + r*sin(th+th0/180*PI))*Nx + round(cx + r*cos(th+th0/180*PI)))];
-      val = val*pow(r,2)*ABS(sin(th));
-      denom = denom + val;
-      nom = nom + val*pow(cos(th),2);
-    }
-  }
- *_value = nom/denom;
+//  HistogramFloatBase::storage_t &averaged
+//      ((dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout()
+//                                        .find(CommercialCCDBinnedRunningAverage)))->memory());
+//  // Helper variables
+//  float nom = 0;
+//  float denom = 0;
+//  float r, th;
+//  float val;
+//
+//  for (int jr = 0; jr<Nr; jr++)
+//  {
+//    for (int jth = 0; jth<Nth; jth++)
+//    {
+//      r = r0 + jr;
+//      th = 2*PI*jth/Nth;
+//      val = averaged[(int32_t) (round(cy + r*sin(th+th0/180*PI))*Nx + round(cx + r*cos(th+th0/180*PI)))];
+//      val = val*pow(r,2)*ABS(sin(th));
+//      denom = denom + val;
+//      nom = nom + val*pow(cos(th),2);
+//    }
+//  }
+// *_value = nom/denom;
 }
 
 
