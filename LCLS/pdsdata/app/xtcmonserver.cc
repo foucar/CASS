@@ -16,7 +16,7 @@
 
 using namespace Pds;
 
-static char* dgramBuffer;
+//static char* dgramBuffer;
 
 class MyMonitorServer : public XtcMonitorServer {
 public:
