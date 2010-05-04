@@ -4,6 +4,7 @@
 #include <cassert>
 #include <list>
 #include <map>
+#include <cmath>
 
 #include "postprocessing/alignment.h"
 #include "cass_event.h"
@@ -348,11 +349,66 @@ pp150::~pp150()
 
 std::list<PostProcessors::id_t> pp150::dependencies()
 {
-    return helper_alignment_1::dependencies();
-};
+return std::list<PostProcessors::id_t>(1, PostProcessors::CommercialCCDBinnedRunningAverage);}
+
+void cass::pp150::loadParameters(size_t)
+{
+  using namespace std;
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it calcluates cos2theta"
+      <<" of detector "<<_detector
+      <<" in instrument"<<_instrument
+      <<std::endl;
+
+  QSettings param;
+  param.beginGroup("PostProcessor");
+  param.beginGroup(QString("p")+QString::number(_id));
+
+  // Set width and symmetry angle
+  Nx = param.value("ImageHeight",0).toInt();
+  cx = param.value("ImageXCenter",0).toFloat();
+  cy = param.value("ImageXCenter",0).toFloat();
+  th0 = param.value("SymmetryAngle",0).toFloat();
+
+  // Set radius within range
+  float tmpr = param.value("MaxIncludedRadius",0).toFloat();
+  tmpr = min(cx+0.5, tmpr);
+  tmpr = min(param.value("ImageHeight",0).toFloat()-cx-0.5, tmpr);
+  tmpr = min(cy+0.5, tmpr);
+  tmpr = min(Nx-cy-0.5, tmpr);
+  r0 = min(tmpr-1, param.value("MinIncludedRadius",0).toFloat());
+  r0 = max(0.5, r0);
+
+  // Set number of points on grid
+  Nr = floor(tmpr-r0);
+  Nth = 360;
+
+}
 
 void pp150::operator()(const CASSEvent& event)
 {
+  HistogramFloatBase::storage_t &averaged
+      ((dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout()
+                                        .find(CommercialCCDBinnedRunningAverage)))->memory());
+  // Helper variables
+  float nom = 0;
+  float denom = 0;
+  float r, th;
+  float val;
+
+  for (int jr = 0; jr<Nr; jr++)
+  {
+    for (int jth = 0; jth<Nth; jth++)
+    {
+      r = r0 + jr;
+      th = 2*PI*jth/Nth;
+      val = averaged[(int32_t) (round(cy + r*sin(th+th0/180*PI))*Nx + round(cx + r*cos(th+th0/180*PI)))];
+      val = val*pow(r,2)*ABS(sin(th));
+      denom = denom + val;
+      nom = nom + val*pow(cos(th),2);
+    }
+  }
+ *_value = nom/denom;
 }
 
 

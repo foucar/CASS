@@ -6,6 +6,7 @@
 #include "postprocessing/alignment.h"
 #include "postprocessing/backend.h"
 #include "postprocessing/postprocessor.h"
+#include "cass_event.h"
 
 namespace cass
 {
@@ -114,23 +115,33 @@ protected:
  *
  * @author Per Johnsson
  * @author Lutz Foucar
- *
  */
 class pp150 : public PostprocessorBackend
 {
 public:
-    /*! Construct postprocessor for Gaussian height of image */
-    pp150(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp150();
-    /*! Determine Gaussian width of image */
-    virtual void operator()(const CASSEvent&);
-    /*! Define postprocessor dependency on pp121 (averaged VMI image) */
-    virtual std::list<PostProcessors::id_t> dependencies();
+  /*! Construct postprocessor for Gaussian height of image */
+  pp150(PostProcessors&, PostProcessors::id_t);
+  /** Free _image space */
+  virtual ~pp150();
+  /*! calculate cos2theta of averaged image */
+  virtual void operator()(const CASSEvent&);
+  /*! Define postprocessor dependency on pp121 (averaged VMI image) */
+  virtual std::list<PostProcessors::id_t> dependencies();
+  /** load the histogram settings from cass.ini*/
+  virtual void loadParameters(size_t);
 
 protected:
-    /** the cos2theta value*/
-    Histogram0DFloat *_value;
+  CASSEvent::Device _instrument; //!< the device to work on
+  size_t _detector; //!< the detector of the device
+  float cx;     //!< Image X center
+  float cy;     //!< Image Y center
+  float r0;     //!< Minimum radius for analysis
+  float th0;    //!< Symmetry angle
+  int32_t Nx;   //!< Image width
+  int32_t Nr;   //!< Number of radial points
+  int32_t Nth;  //!< Number of angular points
+  /** the cos2theta value*/
+  Histogram0DFloat *_value;
 };
 
 
