@@ -337,7 +337,8 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 inline
 void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
-  std::cout<< "Delayline Detector load parameters: loading "<<_name<<"'s parameters. It is a "
+  std::cout<< "Delayline Detector load parameters: loading "<<_name
+      <<"'s parameters. It is a "
       <<((_delaylinetype==Hex)?"Hex-":"Quad-")<<"Detector"<<std::endl;
   //load the parameters for this detector//
   p->beginGroup(_name.c_str());
@@ -352,7 +353,8 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
   switch(_analyzerType)
   {
   case DelaylineSimple :
-    std::cout << "Delayline Detector load parameters: we use Delayline Simple to analyze us"<<std::endl;
+    std::cout << "Delayline Detector load parameters: "
+        <<"we use Delayline Simple to analyze us"<<std::endl;
     _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
     break;
   default:
