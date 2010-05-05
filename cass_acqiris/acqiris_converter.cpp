@@ -1,4 +1,4 @@
-//Copyright (C) 2009, 2010 lmf
+//Copyright (C) 2009, 2010 Lutz Foucar
 
 #include <cassert>
 
