@@ -1,4 +1,4 @@
-// Copyright (C) 2010 lmf
+// Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 #ifndef _CCD_POSTPROCESSOR_H_
@@ -18,6 +18,7 @@ class Histogram2DFloat;
 
 
 /** Last CCD image.
+ *
  * Postprocessor will get the last image from all kinds of ccd's.
  * Will work for postprocessors 1-3.
  *
@@ -52,14 +53,16 @@ protected:
 
 
 
-/** @brief Averaged binned pnCCD / commercial ccd image
+/** Averaged binned pnCCD or commercial ccd image.
  *
- * Running average of pnCCD or commercial ccd images with
- * - an averaging length of postprocessors/%pp_Number%/average
- * - geometric binning (x and y) of
- *   postprocessors/%pp_Number%/{bin_horizontal|bin_vertical}.
+ * Running average of pnCCD or commercial ccd images. User settable options
+ * in CASS.ini
+ * - averaging length:  PostProcessor/p%id%/average
+ * - geometric binning (x and y):
+ *   PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}.
+ *
  * Binning must be a fraction of 1024.
- * Does implement postprocessors 101, 102, 103, 105
+ * Does implement postprocessors 101, 103, 105
  *
  * @author Jochen Kuepper
  * @author Lutz Foucar
@@ -70,7 +73,7 @@ public:
 
     pp101(PostProcessors& hist, PostProcessors::id_t id);
 
-    /** Free _image spcae */
+    /** Free _image space */
     virtual ~pp101();
 
     /** copy image from CASS event to histogram storage */
@@ -105,15 +108,28 @@ protected:
 
 
 /** PhotonHits of CCD's.
+ *
  * This postprocessor will fill a 2d histogram with the detected Photonhits.
- * Photonhits will be detected in the commercial Pre Analyzer. They will
- * be just summed up. One needs to clear this histogram, when something has changed.
+ * Photonhits will be detected in the commercial Pre Analyzers. Set the Parameters
+ * for detecting photonhits there. (PNCCD::Analyzer or CCD::Analyzer)
+ *
+ * Photonhits will be just summed up in a 2d Histogram.
+ * One needs to clear this histogram, when something has changed.
+ *
+ * implements Postprocessors 110,11,112
+ *
+ * User settable parameters in CASS.ini
+ * - properties of the 2d histogram:
+ *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+ *
  * @author Lutz Foucar
  */
 class pp110 : public PostprocessorBackend
 {
 public:
-
+    /** constructor.
+     * setting the appropriate device and detector
+     */
     pp110(PostProcessors& hist, PostProcessors::id_t id);
 
     /** Free _image spcae */
@@ -132,7 +148,7 @@ protected:
     /** detector to work on */
     size_t _detector;
 
-    /** current image */
+    /** averaged image */
     Histogram2DFloat *_image;
 };
 
