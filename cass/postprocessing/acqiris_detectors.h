@@ -18,6 +18,11 @@ namespace cass
    * This postprocessor will output how many Signals have been found
    * in the acqiris channel for the mcp of the detector.
    *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
    *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
@@ -50,6 +55,11 @@ namespace cass
    *
    * This postprocessor will output how many Signals have been found in the
    * acqiris channels of requested layers.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
@@ -88,6 +98,11 @@ namespace cass
    * This postprocessor will output the Ratio of the Number of Signals with
    * Respect to the other layer.
    *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
    *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
@@ -122,6 +137,11 @@ namespace cass
    *
    * This postprocessor will output the Ratio of the Number of Signals with
    * Respect to the the number of Singals in the MCP Channel.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
@@ -161,6 +181,11 @@ namespace cass
    * This postprocessor will output the Ratio of the Number reconstructed
    * detector hits with respect to the the number of Signals in the mcp channel.
    *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
    *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
@@ -195,6 +220,11 @@ namespace cass
    *
    * This postprocessor will output the times of all found Hits on the Mcp.
    * This is more or less a Time of Flight Spektrum
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
@@ -231,6 +261,11 @@ namespace cass
    *
    * This postprocessor will output Timesum of a Delayline Anode for the first
    * hit in a selectable good range.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini:
    * - properties of the 1d histogram:
@@ -270,6 +305,11 @@ namespace cass
    * position of the delayline. This is used to know the value for extracting
    * the detectorhits.
    *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
    *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
@@ -307,6 +347,11 @@ namespace cass
    *
    * This postprocessor will output the Detector picture of the first Hit in
    * the selectable good range. The added Hit fullfilles the timesum condition.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
@@ -349,6 +394,11 @@ namespace cass
    * depending on the postprocessor id, it will histogram 2 of the 3 values
    * of an detectorhit. It will make a condition on the third value of the
    * detector hit.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
@@ -397,6 +447,11 @@ namespace cass
    * This postprocessor will make a histogram of the fwhm and height of
    * all identified signals in a detector.
    *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
    *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
@@ -429,6 +484,11 @@ namespace cass
    *
    * This postprocessor will make a histogram of the fwhm and height of
    * all Wireend Signals in a delaylinedetector.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
@@ -466,6 +526,11 @@ namespace cass
   /** Pipico spectra.
    *
    * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
    *
    * User settable parameters in CASS.ini
    * - properties of the 2d histogram:
