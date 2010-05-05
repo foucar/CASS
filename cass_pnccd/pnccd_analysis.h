@@ -7,8 +7,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QWriteLocker>
-//#include <map>
-//#include <string>
+
 #include <vector>
 #include "cass_pnccd.h"
 #include "analysis_backend.h"
@@ -95,16 +94,14 @@ namespace cass
       void operator() (CASSEvent*);
 
     private:
-      //void createOffsetAndNoiseMap(const pnCCDDevice&) {}
       void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
       void rebin(cass::pnCCD::pnCCDDevice&,size_t DetectorIndex);
 
     private:
-      //int                         last_dark_bright_changed;
       QReadWriteLock              _RWlock; //a mutex to lock write operations but allow read
       QMutex                      _mutex; //a mutex to lock write operations
       Parameter                   _param; //the parameters used to analyze the pnccd detectors
-      cass::PixelDetector::frame_t  _tmp;   //temporary storage for rebinning frames
+      cass::PixelDetector::frame_t  _tmp; //temporary storage for rebinning frames
     };
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass

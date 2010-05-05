@@ -208,6 +208,7 @@ void cass::pnCCD::Analysis::loadSettings()
     std::ifstream in(dp._darkcalfilename.c_str(), std::ios::binary|std::ios::ate);
     //This Code is completely unsafe vs human mistakes, if Xonline files
     // are used the sizes are completey wrong as the values that are read in!!!
+
     //read only if this is NOT a dark-frame run
      std::cout<<"Trying to open file: "<<dp._darkcalfilename.c_str()<<std::endl;
     if (in.is_open() && !_param._isDarkframe)
