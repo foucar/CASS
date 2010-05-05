@@ -24,6 +24,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
 
+      std::cout << "pnCCDConverter::ConfigXTC: DeviceId:"<<detectorId<<std::endl;
       //if necessary resize the config container//
       if (detectorId >= _pnccdConfig.size())
         _pnccdConfig.resize(detectorId+1,0);
