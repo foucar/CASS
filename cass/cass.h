@@ -49,14 +49,36 @@ namespace cass
    * @param ImageFormat
    * @return Qt name of format
    */
-  const std::string imageformatName(ImageFormat fmt);
+  inline const std::string imageformatName(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("PNG"); break;
+      case TIFF: fmtname = std::string("TIFF"); break;
+      case JPEG: fmtname = std::string("JPEG"); break;
+      case GIF:  fmtname = std::string("GIF"); break;
+      case BMP:  fmtname = std::string("BMP"); break;
+      }
+      return fmtname;
+  };
 
   /** MIMI names of known/supported Qt image formats
    *
    * @param ImageFormat
    * @return MIME/type of format
    */
-  const std::string imageformatMIMEtype(ImageFormat fmt);
+  inline const std::string imageformatMIMEtype(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("image/png"); break;
+      case TIFF: fmtname = std::string("image/tiff"); break;
+      case JPEG: fmtname = std::string("image/jpeg"); break;
+      case GIF:  fmtname = std::string("image/gif"); break;
+      case BMP:  fmtname = std::string("image/bmp"); break;
+      }
+      return fmtname;
+  };
 
 
   /*! Helper function to delete duplicates from a std::list
