@@ -867,4 +867,8 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
     //add this index value to the newIndex value//
     _tmp[newIndex] += f[iIdx]/dp._rebinfactor/dp._rebinfactor;
   }
+  //now I should copy the frame back...
+  f.resize(newRows*newCols);
+  std::copy(_tmp.begin(), _tmp.end(), f.begin());
+
 }
