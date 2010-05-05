@@ -45,8 +45,7 @@ namespace cass
   {
     /** inserting the "definition" of a ROI
      *  each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-     *  shapes:=circ(==circle),triangle(isosceles),square <=Do I need many squares per frame?
-     *  AAAA there is a problem with a triangular shape... the orientation!!!
+     *  shapes:=circ(==circle),triangle(isosceles),square and  the orientation!!!
      *  the orientation is used only in the case of a triangular shape
      *
      *  I think also a "double triangle bottle-like shape could be helpful
