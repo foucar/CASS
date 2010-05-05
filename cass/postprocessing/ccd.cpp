@@ -39,6 +39,7 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
         break;
     case PostProcessors::VmiCcdLastImage:
         _device=CASSEvent::CCD; _detector = 0;
+        break;
 
     default:
         throw std::invalid_argument("class not responsible for requested postprocessor");
