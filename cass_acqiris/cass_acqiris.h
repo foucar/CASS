@@ -29,7 +29,7 @@ namespace cass
     /** the waveformanalyzers that are available */
     enum WaveformAnalyzers {com8,com16,cfd8,cfd16};
     /** all available instruments at the site*/
-    enum Instruments{Camp1=8,Camp2=4,Camp3=5};
+    enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
     /** all available detectors*/
     enum Detectors{HexDetector, QuadDetector, VMIMcp, FELBeamMonitor, YAGPhotodiode, FsPhotodiode};
     /** the available detector analyzers*/
