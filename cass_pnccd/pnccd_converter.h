@@ -25,8 +25,8 @@ namespace cass
       //called for LCLS event//
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
     private:
-      std::vector<Pds::PNCCD::ConfigV1*> _pnccdConfig;
-//      std::vector<Pds::PNCCD::ConfigV2*> _pnccdConfig;
+//      std::vector<Pds::PNCCD::ConfigV1*> _pnccdConfig;
+      std::vector<Pds::PNCCD::ConfigV2*> _pnccdConfig;
     };
   }//end namespace vmi
 }//end namespace cass
