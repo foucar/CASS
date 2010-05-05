@@ -7,6 +7,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <utility>
+#include <math.h>
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
@@ -67,6 +68,13 @@ void pp1::operator()(const cass::CASSEvent& event)
     const PixelDetector::frame_t& frame
         ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
     _image->lock.lockForWrite();
+    if(frame.size()!=1024*1024) 
+    {
+      size_t ratio=1024*1024/frame.size();
+      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
+      //std::cout<<"allora "<< ratio << " "<< side_ratio <<std::endl;
+      //      _image(Histogram2DFloat(1024/side_ratio, 0, 1023, 1024/side_ratio, 0, 1023));
+    }
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
     _image->lock.unlock();
 }
