@@ -228,7 +228,6 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._ROImask_converter.resize(size);
         dp._ROIiterator_converter.resize(size);
         //read the parameters stored in the file//
-        //!!! needs to be tested, didnt work last time//
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
         std::cout<<"offset and noise maps loaded for det# "<<iDet <<std::endl;
