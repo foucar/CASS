@@ -3,10 +3,8 @@
 
 #define VERBOSE 1
 
-//#include <deque>
 #include <QtGui>
 
-#include "cass/cass.h"
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
 
@@ -15,14 +13,15 @@ namespace jocassview
 {
 using namespace std;
 
+
 ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
-    : QMainWindow(parent, flags), _updater(new QTimer(this))
+    : QMainWindow(parent, flags), _updater(new QTimer(this)), _ready(true)
 {
     QSettings settings;
     _ui.setupUi(this);
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(_updater, SIGNAL(timeout()), this, SLOT(on_getImage_triggered()));
-    // create toolbar
+    // Add servername and port to toolbar.
     _servername = new QLineEdit(settings.value("servername", "server?").toString());
     _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     _servername->setToolTip("Name of the server to connect to.");
@@ -35,25 +34,26 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _serverport->setToolTip("Port of the server to connect to.");
     connect(_serverport, SIGNAL(valueChanged(int)), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_serverport);
+    // Add spacer to toolbar.
     QWidget *spacer1(new QWidget());
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
+    // Add Attachment identifier to toolbar.
     _attachId = new QSpinBox();
     _attachId->setRange(1, 50000);
     _attachId->setToolTip("Attachment identifier.");
     _attachId->setValue(settings.value("attachId", 101).toInt());
     _ui.toolBar->addWidget(_attachId);
-
+    // Add picture type respectively format to toolbar.
     _picturetype = new QComboBox();
     QStringList formats;
-#warning use cass::imageformatName and such... see cass.h
-    formats << "PNG" << "TIFF";
+#warning Fix imageformat
+    formats << "PNG" << "TIFF" << "JPEG";
     _picturetype->setToolTip("Supported image, respectively, file formats.");
-    _picturetype->insertItems(1, formats);
-    _picturetype->setCurrentIndex(settings.value("pictureformat", 4).toInt());
+    _picturetype->insertItems(0, formats);
+    _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     _ui.toolBar->addWidget(_picturetype);
-
-    // zoom setting
+    // Add zoom to toolbar.
     _zoom = new QDoubleSpinBox();
     _zoom->setKeyboardTracking(false);
     _zoom->setDecimals(1);
@@ -65,16 +65,20 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QLabel *zunit(new QLabel);
     zunit->setText("%");
     _ui.toolBar->addWidget(zunit);
+    // Add spacer to toolbar.
     QWidget *spacer2(new QWidget());
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer2);
+    // Add running to toolbar.
     _running = new QCheckBox();
     connect(_running, SIGNAL(released()), this, SLOT(running()));
     _running->setToolTip("If checked, continuously retrieve and display images.");
     _ui.toolBar->addWidget(_running);
     _ristatus = new QRadioButton();
+    _ristatus->setToolTip("Status indicator (green= , red= ).");
     readIniStatusLED(0, false);
     _ui.toolBar->addWidget(_ristatus);
+    // Add rate to toolbar.
     _rate = new QDoubleSpinBox();
     _rate->setRange(0.01, 100.);
     _rate->setValue(settings.value("rate", 10.).toDouble());
@@ -83,7 +87,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QLabel *punit = new QLabel;
     punit->setText("Hz");
     _ui.toolBar->addWidget(punit);
-    // central label for image display
+    // Central label for image display.
     imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -92,10 +96,14 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
+    // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
     statusBar()->setToolTip("Actual frequency to get and display "
-                            "images averaged over (n) times.");
+            "images averaged over (n) times.");
+    _cass = new CASSsoapProxy;
+    qRegisterMetaType<QImage>("QImage");
+    connect(&_githread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
     updateServer();
 }
 
@@ -110,10 +118,10 @@ void ImageViewer::showEvent(QShowEvent *event)
 void ImageViewer::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
-    settings.setValue("pictureformat", _picturetype->currentIndex());
+    settings.setValue("picturetypeindex", _picturetype->currentIndex());
     settings.setValue("servername", _servername->text());
     settings.setValue("serverport", _serverport->value());
-    settings.setValue("period", _rate->value());
+    settings.setValue("rate", _rate->value());
     settings.setValue("zoom", _zoom->value());
     settings.setValue("attachId", _attachId->value());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
@@ -125,12 +133,12 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 void ImageViewer::on_open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("Open File"), QDir::currentPath());
+            tr("Open File"), QDir::currentPath());
     if(!fileName.isEmpty()) {
         QImage image(fileName);
         if(image.isNull()) {
             QMessageBox::information(this, tr("jocassviewer"),
-                                     tr("Cannot load %1.").arg(fileName));
+                    tr("Cannot load %1.").arg(fileName));
             return;
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));
@@ -144,81 +152,99 @@ void ImageViewer::on_open_triggered()
 }
 
 
-getImageThread::getImageThread()
+void ImageViewer::updatePixmap(const QImage &image)
 {
-    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
-
-}
-
-void getImageThread::getImage()
-{
-    VERBOSEOUT(cout << "getImageThread::getImage" << endl);
-    start();
-}
-
-void getImageThread::run()
-{
-    VERBOSEOUT(cout << "getImageThread::run" << endl);
-
-
-}
-
-
-void ImageViewer::on_getImage_triggered()
-{
-    VERBOSEOUT(cout << "Entering on_getImage_triggered" << endl);
-    _githread.getImage();
-
-    static QTime time;
-    static float rate(0.);
-    _cass.getImage(cass::PNG, _attachId->value(), &_ret);
-#warning fix image format -- use cass::imageformatName and such... see cass.h
-    if(! _ret) {
-        cerr << "Did not get image" << endl;
-        readIniStatusLED(1, true);
-        return;
-    }
-    VERBOSEOUT(cout << "got image" << endl);
-    soap_multipart::iterator attachment(_cass.dime.begin());
-    if(_cass.dime.end() == attachment) {
-        cerr << "Did not get attachment!" << endl;
-        readIniStatusLED(1, true);
-        return;
-    }
-    VERBOSEOUT(cout << "DIME attachment:" << endl);
-    VERBOSEOUT(cout << "Memory=" << (void*)(*attachment).ptr << endl);
-    VERBOSEOUT(cout << "Size=" << (*attachment).size << endl);
-    VERBOSEOUT(cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << endl);
-    VERBOSEOUT(cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
-    QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
-                                  _picturetype->currentText().toStdString().c_str()));
+    VERBOSEOUT(cout << "ImageViewer::updatePixmap: byteCount="
+            << image.byteCount() << endl);
     imageLabel->setPixmap(QPixmap::fromImage(image));
+
 #warning correctly implement _ui.print->setEnabled(true);
     updateActions();
     if(_ui.fitToWindow->isChecked()) {
         _ui.fitToWindow->setEnabled(true);
+        _ready = true;
         return;
     }
     VERBOSEOUT(cout << "getImage: _scaleFactor=" << _scaleFactor << endl);
     imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
     // set rate info
+    static QTime time;
+    static float rate(0.);
     int elapsed(time.restart());
     if(rate < 0.01)
         rate = 1000./elapsed;
     else
         rate = 0.95 * rate + 0.05 * 1000./elapsed;
     statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
-    // update status
-    readIniStatusLED(0, false);
+    _ready = true;
 }
 
+
+getImageThread::getImageThread()
+{
+    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
+}
+
+
+void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format,
+        int attachId)
+{
+    VERBOSEOUT(cout << "getImageThread::getImage" << endl);
+    _cass = cass;
+    _format = format;
+    _attachId = attachId;
+    start();
+}
+
+
+void getImageThread::run()
+{
+    VERBOSEOUT(cout << "getImageThread::run" << endl);
+    bool ret;
+    _cass->getImage(_format, _attachId, &ret);
+    if(! ret) {
+        cerr << "Did not get image" << endl;
+        return;
+    }
+    VERBOSEOUT(cout << "got image" << endl);
+    soap_multipart::iterator attachment(_cass->dime.begin());
+    if(_cass->dime.end() == attachment) {
+        cerr << "Did not get attachment!" << endl;
+        return;
+    }
+    VERBOSEOUT(cout << "getImageThread::run() DIME attachment:" << endl);
+    VERBOSEOUT(cout << "  Memory=" << (void*)(*attachment).ptr << endl);
+    VERBOSEOUT(cout << "  Size=" << (*attachment).size << endl);
+    VERBOSEOUT(cout << "  Type=" << ((*attachment).type?(*attachment).type:"null")
+            << endl);
+    VERBOSEOUT(cout << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
+#warning Fix imageformat
+    QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
+            imageformatName(cass::ImageFormat(_format - 1)).c_str()));
+    VERBOSEOUT(cout << "getImageThread::run: byteCount=" << image.byteCount() << endl);
+    emit newImage(image);
+}
+
+
+void ImageViewer::on_getImage_triggered()
+{
+    VERBOSEOUT(cout << "ImageViewer::on_getImage_triggered" << endl);
+    if(_ready) {
+        readIniStatusLED(1, true);
+        _ready = false;
+#warning Fix imageformat
+        _githread.getImage(_cass, cass::TIFF, _attachId->value());
+    } else {
+        readIniStatusLED(0, true);
+    }
+}
 
 
 void ImageViewer::running()
 {
     VERBOSEOUT(cout << "running" << endl);
     if(_running->isChecked()) {
-        _updater->start(1000 / _rate->value());
+        _updater->start(int(1000 / _rate->value()));
     } else {
         _updater->stop();
     }
@@ -228,20 +254,22 @@ void ImageViewer::running()
 void ImageViewer::on_readIni_triggered()
 {
     VERBOSEOUT(cout << "readIni" << endl);
-    _cass.readini(0, &_ret);
-    if(!_ret)
+    bool ret;
+    _cass->readini(0, &ret);
+    if(!ret)
         QMessageBox::information(this, tr("jocassviewer"),
-                                 tr("Error: Cannot communicate readini command."));
+                tr("Error: Cannot communicate readini command."));
 }
 
 
 void ImageViewer::on_quitServer_triggered()
 {
     VERBOSEOUT(cout << "quitServer" << endl);
-    _cass.quit(&_ret);
-    if(!_ret)
+    bool ret;
+    _cass->quit(&ret);
+    if(!ret)
         QMessageBox::information(this, tr("jocassviewer"),
-                                 tr("Error: Cannot communicate quit server command."));
+                tr("Error: Cannot communicate quit server command."));
 }
 
 
@@ -322,11 +350,14 @@ void ImageViewer::readIniStatusLED(int color, bool on)
     QBrush brush(Qt::SolidPattern);
     switch(color)
     {
-    case 0: // green
+    case 0: // red
+        brush.setColor(QColor(255, 0, 0, 255));
+        break;
+    case 1: // green
         brush.setColor(QColor(0, 255, 0, 255));
         break;
-    case 1: // red
-        brush.setColor(QColor(255, 0, 0, 255));
+    case 2: // blue
+        brush.setColor(QColor(0, 0, 255, 255));
         break;
     default:
         return;
@@ -350,8 +381,8 @@ void ImageViewer::updateServer()
 {
     cout << "updateServer: ";
     _server = (_servername->text() + ":" +_serverport->text()).toStdString();
-    _cass.soap_endpoint = _server.c_str();
-    cout << _cass.soap_endpoint << endl;
+    _cass->soap_endpoint = _server.c_str();
+    cout << _cass->soap_endpoint << endl;
 }
 
 
@@ -378,7 +409,6 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 }
 
 }
-
 
 
 // Local Variables:
