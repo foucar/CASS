@@ -116,7 +116,7 @@ protected:
  * Photonhits will be just summed up in a 2d Histogram.
  * One needs to clear this histogram, when something has changed.
  *
- * implements Postprocessors 110,11,112
+ * implements Postprocessors 110,111,112
  *
  * User settable parameters in CASS.ini
  * - properties of the 2d histogram:
