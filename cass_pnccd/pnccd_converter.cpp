@@ -9,32 +9,7 @@
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
 #include "pnccd_device.h"
-//#include "ccd_detector.h"
 #include "pixel_detector.h"
-
-/*inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
-{
-  //if pixel over or underflow//
-  if (pixel & 0xc000)
-  {
-    //check whether all lower bits are set (overflow)
-    if((pixel & 0x3fff) == 0x3fff)
-      return 16383;
-    //or all lower bits are not set (underflow)
-    else if((pixel & 0x3fff) == 0x0)
-      return 0;
-    //otherwise this datapoint yields something wrong//
-    else
-    {
-      std::cout << "bad pixel representation: 0x"<<std::hex<<pixel<<std::dec<<std::endl;
-      return 0xffff;
-    }
-  }
-  //otherwise just return pixel
-  else
-    return pixel;
-}*/
-
 
 
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)

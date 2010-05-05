@@ -171,7 +171,7 @@ void ImageViewer::on_getImage_triggered()
 
     static QTime time;
     static float rate(0.);
-    _cass.getImage(cass::TIFF, _attachId->value(), &_ret);
+    _cass.getImage(cass::PNG, _attachId->value(), &_ret);
 #warning fix image format -- use cass::imageformatName and such... see cass.h
     if(! _ret) {
         cerr << "Did not get image" << endl;
