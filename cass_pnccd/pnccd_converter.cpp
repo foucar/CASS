@@ -6,6 +6,7 @@
 #include "pdsdata/xtc/TypeId.hh"
 #include "pdsdata/xtc/DetInfo.hh"
 #include "pdsdata/pnCCD/ConfigV1.hh"
+#include "pdsdata/pnCCD/ConfigV2.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
 #include "pnccd_device.h"
@@ -30,9 +31,12 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       //retrieve the reference to the right pointer to config//
       //and store the transmitted config//
       Pds::PNCCD::ConfigV1 *&pnccdConfig = _pnccdConfig[detectorId];
+//      Pds::PNCCD::ConfigV2 *&pnccdConfig = _pnccdConfig[detectorId];
       delete pnccdConfig;
       pnccdConfig = new Pds::PNCCD::ConfigV1();
+//      pnccdConfig = new Pds::PNCCD::ConfigV2();
       *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
+//      *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
     }
     break;
 
@@ -62,6 +66,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
+//        const Pds::PNCCD::ConfigV2 *pnccdConfig = _pnccdConfig[detectorId];
 
         //std::cout<<"t"<<_param._detectorparameters[detectorId]._ROIiterator.size()<<std::endl;
         //DetectorParameter &dp = _param._detectorparameters[detectorId];

@@ -10,6 +10,7 @@ namespace Pds
   namespace PNCCD
   {
     class ConfigV1;
+    class ConfigV2;
   }
 }
 namespace cass
@@ -25,6 +26,7 @@ namespace cass
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
     private:
       std::vector<Pds::PNCCD::ConfigV1*> _pnccdConfig;
+//      std::vector<Pds::PNCCD::ConfigV2*> _pnccdConfig;
     };
   }//end namespace vmi
 }//end namespace cass
