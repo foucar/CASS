@@ -639,7 +639,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     loadSettings();
   }
 
-  //if we are collecting darkframes right now then add frames to the off&noisemap//
+  //if we are collecting darkframes right now: //
+  //add frames to the off&noisemap//
   //and do no further analysis//
   if(_param._isDarkframe)
   {
@@ -657,7 +658,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   //go through all detectors//
   for (size_t iDet=0; iDet<dev.detectors()->size();++iDet)
   {
-    //retrieve a reference to the detector parameter for det we are working on//
+    //retrieve a reference to the detector parameter for iDet we are working on//
     DetectorParameter &dp = _param._detectorparameters[iDet];
     //retrieve a reference to the detector we are working on right now//
     cass::PixelDetector &det = (*dev.detectors())[iDet];
@@ -672,7 +673,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     //substract offsetmap//
     if(dp._doOffsetCorrection)
     {
-      //do something
       //retrieve a reference to the frame of the detector//
       cass::PixelDetector::frame_t &f = det.frame();
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
@@ -680,7 +680,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
-      //const bool ShouldIuseCommonMode= dp._useCommonMode;
+
       size_t pixelidx=0;
       //let's initialize a bit
       det.integral()=0;
@@ -693,19 +693,18 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
-          //I could execute the follwing line only if dp._useCommonMode==false
-          // and get rid of the if-statement if(!dp._useCommonMode...)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
-          // the following work only if I am copying, not if I modify!!
+          // the following works only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
+          //add the values only if above 0.//
           det.integral() += static_cast<uint64_t>( std::max(*itFrame,float(0.)) );
+          //add the values only if above 0.//
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>( std::max(*itFrame,float(0.)) );
 
-          //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
           if (dp._createPixellist)
           {      
@@ -720,14 +719,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               //I could "tag" the pixel
               // something like "mask[iFrame]=3"
             }
-          }//end loop to create pixels'list
-        }//end loop over frame
+          }//end loop to create pixels'list//
+        }//end loop over frame//
       }
       else //start useCommonMode loop
       {
         //const cass::ROI::ROImask_t &mask = dp._ROImask;
-        //merd
-        //std::cout<<"I need to do something"<<std::endl;
         const size_t Num_pixel_per_line = 128;
         const size_t num_lines = det.originalrows()* det.originalcolumns() /Num_pixel_per_line;
         size_t i_pixel;
@@ -738,11 +735,11 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           size_t used_pixel=0;
           for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
-            //I consider only the "good" pixels that are not to be masked
+            //I consider only the "good" pixels that are not to be masked//
             if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
             {
               Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
-              //I add only the pixel w/o a signal-photon
+              //I add only the pixel w/o a signal-photon//
               if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
               {
                 common_level+= Pixel_wo_offset;
@@ -759,7 +756,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #endif
           }
           else common_level=0;
-          //come back to the beginning of the line
+          //come back to the beginning of the CAMEX-line//
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
@@ -779,19 +776,18 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
-          //I could execute the follwing line only if dp._useCommonMode==false
-          // and get rid of the if-statement if(!dp._useCommonMode...)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
-          // the following work only if I am copying, not if I modify!!
+          // the following works only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
+          //add the values only if above 0.//
           det.integral() += static_cast<uint64_t>(std::max(*itFrame,float(0.)));
+          //add the values only if above 0.//
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>(std::max(*itFrame,float(0.)));
 
-          //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
           if (dp._createPixellist)
           {      
@@ -874,7 +870,7 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
   cass::PixelDetector::frame_t &f = det.frame();
 
   //else to the rebinnning;
-  //get the dimesions of the detector before the rebinning//
+  //get the dimensions of the detector before the rebinning//
   const uint16_t nRows = det.originalrows();
   const uint16_t nCols = det.originalcolumns();
   if(nRows % dp._rebinfactor != 0)
@@ -891,7 +887,7 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
   _tmp.clear();
   //resize the temporary container to fit the rebinned image
   _tmp.resize(f.size()/dp._rebinfactor/dp._rebinfactor);
-  //initialize it with 0
+  //initialize it with 0//
   _tmp.assign(newRows * newCols,0);
   //go through the whole corrected frame//
   for (size_t iIdx=0; iIdx<f.size() ;++iIdx)
@@ -908,7 +904,7 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
     //add this index value to the newIndex value//
     _tmp[newIndex] += f[iIdx]/dp._rebinfactor/dp._rebinfactor;
   }
-  //now I should copy the frame back...
+  //now I should copy the frame back//
   f.resize(newRows*newCols);
   std::copy(_tmp.begin(), _tmp.end(), f.begin());
 
