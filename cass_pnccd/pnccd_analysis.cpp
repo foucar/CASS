@@ -695,7 +695,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //I could execute the follwing line only if dp._useCommonMode==false
           // and get rid of the if-statement if(!dp._useCommonMode...)
           //actually my method was introduced to make such lines as the following one not needed.....
-          for(size_t jj=iter[pixelidx]+1; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+          for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
@@ -719,7 +719,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               //I could "tag" the pixel
               // something like "mask[iFrame]=3"
             }
-          }
+          }//end loop to create pixels'list
         }//end loop over frame
       }
       else
@@ -767,6 +767,46 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             *itFrame =  *itFrame - *itOffset - common_level ;
           }
         }//end loop over frame
+        //I am actually not finished I need now to mask the pixels belonging to ROIs...
+        itFrame = f.begin();
+        itOffset = dp._offset.begin();
+        itNoise  = dp._noise.begin();
+        itROI = iter.begin();
+
+        for ( ; itROI != iter.end(); ++itROI,++pixelidx)
+        {
+          advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          //I could execute the follwing line only if dp._useCommonMode==false
+          // and get rid of the if-statement if(!dp._useCommonMode...)
+          //actually my method was introduced to make such lines as the following one not needed.....
+          for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
+          // the following work only if I am copying, not if I modify!!
+          // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
+          *itFrame =  *itFrame - *itOffset;
+          det.integral() += static_cast<uint64_t>(*itFrame);
+          if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
+            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+
+          //Should I do it also if _doOffsetCorrection==false?
+          //if user wants to extract the pixels that are above threshold, do it//
+          if (dp._createPixellist)
+          {      
+            Pixel this_pixel;
+            //itFrame is already offset-subtructed
+            if( *itFrame> dp._sigmaMultiplier * *itNoise )
+            {
+              this_pixel.x()=iter[pixelidx]%det.columns();
+              this_pixel.y()=iter[pixelidx]/det.columns();
+              this_pixel.z()=*itFrame;
+              det.pixellist().push_back(this_pixel);
+              //I could "tag" the pixel
+              // something like "mask[iFrame]=3"
+            }
+          }//end loop to create pixels'list
+        }
       }// endif CommonMode Subtraction
 #ifdef debug
       if(dp._createPixellist) std::cout<<"number of found photons on pnCCD " << iDet
