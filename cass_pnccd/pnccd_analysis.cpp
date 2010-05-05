@@ -2,6 +2,7 @@
 #include <QtCore/QMutexLocker>
 #include <iostream>
 #include <fstream>
+//#include <algorithm>
 #include <cmath>
 #include "pnccd_analysis.h"
 #include "pnccd_device.h"
@@ -700,9 +701,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
-          det.integral() += static_cast<uint64_t>(*itFrame);
+          det.integral() += static_cast<uint64_t>( std::max(*itFrame,float(0.)) );
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            det.integral_overthres() += static_cast<uint64_t>( std::max(*itFrame,float(0.)) );
 
           //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
@@ -786,9 +787,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
-          det.integral() += static_cast<uint64_t>(*itFrame);
+          det.integral() += static_cast<uint64_t>(std::max(*itFrame,float(0.)));
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            det.integral_overthres() += static_cast<uint64_t>(std::max(*itFrame,float(0.)));
 
           //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
