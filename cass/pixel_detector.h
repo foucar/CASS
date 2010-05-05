@@ -45,8 +45,7 @@ namespace cass
   {
     /** inserting the "definition" of a ROI
      *  each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-     *  shapes:=circ(==circle),triangle(isosceles),square <=Do I need many squares per frame?
-     *  AAAA there is a problem with a triangular shape... the orientation!!!
+     *  shapes:=circ(==circle),triangle(isosceles),square and  the orientation!!!
      *  the orientation is used only in the case of a triangular shape
      *
      *  I think also a "double triangle bottle-like shape could be helpful
@@ -120,7 +119,6 @@ namespace cass
    * I have decided that I do not need to shrink the ROI if I am rebinning, 
    * the rebinned frame is calculated from the uncorrected one, via the ROI Mask anyway
    *
-   * @todo explain what the different kind of entities do.
    * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
    * @author Nicola Coppola
    */
@@ -131,8 +129,8 @@ namespace cass
     ~ROI() {}
     /** an region of interest entity */
     typedef detROI_ detROI_t;
-    typedef std::vector<uint16_t> ROImask_t;//the ROI mask for each detector//
-    typedef std::vector<uint32_t> ROIiterator_t;//the ROI index-pointer-mask for each detector//
+    typedef std::vector<uint16_t> ROImask_t;     //the ROI mask for each detector//
+    typedef std::vector<uint32_t> ROIiterator_t; //the ROI index-pointer-mask for each detector//
     //the transformed (in the input original shape) ROI mask for each detector//
     typedef std::vector<uint16_t> ROImask_converter_t;
     //the transformed (in the input original shape) ROI index-pointer-mask for each detector//
@@ -195,20 +193,20 @@ namespace cass
     void deserialize(cass::Serializer&);
 
   public:
-    uint64_t        &integral()              {return _integral;}
-    uint64_t         integral()const         {return _integral;}
-    uint64_t        &integral_overthres()      {return _integral_overthres;}
-    uint64_t         integral_overthes()const  {return _integral_overthres;}
-    pixel_t        &maxPixelValue()         {return _maxPixelValue;}
-    pixel_t         maxPixelValue()const    {return _maxPixelValue;}
-    uint16_t        &columns()               {return _columns;}
-    uint16_t         columns()const          {return _columns;}
-    uint16_t        &rows()                  {return _rows;}
-    uint16_t         rows()const             {return _rows;}
-    uint16_t        &originalcolumns()       {return _originalcolumns;}
-    uint16_t         originalcolumns()const  {return _originalcolumns;}
-    uint16_t        &originalrows()          {return _originalrows;}
-    uint16_t         originalrows()const     {return _originalrows;}
+    uint64_t       &integral()               {return _integral;}
+    uint64_t        integral()const          {return _integral;}
+    uint64_t       &integral_overthres()     {return _integral_overthres;}
+    uint64_t        integral_overthes()const {return _integral_overthres;}
+    pixel_t        &maxPixelValue()          {return _maxPixelValue;}
+    pixel_t         maxPixelValue()const     {return _maxPixelValue;}
+    uint16_t       &columns()                {return _columns;}
+    uint16_t        columns()const           {return _columns;}
+    uint16_t       &rows()                   {return _rows;}
+    uint16_t        rows()const              {return _rows;}
+    uint16_t       &originalcolumns()        {return _originalcolumns;}
+    uint16_t        originalcolumns()const   {return _originalcolumns;}
+    uint16_t       &originalrows()           {return _originalrows;}
+    uint16_t        originalrows()const      {return _originalrows;}
 
     const frame_t     &frame()const          {return _frame;}
     frame_t           &frame()               {return _frame;}
@@ -240,7 +238,6 @@ namespace cass
 }//end namespace cass
 
 
-//CCDDetector -> TwoDDetector??
 inline void cass::PixelDetector::serialize(cass::Serializer &out) const
 {
   //the version//

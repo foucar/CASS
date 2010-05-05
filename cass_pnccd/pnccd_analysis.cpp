@@ -212,6 +212,7 @@ void cass::pnCCD::Analysis::loadSettings()
     std::ifstream in(dp._darkcalfilename.c_str(), std::ios::binary|std::ios::ate);
     //This Code is completely unsafe vs human mistakes, if Xonline files
     // are used the sizes are completey wrong as the values that are read in!!!
+
     //read only if this is NOT a dark-frame run
      std::cout<<"Trying to open file: "<<dp._darkcalfilename.c_str()<<std::endl;
     if (in.is_open() && !_param._isDarkframe)
@@ -231,7 +232,6 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._ROImask_converter.resize(size);
         dp._ROIiterator_converter.resize(size);
         //read the parameters stored in the file//
-        //!!! needs to be tested, didnt work last time//
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
         std::cout<<"offset and noise maps loaded for det# "<<iDet <<std::endl;
@@ -871,4 +871,8 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
     //add this index value to the newIndex value//
     _tmp[newIndex] += f[iIdx]/dp._rebinfactor/dp._rebinfactor;
   }
+  //now I should copy the frame back...
+  f.resize(newRows*newCols);
+  std::copy(_tmp.begin(), _tmp.end(), f.begin());
+
 }

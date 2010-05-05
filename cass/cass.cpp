@@ -17,39 +17,6 @@
 #include "worker.h"
 
 
-namespace cass
-{
-
-const std::string imageformatName(ImageFormat fmt)
-{
-    std::string fmtname;
-    switch(fmt) {
-    case PNG:  fmtname = std::string("PNG"); break;
-    case TIFF: fmtname = std::string("TIFF"); break;
-    case JPEG: fmtname = std::string("JPEG"); break;
-    case GIF:  fmtname = std::string("GIF"); break;
-    case BMP:  fmtname = std::string("BMP"); break;
-    }
-    return fmtname;
-};
-
-const std::string imageformatMIMEtype(ImageFormat fmt)
-{
-    std::string fmtname;
-    switch(fmt) {
-    case PNG:  fmtname = std::string("image/png"); break;
-    case TIFF: fmtname = std::string("image/tiff"); break;
-    case JPEG: fmtname = std::string("image/jpeg"); break;
-    case GIF:  fmtname = std::string("image/gif"); break;
-    case BMP:  fmtname = std::string("image/bmp"); break;
-    }
-    return fmtname;
-};
-
-} // end namespace cass
-
-
-
 /** @mainpage CASS (CFEL ASG Software Suite)
  *
  * @section toc Table of Contents

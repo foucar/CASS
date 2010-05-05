@@ -18,6 +18,7 @@
 #include <QtGui/QScrollBar>
 #include <QtGui/QSpinBox>
 
+#include "cass/cass.h"
 #include "ui_imageviewer.h"
 #include "soapCASSsoapProxy.h"
 
@@ -32,19 +33,29 @@ namespace jocassview
 
         getImageThread();
 
-        void getImage();
+        void getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId);
+
+    signals:
+
+        void newImage(const QImage &image);
 
     protected:
 
         /** Worker thread */
         void run();
+
+        CASSsoapProxy *_cass;
+
+        cass::ImageFormat _format;
+
+        int _attachId;
+
     };
 
 
 /** Image viewer
 
 @todo Fit to window needs to keep the aspect ratio
-@todo Separate getImage into its own thread
 */
 class ImageViewer : public QMainWindow
 {
@@ -64,7 +75,6 @@ private slots:
     void on_open_triggered();
 
     /**
-    @todo IMPORTANT: Put actual getImage into separate thread!
     @todo Use cass::imageformatName and such! */
     void on_getImage_triggered();
 
@@ -89,6 +99,8 @@ private slots:
     void zoomChanged(double);
 
     void running();
+
+    void updatePixmap(const QImage &image);
 
 
 private:
@@ -115,7 +127,7 @@ private:
     QPrinter printer;
 #endif
 
-    CASSsoapProxy _cass;
+    CASSsoapProxy *_cass;
 
     QLineEdit *_servername;
 
@@ -133,18 +145,17 @@ private:
 
     QRadioButton *_ristatus;
 
-    QTime _time;
-
-    bool _ret;
-
     Ui::ImageViewer _ui;
 
     std::string _server;
-    
+
     getImageThread _githread;
 
     /** internal image update timer */
     QTimer *_updater;
+
+    bool _ready;
+
 };
 
 } // end namespace jocassview

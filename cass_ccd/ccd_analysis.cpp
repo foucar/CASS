@@ -13,7 +13,6 @@
 
 void cass::CCD::Parameter::load()
 {
-  //std::cout<<"I am here 2bis"<<std::endl;
   //sync before loading//
   sync();
   //sting for the container index//
@@ -130,7 +129,6 @@ void cass::CCD::Analysis::loadSettings()
     size_t indexROI_max=(2 * _param._detROI._ROI[iROI].xsize + 1)
       * (2 * _param._detROI._ROI[iROI].ysize + 1);
     //remember how many pixels I have masked
-    //number_of_pixelsettozero+=indexROI_max;
     std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
     if(_param._detROI._ROI[iROI].name=="circ" || _param._detROI._ROI[iROI].name=="circle"  )
     {

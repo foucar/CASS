@@ -38,6 +38,7 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     // create the image
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
     // create the QImage, release, return
+#warning check whether the requested histogram is truly a 2d histogram
     QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
     pp->histograms_release();
     return qi;
