@@ -14,17 +14,24 @@ namespace cass
   class Histogram2DFloat;
 
   /** Number of Signals in MCP Waveform.
+   *
    * This postprocessor will output how many Signals have been found
-   * in the acqiris channel for the mcp of the detector
-   * (pp550, pp600, pp650, pp660, pp670, pp680).
+   * in the acqiris channel for the mcp of the detector.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's 550, 600, 650, 660, 670, 680.
+   *
    * @author Lutz Foucar
    */
   class pp550 : public PostprocessorBackend
   {
   public:
-    /** Constructor for Number of Signals*/
+    /** Constructor. Constructor for Number of Signals*/
     pp550(PostProcessors &, PostProcessors::id_t);
-    /** Free _image space */
+    /** Free histogram space */
     virtual ~pp550();
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
@@ -40,8 +47,16 @@ namespace cass
 
 
   /** Number of Signals in Anode Layers Waveform.
-   * This postprocessor will output how many Signals have been found
-   * in the acqiris channel for the layers (pp551-556 & pp601-604)
+   *
+   * This postprocessor will output how many Signals have been found in the
+   * acqiris channels of requested layers.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 551-556 & 601-604
+   *
    * @author Lutz Foucar
    */
   class pp551 : public PostprocessorBackend
@@ -68,10 +83,17 @@ namespace cass
 
 
 
-  /** Ratio of Peaks for two layers.
-   * This postprocessor will output the Ratio of the Number
-   * of Signals with Respect to the other layer
-   * (pp577, pp560, pp563, pp605, pp608)
+  /** Signal ratio for two layers.
+   *
+   * This postprocessor will output the Ratio of the Number of Signals with
+   * Respect to the other layer.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 577, 560, 563, 605, 608
+   *
    * @author Lutz Foucar
    */
   class pp557 : public PostprocessorBackend
@@ -96,11 +118,17 @@ namespace cass
 
 
 
-  /** Ratio of Signals for Signal vs MCP.
-   * This postprocessor will output the Ratio of the Number
-   * of Signals with Respect to the the number of Singals in
-   * the MCP Channel
-   * (pp558-559, pp561-562, pp564-565, pp606-507, pp609-610)
+  /** Signal Ratio of wireend vs mcp.
+   *
+   * This postprocessor will output the Ratio of the Number of Signals with
+   * Respect to the the number of Singals in the MCP Channel.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 558-559, 561-562, 564-565, 606-507, 609-610
+   *
    * @author Lutz Foucar
    */
   class pp558 : public PostprocessorBackend
@@ -128,11 +156,17 @@ namespace cass
 
 
 
-  /** Ratio of Signals for Rekonstukted Hits vs MCP Hits.
-   * This postprocessor will output the Ratio of the Number
-   * rekonstructed detector hits with respect to the the number
-   * of Singals in the MCP Channel
-   * (pp566, pp611)
+  /** Ratio of reconstucted hits vs mcp hits.
+   *
+   * This postprocessor will output the Ratio of the Number reconstructed
+   * detector hits with respect to the the number of Signals in the mcp channel.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 566, 611
+   *
    * @author Lutz Foucar
    */
   class pp566 : public PostprocessorBackend
@@ -157,10 +191,17 @@ namespace cass
 
 
 
-  /** All Mcp Hits.
+  /** all mcp hits.
+   *
    * This postprocessor will output the times of all found Hits on the Mcp.
    * This is more or less a Time of Flight Spektrum
-   * (pp567, pp612, pp651, pp661, pp671, pp681)
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 567, 612, 651, 661, 671, 681
+   *
    * @author Lutz Foucar
    */
   class pp567 : public PostprocessorBackend
@@ -187,9 +228,16 @@ namespace cass
 
 
   /** Timesum of Delayline.
-   * This postprocessor will output Timesum of a Delayline Anode for
-   * the first hit in a selectable good range
-   * (pp568-570, pp613-614)
+   *
+   * This postprocessor will output Timesum of a Delayline Anode for the first
+   * hit in a selectable good range.
+   *
+   * User settable parameters in CASS.ini:
+   * - properties of the 1d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   *
+   * implements postprocessor id's: 568-570, 613, 614
+   *
    * @author Lutz Foucar
    */
   class pp568 : public PostprocessorBackend
@@ -217,10 +265,17 @@ namespace cass
 
 
   /** Timesum of Delayline Anode vs Position of Anode.
-   * This postprocessor will output Timesum of a Delayline Anode
-   * versus the position of the delayline. This is used to know the value
-   * for extracting the detectorhits.
-   * (pp571-573, pp615-616)
+   *
+   * This postprocessor will output Timesum of a Delayline Anode versus the
+   * position of the delayline. This is used to know the value for extracting
+   * the detectorhits.
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   *
+   * implements postprocessor id's: 571-573, 615, 616
+   *
    * @author Lutz Foucar
    */
   class pp571 : public PostprocessorBackend
@@ -248,10 +303,17 @@ namespace cass
 
 
 
-  /** Detector Picture of First Hit.
-   * This postprocessor will output the Detector picture of the first Hit
-   * in the selectable good range. The added Hit fullfilles the timesum.
-   * (pp574-577, pp617)
+  /** detector picture of first hit.
+   *
+   * This postprocessor will output the Detector picture of the first Hit in
+   * the selectable good range. The added Hit fullfilles the timesum condition.
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   *
+   * implements postprocessor id's: 574-577, 617
+   *
    * @author Lutz Foucar
    */
   class pp574 : public PostprocessorBackend
@@ -281,11 +343,21 @@ namespace cass
 
 
 
-  /** Detector Hits Values.
-   *  This postprocessor will output the Detector Hit values reqeuested.
+  /** detector hits values.
+   *
+   * This postprocessor will output the Detector Hit values reqeuested.
    * depending on the postprocessor id, it will histogram 2 of the 3 values
-   * of an detectorhit.
-   * (pp578-580, pp618-620)
+   * of an detectorhit. It will make a condition on the third value of the
+   * detector hit.
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * - conditions on third value:
+   *   PostProcessor/p%id%/{ConditionLow|ConditionHigh}
+   *
+   * implements postprocessor id's: 578-580, 618-620
+   *
    * @author Lutz Foucar
    */
   class pp578 : public PostprocessorBackend
@@ -320,10 +392,17 @@ namespace cass
 
 
 
-  /** FWHM vs. Height of MCP Signals.
+  /** FWHM vs. Height of mcp signals.
+   *
    * This postprocessor will make a histogram of the fwhm and height of
-   * all MCP Signals in a detector.
-   * (pp581, pp621, pp652, pp662, pp672, pp682)
+   * all identified signals in a detector.
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   *
+   * implements postprocessor id's: 581, 621, 652, 662, 672, 682
+   *
    * @author Lutz Foucar
    */
   class pp581 : public PostprocessorBackend
@@ -346,10 +425,17 @@ namespace cass
 
 
 
-  /** FWHM vs. Height of Wireend Signals.
+  /** FWHM vs. Height of wireend signals.
+   *
    * This postprocessor will make a histogram of the fwhm and height of
    * all Wireend Signals in a delaylinedetector.
-   * (pp582-587, pp622-625)
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   *
+   * implements postprocessor id's: 582-587, 622-625
+   *
    * @author Lutz Foucar
    */
   class pp582 : public PostprocessorBackend
@@ -378,8 +464,15 @@ namespace cass
 
 
   /** Pipico spectra.
-   * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra
-   * (pp700)
+   *
+   * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra.
+   *
+   * User settable parameters in CASS.ini
+   * - properties of the 2d histogram:
+   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   *
+   * implements postprocessor id's: 700, 701
+   *
    * @author Lutz Foucar
    */
   class pp700 : public PostprocessorBackend
