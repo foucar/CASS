@@ -88,7 +88,7 @@ namespace Pds {
 	    return false;
 	  if (oq!=NULL)
 	    while (mq_timedsend(oq[ioq], (const char *)&myMsg, sizeof(myMsg), priority, &_tmo)) {
-	      fprintf(stderr,"mq_send error to client %d\n", ioq+1);
+//	      fprintf(stderr,"mq_send error to client %d\n", ioq+1);
 	      if (oq[++ioq]==-1) {
 		char qname[128];
 		XtcMonitorMsg::eventOutputQueue(_tag, ioq, qname);
