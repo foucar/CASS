@@ -722,7 +722,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           }//end loop to create pixels'list
         }//end loop over frame
       }
-      else
+      else //start useCommonMode loop
       {
         //const cass::ROI::ROImask_t &mask = dp._ROImask;
         //merd
