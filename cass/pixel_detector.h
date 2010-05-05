@@ -119,7 +119,6 @@ namespace cass
    * I have decided that I do not need to shrink the ROI if I am rebinning, 
    * the rebinned frame is calculated from the uncorrected one, via the ROI Mask anyway
    *
-   * @todo explain what the different kind of entities do.
    * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
    * @author Nicola Coppola
    */
