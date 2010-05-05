@@ -11,6 +11,7 @@
 #include <vector>
 #include <time.h>
 #include <stdexcept>
+#include <stdlib.h>
 
 bool not_saved_yet;
 
@@ -611,6 +612,12 @@ void cass::pnCCD::Analysis::saveSettings()
           //write the parameters to the file//
           out.write(reinterpret_cast<const char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
           out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+          //create software link pointing to last created file//
+          char command[200];
+          printf(command,"ln -sf %s darkcal_%d.cal",dp._savedarkcalfilename.c_str(),iDet);
+          std::cout<<command<<std::endl;
+          int status=system(command);
+          if(status) std::cout<<"error creating software link for chip "<<iDet<<std::endl;
         }
         else std::cout<<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
       }
