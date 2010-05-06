@@ -104,6 +104,16 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 
 
+int CASSsoapService::writeini(size_t what, bool *success)
+{
+    VERBOSEOUT(std::cerr << "CASSsoapService::readini(what=" << what << ")" << std::endl);
+    cass::SoapServer::instance()->emit_writeini(what);
+    *success = true;;
+    return SOAP_OK;
+}
+
+
+
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::getEvent" << std::endl);

@@ -29,7 +29,8 @@ else {
     DEFINES += NDEBUG QT_NO_DEBUG
 }
 
-
+QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -march=opteron -mfpmath=sse,387
+QMAKE_CXXFLAGS_DEBUG   += -g -O -march=opteron
 QMAKE_STRIP  =
 
 MOC_DIR      = moc

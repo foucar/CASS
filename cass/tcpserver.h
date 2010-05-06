@@ -76,6 +76,8 @@ signals:
 
     void readini(size_t what);
 
+    void writeini(size_t what);
+
 
 protected:
 
@@ -102,6 +104,9 @@ protected:
 
     /** allow our friends to emit the readinin() signal */
     void emit_readini(size_t what) { emit readini(what); };
+
+    /** allow our friends to emit the readinin() signal */
+    void emit_writeini(size_t what) { emit writeini(what); };
 
     /** the service */
     CASSsoapService *_soap;
