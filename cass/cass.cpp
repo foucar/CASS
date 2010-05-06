@@ -217,6 +217,7 @@ int main(int argc, char **argv)
       break;
     case 'c':
       index = strtol(optarg, 0, 0);
+      break;
     default:
       std::cout << "please give me a partition tag" <<std::endl;
       return 2;
