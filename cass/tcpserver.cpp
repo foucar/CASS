@@ -56,7 +56,7 @@ void SoapServer::run()
     // define timeouts and such for individual requests
     _soap->send_timeout   =   60; // 60 seconds
     _soap->recv_timeout   =   60; // 60 seconds
-    _soap->accept_timeout = 3600; // server stops after 1 hour of inactivity
+    _soap->accept_timeout =    0; // server never stops accepting
     _soap->max_keep_alive = 1000; // max keep-alive sequence
     // allow immediate re-use of address/socket
     _soap->bind_flags = SO_REUSEADDR;
