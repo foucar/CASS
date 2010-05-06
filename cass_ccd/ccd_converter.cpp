@@ -24,6 +24,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //if necessary resize the detector container//
+//  std::cout << "CCDConverter::XTCData: DetectorID:"<<detectorId<<std::endl;
   if (detectorId >= dev->detectors()->size())
     dev->detectors()->resize(detectorId+1);
   //retrieve a reference to the commercial ccd detector//
@@ -38,4 +39,5 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   //copy the frame data to this detector and do a type convertion implicitly//
   const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
   det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
+//  std::cout<<"CCDConverter::XTCData: done."<<std::endl;
 }
