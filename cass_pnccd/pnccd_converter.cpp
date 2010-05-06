@@ -95,6 +95,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           det.columns() = pnccdConfig->numChannels();
           det.originalrows() =  pnccdConfig->numRows();
           det.originalcolumns() = pnccdConfig->numChannels();
+          det.info().assign(pnccdConfig->info());
+          det.timingFilename().assign(pnccdConfig->timingFName());
+          det.camaxMagic() = pnccdConfig->camexMagic();
           columnsOfSegment = pnccdConfig->numSubmoduleChannels();
           rowsOfSegment = pnccdConfig->numSubmoduleRows();
           break;
