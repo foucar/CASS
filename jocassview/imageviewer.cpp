@@ -1,8 +1,6 @@
 // Copyright (C) 2010 Uwe Hoppe
 // Copyright (C) 2010 Jochen Kuepper
 
-#define VERBOSE 1
-
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
 #include <QtGui/QLineEdit>
@@ -60,7 +58,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _picturetype->insertItems(0, formats);
     _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     _ui.toolBar->addWidget(_picturetype);
-    // Add zoom to toolbar.
+    // Add zoom setting to toolbar.
     _zoom = new QDoubleSpinBox();
     _zoom->setKeyboardTracking(false);
     _zoom->setDecimals(1);
@@ -123,6 +121,7 @@ void ImageViewer::showEvent(QShowEvent *event)
 }
 
 
+
 void ImageViewer::closeEvent(QCloseEvent *event)
 {
     QSettings settings;
@@ -136,6 +135,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
     settings.setValue("scaleFactor", _scaleFactor);
     event->accept();
 }
+
 
 
 void ImageViewer::on_open_triggered()
@@ -188,14 +188,7 @@ void ImageViewer::updatePixmap(const QImage &image)
 }
 
 
-getImageThread::getImageThread()
-{
-    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
-}
-
-
-void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format,
-        int attachId)
+void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId)
 {
     VERBOSEOUT(cout << "getImageThread::getImage" << endl);
     _cass = cass;
@@ -393,7 +386,18 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
                             ((factor - 1) * scrollBar->pageStep()/2)));
 }
 
+
+getImageThread::getImageThread()
+{
+    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
+
 }
+
+
+
+
+}
+
 
 
 // Local Variables:
