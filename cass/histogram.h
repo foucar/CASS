@@ -17,6 +17,8 @@
 #include <QtCore/QWaitCondition>
 #include <QtGui/QImage>
 
+#include <stdint.h>
+
 #include "serializer.h"
 #include "serializable.h"
 
