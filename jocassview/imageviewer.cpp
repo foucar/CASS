@@ -3,7 +3,14 @@
 
 #define VERBOSE 1
 
-#include <QtGui>
+#include <QtCore/QSettings>
+#include <QtCore/QTime>
+#include <QtGui/QLineEdit>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
+#include <QtGui/QPrintDialog>
+#include <QtGui/QPainter>
 
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
@@ -74,10 +81,11 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     connect(_running, SIGNAL(released()), this, SLOT(running()));
     _running->setToolTip("If checked, continuously retrieve and display images.");
     _ui.toolBar->addWidget(_running);
-    _ristatus = new QRadioButton();
-    _ristatus->setToolTip("Status indicator (green= , red= ).");
-    readIniStatusLED(0, false);
-    _ui.toolBar->addWidget(_ristatus);
+    // Add status LED to toolbar.
+    _statusLED = new StatusLED();
+    _statusLED->setToolTip("Status indicator (green= , red= ).");
+    _statusLED->setStatus(false);
+    _ui.toolBar->addWidget(_statusLED);
     // Add rate to toolbar.
     _rate = new QDoubleSpinBox();
     _rate->setRange(0.01, 100.);
@@ -230,12 +238,12 @@ void ImageViewer::on_getImage_triggered()
 {
     VERBOSEOUT(cout << "ImageViewer::on_getImage_triggered" << endl);
     if(_ready) {
-        readIniStatusLED(1, true);
+        _statusLED->setStatus(true, Qt::green);
         _ready = false;
 #warning Fix imageformat
         _githread.getImage(_cass, cass::TIFF, _attachId->value());
     } else {
-        readIniStatusLED(0, true);
+        _statusLED->setStatus(true, Qt::red);
     }
 }
 
@@ -247,6 +255,7 @@ void ImageViewer::running()
         _updater->start(int(1000 / _rate->value()));
     } else {
         _updater->stop();
+        _statusLED->setStatus(false);
     }
 }
 
@@ -341,30 +350,6 @@ void ImageViewer::on_about_triggered()
 {
     QMessageBox::about(this, tr("About jocassview"), tr(
                            "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
-}
-
-
-void ImageViewer::readIniStatusLED(int color, bool on)
-{
-    QPalette palette;
-    QBrush brush(Qt::SolidPattern);
-    switch(color)
-    {
-    case 0: // red
-        brush.setColor(QColor(255, 0, 0, 255));
-        break;
-    case 1: // green
-        brush.setColor(QColor(0, 255, 0, 255));
-        break;
-    case 2: // blue
-        brush.setColor(QColor(0, 0, 255, 255));
-        break;
-    default:
-        return;
-    }
-    palette.setBrush(QPalette::Active, QPalette::Text, brush);
-    _ristatus->setPalette(palette);
-    _ristatus->setChecked(on);
 }
 
 
