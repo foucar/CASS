@@ -244,8 +244,10 @@ namespace cass
     uint16_t       &originalrows()           {return _originalrows;}
     frame_t        &frame()                  {return _frame;}
     pixelList_t    &pixellist()              {return _pixellist;}
-    const cass::ROI::detROI_t  &detROI()const{return _detROI;}
     cass::ROI::detROI_t        &detROI()     {return _detROI;}
+    uint32_t       &camaxMagic()             {return _camaxMagic;}
+    std::string    &info()                   {return _info;}
+    std::string    &timingFilename()         {return _timingFilename;}
     //}
     //{
     /** getter */
@@ -258,6 +260,10 @@ namespace cass
     uint16_t        originalrows()const      {return _originalrows;}
     const frame_t  &frame()const             {return _frame;}
     const pixelList_t &pixellist()const      {return _pixellist;}
+    const cass::ROI::detROI_t  &detROI()const{return _detROI;}
+    uint32_t          camaxMagic()const      {return _camaxMagic;}
+    const std::string info()const            {return _info;}
+    const std::string timingFilename()const  {return _timingFilename;}
     //}
 
   protected:
@@ -276,6 +282,15 @@ namespace cass
     uint16_t        _version;         //!< the version for de/serializing
     bool            _isDarkframe;     //!< status that is set by analysis, derived by cass.ini
     ROI::detROI_t   _detROI;          //!< the vector with the ROI(s) "inside"
+
+    //data specific for pnccd detectors. might be reused for other detectors//
+    /** magic camax info, encodes ie. the gain of the ccd*/
+    uint32_t _camaxMagic;
+    /** infostring of the detector, telling the name of the detector*/
+    std::string _info;
+    /** filename of the file containing the timing info of the sequenzer*/
+    std::string _timingFilename;
+
 
     //data that gets calculated in Analysis//
     uint64_t        _integral;            //!< the sum of all pixelvalues
