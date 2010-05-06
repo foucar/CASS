@@ -252,9 +252,6 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._ROIiterator.resize(pnCCD_default_size_sq);
         dp._ROImask_converter.resize(pnCCD_default_size_sq);
         dp._ROIiterator_converter.resize(pnCCD_default_size_sq);
-        /*        throw std::runtime_error(
-          QString("I have been asked to use Offset-noise darkframe file not created with CASS:\n\t "
-                  ).arg(dp._darkcalfilename.c_str()).toStdString());*/
         std::cout << printoutdef << 
           "I have been asked to use Offset-noise darkframe file not created with CASS:\n\t "
                   <<dp._darkcalfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
