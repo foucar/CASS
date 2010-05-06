@@ -122,7 +122,7 @@ void cass::pnCCD::Parameter::load()
   if(size_from_ini>_detectorparameters.size())
     _detectorparameters.resize(size_from_ini,DetectorParameter());
 
-  std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
+  std::cout<< printoutdef <<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
   {
