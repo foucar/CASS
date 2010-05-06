@@ -98,8 +98,15 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           det.info().assign(pnccdConfig->info());
           det.timingFilename().assign(pnccdConfig->timingFName());
           det.camaxMagic() = pnccdConfig->camexMagic();
-          columnsOfSegment = pnccdConfig->numSubmoduleChannels();
           rowsOfSegment = pnccdConfig->numSubmoduleRows();
+          columnsOfSegment = pnccdConfig->numSubmoduleChannels();
+//          std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
           break;
         default:
           throw std::range_error("Unsupported pnCCD configuration version");
