@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include <QtCore/QTime>
+#include <QtCore/QTimer>
 #include <QtCore/QThread>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
@@ -50,6 +50,23 @@ namespace jocassview
 
         int _attachId;
 
+    };
+
+
+    class StatusLED : public QRadioButton
+    {
+    public:
+
+        void setStatus(bool on, QColor color=Qt::red)
+        {
+            setChecked(on);
+            if(!on)
+                return;
+            QPalette palette;
+            QBrush brush(color, Qt::SolidPattern);
+            palette.setBrush(QPalette::Active, QPalette::Text, brush);
+            setPalette(palette);
+        }
     };
 
 
@@ -107,13 +124,13 @@ private:
 
     void closeEvent(QCloseEvent *event);
 
+    virtual void resizeEvent(QResizeEvent *event);
+
     void updateActions();
 
     void scaleImage(double factor);
 
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
-
-    void readIniStatusLED(int color, bool on);
 
     virtual void showEvent(QShowEvent *);
 
@@ -143,7 +160,9 @@ private:
 
     QSpinBox *_attachId;
 
-    QRadioButton *_ristatus;
+    QSize _imagesize;
+
+    StatusLED *_statusLED;
 
     Ui::ImageViewer _ui;
 

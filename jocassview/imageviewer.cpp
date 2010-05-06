@@ -1,9 +1,16 @@
 // Copyright (C) 2010 Uwe Hoppe
 // Copyright (C) 2010 Jochen Kuepper
 
-#define VERBOSE 1
+//#define VERBOSE 1
 
-#include <QtGui>
+#include <QtCore/QSettings>
+#include <QtCore/QTime>
+#include <QtGui/QLineEdit>
+#include <QtGui/QCloseEvent>
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileDialog>
+#include <QtGui/QPrintDialog>
+#include <QtGui/QPainter>
 
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
@@ -19,6 +26,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
 {
     QSettings settings;
     _ui.setupUi(this);
+    qRegisterMetaType<QImage>("QImage");
+    connect(&_githread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(_updater, SIGNAL(timeout()), this, SLOT(on_getImage_triggered()));
     // Add servername and port to toolbar.
@@ -53,7 +62,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _picturetype->insertItems(0, formats);
     _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     _ui.toolBar->addWidget(_picturetype);
-    // Add zoom to toolbar.
+    // Add zoom setting to toolbar.
     _zoom = new QDoubleSpinBox();
     _zoom->setKeyboardTracking(false);
     _zoom->setDecimals(1);
@@ -74,10 +83,11 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     connect(_running, SIGNAL(released()), this, SLOT(running()));
     _running->setToolTip("If checked, continuously retrieve and display images.");
     _ui.toolBar->addWidget(_running);
-    _ristatus = new QRadioButton();
-    _ristatus->setToolTip("Status indicator (green= , red= ).");
-    readIniStatusLED(0, false);
-    _ui.toolBar->addWidget(_ristatus);
+    // Add status LED to toolbar.
+    _statusLED = new StatusLED();
+    _statusLED->setToolTip("Status indicator (green= , red= ).");
+    _statusLED->setStatus(false);
+    _ui.toolBar->addWidget(_statusLED);
     // Add rate to toolbar.
     _rate = new QDoubleSpinBox();
     _rate->setRange(0.01, 100.);
@@ -99,18 +109,29 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
+    scrollArea->setWidgetResizable(_ui.fitToWindow->isChecked());
     statusBar()->setToolTip("Actual frequency to get and display "
             "images averaged over (n) times.");
     _cass = new CASSsoapProxy;
-    qRegisterMetaType<QImage>("QImage");
-    connect(&_githread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
     updateServer();
+    updateActions();
 }
 
 
 void ImageViewer::showEvent(QShowEvent *event)
 {
     _running->setFocus();
+    event->accept();
+}
+
+
+void ImageViewer::resizeEvent(QResizeEvent *event)
+{
+    VERBOSEOUT(cout << "resizeEvent width=" << event->size().width()
+            << " height=" << event->size().height() << endl);
+    if(_ui.fitToWindow->isChecked()) {
+#warning Resize window to keep the aspect ratio from _imagesize.
+    }
     event->accept();
 }
 
@@ -130,6 +151,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 }
 
 
+
 void ImageViewer::on_open_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -143,7 +165,6 @@ void ImageViewer::on_open_triggered()
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));
         _scaleFactor = 1.0;
-#warning allow correctly _ui.print->setEnabled(true);
         _ui.fitToWindow->setEnabled(true);
         updateActions();
         if(!_ui.fitToWindow->isChecked())
@@ -154,18 +175,13 @@ void ImageViewer::on_open_triggered()
 
 void ImageViewer::updatePixmap(const QImage &image)
 {
-    VERBOSEOUT(cout << "ImageViewer::updatePixmap: byteCount="
-            << image.byteCount() << endl);
+    VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
+            << " width=" << image.size().width()
+            << " height=" << image.size().height() << endl);
     imageLabel->setPixmap(QPixmap::fromImage(image));
-
-#warning correctly implement _ui.print->setEnabled(true);
+    _imagesize = image.size();
     updateActions();
-    if(_ui.fitToWindow->isChecked()) {
-        _ui.fitToWindow->setEnabled(true);
-        _ready = true;
-        return;
-    }
-    VERBOSEOUT(cout << "getImage: _scaleFactor=" << _scaleFactor << endl);
+    VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
     imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
     // set rate info
     static QTime time;
@@ -176,18 +192,12 @@ void ImageViewer::updatePixmap(const QImage &image)
     else
         rate = 0.95 * rate + 0.05 * 1000./elapsed;
     statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+    _statusLED->setStatus(false);
     _ready = true;
 }
 
 
-getImageThread::getImageThread()
-{
-    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
-}
-
-
-void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format,
-        int attachId)
+void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId)
 {
     VERBOSEOUT(cout << "getImageThread::getImage" << endl);
     _cass = cass;
@@ -206,13 +216,13 @@ void getImageThread::run()
         cerr << "Did not get image" << endl;
         return;
     }
-    VERBOSEOUT(cout << "got image" << endl);
+    VERBOSEOUT(cout << "getImageThread::run: Got image" << endl);
     soap_multipart::iterator attachment(_cass->dime.begin());
     if(_cass->dime.end() == attachment) {
         cerr << "Did not get attachment!" << endl;
         return;
     }
-    VERBOSEOUT(cout << "getImageThread::run() DIME attachment:" << endl);
+    VERBOSEOUT(cout << "getImageThread::run: DIME attachment:" << endl);
     VERBOSEOUT(cout << "  Memory=" << (void*)(*attachment).ptr << endl);
     VERBOSEOUT(cout << "  Size=" << (*attachment).size << endl);
     VERBOSEOUT(cout << "  Type=" << ((*attachment).type?(*attachment).type:"null")
@@ -228,14 +238,14 @@ void getImageThread::run()
 
 void ImageViewer::on_getImage_triggered()
 {
-    VERBOSEOUT(cout << "ImageViewer::on_getImage_triggered" << endl);
+    VERBOSEOUT(cout << "on_getImage_triggered" << endl);
     if(_ready) {
-        readIniStatusLED(1, true);
+        _statusLED->setStatus(true, Qt::green);
         _ready = false;
 #warning Fix imageformat
         _githread.getImage(_cass, cass::TIFF, _attachId->value());
     } else {
-        readIniStatusLED(0, true);
+        _statusLED->setStatus(true, Qt::red);
     }
 }
 
@@ -247,6 +257,7 @@ void ImageViewer::running()
         _updater->start(int(1000 / _rate->value()));
     } else {
         _updater->stop();
+//        _statusLED->setStatus(false);
     }
 }
 
@@ -328,6 +339,7 @@ void ImageViewer::on_normalSize_triggered()
 
 void ImageViewer::on_fitToWindow_triggered()
 {
+    VERBOSEOUT(cout << "on_fitToWindow_triggered" << endl);
     bool fitToWindow = _ui.fitToWindow->isChecked();
     scrollArea->setWidgetResizable(fitToWindow);
     if(!fitToWindow) {
@@ -340,36 +352,13 @@ void ImageViewer::on_fitToWindow_triggered()
 void ImageViewer::on_about_triggered()
 {
     QMessageBox::about(this, tr("About jocassview"), tr(
-                           "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
-}
-
-
-void ImageViewer::readIniStatusLED(int color, bool on)
-{
-    QPalette palette;
-    QBrush brush(Qt::SolidPattern);
-    switch(color)
-    {
-    case 0: // red
-        brush.setColor(QColor(255, 0, 0, 255));
-        break;
-    case 1: // green
-        brush.setColor(QColor(0, 255, 0, 255));
-        break;
-    case 2: // blue
-        brush.setColor(QColor(0, 0, 255, 255));
-        break;
-    default:
-        return;
-    }
-    palette.setBrush(QPalette::Active, QPalette::Text, brush);
-    _ristatus->setPalette(palette);
-    _ristatus->setChecked(on);
+            "<p>The <b>joCASSview</b> is a display client for the CASS software.</p>"));
 }
 
 
 void ImageViewer::updateActions()
 {
+    VERBOSEOUT(cout << "updateActions" << endl);
     _ui.zoomIn->setEnabled(! _ui.fitToWindow->isChecked());
     _ui.zoomOut->setEnabled(! _ui.fitToWindow->isChecked());
     _ui.normalSize->setEnabled(! _ui.fitToWindow->isChecked());
@@ -379,16 +368,16 @@ void ImageViewer::updateActions()
 
 void ImageViewer::updateServer()
 {
-    cout << "updateServer: ";
+    VERBOSEOUT(cout << "updateServer: ");
     _server = (_servername->text() + ":" +_serverport->text()).toStdString();
     _cass->soap_endpoint = _server.c_str();
-    cout << _cass->soap_endpoint << endl;
+    VERBOSEOUT(cout << _cass->soap_endpoint << endl);
 }
 
 
 void ImageViewer::scaleImage(double factor)
 {
-    cout << "scaleImage: factor=" << factor << endl;
+    VERBOSEOUT(cout << "scaleImage: factor=" << factor << endl);
     if(!imageLabel->pixmap())
         return;
     _scaleFactor *= factor;
@@ -408,8 +397,14 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
                             ((factor - 1) * scrollBar->pageStep()/2)));
 }
 
+
+getImageThread::getImageThread()
+{
+    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
+
 }
 
+}
 
 // Local Variables:
 // coding: utf-8

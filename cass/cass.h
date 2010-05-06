@@ -30,9 +30,9 @@ namespace cass
 {
   /** global variable to set the ring buffer size */
   const size_t RingBufferSize=32;
-  /** global variable to set the number of worker threads*/
+  /** global variable to set the number of worker threads */
   const size_t NbrOfWorkers=16;
-  /** the maximum size of one datagram should be 10 MB*/
+  /** the maximum size of one datagram should be 10 MB */
   const size_t DatagramBufferSize=0x1000000;
   /** the type of a pixel of a ccd image*/
   typedef float pixel_t;
@@ -78,6 +78,23 @@ namespace cass
       case BMP:  fmtname = std::string("image/bmp"); break;
       }
       return fmtname;
+  };
+
+
+  /** Names of known/supported Qt image formats
+   *
+   * @param image format name
+   * @return ImageFormat
+   */
+inline ImageFormat imageformat(const std::string& name)
+  {
+      ImageFormat fmt(PNG);
+      if(std::string("PNG") == name) fmt = PNG;
+      else if(std::string("TIFF") == name) fmt = TIFF;
+      else if(std::string("JPEG") == name) fmt = TIFF;
+      else if(std::string("GIF") == name) fmt = TIFF;
+      else if(std::string("BMP") == name) fmt = TIFF;
+      return fmt;
   };
 
 

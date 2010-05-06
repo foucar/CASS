@@ -15,11 +15,14 @@
 
 /*** tool methods ***/
 
+// quit server
+int ns__quit(bool *success);
+
 // tell server to reread ini file (or |what| part of it)
 int ns__readini(size_t what, bool *success);
 
-// quit server
-int ns__quit(bool *success);
+// tell server to reread ini file (or |what| part of it)
+int ns__writeini(size_t what, bool *success);
 
 // get CASSEvent from server
 int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *sucess);
