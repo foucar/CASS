@@ -258,7 +258,7 @@ namespace cass
     const pixelList_t &pixellist()const      {return _pixellist;}
     //}
 
-  private:
+  protected:
     //data//
     /** Linear array of CCD data.
      *
