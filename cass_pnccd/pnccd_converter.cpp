@@ -14,7 +14,7 @@
 #include "cass_event.h"
 #include "pnccd_device.h"
 #include "pixel_detector.h"
-
+#include "pnccd_detector.h"
 
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
@@ -60,14 +60,14 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
 
       //if necessary resize the detector container//
       if (detectorId >= dev.detectors()->size())
-        dev.detectors()->resize(detectorId+1);
+        dev.detectors()->resize(detectorId+1,pnCCD::PnCCDDetector());
 
       //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
       if (_pnccdConfig[detectorId].second)
       {
         //get a reference to the detector we are working on right now//
-        cass::PixelDetector& det = (*dev.detectors())[detectorId];
+        PnCCDDetector& det = dynamic_cast<PnCCDDetector&>((*dev.detectors())[detectorId]);
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV2 *pnccdConfig = _pnccdConfig[detectorId].second;
 
