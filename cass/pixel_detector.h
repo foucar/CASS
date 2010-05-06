@@ -12,6 +12,7 @@
 #include "serializer.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
+#include "serializable.h"
 
 namespace cass
 {
@@ -197,19 +198,20 @@ namespace cass
    * @author Lutz Foucar
    * @author Nicola Coppola
    */
-  class CASSSHARED_EXPORT PixelDetector // : public cass::DeviceBackend
+  class CASSSHARED_EXPORT PixelDetector  : public cass::Serializable// : public cass::DeviceBackend
   {
   public:
     PixelDetector():
-      _columns(0),
-      _rows(0),
-      _originalcolumns(0),
-      _originalrows(0),
-      _version(1),
-      _isDarkframe(false),
-      _integral(0),
-      _integral_overthres(0),
-      _maxPixelValue(0)
+        Serializable(1),
+        _columns(0),
+        _rows(0),
+        _originalcolumns(0),
+        _originalrows(0),
+        _version(1),
+        _isDarkframe(false),
+        _integral(0),
+        _integral_overthres(0),
+        _maxPixelValue(0)
     {}
     /** virtual destructor so that one can derive from this class */
     virtual ~PixelDetector() {}
@@ -226,7 +228,7 @@ namespace cass
 
   public:
     /** serialize the pixeldetector to the Serializer*/
-    void serialize(cass::Serializer&)const;
+    void serialize(cass::Serializer&);
     /** deserialize the pixeldetector from the Serializer*/
     void deserialize(cass::Serializer&);
 
@@ -289,7 +291,7 @@ namespace cass
 }//end namespace cass
 
 
-inline void cass::PixelDetector::serialize(cass::Serializer &out) const
+inline void cass::PixelDetector::serialize(cass::Serializer &out)
 {
   //the version//
   out.addUint16(_version);
