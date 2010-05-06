@@ -20,6 +20,22 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT PnCCDDetector : public PixelDetector
     {
     public:
+      /** virtual destructor.*/
+      virtual ~PnCCDDetector(){}
+
+    public:
+      //{
+      /** setter */
+      uint32_t    &camaxMagic()     {return _camaxMagic;}
+      std::string &info()           {return _info;}
+      std::string &timingFilename() {return _timingFilename;}
+      //}
+      //{
+      /** getter */
+      uint32_t          camaxMagic()const     {return _camaxMagic;}
+      const std::string info()const           {return _info;}
+      const std::string timingFilename()const {return _timingFilename;}
+      //}
 
     protected:
       /** magic camax info, encodes ie. the gain of the ccd*/
