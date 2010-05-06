@@ -16,6 +16,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <vector>
+#include <stdio.h>
 
 #include "cass_ccd.h"
 #include "analysis_backend.h"
