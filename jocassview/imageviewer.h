@@ -124,6 +124,8 @@ private:
 
     void closeEvent(QCloseEvent *event);
 
+    virtual void resizeEvent(QResizeEvent *event);
+
     void updateActions();
 
     void scaleImage(double factor);
@@ -157,6 +159,8 @@ private:
     QCheckBox *_running;
 
     QSpinBox *_attachId;
+
+    QSize _imagesize;
 
     StatusLED *_statusLED;
 

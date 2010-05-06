@@ -1,6 +1,8 @@
 // Copyright (C) 2010 Uwe Hoppe
 // Copyright (C) 2010 Jochen Kuepper
 
+//#define VERBOSE 1
+
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
 #include <QtGui/QLineEdit>
@@ -123,6 +125,16 @@ void ImageViewer::showEvent(QShowEvent *event)
 }
 
 
+void ImageViewer::resizeEvent(QResizeEvent *event)
+{
+    VERBOSEOUT(cout << "resizeEvent width=" << event->size().width()
+            << " height=" << event->size().height() << endl);
+    if(_ui.fitToWindow->isChecked()) {
+#warning Resize window to keep the aspect ratio from _imagesize.
+    }
+    event->accept();
+}
+
 
 void ImageViewer::closeEvent(QCloseEvent *event)
 {
@@ -163,9 +175,11 @@ void ImageViewer::on_open_triggered()
 
 void ImageViewer::updatePixmap(const QImage &image)
 {
-    VERBOSEOUT(cout << "ImageViewer::updatePixmap: byteCount="
-            << image.byteCount() << endl);
+    VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
+            << " width=" << image.size().width()
+            << " height=" << image.size().height() << endl);
     imageLabel->setPixmap(QPixmap::fromImage(image));
+    _imagesize = image.size();
     updateActions();
     VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
     imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
@@ -390,12 +404,7 @@ getImageThread::getImageThread()
 
 }
 
-
-
-
 }
-
-
 
 // Local Variables:
 // coding: utf-8
