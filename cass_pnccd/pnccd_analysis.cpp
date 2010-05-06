@@ -102,7 +102,7 @@ void cass::pnCCD::Parameter::load()
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
   {
-    //not_saved_yet=true;
+    not_saved_yet=true;
     std::cout<<"This is a DarkFrame Run"<<std::endl;
   }
   //string for the container index//
@@ -746,8 +746,12 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
             {
               Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
+              //#define debug_a_lot
+#ifdef debug_a_lot_more
+              std::cout<<std::dec<< "test "<<Pixel_wo_offset<<" "<< static_cast<double>(*itFrame)<< " "<< *itOffset<<std::endl;
+#endif
               //I add only the pixel w/o a signal-photon//
-              if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
+              if( /*Pixel_wo_offset>0 &&*/ Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
               {
                 common_level+= Pixel_wo_offset;
                 used_pixel++;
@@ -756,7 +760,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           }
           if(used_pixel>8)
           {
-            common_level/=(used_pixel-1);
+            common_level/=(used_pixel);
 #ifdef debug_a_lot
             std::cout<<"Common mode subtraction value is "<< static_cast<pixel_t>(common_level)
                      <<" based on "<<used_pixel <<" pixels" <<std::endl;
@@ -786,9 +790,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
-          // the following works only if I am copying, not if I modify!!
-          // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
-          *itFrame =  *itFrame - *itOffset;
           //add the values only if above 0.//
           det.integral() += static_cast<uint64_t>(std::max(*itFrame,float(0.)));
           //add the values only if above 0.//
@@ -850,17 +851,15 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     ++dp._nbrDarkframes;
     if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
       std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
-    /*
-    if(dp._nbrDarkframes>201 && not_saved_yet)
+    
+    if(dp._nbrDarkframes>101 && not_saved_yet)
     {
       //Only one of the Threads should save.... So I don't see why I should do it....
       //This would be only a dirty trick!!!!
-      //cass::pnCCD::Analysis::saveSettings();
       saveSettings();
-      //std::cout<<"here "<<std::endl;
       not_saved_yet=false;
     }
-    */
+
   }
 }
 
