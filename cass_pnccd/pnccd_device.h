@@ -26,12 +26,6 @@ namespace cass
       pnCCDDevice()
         :DeviceBackend(1)
       {}
-      /** default destructor*/
-      ~pnCCDDevice()       {}
-
-    public:
-      /** define the list of pixel detectors*/
-      typedef std::vector<PixelDetector> detectors_t;
 
     public:
       /** serialize the device to the Serializer*/

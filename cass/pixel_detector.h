@@ -101,6 +101,8 @@ namespace cass
     //void save(cass::PixelDetector::detROI_t *_detROI);
   };
 
+
+
   /** Region of Interest
    *
    * The region of interest is composed from a list of simple ROIsimple
@@ -184,6 +186,8 @@ namespace cass
     void save();
 
   };
+
+
 
 
   /** Detector containing a ccd camera image.
