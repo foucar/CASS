@@ -35,7 +35,7 @@ namespace cass
      */
     virtual const detectors_t *detectors()const
     {
-      throw std::runtime_error("DeviceBackend::detectors() device has no detectors");
+      throw std::runtime_error("DeviceBackend::detectors(): device has no detectors");
       return 0;
     }
   };
