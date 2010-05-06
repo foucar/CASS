@@ -15,7 +15,7 @@ CONFIG      += exceptions
 CONFIG      += rtti
 CONFIG      += sse2
 CONFIG      += stl
-CONFIG      += silent
+#CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
@@ -31,6 +31,7 @@ else {
 
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -march=opteron -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -O -march=opteron
+QMAKE_LFLAGS +=
 QMAKE_STRIP  =
 
 MOC_DIR      = moc
