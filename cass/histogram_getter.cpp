@@ -1,6 +1,8 @@
 // Copyright (C) 2010 Jochen Küpper
 // Copyright (C) 2010 Lutz Foucar
 
+#include <stdexcept>
+
 #include "histogram.h"
 #include "histogram_getter.h"
 #include "serializer.h"
@@ -37,8 +39,13 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     pp->validate(hp.type);
     // create the image
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
+    //check wether requested histgogram is truly a 2d histogram//
+    if (iter->second->dimension() != 2)
+    {
+      pp->histograms_release();
+      throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.type).toStdString());
+    }
     // create the QImage, release, return
-#warning check whether the requested histogram is truly a 2d histogram
     QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
     pp->histograms_release();
     return qi;
