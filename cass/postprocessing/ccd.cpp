@@ -71,7 +71,7 @@ void pp1::operator()(const cass::CASSEvent& event)
     if(frame.size()!=1024*1024) 
     {
       size_t ratio=1024*1024/frame.size();
-      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
+      //size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
       //std::cout<<"allora "<< ratio << " "<< side_ratio <<std::endl;
       //      _image(Histogram2DFloat(1024/side_ratio, 0, 1023, 1024/side_ratio, 0, 1023));
     }
