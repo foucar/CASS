@@ -30,7 +30,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       uint32_t version = xtc->contains.version();
 
       std::cout << "pnCCDConverter::ConfigXTC: DeviceId:"<<detectorId
-          <<" Version: "<<version
+          <<" Version:"<<version
           <<std::endl;
       //if necessary resize the config container//
       if (detectorId >= _pnccdConfig.size())
@@ -42,6 +42,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       delete pnccdConfig;
       pnccdConfig = new Pds::PNCCD::ConfigV2();
       *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
+      std::cout << "pnCCDConverter::ConfigXTC: done"<<std::endl;
     }
     break;
 
@@ -59,15 +60,19 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const size_t detectorId = info.devId();
 
       //if necessary resize the detector container//
+//      std::cout<<"pnCCDConverter::DataXTC: resizing container"<<std::endl;
       if (detectorId >= dev.detectors()->size())
-        dev.detectors()->resize(detectorId+1,pnCCD::PnCCDDetector());
+        dev.detectors()->resize(detectorId+1);
+//      std::cout<<"pnCCDConverter::DataXTC: done resizing"<<std::endl;
 
       //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
       if (_pnccdConfig[detectorId].second)
       {
         //get a reference to the detector we are working on right now//
-        PnCCDDetector& det = dynamic_cast<PnCCDDetector&>((*dev.detectors())[detectorId]);
+//        std::cout<<"pnCCDConverter::DataXTC: getting det from container"<<std::endl;
+        PixelDetector& det = (*dev.detectors())[detectorId];
+//        std::cout<<"pnCCDConverter::DataXTC: done getting det from container"<<std::endl;
         //get the pointer to the config for this detector//
         const Pds::PNCCD::ConfigV2 *pnccdConfig = _pnccdConfig[detectorId].second;
 
