@@ -24,44 +24,48 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
   struct tm * timeinfo;
   size_t dateSize=9+4+1;
   char date_and_time[dateSize];
+  char printoutdef[40];
+  sprintf(printoutdef,"pnCCD loadDetectorParameter %d ",static_cast<int>(idx));
 
   //retrieve reference to the detector parameter//
   DetectorParameter &dp = _detectorparameters[idx];
   //retrieve the parameter settings//
   beginGroup(s.setNum(static_cast<int>(idx)));
     dp._rebinfactor = value("RebinFactor",1).toUInt();
-    std::cout<<"RebinFactor= "<<dp._rebinfactor<<std::endl;
+    std::cout<< printoutdef << "RebinFactor= "<<dp._rebinfactor<<std::endl;
     dp._max_noise = value("MaxNoise",4000).toDouble();
-    std::cout<< "The max allowed noise level before mask is set to "<<dp._max_noise <<
+    std::cout<< printoutdef << "The max allowed noise level before mask is set to "<<dp._max_noise <<
       " ADC counts, identified through 3x std dev"<<std::endl;
     dp._sigmaMultiplier = value("SigmaMultiplier",4).toDouble();
-    std::cout<<"SigmaMultiplier= "<<dp._sigmaMultiplier<<std::endl;
+    std::cout<< printoutdef << "SigmaMultiplier= "<<dp._sigmaMultiplier<<std::endl;
     dp._adu2eV = value("Adu2eV",1).toDouble();
-    std::cout<<"Adu2ev= "<<dp._adu2eV<<std::endl;
+    std::cout<< printoutdef << "Adu2ev= "<<dp._adu2eV<<std::endl;
     dp._createPixellist = value("CreatePixelList",false).toBool();
-    std::cout<<"Create Pixel List is "<<dp._createPixellist<<std::endl;
+    std::cout<< printoutdef << "Create Pixel List is "<<dp._createPixellist<<std::endl;
     dp._doOffsetCorrection = value("DoOffsetCorrection",false).toBool();
     if(dp._doOffsetCorrection) std::cout<<"Offset Correction will be applied for detector "<<idx<<std::endl;
-    else std::cout<<"Offset Correction will NOT be applied for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "Offset Correction will NOT be applied for detector "<<idx<<std::endl;
     dp._useCommonMode = value("useCommonMode",false).toBool();
-    if(dp._useCommonMode) std::cout<<"Common Mode Correction will be applied for detector "<<idx<<std::endl;
-    else std::cout<<"Common Mode Correction will NOT be applied for detector "<<idx<<std::endl;
+    if(dp._useCommonMode) std::cout<< printoutdef 
+                                   << "Common Mode Correction will be applied for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "Common Mode Correction will NOT be applied for detector "<<idx<<std::endl;
     dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
     if(dp._thres_for_integral>0) 
-      std::cout<<"Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
+      std::cout<< printoutdef << 
+        "Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
-    std::cout<<"Read-in filename is "<<dp._darkcalfilename << std::endl;
+    std::cout<< printoutdef << "Read-in filename is "<<dp._darkcalfilename << std::endl;
     if(_isDarkframe)
     {
       time ( &rawtime );
       timeinfo = localtime ( &rawtime );    
       strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
-      std::cout<<"now is "<<date_and_time<<std::endl;
+      std::cout<< printoutdef << "now is "<<date_and_time<<std::endl;
       dp._savedarkcalfilename =
         value("DarkCalibrationSaveFileName", QString("darkcal_save_%1_%2.cal").arg(idx).arg(date_and_time) 
               ).toString().toStdString();
-      std::cout<<"Save filename is something like "<<dp._savedarkcalfilename << std::endl;
+      std::cout<< printoutdef << "Save filename is something like "<<dp._savedarkcalfilename << std::endl;
     }
     //cass::PixelDetector::ROIsimple::load();
     dp._detROI._ROI.clear();
@@ -84,26 +88,29 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
         // the orientation is used only in the case of a triangular shape
         dp._detROI._ROI[iROI].orientation = value("orientation",1).toInt();
       endGroup();
-      std::cout <<"ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
+      std::cout << printoutdef << "ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
                 <<" ysiz " << dp._detROI._ROI[iROI].ysize 
                 <<" xc " << dp._detROI._ROI[iROI].xcentre
                 <<" yc " << dp._detROI._ROI[iROI].ycentre 
                 <<" ori " << dp._detROI._ROI[iROI].orientation<<std::endl;
     }
     endGroup();
-    std::cout << "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
+    std::cout << printoutdef <<  "done ROI load "<< dp._detROI._ROI.size() << " of pnCCD" << std::endl;
   endGroup();
 
 }
 
 void cass::pnCCD::Parameter::load()
 {
+  char printoutdef[40];
+  sprintf(printoutdef,"pnCCD load ");
+
   //the flag//
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
   {
     not_saved_yet=true;
-    std::cout<<"This is a DarkFrame Run"<<std::endl;
+    std::cout<< printoutdef << "This is a DarkFrame Run"<<std::endl;
   }
   //string for the container index//
   QString s;
@@ -120,7 +127,7 @@ void cass::pnCCD::Parameter::load()
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
   {
     //load the detector parameters for this detector//
-    std::cout<<"Going to load parameters for detector #"<< iDet<<std::endl;
+    std::cout<< printoutdef <<"Going to load parameters for detector #"<< iDet<<std::endl;
     loadDetectorParameter(iDet);
   }
 
@@ -196,6 +203,8 @@ cass::pnCCD::Analysis::Analysis()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::loadSettings()
 {
+  char printoutdef[40];
+  sprintf(printoutdef,"pnCCD loadSettings ");
 
   QMutexLocker locker(&_mutex);
   //load the settings
@@ -212,7 +221,7 @@ void cass::pnCCD::Analysis::loadSettings()
     // are used the sizes are completey wrong as the values that are read in!!!
 
     //read only if this is NOT a dark-frame run
-     std::cout<<"Trying to open file: "<<dp._darkcalfilename.c_str()<<std::endl;
+    std::cout<< printoutdef << "Trying to open file: "<<dp._darkcalfilename.c_str()<<std::endl;
     if (in.is_open() && !_param._isDarkframe)
     {
       //std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
@@ -232,7 +241,7 @@ void cass::pnCCD::Analysis::loadSettings()
         //read the parameters stored in the file//
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
-        std::cout<<"offset and noise maps loaded for det# "<<iDet <<std::endl;
+        std::cout<< printoutdef << "offset and noise maps loaded for det# "<<iDet <<std::endl;
       }
       else
       {
@@ -247,11 +256,11 @@ void cass::pnCCD::Analysis::loadSettings()
     }
     else
     {
-      std::cout<<"Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
-      if(_param._isDarkframe) std::cout<<"and this is a Darkframe run"<<std::endl;
+      std::cout<< printoutdef << "Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
+      if(_param._isDarkframe) std::cout<< printoutdef << "and this is a Darkframe run"<<std::endl;
       else
       {
-        std::cout<<"and this is NOT a Darkframe run"<<std::endl;
+        std::cout<< printoutdef << "and this is NOT a Darkframe run"<<std::endl;
 
         //Is this safe or I should just not do it for certain cases?
         // in principle I do not need it if _param._isDarkframe==1
@@ -262,7 +271,7 @@ void cass::pnCCD::Analysis::loadSettings()
       }
       if(!dp._doOffsetCorrection)
       {
-        std::cout<<"I am not going to apply offset corrections anyway"<<std::endl;
+        std::cout<< printoutdef << "I am not going to apply offset corrections anyway"<<std::endl;
         //safe net in case there is no file yet and I do not want to make offset-corrections
         dp._offset.resize(pnCCD_default_size_sq);
         dp._noise.resize(pnCCD_default_size_sq);
@@ -305,19 +314,19 @@ void cass::pnCCD::Analysis::loadSettings()
             + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
         size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
             + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);
-        std::cout << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+        std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
             * (2 * dp._detROI._ROI[iROI].ysize + 1);
         //remember how many pixels I have masked
         //number_of_pixelsettozero+=indexROI_max;
-        std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+        std::cout << printoutdef <<  "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
         if(dp._detROI._ROI[iROI].name=="circ" || dp._detROI._ROI[iROI].name=="circle"  )
         {
           int32_t  xlocal,ylocal;
           const uint32_t radius2 =  static_cast<uint32_t>(pow(dp._detROI._ROI[iROI].xsize,2)
            );
-          std::cout << "circ seen with radius^2= " <<radius2 <<std::endl;
+          std::cout << printoutdef << "circ seen with radius^2= " <<radius2 <<std::endl;
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
@@ -346,7 +355,7 @@ void cass::pnCCD::Analysis::loadSettings()
         if(dp._detROI._ROI[iROI].name=="square")
         {
           uint32_t  xlocal,ylocal;
-          std::cout << "square seen" <<std::endl;
+          std::cout << printoutdef <<  "square seen" <<std::endl;
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize +1);
@@ -373,10 +382,10 @@ void cass::pnCCD::Analysis::loadSettings()
           xsize=static_cast<float>(dp._detROI._ROI[iROI].xsize);
           ysize=static_cast<float>(dp._detROI._ROI[iROI].ysize);
 
-          std::cout << "triangle seen" <<std::endl;
+          std::cout << printoutdef <<  "triangle seen" <<std::endl;
           if(dp._detROI._ROI[iROI].orientation==+1)
           {
-            std::cout << "triangle seen vertex upwards" <<std::endl;
+            std::cout << printoutdef <<  "triangle seen vertex upwards" <<std::endl;
             //the triangle is at least isosceles
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
@@ -420,7 +429,7 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==-1)
           {
-            std::cout << "triangle seen vertex downwards" <<std::endl;
+            std::cout << printoutdef <<  "triangle seen vertex downwards" <<std::endl;
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
@@ -465,7 +474,7 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==+2)
           {
-            std::cout << "triangle seen vertex towards right" <<std::endl;
+            std::cout << printoutdef <<  "triangle seen vertex towards right" <<std::endl;
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               // not debugged
@@ -491,7 +500,7 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==-2)
           {
-            std::cout << "triangle seen vertex towards left" <<std::endl;
+            std::cout << printoutdef <<  "triangle seen vertex towards left" <<std::endl;
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize);
@@ -516,9 +525,9 @@ void cass::pnCCD::Analysis::loadSettings()
       } // end iROI loop
 
 #ifdef debug
-      std::cout <<"ROI "<< iDet<<" "<<dp._ROImask.size()<<" ";
+      std::cout << printoutdef << "ROI "<< iDet<<" "<<dp._ROImask.size()<<" ";
       for(size_t i=0;i<dp._ROImask.size();i++)
-          std::cout << dp._ROImask[i]<< " ";
+          std::cout << printoutdef << dp._ROImask[i]<< " ";
       std::cout<<std::endl;
 #endif
       // now I know which pixel should be masked!
@@ -544,14 +553,15 @@ void cass::pnCCD::Analysis::loadSettings()
         }
       }
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1-extra_masked_pixel);
-      std::cout << "Extra masked pixel(s) for detector "<< iDet<<" are "<<extra_masked_pixel<<std::endl;
-      std::cout <<"Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" " 
+      std::cout << printoutdef <<  "Extra masked pixel(s) for detector "<< iDet<< 
+        " are "<<extra_masked_pixel<<std::endl;
+      std::cout << printoutdef << "Roiit sizes "<< iDet<<" "<<dp._ROImask.size()<<" " 
                 <<dp._ROIiterator.size()<< " "
                 <<number_of_pixelsettozero <<std::endl;
 #ifdef debug
       for(size_t i=0;i<dp._ROIiterator.size();i++)
       {
-        if(i%16==0) std::cout <<"Roiit"<<iDet<<" ";
+        if(i%16==0) std::cout << printoutdef <<"Roiit"<<iDet<<" ";
         std::cout << dp._ROIiterator[i]<< " ";
         if(i%16==15) std::cout<<std::endl;
       }
@@ -570,6 +580,8 @@ void cass::pnCCD::Analysis::saveSettings()
   struct tm * timeinfo;
   size_t dateSize=9+4+1;
   char date_and_time[dateSize];
+  char printoutdef[40];
+  sprintf(printoutdef,"pnCCD saveSettings ");
 
   //QMutexLocker locker(&_mutex);
   //save settings//
@@ -578,7 +590,7 @@ void cass::pnCCD::Analysis::saveSettings()
   //now save the noise and the offset maps to the designated files//
   if(_param._isDarkframe)
   {
-    std::cout<<"I have been asked to save the files"<<std::endl;
+    std::cout<< printoutdef << "I have been asked to save the files"<<std::endl;
     for (size_t iDet=0;iDet<_param._detectorparameters.size();++iDet)
     {
       //retrieve a reference to the detector parameter
@@ -602,7 +614,7 @@ void cass::pnCCD::Analysis::saveSettings()
         std::cout<<"now is "<<date_and_time<<std::endl;
         dp._savedarkcalfilename =
           QString("darkcal_save_%1_%2.cal").arg(iDet).arg(date_and_time).toStdString();
-        std::cout<<"saved filename is "<<dp._savedarkcalfilename << std::endl;
+        std::cout<< printoutdef <<"saved filename is "<<dp._savedarkcalfilename << std::endl;
 
         //create a output file//
         std::ofstream out(dp._savedarkcalfilename.c_str(), std::ios::binary);
@@ -617,13 +629,16 @@ void cass::pnCCD::Analysis::saveSettings()
           printf(command,"ln -sf %s darkcal_%d.cal",dp._savedarkcalfilename.c_str(),iDet);
           std::cout<<command<<std::endl;
           int status=system(command);
-          if(status) std::cout<<"error creating software link for chip "<<iDet<<std::endl;
+          if(status) std::cout<< printoutdef <<"error creating software link for chip "<<iDet<<std::endl;
         }
-        else std::cout<<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
+        else std::cout<< printoutdef <<"Not able to save into file "<<dp._savedarkcalfilename.c_str()<<std::endl;
       }
     }
   }
-  else std::cout<<"I have been asked to save the files, but this is not a darkcal-run, I will do nothing of that sort!"<<std::endl;
+  else std::cout
+         << printoutdef 
+         <<"I have been asked to save the files, but this is not a darkcal-run, I will do nothing of that sort!"
+                <<std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -828,6 +843,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
 void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &dev)
 {
+  char printoutdef[40];
+  sprintf(printoutdef,"pnCCD createOffsetAndNoiseMap ");
   QMutexLocker  locker(&_mutex);
   //Insert read/write lock? But I get a Segfault...
   //QWriteLocker  locker(&_RWlock);
@@ -850,8 +867,8 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     }
     ++dp._nbrDarkframes;
     if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
-      std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
-    
+      std::cout<< printoutdef << "reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
+    /*
     if(dp._nbrDarkframes>101 && not_saved_yet)
     {
       //Only one of the Threads should save.... So I don't see why I should do it....
@@ -859,7 +876,7 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
       saveSettings();
       not_saved_yet=false;
     }
-
+    */
   }
 }
 
