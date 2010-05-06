@@ -81,6 +81,23 @@ namespace cass
   };
 
 
+  /** Names of known/supported Qt image formats
+   *
+   * @param image format name
+   * @return ImageFormat
+   */
+inline ImageFormat imageformat(const std::string& name)
+  {
+      ImageFormat fmt(PNG);
+      if(std::string("PNG") == name) fmt = PNG;
+      else if(std::string("TIFF") == name) fmt = TIFF;
+      else if(std::string("JPEG") == name) fmt = TIFF;
+      else if(std::string("GIF") == name) fmt = TIFF;
+      else if(std::string("BMP") == name) fmt = TIFF;
+      return fmt;
+  };
+
+
   /*! Helper function to delete duplicates from a std::list
 
     This keeps the earliest entry in the list and removes all later ones
