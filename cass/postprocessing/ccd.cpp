@@ -62,7 +62,7 @@ void pp1::operator()(const cass::CASSEvent& event)
     //check whether detector exists
     // std::cout<<"BLA"<< event.devices().find(_device)->second->detectors()->size() << " "<< _detector <<std::endl;
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     //get frame and fill image//
     const PixelDetector::frame_t& frame
@@ -149,7 +149,7 @@ void cass::pp101::operator()(const CASSEvent& event)
 
     //check whether detector exists
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
     const PixelDetector::frame_t& frame(det.frame());
@@ -235,7 +235,7 @@ void cass::pp110::operator()(const CASSEvent& evt)
 {
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
@@ -310,7 +310,7 @@ void cass::pp113::operator()(const CASSEvent& evt)
 {
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist
