@@ -53,7 +53,7 @@ namespace cass
     public:
       /** constructor creates group "pnCCD" */
       Parameter() {beginGroup("pnCCD");}
-      /** constructor closes group "CCD" */
+      /** constructor closes group "pnCCD" */
       ~Parameter() {endGroup();}
       /** load the parameters from cass.ini*/
       void load();
