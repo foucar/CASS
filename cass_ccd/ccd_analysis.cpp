@@ -13,6 +13,8 @@
 
 void cass::CCD::Parameter::load()
 {
+  char printoutdef[40];
+  sprintf(printoutdef,"Commercial CCD load ");
   //sync before loading//
   sync();
   //sting for the container index//
@@ -44,14 +46,14 @@ void cass::CCD::Parameter::load()
       // the orientation is used only in the case of a triangular shape
       _detROI._ROI[iROI].orientation = value("orientation",1).toInt();
       endGroup();
-      std::cout <<"ROI loaded "<< iROI << " xsiz " << _detROI._ROI[iROI].xsize 
+      std::cout << printoutdef <<"ROI loaded "<< iROI << " xsiz " << _detROI._ROI[iROI].xsize 
                 <<" ysiz " << _detROI._ROI[iROI].ysize 
                 <<" xc " << _detROI._ROI[iROI].xcentre
                 <<" yc " << _detROI._ROI[iROI].ycentre 
                 <<" ori " << _detROI._ROI[iROI].orientation<<std::endl;
     }
     endGroup();
-    std::cout << "done ROI load "<< _detROI._ROI.size() << " of commercial CCD" << std::endl;
+    std::cout << printoutdef << "done ROI load "<< _detROI._ROI.size() << " of commercial CCD" << std::endl;
 
   endGroup();
 }
@@ -88,6 +90,8 @@ void cass::CCD::Parameter::save()
 //------------------------------------------------------------------------------
 void cass::CCD::Analysis::loadSettings()
 {
+  char printoutdef[40];
+  sprintf(printoutdef,"Commercial CCD loadSettings ");
   QMutexLocker locker(&_mutex);
   /*
   //retrieve a pointer to the ccd device we are working on//
@@ -135,7 +139,7 @@ void cass::CCD::Analysis::loadSettings()
       int32_t  xlocal,ylocal;
       const uint32_t radius2 =  static_cast<uint32_t>(pow(_param._detROI._ROI[iROI].xsize,2)
            /*+pow(_param._detROI._ROI[iROI].ysize,2) */);
-      std::cout << "circ seen with radius^2= " <<radius2 <<std::endl;
+      std::cout << printoutdef << "circ seen with radius^2= " <<radius2 <<std::endl;
       for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
       {
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
@@ -164,7 +168,7 @@ void cass::CCD::Analysis::loadSettings()
     if(_param._detROI._ROI[iROI].name=="square")
     {
       uint32_t  xlocal,ylocal;
-      std::cout << "square seen" <<std::endl;
+      std::cout << printoutdef << "square seen" <<std::endl;
       for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
       {
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize +1);
@@ -191,10 +195,10 @@ void cass::CCD::Analysis::loadSettings()
       xsize=static_cast<float>(_param._detROI._ROI[iROI].xsize);
       ysize=static_cast<float>(_param._detROI._ROI[iROI].ysize);
 
-      std::cout << "triangle seen" <<std::endl;
+      std::cout << printoutdef << "triangle seen" <<std::endl;
       if(_param._detROI._ROI[iROI].orientation==+1)
       {
-        std::cout << "triangle seen vertex upwards" <<std::endl;
+        std::cout << printoutdef  << "triangle seen vertex upwards" <<std::endl;
         //the triangle is at least isosceles
         for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
         {
@@ -238,7 +242,7 @@ void cass::CCD::Analysis::loadSettings()
       }
       if(_param._detROI._ROI[iROI].orientation==-1)
       {
-        std::cout << "triangle seen vertex downwards" <<std::endl;
+        std::cout << printoutdef << "triangle seen vertex downwards" <<std::endl;
         for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
         {
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
@@ -283,7 +287,7 @@ void cass::CCD::Analysis::loadSettings()
       }
       if(_param._detROI._ROI[iROI].orientation==+2)
       {
-        std::cout << "triangle seen vertex towards right" <<std::endl;
+        std::cout << printoutdef << "triangle seen vertex towards right" <<std::endl;
         for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
         {
           // not debugged
@@ -309,7 +313,7 @@ void cass::CCD::Analysis::loadSettings()
       }
       if(_param._detROI._ROI[iROI].orientation==-2)
       {
-        std::cout << "triangle seen vertex towards left" <<std::endl;
+        std::cout << printoutdef << "triangle seen vertex towards left" <<std::endl;
         for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
         {
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize);
@@ -351,7 +355,7 @@ void cass::CCD::Analysis::loadSettings()
       nextPixel++;
     }
   }
-  std::cout <<"Commercial CCD Roiit sizes "<<_param._ROImask.size()<<" " 
+  std::cout << printoutdef << "Commercial CCD Roiit sizes "<<_param._ROImask.size()<<" " 
             <<_param._ROIiterator.size()<< " "
             <<number_of_pixelsettozero <<std::endl;
 #ifdef debug

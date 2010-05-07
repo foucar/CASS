@@ -16,6 +16,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 #include <vector>
+#include <stdio.h>
 
 #include "cass_ccd.h"
 #include "analysis_backend.h"
@@ -31,8 +32,7 @@ namespace cass
   {
     /*! Parameters of the commercial ccd analysis
 
-      @author Lutz Foucar
-      @modif NC
+      @author Lutz Foucar, Nicola Coppola
     */
     class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {

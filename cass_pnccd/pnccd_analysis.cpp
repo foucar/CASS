@@ -14,12 +14,19 @@
 #include <vector>
 #include <time.h>
 #include <stdexcept>
+#define debug_conf
 
 bool not_saved_yet;
 
 void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
 {
+#ifdef debug_conf
+  std::cout<<"I am 1"<<std::endl;
+#endif
   sync();
+#ifdef debug_conf
+  std::cout<<"I am 1postsync"<<std::endl;
+#endif
   //sting for the container index//
   QString s,c;
   time_t rawtime;
@@ -106,7 +113,13 @@ void cass::pnCCD::Parameter::load()
 {
   char printoutdef[40];
   sprintf(printoutdef,"pnCCD load ");
-
+#ifdef debug_conf
+  std::cout<<"I am 2"<<std::endl;
+#endif
+  sync();
+#ifdef debug_conf
+  std::cout<<"I am 2postsync"<<std::endl;
+#endif
   //the flag//
   _isDarkframe = value("IsDarkFrames",false).toBool();
   if(_isDarkframe)
@@ -114,17 +127,21 @@ void cass::pnCCD::Parameter::load()
     //not_saved_yet=true;
     std::cout<< printoutdef << "This is a DarkFrame Run"<<std::endl;
   }
+  else
+  {
+    std::cout<< printoutdef << "This is NOT a DarkFrame Run"<<std::endl;
+  }
   //string for the container index//
-  QString s;
+  //QString s;
   //sync before loading//
-  sync();
-  size_t size_from_ini = value("size",1).toUInt();
-  //std::cout<<"test "<<_detectorparameters.size() << " "<<value("size",1).toUInt()<<std::endl;
+  //sync();
+  size_t size_from_ini = value("size",2).toUInt();
+  std::cout<< printoutdef <<"test-size "<<_detectorparameters.size() << " "<<size_from_ini<<std::endl;
   //resize the detector parameter container before adding new stuff//
   if(size_from_ini>_detectorparameters.size())
     _detectorparameters.resize(size_from_ini,DetectorParameter());
 
-  std::cout<<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
+  std::cout<< printoutdef <<"I have to treat "<<_detectorparameters.size()<<" pnCCD detector(s)"<<std::endl;
   //go through all detectors and load the parameters for them//
   for (size_t iDet=0; iDet<_detectorparameters.size(); ++iDet)
   {
@@ -207,8 +224,13 @@ void cass::pnCCD::Analysis::loadSettings()
 {
   char printoutdef[40];
   sprintf(printoutdef,"pnCCD loadSettings ");
-
+#ifdef debug_conf
+  std::cout<<"I am 3"<<std::endl;
+#endif
   QMutexLocker locker(&_mutex);
+#ifdef debug_conf
+  std::cout<<"I am 3postlocker"<<std::endl; 
+#endif
   //load the settings
   _param.load();
   size_t number_of_pixelsettozero=0;
@@ -254,6 +276,9 @@ void cass::pnCCD::Analysis::loadSettings()
         dp._ROIiterator.resize(pnCCD_default_size_sq);
         dp._ROImask_converter.resize(pnCCD_default_size_sq);
         dp._ROIiterator_converter.resize(pnCCD_default_size_sq);
+        std::cout << printoutdef << 
+          "I have been asked to use Offset-noise darkframe file not created with CASS:\n\t "
+                  <<dp._darkcalfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
       }
     }
     else
@@ -646,6 +671,9 @@ void cass::pnCCD::Analysis::saveSettings()
 //------------------------------------------------------------------------------
 void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 {
+#ifdef debug_conf
+  //std::cout<<"I am 4"<<std::endl;
+#endif
 
   //extract a reference to the pnccddevice//
   cass::pnCCD::pnCCDDevice &dev =

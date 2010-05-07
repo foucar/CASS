@@ -230,7 +230,7 @@ void getImageThread::run()
     VERBOSEOUT(cout << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
 #warning Fix imageformat
     QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
-            imageformatName(cass::ImageFormat(_format - 1)).c_str()));
+            imageformatName(cass::ImageFormat(_format)).c_str()));
     VERBOSEOUT(cout << "getImageThread::run: byteCount=" << image.byteCount() << endl);
     emit newImage(image);
 }
@@ -243,7 +243,7 @@ void ImageViewer::on_getImage_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
 #warning Fix imageformat
-        _githread.getImage(_cass, cass::TIFF, _attachId->value());
+        _githread.getImage(_cass, cass::PNG, _attachId->value());
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
