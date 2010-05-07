@@ -56,8 +56,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     // Add picture type respectively format to toolbar.
     _picturetype = new QComboBox();
     QStringList formats;
-#warning Fix imageformat
-    formats << "PNG" << "TIFF" << "JPEG";
+    formats << "PNG" << "TIFF" << "JPEG" << "GIF" << "BMP";
     _picturetype->setToolTip("Supported image, respectively, file formats.");
     _picturetype->insertItems(0, formats);
     _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
@@ -209,9 +208,11 @@ void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int
 
 void getImageThread::run()
 {
-    VERBOSEOUT(cout << "getImageThread::run" << endl);
+    VERBOSEOUT(cout << "getImageThread::run: _format=" << _format << endl);
     bool ret;
-    _cass->getImage(_format, _attachId, &ret);
+#warning Fix imageformat
+//    _cass->getImage(_format, _attachId, &ret);
+    _cass->getImage(2, _attachId, &ret);
     if(! ret) {
         cerr << "Did not get image" << endl;
         return;
@@ -228,7 +229,6 @@ void getImageThread::run()
     VERBOSEOUT(cout << "  Type=" << ((*attachment).type?(*attachment).type:"null")
             << endl);
     VERBOSEOUT(cout << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
-#warning Fix imageformat
     QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
             imageformatName(cass::ImageFormat(_format)).c_str()));
     VERBOSEOUT(cout << "getImageThread::run: byteCount=" << image.byteCount() << endl);
@@ -242,8 +242,8 @@ void ImageViewer::on_getImage_triggered()
     if(_ready) {
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
-#warning Fix imageformat
-        _githread.getImage(_cass, cass::PNG, _attachId->value());
+        _githread.getImage(_cass, cass::ImageFormat(_picturetype->currentIndex() + 1),
+                _attachId->value());
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
