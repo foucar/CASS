@@ -1,5 +1,4 @@
-//Copyright (C) 2010 lmf
-//Modified by Nicola Coppola 25.03.2010 introduced ROI(s)
+//Copyright (C) 2010 lmf, Nicola Coppola 25.03.2010 introduced ROI(s)
 
 #ifndef _PIXEL_DETECTOR_H_
 #define _PIXEL_DETECTOR_H_

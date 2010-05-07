@@ -243,7 +243,7 @@ void ImageViewer::on_getImage_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
 #warning Fix imageformat
-        _githread.getImage(_cass, cass::TIFF, _attachId->value());
+        _githread.getImage(_cass, cass::PNG, _attachId->value());
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
