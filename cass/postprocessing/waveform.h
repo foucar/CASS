@@ -16,6 +16,7 @@ namespace cass
   /** Last Waveform.
    * Class to show the last wavefrom of a channel. Objects created from this
    * class will work as postprocessor 4-23.
+   * @todo make sure that y axis will show up in volts
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
    */
@@ -51,6 +52,7 @@ namespace cass
    * depending on the factor it will make a cumulative average or
    * in exponential moving average.
    * Objects created from this class will work as postprocessor 500-519.
+   * @todo make sure that y axis will show up in volts
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
    */
