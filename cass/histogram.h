@@ -126,6 +126,9 @@ public:
      */
     virtual ~HistogramBackend() {};
 
+    std::string& mimeType() {return _mime;};
+    void setMimeType(std::string str) {_mime=str; };
+
     /** Read-write lock for internal memory/data
 
     This is a public property of every histogram. It must be locked for all access to the histogram.
@@ -192,6 +195,7 @@ protected:
     axis_t    _axis;
     //!< how many times has this histogram been filled
     size_t    _nbrOfFills;
+    std::string _mime;
 };
 
 
@@ -304,7 +308,7 @@ public:
     /*! Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
         : HistogramFloatBase(0, 1, 1)
-    {};
+    {setMimeType(std::string("application/cass0Dhistogram"));};
 
     /*! Constructor for reading a histogram from a stream */
     Histogram0DFloat(Serializer &in)
@@ -337,6 +341,7 @@ public:
     {
       //set up the axis
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      setMimeType(std::string("application/cass1Dhistogram"));
     }
 
     /** read histogram from serializer while creating.
@@ -361,6 +366,10 @@ public:
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
      */
+
+    /** return number of bins. */
+    size_t size() const {return _axis[0].size();}
+
     virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); };
 
     /** Maximum value in current histogram.
@@ -435,6 +444,7 @@ public:
         // set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
         _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
+        setMimeType(std::string("application/cass2Dhistogram"));
     }
 
     /** read histogram from serializer.

@@ -48,6 +48,7 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     };
     // save storage in PostProcessors container
     _image = new Histogram2DFloat(cols, 0, cols-1, rows, 0, rows-1);
+    _image->setMimeType(std::string("application/image"));
     _pp.histograms_replace(_id, _image);
 }
 

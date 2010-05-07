@@ -5,6 +5,7 @@
 
 #include <sstream>
 #include <string>
+#include <stdint.h>
 #include "cass.h"
 
 namespace cass

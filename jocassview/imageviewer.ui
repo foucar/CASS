@@ -53,7 +53,9 @@
     <property name="title">
      <string>Control</string>
     </property>
-    <addaction name="getImage"/>
+    <addaction name="getData"/>
+    <addaction name="getEvent"/>
+    <addaction name="getHistogram"/>
     <addaction name="readIni"/>
     <addaction name="separator"/>
     <addaction name="quitServer"/>
@@ -190,9 +192,9 @@
     <string>Quit Server.</string>
    </property>
   </action>
-  <action name="getImage">
+  <action name="getData">
    <property name="text">
-    <string>Get &amp;Image</string>
+    <string>Get &amp;Data</string>
    </property>
    <property name="toolTip">
     <string>Get single image from server.</string>
@@ -201,6 +203,15 @@
     <string>Ctrl+I</string>
    </property>
   </action>
+   <action name="getHistogram">
+   <property name="text">
+    <string>&amp;get Histogram...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+
  </widget>
  <resources/>
  <connections>

@@ -27,13 +27,16 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QSettings settings;
     _ui.setupUi(this);
     qRegisterMetaType<QImage>("QImage");
-    connect(&_githread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
+    connect(&_gdthread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
+    connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram1D(cass::Histogram1DFloat*)));
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-    connect(_updater, SIGNAL(timeout()), this, SLOT(on_getImage_triggered()));
+    connect(_updater, SIGNAL(timeout()), this, SLOT(on_getData_triggered()));
     // Add servername and port to toolbar.
     _servername = new QLineEdit(settings.value("servername", "server?").toString());
     _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     _servername->setToolTip("Name of the server to connect to.");
+    _cass = new CASSsoapProxy;
+    _gdthread.setSoap(_cass);
     connect(_servername, SIGNAL(editingFinished()), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_servername);
     _serverport = new QSpinBox();
@@ -42,16 +45,17 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _serverport->setValue(settings.value("serverport", 12321).toInt());
     _serverport->setToolTip("Port of the server to connect to.");
     connect(_serverport, SIGNAL(valueChanged(int)), this, SLOT(updateServer()));
+    updateServer();
     _ui.toolBar->addWidget(_serverport);
     // Add spacer to toolbar.
     QWidget *spacer1(new QWidget());
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
     // Add Attachment identifier to toolbar.
-    _attachId = new QSpinBox();
-    _attachId->setRange(1, 50000);
+    _attachId = new QComboBox();
     _attachId->setToolTip("Attachment identifier.");
-    _attachId->setValue(settings.value("attachId", 101).toInt());
+    _attachId->setEditable(true);
+    //updateImageList(_attachId);    // todo: doesn't work yet. data is correctly serialized on server side, but doesn't arrive correctly...
     _ui.toolBar->addWidget(_attachId);
     // Add picture type respectively format to toolbar.
     _picturetype = new QComboBox();
@@ -97,23 +101,38 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     punit->setText("Hz");
     _ui.toolBar->addWidget(punit);
     // Central label for image display.
-    imageLabel = new QLabel;
-    imageLabel->setBackgroundRole(QPalette::Base);
-    imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    imageLabel->setScaledContents(true);
-    scrollArea = new QScrollArea;
-    scrollArea->setBackgroundRole(QPalette::Dark);
-    scrollArea->setWidget(imageLabel);
-    setCentralWidget(scrollArea);
+    _imageLabel = new QLabel;
+    _imageLabel->setBackgroundRole(QPalette::Base);
+    _imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    _imageLabel->setScaledContents(true);
+    _imageWidget = new QScrollArea;
+    _imageWidget->setBackgroundRole(QPalette::Dark);
+    _imageWidget->setWidget(_imageLabel);
+    // widget for plots:
+    _plotWidget = new plotWidget(_cass);
+    // dock widget containing image or histograms:
+    _dock = new QDockWidget(tr("Histogram"), this);
+    //addDockWidget(Qt::RightDockWidgetArea, _dock);
+    setCentralWidget(_dock);
+
+
     // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
-    scrollArea->setWidgetResizable(_ui.fitToWindow->isChecked());
+    _imageWidget->setWidgetResizable(_ui.fitToWindow->isChecked());
     statusBar()->setToolTip("Actual frequency to get and display "
             "images averaged over (n) times.");
-    _cass = new CASSsoapProxy;
-    updateServer();
     updateActions();
+}
+
+void ImageViewer::updateImageList(QComboBox* box) {
+    cass::PostProcessors::active_t stdlist = _gdthread.getIdList(_cass);
+    for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++) {
+	    std::cout << "list iteration..." << std::endl;
+      QString itemstring(QString::number(*it));
+      if (box->findText(itemstring)==-1)
+         box->addItem( itemstring, QVariant(0) );
+    }
 }
 
 
@@ -143,7 +162,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
     settings.setValue("serverport", _serverport->value());
     settings.setValue("rate", _rate->value());
     settings.setValue("zoom", _zoom->value());
-    settings.setValue("attachId", _attachId->value());
+    settings.setValue("attachId", _attachId->currentText().toInt());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
     settings.setValue("scaleFactor", _scaleFactor);
     event->accept();
@@ -162,12 +181,12 @@ void ImageViewer::on_open_triggered()
                     tr("Cannot load %1.").arg(fileName));
             return;
         }
-        imageLabel->setPixmap(QPixmap::fromImage(image));
+        _imageLabel->setPixmap(QPixmap::fromImage(image));
         _scaleFactor = 1.0;
         _ui.fitToWindow->setEnabled(true);
         updateActions();
         if(!_ui.fitToWindow->isChecked())
-            imageLabel->adjustSize();
+            _imageLabel->adjustSize();
     }
 }
 
@@ -177,11 +196,13 @@ void ImageViewer::updatePixmap(const QImage &image)
     VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
             << " width=" << image.size().width()
             << " height=" << image.size().height() << endl);
-    imageLabel->setPixmap(QPixmap::fromImage(image));
+    _imageLabel->setPixmap(QPixmap::fromImage(image));
     _imagesize = image.size();
+    _dock->setWidget(_imageWidget);
+std::cout<< "updatePixmap" <<std::endl;
     updateActions();
     VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
-    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+    _imageLabel->resize(_scaleFactor * _imageLabel->pixmap()->size());
     // set rate info
     static QTime time;
     static float rate(0.);
@@ -195,60 +216,188 @@ void ImageViewer::updatePixmap(const QImage &image)
     _ready = true;
 }
 
-
-void getImageThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId)
+void ImageViewer::updateHistogram1D(cass::Histogram1DFloat* hist)
 {
-    VERBOSEOUT(cout << "getImageThread::getImage" << endl);
+    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
+            << " width=" << image.size().width()
+            << " height=" << image.size().height() << endl);*/
+    _plotWidget->setData(hist);
+    delete hist;
+    _dock->setWidget(_plotWidget);
+    
+    updateActions();
+    //VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
+    // set rate info
+    static QTime time;
+    static float rate(0.);
+    int elapsed(time.restart());
+    if(rate < 0.01)
+        rate = 1000./elapsed;
+    else
+        rate = 0.95 * rate + 0.05 * 1000./elapsed;
+    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+    _statusLED->setStatus(false);
+    _ready = true;
+}
+
+void getDataThread::getData(CASSsoapProxy *cass, int attachId)
+{
+    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    _dataType = dat_Any;
+    _cass = cass;
+    _attachId = attachId;
+    start();
+}
+
+void getDataThread::setSoap(CASSsoapProxy* cassSoap) {
+    _cass = cassSoap;
+}
+
+void getDataThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId)
+{
+    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    _dataType = dat_Image;
     _cass = cass;
     _format = format;
     _attachId = attachId;
     start();
 }
 
-
-void getImageThread::run()
+std::string getDataThread::getMimeType(CASSsoapProxy *cass, int attachId)
 {
-    VERBOSEOUT(cout << "getImageThread::run: _format=" << _format << endl);
+    VERBOSEOUT(cout << "getDataThread::getMimeType" << endl);
     bool ret;
-#warning Fix imageformat
-//    _cass->getImage(_format, _attachId, &ret);
+    cass->getMimeType(attachId, &ret);
+    if(ret)
+        std::cout << "return value: 'true'" << std::endl;
+    else {
+       std::cout << "return value is 'false'" << std::endl;
+        return std::string("");
+    }
+
+    soap_multipart::iterator attachment = cass->dime.begin();
+
+    std::cout << "DIME attachment:" << std::endl;
+    std::cout << "Memory=" << (void*)(*attachment).ptr << std::endl;
+    std::cout << "Size=" << (*attachment).size << std::endl;
+    std::cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl;
+    std::cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl;
+    return std::string( (*attachment).ptr, (*attachment).size-1);
+}
+
+cass::PostProcessors::active_t getDataThread::getIdList(CASSsoapProxy *cass) {
+    bool ret;
+    cass->getPostprocessorIds(&ret);
+    if(ret)
+        std::cout << "return value: 'true'" << std::endl;
+    else {
+       std::cout << "return value is 'false'" << std::endl;
+        return cass::PostProcessors::active_t();
+    }
+
+    soap_multipart::iterator attachment = cass->dime.begin();
+
+    std::cout << "DIME attachment:" << std::endl;
+    std::cout << "Memory=" << (void*)(*attachment).ptr << std::endl;
+    std::cout << "Size=" << (*attachment).size << std::endl;
+    std::cout << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl;
+    std::cout << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl;
+    cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+    cass::IdList list(serializer);
+    return list.getList();
+};
+
+
+void getDataThread::getHistogram1D(CASSsoapProxy *cass, int attachId)
+{
+    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    _dataType = dat_1DHistogram;
+    _cass = cass;
+    _attachId = attachId;
+    start();
+}
+
+void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
+{
+    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    _dataType = dat_0DHistogram;
+    _cass = cass;
+    _attachId = attachId;
+    start();
+}
+
+void getDataThread::run()
+{std::cout << "comparison: " << std::string("ding").compare(std::string("ding")) << std::endl;
+    if (_dataType==dat_Any) {
+	    std::string mime(getMimeType(_cass, _attachId));
+            VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
+	    if (!mime.compare(std::string("application/cass0Dhistogram"))) _dataType=dat_0DHistogram;
+	    else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
+	    else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
+	    else if (!mime.compare(0,17,std::string("application/image"))) _dataType=dat_Image;
+    }
+    if (_dataType==dat_Any) {std::cout<< "getDataThread::run: cannot handle mime type dat_Any" << std::endl; return;}
+    VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
+    bool ret;
+    switch(_dataType) {
+    case dat_Image:
     _cass->getImage(2, _attachId, &ret);
+        break;
+    case dat_1DHistogram:
+	_cass->getHistogram(_attachId, &ret);
+	break;
+    }
     if(! ret) {
-        cerr << "Did not get image" << endl;
+        cerr << "Did not get soap data" << endl;
         return;
     }
-    VERBOSEOUT(cout << "getImageThread::run: Got image" << endl);
+    VERBOSEOUT(cout << "getDataThread::run: Got soap data" << endl);
     soap_multipart::iterator attachment(_cass->dime.begin());
     if(_cass->dime.end() == attachment) {
         cerr << "Did not get attachment!" << endl;
         return;
     }
-    VERBOSEOUT(cout << "getImageThread::run: DIME attachment:" << endl);
+    VERBOSEOUT(cout << "getDataThread::run: DIME attachment:" << endl);
     VERBOSEOUT(cout << "  Memory=" << (void*)(*attachment).ptr << endl);
     VERBOSEOUT(cout << "  Size=" << (*attachment).size << endl);
     VERBOSEOUT(cout << "  Type=" << ((*attachment).type?(*attachment).type:"null")
             << endl);
     VERBOSEOUT(cout << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
-    QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
-            imageformatName(cass::ImageFormat(_format)).c_str()));
-    VERBOSEOUT(cout << "getImageThread::run: byteCount=" << image.byteCount() << endl);
-    emit newImage(image);
+    switch(_dataType) {
+    case dat_Image: {
+        QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
+                imageformatName(cass::ImageFormat(_format)).c_str()));
+        VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image.byteCount() << endl);
+        emit newImage(image);
+        break; }
+    case dat_1DHistogram:
+	cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+	cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
+	emit newHistogram(hist);
+	break;
+    }
+#warning Fix imageformat
 }
 
 
-void ImageViewer::on_getImage_triggered()
+void ImageViewer::on_getData_triggered()
 {
-    VERBOSEOUT(cout << "on_getImage_triggered" << endl);
+    VERBOSEOUT(cout << "on_getData_triggered" << endl);
+std::cout << "getData_triggered" << std::endl;
     if(_ready) {
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
-        _githread.getImage(_cass, cass::ImageFormat(_picturetype->currentIndex() + 1),
-                _attachId->value());
+        _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
+        _gdthread.getData(_cass, _attachId->currentText().toInt());
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
 }
 
+void ImageViewer::on_getHistogram_triggered()
+{
+    _gdthread.getHistogram1D(_cass, _attachId->currentText().toInt());
+}
 
 void ImageViewer::running()
 {
@@ -287,17 +436,17 @@ void ImageViewer::on_quitServer_triggered()
 void ImageViewer::on_print_triggered()
 {
 #ifndef QT_NO_PRINTER
-    if(! imageLabel->pixmap())
+    if(! _imageLabel->pixmap())
         return;
     QPrintDialog dialog(&printer, this);
     if(dialog.exec()) {
         QPainter painter(&printer);
         QRect rect = painter.viewport();
-        QSize size = imageLabel->pixmap()->size();
+        QSize size = _imageLabel->pixmap()->size();
         size.scale(rect.size(), Qt::KeepAspectRatio);
         painter.setViewport(rect.x(), rect.y(), size.width(), size.height());
-        painter.setWindow(imageLabel->pixmap()->rect());
-        painter.drawPixmap(0, 0, *imageLabel->pixmap());
+        painter.setWindow(_imageLabel->pixmap()->rect());
+        painter.drawPixmap(0, 0, *_imageLabel->pixmap());
     }
 #endif
 }
@@ -329,7 +478,7 @@ void ImageViewer::on_zoomOut_triggered()
 
 void ImageViewer::on_normalSize_triggered()
 {
-    imageLabel->adjustSize();
+    _imageLabel->adjustSize();
     _scaleFactor = 1.0;
     _zoom->blockSignals(true);
     _zoom->setValue(100.);
@@ -341,7 +490,7 @@ void ImageViewer::on_fitToWindow_triggered()
 {
     VERBOSEOUT(cout << "on_fitToWindow_triggered" << endl);
     bool fitToWindow = _ui.fitToWindow->isChecked();
-    scrollArea->setWidgetResizable(fitToWindow);
+    _imageWidget->setWidgetResizable(fitToWindow);
     if(!fitToWindow) {
         on_normalSize_triggered();
     }
@@ -378,13 +527,13 @@ void ImageViewer::updateServer()
 void ImageViewer::scaleImage(double factor)
 {
     VERBOSEOUT(cout << "scaleImage: factor=" << factor << endl);
-    if(!imageLabel->pixmap())
+    if(!_imageLabel->pixmap())
         return;
     _scaleFactor *= factor;
-    imageLabel->resize(_scaleFactor * imageLabel->pixmap()->size());
+    _imageLabel->resize(_scaleFactor * _imageLabel->pixmap()->size());
 
-    adjustScrollBar(scrollArea->horizontalScrollBar(), factor);
-    adjustScrollBar(scrollArea->verticalScrollBar(), factor);
+    adjustScrollBar(_imageWidget->horizontalScrollBar(), factor);
+    adjustScrollBar(_imageWidget->verticalScrollBar(), factor);
 
     _ui.zoomIn->setEnabled(_scaleFactor < 3.0);
     _ui.zoomOut->setEnabled(_scaleFactor > 0.333);
@@ -398,9 +547,9 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 }
 
 
-getImageThread::getImageThread()
+getDataThread::getDataThread()
 {
-    VERBOSEOUT(cout << "getImageThread::getImageThread" << endl);
+    VERBOSEOUT(cout << "getDataThread::getDataThread" << endl);
 
 }
 
