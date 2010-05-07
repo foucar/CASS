@@ -41,5 +41,5 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
   det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
   //mark out the first 8 pixels since they store status info, that might mess up the picture
-  std::fill(det.frame().begin(),det.frame().begin()+8,0);
+  std::fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
 }
