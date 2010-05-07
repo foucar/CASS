@@ -14,23 +14,25 @@
 
 namespace cass
 {
-  /*! Iteration over XTC's
-
-  class that will iterate over an xtc using the xtciterator
-  provided by the lcls libary
-  @author Lutz Foucar
-  */
+  /** Iteration over XTC's.
+   *
+   * class that will iterate over an xtc using the xtciterator
+   * provided by the lcls libary
+   *
+   * @author Lutz Foucar
+   */
   class XtcIterator : public Pds::XtcIterator
   {
   public:
     /** enum for more convenient code*/
     enum {Stop, Continue};
-    /** constructor taking a xtc that we will iterate over
-      @param xtc the xtc which contents we iterate over
-      @param converters the map that contains the used converters
-      @param cassevent our event to write the information from the xtc to
-      @param depth The Depth of recursion when called recursivly
-      */
+    /** constructor.
+     *
+     * @param xtc the xtc which contents we iterate over
+     * @param converters the map that contains the used converters
+     * @param cassevent our event to write the information from the xtc to
+     * @param depth The Depth of recursion when called recursivly
+     */
     XtcIterator(Pds::Xtc* xtc,
                 FormatConverter::usedConverters_t& converters,
                 CASSEvent *cassevent,
@@ -42,11 +44,12 @@ namespace cass
     {}
 
 
-    /** overloaded function that is called for each xtc found in the xtc
-
-      will check whether its an id or another xtc. if its another xtc it will call this
-      with increased recursion depth, otherwise it will call the format converter for the id.
-    */
+    /** @overload
+     * function that is called for each xtc found in the xtc
+     *
+     * will check whether its an id or another xtc. if its another xtc it will call this
+     * with increased recursion depth, otherwise it will call the format converter for the id.
+     */
     int process(Pds::Xtc* xtc)
     {
       //if it is another xtc, then iterate through it//
