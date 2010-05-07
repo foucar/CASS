@@ -192,7 +192,7 @@ void cass::pp500::loadParameters(size_t)
   parameter.beginGroup(QString("p") + QString::number(_id));
   //load the nbr of averages, and calculate the alpha from it//
   uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
-  _alpha = static_cast<float>(1./N);
+  _alpha = static_cast<float>(2./(N+1));
   std::cout <<"postprocessor "<<_id<<" is averaging over "<< N<<" events"<<std::endl;
 }
 
