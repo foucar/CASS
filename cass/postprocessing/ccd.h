@@ -143,6 +143,53 @@ protected:
 
 
 
+/** PhotonHits of CCD's in a 1D histogram.
+ *
+ * This postprocessor will fill a 1d histogram with the z values detected Photonhits.
+ * Photonhits will be detected in the commercial Pre Analyzer. They will
+ * be just summed up. One needs to clear this histogram, when something has changed.
+ *
+ * Implements Postprocessor id's: 113, 114, 115
+ *
+ * User settable parameters in cass.ini:
+ * - properties of the 1D Histogram:
+ *   PostProcessor/p%id%/{XNbrBins|XLow|Xup}
+ *
+ * @author Lutz Foucar
+ */
+class pp113 : public PostprocessorBackend
+{
+public:
+    /** constructor.*/
+    pp113(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image spcae */
+    virtual ~pp113();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadParameters(size_t);
+
+protected:
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** detector to work on */
+    size_t _detector;
+
+    /** current image */
+    Histogram1DFloat * _hist;
+};
+
+
+
+
+
+
+
+
 /** @brief Integral of last CCD image (pp3) */
 class pp141 : public PostprocessorBackend
 {

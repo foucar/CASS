@@ -257,6 +257,82 @@ void cass::pp110::operator()(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
+// ***  used by postprocessors 113-115 ***
+
+pp113::pp113(PostProcessors& pp, cass::PostProcessors::id_t id)
+    : PostprocessorBackend(pp, id)
+{
+    switch(id)
+    {
+    case PostProcessors::VMIPhotonHits1d:
+        _device=CASSEvent::CCD; _detector = 0;
+        break;
+    case PostProcessors::PnCCDFrontPhotonHits1d:
+        _device=CASSEvent::pnCCD; _detector = 0;
+        break;
+    case PostProcessors::PnCCDBackPhotonHits1d:
+        _device=CASSEvent::pnCCD; _detector = 1;
+        break;
+    default:
+        throw std::invalid_argument("Impossible postprocessor id for pp113");
+        break;
+    };
+}
+
+cass::pp113::~pp113()
+{
+    _pp.histograms_delete(_id);
+    _hist = 0;
+}
+
+void cass::pp113::loadParameters(size_t)
+{
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it histograms the Nbr of Mcp Peaks"
+      <<" of detector "<<_detector
+      <<" of device "<<_device
+      <<std::endl;
+  //create the histogram
+  set1DHist(_hist,_id);
+  _pp.histograms_replace(_id,_hist);
+}
+
+void cass::pp113::operator()(const CASSEvent& evt)
+{
+    //check whether detector exists
+    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+        throw std::runtime_error(QString("PP_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+
+    //retrieve the detector's photon hits of the device we are working for.
+    const PixelDetector::pixelList_t& pixellist
+        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+    for (; it != pixellist.end();++it)
+        _hist->fill(it->z());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // *** postprocessor 141 -- integral over last image from VMI CCD ***
 
 pp141::pp141(PostProcessors& pp, cass::PostProcessors::id_t id)

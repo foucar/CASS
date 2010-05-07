@@ -128,6 +128,9 @@ histograms) and placed in the file for the most appropriate group according to t
   - 2d Histogram, Bins are increased by one for each detected photonhit
   - photonHits are detected in the pre Analyzer.
   - check pre analyzer for threshold parameters
+00113: Commercial CCD photonhits in a 1D Histogram (pp113)
+00114: Commercial CCD photonhits in a 1D Histogram (pp113)
+00115: Commercial CCD photonhits in a 1D Histogram (pp113)
 
 00121: Running average of VMI (Opal) camera
 00131: Scalar value of the <cos^2\theta> derived from the 121 image
@@ -353,6 +356,7 @@ public:
         PnccdBackBinnedRunningAverage=103,
         CommercialCCDBinnedRunningAverage=105,
         VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
+        VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
         VmiRunningAverage=121, VmiCos2Theta=131,
         Integral3=141, Integral121=142,
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
