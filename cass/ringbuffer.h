@@ -13,6 +13,7 @@
 namespace cass
 {
   /** A Ringbuffer, handles communication between Input and Worker Threads.
+   *
    * The ringbuffer handles the main communication between the single producer
    * (shared memory input) and the multiple consumers (worker).
    *
@@ -33,6 +34,8 @@ namespace cass
    * @tparam cap Capacity of the ringbuffer
    * @author Lutz Foucar
    * @todo find out how one can use std::find to find the right element
+   * @todo maybe create a ReadWriteLock for each element to get rid of the mutexes
+   * @todo separeate declaration and definition to make class more readable
    */
   template <typename T, size_t cap>
   class RingBuffer
@@ -233,12 +236,14 @@ namespace cass
   public:
 
     /** return the next filled but non processed element.
+     *
      * This function will return the next filled element, which will
      * either be the one just filled by the shared memory input or
      * one or more before, depending on how fast elements are retrieved
      * before they are filled again.
      * When there are no Elements that we can work on, this function will wait
      * until there is a new element that we can process.
+     *
      * @note this can be the reason why only one of the threads is working at
      *       a time.
      * @return void
@@ -274,9 +279,11 @@ namespace cass
     }
 
     /** putting the processed element back to the buffer.
+     *
      * This function will put the element that we just processed back to the buffer.
      * It will will search the buffer for the element and then set the
      * flags of that element according to its current state.
+     *
      * @return void
      * @return[in] element reference to the pointer of the element
      */
@@ -305,6 +312,7 @@ namespace cass
     }
 
     /** retrieve the "to be filled" element.
+     *
      * This function will retrieve the next element that we can fill.
      * Depending on the behaviour of the ringbuffer, we check whether
      * it has been processed or not. When the behaviour is blocking then
@@ -312,6 +320,7 @@ namespace cass
      * return the next element that is not in process.
      * In the blocking case this function will only return when a processed
      * event was put into the buffer.
+     *
      * @return void
      * @param[out] element A reference to the pointer of the Element.
      */
@@ -334,11 +343,13 @@ namespace cass
     }
 
     /** putting the filled element back to the buffer.
+     *
      * This function will put the element that we just filled back to the buffer.
      * It will will search the buffer for the element and then set the
      * flags of that element according to its current state and depending on the
      * fillstatus. Using the fillstatus we can say that this element should be processed
      * or not.
+     *
      * @return void
      * @return[in] element reference to the pointer of the element
      * @return[in] fillstatus True when the element should be processed,
@@ -346,14 +357,14 @@ namespace cass
      */
     void doneFilling(reference element, bool fillstatus=true)
     {
-      //create a lock//
-      QMutexLocker lock(&_mutex);
       //search for the element the user wants to put back.//
       //Retrieve the iterator for the element//
       iterator_t iElement = _buffer.begin();
       for ( ; iElement != _buffer.end() ; ++iElement)
         if (iElement->element == element)
           break;
+      //create a lock//
+      QMutexLocker lock(&_mutex);
       //now set the status properties according to the fillstatus//
       iElement->inBearbeitung = false;
       iElement->bearbeitet    = !fillstatus;
@@ -402,6 +413,7 @@ namespace cass
     }
 
    /** putting the serialized element back to the buffer.
+    *
     * This function will put the element that we just serialized back to the buffer.
     * It will will search the buffer for the element and then set the
     * flags of that element according to its current state.
