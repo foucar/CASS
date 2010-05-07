@@ -145,9 +145,10 @@ void cass::pp101::loadParameters(size_t)
     settings.beginGroup("PostProcessor");
     settings.beginGroup(QString("p") + QString::number(_id));
     _average = settings.value("average", 1).toUInt();
-    _scale = 1. - 1./_average;
+    _scale =  2./(_average+1);
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
+    std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average<<std::endl;
     if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
         // create new histogram storage and save it in PostProcessors container
