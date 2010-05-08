@@ -47,7 +47,7 @@ namespace cass
 
 
 
-  /** Averaged Wavefrom.
+  /** Averaged Waveform.
    * class that lets you average the waveforms
    * depending on the factor it will make a cumulative average or
    * in exponential moving average.
