@@ -386,7 +386,7 @@ void getDataThread::run()
     case dat_1DHistogram:
         cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
         cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
-        emit newHistogram(hist);
+        emit newHistogram(hist);  // slot deletes hist when done.
         break;
     }
     _cass->destroy();
