@@ -82,6 +82,7 @@ histograms) and placed in the file for the most appropriate group according to t
 @section pplist List of Postprocessors
 The Classes that implement the postprocessor are pointed out in parenthesis. See the Class description
 for information about what parameters are user settable. (Keep in mind that cases matter)
+@todo the classes in parenthesis should be links to the actual classes
 @verbatim
 00001: Last plain image from Front pnCCD (pp1)
 00002: Last plain image from Back pnCCD (pp1)
