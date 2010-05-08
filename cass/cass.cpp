@@ -132,15 +132,10 @@
  *
  * @date 2009-2010
  *
- * @todo create a client for the tcpserver that will retrieve
- *       the postprocessors histgrams and display them
  * @todo only retrieve the last ccd / waveform when requested
  * @todo describe how to use Nicolas ROI.
  * @todo find out why there are the warning messages about const
  *       iterators (size_t) when compiling at SLAC
- * @todo solve the issue with the multithreading (program has more than one thread
- *       but seems to run only with one active thread)
- * @todo create GUI for setting the cass.ini variables
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
  * @todo make detector evaluation lazy by having the getters calc
@@ -150,8 +145,9 @@
  *       Maybe using cass.ini?
  * @todo create pp: cummulative average commercial ccd image with condition on
  *       tof and pos on delayline detector
- * @todo create pp: postprocessor that will display the photonhits (to average out
- *       inhomogeniousity of the phosphor). Maybe make this an moving average (how)?
+ * @todo move main documentation to own file.
+ * @todo create a page that contains links to all descriptions of user
+ *       settable variables in cass.ini
  */
 
 /** \page authors Authors
