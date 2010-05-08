@@ -8,6 +8,7 @@
 #include <QtCore/qglobal.h>
 #include <vector>
 #include <functional>
+#include <stdint.h>
 
 #if defined(CASS_ACQIRIS_LIBRARY)
 #  define CASS_ACQIRISSHARED_EXPORT Q_DECL_EXPORT
