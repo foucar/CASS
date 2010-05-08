@@ -104,10 +104,10 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   //copy the waveform to our storage histogram
   _waveform->lock.lockForWrite();
 //  std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
-//  std::transform(waveform.begin(),
-//                 waveform.end(),
-//                 _waveform->memory().begin(),
-//                 std::bind2nd(std::bind2nd(std::multiplies<float>(),gain),));
+  std::transform(waveform.begin(),
+                 waveform.end(),
+                 _waveform->memory().begin(),
+                 cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
   _waveform->lock.unlock();
 }
 
