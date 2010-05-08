@@ -7,6 +7,7 @@
 
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "pdsdata/pnCCD/ConfigV1.hh"
+#include "pdsdata/pnCCD/ConfigV2.hh"
 
 using namespace Pds;
 using namespace PNCCD;
@@ -26,5 +27,13 @@ unsigned FrameV1::sizeofData(const ConfigV1& cfg) const {
 }
 
 const FrameV1* FrameV1::next(const ConfigV1& cfg) const {
+  return (const FrameV1*)(((char*)this)+cfg.payloadSizePerLink());
+}
+
+unsigned FrameV1::sizeofData(const ConfigV2& cfg) const {
+  return (cfg.payloadSizePerLink()-sizeof(*this))/sizeof(uint16_t);
+}
+
+const FrameV1* FrameV1::next(const ConfigV2& cfg) const {
   return (const FrameV1*)(((char*)this)+cfg.payloadSizePerLink());
 }

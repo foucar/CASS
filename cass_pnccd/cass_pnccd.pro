@@ -9,7 +9,7 @@ CASS_ROOT = ../
 
 include($${CASS_ROOT}/cass_config.pri )
 
-QT            -= core gui
+QT            -= core
 
 DEFINES       += CASS_PNCCD_LIBRARY
 INCLUDEPATH   += ../cass ../LCLS
@@ -28,7 +28,8 @@ HEADERS       += ../cass/analysis_backend.h \
                  pnccd_analysis.h \
                  pnccd_converter.h \
                  cass_pnccd.h \
-                 pnccd_device.h
+                 pnccd_device.h \
+                 pnccd_detector.h
 
 headers.files   = $$HEADERS
 libs.files     = libcass_pnccd.a

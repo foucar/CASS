@@ -7,37 +7,41 @@
 #include <iostream>
 #include "cass_pnccd.h"
 #include "device_backend.h"
-//#include "ccd_detector.h"
 #include "pixel_detector.h"
 
 namespace cass
 {
   namespace pnCCD
   {
+    /** the pnccd device.
+     *
+     * The device contains a list of detectors and is serializable.
+     *
+     * @author Lutz Foucar
+     */
     class CASS_PNCCDSHARED_EXPORT pnCCDDevice : public DeviceBackend
     {
     public:
+      /** default constructor. defining the version*/
       pnCCDDevice()
         :DeviceBackend(1)
       {}
-      ~pnCCDDevice()       {}
-
-#define pnCCD_default_size    1024
-#define pnCCD_default_size_sq 1024*1024
 
     public:
-      typedef std::vector<PixelDetector> detectors_t;
-
-    public:
+      /** serialize the device to the Serializer*/
       void serialize(cass::Serializer&);
+      /** deserialize the device from the Serializer*/
       void deserialize(cass::Serializer&);
 
     public:
+      /** getter */
       const detectors_t   *detectors()const   {return &_detectors;}
+      /** setter */
       detectors_t         *detectors()        {return &_detectors;}
 
     private:
-      detectors_t          _detectors;        //!< a vector containing all ccd detectors
+      /** container for all pnccd detectors*/
+      detectors_t          _detectors;
     };
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
@@ -50,7 +54,7 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out)
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
   //serialize each detector//
-  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
+  for (detectors_t::iterator it=_detectors.begin(); it != _detectors.end();++it)
     it->serialize(out);
 }
 

@@ -12,6 +12,7 @@ namespace cass
   namespace ACQIRIS
   {
     /** A Time of Flight Detector.
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT TofDetector : public DetectorBackend

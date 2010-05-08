@@ -1,41 +1,20 @@
+// Copyright (C) 2009, 2010 Lutz Foucar
+
 #include "pnccd_converter.h"
 
 #include <iostream>
+#include <stdexcept>
 
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
 #include "pdsdata/xtc/DetInfo.hh"
 #include "pdsdata/pnCCD/ConfigV1.hh"
+#include "pdsdata/pnCCD/ConfigV2.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "cass_event.h"
 #include "pnccd_device.h"
-//#include "ccd_detector.h"
 #include "pixel_detector.h"
-
-/*inline const uint16_t checkOverAndUnderflow(const uint16_t pixel)
-{
-  //if pixel over or underflow//
-  if (pixel & 0xc000)
-  {
-    //check whether all lower bits are set (overflow)
-    if((pixel & 0x3fff) == 0x3fff)
-      return 16383;
-    //or all lower bits are not set (underflow)
-    else if((pixel & 0x3fff) == 0x0)
-      return 0;
-    //otherwise this datapoint yields something wrong//
-    else
-    {
-      std::cout << "bad pixel representation: 0x"<<std::hex<<pixel<<std::dec<<std::endl;
-      return 0xffff;
-    }
-  }
-  //otherwise just return pixel
-  else
-    return pixel;
-}*/
-
-
+#include "pnccd_detector.h"
 
 void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
@@ -47,17 +26,23 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       //Get the the detecotor id //
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
+      //the configuration version//
+      uint32_t version = xtc->contains.version();
 
+      std::cout << "pnCCDConverter::ConfigXTC: DeviceId:"<<detectorId
+          <<" Version:"<<version
+          <<std::endl;
       //if necessary resize the config container//
       if (detectorId >= _pnccdConfig.size())
-        _pnccdConfig.resize(detectorId+1,0);
+        _pnccdConfig.resize(detectorId+1,std::make_pair<uint32_t,Pds::PNCCD::ConfigV2*>(version,0));
 
       //retrieve the reference to the right pointer to config//
       //and store the transmitted config//
-      Pds::PNCCD::ConfigV1 *&pnccdConfig = _pnccdConfig[detectorId];
+      Pds::PNCCD::ConfigV2 *&pnccdConfig = _pnccdConfig[detectorId].second;
       delete pnccdConfig;
-      pnccdConfig = new Pds::PNCCD::ConfigV1();
-      *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV1*>(xtc->payload()));
+      pnccdConfig = new Pds::PNCCD::ConfigV2();
+      *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
+      std::cout << "pnCCDConverter::ConfigXTC: done"<<std::endl;
     }
     break;
 
@@ -75,30 +60,57 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const size_t detectorId = info.devId();
 
       //if necessary resize the detector container//
+//      std::cout<<"pnCCDConverter::DataXTC: resizing container"<<std::endl;
       if (detectorId >= dev.detectors()->size())
         dev.detectors()->resize(detectorId+1);
+//      std::cout<<"pnCCDConverter::DataXTC: done resizing"<<std::endl;
 
       //only convert if we have a config for this detector
       if (_pnccdConfig.size() > detectorId)
-      if (_pnccdConfig[detectorId])
+      if (_pnccdConfig[detectorId].second)
       {
         //get a reference to the detector we are working on right now//
-        cass::PixelDetector& det = (*dev.detectors())[detectorId];
-
+//        std::cout<<"pnCCDConverter::DataXTC: getting det from container"<<std::endl;
+        PixelDetector& det = (*dev.detectors())[detectorId];
+//        std::cout<<"pnCCDConverter::DataXTC: done getting det from container"<<std::endl;
         //get the pointer to the config for this detector//
-        const Pds::PNCCD::ConfigV1 *pnccdConfig = _pnccdConfig[detectorId];
+        const Pds::PNCCD::ConfigV2 *pnccdConfig = _pnccdConfig[detectorId].second;
 
-        //std::cout<<"t"<<_param._detectorparameters[detectorId]._ROIiterator.size()<<std::endl;
-        //DetectorParameter &dp = _param._detectorparameters[detectorId];
-
-        //we need to set the rows and columns hardcoded since the information is not yet
-        //provided by LCLS//
-        det.rows() = det.columns() = pnCCD_default_size;
-        det.originalrows() = det.originalcolumns() = pnCCD_default_size;
-
-        //the dim of one frame segment is also not provided//
-        const size_t rowsOfSegment = pnCCD_default_size/2;
-        const size_t columnsOfSegment = pnCCD_default_size/2;
+        size_t rowsOfSegment(0);
+        size_t columnsOfSegment(0);
+        //check the version and retrieve info of detector//
+        switch(_pnccdConfig[detectorId].first)
+        {
+        case 1:
+          //we need to set the rows and columns hardcoded since the information is not yet
+          //provided by LCLS in Version 1//
+          det.rows() = det.columns() = pnCCD_default_size;
+          det.originalrows() = det.originalcolumns() = pnCCD_default_size;
+          rowsOfSegment = pnCCD_default_size/2;
+          columnsOfSegment = pnCCD_default_size/2;
+          break;
+        case 2:
+          //get the rows and columns from config//
+          det.rows() = pnccdConfig->numRows();
+          det.columns() = pnccdConfig->numChannels();
+          det.originalrows() =  pnccdConfig->numRows();
+          det.originalcolumns() = pnccdConfig->numChannels();
+          det.info().assign(pnccdConfig->info());
+          det.timingFilename().assign(pnccdConfig->timingFName());
+          det.camaxMagic() = pnccdConfig->camexMagic();
+          rowsOfSegment = pnccdConfig->numSubmoduleRows();
+          columnsOfSegment = pnccdConfig->numSubmoduleChannels();
+//          std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
+//          std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
+          break;
+        default:
+          throw std::range_error("Unsupported pnCCD configuration version");
+        }
 
         //find out the total size of this frame//
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);

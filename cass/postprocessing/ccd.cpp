@@ -92,7 +92,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 
 
 
-// *** postprocessors 101, 102, 105 ***
+// *** postprocessors 101, 103, 105 ***
 
 pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
@@ -229,7 +229,7 @@ pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
         _device=CASSEvent::pnCCD; _detector = 1;
         break;
     default:
-        throw std::invalid_argument("Impossible postprocessor id for pp110");
+        throw std::invalid_argument("Impossible postprocessor id for class pp110");
         break;
     };
 }

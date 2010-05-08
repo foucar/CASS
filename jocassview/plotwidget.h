@@ -44,7 +44,7 @@ public:
          //QVector<cass::HistogramFloatBase::value_t> qx(hist.size());
          QVector<double> qx(hist->size());
          const cass::AxisProperty &axis = hist->axis()[0];
-         for (int ii=0;ii<hist->size();ii++) {
+         for (size_t ii=0;ii<hist->size();ii++) {
             qx[ii]=static_cast<double>(axis.position(ii));
             qdata[ii]=static_cast<double>(hist->bin(ii));
          }

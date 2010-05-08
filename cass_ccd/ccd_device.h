@@ -55,7 +55,7 @@ inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
   //serialize each detector//
-  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
+  for (detectors_t::iterator it=_detectors.begin(); it != _detectors.end();++it)
     it->serialize(out);
 }
 

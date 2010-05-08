@@ -1,7 +1,9 @@
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009, 2010 Lutz Foucar
 
 #ifndef CASS_DEVICEBACKEND_H
 #define CASS_DEVICEBACKEND_H
+
+#include <stdexcept>
 
 #include "cass.h"
 #include "serializable.h"
@@ -9,8 +11,10 @@
 namespace cass
 {
   /** A Baseclass for all Devices in the CASSEvent.
+   *
    * All devices need to be serializable, therefore this class
    * inerhits from serializable.
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT DeviceBackend : public cass::Serializable
@@ -31,7 +35,7 @@ namespace cass
      */
     virtual const detectors_t *detectors()const
     {
-      std::cerr<<"this device has no detectors"<<std::endl;
+      throw std::runtime_error("DeviceBackend::detectors(): device has no detectors");
       return 0;
     }
   };

@@ -42,11 +42,53 @@ namespace cass
 
 
 
-    /** Class containing information about how to extract the signals of a waveform.
-     * It also contains an array of signals (called peaks for now)
+    /** Signal extraction definition.
+     *
+     * Class containing information about how to extract the signals of a waveform.
+     * It contains a vector of extracted signals (called peaks for now). One Signal
+     * is called Peak.
+     *
+     * User settable parameters via CASS.ini
+     * - general access to these parameters depends on the detector type:
+     *   - In Delaylinedetectors its for
+     *      - MCP: AcqirisDetectors/%detectorname%/MCP
+     *      - Layers Wireends: AcqirisDetectors/%detectorname%/%Layername%/%Wireendname%
+     *   - In TofDetectors: AcqirisDetectors/%detectorname%/Signal
+     *
+     * Then the specific settings for these objects are:
+     * - Acqiris Instrument that this channel is in: .../{AcqirisInstrument}
+     * - Channel within the instrument (starts counting from 0): .../{ChannelNumber}
+     * - time range of the channel that we are interested in:
+     *   .../{LowerTimeRangeLimit|UpperTimeRangeLimit}
+     * - time range of the channel that "good" signals will appear. This is used by
+     *   delayline detectors for displaying the first good hits and the timesum:
+     *   .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}
+     * - the method type that will be used to analyze the waveform.
+     *   there are the following options :
+     *   - 0:com 8 bit waveform
+     *   - 1:com 16 bit waveform
+     *   - 2:cfd 8 bit waveform
+     *   - 3:cfd 16 bit waveform
+     *   .../{WaveformAnalysisMethod} @see cass::ACQIRIS::CoM, cass::ACQIRIS::CFD
+     * - the polarity of the signals that we are interested in:
+     *   - 1: Positive Polarity
+     *   - 2: Negative Polarity
+     *   .../{Polarity}
+     * - the theshold for the signals in Volts:
+     *   .../{Threshold}
+     * - delay in ns used by the constant fraction method:
+     *   .../{Delay}
+     * - fraction used by the constant fraction method:
+     *   .../{Fraction}
+     * - walk in Volts used by the constant fraction method:
+     *   .../{Walk}
+     *
      * @todo rename this class to somehting more meaningful
-     *       In the delayline it represents the wireends of the anodelayers and the mcp output
-     *       In the tof it should just represent the way to extract the singals and the signals itselve
+     *       In the delayline it represents the wireends of the anodelayers and
+     *       the mcp output.
+     *       In the tof it should just represent the way to extract the singals
+     *       and the signals itselve
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
@@ -71,7 +113,10 @@ namespace cass
       {}
 
     public:
-      /** loads the parameters from cass.ini, should only be called by class containing this class */
+      /** loads the parameters.
+       * load the parameters from cass.ini, should only be called by class
+       * containing this class
+       */
       void loadParameters(QSettings *p, const char * signalname);
       /** save your parameters to cass.ini, should only be called by parent*/
       void saveParameters(QSettings *p, const char * signalname);
@@ -81,14 +126,16 @@ namespace cass
       typedef std::vector<Peak> peaks_t;
 
     public:
-      /** setter
-       * @note we should make sure, that it will not be needed anymore, since the getter should
-       *     make sure that all peaks are set using the correct function
+      /** setter.
+       * @note we should make sure, that it will not be needed anymore, since the
+       *       getter should make sure that all peaks are set using the correct
+       *       function
        */
       peaks_t           &peaks()              {return _peaks;}
-      /** getter
-       * @note when calling this we should check whether it has alredy been called for the event
-       *     if not so, then create the peaks using the requested waveform analysis
+      /** getter.
+       * @note when calling this we should check whether it has alredy been called
+       *       for the event if not so, then create the peaks using the requested
+       *        waveform analysis
        */
       const peaks_t     &peaks()const         {return _peaks;}
 
@@ -96,33 +143,37 @@ namespace cass
       /** return the time of the first peak in the "good" time range*/
       double firstGood() const;
 
-    public: //setters /getters
-      size_t             channelNbr()const    {return _chNbr;}
+    public:
+      //{
+      /** setter*/
       size_t            &channelNbr()         {return _chNbr;}
-      double             trLow()const         {return _trLow;}
       double            &trLow()              {return _trLow;}
-      double             trHigh()const        {return _trHigh;}
       double            &trHigh()             {return _trHigh;}
-      double             grLow()const         {return _grLow;}
       double            &grLow()              {return _grLow;}
-      double             grHigh()const        {return _grHigh;}
       double            &grHigh()             {return _grHigh;}
-      Polarity           polarity()const      {return _polarity;}
       Polarity          &polarity()           {return _polarity;}
-      double             threshold()const     {return _threshold;}
       double            &threshold()          {return _threshold;}
-      int32_t            delay()const         {return _delay;}
       int32_t           &delay()              {return _delay;}
-      double             fraction()const      {return _fraction;}
       double            &fraction()           {return _fraction;}
-      double             walk()const          {return _walk;}
       double            &walk()               {return _walk;}
-      Instruments        instrument()const    {return _instrument;}
       Instruments       &instrument()         {return _instrument;}
-      WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
-      //bool               isNewEvent()const    {return _isNewEvent;}
-      //bool              &isNewEvent()         {return _isNewEvent;}
+      //}
+      //{
+      /** getter*/
+      size_t             channelNbr()const    {return _chNbr;}
+      double             trLow()const         {return _trLow;}
+      double             trHigh()const        {return _trHigh;}
+      double             grLow()const         {return _grLow;}
+      double             grHigh()const        {return _grHigh;}
+      Polarity           polarity()const      {return _polarity;}
+      double             threshold()const     {return _threshold;}
+      int32_t            delay()const         {return _delay;}
+      double             fraction()const      {return _fraction;}
+      double             walk()const          {return _walk;}
+      Instruments        instrument()const    {return _instrument;}
+      WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
+      //}
 
     private:
       //things important to know how to analyze the waveform//

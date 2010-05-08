@@ -14,6 +14,7 @@ namespace Pds {
   namespace PNCCD {
 
     class ConfigV1;
+    class ConfigV2;
     class FrameV1 {
       public:
         enum {Version=1};
@@ -23,9 +24,11 @@ namespace Pds {
         uint32_t timeStampHi() const;
         uint32_t timeStampLo() const;
 
-        const FrameV1* next(const ConfigV1& cfg) const;
         const uint16_t* data()                   const;
+        const FrameV1* next(const ConfigV1& cfg) const;
         unsigned sizeofData(const ConfigV1& cfg) const;
+        const FrameV1* next(const ConfigV2& cfg) const;
+        unsigned sizeofData(const ConfigV2& cfg) const;
 
       private:
         uint32_t _specialWord;

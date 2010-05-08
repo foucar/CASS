@@ -26,8 +26,13 @@ namespace cass
     //open the settings//
     QSettings param;
     param.beginGroup("PostProcessor");
-    param.beginGroup(QString("p_") + QString::number(id));
+    param.beginGroup(QString("p") + QString::number(id));
     //create new histogram using the parameters//
+    std::cerr << "Creating 1D histogram with"
+        <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
+        <<" XLow:"<<param.value("XLow",0).toFloat()
+        <<" XUp:"<<param.value("XUp",0).toFloat()
+        <<std::endl;
     hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
                                       param.value("XUp",0).toFloat());
@@ -38,8 +43,16 @@ namespace cass
     //open the settings//
     QSettings param;
     param.beginGroup("PostProcessor");
-    param.beginGroup(QString("p_") + QString::number(id));
+    param.beginGroup(QString("p") + QString::number(id));
     //create new histogram using the parameters//
+    std::cerr << "Creating 2D histogram with"
+        <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
+        <<" XLow:"<<param.value("XLow",0).toFloat()
+        <<" XUp:"<<param.value("XUp",0).toFloat()
+        <<" YNbrBins:"<<param.value("YNbrBins",1).toUInt()
+        <<" YLow:"<<param.value("YLow",0).toFloat()
+        <<" YUp:"<<param.value("YUp",0).toFloat()
+        <<std::endl;
     hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                                       param.value("XLow",0).toFloat(),
                                       param.value("XUp",0).toFloat(),
@@ -988,7 +1001,7 @@ void cass::pp578::loadParameters(size_t)
 {
   QSettings param;
   param.beginGroup("PostProcessor");
-  param.beginGroup(QString("p_") + QString::number(_id));
+  param.beginGroup(QString("p") + QString::number(_id));
   //load the condition on the third component//
   float f = param.value("ConditionLow",-50000.).toFloat();
   float s = param.value("ConditionHigh",50000.).toFloat();

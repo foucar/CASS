@@ -18,14 +18,22 @@ namespace cass
   namespace ACQIRIS
   {
     /** A anode layer of the delayline detector.
-     * class containing the properties of a
-     * anode layer of the detector
+     *
+     * class containing the properties of a anode layer of the detector
+     *
+     * User settable parameters via CASS.ini:
+     * - the timesum condition range for the layer:
+     *   AcqirisDetectors/%detectorname%/%Layername%/
+     *    {LowerTimesumConditionLimit|UpperTimesumConditionLimit}
+     * - scalefactor to convert time => mm:
+     *   AcqirisDetectors/%detectorname%/%Layername%/{Scalefactor}
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer
     {
     public:
-      /*! default constructor*/
+      /** default constructor*/
       AnodeLayer()
         :_tsLow(0.),
          _tsHigh(0.),
@@ -76,12 +84,13 @@ namespace cass
 
 
     /** a hit on the delayline detector.
-     * class containing the properties of a Hit on the
-     * delayline detector. A hit on a Delaylinedetector consists
-     * of a x, y and t value. Where x and y are the position on
-     * the detector and t is the time the particle hit the detector.
-     * All these values are stored in a map and can be extracted using
-     * the appropriate name ('x','y','t').
+     *
+     * class containing the properties of a Hit on the delayline detector. A
+     * hit on a Delaylinedetector consists of  x, y and t values. Where x and
+     * y are the position on the detector and t is the time the particle hit
+     * the detector. All these values are stored in a map and can be extracted
+     * using the appropriate name ('x','y','t').
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorHit
@@ -108,9 +117,9 @@ namespace cass
       /** getter.
        * use this function to retrieve the properties of a hit.
        */
-//      double  x()const  {return _x_mm;}
-//      double  y()const  {return _y_mm;}
-//      double  t()const  {return _time;}
+      double  x()const  {return _x_mm;}
+      double  y()const  {return _y_mm;}
+      double  t()const  {return _time;}
       //@}
       //@{
       /** setter.
@@ -118,9 +127,9 @@ namespace cass
        * @todo check if we still need to set a detector hits
        *       properties after creating it.
        */
-//      double &x()       {return _x_mm;}
-//      double &y()       {return _y_mm;}
-//      double &t()       {return _time;}
+      double &x()       {return _x_mm;}
+      double &y()       {return _y_mm;}
+      double &t()       {return _time;}
       //@}
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}
@@ -145,11 +154,38 @@ namespace cass
 
 
     /** A delayline detector.
-     * A delayline detector is a tof detector with the ability to also
-     * have position information.
-     * class that can be a Hex or Quad delayline detector. it contains
-     * all information that is needed in order to sort the signals in the
-     * waveforms to detector hits
+     *
+     * A delayline detector is a tof detector with the ability to also have
+     * position information. It can be either a Hex or Quad delayline detector.
+     * It contains all information that is needed in order to sort the signals
+     * in the waveforms to detector hits.
+     *
+     * User settable parameters via CASS.ini:
+     * - maximum time a signal will run over the complete delayline:
+     *   AcqirisDetectors/%detectorname%/{Runtime}
+     * - Radius of the MCP in mm:
+     *   AcqirisDetectors/%detectorname%/{McpRadius}
+     * - Method that is used to reconstruct the detector hits, choises are:
+     *   - 0: Simple Analysis
+     *   AcqirisDetectors/%detectorname%/{AnalysisMethod}
+     * - Layers that should be used (when using the simple reconstruction method):
+     *   - if HexAnode:
+     *     - 0: Layers U and V
+     *     - 1: Layers U and W
+     *     - 2: Layers V and W
+     *   - if QuadAnode (only one option available):
+     *     - 0: Layers X and Y
+     *   AcqirisDetectors/%detectorname%/{LayersToUse}
+     * - Dead time when detecting MCP Signals (used for future more advanced
+     *   reconstruction methods):
+     *   AcqirisDetectors/%detectorname%/{DeadTimeMcp}
+     * - Dead time when detecting anode layer Signals (used for future more
+     *   advanced reconstruction methods):
+     *   AcqirisDetectors/%detectorname%/{DeadTimeAnode}
+     * - The W-Layer offset with respect to layers U and V (used for future more
+     *   advanced Hex-Detector reconstruction methods):
+     *   AcqirisDetectors/%detectorname%/{WLayerOffset}
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public TofDetector
@@ -301,7 +337,8 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 inline
 void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
 {
-  std::cout<< "Delayline Detector load parameters: loading "<<_name<<"'s parameters. It is a "
+  std::cout<< "Delayline Detector load parameters: loading "<<_name
+      <<"'s parameters. It is a "
       <<((_delaylinetype==Hex)?"Hex-":"Quad-")<<"Detector"<<std::endl;
   //load the parameters for this detector//
   p->beginGroup(_name.c_str());
@@ -316,7 +353,8 @@ void cass::ACQIRIS::DelaylineDetector::loadParameters(QSettings *p)
   switch(_analyzerType)
   {
   case DelaylineSimple :
-    std::cout << "Delayline Detector load parameters: we use Delayline Simple to analyze us"<<std::endl;
+    std::cout << "Delayline Detector load parameters: "
+        <<"we use Delayline Simple to analyze us"<<std::endl;
     _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
     break;
   default:

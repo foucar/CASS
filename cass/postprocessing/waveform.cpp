@@ -208,14 +208,15 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   if (instrI == dev->instruments().end())
   {
     std::cerr << "did not find the requested Acqiris instrument: "<<_instrument
-        << " maybe the Acqiris converter is not active"<<std::endl;
+        << " maybe the Acqiris converter is not active"
+        <<std::endl;
     return;
   }
   const Instrument &instr = instrI->second;
   //retrieve a reference to the right channel//
   if (instr.channels().size() <= _channel)
   {
-    std::cerr << "In the current configuration now instrument "<<_instrument
+    std::cerr << "In the current configuration instrument "<<_instrument
         << " does not have channel "<< _channel
         << ". Check the configuration"<<std::endl;
     return;

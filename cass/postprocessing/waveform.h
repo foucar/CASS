@@ -13,9 +13,12 @@ namespace cass
   class CASSEvent;
   class Histogram1DFloat;
 
-  /** Last Waveform.
-   * Class to show the last wavefrom of a channel. Objects created from this
-   * class will work as postprocessor 4-23.
+  /** last acqiris channel waveform.
+   *
+   * Class to show the last wavefrom of a channel.
+   *
+   * implements postprocessor id's 4-23.
+   *
    * @todo make sure that y axis will show up in volts
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
@@ -29,9 +32,9 @@ namespace cass
      * @param id the id of this postprocessor object
      */
     pp4(PostProcessors &ppc, PostProcessors::id_t id);
-    /*! delete the histogram when you are destroyed*/
+    /** delete the histogram when you are destroyed*/
     virtual ~pp4();
-    /*! copy the last waveform from the expected channel*/
+    /** copy the last waveform from the channel*/
     virtual void operator()(const CASSEvent&);
 
   protected:
@@ -39,19 +42,30 @@ namespace cass
     QMutex _mutex;
     /** the instrument that contains the channel this postprocessor will work on*/
     cass::ACQIRIS::Instruments _instrument;
-    /*! the Acqiris channel number of this processor*/
+    /** the Acqiris channel number of this processor*/
     size_t _channel;
-    /*! this is where we store the last waveform */
+    /** this is where we store the waveform */
     Histogram1DFloat  *_waveform;
   };
 
 
 
-  /** Averaged Waveform.
-   * class that lets you average the waveforms
-   * depending on the factor it will make a cumulative average or
-   * in exponential moving average.
-   * Objects created from this class will work as postprocessor 500-519.
+  /** Averaged Acqiris channel's wavefrom.
+   *
+   * Class that lets you average the waveforms depending on the factor it will
+   * make a cumulative average or an exponential moving average. Uses the Average
+   * binary operator to do the averaging.
+   * @see Average
+   *
+   * User settable Parameters in CASS.ini:
+   * - values for center of image:
+   *   PostProcessor/p%id%/{ImageXCenter|ImageYCenter}
+   *
+   * - averaging length:  PostProcessor/p%id%/{NumberOfAverages}
+   * In case one want to have a cummulative averaging set averaging length to 1.
+   *
+   * implements postprocessor id's 500-519.
+   *
    * @todo make sure that y axis will show up in volts
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
