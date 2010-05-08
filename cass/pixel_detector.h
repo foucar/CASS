@@ -35,18 +35,18 @@ namespace cass
     ~Pixel()      {}
 
   public:
-    //{
+    //@{
     /** setter */
     uint16_t &x()       {return _x;}
     uint16_t &y()       {return _y;}
     pixel_t  &z()       {return _z;}
-    //}
-    //{
+    //@}
+    //@{
     /** getter */
     uint16_t  x()const  {return _x;}
     uint16_t  y()const  {return _y;}
     pixel_t   z()const  {return _z;}
-    //}
+    //@}
 
   private:
     uint16_t _x;  //!< x coordinate of the coordinate
