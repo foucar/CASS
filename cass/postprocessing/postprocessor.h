@@ -119,8 +119,8 @@ for information about what parameters are user settable. (Keep in mind that case
 00111: Front pnCCD Image with just the detected photonHits (pp110)
 00112: Back pnCCD Image with just the detected photonHits (pp110)
 00113: Commercial CCD photonhits in a 1D Histogram (pp113)
-00114: Commercial CCD photonhits in a 1D Histogram (pp113)
-00115: Commercial CCD photonhits in a 1D Histogram (pp113)
+00114: Front pnCCD photonhits in a 1D Histogram (pp113)
+00115: Back pnCCD photonhits in a 1D Histogram (pp113)
 
 00131: Scalar value of the <cos^2\theta> derived from the 121 image
 00141: Sum-intensity of image pp3
