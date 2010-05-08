@@ -16,7 +16,7 @@ int cass::UnixSignalDaemon::sigtermFd[2];
 int cass::setup_unix_signal_handlers()
 {
   struct sigaction quit, term;
-  std::cout << "what to do in case signal to exit "<<std::endl;
+  VERBOSEOUT(std::cout << "what to do in case signal to exit "<<std::endl;)
 
   quit.sa_handler = cass::UnixSignalDaemon::quitSignalHandler;
   sigemptyset(&quit.sa_mask);
@@ -26,7 +26,7 @@ int cass::setup_unix_signal_handlers()
   if (sigaction(SIGQUIT, &quit, 0) > 0)
     return 1;
 
-  std::cout << "what to do in case signal to quit "<<std::endl;
+  VERBOSEOUT(std::cout << "what to do in case signal to quit "<<std::endl;)
   term.sa_handler = cass::UnixSignalDaemon::termSignalHandler;
   sigemptyset(&term.sa_mask);
   term.sa_flags |= SA_RESTART;
