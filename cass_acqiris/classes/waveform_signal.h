@@ -144,7 +144,7 @@ namespace cass
       double firstGood() const;
 
     public:
-      //{
+      //@{
       /** setter*/
       size_t            &channelNbr()         {return _chNbr;}
       double            &trLow()              {return _trLow;}
@@ -158,8 +158,8 @@ namespace cass
       double            &walk()               {return _walk;}
       Instruments       &instrument()         {return _instrument;}
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
-      //}
-      //{
+      //@}
+      //@{
       /** getter*/
       size_t             channelNbr()const    {return _chNbr;}
       double             trLow()const         {return _trLow;}
@@ -173,7 +173,7 @@ namespace cass
       double             walk()const          {return _walk;}
       Instruments        instrument()const    {return _instrument;}
       WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
-      //}
+      //@}
 
     private:
       //things important to know how to analyze the waveform//
