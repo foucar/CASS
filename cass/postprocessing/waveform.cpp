@@ -41,9 +41,13 @@ cass::pp4::pp4(cass::PostProcessors &pp, cass::PostProcessors::id_t id)
   case PostProcessors::CampChannel17LastWaveform: _channel=17;_instrument=Camp1;break;
   case PostProcessors::CampChannel18LastWaveform: _channel=18;_instrument=Camp1;break;
   case PostProcessors::CampChannel19LastWaveform: _channel=19;_instrument=Camp1;break;
+  case PostProcessors::ITofChannel00LastWaveform: _channel=0;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel01LastWaveform: _channel=1;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel02LastWaveform: _channel=2;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel03LastWaveform: _channel=3;_instrument=Camp2;break;
   default: throw std::invalid_argument(QString("postprocessor %1 is not for the last waveform").arg(_id).toStdString());
   }
-  std::cout<<std::endl<< "postprocessor "<<id<< " will work on Channel "<< _channel
+  std::cout<<std::endl<< "postprocessor "<<id<< " will show the last wavform of Channel "<< _channel
       <<" of Instrument "<<_instrument<<std::endl;
 }
 

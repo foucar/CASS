@@ -235,6 +235,10 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case CampChannel17LastWaveform:
     case CampChannel18LastWaveform:
     case CampChannel19LastWaveform:
+    case ITofChannel00LastWaveform:
+    case ITofChannel01LastWaveform:
+    case ITofChannel02LastWaveform:
+    case ITofChannel03LastWaveform:
         processor = new pp4(*this,id);
         break;
     case CampChannel00AveragedWaveform:
@@ -257,6 +261,10 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case CampChannel17AveragedWaveform:
     case CampChannel18AveragedWaveform:
     case CampChannel19AveragedWaveform:
+    case ITofChannel00AveragedWaveform:
+    case ITofChannel01AveragedWaveform:
+    case ITofChannel02AveragedWaveform:
+    case ITofChannel03AveragedWaveform:
         processor = new pp500(*this,id);
         break;
     case HexMCPNbrSignals:

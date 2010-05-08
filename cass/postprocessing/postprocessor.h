@@ -109,6 +109,10 @@ for information about what parameters are user settable. (Keep in mind that case
 00021: Last waveform of Camp Acqiris Channel 17 (pp4)
 00022: Last waveform of Camp Acqiris Channel 18 (pp4)
 00023: Last waveform of Camp Acqiris Channel 19 (pp4)
+00024: Last waveform of ITof Acqiris Channel 00 (pp4)
+00025: Last waveform of ITof Acqiris Channel 01 (pp4)
+00026: Last waveform of ITof Acqiris Channel 02 (pp4)
+00027: Last waveform of ITof Acqiris Channel 03 (pp4)
 
 00101: Running average of front pnCCD images (pp101)
 00102: Histogram 101 (not implemented yet)
@@ -152,6 +156,10 @@ for information about what parameters are user settable. (Keep in mind that case
 00517: Averaged waveform of Camp Acqiris Channel 17 (pp500)
 00518: Averaged waveform of Camp Acqiris Channel 18 (pp500)
 00519: Averaged waveform of Camp Acqiris Channel 19 (pp500)
+00520: Averaged waveform of ITof Acqiris Channel 00 (pp500)
+00521: Averaged waveform of ITof Acqiris Channel 01 (pp500)
+00522: Averaged waveform of ITof Acqiris Channel 02 (pp500)
+00523: Averaged waveform of ITof Acqiris Channel 03 (pp500)
 
 ---Hex Anode Postprocessors---
 00550: Hex Anode Number of Peaks in MCP (pp550)
@@ -319,6 +327,10 @@ public:
         CampChannel17LastWaveform=21,
         CampChannel18LastWaveform=22,
         CampChannel19LastWaveform=23,
+        ITofChannel00LastWaveform=24,
+        ITofChannel01LastWaveform=25,
+        ITofChannel02LastWaveform=26,
+        ITofChannel03LastWaveform=27,
         PnccdFrontBinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
         PnccdBackBinnedRunningAverage=103,
         CommercialCCDBinnedRunningAverage=105,
@@ -349,6 +361,10 @@ public:
         CampChannel17AveragedWaveform=517,
         CampChannel18AveragedWaveform=518,
         CampChannel19AveragedWaveform=519,
+        ITofChannel00AveragedWaveform=520,
+        ITofChannel01AveragedWaveform=521,
+        ITofChannel02AveragedWaveform=522,
+        ITofChannel03AveragedWaveform=523,
 
         HexMCPNbrSignals=550,
         HexU1NbrSignals=551,
