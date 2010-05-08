@@ -57,6 +57,7 @@
     <addaction name="getEvent"/>
     <addaction name="getHistogram"/>
     <addaction name="readIni"/>
+    <addaction name="writeIni"/>
     <addaction name="separator"/>
     <addaction name="quitServer"/>
    </widget>
@@ -176,12 +177,20 @@
     <string>Show about Qt.</string>
    </property>
   </action>
-  <action name="readIni">
+   <action name="readIni">
    <property name="text">
     <string>Read Ini</string>
    </property>
    <property name="toolTip">
     <string>Read Initialisation.</string>
+   </property>
+  </action>
+ <action name="writeIni">
+   <property name="text">
+    <string>Write Ini</string>
+   </property>
+   <property name="toolTip">
+    <string>Write Initialisation.</string>
    </property>
   </action>
   <action name="quitServer">

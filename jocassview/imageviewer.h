@@ -122,6 +122,8 @@ private slots:
 
     void on_readIni_triggered();
 
+    void on_writeIni_triggered();
+
     void on_quitServer_triggered();
 
     void on_about_triggered();
