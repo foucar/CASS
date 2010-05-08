@@ -46,10 +46,12 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     default:
         throw std::invalid_argument("class not responsible for requested postprocessor");
     };
+    std::cout<<"Postprocessor_"<<_id<<": set up: cols"<<cols<<" rows:"<<rows<<std::endl;
     // save storage in PostProcessors container
     _image = new Histogram2DFloat(cols, 0, cols-1, rows, 0, rows-1);
     _image->setMimeType(std::string("application/image"));
     _pp.histograms_replace(_id, _image);
+    VERBOSEOUT(std::cout<<"Postprocessor_"<<_id<<"done."<<std::endl);
 }
 
 
