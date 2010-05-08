@@ -383,7 +383,6 @@ void getDataThread::run()
 void ImageViewer::on_getData_triggered()
 {
     VERBOSEOUT(cout << "on_getData_triggered" << endl);
-std::cout << "getData_triggered" << std::endl;
     if(_ready) {
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
