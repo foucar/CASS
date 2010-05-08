@@ -138,7 +138,7 @@ namespace cass
      * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
      * otherwise it will be a exponential moving average.
      */
-    float operator()(float Average_Nm1, float currentValue)
+    float operator()(float currentValue, float Average_Nm1)
     {
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
     }
@@ -197,7 +197,7 @@ void cass::pp500::loadSettings(size_t)
   //load the nbr of averages, and calculate the alpha from it//
   uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
   _alpha = static_cast<float>(2./(N+1));
-  std::cout <<"postprocessor "<<_id<<" is averaging over "<< N<<" events"<<std::endl;
+  std::cout <<"postprocessor "<<_id<<" is averaging over "<<N<<" events. alpha is :"<<_alpha<<std::endl;
 }
 
 void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
@@ -257,7 +257,8 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const float alpha = (std::abs(_alpha-1.)<1e-15) ?
                       1./(_waveform->nbrOfFills()+1.) :
                       _alpha;
-  std::cout << _alpha<<std::endl;
+
+//  std::cout << alpha<< " "<<_waveform->nbrOfFills()+1.<<std::endl;
   _waveform->lock.unlock();
   _waveform->lock.lockForWrite();
   //average the waveform and put the result in the averaged waveform//
@@ -271,6 +272,10 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   //       *result++=binary_op(*first1++,*first2++);
   //    return result;
   //  }
+  //
+  /** @todo we need to convert adc units to volts before averaging, can be done via
+   *        dependence on single or need a temp storage
+   */
   std::transform(waveform.begin(),waveform.end(), //start and one beyond stop of src
                  _waveform->memory().begin(),     //start of second src
                  _waveform->memory().begin(),     //start of result
