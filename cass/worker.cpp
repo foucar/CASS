@@ -39,32 +39,44 @@ void cass::Worker::end()
 
 void cass::Worker::suspend()
 {
+  std::cout<<"Worker::"<<this<<": signaled to suspend"<<std::endl;
   //set flag to pause//
   _pause=true;
   //wait until it is suspended//
-  waitUntilSuspended();
+//  waitUntilSuspended();
 }
 
 void cass::Worker::resume()
 {
+  std::cout<<"Worker::"<<this<<": resume(): I am signaled to resume."<<std::endl;
   //if the thread has not been paused return here//
   if(!_pause)
+  {
+    std::cout<<"Worker::"<<this<<": resume(): I am already running! Return"<<std::endl;
     return;
+  }
   //reset the pause flag;
   _pause=false;
+  std::cout<<"Worker::"<<this<<": resume(): telling myself that I need to resume"<<std::endl;
   //tell run to resume via the waitcondition//
   _pauseCondition.wakeOne();
 }
 
 void cass::Worker::waitUntilSuspended()
 {
+  std::cout<<"Worker::"<<this<<": waitUntilSuspended(): check if I am suspended"<<std::endl;
   //if it is already paused then retrun imidiatly//
   if(_paused)
+  {
+    std::cout<<"Worker::"<<this<<": waitUntilSuspended(): I am already suspended. Returning"<<std::endl;
     return;
+  }
   //otherwise wait until the conditions has been called//
   QMutex mutex;
   QMutexLocker lock(&mutex);
+  std::cout<<"Worker::"<<this<<": waitUntilSuspended(): Not yet suspended. Wait until i am signaled that I am suspended"<<std::endl;
   _waitUntilpausedCondition.wait(&mutex);
+  std::cout<<"Worker::"<<this<<": waitUntilSuspended(): Now I am suspended. Returning"<<std::endl;
 }
 
 
@@ -79,11 +91,13 @@ void cass::Worker::run()
     //pause execution if suspend has been called//
     if (_pause)
     {
+      std::cout<<"Worker::"<<this<<": run(): I should suspend."<<std::endl;
       //lock the mutex to prevent that more than one thread is calling pause//
       _pauseMutex.lock();
       //set the status flag to paused//
       _paused=true;
       //tell the wait until paused condtion that we are now pausing//
+      std::cout<<"Worker::"<<this<<": run(): Tell suspend() that I am suspending."<<std::endl;
       _waitUntilpausedCondition.wakeOne();
       //wait until the condition is called again
       _pauseCondition.wait(&_pauseMutex);
@@ -91,6 +105,7 @@ void cass::Worker::run()
       _paused=false;
       //unlock the mutex, such that others can work again//
       _pauseMutex.unlock();
+      std::cout<<"Worker::"<<this<<": run(): I am now running again"<<std::endl;
     }
 
     //reset the cassevent//
