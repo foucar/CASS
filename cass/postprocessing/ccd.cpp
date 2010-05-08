@@ -100,7 +100,7 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
-    loadParameters(0);
+    loadSettings(0);
     switch(id)
     {
     case PostProcessors::PnccdFrontBinnedRunningAverage:
@@ -126,7 +126,7 @@ cass::pp101::~pp101()
 }
 
 
-void cass::pp101::loadParameters(size_t)
+void cass::pp101::loadSettings(size_t)
 {
     int cols(0); int rows(0);
     switch(_id)
@@ -187,7 +187,7 @@ void cass::pp101::operator()(const CASSEvent& event)
             for(unsigned row=r; row<r+_binning.first; ++row) {
                 for(unsigned col=c; col<c+_binning.second; ++col) {
 #warning Check and fix major/minor axis
-#warning Neither the averging nor the rebinning seem to work correctly
+#warning the rebinning seem to not work correctly
                     sum += frame[row * cols + col];
                 }
             }
@@ -234,6 +234,7 @@ pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
         throw std::invalid_argument("Impossible postprocessor id for class pp110");
         break;
     };
+    loadSettings(0);
 }
 
 cass::pp110::~pp110()
@@ -242,7 +243,7 @@ cass::pp110::~pp110()
     _image = 0;
 }
 
-void cass::pp110::loadParameters(size_t)
+void cass::pp110::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
@@ -309,6 +310,7 @@ pp113::pp113(PostProcessors& pp, cass::PostProcessors::id_t id)
         throw std::invalid_argument("Impossible postprocessor id for pp113");
         break;
     };
+    loadSettings(0);
 }
 
 cass::pp113::~pp113()
@@ -317,7 +319,7 @@ cass::pp113::~pp113()
     _hist = 0;
 }
 
-void cass::pp113::loadParameters(size_t)
+void cass::pp113::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"

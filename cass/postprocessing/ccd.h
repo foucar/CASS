@@ -79,7 +79,7 @@ public:
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
 
 protected:
 
@@ -139,7 +139,7 @@ public:
     virtual void operator()(const CASSEvent&);
 
     /** set the histogram size */
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
 
 protected:
     /** device the ccd image comes from*/
@@ -186,7 +186,7 @@ public:
     virtual void operator()(const CASSEvent&);
 
     /** set the histogram size */
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
 
 protected:
     /** device the ccd image comes from*/

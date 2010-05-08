@@ -14,6 +14,7 @@
 #include "postprocessing/alignment.h"
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/waveform.h"
+#include "backend.h"
 
 
 namespace cass
@@ -134,31 +135,22 @@ void PostProcessors::_replace(id_t type, HistogramBackend *hist)
 void PostProcessors::setup()
 {
     using namespace std;
-    // delete all unused PostProcessors
-    cout << "Postprocessor::setup(): deleting unused postprocessors"<<endl;
-    list<id_t> delets;
+    // check if PostProcessor is still on active list, if so load its settings
+    // otherwise mark it to be deleted
+    vector<id_t> delets;
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-    {
-        cout << "Postprocessor::setup(): checking whether "<<iter->first<<" is on list"<<endl;
-        if(_active.end() == find(_active.begin(), _active.end(), iter->first)) {
-            cout << "Postprocessor::setup(): "<<iter->first<<" is not on list, therefore we are going to add it to list of deletable items"<<endl;
-            delets.push_front(iter->first);
-        }
-    }
-    //delete all postprocessors marked as to be deleted
-    for (list<id_t>::iterator it(delets.begin()); it != delets.end(); ++it)
-    {
-        if (_postprocessors.end() != _postprocessors.find(*it))
-        {
-          PostprocessorBackend *pp(_postprocessors.find(*it)->second);
-          delete pp;
-          _postprocessors.erase(_postprocessors.find(*it));
-        }
+        if(_active.end() == find(_active.begin(), _active.end(), iter->first))
+            delets.push_back(iter->first);
         else
-        {
-          cout << "did not find postprocessor"<<*it<<std::endl;
+            iter->second->loadSettings(0);
+
+    //delete all postprocessors marked as to be deleted
+    for (vector<id_t>::const_iterator it(delets.begin()); it != delets.end(); ++it)
+        if (_postprocessors.end() != _postprocessors.find(*it)){
+            PostprocessorBackend *pp(_postprocessors.find(*it)->second);
+            delete pp;
+            _postprocessors.erase(_postprocessors.find(*it));
         }
-    }
 
     // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
     // the postprocessor correctly initialize it whenever it wants to
