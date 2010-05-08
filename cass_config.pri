@@ -15,7 +15,7 @@ CONFIG      += exceptions
 CONFIG      += rtti
 CONFIG      += sse2
 CONFIG      += stl
-#CONFIG      += silent
+CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
