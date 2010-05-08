@@ -269,6 +269,7 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
   QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
+  QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
 
   //start Qt event loop
   int retval(app.exec());
