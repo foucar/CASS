@@ -35,19 +35,19 @@ cass::SharedMemoryInput::~SharedMemoryInput()
 void cass::SharedMemoryInput::loadSettings(size_t what)
 {
   //pause yourselve//
-  std::cout << "Shared Memory Input: Load Settings: suspend before laoding settings"
-      <<std::endl;
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspend before laoding settings"
+      <<std::endl);
   suspend();
   //load settings//
-  std::cout << "Shared Memory Input: Load Settings: suspended. Now loading Settings"
-      <<std::endl;
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspended. Now loading Settings"
+      <<std::endl);
   _converter->loadSettings(what);
   //resume yourselve//
-  std::cout << "Shared Memory Input: Load Settings: Done loading Settings. Now Resuming Thread"
-      <<std::endl;
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: Done loading Settings. Now Resuming Thread"
+      <<std::endl);
   resume();
-  std::cout << "Shared Memory Input: Load Settings: thread is resumed"
-      <<std::endl;
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: thread is resumed"
+      <<std::endl);
 }
 
 void cass::SharedMemoryInput::suspend()
@@ -83,29 +83,29 @@ void cass::SharedMemoryInput::run()
 {
   //start the xtcmonitorclient//
   //this eventqueue will subscripe to a partitiontag//
-  std::cout << "starting shared memory in put with partition Tag: \""
+  VERBOSEOUT(std::cout << "starting shared memory in put with partition Tag: \""
       <<_partitionTag <<"\""
-      << " and Client Index "<< _index<<std::endl;
+      << " and Client Index "<< _index<<std::endl);
   Pds::XtcMonitorClient::run(_partitionTag,_index);
-  std::cout << "shared memory input is closing down"<<std::endl;
+  VERBOSEOUT(std::cout << "shared memory input is closing down"<<std::endl);
 }
 
 void cass::SharedMemoryInput::end()
 {
-  std::cout << "shared memory input got signal to close"<<std::endl;
+  VERBOSEOUT(std::cout << "shared memory input got signal to close"<<std::endl);
   //tell the loop that it should quit
   _quit=true;
   //wait until we have finished, but only for 2 seconds//
   //if we were not finished by that time the we want to terminate//
   //ourselves//
-  std::cout << "wait for 2 s that shared memory shuts down"<<std::endl;
+  VERBOSEOUT(std::cout << "wait for 2 s that shared memory shuts down"<<std::endl);
   if(!wait(2000))
   {
-    std::cout << "time has elapsed. So we probably lost connection to"
-        <<"the shared memory. Therefore we will terminate the thread"<<std::endl;
+    VERBOSEOUT(std::cout << "time has elapsed. So we probably lost connection to"
+        <<"the shared memory. Therefore we will terminate the thread"<<std::endl);
     terminate();
   }
-  std::cout << "Ok. Shared Memory input thread has shut down within 2 s"<<std::endl;
+  VERBOSEOUT(std::cout << "Ok. Shared Memory input thread has shut down within 2 s"<<std::endl);
 }
 
 int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
