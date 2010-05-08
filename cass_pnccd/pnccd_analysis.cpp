@@ -52,7 +52,8 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._createPixellist = value("CreatePixelList",false).toBool();
     std::cout<< printoutdef << "Create Pixel List is "<<dp._createPixellist<<std::endl;
     dp._doOffsetCorrection = value("DoOffsetCorrection",false).toBool();
-    if(dp._doOffsetCorrection) std::cout<<"Offset Correction will be applied for detector "<<idx<<std::endl;
+    if(dp._doOffsetCorrection)
+        std::cout<< printoutdef <<"Offset Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "Offset Correction will NOT be applied for detector "<<idx<<std::endl;
     dp._useCommonMode = value("useCommonMode",false).toBool();
     if(dp._useCommonMode) std::cout<< printoutdef 
