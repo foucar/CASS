@@ -14,7 +14,7 @@
 #include <vector>
 #include <time.h>
 #include <stdexcept>
-#define debug_conf
+//#define debug_conf
 
 bool not_saved_yet;
 
@@ -135,7 +135,7 @@ void cass::pnCCD::Parameter::load()
   //QString s;
   //sync before loading//
   //sync();
-  size_t size_from_ini = value("size",2).toUInt();
+  size_t size_from_ini = value("size",1).toUInt();
   std::cout<< printoutdef <<"test-size "<<_detectorparameters.size() << " "<<size_from_ini<<std::endl;
   //resize the detector parameter container before adding new stuff//
   if(size_from_ini>_detectorparameters.size())
@@ -227,7 +227,7 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug_conf
   std::cout<<"I am 3"<<std::endl;
 #endif
-  QMutexLocker locker(&_mutex);
+  //QMutexLocker locker(&_mutex);
 #ifdef debug_conf
   std::cout<<"I am 3postlocker"<<std::endl; 
 #endif
@@ -679,8 +679,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
   cass::pnCCD::pnCCDDevice &dev =
       *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
 
+#ifdef debug_alot
+  std::cout << "pnCCD::Analysis::operator debug " << dev.detectors()->size()
+   << " "<< _param._detectorparameters.size() << " "<< cassevent->id() << std::endl;
+#endif
+
   //check if we have enough detector parameters for the amount of detectors//
   //increase it if necessary
+  _mutex.lock();
   if(dev.detectors()->size() > _param._detectorparameters.size())
   {
     //resize detectorparameters and initialize with the new settings//
@@ -690,6 +696,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     // the problem is that the prev line is not the whole truth...
     loadSettings();
   }
+  _mutex.unlock();
 
   //if we are collecting darkframes right now then add frames to the off&noisemap//
   //and do no further analysis//
