@@ -207,7 +207,7 @@ void ImageViewer::updatePixmap(const QImage &image)
             << " height=" << image.size().height() << endl);
     _imageLabel->setPixmap(QPixmap::fromImage(image));
     _imagesize = image.size();
-    _dock->setWidget(_imageWidget);
+    if (_dock->widget()!=_imageWidget) _dock->setWidget(_imageWidget);
 std::cout<< "updatePixmap" <<std::endl;
     updateActions();
     VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
@@ -232,7 +232,7 @@ void ImageViewer::updateHistogram1D(cass::Histogram1DFloat* hist)
             << " height=" << image.size().height() << endl);*/
     _plotWidget->setData(hist);
     delete hist;
-    _dock->setWidget(_plotWidget);
+    if (_dock->widget()!=_plotWidget) _dock->setWidget(_plotWidget);
     
     updateActions();
     //VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
