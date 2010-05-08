@@ -27,6 +27,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QSettings settings;
     _ui.setupUi(this);
     qRegisterMetaType<QImage>("QImage");
+    connect(&_gdthread, SIGNAL(newNone()), this, SLOT(updateNone()));
     connect(&_gdthread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram1D(cass::Histogram1DFloat*)));
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -191,6 +192,14 @@ void ImageViewer::on_open_triggered()
 }
 
 
+void ImageViewer::updateNone()
+{
+    _statusLED->setStatus(false);
+    _ready = true;
+    std::cout<< "updateNone" << std::endl;
+}
+
+
 void ImageViewer::updatePixmap(const QImage &image)
 {
     VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
@@ -336,7 +345,11 @@ void getDataThread::run()
 	    else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
 	    else if (!mime.compare(0,17,std::string("application/image"))) _dataType=dat_Image;
     }
-    if (_dataType==dat_Any) {std::cout<< "getDataThread::run: cannot handle mime type dat_Any" << std::endl; return;}
+    if (_dataType==dat_Any) {
+        std::cout<< "getDataThread::run: cannot handle mime type dat_Any" << std::endl;
+        emit newNone();
+        return;
+    }
     VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
     bool ret;
     switch(_dataType) {

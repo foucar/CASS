@@ -47,6 +47,7 @@ namespace jocassview
 
         void newImage(const QImage &image);
         void newHistogram(cass::Histogram1DFloat*);
+        void newNone();
 
     protected:
 
@@ -133,6 +134,8 @@ private slots:
     void zoomChanged(double);
 
     void running();
+
+    void updateNone();
 
     void updatePixmap(const QImage &image);
 
