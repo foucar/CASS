@@ -129,7 +129,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
 void ImageViewer::updateImageList(QComboBox* box) {
     cass::PostProcessors::active_t stdlist = _gdthread.getIdList(_cass);
     for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++) {
-	    std::cout << "list iteration..." << std::endl;
+      std::cout << "list iteration..." << std::endl;
       QString itemstring(QString::number(*it));
       if (box->findText(itemstring)==-1)
          box->addItem( itemstring, QVariant(0) );
@@ -338,12 +338,12 @@ void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
 void getDataThread::run()
 {
     if (_dataType==dat_Any) {
-	    std::string mime(getMimeType(_cass, _attachId));
-            VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
-	    if (!mime.compare(std::string("application/cass0Dhistogram"))) _dataType=dat_0DHistogram;
-	    else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
-	    else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
-	    else if (!mime.compare(0,17,std::string("application/image"))) _dataType=dat_Image;
+        std::string mime(getMimeType(_cass, _attachId));
+        VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
+        if (!mime.compare(std::string("application/cass0Dhistogram"))) _dataType=dat_0DHistogram;
+        else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
+        else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
+        else if (!mime.compare(0,17,std::string("application/image"))) _dataType=dat_Image;
     }
     if (_dataType==dat_Any) {
         std::cout<< "getDataThread::run: cannot handle mime type dat_Any" << std::endl;
@@ -354,11 +354,11 @@ void getDataThread::run()
     bool ret;
     switch(_dataType) {
     case dat_Image:
-    _cass->getImage(2, _attachId, &ret);
+        _cass->getImage(2, _attachId, &ret);
         break;
     case dat_1DHistogram:
-	_cass->getHistogram(_attachId, &ret);
-	break;
+        _cass->getHistogram(_attachId, &ret);
+        break;
     }
     if(! ret) {
         cerr << "Did not get soap data" << endl;
@@ -384,10 +384,10 @@ void getDataThread::run()
         emit newImage(image);
         break; }
     case dat_1DHistogram:
-	cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-	cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
-	emit newHistogram(hist);
-	break;
+        cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+        cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
+        emit newHistogram(hist);
+        break;
     }
     _cass->destroy();
 #warning Fix imageformat

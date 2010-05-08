@@ -35,7 +35,7 @@ public:
          _layout.addWidget(&_plot);
          setLayout(&_layout);
          _plot.replot();
-	 _curve.setPen( QPen(Qt::blue) );
+         _curve.setPen( QPen(Qt::blue) );
       };
       void setData(cass::Histogram1DFloat* hist ) {
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );

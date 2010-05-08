@@ -54,8 +54,8 @@ namespace jocassview
         /** Worker thread */
         void run();
 
-	enum dataType {dat_Image=0, dat_Any, dat_2DHistogram, dat_1DHistogram, dat_0DHistogram, dat_COUNT};
-	dataType _dataType;
+        enum dataType {dat_Image=0, dat_Any, dat_2DHistogram, dat_1DHistogram, dat_0DHistogram, dat_COUNT};
+        dataType _dataType;
 
         CASSsoapProxy *_cass;
 
