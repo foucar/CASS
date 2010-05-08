@@ -12,6 +12,7 @@
 #include <QtCore/QWriteLocker>
 
 #include <vector>
+#include <stdlib.h>
 #include "cass_pnccd.h"
 #include "analysis_backend.h"
 #include "parameter_backend.h"
