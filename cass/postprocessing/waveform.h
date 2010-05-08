@@ -82,7 +82,7 @@ namespace cass
     /*! delete the histogram when you are destroyed */
     virtual ~pp500();
     /*! read the average factor from cass.ini*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
     /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
 

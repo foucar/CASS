@@ -176,7 +176,7 @@ cass::pp500::pp500(cass::PostProcessors &ppc, cass::PostProcessors::id_t id)
   }
   std::cout<< "postprocessor "<<id<< " will average Channel "<< _channel
       <<" of Instrument "<<_instrument<<std::endl;
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp500::~pp500()
@@ -185,7 +185,7 @@ cass::pp500::~pp500()
   _waveform=0;
 }
 
-void cass::pp500::loadParameters(size_t)
+void cass::pp500::loadSettings(size_t)
 {
   QSettings parameter;
   parameter.beginGroup("PostProcessor");
