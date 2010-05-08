@@ -239,7 +239,7 @@ namespace cass
     {
       //get information from the channel//
       const int32_t vOff   = static_cast<int32_t>(c.offset() / c.gain());        //mV -> adc bytes
-      const Channel::waveform_t Data  = c.waveform();
+      const waveform_t Data  = c.waveform();
       const size_t wLength = c.waveform().size();
 
       //--get peak fwhm--//
@@ -336,7 +336,7 @@ namespace cass
         void CoM(const Channel &c, Peak &p, const int32_t threshold)
     {
       //get informations from the event and the channel//
-      const Channel::waveform_t Data  = c.waveform();
+      const waveform_t Data  = c.waveform();
       const int32_t vOff          = static_cast<int32_t>(c.offset() / c.gain());
       const double horpos         = c.horpos()*1.e9;          //s -> ns
       const double sampleInterval = c.sampleInterval()*1e9;   //s -> ns
@@ -369,7 +369,7 @@ namespace cass
     template <typename T>
         void startstop(const Channel &c, Peak &p, const int32_t threshold)
     {
-      const Channel::waveform_t Data = c.waveform();
+      const waveform_t Data = c.waveform();
       const int32_t vOff      = static_cast<int32_t>(c.offset()/c.gain());
       const int32_t wLength   = c.waveform().size();
       const double sampInt    = c.sampleInterval()*1e9;
@@ -406,7 +406,7 @@ namespace cass
     template <typename T>
         void maximum(const Channel &c, Peak &p)
     {
-      const Channel::waveform_t Data = c.waveform();
+      const waveform_t Data = c.waveform();
       const double vGain   = c.gain();
       const int32_t vOff   = static_cast<int32_t>(c.offset()/vGain);
       const size_t start   = p.startpos();

@@ -19,7 +19,7 @@ template <typename T>
   //get reference to the signal//
   Signal &s = dynamic_cast<Signal&>(result);
   //extract infos from channel//
-  const Channel::waveform_t Data = c.waveform();
+  const waveform_t Data = c.waveform();
   const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
   const size_t wLength    = c.waveform().size();
   //extract info how to analyse from signal

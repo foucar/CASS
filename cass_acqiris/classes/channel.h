@@ -28,9 +28,6 @@ namespace cass
       Channel():Serializable(1)  {}
 
     public:
-      /** A wavefrom is just an array (vector) of integers,
-          this typedef is for more readable code*/
-      typedef std::vector<int16_t> waveform_t;
 
     public:
       /** will serialize this channel to the serializer*/

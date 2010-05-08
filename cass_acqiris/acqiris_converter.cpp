@@ -102,7 +102,7 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
         //we need to shift the pointer so that it looks at the first real point of the waveform//
         waveform += dd.indexFirstPoint();
         //retrieve a reference to our waveform//
-        Channel::waveform_t &mywaveform = chan.waveform();
+        waveform_t &mywaveform = chan.waveform();
         //resize our waveform vector to hold all the entries of the waveform//
         mywaveform.resize(dd.nbrSamplesInSeg());
 //        std::cout <<"AcqirisConverter: "

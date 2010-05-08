@@ -6,6 +6,8 @@
 
 
 #include <QtCore/qglobal.h>
+#include <vector>
+#include <functional>
 
 #if defined(CASS_ACQIRIS_LIBRARY)
 #  define CASS_ACQIRISSHARED_EXPORT Q_DECL_EXPORT
@@ -34,6 +36,39 @@ namespace cass
     enum Detectors{HexDetector, QuadDetector, VMIMcp, FELBeamMonitor, YAGPhotodiode, FsPhotodiode};
     /** the available detector analyzers*/
     enum DetectorAnalyzers {DelaylineSimple, ToFSimple};
+    /** A wavefrom is just an array (vector) of integers,
+        this typedef is for more readable code*/
+    typedef std::vector<int16_t> waveform_t;
+
+
+    /** Convert Waveform Point
+     *
+     * unary function for converting the waveform points that are in ADC Values to
+     * Volts.
+     *
+     * @author Lutz Foucar
+     */
+    class Adc2Volts : public std::unary_function<waveform_t::value_type, float>
+    {
+    public:
+      /** constructor.
+       *
+       * @param gain the gain of the channel that contains the waveform
+       * @param offset the offset in Volts of the channel
+       */
+      Adc2Volts(double gain, double offset):
+          _gain(gain),_offset(offset)
+      {}
+
+      /** operator. converts adc values to volts*/
+      float operator ()(waveform_t::value_type adc)
+      { return adc * _gain - _offset;}
+
+    protected:
+      double _gain;
+      double _offset;
+    };
+
   }
 }
 

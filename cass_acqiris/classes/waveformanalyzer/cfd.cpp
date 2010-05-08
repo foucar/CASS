@@ -25,7 +25,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
   const int32_t vOff      = static_cast<int32_t>(c.offset() / vGain);       //mV -> ADC Bytes
 
   const int32_t idxToFiPoint = 0;
-  const Channel::waveform_t Data = c.waveform();
+  const waveform_t Data = c.waveform();
   const size_t wLength    = c.waveform().size();
 
   //--get the right cfd settings--//

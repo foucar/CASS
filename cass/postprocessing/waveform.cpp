@@ -79,7 +79,7 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   const Channel &channel = instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
-  const Channel::waveform_t &waveform = channel.waveform();
+  const waveform_t &waveform = channel.waveform();
   //from here on only one thread should work at a time//
   QMutexLocker lock(&_mutex);
   //check wether the wavefrom histogram has been created//
@@ -103,7 +103,11 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   }
   //copy the waveform to our storage histogram
   _waveform->lock.lockForWrite();
-  std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
+//  std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
+//  std::transform(waveform.begin(),
+//                 waveform.end(),
+//                 _waveform->memory().begin(),
+//                 std::bind2nd(std::bind2nd(std::multiplies<float>(),gain),));
   _waveform->lock.unlock();
 }
 
@@ -223,7 +227,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   }
   const Channel &channel =instr.channels()[_channel];
   //retrieve a reference to the waveform of the channel//
-  const Channel::waveform_t &waveform = channel.waveform();
+  const waveform_t &waveform = channel.waveform();
   //from here on only one thread should work at a time//
   QMutexLocker lock(&_mutex);
   //check wether the wavefrom histogram has been created//
