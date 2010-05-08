@@ -11,8 +11,6 @@
 #include <qdialog.h>
 #include <QDockWidget>
 #include <QLayout>
-#include <QComboBox>
-#include <QPushButton>
 
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
@@ -31,11 +29,23 @@ class plotWidget : public QWidget
    Q_OBJECT
 public:
       //
-      plotWidget(CASSsoapProxy* cass=NULL) : _cass(cass), _btn_getHist(tr("get Histogram")) {
+      plotWidget(CASSsoapProxy* cass=NULL) : _cass(cass) {
          _layout.addWidget(&_plot);
          setLayout(&_layout);
          _plot.replot();
          _curve.setPen( QPen(Qt::blue) );
+         _zoomer = new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
+                                     QwtPicker::DragSelection, QwtPicker::AlwaysOff,
+                                     _plot.canvas());
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+                                  Qt::RightButton);
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                                  Qt::RightButton, Qt::ControlModifier);
+         _zoomer->setRubberBandPen(QPen(Qt::green));
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
+                                  Qt::ControlModifier);
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+
       };
       void setData(cass::Histogram1DFloat* hist ) {
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
@@ -50,6 +60,11 @@ public:
          }
          _curve.attach(&_plot);
          _curve.setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
+         _baseRect.setLeft( axis.position(0) );
+         _baseRect.setRight( axis.position(hist->size()) );
+         _baseRect.setTop( hist->max() );
+         _baseRect.setBottom( hist->min() );
+         _zoomer->setZoomBase(_baseRect);
          _plot.replot();
       };
 protected slots:
@@ -58,9 +73,10 @@ protected slots:
 
 protected:
       QwtPlot _plot;
+      QwtPlotZoomer* _zoomer;
+      QwtDoubleRect _baseRect;
       CASSsoapProxy* _cass;
       QVBoxLayout _layout;
-      QPushButton _btn_getHist;
       QwtPlotCurve _curve;
       std::string getHistogram_mime(size_t type);
 private:
