@@ -98,6 +98,8 @@ namespace cass
     void removeConverter(Converters);
     //! the parameters//
     ConverterParameter _param;
+    /** status whether a configure has already been seen */
+    bool _configseen;
     //! Available format converters
     availableConverters_t _availableConverters;
     /** map that contains all type id's of all known xtc in a transition.
