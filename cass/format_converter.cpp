@@ -78,6 +78,7 @@ void cass::ConverterParameter::save()
 
 
 cass::FormatConverter::FormatConverter()
+  :_configseen(false)
 {
   // create all the necessary individual format converters
   _availableConverters[Acqiris]     = new ACQIRIS::Converter();
@@ -227,7 +228,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       (datagram->seq.service() == Pds::TransitionId::L1Accept))
   {
     //if the datagram is an event, create the id from time and fiducial//
-    if (datagram->seq.service() == Pds::TransitionId::L1Accept)
+    if (_configseen && datagram->seq.service() == Pds::TransitionId::L1Accept)
     {
       //extract the bunchId from the datagram//
       uint64_t bunchId = datagram->seq.clock().seconds();
