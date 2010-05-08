@@ -327,7 +327,7 @@ void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
 }
 
 void getDataThread::run()
-{std::cout << "comparison: " << std::string("ding").compare(std::string("ding")) << std::endl;
+{
     if (_dataType==dat_Any) {
 	    std::string mime(getMimeType(_cass, _attachId));
             VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
