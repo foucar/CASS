@@ -135,21 +135,44 @@ void PostProcessors::setup()
 {
     using namespace std;
     // delete all unused PostProcessors
+    cout << "Postprocessor::setup(): deleting unused postprocessors"<<endl;
+    list<id_t> delets;
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-        if(_active.end() != find(_active.begin(), _active.end(), iter->first)) {
-            PostprocessorBackend *pp(iter->second);
-            _postprocessors.erase(iter);
-            delete pp;
+    {
+        cout << "Postprocessor::setup(): checking whether "<<iter->first<<" is on list"<<endl;
+        if(_active.end() == find(_active.begin(), _active.end(), iter->first)) {
+            cout << "Postprocessor::setup(): "<<iter->first<<" is not on list, therefore we are going to add it to list of deletable items"<<endl;
+            delets.push_front(iter->first);
         }
+    }
+    //delete all postprocessors marked as to be deleted
+    for (list<id_t>::iterator it(delets.begin()); it != delets.end(); ++it)
+    {
+        if (_postprocessors.end() != _postprocessors.find(*it))
+        {
+          PostprocessorBackend *pp(_postprocessors.find(*it)->second);
+          delete pp;
+          _postprocessors.erase(_postprocessors.find(*it));
+        }
+        else
+        {
+          cout << "did not find postprocessor"<<*it<<std::endl;
+        }
+    }
+
     // Add newly added PostProcessors -- for histograms we simply make sure the pointer is 0 and let
     // the postprocessor correctly initialize it whenever it wants to
+    cout << "Postprocessor::setup(): add newly added postprocessors"<<endl;
     list<id_t>::iterator iter(_active.begin());
     while(iter != _active.end()) {
+        cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl;
         // check that the postprocessor is not already implemented
         if(_postprocessors.end() == _postprocessors.find(*iter)) {
+            cout << "Postprocessor::setup(): did not find "<<*iter<<" in list creating it"<<endl;
             // create postprocessor
             _histograms[*iter] = 0;
             _postprocessors[*iter] = create(*iter);
+            cout << "Postprocessor::setup(): done creating "<<*iter<<endl;
             // check for dependencies; if there are any open dependencies put all of them in front
             // of us
             bool update(false);
