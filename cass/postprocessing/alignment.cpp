@@ -351,6 +351,7 @@ pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
   default:
     throw std::invalid_argument(QString("postprocessor %1 can't calc cos2theta").arg(_id).toStdString());
   }
+  loadSettings(0);
 }
 
 pp150::~pp150()
@@ -364,7 +365,7 @@ std::list<PostProcessors::id_t> pp150::dependencies()
   return std::list<PostProcessors::id_t>(1, _imageId);
 }
 
-void cass::pp150::loadParameters(size_t)
+void cass::pp150::loadSettings(size_t)
 {
   using namespace std;
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id

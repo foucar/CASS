@@ -142,7 +142,7 @@ public:
   /** Define postprocessor dependency on the requested image*/
   virtual std::list<PostProcessors::id_t> dependencies();
   /** load the histogram settings from cass.ini*/
-  virtual void loadParameters(size_t);
+  virtual void loadSettings(size_t);
 
 protected:
   /** image that we will calculate the \f$\cos^2\theta\f$ from*/
