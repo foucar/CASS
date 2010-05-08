@@ -15,7 +15,7 @@ template <typename T>
   using namespace cass::ACQIRIS;
 //  std::cout<<"com"<<sizeof(T)*8<<": entering"<<std::endl;
   //make sure that we are the right one for the waveform_t//
-  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
+  assert(typeid(waveform_t::value_type) == typeid(T));
   //get reference to the signal//
   Signal &s = dynamic_cast<Signal&>(result);
   //extract infos from channel//

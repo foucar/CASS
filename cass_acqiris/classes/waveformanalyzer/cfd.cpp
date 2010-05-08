@@ -14,7 +14,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 {
   using namespace cass::ACQIRIS;
   //make sure that we are the right one for the waveform_t//
-  assert(typeid(Channel::waveform_t::value_type) == typeid(T));
+  assert(typeid(waveform_t::value_type) == typeid(T));
 
   //get reference to the signal//
   Signal &s = dynamic_cast<Signal&>(result);

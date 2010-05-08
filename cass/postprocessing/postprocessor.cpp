@@ -160,7 +160,7 @@ void PostProcessors::setup()
         VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl);
         // check that the postprocessor is not already implemented
         if(_postprocessors.end() == _postprocessors.find(*iter)) {
-            VERBOSEOUT(out << "Postprocessor::setup(): did not find "<<*iter<<" in list creating it"<<endl);
+            VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter<<" in list creating it"<<endl);
             // create postprocessor
             _histograms[*iter] = 0;
             _postprocessors[*iter] = create(*iter);
