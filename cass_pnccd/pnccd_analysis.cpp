@@ -653,7 +653,7 @@ void cass::pnCCD::Analysis::saveSettings()
           out.write(reinterpret_cast<const char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
           //create software link pointing to last created file//
           char command[200];
-          printf(command,"ln -sf %s darkcal_%d.cal",dp._savedarkcalfilename.c_str(),iDet);
+          sprintf(command,"ln -sf %s darkcal_%d.cal",dp._savedarkcalfilename.c_str(),iDet);
           std::cout<<command<<std::endl;
           int status=system(command);
           if(status) std::cout<< printoutdef <<"error creating software link for chip "<<iDet<<std::endl;
