@@ -227,6 +227,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
       (datagram->seq.service() == Pds::TransitionId::L1Accept))
   {
+    //when it is a configuration transition then set the flag accordingly//
     if (datagram->seq.service() == Pds::TransitionId::Configure)
       _configseen=true;
     //if the datagram is an event, create the id from time and fiducial//
