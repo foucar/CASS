@@ -32,6 +32,7 @@
  * @section licence License
  * CASS is delveloped under the terms of the GNU General Public
  * License, version 3 as of 29 June 2007. See @ref casslicense for details.
+ *
  * If you use this software for publishable work, please cite and
  * acknowledge the authors and the CASS collaboration in your
  * publication. The suggested reference is:\n
