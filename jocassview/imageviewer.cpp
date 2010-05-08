@@ -389,6 +389,7 @@ void getDataThread::run()
 	emit newHistogram(hist);
 	break;
     }
+    _cass->destroy();
 #warning Fix imageformat
 }
 
