@@ -117,13 +117,13 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 
 namespace cass
 {
-  /** binary operator for averaging.
-   * this operator is capable of performing a Cumulative moving average and
+  /** binary function for averaging.
+   * this operator is capable of performing a cumulative moving average and
    * a Exponential moving average.
    * @see http://en.wikipedia.org/wiki/Moving_average
    * @author Lutz Foucar
    */
-  class Average
+  class Average : std::binary_function<float,float,float>
   {
   public:
     /** constructor.
@@ -257,6 +257,7 @@ void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
   const float alpha = (std::abs(_alpha-1.)<1e-15) ?
                       1./(_waveform->nbrOfFills()+1.) :
                       _alpha;
+  std::cout << _alpha<<std::endl;
   _waveform->lock.unlock();
   _waveform->lock.lockForWrite();
   //average the waveform and put the result in the averaged waveform//
