@@ -27,25 +27,28 @@ namespace cass
 // *** postprocessors 1, 2, 3 -- last images from a CCD ***
 
 pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(pp, id),
-      _image(new Histogram2DFloat(1024, 0, 1023, 1024, 0, 1023))
-#warning Do not use hardcoded dimensions here
+    : PostprocessorBackend(pp, id)
 {
-    switch(id) {
+    int cols(0);
+    int rows(0);
+    switch(id)
+    {
     case PostProcessors::Pnccd1LastImage:
-        _device=CASSEvent::pnCCD; _detector = 0;
+        _device=CASSEvent::pnCCD; _detector = 0; cols = 1024; rows = 1024;
         break;
     case PostProcessors::Pnccd2LastImage:
-        _device=CASSEvent::pnCCD; _detector = 1;
+        _device=CASSEvent::pnCCD; _detector = 1; cols = 1024; rows = 1024;
         break;
     case PostProcessors::VmiCcdLastImage:
-        _device=CASSEvent::CCD; _detector = 0;
+        _device=CASSEvent::CCD; _detector = 0; cols = 1000; rows = 1000;
         break;
 
     default:
         throw std::invalid_argument("class not responsible for requested postprocessor");
     };
     // save storage in PostProcessors container
+    _image = new Histogram2DFloat(cols, 0, cols-1, rows, 0, rows-1);
+    _image->setMimeType(std::string("application/image"));
     _pp.histograms_replace(_id, _image);
 }
 
@@ -68,13 +71,13 @@ void pp1::operator()(const cass::CASSEvent& event)
     const PixelDetector::frame_t& frame
         ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
     _image->lock.lockForWrite();
-    if(frame.size()!=1024*1024) 
-    {
-      //size_t ratio=1024*1024/frame.size();
-      //size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
-      //std::cout<<"allora "<< ratio << " "<< side_ratio <<std::endl;
-      //      _image(Histogram2DFloat(1024/side_ratio, 0, 1023, 1024/side_ratio, 0, 1023));
-    }
+//    if(frame.size()!=1024*1024)
+//    {
+//      size_t ratio=1024*1024/frame.size();
+//      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
+//      //std::cout<<"allora "<< ratio << " "<< side_ratio <<std::endl;
+//      //      _image(Histogram2DFloat(1024/side_ratio, 0, 1023, 1024/side_ratio, 0, 1023));
+//    }
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
     _image->lock.unlock();
 }
@@ -96,7 +99,8 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
     loadParameters(0);
-    switch(id) {
+    switch(id)
+    {
     case PostProcessors::PnccdFrontBinnedRunningAverage:
         _detector = 0; _device=CASSEvent::pnCCD;
         break;
@@ -122,18 +126,35 @@ cass::pp101::~pp101()
 
 void cass::pp101::loadParameters(size_t)
 {
+    int cols(0); int rows(0);
+    switch(_id)
+    {
+    case PostProcessors::PnccdFrontBinnedRunningAverage:
+        cols = 1024; rows = 1024;
+        break;
+    case PostProcessors::PnccdBackBinnedRunningAverage:
+        cols = 1024; rows = 1024;
+        break;
+    case PostProcessors::CommercialCCDBinnedRunningAverage:
+        cols = 1000; rows = 1000;
+        break;
+    default:
+        throw std::invalid_argument("Impossible postprocessor id for pp101");
+        break;
+    };
     QSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup(QString("p") + QString::number(_id));
     _average = settings.value("average", 1).toUInt();
-    _scale = 1. - 1./_average;
+    _scale =  2./(_average+1);
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
+    std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average<<std::endl;
     if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
         _binning = binning;
         // create new histogram storage and save it in PostProcessors container
-        size_t horizontal(1024/_binning.first);
-        size_t vertical(1024/_binning.second);
+        size_t horizontal(cols/_binning.first);
+        size_t vertical(rows/_binning.second);
         _image = new Histogram2DFloat(horizontal, vertical);
         _pp.histograms_replace(_id, _image);
     }

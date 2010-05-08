@@ -1,6 +1,8 @@
 //Copyright (C) 2009,2010 Lutz Foucar
 
 #include "ccd_converter.h"
+
+#include <algorithm>
 #include <iostream>
 
 #include "pdsdata/camera/FrameV1.hh"
@@ -8,7 +10,6 @@
 #include "pdsdata/xtc/DetInfo.hh"
 #include "cass_event.h"
 #include "ccd_device.h"
-//#include "ccd_detector.h"
 #include "pixel_detector.h"
 
 
@@ -39,5 +40,6 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   //copy the frame data to this detector and do a type convertion implicitly//
   const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
   det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
-//  std::cout<<"CCDConverter::XTCData: done."<<std::endl;
+  //mark out the first 8 pixels since they store status info, that might mess up the picture
+  std::fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
 }

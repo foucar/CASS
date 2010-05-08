@@ -25,18 +25,29 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles
 
 SOURCES       += jocassview.cpp \
                  imageviewer.cpp \
+                 plotwidget.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 
 HEADERS       += soapH.h \
                  imageviewer.h \
+                 plotwidget.h \
                  soapCASSsoapProxy.h \
                  soapStub.h
 
 FORMS         += imageviewer.ui
 
-INCLUDEPATH   += $$PWD/..
-LIBS          += -lgsoap++ -lgsoap
+INCLUDEPATH   += $$PWD/.. \
+                 $$PWD/../cass
+LIBS          += -lgsoap++ -lgsoap \
+                 -L../cass_acqiris -lcass_acqiris \
+                 -L../cass_pnccd -lcass_pnccd \
+                 -L../cass_ccd -lcass_ccd \
+                 -L../cass_machinedata -lcass_machinedata \
+                 -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
+                 -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
+                 -lgsoap++ -lgsoap \
+                 -lqwt
 
 bin.files      = jocassview
 bin.path       = $$INSTALLBASE/bin

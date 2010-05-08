@@ -68,6 +68,7 @@ PostProcessors::PostProcessors()
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
     loadSettings(0);
+    _IdList = new IdList();
 }
 
 
@@ -93,6 +94,21 @@ void PostProcessors::loadSettings(size_t)
     for(std::list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter)
         std::cout << *iter << " ";
     setup();
+}
+
+IdList* PostProcessors::getIdList()
+{
+    _IdList->clear();
+    _IdList->setList(_active);
+    return _IdList;
+}
+
+std::string& PostProcessors::getMimeType(id_t type) {
+    histograms_t::iterator it = _histograms.find(type);
+    if (it!=_histograms.end())
+      return it->second->mimeType();
+std::cout << "PostProcessors::getMimeType id not found " << type <<std::endl;
+    return _invalidMime;
 }
 
 

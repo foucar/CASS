@@ -19,30 +19,42 @@
 #include <QtGui/QSpinBox>
 
 #include "cass/cass.h"
+#include "cass/histogram.h"
 #include "ui_imageviewer.h"
 #include "soapCASSsoapProxy.h"
+#include "plotwidget.h"
 
 namespace jocassview
 {
 
-    class getImageThread : public QThread
+    class getDataThread : public QThread
     {
         Q_OBJECT
 
     public:
 
-        getImageThread();
-
+        getDataThread();
+        void setSoap(CASSsoapProxy* cassSoap);
+        cass::PostProcessors::active_t getIdList(CASSsoapProxy *cass);
+        std::string getMimeType(CASSsoapProxy *cass, int attachId);
+        void getData(CASSsoapProxy *cass, int attachId);
         void getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId);
+        void getHistogram0D(CASSsoapProxy *cass, int attachId);
+        void getHistogram1D(CASSsoapProxy *cass, int attachId);
+        void setImageFormat(cass::ImageFormat format) {_format=format;};
 
     signals:
 
         void newImage(const QImage &image);
+        void newHistogram(cass::Histogram1DFloat*);
 
     protected:
 
         /** Worker thread */
         void run();
+
+	enum dataType {dat_Image=0, dat_Any, dat_2DHistogram, dat_1DHistogram, dat_0DHistogram, dat_COUNT};
+	dataType _dataType;
 
         CASSsoapProxy *_cass;
 
@@ -93,7 +105,10 @@ private slots:
 
     /**
     @todo Use cass::imageformatName and such! */
-    void on_getImage_triggered();
+
+    void on_getData_triggered();
+
+    void on_getHistogram_triggered();
 
     void on_print_triggered();
 
@@ -119,8 +134,18 @@ private slots:
 
     void updatePixmap(const QImage &image);
 
+    void updateHistogram1D(cass::Histogram1DFloat* hist);
+
 
 private:
+
+    QDockWidget* _dock;
+
+    QScrollArea* _imageWidget;
+
+    QLabel *_imageLabel;
+
+    plotWidget* _plotWidget;
 
     void closeEvent(QCloseEvent *event);
 
@@ -132,11 +157,10 @@ private:
 
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
+    void updateImageList(QComboBox* box);
+
     virtual void showEvent(QShowEvent *);
 
-    QLabel *imageLabel;
-
-    QScrollArea *scrollArea;
 
     double _scaleFactor;
 
@@ -158,7 +182,7 @@ private:
 
     QCheckBox *_running;
 
-    QSpinBox *_attachId;
+    QComboBox*_attachId;
 
     QSize _imagesize;
 
@@ -168,7 +192,7 @@ private:
 
     std::string _server;
 
-    getImageThread _githread;
+    getDataThread _gdthread;
 
     /** internal image update timer */
     QTimer *_updater;

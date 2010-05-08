@@ -8,6 +8,7 @@
 #include <map>
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -15,6 +16,8 @@
 #include <QtCore/QSettings>
 
 #include "cass.h"
+#include "serializer.h"
+#include "serializable.h"
 
 namespace cass
 {
@@ -23,6 +26,7 @@ class PostprocessorBackend;
 class HistogramBackend;
 class Histogram1DFloat;
 class Histogram2DFloat;
+class IdList;
 
 
 /** Exception thrown when accessing invalid histograms
@@ -436,6 +440,9 @@ public:
     /** Container of all currently actice postprocessors */
     typedef std::map<id_t, PostprocessorBackend*> postprocessors_t;
 
+    /** List of active postprocessors */
+    typedef std::list<id_t> active_t;
+
     /** create the instance if not it does not exist already */
     static PostProcessors *instance();
 
@@ -487,6 +494,8 @@ public:
             throw InvalidHistogramError(type);
     };
 
+    IdList* getIdList();
+    std::string& getMimeType(id_t type);
 
 public slots:
 
@@ -506,7 +515,9 @@ protected:
     This list has order, i.e., postprocessors are called in the specified order. You can rely on the
     result of a postprocessor earlier in the list, but not on one that only occurs further back...
     */
-    std::list<id_t> _active;
+    active_t _active;
+    IdList * _IdList;
+    std::string _invalidMime;
 
     /** container for all histograms */
     histograms_t _histograms;
@@ -565,6 +576,68 @@ private:
     static QMutex _mutex;
 };
 
+class IdList : public Serializable
+{
+public:
+   IdList() : Serializable(1), _size(0) {}
+   IdList( PostProcessors::active_t & list) : Serializable(1), _list(list), _size(list.size()) {}
+   IdList( Serializer* in) : Serializable(1) {
+      deserialize(in);
+   }
+   IdList( Serializer &in) : Serializable(1) {
+      deserialize(in);
+   }
+
+   void clear() {
+      _list.clear();
+      _size=0;
+   }
+
+   void setList(PostProcessors::active_t& list) {
+      clear();
+      _list=list;
+      _size=list.size();
+   }
+
+   PostProcessors::active_t& getList() {
+      return _list;
+   }
+
+   void deserialize(Serializer& in) {
+      deserialize(&in);
+   }
+
+   void deserialize(Serializer *in) {
+      //check whether the version fits//
+      uint16_t ver = in->retrieveUint16();
+      if(ver!=_version)
+      {
+        std::cerr<<"version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
+        return;
+      }
+      //number of bins, lower & upper limit
+      _size     = in->retrieveSizet();
+      _list.clear();
+      for (size_t ii=0;ii<_size;ii++)
+         _list.push_back(static_cast<PostProcessors::id_t>(in->retrieveUint16()));
+   }
+
+   void serialize(Serializer &out) {
+      serialize(&out);
+   }
+
+   void serialize(Serializer *out) {
+      //
+      out->addUint16(_version);
+      out->addSizet(_size);
+      for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
+         out->addUint16(*it);
+   }
+
+private:
+   PostProcessors::active_t _list;
+   size_t _size;
+};
 
 
 

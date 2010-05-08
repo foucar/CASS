@@ -61,7 +61,10 @@ namespace cass
         //first check whether datagram is damaged or the xtc id is bigger than we expect//
         uint32_t damage = xtc->damage.value();
         if (xtc->contains.id() >= Pds::TypeId::NumberOf)
+        {
           std::cout << xtc->contains.id() <<" is an unkown xtc id"<<std::endl;
+          return Stop;
+        }
         else if (damage)
           std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
         else
