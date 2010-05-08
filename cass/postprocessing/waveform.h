@@ -58,9 +58,6 @@ namespace cass
    * @see Average
    *
    * User settable Parameters in CASS.ini:
-   * - values for center of image:
-   *   PostProcessor/p%id%/{ImageXCenter|ImageYCenter}
-   *
    * - averaging length:  PostProcessor/p%id%/{NumberOfAverages}
    * In case one want to have a cummulative averaging set averaging length to 1.
    *
