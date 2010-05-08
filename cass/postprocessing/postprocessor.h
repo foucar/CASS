@@ -82,7 +82,7 @@ histograms) and placed in the file for the most appropriate group according to t
 @section pplist List of Postprocessors
 The Classes that implement the postprocessor are pointed out in parenthesis. See the Class description
 for information about what parameters are user settable. (Keep in mind that cases matter)
-@code
+@verbatim
 00001: Last plain image from Front pnCCD (pp1)
 00002: Last plain image from Back pnCCD (pp1)
 
@@ -258,7 +258,7 @@ for information about what parameters are user settable. (Keep in mind that case
 
 00700: PIPICo on Hexdetector (pp700)
 00701: PIPICo of Hex and QuadDetector (pp700)
-@endcode
+@endverbatim
 
 @section add_pp Howto add custom postprocessors
 
