@@ -1,8 +1,8 @@
 libnames := appdata
-libsrcs_appdata := XtcMonitorServer.cc XtcMonitorClient.cc XtcMonitorMsg.cc
+libsrcs_appdata := XtcMonitorClient.cc
 
 tgtnames = xtcmonserver
 
 tgtsrcs_xtcmonserver := xtcmonserver.cc
-tgtlibs_xtcmonserver := pdsdata/xtcdata pdsdata/acqdata pdsdata/appdata
+tgtlibs_xtcmonserver := pdsdata/xtcdata pdsdata/acqdata
 tgtslib_xtcmonserver := $(USRLIBDIR)/usr/lib/rt
