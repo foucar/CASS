@@ -148,6 +148,9 @@
  * @todo move main documentation to own file.
  * @todo create a page that contains links to all descriptions of user
  *       settable variables in cass.ini
+ * @todo check whether dependcy stuff works
+ * @todo next to the cass executable create a cass library so that the viewer
+ *       can use the histogram part for it.
  */
 
 /** \page authors Authors
