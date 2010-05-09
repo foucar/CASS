@@ -205,12 +205,12 @@ void cass::FormatConverter::saveSettings()
 }
 
 
-
+enum {NoGoodData,GoodData};
 bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 {
   //intialize the return value//
   // the return value reflects the whether the datagram was a L1Transition(an event)
-  bool retval = false;
+  bool retval(NoGoodData);
   //get the datagram from the cassevent//
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
 /*
@@ -239,12 +239,14 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       //put the id into the cassevent
       cassevent->id() = bunchId;
       //when the datagram was an event we need to tell the caller//
-      retval = true;
+      retval = GoodData;
     }
 
     //iterate through the datagram and find the wanted information//
+    //if the return value of the iterateor is false, then the transition
+    //did not contain all information//
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
-    iter.iterate();
+    retval = retval && iter.iterate();
   }
 //  std::cout<< std::boolalpha<<retval<<std::endl;
   return retval;

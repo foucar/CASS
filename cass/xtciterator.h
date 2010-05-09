@@ -59,6 +59,7 @@ namespace cass
       else
       {
         //first check whether datagram is damaged or the xtc id is bigger than we expect//
+        //when it contains an incomplete contribution stop iterating and return that it is not good//
         uint32_t damage = xtc->damage.value();
         if (xtc->contains.id() >= Pds::TypeId::NumberOf)
         {
@@ -67,6 +68,8 @@ namespace cass
         }
         else if (damage)
           std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
+        else if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
+          return Stop;
         else
           //use the converter that is good for this xtc type//
           (*_converters[xtc->contains.id()])(xtc,_cassevent);

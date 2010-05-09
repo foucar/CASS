@@ -34,21 +34,27 @@ using namespace Pds;
 **
 ** --
 */
+enum{Error, NoError};
 
-void XtcIterator::iterate(Xtc* root) 
-  {
-    if (root->damage.value() & ( 1 << Damage::IncompleteContribution))
-      return;
+int XtcIterator::iterate(Xtc* root)
+{
+  if (root->damage.value() & ( 1 << Damage::IncompleteContribution))
+    return Error;
 
-    Xtc* xtc     = (Xtc*)root->payload();
-    int remaining = root->sizeofPayload();
+  Xtc* xtc     = (Xtc*)root->payload();
+  int remaining = root->sizeofPayload();
 
+  int error(NoError);
   while(remaining > 0)
+  {
+    if(!process(xtc))
     {
-    if(!process(xtc)) break;
+      error = Error;
+      break;
+    }
     remaining -= xtc->sizeofPayload() + sizeof(Xtc);
     xtc      = xtc->next();
-    }
-
-  return;
   }
+
+  return error;
+}

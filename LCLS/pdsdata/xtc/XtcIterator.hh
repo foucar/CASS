@@ -47,8 +47,8 @@ class XtcIterator
   public:
     virtual int process(Xtc* xtc) = 0;
   public:
-    void            iterate();
-    void            iterate(Xtc*);
+    int            iterate();
+    int            iterate(Xtc*);
     const Xtc* root()              const;
   private:
      Xtc* _root; // Collection to process in the absence of an argument...
@@ -95,9 +95,9 @@ inline const Xtc* XtcIterator::root() const
 ** --
 */
 
-inline void XtcIterator::iterate() 
+inline int XtcIterator::iterate()
   {
-  iterate(_root);
+  return (iterate(_root));
   } 
 
 #endif
