@@ -560,7 +560,7 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
       // now I know which pixel should be masked!
       size_t nextPixel=0;
-      dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero-1);
+      dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero);
       size_t extra_masked_pixel=0;
       for(size_t iPixel=0;iPixel<dp._ROImask.size(); ++iPixel)
       {
