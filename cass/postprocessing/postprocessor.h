@@ -146,8 +146,7 @@ for information about what parameters are user settable. (Keep in mind that case
 00027: Last waveform of ITof Acqiris Channel 03 (pp4)
 
 00101: Running average of front pnCCD images (pp101)
-00102: Histogram 101 (not implemented yet)
-- background subtraction of the image file specified in postprocessors/102/background
+00102: Difference between choosable averaged CCD images (pp102)
 00103: Running average of back pnCCD images (pp101)
 00105: Running average of commercial ccd images (pp101)
 
