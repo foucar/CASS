@@ -370,6 +370,8 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case HexQuadPIPICO:
         processor = new pp700(*this,id);
         break;
+    case VmiFixedCos2Theta:
+        processor = new pp150(*this,id);
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }
