@@ -29,7 +29,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     qRegisterMetaType<QImage>("QImage");
     connect(&_gdthread, SIGNAL(newNone()), this, SLOT(updateNone()));
     connect(&_gdthread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
-    connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram1D(cass::Histogram1DFloat*)));
+    connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram(cass::Histogram1DFloat*)));
+    connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram0DFloat*)), this, SLOT(updateHistogram(cass::Histogram0DFloat*)));
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(_updater, SIGNAL(timeout()), this, SLOT(on_getData_triggered()));
     // Add servername and port to toolbar.
@@ -111,6 +112,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageWidget->setWidget(_imageLabel);
     // widget for plots:
     _plotWidget = new plotWidget(_cass);
+    _plotWidget0D = new plotWidget0D();
     // dock widget containing image or histograms:
     _dock = new QDockWidget(tr("Histogram"), this);
     //addDockWidget(Qt::RightDockWidgetArea, _dock);
@@ -225,7 +227,7 @@ std::cout<< "updatePixmap" <<std::endl;
     _ready = true;
 }
 
-void ImageViewer::updateHistogram1D(cass::Histogram1DFloat* hist)
+void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 {
     /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
             << " width=" << image.size().width()
@@ -235,7 +237,31 @@ void ImageViewer::updateHistogram1D(cass::Histogram1DFloat* hist)
     if (_dock->widget()!=_plotWidget) _dock->setWidget(_plotWidget);
     
     updateActions();
-    //VERBOSEOUT(cout << "updatePixmap: _scaleFactor=" << _scaleFactor << endl);
+    //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
+    // set rate info
+    static QTime time;
+    static float rate(0.);
+    int elapsed(time.restart());
+    if(rate < 0.01)
+        rate = 1000./elapsed;
+    else
+        rate = 0.95 * rate + 0.05 * 1000./elapsed;
+    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+    _statusLED->setStatus(false);
+    _ready = true;
+}
+
+void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
+{
+    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
+            << " width=" << image.size().width()
+            << " height=" << image.size().height() << endl);*/
+    _plotWidget0D->setData(hist);
+    delete hist;
+    if (_dock->widget()!=_plotWidget0D) _dock->setWidget(_plotWidget0D);
+    
+    updateActions();
+    //VERBOSEOUT(cout << "updateHistogram0D: _scaleFactor=" << _scaleFactor << endl);
     // set rate info
     static QTime time;
     static float rate(0.);
@@ -359,6 +385,9 @@ void getDataThread::run()
     case dat_1DHistogram:
         _cass->getHistogram(_attachId, &ret);
         break;
+    case dat_0DHistogram:
+        _cass->getHistogram(_attachId, &ret);
+        break;
     }
     if(! ret) {
         cerr << "Did not get soap data" << endl;
@@ -383,12 +412,17 @@ void getDataThread::run()
         VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image.byteCount() << endl);
         emit newImage(image);
         break; }
-    case dat_1DHistogram:
+    case dat_1DHistogram: {
         cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
         cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
         emit newHistogram(hist);  // slot deletes hist when done.
-        break;
-    }
+        break; }
+    case dat_0DHistogram: {
+        cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+        cass::Histogram0DFloat* hist = new cass::Histogram0DFloat(serializer);
+        emit newHistogram(hist);  // slot deletes hist when done.
+        break; }
+   }
     _cass->destroy();
 #warning Fix imageformat
 }

@@ -10,7 +10,11 @@
 #include <qwt_plot_zoomer.h>
 #include <qdialog.h>
 #include <QDockWidget>
+#include <QLabel>
 #include <QLayout>
+#include <QToolBar>
+#include <QAction>
+#include <QFont>
 
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
@@ -24,6 +28,29 @@
 class cassData;
 
 //class plotWidget : public QDockWidget
+class plotWidget0D: public QWidget
+{
+public:
+    plotWidget0D() {
+        _lblValue = new QLabel;
+        _lblValue->setAlignment(Qt::AlignHCenter);
+        QFont font(_lblValue->font());
+        font.setPointSize(20);
+        _lblValue->setFont(font);
+        _layout.addWidget(_lblValue);
+        setLayout(&_layout);
+    };
+    void setData(cass::Histogram0DFloat* hist ) {
+        setValue(hist->getValue());
+    };
+    void setValue(float val) {
+        _lblValue->setText( QString::number(val) );
+    };
+private:
+    QLabel* _lblValue;
+    QVBoxLayout _layout;
+};
+
 class plotWidget : public QWidget
 {
    Q_OBJECT

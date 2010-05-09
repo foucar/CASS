@@ -317,6 +317,8 @@ public:
 
     void fill(value_t value=0.) {lock.lockForWrite(); _memory[0] = value; lock.unlock(); };
 
+    value_t getValue() { return _memory[0]; };
+
     /*! Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
 };

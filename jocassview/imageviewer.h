@@ -47,6 +47,7 @@ namespace jocassview
 
         void newImage(const QImage &image);
         void newHistogram(cass::Histogram1DFloat*);
+        void newHistogram(cass::Histogram0DFloat*);
         void newNone();
 
     protected:
@@ -139,7 +140,9 @@ private slots:
 
     void updatePixmap(const QImage &image);
 
-    void updateHistogram1D(cass::Histogram1DFloat* hist);
+    void updateHistogram(cass::Histogram1DFloat* hist);
+
+    void updateHistogram(cass::Histogram0DFloat* hist);
 
 
 private:
@@ -151,6 +154,7 @@ private:
     QLabel *_imageLabel;
 
     plotWidget* _plotWidget;
+    plotWidget0D* _plotWidget0D;
 
     void closeEvent(QCloseEvent *event);
 
