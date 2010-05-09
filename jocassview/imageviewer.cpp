@@ -391,12 +391,14 @@ void getDataThread::run()
     }
     if(! ret) {
         cerr << "Did not get soap data" << endl;
+        emit newNone();
         return;
     }
     VERBOSEOUT(cout << "getDataThread::run: Got soap data" << endl);
     soap_multipart::iterator attachment(_cass->dime.begin());
     if(_cass->dime.end() == attachment) {
         cerr << "Did not get attachment!" << endl;
+        emit newNone();
         return;
     }
     VERBOSEOUT(cout << "getDataThread::run: DIME attachment:" << endl);
@@ -422,7 +424,10 @@ void getDataThread::run()
         cass::Histogram0DFloat* hist = new cass::Histogram0DFloat(serializer);
         emit newHistogram(hist);  // slot deletes hist when done.
         break; }
-   }
+    default:
+        emit newNone();
+        break;
+    }
     _cass->destroy();
 #warning Fix imageformat
 }
