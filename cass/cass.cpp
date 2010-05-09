@@ -135,7 +135,7 @@
  *
  * @todo only retrieve the last ccd / waveform when requested\n
  * @todo describe how to use Nicolas ROI.
- * @todo find out why there are the warning messages about const
+ * @todo find out why there are the warning messages about const\n
  *       iterators (size_t) when compiling at SLAC
  * @todo create another acqiris detector, that will just measure the
  *       voltage on a given channel
