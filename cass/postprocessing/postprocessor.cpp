@@ -170,7 +170,7 @@ void PostProcessors::setup()
             bool update(false);
             list<id_t> deps(_postprocessors[*iter]->dependencies());
             for(list<id_t>::iterator d=deps.begin(); d!=deps.end(); ++d) {
-                if(_postprocessors.end() != _postprocessors.find(*d)) {
+                if(_postprocessors.end() == _postprocessors.find(*d)) {
                     _active.insert(iter, *d);
                     list<id_t>::iterator remove(find(iter, _active.end(), *d));
                     if(_active.end() != remove)
