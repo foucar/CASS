@@ -175,6 +175,8 @@ void cass::pp101::loadSettings(size_t)
         <<" which has id:"<<_conditionDetector
         <<std::endl;
 
+    HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
+
     _pp.histograms_delete(_id);
     _image = new Histogram2DFloat(cols,rows);
     _pp.histograms_replace(_id,_image);
