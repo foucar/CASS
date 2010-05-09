@@ -430,6 +430,8 @@ public:
         //set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
+        // for time beeing, export 2d histograms as image.
+        setMimeType(std::string("application/image"));
     }
 
     /** create default histogram.
