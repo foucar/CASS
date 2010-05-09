@@ -112,7 +112,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageWidget->setWidget(_imageLabel);
     // widget for plots:
     _plotWidget = new plotWidget(_cass);
-    _plotWidget0D = new plotWidget0D();
+    _plotWidget0D = new plotWidget0D(1000);
     // dock widget containing image or histograms:
     _dock = new QDockWidget(tr("Histogram"), this);
     //addDockWidget(Qt::RightDockWidgetArea, _dock);

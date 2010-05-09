@@ -15,6 +15,7 @@
 #include <QToolBar>
 #include <QAction>
 #include <QFont>
+#include <QQueue>
 
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
@@ -27,38 +28,34 @@
 // prototypes:
 class cassData;
 
-//class plotWidget : public QDockWidget
-class plotWidget0D: public QWidget
-{
-public:
-    plotWidget0D() {
-        _lblValue = new QLabel;
-        _lblValue->setAlignment(Qt::AlignHCenter);
-        QFont font(_lblValue->font());
-        font.setPointSize(20);
-        _lblValue->setFont(font);
-        _layout.addWidget(_lblValue);
-        setLayout(&_layout);
-    };
-    void setData(cass::Histogram0DFloat* hist ) {
-        setValue(hist->getValue());
-    };
-    void setValue(float val) {
-        _lblValue->setText( QString::number(val) );
-    };
-private:
-    QLabel* _lblValue;
-    QVBoxLayout _layout;
-};
 
 class plotWidget : public QWidget
 {
    Q_OBJECT
 public:
       //
-      plotWidget(CASSsoapProxy* cass=NULL) : _cass(cass) {
-         _layout.addWidget(&_plot);
+      plotWidget(CASSsoapProxy* cass=NULL) : _cass(cass) {std::cout<<"1d constr"<<std::endl;
+          setupUI();
+      };
+      void setupUI() {
+         initPlot(_layout);
+         initToolbar(_layout);
          setLayout(&_layout);
+      };
+
+      void initToolbar(QLayout& layout) {
+         _toolbar = new QToolBar(tr("plot toolbar"), this);
+         _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
+         _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("&Zoom in"), this);
+         _act_zoomin->setCheckable(true);
+         _act_zoomout->setCheckable(true);
+         _toolbar->addAction(_act_zoomin);
+         _toolbar->addAction(_act_zoomout);
+         layout.addWidget(_toolbar);
+      };
+
+      void initPlot(QLayout&  layout) {
+         layout.addWidget(&_plot);
          _plot.replot();
          _curve.setPen( QPen(Qt::blue) );
          _zoomer = new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
@@ -72,8 +69,8 @@ public:
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
                                   Qt::ControlModifier);
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
-
       };
+     
       void setData(cass::Histogram1DFloat* hist ) {
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
          //QVector<cass::HistogramFloatBase::value_t> qdata(hist.size());
@@ -105,9 +102,58 @@ protected:
       CASSsoapProxy* _cass;
       QVBoxLayout _layout;
       QwtPlotCurve _curve;
+
+      QToolBar* _toolbar;
+      QAction* _act_zoomin;
+      QAction* _act_zoomout;
+
       std::string getHistogram_mime(size_t type);
 private:
       //
 };
+
+class plotWidget0D: public plotWidget
+{
+public:
+    plotWidget0D(int accumulationLength) : _accumulationLength(accumulationLength),
+                                           _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp 
+    {std::cout << "0d constr" << std::endl;
+        setupUI();
+    };
+
+    void setupUI() {
+        initPlot(_layout);
+        _lblValue = new QLabel;
+        _lblValue->setAlignment(Qt::AlignHCenter);
+        QFont font(_lblValue->font());
+        font.setPointSize(20);
+        _lblValue->setFont(font);
+        _layout.addWidget(_lblValue);
+        initToolbar(_layout);
+        setLayout(&_layout);
+    };
+
+    void setData(cass::Histogram0DFloat* hist ) {
+        setValue(hist->getValue());
+        _histAccumulator.clear();
+        int ii=0;
+        for (QQueue<float>::iterator valueit=_values.begin(); valueit!=_values.end(); valueit++) {
+            _histAccumulator.fill( ii, (*valueit));
+            ii++;
+        }
+        plotWidget::setData(&_histAccumulator);
+    };
+    void setValue(float val) {
+        _lblValue->setText( QString::number(val) );
+        _values.enqueue(val);
+        if (_values.size()>_accumulationLength) _values.dequeue();
+    };
+protected:
+    QLabel* _lblValue;
+    QQueue<float> _values;
+    cass::Histogram1DFloat _histAccumulator;
+    int _accumulationLength;
+};
+
 
 #endif
