@@ -205,7 +205,7 @@ void cass::FormatConverter::saveSettings()
 }
 
 
-enum {NoGoodData,GoodData};
+enum {NoGoodData=0,GoodData};
 bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
 {
   //intialize the return value//
@@ -246,7 +246,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
     //if the return value of the iterateor is false, then the transition
     //did not contain all information//
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
-    retval = retval && iter.iterate();
+    retval = iter.iterate() && retval;
   }
 //  std::cout<< std::boolalpha<<retval<<std::endl;
   return retval;
