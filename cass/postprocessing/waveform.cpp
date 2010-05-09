@@ -119,38 +119,6 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 
 
 
-namespace cass
-{
-  /** binary function for averaging.
-   * this operator is capable of performing a cumulative moving average and
-   * a Exponential moving average.
-   * @see http://en.wikipedia.org/wiki/Moving_average
-   * @author Lutz Foucar
-   */
-  class Average : std::binary_function<float,float,float>
-  {
-  public:
-    /** constructor.
-     * initializes the \f$\alpha\f$ value
-     * @param alpha The \f$\alpha\f$ value
-     */
-    explicit Average(float alpha)
-      :_alpha(alpha)
-    {}
-    /** the operator calculates the average using the function
-     * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
-     * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
-     * otherwise it will be a exponential moving average.
-     */
-    float operator()(float currentValue, float Average_Nm1)
-    {
-      return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
-    }
-  protected:
-    /** \f$\alpha\f$ for the average calculation */
-    float _alpha;
-  };
-}
 
 //the average waveform creator//
 cass::pp500::pp500(cass::PostProcessors &ppc, cass::PostProcessors::id_t id)

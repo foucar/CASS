@@ -18,6 +18,7 @@
 #include "cass_event.h"
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/ccd.h"
+#include "acqiris_detectors_helper.h"
 
 
 namespace cass
