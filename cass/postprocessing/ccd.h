@@ -67,6 +67,7 @@ protected:
  *           is not evaluated at all.
  * @cassttng PostProcessor/p\%id\%/Invert \n
  *           Invert the Condition, when there is a valid detector condition chosen.
+ *           default is "false".
  * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
  *           geometric binning (x and y). Binning must be a fraction of 1024 (in
  *           case of pnccd's) (unused for now)

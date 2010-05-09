@@ -170,9 +170,12 @@ void cass::pp101::loadSettings(size_t)
     else
       _conditionDetector = InvalidDetector;
 
+    _invert = settings.value("Invert",false).toBool();
+
     std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average
         <<" condition on detector:"<<name
         <<" which has id:"<<_conditionDetector
+        <<" The Condition will be inverted:"<<std::boolalpha<<_invert
         <<std::endl;
 
     if (_conditionDetector)
@@ -203,13 +206,15 @@ void cass::pp101::operator()(const CASSEvent& event)
       TofDetector *det =
           dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
       update = det->mcp().peaks().size();
+      update ^= _invert;
     }
     // running average of data:
     _image->lock.lockForWrite();
-    transform(frame.begin(),frame.end(),
-              _image->memory().begin(),
-              _image->memory().begin(),
-              Average(_scale));
+    if (update)
+      transform(frame.begin(),frame.end(),
+                _image->memory().begin(),
+                _image->memory().begin(),
+                Average(_scale));
     _image->lock.unlock();
 }
 
