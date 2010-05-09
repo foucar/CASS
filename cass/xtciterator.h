@@ -70,7 +70,10 @@ namespace cass
         {
           std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
           if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
+          {
+            std::cout <<std::hex<<"0x"<<xtc->damage.value()<<" is incomplete Contribution. Skipping Event"<<std::dec<<std::endl;
             return Stop;
+          }
         }
         else
           //use the converter that is good for this xtc type//
