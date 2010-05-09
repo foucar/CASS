@@ -41,7 +41,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -79,7 +79,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -121,7 +121,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -161,7 +161,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -204,7 +204,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -244,7 +244,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -285,7 +285,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -328,7 +328,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -371,7 +371,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -420,7 +420,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -470,7 +470,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -508,7 +508,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
@@ -550,7 +550,7 @@ namespace cass
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
     /** load the histogram settings from file*/
-    virtual void loadParameters(size_t);
+    virtual void loadSettings(size_t);
   protected:
     /** The first detector of the cooincdence*/
     ACQIRIS::Detectors _detector01;

@@ -32,7 +32,7 @@ namespace cass
        */
       virtual DetectorBackend& operator= (const DetectorBackend& rhs);
       /** load the values from cass.ini */
-      virtual void loadParameters(QSettings *p);
+      virtual void loadSettings(QSettings *p);
       /** save values to cass.ini */
       virtual void saveParameters(QSettings *){};
       /** getter for the signal*/
@@ -47,10 +47,10 @@ namespace cass
 }
 
 inline
-void cass::ACQIRIS::TofDetector::loadParameters(QSettings *p)
+void cass::ACQIRIS::TofDetector::loadSettings(QSettings *p)
 {
   p->beginGroup(_name.c_str());
-  _mcp.loadParameters(p,"Signal");
+  _mcp.loadSettings(p,"Signal");
   p->endGroup();
 }
 

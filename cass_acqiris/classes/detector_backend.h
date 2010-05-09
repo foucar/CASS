@@ -26,7 +26,7 @@ namespace cass
       /** virtual destructor*/
       virtual ~DetectorBackend() {}
       /** pure virtual function that will load the detector parameters from cass.ini*/
-      virtual void loadParameters(QSettings*)=0;
+      virtual void loadSettings(QSettings*)=0;
       /** pure virtual assignment operator.*/
       virtual DetectorBackend& operator= (const DetectorBackend&)=0;
       /** pure virtual function that will save the detector parameters to cass.ini

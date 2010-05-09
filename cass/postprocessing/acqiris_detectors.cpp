@@ -107,7 +107,7 @@ namespace cass
      */
     DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
     /** tell the detector owned by this instance to reload its settings*/
-    void loadParameters(size_t=0);
+    void loadSettings(size_t=0);
   protected:
     /** typdef defining the list of detectors for more readable code*/
     typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
@@ -337,13 +337,13 @@ cass::HelperAcqirisDetectors::~HelperAcqirisDetectors()
   delete _detector;
 }
 
-void cass::HelperAcqirisDetectors::loadParameters(size_t)
+void cass::HelperAcqirisDetectors::loadSettings(size_t)
 {
   std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl;
   QSettings par;
 //  par.beginGroup("postprocessors");
   par.beginGroup("AcqirisDetectors");
-  _detector->loadParameters(&par);
+  _detector->loadSettings(&par);
   std::cout << "Acqiris Helper load Parameters: done loading for "<< _detector->name()<<std::endl;
 }
 
@@ -377,7 +377,7 @@ cass::pp550::pp550(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not for Nbr MCP Signals").arg(_id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp550::~pp550()
@@ -386,7 +386,7 @@ cass::pp550::~pp550()
   _nbrSignals=0;
 }
 
-void cass::pp550::loadParameters(size_t)
+void cass::pp550::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
@@ -395,7 +395,7 @@ void cass::pp550::loadParameters(size_t)
   set1DHist(_nbrSignals,_id);
   _pp.histograms_replace(_id,_nbrSignals);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -447,7 +447,7 @@ cass::pp551::pp551(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Nbr Anode Signals").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp551::~pp551()
@@ -456,7 +456,7 @@ cass::pp551::~pp551()
   _nbrSignals=0;
 }
 
-void cass::pp551::loadParameters(size_t)
+void cass::pp551::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Anode Layer Peaks "
@@ -467,7 +467,7 @@ void cass::pp551::loadParameters(size_t)
   set1DHist(_nbrSignals,_id);
   _pp.histograms_replace(_id,_nbrSignals);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -510,7 +510,7 @@ cass::pp557::pp557(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Layers").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp557::~pp557()
@@ -519,7 +519,7 @@ cass::pp557::~pp557()
   _ratio=0;
 }
 
-void cass::pp557::loadParameters(size_t)
+void cass::pp557::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Ratio of Anode Layer Peaks"
@@ -529,7 +529,7 @@ void cass::pp557::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -585,7 +585,7 @@ cass::pp558::pp558(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Signals vs. MCP").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp558::~pp558()
@@ -594,7 +594,7 @@ cass::pp558::~pp558()
   _ratio=0;
 }
 
-void cass::pp558::loadParameters(size_t)
+void cass::pp558::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Ratio of Anode Layer wireend Peaks vs Mcp Peaks "<<_layer
@@ -605,7 +605,7 @@ void cass::pp558::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -645,7 +645,7 @@ cass::pp566::pp566(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of reconstructed Hits vs MCP Hits").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp566::~pp566()
@@ -654,7 +654,7 @@ cass::pp566::~pp566()
   _ratio=0;
 }
 
-void cass::pp566::loadParameters(size_t)
+void cass::pp566::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the ratio of reconstructed hits vs. Mcp peaks"
@@ -663,7 +663,7 @@ void cass::pp566::loadParameters(size_t)
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -712,7 +712,7 @@ cass::pp567::pp567(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for All MCP Hits").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp567::~pp567()
@@ -721,7 +721,7 @@ cass::pp567::~pp567()
   _tof=0;
 }
 
-void cass::pp567::loadParameters(size_t)
+void cass::pp567::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms times of the found MCP Hits"
@@ -730,7 +730,7 @@ void cass::pp567::loadParameters(size_t)
   set1DHist(_tof,_id);
   _pp.histograms_replace(_id,_tof);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -779,7 +779,7 @@ cass::pp568::pp568(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Timesum").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp568::~pp568()
@@ -788,7 +788,7 @@ cass::pp568::~pp568()
   _timesum=0;
 }
 
-void cass::pp568::loadParameters(size_t)
+void cass::pp568::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the timesum of layer "<<_layer
@@ -797,7 +797,7 @@ void cass::pp568::loadParameters(size_t)
   set1DHist(_timesum,_id);
   _pp.histograms_replace(_id,_timesum);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -843,7 +843,7 @@ cass::pp571::pp571(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Timesum vs. Pos").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp571::~pp571()
@@ -852,7 +852,7 @@ cass::pp571::~pp571()
   _timesumvsPos=0;
 }
 
-void cass::pp571::loadParameters(size_t)
+void cass::pp571::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the timesum vs Postion on layer "<<_layer
@@ -861,7 +861,7 @@ void cass::pp571::loadParameters(size_t)
   set2DHist(_timesumvsPos,_id);
   _pp.histograms_replace(_id,_timesumvsPos);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -906,7 +906,7 @@ cass::pp574::pp574(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Picture of First Hit").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp574::~pp574()
@@ -915,7 +915,7 @@ cass::pp574::~pp574()
   _pos=0;
 }
 
-void cass::pp574::loadParameters(size_t)
+void cass::pp574::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms a detector picture of the first Hit on the detector created"
@@ -926,7 +926,7 @@ void cass::pp574::loadParameters(size_t)
   set2DHist(_pos,_id);
   _pp.histograms_replace(_id,_pos);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -988,7 +988,7 @@ cass::pp578::pp578(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Values").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp578::~pp578()
@@ -997,7 +997,7 @@ cass::pp578::~pp578()
   _hist=0;
 }
 
-void cass::pp578::loadParameters(size_t)
+void cass::pp578::loadSettings(size_t)
 {
   QSettings param;
   param.beginGroup("PostProcessor");
@@ -1023,7 +1023,7 @@ void cass::pp578::loadParameters(size_t)
   set2DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -1082,7 +1082,7 @@ cass::pp581::pp581(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of MCP").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp581::~pp581()
@@ -1091,7 +1091,7 @@ cass::pp581::~pp581()
   _sigprop=0;
 }
 
-void cass::pp581::loadParameters(size_t)
+void cass::pp581::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the FWHM vs the height of the found MCP Peaks"
@@ -1100,7 +1100,7 @@ void cass::pp581::loadParameters(size_t)
   set2DHist(_sigprop,_id);
   _pp.histograms_replace(_id,_sigprop);
   //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -1163,7 +1163,7 @@ cass::pp582::pp582(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp582::~pp582()
@@ -1172,7 +1172,7 @@ cass::pp582::~pp582()
   _sigprop=0;
 }
 
-void cass::pp582::loadParameters(size_t)
+void cass::pp582::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the FWHM vs the height of layer "<<_layer
@@ -1182,7 +1182,7 @@ void cass::pp582::loadParameters(size_t)
   set2DHist(_sigprop,_id);
   _pp.histograms_replace(_id,_sigprop);
     //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 
@@ -1227,7 +1227,7 @@ cass::pp700::pp700(PostProcessors &pp, PostProcessors::id_t id)
     throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
   }
   //create the histogram by loading the settings//
-  loadParameters(0);
+  loadSettings(0);
 }
 
 cass::pp700::~pp700()
@@ -1236,7 +1236,7 @@ cass::pp700::~pp700()
   _pipico=0;
 }
 
-void cass::pp700::loadParameters(size_t)
+void cass::pp700::loadSettings(size_t)
 {
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it create a PIPICO Histogram"
@@ -1246,8 +1246,8 @@ void cass::pp700::loadParameters(size_t)
   set2DHist(_pipico,_id);
   _pp.histograms_replace(_id,_pipico);
     //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector01)->loadParameters();
-  HelperAcqirisDetectors::instance(_detector02)->loadParameters();
+  HelperAcqirisDetectors::instance(_detector01)->loadSettings();
+  HelperAcqirisDetectors::instance(_detector02)->loadSettings();
   std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
 }
 

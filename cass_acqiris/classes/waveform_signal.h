@@ -96,7 +96,7 @@ namespace cass
     public:
       /** default constructor.
        * intializing the variables describing the extraction with nonsense,
-       * since they have to be loaded by loadParameters from cass.ini
+       * since they have to be loaded by loadSettings from cass.ini
        */
       Signal()
         :_instrument(Camp1),
@@ -117,7 +117,7 @@ namespace cass
        * load the parameters from cass.ini, should only be called by class
        * containing this class
        */
-      void loadParameters(QSettings *p, const char * signalname);
+      void loadSettings(QSettings *p, const char * signalname);
       /** save your parameters to cass.ini, should only be called by parent*/
       void saveParameters(QSettings *p, const char * signalname);
 
@@ -215,7 +215,7 @@ namespace cass
 }//end namespace cass
 
 
-inline void cass::ACQIRIS::Signal::loadParameters(QSettings *p, const char * signalname)
+inline void cass::ACQIRIS::Signal::loadSettings(QSettings *p, const char * signalname)
 {
   std::cerr<<"Signal load parameters:  load signal parameters for signal \""<<signalname<<"\""
       <<" of  "<< p->group().toStdString()<<std::endl;
