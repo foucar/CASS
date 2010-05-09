@@ -444,7 +444,8 @@ public:
         // set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
         _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
-        setMimeType(std::string("application/cass2Dhistogram"));
+        //setMimeType(std::string("application/cass2Dhistogram"));
+        setMimeType(std::string("application/image"));     // for time beeing, export 2d histograms as image.
     }
 
     /** read histogram from serializer.
