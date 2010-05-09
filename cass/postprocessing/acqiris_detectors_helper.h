@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <utility>
+#include <algorithm>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
