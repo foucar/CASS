@@ -110,7 +110,9 @@ void cass::pp550::loadSettings(size_t)
   using namespace cass::ACQIRIS;
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _pp.histograms_replace(_id,_nbrSignals);
@@ -184,7 +186,9 @@ void cass::pp551::loadSettings(size_t)
       <<" it histograms the Nbr of Anode Layer Peaks "
       <<" of detector "<<_detector
       <<" layer "<<_layer
-      <<" wireend "<<_signal<<std::endl;
+      <<" wireend "<<_signal
+      <<std::endl;
+
   //create the histogram
   set1DHist(_nbrSignals,_id);
   _pp.histograms_replace(_id,_nbrSignals);
@@ -250,7 +254,9 @@ void cass::pp557::loadSettings(size_t)
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Ratio of Anode Layer Peaks"
       <<" of detector "<<_detector
-      <<" layer "<<_layer<<std::endl;
+      <<" layer "<<_layer
+      <<std::endl;
+
   //create the histogram
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
@@ -330,7 +336,9 @@ void cass::pp558::loadSettings(size_t)
       <<" it histograms the Ratio of Anode Layer wireend Peaks vs Mcp Peaks "<<_layer
       <<" of detector "<<_detector
       << "layer "<<_layer
-      <<" wireend "<<_wireend<<std::endl;
+      <<" wireend "<<_wireend
+      <<std::endl;
+
   //create the histogram
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
@@ -392,7 +400,9 @@ void cass::pp566::loadSettings(size_t)
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the ratio of reconstructed hits vs. Mcp peaks"
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set1DHist(_ratio,_id);
   _pp.histograms_replace(_id,_ratio);
@@ -463,7 +473,9 @@ void cass::pp567::loadSettings(size_t)
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms times of the found MCP Hits"
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set1DHist(_tof,_id);
   _pp.histograms_replace(_id,_tof);
@@ -534,7 +546,9 @@ void cass::pp568::loadSettings(size_t)
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the timesum of layer "<<_layer
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set1DHist(_timesum,_id);
   _pp.histograms_replace(_id,_timesum);
@@ -602,7 +616,9 @@ void cass::pp571::loadSettings(size_t)
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the timesum vs Postion on layer "<<_layer
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set2DHist(_timesumvsPos,_id);
   _pp.histograms_replace(_id,_timesumvsPos);
@@ -671,7 +687,9 @@ void cass::pp574::loadSettings(size_t)
       <<" it histograms a detector picture of the first Hit on the detector created"
       <<" from  Layers "<<_first
       << " and "<<_second
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set2DHist(_pos,_id);
   _pp.histograms_replace(_id,_pos);
@@ -853,7 +871,9 @@ void cass::pp581::loadSettings(size_t)
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the FWHM vs the height of the found MCP Peaks"
-      <<" of  detector "<<_detector<<std::endl;
+      <<" of  detector "<<_detector
+      <<std::endl;
+
   //create the histogram
   set2DHist(_sigprop,_id);
   _pp.histograms_replace(_id,_sigprop);
@@ -939,7 +959,8 @@ void cass::pp582::loadSettings(size_t)
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the FWHM vs the height of layer "<<_layer
       << " wireend "<<_signal
-      <<" of detector "<<_detector<<std::endl;
+      <<" of detector "<<_detector
+      <<std::endl;
   //create the histogram
   set2DHist(_sigprop,_id);
   _pp.histograms_replace(_id,_sigprop);
@@ -1007,7 +1028,9 @@ void cass::pp700::loadSettings(size_t)
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it create a PIPICO Histogram"
       <<" of detectors "<<_detector01
-      <<" and "<<_detector02<<std::endl;
+      <<" and "<<_detector02
+      <<std::endl;
+
   //create the histogram
   set2DHist(_pipico,_id);
   _pp.histograms_replace(_id,_pipico);

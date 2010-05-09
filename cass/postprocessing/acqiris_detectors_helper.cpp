@@ -23,7 +23,6 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
 {
   //lock this//
   QMutexLocker lock(&_mutex);
-  using namespace cass::ACQIRIS;
   //if the maps with the analyzers are empty, fill them//
   if (_waveformanalyzer.empty())
   {
@@ -72,7 +71,6 @@ void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
 cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
 {
   std::cout << "AcqirisDetectorHelper constructor: we are responsible for det type "<<dettype<<", which name is ";
-  using namespace cass::ACQIRIS;
   //create the detector
   //create the detector list with twice the amount of elements than workers
   switch(dettype)
