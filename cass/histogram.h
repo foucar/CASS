@@ -425,7 +425,7 @@ public:
      */
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                      size_t nbrYBins, float yLow, float yUp)
-        : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)
+        : HistogramFloatBase(2,nbrXBins*nbrYBins,1)
     {
         //set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
