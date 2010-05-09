@@ -147,9 +147,7 @@
  * @todo create pp: cummulative average commercial ccd image with condition on
  *       tof and pos on delayline detector
  * @todo move main documentation to own file.
- * @todo create a page that contains links to all descriptions of user
- *       settable variables in cass.ini
- * @todo check whether dependcy stuff works
+ * @todo check whether dependency stuff works
  * @todo next to the cass executable create a cass library so that the viewer
  *       can use the histogram part for it.
  * @todo find out how one can use xrefitem so that it will list consecutive
