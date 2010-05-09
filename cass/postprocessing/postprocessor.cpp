@@ -189,6 +189,12 @@ void PostProcessors::setup()
         }
         ++iter;
     }
+#ifdef VERBOSE
+    VERBOSEOUT( cout << "active postprocessors processing order: ");
+    for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+        VERBOSEOUT(cout << *iter << ", ");
+    VERBOSEOUT( cout << endl);
+#endif
 }
 
 
