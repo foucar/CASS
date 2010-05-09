@@ -117,9 +117,9 @@ protected:
  *           values for the center of the image.
  * @cassttng PostProcessor/p\%id\%/{SymmetryAngle}\n
  *           value for the symmetry angle.
- * @cassttng PostProcessor/p%id%/{ImageWidth|ImageHeight}\n
+ * @cassttng PostProcessor/p\%id\%/{ImageWidth|ImageHeight}\n
  *           values for the dimensions of the image.
- * @cassttng PostProcessor/p%id%/{MaxIncludedRadius|MinIncludedRadius}\n
+ * @cassttng PostProcessor/p\%id\%/{MaxIncludedRadius|MinIncludedRadius}\n
  *           values for the interesting radius range.
  *
  * @see pp101
