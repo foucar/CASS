@@ -117,6 +117,8 @@ std::cout << "PostProcessors::getMimeType id not found " << type <<std::endl;
 void PostProcessors::_delete(id_t type)
 {
     histograms_t::iterator iter(_histograms.find(type));
+    if (iter == _histograms.end())
+      return;
     HistogramBackend *hist(iter->second);
     _histograms.erase(iter);
     delete hist;

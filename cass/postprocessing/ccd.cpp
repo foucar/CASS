@@ -19,6 +19,7 @@
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/ccd.h"
 #include "acqiris_detectors_helper.h"
+#include "tof_detector.h"
 
 
 namespace cass
@@ -129,6 +130,7 @@ cass::pp101::~pp101()
 
 void cass::pp101::loadSettings(size_t)
 {
+    using namespace cass::ACQIRIS;
     int cols(0); int rows(0);
     switch(_id)
     {
@@ -152,19 +154,53 @@ void cass::pp101::loadSettings(size_t)
     _scale =  2./(_average+1);
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
-    std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average<<std::endl;
+    std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
+    if (name=="YAGPhotodiode")
+      _conditionDetector = YAGPhotodiode;
+    else if (name=="HexDetector")
+      _conditionDetector = HexDetector;
+    else if (name=="QuadDetector")
+      _conditionDetector = QuadDetector;
+    else if (name=="VMIMcp")
+      _conditionDetector = VMIMcp;
+    else if (name=="FELBeamMonitor")
+      _conditionDetector = FELBeamMonitor;
+    else if (name=="FsPhotodiode")
+      _conditionDetector = FsPhotodiode;
+    else
+      _conditionDetector = InvalidDetector;
+
+    std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average
+        <<" condition on detector:"<<name
+        <<" which has id:"<<_conditionDetector
+        <<std::endl;
+
+    _pp.histograms_delete(_id);
+    _image = new Histogram2DFloat(cols,rows);
+    _pp.histograms_replace(_id,_image);
 }
 
 
 
 void cass::pp101::operator()(const CASSEvent& event)
 {
+    using namespace cass::ACQIRIS;
+
     //check whether detector exists
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
     const PixelDetector::frame_t& frame(det.frame());
+
+    //find out whether we should update//
+    bool update(true);
+    if (_conditionDetector != InvalidDetector)
+    {
+      TofDetector *det =
+          dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
+      update = det->mcp().peaks().size();
+    }
     // running average of data:
     _image->lock.lockForWrite();
     transform(frame.begin(),frame.end(),

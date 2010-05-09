@@ -6,6 +6,7 @@
 
 #include "postprocessing/backend.h"
 #include "cass_event.h"
+#include "cass_acqiris.h"
 
 namespace cass
 {
@@ -57,11 +58,13 @@ protected:
  *
  * Running average of pnCCD or commercial ccd images.
  *
- * @cassttng PostProcessor/p%id%/average \n
+ * @cassttng PostProcessor/p\%id\%/average \n
  *           averaging length
+ * @cassttng PostProcessor/p\%id\%/ConditionDetector \n
+ *           Detector that you want to have the condition on.
  * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
  *           geometric binning (x and y). Binning must be a fraction of 1024 (in
- *           case of pnccd's)
+ *           case of pnccd's) (unused for now)
  *
  *
  * Implements postprocessors 101, 103, 105
@@ -96,6 +99,9 @@ protected:
 
     /** CCD detector to work on */
     size_t _detector;
+
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
 
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;

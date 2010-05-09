@@ -34,7 +34,7 @@ namespace cass
     /** all available instruments at the site*/
     enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
     /** all available detectors*/
-    enum Detectors{HexDetector, QuadDetector, VMIMcp, FELBeamMonitor, YAGPhotodiode, FsPhotodiode};
+    enum Detectors{InvalidDetector, HexDetector, QuadDetector, VMIMcp, FELBeamMonitor, YAGPhotodiode, FsPhotodiode};
     /** the available detector analyzers*/
     enum DetectorAnalyzers {DelaylineSimple, ToFSimple};
     /** A wavefrom is just an array (vector) of integers,
