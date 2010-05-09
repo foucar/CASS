@@ -57,9 +57,9 @@ namespace cass
    * binary operator to do the averaging.
    * @see Average
    *
-   * @cassttng PostProcessor/p\%id\%/{NumberOfAverages} averaging length.
-   *           In case one want to have a cummulative averaging set averaging
-   *           length to 1.
+   * @cassttng PostProcessor/p\%id\%/{NumberOfAverages}\n
+   *           averaging length. In case one want to have a cummulative
+   *           averaging set averaging length to 1.
    *
    * implements postprocessor id's 500-519.
    *
