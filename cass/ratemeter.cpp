@@ -7,6 +7,7 @@
 cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
     :QObject(parent),
     _counts(0),
+    _rate(0),
     _averagetime(averagetime)
 {
   //start the clock//
