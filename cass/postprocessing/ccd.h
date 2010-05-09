@@ -61,7 +61,10 @@ protected:
  * @cassttng PostProcessor/p\%id\%/average \n
  *           averaging length
  * @cassttng PostProcessor/p\%id\%/ConditionDetector \n
- *           Detector that you want to have the condition on.
+ *           Detector that you want to have the condition on. If the detector
+ *           sees a signal than this condition evaluates true.
+ * @cassttng PostProcessor/p\%id\%/Invert \n
+ *           Invert the Condition.
  * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
  *           geometric binning (x and y). Binning must be a fraction of 1024 (in
  *           case of pnccd's) (unused for now)
@@ -102,6 +105,9 @@ protected:
 
     /** the Detector that we make the condition on*/
     ACQIRIS::Detectors _conditionDetector;
+
+    /** flag that will invert the condition */
+    bool _invert;
 
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
