@@ -113,15 +113,14 @@ protected:
  * This postprocessor reduces the running average of the requested image
  * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
  *
- * User settable parameters in CASS.ini
- * - values for center of image:
- *   PostProcessor/p%id%/{ImageXCenter|ImageYCenter}
- * - value for the symmetry angle:
- *   PostProcessor/p%id%/SymmetryAngle
- * - values for the dimensions of the image
- *   PostProcessor/p%id%/{ImageWidth|ImageHeight}
- * - values for the interesting radius range:
- *   PostProcessor/p%id%/{MaxIncludedRadius|MinIncludedRadius}
+ * @cassttng PostProcessor/p\%id\%/{ImageXCenter|ImageYCenter}\n
+ *           values for the center of the image.
+ * @cassttng PostProcessor/p\%id\%/{SymmetryAngle}\n
+ *           value for the symmetry angle.
+ * @cassttng PostProcessor/p%id%/{ImageWidth|ImageHeight}\n
+ *           values for the dimensions of the image.
+ * @cassttng PostProcessor/p%id%/{MaxIncludedRadius|MinIncludedRadius}\n
+ *           values for the interesting radius range.
  *
  * @see pp101
  *
