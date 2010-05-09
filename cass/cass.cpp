@@ -152,6 +152,8 @@
  * @todo check whether dependcy stuff works
  * @todo next to the cass executable create a cass library so that the viewer
  *       can use the histogram part for it.
+ * @todo find out how one can use xrefitem so that it will list consecutive
+ *       items under one title, just like todo does.
  */
 
 /** \page authors Authors
