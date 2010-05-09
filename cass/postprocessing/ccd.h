@@ -59,13 +59,13 @@ protected:
  * Running average of pnCCD or commercial ccd images.
  *
  * @cassttng PostProcessor/p\%id\%/{average} \n
- *           averaging length
+ *           how many images should be averaged. Default is 1.
  * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
  *           Detector that you want to have the condition on. If the detector
  *           sees a signal than this condition evaluates true. If
  *           "InvalidDetector" or no Detector is chosen, than the condition
  *           is not evaluated at all.
- * @cassttng PostProcessor/p\%id\%/Invert \n
+ * @cassttng PostProcessor/p\%id\%/{Invert} \n
  *           Invert the Condition, when there is a valid detector condition chosen.
  *           default is "false".
  * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
@@ -116,6 +116,68 @@ protected:
     cass::CASSEvent::Device _device;
 
     /** current image */
+    Histogram2DFloat *_image;
+};
+
+
+
+
+
+
+/** Difference between choosable (averaged) ccd images.
+ *
+ * This histogram will create a histogram which is the result of substracting
+ * image with id one from image with id two. The resulting image will follow
+ * the formular:
+ * \f$Result = One * f_{one}  - Two * f_{two}\f$
+ * where \f$f_{one}\f$ and \f$f_{two}\f$ are factors that one can weight the
+ * first and second part with.
+ *
+ * The resulting image will be created using the size of the first image.
+ *
+ * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+ *           the postprocessor id's that contain the first histogram and second
+ *           histogram for the substraction
+ * @cassttng PostProcessor/p\%id\%/{FactorOne|FactorTwo} \n
+ *           The factors that will weight the substraction. The default will be 1.
+ *
+ * Implements postprocessors id's 102
+ *
+ * @author Jochen Kuepper
+ * @author Lutz Foucar
+ */
+class pp102 : public PostprocessorBackend
+{
+public:
+
+    pp102(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image space */
+    virtual ~pp102();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+protected:
+
+    /** factor by which the first histogram will be weighted */
+    float _fOne;
+
+    /** factor by which the second histogram will be weighted */
+    float _fTwo;
+
+    /** how many pixels to bin in horizontal and vertical direction */
+    PostProcessors::id_t _idOne;
+
+    /** how many pixels to bin in horizontal and vertical direction */
+    PostProcessors::id_t _idTwo;
+
+    /** resulting image */
     Histogram2DFloat *_image;
 };
 
