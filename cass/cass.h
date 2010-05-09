@@ -46,7 +46,7 @@ namespace cass
 
   /** Qt names of known/supported Qt image formats
    *
-   * @param ImageFormat
+   * @param fmt the Image Format
    * @return Qt name of format
    */
   inline const std::string imageformatName(ImageFormat fmt)
