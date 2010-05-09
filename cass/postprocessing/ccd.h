@@ -58,7 +58,7 @@ protected:
  *
  * Running average of pnCCD or commercial ccd images.
  *
- * @cassttng PostProcessor/p\%id\%/{average} \n
+ * @cassttng PostProcessor/p\%id\%/{average}
  *           how many images should be averaged. Default is 1.
  * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
  *           Detector that you want to have the condition on. If the detector
