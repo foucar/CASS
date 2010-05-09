@@ -20,8 +20,7 @@ int cass::setup_unix_signal_handlers()
 
   quit.sa_handler = cass::UnixSignalDaemon::quitSignalHandler;
   sigemptyset(&quit.sa_mask);
-  quit.sa_flags = 0;
-  quit.sa_flags |= SA_RESTART;
+  quit.sa_flags = SA_RESTART;
 
   if (sigaction(SIGQUIT, &quit, 0) > 0)
     return 1;
@@ -29,7 +28,7 @@ int cass::setup_unix_signal_handlers()
   VERBOSEOUT(std::cout << "what to do in case signal to quit "<<std::endl);
   term.sa_handler = cass::UnixSignalDaemon::termSignalHandler;
   sigemptyset(&term.sa_mask);
-  term.sa_flags |= SA_RESTART;
+  term.sa_flags = SA_RESTART;
 
   if (sigaction(SIGTERM, &term, 0) > 0)
     return 2;
