@@ -184,6 +184,9 @@
    <property name="toolTip">
     <string>Read Initialisation.</string>
    </property>
+    <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
  <action name="writeIni">
    <property name="text">
@@ -191,6 +194,9 @@
    </property>
    <property name="toolTip">
     <string>Write Initialisation.</string>
+   </property>
+    <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
   <action name="quitServer">
