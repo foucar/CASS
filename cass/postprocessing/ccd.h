@@ -58,13 +58,15 @@ protected:
  *
  * Running average of pnCCD or commercial ccd images.
  *
- * @cassttng PostProcessor/p\%id\%/average \n
+ * @cassttng PostProcessor/p\%id\%/{average} \n
  *           averaging length
- * @cassttng PostProcessor/p\%id\%/ConditionDetector \n
+ * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
  *           Detector that you want to have the condition on. If the detector
- *           sees a signal than this condition evaluates true.
+ *           sees a signal than this condition evaluates true. If
+ *           "InvalidDetector" or no Detector is chosen, than the condition
+ *           is not evaluated at all.
  * @cassttng PostProcessor/p\%id\%/Invert \n
- *           Invert the Condition.
+ *           Invert the Condition, when there is a valid detector condition chosen.
  * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
  *           geometric binning (x and y). Binning must be a fraction of 1024 (in
  *           case of pnccd's) (unused for now)
