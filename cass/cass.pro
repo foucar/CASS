@@ -116,6 +116,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/imaging.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
+            ./postprocessing/acqiris_detectors_helper.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp
@@ -146,6 +147,7 @@ HEADERS +=  analysis_backend.h \
             xtciterator.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/acqiris_detectors.h \
+            ./postprocessing/acqiris_detectors_helper.h \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
