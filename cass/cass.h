@@ -29,7 +29,7 @@
 namespace cass
 {
   /** global variable to set the ring buffer size */
-  const size_t RingBufferSize=128;
+  const size_t RingBufferSize=32;
   /** global variable to set the number of worker threads */
   const size_t NbrOfWorkers=16;
   /** the maximum size of one datagram should be 10 MB */
