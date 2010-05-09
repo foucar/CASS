@@ -377,7 +377,7 @@ void getDataThread::run()
         return;
     }
     VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
-    bool ret;
+    bool ret = FALSE;
     switch(_dataType) {
     case dat_Image:
         _cass->getImage(2, _attachId, &ret);
@@ -387,6 +387,8 @@ void getDataThread::run()
         break;
     case dat_0DHistogram:
         _cass->getHistogram(_attachId, &ret);
+        break;
+    default:
         break;
     }
     if(! ret) {
