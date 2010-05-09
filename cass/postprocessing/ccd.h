@@ -55,14 +55,16 @@ protected:
 
 /** Averaged binned pnCCD or commercial ccd image.
  *
- * Running average of pnCCD or commercial ccd images. User settable options
- * in CASS.ini
- * - averaging length:  PostProcessor/p%id%/average
- * - geometric binning (x and y):
- *   PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}.
+ * Running average of pnCCD or commercial ccd images.
  *
- * Binning must be a fraction of 1024.
- * Does implement postprocessors 101, 103, 105
+ * @cassttng PostProcessor/p%id%/average \n
+ *           averaging length
+ * @cassttng PostProcessor/%pp_Number%/{bin_horizontal|bin_vertical}\n
+ *           geometric binning (x and y). Binning must be a fraction of 1024 (in
+ *           case of pnccd's)
+ *
+ *
+ * Implements postprocessors 101, 103, 105
  *
  * @author Jochen Kuepper
  * @author Lutz Foucar

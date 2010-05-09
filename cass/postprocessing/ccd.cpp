@@ -153,48 +153,24 @@ void cass::pp101::loadSettings(size_t)
     std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                          settings.value("bin_vertical", 1).toUInt()));
     std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average<<std::endl;
-    if((0 == _image) || (binning.first != _binning.first) || (binning.second != _binning.second)) {
-        _binning = binning;
-        // create new histogram storage and save it in PostProcessors container
-        size_t horizontal(cols/_binning.first);
-        size_t vertical(rows/_binning.second);
-        _image = new Histogram2DFloat(horizontal, vertical);
-        _pp.histograms_replace(_id, _image);
-    }
 }
 
 
 
 void cass::pp101::operator()(const CASSEvent& event)
 {
-    // Running average of pnCCD-1 images with geometric binning (x and y) of
-    // postprocessors/101/binning and average length of postprocessors/101/average using namespace
-    // cass::pnCCD;
-
     //check whether detector exists
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
     const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
     const PixelDetector::frame_t& frame(det.frame());
-    // running average binned data:
-    //   new_average = new_sum = f * old_sum + data
-    size_t rows(det.rows() / _binning.first);
-    size_t cols(det.columns() / _binning.second);
+    // running average of data:
     _image->lock.lockForWrite();
-    for(unsigned r=0; r<rows; r+=_binning.first) {
-        for(unsigned c=0; c<cols; c+=_binning.second) {
-            pixel_t sum(0);
-            for(unsigned row=r; row<r+_binning.first; ++row) {
-                for(unsigned col=c; col<c+_binning.second; ++col) {
-#warning Check and fix major/minor axis
-#warning the rebinning seem to not work correctly
-                    sum += frame[row * cols + col];
-                }
-            }
-            _image->memory()[r * cols/_binning.second + c] += _scale* (sum / (_binning.first * _binning.second) - _image->memory()[r * cols/_binning.second + c]);
-        }
-    }
+    transform(frame.begin(),frame.end(),
+              _image->memory().begin(),
+              _image->memory().begin(),
+              Average(_scale));
     _image->lock.unlock();
 }
 
