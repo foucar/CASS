@@ -372,6 +372,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         break;
     case VmiFixedCos2Theta:
         processor = new pp150(*this,id);
+        break;
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }
