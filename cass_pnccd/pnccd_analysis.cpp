@@ -828,6 +828,28 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           {
             *itFrame =  *itFrame - *itOffset - common_level ;
           }
+
+          det.integral() += static_cast<uint64_t>(*itFrame);
+          if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
+            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+
+          //Should I do it also if _doOffsetCorrection==false?
+          //if user wants to extract the pixels that are above threshold, do it//
+          if (dp._createPixellist)
+          {      
+            Pixel this_pixel;
+            //itFrame is already offset-subtructed
+            if( *itFrame> dp._sigmaMultiplier * *itNoise )
+            {
+              this_pixel.x()=iter[pixelidx]%det.columns();
+              this_pixel.y()=iter[pixelidx]/det.columns();
+              this_pixel.z()=*itFrame;
+              det.pixellist().push_back(this_pixel);
+              //I could "tag" the pixel
+              // something like "mask[iFrame]=3"
+            }
+          }
+
         }//end loop over frame
       }// endif CommonMode Subtraction
 #ifdef debug
