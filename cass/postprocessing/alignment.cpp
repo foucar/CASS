@@ -423,7 +423,7 @@ void pp150::operator()(const CASSEvent& /*event*/)
       const float radius = _minRadius + jr;
       const float angle = 2*PI*jth/_nbrAngularPoints;
       val = imageMemory[static_cast<int32_t>(round(_center.second + radius*sin(angle+_symAngle/180*PI))*_imageWith +
-                                                         round(_center.first  + radius*cos(angle+_symAngle/180*PI)))];
+                                             round(_center.first  + radius*cos(angle+_symAngle/180*PI)))];
       val *= pow(radius,2)*fabs(sin(angle));
       denom += val;
       nom += val*pow(cos(angle),2);
