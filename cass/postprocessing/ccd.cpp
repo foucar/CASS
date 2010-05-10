@@ -75,13 +75,18 @@ void pp1::operator()(const cass::CASSEvent& event)
     const PixelDetector::frame_t& frame
         ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
     _image->lock.lockForWrite();
-//    if(frame.size()!=1024*1024)
-//    {
-//      size_t ratio=1024*1024/frame.size();
-//      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
-//      //std::cout<<"allora "<< ratio << " "<< side_ratio <<std::endl;
-//      //      _image(Histogram2DFloat(1024/side_ratio, 0, 1023, 1024/side_ratio, 0, 1023));
-//    }
+    /*
+    // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
+    if(frame.size()!=_image->shape().first *_image->shape().second)
+    {
+      size_t cols = _image->shape().first;
+      size_t rows = _image->shape().second;
+      size_t ratio= cols * rows /frame.size();
+      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
+      //std::cout<<"ratio of sizes, ratio of axis are: "<< ratio << " , "<< side_ratio <<std::endl;
+      _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
+    }
+    */
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
     _image->lock.unlock();
 }
