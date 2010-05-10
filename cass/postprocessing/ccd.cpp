@@ -336,7 +336,7 @@ void cass::pp106::operator()(const CASSEvent&)
   const PostProcessors::histograms_t container (_pp.histograms_checkout());
   PostProcessors::histograms_t::const_iterator f(container.find(_idOne));
   HistogramFloatBase::storage_t first (dynamic_cast<Histogram2DFloat *>(f->second)->memory());
-  PostProcessors::histograms_t::const_iterator s(container.find(_idOne));
+  PostProcessors::histograms_t::const_iterator s(container.find(_idTwo));
   HistogramFloatBase::storage_t second (dynamic_cast<Histogram2DFloat *>(s->second)->memory());
   _pp.histograms_release();
 
