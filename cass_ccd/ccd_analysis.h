@@ -53,8 +53,8 @@ namespace cass
       uint32_t   _rebinfactor;               //!< the rebinning factor by which the image gets rebinned
       bool       _This_is_a_dark_run;        //flag to set the dark/not-dark run condition
       cass::detROI_ _detROI;
-      cass::ROI::ROImask_t _ROImask;         //The ROI mask
-      cass::ROI::ROIiterator_t _ROIiterator; //The ROI iterators
+      cass::ROI::ROImask_t _ROImask;         //!< The ROI mask
+      cass::ROI::ROIiterator_t _ROIiterator; //!< The ROI iterators
     };
 
     /*! Analysis of the commercial CCD.
