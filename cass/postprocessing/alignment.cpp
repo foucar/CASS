@@ -373,7 +373,7 @@ void cass::pp150::loadSettings(size_t)
   {
     _pp.validate(_imageId);
   }
-  catch (InvalidHistogramError *)
+  catch (InvalidHistogramError)
   {
     _reinitialize = true;
     return;

@@ -192,7 +192,7 @@ int CASSsoapService::getHistogram(size_t type, bool *success)
         soap_set_dime(this);
         return soap_set_dime_attachment(this, (char *)data->second.data(), data->second.size(), mimetype.c_str(),
                                         QString::number(type).toStdString().c_str(), 0, NULL);
-    } catch(cass::InvalidHistogramError&) {
+    } catch(cass::InvalidHistogramError) {
         *success = false;
         return SOAP_FATAL_ERROR;
     }
@@ -222,7 +222,7 @@ int CASSsoapService::getImage(int format, size_t type, bool *success)
         queue.enqueue(ba);
         if(10 < queue.size())
             delete queue.dequeue();
-    } catch(std::exception&) { // includes InvalidHistogram
+    } catch(std::exception) { // includes InvalidHistogram
         success = false;
         return SOAP_FATAL_ERROR;
     }

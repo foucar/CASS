@@ -54,7 +54,7 @@ protected:
             PostProcessors::histograms_t hist(_pp.histograms_checkout());
             _pp.validate(id);
             return hist[id];
-        } catch (InvalidHistogramError *) {
+        } catch (InvalidHistogramError) {
             return 0;
         }
     };

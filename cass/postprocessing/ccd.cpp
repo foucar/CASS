@@ -303,7 +303,7 @@ void cass::pp106::loadSettings(size_t)
     {
       _pp.validate(_idOne);
     }
-    catch (InvalidHistogramError *)
+    catch (InvalidHistogramError)
     {
       _reinitialize = true;
       return;
@@ -313,7 +313,7 @@ void cass::pp106::loadSettings(size_t)
     {
       _pp.validate(_idTwo);
     }
-    catch (InvalidHistogramError *)
+    catch (InvalidHistogramError)
     {
       _reinitialize = true;
       return;
