@@ -567,7 +567,8 @@ void cass::pnCCD::Analysis::loadSettings()
         // the "pointer" is the location/index of the next pixel to be used
         if(dp._ROImask[iPixel]!=0)
         {
-          if(dp._noise[iPixel]<3*dp._max_noise)
+          //I have to compare std dev with std dev...
+          if(dp._noise[iPixel]<dp._max_noise)
           {
             dp._ROIiterator[nextPixel]=iPixel+1;
             nextPixel++;
