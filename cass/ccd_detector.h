@@ -33,8 +33,8 @@ namespace cass
     pixel_t   z()const  {return _z;}
 
   private:
-    uint16_t _x;        //!< x coordinate of the coordinate
-    uint16_t _y;        //!< y part of the coordinate
+    uint16_t _x;        //!< x coordinate of the pixel
+    uint16_t _y;        //!< y coordinate of the pixel
     pixel_t  _z;        //!< the pixel value
   };
 
