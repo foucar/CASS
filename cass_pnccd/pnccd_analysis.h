@@ -91,7 +91,7 @@ namespace cass
        **/
       uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
       double          _max_noise;         //!< pixels with noise larger than will be masked
-      double          _sigmaMultiplier;   //!< how big is above noise
+      double          _sigmaMultiplier;   //!< how big is "above noise"
       double          _adu2eV;            //!< conversion from adu to eV
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
