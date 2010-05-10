@@ -72,17 +72,17 @@ namespace cass
        *       the values are ANYWAY overwritten by the saveParameter function to avoid
        *       overwriting of previously saved darkframe files
        **/
-      correctionmap_t _offset;            //offsetmap
-      correctionmap_t _noise;             //noise map
-      uint32_t        _rebinfactor;       //the rebinfactor for rebinning
-      double          _max_noise;         //pixels with noise larger than will be masked
-      double          _sigmaMultiplier;   //how big is above noise
-      double          _adu2eV;            //conversion from adu to eV
-      bool            _createPixellist;   //flag to switch pixellist on / off
-      bool            _doOffsetCorrection;//flag to switch offsetcorrection on / off
-      bool            _useCommonMode;     //flag to switch a common mode subtraction scheme//
-      uint32_t        _thres_for_integral;//the thresold for special integral
-      std::string     _darkcalfilename;   //filename of file containing dark & noisemap
+      correctionmap_t _offset;            //!< offsetmap
+      correctionmap_t _noise;             //!< noise map
+      uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
+      double          _max_noise;         //!< pixels with noise larger than will be masked
+      double          _sigmaMultiplier;   //!< how big is above noise
+      double          _adu2eV;            //!< conversion from adu to eV
+      bool            _createPixellist;   //!< flag to switch pixellist on / off
+      bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
+      bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
+      uint32_t        _thres_for_integral;//!< the thresold for special integral
+      std::string     _darkcalfilename;   //!< filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
       cass::detROI_   _detROI;
 
@@ -108,7 +108,7 @@ namespace cass
     public:
       typedef std::vector<DetectorParameter> detparameters_t;
     public:
-      detparameters_t _detectorparameters;  //the parameters of the detector
+      detparameters_t _detectorparameters;  //!< the parameters of the detector
 
       /**
        *  The following is a user settable parameter
@@ -128,7 +128,7 @@ namespace cass
        *    unfortunately there is a similar parameter for the commercial CCD
        *    and they can be set to opposite values
       **/
-      bool            _isDarkframe;         //switch telling whether we are collecting darkframes right now
+      bool            _isDarkframe;         //!< switch telling whether we are collecting darkframes right now
       //flag to set the dark/not-dark run condition
       bool            _This_is_a_dark_run;
     };
@@ -163,7 +163,7 @@ namespace cass
     private:
       QReadWriteLock              _RWlock; //a mutex to lock write operations but allow read
       QMutex                      _mutex; //a mutex to lock write operations
-      Parameter                   _param; //the parameters used to analyze the pnccd detectors
+      Parameter                   _param; //!< the parameters used to analyze the pnccd detectors
       cass::PixelDetector::frame_t  _tmp; //temporary storage for rebinning frames
     };
   } // end of scope of namespace pnCCD
