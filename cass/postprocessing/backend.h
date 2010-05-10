@@ -28,7 +28,9 @@ public:
     virtual void operator()(const CASSEvent&) = 0;
 
     /** @brief Provide default implementation of loadSettings that does nothing */
-    virtual void loadSettings(size_t) {};
+    virtual void loadSettings(size_t) {std::cout << "calling backend' load settings"<<std::endl;}
+
+    void loadNecessary(size_t what) {if (_reinitialize) loadSettings(what);}
 
     /** Define all postprocessors we depend on
      *
