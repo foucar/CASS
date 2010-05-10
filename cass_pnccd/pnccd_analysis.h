@@ -32,6 +32,8 @@ namespace cass
       typedef std::vector<double> correctionmap_t;
     public:
       size_t          _nbrDarkframes;     //the number of fills for each detector//
+      correctionmap_t _offset;            //!< offsetmap
+      correctionmap_t _noise;             //!< noise map
 
       /** User settable parameters via CASS.ini
        *  each of the following is defined for each pnCCD detector and
@@ -87,8 +89,6 @@ namespace cass
        *  @endverbatim
        *  @author Nicola Coppola
        **/
-      correctionmap_t _offset;            //!< offsetmap
-      correctionmap_t _noise;             //!< noise map
       uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
       double          _max_noise;         //!< pixels with noise larger than will be masked
       double          _sigmaMultiplier;   //!< how big is above noise
