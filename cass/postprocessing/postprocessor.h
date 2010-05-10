@@ -377,6 +377,8 @@ public:
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
         VmiFixedCos2Theta=150,
 
+        AdvancedPhotonFinder=160,
+
         CampChannel00AveragedWaveform=500,
         CampChannel01AveragedWaveform=501,
         CampChannel02AveragedWaveform=502,

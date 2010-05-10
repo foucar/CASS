@@ -14,6 +14,7 @@
 #include "postprocessing/alignment.h"
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/waveform.h"
+#include "imaging.h"
 #include "backend.h"
 
 
@@ -386,6 +387,8 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         break;
     case VmiFixedCos2Theta:
         processor = new pp150(*this,id);
+    case AdvancedPhotonFinder:
+        processor = new pp160(*this,id);
         break;
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
