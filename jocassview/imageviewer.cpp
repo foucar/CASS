@@ -193,6 +193,22 @@ void ImageViewer::on_open_triggered()
     }
 }
 
+void ImageViewer::on_save_image_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save File"), QDir::currentPath());
+    if(!fileName.isEmpty()) {
+        QImage image(_imageLabel->pixmap()->toImage());
+        if(image.isNull()) {
+            QMessageBox::information(this, tr("jocassviewer"),
+                    tr("Cannot retrieve image"));
+            return;
+        }
+        image.save(fileName, "PNG");
+        updateActions();
+    }
+}
+
 
 void ImageViewer::updateNone()
 {

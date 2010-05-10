@@ -28,6 +28,7 @@
      <string>File</string>
     </property>
     <addaction name="open"/>
+    <addaction name="save_image"/>
     <addaction name="print"/>
     <addaction name="separator"/>
     <addaction name="exit"/>
@@ -87,6 +88,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+ <action name="save_image">
+   <property name="text">
+    <string>&amp;Save image...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save image to file.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="print">

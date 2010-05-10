@@ -105,6 +105,12 @@ private slots:
     */
     void on_open_triggered();
 
+    /** Save Image file.
+    *
+    * Save Image to disc.
+    */
+    void on_save_image_triggered();
+
     /**
     @todo Use cass::imageformatName and such! */
 
