@@ -49,8 +49,8 @@ namespace cass
     //@}
 
   private:
-    uint16_t _x;  //!< x coordinate of the coordinate
-    uint16_t _y;  //!< y part of the coordinate
+    uint16_t _x;  //!< x coordinate of the pixel
+    uint16_t _y;  //!< y coordinate of the pixel
     pixel_t  _z;  //!< the pixel value
   };
 
@@ -64,9 +64,9 @@ namespace cass
    *
    *  I think also a "double triangle bottle-like shape could be helpful
    *
-   *  xsize,ysize and center are in pixel units
+   *  xsize,ysize and center are in pixel units.
    *
-   * the orientation is used only in the case of a triangular shape
+   * The orientation is used only in the case of a triangular shape
    * @verbatim
   /\           ----         |\           /|
  /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
