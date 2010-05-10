@@ -54,9 +54,13 @@ protected:
 
 
 
-/** Averaged binned pnCCD or commercial ccd image.
+/** Averaged ccd image with optional condition.
  *
- * Running average of pnCCD or commercial ccd images.
+ * Running average of pnCCD or commercial ccd images. One has the choice to enforce
+ * a condition on the average. This condition is a "tof" detector. The tof detector
+ * will look whether it will find a singal in the assinged channel. If it does the
+ * condition will evaluate to true. You have the option to invert the result of
+ * the evaluation of the condition by setting the invert parameter to true.
  *
  * @cassttng PostProcessor/p\%id\%/{average}\n
  *           how many images should be averaged. Default is 1.
