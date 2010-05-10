@@ -346,7 +346,8 @@ pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
   switch (_id)
   {
   case PostProcessors::VmiFixedCos2Theta:
-    _imageId = PostProcessors::CommercialCCDBinnedRunningAverage;break;
+    _imageId = PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage;
+    break;
 
   default:
     throw std::invalid_argument(QString("postprocessor %1 can't calc cos2theta").arg(_id).toStdString());

@@ -145,19 +145,19 @@ protected:
  * @cassttng PostProcessor/p\%id\%/{FactorOne|FactorTwo} \n
  *           The factors that will weight the substraction. The default will be 1.
  *
- * Implements postprocessors id's 102
+ * Implements postprocessors id's 106, 107
  *
  * @author Jochen Kuepper
  * @author Lutz Foucar
  */
-class pp102 : public PostprocessorBackend
+class pp106 : public PostprocessorBackend
 {
 public:
 
-    pp102(PostProcessors& hist, PostProcessors::id_t id);
+    pp106(PostProcessors& hist, PostProcessors::id_t id);
 
     /** Free _image space */
-    virtual ~pp102();
+    virtual ~pp106();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);

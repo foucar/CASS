@@ -145,10 +145,15 @@ for information about what parameters are user settable. (Keep in mind that case
 00026: Last waveform of ITof Acqiris Channel 02 (pp4)
 00027: Last waveform of ITof Acqiris Channel 03 (pp4)
 
-00101: Running average of front pnCCD images (pp101)
-00102: Difference between choosable averaged CCD images (pp102)
-00103: Running average of back pnCCD images (pp101)
-00105: Running average of commercial ccd images (pp101)
+00100: Running average of front pnCCD images with optional condition (pp101)
+00101: Running average of front pnCCD images with optional condition (pp101)
+00102: Running average of back pnCCD images with optional condition (pp101)
+00103: Running average of back pnCCD images with optional condition (pp101)
+00104: Running average of commercial ccd images with optional condition (pp101)
+00105: Running average of commercial ccd images with optional condition (pp101)
+
+00106: Difference between choosable averaged CCD images (pp106)
+00107: Difference between choosable averaged CCD images (pp106)
 
 00110: Commercial CCD Image with just the detected photonHits (pp110)
 00111: Front pnCCD Image with just the detected photonHits (pp110)
@@ -361,9 +366,10 @@ public:
         ITofChannel01LastWaveform=25,
         ITofChannel02LastWaveform=26,
         ITofChannel03LastWaveform=27,
-        PnccdFrontBinnedRunningAverage=101, Pnccd1BackgroundCorrectedBinnedRunnngAverage=102,
-        PnccdBackBinnedRunningAverage=103,
-        CommercialCCDBinnedRunningAverage=105,
+        FirstPnccdFrontBinnedConditionalRunningAverage=100, SecondPnccdFrontBinnedConditionalRunningAverage=101,
+        FirstPnccdBackBinnedConditionalRunningAverage=102, SecondPnccdBackBinnedConditionalRunningAverage=103,
+        FirstCommercialCCDBinnedConditionalRunningAverage=104, SecondCommercialCCDBinnedConditionalRunningAverage=105,
+        FirstImageSubstraction=106, SecondImageSubstraction=107,
         VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
         VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
         VmiRunningAverage=121, VmiCos2Theta=131,

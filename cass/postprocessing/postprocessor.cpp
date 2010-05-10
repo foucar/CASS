@@ -207,11 +207,17 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case VmiCcdLastImage:
         processor = new pp1(*this, id);
         break;
-    case PnccdFrontBinnedRunningAverage:
-    case PnccdBackBinnedRunningAverage:
-    case CommercialCCDBinnedRunningAverage:
-    case Pnccd1BackgroundCorrectedBinnedRunnngAverage:
+    case FirstPnccdFrontBinnedConditionalRunningAverage:
+    case SecondPnccdFrontBinnedConditionalRunningAverage:
+    case FirstPnccdBackBinnedConditionalRunningAverage:
+    case SecondPnccdBackBinnedConditionalRunningAverage:
+    case FirstCommercialCCDBinnedConditionalRunningAverage:
+    case SecondCommercialCCDBinnedConditionalRunningAverage:
         processor = new pp101(*this, id);
+        break;
+    case FirstImageSubstraction:
+    case SecondImageSubstraction:
+        processor = new pp106(*this, id);
         break;
     case VMIPhotonHits:
     case PnCCDFrontPhotonHits:

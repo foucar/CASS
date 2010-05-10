@@ -105,13 +105,16 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     loadSettings(0);
     switch(id)
     {
-    case PostProcessors::PnccdFrontBinnedRunningAverage:
+    case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
+    case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
         _detector = 0; _device=CASSEvent::pnCCD;
         break;
-    case PostProcessors::PnccdBackBinnedRunningAverage:
+    case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
+    case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
         _detector = 1; _device=CASSEvent::pnCCD;
         break;
-    case PostProcessors::CommercialCCDBinnedRunningAverage:
+    case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
+    case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
         _detector = 0; _device=CASSEvent::CCD;
         break;
     default:
@@ -134,13 +137,14 @@ void cass::pp101::loadSettings(size_t)
     int cols(0); int rows(0);
     switch(_id)
     {
-    case PostProcessors::PnccdFrontBinnedRunningAverage:
+    case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
+    case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
+    case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
+    case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
         cols = 1024; rows = 1024;
         break;
-    case PostProcessors::PnccdBackBinnedRunningAverage:
-        cols = 1024; rows = 1024;
-        break;
-    case PostProcessors::CommercialCCDBinnedRunningAverage:
+    case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
+    case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
         cols = 1000; rows = 1000;
         break;
     default:
@@ -262,20 +266,20 @@ protected:
 
 // *** postprocessors 102 substract two histograms ***
 
-pp102::pp102(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp106::pp106(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id), _image(0)
 {
     loadSettings(0);
 }
 
 
-cass::pp102::~pp102()
+cass::pp106::~pp106()
 {
     _pp.histograms_delete(_id);
     _image = 0;
 }
 
-std::list<PostProcessors::id_t> pp102::dependencies()
+std::list<PostProcessors::id_t> pp106::dependencies()
 {
     std::list<PostProcessors::id_t> list;
     list.push_front(_idOne);
@@ -283,7 +287,7 @@ std::list<PostProcessors::id_t> pp102::dependencies()
     return list;
 }
 
-void cass::pp102::loadSettings(size_t)
+void cass::pp106::loadSettings(size_t)
 {
     QSettings settings;
     settings.beginGroup("PostProcessor");
@@ -309,7 +313,7 @@ void cass::pp102::loadSettings(size_t)
 
 
 
-void cass::pp102::operator()(const CASSEvent&)
+void cass::pp106::operator()(const CASSEvent&)
 {
   const PostProcessors::histograms_t container (_pp.histograms_checkout());
   PostProcessors::histograms_t::const_iterator f(container.find(_idOne));
