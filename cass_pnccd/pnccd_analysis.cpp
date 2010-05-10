@@ -847,7 +847,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               this_pixel.z()=*itFrame;
               det.pixellist().push_back(this_pixel);
 #ifdef debug
-              std::cout<< "pixel "<< this_pixel.z() << " "<< this_pixel.y() <<std::endl;
+              std::cout<< "pixel energy "<< this_pixel.z() << " @("<<this_pixel.x()<<","<< this_pixel.y()<<")" <<std::endl;
 #endif
               //I could "tag" the pixel
               // something like "mask[iFrame]=3"
