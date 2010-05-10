@@ -36,6 +36,8 @@ public:
      */
     virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
 
+    /** getter for the reinitialize flag*/
+    bool reinitialize() {return _reinitialize;}
 
 protected:
 
