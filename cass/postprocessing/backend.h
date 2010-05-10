@@ -18,9 +18,9 @@ class CASSEvent;
 class CASSSHARED_EXPORT PostprocessorBackend
 {
 public:
-
+    /** constructor. */
     PostprocessorBackend(PostProcessors& pp, PostProcessors::id_t id)
-        : _id(id), _pp(pp)
+        : _id(id), _pp(pp), _reinitialize(true)
     {}
 
     virtual ~PostprocessorBackend() { }
@@ -30,10 +30,10 @@ public:
     /** @brief Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t) {};
 
-    /*! Define all postprocessors we depend on
-
-    The dependencies must be run before the actual postprocessor is run by itself.
-    */
+    /** Define all postprocessors we depend on
+     *
+     * The dependencies must be run before the actual postprocessor is run by itself.
+     */
     virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
 
 
@@ -57,11 +57,14 @@ protected:
 
     void histogram_release() { _pp.histograms_release(); };
 
-    // the postprocessors id (see post_processor.h for an list of ids)//
+    /** the postprocessors id (see post_processor.h for an list of ids)*/
     PostProcessors::id_t _id;
 
-    // reference to the PostProcessors container
+    /** reference to the PostProcessors container */
     PostProcessors& _pp;
+
+    /** flag telling whether postprocessor must still be initialized */
+    bool _reinitialize;
 };
 
 } //end namespace cass
