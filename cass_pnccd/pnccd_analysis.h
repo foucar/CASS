@@ -41,7 +41,8 @@ namespace cass
        *  @param
        *  MaxNoise:
        *        The max allowed noise level before a pixel is mask off, the limit is interpreted as
-       *        3 x std dev, if the pixel displays a noise level largen than 3x_max_noise than it is removed
+       *        std dev, if the pixel displays a noise level largen than _max_noise than it is removed
+       *  @verbatim
        *  SigmaMultiplier:
        *        The number of std deviation a pixel must be above noise to be selected as a photon
        *  Adu2ev
@@ -73,6 +74,7 @@ namespace cass
        *       it contains the name of the files where darkframe calibrations will be written into
        *       the values are ANYWAY overwritten by the saveParameter function to avoid
        *       overwriting of previously saved darkframe files
+       *  @endverbatim
        **/
       correctionmap_t _offset;            //!< offsetmap
       correctionmap_t _noise;             //!< noise map
