@@ -341,17 +341,6 @@ pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
   _pp.histograms_replace(_id, _value);
-
-  //find out which detector and Signal we should work on
-  switch (_id)
-  {
-  case PostProcessors::VmiFixedCos2Theta:
-    _imageId = PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage;
-    break;
-
-  default:
-    throw std::invalid_argument(QString("postprocessor %1 can't calc cos2theta").arg(_id).toStdString());
-  }
   loadSettings(0);
 }
 
@@ -378,8 +367,22 @@ void cass::pp150::loadSettings(size_t)
   param.beginGroup("PostProcessor");
   param.beginGroup(QString("p")+QString::number(_id));
 
+  _imageId = static_cast<PostProcessors::id_t>(param.value("HistOne",0).toInt());
+
+  try
+  {
+    _pp.validate(_imageId);
+  }
+  catch (InvalidHistogramError *)
+  {
+    _reinitialize = true;
+    return;
+  }
+  HistogramBackend * hist (_pp.histograms_checkout().find(_imageId)->second);
+
+
   // Set width and symmetry angle
-  _imageWith = param.value("ImageWidth",0).toInt();
+  _imageWith = hist->axis()[HistogramBackend::xAxis].size();
   _center = std::make_pair<float,float>(param.value("ImageXCenter",0).toFloat(),
                                         param.value("ImageYCenter",0).toFloat());
   _symAngle = param.value("SymmetryAngle",0).toFloat();
@@ -388,7 +391,7 @@ void cass::pp150::loadSettings(size_t)
   float tmpr = param.value("MaxIncludedRadius",0).toFloat();
 
   tmpr = min(_center.first + 0.5f , tmpr);
-  tmpr = min(param.value("ImageHeight",0).toFloat()- _center.first -0.5f, tmpr);
+  tmpr = min(hist->axis()[HistogramBackend::yAxis].size() - _center.first - 0.5f , tmpr);
 
   tmpr = min(_center.second + 0.5f , tmpr);
   tmpr = min(_imageWith- _center.second - 0.5f , tmpr);
