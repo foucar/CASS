@@ -44,7 +44,8 @@ QImage Histogram2DFloat::qimage()
 //        <<" max:"<<max()
 //        <<std::endl;
     lock.lockForRead();
-    std::transform(_memory.begin(), _memory.end(), data, converter);
+    // Subtract 8 to get the size of the buffer excluding over/underflow flags
+    std::transform(_memory.begin(), _memory.end()-8, data, converter);
     lock.unlock();
     return qi;
 }

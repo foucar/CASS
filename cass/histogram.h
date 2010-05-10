@@ -425,7 +425,7 @@ public:
      */
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                      size_t nbrYBins, float yLow, float yUp)
-        : HistogramFloatBase(2,nbrXBins*nbrYBins,1)
+        : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)  // +8 for under/overflow bits
     {
         //set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
@@ -443,7 +443,7 @@ public:
     @param rows, cols Number of bins per row and column.
     */
     Histogram2DFloat(size_t rows, size_t cols)
-        : HistogramFloatBase(2,rows * cols + 8,1)
+        : HistogramFloatBase(2,rows * cols + 8,1) // +8 for under/overflow bits
     {
         // set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
