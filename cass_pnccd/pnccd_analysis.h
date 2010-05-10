@@ -35,8 +35,10 @@ namespace cass
       /** User settable parameters via CASS.ini
        *  each of the following is defined for each pnCCD detector and
        *  may be defined in a different way
+       *  @param
        *  RebinFactor:
        *        The rebinfactor for rebinning of the frame accectable values are 1,2,4 and any power of 2
+       *  @param
        *  MaxNoise:
        *        The max allowed noise level before a pixel is mask off, the limit is interpreted as
        *        3 x std dev, if the pixel displays a noise level largen than 3x_max_noise than it is removed
