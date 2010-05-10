@@ -116,6 +116,9 @@ protected:
     /** flag that will invert the condition */
     bool _invert;
 
+    /** flag telling wether we run for the firsttime*/
+    bool _firsttime;
+
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 

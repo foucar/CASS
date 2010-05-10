@@ -188,6 +188,8 @@ void cass::pp101::loadSettings(size_t)
     _pp.histograms_delete(_id);
     _image = new Histogram2DFloat(cols,rows);
     _pp.histograms_replace(_id,_image);
+
+    _firsttime = true;
 }
 
 
@@ -215,10 +217,15 @@ void cass::pp101::operator()(const CASSEvent& event)
     // running average of data:
     _image->lock.lockForWrite();
     if (update)
+    {
+      float scale = (_firsttime)?1:_scale;
+      if (_firsttime) _firsttime = false;
+
       transform(frame.begin(),frame.end(),
                 _image->memory().begin(),
                 _image->memory().begin(),
-                Average(_scale));
+                Average(scale));
+    }
     _image->lock.unlock();
 }
 

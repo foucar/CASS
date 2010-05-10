@@ -35,7 +35,7 @@
 
 cass::pp160::pp160(PostProcessors& pp, cass::PostProcessors::id_t id)
   : PostprocessorBackend(pp, id),
-  _idAverage(cass::PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage),
+  _idAverage(cass::PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage),
   _image(0)
 {
   loadSettings(0);
@@ -133,24 +133,30 @@ void cass::pp160::operator()(const CASSEvent& event)
 
     const PostProcessors::histograms_t container (_pp.histograms_checkout());
     PostProcessors::histograms_t::const_iterator f(container.find(_idAverage));
-    HistogramFloatBase::storage_t average (dynamic_cast<Histogram2DFloat *>(f->second)->memory());
+    const HistogramFloatBase::storage_t average (dynamic_cast<Histogram2DFloat *>(f->second)->memory());
     _pp.histograms_release();
 
     f->second->lock.lockForRead();
-    const float alpha = accumulate(frame.begin(),frame.end(),0) /  accumulate(average.begin(),average.end(),0);
-    std::cout<< "pp160: alpha:"<<alpha<<std::endl;
-
-    _image->lock.lockForWrite();
-
     PixelDetector::frame_t::const_iterator frIt(frame.begin()) ;
     HistogramFloatBase::storage_t::const_iterator avIt(average.begin());
-    HistogramFloatBase::storage_t::iterator imIt(_image->memory().begin());
-    for (;avIt != average.end() ;++avIt)
-    {
-      *imIt++ += ( *frIt++ - alpha * *avIt++ > _threshold);
-//      std::cout<< "pp160: val:"<< *frIt++ - alpha * *avIt++<<std::endl;
-    }
 
+    float sumFrame(0);
+    float sumAverage(0);
+    while (frIt != frame.end()) sumFrame += *frIt++;
+    while (avIt != average.end()) sumAverage += *avIt++;
+    const float alpha = sumFrame / sumAverage;
+    frIt = frame.begin();
+    avIt = average.begin();
+
+//    std::cout<< "pp160: alpha:"<<alpha<<" "
+//        <<sumFrame <<" "
+//        <<sumAverage<< " "
+//        <<std::endl;
+//
+    _image->lock.lockForWrite();
+    HistogramFloatBase::storage_t::iterator imIt(_image->memory().begin());
+    while(avIt != average.end())
+      *imIt++ += ( *frIt++ - alpha * *avIt++ > _threshold);
 
     _image->lock.unlock();
     f->second->lock.unlock();
