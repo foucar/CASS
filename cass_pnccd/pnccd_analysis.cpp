@@ -843,7 +843,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
                 this_pixel.y()=(i_pixel+i_line*Num_pixel_per_line)/det.columns();
                 this_pixel.z()=*itFrame;
                 det.pixellist().push_back(this_pixel);
-#ifdef debug
+#ifdef debug_a_lot
                 std::cout<< "pixel energy "<< this_pixel.z() << " @("<<this_pixel.x()<<","<< this_pixel.y()<<")" <<std::endl;
 #endif
                 //I could "tag" the pixel
