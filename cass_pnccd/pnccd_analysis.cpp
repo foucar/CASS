@@ -15,6 +15,7 @@
 #include <time.h>
 #include <stdexcept>
 //#define debug_conf
+//#define debug
 
 bool not_saved_yet;
 
@@ -819,7 +820,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
                      <<" based on "<<used_pixel <<" pixels" <<std::endl;
 #endif
           }
-#define debug
           else common_level=0;
           //come back to the beginning of the line
           advance(itFrame,-Num_pixel_per_line);
@@ -893,10 +893,8 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     }
     ++dp._nbrDarkframes;
     if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
-      std::cout<<"reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
-    /*
-    if(dp._nbrDarkframes>201 && not_saved_yet)
       std::cout<< printoutdef << "reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
+    /*
     if(dp._nbrDarkframes>101 && not_saved_yet)
     {
       //Only one of the Threads should save.... So I don't see why I should do it....
