@@ -819,6 +819,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
                      <<" based on "<<used_pixel <<" pixels" <<std::endl;
 #endif
           }
+#define debug
           else common_level=0;
           //come back to the beginning of the line
           advance(itFrame,-Num_pixel_per_line);
@@ -827,33 +828,30 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             *itFrame =  *itFrame - *itOffset - common_level ;
-          }
-
-          det.integral() += static_cast<uint64_t>(*itFrame);
-          if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
-#define debug
-
-          //Should I do it also if _doOffsetCorrection==false?
-          //if user wants to extract the pixels that are above threshold, do it//
-          if (dp._createPixellist)
-          {      
-            Pixel this_pixel;
-            //itFrame is already offset-subtructed
-            if( *itFrame> dp._sigmaMultiplier * *itNoise )
+            det.integral() += static_cast<uint64_t>(*itFrame);
+            if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
+              det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            //Should I do it also if _doOffsetCorrection==false?
+            //if user wants to extract the pixels that are above threshold, do it//
+            if (dp._createPixellist)
             {
-              this_pixel.x()=iter[pixelidx]%det.columns();
-              this_pixel.y()=iter[pixelidx]/det.columns();
-              this_pixel.z()=*itFrame;
-              det.pixellist().push_back(this_pixel);
+              Pixel this_pixel;
+              //itFrame is already offset-subtructed
+              if( *itFrame> dp._sigmaMultiplier * *itNoise )
+              {
+                this_pixel.x()=itFrame%det.columns();
+                this_pixel.y()=itFrame/det.columns();
+                this_pixel.z()=*itFrame;
+                det.pixellist().push_back(this_pixel);
 #ifdef debug
-              std::cout<< "pixel energy "<< this_pixel.z() << " @("<<this_pixel.x()<<","<< this_pixel.y()<<")" <<std::endl;
+                std::cout<< "pixel energy "<< this_pixel.z() << " @("<<this_pixel.x()<<","<< this_pixel.y()<<")" <<std::endl;
 #endif
-              //I could "tag" the pixel
-              // something like "mask[iFrame]=3"
+                //I could "tag" the pixel
+                // something like "mask[iFrame]=3"
+              }
             }
-          }
 
+          }
         }//end loop over frame
       }// endif CommonMode Subtraction
 #ifdef debug
