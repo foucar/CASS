@@ -367,7 +367,7 @@ void cass::pp150::loadSettings(size_t)
   param.beginGroup("PostProcessor");
   param.beginGroup(QString("p")+QString::number(_id));
 
-  _imageId = static_cast<PostProcessors::id_t>(param.value("HistOne",0).toInt());
+  _imageId = static_cast<PostProcessors::id_t>(param.value("ImageId",104).toInt());
 
   try
   {
