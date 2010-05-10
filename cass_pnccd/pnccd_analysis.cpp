@@ -832,6 +832,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+#define debug
 
           //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
@@ -845,6 +846,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               this_pixel.y()=iter[pixelidx]/det.columns();
               this_pixel.z()=*itFrame;
               det.pixellist().push_back(this_pixel);
+#ifdef debug
+              std::cout<< "pixel "<< this_pixel.z() << " "<< this_pixel.y() <<std::endl;
+#endif
               //I could "tag" the pixel
               // something like "mask[iFrame]=3"
             }
@@ -852,7 +856,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
         }//end loop over frame
       }// endif CommonMode Subtraction
-#define debug
 #ifdef debug
       if(dp._createPixellist) std::cout<<"number of found photons on pnCCD " << iDet
                                        << " is "<< det.pixellist().size()<<std::endl;
