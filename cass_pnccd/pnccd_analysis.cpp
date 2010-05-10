@@ -852,6 +852,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
         }//end loop over frame
       }// endif CommonMode Subtraction
+#define debug
 #ifdef debug
       if(dp._createPixellist) std::cout<<"number of found photons on pnCCD " << iDet
                                        << " is "<< det.pixellist().size()<<std::endl;
