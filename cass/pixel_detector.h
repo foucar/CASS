@@ -73,8 +73,8 @@ namespace cass
  ----           \/          | /         \ |
                             |/           \|
      @endverbatim
-   * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1
-   * please remember to use the rotated frame wrt standard-natural frame
+   * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1.
+   * Please remember to use the rotated frame wrt standard-natural frame
    * orientation!!
    *
    * @author Nicola Coppola
@@ -88,7 +88,7 @@ namespace cass
   public:
     // the shape name(s)
     // or   enum NameTypes {circ=0, triangle=1, square=2};
-    std::string name;
+    std::string name; //!< the shape of the simpleROI
     uint32_t xsize;   //!< the size(s) along the x axis
     uint32_t ysize;   //!< the size(s) along the y axis
     uint32_t xcentre; //!< the centre(s) along the x axis
