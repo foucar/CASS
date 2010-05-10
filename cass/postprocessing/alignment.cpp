@@ -436,7 +436,9 @@ void pp150::operator()(const CASSEvent& /*event*/)
   image->lock.unlock();
 
   _value->lock.lockForWrite();
-  *_value = nom/denom;
+  //*_value = nom/denom;
+  *_value = rand();
+  cout << " pp150, value: " << nom/denom << std::endl;
   _value->lock.unlock();
 }
 
