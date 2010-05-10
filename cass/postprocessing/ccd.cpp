@@ -264,7 +264,7 @@ protected:
 
 
 
-// *** postprocessors 102 substract two histograms ***
+// *** postprocessors 106 substract two histograms ***
 
 pp106::pp106(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id), _image(0)
@@ -299,10 +299,28 @@ void cass::pp106::loadSettings(size_t)
     _idOne = static_cast<PostProcessors::id_t>(settings.value("HistOne",0).toInt());
     _idTwo = static_cast<PostProcessors::id_t>(settings.value("HistTwo",0).toInt());
 
+    try
+    {
+      _pp.validate(_idOne);
+    }
+    catch (InvalidHistogramError *)
+    {
+      _reinitialize = true;
+      return;
+    }
+
+    try
+    {
+      _pp.validate(_idTwo);
+    }
+    catch (InvalidHistogramError *)
+    {
+      _reinitialize = true;
+      return;
+    }
+
     const PostProcessors::histograms_t container (_pp.histograms_checkout());
     PostProcessors::histograms_t::const_iterator it (container.find(_idOne));
-    _pp.validate(_idOne);
-    _pp.validate(_idTwo);
     _pp.histograms_release();
 
     _pp.histograms_delete(_id);
