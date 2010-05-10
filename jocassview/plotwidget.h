@@ -151,8 +151,8 @@ public:
 protected:
     QLabel* _lblValue;
     QQueue<float> _values;
-    cass::Histogram1DFloat _histAccumulator;
     int _accumulationLength;
+    cass::Histogram1DFloat _histAccumulator;
 };
 
 
