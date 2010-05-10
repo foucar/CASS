@@ -387,6 +387,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         break;
     case VmiFixedCos2Theta:
         processor = new pp150(*this,id);
+        break;
     case AdvancedPhotonFinder:
         processor = new pp160(*this,id);
         break;
