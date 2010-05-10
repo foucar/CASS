@@ -195,6 +195,11 @@ void ImageViewer::on_open_triggered()
 
 void ImageViewer::on_save_image_triggered()
 {
+    if (_dock->widget()!=_imageWidget) {
+        QMessageBox::information(this, tr("jocassviewer"),
+                tr("Cannot retrieve image"));
+        return;
+    } 
     QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save File"), QDir::currentPath());
     if(!fileName.isEmpty()) {
