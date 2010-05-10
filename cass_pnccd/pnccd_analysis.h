@@ -68,6 +68,7 @@ namespace cass
        *  DarkCalibrationFileName
        *       if set the darkframe calibrations will be taken out of the named file
        *       PLEASE DO not set unless you know what you are using,
+       *       (for example if using offline CASS)
        *       darkframe files created via Xonline/Raccoon will be ignored as they have
        *       a completely different structure
        *  DarkCalibrationSaveFileName
@@ -75,6 +76,7 @@ namespace cass
        *       the values are ANYWAY overwritten by the saveParameter function to avoid
        *       overwriting of previously saved darkframe files
        *  @endverbatim
+       * @author Nicola Coppola
        **/
       correctionmap_t _offset;            //!< offsetmap
       correctionmap_t _noise;             //!< noise map
@@ -90,9 +92,9 @@ namespace cass
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
       cass::detROI_   _detROI;
 
-      cass::ROI::ROImask_t _ROImask;//The ROI mask
+      cass::ROI::ROImask_t _ROImask;//!< The ROI mask
       cass::ROI::ROImask_t _ROImask_converter;
-      cass::ROI::ROIiterator_t _ROIiterator;//The ROI iterators
+      cass::ROI::ROIiterator_t _ROIiterator;//!< The ROI iterators
       cass::ROI::ROIiterator_t _ROIiterator_converter;
     };
 
