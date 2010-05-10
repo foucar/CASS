@@ -17,8 +17,7 @@ cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &rin
     _quit(false),
     _pause(false),
     _paused(false)
-{
-}
+{}
 
 cass::Worker::~Worker()
 {
