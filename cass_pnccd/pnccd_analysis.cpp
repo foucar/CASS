@@ -791,13 +791,13 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
         //std::cout<<"I need to do something"<<std::endl;
         const size_t Num_pixel_per_line = 128;
         const size_t num_lines = det.originalrows()* det.originalcolumns() /Num_pixel_per_line;
-        size_t i_pixel;
+        //size_t i_pixel;
         for (size_t i_line=0;i_line<num_lines;i_line++)
         {
           double common_level=0;
           double Pixel_wo_offset;
           size_t used_pixel=0;
-          for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             //I consider only the "good" pixels that are not to be masked
             if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
@@ -825,7 +825,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
-          for(i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             *itFrame =  *itFrame - *itOffset - common_level ;
             det.integral() += static_cast<uint64_t>(*itFrame);
@@ -839,8 +839,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               //itFrame is already offset-subtructed
               if( *itFrame> dp._sigmaMultiplier * *itNoise )
               {
-                this_pixel.x()=itFrame%det.columns();
-                this_pixel.y()=itFrame/det.columns();
+                this_pixel.x()=(i_pixel+i_line*Num_pixel_per_line)%det.columns();
+                this_pixel.y()=(i_pixel+i_line*Num_pixel_per_line)/det.columns();
                 this_pixel.z()=*itFrame;
                 det.pixellist().push_back(this_pixel);
 #ifdef debug
