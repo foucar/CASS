@@ -48,18 +48,18 @@ namespace cass
        *        By default the value is set to 1.
        *  @cassttng
        *  CreatePixelList
-       *        true of false, if true and if _doOffsetCorrection==true
+       *        True of false, if true and if _doOffsetCorrection==true
        *            (irregardless of the value of _useCommonMode) a list of Photons will be created
        *            for each pixel with value larger that _sigmaMultiplier*noise(of the pixel).
        *        By default the value is set to false.
        *  @cassttng
        *  DoOffsetCorrection
-       *        true of false, if true the darkcalibration maps will be used to subtract the ADC
+       *        True of false, if true the darkcalibration maps will be used to subtract the ADC
        *            offset, to correct the raw frame.
        *        By default the value is set to false.
        *  @cassttng
        *  useCommonMode
-       *       true of false, useful only if _doOffsetCorrection==true,
+       *       True of false, useful only if _doOffsetCorrection==true,
        *            if true the CommonMode correction will be calculated and applied to the pixels
        *            each "row" of 128-pixel is separately considered: the pixels that have
        *            value below _sigmaMultiplier*noise(of the pixel), once their offset is removed,
@@ -67,21 +67,21 @@ namespace cass
        *            subtracted from all the pixels.
        *        By default the value is set to false.
        *  @cassttng
-       *  IntegralOverThres (here called _thres_for_integral )
-       *       any Integer>=0 is accepted, in case the value is >0 than a second integral over the
+       *  IntegralOverThres (internally called _thres_for_integral )
+       *       Any Integer>=0 is accepted, in case the value is >0 than a second integral over the
        *            corrected frame is calculated, this time using only those pixel that have a
        *            value>_thres_for_integral
        *        By default the value is set to 0.
        *  @cassttng
        *  DarkCalibrationFileName
-       *       if set the darkframe calibrations will be taken out of the named file
+       *       If set the darkframe calibrations will be taken out of the named file
        *       PLEASE DO NOT SET unless you know what you are using,
        *       (for example if using offline CASS)
        *       darkframe files created via Xonline/Raccoon will be ignored as they have
        *       a completely different structure
        *  @cassttng
        *  DarkCalibrationSaveFileName
-       *       it contains the name of the files where darkframe calibrations will be written into
+       *       It contains the name of the files where darkframe calibrations will be written into
        *       the values are ANYWAY overwritten by the saveParameter function to avoid
        *       overwriting of previously saved darkframe files
        *  @author Nicola Coppola
