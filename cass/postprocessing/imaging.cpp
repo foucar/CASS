@@ -140,6 +140,9 @@ void cass::pp160::operator()(const CASSEvent& event)
     PixelDetector::frame_t::const_iterator frIt(frame.begin()) ;
     HistogramFloatBase::storage_t::const_iterator avIt(average.begin());
 
+    /** @note one cannot use accumulate here, since this returns negative numbers
+     *  @todo need to find out whether a new compiler does it correctly
+     */
     float sumFrame(0);
     float sumAverage(0);
     while (frIt != frame.end()) sumFrame += *frIt++;
