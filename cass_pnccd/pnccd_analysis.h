@@ -85,7 +85,7 @@ namespace cass
        *  @param
        *  DarkCalibrationFileName
        *       if set the darkframe calibrations will be taken out of the named file
-       *       PLEASE DO not set unless you know what you are using,
+       *       PLEASE DO NOT SET unless you know what you are using,
        *       (for example if using offline CASS)
        *       darkframe files created via Xonline/Raccoon will be ignored as they have
        *       a completely different structure
