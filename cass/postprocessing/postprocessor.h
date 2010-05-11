@@ -382,6 +382,7 @@ public:
         VmiFixedCos2Theta=150,
 
         AdvancedPhotonFinder=160,
+        AdvancedPhotonFinderTwo=161,
 
         CampChannel00AveragedWaveform=500,
         CampChannel01AveragedWaveform=501,
