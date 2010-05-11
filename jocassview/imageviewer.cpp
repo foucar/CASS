@@ -133,6 +133,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageLayout->addWidget(_imageScroller);
     _imageLayout->addLayout(_imageValuesLayout);
     _imageWidget->setLayout(_imageLayout);
+    _cursor = new QCursor(_imageLabel->cursor());
     // widget for plots:
     _plotWidget = new plotWidget(_cass);
     _plotWidget0D = new plotWidget0D(1000);

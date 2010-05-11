@@ -9,6 +9,7 @@
 #include <QtCore/QThread>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
+#include <QtGui/QCursor>
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
@@ -174,6 +175,8 @@ private:
     QLabel* _imageMaxLabel;
 
     QLabel *_imageLabel;
+
+    QCursor *_cursor;
 
     plotWidget* _plotWidget;
     plotWidget0D* _plotWidget0D;
