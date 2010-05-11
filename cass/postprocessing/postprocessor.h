@@ -530,7 +530,7 @@ public:
     /*! release read-lock for histograms container */
     void histograms_release() { _histlock.unlock(); };
 
-    /*! Replaqce histogram in storage
+    /*! Replace histogram in storage
 
     @param type Histogram to replace
     @param hist New histogram to store
