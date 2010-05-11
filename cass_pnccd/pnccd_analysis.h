@@ -69,7 +69,7 @@ namespace cass
        *        By default the value is set to false.
        *  @param
        *  useCommonMode
-       *       true of false, useful only if _doOffsetCorrection==true
+       *       true of false, useful only if _doOffsetCorrection==true,
        *            if true the CommonMode correction will be calculated and applied to the pixels
        *            each "row" of 128-pixel is separately considered: the pixels that have
        *            value below _sigmaMultiplier*noise(of the pixel), once their offset is removed,
