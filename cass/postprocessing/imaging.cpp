@@ -38,6 +38,26 @@ cass::pp160::pp160(PostProcessors& pp, cass::PostProcessors::id_t id)
   _image(0)
 {
   loadSettings(0);
+  /** @todo put in the right cases */
+//  switch(id)
+//  {
+//  case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
+//  case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
+//      _detector = 0; _device=CASSEvent::pnCCD;
+//      break;
+//  case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
+//  case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
+//      _detector = 1; _device=CASSEvent::pnCCD;
+//      break;
+//  case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
+//  case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
+//      _detector = 0; _device=CASSEvent::CCD;
+//      break;
+//  default:
+//      throw std::invalid_argument("Impossible postprocessor id for pp101");
+//      break;
+//  };
+
 }
 
 
@@ -126,6 +146,7 @@ void cass::pp160::operator()(const CASSEvent& event)
 
   if (update)
   {
+    /** @todo put in the variables instead of hardcoded values */
     //check whether detector exists
     if (event.devices().find(CASSEvent::pnCCD)->second->detectors()->size() <= 0)
       throw std::runtime_error(QString("PostProcessor_%1: front pnccd detector does not exist").arg(_id).toStdString());
