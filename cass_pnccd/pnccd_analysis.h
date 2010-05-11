@@ -172,11 +172,12 @@ namespace cass
       void loadSettings();
       void saveSettings();
       /*
-      Put the pnCCDEvent object through the analysis chain. The original data
-      remain unchanged, a new corrected pnCCD image is generated and X-ray
+      Put the pnCCDEvent object through the analysis chain. 
+      A new corrected pnCCD image is generated and X-ray
       photon hits are extracted if the user wishes to so. In addition, some
-      basic parameters are reacorded, e.g. the number of detected events
-      in the frame.
+      basic parameters are recorded, e.g. The integral over the corrected frame,
+      ihe integral over the corrected frame using only the pixel over a certain threshold,
+      the max value of the pixel over the frame.
       */
       void operator() (CASSEvent*);
 
