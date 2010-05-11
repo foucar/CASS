@@ -49,7 +49,7 @@ namespace cass
       /** load settings from file*/
       void loadSettings()   {_param.load();}
       /** save settings to file*/
-      void saveSettings()   {_param.save();}
+      void saveSettings()   {}
 
       //! called for every event, does the analysis//
       void operator()(CASSEvent*);
