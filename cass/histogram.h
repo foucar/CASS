@@ -632,14 +632,16 @@ inline void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
 inline void cass::Histogram1DFloat::fill(float x, float weight)
 {
   //calc the bin//
+//  lock.lockForRead();
   const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
+//  lock.unlock();
   const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //check whether the fill is in the right range//
   const bool xInRange = 0<=xBin && xBin<nxBins;
-  lock.lockForWrite();
+//  lock.lockForWrite();
   // if in range fill the memory otherwise figure out whether over of underflow occured//
   if (xInRange)
     _memory[xBin] += weight;
@@ -647,9 +649,9 @@ inline void cass::Histogram1DFloat::fill(float x, float weight)
     _memory[nxBins+Overflow] += 1;
   else if (xBin < 0)
     _memory[nxBins+Underflow] += 1;
-  lock.unlock();
   //increase the number of fills//
   ++(_nbrOfFills);
+//  lock.unlock();
 }
 
 //-----------------2D Hist--------------------------
@@ -683,7 +685,7 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
 //      <<" YinRange:"<<yInRange
 //      <<std::endl;
 
-  lock.lockForRead();
+//  lock.lockForRead();
   // if both bin coordinates are in range, fill the memory,//
   //otherwise figure out which quadrant needs to be filled//
   if (xInRange && yInRange)
@@ -704,7 +706,7 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
     _memory[maxSize+UpperMiddle]+=1;
   else if (xBin >= nxBins && yBin >= nyBins)
     _memory[maxSize+UpperRight]+=1;
-  lock.unlock();
+//  lock.unlock();
   // increase the number of fills
   ++_nbrOfFills;
 }
