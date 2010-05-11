@@ -94,6 +94,7 @@ namespace cass
        *       the values are ANYWAY overwritten by the saveParameter function to avoid
        *       overwriting of previously saved darkframe files
        *  @author Nicola Coppola
+       *
        */
 
       uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
