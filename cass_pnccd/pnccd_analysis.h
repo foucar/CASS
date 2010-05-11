@@ -107,7 +107,7 @@ namespace cass
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
       uint32_t        _thres_for_integral;//!< the thresold for special integral
       std::string     _darkcalfilename;   //!< filename of file containing dark & noisemap
-      std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector//
+      std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector, it is automatically generated//
       cass::detROI_   _detROI;
 
       cass::ROI::ROImask_t _ROImask;//!< The ROI mask
