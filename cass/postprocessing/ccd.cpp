@@ -142,6 +142,7 @@ void cass::pp101::loadSettings(size_t)
     int cols(0); int rows(0);
     switch(_id)
     {
+    /** @todo use the default sizes here */
     case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
     case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
     case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
