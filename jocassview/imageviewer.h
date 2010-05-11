@@ -155,7 +155,23 @@ private:
 
     QDockWidget* _dock;
 
-    QScrollArea* _imageWidget;
+    QScrollArea* _imageScroller;
+
+    QWidget* _imageWidget;
+
+    QVBoxLayout* _imageLayout;
+
+    QHBoxLayout* _imageValuesLayout;
+
+    QComboBox* _imageMapping;
+
+    QLineEdit* _imageMinValue;
+
+    QLineEdit* _imageMaxValue;
+
+    QLabel* _imageMinLabel;
+
+    QLabel* _imageMaxLabel;
 
     QLabel *_imageLabel;
 

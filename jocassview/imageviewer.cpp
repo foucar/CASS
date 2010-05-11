@@ -107,9 +107,32 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageLabel->setBackgroundRole(QPalette::Base);
     _imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     _imageLabel->setScaledContents(true);
-    _imageWidget = new QScrollArea;
-    _imageWidget->setBackgroundRole(QPalette::Dark);
-    _imageWidget->setWidget(_imageLabel);
+    _imageScroller = new QScrollArea;
+    _imageLayout = new QVBoxLayout;
+    _imageValuesLayout = new QHBoxLayout;
+    _imageWidget = new QWidget;
+    _imageMapping = new QComboBox;
+    _imageMinValue = new QLineEdit;
+    _imageMaxValue = new QLineEdit;
+    _imageMinLabel = new QLabel;
+    _imageMaxLabel = new QLabel;
+
+
+    _imageScroller->setBackgroundRole(QPalette::Dark);
+    _imageScroller->setWidget(_imageLabel);
+    _imageValuesLayout->addWidget(_imageMapping);
+    _imageValuesLayout->addWidget(_imageMinLabel);
+    _imageValuesLayout->addWidget(_imageMinValue);
+    _imageMapping->setEditable(false);
+    _imageMapping->addItem(tr("Log"));
+    _imageMapping->addItem(tr("Sqrt"));
+    _imageMinLabel->setText(tr("min:"));
+    _imageMaxLabel->setText(tr("max:"));
+    _imageValuesLayout->addWidget(_imageMaxLabel);
+    _imageValuesLayout->addWidget(_imageMaxValue);
+    _imageLayout->addWidget(_imageScroller);
+    _imageLayout->addLayout(_imageValuesLayout);
+    _imageWidget->setLayout(_imageLayout);
     // widget for plots:
     _plotWidget = new plotWidget(_cass);
     _plotWidget0D = new plotWidget0D(1000);
@@ -122,7 +145,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
-    _imageWidget->setWidgetResizable(_ui.fitToWindow->isChecked());
+    _imageScroller->setWidgetResizable(_ui.fitToWindow->isChecked());
     statusBar()->setToolTip("Actual frequency to get and display "
             "images averaged over (n) times.");
     updateActions();
@@ -246,6 +269,9 @@ std::cout<< "updatePixmap" <<std::endl;
     statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
     _statusLED->setStatus(false);
     _ready = true;
+    std::cout << "min: " << _imageMinValue->text().toFloat() << std::endl;
+    std::cout << "max: " << _imageMaxValue->text().toFloat() << std::endl;
+    std::cout << "value mapping: " << _imageMapping->currentIndex() << " : " <<  _imageMapping->currentText().toStdString() << std::endl;
 }
 
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
@@ -582,7 +608,7 @@ void ImageViewer::on_fitToWindow_triggered()
 {
     VERBOSEOUT(cout << "on_fitToWindow_triggered" << endl);
     bool fitToWindow = _ui.fitToWindow->isChecked();
-    _imageWidget->setWidgetResizable(fitToWindow);
+    _imageScroller->setWidgetResizable(fitToWindow);
     if(!fitToWindow) {
         on_normalSize_triggered();
     }
@@ -624,8 +650,8 @@ void ImageViewer::scaleImage(double factor)
     _scaleFactor *= factor;
     _imageLabel->resize(_scaleFactor * _imageLabel->pixmap()->size());
 
-    adjustScrollBar(_imageWidget->horizontalScrollBar(), factor);
-    adjustScrollBar(_imageWidget->verticalScrollBar(), factor);
+    adjustScrollBar(_imageScroller->horizontalScrollBar(), factor);
+    adjustScrollBar(_imageScroller->verticalScrollBar(), factor);
 
     _ui.zoomIn->setEnabled(_scaleFactor < 3.0);
     _ui.zoomOut->setEnabled(_scaleFactor > 0.333);
