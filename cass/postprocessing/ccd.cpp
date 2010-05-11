@@ -460,7 +460,7 @@ void cass::pp110::operator()(const CASSEvent& evt)
 // ***  used by postprocessors 113-115 ***
 
 pp113::pp113(PostProcessors& pp, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(pp, id)
+    : PostprocessorBackend(pp, id), _hist(0)
 {
     switch(id)
     {
@@ -520,7 +520,7 @@ void cass::pp113::operator()(const CASSEvent& evt)
 // ***  used by postprocessors 116-118 ***
 
 pp116::pp116(PostProcessors& pp, cass::PostProcessors::id_t id)
-    : PostprocessorBackend(pp, id)
+    : PostprocessorBackend(pp, id), _hist(0)
 {
     switch(id)
     {
