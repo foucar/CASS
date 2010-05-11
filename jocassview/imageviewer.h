@@ -112,6 +112,12 @@ private slots:
     */
     void on_save_image_triggered();
 
+    /** quick/auto Save Image file.
+    *
+    * Save Image to disc with filename based on Date/Time.
+    */
+    void on_auto_save_image_triggered();
+
     /**
     @todo Use cass::imageformatName and such! */
 
@@ -192,6 +198,11 @@ private:
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
     void updateImageList(QComboBox* box);
+
+    /** save Image
+      * save helper function
+      */
+    void saveImage(QString fileName);
 
     virtual void showEvent(QShowEvent *);
 

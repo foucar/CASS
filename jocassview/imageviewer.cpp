@@ -219,13 +219,28 @@ void ImageViewer::on_open_triggered()
 
 void ImageViewer::on_save_image_triggered()
 {
+    QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save File"), QDir::currentPath());
+    saveImage(fileName);
+ }
+
+void ImageViewer::on_auto_save_image_triggered()
+{
+    QString fillZeros;
+    for (int ii=_attachId->currentText().length(); ii<3; ii++)
+        fillZeros+=QString("0");
+    QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString() + QString(".png");
+    saveImage(fileName);
+}
+
+void ImageViewer::saveImage(QString fileName)
+{
+    std::cout << fileName.toStdString() << std::endl;
     if (_dock->widget()!=_imageWidget) {
         QMessageBox::information(this, tr("jocassviewer"),
                 tr("Cannot retrieve image"));
         return;
     } 
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save File"), QDir::currentPath());
     if(!fileName.isEmpty()) {
         QImage image(_imageLabel->pixmap()->toImage());
         if(image.isNull()) {

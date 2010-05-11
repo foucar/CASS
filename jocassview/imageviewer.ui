@@ -29,6 +29,7 @@
     </property>
     <addaction name="open"/>
     <addaction name="save_image"/>
+    <addaction name="auto_save_image"/>
     <addaction name="print"/>
     <addaction name="separator"/>
     <addaction name="exit"/>
@@ -90,7 +91,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
- <action name="save_image">
+  <action name="save_image">
    <property name="text">
     <string>&amp;Save image...</string>
    </property>
@@ -99,6 +100,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action><action name="auto_save_image">
+   <property name="text">
+    <string>&amp;Save image (auto)</string>
+   </property>
+   <property name="toolTip">
+    <string>Save image to file.</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
   <action name="print">
