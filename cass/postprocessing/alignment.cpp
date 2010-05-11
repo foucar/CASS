@@ -425,7 +425,7 @@ void pp150::operator()(const CASSEvent& /*event*/)
       const float angle(2*M_PI * jth / _nbrAngularPoints);
       size_t col(round(_center.first  + radius*sin(angle + symangle)));
       size_t row(round(_center.second + radius*cos(angle + symangle)));
-      float val = imageMemory[row * _imageWith + col] * square(radius); // * abs(sin(angle));
+      float val = imageMemory[col + row * _imageWith] * square(radius); // * abs(sin(angle));
       denom += val;
       nom   += val * square(cos(angle));
     }
