@@ -26,9 +26,9 @@ cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
 
 cass::SharedMemoryInput::~SharedMemoryInput()
 {
-  std::cout<<"deleting shared memory input"<<std::endl;
+  VERBOSEOUT(std::cout<<"deleting shared memory input"<<std::endl);
   _converter->destroy();
-  std::cout<<"shared memory input is deleted"<<std::endl;
+  VERBOSEOUT(std::cout<<"shared memory input is deleted"<<std::endl);
 }
 
 
