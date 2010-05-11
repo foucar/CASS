@@ -500,7 +500,7 @@ void ImageViewer::on_writeIni_triggered()
     _cass->writeini(0, &ret);
     if(!ret)
         QMessageBox::information(this, tr("jocassviewer"),
-                tr("Error: Cannot communicate readini command."));
+                tr("Error: Cannot communicate writeini command."));
 }
 
 void ImageViewer::on_readIni_triggered()
