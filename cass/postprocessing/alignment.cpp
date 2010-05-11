@@ -358,16 +358,17 @@ std::list<PostProcessors::id_t> pp150::dependencies()
 void cass::pp150::loadSettings(size_t)
 {
   using namespace std;
-  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-      <<" it calcluates cos2theta"
-      <<" of image "<<_imageId
-      <<std::endl;
 
   QSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(QString("p")+QString::number(_id));
 
   _imageId = static_cast<PostProcessors::id_t>(param.value("ImageId",104).toInt());
+
+  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+      <<" it calcluates cos2theta"
+      <<" of image "<<_imageId
+      <<std::endl;
 
   try
   {
@@ -379,6 +380,7 @@ void cass::pp150::loadSettings(size_t)
     return;
   }
   HistogramBackend * hist (_pp.histograms_checkout().find(_imageId)->second);
+  _pp.histograms_release();
 
 
   // Set width and symmetry angle
