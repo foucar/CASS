@@ -330,14 +330,15 @@ std::string getDataThread::getMimeType(CASSsoapProxy *cass, int attachId)
        std::cout << "return value is 'false'" << std::endl;
        return std::string("");
     }
-    if(_cass->dime.end() == attachment) {
-        cerr << "Did not get attachment!" << endl;
-        emit newNone();
-        return;
-    }
 
 
     soap_multipart::iterator attachment = cass->dime.begin();
+    if(_cass->dime.end() == attachment) {
+        cerr << "Did not get attachment!" << endl;
+        emit newNone();
+        return std::string("");
+    }
+
 
     std::cout << "DIME attachment:" << std::endl;
     std::cout << "Memory=" << (void*)(*attachment).ptr << std::endl;
