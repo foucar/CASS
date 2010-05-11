@@ -755,14 +755,14 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
-          //I could execute the follwing line only if dp._useCommonMode==false
-          // and get rid of the if-statement if(!dp._useCommonMode...)
-          //actually my method was introduced to make such lines as the following one not needed.....
-          for(size_t jj=iter[pixelidx]+1; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
           *itFrame =  *itFrame - *itOffset;
+
+          //actually my method was introduced to make such lines as the following one not needed.....
+          for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>(*itFrame);
@@ -790,9 +790,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       }
       else
       {
-        //const cass::ROI::ROImask_t &mask = dp._ROImask;
-        //merd
-        //std::cout<<"I need to do something"<<std::endl;
+        //I need to use the mask and not the iterator, otherwise I may have to do too much mathematics
+        const cass::ROI::ROImask_t &mask = dp._ROImask;
         const size_t Num_pixel_per_line = 128;
         const size_t num_lines = det.originalrows()* det.originalcolumns() /Num_pixel_per_line;
         //size_t i_pixel;
@@ -830,7 +829,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itNoise,-Num_pixel_per_line);
           for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
-            *itFrame =  *itFrame - *itOffset - common_level ;
+            const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
+            if(mask[this_pix_i]==1) *itFrame =  *itFrame - *itOffset - common_level ;
+            else *itFrame = 0;
+            // I should mask the ROIs...
             det.integral() += static_cast<uint64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<uint64_t>(*itFrame);
@@ -843,8 +845,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               //itFrame is already offset-subtructed
               if( *itFrame> dp._sigmaMultiplier * *itNoise )
               {
-                this_pixel.x()=(i_pixel+i_line*Num_pixel_per_line)%det.columns();
-                this_pixel.y()=(i_pixel+i_line*Num_pixel_per_line)/det.columns();
+                this_pixel.x()=(this_pix_i)%det.columns();
+                this_pixel.y()=(this_pix_i)/det.columns();
                 this_pixel.z()=*itFrame;
                 det.pixellist().push_back(this_pixel);
 #ifdef debug_a_lot
