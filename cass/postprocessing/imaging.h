@@ -42,6 +42,8 @@ namespace cass
    * Implements postprocessors id's 160, 161
    *
    * @todo make it get more usersettable parameters so that it can be reused
+   * @todo move the calculation of the current image to helper. so that one
+   *       can use the "advanced" corrected image in more than one pp
    * @author Lutz Foucar
    */
   class pp160 : public PostprocessorBackend
