@@ -38,7 +38,6 @@ namespace cass
    * Implements postprocessors id's 160
    *
    * @todo make it get more usersettable parameters so that it can be reused
-   *
    * @author Lutz Foucar
    */
   class pp160 : public PostprocessorBackend
