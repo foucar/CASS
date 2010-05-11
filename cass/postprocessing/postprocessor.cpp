@@ -407,6 +407,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         processor = new pp150(*this,id);
         break;
     case AdvancedPhotonFinder:
+    case AdvancedPhotonFinderTwo:
         processor = new pp160(*this,id);
         break;
     default:
