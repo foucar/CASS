@@ -102,6 +102,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QLabel *punit = new QLabel;
     punit->setText("Hz");
     _ui.toolBar->addWidget(punit);
+
+    // todo: encapsulate this in class imageWidget public QWidget...
     // Central label for image display.
     _imageLabel = new QLabel;
     _imageLabel->setBackgroundRole(QPalette::Base);
@@ -116,8 +118,6 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageMaxValue = new QLineEdit;
     _imageMinLabel = new QLabel;
     _imageMaxLabel = new QLabel;
-
-
     _imageScroller->setBackgroundRole(QPalette::Dark);
     _imageScroller->setWidget(_imageLabel);
     _imageValuesLayout->addWidget(_imageMapping);
