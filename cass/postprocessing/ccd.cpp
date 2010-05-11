@@ -553,6 +553,12 @@ void cass::pp116::loadSettings(size_t)
       <<" of detector "<<_detector
       <<" of device "<<_device
       <<std::endl;
+  QSettings param;
+  param.beginGroup("PostProcessor");
+  param.beginGroup(QString("p") + QString::number(_id));
+  //load the condition on the third component//
+  adu2eV = param.value("adu2eV",5.).toDouble();
+
   //create the histogram
   set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
@@ -562,17 +568,22 @@ void cass::pp116::operator()(const CASSEvent& evt)
 {
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3"
+                                         ).arg(_id).arg(_detector).arg(_device).toStdString());
 
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
-    const ROI::detROI_t& detROI
-        ((*(evt.devices().find(_device)->second)->detectors())[_detector].detROI());
-    std::cout<< "cacca " << &detROI._ROI[0].xsize<<std::endl;
+
+    const PixelDetector &det((*evt.devices().find(_device)->second->detectors())[_detector]);
+
+    //const cass::ROI::detROI_t& detROI(det.detROIu());
+    //const ROI::ROIiterator_t& ROIiterator(det.ROIiterator());
+    /*    std::cout<< "cacca " << detROI._ROI.size() 
+          <<std::endl;*/
 
 //    cass::pnCCD::DetectorParameter &dp = _param._detectorparameters[iDet];
-    const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
+//    const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
     for (; it != pixellist.end();++it)
         _hist->fill(it->z()/adu2eV);
