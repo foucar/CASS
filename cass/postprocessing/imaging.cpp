@@ -35,7 +35,6 @@
 
 cass::pp160::pp160(PostProcessors& pp, cass::PostProcessors::id_t id)
   : PostprocessorBackend(pp, id),
-  _idAverage(cass::PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage),
   _image(0)
 {
   loadSettings(0);
@@ -64,6 +63,7 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup(QString("p") + QString::number(_id));
 
   _threshold = settings.value("Threshold",1.).toFloat();
+  _invert = settings.value("Invert",false).toBool();
 
 
   std::string name(settings.value("ConditionDetector","YAGPhotodiode").toString().toStdString());
@@ -85,6 +85,7 @@ void cass::pp160::loadSettings(size_t)
   if (_conditionDetector)
     HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
 
+  _idAverage = static_cast<PostProcessors::id_t>(settings.value("AveragedImage",100).toInt());
 
   try
   {
@@ -120,6 +121,7 @@ void cass::pp160::operator()(const CASSEvent& event)
     TofDetector *det =
         dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
     update = det->mcp().peaks().size();
+    update ^= _invert;
   }
 
   if (update)
