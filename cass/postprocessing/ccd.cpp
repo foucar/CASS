@@ -431,8 +431,10 @@ void cass::pp110::operator()(const CASSEvent& evt)
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+    _image->lock.lockForWrite();
     for (; it != pixellist.end();++it)
         _image->fill(it->x(),it->y());
+    _image->lock.unlock();
 }
 
 
@@ -500,6 +502,7 @@ void cass::pp113::loadSettings(size_t)
 
 void cass::pp113::operator()(const CASSEvent& evt)
 {
+//    std::cout << "pp113::operator():"<<std::endl;
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
@@ -508,9 +511,25 @@ void cass::pp113::operator()(const CASSEvent& evt)
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+//    std::cout<<"pp113::operator(): pixellist size:"<<pixellist.size()<<std::endl;
+    _hist->lock.lockForWrite();
     for (; it != pixellist.end();++it)
         _hist->fill(it->z());
+    _hist->lock.unlock();
+//    std::cout << "pp113::operator(): going out"<<std::endl;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -585,8 +604,10 @@ void cass::pp116::operator()(const CASSEvent& evt)
 //    cass::pnCCD::DetectorParameter &dp = _param._detectorparameters[iDet];
 //    const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+    _hist->lock.lockForWrite();
     for (; it != pixellist.end();++it)
         _hist->fill(it->z()/adu2eV);
+    _hist->lock.unlock();
 }
 
 
