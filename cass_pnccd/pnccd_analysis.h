@@ -97,6 +97,7 @@ namespace cass
        *  @author Nicola Coppola
        *
        */
+      //
 
       uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
       double          _max_noise;         //!< pixels with noise larger _max_noise than will be masked
