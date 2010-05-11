@@ -830,9 +830,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
-            if(mask[this_pix_i]==1) *itFrame =  *itFrame - *itOffset - common_level ;
-            else *itFrame = 0;
             // I should mask the ROIs...
+            if(mask[this_pix_i]==1) *itFrame = *itFrame - *itOffset - common_level ;
+            else *itFrame = 0;
             det.integral() += static_cast<uint64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<uint64_t>(*itFrame);
