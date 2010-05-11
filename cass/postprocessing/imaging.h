@@ -34,8 +34,12 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{Threshold} \n
    *           The threshold which will quantify whether there is a photon
    *           in the current image.
+   * @cassttng PostProcessor/p\%id\%/{Invert} \n
+   *           Inverts the condition
+   * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
+   *           The id of the running average of we use for substraction
    *
-   * Implements postprocessors id's 160
+   * Implements postprocessors id's 160, 161
    *
    * @todo make it get more usersettable parameters so that it can be reused
    * @author Lutz Foucar
@@ -55,6 +59,8 @@ namespace cass
     virtual std::list<PostProcessors::id_t> dependencies();
 
   protected:
+    /** flag to invert the condition */
+    bool _invert;
     /** the Detector that we make the condition on*/
     ACQIRIS::Detectors _conditionDetector;
     /** threshold for peakfinding */
