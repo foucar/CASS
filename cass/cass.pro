@@ -117,6 +117,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
+            ./postprocessing/advanced_photonhit_finder_helper.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp
@@ -148,6 +149,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/acqiris_detectors_helper.h \
+            ./postprocessing/advanced_photonhit_finder_helper.h \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
