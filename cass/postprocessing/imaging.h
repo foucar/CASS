@@ -71,6 +71,10 @@ namespace cass
     PostProcessors::id_t _idAverage;
     /** resulting image */
     Histogram2DFloat *_image;
+    /** CCD detector to work on */
+    size_t _detector;
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
   };
 
 
