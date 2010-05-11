@@ -431,6 +431,8 @@ void pp150::operator()(const CASSEvent& /*event*/)
     }
   }
   image->lock.unlock();
+//  std::cout <<"pp150: "<<nom<<" "<<denom<<" "<<_nbrRadialPoints<<" "<<_nbrAngularPoints<<" "<<_minRadius<<" "<<_center.first<<" "<<_center.second<<std::endl;
+
   _value->lock.lockForWrite();
   *_value = nom/denom;
   _value->lock.unlock();
