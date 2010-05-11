@@ -320,6 +320,9 @@ protected:
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
+    /** the adu2eV calibration value*/
+    double adu2eV;
+
     /** detector to work on */
     size_t _detector;
 
