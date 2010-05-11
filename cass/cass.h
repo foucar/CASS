@@ -25,6 +25,8 @@
 #define VERBOSEOUT(a) {}
 #endif
 
+template<typename T> inline T square(const T& val) { return val * val; };
+
 
 namespace cass
 {
