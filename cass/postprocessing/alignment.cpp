@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <list>
 #include <map>
 #include <cmath>
@@ -406,37 +407,30 @@ void cass::pp150::loadSettings(size_t)
   _nbrAngularPoints = 360;
 }
 
+
 void pp150::operator()(const CASSEvent& /*event*/)
 {
   using namespace std;
-
-  Histogram2DFloat *image
-      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_imageId)->second));
+  Histogram2DFloat *image(dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_imageId)->second));
   _pp.histograms_release();
-
-  float nom(0);
-  float denom(0);
-  float val(0);
-  const float PI = 4 * atan(1);
-
   image->lock.lockForRead();
-  HistogramFloatBase::storage_t &imageMemory (image->memory());
-
-  for (int jr = 0; jr<_nbrRadialPoints; jr++)
+  HistogramFloatBase::storage_t &imageMemory(image->memory());
+  float nom(0), denom(0);
+  float symangle(_symAngle/180*M_PI);
+  for(unsigned jr = 0; jr<_nbrRadialPoints; jr++)
   {
-    for (int jth = 0; jth<_nbrAngularPoints; jth++)
+    for(unsigned jth = 0; jth<_nbrAngularPoints; jth++)
     {
-      const float radius = _minRadius + jr;
-      const float angle = 2*PI*jth/_nbrAngularPoints;
-      val = imageMemory[static_cast<int32_t>(round(_center.second + radius*sin(angle+_symAngle/180*PI))*_imageWith +
-                                             round(_center.first  + radius*cos(angle+_symAngle/180*PI)))];
-      val *= pow(radius,2)*fabs(sin(angle));
+      const float radius(_minRadius + jr);
+      const float angle(2*M_PI * jth / _nbrAngularPoints);
+      size_t col(round(_center.first  + radius*sin(angle + symangle)));
+      size_t row(round(_center.second + radius*cos(angle + symangle)));
+      float val = imageMemory[row * _imageWith + col] * square(radius); // * abs(sin(angle));
       denom += val;
-      nom += val*pow(cos(angle),2);
+      nom   += val * square(cos(angle));
     }
   }
   image->lock.unlock();
-
   _value->lock.lockForWrite();
   *_value = nom/denom;
   _value->lock.unlock();
@@ -451,7 +445,7 @@ void pp150::operator()(const CASSEvent& /*event*/)
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-style: "Stroustrup"
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:
