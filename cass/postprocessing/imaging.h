@@ -27,13 +27,17 @@ namespace cass
    * all pixels in the current image divided by the sum of all pixels in the
    * averaged image. \n
    * Check which pixels in the resulting image are above a given threshold and
-   * the the requested image with One.
+   * the the requested image with One. It follows the function:
+   * \f$ Pixel_{resulting Image} +=
+   *           (Pixel_{current Image) - \apha \times Pixel_{running Average}\f$
    *
    * @cassttng PostProcessor/p\%id\%/{Threshold} \n
    *           The threshold which will quantify whether there is a photon
    *           in the current image.
    *
    * Implements postprocessors id's 160
+   *
+   * @todo make it get more usersettable parameters so that it can be reused
    *
    * @author Lutz Foucar
    */
