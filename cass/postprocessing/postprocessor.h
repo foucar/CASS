@@ -174,6 +174,9 @@ for information about what parameters are user settable. (Keep in mind that case
 00146: Gaussian height of image pp121
 00150: Scalar value of <cos^2\theta> from averaged Opal camera image pp105 (pp150)
 
+00160: Advanced Peakfinder for front pnCCD image (pp160)
+00161: Advanced Peakfinder for front pnCCD image (pp160)
+
 00500: Averaged waveform of Camp Acqiris Channel 00 (pp500)
 00501: Averaged waveform of Camp Acqiris Channel 01 (pp500)
 00502: Averaged waveform of Camp Acqiris Channel 02 (pp500)
