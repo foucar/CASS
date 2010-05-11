@@ -153,7 +153,7 @@
     <string>Normal Size.</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="fitToWindow">
