@@ -766,6 +766,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+          if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
+          //save the value only if it is not ovfl
+          //if(det.maxPixelValue()< *itFrame && *itFrame< ) det.maxPixelValue()=*itFrame;
 
           //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
@@ -831,6 +834,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             det.integral() += static_cast<uint64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
             //Should I do it also if _doOffsetCorrection==false?
             //if user wants to extract the pixels that are above threshold, do it//
             if (dp._createPixellist)
