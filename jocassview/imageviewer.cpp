@@ -209,7 +209,7 @@ void ImageViewer::on_save_image_triggered()
                     tr("Cannot retrieve image"));
             return;
         }
-        image.save(fileName, "PNG");
+        if (!image.save(fileName, "PNG")) QMessageBox::information(this, tr("jocassviewer"), tr("image could not be saved!"));
         updateActions();
     }
 }
