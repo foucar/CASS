@@ -35,7 +35,8 @@ namespace cass
       correctionmap_t _offset;            //!< offset map
       correctionmap_t _noise;             //!< noise map
 
-      /** User settable parameters via CASS.ini
+      /**
+       *  User settable parameters via CASS.ini
        *  each of the following is defined for each pnCCD detector and
        *  may be defined in a different way on different pnCCD detectors
        *  @param
