@@ -5,7 +5,7 @@ Prerequisites
 -------------
 
 The following software packages need to be installed and available for building and running CASS:
-  - Qt version 4.5.x or 4.6.x
+  - Qt version 4.6.x
   - gSOAP 2.7.x
 
 
