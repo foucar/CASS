@@ -171,16 +171,15 @@ void PostProcessors::setup()
                            <<" checking whether dependecy is already there"<<endl);
                 if(_postprocessors.end() == _postprocessors.find(*d))
                 {
-                    VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d<<" is not in postprocessor container"
-                               <<" inserting it into the active list before "<<iter->first<<endl);
+                    VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d<<" is not in postprocessor container"  <<" inserting it into the active list before "<<*iter<<endl);
                     _active.insert(iter, *d);
                     list<id_t>::iterator remove(find(iter, _active.end(), *d));
                     VERBOSEOUT(cout << "Postprocessor::setup(): check whether dependency "<<*d
-                               <<" was on the active list, but not at the right position"<endl);
+                               <<" was on the active list, but not at the right position"<<endl);
                     if(_active.end() != remove)
                     {
                          VERBOSEOUT(cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
-                                    <<" removing the later double entry."<endl);
+                                    <<" removing the later double entry."<<endl);
                         _active.erase(remove);
                     }
                     update = true;
@@ -189,7 +188,7 @@ void PostProcessors::setup()
             // if we have updated _active, start over again
             if(update) {
                 // start over
-                VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<endl);
+                VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<<endl);
                 iter = _active.begin();
                 continue;
             }
