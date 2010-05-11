@@ -127,7 +127,9 @@ void cass::pp550::operator()(const cass::CASSEvent &evt)
   //get right filled detector from the helper
   TofDetector *det =
       dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->lock.lockForWrite();
   _nbrSignals->fill(det->mcp().peaks().size());
+  _nbrSignals->lock.unlock();
 }
 
 
@@ -203,7 +205,9 @@ void cass::pp551::operator()(const cass::CASSEvent &evt)
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->lock.lockForWrite();
   _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
+  _nbrSignals->lock.unlock();
 }
 
 
@@ -273,7 +277,9 @@ void cass::pp557::operator()(const cass::CASSEvent &evt)
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   const float one = det->layers()[_layer].wireend()['1'].peaks().size();
   const float two = det->layers()[_layer].wireend()['2'].peaks().size();
+  _ratio->lock.lockForWrite();
   _ratio->fill(one/two);
+  _ratio->lock.unlock();
 }
 
 
@@ -355,7 +361,9 @@ void cass::pp558::operator()(const cass::CASSEvent &evt)
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   const float wireend = det->layers()[_layer].wireend()[_wireend].peaks().size();
   const float mcp = det->mcp().peaks().size();
+  _ratio->lock.lockForWrite();
   _ratio->fill(wireend/mcp);
+  _ratio->lock.unlock();
 }
 
 
@@ -419,7 +427,9 @@ void cass::pp566::operator()(const cass::CASSEvent &evt)
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   const float rek = det->hits().size();
   const float mcp = det->mcp().peaks().size();
+  _ratio->lock.lockForWrite();
   _ratio->fill(rek/mcp);
+  _ratio->lock.unlock();
 }
 
 
@@ -493,8 +503,10 @@ void cass::pp567::operator()(const cass::CASSEvent &evt)
   //reference to all found peaks of the mcp channel//
   Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
   //fill all found peaks into the histogram//
+  _tof->lock.lockForWrite();
   for (; it != det->mcp().peaks().end(); ++it)
     _tof->fill(it->time());
+  _tof->lock.unlock();
 }
 
 
@@ -563,7 +575,9 @@ void cass::pp568::operator()(const cass::CASSEvent &evt)
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _timesum->lock.lockForWrite();
   _timesum->fill(det->timesum(_layer));
+  _timesum->lock.unlock();
 }
 
 
@@ -633,7 +647,9 @@ void cass::pp571::operator()(const cass::CASSEvent &evt)
   //get right filled detector from the helper
   DelaylineDetector *det =
       dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _timesumvsPos->lock.lockForWrite();
   _timesumvsPos->fill(det->position(_layer),det->timesum(_layer));
+  _timesumvsPos->lock.unlock();
 }
 
 
@@ -714,8 +730,10 @@ void cass::pp574::operator()(const cass::CASSEvent &evt)
   const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
   const bool css = (s.tsLow() < tss && tss < s.tsHigh());
   //only fill when timesum is fullfilled
+  _pos->lock.lockForWrite();
   if (csf && css)
     _pos->fill(f.position(),s.position());
+  _pos->lock.unlock();
 }
 
 
@@ -809,6 +827,7 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
   DelaylineDetector::dethits_t::iterator it = det->hits().begin();
 //  std::cout << det->hits().size()<<std::endl;
   //go through all hits of the detector//
+  _hist->lock.lockForWrite();
   for (; it != det->hits().end(); ++it)
   {
 //    std::cout
@@ -819,6 +838,7 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
     if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
       _hist->fill(it->values()[_first],it->values()[_second]);
   }
+  _hist->lock.unlock();
 }
 
 
@@ -892,9 +912,10 @@ void cass::pp581::operator()(const cass::CASSEvent &evt)
   Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
   //fill all found peaks into the histogram//
 //  std::cout<<det->mcp().peaks().size()<<std::endl;
-
+  _sigprop->lock.lockForWrite();
   for (;it != det->mcp().peaks().end(); ++it)
     _sigprop->fill(it->fwhm(),it->height());
+  _sigprop->lock.unlock();
 }
 
 
@@ -979,8 +1000,10 @@ void cass::pp582::operator()(const cass::CASSEvent &evt)
   //reference to all found peaks of the wireend channel//
   Signal::peaks_t::const_iterator it = det->layers()[_layer].wireend()[_signal].peaks().begin();
   //fill all found peaks into the histogram//
+  _sigprop->lock.lockForWrite();
   for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
     _sigprop->fill(it->fwhm(),it->height());
+  _sigprop->lock.unlock();
 }
 
 
@@ -1052,6 +1075,7 @@ void cass::pp700::operator()(const cass::CASSEvent &evt)
   //get iterator of the peaks in the first detector//
   Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
   //draw all found hits vs another//
+  _pipico->lock.lockForWrite();
   for (; it01 != det01->mcp().peaks().end();++it01)
   {
     //if both detectors are the same, then the second iterator should start
@@ -1059,10 +1083,10 @@ void cass::pp700::operator()(const cass::CASSEvent &evt)
     Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
                                          it01+1 :
                                          det02->mcp().peaks().begin());
-
     for (; it02 != det02->mcp().peaks().end(); ++it02)
     {
       _pipico->fill(it01->time(),it02->time());
     }
   }
+  _pipico->lock.unlock();
 }
