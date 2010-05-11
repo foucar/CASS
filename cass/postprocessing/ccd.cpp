@@ -512,6 +512,9 @@ void cass::pp113::operator()(const CASSEvent& evt)
         _hist->fill(it->z());
 }
 
+
+
+
 // *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
 // *** energies in eV 
 // ***  used by postprocessors 116-118 ***
@@ -564,9 +567,12 @@ void cass::pp116::operator()(const CASSEvent& evt)
     //retrieve the detector's photon hits of the device we are working for.
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+    const ROI::detROI_t& detROI
+        ((*(evt.devices().find(_device)->second)->detectors())[_detector].detROI());
+    std::cout<< "cacca " << &detROI._ROI[0].xsize<<std::endl;
+
 //    cass::pnCCD::DetectorParameter &dp = _param._detectorparameters[iDet];
-    const double adu2eV=1.;
-/*((*(evt.devices().find(_device)->second)->detectors()->_detectorparameters)[_detector]._adu2eV());*/
+    const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
     for (; it != pixellist.end();++it)
         _hist->fill(it->z()/adu2eV);
