@@ -298,7 +298,7 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
 
 void getDataThread::getData(CASSsoapProxy *cass, int attachId)
 {
-    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    VERBOSEOUT(cout << "getDataThread::getData" << endl);
     _dataType = dat_Any;
     _cass = cass;
     _attachId = attachId;
@@ -373,7 +373,7 @@ cass::PostProcessors::active_t getDataThread::getIdList(CASSsoapProxy *cass) {
 
 void getDataThread::getHistogram1D(CASSsoapProxy *cass, int attachId)
 {
-    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    VERBOSEOUT(cout << "getDataThread::getHistogram1D" << endl);
     _dataType = dat_1DHistogram;
     _cass = cass;
     _attachId = attachId;
@@ -382,7 +382,7 @@ void getDataThread::getHistogram1D(CASSsoapProxy *cass, int attachId)
 
 void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
 {
-    VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+    VERBOSEOUT(cout << "getDataThread::getHistogram0D" << endl);
     _dataType = dat_0DHistogram;
     _cass = cass;
     _attachId = attachId;
