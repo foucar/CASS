@@ -18,6 +18,7 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
 
 void cass::RatePlotter::plot()
 {
+  /** @todo modify the by not modifying the cout flags*/
   //store the original flags of cout//
   std::ios_base::fmtflags original_flags = std::cout.flags();
   //set the precision for floating point to 2//
