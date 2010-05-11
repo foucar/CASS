@@ -39,10 +39,8 @@ QImage Histogram2DFloat::qimage()
         qi.setColor(i, QColor(i, i, i).rgb());
     qi.fill(0);
     uint8_t *data(qi.bits());
+//    value2pixel converter(0,1);
     value2pixel converter(min(), max());
-//    std::cout << "min:" <<min()
-//        <<" max:"<<max()
-//        <<std::endl;
     lock.lockForRead();
     // Subtract 8 to get the size of the buffer excluding over/underflow flags
     std::transform(_memory.begin(), _memory.end()-8, data, converter);
