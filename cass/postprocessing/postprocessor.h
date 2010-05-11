@@ -161,6 +161,9 @@ for information about what parameters are user settable. (Keep in mind that case
 00113: Commercial CCD photonhits in a 1D Histogram (pp113)
 00114: Front pnCCD photonhits in a 1D Histogram (pp113)
 00115: Back pnCCD photonhits in a 1D Histogram (pp113)
+00116: Commercial CCD photonhits in a 1D Histogram energies in eV (pp116)
+00117: Front pnCCD photonhits in a 1D Histogram energies in eV (pp116)
+00118: Back pnCCD photonhits in a 1D Histogram energies in eV (pp116)
 
 00131: Scalar value of the <cos^2\theta> derived from the 121 image
 00141: Sum-intensity of image pp3
@@ -372,6 +375,7 @@ public:
         FirstImageSubstraction=106, SecondImageSubstraction=107,
         VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
         VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
+        VMIPhotonHitseV1d=116, PnCCDFrontPhotonHitseV1d=117, PnCCDBackPhotonHitseV1d=118,
         VmiRunningAverage=121, VmiCos2Theta=131,
         Integral3=141, Integral121=142,
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,

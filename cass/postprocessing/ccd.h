@@ -285,6 +285,47 @@ protected:
     Histogram1DFloat * _hist;
 };
 
+/** PhotonHits of CCD's in a 1D histogram.
+ *
+ * This time energies are plotted in eV and not in arbitrary units  
+ *
+ * This postprocessor will fill a 1d histogram with the z values detected Photonhits.
+ * Photonhits will be detected in the commercial Pre Analyzer. They will
+ * be just summed up. One needs to clear this histogram, when something has changed.
+ *
+ * Implements Postprocessor id's: 116, 117, 118
+ *
+ * User settable parameters in cass.ini:
+ * - properties of the 1D Histogram:
+ *   PostProcessor/p%id%/{XNbrBins|XLow|Xup}
+ *
+ * @author Lutz Foucar
+ */
+class pp116 : public PostprocessorBackend
+{
+public:
+    /** constructor.*/
+    pp116(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image spcae */
+    virtual ~pp116();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadSettings(size_t);
+
+protected:
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** detector to work on */
+    size_t _detector;
+
+    /** current image */
+    Histogram1DFloat * _hist;
+};
 
 
 

@@ -230,6 +230,11 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case PnCCDBackPhotonHits1d:
         processor = new pp113(*this,id);
         break;
+    case VMIPhotonHitseV1d:
+    case PnCCDFrontPhotonHitseV1d:
+    case PnCCDBackPhotonHitseV1d:
+        processor = new pp116(*this,id);
+        break;
     case CampChannel00LastWaveform:
     case CampChannel01LastWaveform:
     case CampChannel02LastWaveform:
