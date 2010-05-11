@@ -731,6 +731,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
     if (f.empty())
       continue;
 
+    //  if(dp._detROI._ROI.size()>det.detROI()._ROI.size()) std::cout <<"do smote"<<std::endl;
+
+  //det.ROIiterator().resize(dp._ROIiterator.size());
     //substract offsetmap//
     if(dp._doOffsetCorrection)
     {
@@ -742,6 +745,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
+
+      //std::copy(iter.begin(), iter.end(), det.ROIiterator().begin());
       //const bool ShouldIuseCommonMode= dp._useCommonMode;
       size_t pixelidx=0;
       //let's initialize a bit
@@ -865,6 +870,131 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
                                        << " is "<< det.pixellist().size()<<std::endl;
 #endif
     }//end if OffsetCorrection
+    //#ifdef a
+    else
+    {
+
+      //retrieve a reference to the frame of the detector//
+      cass::PixelDetector::frame_t &f = det.frame();
+      cass::PixelDetector::frame_t::iterator itFrame = f.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
+      const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
+      cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
+
+      //std::copy(iter.begin(), iter.end(), det.ROIiterator().begin());
+      //const bool ShouldIuseCommonMode= dp._useCommonMode;
+      size_t pixelidx=0;
+      //let's initialize a bit
+      det.integral()=0;
+      det.integral_overthres()=0;
+      det.maxPixelValue()=0;
+      if(!dp._useCommonMode/*I don't use CommonMode*/)
+      {
+        for ( ; itROI != iter.end(); ++itROI,++pixelidx)
+        {
+          advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+
+          // the following work only if I am copying, not if I modify!!
+          // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
+
+          //actually my method was introduced to make such lines as the following one not needed.....
+          for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
+          det.integral() += static_cast<uint64_t>(*itFrame);
+          if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
+            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+          if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
+          //save the value only if it is not ovfl
+          //if(det.maxPixelValue()< *itFrame && *itFrame< ) det.maxPixelValue()=*itFrame;
+
+          //Should I do it also if _doOffsetCorrection==false?
+          //if user wants to extract the pixels that are above threshold, do it//
+          if (dp._createPixellist)
+          {      
+            Pixel this_pixel;
+            //itFrame is already offset-subtructed
+            if( *itFrame> dp._sigmaMultiplier * *itNoise + *itOffset )
+            {
+              this_pixel.x()=iter[pixelidx]%det.columns();
+              this_pixel.y()=iter[pixelidx]/det.columns();
+              this_pixel.z()=*itFrame;
+              det.pixellist().push_back(this_pixel);
+              //I could "tag" the pixel
+              // something like "mask[iFrame]=3"
+            }
+          }
+        }//end loop over frame
+      }
+      else
+      {
+        //I need to use the mask and not the iterator, otherwise I may have to do too much mathematics
+        const cass::ROI::ROImask_t &mask = dp._ROImask;
+        const size_t Num_pixel_per_line = 128;
+        const size_t num_lines = det.originalrows()* det.originalcolumns() /Num_pixel_per_line;
+        for (size_t i_line=0;i_line<num_lines;i_line++)
+        {
+          double common_level=0;
+          double Pixel_wo_offset;
+          size_t used_pixel=0;
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          {
+            //I consider only the "good" pixels that are not to be masked
+            if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
+            {
+              Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
+              //I add only the pixel w/o a signal-photon
+              if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
+              {
+                common_level+= Pixel_wo_offset;
+                used_pixel++;
+              }
+            }
+          }
+          if(used_pixel>8)
+          {
+            common_level/=(used_pixel-1);
+          }
+          else common_level=0;
+          //come back to the beginning of the line
+          advance(itFrame,-Num_pixel_per_line);
+          advance(itOffset,-Num_pixel_per_line);
+          advance(itNoise,-Num_pixel_per_line);
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          {
+            const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
+            // I should mask the ROIs...
+            if(mask[this_pix_i]==1) *itFrame = *itFrame;// - *itOffset - common_level ;
+            else *itFrame = 0;
+            det.integral() += static_cast<uint64_t>(*itFrame);
+            if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
+              det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
+            //Should I do it also if _doOffsetCorrection==false?
+            //if user wants to extract the pixels that are above threshold, do it//
+            if (dp._createPixellist)
+            {
+              Pixel this_pixel;
+              //itFrame is already offset-subtructed
+              if( *itFrame> dp._sigmaMultiplier * *itNoise + *itOffset)
+              {
+                this_pixel.x()=(this_pix_i)%det.columns();
+                this_pixel.y()=(this_pix_i)/det.columns();
+                this_pixel.z()=*itFrame;
+                det.pixellist().push_back(this_pixel);
+                //I could "tag" the pixel
+                // something like "mask[iFrame]=3"
+              }
+            }
+
+          }
+        }//end loop over frame
+      }// endif CommonMode Subtraction
+
+    }
+    //#endif
     //if the user requested rebinning then rebin//
     if(dp._rebinfactor > 1)
       rebin(dev,iDet);
