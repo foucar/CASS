@@ -337,19 +337,19 @@ void cass::pnCCD::Analysis::loadSettings()
       number_of_pixelsettozero=0;
       for(size_t iROI=0;iROI<dp._detROI._ROI.size(); ++iROI)
       {
-        size_t index_of_center=dp._detROI._ROI[iROI].xcentre
-            + 1024 * dp._detROI._ROI[iROI].ycentre;
+        /*size_t index_of_center=dp._detROI._ROI[iROI].xcentre
+          + 1024 * dp._detROI._ROI[iROI].ycentre;*/
         size_t index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
             + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
-        size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
-            + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);
-        std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+        /*size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
+          + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);*/
+        //std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
             * (2 * dp._detROI._ROI[iROI].ysize + 1);
         //remember how many pixels I have masked
         //number_of_pixelsettozero+=indexROI_max;
-        std::cout << printoutdef <<  "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+        //std::cout << printoutdef <<  "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
         if(dp._detROI._ROI[iROI].name=="circ" || dp._detROI._ROI[iROI].name=="circle"  )
         {
           int32_t  xlocal,ylocal;
@@ -733,7 +733,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
     //  if(dp._detROI._ROI.size()>det.detROI()._ROI.size()) std::cout <<"do smote"<<std::endl;
 
-  //det.ROIiterator().resize(dp._ROIiterator.size());
+    // std::cout<<"cacca"<<std::endl;
+    det.ROIiterator_pp().resize(dp._ROIiterator.size());
+
     //substract offsetmap//
     if(dp._doOffsetCorrection)
     {
@@ -746,7 +748,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
 
-      //std::copy(iter.begin(), iter.end(), det.ROIiterator().begin());
+      std::copy(iter.begin(), iter.end(), det.ROIiterator_pp().begin());
       //const bool ShouldIuseCommonMode= dp._useCommonMode;
       size_t pixelidx=0;
       //let's initialize a bit
