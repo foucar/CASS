@@ -124,6 +124,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageValuesLayout->addWidget(_imageMinLabel);
     _imageValuesLayout->addWidget(_imageMinValue);
     _imageMapping->setEditable(false);
+    _imageMapping->addItem(tr("Lin"));
     _imageMapping->addItem(tr("Log"));
     _imageMapping->addItem(tr("Sqrt"));
     _imageMinLabel->setText(tr("min:"));
