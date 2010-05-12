@@ -70,14 +70,14 @@ void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
 
 cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
 {
-  std::cout << "AcqirisDetectorHelper constructor: we are responsible for det type "<<dettype<<", which name is ";
+  VERBOSEOUT(std::cout << "AcqirisDetectorHelper constructor: we are responsible for det type "<<dettype<<", which name is ");
   //create the detector
   //create the detector list with twice the amount of elements than workers
   switch(dettype)
   {
   case HexDetector:
     {
-      std::cout <<"HexDetector"<<std::endl;
+      VERBOSEOUT(std::cout <<"HexDetector"<<std::endl);
       _detector = new DelaylineDetector(Hex,"HexDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex,"HexDetector")));
@@ -85,7 +85,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
     break;
   case QuadDetector:
     {
-      std::cout <<"QuadDetector"<<std::endl;
+      VERBOSEOUT(std::cout <<"QuadDetector"<<std::endl);
       _detector = new DelaylineDetector(Quad,"QuadDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad,"QuadDetector")));
@@ -93,7 +93,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
     break;
   case VMIMcp:
     {
-      std::cout <<"VMIMcp"<<std::endl;
+      VERBOSEOUT(std::cout <<"VMIMcp"<<std::endl);
       _detector = new TofDetector("VMIMcp");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
@@ -101,7 +101,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
     break;
   case FELBeamMonitor:
     {
-      std::cout <<"Beamdump"<<std::endl;
+      VERBOSEOUT(std::cout <<"Beamdump"<<std::endl);
       _detector = new TofDetector("FELBeamMonitor");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("FELBeamMonitor")));
@@ -109,7 +109,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
     break;
   case YAGPhotodiode:
     {
-      std::cout <<"YAGPhotodiode"<<std::endl;
+      VERBOSEOUT(std::cout <<"YAGPhotodiode"<<std::endl);
       _detector = new TofDetector("YAGPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("YAGPhotodiode")));
@@ -117,7 +117,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
     break;
   case FsPhotodiode:
     {
-      std::cout <<"FsPhotodiode"<<std::endl;
+      VERBOSEOUT(std::cout <<"FsPhotodiode"<<std::endl);
       _detector = new TofDetector("FsPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
@@ -140,10 +140,10 @@ cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 
 void cass::ACQIRIS::HelperAcqirisDetectors::loadSettings(size_t)
 {
-  std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl;
+  VERBOSEOUT(std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl);
   QSettings par;
 //  par.beginGroup("postprocessors");
   par.beginGroup("AcqirisDetectors");
   _detector->loadSettings(&par);
-  std::cout << "Acqiris Helper load Parameters: done loading for "<< _detector->name()<<std::endl;
+  VERBOSEOUT(std::cout << "Acqiris Helper load Parameters: done loading for "<< _detector->name()<<std::endl);
 }
