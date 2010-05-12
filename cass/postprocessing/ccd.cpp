@@ -87,6 +87,14 @@ void pp1::operator()(const cass::CASSEvent& event)
       _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
     }
     */
+    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+
+    const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
+    /*std::cout<< "cacca " << ROIiterator_pp.size()
+      <<std::endl;*/
+
+
+
     std::copy(frame.begin(), frame.end(), _image->memory().begin());
     _image->lock.unlock();
 }
@@ -580,6 +588,7 @@ void cass::pp116::loadSettings(size_t)
   param.beginGroup(QString("p") + QString::number(_id));
   //load the condition on the third component//
   adu2eV = param.value("adu2eV",5.).toDouble();
+  if(adu2eV<=0.) adu2eV=1.;
   //create the histogram
   _pp.histograms_delete(_id);
   _hist=0;
@@ -609,15 +618,8 @@ void cass::pp116::operator()(const CASSEvent& evt)
     const PixelDetector::pixelList_t& pixellist
         ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
 
-    const PixelDetector &det((*evt.devices().find(_device)->second->detectors())[_detector]);
-
-    //const cass::ROI::detROI_t& detROI(det.detROIu());
-    //const ROI::ROIiterator_t& ROIiterator(det.ROIiterator());
-    /*    std::cout<< "cacca " << detROI._ROI.size() 
-          <<std::endl;*/
-
-//    cass::pnCCD::DetectorParameter &dp = _param._detectorparameters[iDet];
-//    const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
+    //cass::pnCCD::DetectorParameter &dp = _param._detectorparameters[iDet];
+    //const double adu2eV = 15.;//((*(evt.devices().find(_device)->second)->detectors()->detectorparameters)[_detector]._adu2eV());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
     _hist->lock.lockForWrite();
     for (; it != pixellist.end();++it)
