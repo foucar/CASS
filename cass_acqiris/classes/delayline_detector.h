@@ -21,12 +21,11 @@ namespace cass
      *
      * class containing the properties of a anode layer of the detector
      *
-     * User settable parameters via CASS.ini:
-     * - the timesum condition range for the layer:
-     *   AcqirisDetectors/%detectorname%/%Layername%/
-     *    {LowerTimesumConditionLimit|UpperTimesumConditionLimit}
-     * - scalefactor to convert time => mm:
-     *   AcqirisDetectors/%detectorname%/%Layername%/{Scalefactor}
+     * @cassttng AcqirisDetectors/%detectorname%/%Layername%/
+     *           {LowerTimesumConditionLimit|UpperTimesumConditionLimit}\n
+     *           the timesum condition range for the layer.
+     * @cassttng AcqirisDetectors/%detectorname%/%Layername%/{Scalefactor}\n
+     *           scalefactor to convert time => mm:
      *
      * @author Lutz Foucar
      */
@@ -160,31 +159,30 @@ namespace cass
      * It contains all information that is needed in order to sort the signals
      * in the waveforms to detector hits.
      *
-     * User settable parameters via CASS.ini:
-     * - maximum time a signal will run over the complete delayline:
-     *   AcqirisDetectors/%detectorname%/{Runtime}
-     * - Radius of the MCP in mm:
-     *   AcqirisDetectors/%detectorname%/{McpRadius}
-     * - Method that is used to reconstruct the detector hits, choises are:
-     *   - 0: Simple Analysis
-     *   AcqirisDetectors/%detectorname%/{AnalysisMethod}
-     * - Layers that should be used (when using the simple reconstruction method):
-     *   - if HexAnode:
-     *     - 0: Layers U and V
-     *     - 1: Layers U and W
-     *     - 2: Layers V and W
-     *   - if QuadAnode (only one option available):
-     *     - 0: Layers X and Y
-     *   AcqirisDetectors/%detectorname%/{LayersToUse}
-     * - Dead time when detecting MCP Signals (used for future more advanced
-     *   reconstruction methods):
-     *   AcqirisDetectors/%detectorname%/{DeadTimeMcp}
-     * - Dead time when detecting anode layer Signals (used for future more
-     *   advanced reconstruction methods):
-     *   AcqirisDetectors/%detectorname%/{DeadTimeAnode}
-     * - The W-Layer offset with respect to layers U and V (used for future more
-     *   advanced Hex-Detector reconstruction methods):
-     *   AcqirisDetectors/%detectorname%/{WLayerOffset}
+     * @cassttng AcqirisDetectors/%detectorname%/{Runtime}\n
+     *           maximum time a signal will run over the complete delayline.
+     * @cassttng AcqirisDetectors/%detectorname%/{McpRadius}\n
+     *           Radius of the MCP in mm.
+     * @cassttng AcqirisDetectors/%detectorname%/{AnalysisMethod}\n
+     *           Method that is used to reconstruct the detector hits, choises are:
+     *           - 0: Simple Analysis
+     * @cassttng AcqirisDetectors/%detectorname%/{LayersToUse}\n
+     *           Layers that should be used (when using the simple reconstruction method).
+     *           - if HexAnode:
+     *             - 0: Layers U and V
+     *             - 1: Layers U and W
+     *             - 2: Layers V and W
+     *           - if QuadAnode (only one option available):
+     *             - 0: Layers X and Y
+     * @cassttng AcqirisDetectors/%detectorname%/{DeadTimeMcp}\n
+     *           Dead time when detecting MCP Signals (used for future more advanced
+     *           reconstruction methods)
+     * @cassttng AcqirisDetectors/%detectorname%/{DeadTimeAnode}\n
+     *           Dead time when detecting anode layer Signals (used for future more
+     *           advanced reconstruction methods)
+     * @cassttng AcqirisDetectors/%detectorname%/{WLayerOffset}\n
+     *           The W-Layer offset with respect to layers U and V (used for future more
+     *           advanced Hex-Detector reconstruction methods)
      *
      * @author Lutz Foucar
      */
