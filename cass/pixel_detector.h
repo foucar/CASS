@@ -13,6 +13,8 @@
 #include "analysis_backend.h"
 #include "parameter_backend.h"
 #include "serializable.h"
+#define postp
+//#define wo_postp
 
 namespace cass
 {
@@ -59,14 +61,14 @@ namespace cass
   /** simple ROI definition.
    *
    *  each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-   *  shapes:=circ(==circle),triangle(isosceles),square and  the orientation!!!
+   *  shapes:=circ(==circle),triangle(isosceles),square and  the orientation!!!\n
    *  the orientation is used only in the case of a triangular shape
    *
    *  I think also a "double triangle bottle-like shape could be helpful
    *
    *  xsize,ysize and center are in pixel units.
    *
-   * The orientation is used only in the case of a triangular shape
+   * The orientation is used only in the case of a triangular shape.\n
    * @verbatim
   /\           ----         |\           /|
  /  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
@@ -130,19 +132,19 @@ namespace cass
    * @see cass::ROIsimple
    *
    * this function will define/create
-   * - a ROI Mask (the values are:
-   *          =1 pixel is to be used,
-   *          =2 pixel is declared BAD,
-   *          =0 pixel is masked
+   * - a ROI Mask (the values are:\n
+   *          =1 pixel is to be used,\n
+   *          =2 pixel is declared BAD,\n
+   *          =0 pixel is masked\n
    * - a ROI Iterator, which is a list of indices of the frame that are not
-   *   masked as uniteresting
+   *   masked as uniteresting\n
    * - a ROI Mask Converter, which is the transformed (in the input original
-   *   shape) ROI mask for each detector
+   *   shape) ROI mask for each detector\n
    * - a ROI Iterator Converter, which is the transformed (in the input
-   *   original shape) ROI index-pointer-mask for each detector.
+   *   original shape) ROI index-pointer-mask for each detector.\n
    * All of these entities are vectors of unsigned integers.
    *
-   * I have decided that I do not need to shrink the ROI if I am rebinning, 
+   * I have decided that I do not need to shrink the ROI if I am rebinning, \n
    * the rebinned frame is calculated from the uncorrected one, via the ROI Mask anyway
    *
    * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
@@ -177,6 +179,7 @@ namespace cass
     detROI_t                  _detROI;
     ROImask_t                 _ROImask;
     ROIiterator_t             _ROIiterator;
+    ROIiterator_t             _ROIiterator_pp;
     ROImask_converter_t       _ROImask_converter;
     ROIiterator_converter_t   _ROIiterator_converter;
     //static detROI_t create(const std::string detectorname)const;
@@ -244,7 +247,15 @@ namespace cass
     uint16_t       &originalrows()           {return _originalrows;}
     frame_t        &frame()                  {return _frame;}
     pixelList_t    &pixellist()              {return _pixellist;}
-    cass::ROI::detROI_t        &detROI()     {return _detROI;}
+    cass::ROI::detROI_t  &detROI()                 {return _detROI;}
+
+    //ROI::ROImask_t     &ROImask()            {return _ROImasku;}
+#ifdef wo_postp
+    cass::ROI::ROIiterator_t &ROIiterator()        {return _ROIiterator;}
+#endif
+#ifdef postp
+    cass::ROI::ROIiterator_t &ROIiterator_pp()     {return _ROIiterator_pp;}
+#endif
     uint32_t       &camaxMagic()             {return _camaxMagic;}
     std::string    &info()                   {return _info;}
     std::string    &timingFilename()         {return _timingFilename;}
@@ -260,7 +271,14 @@ namespace cass
     uint16_t        originalrows()const      {return _originalrows;}
     const frame_t  &frame()const             {return _frame;}
     const pixelList_t &pixellist()const      {return _pixellist;}
-    const cass::ROI::detROI_t  &detROI()const{return _detROI;}
+    const cass::ROI::detROI_t &detROI()const       {return _detROI;}
+#ifdef wo_postp
+    const cass::ROI::ROIiterator_t &ROIiterator()const  {return _ROIiterator;}
+#endif
+#ifdef postp
+    const cass::ROI::ROIiterator_t &ROIiterator_pp()const{return _ROIiterator_pp;}
+#endif
+
     uint32_t          camaxMagic()const      {return _camaxMagic;}
     const std::string info()const            {return _info;}
     const std::string timingFilename()const  {return _timingFilename;}
@@ -281,7 +299,19 @@ namespace cass
     uint16_t        _originalrows;    //!< Nbr of rows of the frame before rebinning
     uint16_t        _version;         //!< the version for de/serializing
     bool            _isDarkframe;     //!< status that is set by analysis, derived by cass.ini
-    ROI::detROI_t   _detROI;          //!< the vector with the ROI(s) "inside"
+
+    cass::ROI::detROI_t   _detROI;          //!< the vector with the ROI(s) "inside"
+
+    //ROI::ROImask_t _ROImasku;//!< The ROI mask
+    //ROI::ROImask_t _ROImask_converteru;
+#ifdef wo_postp
+    cass::ROI::ROIiterator_t _ROIiterator;//!< The ROI iterators
+    //ROI::ROIiterator_t _ROIiterator_converteru;
+#endif
+
+#ifdef postp
+    cass::ROI::ROIiterator_t _ROIiterator_pp;
+#endif
 
     //data specific for pnccd detectors. might be reused for other detectors//
     /** magic camax info, encodes ie. the gain of the ccd*/
