@@ -127,9 +127,8 @@ int CASSsoapService::getMimeType(size_t type, bool *success)
     //std::string mimetype("application/image");
     *success = true;
     soap_set_dime(this); // enable dime
-    VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " <<mimetype.size() <<std::endl);
-    return soap_set_dime_attachment(this, (char*) mimetype.c_str(), mimetype.size()+1, "application/MimeType",
-          "0", 0, NULL);
+    VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " << mimetype.size() << std::endl);
+    return soap_set_dime_attachment(this, (char*) mimetype.c_str(), mimetype.size()+1, "application/octet-stream", "0", 0, NULL);
 }
 
 int CASSsoapService::writeini(size_t what, bool *success)
