@@ -31,7 +31,7 @@ namespace cass
       DelaylineDetectorAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
           :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
       {
-        std::cout << "adding simple delayline detector analyzer"<<std::endl;
+        VERBOSEOUT(std::cout << "adding simple delayline detector analyzer"<<std::endl);
       }
       /** the function creating the detectorhit list*/
       virtual void operator()(DetectorBackend&,const Device&);
