@@ -233,7 +233,7 @@ namespace cass
     void deserialize(cass::Serializer&);
 
   public:
-    //{
+    //@{
     /** setter */
     uint64_t       &integral()               {return _integral;}
     uint64_t       &integral_overthres()     {return _integral_overthres;}
@@ -248,8 +248,8 @@ namespace cass
     uint32_t       &camaxMagic()             {return _camaxMagic;}
     std::string    &info()                   {return _info;}
     std::string    &timingFilename()         {return _timingFilename;}
-    //}
-    //{
+    //@}
+    //@{
     /** getter */
     uint64_t        integral()const          {return _integral;}
     uint64_t        integral_overthes()const {return _integral_overthres;}
@@ -264,7 +264,7 @@ namespace cass
     uint32_t          camaxMagic()const      {return _camaxMagic;}
     const std::string info()const            {return _info;}
     const std::string timingFilename()const  {return _timingFilename;}
-    //}
+    //@}
 
   protected:
     //data//
