@@ -19,9 +19,10 @@ namespace cass
 
 
 
-  /** Advanced peakfinding on front pnCCD.
+  /** Advanced offset correction on CCD images.
    *
-   * Take the averaged front pnccd image (104) and make a condition on yag on.
+   * Take the averaged of the ccd image and if wanted add a condition.
+   *
    * Create an image that is the result of the current image substracted by
    * the averaged image. Where the averaged image is weighted with the sum of
    * all pixels in the current image divided by the sum of all pixels in the
@@ -33,16 +34,15 @@ namespace cass
    *
    * @cassttng PostProcessor/p\%id\%/{LowerGateEnd|UpperGateEnd} \n
    *           Put only a point into the histogram, when it is in the Gate.
+   * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
+   *           The ToF-Detector we make a condition on.
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
-   *           Inverts the condition
+   *           Inverts the condition.
    * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
    *           The id of the running average of we use for substraction
    *
-   * Implements postprocessors id's 160, 161
+   * Implements postprocessors id's 160, 165
    *
-   * @todo make it get more usersettable parameters so that it can be reused
-   * @todo move the calculation of the current image to helper. so that one
-   *       can use the "advanced" corrected image in more than one pp
    * @author Lutz Foucar
    */
   class pp160 : public PostprocessorBackend
@@ -70,6 +70,61 @@ namespace cass
     PostProcessors::id_t _idAverage;
     /** resulting image */
     Histogram2DFloat *_image;
+    /** CCD detector to work on */
+    size_t _detector;
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+  /** 1d Histogram of advanced corrected image.
+   *
+   * A 1D Histogram of all pixels in the corrected image.
+   *
+   * @cassttng PostProcessor/p\%id\%/{Invert} \n
+   *           Inverts the condition
+   * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
+   *           The ToF-Detector we make a condition on.
+   * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
+   *           The id of the running average of we use for substraction
+   *
+   * Implements postprocessors id's 166 - 171
+   *
+   * @author Lutz Foucar
+   */
+  class pp166 : public PostprocessorBackend
+  {
+  public:
+    /** constructor. */
+    pp166(PostProcessors& hist, PostProcessors::id_t id);
+    /** Free _image space */
+    virtual ~pp166();
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+    /** load the settings*/
+    virtual void loadSettings(size_t);
+    /** the two histograms that the user wants to substract */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+  protected:
+    /** flag to invert the condition */
+    bool _invert;
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+    /** the id of the averaged image */
+    PostProcessors::id_t _idAverage;
+    /** resulting 1d Histogram */
+    Histogram1DFloat *_hist;
     /** CCD detector to work on */
     size_t _detector;
     /** device the ccd image comes from*/

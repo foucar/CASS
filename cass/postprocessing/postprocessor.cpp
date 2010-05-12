@@ -413,6 +413,14 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case AdvancedPhotonFinderCommercialCCDTwo:
         processor = new pp160(*this,id);
         break;
+    case AdvancedPhotonFinderFrontPnCCD1dHist:
+    case AdvancedPhotonFinderFrontPnCCDTwo1dHist:
+    case AdvancedPhotonFinderBackPnCCD1dHist:
+    case AdvancedPhotonFinderBackPnCCDTwo1dHist:
+    case AdvancedPhotonFinderCommercialCCD1dHist:
+    case AdvancedPhotonFinderCommercialCCDTwo1dHist:
+        processor = new pp166(*this,id);
+        break;
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }
