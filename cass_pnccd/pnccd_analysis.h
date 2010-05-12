@@ -138,19 +138,19 @@ namespace cass
        *  The following is a user settable parameter
        *  it decide for both pnCCD detectors if the following frames are
        *  to be used to calculate the offset corrections and noise map
-       *  that are needed to calculate a corrected frame from the raw one
+       *  that are needed to calculate a corrected frame from the raw one.\n
        *
        *    After 200 Frames have been seen a warning will be printed out,
        *    the user can then send a "Save ini" command to CASS to save the
        *    calibration constants to files. The calculation will proceed anyway
        *    even after the user has save the darkcal-frames to file
-       *    allowing for a still improved statistical accuracy, in case needed.
+       *    allowing for a still improved statistical accuracy, in case needed.\n
        *
-       *    if IsDarkFrames is set to true all the previously described parameters
-       *    are NOT active as also any ROI that may be defined in the CASS.ini file
+       *    If IsDarkFrames is set to true all the previously described parameters
+       *    are NOT active as also any ROI that may be defined in the CASS.ini file.\n
        *
-       *    unfortunately there is a similar parameter for the commercial CCD
-       *    and they can be set to opposite values
+       *    Unfortunately there is a similar parameter for the commercial CCD
+       *    and they can be set to opposite values.
       **/
       bool            _isDarkframe;         //!< switch telling whether we are collecting darkframes right now
       //flag to set the dark/not-dark run condition
