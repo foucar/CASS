@@ -19,13 +19,13 @@ namespace cass
 
   /** Container and call handler for all Pre Analyzers.
    *
-   * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}
+   * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
    *           Should pre analysis run: true or false
-   * @cassttng PreAnalyzer/{useAcqirisAnalyzer}
+   * @cassttng PreAnalyzer/{useAcqirisAnalyzer}\n
    *           Should pre analysis run: true or false
-   * @cassttng PreAnalyzer/{useMachineAnalyzer}
+   * @cassttng PreAnalyzer/{useMachineAnalyzer}\n
    *           Should pre analysis run: true or false
-   * @cassttng PreAnalyzer/{usepnCCDAnalyzer}
+   * @cassttng PreAnalyzer/{usepnCCDAnalyzer}\n
    *           Should pre analysis run: true or false
    *
    * @author Jochen Kuepper
