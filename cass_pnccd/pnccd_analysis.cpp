@@ -337,25 +337,33 @@ void cass::pnCCD::Analysis::loadSettings()
       number_of_pixelsettozero=0;
       for(size_t iROI=0;iROI<dp._detROI._ROI.size(); ++iROI)
       {
-        /*size_t index_of_center=dp._detROI._ROI[iROI].xcentre
-          + 1024 * dp._detROI._ROI[iROI].ycentre;*/
+#ifdef debug
+        size_t index_of_center=dp._detROI._ROI[iROI].xcentre
+          + 1024 * dp._detROI._ROI[iROI].ycentre;
+#endif
         size_t index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
             + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
-        /*size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
-          + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);*/
-        //std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+#ifdef debug
+        size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
+          + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);
+        std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+#endif
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
             * (2 * dp._detROI._ROI[iROI].ysize + 1);
         //remember how many pixels I have masked
         //number_of_pixelsettozero+=indexROI_max;
-        //std::cout << printoutdef <<  "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+#ifdef debug
+        std::cout << printoutdef <<  "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+#endif
         if(dp._detROI._ROI[iROI].name=="circ" || dp._detROI._ROI[iROI].name=="circle"  )
         {
           int32_t  xlocal,ylocal;
           const uint32_t radius2 =  static_cast<uint32_t>(pow(dp._detROI._ROI[iROI].xsize,2)
            );
+#ifdef debug
           std::cout << printoutdef << "circ seen with radius^2= " <<radius2 <<std::endl;
+#endif
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
@@ -384,7 +392,9 @@ void cass::pnCCD::Analysis::loadSettings()
         if(dp._detROI._ROI[iROI].name=="square")
         {
           uint32_t  xlocal,ylocal;
+#ifdef debug
           std::cout << printoutdef <<  "square seen" <<std::endl;
+#endif
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize +1);
@@ -411,10 +421,14 @@ void cass::pnCCD::Analysis::loadSettings()
           xsize=static_cast<float>(dp._detROI._ROI[iROI].xsize);
           ysize=static_cast<float>(dp._detROI._ROI[iROI].ysize);
 
+#ifdef debug
           std::cout << printoutdef <<  "triangle seen" <<std::endl;
+#endif
           if(dp._detROI._ROI[iROI].orientation==+1)
           {
+#ifdef debug
             std::cout << printoutdef <<  "triangle seen vertex upwards" <<std::endl;
+#endif
             //the triangle is at least isosceles
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
@@ -458,7 +472,9 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==-1)
           {
+#ifdef debug
             std::cout << printoutdef <<  "triangle seen vertex downwards" <<std::endl;
+#endif
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
@@ -503,7 +519,9 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==+2)
           {
+#ifdef debug
             std::cout << printoutdef <<  "triangle seen vertex towards right" <<std::endl;
+#endif
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               // not debugged
@@ -529,7 +547,9 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           if(dp._detROI._ROI[iROI].orientation==-2)
           {
+#ifdef debug
             std::cout << printoutdef <<  "triangle seen vertex towards left" <<std::endl;
+#endif
             for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
             {
               xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize);
