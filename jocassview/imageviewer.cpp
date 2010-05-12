@@ -21,6 +21,18 @@ namespace jocassview
 using namespace std;
 
 
+void ImageLabel::mouseMoveEvent(QMouseEvent *event)
+{
+    QCursor cursor(this->cursor());
+    QPoint position(cursor.pos().x(), cursor.pos().y());
+    int x(mapFromGlobal(position).x());
+    int y(mapFromGlobal(position).y());
+    VERBOSEOUT(cout << "mouseMoveEvent: x=" << x << " y=" << y << endl);
+//    emit x,y
+    event->accept();
+}
+
+
 ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags), _updater(new QTimer(this)), _ready(true)
 {
@@ -105,10 +117,12 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
 
     // todo: encapsulate this in class imageWidget public QWidget...
     // Central label for image display.
-    _imageLabel = new QLabel;
+    _imageLabel = new ImageLabel;
     _imageLabel->setBackgroundRole(QPalette::Base);
     _imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     _imageLabel->setScaledContents(true);
+    _imageLabel->setMouseTracking(true);
+
     _imageScroller = new QScrollArea;
     _imageLayout = new QVBoxLayout;
     _imageValuesLayout = new QHBoxLayout;
@@ -134,7 +148,6 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageLayout->addWidget(_imageScroller);
     _imageLayout->addLayout(_imageValuesLayout);
     _imageWidget->setLayout(_imageLayout);
-    _cursor = new QCursor(_imageLabel->cursor());
     // widget for plots:
     _plotWidget = new plotWidget(_cass);
     _plotWidget0D = new plotWidget0D(1000);

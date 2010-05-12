@@ -9,7 +9,6 @@
 #include <QtCore/QThread>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
-#include <QtGui/QCursor>
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QLabel>
 #include <QtGui/QMainWindow>
@@ -27,6 +26,14 @@
 
 namespace jocassview
 {
+
+    class ImageLabel : public QLabel
+    {
+    protected:
+
+        void mouseMoveEvent(QMouseEvent *event);
+    };
+
 
     class getDataThread : public QThread
     {
@@ -180,9 +187,7 @@ private:
 
     QLabel* _imageMaxLabel;
 
-    QLabel *_imageLabel;
-
-    QCursor *_cursor;
+    ImageLabel *_imageLabel;
 
     plotWidget* _plotWidget;
     plotWidget0D* _plotWidget0D;
