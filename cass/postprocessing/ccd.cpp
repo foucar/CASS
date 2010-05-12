@@ -348,6 +348,10 @@ void cass::pp106::loadSettings(size_t)
     _image = new Histogram2DFloat(it->second->axis()[HistogramBackend::xAxis].size(),
                                   it->second->axis()[HistogramBackend::yAxis].size());
     _pp.histograms_replace(_id,_image);
+
+    std::cout << "postprocessor_"<<_id<< " will substract hist "<<_idOne
+        <<" from hist "<<_idTwo
+        <<std::endl;
 }
 
 
