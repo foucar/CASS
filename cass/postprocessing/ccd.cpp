@@ -580,11 +580,21 @@ void cass::pp116::loadSettings(size_t)
   param.beginGroup(QString("p") + QString::number(_id));
   //load the condition on the third component//
   adu2eV = param.value("adu2eV",5.).toDouble();
-
   //create the histogram
   _pp.histograms_delete(_id);
   _hist=0;
-  set1DHist(_hist,_id);
+  if(param.value("adu2eV",5.).toDouble()!=0.)
+  {
+    std::cerr << "Creating 1D histogram with"
+              <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
+              <<" XLow:"<<param.value("XLow",0).toFloat()
+              <<" XUp:"<<16384./param.value("adu2eV",0).toFloat()
+              <<std::endl;
+    _hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
+                                       param.value("XLow",0).toFloat(),
+                                       16384./param.value("adu2eV",0).toFloat());
+  }
+  else  set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
 }
 
