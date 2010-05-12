@@ -82,8 +82,8 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  _gate = std::make_pair<float,float>(settings.value("LowerGateEnd",-1e15).toFloat(),
-                                      settings.value("UpperGateEnd",1e15).toFloat());
+  _gate = std::make_pair<float,float>(settings.value("LowerGateEnd",-1e6).toFloat(),
+                                      settings.value("UpperGateEnd", 1e6).toFloat());
   _invert = settings.value("Invert",false).toBool();
   _idAverage = static_cast<PostProcessors::id_t>(settings.value("AveragedImage",100).toInt());
 
@@ -128,6 +128,13 @@ void cass::pp160::loadSettings(size_t)
   _image = new Histogram2DFloat(it->second->axis()[HistogramBackend::xAxis].size(),
                                 it->second->axis()[HistogramBackend::yAxis].size());
   _pp.histograms_replace(_id,_image);
+
+  std::cout<<"Postprocessor_"<<_id<<": Lower Gate:"<<_gate.first<<" Upper Gate:"<<_gate.second
+      <<" averging image for this pp:"<< _idAverage
+      <<" condition on detector:"<<name
+      <<" which has id:"<<_conditionDetector
+      <<" The Condition will be inverted:"<<std::boolalpha<<_invert
+      <<std::endl;
 }
 
 
@@ -280,11 +287,19 @@ void cass::pp166::loadSettings(size_t)
   if (_conditionDetector)
     HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
 
+  std::cout<<"Postprocessor_"<<_id
+      <<" averging image for this pp:"<< _idAverage
+      <<" condition on detector:"<<name
+      <<" which has id:"<<_conditionDetector
+      <<" The Condition will be inverted:"<<std::boolalpha<<_invert
+      <<std::endl;
+
   //create the histogram
   _pp.histograms_delete(_id);
   _hist=0;
   set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
+
 }
 
 
