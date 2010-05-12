@@ -13,8 +13,6 @@
 #include "analysis_backend.h"
 #include "parameter_backend.h"
 #include "serializable.h"
-#define postp
-//#define wo_postp
 
 namespace cass
 {
@@ -247,15 +245,9 @@ namespace cass
     uint16_t       &originalrows()           {return _originalrows;}
     frame_t        &frame()                  {return _frame;}
     pixelList_t    &pixellist()              {return _pixellist;}
-    cass::ROI::detROI_t  &detROI()                 {return _detROI;}
+    cass::ROI::detROI_t  &detROI()           {return _detROI;}
 
-    //ROI::ROImask_t     &ROImask()            {return _ROImasku;}
-#ifdef wo_postp
-    cass::ROI::ROIiterator_t &ROIiterator()        {return _ROIiterator;}
-#endif
-#ifdef postp
-    cass::ROI::ROIiterator_t &ROIiterator_pp()     {return _ROIiterator_pp;}
-#endif
+    cass::ROI::ROIiterator_t &ROIiterator_pp() {return _ROIiterator_pp;}
     uint32_t       &camaxMagic()             {return _camaxMagic;}
     std::string    &info()                   {return _info;}
     std::string    &timingFilename()         {return _timingFilename;}
@@ -271,14 +263,8 @@ namespace cass
     uint16_t        originalrows()const      {return _originalrows;}
     const frame_t  &frame()const             {return _frame;}
     const pixelList_t &pixellist()const      {return _pixellist;}
-    const cass::ROI::detROI_t &detROI()const       {return _detROI;}
-#ifdef wo_postp
-    const cass::ROI::ROIiterator_t &ROIiterator()const  {return _ROIiterator;}
-#endif
-#ifdef postp
+    const cass::ROI::detROI_t &detROI()const {return _detROI;}
     const cass::ROI::ROIiterator_t &ROIiterator_pp()const{return _ROIiterator_pp;}
-#endif
-
     uint32_t          camaxMagic()const      {return _camaxMagic;}
     const std::string info()const            {return _info;}
     const std::string timingFilename()const  {return _timingFilename;}
@@ -301,17 +287,7 @@ namespace cass
     bool            _isDarkframe;     //!< status that is set by analysis, derived by cass.ini
 
     cass::ROI::detROI_t   _detROI;          //!< the vector with the ROI(s) "inside"
-
-    //ROI::ROImask_t _ROImasku;//!< The ROI mask
-    //ROI::ROImask_t _ROImask_converteru;
-#ifdef wo_postp
-    cass::ROI::ROIiterator_t _ROIiterator;//!< The ROI iterators
-    //ROI::ROIiterator_t _ROIiterator_converteru;
-#endif
-
-#ifdef postp
-    cass::ROI::ROIiterator_t _ROIiterator_pp;
-#endif
+    cass::ROI::ROIiterator_t _ROIiterator_pp; //!< the iterator for the postprocessors
 
     //data specific for pnccd detectors. might be reused for other detectors//
     /** magic camax info, encodes ie. the gain of the ccd*/
