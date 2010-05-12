@@ -28,8 +28,15 @@ void ImageLabel::mouseMoveEvent(QMouseEvent *event)
     int x(mapFromGlobal(position).x());
     int y(mapFromGlobal(position).y());
     VERBOSEOUT(cout << "mouseMoveEvent: x=" << x << " y=" << y << endl);
-//    emit x,y
+    emit newCursorPosition(x, y);
     event->accept();
+}
+
+
+void ImageViewer::updateStatusBar(int x, int y)
+{
+#warning May conflict with rate.
+    statusBar()->showMessage(QString().setNum(x) + ',' + QString().setNum(y));
 }
 
 
@@ -122,6 +129,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     _imageLabel->setScaledContents(true);
     _imageLabel->setMouseTracking(true);
+    connect(_imageLabel, SIGNAL(newCursorPosition(int, int)),
+            this, SLOT(updateStatusBar(int, int)));
 
     _imageScroller = new QScrollArea;
     _imageLayout = new QVBoxLayout;

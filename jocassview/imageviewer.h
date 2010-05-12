@@ -29,9 +29,15 @@ namespace jocassview
 
     class ImageLabel : public QLabel
     {
+        Q_OBJECT
+
     protected:
 
         void mouseMoveEvent(QMouseEvent *event);
+
+    signals:
+
+        void newCursorPosition(int, int);
     };
 
 
@@ -151,6 +157,8 @@ private slots:
     void on_about_triggered();
 
     void updateServer();
+
+    void updateStatusBar(int, int);
 
     void zoomChanged(double);
 
