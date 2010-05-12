@@ -35,13 +35,15 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{LowerGateEnd|UpperGateEnd} \n
    *           Put only a point into the histogram, when it is in the Gate.
    * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
-   *           The ToF-Detector we make a condition on.
+   *           The ToF-Detector we make a condition on. Default is Invalid Detector
+   *           Which will result in no Condition.
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
    *           Inverts the condition.
    * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
-   *           The id of the running average of we use for substraction
+   *           The id of the running average of we use for substraction. Default
+   *           is id 100.
    *
-   * Implements postprocessors id's 160, 165
+   * Implements postprocessors id's 160 - 165
    *
    * @author Lutz Foucar
    */
@@ -94,9 +96,11 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
    *           Inverts the condition
    * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
-   *           The ToF-Detector we make a condition on.
+   *           The ToF-Detector we make a condition on. Default is Invalid Detector
+   *           Which will result in no Condition.
    * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
-   *           The id of the running average of we use for substraction
+   *           The id of the running average of we use for substraction. Default
+   *           is 100.
    *
    * Implements postprocessors id's 166 - 171
    *
