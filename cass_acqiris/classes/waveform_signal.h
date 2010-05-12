@@ -56,32 +56,37 @@ namespace cass
      *   - In TofDetectors: AcqirisDetectors/%detectorname%/Signal
      *
      * Then the specific settings for these objects are:
-     * - Acqiris Instrument that this channel is in: .../{AcqirisInstrument}
-     * - Channel within the instrument (starts counting from 0): .../{ChannelNumber}
-     * - time range of the channel that we are interested in:
-     *   .../{LowerTimeRangeLimit|UpperTimeRangeLimit}
-     * - time range of the channel that "good" signals will appear. This is used by
-     *   delayline detectors for displaying the first good hits and the timesum:
-     *   .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}
-     * - the method type that will be used to analyze the waveform.
-     *   there are the following options :
-     *   - 0:com 8 bit waveform
-     *   - 1:com 16 bit waveform
-     *   - 2:cfd 8 bit waveform
-     *   - 3:cfd 16 bit waveform
-     *   .../{WaveformAnalysisMethod} @see cass::ACQIRIS::CoM, cass::ACQIRIS::CFD
-     * - the polarity of the signals that we are interested in:
-     *   - 1: Positive Polarity
-     *   - 2: Negative Polarity
-     *   .../{Polarity}
-     * - the theshold for the signals in Volts:
-     *   .../{Threshold}
-     * - delay in ns used by the constant fraction method:
-     *   .../{Delay}
-     * - fraction used by the constant fraction method:
-     *   .../{Fraction}
-     * - walk in Volts used by the constant fraction method:
-     *   .../{Walk}
+     * @cassttng .../{AcqirisInstrument}\n
+     *           Acqiris Instrument that this channel is in
+     * @cassttng .../{ChannelNumber} \n
+     *           Channel within the instrument (starts counting from 0)
+     * @cassttng .../{LowerTimeRangeLimit|UpperTimeRangeLimit}\n
+     *           time range of the channel that we are interested in.
+     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit} \n
+     *           time range of the channel that "good" signals will appear. This
+     *           is used by delayline detectors for displaying the first good
+     *           hits and the timesum.
+     * @cassttng .../{WaveformAnalysisMethod}\n
+     *           the method type that will be used to analyze the waveform.
+     *           there are the following options :
+     *           - 0:com 8 bit waveform
+     *           - 1:com 16 bit waveform
+     *           - 2:cfd 8 bit waveform
+     *           - 3:cfd 16 bit waveform
+     *           @see cass::ACQIRIS::CoM, cass::ACQIRIS::CFD
+     * @cassttng .../{Polarity}\n
+     *           the polarity of the signals that we are interested in:
+     *           - 1: Positive Polarity
+     *           - 2: Negative Polarity
+     * @cassttng .../{Threshold}\n
+     *           the theshold for the signals in Volts:
+     * @cassttng .../{Delay}\n
+     *           delay in ns used by the constant fraction method:
+     * @cassttng .../{Fraction}\n
+     *           fraction used by the constant fraction method:
+     * @cassttng .../{Walk}\n
+     *            walk in Volts used by the constant fraction method:
+     *
      *
      * @todo rename this class to somehting more meaningful
      *       In the delayline it represents the wireends of the anodelayers and
