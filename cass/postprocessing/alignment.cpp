@@ -417,14 +417,14 @@ void pp150::operator()(const CASSEvent& /*event*/)
   HistogramFloatBase::storage_t &imageMemory(image->memory());
   float nom(0), denom(0);
   float symangle(_symAngle/180*M_PI);
-  for(unsigned jr = 0; jr<_nbrRadialPoints; jr++)
+  for(int jr = 0; jr<_nbrRadialPoints; jr++)
   {
-    for(unsigned jth = 0; jth<_nbrAngularPoints; jth++)
+    for(int jth = 0; jth<_nbrAngularPoints; jth++)
     {
       const float radius(_minRadius + jr);
       const float angle(2*M_PI * jth / _nbrAngularPoints);
-      size_t col(round(_center.first  + radius*sin(angle + symangle)));
-      size_t row(round(_center.second + radius*cos(angle + symangle)));
+      size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
+      size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
       float val = imageMemory[col + row * _imageWith] * square(radius); // * abs(sin(angle));
       denom += val;
       nom   += val * square(cos(angle));
