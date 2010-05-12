@@ -1,5 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
+#include <stdint.h>
+
 #include "averaging_offsetcorrection_helper.h"
 
 
@@ -17,7 +19,7 @@ cass::HelperAveragingOffsetCorrection* cass::HelperAveragingOffsetCorrection::in
   //return it, otherwise create one and return it//
   if (0 == _instances[id])
   {
-    VERBOSEOUT(std::cout << "creating an instance of the Acqiris Detector Helper for detector type "
+    VERBOSEOUT(std::cout << "creating an instance of the Averaging correction Helper for postprocessor "
                <<id
                <<std::endl);
     _instances[id] = new HelperAveragingOffsetCorrection();
@@ -92,11 +94,13 @@ const cass::PixelDetector::frame_t& cass::HelperAveragingOffsetCorrection::valid
   if(_frameList.end() == it)
   {
     //take the last element and get the the detector from it//
-    PixelDetector::frame_t *frame(_frameList.back().second);
+    PixelDetector::frame_t *frame (_frameList.back().second);
+    //make the frame the same size as the orignalFrame//
+    frame->resize(origFrame.size());
     //correct offset of the incomming frame using the averaged frame
     correct_offset(*frame, origFrame, averagedFrame);
     //create a new key from the id with the reloaded detector
-    frameList_t::value_type newPair(std::make_pair(eventId,frame));
+    frameList_t::value_type newPair (std::make_pair(eventId,frame));
     //put it to the beginning of the list//
     _frameList.push_front(newPair);
     //erase the outdated element at the back//
@@ -127,7 +131,7 @@ void cass::HelperAveragingOffsetCorrection::correct_offset(PixelDetector::frame_
   oIt = orig_frame.begin();
   aIt = aver_frame.begin();
 
-  while(aIt != aver_frame.end())
+  while(oIt != orig_frame.end())
     *rIt++ = *oIt++ - alpha * *aIt++ ;
 }
 
