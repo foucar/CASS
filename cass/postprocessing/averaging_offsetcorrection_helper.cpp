@@ -54,13 +54,13 @@ namespace cass
   class IsKey
   {
   public:
-    /** initialize the key in the constructor*/
+    /** initialize the key in the constructor */
     IsKey(const uint64_t key):_key(key){}
-    /** compares the first element of the pair to the key*/
+    /** compares the first element of the pair to the key */
     bool operator()(const std::pair<uint64_t,PixelDetector::frame_t*>& p)const
     { return (p.first == _key); }
   private:
-    /** the key that we will compare to in the operator*/
+    /** the key that we will compare to in the operator */
     const uint64_t _key;
   };
 }
