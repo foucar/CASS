@@ -872,7 +872,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
                                        << " is "<< det.pixellist().size()<<std::endl;
 #endif
     }//end if OffsetCorrection
-    //#ifdef a
     else
     {
 
@@ -908,11 +907,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           det.integral() += static_cast<uint64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
             det.integral_overthres() += static_cast<uint64_t>(*itFrame);
-          if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
           //save the value only if it is not ovfl
-          //if(det.maxPixelValue()< *itFrame && *itFrame< ) det.maxPixelValue()=*itFrame;
+          if(det.maxPixelValue()< *itFrame && *itFrame<0x3FFF ) det.maxPixelValue()=*itFrame;
 
-          //Should I do it also if _doOffsetCorrection==false?
           //if user wants to extract the pixels that are above threshold, do it//
           if (dp._createPixellist)
           {      
@@ -973,8 +970,8 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             det.integral() += static_cast<uint64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<uint64_t>(*itFrame);
-            if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
-            //Should I do it also if _doOffsetCorrection==false?
+            //save the value only if it is not ovfl
+            if(det.maxPixelValue()< *itFrame && *itFrame<0x3FFF ) det.maxPixelValue()=*itFrame;
             //if user wants to extract the pixels that are above threshold, do it//
             if (dp._createPixellist)
             {
@@ -996,7 +993,6 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       }// endif CommonMode Subtraction
 
     }
-    //#endif
     //if the user requested rebinning then rebin//
     if(dp._rebinfactor > 1)
       rebin(dev,iDet);
