@@ -93,10 +93,10 @@ void PostProcessors::loadSettings(size_t)
     // remove duplicates (keep first occurence)
     _active.unique();
     std::cout << "   Number of unique postprocessor activations: " << _active.size() << std::endl;
+    setup();
     std::cout << "   Active postprocessor(s): ";
     for(std::list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter)
         std::cout << *iter << " ";
-    setup();
 }
 
 IdList* PostProcessors::getIdList()
