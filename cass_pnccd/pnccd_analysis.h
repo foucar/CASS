@@ -176,7 +176,7 @@ namespace cass
       A new corrected pnCCD image is generated and X-ray
       photon hits are extracted if the user wishes to so. In addition, some
       basic parameters are recorded, e.g. The integral over the corrected frame,
-      ihe integral over the corrected frame using only the pixel over a certain threshold,
+      the integral over the corrected frame using only the pixel over a certain threshold,
       the max value of the pixel over the frame.
       */
       void operator() (CASSEvent*);
