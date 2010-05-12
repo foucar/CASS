@@ -62,7 +62,7 @@ namespace cass
      *           Channel within the instrument (starts counting from 0)
      * @cassttng .../{LowerTimeRangeLimit|UpperTimeRangeLimit}\n
      *           time range of the channel that we are interested in.
-     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit} \n
+     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}\n
      *           time range of the channel that "good" signals will appear. This
      *           is used by delayline detectors for displaying the first good
      *           hits and the timesum.
