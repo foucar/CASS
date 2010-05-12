@@ -110,9 +110,14 @@ parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) Th
 classes are named according to their number (or the first number for classes handling multiple
 histograms) and placed in the file for the most appropriate group according to their content.
 
+@cassttng PostProcessor/{active}\n
+          A list of all active postprocesors. The list does not need to
+          be in the right order since dependencies will be resolved.
+
 @section pplist List of Postprocessors
-The Classes that implement the postprocessor are pointed out in parenthesis. See the Class description
-for information about what parameters are user settable. (Keep in mind that cases matter)
+The Classes that implement the postprocessor are pointed out in parenthesis. See
+the Class description for information about what parameters are user settable.
+(Keep in mind that cases matter)
 @todo the classes in parenthesis should be links to the actual classes
 @verbatim
 00001: Last plain image from Front pnCCD (pp1)
