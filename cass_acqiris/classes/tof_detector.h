@@ -13,6 +13,8 @@ namespace cass
   {
     /** A Time of Flight Detector.
      *
+     * for user settable settings @see Signal
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT TofDetector : public DetectorBackend
