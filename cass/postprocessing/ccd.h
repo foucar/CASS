@@ -21,7 +21,7 @@ class Histogram2DFloat;
 /** Last CCD image.
  *
  * Postprocessor will get the last image from all kinds of ccd's.
- * Will work for postprocessors 1-3.
+ * Implements postprocessor id's 1-3.
  *
  * @author Jochen Kuepper
  * @author Lutz Foucar
@@ -144,7 +144,8 @@ protected:
  *
  * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
  *           the postprocessor id's that contain the first histogram and second
- *           histogram for the substraction
+ *           histogram for the substraction. Default is 0 for both. This
+ *           will result in an exeption. Since pp 0 is not implemented.
  * @cassttng PostProcessor/p\%id\%/{FactorOne|FactorTwo} \n
  *           The factors that will weight the substraction. The default will be 1.
  *
@@ -202,11 +203,10 @@ protected:
  * Photonhits will be just summed up in a 2d Histogram.
  * One needs to clear this histogram, when something has changed.
  *
- * implements Postprocessors 110,111,112
+ * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+ *           properties of the 2d histogram
  *
- * User settable parameters in CASS.ini
- * - properties of the 2d histogram:
- *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+ * implements Postprocessors 110,111,112
  *
  * @author Lutz Foucar
  */
@@ -251,11 +251,10 @@ protected:
  * Photonhits will be detected in the commercial Pre Analyzer. They will
  * be just summed up. One needs to clear this histogram, when something has changed.
  *
- * Implements Postprocessor id's: 113, 114, 115
+ * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|Xup}\n
+ *           properties of the 1D Histogram:
  *
- * User settable parameters in cass.ini:
- * - properties of the 1D Histogram:
- *   PostProcessor/p%id%/{XNbrBins|XLow|Xup}
+ * Implements Postprocessor id's: 113, 114, 115
  *
  * @author Lutz Foucar
  */
@@ -295,9 +294,8 @@ protected:
  *
  * Implements Postprocessor id's: 116, 117, 118
  *
- * User settable parameters in cass.ini:
- * - properties of the 1D Histogram:
- *   PostProcessor/p%id%/{XNbrBins|XLow|Xup}
+ * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|Xup}\n
+ *           properties of the 1D Histogram:
  *
  * @author Lutz Foucar
  */
