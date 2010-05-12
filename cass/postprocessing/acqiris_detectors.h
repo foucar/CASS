@@ -23,9 +23,8 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's 550, 600, 650, 660, 670, 680.
    *
@@ -61,9 +60,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's: 551-556 & 601-604
    *
@@ -103,9 +101,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's: 577, 560, 563, 605, 608
    *
@@ -143,9 +140,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's: 558-559, 561-562, 564-565, 606-507, 609-610
    *
@@ -186,9 +182,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's: 566, 611
    *
@@ -226,9 +221,9 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   *
    *
    * implements postprocessor id's: 567, 612, 651, 661, 671, 681
    *
@@ -267,9 +262,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini:
-   * - properties of the 1d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp}
+   * @cassttng PostProcessor/p\%id%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    *
    * implements postprocessor id's: 568-570, 613, 614
    *
@@ -310,9 +304,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    *
    * implements postprocessor id's: 571-573, 615, 616
    *
@@ -353,9 +346,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    *
    * implements postprocessor id's: 574-577, 617
    *
@@ -400,11 +392,10 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
-   * - conditions on third value:
-   *   PostProcessor/p%id%/{ConditionLow|ConditionHigh}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   * @cassttng PostProcessor/p\%id\%/{ConditionLow|ConditionHigh}\n
+   *           conditions on third value
    *
    * implements postprocessor id's: 578-580, 618-620
    *
@@ -452,9 +443,8 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    *
    * implements postprocessor id's: 581, 621, 652, 662, 672, 682
    *
@@ -490,9 +480,8 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    *
    * implements postprocessor id's: 582-587, 622-625
    *
@@ -532,9 +521,8 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * User settable parameters in CASS.ini
-   * - properties of the 2d histogram:
-   *   PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}
+   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    *
    * implements postprocessor id's: 700, 701
    *
