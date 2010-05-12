@@ -44,13 +44,13 @@ void cass::HelperAveragingOffsetCorrection::destroy()
 
 //members
 
-/** predicate class for find_if.
- * this helps finding the right key in the list of pairs
- * @see HelperAcqirisDetectors::_frameList
- * @author Lutz Foucar
- */
 namespace cass
 {
+  /** predicate class for find_if.
+   * this helps finding the right key in the list of pairs
+   * @see HelperAcqirisDetectors::_frameList
+   * @author Lutz Foucar
+   */
   class IsKey
   {
   public:
