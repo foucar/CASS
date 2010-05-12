@@ -1,6 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 #include <iostream>
+#include <stdio.h>
 
 #include "rate_plotter.h"
 #include "ratemeter.h"
@@ -18,18 +19,10 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
 
 void cass::RatePlotter::plot()
 {
-  /** @todo modify the by not modifying the cout flags*/
-  //store the original flags of cout//
-  std::ios_base::fmtflags original_flags = std::cout.flags();
-  //set the precision for floating point to 2//
-  std::cout.setf(std::ios::fixed, std::ios::floatfield);
-  std::cout.setf(std::ios::showpoint);
-  std::cout.precision(1);
-  std::cout.width(4);
-  //write the rate to the console//
-  std::cout<<"\rInput: "<<_inputrate.calculateRate()<<"Hz | Analyze: "<<_analyzerate.calculateRate()<<"Hz  "<<std::flush;
-  //restore the flags//
-  std::cout.flags(original_flags);
+  char tmp[256];
+  snprintf(tmp, 255, "\rInput: %4.1fHz | Analyze: %4.1fHz",
+           _inputrate.calculateRate(), _analyzerate.calculateRate());
+  std::cout << tmp << std::flush;
 }
 
 
