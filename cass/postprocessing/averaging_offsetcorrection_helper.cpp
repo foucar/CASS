@@ -48,7 +48,7 @@ namespace cass
 {
   /** predicate class for find_if.
    * this helps finding the right key in the list of pairs
-   * @see HelperAcqirisDetectors::_frameList
+   * @see HelperAveragingOffsetCorrection::_frameList
    * @author Lutz Foucar
    */
   class IsKey
