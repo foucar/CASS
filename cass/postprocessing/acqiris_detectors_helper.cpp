@@ -26,7 +26,7 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
   //if the maps with the analyzers are empty, fill them//
   if (_waveformanalyzer.empty())
   {
-    std::cout << "the list of waveform analyzers is empty, we need to inflate it"<<std::endl;
+    VERBOSEOUT(std::cout << "the list of waveform analyzers is empty, we need to inflate it"<<std::endl);
     _waveformanalyzer[cfd8]  = new CFD8Bit();
     _waveformanalyzer[cfd16] = new CFD16Bit();
     _waveformanalyzer[com8]  = new CoM8Bit();
@@ -34,7 +34,7 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
   }
   if (_detectoranalyzer.empty())
   {
-    std::cout << "the list of detector analyzers is empty, we need to inflate it"<<std::endl;
+    VERBOSEOUT(std::cout << "the list of detector analyzers is empty, we need to inflate it"<<std::endl);
     _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
     _detectoranalyzer[ToFSimple] = new ToFAnalyzerSimple(&_waveformanalyzer);
   }
@@ -42,7 +42,7 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
   //return it, otherwise create one and return it//
   if (0 == _instances[dettype])
   {
-    std::cout << "creating an instance of the Acqiris Detector Helper for detector type "<<dettype<<std::endl;
+    VERBOSEOUT(std::cout << "creating an instance of the Acqiris Detector Helper for detector type "<<dettype<<std::endl);
     _instances[dettype] = new HelperAcqirisDetectors(dettype);
   }
   return _instances[dettype];
