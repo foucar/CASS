@@ -244,7 +244,7 @@ inline void cass::ACQIRIS::Signal::loadSettings(QSettings *p, const char * signa
   VERBOSEOUT(std::cerr<<"Signal load parameters: done loading"<<std::endl);
   p->endGroup();
 }
-inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * signalname)
+inline void cass::ACQIRIS::Signal::saveParameters(QSettings */*p*/, const char * /*signalname*/)
 {
 //  p->beginGroup(signalname);
 //  p->setValue("AcqirisInstrument",static_cast<int>(_instrument));
