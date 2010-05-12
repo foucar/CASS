@@ -402,6 +402,13 @@ public:
         AdvancedPhotonFinderCommercialCCD=164,
         AdvancedPhotonFinderCommercialCCDTwo=165,
 
+        AdvancedPhotonFinderFrontPnCCD1dHist=166,
+        AdvancedPhotonFinderFrontPnCCDTwo1dHist=167,
+        AdvancedPhotonFinderBackPnCCD1dHist=168,
+        AdvancedPhotonFinderBackPnCCDTwo1dHist=169,
+        AdvancedPhotonFinderCommercialCCD1dHist=170,
+        AdvancedPhotonFinderCommercialCCDTwo1dHist=171,
+
         CampChannel00AveragedWaveform=500,
         CampChannel01AveragedWaveform=501,
         CampChannel02AveragedWaveform=502,
