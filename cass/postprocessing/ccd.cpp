@@ -497,6 +497,8 @@ void cass::pp113::loadSettings(size_t)
       <<" of device "<<_device
       <<std::endl;
   //create the histogram
+  _pp.histograms_delete(_id);
+  _hist=0;
   set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
 }
@@ -580,6 +582,8 @@ void cass::pp116::loadSettings(size_t)
   adu2eV = param.value("adu2eV",5.).toDouble();
 
   //create the histogram
+  _pp.histograms_delete(_id);
+  _hist=0;
   set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
 }
