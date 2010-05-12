@@ -33,9 +33,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           <<" Version:"<<version
           <<std::endl;
       //if necessary resize the config container//
-#ifdef debug_alot
-      std::cout << "pnCCD::Converter debug " << detectorId << " "<< cassevent->id() << std::endl;
-#endif
+
+      VERBOSEOUT(std::cout << "pnCCD::Converter debug " << detectorId << " "<< cassevent->id() << std::endl);
+
       if (detectorId >= _pnccdConfig.size())
         _pnccdConfig.resize(detectorId+1,std::make_pair<uint32_t,Pds::PNCCD::ConfigV2*>(version,0));
 
@@ -61,9 +61,8 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       //Get the the detecotor id //
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
-#ifdef debug_alot
-      std::cout << "pnCCD::Converter frame debug " << detectorId << " "<< cassevent->id() << std::endl;
-#endif
+
+      VERBOSEOUT(std::cout << "pnCCD::Converter frame debug " << detectorId << " "<< cassevent->id() << std::endl);
 
       //if necessary resize the detector container//
 //      std::cout<<"pnCCDConverter::DataXTC: resizing container"<<std::endl;
