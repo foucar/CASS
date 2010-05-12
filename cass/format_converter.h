@@ -47,11 +47,14 @@ namespace cass
    * as a singleton. It contains all available Format Converters and calls
    * all requested ones.
    *
-   * The user can set which converters should be running, options are true or false:
-   * - Converter/{useCommercialCCDConverter}
-   * - Converter/{useAcqirisConverter}
-   * - Converter/{useMachineConverter}
-   * - Converter/{usepnCCDConverter}
+   * @cassttng Converter/{useCommercialCCDConverter}\n
+   *           converter should be running: true or false
+   * @cassttng Converter/{useAcqirisConverter}\n
+   *           converter should be running: true or false
+   * @cassttng Converter/{useMachineConverter}\n
+   *           converter should be running: true or false
+   * @cassttng Converter/{usepnCCDConverter}\n
+   *           converter should be running: true or false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
