@@ -30,60 +30,60 @@ namespace cass
      *  each of the following is defined for each pnCCD detector and
      *  may be defined in a different way on different pnCCD detectors
      *  @cassttng
-     *  RebinFactor
-     *        The rebinfactor for rebinning of the frame accectable values are 1,2,4 and any power of 2.
+     *  RebinFactor\n
+     *        The rebinfactor for rebinning of the frame accectable values are 1,2,4 and any power of 2.\n
      *        By default the value is set to 1.
      *  @cassttng
-     *  MaxNoise
+     *  MaxNoise\n
      *        The max allowed noise level before a pixel is mask off, the limit is interpreted as
-     *        std dev, if the pixel displays a noise level largen than _max_noise than it is removed.
+     *        std dev, if the pixel displays a noise level largen than _max_noise than it is removed.\n
      *        By default the value is set to 4000.
      *  @cassttng
-     *  SigmaMultiplier
-     *        The number of std deviation a pixel must be above noise to be selected as a photon.
-     *        By default the value is set to 4.
+     *  SigmaMultiplier\n
+     *        The number of std deviation a pixel must be above noise to be selected as a photon.\n
+     *        By default the value is set to 4.\n
      *  @cassttng
-     *  Adu2ev
-     *        The adu to eV conversion constant.
-     *        By default the value is set to 1.
+     *  Adu2ev\n
+     *        The adu to eV conversion constant.\n
+     *        By default the value is set to 1.\n
      *  @cassttng
-     *  CreatePixelList
+     *  CreatePixelList\n
      *        True of false, if true and if _doOffsetCorrection==true
      *            (irregardless of the value of _useCommonMode) a list of Photons will be created
-     *            for each pixel with value larger that _sigmaMultiplier*noise(of the pixel).
-     *        By default the value is set to false.
+     *            for each pixel with value larger that _sigmaMultiplier*noise(of the pixel).\n
+     *        By default the value is set to false.\n
      *  @cassttng
-     *  DoOffsetCorrection
+     *  DoOffsetCorrection\n
      *        True of false, if true the darkcalibration maps will be used to subtract the ADC
-     *            offset, to correct the raw frame.
-     *        By default the value is set to false.
+     *            offset, to correct the raw frame.\n
+     *        By default the value is set to false.\n
      *  @cassttng
-     *  useCommonMode
-     *       True of false, useful only if _doOffsetCorrection==true,
+     *  useCommonMode\n
+     *       True of false, useful only if _doOffsetCorrection==true,\n
      *            if true the CommonMode correction will be calculated and applied to the pixels
      *            each "row" of 128-pixel is separately considered: the pixels that have
      *            value below _sigmaMultiplier*noise(of the pixel), once their offset is removed,
      *            and that are not marked as BAD are used, the arithmetical mean is calculated and
-     *            subtracted from all the pixels.
+     *            subtracted from all the pixels.\n
      *        By default the value is set to false.
      *  @cassttng
-     *  IntegralOverThres (internally called _thres_for_integral )
+     *  IntegralOverThres (internally called _thres_for_integral )\n
      *       Any Integer>=0 is accepted, in case the value is >0 than a second integral over the
      *            corrected frame is calculated, this time using only those pixel that have a
-     *            value>_thres_for_integral
-     *        By default the value is set to 0.
+     *            value>_thres_for_integral.\n
+     *        By default the value is set to 0.\n
      *  @cassttng
-     *  DarkCalibrationFileName
-     *       If set the darkframe calibrations will be taken out of the named file
+     *  DarkCalibrationFileName\n
+     *       If set the darkframe calibrations will be taken out of the named file.\n
      *       PLEASE DO NOT SET unless you know what you are using,
      *       (for example if using offline CASS)
      *       darkframe files created via Xonline/Raccoon will be ignored as they have
-     *       a completely different structure
+     *       a completely different structure.
      *  @cassttng
-     *  DarkCalibrationSaveFileName
+     *  DarkCalibrationSaveFileName\n
      *       It contains the name of the files where darkframe calibrations will be written into
      *       the values are ANYWAY overwritten by the saveParameter function to avoid
-     *       overwriting of previously saved darkframe files
+     *       overwriting of previously saved darkframe files.
      *  @author Nicola Coppola
      *
      */
