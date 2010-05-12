@@ -39,7 +39,7 @@ namespace cass
    *           The ToF-Detector we make a condition on. Default is Invalid Detector
    *           Which will result in no Condition.
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
-   *           Inverts the condition.
+   *           Inverts the condition. Default is false.
    * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
    *           The id of the running average of we use for substraction. Default
    *           is id 100.
@@ -95,7 +95,7 @@ namespace cass
    * A 1D Histogram of all pixels in the corrected image.
    *
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
-   *           Inverts the condition
+   *           Inverts the condition. Default is false.
    * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
    *           The ToF-Detector we make a condition on. Default is Invalid Detector
    *           Which will result in no Condition.
