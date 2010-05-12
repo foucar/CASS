@@ -114,14 +114,14 @@ protected:
  * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
  *
  * @cassttng PostProcessor/p\%id\%/{ImageXCenter|ImageYCenter}\n
- *           values for the center of the image.
+ *           values for the center of the image. Default is 0,0
  * @cassttng PostProcessor/p\%id\%/{SymmetryAngle}\n
- *           value for the symmetry angle.
+ *           value for the symmetry angle. Default is 0.
  * @cassttng PostProcessor/p\%id\%/{ImageId}\n
  *           The id of the PostProcessor that contains the image to calculate
- *           \f$\cos^2\theta\f$  from.
+ *           \f$\cos^2\theta\f$  from. Default is 104.
  * @cassttng PostProcessor/p\%id\%/{MaxIncludedRadius|MinIncludedRadius}\n
- *           values for the interesting radius range.
+ *           values for the interesting radius range. Default is 0,0
  *
  * Implements Postprocessor id's: 150.
  *
