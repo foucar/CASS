@@ -217,44 +217,44 @@ namespace cass
 
 inline void cass::ACQIRIS::Signal::loadSettings(QSettings *p, const char * signalname)
 {
-  std::cerr<<"Signal load parameters:  load signal parameters for signal \""<<signalname<<"\""
-      <<" of  "<< p->group().toStdString()<<std::endl;
+  VERBOSEOUT(std::cerr<<"Signal load parameters:  load signal parameters for signal \""<<signalname<<"\""
+      <<" of  "<< p->group().toStdString()<<std::endl);
   p->beginGroup(signalname);
   _instrument   = static_cast<Instruments>(p->value("AcqirisInstrument",Camp1).toInt());
-  std::cerr <<"Signal load parameters: Instrument "<<_instrument<<std::endl;
+  VERBOSEOUT(std::cerr <<"Signal load parameters: Instrument "<<_instrument<<std::endl);
   _chNbr        = p->value("ChannelNumber",0).toInt();
-  std::cerr <<"Signal load parameters: chNbr "<<_chNbr<<std::endl;
+  VERBOSEOUT(std::cerr <<"Signal load parameters: chNbr "<<_chNbr<<std::endl);
   _trLow        = p->value("LowerTimeRangeLimit",0.).toDouble();
   _trHigh       = p->value("UpperTimeRangeLimit",20000.).toDouble();
   _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
   _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
   _polarity     = static_cast<Polarity>(p->value("Polarity",Negative).toInt());
   _threshold    = p->value("Threshold",0.05).toDouble();
-  std::cerr <<"Signal load parameters: Threshold "<<_threshold<<std::endl;
+  VERBOSEOUT(std::cerr <<"Signal load parameters: Threshold "<<_threshold<<std::endl);
   _delay        = p->value("Delay",5).toInt();
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
   _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
 //  std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl;
-  std::cerr<<"Signal load parameters: done loading"<<std::endl;
+  VERBOSEOUT(std::cerr<<"Signal load parameters: done loading"<<std::endl);
   p->endGroup();
 }
 inline void cass::ACQIRIS::Signal::saveParameters(QSettings *p, const char * signalname)
 {
-  p->beginGroup(signalname);
-  p->setValue("AcqirisInstrument",static_cast<int>(_instrument));
-  p->setValue("ChannelNumber",static_cast<int>(_chNbr));
-  p->setValue("LowerTimeRangeLimit",_trLow);
-  p->setValue("UpperTimeRangeLimit",_trHigh);
-  p->setValue("LowerGoodTimeRangeLimit",_grLow);
-  p->setValue("UpperGoodTimeRangeLimit",_grHigh);
-  p->setValue("Polarity",static_cast<int>(_polarity));
-  p->setValue("Threshold",_threshold);
-  p->setValue("Delay",_delay);
-  p->setValue("Fraction",_fraction);
-  p->setValue("Walk",_walk);
-  p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
-  p->endGroup();
+//  p->beginGroup(signalname);
+//  p->setValue("AcqirisInstrument",static_cast<int>(_instrument));
+//  p->setValue("ChannelNumber",static_cast<int>(_chNbr));
+//  p->setValue("LowerTimeRangeLimit",_trLow);
+//  p->setValue("UpperTimeRangeLimit",_trHigh);
+//  p->setValue("LowerGoodTimeRangeLimit",_grLow);
+//  p->setValue("UpperGoodTimeRangeLimit",_grHigh);
+//  p->setValue("Polarity",static_cast<int>(_polarity));
+//  p->setValue("Threshold",_threshold);
+//  p->setValue("Delay",_delay);
+//  p->setValue("Fraction",_fraction);
+//  p->setValue("Walk",_walk);
+//  p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
+//  p->endGroup();
 }
 
 inline double cass::ACQIRIS::Signal::firstGood() const
