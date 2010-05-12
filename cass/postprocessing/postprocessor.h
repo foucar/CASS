@@ -174,8 +174,19 @@ for information about what parameters are user settable. (Keep in mind that case
 00146: Gaussian height of image pp121
 00150: Scalar value of <cos^2\theta> from averaged Opal camera image pp105 (pp150)
 
-00160: Advanced Peakfinder for front pnCCD image (pp160)
-00161: Advanced Peakfinder for front pnCCD image (pp160)
+00160: photonhits using running average for front pnCCD image, optional condition(pp160)
+00161: photonhits using running average for front pnCCD image, optional condition (pp160)
+00162: photonhits using running average for back  pnCCD image, optional condition(pp160)
+00163: photonhits using running average for back  pnCCD image, optional condition (pp160)
+00164: photonhits using running average for commercial CCD image, optional condition(pp160)
+00165: photonhits using running average for commercial CCD image, optional condition (pp160)
+
+00166: 1D photonhits using running average for front pnCCD image, optional condition(pp166)
+00167: 1D photonhits using running average for front pnCCD image, optional condition (pp166)
+00168: 1D photonhits using running average for back  pnCCD image, optional condition(pp166)
+00169: 1D photonhits using running average for back  pnCCD image, optional condition (pp166)
+00170: 1D photonhits using running average for commercial CCD image, optional condition(pp166)
+00171: 1D photonhits using running average for commercial CCD image, optional condition (pp166)
 
 00500: Averaged waveform of Camp Acqiris Channel 00 (pp500)
 00501: Averaged waveform of Camp Acqiris Channel 01 (pp500)
@@ -384,8 +395,12 @@ public:
         GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
         VmiFixedCos2Theta=150,
 
-        AdvancedPhotonFinder=160,
-        AdvancedPhotonFinderTwo=161,
+        AdvancedPhotonFinderFrontPnCCD=160,
+        AdvancedPhotonFinderFrontPnCCDTwo=161,
+        AdvancedPhotonFinderBackPnCCD=162,
+        AdvancedPhotonFinderBackPnCCDTwo=163,
+        AdvancedPhotonFinderCommercialCCD=164,
+        AdvancedPhotonFinderCommercialCCDTwo=165,
 
         CampChannel00AveragedWaveform=500,
         CampChannel01AveragedWaveform=501,

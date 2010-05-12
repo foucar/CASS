@@ -31,9 +31,8 @@ namespace cass
    * \f$ Pixel_{resulting Image} +=
    *           (Pixel_{current Image) - \apha \times Pixel_{running Average}\f$
    *
-   * @cassttng PostProcessor/p\%id\%/{Threshold} \n
-   *           The threshold which will quantify whether there is a photon
-   *           in the current image.
+   * @cassttng PostProcessor/p\%id\%/{LowerGateEnd|UpperGateEnd} \n
+   *           Put only a point into the histogram, when it is in the Gate.
    * @cassttng PostProcessor/p\%id\%/{Invert} \n
    *           Inverts the condition
    * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
@@ -66,7 +65,7 @@ namespace cass
     /** the Detector that we make the condition on*/
     ACQIRIS::Detectors _conditionDetector;
     /** threshold for peakfinding */
-    float _threshold;
+    std::pair<float,float> _gate;
     /** the id of the averaged image */
     PostProcessors::id_t _idAverage;
     /** resulting image */

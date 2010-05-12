@@ -19,6 +19,7 @@
 #include "imaging.h"
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
+#include "averaging_offsetcorrection_helper.h"
 
 
 
@@ -38,25 +39,24 @@ cass::pp160::pp160(PostProcessors& pp, cass::PostProcessors::id_t id)
   _image(0)
 {
   loadSettings(0);
-  /** @todo put in the right cases */
-//  switch(id)
-//  {
-//  case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
-//  case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
-//      _detector = 0; _device=CASSEvent::pnCCD;
-//      break;
-//  case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
-//  case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
-//      _detector = 1; _device=CASSEvent::pnCCD;
-//      break;
-//  case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
-//  case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
-//      _detector = 0; _device=CASSEvent::CCD;
-//      break;
-//  default:
-//      throw std::invalid_argument("Impossible postprocessor id for pp101");
-//      break;
-//  };
+  switch(id)
+  {
+  case PostProcessors::AdvancedPhotonFinderFrontPnCCD:
+  case PostProcessors::AdvancedPhotonFinderFrontPnCCDTwo:
+      _detector = 0; _device=CASSEvent::pnCCD;
+      break;
+  case PostProcessors::AdvancedPhotonFinderBackPnCCD:
+  case PostProcessors::AdvancedPhotonFinderBackPnCCDTwo:
+      _detector = 1; _device=CASSEvent::pnCCD;
+      break;
+  case PostProcessors::AdvancedPhotonFinderCommercialCCD:
+  case PostProcessors::AdvancedPhotonFinderCommercialCCDTwo:
+      _detector = 0; _device=CASSEvent::CCD;
+      break;
+  default:
+      throw std::invalid_argument("Impossible postprocessor id for pp101");
+      break;
+  };
 
 }
 
@@ -82,9 +82,10 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  _threshold = settings.value("Threshold",1.).toFloat();
+  _gate = std::make_pair<float,float>(settings.value("LowerGateEnd",-1e15).toFloat(),
+                                      settings.value("UpperGateEnd",1e15).toFloat());
   _invert = settings.value("Invert",false).toBool();
-
+  _idAverage = static_cast<PostProcessors::id_t>(settings.value("AveragedImage",100).toInt());
 
   std::string name(settings.value("ConditionDetector","YAGPhotodiode").toString().toStdString());
   if (name=="YAGPhotodiode")
@@ -102,11 +103,11 @@ void cass::pp160::loadSettings(size_t)
   else
     _conditionDetector = InvalidDetector;
 
+  //load condition detector's settings//
   if (_conditionDetector)
     HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
 
-  _idAverage = static_cast<PostProcessors::id_t>(settings.value("AveragedImage",100).toInt());
-
+  //check whether the running average is already created. If not exit here//
   try
   {
     _pp.validate(_idAverage);
@@ -117,7 +118,8 @@ void cass::pp160::loadSettings(size_t)
     return;
   }
 
-
+  // get the running average histogram and create the this histogram from //
+  // the dimensions of the averaged histogram//
   const PostProcessors::histograms_t container (_pp.histograms_checkout());
   PostProcessors::histograms_t::const_iterator it (container.find(_idAverage));
   _pp.histograms_release();
@@ -135,6 +137,7 @@ void cass::pp160::operator()(const CASSEvent& event)
   using namespace cass::ACQIRIS;
   using namespace std;
 
+  //check whether we need to update the histogram//
   bool update(true);
   if (_conditionDetector != InvalidDetector)
   {
@@ -146,46 +149,33 @@ void cass::pp160::operator()(const CASSEvent& event)
 
   if (update)
   {
-    /** @todo put in the variables instead of hardcoded values */
     //check whether detector exists
-    if (event.devices().find(CASSEvent::pnCCD)->second->detectors()->size() <= 0)
-      throw std::runtime_error(QString("PostProcessor_%1: front pnccd detector does not exist").arg(_id).toStdString());
+    if (event.devices().find(_device)->second->detectors()->size() <=_detector)
+      throw std::runtime_error(QString("PostProcessor_%1: detector %2 does not exist in device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
-    const PixelDetector &det((*event.devices().find(CASSEvent::pnCCD)->second->detectors())[0]);
+    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
     const PixelDetector::frame_t& frame(det.frame());
 
+    //get the averaged histogram//
     const PostProcessors::histograms_t container (_pp.histograms_checkout());
-    PostProcessors::histograms_t::const_iterator f(container.find(_idAverage));
-    const HistogramFloatBase::storage_t average (dynamic_cast<Histogram2DFloat *>(f->second)->memory());
+    PostProcessors::histograms_t::const_iterator histIt(container.find(_idAverage));
+    const HistogramFloatBase::storage_t average (dynamic_cast<Histogram2DFloat *>(histIt->second)->memory());
     _pp.histograms_release();
 
-    f->second->lock.lockForRead();
-    PixelDetector::frame_t::const_iterator frIt(frame.begin()) ;
-    HistogramFloatBase::storage_t::const_iterator avIt(average.begin());
+    //correct the histogram with the help of the helper, retrive a const reference to the corrected frame//
+    histIt->second->lock.lockForRead();
+    PixelDetector::frame_t::const_iterator corFrameIt
+        (HelperAveragingOffsetCorrection::instance(_idAverage)->correctFrame(event.id(),frame,average).begin());
+    histIt->second->lock.unlock();
 
-    /** @note one cannot use accumulate here, since this returns negative numbers
-     *  @todo need to find out whether a new compiler does it correctly
-     */
-    float sumFrame(0);
-    float sumAverage(0);
-    while (frIt != frame.end()) sumFrame += *frIt++;
-    while (avIt != average.end()) sumAverage += *avIt++;
-    const float alpha = sumFrame / sumAverage;
-    frIt = frame.begin();
-    avIt = average.begin();
-
-//    std::cout<< "pp160: alpha:"<<alpha<<" "
-//        <<sumFrame <<" "
-//        <<sumAverage<< " "
-//        <<std::endl;
-//
     _image->lock.lockForWrite();
-    HistogramFloatBase::storage_t::iterator imIt(_image->memory().begin());
-    while(avIt != average.end())
-      *imIt++ += ( *frIt++ - alpha * *avIt++ > _threshold);
-
+    HistogramFloatBase::storage_t::iterator hIt(_image->memory().begin());
+    while(hIt != _image->memory().end())
+    {
+      *hIt++ += ((_gate.first < *corFrameIt) && (*corFrameIt  < _gate.second));
+      ++corFrameIt;
+    }
     _image->lock.unlock();
-    f->second->lock.unlock();
   }
 }
 
