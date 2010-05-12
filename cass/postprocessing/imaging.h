@@ -34,6 +34,7 @@ namespace cass
    *
    * @cassttng PostProcessor/p\%id\%/{LowerGateEnd|UpperGateEnd} \n
    *           Put only a point into the histogram, when it is in the Gate.
+   *           Default is -1e6 ... 1e6
    * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
    *           The ToF-Detector we make a condition on. Default is Invalid Detector
    *           Which will result in no Condition.
