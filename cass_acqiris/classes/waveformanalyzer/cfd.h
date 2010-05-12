@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include "cass_acqiris.h"
+#include "cass.h"
 #include "waveform_analyzer_backend.h"
 
 namespace cass
@@ -26,7 +27,7 @@ namespace cass
     {
     public:
       /** constructor*/
-      CFD8Bit()    {std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
+      CFD8Bit()    {VERBOSEOUT(std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
       /** analzye the waveform of the channel.
        * @return void
        * @param c The channel that we need to analyze
@@ -42,7 +43,7 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public WaveformAnalyzerBackend
     {
     public:
-      CFD16Bit()    {std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl;}
+      CFD16Bit()    {VERBOSEOUT(std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
       virtual void operator()(const Channel&, ResultsBackend&);
     };
 
