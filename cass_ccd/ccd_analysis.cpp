@@ -6,7 +6,6 @@
 #include <cmath>
 #include "ccd_analysis.h"
 #include "cass_event.h"
-//#include "ccd_detector.h"
 #include "pixel_detector.h"
 #include "ccd_device.h"
 
@@ -113,8 +112,8 @@ void cass::CCD::Analysis::loadSettings()
   }
   else
   {*/
-    _param._ROImask.resize(CCD_default_size_sq);
-    _param._ROIiterator.resize(CCD_default_size_sq);
+    _param._ROImask.resize(CCD::default_size_sq);
+    _param._ROIiterator.resize(CCD::default_size_sq);
   /*}*/
   // "enable" all  pixel as default
   _param._ROImask.assign(_param._ROImask.size(),1);
