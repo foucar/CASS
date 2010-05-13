@@ -48,13 +48,13 @@ namespace cass
    * all requested ones.
    *
    * @cassttng Converter/{useCommercialCCDConverter}\n
-   *           converter should be running: true or false
+   *           converter should be running: default true
    * @cassttng Converter/{useAcqirisConverter}\n
-   *           converter should be running: true or false
+   *           converter should be running: default true
    * @cassttng Converter/{useMachineConverter}\n
-   *           converter should be running: true or false
+   *           converter should be running: default true
    * @cassttng Converter/{usepnCCDConverter}\n
-   *           converter should be running: true or false
+   *           converter should be running: default true
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
