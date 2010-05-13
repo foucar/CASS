@@ -21,6 +21,7 @@
 #include <QAction>
 #include <QFont>
 #include <QQueue>
+#include <QMouseEvent>
 #include "qwt_logcolor_map.h"
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
@@ -32,6 +33,22 @@
 
 // prototypes:
 class cassData;
+
+class MyPlot: public QwtPlot
+{
+public:
+    MyPlot(QWidget *parent=NULL):
+            QwtPlot(parent) {
+        setMouseTracking(true);
+    }
+
+    void mouseMoveEvent ( QMouseEvent * event ) {
+        double yval = invTransform(QwtPlot::yRight, event->pos().y()) ;
+
+        //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
+    }
+
+};
 
 class MyZoomer: public QwtPlotZoomer
 {
@@ -162,7 +179,27 @@ class spectrogramWidget : public QWidget
 {
     Q_OBJECT
 public:
+    bool eventFilter(QObject *obj, QEvent *event)
+    {
+        if (obj == _rightAxis ) {
+            if (event->type() == QEvent::MouseMove) {
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                double yval= _plot->invTransform(QwtPlot::yRight, mouseEvent->pos().y());
+                std::cout << "DDDDDDDDDDDDDDd" << yval << std::endl;
+            }
+        }
+        // pass the event on to the parent class
+        return QWidget::eventFilter(obj, event);
+    }
+
+    void mouseMoveEvent ( QMouseEvent * event ) {
+        double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
+
+        //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
+    } 
     spectrogramWidget() {
+
+        setMouseTracking(true);
         //transformCol = QwtLogColorMap::trans_pow10;
         //transformCol_inv = QwtLogColorMap::trans_log10;
         transformCol = QwtLogColorMap::trans_log10;
@@ -170,7 +207,7 @@ public:
         _spectrogramData = new spectrogramData;
         _spectrogramDataDummy = new spectrogramDataDummy();
         _spectrogram = new QwtPlotSpectrogram();
-        _plot = new QwtPlot;
+        _plot = new MyPlot;
 
         _colorMap = new QwtLogColorMap(Qt::darkCyan, Qt::red);
         _colorMap->addColorStop(0.1, Qt::cyan);
@@ -186,6 +223,7 @@ public:
     _rightAxis = _plot->axisWidget(QwtPlot::yRight);
     _rightAxis->setTitle("Intensity");
     _rightAxis->setColorBarEnabled(true);
+    _rightAxis->installEventFilter(this);
 
         _colorMapInv = new QwtLogColorMap(Qt::darkCyan, Qt::red);
         _colorMapInv->addColorStop(0.1, Qt::cyan);
@@ -243,7 +281,7 @@ protected:
     spectrogramData* _spectrogramData;
     spectrogramDataDummy* _spectrogramDataDummy;
     QwtPlotSpectrogram* _spectrogram;
-    QwtPlot* _plot;
+    MyPlot* _plot;
     QVBoxLayout _layout;
     QwtScaleWidget * _rightAxis;
     QwtPlotZoomer* _zoomer;
