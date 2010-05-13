@@ -5,8 +5,8 @@
 #ifndef _CCD_ANALYSIS_H_
 #define _CCD_ANALYSIS_H_
 
-#define CCD_default_size    1024
-#define CCD_default_size_sq 1024*1024
+#define CCD_default_size    1000
+#define CCD_default_size_sq 1000*1000
 
 #define pulnixCCD_default_height  480
 #define pulnixCCD_default_width   640
