@@ -372,7 +372,8 @@ QRgb QwtLogColorMap::rgb(
             return d_data->colorStops.rgb(d_data->mode, ratio);
             break;
         case trans_pow10:
-            return d_data->colorStops.rgb(d_data->mode, pow(10,ratio));
+            //return d_data->colorStops.rgb(d_data->mode, pow(10,ratio));
+            return d_data->colorStops.rgb(d_data->mode, log10(ratio+1)/log10(2)  );
             break;
         case trans_log10:
             return d_data->colorStops.rgb(d_data->mode, log10(ratio+1));
