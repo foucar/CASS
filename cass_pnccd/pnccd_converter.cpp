@@ -89,10 +89,10 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         case 1:
           //we need to set the rows and columns hardcoded since the information is not yet
           //provided by LCLS in Version 1//
-          det.rows() = det.columns() = pnCCD_default_size;
-          det.originalrows() = det.originalcolumns() = pnCCD_default_size;
-          rowsOfSegment = pnCCD_default_size/2;
-          columnsOfSegment = pnCCD_default_size/2;
+          det.rows() = det.columns() = pnCCD::default_size;
+          det.originalrows() = det.originalcolumns() = pnCCD::default_size;
+          rowsOfSegment = pnCCD::default_size/2;
+          columnsOfSegment = pnCCD::default_size/2;
           break;
         case 2:
           //get the rows and columns from config//

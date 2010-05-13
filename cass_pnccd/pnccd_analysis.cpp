@@ -272,12 +272,12 @@ void cass::pnCCD::Analysis::loadSettings()
       else
       {
         //safe net in case there is no file yet
-        dp._offset.resize(pnCCD_default_size_sq);
-        dp._noise.resize(pnCCD_default_size_sq);
-        dp._ROImask.resize(pnCCD_default_size_sq);
-        dp._ROIiterator.resize(pnCCD_default_size_sq);
-        dp._ROImask_converter.resize(pnCCD_default_size_sq);
-        dp._ROIiterator_converter.resize(pnCCD_default_size_sq);
+        dp._offset.resize(pnCCD::default_size_sq);
+        dp._noise.resize(pnCCD::default_size_sq);
+        dp._ROImask.resize(pnCCD::default_size_sq);
+        dp._ROIiterator.resize(pnCCD::default_size_sq);
+        dp._ROImask_converter.resize(pnCCD::default_size_sq);
+        dp._ROIiterator_converter.resize(pnCCD::default_size_sq);
         std::cout << printoutdef << 
           "I have been asked to use Offset-noise darkframe file not created with CASS:\n\t "
                   <<dp._darkcalfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
@@ -295,15 +295,15 @@ void cass::pnCCD::Analysis::loadSettings()
         // in principle I do not need it if _param._isDarkframe==1
         // and I should never come here if _param._isDarkframe==0 as I should always have a darkcalib file
         // to load
-        dp._ROImask.resize(pnCCD_default_size_sq);
-        dp._ROImask_converter.resize(pnCCD_default_size_sq);
+        dp._ROImask.resize(pnCCD::default_size_sq);
+        dp._ROImask_converter.resize(pnCCD::default_size_sq);
       }
       if(!dp._doOffsetCorrection)
       {
         std::cout<< printoutdef << "I am not going to apply offset corrections anyway"<<std::endl;
         //safe net in case there is no file yet and I do not want to make offset-corrections
-        dp._offset.resize(pnCCD_default_size_sq);
-        dp._noise.resize(pnCCD_default_size_sq);
+        dp._offset.resize(pnCCD::default_size_sq);
+        dp._noise.resize(pnCCD::default_size_sq);
         //resetting the offset/noise maps
         dp._offset.assign(dp._offset.size(),0);
         dp._noise.assign(dp._noise.size(),0);
@@ -319,8 +319,8 @@ void cass::pnCCD::Analysis::loadSettings()
     //in case this is a Dark-Run
     if(_param._isDarkframe)
     {
-      dp._offset.resize(pnCCD_default_size_sq);
-      dp._noise.resize(pnCCD_default_size_sq);
+      dp._offset.resize(pnCCD::default_size_sq);
+      dp._noise.resize(pnCCD::default_size_sq);
       //reset the number of dark frames taken so far
       dp._nbrDarkframes=0;
       //resetting the offset/noise maps

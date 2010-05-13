@@ -155,11 +155,11 @@ void cass::pp101::loadSettings(size_t)
     case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
     case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
     case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
-        cols = 1024; rows = 1024;
+        cols = pnCCD::default_size; rows = pnCCD::default_size;
         break;
     case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
     case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
-        cols = 1000; rows = 1000;
+        cols = CCD::default_size; rows = CCD::default_size;
         break;
     default:
         throw std::invalid_argument("Impossible postprocessor id for pp101");
