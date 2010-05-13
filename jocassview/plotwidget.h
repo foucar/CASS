@@ -146,7 +146,8 @@ public:
 
     virtual double value(double x, double y) const
     {
-        if (_hist) if (x>1) if (x<1024) if (y>1) if (y<1024) return (*_hist)(x,y);
+        //if (_hist) if (x>1) if (x<1024) if (y>1) if (y<1024) return (*_hist)(x,y);
+        if (_hist) if (x>1) if (x<1023) if (y>1) if (y<1023) return (*_hist)(x,y);
         return 0.0;
     }
 protected:
