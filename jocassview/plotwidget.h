@@ -233,7 +233,7 @@ public:
 
 
     _rightAxis->setColorMap(_spectrogram->data().range(),
-        *_colorMapInv);
+        *_colorMap);
 
     _plot->setAxisScaleEngine(QwtPlot::yRight, new QwtLog10ScaleEngine);
     _plot->setAxisScale(QwtPlot::yRight,
@@ -265,7 +265,7 @@ public:
         _spectrogram->invalidateCache();
         _spectrogram->itemChanged();
         _rightAxis->setColorMap(_spectrogram->data().range(),
-            *_colorMapInv);
+            *_colorMap);
         _plot->setAxisScale(QwtPlot::yRight,
             _spectrogram->data().range().minValue()+1,
             _spectrogram->data().range().maxValue() );
