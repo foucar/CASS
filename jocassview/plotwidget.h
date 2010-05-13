@@ -33,44 +33,6 @@ class plotWidget : public QWidget
 {
    Q_OBJECT
 public:
-      //
-      plotWidget(CASSsoapProxy* cass=NULL) : _cass(cass) {std::cout<<"1d constr"<<std::endl;
-          setupUI();
-      };
-      void setupUI() {
-         initPlot(_layout);
-         initToolbar(_layout);
-         setLayout(&_layout);
-      };
-
-      void initToolbar(QLayout& layout) {
-         _toolbar = new QToolBar(tr("plot toolbar"), this);
-         _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
-         _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("&Zoom in"), this);
-         _act_zoomin->setCheckable(true);
-         _act_zoomout->setCheckable(true);
-         _toolbar->addAction(_act_zoomin);
-         _toolbar->addAction(_act_zoomout);
-         layout.addWidget(_toolbar);
-      };
-
-      void initPlot(QLayout&  layout) {
-         layout.addWidget(&_plot);
-         _plot.replot();
-         _curve.setPen( QPen(Qt::blue) );
-         _zoomer = new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
-                                     QwtPicker::DragSelection, QwtPicker::AlwaysOff,
-                                     _plot.canvas());
-         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
-                                  Qt::RightButton);
-         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
-                                  Qt::RightButton, Qt::ControlModifier);
-         _zoomer->setRubberBandPen(QPen(Qt::green));
-         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
-                                  Qt::ControlModifier);
-         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
-      };
-     
       void setData(cass::Histogram1DFloat* hist ) {
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
          //QVector<cass::HistogramFloatBase::value_t> qdata(hist.size());
@@ -91,21 +53,69 @@ public:
          _zoomer->setZoomBase(_baseRect);
          _plot.replot();
       };
-protected slots:
-      //void getHistogram();
-      //void getList();
 
 protected:
+
+      void initToolbar(QLayout& layout) {
+         _toolbar = new QToolBar(tr("plot toolbar"), this);
+         _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
+         _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("&Zoom in"), this);
+         _act_zoomin->setCheckable(true);
+         _act_zoomout->setCheckable(true);
+         _toolbar->addAction(_act_zoomin);
+         _toolbar->addAction(_act_zoomout);
+         layout.addWidget(_toolbar);
+      };
+
+    void initPlot(QLayout&  layout) {
+         layout.addWidget(&_plot);
+         _plot.replot();
+         _curve.setPen( QPen(Qt::blue) );
+         _zoomer = new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
+                                     QwtPicker::DragSelection, QwtPicker::AlwaysOff,
+                                     _plot.canvas());
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+                                  Qt::RightButton);
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                                  Qt::RightButton, Qt::ControlModifier);
+         _zoomer->setRubberBandPen(QPen(Qt::green));
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
+                                  Qt::ControlModifier);
+         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+      };
+
       QwtPlot _plot;
       QwtPlotZoomer* _zoomer;
       QwtDoubleRect _baseRect;
-      CASSsoapProxy* _cass;
-      QVBoxLayout _layout;
       QwtPlotCurve _curve;
 
       QToolBar* _toolbar;
       QAction* _act_zoomin;
       QAction* _act_zoomout;
+
+      CASSsoapProxy* _cass;
+};
+
+class plotWidget1D : public plotWidget
+{
+public:
+      //
+      plotWidget1D() {
+          setupUI();
+      };
+
+      void setupUI() {
+         initPlot(_layout);
+         initToolbar(_layout);
+         setLayout(&_layout);
+      };
+     
+protected slots:
+      //void getHistogram();
+      //void getList();
+
+protected:
+      QVBoxLayout _layout;
 
       std::string getHistogram_mime(size_t type);
 private:
@@ -153,6 +163,8 @@ protected:
     QQueue<float> _values;
     int _accumulationLength;
     cass::Histogram1DFloat _histAccumulator;
+
+    QVBoxLayout _layout;
 };
 
 

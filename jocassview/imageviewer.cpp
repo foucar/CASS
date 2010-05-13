@@ -158,7 +158,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageLayout->addLayout(_imageValuesLayout);
     _imageWidget->setLayout(_imageLayout);
     // widget for plots:
-    _plotWidget = new plotWidget(_cass);
+    _plotWidget1D = new plotWidget1D;
     _plotWidget0D = new plotWidget0D(1000);
     // dock widget containing image or histograms:
     _dock = new QDockWidget(tr("Histogram"), this);
@@ -318,9 +318,9 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
     /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
             << " width=" << image.size().width()
             << " height=" << image.size().height() << endl);*/
-    _plotWidget->setData(hist);
+    _plotWidget1D->setData(hist);
     delete hist;
-    if (_dock->widget()!=_plotWidget) _dock->setWidget(_plotWidget);
+    if (_dock->widget()!=_plotWidget1D) _dock->setWidget(_plotWidget1D);
     
     updateActions();
     //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);

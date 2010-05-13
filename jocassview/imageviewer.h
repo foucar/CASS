@@ -197,7 +197,7 @@ private:
 
     ImageLabel *_imageLabel;
 
-    plotWidget* _plotWidget;
+    plotWidget1D* _plotWidget1D;
     plotWidget0D* _plotWidget0D;
 
     void closeEvent(QCloseEvent *event);
