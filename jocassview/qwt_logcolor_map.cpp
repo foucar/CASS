@@ -6,7 +6,7 @@
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
-
+#include <iostream>
 #include "qwt_array.h"
 #include "qwt_math.h"
 #include "qwt_double_interval.h"
@@ -34,6 +34,7 @@ public:
 
     QwtArray<double> stops() const;
 
+
 private:
 
     class ColorStop
@@ -58,7 +59,7 @@ private:
         QRgb rgb;
         int r, g, b;
     };
-
+    
     inline int findUpper(double pos) const; 
     QwtArray<ColorStop> _stops;
 };
@@ -209,7 +210,7 @@ public:
    \param format Preferred format of the color map
 */
 QwtLogColorMap::QwtLogColorMap(QwtColorMap::Format format):
-    QwtColorMap(format)
+    QwtColorMap(format), _transformId(trans_lin)
 {
     d_data = new PrivateData;
     d_data->mode = ScaledColors;
@@ -219,7 +220,8 @@ QwtLogColorMap::QwtLogColorMap(QwtColorMap::Format format):
 
 //! Copy constructor
 QwtLogColorMap::QwtLogColorMap(const QwtLogColorMap &other):
-    QwtColorMap(other)
+    QwtColorMap(other), _transformId(trans_lin)
+
 {
     d_data = new PrivateData;
     *this = other;
@@ -234,7 +236,8 @@ QwtLogColorMap::QwtLogColorMap(const QwtLogColorMap &other):
 */
 QwtLogColorMap::QwtLogColorMap(const QColor &color1, 
         const QColor &color2, QwtColorMap::Format format):
-    QwtColorMap(format)
+    QwtColorMap(format), _transformId(trans_lin)
+
 {
     d_data = new PrivateData;
     d_data->mode = ScaledColors;
@@ -363,10 +366,24 @@ QRgb QwtLogColorMap::rgb(
     if ( width > 0.0 )
         ratio = (value - interval.minValue()) / width;
 
-    //return d_data->colorStops.rgb(d_data->mode, log(ratio));
-    return d_data->colorStops.rgb(d_data->mode, sqrt(ratio));
-    //return d_data->colorStops.rgb(d_data->mode, pow(ratio,10));
-    //return d_data->colorStops.rgb(d_data->mode, (ratio,10));
+    //std::cout << "QwtLogColorMap::rgb() " << value << "ratio:" << ratio << "log(ratio+1): " << log(ratio+1) << std::endl;
+    switch(_transformId) {
+        case trans_lin:
+            return d_data->colorStops.rgb(d_data->mode, ratio);
+            break;
+        case trans_pow10:
+            return d_data->colorStops.rgb(d_data->mode, pow(10,ratio));
+            break;
+        case trans_log10:
+            return d_data->colorStops.rgb(d_data->mode, log10(ratio+1));
+            break;
+        case trans_sqrt:
+            return d_data->colorStops.rgb(d_data->mode, sqrt(ratio));
+            break;
+        case trans_square:
+            return d_data->colorStops.rgb(d_data->mode, pow(ratio,2));
+            break;
+    }
 }
 
 /*!
@@ -378,6 +395,7 @@ QRgb QwtLogColorMap::rgb(
 unsigned char QwtLogColorMap::colorIndex(
     const QwtDoubleInterval &interval, double value) const
 {
+
     const double width = interval.width();
 
     if ( width <= 0.0 || value <= interval.minValue() )

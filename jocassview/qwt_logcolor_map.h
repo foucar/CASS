@@ -70,6 +70,15 @@ public:
         ScaledColors
     };
 
+    enum transformId
+    {
+        trans_lin,
+        trans_pow10,
+        trans_log10,
+        trans_sqrt,
+        trans_square
+    };
+
     QwtLogColorMap(QwtColorMap::Format = QwtColorMap::RGB);
     QwtLogColorMap( const QColor &from, const QColor &to,
         QwtColorMap::Format = QwtColorMap::RGB);
@@ -98,6 +107,12 @@ public:
 
     class ColorStops;
 
+    //void setTransform( (*foo)(double) transform ) { _transformfunc = transform; };
+
+    void setTransformId(transformId id) {_transformId = id;};
+protected:
+    transformId _transformId;
+    //void (*foo)(double) _transformfunc;
 private:
     class PrivateData;
     PrivateData *d_data;
