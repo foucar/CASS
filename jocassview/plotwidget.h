@@ -55,24 +55,46 @@ class spectrogramData: public QwtRasterData
 {
 public:
     spectrogramData():
-        QwtRasterData(QwtDoubleRect(0, 0, 1000, 1000)), _hist(NULL)
+        _boundRect(0.0, 0.0, 1000.0, 1000.0), QwtRasterData(_boundRect), _hist(NULL)
     {
+    }
+
+    ~spectrogramData()
+    {
+        delete _hist;
+    }
+
+    spectrogramData( cass::Histogram2DFloat* hist, QwtDoubleRect brect, QwtDoubleInterval interval) :
+        _hist(hist), _boundRect(brect), _interval(interval)
+    {
+        setBoundingRect(_boundRect);
     }
     
     void setHistogram(cass::Histogram2DFloat* hist)
     {
-        delete _hist;
+        //delete _hist;   // don't delete: spectogram deletes this.
         _hist = hist;
+        if (_hist) {
+            _interval.setMinValue( _hist->min() );
+            _interval.setMaxValue( _hist->max() );
+            std::pair<size_t,size_t> shape(_hist->shape());
+            _boundRect.setLeft( 0.0 );
+            _boundRect.setRight( shape.first );
+            _boundRect.setTop( shape.second );
+            _boundRect.setBottom( 0.0 );
+            std::cout << " hist 2 d shape.first: " << shape.first << " second: " << shape.second << std::endl;
+        }
+        setBoundingRect( _boundRect );
     }
 
     virtual QwtRasterData *copy() const
     {
-        return new spectrogramData();
+        return new spectrogramData(_hist, _boundRect, _interval);
     }
 
     virtual QwtDoubleInterval range() const
     {
-        return QwtDoubleInterval(0.0, 10.0);
+        return _interval;
     }
 
     virtual double value(double x, double y) const
@@ -81,6 +103,8 @@ public:
     }
 protected:
     cass::Histogram2DFloat* _hist;
+    QwtDoubleInterval _interval;
+    QwtDoubleRect _boundRect;
 };
 
 class spectrogramWidget : public QWidget
@@ -91,6 +115,16 @@ public:
         _spectrogramData = new spectrogramData;
         _spectrogram = new QwtPlotSpectrogram();
         _plot = new QwtPlot;
+
+        QwtLogColorMap colorMap(Qt::darkCyan, Qt::red);
+        colorMap.addColorStop(0.1, Qt::cyan);
+        colorMap.addColorStop(0.6, Qt::green);
+        colorMap.addColorStop(0.95, Qt::yellow);
+
+        _spectrogram->setData(*_spectrogramData);
+        _spectrogram->attach(_plot);
+    
+        _spectrogram->setColorMap(colorMap);
 
         QwtPlotZoomer* zoomer = new MyZoomer(_plot->canvas());
         zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
@@ -104,16 +138,6 @@ public:
     
     void setData(cass::Histogram2DFloat* hist) {
         _spectrogramData->setHistogram(hist);    //QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
-        QwtLogColorMap colorMap(Qt::darkCyan, Qt::red);
-        colorMap.addColorStop(0.1, Qt::cyan);
-        colorMap.addColorStop(0.6, Qt::green);
-        colorMap.addColorStop(0.95, Qt::yellow);
-    
-        _spectrogram->setColorMap(colorMap);
-    
-        _spectrogram->setData(*_spectrogramData);
-        _spectrogram->attach(_plot);
-        
         _plot->replot();
         
     };
