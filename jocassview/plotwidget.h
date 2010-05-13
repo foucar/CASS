@@ -9,6 +9,9 @@
 #include <qwt_plot_curve.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_spectrogram.h>
+#include <qwt_plot_layout.h>
+#include <qwt_scale_widget.h>
+#include <qwt_scale_draw.h>
 #include <qdialog.h>
 #include <QDockWidget>
 #include <QLabel>
@@ -51,12 +54,47 @@ public:
     }
 };
 
+
+class spectrogramDataDummy: public QwtRasterData
+{
+public:
+    spectrogramDataDummy():
+        QwtRasterData(QwtDoubleRect(-1.5, -1.5, 3.0, 3.0))
+    {
+    }
+
+    virtual QwtRasterData *copy() const
+    {
+        return new spectrogramDataDummy();
+    }
+    void setHistogram(cass::Histogram2DFloat* hist)
+    {
+    }
+ 
+    virtual QwtDoubleInterval range() const
+    {
+        return QwtDoubleInterval(0.0, 10.0);
+    }
+
+    virtual double value(double x, double y) const
+    {
+        const double c = 0.842;
+
+        const double v1 = x * x + (y-c) * (y+c);
+        const double v2 = x * (y+c) + x * (y+c);
+
+        return 1.0 / (v1 * v1 + v2 * v2);
+    }
+};
+
+
 class spectrogramData: public QwtRasterData
 {
 public:
     spectrogramData():
-        _boundRect(0.0, 0.0, 1000.0, 1000.0), QwtRasterData(_boundRect), _hist(NULL)
+        _boundRect(0.0, 0.0, 100.0, 100.0), _hist(NULL),  QwtRasterData(QwtDoubleRect(0.0, 0.0, 1024, 1024.0)), _interval(QwtDoubleInterval(0.0, 16383.0))
     {
+        //setBoundingRect(_boundRect);
     }
 
     ~spectrogramData()
@@ -65,9 +103,9 @@ public:
     }
 
     spectrogramData( cass::Histogram2DFloat* hist, QwtDoubleRect brect, QwtDoubleInterval interval) :
-        _hist(hist), _boundRect(brect), _interval(interval)
+        _hist(hist), _boundRect(brect), _interval(interval), QwtRasterData(QwtDoubleRect(0.0, 20.0, 1000, 2000.0))
     {
-        setBoundingRect(_boundRect);
+        //setBoundingRect(_boundRect);
     }
     
     void setHistogram(cass::Histogram2DFloat* hist)
@@ -79,12 +117,13 @@ public:
             _interval.setMaxValue( _hist->max() );
             std::pair<size_t,size_t> shape(_hist->shape());
             _boundRect.setLeft( 0.0 );
-            _boundRect.setRight( shape.first );
+            _boundRect.setRight( 0.0 );
             _boundRect.setTop( shape.second );
-            _boundRect.setBottom( 0.0 );
+            _boundRect.setBottom( shape.first );
             std::cout << " hist 2 d shape.first: " << shape.first << " second: " << shape.second << std::endl;
+            std::cout << " hist min : " << _hist->min() << " max: " << _hist->max() << std::endl;
         }
-        setBoundingRect( _boundRect );
+        //setBoundingRect( _boundRect );
     }
 
     virtual QwtRasterData *copy() const
@@ -99,7 +138,8 @@ public:
 
     virtual double value(double x, double y) const
     {
-        if (_hist) return (*_hist)(x,y);
+        if (_hist) if (x>1) if (x<1024) if (y>1) if (y<1024) return (*_hist)(x,y);
+        return 0.0;
     }
 protected:
     cass::Histogram2DFloat* _hist;
@@ -113,6 +153,7 @@ class spectrogramWidget : public QWidget
 public:
     spectrogramWidget() {
         _spectrogramData = new spectrogramData;
+        _spectrogramDataDummy = new spectrogramDataDummy;
         _spectrogram = new QwtPlotSpectrogram();
         _plot = new QwtPlot;
 
@@ -120,11 +161,23 @@ public:
         colorMap.addColorStop(0.1, Qt::cyan);
         colorMap.addColorStop(0.6, Qt::green);
         colorMap.addColorStop(0.95, Qt::yellow);
+        _spectrogram->setColorMap(colorMap);
 
         _spectrogram->setData(*_spectrogramData);
         _spectrogram->attach(_plot);
+
+    // A color bar on the right axis
+    QwtScaleWidget *rightAxis = _plot->axisWidget(QwtPlot::yRight);
+    rightAxis->setTitle("Intensity");
+    rightAxis->setColorBarEnabled(true);
+    rightAxis->setColorMap(_spectrogram->data().range(),
+        _spectrogram->colorMap());
+
+    _plot->setAxisScale(QwtPlot::yRight,
+        _spectrogram->data().range().minValue(),
+        _spectrogram->data().range().maxValue() );
+    _plot->enableAxis(QwtPlot::yRight);
     
-        _spectrogram->setColorMap(colorMap);
 
         QwtPlotZoomer* zoomer = new MyZoomer(_plot->canvas());
         zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
@@ -133,16 +186,26 @@ public:
            Qt::RightButton);
         _layout.addWidget(_plot);
         setLayout(&_layout);
+        _spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
+        _plot->plotLayout()->setAlignCanvasToScales(true);
+        _plot->replot();
         
     }
     
     void setData(cass::Histogram2DFloat* hist) {
+
+        _spectrogram->setData(*_spectrogramDataDummy); //hack
         _spectrogramData->setHistogram(hist);    //QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
+        _spectrogram->setData(*_spectrogramData);   //hack
+        _spectrogram->invalidateCache();
+        _spectrogram->itemChanged();
+
         _plot->replot();
         
     };
 protected:
     spectrogramData* _spectrogramData;
+    spectrogramDataDummy* _spectrogramDataDummy;
     QwtPlotSpectrogram* _spectrogram;
     QwtPlot* _plot;
     QVBoxLayout _layout;

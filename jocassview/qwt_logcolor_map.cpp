@@ -364,7 +364,9 @@ QRgb QwtLogColorMap::rgb(
         ratio = (value - interval.minValue()) / width;
 
     //return d_data->colorStops.rgb(d_data->mode, log(ratio));
-    return d_data->colorStops.rgb(d_data->mode, pow(ratio,10));
+    return d_data->colorStops.rgb(d_data->mode, sqrt(ratio));
+    //return d_data->colorStops.rgb(d_data->mode, pow(ratio,10));
+    //return d_data->colorStops.rgb(d_data->mode, (ratio,10));
 }
 
 /*!
