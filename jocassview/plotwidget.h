@@ -110,7 +110,7 @@ public:
     
     void setHistogram(cass::Histogram2DFloat* hist)
     {
-        //delete _hist;   // don't delete: spectogram deletes this.
+        //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
         _hist = hist;
         if (_hist) {
             _interval.setMinValue( _hist->min() );
