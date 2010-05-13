@@ -185,7 +185,22 @@ public:
             if (event->type() == QEvent::MouseMove) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
                 double yval= _plot->invTransform(QwtPlot::yRight, mouseEvent->pos().y());
-                std::cout << "DDDDDDDDDDDDDDd" << yval << std::endl;
+                QwtDoubleInterval range = _spectrogram->data().range();
+                double ystep = (yval - range.minValue() ) / (range.maxValue()-range.minValue());
+                std::cout << "DDDDDDDDDDDDDDd" << ystep << std::endl;
+
+                // old colormap is deleted by _spectrogram->setColorMap !!
+                _colorMap = new QwtLogColorMap(Qt::darkCyan, Qt::red);
+                _colorMap->addColorStop(0, Qt::cyan);
+                _colorMap->addColorStop(ystep, Qt::green);
+                _colorMap->addColorStop(1, Qt::yellow);
+                _colorMap->setTransformId(_transformCol);
+                _spectrogram->setColorMap(*_colorMap);
+                _rightAxis->setColorMap(_spectrogram->data().range(),
+                    *_colorMap);
+                _plot->replot();
+
+
             }
         }
         // pass the event on to the parent class
@@ -200,10 +215,10 @@ public:
     spectrogramWidget() {
 
         setMouseTracking(true);
-        //transformCol = QwtLogColorMap::trans_pow10;
-        //transformCol_inv = QwtLogColorMap::trans_log10;
-        transformCol = QwtLogColorMap::trans_log10;
-        transformCol_inv = QwtLogColorMap::trans_log10;
+        //_transformCol = QwtLogColorMap::trans_pow10;
+        //_transformCol_inv = QwtLogColorMap::trans_log10;
+        _transformCol = QwtLogColorMap::trans_pow10;
+        _transformCol_inv = QwtLogColorMap::trans_log10;
         _spectrogramData = new spectrogramData;
         _spectrogramDataDummy = new spectrogramDataDummy();
         _spectrogram = new QwtPlotSpectrogram();
@@ -213,7 +228,7 @@ public:
         _colorMap->addColorStop(0.1, Qt::cyan);
         _colorMap->addColorStop(0.6, Qt::green);
         _colorMap->addColorStop(0.95, Qt::yellow);
-        _colorMap->setTransformId(transformCol);
+        _colorMap->setTransformId(_transformCol);
         _spectrogram->setColorMap(*_colorMap);
 
         _spectrogram->setData(*_spectrogramData);
@@ -229,7 +244,7 @@ public:
         _colorMapInv->addColorStop(0.1, Qt::cyan);
         _colorMapInv->addColorStop(0.6, Qt::green);
         _colorMapInv->addColorStop(0.95, Qt::yellow);
-        _colorMapInv->setTransformId(transformCol_inv);
+        _colorMapInv->setTransformId(_transformCol_inv);
 
 
     _rightAxis->setColorMap(_spectrogram->data().range(),
@@ -275,7 +290,7 @@ public:
     };
 protected:
 
-    QwtLogColorMap::transformId transformCol, transformCol_inv;
+    QwtLogColorMap::transformId _transformCol, _transformCol_inv;
     QwtLogColorMap* _colorMapInv;
     QwtLogColorMap* _colorMap;
     spectrogramData* _spectrogramData;
