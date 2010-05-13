@@ -26,6 +26,7 @@ QMAKE_EXTRA_TARGETS+= SOAPFiles
 SOURCES       += jocassview.cpp \
                  imageviewer.cpp \
                  plotwidget.cpp \
+                 qwt_logcolor_map.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 

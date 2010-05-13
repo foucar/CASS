@@ -60,6 +60,7 @@ namespace jocassview
     signals:
 
         void newImage(const QImage &image);
+        void newHistogram(cass::Histogram2DFloat*);
         void newHistogram(cass::Histogram1DFloat*);
         void newHistogram(cass::Histogram0DFloat*);
         void newNone();
@@ -168,6 +169,8 @@ private slots:
 
     void updatePixmap(const QImage &image);
 
+    void updateHistogram(cass::Histogram2DFloat* hist);
+    
     void updateHistogram(cass::Histogram1DFloat* hist);
 
     void updateHistogram(cass::Histogram0DFloat* hist);
@@ -199,6 +202,7 @@ private:
 
     plotWidget1D* _plotWidget1D;
     plotWidget0D* _plotWidget0D;
+    spectrogramWidget* _spectrogramWidget;
 
     void closeEvent(QCloseEvent *event);
 

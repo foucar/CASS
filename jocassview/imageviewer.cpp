@@ -48,6 +48,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     qRegisterMetaType<QImage>("QImage");
     connect(&_gdthread, SIGNAL(newNone()), this, SLOT(updateNone()));
     connect(&_gdthread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
+    connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram2DFloat*)), this, SLOT(updateHistogram(cass::Histogram2DFloat*)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram(cass::Histogram1DFloat*)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram0DFloat*)), this, SLOT(updateHistogram(cass::Histogram0DFloat*)));
     connect(_ui.aboutQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -162,6 +163,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _plotWidget0D = new plotWidget0D(1000);
     // dock widget containing image or histograms:
     _dock = new QDockWidget(tr("Histogram"), this);
+    _spectrogramWidget = new spectrogramWidget;
     //addDockWidget(Qt::RightDockWidgetArea, _dock);
     setCentralWidget(_dock);
 
@@ -311,6 +313,30 @@ std::cout<< "updatePixmap" <<std::endl;
     std::cout << "min: " << _imageMinValue->text().toFloat() << std::endl;
     std::cout << "max: " << _imageMaxValue->text().toFloat() << std::endl;
     std::cout << "value mapping: " << _imageMapping->currentIndex() << " : " <<  _imageMapping->currentText().toStdString() << std::endl;
+}
+
+void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
+{
+    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
+            << " width=" << image.size().width()
+            << " height=" << image.size().height() << endl);*/
+    _spectrogramWidget->setData(hist);
+    //delete hist;  // DO NOT DELETE!, hist is now owned by spectrogramdata instance!
+    if (_dock->widget()!=_spectrogramWidget) _dock->setWidget(_spectrogramWidget);
+    
+    updateActions();
+    //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
+    // set rate info
+    static QTime time;
+    static float rate(0.);
+    int elapsed(time.restart());
+    if(rate < 0.01)
+        rate = 1000./elapsed;
+    else
+        rate = 0.95 * rate + 0.05 * 1000./elapsed;
+    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+    _statusLED->setStatus(false);
+    _ready = true;
 }
 
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
@@ -475,6 +501,9 @@ void getDataThread::run()
     case dat_Image:
         _cass->getImage(2, _attachId, &ret);
         break;
+    case dat_2DHistogram:
+        _cass->getHistogram(_attachId, &ret);
+        break;
     case dat_1DHistogram:
         _cass->getHistogram(_attachId, &ret);
         break;
@@ -508,6 +537,11 @@ void getDataThread::run()
                 imageformatName(cass::ImageFormat(_format)).c_str()));
         VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image.byteCount() << endl);
         emit newImage(image);
+        break; }
+    case dat_2DHistogram: {
+        cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+        cass::Histogram2DFloat* hist = new cass::Histogram2DFloat(serializer);
+        emit newHistogram(hist);  // slot deletes hist when done.
         break; }
     case dat_1DHistogram: {
         cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );

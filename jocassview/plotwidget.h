@@ -8,6 +8,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot_spectrogram.h>
 #include <qdialog.h>
 #include <QDockWidget>
 #include <QLabel>
@@ -16,7 +17,7 @@
 #include <QAction>
 #include <QFont>
 #include <QQueue>
-
+#include "qwt_logcolor_map.h"
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
 #include "../cass/cass.h"
@@ -27,6 +28,73 @@
 
 // prototypes:
 class cassData;
+
+
+class spectrogramData: public QwtRasterData
+{
+public:
+    spectrogramData():
+        QwtRasterData(QwtDoubleRect(-1.5, -1.5, 3.0, 3.0)), _hist(NULL)
+    {
+    }
+    
+    void setHistogram(cass::Histogram2DFloat* hist)
+    {
+        delete _hist;
+        _hist = hist;
+    }
+
+    virtual QwtRasterData *copy() const
+    {
+        return new spectrogramData();
+    }
+
+    virtual QwtDoubleInterval range() const
+    {
+        return QwtDoubleInterval(0.0, 10.0);
+    }
+
+    virtual double value(double x, double y) const
+    {
+        return (*_hist)(x,y);
+    }
+protected:
+    cass::Histogram2DFloat* _hist;
+};
+
+class spectrogramWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    spectrogramWidget() {
+        _spectrogramData = new spectrogramData;
+        _spectrogram = new QwtPlotSpectrogram();
+        _plot = new QwtPlot;
+        
+    }
+    
+    void setData(cass::Histogram2DFloat* hist) {
+        _spectrogramData->setHistogram(hist);    //QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
+        QwtLogColorMap colorMap(Qt::darkCyan, Qt::red);
+        colorMap.addColorStop(0.1, Qt::cyan);
+        colorMap.addColorStop(0.6, Qt::green);
+        colorMap.addColorStop(0.95, Qt::yellow);
+    
+        _spectrogram->setColorMap(colorMap);
+    
+        _spectrogram->setData(*_spectrogramData);
+        _spectrogram->attach(_plot);
+        
+        _layout.addWidget(_plot);
+        
+    };
+protected:
+    spectrogramData* _spectrogramData;
+    QwtPlotSpectrogram* _spectrogram;
+    QwtPlot* _plot;
+    QVBoxLayout _layout;
+    
+};
 
 
 class plotWidget : public QWidget
