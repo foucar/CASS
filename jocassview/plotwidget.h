@@ -29,6 +29,27 @@
 // prototypes:
 class cassData;
 
+class MyZoomer: public QwtPlotZoomer
+{
+public:
+    MyZoomer(QwtPlotCanvas *canvas):
+        QwtPlotZoomer(canvas)
+    {
+        setTrackerMode(AlwaysOn);
+    }
+
+    virtual QwtText trackerText(const QwtDoublePoint &pos) const
+    {
+        QColor bg(Qt::white);
+#if QT_VERSION >= 0x040300
+        bg.setAlpha(200);
+#endif
+
+        QwtText text = QwtPlotZoomer::trackerText(pos);
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
+    }
+};
 
 class spectrogramData: public QwtRasterData
 {
@@ -70,6 +91,12 @@ public:
         _spectrogramData = new spectrogramData;
         _spectrogram = new QwtPlotSpectrogram();
         _plot = new QwtPlot;
+
+        QwtPlotZoomer* zoomer = new MyZoomer(_plot->canvas());
+        zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+           Qt::RightButton, Qt::ControlModifier);
+        zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+           Qt::RightButton);
         _layout.addWidget(_plot);
         setLayout(&_layout);
         
