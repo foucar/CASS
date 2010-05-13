@@ -36,7 +36,7 @@ class MyZoomer: public QwtPlotZoomer
 {
 public:
     MyZoomer(QwtPlotCanvas *canvas):
-        QwtPlotZoomer(canvas)
+        QwtPlotZoomer(canvas), _hist(NULL)
     {
         setTrackerMode(AlwaysOn);
     }
@@ -49,9 +49,17 @@ public:
 #endif
 
         QwtText text = QwtPlotZoomer::trackerText(pos);
+        QString text_string(text.text());
+        if (pos.x()>1 && pos.x()<1023 && pos.y()>1 && pos.y()<1023) // range check should be in histogram...
+        if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x(), pos.y()) );
+        text.setText(text_string);
         text.setBackgroundBrush( QBrush( bg ));
         return text;
     }
+
+    void setHistogram(cass::Histogram2DFloat* hist) { _hist = hist; };
+protected:
+    cass::Histogram2DFloat* _hist;
 };
 
 
@@ -179,10 +187,10 @@ public:
     _plot->enableAxis(QwtPlot::yRight);
     
 
-        QwtPlotZoomer* zoomer = new MyZoomer(_plot->canvas());
-        zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+        _zoomer = new MyZoomer(_plot->canvas());
+        _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
            Qt::RightButton, Qt::ControlModifier);
-        zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+        _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
            Qt::RightButton);
         _layout.addWidget(_plot);
         setLayout(&_layout);
@@ -195,7 +203,8 @@ public:
     void setData(cass::Histogram2DFloat* hist) {
 
         _spectrogram->setData(*_spectrogramDataDummy); //hack
-        _spectrogramData->setHistogram(hist);    //QwtLinearColorMap colorMap(Qt::darkCyan, Qt::red);
+        dynamic_cast<MyZoomer*>(_zoomer)->setHistogram(hist);
+        _spectrogramData->setHistogram(hist);
         _spectrogram->setData(*_spectrogramData);   //hack
         _spectrogram->invalidateCache();
         _spectrogram->itemChanged();
@@ -209,6 +218,7 @@ protected:
     QwtPlotSpectrogram* _spectrogram;
     QwtPlot* _plot;
     QVBoxLayout _layout;
+    QwtPlotZoomer* _zoomer;
     
 };
 
