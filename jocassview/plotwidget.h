@@ -34,7 +34,7 @@ class spectrogramData: public QwtRasterData
 {
 public:
     spectrogramData():
-        QwtRasterData(QwtDoubleRect(-1.5, -1.5, 3.0, 3.0)), _hist(NULL)
+        QwtRasterData(QwtDoubleRect(0, 0, 1000, 1000)), _hist(NULL)
     {
     }
     
@@ -56,7 +56,7 @@ public:
 
     virtual double value(double x, double y) const
     {
-        return (*_hist)(x,y);
+        if (_hist) return (*_hist)(x,y);
     }
 protected:
     cass::Histogram2DFloat* _hist;
@@ -70,6 +70,8 @@ public:
         _spectrogramData = new spectrogramData;
         _spectrogram = new QwtPlotSpectrogram();
         _plot = new QwtPlot;
+        _layout.addWidget(_plot);
+        setLayout(&_layout);
         
     }
     
@@ -85,7 +87,7 @@ public:
         _spectrogram->setData(*_spectrogramData);
         _spectrogram->attach(_plot);
         
-        _layout.addWidget(_plot);
+        _plot->replot();
         
     };
 protected:
