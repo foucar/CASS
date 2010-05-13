@@ -36,13 +36,13 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     switch(id)
     {
     case PostProcessors::Pnccd1LastImage:
-        _device=CASSEvent::pnCCD; _detector = 0; cols = 1024; rows = 1024;
+        _device=CASSEvent::pnCCD; _detector = 0; cols = pnCCD::default_size; rows = pnCCD::default_size;
         break;
     case PostProcessors::Pnccd2LastImage:
-        _device=CASSEvent::pnCCD; _detector = 1; cols = 1024; rows = 1024;
+        _device=CASSEvent::pnCCD; _detector = 1; cols = pnCCD::default_size; rows = pnCCD::default_size;
         break;
     case PostProcessors::VmiCcdLastImage:
-        _device=CASSEvent::CCD; _detector = 0; cols = 1000; rows = 1000;
+        _device=CASSEvent::CCD; _detector = 0; cols = CCD::default_size; rows = CCD::default_size;
         break;
 
     default:
@@ -150,7 +150,6 @@ void cass::pp101::loadSettings(size_t)
     int cols(0); int rows(0);
     switch(_id)
     {
-    /** @todo use the default sizes here */
     case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
     case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
     case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
