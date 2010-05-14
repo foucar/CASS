@@ -226,6 +226,11 @@ private:
       */
     void saveImage(QString fileName);
 
+    /** save 1D data
+      * save helper function
+      */
+    void save1DData(QString fileName);
+
     virtual void showEvent(QShowEvent *);
 
 
@@ -234,6 +239,8 @@ private:
 #ifndef QT_NO_PRINTER
     QPrinter printer;
 #endif
+
+    QReadWriteLock _histogramlock;
 
     CASSsoapProxy *_cass;
 

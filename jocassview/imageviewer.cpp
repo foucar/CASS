@@ -11,6 +11,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QPrintDialog>
 #include <QtGui/QPainter>
+#include <fstream>
 
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
@@ -252,8 +253,11 @@ void ImageViewer::on_save_image_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save File"), QDir::currentPath());
-    saveImage(fileName);
- }
+    if (_dock->widget()==_imageWidget) 
+        saveImage(fileName);
+    if (_dock->widget()==_plotWidget1D)
+        save1DData(fileName);
+}
 
 void ImageViewer::on_auto_save_image_triggered()
 {
@@ -261,7 +265,24 @@ void ImageViewer::on_auto_save_image_triggered()
     for (int ii=_attachId->currentText().length(); ii<3; ii++)
         fillZeros+=QString("0");
     QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString() + QString(".png");
-    saveImage(fileName);
+    if (_dock->widget()==_imageWidget) 
+        saveImage(fileName);
+    if (_dock->widget()==_plotWidget1D)
+        save1DData(fileName);
+}
+
+void ImageViewer::save1DData(QString fileName)
+{
+    _histogramlock.lockForRead();
+    ofstream outfile;
+    outfile.open(fileName.toStdString().c_str());
+    cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
+    const cass::AxisProperty &axis = _lastHist->axis()[0];
+    for (size_t ii=0;ii< hist->size();ii++) {
+        outfile << axis.position(ii) << ";" << hist->bin(ii) << std::endl;
+    }
+    _histogramlock.unlock();
+    outfile.close();
 }
 
 void ImageViewer::saveImage(QString fileName)
@@ -326,7 +347,11 @@ std::cout<< "updatePixmap" <<std::endl;
 void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 {
     _spectrogramWidget->setData(hist);
-    if (hist!=_lastHist) delete _lastHist;
+    if (hist!=_lastHist) {
+        _histogramlock.lockForWrite();
+        delete _lastHist;
+        _histogramlock.unlock();
+    }
     _lastHist = hist;
     if (_dock->widget()!=_spectrogramWidget) _dock->setWidget(_spectrogramWidget);
     
