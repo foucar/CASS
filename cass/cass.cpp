@@ -157,7 +157,8 @@
  * @todo create intreal pp (with possible subset
  * @todo add multiplication pp
  * @todo create pp that will convert all active pp histograms to root histo and
- *       store it in .root file
+ *       store it in .root file.
+ * @todo add possibilty in cassview to write 2d histograms as csv file
  */
 
 /** \page authors Authors
