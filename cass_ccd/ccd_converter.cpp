@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <iostream>
+#include <functional>
+
 
 #include "pdsdata/camera/FrameV1.hh"
 #include "pdsdata/xtc/Xtc.hh"
@@ -16,6 +18,7 @@
 
 void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
+  using namespace std;
   //Get the the detector's device id //
   const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
   const size_t detectorId = info.devId();
@@ -38,8 +41,18 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   det.originalrows()     = frame.height();
 
   //copy the frame data to this detector and do a type convertion implicitly//
-  const uint16_t* framedata = reinterpret_cast<const uint16_t*>(frame.data());
-  det.frame().assign(framedata, framedata + (frame.width()*frame.height()));
+  const uint16_t* framedata (reinterpret_cast<const uint16_t*>(frame.data()));
+  const size_t framesize(frame.width()*frame.height());
+  //make frame big enough to take all data//
+  det.frame().resize(framesize);
+  det.frame().assign(framedata, framedata+framesize);
+  transform(det.frame().begin(),det.frame().end(),
+            det.frame().begin(),
+            bind2nd(minus<float>(),static_cast<float>(frame.offset())));
+  /** @todo substracting and copying should be done in one step not in two */
+//  transform(framedata,framedata + framesize,
+//            det.frame().begin(),
+//            bind2nd(minus<uint16_t>(),static_cast<uint16_t>(frame.offset())));
   //mark out the first 8 pixels since they store status info, that might mess up the picture
-  std::fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
+  fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
 }
