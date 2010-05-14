@@ -365,6 +365,7 @@ void cass::pp150::loadSettings(size_t)
   param.beginGroup(QString("p")+QString::number(_id));
 
   _imageId = static_cast<PostProcessors::id_t>(param.value("ImageId",104).toInt());
+  _drawCircle = (param.value("DrawInnerOuterRadius",false).toBool());
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it calcluates cos2theta"
@@ -415,23 +416,48 @@ void pp150::operator()(const CASSEvent& /*event*/)
   _pp.histograms_release();
   image->lock.lockForRead();
   HistogramFloatBase::storage_t &imageMemory(image->memory());
-  float nom(0), denom(0);
+  float nom(0), denom(0),maxval(0);
   float symangle(_symAngle/180*M_PI);
   for(int jr = 0; jr<_nbrRadialPoints; jr++)
   {
-    for(int jth = 0; jth<_nbrAngularPoints; jth++)
+    for(int jth = 1; jth<_nbrAngularPoints; jth++)
     {
       const float radius(_minRadius + jr);
-      const float angle(2*M_PI * jth / _nbrAngularPoints);
+      const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
       size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
       size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-      float val = imageMemory[col + row * _imageWith] * square(radius); // * abs(sin(angle));
-      denom += val;
-      nom   += val * square(cos(angle));
+      float val = imageMemory[col + row * _imageWith]; // * abs(sin(angle));
+      denom += val * square(radius);
+      nom   += val * square(cos(angle)) * square(radius);
+      maxval = max(val,maxval);
     }
   }
   image->lock.unlock();
-//  std::cout <<"pp150: "<<nom<<" "<<denom<<" "<<_nbrRadialPoints<<" "<<_nbrAngularPoints<<" "<<_minRadius<<" "<<_center.first<<" "<<_center.second<<std::endl;
+
+  if (_drawCircle)
+  {
+    image->lock.lockForWrite();
+    //max circle
+    for(int jth = 0; jth<_nbrAngularPoints; jth++)
+    {
+      const float radius(_minRadius + _nbrRadialPoints);
+      const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
+      size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
+      size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
+      imageMemory[col + row * _imageWith] = maxval;
+    }
+    //min circle
+    for(int jth = 0; jth<_nbrAngularPoints; jth++)
+    {
+      const float radius(_minRadius);
+      const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
+      size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
+      size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
+      imageMemory[col + row * _imageWith] = maxval;
+    }
+    image->lock.unlock();
+  }
+//  std::cout <<"pp150: "<<nom<<" "<<denom<<" "<<_nbrRadialPoints<<" "<<_nbrAngularPoints<<" "<<_minRadius<<" "<<_center.first<<" "<<_center.second<<" "<<_minRadius+_nbrRadialPoints-1<<" "<<<<std::endl;
 
   _value->lock.lockForWrite();
   *_value = (abs(denom) < 1e-15)?0.5:nom/denom;

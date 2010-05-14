@@ -122,6 +122,8 @@ protected:
  *           \f$\cos^2\theta\f$  from. Default is 104.
  * @cassttng PostProcessor/p\%id\%/{MaxIncludedRadius|MinIncludedRadius}\n
  *           values for the interesting radius range. Default is 0,0
+ * @cassttng PostProcessor/p\%id\%/{DrawInnerOuterRadius}\n
+ *           draw the inner and out include radius. default is false
  *
  * Implements Postprocessor id's: 150.
  *
@@ -151,6 +153,7 @@ protected:
   int32_t _imageWith;             //!< Image width
   int32_t _nbrRadialPoints;       //!< Number of radial points
   int32_t _nbrAngularPoints;      //!< Number of angular points
+  bool _drawCircle;               //!< flag to tell whether to draw the inner and outer circle
   /** the cos2theta value*/
   Histogram0DFloat *_value;
 };
