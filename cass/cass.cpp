@@ -151,6 +151,13 @@
  *       can use the histogram part for it.
  * @todo find out how one can use xrefitem so that it will list consecutive
  *       items under one title, just like todo does.
+ * @todo make 0d histogram return true/ false
+ * @todo create a less pp
+ * @todo create division pp
+ * @todo create intreal pp (with possible subset
+ * @todo add multiplication pp
+ * @todo create pp that will convert all active pp histograms to root histo and
+ *       store it in .root file
  */
 
 /** \page authors Authors
