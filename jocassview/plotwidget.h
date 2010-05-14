@@ -128,7 +128,7 @@ public:
 
     ~spectrogramData()
     {
-        delete _hist;
+        //delete _hist; // don't delete: histogram is owned by caller of setHistogram.
     }
 
     spectrogramData( cass::Histogram2DFloat* hist, QwtDoubleRect brect, QwtDoubleInterval interval) :

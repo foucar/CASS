@@ -51,7 +51,7 @@ namespace jocassview
         void setSoap(CASSsoapProxy* cassSoap);
         cass::PostProcessors::active_t getIdList(CASSsoapProxy *cass);
         std::string getMimeType(CASSsoapProxy *cass, int attachId);
-        void getData(CASSsoapProxy *cass, int attachId);
+        void getData(CASSsoapProxy *cass, int attachId, int useSpectrogram);
         void getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId);
         void getHistogram0D(CASSsoapProxy *cass, int attachId);
         void getHistogram1D(CASSsoapProxy *cass, int attachId);
@@ -59,7 +59,7 @@ namespace jocassview
 
     signals:
 
-        void newImage(const QImage &image);
+        void newImage(const QImage *image);
         void newHistogram(cass::Histogram2DFloat*);
         void newHistogram(cass::Histogram1DFloat*);
         void newHistogram(cass::Histogram0DFloat*);
@@ -78,6 +78,8 @@ namespace jocassview
         cass::ImageFormat _format;
 
         int _attachId;
+
+        int _useSpectrogram;
 
     };
 
@@ -135,6 +137,8 @@ private slots:
     /**
     @todo Use cass::imageformatName and such! */
 
+    void useSpectrogram_stateChanged(int newstate);
+
     void on_getData_triggered();
 
     void on_getHistogram_triggered();
@@ -167,7 +171,7 @@ private slots:
 
     void updateNone();
 
-    void updatePixmap(const QImage &image);
+    void updatePixmap(const QImage *image);
 
     void updateHistogram(cass::Histogram2DFloat* hist);
     
@@ -244,6 +248,8 @@ private:
 
     QCheckBox *_running;
 
+    QCheckBox *_chk_spectrogram;
+
     QComboBox*_attachId;
 
     QSize _imagesize;
@@ -260,6 +266,10 @@ private:
     QTimer *_updater;
 
     bool _ready;
+
+    cass::HistogramFloatBase* _lastHist;
+
+    const QImage* _lastImage;
 
 };
 

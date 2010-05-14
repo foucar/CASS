@@ -44,10 +44,12 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags), _updater(new QTimer(this)), _ready(true)
 {
     QSettings settings;
+    _lastImage = NULL;
+    _lastHist = NULL;
     _ui.setupUi(this);
     qRegisterMetaType<QImage>("QImage");
     connect(&_gdthread, SIGNAL(newNone()), this, SLOT(updateNone()));
-    connect(&_gdthread, SIGNAL(newImage(QImage)), this, SLOT(updatePixmap(QImage)));
+    connect(&_gdthread, SIGNAL(newImage(const QImage*)), this, SLOT(updatePixmap(const QImage*)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram2DFloat*)), this, SLOT(updateHistogram(cass::Histogram2DFloat*)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram1DFloat*)), this, SLOT(updateHistogram(cass::Histogram1DFloat*)));
     connect(&_gdthread, SIGNAL(newHistogram(cass::Histogram0DFloat*)), this, SLOT(updateHistogram(cass::Histogram0DFloat*)));
@@ -73,6 +75,11 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QWidget *spacer1(new QWidget());
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
+    // add spectrogram switch to toolbar:
+    _chk_spectrogram = new QCheckBox();
+    _chk_spectrogram->setToolTip(tr("spectrogram instead of image."));
+    connect(_chk_spectrogram, SIGNAL(stateChanged(int)), this, SLOT(useSpectrogram_stateChanged(int)));
+    _ui.toolBar->addWidget(_chk_spectrogram);
     // Add Attachment identifier to toolbar.
     _attachId = new QComboBox();
     _attachId->setToolTip("Attachment identifier.");
@@ -287,13 +294,15 @@ void ImageViewer::updateNone()
 }
 
 
-void ImageViewer::updatePixmap(const QImage &image)
+void ImageViewer::updatePixmap(const QImage *image)
 {
-    VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
-            << " width=" << image.size().width()
-            << " height=" << image.size().height() << endl);
-    _imageLabel->setPixmap(QPixmap::fromImage(image));
-    _imagesize = image.size();
+    VERBOSEOUT(cout << "updatePixmap: byteCount=" << image->byteCount()
+            << " width=" << image->size().width()
+            << " height=" << image->size().height() << endl);
+    _imageLabel->setPixmap(QPixmap::fromImage(*image));
+    _imagesize = image->size();
+    if (image!=_lastImage) delete _lastImage;
+    _lastImage = image;
     if (_dock->widget()!=_imageWidget) _dock->setWidget(_imageWidget);
 std::cout<< "updatePixmap" <<std::endl;
     updateActions();
@@ -317,11 +326,9 @@ std::cout<< "updatePixmap" <<std::endl;
 
 void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 {
-    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
-            << " width=" << image.size().width()
-            << " height=" << image.size().height() << endl);*/
     _spectrogramWidget->setData(hist);
-    //delete hist;  // DO NOT DELETE!, hist is now owned by spectrogramdata instance!
+    if (hist!=_lastHist) delete _lastHist;
+    _lastHist = hist;
     if (_dock->widget()!=_spectrogramWidget) _dock->setWidget(_spectrogramWidget);
     
     updateActions();
@@ -341,11 +348,9 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 {
-    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
-            << " width=" << image.size().width()
-            << " height=" << image.size().height() << endl);*/
     _plotWidget1D->setData(hist);
-    delete hist;
+    if (hist!=_lastHist) delete _lastHist;
+    _lastHist = hist;
     if (_dock->widget()!=_plotWidget1D) _dock->setWidget(_plotWidget1D);
     
     updateActions();
@@ -365,11 +370,9 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 
 void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
 {
-    /*VERBOSEOUT(cout << "updatePixmap: byteCount=" << image.byteCount()
-            << " width=" << image.size().width()
-            << " height=" << image.size().height() << endl);*/
     _plotWidget0D->setData(hist);
-    delete hist;
+    if (hist!=_lastHist) delete _lastHist;
+    _lastHist = hist;
     if (_dock->widget()!=_plotWidget0D) _dock->setWidget(_plotWidget0D);
     
     updateActions();
@@ -387,12 +390,13 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
     _ready = true;
 }
 
-void getDataThread::getData(CASSsoapProxy *cass, int attachId)
+void getDataThread::getData(CASSsoapProxy *cass, int attachId, int useSpectrogram)
 {
     VERBOSEOUT(cout << "getDataThread::getData" << endl);
     _dataType = dat_Any;
     _cass = cass;
     _attachId = attachId;
+    _useSpectrogram = useSpectrogram;
     start();
 }
 
@@ -497,6 +501,8 @@ void getDataThread::run()
     }
     VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
     bool ret = FALSE;
+    if (_useSpectrogram && _dataType==dat_Image) _dataType = dat_2DHistogram;
+    if (!_useSpectrogram && _dataType==dat_2DHistogram) _dataType = dat_Image;
     switch(_dataType) {
     case dat_Image:
         _cass->getImage(2, _attachId, &ret);
@@ -533,9 +539,9 @@ void getDataThread::run()
     VERBOSEOUT(cout << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
     switch(_dataType) {
     case dat_Image: {
-        QImage image(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
+        QImage* image = new QImage(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
                 imageformatName(cass::ImageFormat(_format)).c_str()));
-        VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image.byteCount() << endl);
+        VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image->byteCount() << endl);
         emit newImage(image);
         break; }
     case dat_2DHistogram: {
@@ -561,6 +567,13 @@ void getDataThread::run()
 #warning Fix imageformat
 }
 
+void ImageViewer::useSpectrogram_stateChanged(int newstate)
+{
+    if ( _dock->widget() == _imageWidget && _lastHist && !_running->isChecked() )
+        updateHistogram( dynamic_cast<cass::Histogram2DFloat*>(_lastHist) );
+    else if ( _dock->widget() == _spectrogramWidget && _lastImage && !_running->isChecked() )
+        updatePixmap( _lastImage );
+}
 
 void ImageViewer::on_getData_triggered()
 {
@@ -569,7 +582,7 @@ void ImageViewer::on_getData_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
         _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
-        _gdthread.getData(_cass, _attachId->currentText().toInt());
+        _gdthread.getData(_cass, _attachId->currentText().toInt(), _chk_spectrogram->isChecked() );
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
@@ -741,7 +754,7 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 getDataThread::getDataThread()
 {
     VERBOSEOUT(cout << "getDataThread::getDataThread" << endl);
-
+    _dataType = dat_Any;
 }
 
 }
