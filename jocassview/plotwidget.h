@@ -224,7 +224,7 @@ public:
     }
 
     void mouseMoveEvent ( QMouseEvent * event ) {
-        double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
+        //double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
 
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
     } 
@@ -287,6 +287,7 @@ public:
     }
     
     void setData(cass::Histogram2DFloat* hist) {
+        static int oldId=cass::PostProcessors::InvalidPP;
 
         _spectrogram->setData(*_spectrogramDataDummy); //hack
         dynamic_cast<MyZoomer*>(_zoomer)->setHistogram(hist);
@@ -300,12 +301,16 @@ public:
             _spectrogram->data().range().minValue()+1,
             _spectrogram->data().range().maxValue() );
 
-        QRectF brect;
+        if (hist->getId() != oldId) {
+            QRectF brect;
+            oldId = hist->getId();
             brect.setLeft( hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
             brect.setRight( hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
             brect.setWidth( hist->axis()[cass::HistogramBackend::xAxis].upperLimit()  );
             brect.setHeight( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
-        _zoomer->setZoomBase( brect  );
+            _zoomer->setZoomBase( brect  );
+            _zoomer->zoom(0);
+        }
 
         _plot->replot();
         
@@ -331,6 +336,7 @@ class plotWidget : public QWidget
    Q_OBJECT
 public:
       void setData(cass::Histogram1DFloat* hist ) {
+         static int oldId = cass::PostProcessors::InvalidPP;
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
          //QVector<cass::HistogramFloatBase::value_t> qdata(hist.size());
          QVector<double> qdata(hist->size());
@@ -343,12 +349,18 @@ public:
          }
          _curve.attach(&_plot);
          _curve.setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
-         _baseRect.setLeft( axis.position(0) );
-         _baseRect.setRight( axis.position(hist->size()) );
-         _baseRect.setTop( hist->max() );
-         _baseRect.setBottom( hist->min() );
-         _zoomer->setZoomBase(_baseRect);
-         _plot.replot();
+
+         if (hist->getId() != oldId) {
+             oldId = hist->getId(); 
+             _baseRect.setLeft( axis.position(0) );
+             _baseRect.setRight( axis.position(hist->size()) );
+             _baseRect.setTop( hist->max() );
+             _baseRect.setBottom( hist->min() );
+             _zoomer->setZoomBase(_baseRect);
+             _zoomer->setZoomBase();
+             _zoomer->zoom(0);
+             //_plot.replot();
+         }
       };
 
 protected:

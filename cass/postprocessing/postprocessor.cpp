@@ -131,6 +131,8 @@ void PostProcessors::_delete(id_t type)
 void PostProcessors::_replace(id_t type, HistogramBackend *hist)
 {
     _delete(type);
+    hist->setId(type);
+
     _histograms.insert(std::make_pair(type, hist));
 }
 

@@ -521,7 +521,9 @@ public:
         FsPhotodiodeHeightvsFwhmMcp=682,
 
         HexPIPICO=700,
-        HexQuadPIPICO=701
+        HexQuadPIPICO=701,
+
+        InvalidPP
     };
 
     /** Container of all currently available histograms */

@@ -21,6 +21,7 @@
 
 #include "serializer.h"
 #include "serializable.h"
+#include "postprocessing/postprocessor.h"
 
 namespace cass
 {
@@ -129,6 +130,10 @@ public:
     std::string& mimeType() {return _mime;};
     void setMimeType(std::string str) {_mime=str; };
 
+    void setId(PostProcessors::id_t id) {_id = static_cast<int>(id);};
+
+    int getId() {return _id;};
+
     /** Read-write lock for internal memory/data
 
     This is a public property of every histogram. It must be locked for all access to the histogram.
@@ -196,6 +201,7 @@ protected:
     //!< how many times has this histogram been filled
     size_t    _nbrOfFills;
     std::string _mime;
+    uint32_t _id;
 };
 
 
@@ -595,6 +601,7 @@ inline void cass::HistogramFloatBase::serialize(cass::Serializer &out)
   //the memory//
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.addFloat(*it);
+  out.addUint32(_id);
   //we have been filled and serialized so we need to tell that we don't want //
   //to be filled again//
   if(_fillwhenserialized)
@@ -624,6 +631,7 @@ inline void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
   _memory.resize(size);
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
+  _id = in.retrieveUint32();
   lock.unlock();
 }
 
