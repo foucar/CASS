@@ -208,9 +208,9 @@ public:
                         bot=ystep;
 
                     // old colormap is deleted by _spectrogram->setColorMap !!
-                    _colorMap = new QwtLogColorMap(Qt::darkCyan, Qt::red);
-                    _colorMap->addColorStop(top, Qt::yellow);
-                    _colorMap->addColorStop(bot, Qt::green);
+                    _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
+                    _colorMap->addColorStop(top, QColor(255,255,255));
+                    _colorMap->addColorStop(bot, QColor(0,0,0));
                     _colorMap->setTransformId(_transformCol);
                     _spectrogram->setColorMap(*_colorMap);
                     _rightAxis->setColorMap(_spectrogram->data().range(),
@@ -240,10 +240,9 @@ public:
         _spectrogram = new QwtPlotSpectrogram();
         _plot = new MyPlot;
 
-        _colorMap = new QwtLogColorMap(Qt::darkCyan, Qt::red);
-        _colorMap->addColorStop(0.1, Qt::cyan);
-        _colorMap->addColorStop(0.6, Qt::green);
-        _colorMap->addColorStop(0.95, Qt::yellow);
+        _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
+        _colorMap->addColorStop(0.7, QColor(255,255,255));
+        _colorMap->addColorStop(0.2, QColor(0,0,0));
         _colorMap->setTransformId(_transformCol);
         _spectrogram->setColorMap(*_colorMap);
 
