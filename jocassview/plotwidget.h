@@ -299,6 +299,7 @@ public:
         _plot->setAxisScale(QwtPlot::yRight,
             _spectrogram->data().range().minValue()+1,
             _spectrogram->data().range().maxValue() );
+        _zoomer->setZoomBase();
 
         _plot->replot();
         
