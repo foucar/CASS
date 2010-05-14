@@ -6,6 +6,7 @@
 #include <QtCore/QMutexLocker>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <cmath>
 #include "pnccd_analysis.h"
 #include "pnccd_device.h"
@@ -14,6 +15,7 @@
 #include <vector>
 #include <time.h>
 #include <stdexcept>
+#include <cstring>
 //#define debug_conf
 //#define debug
 
@@ -98,7 +100,9 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
         // the orientation is used only in the case of a triangular shape
         dp._detROI._ROI[iROI].orientation = value("orientation",1).toInt();
       endGroup();
-      std::cout << printoutdef << "ROI loaded "<< iROI << " xsiz " << dp._detROI._ROI[iROI].xsize 
+      std::cout << printoutdef << "ROI loaded "<< iROI << " shape is "
+                << dp._detROI._ROI[iROI].name
+                <<" xsiz " << dp._detROI._ROI[iROI].xsize 
                 <<" ysiz " << dp._detROI._ROI[iROI].ysize 
                 <<" xc " << dp._detROI._ROI[iROI].xcentre
                 <<" yc " << dp._detROI._ROI[iROI].ycentre 
@@ -252,7 +256,7 @@ void cass::pnCCD::Analysis::loadSettings()
       //std::cout <<"reading pnccd "<<i<<" from file \""<<_param._darkcal_fnames[i].c_str()<<"\""<<std::endl;
       //find how big the vectors have to be//
       const size_t size = in.tellg() / 2 / sizeof(double);
-      if(size%(1024*1024)==0) //or 512*1024??
+      if(size%(pnCCD::default_size_sq)==0)
       {
         //go to the beginning of the file
         in.seekg(0,std::ios::beg);
@@ -270,16 +274,12 @@ void cass::pnCCD::Analysis::loadSettings()
         char command[128];
         sprintf(command,"/bin/ls -l darkcal_%d.cal|/bin/awk '{print $11}'",static_cast<int>(iDet));
         FILE * fp;
-        char this_char[1];
-        char soft_link_target[256];
+        char soft_link_target[360];
         soft_link_target[0]=0;
         fp = popen(command,"r");
-        while (fread(this_char , 1, 1, fp)>0 )
-        { 
-          strcat(soft_link_target,this_char);
-        }
+        size_t status = fread(soft_link_target,1,sizeof(soft_link_target)-1,fp);
         pclose(fp);
-        soft_link_target[strlen(soft_link_target)]=0;
+        soft_link_target[status]=0;
         std::cout<< printoutdef << "Read-in filename is "<<dp._darkcalfilename << 
           " that is most propably a software link" << std::endl;
         std::cout<< printoutdef << "The maps were read from: "<< soft_link_target <<std::endl;
@@ -354,10 +354,12 @@ void cass::pnCCD::Analysis::loadSettings()
       {
 #ifdef debug
         size_t index_of_center=dp._detROI._ROI[iROI].xcentre
-          + 1024 * dp._detROI._ROI[iROI].ycentre;
+          + pnCCD::default_size * dp._detROI._ROI[iROI].ycentre;
 #endif
         size_t index_min;
-          //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
+        int diff_Xsize_Xcenter_to_boundary=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize;
+        int diff_Ysize_Ycenter_to_boundary=dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize;
+        //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
         if(dp._detROI._ROI[iROI].xcentre < dp._detROI._ROI[iROI].xsize)
         {
           //in this case the size of the ROI is larger than its distance to the side of the CHIP (along y)
@@ -367,7 +369,7 @@ void cass::pnCCD::Analysis::loadSettings()
           }
           else
           {
-            index_min= 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+            index_min= pnCCD::default_size * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
           }
         }
         else
@@ -379,7 +381,7 @@ void cass::pnCCD::Analysis::loadSettings()
           else
           {
             index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
-              + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+              + pnCCD::default_size * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
           }
         }
         /*size_t index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
@@ -395,6 +397,7 @@ void cass::pnCCD::Analysis::loadSettings()
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
             * (2 * dp._detROI._ROI[iROI].ysize + 1);
+
         //remember how many pixels I have masked
         //number_of_pixelsettozero+=indexROI_max;
 #ifdef debug
@@ -433,8 +436,56 @@ void cass::pnCCD::Analysis::loadSettings()
             }
           }
         }
+        if(dp._detROI._ROI[iROI].name=="ellipse" )
+        {
+          int32_t xlocal,ylocal;
+          const float a2 =  static_cast<float>(pow(dp._detROI._ROI[iROI].xsize,2));
+          const float b2 =  static_cast<float>(pow(dp._detROI._ROI[iROI].ysize,2));
+#ifdef debug
+          std::cout << printoutdef << "circ seen with semi-axis^2= " << a2 << " and " << b2 <<std::endl;
+#endif
+          for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+          {
+            xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
+            ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize + 1);
+#ifdef debug
+            std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<dp._detROI._ROI[iROI].xsize<< " " 
+                     <<pow(xlocal-static_cast<int32_t>(dp._detROI._ROI[iROI].xsize),2)
+                     <<std::endl;
+#endif
+            if( ( pow(static_cast<float>(xlocal)-static_cast<float>(dp._detROI._ROI[iROI].xsize),2)/a2 +
+                  pow(static_cast<float>(ylocal)-static_cast<float>(dp._detROI._ROI[iROI].ysize),2)/b2 ) <= 1 )
+            {
+              //I do not need to set again to zero a pixel that was already masked!
+              if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
+              {
+                dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+#ifdef debug
+              std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+            }
+          }
+        }
         if(dp._detROI._ROI[iROI].name=="square")
         {
+        if( diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0 )
+          std::cout << printoutdef <<  "too small distances x;y "<< diff_Xsize_Xcenter_to_boundary 
+                  <<" "<< diff_Ysize_Ycenter_to_boundary<<std::endl;
+        //If I am too nearby the boundary, reduce the ROI "size"
+        if(diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0)
+        {
+          size_t save_val=indexROI_max;
+          //in this way I am subtracting 0 if the ROI is sufficiently far from boundaries of the CHIP
+          indexROI_max=(2 * dp._detROI._ROI[iROI].xsize - std::max(0,-diff_Xsize_Xcenter_to_boundary) + 1)
+            * (2 * dp._detROI._ROI[iROI].ysize - std::max(0,-diff_Ysize_Ycenter_to_boundary) + 1);
+          std::cout << printoutdef <<  "indexROI_max reduced from "<< save_val << " to "<< indexROI_max
+                    << " for ROI number " << iROI <<std::endl;
+        }
+
+
           uint32_t  xlocal,ylocal;
 #ifdef debug
           std::cout << printoutdef <<  "square seen" <<std::endl;
