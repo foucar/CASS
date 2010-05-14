@@ -127,13 +127,13 @@ private slots:
     *
     * Save Image to disc.
     */
-    void on_save_image_triggered();
+    void on_save_data_triggered();
 
     /** quick/auto Save Image file.
     *
     * Save Image to disc with filename based on Date/Time.
     */
-    void on_auto_save_image_triggered();
+    void on_auto_save_data_triggered();
 
     /**
     @todo Use cass::imageformatName and such! */

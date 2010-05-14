@@ -28,8 +28,8 @@
      <string>File</string>
     </property>
     <addaction name="open"/>
-    <addaction name="save_image"/>
-    <addaction name="auto_save_image"/>
+    <addaction name="save_data"/>
+    <addaction name="auto_save_data"/>
     <addaction name="print"/>
     <addaction name="separator"/>
     <addaction name="exit"/>
@@ -91,22 +91,22 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="save_image">
+  <action name="save_data">
    <property name="text">
-    <string>&amp;Save image...</string>
+    <string>&amp;Save data...</string>
    </property>
    <property name="toolTip">
-    <string>Save image to file.</string>
+    <string>Save data (image or plot) to file.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
-  </action><action name="auto_save_image">
+  </action><action name="auto_save_data">
    <property name="text">
-    <string>&amp;Save image (auto)</string>
+    <string>&amp;Save data (auto)</string>
    </property>
    <property name="toolTip">
-    <string>Save image to file.</string>
+    <string>Save data (image or plot) to file.</string>
    </property>
    <property name="shortcut">
     <string>F10</string>

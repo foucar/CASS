@@ -249,7 +249,7 @@ void ImageViewer::on_open_triggered()
     }
 }
 
-void ImageViewer::on_save_image_triggered()
+void ImageViewer::on_save_data_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
             tr("Save File"), QDir::currentPath());
@@ -259,16 +259,16 @@ void ImageViewer::on_save_image_triggered()
         save1DData(fileName);
 }
 
-void ImageViewer::on_auto_save_image_triggered()
+void ImageViewer::on_auto_save_data_triggered()
 {
     QString fillZeros;
     for (int ii=_attachId->currentText().length(); ii<3; ii++)
         fillZeros+=QString("0");
-    QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString() + QString(".png");
+    QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString();
     if (_dock->widget()==_imageWidget) 
-        saveImage(fileName);
+        saveImage(fileName + QString(".png"));
     if (_dock->widget()==_plotWidget1D)
-        save1DData(fileName);
+        save1DData(fileName + QString(".csv"));
 }
 
 void ImageViewer::save1DData(QString fileName)
