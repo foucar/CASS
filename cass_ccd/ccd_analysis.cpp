@@ -202,6 +202,39 @@ void cass::CCD::Analysis::loadSettings()
         }
       }
     }
+    if(_param._detROI._ROI[iROI].name=="ellipse" )
+    {
+      int32_t xlocal,ylocal;
+      const float a2 =  static_cast<float>(pow(_param._detROI._ROI[iROI].xsize,2));
+      const float b2 =  static_cast<float>(pow(_param._detROI._ROI[iROI].ysize,2));
+#ifdef debug
+      std::cout << printoutdef << "ellipse seen with semi-axis^2= " << a2 << " and " << b2 <<std::endl;
+#endif
+      for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+      {
+        xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
+        ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize + 1);
+#ifdef debug
+        std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param._detROI._ROI[iROI].xsize<< " " 
+                 <<pow(xlocal-static_cast<int32_t>(_param._detROI._ROI[iROI].xsize),2)
+                 <<std::endl;
+#endif
+        if( ( pow(static_cast<float>(xlocal)-static_cast<float>(_param._detROI._ROI[iROI].xsize),2)/a2 +
+              pow(static_cast<float>(ylocal)-static_cast<float>(_param._detROI._ROI[iROI].ysize),2)/b2 ) <= 1 )
+        {
+          //I do not need to set again to zero a pixel that was already masked!
+          if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+          {
+            _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
+            //remember how many pixels I have masked
+            number_of_pixelsettozero++;
+          }
+#ifdef debug
+          std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
+#endif
+        }
+      }
+    }
     if(_param._detROI._ROI[iROI].name=="square")
     {
       uint32_t  xlocal,ylocal;

@@ -59,7 +59,7 @@ namespace cass
   /** simple ROI definition.
    *
    *  each ROI need the following "attributes": shape, xsize, ysize, xcenter, ycenter
-   *  shapes:=circ(==circle),triangle(isosceles),square and  the orientation!!!\n
+   *  shapes:=circ(==circle),ellipse,triangle(isosceles),square and  the orientation!!!\n
    *  the orientation is used only in the case of a triangular shape
    *
    *  I think also a "double triangle bottle-like shape could be helpful
