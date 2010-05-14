@@ -148,6 +148,11 @@ cass::pp500::pp500(cass::PostProcessors &ppc, cass::PostProcessors::id_t id)
   case PostProcessors::CampChannel17AveragedWaveform: _channel=17;_instrument=Camp1;break;
   case PostProcessors::CampChannel18AveragedWaveform: _channel=18;_instrument=Camp1;break;
   case PostProcessors::CampChannel19AveragedWaveform: _channel=19;_instrument=Camp1;break;
+  case PostProcessors::ITofChannel00AveragedWaveform: _channel=0;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel01AveragedWaveform: _channel=1;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel02AveragedWaveform: _channel=2;_instrument=Camp2;break;
+  case PostProcessors::ITofChannel03AveragedWaveform: _channel=3;_instrument=Camp2;break;
+
   default: throw std::invalid_argument(QString("postprocessor %1 is not for averaging waveforms").arg(_id).toStdString());
   }
   std::cout<< "postprocessor "<<id<< " will average Channel "<< _channel
