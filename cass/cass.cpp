@@ -159,6 +159,8 @@
  * @todo create pp that will convert all active pp histograms to root histo and
  *       store it in .root file.
  * @todo add possibilty in cassview to write 2d histograms as csv file
+ * @todo in offline pass filename of file cotinaing xtc files and resulting
+ *       h5 / root filename as arguments to cass
  */
 
 /** \page authors Authors
