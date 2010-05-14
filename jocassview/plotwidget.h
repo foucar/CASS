@@ -366,8 +366,8 @@ public:
              _zoomer->setZoomBase(_baseRect);
              _zoomer->setZoomBase();
              _zoomer->zoom(0);
-             //_plot.replot();
          }
+         _plot.replot();
       };
 
 protected:
