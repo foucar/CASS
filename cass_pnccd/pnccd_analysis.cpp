@@ -954,7 +954,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             {
               this_pixel.x()=iter[pixelidx]%det.columns();
               this_pixel.y()=iter[pixelidx]/det.columns();
-              this_pixel.z()=*itFrame;
+              this_pixel.z()=*itFrame;// I should subtract *itNoise
               det.pixellist().push_back(this_pixel);
               //I could "tag" the pixel
               // something like "mask[iFrame]=3"
@@ -1016,7 +1016,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
               {
                 this_pixel.x()=(this_pix_i)%det.columns();
                 this_pixel.y()=(this_pix_i)/det.columns();
-                this_pixel.z()=*itFrame;
+                this_pixel.z()=*itFrame; // I should subtract *itNoise
                 det.pixellist().push_back(this_pixel);
                 //I could "tag" the pixel
                 // something like "mask[iFrame]=3"
