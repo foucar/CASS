@@ -433,9 +433,9 @@ void pp150::operator()(const CASSEvent& /*event*/)
     }
   }
   image->lock.unlock();
-
   if (_drawCircle)
   {
+    maxval/= 4.;
     image->lock.lockForWrite();
     //max circle
     for(int jth = 0; jth<_nbrAngularPoints; jth++)
@@ -446,6 +446,7 @@ void pp150::operator()(const CASSEvent& /*event*/)
       size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
       imageMemory[col + row * _imageWith] = maxval;
     }
+
     //min circle
     for(int jth = 0; jth<_nbrAngularPoints; jth++)
     {
