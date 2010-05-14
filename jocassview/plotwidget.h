@@ -299,7 +299,13 @@ public:
         _plot->setAxisScale(QwtPlot::yRight,
             _spectrogram->data().range().minValue()+1,
             _spectrogram->data().range().maxValue() );
-        _zoomer->setZoomBase();
+
+        QRectF brect;
+            brect.setLeft( hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
+            brect.setRight( hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
+            brect.setWidth( hist->axis()[cass::HistogramBackend::xAxis].upperLimit()  );
+            brect.setHeight( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
+        _zoomer->setZoomBase( brect  );
 
         _plot->replot();
         
