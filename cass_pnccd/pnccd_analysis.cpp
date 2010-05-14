@@ -352,13 +352,20 @@ void cass::pnCCD::Analysis::loadSettings()
       number_of_pixelsettozero=0;
       for(size_t iROI=0;iROI<dp._detROI._ROI.size(); ++iROI)
       {
-#ifdef debug
         size_t index_of_center=dp._detROI._ROI[iROI].xcentre
           + pnCCD::default_size * dp._detROI._ROI[iROI].ycentre;
-#endif
         size_t index_min;
+        int32_t signed_index_min=static_cast<int32_t>(dp._detROI._ROI[iROI].xcentre) -
+          static_cast<int32_t>(dp._detROI._ROI[iROI].xsize)
+          + static_cast<int32_t>(pnCCD::default_size)
+          * (static_cast<int32_t>(dp._detROI._ROI[iROI].ycentre)
+             - static_cast<int32_t>(dp._detROI._ROI[iROI].ysize));
         int diff_Xsize_Xcenter_to_boundary=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize;
         int diff_Ysize_Ycenter_to_boundary=dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize;
+        if( diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0 )
+          std::cout << printoutdef <<  "too small distances x;y "<< diff_Xsize_Xcenter_to_boundary 
+                    <<" "<< diff_Ysize_Ycenter_to_boundary<< " for ROI " << iROI
+                    <<" "<< signed_index_min<<" " <<index_of_center <<std::endl;
         //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
         if(dp._detROI._ROI[iROI].xcentre < dp._detROI._ROI[iROI].xsize)
         {
@@ -397,6 +404,7 @@ void cass::pnCCD::Analysis::loadSettings()
         size_t indexROI_min=0;
         size_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
             * (2 * dp._detROI._ROI[iROI].ysize + 1);
+        size_t save_val=indexROI_max;
 
         //remember how many pixels I have masked
         //number_of_pixelsettozero+=indexROI_max;
@@ -406,8 +414,7 @@ void cass::pnCCD::Analysis::loadSettings()
         if(dp._detROI._ROI[iROI].name=="circ" || dp._detROI._ROI[iROI].name=="circle"  )
         {
           int32_t  xlocal,ylocal;
-          const uint32_t radius2 =  static_cast<uint32_t>(pow(dp._detROI._ROI[iROI].xsize,2)
-           );
+          const uint32_t radius2 =  static_cast<uint32_t>(pow(dp._detROI._ROI[iROI].xsize,2) );
 #ifdef debug
           std::cout << printoutdef << "circ seen with radius^2= " <<radius2 <<std::endl;
 #endif
@@ -424,9 +431,9 @@ void cass::pnCCD::Analysis::loadSettings()
                   pow(ylocal-static_cast<int32_t>(dp._detROI._ROI[iROI].ysize),2) ) <= radius2 )
             {
               //I do not need to set again to zero a pixel that was already masked!
-              if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
+              if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal) ]!=0)
               {
-                dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
+                dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal) ]=0;
                 //remember how many pixels I have masked
                 number_of_pixelsettozero++;
               }
@@ -442,7 +449,7 @@ void cass::pnCCD::Analysis::loadSettings()
           const float a2 =  static_cast<float>(pow(dp._detROI._ROI[iROI].xsize,2));
           const float b2 =  static_cast<float>(pow(dp._detROI._ROI[iROI].ysize,2));
 #ifdef debug
-          std::cout << printoutdef << "circ seen with semi-axis^2= " << a2 << " and " << b2 <<std::endl;
+          std::cout << printoutdef << "circ ellipse with semi-axis^2= " << a2 << " and " << b2 <<std::endl;
 #endif
           for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
           {
@@ -471,21 +478,16 @@ void cass::pnCCD::Analysis::loadSettings()
         }
         if(dp._detROI._ROI[iROI].name=="square")
         {
-        if( diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0 )
-          std::cout << printoutdef <<  "too small distances x;y "<< diff_Xsize_Xcenter_to_boundary 
-                  <<" "<< diff_Ysize_Ycenter_to_boundary<<std::endl;
-        //If I am too nearby the boundary, reduce the ROI "size"
-        if(diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0)
-        {
-          size_t save_val=indexROI_max;
-          //in this way I am subtracting 0 if the ROI is sufficiently far from boundaries of the CHIP
-          indexROI_max=(2 * dp._detROI._ROI[iROI].xsize - std::max(0,-diff_Xsize_Xcenter_to_boundary) + 1)
-            * (2 * dp._detROI._ROI[iROI].ysize - std::max(0,-diff_Ysize_Ycenter_to_boundary) + 1);
-          std::cout << printoutdef <<  "indexROI_max reduced from "<< save_val << " to "<< indexROI_max
-                    << " for ROI number " << iROI <<std::endl;
-        }
-
-
+          //If I am too nearby the boundary, reduce the ROI "size"
+          if(diff_Xsize_Xcenter_to_boundary<0 || diff_Ysize_Ycenter_to_boundary<0)
+          {
+            save_val=indexROI_max;
+            //in this way I am subtracting 0 if the ROI is sufficiently far from boundaries of the CHIP
+            indexROI_max=(2 * dp._detROI._ROI[iROI].xsize - std::max(0,-diff_Xsize_Xcenter_to_boundary) + 1)
+              * (2 * dp._detROI._ROI[iROI].ysize - std::max(0,-diff_Ysize_Ycenter_to_boundary) + 1);
+            std::cout << printoutdef <<  "indexROI_max reduced from "<< save_val << " to "<< indexROI_max
+                      << " for ROI number " << iROI <<std::endl;
+          }
           uint32_t  xlocal,ylocal;
 #ifdef debug
           std::cout << printoutdef <<  "square seen" <<std::endl;
