@@ -132,7 +132,7 @@ public:
     }
 
     spectrogramData( cass::Histogram2DFloat* hist, QwtDoubleRect brect, QwtDoubleInterval interval) :
-        QwtRasterData(QwtDoubleRect(0,0,1024,1024)), _hist(hist), _boundRect(brect), _interval(interval)
+        QwtRasterData(brect), _hist(hist), _boundRect(brect), _interval(interval)
     {
         //setI
         std::cout << "spectrogramdata overloaded constructor" << std::endl;
@@ -147,9 +147,9 @@ public:
             _interval.setMinValue( _hist->min() );
             _interval.setMaxValue( _hist->max() );
             _boundRect.setLeft( _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
-            _boundRect.setRight( _hist->axis()[cass::HistogramBackend::xAxis].upperLimit() );
-            _boundRect.setTop( _hist->axis()[cass::HistogramBackend::yAxis].upperLimit()  );
-            _boundRect.setBottom( _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
+            _boundRect.setRight( _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
+            _boundRect.setWidth( _hist->axis()[cass::HistogramBackend::xAxis].upperLimit()  );
+            _boundRect.setHeight( _hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
             std::cout << " hist min : " << _hist->min() << " max: " << _hist->max() << std::endl;
         }
         setBoundingRect( _boundRect );
