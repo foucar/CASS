@@ -62,9 +62,7 @@ public:
     virtual QwtText trackerText(const QwtDoublePoint &pos) const
     {
         QColor bg(Qt::white);
-#if QT_VERSION >= 0x040300
         bg.setAlpha(200);
-#endif
 
         QwtText text = QwtPlotZoomer::trackerText(pos);
         QString text_string(text.text());
