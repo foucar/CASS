@@ -169,7 +169,6 @@ public:
 
     virtual double value(double x, double y) const
     {
-        return 0.0;
         try {
             return (*_hist)(x,y);
         }
@@ -177,8 +176,8 @@ public:
         {
             return(0.0);  // todo: this shouldn't happen if bounding box is set correctly
         }
-
     }
+
 protected:
     cass::Histogram2DFloat* _hist;
     QwtDoubleRect _boundRect;
