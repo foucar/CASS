@@ -356,11 +356,40 @@ void cass::pnCCD::Analysis::loadSettings()
         size_t index_of_center=dp._detROI._ROI[iROI].xcentre
           + 1024 * dp._detROI._ROI[iROI].ycentre;
 #endif
-        size_t index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
-            + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+        size_t index_min;
+          //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
+        if(dp._detROI._ROI[iROI].xcentre < dp._detROI._ROI[iROI].xsize)
+        {
+          //in this case the size of the ROI is larger than its distance to the side of the CHIP (along y)
+          if(dp._detROI._ROI[iROI].ycentre < dp._detROI._ROI[iROI].ysize)
+          {
+            index_min=0;
+          }
+          else
+          {
+            index_min= 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+          }
+        }
+        else
+        {
+          if(dp._detROI._ROI[iROI].ycentre < dp._detROI._ROI[iROI].ysize)
+          {
+            index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize;
+          }
+          else
+          {
+            index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
+              + 1024 * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+          }
+        }
+        /*size_t index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
+          + pnCCD::default_size * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);*/
+        if(index_min>pnCCD::default_size_sq) std::cout<<"What? "<<dp._detROI._ROI[iROI].xcentre << " "<<
+                                  dp._detROI._ROI[iROI].xsize << " "<<
+                                  dp._detROI._ROI[iROI].ycentre << " "<< dp._detROI._ROI[iROI].ysize<<std::endl;
 #ifdef debug
         size_t index_max=dp._detROI._ROI[iROI].xcentre + dp._detROI._ROI[iROI].xsize
-          + 1024 * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);
+          + pnCCD::default_size * (dp._detROI._ROI[iROI].ycentre + dp._detROI._ROI[iROI].ysize);
         std::cout << printoutdef << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
 #endif
         size_t indexROI_min=0;
@@ -392,9 +421,9 @@ void cass::pnCCD::Analysis::loadSettings()
                   pow(ylocal-static_cast<int32_t>(dp._detROI._ROI[iROI].ysize),2) ) <= radius2 )
             {
               //I do not need to set again to zero a pixel that was already masked!
-              if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+              if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
               {
-                dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                 //remember how many pixels I have masked
                 number_of_pixelsettozero++;
               }
@@ -415,9 +444,9 @@ void cass::pnCCD::Analysis::loadSettings()
             xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize +1);
             ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize +1);
             //I do not need to set again to zero a pixel that was already masked!
-            if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
             {
-              dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -463,9 +492,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
@@ -476,9 +505,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
@@ -509,9 +538,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
@@ -523,9 +552,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug
                 std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
@@ -551,9 +580,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
               if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
               {
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
@@ -576,9 +605,9 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
               if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
               {
-                if (dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+                if (dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]!=0)
                 {
-                  dp._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+                  dp._ROImask[index_min+xlocal+ pnCCD::default_size * (ylocal ) ]=0;
                   //remember how many pixels I have masked
                   number_of_pixelsettozero++;
                 }
