@@ -373,7 +373,11 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 {
     _plotWidget1D->setData(hist);
-    if (hist!=_lastHist) delete _lastHist;
+    if (hist!=_lastHist) {
+        _histogramlock.lockForWrite();
+        delete _lastHist;
+        _histogramlock.unlock();
+    }
     _lastHist = hist;
     if (_dock->widget()!=_plotWidget1D) _dock->setWidget(_plotWidget1D);
     
@@ -395,7 +399,11 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
 {
     _plotWidget0D->setData(hist);
-    if (hist!=_lastHist) delete _lastHist;
+    if (hist!=_lastHist) {
+        _histogramlock.lockForWrite();
+        delete _lastHist;
+        _histogramlock.unlock();
+    }
     _lastHist = hist;
     if (_dock->widget()!=_plotWidget0D) _dock->setWidget(_plotWidget0D);
     
