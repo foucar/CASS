@@ -57,7 +57,7 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
   //use the analyzers to analyze the event//
   //iterate through all active analyzers and send the cassevent to them//
   for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
-      (*_analyzer[*it])(cassevent);
+    (*_analyzer[*it])(cassevent);
 }
 
 void cass::Analyzer::loadSettings(size_t)
@@ -71,16 +71,16 @@ void cass::Analyzer::loadSettings(size_t)
   if(param.value("useMachineAnalyzer",false).toBool())      _activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
   param.endGroup();
 
-  //iterate through all analyzers and load the settings of them//
-  for (analyzers_t::iterator it=_analyzer.begin();it != _analyzer.end();++it )
-    it->second->loadSettings();
+  //iterate through all active analyzers and load the settings of them//
+  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
+    (*_analyzer[*it]).loadSettings();
 }
 
 void cass::Analyzer::saveSettings()
 {
-  //iterate through all analyzers and load the settings of them//
-  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
-    it->second->saveSettings();
+  //iterate through all active analyzers and load the settings of them//
+  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
+    (*_analyzer[*it]).saveSettings();
 }
 
 
