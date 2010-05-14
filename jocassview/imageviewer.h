@@ -48,14 +48,14 @@ namespace jocassview
     public:
 
         getDataThread();
-        void setSoap(CASSsoapProxy* cassSoap);
-        cass::PostProcessors::active_t getIdList(CASSsoapProxy *cass);
-        std::string getMimeType(CASSsoapProxy *cass, int attachId);
-        void getData(CASSsoapProxy *cass, int attachId, int useSpectrogram);
-        void getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId);
-        void getHistogram0D(CASSsoapProxy *cass, int attachId);
-        void getHistogram1D(CASSsoapProxy *cass, int attachId);
+        cass::PostProcessors::active_t getIdList();
+        std::string getMimeType(int attachId);
+        void getData(int attachId, int useSpectrogram);
+        void getImage(cass::ImageFormat format, int attachId);
+        void getHistogram0D(int attachId);
+        void getHistogram1D(int attachId);
         void setImageFormat(cass::ImageFormat format) {_format=format;};
+        void updateServer(std::string server);
 
     signals:
 
@@ -74,6 +74,7 @@ namespace jocassview
         dataType _dataType;
 
         CASSsoapProxy *_cass;
+        CASSsoapProxy *_cassCmd;
 
         cass::ImageFormat _format;
 

@@ -60,7 +60,6 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _servername->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     _servername->setToolTip("Name of the server to connect to.");
     _cass = new CASSsoapProxy;
-    _gdthread.setSoap(_cass);
     connect(_servername, SIGNAL(editingFinished()), this, SLOT(updateServer()));
     _ui.toolBar->addWidget(_servername);
     _serverport = new QSpinBox();
@@ -185,7 +184,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
 }
 
 void ImageViewer::updateImageList(QComboBox* box) {
-    cass::PostProcessors::active_t stdlist = _gdthread.getIdList(_cass);
+    cass::PostProcessors::active_t stdlist = _gdthread.getIdList();
     for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++) {
       std::cout << "list iteration..." << std::endl;
       QString itemstring(QString::number(*it));
@@ -390,35 +389,37 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
     _ready = true;
 }
 
-void getDataThread::getData(CASSsoapProxy *cass, int attachId, int useSpectrogram)
+
+void getDataThread::updateServer(std::string server)
+{
+    _cass->soap_endpoint = server.c_str();
+    _cassCmd->soap_endpoint = server.c_str();
+}
+
+void getDataThread::getData(int attachId, int useSpectrogram)
 {
     VERBOSEOUT(cout << "getDataThread::getData" << endl);
     _dataType = dat_Any;
-    _cass = cass;
     _attachId = attachId;
     _useSpectrogram = useSpectrogram;
     start();
 }
 
-void getDataThread::setSoap(CASSsoapProxy* cassSoap) {
-    _cass = cassSoap;
-}
 
-void getDataThread::getImage(CASSsoapProxy *cass, cass::ImageFormat format, int attachId)
+void getDataThread::getImage(cass::ImageFormat format, int attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getImage" << endl);
     _dataType = dat_Image;
-    _cass = cass;
     _format = format;
     _attachId = attachId;
     start();
 }
 
-std::string getDataThread::getMimeType(CASSsoapProxy *cass, int attachId)
+std::string getDataThread::getMimeType(int attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getMimeType" << endl);
     bool ret;
-    cass->getMimeType(attachId, &ret);
+    _cass->getMimeType(attachId, &ret);
     if(ret)
         std::cout << "return value: 'true'" << std::endl;
     else {
@@ -427,7 +428,7 @@ std::string getDataThread::getMimeType(CASSsoapProxy *cass, int attachId)
     }
 
 
-    soap_multipart::iterator attachment = cass->dime.begin();
+    soap_multipart::iterator attachment = _cass->dime.begin();
     if(_cass->dime.end() == attachment) {
         cerr << "Did not get attachment!" << endl;
         emit newNone();
@@ -443,9 +444,9 @@ std::string getDataThread::getMimeType(CASSsoapProxy *cass, int attachId)
     return std::string( (*attachment).ptr, (*attachment).size-1);
 }
 
-cass::PostProcessors::active_t getDataThread::getIdList(CASSsoapProxy *cass) {
+cass::PostProcessors::active_t getDataThread::getIdList() {
     bool ret;
-    cass->getPostprocessorIds(&ret);
+    _cass->getPostprocessorIds(&ret);
     if(ret)
         std::cout << "return value: 'true'" << std::endl;
     else {
@@ -453,7 +454,7 @@ cass::PostProcessors::active_t getDataThread::getIdList(CASSsoapProxy *cass) {
         return cass::PostProcessors::active_t();
     }
 
-    soap_multipart::iterator attachment = cass->dime.begin();
+    soap_multipart::iterator attachment = _cass->dime.begin();
 
     std::cout << "DIME attachment:" << std::endl;
     std::cout << "Memory=" << (void*)(*attachment).ptr << std::endl;
@@ -466,20 +467,18 @@ cass::PostProcessors::active_t getDataThread::getIdList(CASSsoapProxy *cass) {
 };
 
 
-void getDataThread::getHistogram1D(CASSsoapProxy *cass, int attachId)
+void getDataThread::getHistogram1D(int attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getHistogram1D" << endl);
     _dataType = dat_1DHistogram;
-    _cass = cass;
     _attachId = attachId;
     start();
 }
 
-void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
+void getDataThread::getHistogram0D(int attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getHistogram0D" << endl);
     _dataType = dat_0DHistogram;
-    _cass = cass;
     _attachId = attachId;
     start();
 }
@@ -487,7 +486,7 @@ void getDataThread::getHistogram0D(CASSsoapProxy *cass, int attachId)
 void getDataThread::run()
 {
     if (_dataType==dat_Any) {
-        std::string mime(getMimeType(_cass, _attachId));
+        std::string mime(getMimeType(_attachId));
         VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
         if (!mime.compare(std::string("application/cass0Dhistogram"))) _dataType=dat_0DHistogram;
         else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
@@ -582,7 +581,7 @@ void ImageViewer::on_getData_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
         _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
-        _gdthread.getData(_cass, _attachId->currentText().toInt(), _chk_spectrogram->isChecked() );
+        _gdthread.getData(_attachId->currentText().toInt(), _chk_spectrogram->isChecked() );
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
@@ -590,7 +589,7 @@ void ImageViewer::on_getData_triggered()
 
 void ImageViewer::on_getHistogram_triggered()
 {
-    _gdthread.getHistogram1D(_cass, _attachId->currentText().toInt());
+    _gdthread.getHistogram1D(_attachId->currentText().toInt());
 }
 
 void ImageViewer::running()
@@ -723,8 +722,10 @@ void ImageViewer::updateServer()
 {
     VERBOSEOUT(cout << "updateServer: ");
     _server = (_servername->text() + ":" +_serverport->text()).toStdString();
+    _gdthread.updateServer(_server);
     _cass->soap_endpoint = _server.c_str();
     VERBOSEOUT(cout << _cass->soap_endpoint << endl);
+
 }
 
 
@@ -754,6 +755,8 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 getDataThread::getDataThread()
 {
     VERBOSEOUT(cout << "getDataThread::getDataThread" << endl);
+    _cass = new CASSsoapProxy;
+    _cassCmd = new CASSsoapProxy;
     _dataType = dat_Any;
 }
 

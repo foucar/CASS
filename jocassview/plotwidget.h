@@ -43,7 +43,7 @@ public:
     }
 
     void mouseMoveEvent ( QMouseEvent * event ) {
-        double yval = invTransform(QwtPlot::yRight, event->pos().y()) ;
+        //double yval = invTransform(QwtPlot::yRight, event->pos().y()) ;
 
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
     }
