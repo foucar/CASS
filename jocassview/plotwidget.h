@@ -8,6 +8,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot_rescaler.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
@@ -271,6 +272,12 @@ public:
         _spectrogram->data().range().maxValue() );
     _plot->enableAxis(QwtPlot::yRight);
     
+
+    QwtPlotRescaler dataPlotRescaler(_plot->canvas());
+    dataPlotRescaler.setReferenceAxis(QwtPlot::xBottom);
+    dataPlotRescaler.setAspectRatio(QwtPlot::yLeft, 1.0);
+    dataPlotRescaler.setAspectRatio(QwtPlot::yRight, 0.0);
+    dataPlotRescaler.setAspectRatio(QwtPlot::xTop, 0.0);
 
         _zoomer = new MyZoomer(_plot->canvas());
         _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
