@@ -121,18 +121,56 @@ void cass::CCD::Analysis::loadSettings()
   number_of_pixelsettozero=0;
   for(size_t iROI=0;iROI<_param._detROI._ROI.size(); ++iROI)
   {
+#ifdef debug
     size_t index_of_center=_param._detROI._ROI[iROI].xcentre
-      + 1024 * _param._detROI._ROI[iROI].ycentre;
-    size_t index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
-      + 1024 * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);
+      + CCD::opal_default_size_sq * _param._detROI._ROI[iROI].ycentre;
+#endif
+
+    size_t index_min;
+    //the following protects
+    //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
+    if(_param._detROI._ROI[iROI].xcentre < _param._detROI._ROI[iROI].xsize)
+    {
+      //in this case the size of the ROI is larger than its distance to the side of the CHIP (along y)
+      if(_param._detROI._ROI[iROI].ycentre < _param._detROI._ROI[iROI].ysize)
+      {
+        index_min=0;
+      }
+      else
+      {
+        index_min= CCD::opal_default_size * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);
+      }
+    }
+    else
+    {
+      if(_param._detROI._ROI[iROI].ycentre < _param._detROI._ROI[iROI].ysize)
+      {
+        index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize;
+      }
+      else
+      {
+        index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
+          + CCD::opal_default_size_sq * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);
+      }
+    }
+    /*size_t index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
+      + CCD::opal_default_size * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);*/
+#ifdef debug
     size_t index_max=_param._detROI._ROI[iROI].xcentre + _param._detROI._ROI[iROI].xsize
-      + 1024 * (_param._detROI._ROI[iROI].ycentre + _param._detROI._ROI[iROI].ysize);
+      + CCD::opal_default_size_sq * (_param._detROI._ROI[iROI].ycentre + _param._detROI._ROI[iROI].ysize);
+#endif
+
+
+#ifdef debug
     std::cout << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+#endif
     size_t indexROI_min=0;
     size_t indexROI_max=(2 * _param._detROI._ROI[iROI].xsize + 1)
       * (2 * _param._detROI._ROI[iROI].ysize + 1);
     //remember how many pixels I have masked
+#ifdef debug
     std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+#endif
     if(_param._detROI._ROI[iROI].name=="circ" || _param._detROI._ROI[iROI].name=="circle"  )
     {
       int32_t  xlocal,ylocal;
@@ -152,9 +190,9 @@ void cass::CCD::Analysis::loadSettings()
               pow(ylocal-static_cast<int32_t>(_param._detROI._ROI[iROI].ysize),2) ) <= radius2 )
         {
           //I do not need to set again to zero a pixel that was already masked!
-          if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+          if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
           {
-            _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+            _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
             //remember how many pixels I have masked
             number_of_pixelsettozero++;
           }
@@ -173,9 +211,9 @@ void cass::CCD::Analysis::loadSettings()
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize +1);
         ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize +1);
         //I do not need to set again to zero a pixel that was already masked!
-        if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+        if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
         {
-          _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+          _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
           //remember how many pixels I have masked
           number_of_pixelsettozero++;
         }
@@ -217,9 +255,9 @@ void cass::CCD::Analysis::loadSettings()
 #ifdef debug
             std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -230,9 +268,9 @@ void cass::CCD::Analysis::loadSettings()
 #ifdef debug
             std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -261,9 +299,9 @@ void cass::CCD::Analysis::loadSettings()
 #ifdef debug
             std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -275,9 +313,9 @@ void cass::CCD::Analysis::loadSettings()
 #ifdef debug
             std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
 #endif
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -301,9 +339,9 @@ void cass::CCD::Analysis::loadSettings()
 #endif
           if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
           {
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
@@ -324,9 +362,9 @@ void cass::CCD::Analysis::loadSettings()
 #endif
           if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
           {
-            if (_param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]!=0)
+            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
             {
-              _param._ROImask[index_min+xlocal+ 1024 * (ylocal ) ]=0;
+              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
               //remember how many pixels I have masked
               number_of_pixelsettozero++;
             }
