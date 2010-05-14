@@ -39,7 +39,9 @@ HEADERS       += soapH.h \
 FORMS         += imageviewer.ui
 
 INCLUDEPATH   += $$PWD/.. \
-                 $$PWD/../cass
+                 $$PWD/../cass \
+                 $$(QWTINCDIR)
+
 LIBS          += -lgsoap++ -lgsoap \
                  -L../cass_acqiris -lcass_acqiris \
                  -L../cass_pnccd -lcass_pnccd \
