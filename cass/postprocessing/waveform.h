@@ -53,7 +53,7 @@ namespace cass
    *
    * Class that lets you average the waveforms depending on the factor it will
    * make a cumulative average or an exponential moving average. Uses the Average
-   * binary operator to do the averaging.
+   * binary function to do the averaging.
    * @see Average
    *
    * @cassttng PostProcessor/p\%id\%/{NumberOfAverages}\n
@@ -81,6 +81,9 @@ namespace cass
     virtual void loadSettings(size_t);
     /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
+    /** we need the single waveform to be able to average */
+    virtual std::list<PostProcessors::id_t> dependencies()
+    {return std::list<PostProcessors::id_t>(1, _idSingle); }
 
   protected:
     /** Mutex for locking this postprocessor*/
@@ -89,6 +92,8 @@ namespace cass
     cass::ACQIRIS::Instruments _instrument;
     /*! the Acqiris channel Nbr of this processor*/
     size_t _channel;
+    /** the id of the single waveform pp */
+    PostProcessors::id_t _idSingle;
     /*! this is where we store the averaged waveform*/
     Histogram1DFloat *_waveform;
     /*! the averaging factor */
