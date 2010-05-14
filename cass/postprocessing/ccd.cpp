@@ -42,7 +42,7 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
         _device=CASSEvent::pnCCD; _detector = 1; cols = pnCCD::default_size; rows = pnCCD::default_size;
         break;
     case PostProcessors::VmiCcdLastImage:
-        _device=CASSEvent::CCD; _detector = 0; cols = CCD::default_size; rows = CCD::default_size;
+        _device=CASSEvent::CCD; _detector = 0; cols = CCD::opal_default_size; rows = CCD::opal_default_size;
         break;
 
     default:
@@ -158,7 +158,7 @@ void cass::pp101::loadSettings(size_t)
         break;
     case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
     case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
-        cols = CCD::default_size; rows = CCD::default_size;
+        cols = CCD::opal_default_size; rows = CCD::opal_default_size;
         break;
     default:
         throw std::invalid_argument("Impossible postprocessor id for pp101");

@@ -13,12 +13,11 @@ namespace cass
 {
   namespace CCD
   {
-    const size_t default_size(1000);
-    const size_t default_size_sq(1000*1000);
+    const size_t opal_default_size(1000);
+    const size_t opal_default_size_sq(1000*1000);
     const size_t pulnix_default_height(480);
     const size_t pulnix_default_width(640);
     const size_t pulnix_default_size_sq(640*480);
-
   }
 }
 

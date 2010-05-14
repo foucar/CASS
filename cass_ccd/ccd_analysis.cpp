@@ -112,8 +112,8 @@ void cass::CCD::Analysis::loadSettings()
   }
   else
   {*/
-    _param._ROImask.resize(CCD::default_size_sq);
-    _param._ROIiterator.resize(CCD::default_size_sq);
+    _param._ROImask.resize(CCD::opal_default_size_sq);
+    _param._ROIiterator.resize(CCD::opal_default_size_sq);
   /*}*/
   // "enable" all  pixel as default
   _param._ROImask.assign(_param._ROImask.size(),1);
