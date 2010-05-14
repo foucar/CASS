@@ -316,7 +316,7 @@ std::cout<< "updatePixmap" <<std::endl;
         rate = 1000./elapsed;
     else
         rate = 0.95 * rate + 0.05 * 1000./elapsed;
-    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz");
+//    statusBar()->showMessage(QString().setNum(rate, 'g', 2) + " Hz"); //took out to be able to read the position
     _statusLED->setStatus(false);
     _ready = true;
     std::cout << "min: " << _imageMinValue->text().toFloat() << std::endl;
