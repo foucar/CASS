@@ -162,7 +162,9 @@
  * @todo in offline pass filename of file cotinaing xtc files and resulting
  *       h5 / root filename as arguments to cass
  * @todo make 2d histograms project a substet to an axis. Reuslt is an 1d hist
- * @todo add gui's to modify the postprocessors settings in cassviewer
+ * @todo add gui's to modify the postprocessors settings in cassviewer.
+ * @todo make postprocessors is's to have pair<size_t,size_t> to be able to
+ *       have userdefined number of instances of on pp
  */
 
 /** \page authors Authors
