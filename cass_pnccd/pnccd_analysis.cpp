@@ -66,7 +66,6 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
         "Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
-    std::cout<< printoutdef << "Read-in filename is "<<dp._darkcalfilename << std::endl;
     if(_isDarkframe)
     {
       time ( &rawtime );
@@ -268,6 +267,22 @@ void cass::pnCCD::Analysis::loadSettings()
         in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
         in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
         std::cout<< printoutdef << "offset and noise maps loaded for det# "<<iDet <<std::endl;
+        char command[128];
+        sprintf(command,"/bin/ls -l darkcal_%d.cal|/bin/awk '{print $11}'",static_cast<int>(iDet));
+        FILE * fp;
+        char this_char[1];
+        char soft_link_target[256];
+        soft_link_target[0]=0;
+        fp = popen(command,"r");
+        while (fread(this_char , 1, 1, fp)>0 )
+        { 
+          strcat(soft_link_target,this_char);
+        }
+        pclose(fp);
+        soft_link_target[strlen(soft_link_target)]=0;
+        std::cout<< printoutdef << "Read-in filename is "<<dp._darkcalfilename << 
+          " that is most propably a software link" << std::endl;
+        std::cout<< printoutdef << "The maps were read from: "<< soft_link_target <<std::endl;
       }
       else
       {
