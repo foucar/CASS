@@ -68,8 +68,13 @@ public:
 
         QwtText text = QwtPlotZoomer::trackerText(pos);
         QString text_string(text.text());
-        if (pos.x()>1 && pos.x()<1023 && pos.y()>1 && pos.y()<1023) // todo: catch out of range exception.
-        if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x(), pos.y()) );
+        try {
+            if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x(), pos.y()) );
+        }
+        catch (std::out_of_range)
+        {
+            //
+        }
         text.setText(text_string);
         text.setBackgroundBrush( QBrush( bg ));
         return text;
@@ -166,8 +171,15 @@ public:
 
     virtual double value(double x, double y) const
     {
-        if (_hist) if (x>1) if (x<1023) if (y>1) if (y<1023) return (*_hist)(x,y);  //todo: catch out of range exception.
         return 0.0;
+        try {
+            return (*_hist)(x,y);
+        }
+        catch (std::out_of_range)
+        {
+            return(0.0);  // todo: this shouldn't happen if bounding box is set correctly
+        }
+
     }
 protected:
     cass::Histogram2DFloat* _hist;
