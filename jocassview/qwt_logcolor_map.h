@@ -21,8 +21,8 @@
 #else
 #include <qvector.h>
 #endif
-#include "qwt_array.h"
-#include "qwt_double_interval.h"
+#include <qwt_array.h>
+#include <qwt_double_interval.h>
 
 #if defined(QWT_TEMPLATEDLL)
 // MOC_SKIP_BEGIN

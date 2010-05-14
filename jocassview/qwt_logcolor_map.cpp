@@ -7,9 +7,10 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 #include <iostream>
-#include "qwt_array.h"
-#include "qwt_math.h"
-#include "qwt_double_interval.h"
+#include <qwt_array.h>
+#include <qwt_math.h>
+#include <qwt_double_interval.h>
+
 #include "qwt_logcolor_map.h"
 
 #if QT_VERSION < 0x040000
