@@ -119,6 +119,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/acqiris_detectors.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/averaging_offsetcorrection_helper.cpp \
+            ./postprocessing/operations.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp
@@ -152,6 +153,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/acqiris_detectors_helper.h \
             ./postprocessing/averaging_offsetcorrection_helper.h \
+            ./postprocessing/operations.h \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
