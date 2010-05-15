@@ -210,7 +210,7 @@ void cass::pp500::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp500::operator ()(const cass::CASSEvent & cassevent)
+void cass::pp500::operator ()(const cass::CASSEvent &)
 {
   //get the histogram with the single waveform//
   Histogram1DFloat *singleWaveform (dynamic_cast<Histogram1DFloat *>(_pp.histograms_checkout().find(_idSingle)->second));
