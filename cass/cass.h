@@ -17,12 +17,18 @@
 #  define CASSSHARED_EXPORT Q_DECL_IMPORT
 #endif
 
-// VERBOSEOUT macro definition
+// OUT macro definitions
 #ifdef VERBOSE
 #include <iostream>
 #define VERBOSEOUT(a) (a)
 #else
 #define VERBOSEOUT(a) {}
+#endif
+#ifdef DEBUG
+#include <iostream>
+#define DEBUGOUT(a) (a)
+#else
+#define DEBUGOUT(a) {}
 #endif
 
 template<typename T> inline T square(const T& val) { return val * val; };
