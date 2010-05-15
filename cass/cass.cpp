@@ -194,7 +194,13 @@
  */
 
 
-/** The main program*/
+/** The main program.
+ * @param i filename containing filesnames of xtcfiles to process
+ * @param c client id for shared memory access
+ * @param s soap port of the soap server
+ * @param p partition tag for accessing the shared memory
+ * @param o output filename passed to the postprocessor
+ */
 int main(int argc, char **argv)
 {
   // construct Qt application object
