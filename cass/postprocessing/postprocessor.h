@@ -673,7 +673,7 @@ protected:
     QReadWriteLock _histlock;
 
     /** filename of the output file */
-    string _outputfilename;
+    std::string _outputfilename;
 
 private:
     /** Private constructor of singleton
