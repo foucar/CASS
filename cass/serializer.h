@@ -10,8 +10,8 @@
 #include "cass.h"
 
 #define SERIALIZER_INTERFACE_TEST // if this is set, SerializerBackend is made abstract (pure virtual member)
-                                  // to see if it is instantiated somewhere.
-                                  // switch it off in release mode for performance gain.
+// to see if it is instantiated somewhere.
+// switch it off in release mode for performance gain.
 
 namespace cass
 {
@@ -29,6 +29,7 @@ namespace cass
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() = 0;
 #endif
+    virtual ~SerializerBackend(){}
 
     void flush() { _stream->flush(); }
 
@@ -63,7 +64,8 @@ namespace cass
   /** A string serializer.
    * class that will serialize / de serialize
    * Serializable classes to a stringstream
-   * @author Lutz Foucar, Stephan Kassemeyer
+   * @author Lutz Foucar
+   * @author Stephan Kassemeyer
    */
   class CASSSHARED_EXPORT Serializer : public SerializerBackend
   {
@@ -99,7 +101,7 @@ namespace cass
 #endif
   };
 
-   /** A file output serializer.
+  /** A file output serializer.
    * class that will serialize
    * Serializable classes to a stringstream
    * @author Stephan Kassemeyer
@@ -135,7 +137,7 @@ namespace cass
     bool _opened;
   };
 
- /** A file input deserializer.
+  /** A file input deserializer.
    * class that will deserialize
    * Serializable classes from a stringstream
    * @author Stephan Kassemeyer
@@ -171,7 +173,7 @@ namespace cass
     bool _opened;
   };
 
-        
+
 }//end namespace
 
 
