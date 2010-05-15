@@ -27,8 +27,11 @@ namespace cass
   {
   public:
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void ding() = 0;
+    virtual void abstractTest() = 0;
 #endif
+
+    void flush() { _stream->flush(); }
+
     void addString(const std::string&); //!< add string to serialized buffer
     void addUint16(const uint16_t);     //!< add uint16 to serialized buffer
     void addInt16(const int16_t);       //!< add int16 to serialized buffer
@@ -92,30 +95,30 @@ namespace cass
      */
     const std::string buffer()const  {return dynamic_cast<std::stringstream*>(_stream)->str();}
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void ding() {};
+    virtual void abstractTest() {};
 #endif
   };
 
-  /** A file serializer.
-   * class that will serialize / de serialize
+   /** A file output serializer.
+   * class that will serialize
    * Serializable classes to a stringstream
    * @author Stephan Kassemeyer
    */
-  class CASSSHARED_EXPORT FileSerializer : public SerializerBackend
+  class CASSSHARED_EXPORT SerializerWriteFile : public SerializerBackend
   {
   public:
     /** constructor.
      * will open the stream in binary reading/writing mode
      */
-    FileSerializer( const char* filename )
+    SerializerWriteFile( const char* filename )
     {
-      _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::in|std::ios_base::out);
+      _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::out);
       _opened = true;
     }
     /** destructor.
      * closes the file and deletes stream object.
      */
-    ~FileSerializer()
+    ~SerializerWriteFile()
     {
       close();
       delete _stream;
@@ -126,7 +129,43 @@ namespace cass
     void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
     
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void ding() {};
+    virtual void abstractTest() {};
+#endif
+  protected:
+    bool _opened;
+  };
+
+ /** A file input deserializer.
+   * class that will deserialize
+   * Serializable classes from a stringstream
+   * @author Stephan Kassemeyer
+   */
+  class CASSSHARED_EXPORT SerializerReadFile : public SerializerBackend
+  {
+  public:
+    /** constructor.
+     * will open the stream in binary reading/writing mode
+     */
+    SerializerReadFile( const char* filename )
+    {
+      _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::in);
+      _opened = true;
+    }
+    /** destructor.
+     * closes the file and deletes stream object.
+     */
+    ~SerializerReadFile()
+    {
+      close();
+      delete _stream;
+    }
+    /** close file.
+     * 
+     */
+    void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
+    
+#ifdef SERIALIZER_INTERFACE_TEST
+    virtual void abstractTest() {};
 #endif
   protected:
     bool _opened;

@@ -241,13 +241,13 @@ void ImageViewer::on_open_triggered()
         QImageReader imreader(fileName);
         if ( imreader.canRead() ) {
             // read image
-            QImage image(fileName);
-            if(image.isNull()) {
+            QImage* image = new QImage(fileName);
+            if(image->isNull()) {
                 QMessageBox::information(this, tr("jocassviewer"),
                         tr("Cannot load %1.").arg(fileName));
                 return;
             }
-            updatePixmap(&image);
+            updatePixmap(image);
             if(!_ui.fitToWindow->isChecked())
                 _imageLabel->adjustSize();
         }
@@ -256,6 +256,34 @@ void ImageViewer::on_open_triggered()
         }
         if ( fileInfo.suffix().toUpper() == QString("hst").toUpper() ) {
             // deserialize binary stream into histogram.
+            cass::SerializerReadFile serializer( fileName.toStdString().c_str() );
+            cass::HistogramFloatBase* hist = new cass::HistogramFloatBase(serializer);
+            serializer.close();
+            size_t dim = hist->dimension();
+
+            //hack reopen histogram with correct deserializer (serializing base class doesn't work, see below):
+            delete hist;
+            cass::SerializerReadFile serializer2( fileName.toStdString().c_str() );
+            switch(dim) {
+                case 0:
+                    hist = new cass::Histogram0DFloat( serializer2 );
+                    updateHistogram( reinterpret_cast<cass::Histogram0DFloat*>(hist) ); break;
+                case 1:
+                    hist = new cass::Histogram1DFloat( serializer2 );
+                    updateHistogram( reinterpret_cast<cass::Histogram1DFloat*>(hist) ); break;
+                case 2:
+                    hist = new cass::Histogram2DFloat( serializer2 );
+                    updateHistogram( reinterpret_cast<cass::Histogram2DFloat*>(hist) ); break;
+            }
+            serializer2.close();
+
+            /* doesn't work: returns hist->min and hist->max from baseclass...
+            switch(dim) {
+                case 0: updateHistogram( reinterpret_cast<cass::Histogram0DFloat*>(hist) ); break;
+                case 1: updateHistogram( reinterpret_cast<cass::Histogram1DFloat*>(hist) ); break;
+                case 2: updateHistogram( reinterpret_cast<cass::Histogram2DFloat*>(hist) ); break;
+            }*/
+
         }
     }
 }
@@ -274,6 +302,8 @@ void ImageViewer::on_save_data_triggered()
         if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
             saveHistogram(fileName);
     }
+    if (_dock->widget()==_spectrogramWidget)
+        saveHistogram(fileName);
 }
 
 void ImageViewer::on_auto_save_data_triggered()
@@ -305,9 +335,7 @@ void ImageViewer::save1DData(QString fileName)
 void ImageViewer::saveHistogram(QString filename)
 {
     _histogramlock.lockForRead();
-    cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
-    const cass::AxisProperty &axis = _lastHist->axis()[0];
-    cass::FileSerializer serializer( filename.toStdString().c_str() );
+    cass::SerializerWriteFile serializer( filename.toStdString().c_str() );
     _lastHist->serialize( serializer );
     _histogramlock.unlock();
     serializer.close();
