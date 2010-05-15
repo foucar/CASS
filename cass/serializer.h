@@ -28,9 +28,8 @@ namespace cass
   public:
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() = 0;
-#endif
     virtual ~SerializerBackend(){}
-
+#endif
     void flush() { _stream->flush(); }
 
     void addString(const std::string&); //!< add string to serialized buffer
