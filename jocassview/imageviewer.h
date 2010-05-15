@@ -71,6 +71,7 @@ namespace jocassview
         void run();
 
         enum dataType {dat_Image=0, dat_Any, dat_2DHistogram, dat_1DHistogram, dat_0DHistogram, dat_COUNT};
+
         dataType _dataType;
 
         CASSsoapProxy *_cass;
@@ -79,10 +80,9 @@ namespace jocassview
         cass::ImageFormat _format;
 
         int _attachId;
-
         int _useSpectrogram;
-
     };
+
 
 
     class StatusLED : public QRadioButton
@@ -180,7 +180,7 @@ private slots:
     void updatePixmap(const QImage *image);
 
     void updateHistogram(cass::Histogram2DFloat* hist);
-    
+
     void updateHistogram(cass::Histogram1DFloat* hist);
 
     void updateHistogram(cass::Histogram0DFloat* hist);
@@ -289,6 +289,11 @@ private:
 
     const QImage* _lastImage;
 
+
+protected:
+
+    /** Rate of recent updates of displayed data */
+    float _updaterate;
 };
 
 } // end namespace jocassview

@@ -147,12 +147,13 @@ public:
 protected:
   /** image that we will calculate the \f$\cos^2\theta\f$ from*/
   PostProcessors::id_t _imageId;
-  std::pair<float,float> _center; //!< Image center
-  float _minRadius;               //!< Minimum radius for analysis
-  float _symAngle;                //!< Symmetry angle
-  int32_t _imageWith;             //!< Image width
-  int32_t _nbrRadialPoints;       //!< Number of radial points
-  int32_t _nbrAngularPoints;      //!< Number of angular points
+  std::pair<float, float> _center; //!< Image center
+  float _minRadius;                //!< Minimum radius for analysis
+  float _maxRadius;                //!< Maximum radius for analysis
+  float _symAngle;                 //!< Symmetry angle
+  size_t _imageWidth;              //!< Image width
+  size_t _nbrRadialPoints;         //!< Number of radial points
+  size_t _nbrAngularPoints;        //!< Number of angular points
   bool _drawCircle;               //!< flag to tell whether to draw the inner and outer circle
   /** the cos2theta value*/
   Histogram0DFloat *_value;
@@ -168,7 +169,7 @@ protected:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-style: "Stroustrup"
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

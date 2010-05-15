@@ -229,7 +229,7 @@ protected:
 
 /** PhotonHits of CCD's in a 1D histogram.
  *
- * This time energies are plotted in eV and not in arbitrary units  
+ * This time energies are plotted in eV and not in arbitrary units
  *
  * This postprocessor will fill a 1d histogram with the z values detected Photonhits.
  * Photonhits will be detected in the commercial Pre Analyzer. They will

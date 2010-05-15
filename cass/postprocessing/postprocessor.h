@@ -698,20 +698,32 @@ private:
 };
 
 
-/** idlist
- *
- * @todo document this class
- * @todo if possible put this class into a separate file.
- * @note do all these function need to be inlines?
- */
+/** id-list
+
+used for SOAP communication of id-lists
+
+@todo document this class
+@todo if possible put this class into a separate file.
+@note do all these function need to be inlines?
+*/
 class IdList : public Serializable
 {
 public:
-   IdList() : Serializable(1), _size(0) {}
-   IdList( PostProcessors::active_t & list) : Serializable(1), _list(list), _size(list.size()) {}
-   IdList( SerializerBackend* in) : Serializable(1) {
+
+    IdList()
+        : Serializable(1), _size(0)
+        {};
+
+    IdList(PostProcessors::active_t& list)
+        : Serializable(1), _list(list), _size(list.size())
+        {
+            std::cerr << "Initial list size = " << _size << std::endl;
+        };
+
+   IdList(SerializerBackend* in) : Serializable(1) {
       deserialize(in);
    }
+
    IdList( SerializerBackend &in) : Serializable(1) {
       deserialize(in);
    }
@@ -723,8 +735,8 @@ public:
 
    void setList(PostProcessors::active_t& list) {
       clear();
-      _list=list;
-      _size=list.size();
+      _list = list;
+      _size = list.size();
    }
 
    PostProcessors::active_t& getList() {
@@ -732,22 +744,24 @@ public:
    }
 
    void deserialize(SerializerBackend& in) {
-      deserialize(&in);
+       deserialize(&in);
    }
 
    void deserialize(SerializerBackend *in) {
       //check whether the version fits//
       uint16_t ver = in->retrieveUint16();
-      if(ver!=_version)
+      if(ver != _version)
       {
         std::cerr<<"version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
         return;
       }
       //number of bins, lower & upper limit
-      _size     = in->retrieveSizet();
+      _size = in->retrieveSizet();
+      std::cerr << "list size " << _size << std::endl;
       _list.clear();
-      for (size_t ii=0;ii<_size;ii++)
-         _list.push_back(static_cast<PostProcessors::id_t>(in->retrieveUint16()));
+      for(size_t ii=0; ii<_size; ++ii)
+          _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
+      std::cerr << "list is done " << std::endl;
    }
 
    void serialize(SerializerBackend &out) {
@@ -755,7 +769,6 @@ public:
    }
 
    void serialize(SerializerBackend *out) {
-      //
       out->addUint16(_version);
       out->addSizet(_size);
       for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
@@ -782,7 +795,7 @@ private:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-style: "Stroustrup"
+// c-file-style: "gnu"
 // c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

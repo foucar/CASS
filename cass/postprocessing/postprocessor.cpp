@@ -113,7 +113,7 @@ std::string& PostProcessors::getMimeType(id_t type)
 {
     histograms_t::iterator it = _histograms.find(type);
     if (it!=_histograms.end())
-      return it->second->mimeType();
+        return it->second->mimeType();
     VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found " << type <<std::endl);
     return _invalidMime;
 }

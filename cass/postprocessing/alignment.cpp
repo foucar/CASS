@@ -336,7 +336,7 @@ std::list<PostProcessors::id_t> pp144::dependencies()
 
 
 
-//---postprocessor calculating cos2theta of requested avaeraged image----------
+//---postprocessor calculating cos2theta of requested averaged image----------
 //----------------pp150--------------------------------------------------------
 pp150::pp150(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
@@ -359,52 +359,36 @@ std::list<PostProcessors::id_t> pp150::dependencies()
 void cass::pp150::loadSettings(size_t)
 {
   using namespace std;
-
   QSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(QString("p")+QString::number(_id));
-
-  _imageId = static_cast<PostProcessors::id_t>(param.value("ImageId",104).toInt());
+  _imageId = PostProcessors::id_t(param.value("ImageId",104).toInt());
   _drawCircle = (param.value("DrawInnerOuterRadius",false).toBool());
-
-  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-      <<" it calcluates cos2theta"
-      <<" of image "<<_imageId
-      <<std::endl;
-
+  VERBOSEOUT(std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
+             <<" it calcluates cos2theta" <<" of image "<<_imageId <<std::endl);
   try
   {
     _pp.validate(_imageId);
-  }
-  catch (InvalidHistogramError)
-  {
+  } catch (InvalidHistogramError) {
     _reinitialize = true;
     return;
   }
   HistogramBackend * hist (_pp.histograms_checkout().find(_imageId)->second);
   _pp.histograms_release();
-
-
-  // Set width and symmetry angle
-  _imageWith = hist->axis()[HistogramBackend::xAxis].size();
-  _center = std::make_pair<float,float>(param.value("ImageXCenter",0).toFloat(),
-                                        param.value("ImageYCenter",0).toFloat());
-  _symAngle = param.value("SymmetryAngle",0).toFloat();
-
-  // Set the minimum radius within range
-  float tmpr = param.value("MaxIncludedRadius",0).toFloat();
-
-  tmpr = min(_center.first + 0.5f , tmpr);
-  tmpr = min(hist->axis()[HistogramBackend::yAxis].size() - _center.first - 0.5f , tmpr);
-
-  tmpr = min(_center.second + 0.5f , tmpr);
-  tmpr = min(_imageWith- _center.second - 0.5f , tmpr);
-
-  _minRadius = min(tmpr - 1.0f , param.value("MinIncludedRadius",0).toFloat());
-  _minRadius = max(0.5f , _minRadius);
-
+  // Width of image - we assum the images ar esquare
+  _imageWidth = hist->axis()[HistogramBackend::xAxis].size();
+  // center of the image -- this is the center of the angluar distribution of the signal
+  _center = std::make_pair<float,float>(param.value("ImageXCenter", 0).toFloat(),
+                                        param.value("ImageYCenter", 0).toFloat());
+  // symmetry angle is the angle of in-plane rotation of the image with respecto to its vertical axis
+  _symAngle = param.value("SymmetryAngle", 0).toFloat();
+  // Set the minimum radius within range - must be within image
+  _maxRadius = param.value("MaxIncludedRadius",0).toFloat();
+  _maxRadius = min(min(_maxRadius, _center.first  + 0.5f), hist->axis()[HistogramBackend::xAxis].size() - _center.first - 0.5f);
+  _maxRadius = min(min(_maxRadius, _center.second + 0.5f), hist->axis()[HistogramBackend::yAxis].size() - _center.second - 0.5f);
+  _minRadius = max(0.1f, min(_maxRadius - 1.0f , param.value("MinIncludedRadius",0).toFloat()));
   // Set number of points on grid
-  _nbrRadialPoints = static_cast<int32_t>(floor(tmpr-_minRadius));
+  _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
   _nbrAngularPoints = 360;
 }
 
@@ -418,15 +402,15 @@ void pp150::operator()(const CASSEvent& /*event*/)
   HistogramFloatBase::storage_t &imageMemory(image->memory());
   float nom(0), denom(0),maxval(0);
   float symangle(_symAngle/180*M_PI);
-  for(int jr = 0; jr<_nbrRadialPoints; jr++)
+  for(size_t jr = 0; jr<_nbrRadialPoints; jr++)
   {
-    for(int jth = 1; jth<_nbrAngularPoints; jth++)
+    for(size_t jth = 1; jth<_nbrAngularPoints; jth++)
     {
       const float radius(_minRadius + jr);
-      const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
-      size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
-      size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-      float val = imageMemory[col + row * _imageWith]; // * abs(sin(angle));
+      const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
+      size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
+      size_t row(size_t(_center.second + radius*cos(angle + symangle)));
+      float val = imageMemory[col + row * _imageWidth];
       denom += val * square(radius);
       nom   += val * square(cos(angle)) * square(radius);
       maxval = max(val,maxval);
@@ -438,28 +422,25 @@ void pp150::operator()(const CASSEvent& /*event*/)
     maxval/= 4.;
     image->lock.lockForWrite();
     //max circle
-    for(int jth = 0; jth<_nbrAngularPoints; jth++)
+    for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
     {
       const float radius(_minRadius + _nbrRadialPoints);
       const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
       size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
       size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-      imageMemory[col + row * _imageWith] = maxval;
+      imageMemory[col + row * _imageWidth] = maxval;
     }
-
     //min circle
-    for(int jth = 0; jth<_nbrAngularPoints; jth++)
+    for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
     {
       const float radius(_minRadius);
       const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
       size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
       size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-      imageMemory[col + row * _imageWith] = maxval;
+      imageMemory[col + row * _imageWidth] = maxval;
     }
     image->lock.unlock();
   }
-//  std::cout <<"pp150: "<<nom<<" "<<denom<<" "<<_nbrRadialPoints<<" "<<_nbrAngularPoints<<" "<<_minRadius<<" "<<_center.first<<" "<<_center.second<<" "<<_minRadius+_nbrRadialPoints-1<<" "<<<<std::endl;
-
   _value->lock.lockForWrite();
   *_value = (abs(denom) < 1e-15)?0.5:nom/denom;
   _value->lock.unlock();
