@@ -68,7 +68,7 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 PostProcessors::PostProcessors()
-    _outputfilename("outputfilename.root")
+  :_outputfilename("outputfilename.root")
 {
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
