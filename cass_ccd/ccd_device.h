@@ -32,8 +32,8 @@ namespace cass
       const cass::PixelDetector &detector()const  {return _detector;}
       cass::PixelDetector &detector()             {return _detector;}
       */
-      void serialize(cass::Serializer&);
-      void deserialize(cass::Serializer&);
+      void serialize(cass::SerializerBackend&);
+      void deserialize(cass::SerializerBackend&);
 
     public:
       const detectors_t *detectors()const   {return &_detectors;}
@@ -47,7 +47,7 @@ namespace cass
 }
 
 
-inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)
+inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)
 {
   //the version//
   out.addUint16(_version);
@@ -60,7 +60,7 @@ inline void cass::CCD::CCDDevice::serialize(cass::Serializer& out)
 }
 
 
-inline void cass::CCD::CCDDevice::deserialize(cass::Serializer& in)
+inline void cass::CCD::CCDDevice::deserialize(cass::SerializerBackend& in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

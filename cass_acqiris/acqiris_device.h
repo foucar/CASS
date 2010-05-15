@@ -33,9 +33,9 @@ namespace cass
 
     public:
       /** will serialize all channels to Serializer*/
-      virtual void serialize(cass::Serializer &);
+      virtual void serialize(cass::SerializerBackend &);
       /** will deserialize all channels from the Serializer*/
-      virtual void deserialize(cass::Serializer &);
+      virtual void deserialize(cass::SerializerBackend &);
 
     public:
       /** @returns the channels of this instrument*/
@@ -76,9 +76,9 @@ namespace cass
 
     public:
       /** will serialize all channels to Serializer*/
-      virtual void serialize(cass::Serializer &);
+      virtual void serialize(cass::SerializerBackend &);
       /** will deserialize all channels from the Serializer*/
-      virtual void deserialize(cass::Serializer &);
+      virtual void deserialize(cass::SerializerBackend &);
 
     private:
       /** Container for all Instruments*/

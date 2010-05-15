@@ -13,7 +13,7 @@ cass::ACQIRIS::Device::Device()
 //  _instruments[Camp1] = Instrument();
 }
 
-void cass::ACQIRIS::Device::serialize(cass::Serializer &out)
+void cass::ACQIRIS::Device::serialize(cass::SerializerBackend &out)
 {
   //the version
   out.addUint16(_version);
@@ -22,7 +22,7 @@ void cass::ACQIRIS::Device::serialize(cass::Serializer &out)
       it->second.serialize(out);
 }
 
-void cass::ACQIRIS::Device::deserialize(cass::Serializer &in)
+void cass::ACQIRIS::Device::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
@@ -43,7 +43,7 @@ void cass::ACQIRIS::Device::deserialize(cass::Serializer &in)
 
 //--the instruments--
 
-void cass::ACQIRIS::Instrument::serialize(cass::Serializer &out)
+void cass::ACQIRIS::Instrument::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addUint16(_version);
@@ -54,7 +54,7 @@ void cass::ACQIRIS::Instrument::serialize(cass::Serializer &out)
       it->serialize(out);
 }
 
-void cass::ACQIRIS::Instrument::deserialize(cass::Serializer &in)
+void cass::ACQIRIS::Instrument::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

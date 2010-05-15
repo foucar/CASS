@@ -678,10 +678,10 @@ class IdList : public Serializable
 public:
    IdList() : Serializable(1), _size(0) {}
    IdList( PostProcessors::active_t & list) : Serializable(1), _list(list), _size(list.size()) {}
-   IdList( Serializer* in) : Serializable(1) {
+   IdList( SerializerBackend* in) : Serializable(1) {
       deserialize(in);
    }
-   IdList( Serializer &in) : Serializable(1) {
+   IdList( SerializerBackend &in) : Serializable(1) {
       deserialize(in);
    }
 
@@ -700,11 +700,11 @@ public:
       return _list;
    }
 
-   void deserialize(Serializer& in) {
+   void deserialize(SerializerBackend& in) {
       deserialize(&in);
    }
 
-   void deserialize(Serializer *in) {
+   void deserialize(SerializerBackend *in) {
       //check whether the version fits//
       uint16_t ver = in->retrieveUint16();
       if(ver!=_version)
@@ -719,11 +719,11 @@ public:
          _list.push_back(static_cast<PostProcessors::id_t>(in->retrieveUint16()));
    }
 
-   void serialize(Serializer &out) {
+   void serialize(SerializerBackend &out) {
       serialize(&out);
    }
 
-   void serialize(Serializer *out) {
+   void serialize(SerializerBackend *out) {
       //
       out->addUint16(_version);
       out->addSizet(_size);

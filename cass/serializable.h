@@ -4,11 +4,12 @@
 #define _SERIALIZABLE_H_
 
 #include <stdint.h>
+#include "serializer.h"
 
 namespace cass
 {
   //forward declaration
-  class Serializer;
+  class SerializerBackend;
 
   /** Serializable
    * pure virtual class that all serializable classes should inherit from.
@@ -27,11 +28,11 @@ namespace cass
     /** pure virtual function that needs to be defined by the derived class.
      * will serialize an object to the Serializer class
      */
-    virtual void serialize(cass::Serializer&)=0;
+    virtual void serialize(cass::SerializerBackend&)=0;
     /** pure virtual function that needs to be defined by the derived class.
      * will deserialize an object from the Serializer class
      */
-    virtual void deserialize(cass::Serializer&)=0;
+    virtual void deserialize(cass::SerializerBackend&)=0;
   protected:
     /** the version for de/serializing*/
     uint16_t _version;

@@ -12,7 +12,7 @@
 namespace cass
 {
   class DeviceBackend;
-  class Serializer;
+  class SerializerBackend;
 
   /*! Event to store all LCLS Data
 
@@ -37,9 +37,9 @@ namespace cass
 
   public:
     /** serialize a event to the Serializer*/
-    void serialize(Serializer&);
+    void serialize(SerializerBackend&);
     /** deserialize an event from the Serializer*/
-    void deserialize(Serializer&);
+    void deserialize(SerializerBackend&);
 
   public: /** setters/getters*/
     uint64_t         id()const        {return _id;}

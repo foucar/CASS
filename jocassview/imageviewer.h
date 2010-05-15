@@ -231,6 +231,11 @@ private:
       */
     void save1DData(QString fileName);
 
+    /** save Histogram
+      * save helper function
+      */
+    void saveHistogram(QString fileName);
+
     virtual void showEvent(QShowEvent *);
 
 

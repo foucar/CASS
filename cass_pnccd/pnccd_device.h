@@ -29,9 +29,9 @@ namespace cass
 
     public:
       /** serialize the device to the Serializer*/
-      void serialize(cass::Serializer&);
+      void serialize(cass::SerializerBackend&);
       /** deserialize the device from the Serializer*/
-      void deserialize(cass::Serializer&);
+      void deserialize(cass::SerializerBackend&);
 
     public:
       /** getter */
@@ -46,7 +46,7 @@ namespace cass
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
-inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out)
+inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addUint16(_version);
@@ -58,7 +58,7 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::Serializer &out)
     it->serialize(out);
 }
 
-inline void cass::pnCCD::pnCCDDevice::deserialize(cass::Serializer &in)
+inline void cass::pnCCD::pnCCDDevice::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

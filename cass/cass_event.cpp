@@ -27,7 +27,7 @@ cass::CASSEvent::~CASSEvent()
     delete (it->second);
 }
 
-void cass::CASSEvent::serialize(cass::Serializer& out)
+void cass::CASSEvent::serialize(cass::SerializerBackend& out)
 {
   //the version//
   out.addUint16(_version);
@@ -40,7 +40,7 @@ void cass::CASSEvent::serialize(cass::Serializer& out)
     it->second->serialize(out);
 }
 
-void cass::CASSEvent::deserialize(cass::Serializer& in)
+void cass::CASSEvent::deserialize(cass::SerializerBackend& in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

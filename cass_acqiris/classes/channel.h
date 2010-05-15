@@ -31,9 +31,9 @@ namespace cass
 
     public:
       /** will serialize this channel to the serializer*/
-      void serialize(cass::Serializer&);
+      void serialize(cass::SerializerBackend&);
       /** deserialize this channel from the serializer*/
-      void deserialize(cass::Serializer&);
+      void deserialize(cass::SerializerBackend&);
 
     public:
       /** setter & getters*/
@@ -72,7 +72,7 @@ namespace cass
   }//end namespace remi
 }//end namespace cass
 
-inline void cass::ACQIRIS::Channel::serialize(cass::Serializer &out)
+inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addSizet(_version);
@@ -89,7 +89,7 @@ inline void cass::ACQIRIS::Channel::serialize(cass::Serializer &out)
     out.addInt16(*it);
 }
 
-inline void cass::ACQIRIS::Channel::deserialize(cass::Serializer &in)
+inline void cass::ACQIRIS::Channel::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveSizet();

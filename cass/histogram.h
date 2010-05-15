@@ -53,7 +53,7 @@ public:
      * serializer. Will call @see deserialize(Serializer&).
      * @param[in] in The Serializer that we read the histogram from
      */
-    AxisProperty(Serializer &in)
+    AxisProperty(SerializerBackend &in)
         :Serializable(1)
     {
         deserialize(in);
@@ -63,13 +63,13 @@ public:
      * serializes this to the Serializer
      * @param out The Serializer that we will serialize this to
      */
-    void serialize(Serializer& out);
+    void serialize(SerializerBackend& out);
 
     /** Deserialize this class.
      * deserializes this from the Serializer
      * @param in The Serializer that we will deserialize this from
      */
-    void deserialize(Serializer& in);
+    void deserialize(SerializerBackend& in);
 
     /*! @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
@@ -149,7 +149,7 @@ public:
      * inheriting from here
      * @param out The Serializer we serialize this to
      */
-    virtual void serialize(Serializer &out)=0;
+    virtual void serialize(SerializerBackend &out)=0;
 
     /** serialize this object from a serializer.
      * This function is pure virtual since it overwrites the
@@ -157,7 +157,7 @@ public:
      * classes inheriting from this
      * @param in The Serializer we serialize this from
      */
-    virtual void deserialize(Serializer &in)=0;
+    virtual void deserialize(SerializerBackend &in)=0;
     /** clear the histogram*/
     virtual void clear()=0;
 
@@ -239,7 +239,7 @@ public:
      * serializer. Will call @see deserialize(Serializer&).
      * @param[in] in The Serializer that we read the histogram from
      */
-    HistogramFloatBase(Serializer& in)
+    HistogramFloatBase(SerializerBackend& in)
         : HistogramBackend(0,1)
     {
         deserialize(in);
@@ -248,10 +248,10 @@ public:
     virtual ~HistogramFloatBase()      {}
 
     /** serialize this histogram to the serializer*/
-    virtual void serialize(Serializer&);
+    virtual void serialize(SerializerBackend&);
 
     /** deserialize this histogram from the serializer*/
-    virtual void deserialize(Serializer&);
+    virtual void deserialize(SerializerBackend&);
 
     /** return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
@@ -318,7 +318,7 @@ public:
     {setMimeType(std::string("application/cass0Dhistogram"));};
 
     /** Constructor for reading a histogram from a stream */
-    Histogram0DFloat(Serializer &in)
+    Histogram0DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
 
@@ -364,7 +364,7 @@ public:
      * serializer. Serialization is done in the baseclass.
      * @param[in] in The Serializer that we read the histogram from
      */
-    Histogram1DFloat(Serializer &in)
+    Histogram1DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
 
@@ -480,7 +480,7 @@ public:
      * serializer. Serialization is done in the baseclass.
      * @param[in] in The Serializer that we read the histogram from
      */
-    Histogram2DFloat(Serializer &in)
+    Histogram2DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
 
@@ -550,7 +550,7 @@ public:
 
 //---------------Axis-------------------------------
 
-inline void cass::AxisProperty::serialize(cass::Serializer &out)
+inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addUint16(_version);
@@ -563,7 +563,7 @@ inline void cass::AxisProperty::serialize(cass::Serializer &out)
 
 
 
-inline void cass::AxisProperty::deserialize(cass::Serializer &in)
+inline void cass::AxisProperty::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
@@ -597,7 +597,7 @@ inline size_t AxisProperty::bin(float pos) const
 
 
 //-----------------Base class-----------------------
-inline void cass::HistogramFloatBase::serialize(cass::Serializer &out)
+inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
 {
   //if we need to wait until the histogram is filled before serialization//
   //wait here and set the flag that this histogram needs to be filled//
@@ -632,7 +632,7 @@ inline void cass::HistogramFloatBase::serialize(cass::Serializer &out)
 
 
 
-inline void cass::HistogramFloatBase::deserialize(cass::Serializer &in)
+inline void cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

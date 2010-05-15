@@ -229,9 +229,9 @@ namespace cass
 
   public:
     /** serialize the pixeldetector to the Serializer*/
-    void serialize(cass::Serializer&);
+    void serialize(cass::SerializerBackend&);
     /** deserialize the pixeldetector from the Serializer*/
-    void deserialize(cass::Serializer&);
+    void deserialize(cass::SerializerBackend&);
 
   public:
     //@{
@@ -312,7 +312,7 @@ namespace cass
 }//end namespace cass
 
 
-inline void cass::PixelDetector::serialize(cass::Serializer &out)
+inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addUint16(_version);
@@ -323,7 +323,7 @@ inline void cass::PixelDetector::serialize(cass::Serializer &out)
      out.addFloat(*it);
 }
 
-inline void cass::PixelDetector::deserialize(cass::Serializer &in)
+inline void cass::PixelDetector::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

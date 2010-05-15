@@ -11,6 +11,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QPrintDialog>
 #include <QtGui/QPainter>
+#include <QImageReader>
 #include <fstream>
 
 #include "imageviewer.h"
@@ -231,32 +232,48 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 
 void ImageViewer::on_open_triggered()
 {
+    QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
     QString fileName = QFileDialog::getOpenFileName(this,
-            tr("Open File"), QDir::currentPath());
+            tr("Open File"), QDir::currentPath(), filter);
+    QFileInfo fileInfo(fileName);
     if(!fileName.isEmpty()) {
-        QImage image(fileName);
-        if(image.isNull()) {
-            QMessageBox::information(this, tr("jocassviewer"),
-                    tr("Cannot load %1.").arg(fileName));
-            return;
+
+        QImageReader imreader(fileName);
+        if ( imreader.canRead() ) {
+            // read image
+            QImage image(fileName);
+            if(image.isNull()) {
+                QMessageBox::information(this, tr("jocassviewer"),
+                        tr("Cannot load %1.").arg(fileName));
+                return;
+            }
+            updatePixmap(&image);
+            if(!_ui.fitToWindow->isChecked())
+                _imageLabel->adjustSize();
         }
-        _imageLabel->setPixmap(QPixmap::fromImage(image));
-        _scaleFactor = 1.0;
-        _ui.fitToWindow->setEnabled(true);
-        updateActions();
-        if(!_ui.fitToWindow->isChecked())
-            _imageLabel->adjustSize();
+        if ( fileInfo.suffix().toUpper() == QString("csv").toUpper() ) {
+            // read csv file into 1d histogram.
+        }
+        if ( fileInfo.suffix().toUpper() == QString("hst").toUpper() ) {
+            // deserialize binary stream into histogram.
+        }
     }
 }
 
 void ImageViewer::on_save_data_triggered()
 {
+    QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
     QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save File"), QDir::currentPath());
+            tr("Save File"), QDir::currentPath(), filter);
+    QFileInfo fileInfo(fileName);
     if (_dock->widget()==_imageWidget) 
         saveImage(fileName);
-    if (_dock->widget()==_plotWidget1D)
-        save1DData(fileName);
+    if (_dock->widget()==_plotWidget1D) {
+        if (fileInfo.suffix().toUpper() == QString("csv").toUpper() )
+            save1DData(fileName);
+        if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
+            saveHistogram(fileName);
+    }
 }
 
 void ImageViewer::on_auto_save_data_triggered()
@@ -273,9 +290,9 @@ void ImageViewer::on_auto_save_data_triggered()
 
 void ImageViewer::save1DData(QString fileName)
 {
-    _histogramlock.lockForRead();
     ofstream outfile;
     outfile.open(fileName.toStdString().c_str());
+    _histogramlock.lockForRead();
     cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
     const cass::AxisProperty &axis = _lastHist->axis()[0];
     for (size_t ii=0;ii< hist->size();ii++) {
@@ -283,6 +300,17 @@ void ImageViewer::save1DData(QString fileName)
     }
     _histogramlock.unlock();
     outfile.close();
+}
+
+void ImageViewer::saveHistogram(QString filename)
+{
+    _histogramlock.lockForRead();
+    cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
+    const cass::AxisProperty &axis = _lastHist->axis()[0];
+    cass::FileSerializer serializer( filename.toStdString().c_str() );
+    _lastHist->serialize( serializer );
+    _histogramlock.unlock();
+    serializer.close();
 }
 
 void ImageViewer::saveImage(QString fileName)

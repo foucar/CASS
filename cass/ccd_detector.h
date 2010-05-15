@@ -71,8 +71,8 @@ namespace cass
     typedef std::vector<Pixel> pixelList_t;
 
   public:
-    void serialize(cass::Serializer&)const;
-    void deserialize(cass::Serializer&);
+    void serialize(cass::SerializerBackend&)const;
+    void deserialize(cass::SerializerBackend&);
 
 
 
@@ -113,7 +113,7 @@ namespace cass
   };
 }//end namespace cass
 
-inline void cass::CCDDetector::serialize(cass::Serializer &out) const
+inline void cass::CCDDetector::serialize(cass::SerializerBackend &out) const
 {
   //the version//
   out.addUint16(_version);
@@ -124,7 +124,7 @@ inline void cass::CCDDetector::serialize(cass::Serializer &out) const
      out.addFloat(*it);
 }
 
-inline void cass::CCDDetector::deserialize(cass::Serializer &in)
+inline void cass::CCDDetector::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();

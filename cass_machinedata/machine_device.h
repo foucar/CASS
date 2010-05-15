@@ -53,9 +53,9 @@ namespace cass
 
     public:
       /** serialize the device to the serializer*/
-      void serialize(cass::Serializer&);
+      void serialize(cass::SerializerBackend&);
       /** deserialize the device from the serializer*/
-      void deserialize(cass::Serializer&);
+      void deserialize(cass::SerializerBackend&);
 
     public:
       /** setters and getters*/
@@ -88,7 +88,7 @@ namespace cass
   }//end namespace machinedata
 }//end namespace cass
 
-inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &out)
+inline void cass::MachineData::MachineDataDevice::serialize(cass::SerializerBackend &out)
 {
   //the version//
   out.addUint16(_version);
@@ -110,7 +110,7 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::Serializer &ou
   }
 }
 
-inline void cass::MachineData::MachineDataDevice::deserialize(cass::Serializer &in)
+inline void cass::MachineData::MachineDataDevice::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
