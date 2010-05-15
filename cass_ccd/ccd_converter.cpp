@@ -52,7 +52,7 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   /** @todo substracting and copying should be done in one step not in two */
 //  transform(framedata,framedata + framesize,
 //            det.frame().begin(),
-//            bind2nd(minus<uint16_t>(),static_cast<uint16_t>(frame.offset())));
+//            bind2nd(minus<float>(),static_cast<float>(frame.offset())));
   //mark out the first 8 pixels since they store status info, that might mess up the picture
   fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
 }
