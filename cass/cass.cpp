@@ -218,7 +218,7 @@ int main(int argc, char **argv)
   int c;
   char partitionTag[128];
   // filename containing XTC filenames
-  std::string filelistname("filesToProces.txt");
+  std::string filelistname("filesToProcess.txt");
   // filename of the output filename
   std::string outputfilename("output.root");
   // SOAP server port (default: 12321)
