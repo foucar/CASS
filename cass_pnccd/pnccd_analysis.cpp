@@ -360,7 +360,7 @@ void cass::pnCCD::Analysis::loadSettings()
         const int32_t signed_ROI_xsize=static_cast<int32_t>(dp._detROI._ROI[iROI].xsize);
         const int32_t signed_ROI_ysize=static_cast<int32_t>(dp._detROI._ROI[iROI].ysize);
 
-        int32_t index_of_centre=dp._detROI._ROI[iROI].xcentre + sign_pnCCD_def_size * dp._detROI._ROI[iROI].ycentre;
+        int32_t index_of_centre=signed_ROI_xcentre + sign_pnCCD_def_size * signed_ROI_ycentre;
         int32_t index_min;
         int32_t this_index;
 
@@ -372,8 +372,8 @@ void cass::pnCCD::Analysis::loadSettings()
           std::cout << printoutdef <<  "too small distances x;y "<< diff_Xsize_Xcentre_to_boundary 
                     <<" "<< diff_Ysize_Ycentre_to_boundary<< " for ROI " << iROI
                     <<" "<< signed_index_min<<" " <<index_of_centre <<std::endl;
-        index_min=dp._detROI._ROI[iROI].xcentre - dp._detROI._ROI[iROI].xsize
-          + sign_pnCCD_def_size * (dp._detROI._ROI[iROI].ycentre - dp._detROI._ROI[iROI].ysize);
+        index_min=signed_ROI_xcentre - signed_ROI_xsize
+          + sign_pnCCD_def_size * (signed_ROI_ycentre - signed_ROI_ysize);
         if(index_min>sign_pnCCD_def_size_sq) std::cout<<"What? "<<dp._detROI._ROI[iROI].xcentre << " "<<
                                   dp._detROI._ROI[iROI].xsize << " "<<
                                   dp._detROI._ROI[iROI].ycentre << " "<< dp._detROI._ROI[iROI].ysize<<std::endl;
@@ -383,8 +383,8 @@ void cass::pnCCD::Analysis::loadSettings()
         std::cout << printoutdef << "indexes "<< index_of_centre<<" "<<index_min<<" "<<index_max<<std::endl;
 #endif
         int32_t indexROI_min=0;
-        int32_t indexROI_max=(2 * dp._detROI._ROI[iROI].xsize + 1)
-            * (2 * dp._detROI._ROI[iROI].ysize + 1);
+        int32_t indexROI_max=(2 * signed_ROI_xsize + 1)
+            * (2 * signed_ROI_ysize + 1);
         size_t u_indexROI_min=static_cast<size_t>(indexROI_min);
         size_t u_indexROI_max=static_cast<size_t>(indexROI_max);
 #ifdef debug
