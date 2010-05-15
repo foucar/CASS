@@ -417,16 +417,30 @@ public:
          _plot.replot();
       };
 
+public slots:
+
+      void resetZoom() {
+          _zoomer->zoom(0);
+          _plot.setAxisAutoScale(QwtPlot::xBottom);
+          _plot.replot();
+          _zoomer->setZoomBase();
+      }
+
+
 protected:
 
       void initToolbar(QLayout& layout) {
          _toolbar = new QToolBar(tr("plot toolbar"), this);
          _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
-         _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("&Zoom in"), this);
+         _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("Zoom in"), this);
+         _act_zoomreset = new QAction( QIcon(":images/zoomreset.png"), tr("Zoom reset"), this);
          _act_zoomin->setCheckable(true);
          _act_zoomout->setCheckable(true);
+         connect(_act_zoomreset, SIGNAL(triggered()), this, SLOT(resetZoom()));
+
          _toolbar->addAction(_act_zoomin);
          _toolbar->addAction(_act_zoomout);
+         _toolbar->addAction(_act_zoomreset);
          layout.addWidget(_toolbar);
       };
 
@@ -455,6 +469,7 @@ protected:
       QToolBar* _toolbar;
       QAction* _act_zoomin;
       QAction* _act_zoomout;
+      QAction* _act_zoomreset;
 
       CASSsoapProxy* _cass;
 };
