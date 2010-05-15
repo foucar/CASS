@@ -229,9 +229,14 @@ public:
         _colorbarPresets = new QComboBox;
         _colorbarPresets->setEditable(true);
         _saveColorbar = new QPushButton(tr("save colorbar"));
+        // populate colorbar presets:
         QSettings settings;
         settings.beginGroup("ColorBar");
         _colorbarPresets->addItems( settings.childGroups() );
+        QString current = settings.value("current","default").toString();
+        _colorbarPresets->setCurrentIndex( _colorbarPresets->findText(current) );
+        _colorbarPresets->setEditText(current);  // in case it didn't match
+
         connect(_saveColorbar, SIGNAL(clicked()), this, SLOT(saveColorbar()));
         connect(_colorbarPresets, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(on_colorbarPreset_changed(const QString&)));
 
@@ -297,6 +302,7 @@ public:
         setLayout(&_layout);
         _spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
         _plot->plotLayout()->setAlignCanvasToScales(true);
+        loadColorbar( current );
         _plot->replot();
         
     }
@@ -340,6 +346,9 @@ protected slots:
     }
 
     void on_colorbarPreset_changed(const QString& name) {
+        QSettings settings;
+        settings.beginGroup("ColorBar");
+        settings.setValue("current", name);
         loadColorbar(name);
     }
 
