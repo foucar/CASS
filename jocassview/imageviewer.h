@@ -114,6 +114,11 @@ class ImageViewer : public QMainWindow
 
     ImageViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
 
+    /** load Data
+      * loads data (image, 0d 1d 2d hist) into viewer.
+      */
+    void loadData(QString fileName);
+
 
 private slots:
 
