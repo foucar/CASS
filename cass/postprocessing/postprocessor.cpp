@@ -68,6 +68,7 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 PostProcessors::PostProcessors()
+    _outputfilename("outputfilename.root")
 {
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
@@ -108,7 +109,8 @@ IdList* PostProcessors::getIdList()
     return _IdList;
 }
 
-std::string& PostProcessors::getMimeType(id_t type) {
+std::string& PostProcessors::getMimeType(id_t type)
+{
     histograms_t::iterator it = _histograms.find(type);
     if (it!=_histograms.end())
       return it->second->mimeType();
@@ -134,7 +136,6 @@ void PostProcessors::_replace(id_t type, HistogramBackend *hist)
 {
     _delete(type);
     hist->setId(type);
-
     _histograms.insert(std::make_pair(type, hist));
 }
 
