@@ -1,4 +1,4 @@
-#ifndef PLOTWIDGET_H 
+#ifndef PLOTWIDGET_H
 #define PLOTWIDGET_H
 
 
@@ -45,7 +45,7 @@ public:
         setMouseTracking(true);
     }
 
-    void mouseMoveEvent ( QMouseEvent * event ) {
+    void mouseMoveEvent ( QMouseEvent * /*event */) {
         //double yval = invTransform(QwtPlot::yRight, event->pos().y()) ;
 
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
@@ -99,10 +99,10 @@ public:
     {
         return new spectrogramDataDummy();
     }
-    void setHistogram(cass::Histogram2DFloat* hist)
+     void setHistogram(cass::Histogram2DFloat* /*hist*/)
     {
     }
- 
+
     virtual QwtDoubleInterval range() const
     {
         return QwtDoubleInterval(0.0, 10.0);
@@ -140,7 +140,7 @@ public:
         //setI
         std::cout << "spectrogramdata overloaded constructor" << std::endl;
     }
-    
+
     void setHistogram(cass::Histogram2DFloat* hist)
     {
         //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
@@ -216,11 +216,11 @@ public:
         return QWidget::eventFilter(obj, event);
     }
 
-    void mouseMoveEvent ( QMouseEvent * event ) {
+    void mouseMoveEvent ( QMouseEvent * /* event */) {
         //double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
 
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
-    } 
+    }
     spectrogramWidget() {
         _cs_top = 0.7;
         _cs_bot = 0.2;
@@ -283,7 +283,7 @@ public:
         _spectrogram->data().range().minValue()+1,
         _spectrogram->data().range().maxValue() );
     _plot->enableAxis(QwtPlot::yRight);
-    
+
 
     QwtPlotRescaler dataPlotRescaler(_plot->canvas());
     dataPlotRescaler.setReferenceAxis(QwtPlot::xBottom);
@@ -304,9 +304,9 @@ public:
         _plot->plotLayout()->setAlignCanvasToScales(true);
         loadColorbar( current );
         _plot->replot();
-        
+
     }
-    
+
     void setData(cass::Histogram2DFloat* hist) {
         static int oldId=cass::PostProcessors::InvalidPP;
 
@@ -334,7 +334,7 @@ public:
         }
 
         _plot->replot();
-        
+
     };
 protected slots:
     void saveColorbar() {
@@ -385,9 +385,9 @@ protected:
     QVBoxLayout _layout;
     QwtScaleWidget * _rightAxis;
     QwtPlotZoomer* _zoomer;
- 
+
     double _cs_top, _cs_bot;
-  
+
     QToolBar* _toolbar;
     QComboBox* _colorbarPresets;
     QPushButton* _saveColorbar;
@@ -414,7 +414,7 @@ public:
          _curve.setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
 
          if (hist->getId() != oldId) {
-             oldId = hist->getId(); 
+             oldId = hist->getId();
              _baseRect.setLeft( axis.position(0) );
              _baseRect.setRight( axis.position(hist->size()) );
              _baseRect.setTop( hist->max() );
@@ -496,7 +496,7 @@ public:
          initToolbar(_layout);
          setLayout(&_layout);
       };
-     
+
 protected slots:
       //void getHistogram();
       //void getList();
@@ -513,7 +513,7 @@ class plotWidget0D: public plotWidget
 {
 public:
     plotWidget0D(int accumulationLength) : _accumulationLength(accumulationLength),
-                                           _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp 
+                                           _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp
     {std::cout << "0d constr" << std::endl;
         setupUI();
     };
