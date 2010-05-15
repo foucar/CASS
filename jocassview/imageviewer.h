@@ -143,7 +143,7 @@ private slots:
     /**
     @todo Use cass::imageformatName and such! */
 
-    void useSpectrogram_stateChanged(int newstate);
+    void pictureTypeChanged(int newstate);
 
     void on_getData_triggered();
 
@@ -266,8 +266,6 @@ private:
 
     QCheckBox *_running;
 
-    QCheckBox *_chk_spectrogram;
-
     QComboBox*_attachId;
 
     QSize _imagesize;
@@ -284,6 +282,8 @@ private:
     QTimer *_updater;
 
     bool _ready;
+
+    bool _useSpectrogram;
 
     cass::HistogramFloatBase* _lastHist;
 

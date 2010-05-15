@@ -77,11 +77,6 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     QWidget *spacer1(new QWidget());
     spacer1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     _ui.toolBar->addWidget(spacer1);
-    // add spectrogram switch to toolbar:
-    _chk_spectrogram = new QCheckBox();
-    _chk_spectrogram->setToolTip(tr("spectrogram instead of image."));
-    connect(_chk_spectrogram, SIGNAL(stateChanged(int)), this, SLOT(useSpectrogram_stateChanged(int)));
-    _ui.toolBar->addWidget(_chk_spectrogram);
     // Add Attachment identifier to toolbar.
     _attachId = new QComboBox();
     _attachId->setToolTip("Attachment identifier.");
@@ -95,10 +90,10 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
             << cass::imageformatName(cass::TIFF).c_str()
             << cass::imageformatName(cass::JPEG).c_str()
             << cass::imageformatName(cass::GIF).c_str()
-            << cass::imageformatName(cass::BMP).c_str();
+            << cass::imageformatName(cass::BMP).c_str()
+            << "HIST";
     _picturetype->setToolTip("Supported image file formats.");
     _picturetype->insertItems(0, formats);
-    _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     _ui.toolBar->addWidget(_picturetype);
     // Add zoom setting to toolbar.
     _zoom = new QDoubleSpinBox();
@@ -178,8 +173,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _spectrogramWidget = new spectrogramWidget;
     //addDockWidget(Qt::RightDockWidgetArea, _dock);
     setCentralWidget(_dock);
-
-
+    _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
+    connect(_picturetype, SIGNAL(currentIndexChanged(int)), this, SLOT(pictureTypeChanged(int)));
     // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
@@ -674,11 +669,13 @@ void getDataThread::run()
 #warning Fix imageformat
 }
 
-void ImageViewer::useSpectrogram_stateChanged(int /*newstate*/)
+void ImageViewer::pictureTypeChanged(int /*newIndex*/)
 {
-    if ( _dock->widget() == _imageWidget && _lastHist && !_running->isChecked() )
+    if (_picturetype->currentText()==QString("HIST")) _useSpectrogram = true;
+    else _useSpectrogram = false;
+    if (_useSpectrogram && _dock->widget() == _imageWidget && _lastHist && !_running->isChecked() )
         updateHistogram( dynamic_cast<cass::Histogram2DFloat*>(_lastHist) );
-    else if ( _dock->widget() == _spectrogramWidget && _lastImage && !_running->isChecked() )
+    else if ( !_useSpectrogram && _dock->widget() == _spectrogramWidget && _lastImage && !_running->isChecked() )
         updatePixmap( _lastImage );
 }
 
@@ -689,7 +686,7 @@ void ImageViewer::on_getData_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
         _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
-        _gdthread.getData(_attachId->currentText().toInt(), _chk_spectrogram->isChecked() );
+        _gdthread.getData(_attachId->currentText().toInt(), _useSpectrogram );
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
