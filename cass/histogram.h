@@ -87,7 +87,7 @@ public:
     float upperLimit() const {return _up;}
 
     /*! bin-index for position x */
-    size_t bin(float x);
+    size_t bin(float x)const;
 
     /*! position for bin-index idx */
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
@@ -392,16 +392,16 @@ public:
      */
     virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); };
 
-    /*! Return histogram bin that contains x */
+    /** Return histogram bin that contains x */
     value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
 
-    /*! Return histogram bin */
+    /** Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
 
     /** center of histogram.
-    * @todo check and improve
-    * @todo check the warning that the compiler at slac give: "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"
-    */
+     * @todo check whether accumulate can take an iterator as 3rd argument and improve
+     * @todo check the warning that the compiler at slac give: "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"
+     */
     float center() const
     {
         using namespace std;
@@ -411,13 +411,23 @@ public:
         return _axis[0].position((center - partial.begin()));
     }
 
-    /** Sum of all values */
+    /** Sum of all values
+     * @todo check whether accumulate is used correctly here
+     */
     value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
 
     /** Reduce the 1D histogram to a scalar (integrate/sum all values).
-    * @see sum()
-    */
-    value_t reduce() const { return sum(); };
+     * @see sum()
+     */
+    value_t reduce() const { return sum(); }
+
+    /** integral of a region in the trace */
+    value_t integral(float from, float to) const
+    {
+      return std::accumulate(_memory.begin()+_axis[0].bin(std::min(from,to)),
+                             _memory.begin()+_axis[0].bin(std::max(from,to)),
+                             0.f);
+    }
 };
 
 
@@ -511,21 +521,25 @@ public:
     void fill(float x, float y, value_t weight=1.);
 
     /** Reduce the 2D histogram to a 1D integral along a specified axis.
-    * @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
-    * @note we should rename this to procject, since it more or less does just a
-    *       projection of the 2d hist to onto one axis. Then we should also include
-    *       a range on the other axis.
-    */
+     * @deprecated use project instead
+     * @param axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
+     */
     Histogram1DFloat reduce(Axis axis) const;
 
+    /** Reduce the 2D histogram to a 1D integral along a specified axis.
+     * @param[in] from,to the range on the other axis that you want to project
+     * @param[in] axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
+     */
+    Histogram1DFloat project(float from, float to, Axis axis) const;
+
     /** Create a QImage of this histogram.
-
-    This method does the necessary locking itself!
-    (This is the oly reason this method is not const.)
-
-    @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
-    @return QImage of this histogram
-    */
+     *
+     * This method does the necessary locking itself!
+     * (This is the oly reason this method is not const.)
+     *
+     * @todo Provide good useable scaling mechanism, i.e., incluing passing it here.
+     * @return QImage of this histogram
+     */
     QImage qimage();
 };
 
@@ -566,7 +580,7 @@ inline void cass::AxisProperty::deserialize(cass::Serializer &in)
 
 
 
-inline size_t AxisProperty::bin(float pos)
+inline size_t AxisProperty::bin(float pos) const
 {
     if(pos < _low)
         throw std::out_of_range("Requested position to low");
@@ -727,27 +741,6 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
 }
 
 
-
-inline Histogram1DFloat Histogram2DFloat::reduce(Histogram2DFloat::Axis axis) const
-{
-    Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit());
-    size_t columns(_axis[1].size()), rows(_axis[0].size());
-    switch(axis)
-    {
-    case xAxis: // reduce along rows (integrate rows)
-        for(size_t col=0; col<columns; ++col)
-            for(size_t row=0; row<rows; ++row)
-                hist.bin(col) += bin(row, col);
-        break;
-    case yAxis: // reduce along columns (integrate rows)
-        for(size_t row=0; row<rows; ++row)
-            for(size_t col=0; col<columns; ++col)
-                hist.bin(row) += bin(row, col);
-        break;
-    case zAxis:
-        throw std::out_of_range("Cannot reduce 2D histogram along 3rd (z) axis!");
-    }
-}
 
 
 } //end namespace cass
