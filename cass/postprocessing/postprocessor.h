@@ -550,7 +550,9 @@ public:
     /** List of active postprocessors */
     typedef std::list<id_t> active_t;
 
-    /** create the instance if not it does not exist already */
+    /** create the instance if not it does not exist already.
+     * @todo add a string or const char * to pass the outputfilename to the pp
+     */
     static PostProcessors *instance();
 
     /** destroy the instance */
@@ -674,7 +676,9 @@ protected:
     string _outputfilename;
 
 private:
-    /** Private constructor of singleton */
+    /** Private constructor of singleton
+     * @todo enable passing the filename to the pp.
+     */
     PostProcessors();
 
     /** Prevent copy-construction of singleton */
