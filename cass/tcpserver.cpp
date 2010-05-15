@@ -77,6 +77,9 @@ void SoapServer::run()
             break;
         SoapHandler *handler(new SoapHandler(tsoap));
         handler->run();
+        // since run() starts no thread anyway, we can as well delete it now...
+        // todo: implement threadlist and signal based delete
+        delete handler;
     }
 }
 
