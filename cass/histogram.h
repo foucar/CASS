@@ -119,60 +119,16 @@ protected:
      */
     explicit HistogramBackend(size_t dim, uint16_t ver)
         : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
-    {};
+    {}
 
 public:
-
     /** destructor.
      * virtual destructor, since it is a baseclass. Does nothing
      */
-    virtual ~HistogramBackend() {};
-
-    std::string& mimeType() {return _mime;};
-    void setMimeType(std::string str) {_mime=str; };
-
-    void setId(PostProcessors::id_t id) {_id = static_cast<int>(id);};
-
-    int getId() {return _id;};
-
-    /** Read-write lock for internal memory/data
-
-    This is a public property of every histogram. It must be locked for all access to the histogram.
-    Mostly, this is done internally, but you have to use it if you directly access memory of a
-    histogram (appropriately for reading and writing).
-    */
-    QReadWriteLock lock;
-
-    /** serialize this object to a serializer.
-     * This function is pure virtual since it overwrites the
-     * serializables serialize function. Needs to be implemented by the classes
-     * inheriting from here
-     * @param out The Serializer we serialize this to
-     */
-    virtual void serialize(SerializerBackend &out)=0;
-
-    /** serialize this object from a serializer.
-     * This function is pure virtual since it overwrites the
-     * serializables deserialize function. Needs to be implemented by the
-     * classes inheriting from this
-     * @param in The Serializer we serialize this from
-     */
-    virtual void deserialize(SerializerBackend &in)=0;
-    /** clear the histogram*/
-    virtual void clear()=0;
-
+    virtual ~HistogramBackend() {}
 
     /** typedef for more readable code*/
     typedef std::vector<AxisProperty> axis_t;
-
-    /** setter*/
-    size_t  &nbrOfFills()      {return _nbrOfFills;}
-    //@{
-    /** getter*/
-    size_t   nbrOfFills()const {return _nbrOfFills;}
-    size_t   dimension()const  {return _dimension;}
-    const axis_t  &axis()const {return _axis;}
-    //@}
 
     /** possible axes.
      * convenience type to allow for easier choosing of the axis
@@ -193,15 +149,58 @@ public:
      */
     enum OverUnderFlow{Overflow=0, Underflow};
 
-protected:
+    /** Read-write lock for internal memory/data
+     *
+     * This is a public property of every histogram. It must be locked for all access to the histogram.
+     * Mostly, this is done internally, but you have to use it if you directly access memory of a
+     * histogram (appropriately for reading and writing).
+     */
+    QReadWriteLock lock;
 
-    //!< dimension of the histogram
+    /** serialize this object to a serializer.
+     * This function is pure virtual since it overwrites the
+     * serializables serialize function. Needs to be implemented by the classes
+     * inheriting from here
+     * @param out The Serializer we serialize this to
+     */
+    virtual void serialize(SerializerBackend &out)=0;
+
+    /** serialize this object from a serializer.
+     * This function is pure virtual since it overwrites the
+     * serializables deserialize function. Needs to be implemented by the
+     * classes inheriting from this
+     * @param in The Serializer we serialize this from
+     */
+    virtual void deserialize(SerializerBackend &in)=0;
+
+    /** clear the histogram*/
+    virtual void clear()=0;
+
+    //@{
+    /** setter */
+    size_t  &nbrOfFills()               {return _nbrOfFills;}
+    void setMimeType(std::string str)   {_mime=str; };
+    void setId(PostProcessors::id_t id) {_id = static_cast<int>(id);};
+    //@}
+    //@{
+    /** getter*/
+    size_t   nbrOfFills()const {return _nbrOfFills;}
+    size_t   dimension()const  {return _dimension;}
+    const axis_t  &axis()const {return _axis;}
+    std::string& mimeType()    {return _mime;};
+    int getId()                {return _id;};
+    //@}
+
+protected:
+    /** dimension of the histogram */
     size_t    _dimension;
-    //!< the axis of this histogram
+    /** the axis of this histogram */
     axis_t    _axis;
-    //!< how many times has this histogram been filled
+    /** how many times has this histogram been filled */
     size_t    _nbrOfFills;
+    /** mime type of the histogram */
     std::string _mime;
+    /** the id of the histogram */
     uint32_t _id;
 };
 
@@ -217,11 +216,6 @@ class CASSSHARED_EXPORT HistogramFloatBase
     : public HistogramBackend
 {
 public:
-    /** typedef describing the type of the values stored in memory*/
-    typedef float value_t;
-    /** typedef describing the storage type*/
-    typedef std::vector<value_t> storage_t;
-
     /** constructor.
      * @param dim The dimension of the histogram
      * @param memory_size size of the memory, used for special cases
@@ -232,7 +226,7 @@ public:
         _memory(memory_size, 0.),
         _fillwhenserialized(false),
         _shouldbefilled(!_fillwhenserialized)
-        {}
+    {}
 
     /** read histogram from serializer.
      * This constructor will create a histogram that has been serialized to the
@@ -244,8 +238,26 @@ public:
     {
         deserialize(in);
     }
+
+    /** copy constructor.
+     * this copy constuctor will just create a histogram with all
+     * properties of the parameter, but not copy the contents of the memory
+     */
+    HistogramFloatBase(const HistogramFloatBase &in)
+      :HistogramBackend(in.dimension(),0),
+      _memory(in.memory().size(),0.)
+    {
+      _axis = in.axis();
+    }
+
+    /** typedef describing the type of the values stored in memory*/
+    typedef float value_t;
+
+    /** typedef describing the storage type*/
+    typedef std::vector<value_t> storage_t;
+
     /** virtual desctructor, since this a base class*/
-    virtual ~HistogramFloatBase()      {}
+    virtual ~HistogramFloatBase(){}
 
     /** serialize this histogram to the serializer*/
     virtual void serialize(SerializerBackend&);
@@ -277,11 +289,10 @@ public:
     /** clear the histogram memory*/
     virtual void clear() {lock.lockForWrite();std::fill(_memory.begin(),_memory.end(),0);}
 
-    /** notify histogram that is has been filled*/
-    void notify(){_fillcondition.wakeAll();}
+    /** notify histogram that is has been filled */
+    void notify() {_fillcondition.wakeAll();}
 
 protected:
-
     /** histogram storage.
      * The memory contains the histogram in range nbins, after that there are some reservered spaces
      * for over/underflow statistics
@@ -311,7 +322,6 @@ protected:
 class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
 {
 public:
-
     /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
         : HistogramFloatBase(0, 1, 1)
@@ -322,15 +332,22 @@ public:
         : HistogramFloatBase(in)
     {}
 
+    /** fill the 0d histogram with a value */
     void fill(value_t value=0.)
-    {lock.lockForWrite(); _memory[0] = value; lock.unlock(); }
+    {
+      lock.lockForWrite();
+      _memory[0] = value;
+      lock.unlock();
+    }
 
     /** getter for the 0d value*/
     value_t getValue() { return _memory[0]; };
 
     /** evaluate whether value is non zero */
     bool operator()()
-    {return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());}
+    {
+      return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());
+    }
 
     /** Simple assignment ot the single value */
     Histogram0DFloat& operator=(value_t val) { fill(val); return *this; }
@@ -378,13 +395,12 @@ public:
      */
     void fill(float x, value_t weight=1.);
 
-    /** Minimum value in current histogram.
-     * Avoid checking over / underflow bins.
-     */
-
     /** return number of bins. */
     size_t size() const {return _axis[0].size();}
 
+    /** Minimum value in current histogram.
+     * Avoid checking over / underflow bins.
+     */
     virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); };
 
     /** Maximum value in current histogram.
@@ -398,10 +414,7 @@ public:
     /** Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
 
-    /** center of histogram.
-     * @todo check whether accumulate can take an iterator as 3rd argument and improve
-     * @todo check the warning that the compiler at slac give: "/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/stl_numeric.h:89: warning: passing 'const float' for argument 1 to '__gnu_cxx::__normal_iterator<_Iterator, _Container> __gnu_cxx::__normal_iterator<_Iterator, _Container>::operator+(const typename std::iterator_traits<_Iter>::difference_type&) const [with _Iterator = float*, _Container = std::vector<float, std::allocator<float> >]'"
-     */
+    /** center of histogram */
     float center() const
     {
         using namespace std;
@@ -411,10 +424,8 @@ public:
         return _axis[0].position((center - partial.begin()));
     }
 
-    /** Sum of all values
-     * @todo check whether accumulate is used correctly here
-     */
-    value_t sum() const { value_t sum; std::accumulate(_memory.begin(), _memory.end(), sum); return sum; };
+    /** Sum of all values */
+    value_t sum() const {return std::accumulate(_memory.begin(), _memory.end(), 0.f);}
 
     /** Reduce the 1D histogram to a scalar (integrate/sum all values).
      * @see sum()
@@ -458,13 +469,13 @@ public:
     }
 
     /** create default histogram.
-
-    @overload
-
-    This constructor creates a histogram with integer positions, i.e., it will have positions
-    (0,0), (0,1), ... (0,cols-1), (1,0), ... (rows-1,cols-1)
-    @param rows, cols Number of bins per row and column.
-    */
+     *
+     * @overload
+     *
+     * This constructor creates a histogram with integer positions, i.e., it will have positions
+     * (0,0), (0,1), ... (0,cols-1), (1,0), ... (rows-1,cols-1)
+     * @param rows, cols Number of bins per row and column.
+     */
     Histogram2DFloat(size_t rows, size_t cols)
         : HistogramFloatBase(2,rows * cols + 8,1) // +8 for under/overflow bits
     {
@@ -484,13 +495,13 @@ public:
         : HistogramFloatBase(in)
     {}
 
-    /*! @return shape of histogram (rows, columns) */
+    /** @return shape of histogram (rows, columns) */
     std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); };
 
-    /*! Return histogram bin that contains (x,y) */
+    /** Return histogram bin that contains (x,y) */
     value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };
 
-    /*! Return histogram bin (row,col) */
+    /** Return histogram bin (row,col) */
     const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
 
     /** Minimum value in current histogram.
@@ -504,13 +515,13 @@ public:
     virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); };
 
     /** Return histogram bin (row,col).
-    * @overload
-    */
+     * @overload
+     */
     value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
 
     /** center of histogram.
-    * @todo check and improve
-    */
+     * @todo check and improve
+     */
     std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); };
 
     /** Add datum to histogram.
