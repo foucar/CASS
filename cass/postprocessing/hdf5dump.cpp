@@ -322,6 +322,47 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   H5Gclose(itof_gid);
   H5Gclose(camp_gid);
 
+  // Save VMI frame
+  CCD::CCDDevice *vmi = dynamic_cast<CCD::CCDDevice *>
+                           (cassevent.devices().find(CASSEvent::CCD)->second);
+  if ( vmi->detectors()->size() < 1 ) {
+
+    printf("VMI Detector not found\n");
+
+  } else {
+
+    // Rummage around a bit to get the detector
+    PixelDetector &det = (*vmi->detectors())[0];
+
+    // Get rows/cols
+    int rows = det.rows();
+    int columns = det.columns();
+
+    // Get frame
+    const PixelDetector::frame_t &frame(det.frame());
+
+    int r;
+    char fieldname[128];
+    float *data(new float [rows*columns]);
+    std::copy(frame.begin(), frame.end(), data);
+    snprintf(fieldname, 127, "/data/VMI");
+    dims[0] = rows;
+    dims[1] = columns;
+    dataspace_id = H5Screate_simple(2, dims, NULL);
+    dataset_id = H5Dcreate1(fh, fieldname, H5T_NATIVE_SHORT,
+                            dataspace_id, H5P_DEFAULT);
+    r = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                 H5P_DEFAULT, data);
+    delete[](data);
+    if ( r < 0 ) {
+      printf("Error when VMI writing data\n");
+    }
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+
+  }
+
+
   // Save each pnCCD frame in the XTC data set
   int skipped = 0;
   for ( unsigned int i=0; i<nframes; i++) {
