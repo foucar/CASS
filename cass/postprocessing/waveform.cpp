@@ -89,20 +89,13 @@ void cass::pp4::operator()(const cass::CASSEvent &cassevent)
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of//
   //this channel//
-  if(!_waveform)
-  {
-    _waveform =
-        new Histogram1DFloat(waveform.size(),
-                             0,
-                             channel.fullscale()*channel.sampleInterval());
-    _pp.histograms_replace(_id,_waveform);
-  }
-  else if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+  if (!_waveform || (_waveform && _waveform->axis()[HistogramBackend::xAxis].nbrBins() !=
+                     waveform.size()))
   {
     _pp.histograms_delete(_id);
     _waveform = new Histogram1DFloat(waveform.size(),
                                      0,
-                                     channel.fullscale()*channel.sampleInterval());
+                                     waveform.size()*channel.sampleInterval());
     _pp.histograms_replace(_id,_waveform);
   }
   //copy the waveform to our storage histogram
