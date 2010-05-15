@@ -62,7 +62,6 @@ namespace cass
    *
    * implements postprocessor id's 500-519.
    *
-   * @todo make sure that y axis will show up in volts
    * @todo include also the other Acqiris instruments
    * @author Lutz Foucar
    */
