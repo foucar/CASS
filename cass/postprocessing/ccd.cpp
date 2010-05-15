@@ -48,7 +48,7 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     default:
         throw std::invalid_argument("class not responsible for requested postprocessor");
     };
-    std::cout<<"Postprocessor_"<<_id<<": set up: cols:"<<cols<<" rows:"<<rows<<std::endl;
+    std::cout<<"PostProcessor_"<<_id<<": set up: cols:"<<cols<<" rows:"<<rows<<std::endl;
     // save storage in PostProcessors container
     _image = new Histogram2DFloat(cols, 0, cols-1, rows, 0, rows-1);
     //_image->setMimeType(std::string("application/image"));     // in future, default mime-type of 2d histograms is 2d histogram, not image. Mime type for individual postprocessors can be specialized like this.
