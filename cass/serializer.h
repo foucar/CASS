@@ -59,7 +59,7 @@ namespace cass
   protected:
     std::iostream* _stream;    //!< the string to serialize the objects to (buffer)
   };
-  
+
   /** A string serializer.
    * class that will serialize / de serialize
    * Serializable classes to a stringstream
@@ -125,10 +125,10 @@ namespace cass
       delete _stream;
     }
     /** close file.
-     * 
+     *
      */
     void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
-    
+
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() {};
 #endif
@@ -161,10 +161,10 @@ namespace cass
       delete _stream;
     }
     /** close file.
-     * 
+     *
      */
     void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
-    
+
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() {};
 #endif
