@@ -215,13 +215,12 @@ QwtLogColorMap::QwtLogColorMap(QwtColorMap::Format format):
 {
     d_data = new PrivateData;
     d_data->mode = ScaledColors;
-
     setColorInterval( Qt::blue, Qt::yellow);
 }
 
 //! Copy constructor
 QwtLogColorMap::QwtLogColorMap(const QwtLogColorMap &other):
-    QwtColorMap(other), _transformId(trans_lin)
+    QwtColorMap(other)
 
 {
     d_data = new PrivateData;
@@ -257,6 +256,7 @@ QwtLogColorMap &QwtLogColorMap::operator=(
 {
     QwtColorMap::operator=(other);
     *d_data = *other.d_data;
+    _transformId = other._transformId;
     return *this;
 }
 
@@ -373,8 +373,8 @@ QRgb QwtLogColorMap::rgb(
             return d_data->colorStops.rgb(d_data->mode, ratio);
             break;
         case trans_pow10:
-            //return d_data->colorStops.rgb(d_data->mode, pow(10,ratio));
-            return d_data->colorStops.rgb(d_data->mode, log10(ratio+1)/log10(2)  );
+            return d_data->colorStops.rgb(d_data->mode, pow(10,ratio));
+            //return d_data->colorStops.rgb(d_data->mode, log10(ratio+1)/log10(2)  );
             break;
         case trans_log10:
             return d_data->colorStops.rgb(d_data->mode, log10(ratio+1));

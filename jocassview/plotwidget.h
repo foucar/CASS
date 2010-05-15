@@ -21,6 +21,7 @@
 #include <QToolBar>
 #include <QPushButton>
 #include <QComboBox>
+#include <QRadioButton>
 #include <QAction>
 #include <QFont>
 #include <QQueue>
@@ -227,6 +228,12 @@ public:
 
         _toolbar = new QToolBar;
         _colorbarPresets = new QComboBox;
+        _rad_colormap_lin = new QRadioButton(tr("lin"));
+        _rad_colormap_log = new QRadioButton(tr("log"));
+        _rad_colormap_exp = new QRadioButton(tr("exp"));
+        _rad_colormap_sqrt = new QRadioButton(tr("sqrt"));
+        _rad_colormap_sq = new QRadioButton(tr("square"));
+
         _colorbarPresets->setEditable(true);
         _saveColorbar = new QPushButton(tr("save colorbar"));
         // populate colorbar presets:
@@ -237,11 +244,22 @@ public:
         _colorbarPresets->setCurrentIndex( _colorbarPresets->findText(current) );
         _colorbarPresets->setEditText(current);  // in case it didn't match
 
+        connect(_rad_colormap_lin, SIGNAL(toggled(bool)), this, SLOT(changeColorIntLin(bool)));
+        connect(_rad_colormap_log, SIGNAL(toggled(bool)), this, SLOT(changeColorIntLog(bool)));
+        connect(_rad_colormap_exp, SIGNAL(toggled(bool)), this, SLOT(changeColorIntExp(bool)));
+        connect(_rad_colormap_sqrt, SIGNAL(toggled(bool)), this, SLOT(changeColorIntSqrt(bool)));
+        connect(_rad_colormap_sq, SIGNAL(toggled(bool)), this, SLOT(changeColorIntSquare(bool)));
         connect(_saveColorbar, SIGNAL(clicked()), this, SLOT(saveColorbar()));
         connect(_colorbarPresets, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(on_colorbarPreset_changed(const QString&)));
 
         _toolbar->addWidget( _colorbarPresets );
         _toolbar->addWidget( _saveColorbar );
+        _toolbar->addWidget( _rad_colormap_lin );
+        _toolbar->addWidget( _rad_colormap_log );
+        _toolbar->addWidget( _rad_colormap_exp );
+        _toolbar->addWidget( _rad_colormap_sqrt );
+        _toolbar->addWidget( _rad_colormap_sq );
+
 
         setMouseTracking(true);
         //_transformCol = QwtLogColorMap::trans_pow10;
@@ -340,9 +358,22 @@ protected slots:
     void saveColorbar() {
         QSettings settings;
         settings.beginGroup("ColorBar");
+        if (_colorbarPresets->currentText() == QString("") ) _colorbarPresets->setEditText(tr("default"));
         settings.beginGroup( _colorbarPresets->currentText() );
         settings.setValue("pos1", _cs_top );
         settings.setValue("pos2", _cs_bot );
+        settings.setValue("transformCol", _transformCol);
+    }
+
+    void changeColorIntLin(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_lin; changeColorInt();};
+    void changeColorIntLog(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_log10; changeColorInt();};
+    void changeColorIntExp(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_pow10; changeColorInt();};
+    void changeColorIntSqrt(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_sqrt; changeColorInt();};
+    void changeColorIntSquare(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_square; changeColorInt();};
+
+    void changeColorInt() {
+        saveColorbar();
+        updateColorBar();
     }
 
     void on_colorbarPreset_changed(const QString& name) {
@@ -358,6 +389,19 @@ protected slots:
         settings.beginGroup( name );
         _cs_top = settings.value("pos1", 0.7).toDouble();
         _cs_bot = settings.value("pos2", 0.2).toDouble();
+        _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
+        switch(_transformCol) {
+            case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
+            break;
+            case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
+            break;
+            case QwtLogColorMap::trans_log10: _rad_colormap_log->setChecked(true);
+            break;
+            case QwtLogColorMap::trans_square: _rad_colormap_sq->setChecked(true);
+            break;
+            case QwtLogColorMap::trans_sqrt: _rad_colormap_sqrt->setChecked(true);
+            break;
+        }
         updateColorBar();
     }
 
@@ -391,6 +435,14 @@ protected:
     QToolBar* _toolbar;
     QComboBox* _colorbarPresets;
     QPushButton* _saveColorbar;
+
+    QRadioButton* _rad_colormap_log;
+    QRadioButton* _rad_colormap_lin;
+    QRadioButton* _rad_colormap_exp;
+    QRadioButton* _rad_colormap_sqrt;
+    QRadioButton* _rad_colormap_sq;
+
+
 };
 
 
