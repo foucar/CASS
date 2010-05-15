@@ -107,15 +107,14 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     static QQueue< cass::Serializer* > queue;
     int result;
     cass::PostProcessors *pp(cass::PostProcessors::instance());
-    cass::IdList* idlist = pp->getIdList();
-    cass::Serializer* ser=new cass::Serializer;
+    cass::IdList* idlist(pp->getIdList());
+    cass::Serializer* ser(new cass::Serializer);
     idlist->serialize(*ser);
     *success = true;
-    soap_set_dime(this); // enable dime
+    soap_set_dime(this);
     queue.enqueue(ser);
-    result = soap_set_dime_attachment(this, (char*) ser->buffer().data(), ser->buffer().size(), "application/postprocessorList",
-          "0", 0, NULL);
-    if(10<queue.size())
+    result = soap_set_dime_attachment(this, (char*) ser->buffer().data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
+    if(10 < queue.size())
         delete queue.dequeue();
     return result;
 }
@@ -123,8 +122,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
 int CASSsoapService::getMimeType(size_t type, bool *success)
 {
     cass::PostProcessors *pp(cass::PostProcessors::instance());
-    std::string& mimetype( pp->getMimeType(static_cast<cass::PostProcessors::id_t>(type)));
-    //std::string mimetype("application/image");
+    std::string& mimetype(pp->getMimeType(cass::PostProcessors::id_t(type)));
     *success = true;
     soap_set_dime(this); // enable dime
     VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " << mimetype.size() << std::endl);
