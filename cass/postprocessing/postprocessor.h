@@ -370,9 +370,10 @@ class CASSSHARED_EXPORT PostProcessors : public QObject
 public:
 
     /** List of all currently registered postprocessors
-
-    Keep this fully list synchronized with the documentation in the class header!
-    */
+     *
+     * Keep this fully list synchronized with the documentation in the class header!
+     * @todo clean up list once the id for a pp is pair<id_t,size_t>
+     */
     enum id_t
     {
         Pnccd1LastImage=1, Pnccd2LastImage=2, VmiCcdLastImage=3,
