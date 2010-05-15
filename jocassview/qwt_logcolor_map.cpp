@@ -386,6 +386,7 @@ QRgb QwtLogColorMap::rgb(
             return d_data->colorStops.rgb(d_data->mode, pow(ratio,2));
             break;
     }
+    return 0;
 }
 
 /*!
