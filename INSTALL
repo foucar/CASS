@@ -8,6 +8,8 @@ The following software packages need to be installed and available for building 
   - Qt version 4.6.x
   - gSOAP 2.7.x
 
+For compiling offline mode, which includes the ability to dump data to HDF5
+files, you'll also require the HDF5 library, version 1.8.x.
 
 Needed Environment Variables
 ----------------------------
@@ -27,6 +29,11 @@ GSOAP: pointing to the directory where gsoap is installed
 CPLUS_INCLUDE_PATH: $GSOAP/include:$LCLSSYSINCLUDE
 LIBRARY_PATH: $GSOAP/lib:$LCLSSYSLIB
 
+If you are compiling in offline mode, you'll need to also define:
+
+HDF5DIR: pointing at the directory where the HDF5 library is installed.
+         The HDF5 library must have been compiled with the "--enable-threadsafe"
+         option, otherwise it will break at runtime.
 
 
 Building CASS
@@ -37,6 +44,11 @@ Do the following
   make
   make install
 to build and install the software.
+
+To compile offline mode, first edit cass_config.pri and uncomment the line
+as indicated.  You'll need to "make clean" then repeat the "qmake -r" step to
+ensure CASS is configured correctly after making this change.
+
 The qmake command will output warnings when run for the first time. The files it is
 complaining about not beeing there will be created by the MAKEFILES qmake will create
 from the project files.

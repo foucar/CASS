@@ -8,6 +8,7 @@
 #include "cass.h"
 #include "analyzer.h"
 #include "daemon.h"
+#include "file_input.h"
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
@@ -84,7 +85,8 @@
  * paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings) can be overridden
  * by the user by setting the XDG_CONFIG_HOME environment variable."
  * @see http://doc.trolltech.com/4.6/qsettings.html#setPath
- * @subsection testing Testing CASS in offline modus
+ *
+ * @subsection testing Testing CASS in offline mode (DAQ simulation)
  * For testing CASS you can create the shared memory using xtcmonserver located
  * in the build directory of the LCLS subfolder. This will take a xtc file and
  * put the contents into the shared memory. You have to give it serval commands
@@ -103,6 +105,20 @@
  *         calculate the time in ns it took to read the event from file and put
  *         it into the shared memory (buisy time).\n
  *         sparetime = 1e9 / rate - buisy time.
+ *
+ * @subsection Running CASS with file input ("offlinecass")
+ * If CASS has been compiled in offline mode (see the @ref cassinstall file),
+ * then it will read data from XTC files on the filesystem rather than from
+ * shared memory.  First, create a file called "filesToProcess.txt" in the
+ * working directory containing the names of the XTC files to use.  Then
+ * simply run CASS as normal, without the "-p" option.  All postprocessors
+ * and options can be used as normal, and you can additionally enable
+ * postprocessor #1001 for HDF5 file output.
+ *
+ * Running CASS in this offline mode is similar to using "xtcmonserver", but
+ * there is one important difference:  The event buffer will be made to block
+ * if events cannot be processed quickly enough, instead of skipping events.
+ *
  *
  * @section cred Credits
  * @par Authors:
@@ -184,6 +200,11 @@
 /** The main program*/
 int main(int argc, char **argv)
 {
+#ifdef OFFLINE
+  // filename containing XTC filenames
+  const char *filelistname = "filesToProcess.txt";
+#endif
+
   // construct Qt application object
   QApplication app(argc, argv,false);
   // set up details for QSettings and Co.
@@ -209,11 +230,14 @@ int main(int argc, char **argv)
   //the sharememory client index
   int index(0);
   //check if at least 1 param is given
+
+#ifndef OFFLINE
   if(argc<2)
   {
     std::cout << "please give me at least the partition tag" <<std::endl;
     return 1;
   }
+#endif
 
   //get the partition string
   while((c = getopt(argc, argv, "p:s:c:")) != -1)
@@ -239,10 +263,17 @@ int main(int argc, char **argv)
 
   //a ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
+
+#ifndef OFFLINE
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
                                                              index,
                                                              ringbuffer));
+#else
+  // create file input object
+  cass::FileInput *input(new cass::FileInput(filelistname,ringbuffer));
+#endif
+
   //create workers//
   cass::Workers *workers(new cass::Workers(ringbuffer, qApp));
   //create a ratemeter object for the input//

@@ -19,6 +19,9 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
+# Uncomment this to compile "offlinecass"
+#CONFIG      += offline
+
 SUFFIX_STR =
 
 CONFIG(debug, debug|release) {
@@ -27,6 +30,10 @@ CONFIG(debug, debug|release) {
 }
 else {
     DEFINES += NDEBUG QT_NO_DEBUG
+}
+
+CONFIG(offline) {
+    DEFINES += OFFLINE RINGBUFFER_BLOCKING
 }
 
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387

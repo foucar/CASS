@@ -102,6 +102,7 @@ SOURCES +=  analyzer.cpp \
             cass_event.cpp \
             daemon.cpp \
             event_getter.cpp \
+            file_input.cpp \
             format_converter.cpp \
             histogram.cpp \
             histogram_getter.cpp \
@@ -130,6 +131,7 @@ HEADERS +=  analysis_backend.h \
             conversion_backend.h \
             daemon.h \
             event_getter.h \
+            file_input.h \
             format_converter.h \
             histogram.h \
             histogram_getter.h \
@@ -154,7 +156,8 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
             ./postprocessing/imaging.h \
-            ./postprocessing/waveform.h
+            ./postprocessing/waveform.h \
+            ./postprocessing/hdf5dump.h
 
 INCLUDEPATH   += postprocessing \
                  ../cass_acqiris \
@@ -175,6 +178,13 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                  -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap
+
+# Extra stuff if compiling "offlinecass"
+offline {
+    INCLUDEPATH += $$(HDF5DIR)/include
+    LIBS += -L$$(HDF5DIR)/lib -lhdf5
+    SOURCES += ./postprocessing/hdf5dump.cpp
+}
 
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_pnccd/libcass_pnccd.a \

@@ -14,6 +14,7 @@
 #include "postprocessing/alignment.h"
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/waveform.h"
+#include "postprocessing/hdf5dump.h"
 #include "imaging.h"
 #include "backend.h"
 
@@ -423,6 +424,13 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case AdvancedPhotonFinderCommercialCCDTwo1dHist:
         processor = new pp166(*this,id);
         break;
+
+#ifdef OFFLINE
+    case PnccdHDF5:
+        processor = new pp1001(*this,id);
+        break;
+#endif
+
     default:
         throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
     }

@@ -45,8 +45,11 @@ namespace cass
     uint64_t         id()const        {return _id;}
     uint64_t        &id()             {return _id;}
     char            *datagrambuffer() {return _datagrambuffer;}
+    const char      *datagrambuffer()const {return _datagrambuffer;}
     const devices_t &devices()const   {return _devices;}
     devices_t       &devices()        {return _devices;}
+    const char      *filename()const  {return _filename;};
+    void             setFilename(const char * f) {_filename = f;}
 
   private:
     /** id of the cassevent*/
@@ -55,6 +58,8 @@ namespace cass
     devices_t _devices;
     /** buffer for the datagram that contains all LCLS information*/
     char _datagrambuffer[cass::DatagramBufferSize];
+    /** filename of XTC file which this event came from (if offline */
+    const char * _filename;
   };
 }//end namespace
 

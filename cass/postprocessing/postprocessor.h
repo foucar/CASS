@@ -324,6 +324,9 @@ the Class description for information about what parameters are user settable.
 
 00700: PIPICo on Hexdetector (pp700)
 00701: PIPICo of Hex and QuadDetector (pp700)
+
+---HDF5 output postprocessors--
+01001: Dump front and back pnCCD images (and more...) to HDF5
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -522,6 +525,8 @@ public:
 
         HexPIPICO=700,
         HexQuadPIPICO=701,
+
+        PnccdHDF5=1001,
 
         InvalidPP
     };
