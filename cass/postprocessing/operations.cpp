@@ -35,10 +35,13 @@ namespace cass
 }
 
 
+
+
+
 // *** postprocessors 106 substract two histograms ***
 
 cass::pp106::pp106(PostProcessors& pp, cass::PostProcessors::id_t id)
-  : PostprocessorBackend(pp, id), _image(0)
+  : PostprocessorBackend(pp, id), _result(0)
 {
   loadSettings(0);
 }
@@ -47,7 +50,7 @@ cass::pp106::pp106(PostProcessors& pp, cass::PostProcessors::id_t id)
 cass::pp106::~pp106()
 {
   _pp.histograms_delete(_id);
-  _image = 0;
+  _result = 0;
 }
 
 std::list<cass::PostProcessors::id_t> cass::pp106::dependencies()
@@ -70,6 +73,7 @@ void cass::pp106::loadSettings(size_t)
   _idOne = static_cast<PostProcessors::id_t>(settings.value("HistOne",0).toInt());
   _idTwo = static_cast<PostProcessors::id_t>(settings.value("HistTwo",0).toInt());
 
+  //check whether our dependencies already exist
   try
   {
     _pp.validate(_idOne);
@@ -90,17 +94,25 @@ void cass::pp106::loadSettings(size_t)
     return;
   }
 
-  const PostProcessors::histograms_t container (_pp.histograms_checkout());
-  PostProcessors::histograms_t::const_iterator it (container.find(_idOne));
+  //retrieve histograms from the two pp//
+  const HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
   _pp.histograms_release();
+  const HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
+  _pp.histograms_release();
+  //check whether they are the same type//
+  if ((one->dimension() != two->dimension()) ||
+      (one->memory().size() != two->memory().size()))
+  {
+    throw std::runtime_error("pp106 idOne is not the same type as idTwo or they have not the same size");
+  }
 
+  //creat the resulting histogram from the first histogram
   _pp.histograms_delete(_id);
-  _image = new Histogram2DFloat(it->second->axis()[HistogramBackend::xAxis].size(),
-                                it->second->axis()[HistogramBackend::yAxis].size());
-  _pp.histograms_replace(_id,_image);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_id,_result);
 
-  std::cout << "postprocessor_"<<_id<< " will substract hist "<<_idOne
-      <<" from hist "<<_idTwo
+  std::cout << "PostProcessor_"<<_id<< " will substract Histogram in PostProcessor_"<<_idOne
+      <<" from Histogram in PostProcessor_"<<_idTwo
       <<std::endl;
 }
 
@@ -108,23 +120,24 @@ void cass::pp106::loadSettings(size_t)
 
 void cass::pp106::operator()(const CASSEvent&)
 {
-  const PostProcessors::histograms_t container (_pp.histograms_checkout());
-  PostProcessors::histograms_t::const_iterator f(container.find(_idOne));
-  HistogramFloatBase::storage_t first (dynamic_cast<Histogram2DFloat *>(f->second)->memory());
-  PostProcessors::histograms_t::const_iterator s(container.find(_idTwo));
-  HistogramFloatBase::storage_t second (dynamic_cast<Histogram2DFloat *>(s->second)->memory());
+  //retrieve the memory of the to be substracted histograms//
+  HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
   _pp.histograms_release();
 
-  f->second->lock.lockForRead();
-  s->second->lock.lockForRead();
-  _image->lock.lockForWrite();
-  std::transform(first.begin(), first.end(),
-                 second.begin(),
-                 _image->memory().begin(),
+  //substract using transform with a special build function//
+  one->lock.lockForRead();
+  two->lock.lockForRead();
+  _result->lock.lockForWrite();
+  std::transform(one->memory().begin(),
+                 one->memory().end(),
+                 two->memory().begin(),
+                 _result->memory().begin(),
                  weighted_minus(_fOne,_fTwo));
-  _image->lock.unlock();
-  s->second->lock.unlock();
-  f->second->lock.unlock();
+  _result->lock.unlock();
+  one->lock.unlock();
+  two->lock.unlock();
 }
 
 
