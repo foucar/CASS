@@ -69,7 +69,7 @@ namespace cass
       /** load the settings, lock it first*/
       void loadSettings();
       /** save the settings, lock it first*/
-      void saveSettings()   {_param.save();}
+      void saveSettings()   {/*_param.save();*/}
 
       //! called for every event will calculate the things
       void operator()(CASSEvent*);
