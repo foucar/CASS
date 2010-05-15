@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <vector>
 #include <limits>
+#include <cmath>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -304,29 +305,35 @@ protected:
 
 
 /** "0D Histogram" (scalar value).
-
-@author Jochen Kuepper
-*/
+ *
+ * @author Jochen Kuepper
+ */
 class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
 {
 public:
 
-    /*! Create a 0d histogram of a single float */
+    /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
         : HistogramFloatBase(0, 1, 1)
     {setMimeType(std::string("application/cass0Dhistogram"));};
 
-    /*! Constructor for reading a histogram from a stream */
+    /** Constructor for reading a histogram from a stream */
     Histogram0DFloat(Serializer &in)
         : HistogramFloatBase(in)
-    {};
+    {}
 
-    void fill(value_t value=0.) {lock.lockForWrite(); _memory[0] = value; lock.unlock(); };
+    void fill(value_t value=0.)
+    {lock.lockForWrite(); _memory[0] = value; lock.unlock(); }
 
+    /** getter for the 0d value*/
     value_t getValue() { return _memory[0]; };
 
-    /*! Simple assignment ot the single value */
-    Histogram0DFloat& operator=(value_t val) { fill(val); return *this; };
+    /** evaluate whether value is non zero */
+    bool operator()()
+    {return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());}
+
+    /** Simple assignment ot the single value */
+    Histogram0DFloat& operator=(value_t val) { fill(val); return *this; }
 };
 
 
