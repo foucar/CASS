@@ -220,7 +220,7 @@ int main(int argc, char **argv)
   // filename containing XTC filenames
   std::string filelistname("filesToProces.txt");
   // filename of the output filename
-  std::string outputfilename;
+  std::string outputfilename("output.root");
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
   //the sharememory client index
