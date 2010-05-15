@@ -464,6 +464,7 @@ public:
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
         // for time beeing, export 2d histograms as image.
+#warning Use reasonable MIME type (image/...)
         setMimeType(std::string("application/image"));
     }
 
@@ -482,6 +483,7 @@ public:
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
         _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
         //setMimeType(std::string("application/cass2Dhistogram"));
+#warning Use reasonable MIME type (image/...)
         setMimeType(std::string("application/image"));     // for time beeing, export 2d histograms as image.
     }
 
