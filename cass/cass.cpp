@@ -119,6 +119,9 @@
  * there is one important difference:  The event buffer will be made to block
  * if events cannot be processed quickly enough, instead of skipping events.
  *
+ * If you get weird HDF5 error messages when using pp1001, make sure your
+ * HDF5 library was compiled with thread safety enabled.
+ *
  *
  * @section cred Credits
  * @par Authors:
