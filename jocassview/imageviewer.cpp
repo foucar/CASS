@@ -452,6 +452,17 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
     _ready = true;
 }
 
+/*
+void ImageViewer::updateHistogram(cass::HistogramFloatBase* hist)
+{
+    size_t dim = hist->dimension();
+    switch(dim) {
+        case 0: updateHistogram( reinterpret_cast<Histogram0DFloat*>(hist) ); break;
+        case 1: updateHistogram( reinterpret_cast<Histogram1DFloat*>(hist) ); break;
+        case 2: updateHistogram( reinterpret_cast<Histogram2DFloat*>(hist) ); break;
+    }
+}*/
+
 void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
 {
     _plotWidget0D->setData(hist);
