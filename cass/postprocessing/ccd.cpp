@@ -257,8 +257,8 @@ void cass::pp101::operator()(const CASSEvent& event)
 
 
 
-// *** A Postprocessor that will display the photonhits of ccd detectors***
-// ***  used by postprocessors 110-112 ***
+// *** A Postprocessor that will display the photonhits of ccd detectors ***
+// *** used by postprocessors 110-112 ***
 
 pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id)
