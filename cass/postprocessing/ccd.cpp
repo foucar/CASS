@@ -87,9 +87,9 @@ void pp1::operator()(const cass::CASSEvent& event)
       _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
     }
     */
-    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+    //const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
 
-    const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
+    //const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
     /*std::cout<< "cacca " << ROIiterator_pp.size()
       <<std::endl;*/
 
