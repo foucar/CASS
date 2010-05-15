@@ -20,13 +20,17 @@ namespace cass
   {
     Q_OBJECT;
   public:
-    enum {_maxbufsize=1, _maxdatagramsize=0x1000000};
-      FileInput(const char *filelistname, cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,  QObject *parent=0);
+    /** constructor */
+    FileInput(const char *filelistname, cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,  QObject *parent=0);
+
+    /** destructor */
     ~FileInput();
 
+    /** function with the main loop */
     void run();
 
   public slots:
+    /** slot to quit the input */
     void end();
 
   signals:
@@ -36,9 +40,12 @@ namespace cass
     void newEventAdded();
 
   private:
-      cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
-    bool                                 _quit;
-    const char                          *_filelistname;
+    /** reference to the ringbuffer */
+    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    /** flag to quit the input */
+    bool _quit;
+    /** name of the file containing all files that we need to process */
+    std::string _filelistname;
     /** a pointer to the format converter.
      * The converter will convert the incomming data to our CASSEvent
      */

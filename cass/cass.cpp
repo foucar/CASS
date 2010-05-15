@@ -197,11 +197,6 @@
 /** The main program*/
 int main(int argc, char **argv)
 {
-#ifdef OFFLINE
-  // filename containing XTC filenames
-  const char *filelistname = "filesToProcess.txt";
-#endif
-
   // construct Qt application object
   QApplication app(argc, argv,false);
   // set up details for QSettings and Co.
@@ -222,22 +217,18 @@ int main(int argc, char **argv)
   //create a container for the partition tag
   int c;
   char partitionTag[128];
+  // filename containing XTC filenames
+  std::string filelistname;
+  // filename of the output filename
+  std::string outputfilename;
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
   //the sharememory client index
   int index(0);
   //check if at least 1 param is given
 
-#ifndef OFFLINE
-  if(argc<2)
-  {
-    std::cout << "please give me at least the partition tag" <<std::endl;
-    return 1;
-  }
-#endif
-
   //get the partition string
-  while((c = getopt(argc, argv, "p:s:c:")) != -1)
+  while((c = getopt(argc, argv, "p:s:c:i:o:")) != -1)
   {
     switch (c)
     {
@@ -249,6 +240,12 @@ int main(int argc, char **argv)
       break;
     case 'c':
       index = strtol(optarg, 0, 0);
+      break;
+    case 'i':
+      filelistname = optarg;
+      break;
+    case 'o':
+      outputfilename = optarg;
       break;
     default:
       std::cout << "please give me a partition tag" <<std::endl;
@@ -268,7 +265,7 @@ int main(int argc, char **argv)
                                                              ringbuffer));
 #else
   // create file input object
-  cass::FileInput *input(new cass::FileInput(filelistname,ringbuffer));
+  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer));
 #endif
 
   //create workers//

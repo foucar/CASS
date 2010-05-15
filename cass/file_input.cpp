@@ -13,17 +13,18 @@
 cass::FileInput::FileInput(const char *filelistname,
                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
                            QObject *parent)
-       :QThread(parent),
-        _ringbuffer(ringbuffer),
-        _quit(false),
-        _filelistname(filelistname),
-        _converter(cass::FormatConverter::instance())
+                             :QThread(parent),
+                             _ringbuffer(ringbuffer),
+                             _quit(false),
+                             _filelistname(filelistname),
+                             _converter(cass::FormatConverter::instance())
 {
 }
 
 cass::FileInput::~FileInput()
 {
   _converter->destroy();
+  VERBOSEOUT(std::cout<< "input is closed" <<std::endl);
 }
 
 void cass::FileInput::run()
@@ -33,7 +34,7 @@ void cass::FileInput::run()
 
   //open the file with the filenames in it
   std::ifstream filelistfile;
-  filelistfile.open(_filelistname);
+  filelistfile.open(_filelistname.c_str());
   //put the names into a list of things that we want to process
   if (filelistfile.is_open())
   {
@@ -45,12 +46,14 @@ void cass::FileInput::run()
       std::string line;
       getline(filelistfile,line);
       /* remove newline */
-      if(line[line.length()-1] == '\n'){
-	  line.resize(line.length()-1);
+      if(line[line.length()-1] == '\n')
+      {
+        line.resize(line.length()-1);
       }
       /* dont read newlines */
-      if(line.empty() || line[0] == '\n'){
-	  continue;
+      if(line.empty() || line[0] == '\n')
+      {
+        continue;
       }
       filelist.push_back(line);
       std::cout <<"file \""<<line<<"\" added to processing list"<<std::endl;
@@ -64,6 +67,9 @@ void cass::FileInput::run()
        filelistiterator != filelist.end();
        ++filelistiterator)
   {
+    //quit if requested//
+    if (_quit) break;
+
     //open the file
     std::ifstream xtcfile;
     xtcfile.open(filelistiterator->c_str(), std::ios::binary | std::ios::in);
@@ -78,16 +84,16 @@ void cass::FileInput::run()
         _ringbuffer.nextToFill(cassevent);
         //read the datagram from the file in the ringbuffer
         Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
-//	time_t eventTime = dg.seq.clock().seconds();
-//	if(eventTime && cass::globalOptions.endTime.isValid() &&
-//	   QDateTime::fromTime_t(eventTime).time() > cass::globalOptions.endTime.time()){
-//	    printf("Skipping rest of file\n");
-//	    return;
-//	}
+        //	time_t eventTime = dg.seq.clock().seconds();
+        //	if(eventTime && cass::globalOptions.endTime.isValid() &&
+        //	   QDateTime::fromTime_t(eventTime).time() > cass::globalOptions.endTime.time()){
+        //	    printf("Skipping rest of file\n");
+        //	    return;
+        //	}
         xtcfile.read(cassevent->datagrambuffer(),sizeof(dg));
         xtcfile.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
         const bool isGood = _converter->processDatagram(cassevent);
-	cassevent->setFilename(filelistiterator->c_str());
+        cassevent->setFilename(filelistiterator->c_str());
         //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);
         emit newEventAdded();
@@ -100,7 +106,7 @@ void cass::FileInput::run()
 
   }
   if (!_quit)
-  std::cout << "done with all files"<<std::endl;
+    std::cout << "done with all files"<<std::endl;
 }
 
 void cass::FileInput::end()

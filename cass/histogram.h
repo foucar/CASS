@@ -363,7 +363,6 @@ public:
 class CASSSHARED_EXPORT Histogram1DFloat : public HistogramFloatBase
 {
 public:
-
     /** constructor.
      * Create a 1d histogram of floats
      * @param nbrXBins, xLow, xUp The properties of the x-axis
