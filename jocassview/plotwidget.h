@@ -19,6 +19,8 @@
 #include <QLabel>
 #include <QLayout>
 #include <QToolBar>
+#include <QPushButton>
+#include <QComboBox>
 #include <QAction>
 #include <QFont>
 #include <QQueue>
@@ -191,8 +193,6 @@ class spectrogramWidget : public QWidget
 public:
     bool eventFilter(QObject *obj, QEvent *event)
     {
-        static double top = 0.7;
-        static double bot = 0.2;
         if (obj == _rightAxis ) {
             if (event->type() == QEvent::MouseMove) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
@@ -201,22 +201,14 @@ public:
                 double ystep = (yval - range.minValue() ) / (range.maxValue()-range.minValue());
 
                 if (ystep>0 && ystep<1) {
-                    float topdiff = fabs(ystep-top);
-                    float botdiff = fabs(ystep-bot);
+                    float topdiff = fabs(ystep-_cs_top);
+                    float botdiff = fabs(ystep-_cs_bot);
                     if (topdiff<botdiff)
-                        top=ystep;
+                        _cs_top=ystep;
                     else
-                        bot=ystep;
+                        _cs_bot=ystep;
 
-                    // old colormap is deleted by _spectrogram->setColorMap !!
-                    _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
-                    _colorMap->addColorStop(top, QColor(255,255,255));
-                    _colorMap->addColorStop(bot, QColor(0,0,0));
-                    _colorMap->setTransformId(_transformCol);
-                    _spectrogram->setColorMap(*_colorMap);
-                    _rightAxis->setColorMap(_spectrogram->data().range(),
-                        *_colorMap);
-                    _plot->replot();
+                    updateColorBar();
                 }
             }
         }
@@ -230,6 +222,21 @@ public:
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
     } 
     spectrogramWidget() {
+        _cs_top = 0.7;
+        _cs_bot = 0.2;
+
+        _toolbar = new QToolBar;
+        _colorbarPresets = new QComboBox;
+        _colorbarPresets->setEditable(true);
+        _saveColorbar = new QPushButton(tr("save colorbar"));
+        QSettings settings;
+        settings.beginGroup("ColorBar");
+        _colorbarPresets->addItems( settings.childGroups() );
+        connect(_saveColorbar, SIGNAL(clicked()), this, SLOT(saveColorbar()));
+        connect(_colorbarPresets, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(on_colorbarPreset_changed(const QString&)));
+
+        _toolbar->addWidget( _colorbarPresets );
+        _toolbar->addWidget( _saveColorbar );
 
         setMouseTracking(true);
         //_transformCol = QwtLogColorMap::trans_pow10;
@@ -286,6 +293,7 @@ public:
         _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
            Qt::RightButton);
         _layout.addWidget(_plot);
+        _layout.addWidget(_toolbar);
         setLayout(&_layout);
         _spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
         _plot->plotLayout()->setAlignCanvasToScales(true);
@@ -322,6 +330,40 @@ public:
         _plot->replot();
         
     };
+protected slots:
+    void saveColorbar() {
+        QSettings settings;
+        settings.beginGroup("ColorBar");
+        settings.beginGroup( _colorbarPresets->currentText() );
+        settings.setValue("pos1", _cs_top );
+        settings.setValue("pos2", _cs_bot );
+    }
+
+    void on_colorbarPreset_changed(const QString& name) {
+        loadColorbar(name);
+    }
+
+    void loadColorbar(QString name) {
+        QSettings settings;
+        settings.beginGroup("ColorBar");
+        settings.beginGroup( name );
+        _cs_top = settings.value("pos1", 0.7).toDouble();
+        _cs_bot = settings.value("pos2", 0.2).toDouble();
+        updateColorBar();
+    }
+
+    void updateColorBar() {
+        // old colormap is deleted by _spectrogram->setColorMap !!
+        _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
+        _colorMap->addColorStop(_cs_top, QColor(255,255,255));
+        _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
+        _colorMap->setTransformId(_transformCol);
+        _spectrogram->setColorMap(*_colorMap);
+        _rightAxis->setColorMap(_spectrogram->data().range(),
+            *_colorMap);
+        _plot->replot();
+    }
+
 protected:
 
     QwtLogColorMap::transformId _transformCol, _transformCol_inv;
@@ -334,7 +376,12 @@ protected:
     QVBoxLayout _layout;
     QwtScaleWidget * _rightAxis;
     QwtPlotZoomer* _zoomer;
-    
+ 
+    double _cs_top, _cs_bot;
+  
+    QToolBar* _toolbar;
+    QComboBox* _colorbarPresets;
+    QPushButton* _saveColorbar;
 };
 
 
