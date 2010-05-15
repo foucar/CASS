@@ -173,8 +173,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _spectrogramWidget = new spectrogramWidget;
     //addDockWidget(Qt::RightDockWidgetArea, _dock);
     setCentralWidget(_dock);
-    _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     connect(_picturetype, SIGNAL(currentIndexChanged(int)), this, SLOT(pictureTypeChanged(int)));
+    _picturetype->setCurrentIndex(settings.value("picturetypeindex", 0).toInt());
     // Other preparations.
     _scaleFactor = settings.value("scaleFactor", 1.0).toDouble();
     _ui.fitToWindow->setChecked(settings.value("fittowindow", false).toBool());
