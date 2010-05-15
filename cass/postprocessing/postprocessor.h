@@ -1,10 +1,11 @@
-// Copyright (C) 2010 lmf
+// Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Kuepper
 
 #ifndef __POSTPROCESSOR_H__
 #define __POSTPROCESSOR_H__
 
 #include <list>
+#include <string>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -555,46 +556,52 @@ public:
     static void destroy();
 
     /** process event
-
-    @param event CASSEvent to process by all active postprocessors
-    */
+     *
+     *@param event CASSEvent to process by all active postprocessors
+     */
     void process(CASSEvent& event);
 
-    /*! Histogram storage access
-
-    We only allow read access to the histograms container. Obtaining acces will immediately put a
-    lock on the container. You must release this with histograms_release.
-
-    @return Histogram storage
-    */
-    const histograms_t &histograms_checkout() {
+    /** Histogram storage access
+     *
+     * We only allow read access to the histograms container. Obtaining acces will immediately put a
+     * lock on the container. You must release this with histograms_release.
+     *
+     * @return Histogram storage
+     */
+    const histograms_t &histograms_checkout()
+    {
       if(! _histlock.tryLockForRead(100))
         _histlock.lockForWrite();
       return _histograms;
     };
 
-    /*! release read-lock for histograms container */
+    /** release read-lock for histograms container */
     void histograms_release() { _histlock.unlock(); };
 
-    /*! Replace histogram in storage
-
-    @param type Histogram to replace
-    @param hist New histogram to store
-    */
+    /** Replace histogram in storage
+     *
+     * @param type Histogram to replace
+     * @param hist New histogram to store
+     */
     void histograms_delete(id_t type) { _histlock.lockForWrite(); _delete(type); _histlock.unlock(); };
 
-    /*! Remove histogram from storage
-
-    @param type Histogram to remove
-    */
-    void histograms_replace(id_t type, HistogramBackend *hist) {
-        _histlock.lockForWrite(); _replace(type, hist);_histlock.unlock(); };
+    /** Remove histogram from storage
+     *
+     * @param type Histogram to remove
+     */
+    void histograms_replace(id_t type, HistogramBackend *hist)
+    {
+      _histlock.lockForWrite();
+      _replace(type, hist);
+      _histlock.unlock();
+    };
 
     /** make sure a specific histogram exists and is not 0
-
-    This requires that locking is done outside!
-    */
-    void validate(id_t type) {
+     *
+     * This requires that locking is done outside!
+     */
+    void validate(id_t type)
+    {
         if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
             throw InvalidHistogramError(type);
     };
@@ -603,25 +610,27 @@ public:
     std::string& getMimeType(id_t type);
 
 public slots:
-
-    /*! Load active postprocessors and histograms
-
-    Reset set of active postprocessors/histograms based on cass.ini */
+    /** Load active postprocessors and histograms
+     *
+     * Reset set of active postprocessors/histograms based on cass.ini
+     */
     void loadSettings(size_t);
 
-    /*! Save active postprocessors and histograms */
+    /** Save active postprocessors and histograms */
     void saveSettings() {}
 
-
 protected:
-
-    /*! @brief (ordered) list of active postprocessors/histograms
-
-    This list has order, i.e., postprocessors are called in the specified order. You can rely on the
-    result of a postprocessor earlier in the list, but not on one that only occurs further back...
-    */
+    /** @brief (ordered) list of active postprocessors/histograms
+     *
+     * This list has order, i.e., postprocessors are called in the specified order. You can rely on the
+     * result of a postprocessor earlier in the list, but not on one that only occurs further back...
+     */
     active_t _active;
+
+    /** the list of id's */
     IdList * _IdList;
+
+    /** a string @todo document what this is */
     std::string _invalidMime;
 
     /** container for all histograms */
@@ -631,37 +640,39 @@ protected:
     postprocessors_t _postprocessors;
 
     /** Create new Postprocessor for specified id and using the specified histogram container
-
-    @param[in] hs reference to the histogram container
-    @param[in] id the id of the postprocessor
-    */
+     *
+     * @param[in] hs reference to the histogram container
+     * @param[in] id the id of the postprocessor
+     */
     PostprocessorBackend * create(id_t id);
 
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();
 
-    /*! Internal method to actually remove histogram from storage
-
-    This requires that locking is done outside!
-
-    @param type Histogram to remove
-    */
+    /** Internal method to actually remove histogram from storage
+     *
+     * This requires that locking is done outside!
+     *
+     * @param type Histogram to remove
+     */
     void _delete(id_t type);
 
-    /*! Internal method to actually replace histogram from storage
-
-    This requires that locking is done outside!
-
-    @param type Histogram to replace
-    @param hist New histogram to store
-    */
+    /** Internal method to actually replace histogram from storage
+     *
+     * This requires that locking is done outside!
+     *
+     * @param type Histogram to replace
+     * @param hist New histogram to store
+     */
     void _replace(id_t type, HistogramBackend *hist);
 
     /** histogram container lock */
     QReadWriteLock _histlock;
 
-private:
+    /** filename of the output file */
+    string _outputfilename;
 
+private:
     /** Private constructor of singleton */
     PostProcessors();
 
@@ -681,6 +692,12 @@ private:
     static QMutex _mutex;
 };
 
+
+/** idlist
+ *
+ * @todo document this class
+ * @todo if possible put this class into a separate file.
+ */
 class IdList : public Serializable
 {
 public:
