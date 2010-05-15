@@ -314,13 +314,25 @@ void write_HDF5(const cass::CASSEvent &cassevent)
 
   // Write interesting data to '/data' part of HDF5 file
   gid = H5Gcreate1(fh, "data", 0);
+  if ( gid == 0 ) {
+    std::cout << "Couldn't create /data." << std::endl;
+    return;
+  }
 
   hid_t itof_gid = H5Gcreate1(gid, "Acqiris_IToF", 0);
+  if ( itof_gid == 0 ) {
+    std::cout << "Couldn't create /data/Acqiris_IToF" << std::endl;
+  } else {
+    add_acqiris_traces(fh, cass::ACQIRIS::Camp1, "/data/Acqiris_CAMP", cassevent);
+    H5Gclose(itof_gid);
+  }
   hid_t camp_gid = H5Gcreate1(gid, "Acqiris_CAMP", 0);
-  add_acqiris_traces(fh, cass::ACQIRIS::Camp1, "/data/Acqiris_CAMP", cassevent);
-  add_acqiris_traces(fh, cass::ACQIRIS::Camp2, "/data/Acqiris_IToF", cassevent);
-  H5Gclose(itof_gid);
-  H5Gclose(camp_gid);
+  if ( camp_gid == 0 ) {
+    std::cout << "Couldn't create /data/Acqiris_CAMP" << std::endl;
+  } else {
+    add_acqiris_traces(fh, cass::ACQIRIS::Camp2, "/data/Acqiris_IToF", cassevent);
+    H5Gclose(camp_gid);
+  }
 
   // Save VMI frame
   CCD::CCDDevice *vmi = dynamic_cast<CCD::CCDDevice *>
@@ -349,19 +361,22 @@ void write_HDF5(const cass::CASSEvent &cassevent)
     dims[0] = rows;
     dims[1] = columns;
     dataspace_id = H5Screate_simple(2, dims, NULL);
-    dataset_id = H5Dcreate1(fh, fieldname, H5T_NATIVE_SHORT,
-                            dataspace_id, H5P_DEFAULT);
-    r = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                 H5P_DEFAULT, data);
-    delete[](data);
-    if ( r < 0 ) {
-      printf("Error when VMI writing data\n");
+    if ( dataspace_id == 0 ) {
+      std::cout << "Couldn't create VMI dataspace" << std::endl;
+    } else {
+      dataset_id = H5Dcreate1(fh, fieldname, H5T_NATIVE_SHORT,
+                              dataspace_id, H5P_DEFAULT);
+      r = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                   H5P_DEFAULT, data);
+      if ( r < 0 ) {
+        printf("Error when VMI writing data\n");
+      }
+      delete[](data);
+      H5Dclose(dataset_id);
+      H5Sclose(dataspace_id);
     }
-    H5Dclose(dataset_id);
-    H5Sclose(dataspace_id);
 
   }
-
 
   // Save each pnCCD frame in the XTC data set
   int skipped = 0;
@@ -395,16 +410,24 @@ void write_HDF5(const cass::CASSEvent &cassevent)
     dims[0] = rows;
     dims[1] = columns;
     dataspace_id = H5Screate_simple( 2, dims, NULL);
-    dataset_id = H5Dcreate1(fh, fieldname, H5T_NATIVE_SHORT,
-                            dataspace_id, H5P_DEFAULT);
-    r = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-                 H5P_DEFAULT, data);
-    free(data);
-    if ( r < 0 ) {
-      printf("Error when writing data %i...\n",i);
-      return;
+    if ( dataspace_id == 0 ) {
+      std::cout << "Couldn't create pnCCD dataspace." << std::endl;
+    } else {
+      dataset_id = H5Dcreate1(fh, fieldname, H5T_NATIVE_SHORT,
+                              dataspace_id, H5P_DEFAULT);
+      if ( dataset_id == 0 ) {
+        std::cout << "Couldn't create pnCCD dataset" << std::endl;
+      } else {
+        r = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+                     H5P_DEFAULT, data);
+        free(data);
+        if ( r < 0 ) {
+          printf("Error when writing data %i...\n",i);
+          return;
+        }
+        H5Dclose(dataset_id);
+      }
     }
-    H5Dclose(dataset_id);
     H5Sclose(dataspace_id);
 
   }
@@ -414,12 +437,24 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   dataspace_id = H5Screate_simple( 1, dims, NULL );
   //dataspace_id = H5Screate(H5S_SCALAR);
   int adjusted_nframes = nframes-skipped;
-  dataset_id = H5Dcreate1(fh, "/data/nframes", H5T_NATIVE_SHORT,
-                          dataspace_id, H5P_DEFAULT);
-  H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &adjusted_nframes);
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
+  if ( dataspace_id == 0 ) {
+    std::cout << "Couldn't create pnCCD nframes space" << std::endl;
+  } else {
+    int r;
+    dataset_id = H5Dcreate1(fh, "/data/nframes", H5T_NATIVE_SHORT,
+                            dataspace_id, H5P_DEFAULT);
+    if ( dataset_id == 0 ) {
+      std::cout << "Couldn't create pnCCD nframes dataset" << std::endl;
+    } else {
+      r = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+                   H5P_DEFAULT, &adjusted_nframes);
+      if ( r == 0 ) {
+        std::cout << "Failed to write pnCCD nframes" << std::endl;
+      }
+      H5Dclose(dataset_id);
+      H5Sclose(dataspace_id);
+    }
+  }
 
   // Create symbolic link from /data/data0 to /data/data
   // (to maintain our convention of /data/data always containing data)
