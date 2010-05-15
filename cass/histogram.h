@@ -406,7 +406,7 @@ public:
     {
         using namespace std;
         storage_t partial(_memory.size());
-        accumulate(_memory.begin(), _memory.end(), partial.begin());
+        partial_sum(_memory.begin(), _memory.end(), partial.begin());
         storage_t::const_iterator center(find_if(partial.begin(), partial.end(), bind2nd(greater_equal<value_t>(), sum()/2)));
         return _axis[0].position((center - partial.begin()));
     }
