@@ -169,7 +169,6 @@
  *       items under one title, just like todo does.
  * @todo create a less pp
  * @todo create division pp
- * @todo create intreal pp (with possible subset
  * @todo add multiplication pp
  * @todo create pp that will convert all active pp histograms to root histo and
  *       store it in .root file.
