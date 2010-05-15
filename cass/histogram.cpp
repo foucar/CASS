@@ -77,6 +77,7 @@ namespace cass
     case zAxis:
       throw std::out_of_range("Cannot reduce 2D histogram along 3rd (z) axis!");
     }
+    return hist;
   }
 
 
