@@ -653,6 +653,7 @@ inline void cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
   _id = in.retrieveUint32();
+  _fillwhenserialized=false;
   lock.unlock();
 }
 
