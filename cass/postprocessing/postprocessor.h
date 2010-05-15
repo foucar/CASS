@@ -157,9 +157,6 @@ the Class description for information about what parameters are user settable.
 00104: Running average of commercial ccd images with optional condition (pp101)
 00105: Running average of commercial ccd images with optional condition (pp101)
 
-00106: Difference between choosable averaged CCD images (pp106)
-00107: Difference between choosable averaged CCD images (pp106)
-
 00110: Commercial CCD Image with just the detected photonHits (pp110)
 00111: Front pnCCD Image with just the detected photonHits (pp110)
 00112: Back pnCCD Image with just the detected photonHits (pp110)
@@ -324,6 +321,17 @@ the Class description for information about what parameters are user settable.
 
 00700: PIPICo on Hexdetector (pp700)
 00701: PIPICo of Hex and QuadDetector (pp700)
+
+---Operants on histograms--
+00106: Difference between choosable averaged CCD images (pp106)
+00107: Difference between choosable averaged CCD images (pp106)
+00800: Compare two histograms whether first is less than second (pp800)
+00801: Compare two histograms whether first is equal to second (pp801)
+00802: Divide first histogram by second histogram (pp802)
+00803: Multiply first histogram with second histogram (pp803)
+00804: Multiply histogram with constant (pp804)
+00805: calc integral on 1d histogram between two boarders (pp805)
+00806: project 2d histogram to a given axis within chosen boarders (pp806)
 
 ---HDF5 output postprocessors--
 01001: Dump front and back pnCCD images (and more...) to HDF5
