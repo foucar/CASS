@@ -44,8 +44,8 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
           nbrChannels = config.nbrChannels();
           std::cout <<"AcqirisConverter::ConfigXtc: Instrument "
               <<info.detector() << " has "
-              <<config.nbrChannels()
-              <<" Channels"<<std::endl;
+              <<config.nbrChannels()<<" Channels"
+              <<std::endl;
         }
         break;
       default:
