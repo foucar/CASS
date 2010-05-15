@@ -56,7 +56,7 @@ bin.files      = jocassview
 bin.path       = $$INSTALLBASE/bin
 INSTALLS      += bin
 
-RESOURCES     += jocassview.qrc
+RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
 
 
