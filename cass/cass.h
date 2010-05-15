@@ -70,6 +70,24 @@ namespace cass
       return fmtname;
   };
 
+  /** File extensions of known/supported Qt image formats
+   *
+   * @param fmt the Image Format
+   * @return File extension of format
+   */
+  inline const std::string imageExtension(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("png"); break;
+      case TIFF: fmtname = std::string("tiff"); break;
+      case JPEG: fmtname = std::string("jpg"); break;
+      case GIF:  fmtname = std::string("gif"); break;
+      case BMP:  fmtname = std::string("bmp"); break;
+      }
+      return fmtname;
+  };
+
   /** MIMI names of known/supported Qt image formats
    *
    * @param ImageFormat

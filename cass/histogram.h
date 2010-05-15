@@ -464,8 +464,7 @@ public:
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
         // for time beeing, export 2d histograms as image.
-#warning Use reasonable MIME type (image/...)
-        setMimeType(std::string("application/image"));
+        setMimeType(std::string("image/"));
     }
 
     /** create default histogram.

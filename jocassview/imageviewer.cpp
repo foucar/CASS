@@ -236,7 +236,8 @@ void ImageViewer::closeEvent(QCloseEvent *event)
 
 void ImageViewer::on_open_triggered()
 {
-    QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
+    // todo: use cass::imageExtension(cass::PNG)...   unfortunately cannot iterate over enums
+    QString filter("Images (*.png *.tiff *.jpg *.jpeg *.gif *.bmp);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
     QString fileName = QFileDialog::getOpenFileName(this,
             tr("Open File"), QDir::currentPath(), filter);
     if(!fileName.isEmpty()) loadData(fileName);
@@ -599,7 +600,7 @@ void getDataThread::run()
         if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
         else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
         else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
-        else if (!mime.compare(std::string("application/octet-stream")))    _dataType=dat_Image;
+        else if (!mime.compare(0,6,std::string("image/"))) _dataType=dat_Image;  // todo: use cass::imageformatName(cass::PNG)...
     }
     if (_dataType==dat_Any) {
         std::cerr << "getDataThread::run: cannot handle mime type " << mime << std::endl;
