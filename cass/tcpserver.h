@@ -7,6 +7,8 @@
 
 #include <stdexcept>
 #include <QtCore/QThread>
+#include <QtCore/QThread>
+#include <QRunnable>
 
 #include "cass_event.h"
 #include "event_getter.h"
@@ -22,10 +24,8 @@ namespace cass
 
 @author Jochen Küpper
 */
-class SoapHandler : public QThread
+class SoapHandler : public QRunnable
 {
-    Q_OBJECT;
-
 public:
 
     SoapHandler(CASSsoapService *soap)

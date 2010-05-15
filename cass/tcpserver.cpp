@@ -6,6 +6,7 @@
 #include <QtCore/QQueue>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
+#include <QThreadPool>
 
 #include "CASSsoap.nsmap"
 #include "histogram_getter.h"
@@ -27,7 +28,6 @@ void SoapHandler::run()
 {
     _soap->serve();   // serve request
     _soap->destroy(); // dealloc C++ data, dealloc data and clean up (destroy + end)
-    exit();           // terminate thread
 }
 
 
@@ -76,10 +76,7 @@ void SoapServer::run()
         if(! tsoap)
             break;
         SoapHandler *handler(new SoapHandler(tsoap));
-        handler->run();
-        // since run() starts no thread anyway, we can as well delete it now...
-        // todo: implement threadlist and signal based delete
-        delete handler;
+        QThreadPool::globalInstance()->start(handler);  // SoapHandler::setAutoDelete() is set by default.
     }
 }
 
