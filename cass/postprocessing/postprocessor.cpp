@@ -10,11 +10,12 @@
 
 #include "acqiris_detectors.h"
 #include "histogram.h"
-#include "postprocessing/ccd.h"
-#include "postprocessing/alignment.h"
-#include "postprocessing/postprocessor.h"
-#include "postprocessing/waveform.h"
-#include "postprocessing/hdf5dump.h"
+#include "ccd.h"
+#include "alignment.h"
+#include "postprocessor.h"
+#include "waveform.h"
+#include "hdf5dump.h"
+#include "operations.h"
 #include "imaging.h"
 #include "backend.h"
 
