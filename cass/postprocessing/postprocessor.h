@@ -756,6 +756,7 @@ please use doxygen style as then your documentation will be available on the web
 
     bool deserialize(SerializerBackend *in)
     {
+      _list.clear();
       //check whether the version fits//
       in->startChecksumGroupForRead();
       uint16_t ver = in->retrieveUint16();
@@ -772,7 +773,6 @@ please use doxygen style as then your documentation will be available on the web
         std::cerr<<"wrong checksum IdList"<<std::endl;
         return false;
       }
-      _list.clear();
       for(size_t ii=0; ii<_size; ++ii)
         _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
       std::cerr << "list is done " << std::endl;
