@@ -699,13 +699,13 @@ private:
 
 
 /** id-list
-
-used for SOAP communication of id-lists
-
-@todo document this class
-@todo if possible put this class into a separate file.
-@note do all these function need to be inlines?
-*/
+ *
+ * used for SOAP communication of id-lists
+ *
+ * @todo document this class
+ * @todo if possible put this class into a separate file.
+ * @note do all these function need to be inlines?
+ */
 class IdList : public Serializable
 {
 public:
