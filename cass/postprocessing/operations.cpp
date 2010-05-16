@@ -132,6 +132,7 @@ void cass::pp106::loadSettings(size_t)
 
 void cass::pp106::operator()(const CASSEvent&)
 {
+  using namespace std;
   //retrieve the memory of the to be substracted histograms//
   HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
   _pp.histograms_release();
@@ -142,11 +143,11 @@ void cass::pp106::operator()(const CASSEvent&)
   one->lock.lockForRead();
   two->lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one->memory().begin(),
-                 one->memory().end(),
-                 two->memory().begin(),
-                 _result->memory().begin(),
-                 weighted_minus(_fOne,_fTwo));
+  transform(one->memory().begin(),
+            one->memory().end(),
+            two->memory().begin(),
+            _result->memory().begin(),
+            weighted_minus(_fOne,_fTwo));
   _result->lock.unlock();
   one->lock.unlock();
   two->lock.unlock();
@@ -423,11 +424,11 @@ void cass::pp802::operator()(const CASSEvent&)
   one->lock.lockForRead();
   two->lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one->memory().begin(),
-                 one->memory().end(),
-                 two->memory().begin(),
-                 _result->memory().begin(),
-                 divides<float>());
+  transform(one->memory().begin(),
+            one->memory().end(),
+            two->memory().begin(),
+            _result->memory().begin(),
+            divides<float>());
   _result->lock.unlock();
   one->lock.unlock();
   two->lock.unlock();
@@ -518,11 +519,11 @@ void cass::pp803::operator()(const CASSEvent&)
   one->lock.lockForRead();
   two->lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one->memory().begin(),
-                 one->memory().end(),
-                 two->memory().begin(),
-                 _result->memory().begin(),
-                 multiplies<float>());
+  transform(one->memory().begin(),
+            one->memory().end(),
+            two->memory().begin(),
+            _result->memory().begin(),
+            multiplies<float>());
   _result->lock.unlock();
   one->lock.unlock();
   two->lock.unlock();
@@ -603,10 +604,98 @@ void cass::pp804::operator()(const CASSEvent&)
   //substract using transform with a special build function//
   one->lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one->memory().begin(),
-                 one->memory().end(),
-                 _result->memory().begin(),
-                 bind2nd(multiplies<float>(),_factor));
+  transform(one->memory().begin(),
+            one->memory().end(),
+            _result->memory().begin(),
+            bind2nd(multiplies<float>(),_factor));
+  _result->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessors 805 calcs integral over a region in 1d histo ***
+
+cass::pp805::pp805(PostProcessors& pp, cass::PostProcessors::id_t id)
+  : PostprocessorBackend(pp, id), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp805::~pp805()
+{
+  _pp.histograms_delete(_id);
+  _result = 0;
+}
+
+std::list<cass::PostProcessors::id_t> cass::pp805::dependencies()
+{
+  std::list<PostProcessors::id_t> list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp805::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString("p") + QString::number(_id));
+
+  _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
+                    settings.value("UpperBound", 1e6).toFloat());
+
+  if (!retrieve_and_validate(_id,"HistId",_idHist))
+    return;
+
+  //make sure that lower and upper bound are not exceeding histograms boudaries
+  const Histogram1DFloat *one (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  _area.first  = max(_area.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
+  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].lowerLimit());
+
+  //creat the resulting histogram from the first histogram
+  _pp.histograms_delete(_id);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_id,_result);
+
+  std::cout << "PostProcessor_"<<_id
+      <<" will create integral of PostProcessor_"<<_idHist
+      <<" from "<<_area.first
+      <<" to "<<_area.second
+      <<std::endl;
+}
+
+void cass::pp805::operator()(const CASSEvent&)
+{
+  using namespace std;
+  //retrieve the memory of the to be substracted histograms//
+  Histogram1DFloat *one (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //substract using transform with a special build function//
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  *_result = one->integral(_area);
   _result->lock.unlock();
   one->lock.unlock();
 }
