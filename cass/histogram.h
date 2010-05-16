@@ -540,7 +540,7 @@ public:
      * @param[in] from,to the range on the other axis that you want to project
      * @param[in] axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
      */
-    Histogram1DFloat project(float from, float to, Axis axis) const;
+    Histogram1DFloat project(std::pair<float,float> range, Axis axis) const;
 
     /** Create a QImage of this histogram.
      *

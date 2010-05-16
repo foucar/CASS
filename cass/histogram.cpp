@@ -50,7 +50,7 @@ namespace cass
   }
 
 
-  Histogram1DFloat Histogram2DFloat::project(float from, float to, Histogram2DFloat::Axis axis) const
+  Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const
   {
     Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit());
     size_t columns(_axis[1].size()), rows(_axis[0].size());
@@ -58,8 +58,8 @@ namespace cass
     {
     case xAxis: // reduce along rows (integrate rows)
       {
-        size_t low(_axis[yAxis].bin(std::min(from,to)));
-        size_t up (_axis[yAxis].bin(std::max(from,to)));
+        size_t low(_axis[yAxis].bin(std::min(range.first,range.second)));
+        size_t up (_axis[yAxis].bin(std::max(range.first,range.second)));
         for(size_t col=0; col<columns; ++col)
           for(size_t row=low; row<up; ++row)
             hist.bin(col) += bin(row, col);
@@ -67,8 +67,8 @@ namespace cass
       break;
     case yAxis: // reduce along columns (integrate rows)
       {
-        size_t low(_axis[xAxis].bin(std::min(from,to)));
-        size_t up (_axis[xAxis].bin(std::max(from,to)));
+        size_t low(_axis[xAxis].bin(std::min(range.first,range.second)));
+        size_t up (_axis[xAxis].bin(std::max(range.first,range.second)));
         for(size_t row=0; row<rows; ++row)
           for(size_t col=low; col<up; ++col)
             hist.bin(row) += bin(row, col);
