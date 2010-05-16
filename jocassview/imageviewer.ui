@@ -103,7 +103,7 @@
    </property>
   </action><action name="auto_save_data">
    <property name="text">
-    <string>&amp;Save data (auto)</string>
+    <string>&amp;Save data (auto Filename)</string>
    </property>
    <property name="toolTip">
     <string>Save data (image or plot) to file.</string>
