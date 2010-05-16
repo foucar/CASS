@@ -669,9 +669,11 @@ void cass::pp805::loadSettings(size_t)
   //make sure that lower and upper bound are not exceeding histograms boudaries
   const Histogram1DFloat *one (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
-
+  /** @note this will only work when the 1d histogram has already been created at this point,
+   * this is not true for the waveform histograms. need to change the way waveforms are created
+   */
   _area.first  = max(_area.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
-  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].lowerLimit());
+  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].upperLimit());
 
   //creat the resulting histogram from the first histogram
   _pp.histograms_delete(_id);
@@ -679,7 +681,7 @@ void cass::pp805::loadSettings(size_t)
   _pp.histograms_replace(_id,_result);
 
   std::cout << "PostProcessor_"<<_id
-      <<" will create integral of PostProcessor_"<<_idHist
+      <<" will create integral of 1d histogram in PostProcessor_"<<_idHist
       <<" from "<<_area.first
       <<" to "<<_area.second
       <<std::endl;
@@ -697,6 +699,112 @@ void cass::pp805::operator()(const CASSEvent&)
   _result->lock.lockForWrite();
   *_result = one->integral(_area);
   _result->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessors 806 projects 2d hist to 1d histo for a selected region of the axis ***
+
+cass::pp806::pp806(PostProcessors& pp, cass::PostProcessors::id_t id)
+  : PostprocessorBackend(pp, id), _projec(0)
+{
+  loadSettings(0);
+}
+
+cass::pp806::~pp806()
+{
+  _pp.histograms_delete(_id);
+  _projec = 0;
+}
+
+std::list<cass::PostProcessors::id_t> cass::pp806::dependencies()
+{
+  std::list<PostProcessors::id_t> list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp806::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString("p") + QString::number(_id));
+
+  _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
+                     settings.value("UpperBound", 1e6).toFloat());
+  _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
+
+
+  if (!retrieve_and_validate(_id,"HistId",_idHist))
+    return;
+
+  //make sure that lower and upper bound are not exceeding histograms boudaries
+  const Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //creat the resulting histogram from the right axis of the 2d
+  _pp.histograms_delete(_id);
+  switch (_axis)
+  {
+  case (HistogramBackend::xAxis):
+    _range.first  = max(_range.first, one->axis()[HistogramBackend::yAxis].lowerLimit());
+    _range.second = min(_range.second,one->axis()[HistogramBackend::yAxis].upperLimit());
+    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
+                                   one->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   one->axis()[HistogramBackend::xAxis].upperLimit());
+    break;
+  case (HistogramBackend::yAxis):
+    _range.first  = max(_range.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
+    _range.second = min(_range.second,one->axis()[HistogramBackend::xAxis].upperLimit());
+    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
+                                   one->axis()[HistogramBackend::yAxis].lowerLimit(),
+                                   one->axis()[HistogramBackend::yAxis].upperLimit());
+    break;
+  }
+  _pp.histograms_replace(_id,_projec);
+
+  std::cout << "PostProcessor_"<<_id
+      <<" will project histogram of PostProcessor_"<<_idHist
+      <<" from "<<_range.first
+      <<" to "<<_range.second
+      <<" on axis "<<_axis
+      <<std::endl;
+}
+
+void cass::pp806::operator()(const CASSEvent&)
+{
+  using namespace std;
+  //retrieve the memory of the to be substracted histograms//
+  Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //retrieve the projection from the 2d hist//
+  one->lock.lockForRead();
+  _projec->lock.lockForWrite();
+  *_projec = one->project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  _projec->lock.unlock();
   one->lock.unlock();
 }
 
