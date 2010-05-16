@@ -181,6 +181,8 @@
  * @todo add gui's to modify the postprocessors settings in cassviewer.
  * @todo make postprocessors is's to have pair<size_t,size_t> to be able to
  *       have userdefined number of instances of on pp
+ * @todo enable the possibility to clear just one histogram and leave the others
+ *       unmodified.
  */
 
 /** \page authors Authors
