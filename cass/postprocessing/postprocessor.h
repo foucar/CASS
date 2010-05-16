@@ -22,89 +22,89 @@
 
 namespace cass
 {
-class CASSEvent;
-class PostprocessorBackend;
-class HistogramBackend;
-class Histogram1DFloat;
-class Histogram2DFloat;
-class IdList;
+  class CASSEvent;
+  class PostprocessorBackend;
+  class HistogramBackend;
+  class Histogram1DFloat;
+  class Histogram2DFloat;
+  class IdList;
 
 
-/** Exception thrown when accessing invalid histograms
+  /** Exception thrown when accessing invalid histograms
  *
  * @author Jochen Küpper
  */
-class InvalidHistogramError : public std::out_of_range
-{
-public:
+  class InvalidHistogramError : public std::out_of_range
+  {
+  public:
 
     InvalidHistogramError(size_t id)
-        : std::out_of_range("Invalid histogram requested!"), _id(id)
-        {};
+      : std::out_of_range("Invalid histogram requested!"), _id(id)
+    {};
 
     virtual const char* what() const throw() {
-        std::ostringstream msg;
-        msg << "Invalid histogram " << _id << " requested!";
-        return msg.str().c_str();
+      std::ostringstream msg;
+      msg << "Invalid histogram " << _id << " requested!";
+      return msg.str().c_str();
     };
 
 
-protected:
+  protected:
 
     size_t _id;
-};
+  };
 
-/** binary function for averaging.
+  /** binary function for averaging.
  * this operator is capable of performing a cumulative moving average and
  * a Exponential moving average.
  * @see http://en.wikipedia.org/wiki/Moving_average
  * @author Lutz Foucar
  */
-class Average : std::binary_function<float,float,float>
-{
-public:
-  /** constructor.
+  class Average : std::binary_function<float,float,float>
+  {
+  public:
+    /** constructor.
    * initializes the \f$\alpha\f$ value
    * @param alpha The \f$\alpha\f$ value
    */
-  explicit Average(float alpha)
-    :_alpha(alpha)
-  {}
-  /** the operator calculates the average using the function
+    explicit Average(float alpha)
+      :_alpha(alpha)
+    {}
+    /** the operator calculates the average using the function
    * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
    * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
    * otherwise it will be a exponential moving average.
    */
-  float operator()(float currentValue, float Average_Nm1)
-  {
-    return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
-  }
-protected:
-  /** \f$\alpha\f$ for the average calculation */
-  float _alpha;
-};
+    float operator()(float currentValue, float Average_Nm1)
+    {
+      return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
+    }
+  protected:
+    /** \f$\alpha\f$ for the average calculation */
+    float _alpha;
+  };
 
 
 
-/** function to set the 1d histogram properties from the ini file.
+  /** function to set the 1d histogram properties from the ini file.
  * @param[out] hist pointer to the 1D Histogram whos properties should be updated
  *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
-void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
+  void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
 
-/** function to set the 2d histogram properties from the ini file.
+  /** function to set the 2d histogram properties from the ini file.
  * @param[out] hist pointer to the 2D Histogram whos properties should be updated
  *            (will be deleted and created with new settings)
  * @param[in] id the id of the postprocessor too look up in cass.ini
  * @author Lutz Foucar
  */
-void set2DHist(cass::Histogram2DFloat*& hist, size_t id);
+  void set2DHist(cass::Histogram2DFloat*& hist, size_t id);
 
 
 
-/** @brief container and call handler for all registered postprocessors
+  /** @brief container and call handler for all registered postprocessors
 
 All currently registered postprocessors are listed here, specifying their id, a description, and (in
 parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
@@ -363,11 +363,11 @@ just follow the example of the last pnccd processor(pp1).
 Please document what your postprocessor does so that other people now what it does. When documenting
 please use doxygen style as then your documentation will be available on the webserver.
 */
-class CASSSHARED_EXPORT PostProcessors : public QObject
-{
+  class CASSSHARED_EXPORT PostProcessors : public QObject
+  {
     Q_OBJECT;
 
-public:
+  public:
 
     /** List of all currently registered postprocessors
      *
@@ -376,169 +376,169 @@ public:
      */
     enum id_t
     {
-        Pnccd1LastImage=1, Pnccd2LastImage=2, VmiCcdLastImage=3,
-        CampChannel00LastWaveform=4,
-        CampChannel01LastWaveform=5,
-        CampChannel02LastWaveform=6,
-        CampChannel03LastWaveform=7,
-        CampChannel04LastWaveform=8,
-        CampChannel05LastWaveform=9,
-        CampChannel06LastWaveform=10,
-        CampChannel07LastWaveform=11,
-        CampChannel08LastWaveform=12,
-        CampChannel09LastWaveform=13,
-        CampChannel10LastWaveform=14,
-        CampChannel11LastWaveform=15,
-        CampChannel12LastWaveform=16,
-        CampChannel13LastWaveform=17,
-        CampChannel14LastWaveform=18,
-        CampChannel15LastWaveform=19,
-        CampChannel16LastWaveform=20,
-        CampChannel17LastWaveform=21,
-        CampChannel18LastWaveform=22,
-        CampChannel19LastWaveform=23,
-        ITofChannel00LastWaveform=24,
-        ITofChannel01LastWaveform=25,
-        ITofChannel02LastWaveform=26,
-        ITofChannel03LastWaveform=27,
-        FirstPnccdFrontBinnedConditionalRunningAverage=100, SecondPnccdFrontBinnedConditionalRunningAverage=101,
-        FirstPnccdBackBinnedConditionalRunningAverage=102, SecondPnccdBackBinnedConditionalRunningAverage=103,
-        FirstCommercialCCDBinnedConditionalRunningAverage=104, SecondCommercialCCDBinnedConditionalRunningAverage=105,
-        FirstImageSubstraction=106, SecondImageSubstraction=107,
-        VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
-        VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
-        VMIPhotonHitseV1d=116, PnCCDFrontPhotonHitseV1d=117, PnCCDBackPhotonHitseV1d=118,
-        VmiRunningAverage=121, VmiCos2Theta=131,
-        Integral3=141, Integral121=142,
-        GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
-        VmiFixedCos2Theta=150,
+      Pnccd1LastImage=1, Pnccd2LastImage=2, VmiCcdLastImage=3,
+      CampChannel00LastWaveform=4,
+      CampChannel01LastWaveform=5,
+      CampChannel02LastWaveform=6,
+      CampChannel03LastWaveform=7,
+      CampChannel04LastWaveform=8,
+      CampChannel05LastWaveform=9,
+      CampChannel06LastWaveform=10,
+      CampChannel07LastWaveform=11,
+      CampChannel08LastWaveform=12,
+      CampChannel09LastWaveform=13,
+      CampChannel10LastWaveform=14,
+      CampChannel11LastWaveform=15,
+      CampChannel12LastWaveform=16,
+      CampChannel13LastWaveform=17,
+      CampChannel14LastWaveform=18,
+      CampChannel15LastWaveform=19,
+      CampChannel16LastWaveform=20,
+      CampChannel17LastWaveform=21,
+      CampChannel18LastWaveform=22,
+      CampChannel19LastWaveform=23,
+      ITofChannel00LastWaveform=24,
+      ITofChannel01LastWaveform=25,
+      ITofChannel02LastWaveform=26,
+      ITofChannel03LastWaveform=27,
+      FirstPnccdFrontBinnedConditionalRunningAverage=100, SecondPnccdFrontBinnedConditionalRunningAverage=101,
+      FirstPnccdBackBinnedConditionalRunningAverage=102, SecondPnccdBackBinnedConditionalRunningAverage=103,
+      FirstCommercialCCDBinnedConditionalRunningAverage=104, SecondCommercialCCDBinnedConditionalRunningAverage=105,
+      FirstImageSubstraction=106, SecondImageSubstraction=107,
+      VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
+      VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
+      VMIPhotonHitseV1d=116, PnCCDFrontPhotonHitseV1d=117, PnCCDBackPhotonHitseV1d=118,
+      VmiRunningAverage=121, VmiCos2Theta=131,
+      Integral3=141, Integral121=142,
+      GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
+      VmiFixedCos2Theta=150,
 
-        AdvancedPhotonFinderFrontPnCCD=160,
-        AdvancedPhotonFinderFrontPnCCDTwo=161,
-        AdvancedPhotonFinderBackPnCCD=162,
-        AdvancedPhotonFinderBackPnCCDTwo=163,
-        AdvancedPhotonFinderCommercialCCD=164,
-        AdvancedPhotonFinderCommercialCCDTwo=165,
+      AdvancedPhotonFinderFrontPnCCD=160,
+      AdvancedPhotonFinderFrontPnCCDTwo=161,
+      AdvancedPhotonFinderBackPnCCD=162,
+      AdvancedPhotonFinderBackPnCCDTwo=163,
+      AdvancedPhotonFinderCommercialCCD=164,
+      AdvancedPhotonFinderCommercialCCDTwo=165,
 
-        AdvancedPhotonFinderFrontPnCCD1dHist=166,
-        AdvancedPhotonFinderFrontPnCCDTwo1dHist=167,
-        AdvancedPhotonFinderBackPnCCD1dHist=168,
-        AdvancedPhotonFinderBackPnCCDTwo1dHist=169,
-        AdvancedPhotonFinderCommercialCCD1dHist=170,
-        AdvancedPhotonFinderCommercialCCDTwo1dHist=171,
+      AdvancedPhotonFinderFrontPnCCD1dHist=166,
+      AdvancedPhotonFinderFrontPnCCDTwo1dHist=167,
+      AdvancedPhotonFinderBackPnCCD1dHist=168,
+      AdvancedPhotonFinderBackPnCCDTwo1dHist=169,
+      AdvancedPhotonFinderCommercialCCD1dHist=170,
+      AdvancedPhotonFinderCommercialCCDTwo1dHist=171,
 
-        CampChannel00AveragedWaveform=500,
-        CampChannel01AveragedWaveform=501,
-        CampChannel02AveragedWaveform=502,
-        CampChannel03AveragedWaveform=503,
-        CampChannel04AveragedWaveform=504,
-        CampChannel05AveragedWaveform=505,
-        CampChannel06AveragedWaveform=506,
-        CampChannel07AveragedWaveform=507,
-        CampChannel08AveragedWaveform=508,
-        CampChannel09AveragedWaveform=509,
-        CampChannel10AveragedWaveform=510,
-        CampChannel11AveragedWaveform=511,
-        CampChannel12AveragedWaveform=512,
-        CampChannel13AveragedWaveform=513,
-        CampChannel14AveragedWaveform=514,
-        CampChannel15AveragedWaveform=515,
-        CampChannel16AveragedWaveform=516,
-        CampChannel17AveragedWaveform=517,
-        CampChannel18AveragedWaveform=518,
-        CampChannel19AveragedWaveform=519,
-        ITofChannel00AveragedWaveform=520,
-        ITofChannel01AveragedWaveform=521,
-        ITofChannel02AveragedWaveform=522,
-        ITofChannel03AveragedWaveform=523,
+      CampChannel00AveragedWaveform=500,
+      CampChannel01AveragedWaveform=501,
+      CampChannel02AveragedWaveform=502,
+      CampChannel03AveragedWaveform=503,
+      CampChannel04AveragedWaveform=504,
+      CampChannel05AveragedWaveform=505,
+      CampChannel06AveragedWaveform=506,
+      CampChannel07AveragedWaveform=507,
+      CampChannel08AveragedWaveform=508,
+      CampChannel09AveragedWaveform=509,
+      CampChannel10AveragedWaveform=510,
+      CampChannel11AveragedWaveform=511,
+      CampChannel12AveragedWaveform=512,
+      CampChannel13AveragedWaveform=513,
+      CampChannel14AveragedWaveform=514,
+      CampChannel15AveragedWaveform=515,
+      CampChannel16AveragedWaveform=516,
+      CampChannel17AveragedWaveform=517,
+      CampChannel18AveragedWaveform=518,
+      CampChannel19AveragedWaveform=519,
+      ITofChannel00AveragedWaveform=520,
+      ITofChannel01AveragedWaveform=521,
+      ITofChannel02AveragedWaveform=522,
+      ITofChannel03AveragedWaveform=523,
 
-        HexMCPNbrSignals=550,
-        HexU1NbrSignals=551,
-        HexU2NbrSignals=552,
-        HexV1NbrSignals=553,
-        HexV2NbrSignals=554,
-        HexW1NbrSignals=555,
-        HexW2NbrSignals=556,
-        HexU1U2Ratio=557,
-        HexU1McpRatio=558,
-        HexU2McpRatio=559,
-        HexV1V2Ratio=560,
-        HexV1McpRatio=561,
-        HexV2McpRatio=562,
-        HexW1W2Ratio=563,
-        HexW1McpRatio=564,
-        HexW2McpRatio=565,
-        HexRekMcpRatio=566,
-        HexAllMcp=567,
-        HexTimesumU=568,
-        HexTimesumV=569,
-        HexTimesumW=570,
-        HexTimesumUvsU=571,
-        HexTimesumVvsV=572,
-        HexTimesumWvsW=573,
-        HexFirstUV=574,
-        HexFirstUW=575,
-        HexFirstVW=576,
-        HexXY=578,
-        HexXT=579,
-        HexYT=580,
-        HexHeightvsFwhmMcp=581,
-        HexHeightvsFwhmU1=582,
-        HexHeightvsFwhmU2=583,
-        HexHeightvsFwhmV1=584,
-        HexHeightvsFwhmV2=585,
-        HexHeightvsFwhmW1=586,
-        HexHeightvsFwhmW2=587,
+      HexMCPNbrSignals=550,
+      HexU1NbrSignals=551,
+      HexU2NbrSignals=552,
+      HexV1NbrSignals=553,
+      HexV2NbrSignals=554,
+      HexW1NbrSignals=555,
+      HexW2NbrSignals=556,
+      HexU1U2Ratio=557,
+      HexU1McpRatio=558,
+      HexU2McpRatio=559,
+      HexV1V2Ratio=560,
+      HexV1McpRatio=561,
+      HexV2McpRatio=562,
+      HexW1W2Ratio=563,
+      HexW1McpRatio=564,
+      HexW2McpRatio=565,
+      HexRekMcpRatio=566,
+      HexAllMcp=567,
+      HexTimesumU=568,
+      HexTimesumV=569,
+      HexTimesumW=570,
+      HexTimesumUvsU=571,
+      HexTimesumVvsV=572,
+      HexTimesumWvsW=573,
+      HexFirstUV=574,
+      HexFirstUW=575,
+      HexFirstVW=576,
+      HexXY=578,
+      HexXT=579,
+      HexYT=580,
+      HexHeightvsFwhmMcp=581,
+      HexHeightvsFwhmU1=582,
+      HexHeightvsFwhmU2=583,
+      HexHeightvsFwhmV1=584,
+      HexHeightvsFwhmV2=585,
+      HexHeightvsFwhmW1=586,
+      HexHeightvsFwhmW2=587,
 
-        QuadMCPNbrSignals=600,
-        QuadX1NbrSignals=601,
-        QuadX2NbrSignals=602,
-        QuadY1NbrSignals=603,
-        QuadY2NbrSignals=604,
-        QuadX1X2Ratio=605,
-        QuadX1McpRatio=606,
-        QuadX2McpRatio=607,
-        QuadY1Y2Ratio=608,
-        QuadY1McpRatio=609,
-        QuadY2McpRatio=610,
-        QuadRekMcpRatio=611,
-        QuadAllMcp=612,
-        QuadTimesumX=613,
-        QuadTimesumY=614,
-        QuadTimesumXvsX=615,
-        QuadTimesumYvsY=616,
-        QuadFirstXY=617,
-        QuadXY=618,
-        QuadXT=619,
-        QuadYT=620,
-        QuadHeightvsFwhmMcp=621,
-        QuadHeightvsFwhmX1=622,
-        QuadHeightvsFwhmX2=623,
-        QuadHeightvsFwhmY1=624,
-        QuadHeightvsFwhmY2=625,
+      QuadMCPNbrSignals=600,
+      QuadX1NbrSignals=601,
+      QuadX2NbrSignals=602,
+      QuadY1NbrSignals=603,
+      QuadY2NbrSignals=604,
+      QuadX1X2Ratio=605,
+      QuadX1McpRatio=606,
+      QuadX2McpRatio=607,
+      QuadY1Y2Ratio=608,
+      QuadY1McpRatio=609,
+      QuadY2McpRatio=610,
+      QuadRekMcpRatio=611,
+      QuadAllMcp=612,
+      QuadTimesumX=613,
+      QuadTimesumY=614,
+      QuadTimesumXvsX=615,
+      QuadTimesumYvsY=616,
+      QuadFirstXY=617,
+      QuadXY=618,
+      QuadXT=619,
+      QuadYT=620,
+      QuadHeightvsFwhmMcp=621,
+      QuadHeightvsFwhmX1=622,
+      QuadHeightvsFwhmX2=623,
+      QuadHeightvsFwhmY1=624,
+      QuadHeightvsFwhmY2=625,
 
-        VMIMcpNbrSignals=650,
-        VMIMcpAllMcp=651,
-        VMIMcpHeightvsFwhmMcp=652,
+      VMIMcpNbrSignals=650,
+      VMIMcpAllMcp=651,
+      VMIMcpHeightvsFwhmMcp=652,
 
-        FELBeamMonitorNbrSignals=660,
-        FELBeamMonitorAllMcp=661,
-        FELBeamMonitorHeightvsFwhmMcp=662,
+      FELBeamMonitorNbrSignals=660,
+      FELBeamMonitorAllMcp=661,
+      FELBeamMonitorHeightvsFwhmMcp=662,
 
-        YAGPhotodiodeNbrSignals=670,
-        YAGPhotodiodeAllMcp=671,
-        YAGPhotodiodeHeightvsFwhmMcp=672,
+      YAGPhotodiodeNbrSignals=670,
+      YAGPhotodiodeAllMcp=671,
+      YAGPhotodiodeHeightvsFwhmMcp=672,
 
-        FsPhotodiodeNbrSignals=680,
-        FsPhotodiodeAllMcp=681,
-        FsPhotodiodeHeightvsFwhmMcp=682,
+      FsPhotodiodeNbrSignals=680,
+      FsPhotodiodeAllMcp=681,
+      FsPhotodiodeHeightvsFwhmMcp=682,
 
-        HexPIPICO=700,
-        HexQuadPIPICO=701,
+      HexPIPICO=700,
+      HexQuadPIPICO=701,
 
-        PnccdHDF5=1001,
+      PnccdHDF5=1001,
 
-        InvalidPP
+      InvalidPP
     };
 
     /** Container of all currently available histograms */
@@ -605,14 +605,14 @@ public:
      */
     void validate(id_t type)
     {
-        if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
-            throw InvalidHistogramError(type);
+      if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
+        throw InvalidHistogramError(type);
     };
 
     IdList* getIdList();
     std::string& getMimeType(id_t type);
 
-public slots:
+  public slots:
     /** Load active postprocessors and histograms
      *
      * Reset set of active postprocessors/histograms based on cass.ini
@@ -622,7 +622,7 @@ public slots:
     /** Save active postprocessors and histograms */
     void saveSettings() {}
 
-protected:
+  protected:
     /** @brief (ordered) list of active postprocessors/histograms
      *
      * This list has order, i.e., postprocessors are called in the specified order. You can rely on the
@@ -675,7 +675,7 @@ protected:
     /** filename of the output file */
     std::string _outputfilename;
 
-private:
+  private:
     /** Private constructor of singleton
      * @todo enable passing the filename to the pp.
      */
@@ -695,10 +695,10 @@ private:
 
     /** Singleton operation locker */
     static QMutex _mutex;
-};
+  };
 
 
-/** id-list
+  /** id-list
  *
  * used for SOAP communication of id-lists
  *
@@ -706,48 +706,55 @@ private:
  * @todo if possible put this class into a separate file.
  * @note do all these function need to be inlines?
  */
-class IdList : public Serializable
-{
-public:
+  class IdList : public Serializable
+  {
+  public:
 
     IdList()
-        : Serializable(1), _size(0)
-        {};
+      : Serializable(1), _size(0)
+    {}
 
     IdList(PostProcessors::active_t& list)
-        : Serializable(1), _list(list), _size(list.size())
-        {
-            std::cerr << "Initial list size = " << _size << std::endl;
-        };
+      : Serializable(1), _list(list), _size(list.size())
+    {
+      std::cerr << "Initial list size = " << _size << std::endl;
+    }
 
-   IdList(SerializerBackend* in) : Serializable(1) {
+    IdList(SerializerBackend* in) : Serializable(1)
+    {
       deserialize(in);
-   }
+    }
 
-   IdList( SerializerBackend &in) : Serializable(1) {
+    IdList( SerializerBackend &in) : Serializable(1)
+    {
       deserialize(in);
-   }
+    }
 
-   void clear() {
+    void clear()
+    {
       _list.clear();
       _size=0;
-   }
+    }
 
-   void setList(PostProcessors::active_t& list) {
+    void setList(PostProcessors::active_t& list)
+    {
       clear();
       _list = list;
       _size = list.size();
-   }
+    }
 
-   PostProcessors::active_t& getList() {
+    PostProcessors::active_t& getList()
+    {
       return _list;
-   }
+    }
 
-   void deserialize(SerializerBackend& in) {
-       deserialize(&in);
-   }
+    void deserialize(SerializerBackend& in)
+    {
+      deserialize(&in);
+    }
 
-   void deserialize(SerializerBackend *in) {
+    void deserialize(SerializerBackend *in)
+    {
       //check whether the version fits//
       uint16_t ver = in->retrieveUint16();
       if(ver != _version)
@@ -760,25 +767,27 @@ public:
       std::cerr << "list size " << _size << std::endl;
       _list.clear();
       for(size_t ii=0; ii<_size; ++ii)
-          _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
+        _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
       std::cerr << "list is done " << std::endl;
-   }
+    }
 
-   void serialize(SerializerBackend &out) {
+    void serialize(SerializerBackend &out)
+    {
       serialize(&out);
-   }
+    }
 
-   void serialize(SerializerBackend *out) {
+    void serialize(SerializerBackend *out)
+    {
       out->addUint16(_version);
       out->addSizet(_size);
       for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
-         out->addUint16(*it);
-   }
+        out->addUint16(*it);
+    }
 
-private:
-   PostProcessors::active_t _list;
-   size_t _size;
-};
+  private:
+    PostProcessors::active_t _list;
+    size_t _size;
+  };
 
 
 
