@@ -410,9 +410,9 @@ void pp150::operator()(const CASSEvent& /*event*/)
       const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
       size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
       size_t row(size_t(_center.second + radius*cos(angle + symangle)));
-      float val = imageMemory[col + row * _imageWidth] * square(radius);
-      denom += val;
-      nom   += val * square(cos(angle));
+      float val = imageMemory[col + row * _imageWidth];
+      denom += val * square(radius);
+      nom   += val * square(cos(angle)) * square(radius);
       maxval = max(val,maxval);
     }
   }
