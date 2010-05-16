@@ -81,7 +81,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _attachId = new QComboBox();
     _attachId->setToolTip("Attachment identifier.");
     _attachId->setEditable(true);
-    //updateImageList(_attachId);    // todo: doesn't work yet. data is correctly serialized on server side, but doesn't arrive correctly...
+    updateImageList(_attachId);    // todo: doesn't work yet. data is correctly serialized on server side, but doesn't arrive correctly...
     _ui.toolBar->addWidget(_attachId);
     // Add picture type respectively format to toolbar.
     _picturetype = new QComboBox();
