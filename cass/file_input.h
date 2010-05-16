@@ -7,6 +7,8 @@
 #include <QThread>
 #include <QMutex>
 
+#include <string>
+
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
@@ -21,7 +23,7 @@ namespace cass
     Q_OBJECT;
   public:
     /** constructor */
-    FileInput(const char *filelistname, cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,  QObject *parent=0);
+    FileInput(std::string filelistname, cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,  QObject *parent=0);
 
     /** destructor */
     ~FileInput();

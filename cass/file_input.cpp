@@ -10,7 +10,7 @@
 #include "cass_event.h"
 #include "format_converter.h"
 
-cass::FileInput::FileInput(const char *filelistname,
+cass::FileInput::FileInput(std::string filelistname,
                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
                            QObject *parent)
                              :QThread(parent),
