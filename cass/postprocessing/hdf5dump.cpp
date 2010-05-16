@@ -155,7 +155,7 @@ double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_
 
 
 void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
-                        const char *prefix, const cass::CASSEvent &cassevent)
+                        const cass::CASSEvent &cassevent)
 {
   // Get Acqiris device
   const cass::ACQIRIS::Device *acq = dynamic_cast<const cass::ACQIRIS::Device *>
@@ -172,16 +172,25 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
   const cass::ACQIRIS::Instrument &instr = acqI->second;
 
   int n_acqiris_channels = instr.channels().size();
-  char tmp[64];
   hsize_t dims[2];
   int16_t n_acqiris_channels16 = (int16_t)n_acqiris_channels;
   printf("Available acqiris channels: %li\n", (long int)n_acqiris_channels);
   dims[0] = 1;
   hid_t sh = H5Screate_simple(1, dims, NULL);
-  snprintf(tmp, 63, "%s/num_channels", prefix);
-  hid_t dh = H5Dcreate1(fh, tmp, H5T_NATIVE_INT16, sh, H5P_DEFAULT);
-  H5Dwrite(dh, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &n_acqiris_channels16);
+  if ( sh == 0 ) {
+    printf("Failed to create Acqiris num_channels dataspace\n");
+    return;
+  }
+  hid_t dh = H5Dcreate1(fh, "num_channels", H5T_NATIVE_INT16, sh, H5P_DEFAULT);
+  if ( dh == 0 ) {
+    printf("Failed to create Acqiris num_channels dataset\n");
+    return;
+  }
+  if ( H5Dwrite(dh, H5T_NATIVE_INT16, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &n_acqiris_channels16) < 0 ) {
+    printf("Failed to write Acqiris num_channels\n");
+    return;
+  }
   H5Dclose(dh);
   H5Sclose(sh);
 
@@ -194,19 +203,34 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
       char fieldname[64];
 
       // Create a group for this channel
-      snprintf(fieldname, 63, "%s/ch%i", prefix, i);
+      snprintf(fieldname, 63, "ch%i", i);
       gh = H5Gcreate1(fh, fieldname, 0);
+      if ( gh == 0 ) {
+        printf("Couldn't create group for channel %i\n", i);
+        continue;
+      }
 
       // Get the channel
       const cass::ACQIRIS::Channel &channel = instr.channels()[i];
 
       dims[0] = 1;
       hid_t sh = H5Screate_simple(1, dims, NULL);
+      if ( sh == 0 ) {
+        printf("Couldn't create dataspace (interval) for channel %i\n", i);
+        continue;
+      }
       double sampleinterval = channel.sampleInterval();
       hid_t dh = H5Dcreate1(gh, "sample_interval", H5T_NATIVE_DOUBLE, sh,
                             H5P_DEFAULT);
-      H5Dwrite(dh, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
-               H5P_DEFAULT, &sampleinterval);
+      if ( dh == 0 ) {
+        printf("Couldn't create dataset (interval) for channel %i\n", i);
+        continue;
+      }
+      if ( H5Dwrite(dh, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
+               H5P_DEFAULT, &sampleinterval) < 0 ) {
+        printf("Couldn't write interval for channel %i\n", i);
+        continue;
+      }
       H5Dclose(dh);
       H5Sclose(sh);
 
@@ -221,11 +245,19 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
       dims[1] = 1;
 
       sh = H5Screate_simple(2, dims, NULL);
+      if ( sh == 0 ) {
+        printf("Couldn't create dataspace (ADC) for channel %i\n", i);
+        continue;
+      }
       dh = H5Dcreate1(gh, "ADC", H5T_NATIVE_SHORT, sh, H5P_DEFAULT);
+      if ( dh == 0 ) {
+        printf("Couldn't create dataset (ADC) for channel %i\n", i);
+        continue;
+      }
       if ( H5Dwrite(dh, H5T_NATIVE_SHORT, H5S_ALL, H5S_ALL,
                    H5P_DEFAULT, &waveform[0]) < 0)
       {
-        printf("Error when writing data %in", i);
+        printf("Error when writing data (ADC) %in", i);
         return;
       }
       H5Sclose(sh);
@@ -236,10 +268,18 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
       std::transform(waveform.begin(), waveform.end(), volts,
                      cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
 
-      snprintf(fieldname, 63, "%s/ch%i_V", prefix, i);
+      snprintf(fieldname, 63, "ch%i_V", i);
 
       sh = H5Screate_simple(2, dims, NULL);
+      if ( sh == 0 ) {
+        printf("Couldn't create dataspace (volts) for channel %i\n", i);
+        continue;
+      }
       dh = H5Dcreate1(gh, "Volts", H5T_NATIVE_FLOAT, sh, H5P_DEFAULT);
+      if ( dh == 0 ) {
+        printf("Couldn't create dataset (volts) for channel %i\n", i);
+        continue;
+      }
       if ( H5Dwrite(dh, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
                    H5P_DEFAULT, volts) < 0)
       {
@@ -304,6 +344,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   hid_t   datatype;
   hsize_t dims[2];
   herr_t  hdf_error;
+  hid_t   gh;
   hid_t   gid;
 
   fh = H5Fcreate(outfile, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
@@ -323,14 +364,14 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   if ( itof_gid == 0 ) {
     std::cout << "Couldn't create /data/Acqiris_IToF" << std::endl;
   } else {
-    add_acqiris_traces(fh, cass::ACQIRIS::Camp1, "/data/Acqiris_CAMP", cassevent);
+    add_acqiris_traces(itof_gid, cass::ACQIRIS::Camp2, cassevent);
     H5Gclose(itof_gid);
   }
   hid_t camp_gid = H5Gcreate1(gid, "Acqiris_CAMP", 0);
   if ( camp_gid == 0 ) {
     std::cout << "Couldn't create /data/Acqiris_CAMP" << std::endl;
   } else {
-    add_acqiris_traces(fh, cass::ACQIRIS::Camp2, "/data/Acqiris_IToF", cassevent);
+    add_acqiris_traces(camp_gid, cass::ACQIRIS::Camp1, cassevent);
     H5Gclose(camp_gid);
   }
 
@@ -440,15 +481,13 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   if ( dataspace_id == 0 ) {
     std::cout << "Couldn't create pnCCD nframes space" << std::endl;
   } else {
-    int r;
     dataset_id = H5Dcreate1(fh, "/data/nframes", H5T_NATIVE_SHORT,
                             dataspace_id, H5P_DEFAULT);
     if ( dataset_id == 0 ) {
       std::cout << "Couldn't create pnCCD nframes dataset" << std::endl;
     } else {
-      r = H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-                   H5P_DEFAULT, &adjusted_nframes);
-      if ( r == 0 ) {
+      if ( H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+                   H5P_DEFAULT, &adjusted_nframes) < 0 ) {
         std::cout << "Failed to write pnCCD nframes" << std::endl;
       }
       H5Dclose(dataset_id);
@@ -462,11 +501,10 @@ void write_HDF5(const cass::CASSEvent &cassevent)
 
   // Write pnCCD configurations
   H5Gclose(gid);
-  gid = H5Gcreate1(fh,"pnCCD",0);
+  gid = H5Gcreate1(fh, "pnCCD", 0);
   dims[0] = 1;
-  dataspace_id = H5Screate_simple( 1, dims, NULL );
-  //dataspace_id = H5Screate(H5S_SCALAR);
 
+  dataspace_id = H5Screate_simple(1, dims, NULL );
   dataset_id = H5Dcreate1(fh, "/pnCCD/n_CCDs", H5T_NATIVE_SHORT,
                           dataspace_id, H5P_DEFAULT);
   H5Dwrite(dataset_id, H5T_NATIVE_SHORT, H5S_ALL, H5S_ALL,
@@ -562,49 +600,49 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   MachineData::MachineDataDevice *mdev =
                      dynamic_cast<MachineData::MachineDataDevice *>
                      (cassevent.devices().find(CASSEvent::MachineData)->second);
-  gid = H5Gcreate1(fh, "LCLS" ,0);
+  gh = H5Gcreate1(fh, "LCLS" ,0);
   dims[0] = 1;
   dataspace_id = H5Screate_simple(1, dims, NULL);
 
-  dataset_id = H5Dcreate1(fh, "/LCLS/machineTime", H5T_NATIVE_UINT32,
+  dataset_id = H5Dcreate1(gh, "/LCLS/machineTime", H5T_NATIVE_UINT32,
                           dataspace_id, H5P_DEFAULT);
   H5Dwrite(dataset_id, H5T_NATIVE_UINT32, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &eventTime );
   H5Dclose(dataset_id);
 
-  dataset_id = H5Dcreate1(fh, "/LCLS/fiducial",
+  dataset_id = H5Dcreate1(gh, "/LCLS/fiducial",
                           H5T_NATIVE_INT32, dataspace_id, H5P_DEFAULT);
   H5Dwrite(dataset_id, H5T_NATIVE_INT32, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &eventFiducial);
   H5Dclose(dataset_id);
 
   int id = cassevent.id();
-  dataset_id = H5Dcreate1(fh, "/LCLS/casseventID", H5T_NATIVE_UINT64,
+  dataset_id = H5Dcreate1(gh, "/LCLS/casseventID", H5T_NATIVE_UINT64,
                           dataspace_id, H5P_DEFAULT);
   H5Dwrite(dataset_id, H5T_NATIVE_UINT64, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &id);
   H5Dclose(dataset_id);
 
-  dataset_id = H5Dcreate1(fh, "/LCLS/energy", H5T_NATIVE_DOUBLE,
+  dataset_id = H5Dcreate1(gh, "/LCLS/energy", H5T_NATIVE_DOUBLE,
                           dataspace_id, H5P_DEFAULT);
   H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
            H5P_DEFAULT, &mdev->energy());
   H5Dclose(dataset_id);
 
   // Gas detector values
-  add_bl_data(fh, dataspace_id, "f_11_ENRC", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "f_12_ENRC", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "f_21_ENRC", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "f_22_ENRC", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "f_11_ENRC", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "f_12_ENRC", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "f_21_ENRC", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "f_22_ENRC", mdev->BeamlineData());
 
   // Electron beam parameters
-  add_bl_data(fh, dataspace_id, "EbeamCharge", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamL3Energy", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamLTUPosX", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamLTUPosY", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamLTUAngX", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamLTUAngY", mdev->BeamlineData());
-  add_bl_data(fh, dataspace_id, "EbeamPkCurrBC2", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamCharge", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamL3Energy", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamLTUPosX", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamLTUPosY", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamLTUAngX", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamLTUAngY", mdev->BeamlineData());
+  add_bl_data(gh, dataspace_id, "EbeamPkCurrBC2", mdev->BeamlineData());
 
   // Wavelength (more complicated...)
   double resonantPhotonEnergy = photonEnergy(mdev->BeamlineData());
