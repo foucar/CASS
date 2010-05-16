@@ -74,10 +74,10 @@ public:
     }
 };
 
-class TrackZoomer: public ScrollZoomer /*QwtPlotZoomer*/
+class TrackZoomer2D: public ScrollZoomer /*QwtPlotZoomer*/
 {
 public:
-    TrackZoomer(QwtPlotCanvas *canvas):
+    TrackZoomer2D(QwtPlotCanvas *canvas):
         //QwtPlotZoomer(canvas), _hist(NULL)
         ScrollZoomer(canvas), _hist(NULL)
     {
@@ -352,7 +352,7 @@ public:
     dataPlotRescaler.setAspectRatio(QwtPlot::yRight, 0.0);
     dataPlotRescaler.setAspectRatio(QwtPlot::xTop, 0.0);
 
-        _zoomer = new TrackZoomer(_plot->canvas());
+        _zoomer = new TrackZoomer2D(_plot->canvas());
         _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
            Qt::RightButton, Qt::ControlModifier);
@@ -372,7 +372,7 @@ public:
         static int oldId=cass::PostProcessors::InvalidPP;
 
         _spectrogram->setData(*_spectrogramDataDummy); //hack
-        dynamic_cast<TrackZoomer*>(_zoomer)->setHistogram(hist);
+        dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
         _spectrogramData->setHistogram(hist);
         _spectrogram->setData(*_spectrogramData);   //hack
         _spectrogram->invalidateCache();
