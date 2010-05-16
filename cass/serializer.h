@@ -26,14 +26,29 @@ namespace cass
   class CASSSHARED_EXPORT SerializerBackend
   {
   public:
+    SerializerBackend() {
+        _checkSumGroupStartedForRead = false;
+        _checkSumGroupStartedForWrite = false;
+    }
 #ifdef SERIALIZER_INTERFACE_TEST
     virtual void abstractTest() = 0;
     virtual ~SerializerBackend(){}
 #endif
     void flush() { _stream->flush(); }
 
+    std::ostream& writeToStream( const char* data, std::streamsize n);
+    std::istream& readFromStream( char* data, std::streamsize n);
+
+    /** usage: add...; add...; startChecksumGroupforRead(); add...; add...; if (!endChecksumGroupForRead()) error(); **/
+    void startChecksumGroupForRead();
+    bool endChecksumGroupForRead();
+    /** usage: retrieve...; retrieve...; startChecksumGroupforWrite(); retrieve...; retrieve...; endChecksumGroupForWrite(); **/
+    void startChecksumGroupForWrite();
+    void endChecksumGroupForWrite();
+
     void addString(const std::string&); //!< add string to serialized buffer
     void addUint16(const uint16_t);     //!< add uint16 to serialized buffer
+    void addUint8(const uint8_t);       //!< add uint16 to serialized buffer
     void addInt16(const int16_t);       //!< add int16 to serialized buffer
     void addUint32(const uint32_t);     //!< add uint32 to serialized buffer
     void addInt32(const int32_t);       //!< add int32 to serialized buffer
@@ -46,6 +61,7 @@ namespace cass
 
     std::string retrieveString();   //!< retrieve string from serialized buffer
     uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
+    uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
     int16_t     retrieveInt16();    //!< retrieve string from serialized buffer
     uint32_t    retrieveUint32();   //!< retrieve string from serialized buffer
     int32_t     retrieveInt32();    //!< retrieve string from serialized buffer
@@ -58,6 +74,12 @@ namespace cass
 
   protected:
     std::iostream* _stream;    //!< the string to serialize the objects to (buffer)
+
+    uint16_t r_sum1, r_sum2, w_sum1, w_sum2;
+    bool _checkSumGroupStartedForRead, _checkSumGroupStartedForWrite;
+    void addToOutChecksum( const char* data, std::streamsize n);
+    void addToInChecksum( const char* data, std::streamsize n);
+
   };
 
   /** A string serializer.
@@ -176,6 +198,90 @@ namespace cass
 }//end namespace
 
 
+// fletcher16 for 8bit input:
+inline void cass::SerializerBackend::addToOutChecksum( const char* data, std::streamsize len)
+{
+    while (len) {
+        size_t tlen = len > 21 ? 21 : len;
+                len -= tlen;
+                do {
+                        w_sum1 += *data++;
+                        w_sum2 += w_sum1;
+                } while (--tlen);
+                w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+                w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+        }
+}
+
+// fletcher16 for 8bit input:
+inline void cass::SerializerBackend::addToInChecksum( const char* data, std::streamsize len)
+{
+    while (len) {
+        size_t tlen = len > 21 ? 21 : len;
+                len -= tlen;
+                do {
+                        r_sum1 += *data++;
+                        r_sum2 += r_sum1;
+                } while (--tlen);
+                r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+                r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+        }
+}
+
+inline bool cass::SerializerBackend::endChecksumGroupForRead()
+{
+        _checkSumGroupStartedForRead = false;
+    // finalize checksum:
+        r_sum1 = (r_sum1 & 0xff) + (r_sum1 >> 8);
+        r_sum2 = (r_sum2 & 0xff) + (r_sum2 >> 8);
+        //retrieveUint8( reinterpret_cast<uint8_t>r_sum1 );
+        if (retrieveUint8() != (uint8_t)r_sum1 ) return false;
+        //retrieveUint8( reinterpret_cast<uint8_t>r_sum2 );
+        if (retrieveUint8() != (uint8_t)r_sum2 ) return false;
+        return true;
+}
+
+inline void cass::SerializerBackend::endChecksumGroupForWrite()
+{
+        _checkSumGroupStartedForWrite = false;
+    // finalize checksum:
+        w_sum1 = (w_sum1 & 0xff) + (w_sum1 >> 8);
+        w_sum2 = (w_sum2 & 0xff) + (w_sum2 >> 8);
+        //addUint8( reinterpret_cast<uint8_t>(w_sum1) );
+        addUint8( (uint8_t)(w_sum1) );
+        //addUint8( reinterpret_cast<uint8_t>(w_sum2) );
+        addUint8( (uint8_t)(w_sum2) );
+}
+
+inline std::istream& cass::SerializerBackend::readFromStream( char* data, std::streamsize n)
+{
+    if (_checkSumGroupStartedForRead) {
+        std::istream& stream = _stream->read(data, n); \
+        addToInChecksum(data, n);
+        return(stream);
+    }
+    else return _stream->read(data, n);
+}
+
+inline std::ostream& cass::SerializerBackend::writeToStream( const char* data, std::streamsize n)
+{
+    if (_checkSumGroupStartedForWrite) addToOutChecksum(data, n); 
+    return _stream->write(data, n);
+}
+
+inline void cass::SerializerBackend::startChecksumGroupForRead()
+{
+    _checkSumGroupStartedForRead = true;
+    r_sum1 = 0xff;
+    r_sum2 = 0xff;
+}
+
+inline void cass::SerializerBackend::startChecksumGroupForWrite()
+{
+    _checkSumGroupStartedForWrite = true;
+    w_sum1 = 0xff;
+    w_sum2 = 0xff;
+}
 
 
 inline void cass::SerializerBackend::addString(const std::string& str)
@@ -183,124 +289,135 @@ inline void cass::SerializerBackend::addString(const std::string& str)
   //first the length of the string, then the string itselve//
   size_t len = str.length ();
   addSizet(len);
-  _stream->write (str.data(), len);
+  writeToStream (str.data(), len);
 }
 inline std::string cass::SerializerBackend::retrieveString()
 {
   //first the length of the string, then the string itselve//
   size_t len = retrieveSizet();
   std::string str(len,' '); //create a temp string with right size
-  _stream->read (&str[0], len);
+  readFromStream (&str[0], len);
   return str;
+}
+
+inline void cass::SerializerBackend::addUint8(const uint8_t ui)
+{
+  writeToStream (reinterpret_cast<const char *> (&ui), sizeof (uint8_t));
+}
+inline uint8_t cass::SerializerBackend::retrieveUint8()
+{
+  uint8_t ui;
+  readFromStream (reinterpret_cast<char *> (&ui), sizeof (uint8_t));
+  return ui;
 }
 
 inline void cass::SerializerBackend::addUint16(const uint16_t ui)
 {
-  _stream->write (reinterpret_cast<const char *> (&ui), sizeof (uint16_t));
+  writeToStream (reinterpret_cast<const char *> (&ui), sizeof (uint16_t));
 }
 inline uint16_t cass::SerializerBackend::retrieveUint16()
 {
   uint16_t ui;
-  _stream->read (reinterpret_cast<char *> (&ui), sizeof (uint16_t));
+  readFromStream (reinterpret_cast<char *> (&ui), sizeof (uint16_t));
   return ui;
 }
 
 inline void cass::SerializerBackend::addInt16(const int16_t i)
 {
-  _stream->write (reinterpret_cast<const char *> (&i), sizeof (int16_t));
+  writeToStream (reinterpret_cast<const char *> (&i), sizeof (int16_t));
 }
 inline int16_t cass::SerializerBackend::retrieveInt16()
 {
   int16_t i;
-  _stream->read (reinterpret_cast<char *> (&i), sizeof (int16_t));
+  readFromStream (reinterpret_cast<char *> (&i), sizeof (int16_t));
   return i;
 }
 
 inline void cass::SerializerBackend::addUint32(const uint32_t ui)
 {
-  _stream->write (reinterpret_cast<const char *> (&ui), sizeof (uint32_t));
+  writeToStream (reinterpret_cast<const char *> (&ui), sizeof (uint32_t));
 }
 inline uint32_t cass::SerializerBackend::retrieveUint32()
 {
   uint32_t ui;
-  _stream->read (reinterpret_cast<char *> (&ui), sizeof (uint32_t));
+  readFromStream (reinterpret_cast<char *> (&ui), sizeof (uint32_t));
   return ui;
 }
 
 inline void cass::SerializerBackend::addInt32(const int32_t i)
 {
-  _stream->write (reinterpret_cast<const char *> (i), sizeof (int32_t));
+  writeToStream (reinterpret_cast<const char *> (i), sizeof (int32_t));
 }
 inline int32_t cass::SerializerBackend::retrieveInt32()
 {
   int32_t i;
-  _stream->read (reinterpret_cast<char *> (&i), sizeof (int32_t));
+  readFromStream (reinterpret_cast<char *> (&i), sizeof (int32_t));
   return i;
 }
 
 inline void cass::SerializerBackend::addUint64(const uint64_t ui)
 {
-  _stream->write (reinterpret_cast<const char *> (&ui), sizeof (uint64_t));
+  writeToStream (reinterpret_cast<const char *> (&ui), sizeof (uint64_t));
 }
 inline uint64_t cass::SerializerBackend::retrieveUint64()
 {
   uint64_t ui;
-  _stream->read (reinterpret_cast<char *> (&ui), sizeof (uint64_t));
+  readFromStream (reinterpret_cast<char *> (&ui), sizeof (uint64_t));
   return ui;
 }
 
 inline void cass::SerializerBackend::addInt64(const int64_t i)
 {
-  _stream->write (reinterpret_cast<const char *> (&i), sizeof (int64_t));
+  writeToStream (reinterpret_cast<const char *> (&i), sizeof (int64_t));
 }
 inline int64_t cass::SerializerBackend::retrieveInt64()
 {
   int64_t i;
-  _stream->read (reinterpret_cast<char *> (&i), sizeof (int64_t));
+  readFromStream (reinterpret_cast<char *> (&i), sizeof (int64_t));
   return i;
 }
 
 inline void cass::SerializerBackend::addSizet(const size_t s)
 {
-  _stream->write (reinterpret_cast<const char *> (&s), sizeof (size_t));
+  writeToStream (reinterpret_cast<const char *> (&s), sizeof (size_t));
 }
 inline size_t cass::SerializerBackend::retrieveSizet()
 {
   size_t s;
-  _stream->read (reinterpret_cast<char *> (&s), sizeof (size_t));
+  readFromStream (reinterpret_cast<char *> (&s), sizeof (size_t));
   return s;
 }
 
 inline void cass::SerializerBackend::addFloat(const float f)
 {
-  _stream->write (reinterpret_cast<const char *> (&f), sizeof (float));
+  writeToStream (reinterpret_cast<const char *> (&f), sizeof (float));
 }
 inline float cass::SerializerBackend::retrieveFloat()
 {
   float f;
-  _stream->read (reinterpret_cast<char *> (&f), sizeof (float));
+  readFromStream (reinterpret_cast<char *> (&f), sizeof (float));
   return f;
 }
 
 inline void cass::SerializerBackend::addDouble(const double d)
 {
-  _stream->write (reinterpret_cast<const char *> (&d), sizeof (double));
+  writeToStream (reinterpret_cast<const char *> (&d), sizeof (double));
 }
 inline double cass::SerializerBackend::retrieveDouble()
 {
   double d;
-  _stream->read (reinterpret_cast<char *> (&d), sizeof (double));
+  readFromStream (reinterpret_cast<char *> (&d), sizeof (double));
   return d;
 }
 
 inline void cass::SerializerBackend::addBool(const bool b)
 {
-  _stream->write (reinterpret_cast<const char *> (&b), sizeof (bool));
+  writeToStream (reinterpret_cast<const char *> (&b), sizeof (bool));
 }
 inline bool cass::SerializerBackend::retrieveBool()
 {
   bool b;
-  _stream->read (reinterpret_cast<char *> (&b), sizeof (bool));
+  readFromStream (reinterpret_cast<char *> (&b), sizeof (bool));
   return b;
 }
 
