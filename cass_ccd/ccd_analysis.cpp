@@ -91,7 +91,7 @@ void cass::CCD::Analysis::loadSettings()
 {
   char printoutdef[40];
   sprintf(printoutdef,"Commercial CCD loadSettings ");
-  QMutexLocker locker(&_mutex);
+  //QMutexLocker locker(&_mutex);
   /*
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
@@ -121,84 +121,84 @@ void cass::CCD::Analysis::loadSettings()
   number_of_pixelsettozero=0;
   for(size_t iROI=0;iROI<_param._detROI._ROI.size(); ++iROI)
   {
-#ifdef debug
-    size_t index_of_center=_param._detROI._ROI[iROI].xcentre
-      + CCD::opal_default_size_sq * _param._detROI._ROI[iROI].ycentre;
-#endif
-
-    size_t index_min;
-    //the following protects
-    //in this case the size of the ROI is larger than its distance to the side of the CHIP (along x)
-    if(_param._detROI._ROI[iROI].xcentre < _param._detROI._ROI[iROI].xsize)
-    {
-      //in this case the size of the ROI is larger than its distance to the side of the CHIP (along y)
-      if(_param._detROI._ROI[iROI].ycentre < _param._detROI._ROI[iROI].ysize)
-      {
-        index_min=0;
-      }
-      else
-      {
-        index_min= CCD::opal_default_size * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);
-      }
-    }
-    else
-    {
-      if(_param._detROI._ROI[iROI].ycentre < _param._detROI._ROI[iROI].ysize)
-      {
-        index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize;
-      }
-      else
-      {
-        index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
-          + CCD::opal_default_size_sq * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);
-      }
-    }
-    /*size_t index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
-      + CCD::opal_default_size * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);*/
+    const size_t half_CCD_def_size=CCD::opal_default_size/2;
+    const int32_t sign_CCD_def_size=static_cast<int32_t>(CCD::opal_default_size);
+    const int32_t sign_CCD_def_size_sq=static_cast<int32_t>(CCD::opal_default_size_sq);
+    const int32_t signed_ROI_xcentre=static_cast<int32_t>(_param._detROI._ROI[iROI].xcentre);
+    const int32_t signed_ROI_ycentre=static_cast<int32_t>(_param._detROI._ROI[iROI].ycentre);
+    const int32_t signed_ROI_xsize=static_cast<int32_t>(_param._detROI._ROI[iROI].xsize);
+    const int32_t signed_ROI_ysize=static_cast<int32_t>(_param._detROI._ROI[iROI].ysize);
+    int32_t index_of_centre=signed_ROI_xcentre
+      + sign_CCD_def_size * _param._detROI._ROI[iROI].xcentre;
+    int32_t index_min;
+    int32_t this_index;
+    /*index_min=_param._detROI._ROI[iROI].xcentre - _param._detROI._ROI[iROI].xsize
+      + CCD::opal_default_size_sq * (_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize);*/
+    int32_t signed_index_min=signed_ROI_xcentre - signed_ROI_xsize
+          + sign_CCD_def_size * (signed_ROI_ycentre - signed_ROI_ysize);
 #ifdef debug
     size_t index_max=_param._detROI._ROI[iROI].xcentre + _param._detROI._ROI[iROI].xsize
       + CCD::opal_default_size_sq * (_param._detROI._ROI[iROI].ycentre + _param._detROI._ROI[iROI].ysize);
 #endif
-
+    int diff_Xsize_Xcentre_to_boundary=signed_ROI_xcentre - signed_ROI_xsize;
+    int diff_Ysize_Ycentre_to_boundary=signed_ROI_ycentre - signed_ROI_ysize;
+    if( diff_Xsize_Xcentre_to_boundary<0 || diff_Ysize_Ycentre_to_boundary<0 )
+      std::cout << printoutdef <<  "too small distances x;y "<< diff_Xsize_Xcentre_to_boundary 
+                <<" "<< diff_Ysize_Ycentre_to_boundary<< " for ROI " << iROI
+                <<" "<< signed_index_min<<" " <<index_of_centre <<std::endl;
+    index_min=signed_ROI_xcentre - signed_ROI_xsize
+      + sign_CCD_def_size * (signed_ROI_ycentre - signed_ROI_ysize);
 
 #ifdef debug
-    std::cout << "indexes "<< index_of_center<<" "<<index_min<<" "<<index_max<<std::endl;
+    std::cout << "indexes "<< index_of_centre<<" "<<index_min<<" "<<index_max<<std::endl;
 #endif
-    size_t indexROI_min=0;
-    size_t indexROI_max=(2 * _param._detROI._ROI[iROI].xsize + 1)
+    int32_t indexROI_min=0;
+    int32_t indexROI_max=(2 * _param._detROI._ROI[iROI].xsize + 1)
       * (2 * _param._detROI._ROI[iROI].ysize + 1);
-    //remember how many pixels I have masked
+    size_t u_indexROI_min=static_cast<size_t>(indexROI_min);
+    size_t u_indexROI_max=static_cast<size_t>(indexROI_max);
 #ifdef debug
-    std::cout << "indexes "<< index_of_center<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
+    std::cout << "indexes "<< index_of_centre<<" "<<indexROI_min<<" "<<indexROI_max<<std::endl;
 #endif
     if(_param._detROI._ROI[iROI].name=="circ" || _param._detROI._ROI[iROI].name=="circle"  )
     {
       int32_t  xlocal,ylocal;
-      const uint32_t radius2 =  static_cast<uint32_t>(pow(_param._detROI._ROI[iROI].xsize,2)
+      const int32_t radius2 =  static_cast<int32_t>(pow(_param._detROI._ROI[iROI].xsize,2)
            /*+pow(_param._detROI._ROI[iROI].ysize,2) */);
+#ifdef debug
       std::cout << printoutdef << "circ seen with radius^2= " <<radius2 <<std::endl;
-      for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+#endif
+      for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
       {
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
         ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize + 1);
-#ifdef debug
-        std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param._detROI._ROI[iROI].xsize<< " " 
-                 <<pow(xlocal-static_cast<int32_t>(_param._detROI._ROI[iROI].xsize),2)
-                 <<std::endl;
-#endif
-        if( ( pow(xlocal-static_cast<int32_t>(_param._detROI._ROI[iROI].xsize),2) +
-              pow(ylocal-static_cast<int32_t>(_param._detROI._ROI[iROI].ysize),2) ) <= radius2 )
+        if( ( pow(xlocal-signed_ROI_xsize,2) +
+              pow(ylocal-signed_ROI_ysize,2) ) <= radius2 )
         {
+          this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
           //I do not need to set again to zero a pixel that was already masked!
-          if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+          //I have also to check that I have not landed on the other side of the CHIP
+          if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
           {
-            _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-            //remember how many pixels I have masked
-            number_of_pixelsettozero++;
+            if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+            {
+              if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+              {
+                _param._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+            }
+            else
+            {
+              if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+              {
+                _param._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+            }
           }
-#ifdef debug
-          std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
         }
       }
     }
@@ -210,51 +210,74 @@ void cass::CCD::Analysis::loadSettings()
 #ifdef debug
       std::cout << printoutdef << "ellipse seen with semi-axis^2= " << a2 << " and " << b2 <<std::endl;
 #endif
-      for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+      for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
       {
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
         ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize + 1);
-#ifdef debug
-        std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param._detROI._ROI[iROI].xsize<< " " 
-                 <<pow(xlocal-static_cast<int32_t>(_param._detROI._ROI[iROI].xsize),2)
-                 <<std::endl;
-#endif
         if( ( pow(static_cast<float>(xlocal)-static_cast<float>(_param._detROI._ROI[iROI].xsize),2)/a2 +
               pow(static_cast<float>(ylocal)-static_cast<float>(_param._detROI._ROI[iROI].ysize),2)/b2 ) <= 1 )
         {
+          this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
           //I do not need to set again to zero a pixel that was already masked!
-          if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+          //I have also to check that I have not landed on the other side of the CHIP
+          if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
           {
-            _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-            //remember how many pixels I have masked
-            number_of_pixelsettozero++;
+            if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+            {
+              if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+              {
+                _param._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+            }
+            else
+            {
+              if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+              {
+                _param._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+            }
           }
-#ifdef debug
-          std::cout<<"in local "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
         }
       }
     }
     if(_param._detROI._ROI[iROI].name=="square")
     {
-      uint32_t  xlocal,ylocal;
+      int32_t  xlocal,ylocal;
+#ifdef debug
       std::cout << printoutdef << "square seen" <<std::endl;
-      for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+#endif
+      for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
       {
         xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize +1);
         ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize +1);
+        this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
         //I do not need to set again to zero a pixel that was already masked!
-        if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+        //I have also to check that I have not landed on the other side of the CHIP
+        if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
         {
-          _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-          //remember how many pixels I have masked
-          number_of_pixelsettozero++;
+          if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+          {
+            if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+            {
+              _param._ROImask[this_index]=0;
+              //remember how many pixels I have masked
+              number_of_pixelsettozero++;
+            }
+          }
+          else
+          {
+            if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+            {
+              _param._ROImask[this_index]=0;
+              //remember how many pixels I have masked
+              number_of_pixelsettozero++;
+            }
+          }
         }
-#ifdef debug
-        std::cout<<"local "<<xlocal<<" "<<ylocal<<" "<<_param._detROI._ROI[iROI].ycentre
-                 << " "<<_param._detROI._ROI[iROI].ycentre - _param._detROI._ROI[iROI].ysize
-                 <<std::endl;
-#endif
       }
     }
     if(_param._detROI._ROI[iROI].name=="triangle")
@@ -265,12 +288,16 @@ void cass::CCD::Analysis::loadSettings()
       xsize=static_cast<float>(_param._detROI._ROI[iROI].xsize);
       ysize=static_cast<float>(_param._detROI._ROI[iROI].ysize);
 
-      std::cout << printoutdef << "triangle seen" <<std::endl;
+#ifdef debug
+     std::cout << printoutdef << "triangle seen" <<std::endl;
+#endif
       if(_param._detROI._ROI[iROI].orientation==+1)
       {
+#ifdef debug
         std::cout << printoutdef  << "triangle seen vertex upwards" <<std::endl;
+#endif
         //the triangle is at least isosceles
-        for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
         {
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
           ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize + 1);
@@ -283,37 +310,69 @@ void cass::CCD::Analysis::loadSettings()
                    <<std::endl;
 #endif
           if(ylocal-1<(2 * ysize/xsize*xlocal_f)
-             && xlocal<static_cast<int32_t>(_param._detROI._ROI[iROI].xsize + 1))
+             && xlocal<(signed_ROI_xsize + 1))
           {
-#ifdef debug
-            std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
             }
           }
           else if(ylocal-1<(4*ysize - 2* ysize/xsize*xlocal_f)
-                  && xlocal>static_cast<int32_t>(_param._detROI._ROI[iROI].xsize))
+                  && xlocal>signed_ROI_xsize)
           {
-#ifdef debug
-            std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
             }
           }
         }
       }
       if(_param._detROI._ROI[iROI].orientation==-1)
       {
-        std::cout << printoutdef << "triangle seen vertex downwards" <<std::endl;
-        for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+#ifdef debug
+       std::cout << printoutdef << "triangle seen vertex downwards" <<std::endl;
+#endif
+       for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
         {
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
           ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize + 1);
@@ -327,38 +386,70 @@ void cass::CCD::Analysis::loadSettings()
 
           if(ylocal+1>((-2 * ysize/xsize*xlocal_f)
                        + 2 * ysize)
-             && xlocal<static_cast<int32_t>(_param._detROI._ROI[iROI].xsize + 1))
+             && xlocal<(signed_ROI_xsize + 1))
           {
-#ifdef debug
-            std::cout<<"local1 "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
             }
           }
           else if(ylocal+1>(-2*ysize +
                             2 * ysize/xsize*xlocal_f)
-                  && xlocal>static_cast<int32_t>(_param._detROI._ROI[iROI].xsize))
+                  && xlocal>signed_ROI_xsize)
           {
-#ifdef debug
-            std::cout<<"local2 "<<xlocal<<" "<<ylocal <<std::endl;
-#endif
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
             }
           }
         }
       }
       if(_param._detROI._ROI[iROI].orientation==+2)
       {
-        std::cout << printoutdef << "triangle seen vertex towards right" <<std::endl;
-        for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+#ifdef debug
+       std::cout << printoutdef << "triangle seen vertex towards right" <<std::endl;
+#endif
+        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
         {
           // not debugged
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize + 1);
@@ -372,36 +463,71 @@ void cass::CCD::Analysis::loadSettings()
 #endif
           if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
           {
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
             }
           }
         }
       }
       if(_param._detROI._ROI[iROI].orientation==-2)
       {
+#ifdef debug
         std::cout << printoutdef << "triangle seen vertex towards left" <<std::endl;
-        for(size_t iFrame=indexROI_min;iFrame<indexROI_max; ++iFrame)
+#endif
+        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
         {
           xlocal=iFrame%(2* _param._detROI._ROI[iROI].xsize);
           ylocal=iFrame/(2* _param._detROI._ROI[iROI].xsize);
           xlocal_f=static_cast<float>(xlocal);
           ylocal_f=static_cast<float>(ylocal);
-#ifdef debug
-          std::cout<<"local "<<xlocal<<" "<<ylocal<<" " <<std::endl;
-#endif
           if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
           {
-            if (_param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]!=0)
+            this_index=index_min+xlocal+ sign_CCD_def_size * (ylocal);
+            //I do not need to set again to zero a pixel that was already masked!
+            //I have also to check that I have not landed on the other side of the CHIP
+            if (this_index>=0 && (this_index < sign_CCD_def_size_sq) && _param._ROImask[this_index]!=0)
             {
-              _param._ROImask[index_min+xlocal+ CCD::opal_default_size * (ylocal ) ]=0;
-              //remember how many pixels I have masked
-              number_of_pixelsettozero++;
-            }
+              if( _param._detROI._ROI[iROI].xcentre<=half_CCD_def_size )
+              {
+                if( (this_index%sign_CCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
               }
+              else
+              {
+                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_CCD_def_size) )
+                {
+                  _param._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+            }
+          }
         }
       }
     }
