@@ -31,7 +31,7 @@ namespace cass
       /** serialize the device to the Serializer*/
       void serialize(cass::SerializerBackend&);
       /** deserialize the device from the Serializer*/
-      void deserialize(cass::SerializerBackend&);
+      bool deserialize(cass::SerializerBackend&);
 
     public:
       /** getter */
@@ -58,14 +58,14 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)
     it->serialize(out);
 }
 
-inline void cass::pnCCD::pnCCDDevice::deserialize(cass::SerializerBackend &in)
+inline bool cass::pnCCD::pnCCDDevice::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in pnCCD: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //read how many detectors//
   size_t nDets = in.retrieveSizet ();
@@ -74,6 +74,7 @@ inline void cass::pnCCD::pnCCDDevice::deserialize(cass::SerializerBackend &in)
   //deserialize each detector//
   for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
     it->deserialize(in);
+  return true;
 }
 
 #endif // PNCCD_EVENT_H

@@ -33,7 +33,7 @@ namespace cass
       cass::PixelDetector &detector()             {return _detector;}
       */
       void serialize(cass::SerializerBackend&);
-      void deserialize(cass::SerializerBackend&);
+      bool deserialize(cass::SerializerBackend&);
 
     public:
       const detectors_t *detectors()const   {return &_detectors;}
@@ -60,14 +60,14 @@ inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)
 }
 
 
-inline void cass::CCD::CCDDevice::deserialize(cass::SerializerBackend& in)
+inline bool cass::CCD::CCDDevice::deserialize(cass::SerializerBackend& in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in pnCCD: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //read how many detectors//
   size_t nDets = in.retrieveSizet ();
@@ -76,6 +76,7 @@ inline void cass::CCD::CCDDevice::deserialize(cass::SerializerBackend& in)
   //deserialize each detector//
   for(detectors_t::iterator it=_detectors.begin(); it != _detectors.end(); ++it)
     it->deserialize(in);
+  return true;
 }
 
 #endif

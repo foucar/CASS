@@ -69,7 +69,7 @@ public:
      * deserializes this from the Serializer
      * @param in The Serializer that we will deserialize this from
      */
-    void deserialize(SerializerBackend& in);
+    bool deserialize(SerializerBackend& in);
 
     /*! @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
@@ -171,7 +171,7 @@ public:
      * classes inheriting from this
      * @param in The Serializer we serialize this from
      */
-    virtual void deserialize(SerializerBackend &in)=0;
+    virtual bool deserialize(SerializerBackend &in)=0;
 
     /** clear the histogram*/
     virtual void clear()=0;
@@ -263,7 +263,7 @@ public:
     virtual void serialize(SerializerBackend&);
 
     /** deserialize this histogram from the serializer*/
-    virtual void deserialize(SerializerBackend&);
+    virtual bool deserialize(SerializerBackend&);
 
     /** return const reference to histogram data */
     const storage_t& memory() const {return _memory;}
@@ -578,19 +578,20 @@ inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)
 
 
 
-inline void cass::AxisProperty::deserialize(cass::SerializerBackend &in)
+inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in Axisproperty of Histogram: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //number of bins, lower & upper limit
   _size     = in.retrieveSizet();
   _low      = in.retrieveFloat();
   _up       = in.retrieveFloat();
+  return true;
 }
 
 
@@ -647,14 +648,14 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
 
 
 
-inline void cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
+inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   lock.lockForWrite();
   //the dimension//
@@ -670,6 +671,7 @@ inline void cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   _id = in.retrieveUint32();
   _fillwhenserialized=false;
   lock.unlock();
+  return true;
 }
 
 

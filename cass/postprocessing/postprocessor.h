@@ -749,12 +749,12 @@ please use doxygen style as then your documentation will be available on the web
       return _list;
     }
 
-    void deserialize(SerializerBackend& in)
+    bool deserialize(SerializerBackend& in)
     {
-      deserialize(&in);
+      return deserialize(&in);
     }
 
-    void deserialize(SerializerBackend *in)
+    bool deserialize(SerializerBackend *in)
     {
       //check whether the version fits//
       in->startChecksumGroupForRead();
@@ -762,7 +762,7 @@ please use doxygen style as then your documentation will be available on the web
       if(ver != _version)
       {
         std::cerr<<"version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
-        return;
+        return false;
       }
       //number of bins, lower & upper limit
       _size = in->retrieveSizet();
@@ -770,12 +770,13 @@ please use doxygen style as then your documentation will be available on the web
       if (!in->endChecksumGroupForRead())
       {
         std::cerr<<"wrong checksum IdList"<<std::endl;
-        return;
+        return false;
       }
       _list.clear();
       for(size_t ii=0; ii<_size; ++ii)
         _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
       std::cerr << "list is done " << std::endl;
+      return true;
     }
 
     void serialize(SerializerBackend &out)

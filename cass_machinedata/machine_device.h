@@ -55,7 +55,7 @@ namespace cass
       /** serialize the device to the serializer*/
       void serialize(cass::SerializerBackend&);
       /** deserialize the device from the serializer*/
-      void deserialize(cass::SerializerBackend&);
+      bool deserialize(cass::SerializerBackend&);
 
     public:
       /** setters and getters*/
@@ -110,14 +110,14 @@ inline void cass::MachineData::MachineDataDevice::serialize(cass::SerializerBack
   }
 }
 
-inline void cass::MachineData::MachineDataDevice::deserialize(cass::SerializerBackend &in)
+inline bool cass::MachineData::MachineDataDevice::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in MachineData: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
 
   //beamlinedata//
@@ -145,6 +145,7 @@ inline void cass::MachineData::MachineDataDevice::deserialize(cass::SerializerBa
       double val = in.retrieveDouble();
       _blddata[str] = val;
   }
+  return true;
 }
 
 #endif

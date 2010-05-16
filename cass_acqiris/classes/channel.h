@@ -33,7 +33,7 @@ namespace cass
       /** will serialize this channel to the serializer*/
       void serialize(cass::SerializerBackend&);
       /** deserialize this channel from the serializer*/
-      void deserialize(cass::SerializerBackend&);
+      bool deserialize(cass::SerializerBackend&);
 
     public:
       /** setter & getters*/
@@ -89,14 +89,14 @@ inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)
     out.addInt16(*it);
 }
 
-inline void cass::ACQIRIS::Channel::deserialize(cass::SerializerBackend &in)
+inline bool cass::ACQIRIS::Channel::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveSizet();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in acqiris channel: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //read all variables and then the waveform from the input stream
   _horpos = in.retrieveDouble();
@@ -109,6 +109,7 @@ inline void cass::ACQIRIS::Channel::deserialize(cass::SerializerBackend &in)
   _waveform.resize(nSamples);
   for (waveform_t::iterator it=_waveform.begin();it!=_waveform.end();++it)
     *it = in.retrieveInt16();
+  return true;
 }
 
 #endif

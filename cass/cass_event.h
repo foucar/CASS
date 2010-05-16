@@ -39,7 +39,7 @@ namespace cass
     /** serialize a event to the Serializer*/
     void serialize(SerializerBackend&);
     /** deserialize an event from the Serializer*/
-    void deserialize(SerializerBackend&);
+    bool deserialize(SerializerBackend&);
 
   public: /** setters/getters*/
     uint64_t         id()const        {return _id;}

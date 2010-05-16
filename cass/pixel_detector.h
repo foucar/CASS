@@ -231,7 +231,7 @@ namespace cass
     /** serialize the pixeldetector to the Serializer*/
     void serialize(cass::SerializerBackend&);
     /** deserialize the pixeldetector from the Serializer*/
-    void deserialize(cass::SerializerBackend&);
+    bool deserialize(cass::SerializerBackend&);
 
   public:
     //@{
@@ -323,14 +323,14 @@ inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)
      out.addFloat(*it);
 }
 
-inline void cass::PixelDetector::deserialize(cass::SerializerBackend &in)
+inline bool cass::PixelDetector::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in ccd-detector: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //get the number of columns and rows. This defines the size of//
   _columns = in.retrieveUint16();
@@ -340,6 +340,7 @@ inline void cass::PixelDetector::deserialize(cass::SerializerBackend &in)
   //retrieve the frame//
   for (frame_t::iterator it=_frame.begin();it!=_frame.end();++it)
      *it = in.retrieveFloat();
+  return true;
 }
 
 #endif

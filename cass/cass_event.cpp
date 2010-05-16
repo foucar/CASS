@@ -40,18 +40,19 @@ void cass::CASSEvent::serialize(cass::SerializerBackend& out)
     it->second->serialize(out);
 }
 
-void cass::CASSEvent::deserialize(cass::SerializerBackend& in)
+bool cass::CASSEvent::deserialize(cass::SerializerBackend& in)
 {
   //check whether the version fits//
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
     std::cerr<<"version conflict in cass-event: "<<ver<<" "<<_version<<std::endl;
-    return;
+    return false;
   }
   //get id//
   _id = in.retrieveUint64();
   //all devices//
   for (devices_t::const_iterator it=_devices.begin(); it != _devices.end() ;++it)
     it->second->deserialize(in);
+  return true;
 }

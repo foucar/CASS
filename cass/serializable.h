@@ -32,7 +32,7 @@ namespace cass
     /** pure virtual function that needs to be defined by the derived class.
      * will deserialize an object from the Serializer class
      */
-    virtual void deserialize(cass::SerializerBackend&)=0;
+    virtual bool deserialize(cass::SerializerBackend&)=0;
   protected:
     /** the version for de/serializing*/
     uint16_t _version;

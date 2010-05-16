@@ -27,7 +27,7 @@ namespace cass
     /** serializer is still pure virtual*/
     virtual void serialize(cass::SerializerBackend &)=0;
     /** deserializer is still pure virtual*/
-    virtual void deserialize(cass::SerializerBackend &)=0;
+    virtual bool deserialize(cass::SerializerBackend &)=0;
     /** virtual desctructor*/
     virtual ~DeviceBackend() {}
     /** detector getter.
