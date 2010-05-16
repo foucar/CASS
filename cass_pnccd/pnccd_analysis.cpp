@@ -477,6 +477,168 @@ void cass::pnCCD::Analysis::loadSettings()
             }
           }
         }
+        if(dp._detROI._ROI[iROI].name=="specialline")
+        {
+          float  xlocal1_f,ylocal1_f,xlocal2_f,ylocal2_f;
+          int32_t  xlocal,ylocal;
+          const int32_t radius_min2 =  static_cast<int32_t>(pow(dp._detROI._ROI[iROI].xsize,2));
+          const int32_t radius_max2 =  static_cast<int32_t>(pow(dp._detROI._ROI[iROI].ysize,2));
+          indexROI_max=sign_pnCCD_def_size*140/100/2;
+          const float slope=static_cast<float>(dp._detROI._ROI[iROI].orientation);
+          if(std::abs(slope)<200.) std::cout<<"slope "<<slope<<std::endl;
+          else std::cout<<"vertical slope"<<std::endl;
+          for(int iFrame=0;iFrame<indexROI_max; ++iFrame)
+          {
+            if(std::abs(slope)<200.)
+            {
+              xlocal1_f=static_cast<float>(signed_ROI_xcentre + iFrame);
+              xlocal2_f=static_cast<float>(signed_ROI_xcentre - iFrame);
+              ylocal1_f=static_cast<float>(signed_ROI_ycentre) + static_cast<float>(iFrame) * slope ;
+              ylocal2_f=static_cast<float>(signed_ROI_ycentre) - static_cast<float>(iFrame) * slope ;
+            }
+            else
+            {
+              xlocal1_f=static_cast<float>(signed_ROI_xcentre);
+              xlocal2_f=static_cast<float>(signed_ROI_xcentre);
+              ylocal1_f=static_cast<float>(signed_ROI_ycentre + iFrame);
+              ylocal2_f=static_cast<float>(signed_ROI_ycentre - iFrame);
+            }
+#ifdef thisdebug
+            std::cout<<"local "<<xlocal1_f<<" "<<ylocal1_f
+                     << " " << " "<< xlocal2_f<<" "<<ylocal2_f <<std::endl;
+#endif
+            //Inside the first radius
+            if( ( pow(xlocal1_f-signed_ROI_xcentre,2) +
+                  pow(ylocal1_f-signed_ROI_ycentre,2) ) < radius_min2 )
+            {
+#ifdef thisdebug
+            std::cout<<"locali "<<xlocal1_f<<" "<<ylocal1_f
+                     << " " << " "<< xlocal2_f<<" "<<ylocal2_f <<std::endl;
+#endif
+              xlocal=static_cast<int32_t>(xlocal1_f);
+              ylocal=static_cast<int32_t>(ylocal1_f);
+              this_index=xlocal + sign_pnCCD_def_size * (ylocal);
+              //              std::cout<<"local1a "<<this_index;
+              //I do not need to set again to zero a pixel that was already masked!
+              //I have also to check that I have not landed on the other side of the CHIP
+              if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
+              {
+                dp._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+              if (this_index+1>=0 && (this_index+1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index+1]!=0)
+              {
+                //std::cout<<"local1f "<<this_index+1;
+                dp._ROImask[this_index+1]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+              if (this_index-1>=0 && (this_index-1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index-1]!=0)
+              {
+                //std::cout<<"local1f "<<this_index+1;
+                dp._ROImask[this_index-1]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+
+              xlocal=static_cast<int32_t>(xlocal2_f);
+              ylocal=static_cast<int32_t>(ylocal2_f);
+              this_index=xlocal + sign_pnCCD_def_size * (ylocal);
+              //I do not need to set again to zero a pixel that was already masked!
+              //I have also to check that I have not landed on the other side of the CHIP
+              if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
+              {
+                //std::cout<<"local1f "<<this_index;
+                dp._ROImask[this_index]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+
+              if (this_index+1>=0 && (this_index+1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index+1]!=0)
+              {
+                //std::cout<<"local1f "<<this_index+1;
+                dp._ROImask[this_index+1]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+              if (this_index-1>=0 && (this_index-1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index-1]!=0)
+              {
+                //std::cout<<"local1f "<<this_index+1;
+                dp._ROImask[this_index-1]=0;
+                //remember how many pixels I have masked
+                number_of_pixelsettozero++;
+              }
+            }
+            else
+            {
+              //Outside the second radius
+              if( ( pow(xlocal1_f-signed_ROI_xcentre,2) +
+                    pow(ylocal1_f-signed_ROI_ycentre,2) ) > radius_max2 )
+              {
+#ifdef thisdebug
+                std::cout<<"local2 "<<xlocal1_f<<" "<<ylocal1_f
+                         << " " << " "<< xlocal2_f<<" "<<ylocal2_f <<std::endl;
+#endif
+                xlocal=static_cast<int32_t>(xlocal1_f);
+                ylocal=static_cast<int32_t>(ylocal1_f);
+                this_index=xlocal + sign_pnCCD_def_size * (ylocal);
+#ifdef thisdebug
+                std::cout<<"local2a "<<this_index;
+#endif
+                //I do not need to set again to zero a pixel that was already masked!
+                //I have also to check that I have not landed on the other side of the CHIP
+                if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
+                {
+                  //std::cout<<"local2f "<<this_index;
+                  dp._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+                if (this_index+1>=0 && (this_index+1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index+1]!=0)
+                {
+                  //std::cout<<"local1f "<<this_index+1;
+                  dp._ROImask[this_index+1]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+                if (this_index-1>=0 && (this_index-1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index-1]!=0)
+                {
+                  //std::cout<<"local1f "<<this_index+1;
+                  dp._ROImask[this_index-1]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+
+                xlocal=static_cast<int32_t>(xlocal2_f);
+                ylocal=static_cast<int32_t>(ylocal2_f);
+                this_index=xlocal + sign_pnCCD_def_size * (ylocal);
+                //I do not need to set again to zero a pixel that was already masked!
+                //I have also to check that I have not landed on the other side of the CHIP
+                if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
+                {
+                  dp._ROImask[this_index]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+                if (this_index+1>=0 && (this_index+1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index+1]!=0)
+                {
+                  //std::cout<<"local1f "<<this_index+1;
+                  dp._ROImask[this_index+1]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+                if (this_index-1>=0 && (this_index-1 < sign_pnCCD_def_size_sq) && dp._ROImask[this_index-1]!=0)
+                {
+                  //std::cout<<"local1f "<<this_index+1;
+                  dp._ROImask[this_index-1]=0;
+                  //remember how many pixels I have masked
+                  number_of_pixelsettozero++;
+                }
+              }
+            }
+          }
+        }
         if(dp._detROI._ROI[iROI].name=="square")
         {
           int32_t  xlocal,ylocal;
