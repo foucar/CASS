@@ -292,6 +292,10 @@ public:
     /** notify histogram that is has been filled */
     void notify() {_fillcondition.wakeAll();}
 
+    /** assignment operator. will copy axis properties and memory */
+    void operator=(const HistogramFloatBase& rhs);
+
+
 protected:
     /** histogram storage.
      * The memory contains the histogram in range nbins, after that there are some reservered spaces
@@ -409,6 +413,7 @@ public:
 
     /** Return histogram bin that contains x */
     value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
+
 
     /** Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };

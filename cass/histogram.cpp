@@ -49,6 +49,12 @@ namespace cass
     return qi;
   }
 
+  void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
+  {
+    _axis = rhs._axis;
+    _nbrOfFills = rhs._nbrOfFills;
+    _memory = rhs._memory;
+  }
 
   Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const
   {
