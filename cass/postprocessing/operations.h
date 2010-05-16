@@ -290,7 +290,7 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{HistId} \n
    *           Postprocessor id with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/p\%id\%/{Factor} \n
-   *           Postprocessor id with histogram that should be multiplied. Default is 0.
+   *           Factor with which histogram should be multiplied. Default is 1.
    *
    * Implements postprocessors id's 804
    *
@@ -370,9 +370,9 @@ namespace cass
 
   protected:
     /** id of the 1d histogram we want to have the integral of */
-    PostProcessors::id_t _idOne;
+    PostProcessors::id_t _idHist;
 
-    /** range we want to have the integral over */
+    /** range we want to have the integral over in histogram bins */
     std::pair<float,float> _area;
 
     /** resulting histgram */
@@ -399,6 +399,9 @@ namespace cass
    *           -1e6 ... 1e6
    * @cassttng PostProcessor/p\%id\%/{Axis} \n
    *           The axis we want to project to. Default is xAxis.
+   *           Possible choises are:
+   *           - 0:xAxis
+   *           - 1:yAxis
    *
    * Implements postprocessors id's 806
    *
@@ -430,7 +433,7 @@ namespace cass
     std::pair<float,float> _range;
 
     /** axis we want to project on */
-    size_t axis;
+    size_t _axis;
 
     /** resulting histgram */
     Histogram1DFloat *_projec;
