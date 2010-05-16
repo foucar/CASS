@@ -231,9 +231,8 @@ void cass::pp101::operator()(const CASSEvent& event)
     _image->lock.lockForWrite();
     if (update)
     {
-      float scale = (_firsttime)?1:_scale;
-      if (_firsttime) _firsttime = false;
-
+      ++_image->nbrOfFills();
+      float scale = (_image->nbrOfFills() < _average)? 1./_image->nbrOfFills() :_scale;
       transform(frame.begin(),frame.end(),
                 _image->memory().begin(),
                 _image->memory().begin(),
