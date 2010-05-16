@@ -432,10 +432,10 @@ public:
     value_t reduce() const { return sum(); }
 
     /** integral of a region in the trace */
-    value_t integral(float from, float to) const
+    value_t integral(const std::pair<float,float> &area) const
     {
-      return std::accumulate(_memory.begin()+_axis[0].bin(std::min(from,to)),
-                             _memory.begin()+_axis[0].bin(std::max(from,to)),
+      return std::accumulate(_memory.begin()+_axis[0].bin(std::min(area.first,area.second)),
+                             _memory.begin()+_axis[0].bin(std::max(area.first,area.second)),
                              0.f);
     }
 };
