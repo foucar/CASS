@@ -27,12 +27,16 @@ SOURCES       += jocassview.cpp \
                  imageviewer.cpp \
                  plotwidget.cpp \
                  qwt_logcolor_map.cpp \
+                 qwt_scroll_zoomer.cpp \
+                 qwt_scroll_bar.cpp \
                  soapC.cpp \
                  soapCASSsoapProxy.cpp
 
 HEADERS       += soapH.h \
                  imageviewer.h \
                  plotwidget.h \
+                 qwt_scroll_zoomer.h \
+                 qwt_scroll_bar.h \
                  soapCASSsoapProxy.h \
                  soapStub.h
 

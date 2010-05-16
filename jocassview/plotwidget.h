@@ -26,7 +26,9 @@
 #include <QFont>
 #include <QQueue>
 #include <QMouseEvent>
+// derived qwt classes:
 #include "qwt_logcolor_map.h"
+#include "qwt_scroll_zoomer.h"
 #include "../cass/cass_event.h"
 #include "../cass/serializer.h"
 #include "../cass/cass.h"
@@ -72,11 +74,12 @@ public:
     }
 };
 
-class MyZoomer: public QwtPlotZoomer
+class TrackZoomer: public ScrollZoomer /*QwtPlotZoomer*/
 {
 public:
-    MyZoomer(QwtPlotCanvas *canvas):
-        QwtPlotZoomer(canvas), _hist(NULL)
+    TrackZoomer(QwtPlotCanvas *canvas):
+        //QwtPlotZoomer(canvas), _hist(NULL)
+        ScrollZoomer(canvas), _hist(NULL)
     {
         setTrackerMode(AlwaysOn);
     }
@@ -349,7 +352,7 @@ public:
     dataPlotRescaler.setAspectRatio(QwtPlot::yRight, 0.0);
     dataPlotRescaler.setAspectRatio(QwtPlot::xTop, 0.0);
 
-        _zoomer = new MyZoomer(_plot->canvas());
+        _zoomer = new TrackZoomer(_plot->canvas());
         _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
         _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
            Qt::RightButton, Qt::ControlModifier);
@@ -369,7 +372,7 @@ public:
         static int oldId=cass::PostProcessors::InvalidPP;
 
         _spectrogram->setData(*_spectrogramDataDummy); //hack
-        dynamic_cast<MyZoomer*>(_zoomer)->setHistogram(hist);
+        dynamic_cast<TrackZoomer*>(_zoomer)->setHistogram(hist);
         _spectrogramData->setHistogram(hist);
         _spectrogram->setData(*_spectrogramData);   //hack
         _spectrogram->invalidateCache();
