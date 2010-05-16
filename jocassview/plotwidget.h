@@ -38,9 +38,11 @@
 // prototypes:
 class cassData;
 
-class createScaleEngine {
+class createScaleEngine
+{
 public:
     virtual QwtScaleEngine* create() = 0;
+    virtual ~createScaleEngine(){}
 };
 class createLinearScaleEngine : public createScaleEngine
 {
@@ -57,17 +59,17 @@ public:
 class MyPlot: public QwtPlot
 {
 public:
-    MyPlot(QWidget *parent=NULL):
-            QwtPlot(parent) {
+    MyPlot(QWidget *parent=NULL)
+      :QwtPlot(parent)
+    {
         setMouseTracking(true);
     }
 
-    void mouseMoveEvent ( QMouseEvent * /*event */) {
+    void mouseMoveEvent ( QMouseEvent * /*event */)
+    {
         //double yval = invTransform(QwtPlot::yRight, event->pos().y()) ;
-
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
     }
-
 };
 
 class MyZoomer: public QwtPlotZoomer
