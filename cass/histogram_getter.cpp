@@ -15,7 +15,7 @@ using namespace cass;
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
     // check out histograms storage map
-    PostProcessors *pp(PostProcessors::instance());
+    PostProcessors *pp(PostProcessors::instance(""));
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
     pp->validate(hp.type);
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
@@ -33,7 +33,7 @@ const std::pair<size_t, std::string> HistogramGetter::operator()(const Histogram
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
     // check out histograms storage map
-    PostProcessors *pp(PostProcessors::instance());
+    PostProcessors *pp(PostProcessors::instance(""));
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
     // make sure the requested histogram is valid
     pp->validate(hp.type);
@@ -54,7 +54,7 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {
   // check out histograms storage map//
-  PostProcessors *pp(PostProcessors::instance());
+  PostProcessors *pp(PostProcessors::instance(""));
   const PostProcessors::histograms_t& hist(pp->histograms_checkout());
   // make sure the requested histogram is valid//
   pp->validate(hp.type);

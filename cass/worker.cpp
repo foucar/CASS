@@ -9,11 +9,13 @@
 #include "format_converter.h"
 #include "postprocessing/postprocessor.h"
 
-cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer, QObject *parent)
+cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
+                     std::string outputfilename,
+                     QObject *parent)
   :QThread(parent),
     _ringbuffer(ringbuffer),
     _analyzer(cass::Analyzer::instance()),
-    _postprocessor(cass::PostProcessors::instance()),
+    _postprocessor(cass::PostProcessors::instance(outputfilename)),
     _quit(false),
     _pause(false),
     _paused(false)
@@ -147,6 +149,7 @@ void cass::Worker::saveSettings()
 
 //-----------------------the wrapper for more than 1 worker--------------------
 cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
+                       std::string outputfilename,
                        QObject */*parent*/)
                          :_workers(cass::NbrOfWorkers,0)
 {
@@ -154,7 +157,7 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
   //connect all workers output to this output//
   for (size_t i=0;i<_workers.size();++i)
   {
-    _workers[i] = new cass::Worker(ringbuffer);
+    _workers[i] = new cass::Worker(ringbuffer,outputfilename);
     connect(_workers[i],SIGNAL(processedEvent()),this,SIGNAL(processedEvent()));
   }
 }

@@ -10,6 +10,7 @@
 
 #include <map>
 #include <utility>
+#include <string>
 
 #include "cass.h"
 #include "ringbuffer.h"
@@ -40,7 +41,8 @@ namespace cass
      * @param rb the rinbguffer we get the events from
      * @param parent the qt parent of this object
      */
-    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb ,
+    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
+           std::string outputfilename,
            QObject *parent=0);
     /** will destory the analyzer and the postprocessors*/
     ~Worker();
@@ -108,7 +110,9 @@ namespace cass
      * @param rb the rinbguffer we get the events from
      * @param parent the qt parent of this object
      */
-    Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb, QObject *parent=0);
+    Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
+            std::string outputfilename,
+            QObject *parent=0);
 
     /** deletes all workers*/
     ~Workers();

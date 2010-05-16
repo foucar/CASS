@@ -551,16 +551,16 @@ please use doxygen style as then your documentation will be available on the web
     typedef std::list<id_t> active_t;
 
     /** create the instance if not it does not exist already.
-     * @todo add a string or const char * to pass the outputfilename to the pp
+     * @param outputfilename filename of the outputfile
      */
-    static PostProcessors *instance();
+    static PostProcessors *instance(std::string outputfilename);
 
     /** destroy the instance */
     static void destroy();
 
     /** process event
      *
-     *@param event CASSEvent to process by all active postprocessors
+     * @param event CASSEvent to process by all active postprocessors
      */
     void process(CASSEvent& event);
 
@@ -677,9 +677,10 @@ please use doxygen style as then your documentation will be available on the web
 
   private:
     /** Private constructor of singleton
-     * @todo enable passing the filename to the pp.
+     * @param outputfilename filename of the file containing the results. Used
+     *         in offline mode.
      */
-    PostProcessors();
+    PostProcessors(std::string outputfilename);
 
     /** Prevent copy-construction of singleton */
     PostProcessors(const PostProcessors&);

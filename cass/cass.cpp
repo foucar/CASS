@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 #endif
 
   //create workers//
-  cass::Workers *workers(new cass::Workers(ringbuffer, qApp));
+  cass::Workers *workers(new cass::Workers(ringbuffer, outputfilename, qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
   //create a ratemeter object for the worker//

@@ -30,7 +30,7 @@ QMutex PostProcessors::_mutex;
 
 
 // create an instance of the singleton
-PostProcessors *PostProcessors::instance()
+PostProcessors *PostProcessors::instance(std::string outputfilename)
 {
 #ifdef VERBOSE
     static int n(0), create(0);
@@ -39,7 +39,7 @@ PostProcessors *PostProcessors::instance()
     QMutexLocker locker(&_mutex);
     if(0 == _instance) {
         VERBOSEOUT(std::cerr << "PostProcessors::instance -- create " << ++create << std::endl);
-        _instance = new PostProcessors();
+        _instance = new PostProcessors(outputfilename);
     }
     return _instance;
 }
@@ -67,9 +67,10 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 
-PostProcessors::PostProcessors()
-  :_outputfilename("outputfilename.root")
+PostProcessors::PostProcessors(std::string outputfilename)
+  :_outputfilename(outputfilename)
 {
+    VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "<<_outputfilename<<std::endl);
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
     loadSettings(0);

@@ -106,7 +106,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
 {
     static QQueue< cass::Serializer* > queue;
     int result;
-    cass::PostProcessors *pp(cass::PostProcessors::instance());
+    cass::PostProcessors *pp(cass::PostProcessors::instance(""));
     cass::IdList* idlist(pp->getIdList());
     cass::Serializer* ser(new cass::Serializer);
     idlist->serialize(*ser);
@@ -121,7 +121,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
 
 int CASSsoapService::getMimeType(size_t type, bool *success)
 {
-    cass::PostProcessors *pp(cass::PostProcessors::instance());
+    cass::PostProcessors *pp(cass::PostProcessors::instance(""));
     std::string& mimetype(pp->getMimeType(cass::PostProcessors::id_t(type)));
     *success = true;
     soap_set_dime(this); // enable dime
