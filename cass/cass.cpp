@@ -154,12 +154,9 @@
  *
  * @todo only retrieve the last ccd / waveform when requested
  * @todo describe how to use Nicolas ROI.
- * @todo find out why there are the warning messages about const
- *       iterators (size_t) when compiling at SLAC
- * @todo create another acqiris detector, that will just measure the
- *       voltage on a given channel
- * @todo make detector evaluation lazy by having the getters calc
- *       all values.
+ * @todo create another acqiris detector, that will just measure the voltage
+ *       on a given channel
+ * @todo make detector evaluation lazy by having the getters calc all values.
  * @todo right now we cannot define a postprocessors dependency on the
  *       converter that it needs. We need to include this dependency.
  *       Maybe using cass.ini?
