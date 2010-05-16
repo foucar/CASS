@@ -400,7 +400,7 @@ void pp150::operator()(const CASSEvent& /*event*/)
   _pp.histograms_release();
   image->lock.lockForRead();
   HistogramFloatBase::storage_t &imageMemory(image->memory());
-  float nom(0), denom(0),maxval(0);
+  float nom(0), denom(0), maxval(0);
   float symangle(_symAngle/180*M_PI);
   for(size_t jr = 0; jr<_nbrRadialPoints; jr++)
   {
