@@ -491,7 +491,7 @@ void cass::pp803::loadSettings(size_t)
   if ((one->dimension() != two->dimension()) ||
       (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp802 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp803 idOne is not the same type as idTwo or they have not the same size");
   }
 
   //creat the resulting histogram from the first histogram
@@ -526,6 +526,89 @@ void cass::pp803::operator()(const CASSEvent&)
   _result->lock.unlock();
   one->lock.unlock();
   two->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessors 804 multiplies histogram with constant ***
+
+cass::pp804::pp804(PostProcessors& pp, cass::PostProcessors::id_t id)
+  : PostprocessorBackend(pp, id), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp804::~pp804()
+{
+  _pp.histograms_delete(_id);
+  _result = 0;
+}
+
+std::list<cass::PostProcessors::id_t> cass::pp804::dependencies()
+{
+  std::list<PostProcessors::id_t> list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp804::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString("p") + QString::number(_id));
+
+  _factor = settings.value("Factor",1).toFloat();
+
+  if (!retrieve_and_validate(_id,"HistId",_idHist))
+    return;
+
+  //retrieve histograms from the two pp//
+  const HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //creat the resulting histogram from the first histogram
+  _pp.histograms_delete(_id);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_id,_result);
+
+  std::cout << "PostProcessor_"<<_id
+      <<" will multiply Histogram in PostProcessor_"<<_idHist
+      <<" with "<<_factor
+      <<std::endl;
+}
+
+void cass::pp804::operator()(const CASSEvent&)
+{
+  using namespace std;
+  //retrieve the memory of the to be substracted histograms//
+  HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //substract using transform with a special build function//
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  std::transform(one->memory().begin(),
+                 one->memory().end(),
+                 _result->memory().begin(),
+                 bind2nd(multiplies<float>(),_factor));
+  _result->lock.unlock();
+  one->lock.unlock();
 }
 
 
