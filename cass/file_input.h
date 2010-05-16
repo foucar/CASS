@@ -18,6 +18,11 @@ namespace cass
   //forward declaration//
   class FormatConverter;
 
+  /** file input
+   *
+   * @todo document this class
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT FileInput : public QThread
   {
     Q_OBJECT;
