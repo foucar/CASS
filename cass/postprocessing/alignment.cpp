@@ -410,9 +410,9 @@ void pp150::operator()(const CASSEvent& /*event*/)
       const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
       size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
       size_t row(size_t(_center.second + radius*cos(angle + symangle)));
-      float val = imageMemory[col + row * _imageWidth];
-      denom += val * square(radius);
-      nom   += val * square(cos(angle)) * square(radius);
+      float val = imageMemory[col + row * _imageWidth] * square(radius);
+      denom += val;
+      nom   += val * square(cos(angle));
       maxval = max(val,maxval);
     }
   }
@@ -439,6 +439,20 @@ void pp150::operator()(const CASSEvent& /*event*/)
       size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
       imageMemory[col + row * _imageWidth] = maxval;
     }
+//    //sym axis
+//    float cx(_center.first), cy(_center.second);
+//    const float m (tan(symangle+84*M_PI/180.));
+//    const float r_max (_minRadius);
+//    size_t startX (cx + r_max * cos(symangle+84.*M_PI/180.));
+//    size_t endX   (cx - r_max * cos(symangle+84.*M_PI/180.));
+//    std::cout <<startX<<" "<<endX<<" "<<m<<" "<<r_max<<" "<<cx<<" "<<cy<<" "
+//        <<std::endl;
+//    for (size_t i=min(startX,endX); i<max(startX,endX);++i)
+//    {
+//      size_t col (i);
+//      size_t row (m * (i-cx) + cy);
+//      imageMemory[row*_imageWidth + col] = maxval;
+//    }
     image->lock.unlock();
   }
   _value->lock.lockForWrite();
