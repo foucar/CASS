@@ -74,6 +74,36 @@ public:
     }
 };
 
+class TrackZoomer1D: public ScrollZoomer
+{
+public:
+    TrackZoomer1D(QwtPlotCanvas *canvas):
+        ScrollZoomer(canvas)
+    {
+        setTrackerMode(AlwaysOn);
+    }
+
+    virtual QwtText trackerText(const QwtDoublePoint &pos) const
+    {
+        QColor bg(Qt::white);
+        bg.setAlpha(200);
+
+        QwtText text = QwtPlotZoomer::trackerText(pos);
+        // todo: format numbers to display xx.xxexx format for small/big numbers...
+        /*
+        QString text_string(text.text());
+        text_string = text_string + " : ";
+        text.setText(text_string);
+        */
+        text.setBackgroundBrush( QBrush( bg ));
+        return text;
+    }
+
+protected:
+};
+
+
+
 class TrackZoomer2D: public ScrollZoomer /*QwtPlotZoomer*/
 {
 public:
@@ -560,9 +590,11 @@ protected:
          layout.addWidget(&_plot);
          _plot.replot();
          _curve.setPen( QPen(Qt::blue) );
-         _zoomer = new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
+         _zoomer = new TrackZoomer1D(_plot.canvas());
+         _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
+         /*_zoomer = new TrackZoomer1D(QwtPlot::xBottom, QwtPlot::yLeft,
                                      QwtPicker::DragSelection, QwtPicker::AlwaysOff,
-                                     _plot.canvas());
+                                     _plot.canvas());*/
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
                                   Qt::RightButton);
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
