@@ -212,6 +212,7 @@ void cass::pp500::operator ()(const cass::CASSEvent &)
   //from here on only one thread should work at a time//
   QMutexLocker lock(&_mutex);
   //check the whether the range is the same//
+  if (!singleWaveform) return;
   singleWaveform->lock.lockForRead();
   if (!_waveform || (_waveform && _waveform->axis()[HistogramBackend::xAxis].nbrBins() !=
                      singleWaveform->axis()[HistogramBackend::xAxis].nbrBins()))
