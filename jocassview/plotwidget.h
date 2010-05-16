@@ -38,6 +38,22 @@
 // prototypes:
 class cassData;
 
+class createScaleEngine {
+public:
+    virtual QwtScaleEngine* create() = 0;
+};
+class createLinearScaleEngine : public createScaleEngine
+{
+public:
+    QwtScaleEngine* create() { return new QwtLinearScaleEngine; };
+};
+
+class createLog10ScaleEngine : public createScaleEngine
+{
+public:
+    QwtScaleEngine* create() { return new QwtLog10ScaleEngine; };
+};
+
 class MyPlot: public QwtPlot
 {
 public:
@@ -195,6 +211,13 @@ public:
     bool eventFilter(QObject *obj, QEvent *event)
     {
         if (obj == _rightAxis ) {
+            if (event->type() == QEvent::MouseButtonPress) {
+                QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                if (mouseEvent->button() == Qt::RightButton) {
+                    if((++_cb_scaleEngineIt)==_cb_scaleEngines->end()) _cb_scaleEngineIt=_cb_scaleEngines->begin();
+                    updateColorBarScale();
+                }
+            }
             if (event->type() == QEvent::MouseMove) {
                 QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
                 double yval= _plot->invTransform(QwtPlot::yRight, mouseEvent->pos().y());
@@ -222,9 +245,14 @@ public:
 
         //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
     }
+
     spectrogramWidget() {
         _cs_top = 0.7;
         _cs_bot = 0.2;
+        _cb_scaleEngines = new QList< createScaleEngine* >();
+        _cb_scaleEngines->append( new createLinearScaleEngine );
+        _cb_scaleEngines->append( new createLog10ScaleEngine );
+        _cb_scaleEngineIt = _cb_scaleEngines->begin();
 
         _toolbar = new QToolBar;
         _colorbarPresets = new QComboBox;
@@ -337,7 +365,7 @@ public:
         _rightAxis->setColorMap(_spectrogram->data().range(),
             *_colorMap);
         _plot->setAxisScale(QwtPlot::yRight,
-            _spectrogram->data().range().minValue(),
+            _spectrogram->data().range().minValue()+0.001,
             _spectrogram->data().range().maxValue() );
 
         if (hist->getId() != oldId) {
@@ -405,6 +433,12 @@ protected slots:
         updateColorBar();
     }
 
+    void updateColorBarScale() {
+        _plot->setAxisScaleEngine(QwtPlot::yRight, (*_cb_scaleEngineIt)->create() );
+        _plot->replot();
+    }
+
+
     void updateColorBar() {
         // old colormap is deleted by _spectrogram->setColorMap !!
         _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
@@ -431,6 +465,8 @@ protected:
     QwtPlotZoomer* _zoomer;
 
     double _cs_top, _cs_bot;
+    QList< createScaleEngine* >* _cb_scaleEngines;
+    QList< createScaleEngine* >::iterator _cb_scaleEngineIt;
 
     QToolBar* _toolbar;
     QComboBox* _colorbarPresets;
