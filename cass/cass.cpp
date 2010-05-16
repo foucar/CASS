@@ -180,6 +180,7 @@
  *       have userdefined number of instances of on pp
  * @todo enable the possibility to clear just one histogram and leave the others
  *       unmodified.
+ * @todo create pp for machine data
  */
 
 /** \page authors Authors
