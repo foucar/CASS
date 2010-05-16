@@ -204,6 +204,16 @@ protected:
     QwtDoubleInterval _interval;
 };
 
+
+  /** spectrogramWidget
+   * widget that can display 2d histograms.
+   * usage:
+   *   left mouse drag zooms
+   *   right mouse goes back in zoom history
+   *   left mouse drag on colorbar sets colorstops
+   *   right mouse on colorbar cycles throug axis transformations
+   * @author Stephan Kassemeyer
+   */
 class spectrogramWidget : public QWidget
 {
     Q_OBJECT
@@ -571,6 +581,14 @@ protected:
       CASSsoapProxy* _cass;
 };
 
+
+  /** plotWidget1D
+   * widget that can display 1d histograms.
+   * usage:
+   *   left mouse drag zooms
+   *   right mouse goes back in zoom history
+   * @author Stephan Kassemeyer
+   */
 class plotWidget1D : public plotWidget
 {
 public:
@@ -597,6 +615,14 @@ private:
       //
 };
 
+  /** plotWidget0D
+   * widget that can display 0d histograms.
+   * Displays current value and a plot of last accumulationLength values.
+   * usage:
+   *   left mouse drag zooms
+   *   right mouse goes back in zoom history
+   * @author Stephan Kassemeyer
+   */
 class plotWidget0D: public plotWidget
 {
 public:
