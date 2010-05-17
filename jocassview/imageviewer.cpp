@@ -697,6 +697,16 @@ void ImageViewer::on_getHistogram_triggered()
     _gdthread.getHistogram1D(_attachId->currentText().toInt());
 }
 
+void ImageViewer::on_clearHistogram_triggered()
+{
+    bool ret;
+    _cass->clearHistogram( _attachId->currentText().toInt(), &ret);
+    if(!ret)
+        QMessageBox::information(this, tr("jocassviewer"),
+                tr("Error: Cannot communicate readini command."));
+
+}
+
 void ImageViewer::running()
 {
     VERBOSEOUT(cout << "running" << endl);

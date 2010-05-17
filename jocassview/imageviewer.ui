@@ -58,6 +58,7 @@
     <addaction name="getData"/>
     <addaction name="getEvent"/>
     <addaction name="getHistogram"/>
+    <addaction name="clearHistogram"/>
     <addaction name="readIni"/>
     <addaction name="writeIni"/>
     <addaction name="separator"/>
@@ -241,12 +242,20 @@
     <string>Ctrl+I</string>
    </property>
   </action>
-   <action name="getHistogram">
+  <action name="getHistogram">
    <property name="text">
     <string>&amp;get Histogram...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+H</string>
+   </property>
+  </action>
+ <action name="clearHistogram">
+   <property name="text">
+    <string>&amp;clear Histogram...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
 

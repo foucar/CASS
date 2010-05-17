@@ -137,6 +137,14 @@ int CASSsoapService::writeini(size_t what, bool *success)
     return SOAP_OK;
 }
 
+int CASSsoapService::clearHistogram(size_t type, bool *success)
+{
+    VERBOSEOUT(std::cerr << "CASSsoapService::clearHistogram(type=" << type << ")" << std::endl);
+    cass::SoapServer::instance()->emit_clearHistogram(type);
+    *success = true;;
+    return SOAP_OK;
+}
+
 
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)

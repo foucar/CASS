@@ -149,6 +149,8 @@ private slots:
 
     void on_getHistogram_triggered();
 
+    void on_clearHistogram_triggered();
+
     void on_print_triggered();
 
     void on_zoomIn_triggered();

@@ -25,6 +25,9 @@ int ns__readini(size_t what, bool *success);
 // tell server to reread ini file (or |what| part of it)
 int ns__writeini(size_t what, bool *success);
 
+// tell server to clear a given histogram
+int ns__clearHistogram(size_t type, bool *success);
+
 // get list of active postprocessor-ids
 int ns__getPostprocessorIds(bool *success);
 
@@ -33,10 +36,10 @@ int ns__getMimeType(size_t type, bool *success);
 
 
 // get CASSEvent from server
-int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *sucess);
+int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 
 // get histogram from server
-int ns__getHistogram(size_t type, bool *sucess);
+int ns__getHistogram(size_t type, bool *success);
 
 // get image from server in format |format| (as defined in cass.h)
 int ns__getImage(int format, size_t type, bool *success);

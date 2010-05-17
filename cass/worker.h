@@ -84,7 +84,7 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clear(size_t id) { _postprocessor->clear(id); }
+    void clearHistogram(size_t id) { _postprocessor->clear(id); }
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer; //!< the ringbuffer

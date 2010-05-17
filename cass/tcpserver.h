@@ -78,6 +78,8 @@ signals:
 
     void writeini(size_t what);
 
+    void clearHistogram(size_t type);
+
 
 protected:
 
@@ -102,11 +104,14 @@ protected:
     /** allow our friends to emit the quit() signal */
     void emit_quit() { emit quit(); };
 
-    /** allow our friends to emit the readinin() signal */
+    /** allow our friends to emit the readini() signal */
     void emit_readini(size_t what) { emit readini(what); };
 
-    /** allow our friends to emit the readinin() signal */
+    /** allow our friends to emit the writeini() signal */
     void emit_writeini(size_t what) { emit writeini(what); };
+
+    /** allow our friends to emit the clearHistogram() signal */
+    void emit_clearHistogram(size_t type) { emit clearHistogram(type); };
 
     /** the service */
     CASSsoapService *_soap;

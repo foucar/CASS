@@ -255,7 +255,7 @@ void cass::Workers::clear(size_t id)
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
-  _workers[0]->clear(id);
+  _workers[0]->clearHistogram(id);
   //resume the workers tasks//
   VERBOSEOUT(std::cout << "Workers: Clear: Done Loading. Now resume all workers"
       <<std::endl);
