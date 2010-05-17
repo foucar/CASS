@@ -45,6 +45,8 @@ SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter
 void SoapServer::destroy()
 {
     QMutexLocker locker(&_mutex);
+    _instance->terminate();
+    _instance->wait();
     delete _instance;
     _instance = 0;
 }
