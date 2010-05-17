@@ -23,17 +23,16 @@ namespace cass
       DetectorBackend(const std::string name)
           :_name(name)
       {}
+
       /** virtual destructor*/
       virtual ~DetectorBackend() {}
+
       /** pure virtual function that will load the detector parameters from cass.ini*/
       virtual void loadSettings(QSettings*)=0;
+
       /** pure virtual assignment operator.*/
       virtual DetectorBackend& operator= (const DetectorBackend&)=0;
-      /** pure virtual function that will save the detector parameters to cass.ini
-       * @todo check whether we need to save settings at all, since the program should
-       *       not change any parameters
-       */
-      virtual void saveParameters(QSettings*)=0;
+
       /** the type of analysis used to analyze this detector.
        * @note once we calc everything lazyly we might not need this,
        *       since the detector should calculate its properties it selve.
@@ -41,19 +40,23 @@ namespace cass
        *       part of the detector not the base class.
        */
       DetectorAnalyzers    analyzerType()const    {return _analyzerType;}
+
+      /** setter */
       DetectorAnalyzers   &analyzerType()         {return _analyzerType;}
+
       /** the detector name*/
       const std::string name()const {return _name;}
+
     protected:
       /** which analyzer should be used*/
       DetectorAnalyzers _analyzerType;
+
       /** the name of the detector. used for qsettings group*/
       std::string _name;
+
     private:
       /** default constructor should not be called therefore its privat*/
-      DetectorBackend()
-          :_name("unamed")
-      {}
+      DetectorBackend():_name("unamed") {}
     };
   }
 }//end namespace cass
