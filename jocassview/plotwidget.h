@@ -79,7 +79,7 @@ class TrackZoomer1D: public ScrollZoomer
 {
 public:
     TrackZoomer1D(QwtPlotCanvas *canvas):
-        ScrollZoomer(canvas)
+        ScrollZoomer(canvas), _hist(NULL)
     {
         setTrackerMode(AlwaysOn);
     }
@@ -90,17 +90,22 @@ public:
         bg.setAlpha(200);
 
         QwtText text = QwtPlotZoomer::trackerText(pos);
-        // todo: format numbers to display xx.xxexx format for small/big numbers...
-        /*
         QString text_string(text.text());
-        text_string = text_string + " : ";
-        text.setText(text_string);
-        */
+        try {
+            if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x()) );
+        }
+        catch (std::out_of_range)
+        {
+            //
+        }
+        text.setText(text_string);        // todo: format numbers to display xx.xxexx format for small/big numbers...
         text.setBackgroundBrush( QBrush( bg ));
         return text;
     }
 
+    void setHistogram(cass::Histogram1DFloat* hist) { _hist = hist; };
 protected:
+    cass::Histogram1DFloat* _hist;
 };
 
 
@@ -546,6 +551,8 @@ public:
          }
          _curve.attach(&_plot);
          _curve.setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
+
+         dynamic_cast<TrackZoomer1D*>(_zoomer)->setHistogram(hist);
 
          if (hist->getId() != oldId) {
              oldId = hist->getId();
