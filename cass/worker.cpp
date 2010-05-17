@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 lmf
+// Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 #include <exception>
@@ -173,8 +173,6 @@ cass::Workers::~Workers()
   //delete the worker instances//
   for (size_t i=0;i<_workers.size();++i)
     delete _workers[i];
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->wait();
   VERBOSEOUT(std::cout<< "workers are deleted" <<std::endl);
 }
 
@@ -236,7 +234,7 @@ void cass::Workers::saveSettings()
       <<std::endl);
 }
 
-void cass::Workers::clear(size_t id)
+void cass::Workers::clearHistogram(size_t id)
 {
   //make sure there is at least one worker//
   if(_workers.empty())
@@ -255,7 +253,7 @@ void cass::Workers::clear(size_t id)
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
-  _workers[0]->clearHistogram(id);
+  _workers[0]->clear(id);
   //resume the workers tasks//
   VERBOSEOUT(std::cout << "Workers: Clear: Done Loading. Now resume all workers"
       <<std::endl);
