@@ -287,7 +287,13 @@ public:
     bool shouldBeFilled() {return _shouldbefilled;}
 
     /** clear the histogram memory*/
-    virtual void clear() {lock.lockForWrite();std::fill(_memory.begin(),_memory.end(),0);}
+    virtual void clear()
+    {
+      lock.lockForWrite();
+      std::fill(_memory.begin(),_memory.end(),0);
+      _nbrOfFills = 0;
+      lock.unlock();
+    }
 
     /** notify histogram that is has been filled */
     void notify() {_fillcondition.wakeAll();}
