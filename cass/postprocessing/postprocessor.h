@@ -622,6 +622,9 @@ please use doxygen style as then your documentation will be available on the web
     /** Save active postprocessors and histograms */
     void saveSettings() {}
 
+    /** clear the histogram that has id */
+    void clear(size_t);
+
   protected:
     /** @brief (ordered) list of active postprocessors/histograms
      *

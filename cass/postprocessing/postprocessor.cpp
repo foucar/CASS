@@ -103,6 +103,21 @@ void PostProcessors::loadSettings(size_t)
         std::cout << *iter << " ";
 }
 
+void PostProcessors::clear(size_t id)
+{
+    id_t ppid (static_cast<id_t>(id));
+    try
+    {
+      validate(ppid);
+    }
+    catch (InvalidHistogramError&)
+    {
+      return;
+    }
+    histograms_checkout().find(ppid)->second->clear();
+    histograms_release();
+}
+
 IdList* PostProcessors::getIdList()
 {
     _IdList->clear();
@@ -119,8 +134,6 @@ std::string& PostProcessors::getMimeType(id_t type)
     return _invalidMime;
 }
 
-
-
 void PostProcessors::_delete(id_t type)
 {
     histograms_t::iterator iter(_histograms.find(type));
@@ -131,16 +144,12 @@ void PostProcessors::_delete(id_t type)
     delete hist;
 }
 
-
-
 void PostProcessors::_replace(id_t type, HistogramBackend *hist)
 {
     _delete(type);
     hist->setId(type);
     _histograms.insert(std::make_pair(type, hist));
 }
-
-
 
 void PostProcessors::setup()
 {

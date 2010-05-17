@@ -52,7 +52,7 @@ namespace cass
     {
       PostProcessors::instance("")->validate(dependid);
     }
-    catch (InvalidHistogramError)
+    catch (InvalidHistogramError&)
     {
       return false;
     }

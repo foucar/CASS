@@ -34,8 +34,6 @@ void cass::Worker::end()
   VERBOSEOUT(std::cout << "worker "<<this<<" is told to close"<<std::endl);
   //tell run that we want to close
   _quit = true;
-  //wait until we run has really finished
-  wait();
 }
 
 void cass::Worker::suspend()
@@ -43,8 +41,6 @@ void cass::Worker::suspend()
   VERBOSEOUT(std::cout<<"Worker::"<<this<<": suspend(): signaled to suspend"<<std::endl);
   //set flag to pause//
   _pause=true;
-  //wait until it is suspended//
-//  waitUntilSuspended();
 }
 
 void cass::Worker::resume()
@@ -147,6 +143,15 @@ void cass::Worker::saveSettings()
 
 
 
+
+
+
+
+
+
+
+
+
 //-----------------------the wrapper for more than 1 worker--------------------
 cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
                        std::string outputfilename,
@@ -168,6 +173,8 @@ cass::Workers::~Workers()
   //delete the worker instances//
   for (size_t i=0;i<_workers.size();++i)
     delete _workers[i];
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->wait();
   VERBOSEOUT(std::cout<< "workers are deleted" <<std::endl);
 }
 
@@ -192,8 +199,8 @@ void cass::Workers::loadSettings(size_t what)
   //that the parameters are the same for all workers//
   _workers[0]->loadSettings(what);
   //resume the workers tasks//
-  std::cout << "Workers: Load Settings: Done Loading. Now resume all workers"
-      <<std::endl;
+  VERBOSEOUT(std::cout << "Workers: Load Settings: Done Loading. Now resume all workers"
+      <<std::endl);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
   VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are resumed"
@@ -226,6 +233,35 @@ void cass::Workers::saveSettings()
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
   VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are resumed"
+      <<std::endl);
+}
+
+void cass::Workers::clear(size_t id)
+{
+  //make sure there is at least one worker//
+  if(_workers.empty())
+    throw std::bad_exception();
+  //lock this from here on, so that it is reentrant
+  QMutexLocker lock(&_mutex);
+  VERBOSEOUT(std::cout << "Workers: Clear: suspend all workers before loading settings"
+      <<std::endl);
+  //suspend all workers//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->suspend();
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilSuspended();
+  VERBOSEOUT(std::cout << "Workers: Clear: Workers are suspend."
+      <<" Clear the requested histogram."<<std::endl);
+  //load the settings of one worker//
+  //since the workers have only singletons this will make sure//
+  //that the parameters are the same for all workers//
+  _workers[0]->clear(id);
+  //resume the workers tasks//
+  VERBOSEOUT(std::cout << "Workers: Clear: Done Loading. Now resume all workers"
+      <<std::endl);
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->resume();
+  VERBOSEOUT(std::cout << "Workers: Clear: Workers are resumed"
       <<std::endl);
 }
 
