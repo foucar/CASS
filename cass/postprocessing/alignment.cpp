@@ -445,69 +445,31 @@ void pp150::operator()(const CASSEvent& /*event*/)
     int32_t index_max=static_cast<int32_t>(_imageWidth*7/5/2);// the max number of points I have to consider
     int32_t this_index;
     const int32_t _imageSize=static_cast<int32_t>(_imageWidth*_imageWidth);
-    bool hori=true;
-    bool vert=!hori;
-    const float slope=std::tan(symangle+M_PI/2.);
-    const double dslope=std::tan(symangle+M_PI/2.);
+    const int32_t s_imageWidth=static_cast<int32_t>(_imageWidth);
     const double sin_dslope=std::sin(symangle+M_PI/2.);
     const double cos_dslope=std::cos(symangle+M_PI/2.);
-    //std::cout<<"vertical slope is "<< slope<<std::endl;
-    if(std::abs(slope)>20.0)
-    {
-      //std::cout<<"vertical slope is "<< slope<<std::endl;
-      hori=false;
-      vert=!hori;
-    }
-    /*if(std::abs(slope)>0.05  && std::abs(slope)<1.0)
-    {
-      index_max=index_max/static_cast<int32_t>(std::abs(slope));
-    }*/
-    //float f_hori=static_cast<float>(hori);
-    float f_vert=1.-static_cast<float>(vert);
-    double df_vert=1.-static_cast<double>(vert);
     double d_minRadius= static_cast<double>(_minRadius);
     double d_maxRadius= static_cast<double>(_maxRadius);
     for(int32_t iFrame=0;iFrame<index_max; ++iFrame)
     {
-      float f_iFrame=static_cast<float>(iFrame);
       double d_iFrame=static_cast<double>(iFrame);
       xlocal1=static_cast<int32_t>(_center.first) + static_cast<int32_t>(d_iFrame*cos_dslope);
       xlocal2=static_cast<int32_t>(_center.first) - static_cast<int32_t>(d_iFrame*cos_dslope);
       ylocal1=static_cast<int32_t>(_center.second) + static_cast<int32_t>(d_iFrame *sin_dslope);
       ylocal2=static_cast<int32_t>(_center.second) - static_cast<int32_t>(d_iFrame *sin_dslope);
-      /*
-      if(!vert)
-      {
-        //        std::cout<<"here"<<std::endl;
-        xlocal1=static_cast<int32_t>(_center.first) + (iFrame);
-        xlocal2=static_cast<int32_t>(_center.first) - (iFrame);
-        ylocal1=static_cast<int32_t>(_center.second) + (iFrame) * static_cast<int32_t>(slope) ;
-        ylocal2=static_cast<int32_t>(_center.second) - (iFrame) * static_cast<int32_t>(slope) ;
-      }
-      else
-      {
-        //std::cout<<"there"<<std::endl;
-        xlocal1=static_cast<int32_t>(_center.first);
-        xlocal2=static_cast<int32_t>(_center.first);
-        ylocal1=static_cast<int32_t>(_center.second) + iFrame ;
-        ylocal2=static_cast<int32_t>(_center.second) - iFrame ;
-      }
-      */
-      //const float this_distance=pow(f_iFrame,2) + ( pow(f_iFrame * slope,2) * f_vert );
-      //const double dthis_distance=pow(d_iFrame,2) + ( pow(d_iFrame * dslope,2) * df_vert );
       const double dthis_distance=pow(d_iFrame*cos_dslope,2) + pow(d_iFrame*sin_dslope,2)  ;
       //Inside the first radius
       if( dthis_distance < d_minRadius * d_minRadius )
       {
-        if(xlocal1>0 && ylocal1>0 && xlocal1<_imageWidth && ylocal1<_imageWidth) 
+        if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth) 
         {
-          this_index=xlocal1 + _imageWidth * (ylocal1);
+          this_index=xlocal1 + s_imageWidth * (ylocal1);
           if (this_index>=0 && (this_index < _imageSize ) )
             imageMemory[static_cast<size_t>(this_index)] = maxval;
         }
-        if(xlocal2>0 && ylocal2>0 && xlocal2<_imageWidth && ylocal2<_imageWidth)
+        if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
         {
-          this_index=xlocal2 + _imageWidth * (ylocal2);
+          this_index=xlocal2 + s_imageWidth * (ylocal2);
           if (this_index>=0 && (this_index < _imageSize ))
             imageMemory[static_cast<size_t>(this_index)] = maxval;
         }
@@ -518,15 +480,15 @@ void pp150::operator()(const CASSEvent& /*event*/)
         //Outside the second radius
         if( dthis_distance > (d_maxRadius * d_maxRadius) )
         {
-          if(xlocal1>0 && ylocal1>0 && xlocal1<_imageWidth && ylocal1<_imageWidth) 
+          if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth) 
           {
-            this_index=xlocal1 + _imageWidth * (ylocal1);
+            this_index=xlocal1 + s_imageWidth * (ylocal1);
             if (this_index>=0 && (this_index < _imageSize) )
               imageMemory[static_cast<size_t>(this_index)] = maxval;
           }
-          if(xlocal2>0 && ylocal2>0 && xlocal2<_imageWidth && ylocal2<_imageWidth)
+          if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
           {
-            this_index=xlocal2 + _imageWidth * (ylocal2);
+            this_index=xlocal2 + s_imageWidth * (ylocal2);
             if (this_index>=0 && (this_index < _imageSize) )
               imageMemory[static_cast<size_t>(this_index)] = maxval;
           }
