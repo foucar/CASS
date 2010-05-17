@@ -167,14 +167,9 @@
  *       can use the histogram part for it.
  * @todo find out how one can use xrefitem so that it will list consecutive
  *       items under one title, just like todo does.
- * @todo create a less pp
- * @todo create division pp
- * @todo add multiplication pp
  * @todo create pp that will convert all active pp histograms to root histo and
  *       store it in .root file.
  * @todo add possibilty in cassview to write 2d histograms as csv file
- * @todo in offline pass filename of file cotinaing xtc files and resulting
- *       h5 / root filename as arguments to cass
  * @todo add gui's to modify the postprocessors settings in cassviewer.
  * @todo make postprocessors is's to have pair<size_t,size_t> to be able to
  *       have userdefined number of instances of on pp
