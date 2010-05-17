@@ -1,7 +1,12 @@
 # Copyright (C) 2010 Lutz Foucar
 
-# this file will be read by all .pro files, so it contains all commonly used
-# config parameters
+# if no file named cass_myconfig.pri exists, this file
+# will be read by all .pro files, so it contains all commonly used
+# config parameters.
+#
+# It is good practice to copy this file to cass_myconfig.pri and modify
+# this file to your needs. It overrides the default and doesn't need
+# to be checked in into the main repository.
 
 # if INSTALLBASE has not been set by the user, set a default value
 isEmpty ( INSTALLBASE ){
