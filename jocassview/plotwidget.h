@@ -569,18 +569,33 @@ public slots:
           _zoomer->setZoomBase();
       }
 
-      void ZoomIn() {
+      void ZoomY(double factor) {
           QStack<QRectF> stack = _zoomer->zoomStack();
           int ii=0;
           for (QStack<QRectF>::iterator it=stack.begin(); it!=stack.end(); ++it)
               std::cout << "zoomstack " << ii++ << ":  left " << it->left() << "right " << it->right() << "top " << it->top() << "bot " << it->bottom() << std::endl;
+          std::cout << std::endl;
           //_zoomer->zoom(1);
+          int idx = _zoomer->zoomRectIndex();
+          std::cout << "idx: " << idx << std::endl;
+          QRectF newZoomRect = stack[idx];
+
+          double newheight = newZoomRect.height() * factor;
+          newZoomRect.setHeight( newheight );
+          newZoomRect.moveBottom( newheight/2 );
+          newZoomRect = newZoomRect.normalized();
+
+          stack.push( newZoomRect );
+          //stack[0] = newZoomRect.unite(stack[0]);
+          _zoomer->setZoomStack(stack, -1);
           _plot.replot();
       }
 
       void ZoomOut() {
-          _zoomer->zoom(-1);
-          _plot.replot();
+          ZoomY(0.5);
+      }
+      void ZoomIn() {
+          ZoomY(2.0);
       }
 
       void GridToggle(bool checked) {
