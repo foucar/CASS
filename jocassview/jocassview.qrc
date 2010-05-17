@@ -7,5 +7,6 @@
     <file>images/zoomin.png</file>
     <file>images/zoomout.png</file>
     <file>images/zoomreset.png</file>
+    <file>images/grid.png</file>
 </qresource>
 </RCC>

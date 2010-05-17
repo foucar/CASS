@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <qwt_plot.h>
+#include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_rescaler.h>
@@ -561,13 +562,32 @@ public:
 
 public slots:
 
-      void resetZoom() {
+      void ZoomReset() {
           _zoomer->zoom(0);
           _plot.setAxisAutoScale(QwtPlot::xBottom);
           _plot.replot();
           _zoomer->setZoomBase();
       }
 
+      void ZoomIn() {
+          QStack<QRectF> stack = _zoomer->zoomStack();
+          int ii=0;
+          for (QStack<QRectF>::iterator it=stack.begin(); it!=stack.end(); ++it)
+              std::cout << "zoomstack " << ii++ << ":  left " << it->left() << "right " << it->right() << "top " << it->top() << "bot " << it->bottom() << std::endl;
+          //_zoomer->zoom(1);
+          _plot.replot();
+      }
+
+      void ZoomOut() {
+          _zoomer->zoom(-1);
+          _plot.replot();
+      }
+
+      void GridToggle(bool checked) {
+          _grid->enableX(checked);
+          _grid->enableY(checked);
+          _plot.replot();
+      }
 
 protected:
 
@@ -576,13 +596,18 @@ protected:
          _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
          _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("Zoom in"), this);
          _act_zoomreset = new QAction( QIcon(":images/zoomreset.png"), tr("Zoom reset"), this);
-         _act_zoomin->setCheckable(true);
-         _act_zoomout->setCheckable(true);
-         connect(_act_zoomreset, SIGNAL(triggered()), this, SLOT(resetZoom()));
+         _act_gridtoggle = new QAction( QIcon(":images/grid.png"), tr("toggle Grid"), this);
+         _act_gridtoggle->setCheckable(true);
+         _act_gridtoggle->setChecked(true);
+         connect(_act_zoomreset, SIGNAL(triggered()), this, SLOT(ZoomReset()));
+         connect(_act_zoomin, SIGNAL(triggered()), this, SLOT(ZoomIn()));
+         connect(_act_zoomout, SIGNAL(triggered()), this, SLOT(ZoomOut()));
+         connect(_act_gridtoggle, SIGNAL(toggled(bool)), this, SLOT(GridToggle(bool)));
 
          _toolbar->addAction(_act_zoomin);
          _toolbar->addAction(_act_zoomout);
          _toolbar->addAction(_act_zoomreset);
+         _toolbar->addAction(_act_gridtoggle);
          layout.addWidget(_toolbar);
       };
 
@@ -603,10 +628,16 @@ protected:
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
                                   Qt::ControlModifier);
          _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+         // Grid for the plot
+         _grid = new QwtPlotGrid;
+         _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
+         _grid->attach(&_plot);
+
       };
 
       QwtPlot _plot;
       QwtPlotZoomer* _zoomer;
+      QwtPlotGrid* _grid;
       QwtDoubleRect _baseRect;
       QwtPlotCurve _curve;
 
@@ -614,6 +645,7 @@ protected:
       QAction* _act_zoomin;
       QAction* _act_zoomout;
       QAction* _act_zoomreset;
+      QAction* _act_gridtoggle;
 
       CASSsoapProxy* _cass;
 };
