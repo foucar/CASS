@@ -1,0 +1,86 @@
+// Copyright (C) 2010 Lutz Foucar
+
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
+
+#include <vector>
+
+#include "root_converter.h"
+#include "histogram.h"
+
+cass::pp2000::pp2000(PostProcessors& pp, cass::PostProcessors::id_t id, std::string rootfilename)
+    : PostprocessorBackend(pp, id),_rootfilename(rootfilename)
+{}
+
+cass::pp2000::~pp2000()
+{
+  //create a root file//
+  rootfile = TFile::Open(_rootfileame.c_str(),"RECREATE");
+  if (!rootfile)
+  {
+    std::cerr <<_rootfilename<< " could not be opened, please delete the file!"<<std::endl;
+  }
+  VERBOSEOUT(std::cout << "Histograms will be written to: "<<_rootfilename<<std::endl);
+  //create a temporary storage for pointer so that we can delete them later on//
+  std::vector<TH1*> tobedeleted;
+  //retrieve all active histograms and create according root histogram from them//
+  const PostProcessors::histograms_t& container(_pp.histograms_checkout());
+  PostProcessors::histograms_t::const_iterator hIt (container.begin());
+  for (;hIt != container.end(); ++hIt)
+  {
+    //get our hist//
+    HistogramFloatBase *h(hIt->second);
+    //create hist pointer//
+    TH1 * roothist(0);
+    //create the histogram according to the dimension of our histogram//
+    //fill them with the contents of our histogram//
+    switch (h->dimension())
+    {
+    case 0:
+      VERBOSEOUT(std::cout<<"pp2000:destructor: Can't store a 0D Histogram"<<std::endl);
+      break;
+    case 1:
+      roothist = new TH1F(h->axis()[HistogramBackend::xAxis].nbrBins(),
+                          h->axis()[HistogramBackend::xAxis].lowerLimit(),
+                          h->axis()[HistogramBackend::xAxis].upperLimit());
+      float * rootmemory(dynamic_cast<TH1F*>(roothist->GetArray()));
+      std::copy(h->memory().begin(), h->memory().end()-2, rootmemory+1);
+      roothist->SetEntries(h->nbrOfFills());
+      break;
+    case 2:
+      roothist = new TH2F(h->axis()[HistogramBackend::xAxis].nbrBins(),
+                          h->axis()[HistogramBackend::xAxis].lowerLimit(),
+                          h->axis()[HistogramBackend::xAxis].upperLimit(),
+                          h->axis()[HistogramBackend::yAxis].nbrBins(),
+                          h->axis()[HistogramBackend::yAxis].lowerLimit(),
+                          h->axis()[HistogramBackend::yAxis].upperLimit());
+      float * rootmemory(dynamic_cast<TH1F*>(roothist->GetArray()));
+      //because of the stupid memory layout of roothistos we need to copy row by row//
+      const size_t nxbins (h->axis()[HistogramBackend::xAxis].nbrBins());
+      const size_t nybins (h->axis()[HistogramBackend::yAxis].nbrBins());
+      for (size_t row=0; row<nybins; ++row)
+        std::copy(h->memory().begin()+row*nxbins,
+                  h->memory().begin()+row*nxbins+nxbins,
+                  rootmemory+row*(nxbins+2)+1);
+      roothist->SetEntries(h->nbrOfFills());
+      break;
+    default:
+      VERBOSEOUT(std::cout<<"pp2000:destructor: Unknown Histogram dimension:"<<h->dimension()<<std::endl);
+    }
+    //write the histogram to root file//
+    roothist->Write(0,TObject::kOverwrite);
+    //put pointer to list for deletion later//
+    tobedeleted.push_back(roothist);
+  }
+  //delete all histograms on list//
+  for (std::vector<TH1*>::iterator it(tobedeleted.begin()); it != tobedeleted.end(); ++it)
+    delete (*it);
+  //close rootfile (will automaticly delete it)
+  rootfile->Close();
+
+  _pp.histograms_release();
+}
+
+
