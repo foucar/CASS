@@ -81,9 +81,10 @@ cass::HelperAveragingOffsetCorrection::~HelperAveragingOffsetCorrection()
     delete it->second;
 }
 
-const cass::PixelDetector::frame_t& cass::HelperAveragingOffsetCorrection::validate(uint64_t eventId,
-                                                                                    const cass::PixelDetector::frame_t &origFrame,
-                                                                                    const cass::HistogramFloatBase::storage_t &averagedFrame)
+const cass::PixelDetector::frame_t&
+cass::HelperAveragingOffsetCorrection::validate(uint64_t eventId,
+                                                const cass::PixelDetector::frame_t &origFrame,
+                                                const cass::HistogramFloatBase::storage_t &averagedFrame)
 {
   //lock this so that only one helper will retrieve the detector at a time//
   QMutexLocker lock(&_helperMutex);
@@ -115,9 +116,6 @@ void cass::HelperAveragingOffsetCorrection::correct_offset(PixelDetector::frame_
                                                            const PixelDetector::frame_t & orig_frame,
                                                            const HistogramFloatBase::storage_t &aver_frame)
 {
-  /** @note one cannot use accumulate here, since this returns negative numbers
-   *  @todo need to find out whether a new compiler does it correctly
-   */
   float sumFrame(0);
   float sumAverage(0);
   PixelDetector::frame_t::iterator rIt(result_frame.begin());
