@@ -449,6 +449,8 @@ void pp150::operator()(const CASSEvent& /*event*/)
     bool vert=!hori;
     const float slope=std::tan(symangle+M_PI/2.);
     const double dslope=std::tan(symangle+M_PI/2.);
+    const double sin_dslope=std::sin(symangle+M_PI/2.);
+    const double cos_dslope=std::cos(symangle+M_PI/2.);
     //std::cout<<"vertical slope is "<< slope<<std::endl;
     if(std::abs(slope)>20.0)
     {
@@ -469,6 +471,11 @@ void pp150::operator()(const CASSEvent& /*event*/)
     {
       float f_iFrame=static_cast<float>(iFrame);
       double d_iFrame=static_cast<double>(iFrame);
+      xlocal1=static_cast<int32_t>(_center.first) + static_cast<int32_t>(d_iFrame*cos_dslope);
+      xlocal2=static_cast<int32_t>(_center.first) - static_cast<int32_t>(d_iFrame*cos_dslope);
+      ylocal1=static_cast<int32_t>(_center.second) + static_cast<int32_t>(d_iFrame *sin_dslope);
+      ylocal2=static_cast<int32_t>(_center.second) - static_cast<int32_t>(d_iFrame *sin_dslope);
+      /*
       if(!vert)
       {
         //        std::cout<<"here"<<std::endl;
@@ -485,8 +492,10 @@ void pp150::operator()(const CASSEvent& /*event*/)
         ylocal1=static_cast<int32_t>(_center.second) + iFrame ;
         ylocal2=static_cast<int32_t>(_center.second) - iFrame ;
       }
-      const float this_distance=pow(f_iFrame,2) + ( pow(f_iFrame * slope,2) * f_vert );
-      const double dthis_distance=pow(d_iFrame,2) + ( pow(d_iFrame * dslope,2) * df_vert );
+      */
+      //const float this_distance=pow(f_iFrame,2) + ( pow(f_iFrame * slope,2) * f_vert );
+      //const double dthis_distance=pow(d_iFrame,2) + ( pow(d_iFrame * dslope,2) * df_vert );
+      const double dthis_distance=pow(d_iFrame*cos_dslope,2) + pow(d_iFrame*sin_dslope,2)  ;
       //Inside the first radius
       if( dthis_distance < d_minRadius * d_minRadius )
       {
