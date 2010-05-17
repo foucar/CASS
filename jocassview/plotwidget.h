@@ -572,6 +572,7 @@ public slots:
       void ZoomReset() {
           _zoomer->zoom(0);
           _plot.setAxisAutoScale(QwtPlot::xBottom);
+          _plot.setAxisAutoScale(QwtPlot::yLeft);
           _plot.replot();
           _zoomer->setZoomBase();
       }
