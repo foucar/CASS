@@ -442,7 +442,21 @@ void pp150::operator()(const CASSEvent& /*event*/)
 
     //the following seems to be not precise enough...
     int32_t  xlocal1,ylocal1,xlocal2,ylocal2;
-    int32_t index_max=static_cast<int32_t>(_imageWidth*7/5/2);// the max number of points I have to consider
+    // the max number of points I have/want to consider
+    //this is in principle not the largest possible value if the centre of the circles
+    //is not around the middle of the frame and the circles are small
+    int32_t index_max=static_cast<int32_t>(_imageWidth*7/5/2);
+    /**
+    @todo improve the value of index_max
+    //to calculate the max value of index_max...
+    // I have to consider the max distance to the sides
+    // but this may still be too much... if the circles are on one side and the line is not
+    // "too much" tilted than some of the distances in the following are never to be reached...
+    index_max=std::max(static_cast<size_t>(_center.first),_imageWidth-static_cast<size_t>(_center.first),
+                       static_cast<size_t>(_center.second),_imageWidth-static_cast<size_t>(_center.second));
+    //and then take into account the slope...
+    */
+
     int32_t this_index;
     const int32_t _imageSize=static_cast<int32_t>(_imageWidth*_imageWidth);
     const int32_t s_imageWidth=static_cast<int32_t>(_imageWidth);
@@ -450,6 +464,16 @@ void pp150::operator()(const CASSEvent& /*event*/)
     const double cos_dslope=std::cos(symangle+M_PI/2.);
     double d_minRadius= static_cast<double>(_minRadius);
     double d_maxRadius= static_cast<double>(_maxRadius);
+    /**
+    @todo improve the loop over iFrame to minimize the number of if statement that need to be evaluated
+    //the following are the xpoints of the line with the 2 circles.
+    // But to trace the segments I would have to recalculate the
+    // stepsize in order to reach the intersections and worry of the fact that cos/sin may be zero...
+    int32_t x_cross_i=static_cast<int32_t>(d_minRadius*cos_dslope);
+    int32_t y_cross_i=static_cast<int32_t>(d_minRadius*sin_dslope);
+    int32_t x_cross_e=static_cast<int32_t>(d_maxRadius*cos_dslope);
+    int32_t y_cross_e=static_cast<int32_t>(d_maxRadius*sin_dslope);
+    */
     for(int32_t iFrame=0;iFrame<index_max; ++iFrame)
     {
       double d_iFrame=static_cast<double>(iFrame);
