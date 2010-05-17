@@ -63,7 +63,7 @@ namespace cass
         uint32_t damage = xtc->damage.value();
         if (xtc->contains.id() >= Pds::TypeId::NumberOf)
         {
-          std::cout << xtc->contains.id() <<" is an unkown xtc id"<<std::endl;
+          std::cout << xtc->contains.id() <<" is an unkown xtc id. Skipping Event"<<std::endl;
           return Stop;
         }
         else if (damage)
