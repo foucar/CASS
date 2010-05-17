@@ -7,6 +7,7 @@
 
 #include <qwt_plot.h>
 #include <qwt_plot_grid.h>
+#include <qwt_legend.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_rescaler.h>
@@ -537,6 +538,22 @@ class plotWidget : public QWidget
 {
    Q_OBJECT
 public:
+      void addOverlay(cass::Histogram1DFloat* hist ) {
+         QwtPlotCurve* overlayCurve = new QwtPlotCurve;
+         overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
+         //overlayCurve->setPen( QPen(Qt::red));
+         _overlayCurves.append( overlayCurve );
+         QVector<double> qdata(hist->size());
+         QVector<double> qx(hist->size());
+         const cass::AxisProperty &axis = hist->axis()[0];
+         for (size_t ii=0;ii<hist->size();ii++) {
+            qx[ii]=static_cast<double>(axis.position(ii));
+            qdata[ii]=static_cast<double>(hist->bin(ii));
+         }
+         overlayCurve->attach(&_plot);
+         overlayCurve->setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
+      }
+
       void setData(cass::Histogram1DFloat* hist ) {
          static int oldId = cass::PostProcessors::InvalidPP;
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
@@ -568,6 +585,13 @@ public:
       };
 
 public slots:
+
+      void legendChecked(QwtPlotItem* item, bool checked) {
+          if (!checked) item->show();
+          else item->hide();
+          _plot.replot();
+      }
+
 
       void ZoomReset() {
           _zoomer->zoom(0);
@@ -655,14 +679,24 @@ protected:
          _grid = new QwtPlotGrid;
          _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
          _grid->attach(&_plot);
+         // Legend for the plot
+         _legend = new QwtLegend;
+         _legend->setItemMode(QwtLegend::CheckableItem);
+         connect(&_plot, SIGNAL(legendChecked(QwtPlotItem *, bool)),
+                 this, SLOT(legendChecked(QwtPlotItem *, bool)));
+         //_plot.insertLegend(_legend, QwtPlot::ExternalLegend);
+         _plot.insertLegend(_legend, QwtPlot::RightLegend);
+
 
       };
 
       QwtPlot _plot;
       QwtPlotZoomer* _zoomer;
       QwtPlotGrid* _grid;
+      QwtLegend* _legend;
       QwtDoubleRect _baseRect;
       QwtPlotCurve _curve;
+      QList<QwtPlotCurve*> _overlayCurves;
 
       QToolBar* _toolbar;
       QAction* _act_zoomin;

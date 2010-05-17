@@ -235,11 +235,20 @@ void ImageViewer::on_open_triggered()
     QString filter("Images (*.png *.tiff *.jpg *.jpeg *.gif *.bmp);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
     QString fileName = QFileDialog::getOpenFileName(this,
             tr("Open File"), QDir::currentPath(), filter);
-    if(!fileName.isEmpty()) loadData(fileName);
+    if(!fileName.isEmpty()) loadData(fileName, false);
+}
+
+void ImageViewer::on_overlay_data_triggered()
+{
+    // todo: use cass::imageExtension(cass::PNG)...   unfortunately cannot iterate over enums
+    QString filter("Images (*.png *.tiff *.jpg *.jpeg *.gif *.bmp);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
+    QString fileName = QFileDialog::getOpenFileName(this,
+            tr("Open File"), QDir::currentPath(), filter);
+    if(!fileName.isEmpty()) loadData(fileName, true);
 }
 
 
-void ImageViewer::loadData( QString fileName )
+void ImageViewer::loadData( QString fileName, bool overlay )
 {
     QFileInfo fileInfo(fileName);
     if (! fileInfo.exists()) return;
@@ -272,10 +281,20 @@ void ImageViewer::loadData( QString fileName )
         switch(dim) {
             case 0:
                 hist = new cass::Histogram0DFloat( serializer2 );
-                updateHistogram( reinterpret_cast<cass::Histogram0DFloat*>(hist) ); break;
+                if (overlay && _dock->widget()==_plotWidget0D) {
+                    _plotWidget0D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist) );  // todo: in future, check if 0d histogram has 1d accumulation enabled.
+                    delete hist;
+                }
+                else
+                    updateHistogram( reinterpret_cast<cass::Histogram0DFloat*>(hist) ); break;
             case 1:
                 hist = new cass::Histogram1DFloat( serializer2 );
-                updateHistogram( reinterpret_cast<cass::Histogram1DFloat*>(hist) ); break;
+                if (overlay && _dock->widget()==_plotWidget1D) {
+                    _plotWidget1D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist) );
+                    delete hist;
+                }
+                else
+                    updateHistogram( reinterpret_cast<cass::Histogram1DFloat*>(hist) ); break;
             case 2:
                 hist = new cass::Histogram2DFloat( serializer2 );
                 updateHistogram( reinterpret_cast<cass::Histogram2DFloat*>(hist) ); break;

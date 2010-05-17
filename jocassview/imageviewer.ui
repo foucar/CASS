@@ -30,6 +30,7 @@
     <addaction name="open"/>
     <addaction name="save_data"/>
     <addaction name="auto_save_data"/>
+    <addaction name="overlay_data"/>
     <addaction name="print"/>
     <addaction name="separator"/>
     <addaction name="exit"/>
@@ -111,6 +112,14 @@
    </property>
    <property name="shortcut">
     <string>F10</string>
+   </property>
+  </action>
+  <action name="overlay_data">
+   <property name="text">
+    <string>&amp;Overlay data...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open data from file and display it as overlay.</string>
    </property>
   </action>
   <action name="print">

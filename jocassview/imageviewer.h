@@ -117,7 +117,7 @@ class ImageViewer : public QMainWindow
     /** load Data
       * loads data (image, 0d 1d 2d hist) into viewer.
       */
-    void loadData(QString fileName);
+    void loadData(QString fileName, bool overlay);
 
 
 private slots:
@@ -127,6 +127,12 @@ private slots:
     * Load Image from disc.
     */
     void on_open_triggered();
+
+    /** Open file.
+    *
+    * Load Image from disc.
+    */
+    void on_overlay_data_triggered();
 
     /** Save Image file.
     *
