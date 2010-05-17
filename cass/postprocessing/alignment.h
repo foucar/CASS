@@ -4,7 +4,6 @@
 #ifndef _ALGINMENT_POSTPROCESSOR_H_
 #define _ALGINMENT_POSTPROCESSOR_H_
 
-#include "postprocessing/alignment.h"
 #include "postprocessing/backend.h"
 #include "postprocessing/postprocessor.h"
 #include "cass_event.h"
