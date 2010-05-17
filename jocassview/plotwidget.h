@@ -592,10 +592,10 @@ public slots:
       }
 
       void ZoomOut() {
-          ZoomY(0.5);
+          ZoomY(2.0);
       }
       void ZoomIn() {
-          ZoomY(2.0);
+          ZoomY(0.5);
       }
 
       void GridToggle(bool checked) {
