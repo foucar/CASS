@@ -1,4 +1,4 @@
-// Copyright (C) 2009 lmf
+// Copyright (C) 2009, 2010 Lutz Foucar
 
 #ifndef CASS_EVENTQUEUE_H
 #define CASS_EVENTQUEUE_H
@@ -18,9 +18,19 @@ namespace cass
   //forward declaration//
   class FormatConverter;
 
-  /** file input
+  /** File Input for cass
    *
-   * @todo document this class
+   * This class will be used in offline modus. I will take an string that
+   * contains a filename. In the file has to be a list with files, that one
+   * wants to analyze. The filenames name  can be passed to the program with
+   * the -i parameter.
+   *
+   * For each file in the filelist it will iterate through the datagrams and
+   * does the same thing that the shared memory input does with the datagrams:
+   * - call the user selected converters
+   * - if the iteration through the datagram was sucessfull put into the
+   *   ringbuffer marked to be analyzed.
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT FileInput : public QThread
@@ -28,7 +38,9 @@ namespace cass
     Q_OBJECT;
   public:
     /** constructor */
-    FileInput(std::string filelistname, cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,  QObject *parent=0);
+    FileInput(std::string filelistname,
+              cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,
+              QObject *parent=0);
 
     /** destructor */
     ~FileInput();
@@ -49,10 +61,13 @@ namespace cass
   private:
     /** reference to the ringbuffer */
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+
     /** flag to quit the input */
     bool _quit;
+
     /** name of the file containing all files that we need to process */
     std::string _filelistname;
+
     /** a pointer to the format converter.
      * The converter will convert the incomming data to our CASSEvent
      */
