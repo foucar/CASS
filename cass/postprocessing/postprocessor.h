@@ -561,6 +561,9 @@ please use doxygen style as then your documentation will be available on the web
     /** Container of all currently actice postprocessors */
     typedef std::map<id_t, PostprocessorBackend*> postprocessors_t;
 
+    /** maps names of postprocessor instances to id_t */
+    typedef std::map<std::string , id_t > pptypelist_t;
+
     /** List of active postprocessors */
     typedef std::list<id_t> active_t;
 
