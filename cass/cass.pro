@@ -120,6 +120,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/averaging_offsetcorrection_helper.cpp \
             ./postprocessing/operations.cpp \
+            ./postprocessing/machine_data.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp
@@ -159,6 +160,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/ccd.h \
             ./postprocessing/imaging.h \
             ./postprocessing/waveform.h \
+            ./postprocessing/machine_data.h \
             ./postprocessing/hdf5dump.h
 
 INCLUDEPATH   += postprocessing \
