@@ -46,10 +46,10 @@ void cass::pp850::operator()(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
   //retrieve beamline data from cassevent
-  MachineDataDevice *mdev
-      (dynamic_cast<MachineDataDevice *>
-      (evt.devices().find(CASSEvent::MachineData)->second));
-  MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
+  const MachineDataDevice *mdev
+      (dynamic_cast<const MachineDataDevice *>
+       (evt.devices().find(CASSEvent::MachineData)->second));
+  const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
 
   _data->lock.lockForWrite();
   *_data = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
