@@ -336,6 +336,9 @@ the Class description for information about what parameters are user settable.
 
 ---HDF5 output postprocessors--
 01001: Dump front and back pnCCD images (and more...) to HDF5
+
+---ROOT file ouput postprocessor--
+02000: Dump all 1d and 2d cass histograms to root file
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -537,6 +540,8 @@ please use doxygen style as then your documentation will be available on the web
       HexQuadPIPICO=701,
 
       PnccdHDF5=1001,
+
+      ROOTDump=2000,
 
       InvalidPP
     };
