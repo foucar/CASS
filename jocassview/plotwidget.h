@@ -2,6 +2,7 @@
 #define PLOTWIDGET_H
 
 
+#include <QCoreApplication>
 #include <string>
 #include <iostream>
 
@@ -41,6 +42,16 @@
 
 // prototypes:
 class cassData;
+
+class EremoveCurve : public QEvent
+{
+public:
+    EremoveCurve(QEvent::Type type):QEvent(type) {}
+    QwtPlotCurve* curve;
+    QWidget* curveWidget;
+    //Type type() { return static_cast<Type>(QEvent::User+111); }
+};
+
 
 class createScaleEngine
 {
@@ -552,6 +563,9 @@ public:
          }
          overlayCurve->attach(&_plot);
          overlayCurve->setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
+         QWidget* curveWidget = _legend->find( overlayCurve );
+         _overlayCurveWidgets.append(curveWidget);
+         curveWidget->installEventFilter(this);
       }
 
       void setData(cass::Histogram1DFloat* hist ) {
@@ -584,6 +598,36 @@ public:
          _plot.replot();
       };
 
+      void customEvent( QEvent* event) {
+          if (event->type() == QEvent::User+111) {
+              EremoveCurve* removeCurveEvent = dynamic_cast<EremoveCurve*>(event);
+              _overlayCurves.removeAll(removeCurveEvent->curve);
+              _overlayCurveWidgets.removeAll(removeCurveEvent->curveWidget);
+              removeCurveEvent->curve->detach();
+              _plot.replot();
+          }
+      }
+
+      bool eventFilter(QObject *obj, QEvent *event)
+      {
+          if ( _overlayCurveWidgets.contains(dynamic_cast<QWidget*>(obj)) ) {
+              if (event->type() == QEvent::MouseButtonPress) {
+                  QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+                  if (mouseEvent->button() == Qt::RightButton) {
+                      QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
+                      if (curve) {
+                          EremoveCurve* removeCurveEvent = new EremoveCurve( static_cast<QEvent::Type>(QEvent::User+111) );
+                          removeCurveEvent->curve = curve;
+                          removeCurveEvent->curveWidget = dynamic_cast<QWidget*>(obj);
+                          QCoreApplication::postEvent(this, removeCurveEvent);
+                      }
+                  }
+              }
+          }
+          // pass the event on to the parent class
+          return QWidget::eventFilter(obj, event);
+      }
+
 public slots:
 
       void legendChecked(QwtPlotItem* item, bool checked) {
@@ -591,8 +635,7 @@ public slots:
           else item->hide();
           _plot.replot();
       }
-
-
+      
       void ZoomReset() {
           _zoomer->zoom(0);
           _plot.setAxisAutoScale(QwtPlot::xBottom);
@@ -687,7 +730,6 @@ protected:
          //_plot.insertLegend(_legend, QwtPlot::ExternalLegend);
          _plot.insertLegend(_legend, QwtPlot::RightLegend);
 
-
       };
 
       QwtPlot _plot;
@@ -697,6 +739,7 @@ protected:
       QwtDoubleRect _baseRect;
       QwtPlotCurve _curve;
       QList<QwtPlotCurve*> _overlayCurves;
+      QList<QWidget*> _overlayCurveWidgets;
 
       QToolBar* _toolbar;
       QAction* _act_zoomin;
