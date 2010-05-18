@@ -334,6 +334,10 @@ the Class description for information about what parameters are user settable.
 00805: calc integral on 1d histogram between two boarders (pp805)
 00806: project 2d histogram to a given axis within chosen boarders (pp806)
 
+---Machindata--
+00850: access for beamline data
+00851: access for epics data
+
 ---HDF5 output postprocessors--
 01001: Dump front and back pnCCD images (and more...) to HDF5
 
