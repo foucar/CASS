@@ -174,7 +174,11 @@
  * @todo make postprocessors is's to have pair<size_t,size_t> to be able to
  *       have userdefined number of instances of on pp
  * @todo create pp for beam energy
- * @todo create boolean AND and boolean OR pp
+ * @todo create boolean AND and boolean OR 0d pp
+ * @todo create boolean AND and boolean OR 0d pp
+ * @todo create comparison 0d pp less than constant
+ * @todo create comparison 0d pp greater than constant
+ * @todo create comparison 0d pp equal to constant
  * @todo create pp that will histogram a 0d pp value
  */
 

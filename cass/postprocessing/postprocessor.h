@@ -335,6 +335,9 @@ the Class description for information about what parameters are user settable.
 00806: project 2d histogram to a given axis within chosen boarders (pp806)
 00807: Compare two 0D histograms for boolean AND (pp807)
 00808: Compare two 0D histograms for boolean OR  (pp808)
+00809: Compare 0D histograms for less than constant  (pp809)
+00810: Compare 0D histograms for greater than constant  (pp810)
+00811: Compare 0D histograms for equal to constant  (pp811)
 
 ---Machindata--
 00850: access for beamline data
