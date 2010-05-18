@@ -88,8 +88,8 @@ void add_bl_data(hid_t fh, hid_t sh, const char *field,
 */
 double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
 {
-  if ( d.find("EbeamL3energy") == d.end() ) {
-    std::cout << "Field 'EbeamL3energy' not found." << std::endl;
+  if ( d.find("EbeamL3Energy") == d.end() ) {
+    std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
     return NAN;
   }
 
@@ -99,7 +99,7 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
   }
 
   // Get electron beam parameters from beamline data
-  double fEbeamL3Energy = d.find("EbeamL3energy")->second; // in MeV
+  double fEbeamL3Energy = d.find("EbeamL3Energy")->second; // in MeV
   double fEbeamPkCurrBC2 = d.find("EbeamPkCurrBC2")->second; // in Amps
 
   // Get the present peak current in Amps
@@ -138,11 +138,11 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
  */
 double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_t d)
 {
-  if ( d.find("EbeamL3energy") == d.end() ) {
-    std::cout << "Field 'EbeamL3energy' not found." << std::endl;
+  if ( d.find("EbeamL3Energy") == d.end() ) {
+    std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
     return NAN;
   }
-  const double ebEnergy = d.find("EbeamL3energy")->second;
+  const double ebEnergy = d.find("EbeamL3Energy")->second;
   const double K = 3.5;  // K of the undulator (provided by Marc Messerschmidt)
   const double lambda = 3.0e7; // LCLS undulator period in nm
   const double hc = 1239.84172; // in eV*nm
