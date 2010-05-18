@@ -538,8 +538,8 @@ class plotWidget : public QWidget
 {
    Q_OBJECT
 public:
-      void addOverlay(cass::Histogram1DFloat* hist ) {
-         QwtPlotCurve* overlayCurve = new QwtPlotCurve;
+      void addOverlay(cass::Histogram1DFloat* hist, QString name) {
+         QwtPlotCurve* overlayCurve = new QwtPlotCurve(name);
          overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
          //overlayCurve->setPen( QPen(Qt::red));
          _overlayCurves.append( overlayCurve );

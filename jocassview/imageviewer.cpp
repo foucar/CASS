@@ -282,7 +282,7 @@ void ImageViewer::loadData( QString fileName, bool overlay )
             case 0:
                 hist = new cass::Histogram0DFloat( serializer2 );
                 if (overlay && _dock->widget()==_plotWidget0D) {
-                    _plotWidget0D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist) );  // todo: in future, check if 0d histogram has 1d accumulation enabled.
+                    _plotWidget0D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist), fileInfo.baseName() );  // todo: in future, check if 0d histogram has 1d accumulation enabled.
                     delete hist;
                 }
                 else
@@ -290,7 +290,7 @@ void ImageViewer::loadData( QString fileName, bool overlay )
             case 1:
                 hist = new cass::Histogram1DFloat( serializer2 );
                 if (overlay && _dock->widget()==_plotWidget1D) {
-                    _plotWidget1D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist) );
+                    _plotWidget1D->addOverlay( reinterpret_cast<cass::Histogram1DFloat*>(hist), fileInfo.baseName() );
                     delete hist;
                 }
                 else
