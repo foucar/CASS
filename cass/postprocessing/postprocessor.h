@@ -333,6 +333,8 @@ the Class description for information about what parameters are user settable.
 00804: Multiply histogram with constant (pp804)
 00805: calc integral on 1d histogram between two boarders (pp805)
 00806: project 2d histogram to a given axis within chosen boarders (pp806)
+00807: Compare two 0D histograms for boolean AND (pp807)
+00808: Compare two 0D histograms for boolean OR  (pp808)
 
 ---Machindata--
 00850: access for beamline data
