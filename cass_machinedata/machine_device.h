@@ -16,16 +16,15 @@ namespace cass
 {
   namespace MachineData
   {
-    /*! Container for all Machine related Data
-
-      This device contains all data that is machine related
-      <ul>
-      <li>Beamline Data
-      <li>Epics Data
-      <li>Evr Data
-      </ul>
-      @author Lutz Foucar
-    */
+    /** Container for all Machine related Data
+     *
+     * This device contains all data that is machine related
+     * - Beamline Data
+     * - Epics Data
+     * - Evr Data
+     *
+     * @author Lutz Foucar
+     */
     class CASS_MACHINEDATASHARED_EXPORT MachineDataDevice
       : public cass::DeviceBackend
     {
@@ -37,43 +36,44 @@ namespace cass
         _energy(0),
         _wavelength(0)
       {}
-      // the following was missing
-      ~MachineDataDevice() {}
 
     public:
       /** typedef for more readable code
-        @note instead of double as second one could make it a QVariant to be able to
-              also store strings.
-      */
+       * @note instead of double as second one could make it a QVariant to be able to
+       *       also store strings.
+       */
       typedef std::map<std::string,double> epicsDataMap_t;
+
       /** typedef for more readable code*/
       typedef std::map<std::string,double> bldMap_t;
+
       /** typedef for more readable code*/
       typedef std::vector<bool> evrStatus_t;
 
     public:
       /** serialize the device to the serializer*/
       void serialize(cass::SerializerBackend&);
+
       /** deserialize the device from the serializer*/
       bool deserialize(cass::SerializerBackend&);
 
     public:
-      /** setters and getters*/
-
-      const epicsDataMap_t &EpicsData()const  {return _epicsdata;}
-      epicsDataMap_t &EpicsData()             {return _epicsdata;}
-
-      const bldMap_t &BeamlineData()const     {return _blddata;}
-      bldMap_t       &BeamlineData()          {return _blddata;}
-
-      const evrStatus_t &EvrData()const       {return _evrdata;}
-      evrStatus_t    &EvrData()               {return _evrdata;}
-
-      double          energy()const           {return _energy;}
-      double         &energy()                {return _energy;}
-
-      double          wavelength()const       {return _wavelength;}
-      double         &wavelength()            {return _wavelength;}
+      //@{
+      /** getter */
+      const epicsDataMap_t  &EpicsData()const     {return _epicsdata;}
+      const bldMap_t        &BeamlineData()const  {return _blddata;}
+      const evrStatus_t     &EvrData()const       {return _evrdata;}
+      double                 energy()const        {return _energy;}
+      double                 wavelength()const    {return _wavelength;}
+      //@}
+      //@{
+      /** setter */
+      bldMap_t       &BeamlineData()  {return _blddata;}
+      epicsDataMap_t &EpicsData()     {return _epicsdata;}
+      evrStatus_t    &EvrData()       {return _evrdata;}
+      double         &energy()        {return _energy;}
+      double         &wavelength()    {return _wavelength;}
+      //@}
 
     private:
       //beamline data//
