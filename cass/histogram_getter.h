@@ -19,15 +19,11 @@ namespace cass
 */
 struct HistogramParameter
 {
-    explicit HistogramParameter(PostProcessors::id_t _type)
-        : type(_type)
-        {};
+  explicit HistogramParameter(const std::string& _name)
+    : name(_name)
+  {}
 
-    explicit HistogramParameter(size_t _type)
-        : type(PostProcessors::id_t(_type))
-        {};
-
-    PostProcessors::id_t type;
+  std::string name;
 };
 
 

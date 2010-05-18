@@ -37,22 +37,26 @@ namespace cass
   class InvalidHistogramError : public std::out_of_range
   {
   public:
+    explicit InvalidHistogramError(const std::string &name)
+      : std::out_of_range("Invalid histogram requested!"), _name(name)
+    {}
 
-    InvalidHistogramError(size_t id)
-      : std::out_of_range("Invalid histogram requested!"), _id(id)
-    {};
-
-    virtual const char* what() const throw() {
+    virtual const char* what() const throw()
+    {
       std::ostringstream msg;
-      msg << "Invalid histogram " << _id << " requested!";
+      msg << "Invalid histogram " << _name << " requested!";
       return msg.str().c_str();
-    };
+    }
 
+    virtual ~InvalidHistogramError() throw();
 
   protected:
-
-    size_t _id;
+    std::string _name;
   };
+
+
+
+
 
   /** binary function for averaging.
  * this operator is capable of performing a cumulative moving average and
@@ -554,18 +558,18 @@ please use doxygen style as then your documentation will be available on the web
 
       InvalidPP
     };
+    /** type of postproccessor accessor key */
+    typedef std::string key_t;
 
     /** Container of all currently available histograms */
-    typedef std::map<id_t, HistogramBackend*> histograms_t;
+    typedef std::map<key_t, HistogramBackend*> histograms_t;
 
     /** Container of all currently actice postprocessors */
-    typedef std::map<id_t, PostprocessorBackend*> postprocessors_t;
-
-    /** maps names of postprocessor instances to id_t */
-    typedef std::map<std::string , id_t > pptypelist_t;
+    typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
 
     /** List of active postprocessors */
-    typedef std::list<id_t> active_t;
+    typedef std::list<key_t> active_t;
+
 
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
@@ -603,16 +607,16 @@ please use doxygen style as then your documentation will be available on the web
      * @param type Histogram to replace
      * @param hist New histogram to store
      */
-    void histograms_delete(id_t type) { _histlock.lockForWrite(); _delete(type); _histlock.unlock(); };
+    void histograms_delete(key_t key) { _histlock.lockForWrite(); _delete(key); _histlock.unlock(); };
 
     /** Remove histogram from storage
      *
      * @param type Histogram to remove
      */
-    void histograms_replace(id_t type, HistogramBackend *hist)
+    void histograms_replace(key_t key, HistogramBackend *hist)
     {
       _histlock.lockForWrite();
-      _replace(type, hist);
+      _replace(key, hist);
       _histlock.unlock();
     };
 
@@ -620,14 +624,14 @@ please use doxygen style as then your documentation will be available on the web
      *
      * This requires that locking is done outside!
      */
-    void validate(id_t type)
+    void validate(std::string name)
     {
-      if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
-        throw InvalidHistogramError(type);
+      if((_histograms.end() == _histograms.find(name)) || (0 == _histograms[name]))
+        throw InvalidHistogramError(name);
     };
 
     IdList* getIdList();
-    std::string& getMimeType(id_t type);
+    const std::string& getMimeType(key_t);
 
   public slots:
     /** Load active postprocessors and histograms
@@ -640,7 +644,7 @@ please use doxygen style as then your documentation will be available on the web
     void saveSettings() {}
 
     /** clear the histogram that has id */
-    void clear(size_t);
+    void clear(key_t);
 
   protected:
     /** @brief (ordered) list of active postprocessors/histograms
@@ -664,10 +668,9 @@ please use doxygen style as then your documentation will be available on the web
 
     /** Create new Postprocessor for specified id and using the specified histogram container
      *
-     * @param[in] hs reference to the histogram container
-     * @param[in] id the id of the postprocessor
+     * @param[in] key the key of the postprocessor
      */
-    PostprocessorBackend * create(id_t id);
+    PostprocessorBackend * create(key_t key);
 
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();
@@ -676,9 +679,9 @@ please use doxygen style as then your documentation will be available on the web
      *
      * This requires that locking is done outside!
      *
-     * @param type Histogram to remove
+     * @param key Histogram to remove
      */
-    void _delete(id_t type);
+    void _delete(key_t key);
 
     /** Internal method to actually replace histogram from storage
      *
@@ -687,7 +690,7 @@ please use doxygen style as then your documentation will be available on the web
      * @param type Histogram to replace
      * @param hist New histogram to store
      */
-    void _replace(id_t type, HistogramBackend *hist);
+    void _replace(key_t key, HistogramBackend *hist);
 
     /** histogram container lock */
     QReadWriteLock _histlock;
@@ -720,13 +723,13 @@ please use doxygen style as then your documentation will be available on the web
 
 
   /** id-list
- *
- * used for SOAP communication of id-lists
- *
- * @todo document this class
- * @todo if possible put this class into a separate file.
- * @note do all these function need to be inlines?
- */
+   *
+   * used for SOAP communication of id-lists
+   *
+   * @todo document this class
+   * @todo if possible put this class into a separate file.
+   * @note do all these function need to be inlines?
+   */
   class IdList : public Serializable
   {
   public:
@@ -794,7 +797,7 @@ please use doxygen style as then your documentation will be available on the web
         return false;
       }
       for(size_t ii=0; ii<_size; ++ii)
-        _list.push_back(PostProcessors::id_t(in->retrieveUint16()));
+        _list.push_back("temp");
       std::cerr << "list is done " << std::endl;
       return true;
     }
@@ -811,7 +814,7 @@ please use doxygen style as then your documentation will be available on the web
       out->addSizet(_size);
       out->endChecksumGroupForWrite();
       for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
-        out->addUint16(*it);
+        out->addString(*it);
     }
 
   private:

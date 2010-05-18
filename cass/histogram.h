@@ -178,30 +178,30 @@ public:
 
     //@{
     /** setter */
-    size_t  &nbrOfFills()               {return _nbrOfFills;}
-    void setMimeType(std::string str)   {_mime=str; };
-    void setId(PostProcessors::id_t id) {_id = static_cast<int>(id);};
+    size_t      &nbrOfFills()         {return _nbrOfFills;}
+    std::string &MimeType()           {return _mime;}
+    PostProcessors::key_t &key() {return _key;}
     //@}
     //@{
     /** getter*/
-    size_t   nbrOfFills()const {return _nbrOfFills;}
-    size_t   dimension()const  {return _dimension;}
-    const axis_t  &axis()const {return _axis;}
-    std::string& mimeType()    {return _mime;};
-    int getId()                {return _id;};
+    size_t             nbrOfFills()const  {return _nbrOfFills;}
+    size_t             dimension()const   {return _dimension;}
+    const axis_t      &axis()const        {return _axis;}
+    const std::string &mimeType()const    {return _mime;}
+    const PostProcessors::key_t &key()const{return _key;}
     //@}
 
 protected:
     /** dimension of the histogram */
-    size_t    _dimension;
+    size_t _dimension;
     /** the axis of this histogram */
-    axis_t    _axis;
+    axis_t _axis;
     /** how many times has this histogram been filled */
-    size_t    _nbrOfFills;
+    size_t _nbrOfFills;
     /** mime type of the histogram */
     std::string _mime;
     /** the id of the histogram */
-    uint32_t _id;
+    PostProcessors::key_t _key;
 };
 
 
@@ -336,7 +336,7 @@ public:
     /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
         : HistogramFloatBase(0, 1, 1)
-    {setMimeType(std::string("application/cass0Dhistogram"));};
+    {_mime = "application/cass0Dhistogram";}
 
     /** Constructor for reading a histogram from a stream */
     Histogram0DFloat(SerializerBackend &in)
@@ -383,7 +383,7 @@ public:
     {
       //set up the axis
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-      setMimeType(std::string("application/cass1Dhistogram"));
+      _mime = "application/cass1Dhistogram";
     }
 
     /** read histogram from serializer while creating.
@@ -476,7 +476,7 @@ public:
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
         // for time beeing, export 2d histograms as image.
-        setMimeType(std::string("image/"));
+        _mime = "image/";
     }
 
     /** create default histogram.
@@ -494,7 +494,7 @@ public:
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
         _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
         //setMimeType(std::string("application/cass2Dhistogram"));
-        setMimeType(std::string("image/"));     // for time beeing, export 2d histograms as image.
+        _mime = "image/";     // for time beeing, export 2d histograms as image.
     }
 
     /** read histogram from serializer.
@@ -645,7 +645,7 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
   //the memory//
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.addFloat(*it);
-  out.addUint32(_id);
+  out.addString(_key);
   //we have been filled and serialized so we need to tell that we don't want //
   //to be filled again//
   if(_fillwhenserialized)
@@ -675,7 +675,7 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   _memory.resize(size);
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
-  _id = in.retrieveUint32();
+  _key = in.retrieveString();
   _fillwhenserialized=false;
   lock.unlock();
   return true;

@@ -277,31 +277,33 @@ protected:
 
 
 
-/** @brief Integral of last CCD image (pp3) */
-class pp141 : public PostprocessorBackend
-{
-public:
-
-    pp141(PostProcessors&, PostProcessors::id_t);
-
-    /** Free _image space */
-    virtual ~pp141();
-
-    /** copy image from CASS event to histogram storage
-
-    @todo confirm that the simple sum is good enough or whether we need something more accurate
-    (i.e., Kahan summation, Shewchuk, or similar) (JK, 2010-03-29)
-    */
-    virtual void operator()(const CASSEvent&);
-
-    /*! Define postprocessor dependency on pp3 (last VMI image) */
-    virtual std::list<PostProcessors::id_t> dependencies() {
-        return std::list<PostProcessors::id_t>(1, PostProcessors::VmiCcdLastImage); };
-
-protected:
-
-    Histogram0DFloat *_value;
-};
+///** @brief Integral of last CCD image (pp3)
+// * @todo fit this to new layout
+// */
+//class pp141 : public PostprocessorBackend
+//{
+//public:
+//
+//    pp141(PostProcessors&, PostProcessors::key_t);
+//
+//    /** Free _image space */
+//    virtual ~pp141();
+//
+//    /** copy image from CASS event to histogram storage
+//
+//    @todo confirm that the simple sum is good enough or whether we need something more accurate
+//    (i.e., Kahan summation, Shewchuk, or similar) (JK, 2010-03-29)
+//    */
+//    virtual void operator()(const CASSEvent&);
+//
+//    /*! Define postprocessor dependency on pp3 (last VMI image) */
+//    virtual PostProcessors::active_t dependencies() {
+//        return PostProcessors::active_t (1, PostProcessors::VmiCcdLastImage); };
+//
+//protected:
+//
+//    Histogram0DFloat *_value;
+//};
 
 
 

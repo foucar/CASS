@@ -3,6 +3,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QSettings>
+#include <QtCore/QStringList>
 
 #include <cassert>
 #include <algorithm>
@@ -57,10 +58,10 @@ void PostProcessors::destroy()
 
 
 
-/** Internal helper function to  convert QVariant to id_t */
-static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
+/** Internal helper function to convert QVariant to id_t */
+static inline std::string QStringToStdString(QString str)
 {
-    return PostProcessors::id_t(i.toInt());
+  return std::string(str.toStdString());
 }
 
 
@@ -80,7 +81,7 @@ PostProcessors::PostProcessors(std::string outputfilename)
 
 void PostProcessors::process(CASSEvent& event)
 {
-    for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+    for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
         (*(_postprocessors[*iter]))(event);
 #warning catch when postprocessor throws an exeption and delete the postprocessor from the active list.
 }
@@ -90,31 +91,29 @@ void PostProcessors::loadSettings(size_t)
 {
     VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
     QSettings settings;
-    settings.beginGroup("PostProcessor");
-    QVariantList list(settings.value("active").toList());
+    settings.beginGroup("PostProcessors");
+    settings.beginGroup("active");
+    QStringList list(settings.childGroups());
     _active.resize(list.size());
-    std::transform(list.begin(), list.end(), _active.begin(), QVarianttoId_t);
-    // remove duplicates (keep first occurence)
-    _active.unique();
+    std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
     std::cout << "   Number of unique postprocessor activations: " << _active.size() << std::endl;
     setup();
     std::cout << "   Active postprocessor(s): ";
-    for(std::list<id_t>::iterator iter = _active.begin(); iter != _active.end(); ++iter)
+    for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
         std::cout << *iter << " ";
 }
 
-void PostProcessors::clear(size_t id)
+void PostProcessors::clear(key_t key)
 {
-    id_t ppid (static_cast<id_t>(id));
     try
     {
-      validate(ppid);
+      validate(key);
     }
     catch (InvalidHistogramError&)
     {
       return;
     }
-    histograms_checkout().find(ppid)->second->clear();
+    histograms_checkout().find(key)->second->clear();
     histograms_release();
 }
 
@@ -125,18 +124,18 @@ IdList* PostProcessors::getIdList()
     return _IdList;
 }
 
-std::string& PostProcessors::getMimeType(id_t type)
+const std::string& PostProcessors::getMimeType(key_t key)
 {
-    histograms_t::iterator it = _histograms.find(type);
+    histograms_t::iterator it = _histograms.find(key);
     if (it!=_histograms.end())
         return it->second->mimeType();
     VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found " << type <<std::endl);
     return _invalidMime;
 }
 
-void PostProcessors::_delete(id_t type)
+void PostProcessors::_delete(key_t key)
 {
-    histograms_t::iterator iter(_histograms.find(type));
+    histograms_t::iterator iter(_histograms.find(key));
     if (iter == _histograms.end())
       return;
     HistogramBackend *hist(iter->second);
@@ -144,96 +143,111 @@ void PostProcessors::_delete(id_t type)
     delete hist;
 }
 
-void PostProcessors::_replace(id_t type, HistogramBackend *hist)
+void PostProcessors::_replace(key_t key, HistogramBackend *hist)
 {
-    _delete(type);
-    hist->setId(type);
-    _histograms.insert(std::make_pair(type, hist));
+    _delete(key);
+    hist->key() = key;
+    _histograms.insert(std::make_pair(key, hist));
 }
 
 void PostProcessors::setup()
 {
-    using namespace std;
+  /** @todo do not delete all pp at beginning. but rather just load the settings.
+   *        be sure that all dependencies are correct. When deleting a postprocessor
+   *        that another pp has dependencies on... make somehting smart.
+   */
+  // for the time beeing delete all existing postprocessors
+  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+    delete iter->second;
+  _postprocessors.clear();
 
-    // for the time beeing delete all existing postprocessors
-    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-      delete iter->second;
-    _postprocessors.clear();
-
-    // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
-    // the postprocessor correctly initialize it whenever it wants to.
-    // When the PostProcessor has a dependency resolve it
-    VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
-    list<id_t>::iterator iter(_active.begin());
-    while(iter != _active.end())
+  // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
+  // the postprocessor correctly initialize it whenever it wants to.
+  // When the PostProcessor has a dependency resolve it
+  VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
+  active_t::iterator iter(_active.begin());
+  while(iter != _active.end())
+  {
+    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl);
+    // check that the postprocessor is not already implemented
+    if(_postprocessors.end() == _postprocessors.find(*iter))
     {
-        VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl);
-        // check that the postprocessor is not already implemented
-        if(_postprocessors.end() == _postprocessors.find(*iter))
+      VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter<<" in histogram container => creating it"<<endl);
+      // create postprocessor
+      _histograms[*iter] = 0;
+      _postprocessors[*iter] = create(*iter);
+      VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter<<" Now checking its dependecies."<<endl);
+      // check for dependencies; if there are any open dependencies put all of them in front
+      // of us
+      bool update(false);
+      active_t deps(_postprocessors[*iter]->dependencies());
+      for(active_t::iterator d=deps.begin(); d!=deps.end(); ++d)
+      {
+        VERBOSEOUT(cout << "Postprocessor::setup(): "<<*iter<<" depends on "<<*d
+                   <<" checking whether dependecy is already there"<<endl);
+        if(_postprocessors.end() == _postprocessors.find(*d))
         {
-            VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter<<" in histogram container => creating it"<<endl);
-            // create postprocessor
-            _histograms[*iter] = 0;
-            _postprocessors[*iter] = create(*iter);
-            VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter<<" Now checking its dependecies."<<endl);
-            // check for dependencies; if there are any open dependencies put all of them in front
-            // of us
-            bool update(false);
-            list<id_t> deps(_postprocessors[*iter]->dependencies());
-            for(list<id_t>::iterator d=deps.begin(); d!=deps.end(); ++d)
-            {
-                VERBOSEOUT(cout << "Postprocessor::setup(): "<<*iter<<" depends on "<<*d
-                           <<" checking whether dependecy is already there"<<endl);
-                if(_postprocessors.end() == _postprocessors.find(*d))
-                {
-                    VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d<<" is not in postprocessor container"  <<" inserting it into the active list before "<<*iter<<endl);
-                    _active.insert(iter, *d);
-                    list<id_t>::iterator remove(find(iter, _active.end(), *d));
-                    VERBOSEOUT(cout << "Postprocessor::setup(): check whether dependency "<<*d
-                               <<" was on the active list, but not at the right position"<<endl);
-                    if(_active.end() != remove)
-                    {
-                         VERBOSEOUT(cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
-                                    <<" removing the later double entry."<<endl);
-                        _active.erase(remove);
-                    }
-                    update = true;
-                }
-            }
-            // if we have updated _active, start over again
-            if(update) {
-                // start over
-                VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<<endl);
-                iter = _active.begin();
-                continue;
-            }
+          VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d
+                     <<" is not in postprocessor container"
+                     <<" inserting it into the active list before "<<*iter
+                     <<endl);
+          _active.insert(iter, *d);
+          active_t::iterator remove(find(iter, _active.end(), *d));
+          VERBOSEOUT(cout << "Postprocessor::setup(): check whether dependency "<<*d
+                     <<" was on the active list, but not at the right position"<<endl);
+          if(_active.end() != remove)
+          {
+            VERBOSEOUT(cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
+                       <<" removing the later double entry."
+                       <<endl);
+            _active.erase(remove);
+          }
+          update = true;
         }
-        ++iter;
+      }
+      // if we have updated _active, start over again
+      if(update)
+      {
+        // start over
+        VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<<endl);
+        iter = _active.begin();
+        continue;
+      }
     }
+    ++iter;
+  }
 
-    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-    {
-      VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "<< iter->first<<std::endl);
-      iter->second->loadSettings(0);
-    }
+  for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
+  {
+    VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "<< iter->first<<std::endl);
+    _postprocessors[*iter]->loadSettings(0);
+  }
 
 #ifdef VERBOSE
-    VERBOSEOUT( cout << "active postprocessors processing order: ");
-    for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
-        VERBOSEOUT(cout << *iter << ", ");
-    VERBOSEOUT( cout << endl);
+  VERBOSEOUT( cout << "active postprocessors processing order: ");
+  for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+    VERBOSEOUT(cout << *iter << ", ");
+  VERBOSEOUT( cout << endl);
 #endif
 }
 
 
-PostprocessorBackend * PostProcessors::create(id_t id)
+PostprocessorBackend * PostProcessors::create(key_t key)
 {
+    QSettings settings;
+    settings.beginGroup("PostProcessor");
+    settings.beginGroup("active");
+    settings.beginGroup(key);
+    id_t ppid (settings.value("ID",0).toUInt());
+
     PostprocessorBackend * processor(0);
-    switch(id) {
+
+    switch(ppid)
+    {
     case Pnccd1LastImage:
     case Pnccd2LastImage:
     case VmiCcdLastImage:
-        processor = new pp1(*this, id);
+        processor = new pp1(*this, key);
         break;
     case FirstPnccdFrontBinnedConditionalRunningAverage:
     case SecondPnccdFrontBinnedConditionalRunningAverage:
@@ -241,26 +255,26 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case SecondPnccdBackBinnedConditionalRunningAverage:
     case FirstCommercialCCDBinnedConditionalRunningAverage:
     case SecondCommercialCCDBinnedConditionalRunningAverage:
-        processor = new pp101(*this, id);
+        processor = new pp101(*this, key);
         break;
     case FirstImageSubstraction:
     case SecondImageSubstraction:
-        processor = new pp106(*this, id);
+        processor = new pp106(*this, key);
         break;
     case VMIPhotonHits:
     case PnCCDFrontPhotonHits:
     case PnCCDBackPhotonHits:
-        processor = new pp110(*this,id);
+        processor = new pp110(*this,key);
         break;
     case VMIPhotonHits1d:
     case PnCCDFrontPhotonHits1d:
     case PnCCDBackPhotonHits1d:
-        processor = new pp113(*this,id);
+        processor = new pp113(*this,key);
         break;
     case VMIPhotonHitseV1d:
     case PnCCDFrontPhotonHitseV1d:
     case PnCCDBackPhotonHitseV1d:
-        processor = new pp116(*this,id);
+        processor = new pp116(*this,key);
         break;
     case CampChannel00LastWaveform:
     case CampChannel01LastWaveform:
@@ -286,7 +300,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case ITofChannel01LastWaveform:
     case ITofChannel02LastWaveform:
     case ITofChannel03LastWaveform:
-        processor = new pp4(*this,id);
+        processor = new pp4(*this,key);
         break;
     case CampChannel00AveragedWaveform:
     case CampChannel01AveragedWaveform:
@@ -312,7 +326,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case ITofChannel01AveragedWaveform:
     case ITofChannel02AveragedWaveform:
     case ITofChannel03AveragedWaveform:
-        processor = new pp500(*this,id);
+        processor = new pp500(*this,key);
         break;
     case HexMCPNbrSignals:
     case QuadMCPNbrSignals:
@@ -320,7 +334,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case FELBeamMonitorNbrSignals:
     case YAGPhotodiodeNbrSignals:
     case FsPhotodiodeNbrSignals:
-        processor = new pp550(*this, id);
+        processor = new pp550(*this, key);
         break;
     case HexU1NbrSignals:
     case HexU2NbrSignals:
@@ -332,14 +346,14 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadX2NbrSignals:
     case QuadY1NbrSignals:
     case QuadY2NbrSignals:
-        processor = new pp551(*this, id);
+        processor = new pp551(*this, key);
         break;
     case HexU1U2Ratio:
     case HexV1V2Ratio:
     case HexW1W2Ratio:
     case QuadX1X2Ratio:
     case QuadY1Y2Ratio:
-        processor = new pp557(*this, id);
+        processor = new pp557(*this, key);
         break;
     case HexU1McpRatio:
     case HexU2McpRatio:
@@ -351,11 +365,11 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadX2McpRatio:
     case QuadY1McpRatio:
     case QuadY2McpRatio:
-        processor = new pp558(*this, id);
+        processor = new pp558(*this, key);
         break;
     case HexRekMcpRatio:
     case QuadRekMcpRatio:
-        processor = new pp566(*this, id);
+        processor = new pp566(*this, key);
         break;
     case HexAllMcp:
     case QuadAllMcp:
@@ -363,27 +377,27 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case FELBeamMonitorAllMcp:
     case YAGPhotodiodeAllMcp:
     case FsPhotodiodeAllMcp:
-        processor = new pp567(*this, id);
+        processor = new pp567(*this, key);
         break;
     case HexTimesumU:
     case HexTimesumV:
     case HexTimesumW:
     case QuadTimesumX:
     case QuadTimesumY:
-        processor = new pp568(*this, id);
+        processor = new pp568(*this, key);
         break;
     case HexTimesumUvsU:
     case HexTimesumVvsV:
     case HexTimesumWvsW:
     case QuadTimesumXvsX:
     case QuadTimesumYvsY:
-        processor = new pp571(*this, id);
+        processor = new pp571(*this, key);
         break;
     case HexFirstUV:
     case HexFirstUW:
     case HexFirstVW:
     case QuadFirstXY:
-        processor = new pp574(*this, id);
+        processor = new pp574(*this, key);
         break;
     case HexXY:
     case HexXT:
@@ -391,7 +405,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadXY:
     case QuadXT:
     case QuadYT:
-        processor = new pp578(*this, id);
+        processor = new pp578(*this, key);
         break;
     case HexHeightvsFwhmMcp:
     case QuadHeightvsFwhmMcp:
@@ -399,7 +413,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case FELBeamMonitorHeightvsFwhmMcp:
     case YAGPhotodiodeHeightvsFwhmMcp:
     case FsPhotodiodeHeightvsFwhmMcp:
-        processor = new pp581(*this, id);
+        processor = new pp581(*this, key);
         break;
     case HexHeightvsFwhmU1:
     case HexHeightvsFwhmU2:
@@ -411,14 +425,14 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case QuadHeightvsFwhmX2:
     case QuadHeightvsFwhmY1:
     case QuadHeightvsFwhmY2:
-        processor = new pp582(*this, id);
+        processor = new pp582(*this, key);
         break;
     case HexPIPICO:
     case HexQuadPIPICO:
-        processor = new pp700(*this,id);
+        processor = new pp700(*this,key);
         break;
     case VmiFixedCos2Theta:
-        processor = new pp150(*this,id);
+        processor = new pp150(*this,key);
         break;
     case AdvancedPhotonFinderFrontPnCCD:
     case AdvancedPhotonFinderFrontPnCCDTwo:
@@ -426,7 +440,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case AdvancedPhotonFinderBackPnCCDTwo:
     case AdvancedPhotonFinderCommercialCCD:
     case AdvancedPhotonFinderCommercialCCDTwo:
-        processor = new pp160(*this,id);
+        processor = new pp160(*this,key);
         break;
     case AdvancedPhotonFinderFrontPnCCD1dHist:
     case AdvancedPhotonFinderFrontPnCCDTwo1dHist:
@@ -434,23 +448,23 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case AdvancedPhotonFinderBackPnCCDTwo1dHist:
     case AdvancedPhotonFinderCommercialCCD1dHist:
     case AdvancedPhotonFinderCommercialCCDTwo1dHist:
-        processor = new pp166(*this,id);
+        processor = new pp166(*this,key);
         break;
 
 #ifdef HDF5
     case PnccdHDF5:
-        processor = new pp1001(*this,id);
+        processor = new pp1001(*this,key);
         break;
 #endif
 
 #ifdef CERNROOT
     case ROOTDump:
-        processor = new pp2000(*this,id,_outputfilename);
+        processor = new pp2000(*this,key,_outputfilename);
         break;
 #endif
 
     default:
-        throw std::invalid_argument(QString("Postprocessor %1 not available").arg(id).toStdString());
+        throw std::invalid_argument(QString("Postprocessor %1 not available").arg(key.c_str()).toStdString());
     }
     return processor;
 }

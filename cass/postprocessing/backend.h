@@ -5,9 +5,10 @@
 #define _POSTPROCESSOR_BACKEND_H_
 
 #include <list>
+#include <string>
 
 #include "cass.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessor.h"
 
 namespace cass
 {
@@ -19,8 +20,8 @@ class CASSSHARED_EXPORT PostprocessorBackend
 {
 public:
     /** constructor. */
-    PostprocessorBackend(PostProcessors& pp, PostProcessors::id_t id)
-        : _id(id), _pp(pp), _reinitialize(true)
+  PostprocessorBackend(PostProcessors& pp, PostProcessors::key_t key)
+        : _key(key), _pp(pp), _reinitialize(true)
     {}
 
     virtual ~PostprocessorBackend() { }
@@ -36,7 +37,7 @@ public:
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
+    virtual PostProcessors::active_t dependencies() { return PostProcessors::active_t(); };
 
     /** getter for the reinitialize flag*/
     bool reinitialize() {return _reinitialize;}
@@ -44,25 +45,31 @@ public:
 protected:
 
     /** @return histogram of the actual postprocessor we call this for */
-    virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_id); };
+    virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_key); }
 
     /** @overload
-
-    @return histogram of the requested postprocessor */
-    virtual HistogramBackend *histogram_checkout(PostProcessors::id_t id) {
-        try {
+     *
+     * @return histogram of the requested postprocessor
+     */
+    virtual HistogramBackend *histogram_checkout(std::string name)
+    {
+        try
+        {
             PostProcessors::histograms_t hist(_pp.histograms_checkout());
-            _pp.validate(id);
-            return hist[id];
-        } catch (InvalidHistogramError) {
+            _pp.validate(name);
+            return hist[name];
+        }
+        catch (InvalidHistogramError)
+        {
             return 0;
         }
     };
 
+    /** release the histogram container readwritelock */
     void histogram_release() { _pp.histograms_release(); };
 
-    /** the postprocessors id (see post_processor.h for an list of ids)*/
-    PostProcessors::id_t _id;
+    /** the postprocessors key */
+    PostProcessors::key_t _key;
 
     /** reference to the PostProcessors container */
     PostProcessors& _pp;
