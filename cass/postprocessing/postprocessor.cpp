@@ -437,9 +437,15 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         processor = new pp166(*this,id);
         break;
 
-#ifdef OFFLINE
+#ifdef HDF5
     case PnccdHDF5:
         processor = new pp1001(*this,id);
+        break;
+#endif
+
+#ifdef CERNROOT
+    case ROOTDump:
+        processor = new pp2000(*this,id,_outputfilename);
         break;
 #endif
 

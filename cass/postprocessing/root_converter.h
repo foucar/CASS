@@ -12,7 +12,7 @@ namespace cass
   class pp2000 : public PostprocessorBackend
   {
   public:
-    /*! Construct postprocessor for converting histograms to root histograms */
+    /** Construct postprocessor for converting histograms to root histograms */
     pp2000(PostProcessors&, PostProcessors::id_t, std::string rootfilename);
 
     /** when we are destroyed write all pp histograms to a root file*/
