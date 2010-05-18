@@ -175,6 +175,7 @@
  *       have userdefined number of instances of on pp
  * @todo create pp for beam energy
  * @todo create boolean AND and boolean OR pp
+ * @todo create pp that will histogram a 0d pp value
  */
 
 /** \page authors Authors
