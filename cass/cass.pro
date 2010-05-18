@@ -181,11 +181,17 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap
 
-# Extra stuff if compiling "offlinecass"
-offline {
+# Extra stuff if compiling pp1001
+hdf5 {
     INCLUDEPATH += $$(HDF5DIR)/include
     LIBS += -L$$(HDF5DIR)/lib -lhdf5
     SOURCES += ./postprocessing/hdf5dump.cpp
+}
+
+cernroot {
+    INCLUDEPATH += $$(ROOTSYS)/include
+    LIBS += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
+    SOURCES += ./postprocessing/root_converter.cpp
 }
 
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
