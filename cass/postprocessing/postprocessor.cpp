@@ -72,7 +72,7 @@ static inline std::string QStringToStdString(QString str)
 
 
 PostProcessors::PostProcessors(std::string outputfilename)
-  :_outputfilename(outputfilename)
+  :_invalidMime("invalidMimetype"),_outputfilename(outputfilename)
 {
   VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "
              <<_outputfilename
@@ -98,9 +98,16 @@ void PostProcessors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
   QSettings settings;
-  settings.beginGroup("PostProcessors");
-  settings.beginGroup("active");
+  settings.beginGroup("PostProcessor/active");
   QStringList list(settings.childGroups());
+#ifdef VERBOSE
+  std::cout << settings.fileName().toStdString() << " " ;
+  std::cout << "Entries of "<< settings.group().toStdString() << ": ";
+  foreach(QString str, list){
+    std::cout<<str.toStdString() << ", ";
+      }
+  std::cout << std::endl;
+#endif
   _active.resize(list.size());
   std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
   std::cout <<"   Number of unique postprocessor activations: "<<_active.size()
@@ -137,7 +144,7 @@ const std::string& PostProcessors::getMimeType(key_t key)
   histograms_t::iterator it = _histograms.find(key);
   if (it!=_histograms.end())
     return it->second->mimeType();
-  VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found "<<type
+  VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found "<<key
              <<std::endl);
   return _invalidMime;
 }
@@ -176,48 +183,50 @@ void PostProcessors::setup()
   // Add all PostProcessors on active list -- for histograms we simply make sure
   // the pointer is 0 and let the postprocessor correctly initialize it whenever
   // it wants to. When the PostProcessor has a dependency resolve it
-  VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
+  VERBOSEOUT(std::cout << "Postprocessor::setup(): add postprocessors to list"<<std::endl);
   active_t::iterator iter(_active.begin());
   while(iter != _active.end())
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter
+    VERBOSEOUT(std::cout << "Postprocessor::setup(): check that "<<*iter
                <<" is not implemented"
-               <<endl);
+               <<std::endl);
     // check that the postprocessor is not already implemented
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
-      VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter
+      VERBOSEOUT(std::cout << "Postprocessor::setup(): did not find "<<*iter
                  <<" in histogram container => creating it"
-                 <<endl);
+                 <<std::endl);
       // create postprocessor
       _histograms[*iter] = 0;
       _postprocessors[*iter] = create(*iter);
-      VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter
+      VERBOSEOUT(std::cout << "Postprocessor::setup(): done creating "<<*iter
                  <<" Now checking its dependecies."
-                 <<endl);
+                 <<std::endl);
       // check for dependencies; if there are any open dependencies put all of
       // them in front of us
       bool update(false);
       active_t deps(_postprocessors[*iter]->dependencies());
       for(active_t::iterator d=deps.begin(); d!=deps.end(); ++d)
       {
-        VERBOSEOUT(cout << "Postprocessor::setup(): "<<*iter<<" depends on "<<*d
-                   <<" checking whether dependecy is already there"<<endl);
+        VERBOSEOUT(std::cout << "Postprocessor::setup(): "<<*iter<<" depends on "<<*d
+                   <<" checking whether dependecy is already there"
+                   <<std::endl);
         if(_postprocessors.end() == _postprocessors.find(*d))
         {
-          VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d
+          VERBOSEOUT(std::cout << "Postprocessor::setup(): "<<*d
                      <<" is not in postprocessor container"
                      <<" inserting it into the active list before "<<*iter
-                     <<endl);
+                     <<std::endl);
           _active.insert(iter, *d);
           active_t::iterator remove(find(iter, _active.end(), *d));
-          VERBOSEOUT(cout << "Postprocessor::setup(): check whether dependency "<<*d
-                     <<" was on the active list, but not at the right position"<<endl);
+          VERBOSEOUT(std::cout << "Postprocessor::setup(): check whether dependency "<<*d
+                     <<" was on the active list, but not at the right position"
+                     <<std::endl);
           if(_active.end() != remove)
           {
-            VERBOSEOUT(cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
+            VERBOSEOUT(std::cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
                        <<" removing the later double entry."
-                       <<endl);
+                       <<std::endl);
             _active.erase(remove);
           }
           update = true;
@@ -227,7 +236,7 @@ void PostProcessors::setup()
       if(update)
       {
         // start over
-        VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<<endl);
+        VERBOSEOUT(std::cout << "Postprocessor::setup(): start over again."<<std::endl);
         iter = _active.begin();
         continue;
       }
@@ -238,16 +247,16 @@ void PostProcessors::setup()
   for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
   {
     VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "
-               << iter->first
+               << *iter
                <<std::endl);
     _postprocessors[*iter]->loadSettings(0);
   }
 
 #ifdef VERBOSE
-  VERBOSEOUT( cout << "active postprocessors processing order: ");
+  VERBOSEOUT(std::cout << "active postprocessors processing order: ");
   for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
-    VERBOSEOUT(cout << *iter << ", ");
-  VERBOSEOUT( cout << endl);
+    VERBOSEOUT(std::cout << *iter << ", ");
+  VERBOSEOUT( std::cout << std::endl);
 #endif
 }
 
@@ -255,8 +264,8 @@ void PostProcessors::setup()
 PostprocessorBackend * PostProcessors::create(const key_t &key)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup("active");
+  settings.beginGroup("PostProcessor/active");
+//  settings.beginGroup("active");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
   PostprocessorBackend * processor(0);

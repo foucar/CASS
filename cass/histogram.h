@@ -283,7 +283,7 @@ public:
     virtual void clear()
     {
       lock.lockForWrite();
-      VERBOSEOUT(std::cout<<"clearing histogram "<<_id<<std::endl);
+      VERBOSEOUT(std::cout<<"clearing histogram "<<_key<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
       lock.unlock();

@@ -37,21 +37,21 @@ namespace cass
   class InvalidHistogramError : public std::out_of_range
   {
   public:
-    explicit InvalidHistogramError(const std::string &name)
-      : std::out_of_range("Invalid histogram requested!"), _name(name)
+    explicit InvalidHistogramError(const std::string &key)
+      : std::out_of_range("Invalid histogram requested!"), _key(key)
     {}
 
     virtual const char* what() const throw()
     {
       std::ostringstream msg;
-      msg << "Invalid histogram " << _name << " requested!";
+      msg << "Invalid histogram " << _key << " requested!";
       return msg.str().c_str();
     }
 
-    virtual ~InvalidHistogramError() throw() {};
+    virtual ~InvalidHistogramError() throw(){}
 
   protected:
-    std::string _name;
+    std::string _key;
   };
 
 
@@ -361,7 +361,7 @@ using the custom doxygen tag cassttng.
     /** the list of id's */
     IdList * _IdList;
 
-    /** a string @todo document what this is */
+    /** defining an invalid mimetype */
     std::string _invalidMime;
 
     /** container for all histograms */
