@@ -121,10 +121,10 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     return result;
 }
 
-int CASSsoapService::getMimeType(key_t type, bool *success)
+int CASSsoapService::getMimeType(std::string type, bool *success)
 {
     cass::PostProcessors *pp(cass::PostProcessors::instance(""));
-    std::string& mimetype(pp->getMimeType(type));
+    const std::string& mimetype(pp->getMimeType(type));
     *success = true;
     soap_set_dime(this); // enable dime
     VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " << mimetype.size() << std::endl);
@@ -139,7 +139,7 @@ int CASSsoapService::writeini(size_t what, bool *success)
     return SOAP_OK;
 }
 
-int CASSsoapService::clearHistogram(key_t type, bool *success)
+int CASSsoapService::clearHistogram(cass::PostProcessors::key_t type, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::clearHistogram(type=" << type << ")" << std::endl);
     cass::SoapServer::instance()->emit_clearHistogram(type);
@@ -149,7 +149,7 @@ int CASSsoapService::clearHistogram(key_t type, bool *success)
 
 
 
-int CASSsoapService::getEvent(key_t type, unsigned t1, unsigned t2, bool *success)
+int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::getEvent" << std::endl);
     static QQueue<std::string *> queue;
@@ -160,12 +160,12 @@ int CASSsoapService::getEvent(key_t type, unsigned t1, unsigned t2, bool *succes
     *success = true;
     soap_set_dime(this); // enable dime
     return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/cassevent",
-                                    type.c_str(), 0, NULL);
+                                    QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
 
 
-int CASSsoapService::getHistogram(key_t type, bool *success)
+int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::getHistogram" << std::endl);
     static QQueue<std::pair<size_t, std::string> *> queue;
@@ -207,7 +207,7 @@ int CASSsoapService::getHistogram(key_t type, bool *success)
 
 
 
-int CASSsoapService::getImage(int format, key_t type, bool *success)
+int CASSsoapService::getImage(int format, cass::PostProcessors::key_t type, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::getImage" << std::endl);
     // keep bytes around for a while -- this should mitigate the "zeros" problem

@@ -34,7 +34,7 @@ int ns__getPostprocessorIds(bool *success);
 int ns__getMimeType(std::string type, bool *success);
 
 // get CASSEvent from server
-int ns__getEvent(std::string type, unsigned t1, unsigned t2, bool *success);
+int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 
 // get histogram from server
 int ns__getHistogram(std::string type, bool *success);
