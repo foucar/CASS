@@ -149,38 +149,93 @@ namespace cass
 
 
 
+  /** Spectrum of PhotonHits of CCD's.
+   *
+   * This postprocessor will fill a 1D histogram with the z values in detected
+   * Photonhits. Photonhits will be detected in the according preanalyzer.
+   *
+   * @cassttng PostProcessor/active/\%name\%/{XNbrBins|XLow|Xup}\n
+   *           properties of the 1D histogram:
+   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/active/\%name\%/{Adu2eV}\n
+   *           conversion factor for converting the z value from ADU to eV.
+   *           Default is 1.
+   *
+   * @author Lutz Foucar
+   */
+  class pp140 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp140(PostProcessors&, const PostProcessors::key_t&);
+
+    /** destructor */
+    virtual ~pp140();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** set the histogram size + retrieve device and detector to work on*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** detector to work on */
+    size_t _detector;
+
+    /** the adu to eV calibration value*/
+    float _adu2eV;
+
+    /** current image */
+    Histogram1DFloat * _spec;
+  };
+
+
+
+
+
 
 
 
 
   /** PhotonHits of CCD's.
- *
- * This postprocessor will fill a 2d histogram with the detected Photonhits.
- * Photonhits will be detected in the commercial Pre Analyzers. Set the Parameters
- * for detecting photonhits there. (PNCCD::Analyzer or CCD::Analyzer)
- *
- * Photonhits will be just summed up in a 2d Histogram.
- * One needs to clear this histogram, when something has changed.
- *
- * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
- *           properties of the 2d histogram
- *
- * implements Postprocessors 110,111,112
- *
- * @author Lutz Foucar
- */
+   *
+   * This postprocessor will fill a 2D histogram with the detected Photonhits.
+   * Photonhits will be detected in the pre analyzers. Set the Parameters
+   * for detecting photonhits there. (PNCCD::Analyzer or CCD::Analyzer)
+   *
+   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   *
+   * @author Lutz Foucar
+   */
   class pp141 : public PostprocessorBackend
   {
   public:
-    /** constructor.
-     * setting the appropriate device and detector
-     */
-    pp141(PostProcessors& hist, PostProcessors::key_t key);
+    /** constructor */
+    pp141(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image spcae */
+    /** destructor */
     virtual ~pp141();
 
-    /** copy image from CASS event to histogram storage */
+    /** copy pixels from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
     /** set the histogram size */
@@ -193,7 +248,7 @@ namespace cass
     /** detector to work on */
     size_t _detector;
 
-    /** averaged image */
+    /** pixel image */
     Histogram2DFloat *_image;
   };
 
@@ -208,44 +263,6 @@ namespace cass
 
 
 
-  /** PhotonHits of CCD's in a 1D histogram.
- *
- * This postprocessor will fill a 1d histogram with the z values detected Photonhits.
- * Photonhits will be detected in the commercial Pre Analyzer. They will
- * be just summed up. One needs to clear this histogram, when something has changed.
- *
- * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|Xup}\n
- *           properties of the 1D Histogram:
- *
- * Implements Postprocessor id's: 113, 114, 115
- *
- * @author Lutz Foucar
- */
-  class pp113 : public PostprocessorBackend
-  {
-  public:
-    /** constructor.*/
-    pp113(PostProcessors& hist, PostProcessors::key_t key);
-
-    /** Free _image spcae */
-    virtual ~pp113();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-    /** set the histogram size */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** device the ccd image comes from*/
-    cass::CASSEvent::Device _device;
-
-    /** detector to work on */
-    size_t _detector;
-
-    /** current image */
-    Histogram1DFloat * _hist;
-  };
 
 
 

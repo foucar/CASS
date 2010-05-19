@@ -39,8 +39,6 @@ cass::pp100::~pp100()
 
 void cass::pp100::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-
   QSettings settings;
   settings.beginGroup("PostProcessor/active");
   settings.beginGroup(_key.c_str());
@@ -63,7 +61,6 @@ void cass::pp100::loadSettings(size_t)
     break;
   }
 
-
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd image of detector "<<_detector
       <<" in device "<<_device
@@ -73,6 +70,7 @@ void cass::pp100::loadSettings(size_t)
       <<std::endl;
 
   _pp.histograms_delete(_key);
+  _image=0;
   _image = new Histogram2DFloat(cols,rows);
   _pp.histograms_replace(_key,_image);
 }
@@ -113,16 +111,16 @@ void cass::pp100::operator()(const cass::CASSEvent& event)
   _image->lock.unlock();
 }
 
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
+
+
+
+
+
+
+
+
+
 //// *** postprocessors 101, 103, 105 ***
 //
 //pp101::pp101(PostProcessors& pp, cass::PostProcessors::key_t key)
@@ -150,13 +148,11 @@ void cass::pp100::operator()(const cass::CASSEvent& event)
 //    };
 //}
 //
-//
 //cass::pp101::~pp101()
 //{
 //    _pp.histograms_delete(_key);
 //    _image = 0;
 //}
-//
 //
 //void cass::pp101::loadSettings(size_t)
 //{
@@ -219,8 +215,6 @@ void cass::pp100::operator()(const cass::CASSEvent& event)
 //    _firsttime = true;
 //}
 //
-//
-//
 //void cass::pp101::operator()(const CASSEvent& event)
 //{
 //    using namespace cass::ACQIRIS;
@@ -257,184 +251,136 @@ void cass::pp100::operator()(const cass::CASSEvent& event)
 //    }
 //    _image->lock.unlock();
 //}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//// *** A Postprocessor that will display the photonhits of ccd detectors ***
-//// *** used by postprocessors 110-112 ***
-//
-//pp110::pp110(PostProcessors& pp, cass::PostProcessors::key_t key)
-//    : PostprocessorBackend(pp, key)
-//{
-//    switch(_key)
-//    {
-//    case PostProcessors::VMIPhotonHits:
-//        _device=CASSEvent::CCD; _detector = 0;
-//        break;
-//    case PostProcessors::PnCCDFrontPhotonHits:
-//        _device=CASSEvent::pnCCD; _detector = 0;
-//        break;
-//    case PostProcessors::PnCCDBackPhotonHits:
-//        _device=CASSEvent::pnCCD; _detector = 1;
-//        break;
-//    default:
-//        throw std::invalid_argument("Impossible postprocessor id for class pp110");
-//        break;
-//    };
-//    loadSettings(0);
-//}
-//
-//cass::pp110::~pp110()
-//{
-//    _pp.histograms_delete(_key);
-//    _image = 0;
-//}
-//
-//void cass::pp110::loadSettings(size_t)
-//{
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_key
-//      <<" it histograms the Nbr of Mcp Peaks"
-//      <<" of detector "<<_detector
-//      <<" of device "<<_device
-//      <<std::endl;
-//  //create the histogram
-//  set2DHist(_image,_key);
-//  _pp.histograms_replace(_key,_image);
-//}
-//
-//void cass::pp110::operator()(const CASSEvent& evt)
-//{
-//    //check whether detector exists
-//    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-//        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-//                                 .arg(_key.c_str())
-//                                 .arg(_detector)
-//                                 .arg(_device).toStdString());
-//    //retrieve the detector's photon hits of the device we are working for.
-//    const PixelDetector::pixelList_t& pixellist
-//        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
-//    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-//    _image->lock.lockForWrite();
-//    for (; it != pixellist.end();++it)
-//        _image->fill(it->x(),it->y());
-//    _image->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//// *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
-//// ***  used by postprocessors 113-115 ***
-//
-//pp113::pp113(PostProcessors& pp, cass::PostProcessors::key_t key)
-//    : PostprocessorBackend(pp, key), _hist(0)
-//{
-//    switch(_key)
-//    {
-//    case PostProcessors::VMIPhotonHits1d:
-//        _device=CASSEvent::CCD; _detector = 0;
-//        break;
-//    case PostProcessors::PnCCDFrontPhotonHits1d:
-//        _device=CASSEvent::pnCCD; _detector = 0;
-//        break;
-//    case PostProcessors::PnCCDBackPhotonHits1d:
-//        _device=CASSEvent::pnCCD; _detector = 1;
-//        break;
-//    default:
-//        throw std::invalid_argument("Impossible postprocessor id for pp113");
-//        break;
-//    };
-//    loadSettings(0);
-//}
-//
-//cass::pp113::~pp113()
-//{
-//    _pp.histograms_delete(_key);
-//    _hist = 0;
-//}
-//
-//void cass::pp113::loadSettings(size_t)
-//{
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_key
-//      <<" it histograms the Nbr of Mcp Peaks"
-//      <<" of detector "<<_detector
-//      <<" of device "<<_device
-//      <<std::endl;
-//  //create the histogram
-//  _pp.histograms_delete(_key);
-//  _hist=0;
-//  set1DHist(_hist,_key);
-//  _pp.histograms_replace(_key,_hist);
-//}
-//
-//void cass::pp113::operator()(const CASSEvent& evt)
-//{
-////    std::cout << "pp113::operator():"<<std::endl;
-//    //check whether detector exists
-//    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-//        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-//                                 .arg(_key.c_str())
-//                                 .arg(_detector)
-//                                 .arg(_device).toStdString());
-//
-//    //retrieve the detector's photon hits of the device we are working for.
-//    const PixelDetector::pixelList_t& pixellist
-//        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
-//    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-////    std::cout<<"pp113::operator(): pixellist size:"<<pixellist.size()<<std::endl;
-//    _hist->lock.lockForWrite();
-//    for (; it != pixellist.end();++it)
-//        _hist->fill(it->z());
-//    _hist->lock.unlock();
-////    std::cout << "pp113::operator(): going out"<<std::endl;
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
+
+cass::pp140::pp140(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key), _spec(0)
+{
+  loadSettings(0);
+}
+
+cass::pp140::~pp140()
+{
+  _pp.histograms_delete(_key);
+  _spec = 0;
+}
+
+void cass::pp140::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+  _adu2eV = settings.value("Adu2eV",1).toFloat();
+
+  std::cout<<"Postprocessor "<<_key<<":"
+      <<" will display ccd spectrum of detector "<<_detector
+      <<" in device "<<_device
+      <<". Pixelvalues will be converter by factor "<<_adu2eV
+      <<std::endl;
+
+  _pp.histograms_delete(_key);
+  _spec=0;
+  set1DHist(_spec,_key);
+  _pp.histograms_replace(_key,_spec);
+}
+
+void cass::pp140::operator()(const CASSEvent& evt)
+{
+  //check whether detector exists
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  const PixelDetector::pixelList_t& pixellist
+      ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+  PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+  _spec->lock.lockForWrite();
+  fill(_spec->memory().begin(),_spec->memory().end(),0.f);
+  for (; it != pixellist.end();++it)
+    _spec->fill(it->z()*_adu2eV);
+  _spec->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the photonhits of ccd detectors ***
+
+cass::pp141::pp141(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+cass::pp141::~pp141()
+{
+  _pp.histograms_delete(_key);
+  _image = 0;
+}
+
+void cass::pp141::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+
+  std::cout<<"Postprocessor "<<_key<<":"
+      <<" will display ccd image of detector "<<_detector
+      <<" in device "<<_device
+      <<std::endl;
+
+  //create the histogram
+  _pp.histograms_delete(_key);
+  _image=0;
+  set2DHist(_image,_key);
+  _pp.histograms_replace(_key,_image);
+}
+
+void cass::pp141::operator()(const CASSEvent& evt)
+{
+  using namespace std;
+  //check whether detector exists
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  const PixelDetector::pixelList_t& pixellist
+      ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+  PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+  _image->lock.lockForWrite();
+  fill(_image->memory().begin(),_image->memory().end(),0.f);
+  for (; it != pixellist.end();++it)
+    _image->fill(it->x(),it->y());
+  _image->lock.unlock();
+}
+
+
+
+
+
+
+
+
 //// *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
 //// *** energies in eV
 //// ***  used by postprocessors 116-118 ***
