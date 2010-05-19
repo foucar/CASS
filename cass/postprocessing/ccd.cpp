@@ -22,101 +22,96 @@
 #include "tof_detector.h"
 
 
-//// *** postprocessor 100 -- single images from a CCD ***
-//
-//cass::pp1::pp1(PostProcessors& pp, cass::PostProcessors::key_t key)
-//  :PostprocessorBackend(pp, key),_image(0)
-//{
-//  loadSettings(0);
-//}
-//
-//
-//cass::pp1::~pp1()
-//{
-//  _pp.histograms_delete(_key);
-//  _image = 0;
-//}
-//
-//void cass::pp1::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//  int cols(0); int rows(0);
-//  cols = pnCCD::default_size; rows = pnCCD::default_size;
-//  cols = CCD::opal_default_size; rows = CCD::opal_default_size;
-//
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor/active");
-//  settings.beginGroup(_key.c_str());
-//  _average = settings.value("average", 1).toUInt();
-//  _scale =  2./(_average+1);
-//  std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
-//  if (name=="YAGPhotodiode")
-//    _conditionDetector = YAGPhotodiode;
-//  else if (name=="HexDetector")
-//    _conditionDetector = HexDetector;
-//  else if (name=="QuadDetector")
-//    _conditionDetector = QuadDetector;
-//  else if (name=="VMIMcp")
-//    _conditionDetector = VMIMcp;
-//  else if (name=="FELBeamMonitor")
-//    _conditionDetector = FELBeamMonitor;
-//  else if (name=="FsPhotodiode")
-//    _conditionDetector = FsPhotodiode;
-//  else
-//    _conditionDetector = InvalidDetector;
-//
-//  _invert = settings.value("Invert",false).toBool();
-//
-//  std::cout<<"Postprocessor_"<<_key<<": alpha for the averaging:"<<_scale<<" average:"<<_average
-//      <<" condition on detector:"<<name
-//      <<" which has id:"<<_conditionDetector
-//      <<" The Condition will be inverted:"<<std::boolalpha<<_invert
-//      <<std::endl;
-//
-//  if (_conditionDetector)
-//    HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
-//
-//  _pp.histograms_delete(_key);
-//  _image = new Histogram2DFloat(cols,rows);
-//  _pp.histograms_replace(_key,_image);
-//
-//  _firsttime = true;
-//}
-//
-//void cass::pp1::operator()(const cass::CASSEvent& event)
-//{
-//    //check whether detector exists
-//    // std::cout<<"BLA"<< event.devices().find(_device)->second->detectors()->size() << " "<< _detector <<std::endl;
-//    if (event.devices().find(_device)->second->detectors()->size() <= _detector)
-//        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_key.c_str()).arg(_detector).arg(_device).toStdString());
-//
-//    //get frame and fill image//
-//    const PixelDetector::frame_t& frame
-//        ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
-//    _image->lock.lockForWrite();
-//    /*
-//    // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
-//    if(frame.size()!=_image->shape().first *_image->shape().second)
-//    {
-//      size_t cols = _image->shape().first;
-//      size_t rows = _image->shape().second;
-//      size_t ratio= cols * rows /frame.size();
-//      size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
-//      //std::cout<<"ratio of sizes, ratio of axis are: "<< ratio << " , "<< side_ratio <<std::endl;
-//      _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
-//    }
-//    */
-////    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-//
-////    const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
-//    /*std::cout<< "cacca " << ROIiterator_pp.size()
-//      <<std::endl;*/
-//
-//
-//
-//    std::copy(frame.begin(), frame.end(), _image->memory().begin());
-//    _image->lock.unlock();
-//}
+// *** postprocessor 100 -- single images from a CCD ***
+
+cass::pp100::pp100(PostProcessors& pp, cass::PostProcessors::key_t key)
+  :PostprocessorBackend(pp, key),_image(0)
+{
+  loadSettings(0);
+}
+
+
+cass::pp100::~pp100()
+{
+  _pp.histograms_delete(_key);
+  _image = 0;
+}
+
+void cass::pp100::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+
+  QSettings settings;
+  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+
+  int cols(0); int rows(0);
+  switch(_device)
+  {
+  case CASSEvent::CCD:
+    cols = CCD::opal_default_size; rows = CCD::opal_default_size;
+    break;
+  case CASSEvent::pnCCD:
+    cols = pnCCD::default_size; rows = pnCCD::default_size;
+    break;
+  default:
+    throw std::runtime_error(QString("%1: Device %2 is not an ccd containing device")
+                             .arg(_key.c_str())
+                             .arg(_device).toStdString());
+    break;
+  }
+
+
+  std::cout<<"Postprocessor "<<_key<<":"
+      <<" will display ccd image of detector "<<_detector
+      <<" in device "<<_device
+      <<". The image has "<<rows
+      <<" rows and "<<cols
+      <<" columns."
+      <<std::endl;
+
+  _pp.histograms_delete(_key);
+  _image = new Histogram2DFloat(cols,rows);
+  _pp.histograms_replace(_key,_image);
+}
+
+void cass::pp100::operator()(const cass::CASSEvent& event)
+{
+  //check whether detector exists
+  if (event.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  //get frame and fill image//
+  const PixelDetector::frame_t& frame
+      ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
+/*
+  // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
+  if(frame.size()!=_image->shape().first *_image->shape().second)
+  {
+    size_t cols = _image->shape().first;
+    size_t rows = _image->shape().second;
+    size_t ratio= cols * rows /frame.size();
+    size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
+    //std::cout<<"ratio of sizes, ratio of axis are: "<< ratio << " , "<< side_ratio <<std::endl;
+    _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
+  }
+
+  const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+
+  const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
+  std::cout<< "cacca " << ROIiterator_pp.size()
+      <<std::endl;
+*/
+
+  _image->lock.lockForWrite();
+  std::copy(frame.begin(), frame.end(), _image->memory().begin());
+  _image->lock.unlock();
+}
 
 //
 //

@@ -23,8 +23,7 @@ namespace cass
 
   /** Last CCD image.
    *
-   * Postprocessor will get the last image from all kinds of ccd's.
-   * Implements postprocessor id's 1-3.
+   * Postprocessor will get the raw image from all kinds of ccd's.
    *
    * @cassttng PostProcessor/active/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
@@ -38,14 +37,14 @@ namespace cass
    * @author Jochen Kuepper
    * @author Lutz Foucar
    */
-  class pp1 : public PostprocessorBackend
+  class pp100 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp1(PostProcessors&, PostProcessors::key_t);
+    pp100(PostProcessors&, PostProcessors::key_t);
 
     /** Free _image spcae */
-    virtual ~pp1();
+    virtual ~pp100();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
