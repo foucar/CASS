@@ -263,9 +263,9 @@ PostprocessorBackend * PostProcessors::create(key_t key)
 
   switch(ppid)
   {
-//  case SingleCcdImage:
-//    processor = new pp1(*this, key);
-//    break;
+  case SingleCcdImage:
+    processor = new pp100(*this, key);
+    break;
 //  case CCDPhotonHitsImage:
 //    processor = new pp110(*this,key);
 //    break;
