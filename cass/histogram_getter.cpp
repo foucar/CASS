@@ -6,7 +6,7 @@
 #include "histogram.h"
 #include "histogram_getter.h"
 #include "serializer.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessor.h"
 
 
 using namespace cass;

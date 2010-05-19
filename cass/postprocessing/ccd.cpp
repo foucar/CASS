@@ -30,7 +30,6 @@ cass::pp100::pp100(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   loadSettings(0);
 }
 
-
 cass::pp100::~pp100()
 {
   _pp.histograms_delete(_key);

@@ -306,28 +306,33 @@ using the custom doxygen tag cassttng.
      * @param type Histogram to replace
      * @param hist New histogram to store
      */
-    void histograms_delete(key_t key) { _histlock.lockForWrite(); _delete(key); _histlock.unlock(); };
+    void histograms_delete(const key_t &key)
+    {
+      _histlock.lockForWrite();
+      _delete(key);
+      _histlock.unlock();
+    }
 
     /** Remove histogram from storage
      *
      * @param type Histogram to remove
      */
-    void histograms_replace(key_t key, HistogramBackend *hist)
+    void histograms_replace(const key_t &key, HistogramBackend *hist)
     {
       _histlock.lockForWrite();
       _replace(key, hist);
       _histlock.unlock();
-    };
+    }
 
     /** make sure a specific histogram exists and is not 0
      *
      * This requires that locking is done outside!
      */
-    void validate(std::string name)
+    void validate(const key_t &key)
     {
-      if((_histograms.end() == _histograms.find(name)) || (0 == _histograms[name]))
-        throw InvalidHistogramError(name);
-    };
+      if((_histograms.end() == _histograms.find(key)) || (0 == _histograms[key]))
+        throw InvalidHistogramError(key);
+    }
 
     IdList* getIdList();
     const std::string& getMimeType(key_t);
@@ -369,7 +374,7 @@ using the custom doxygen tag cassttng.
      *
      * @param[in] key the key of the postprocessor
      */
-    PostprocessorBackend * create(key_t key);
+    PostprocessorBackend * create(const key_t &key);
 
     /** Set up _histograms and _postprocessors using current _active*/
     void setup();

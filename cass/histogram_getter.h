@@ -5,6 +5,7 @@
 #define __HISTOGRAM_GETTER_H__
 
 #include <string>
+
 #include <QtGui/QImage>
 
 #include "cass.h"
