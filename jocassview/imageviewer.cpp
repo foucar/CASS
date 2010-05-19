@@ -221,7 +221,7 @@ void ImageViewer::closeEvent(QCloseEvent *event)
     settings.setValue("serverport", _serverport->value());
     settings.setValue("rate", _rate->value());
     settings.setValue("zoom", _zoom->value());
-    settings.setValue("attachId", _attachId->currentText().toInt());
+    settings.setValue("attachId", _attachId->currentText());
     settings.setValue("fittowindow", _ui.fitToWindow->isChecked());
     settings.setValue("scaleFactor", _scaleFactor);
     event->accept();
@@ -518,7 +518,7 @@ void getDataThread::updateServer(std::string server)
     _cassCmd->soap_endpoint = server.c_str();
 }
 
-void getDataThread::getData(int attachId, int useSpectrogram)
+void getDataThread::getData(const std::string& attachId, int useSpectrogram)
 {
     VERBOSEOUT(cout << "getDataThread::getData" << endl);
     _dataType = dat_Any;
@@ -528,7 +528,7 @@ void getDataThread::getData(int attachId, int useSpectrogram)
 }
 
 
-void getDataThread::getImage(cass::ImageFormat format, int attachId)
+void getDataThread::getImage(cass::ImageFormat format, const std::string& attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getImage" << endl);
     _dataType = dat_Image;
@@ -537,7 +537,7 @@ void getDataThread::getImage(cass::ImageFormat format, int attachId)
     start();
 }
 
-std::string getDataThread::getMimeType(int attachId)
+std::string getDataThread::getMimeType(const std::string& attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getMimeType" << endl);
     bool ret;
@@ -588,7 +588,7 @@ cass::PostProcessors::active_t getDataThread::getIdList() {
 }
 
 
-void getDataThread::getHistogram1D(int attachId)
+void getDataThread::getHistogram1D(const std::string& attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getHistogram1D" << endl);
     _dataType = dat_1DHistogram;
@@ -596,7 +596,7 @@ void getDataThread::getHistogram1D(int attachId)
     start();
 }
 
-void getDataThread::getHistogram0D(int attachId)
+void getDataThread::getHistogram0D(const std::string& attachId)
 {
     VERBOSEOUT(cout << "getDataThread::getHistogram0D" << endl);
     _dataType = dat_0DHistogram;
@@ -705,7 +705,7 @@ void ImageViewer::on_getData_triggered()
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
         _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
-        _gdthread.getData(_attachId->currentText().toInt(), _useSpectrogram );
+        _gdthread.getData(_attachId->currentText(), _useSpectrogram );
     } else {
         _statusLED->setStatus(true, Qt::red);
     }
@@ -713,13 +713,13 @@ void ImageViewer::on_getData_triggered()
 
 void ImageViewer::on_getHistogram_triggered()
 {
-    _gdthread.getHistogram1D(_attachId->currentText().toInt());
+    _gdthread.getHistogram1D(_attachId->currentText());
 }
 
 void ImageViewer::on_clearHistogram_triggered()
 {
     bool ret;
-    _cass->clearHistogram( _attachId->currentText().toInt(), &ret);
+    _cass->clearHistogram( _attachId->currentText(), &ret);
     if(!ret)
         QMessageBox::information(this, tr("jocassviewer"),
                 tr("Error: Cannot communicate readini command."));
