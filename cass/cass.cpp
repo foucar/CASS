@@ -180,6 +180,8 @@
  * @todo create comparison 0d pp greater than constant
  * @todo create comparison 0d pp equal to constant
  * @todo create pp that will histogram a 0d pp value
+ * @todo create pp that will create an running average of a histogram
+ * @todo create boolean xor 0d pp
  */
 
 /** \page authors Authors
