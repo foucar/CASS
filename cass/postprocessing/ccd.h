@@ -4,7 +4,7 @@
 #ifndef _CCD_POSTPROCESSOR_H_
 #define _CCD_POSTPROCESSOR_H_
 
-#include "postprocessing/backend.h"
+#include "backend.h"
 #include "cass_event.h"
 #include "cass_acqiris.h"
 
