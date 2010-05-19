@@ -16,29 +16,24 @@ namespace cass
 
 
 
-
-
-
   /** retrieval of beamline data.
    *
    * This postprocessor will retrieve the requested Beamline Data from
    * the cass event.
    *
-   * @cassttng PostProcessor/p\%id\$/{variableName}
+   * @cassttng PostProcessor/p\%id\$/{VariableName}
    *           The name of the beamline data variable you are interested in
-   *
-   * Implementes postprocessors 850
    *
    * @author Lutz Foucar
    */
-  class pp850 : public PostprocessorBackend
+  class pp120 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp850(PostProcessors& hist, PostProcessors::id_t id);
+    pp120(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp850();
+    virtual ~pp120();
 
     /** copy data from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -50,15 +45,9 @@ namespace cass
     /** name of the variable in the beamline data */
     std::string _varname;
 
-    /** resulting histgram */
-    Histogram0DFloat *_data;
+    /** requested value */
+    Histogram0DFloat *_value;
   };
-
-
-
-
-
-
 
 
 
@@ -68,21 +57,19 @@ namespace cass
    *
    * This postprocessor will retrieve the requested epics data from the cass-event.
    *
-   * @cassttng PostProcessor/p\%id\$/{variableName}
+   * @cassttng PostProcessor/p\%id\$/{VariableName}
    *           The name of the epics data variable you are interested in.
-   *
-   * Implementes postprocessors 851
    *
    * @author Lutz Foucar
    */
-  class pp851 : public PostprocessorBackend
+  class pp130 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp851(PostProcessors& hist, PostProcessors::id_t id);
+    pp130(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp851();
+    virtual ~pp130();
 
     /** copy data from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -94,8 +81,8 @@ namespace cass
     /** name of the variable in the beamline data */
     std::string _varname;
 
-    /** resulting histgram */
-    Histogram0DFloat *_data;
+    /** requested value */
+    Histogram0DFloat *_value;
   };
 }
 

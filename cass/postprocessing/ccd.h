@@ -41,7 +41,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp100(PostProcessors&, PostProcessors::key_t);
+    pp100(PostProcessors&, const PostProcessors::key_t&);
 
     /** Free _image spcae */
     virtual ~pp100();

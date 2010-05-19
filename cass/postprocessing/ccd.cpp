@@ -24,7 +24,7 @@
 
 // *** postprocessor 100 -- single images from a CCD ***
 
-cass::pp100::pp100(PostProcessors& pp, cass::PostProcessors::key_t key)
+cass::pp100::pp100(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   :PostprocessorBackend(pp, key),_image(0)
 {
   loadSettings(0);

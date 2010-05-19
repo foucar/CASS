@@ -19,6 +19,7 @@
 #include "operations.h"
 #include "imaging.h"
 #include "backend.h"
+#include "machine_data.h"
 
 
 namespace cass
@@ -266,15 +267,21 @@ PostprocessorBackend * PostProcessors::create(key_t key)
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;
+  case AcqirisWaveform:
+    processor = new pp110(*this,key);
+    break;
+  case BlData:
+    processor = new pp120(*this,key);
+    break;
+  case EpicsData:
+    processor = new pp130(*this,key);
+    break;
 //  case CCDPhotonHitsImage:
 //    processor = new pp110(*this,key);
 //    break;
 //  case CCDPhotonHitsSpectrum:
 //    processor = new pp113(*this,key);
 //    break;
-  case AcqirisWaveform:
-    processor = new pp110(*this,key);
-    break;
 //  case TofDetNbrSignals:
 //    processor = new pp550(*this, key);
 //    break;
