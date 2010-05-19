@@ -79,7 +79,7 @@ namespace jocassview
 
         cass::ImageFormat _format;
 
-        const std::string& _attachId;
+        const std::string* _attachId;
         int _useSpectrogram;
     };
 

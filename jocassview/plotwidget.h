@@ -417,7 +417,7 @@ public:
     }
 
     void setData(cass::Histogram2DFloat* hist) {
-        static int oldId=cass::PostProcessors::InvalidPP;
+        static std::string oldKey("");
 
         _spectrogram->setData(*_spectrogramDataDummy); //hack
         dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
@@ -431,9 +431,9 @@ public:
             _spectrogram->data().range().minValue()+0.001,
             _spectrogram->data().range().maxValue() );
 
-        if (hist->getId() != oldId) {
+        if (hist->key() != oldKey) {
             QRectF brect;
-            oldId = hist->getId();
+            oldKey = hist->key();
             brect.setLeft( hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
             brect.setRight( hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
             brect.setWidth( hist->axis()[cass::HistogramBackend::xAxis].upperLimit()  );
@@ -569,7 +569,7 @@ public:
       }
 
       void setData(cass::Histogram1DFloat* hist ) {
-         static int oldId = cass::PostProcessors::InvalidPP;
+         static std::string oldKey("");
          //QVector<cass::HistogramFloatBase::value_t> &qdata = QVector::fromStdVector ( data.memory() );
          //QVector<cass::HistogramFloatBase::value_t> qdata(hist.size());
          QVector<double> qdata(hist->size());
@@ -585,8 +585,8 @@ public:
 
          dynamic_cast<TrackZoomer1D*>(_zoomer)->setHistogram(hist);
 
-         if (hist->getId() != oldId) {
-             oldId = hist->getId();
+         if (hist->key() != oldKey) {
+             oldKey = hist->key();
              _baseRect.setLeft( axis.position(0) );
              _baseRect.setRight( axis.position(hist->size()) );
              _baseRect.setTop( hist->max() );
