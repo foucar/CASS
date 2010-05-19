@@ -21,12 +21,12 @@
 
 
 
-void cass::set1DHist(cass::Histogram1DFloat*& hist, size_t id)
+void cass::set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
-  param.beginGroup("PostProcessor");
-  param.beginGroup(QString("p") + QString::number(id));
+  param.beginGroup("PostProcessor/active");
+  param.beginGroup(key.c_str());
   //create new histogram using the parameters//
   std::cerr << "Creating 1D histogram with"
       <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
@@ -38,12 +38,12 @@ void cass::set1DHist(cass::Histogram1DFloat*& hist, size_t id)
                                     param.value("XUp",0).toFloat());
 }
 
-void cass::set2DHist(cass::Histogram2DFloat*& hist, size_t id)
+void cass::set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
-  param.beginGroup("PostProcessor");
-  param.beginGroup(QString("p") + QString::number(id));
+  param.beginGroup("PostProcessor/active");
+  param.beginGroup(key.c_str());
   //create new histogram using the parameters//
   std::cerr << "Creating 2D histogram with"
       <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()

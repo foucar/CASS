@@ -36,10 +36,12 @@ PostProcessors *PostProcessors::instance(std::string outputfilename)
 #ifdef VERBOSE
     static int n(0), create(0);
 #endif
-    VERBOSEOUT(std::cerr << "PostProcessors::instance -- call " << ++n << std::endl);
+    VERBOSEOUT(std::cerr<<"PostProcessors::instance -- call "<<++n<<std::endl);
     QMutexLocker locker(&_mutex);
-    if(0 == _instance) {
-        VERBOSEOUT(std::cerr << "PostProcessors::instance -- create " << ++create << std::endl);
+    if(0 == _instance)
+    {
+        VERBOSEOUT(std::cerr<<"PostProcessors::instance -- create "<<++create
+                   << std::endl);
         _instance = new PostProcessors(outputfilename);
     }
     return _instance;
@@ -71,114 +73,129 @@ static inline std::string QStringToStdString(QString str)
 PostProcessors::PostProcessors(std::string outputfilename)
   :_outputfilename(outputfilename)
 {
-    VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "<<_outputfilename<<std::endl);
-    // set up list of all active postprocessors/histograms
-    // and fill maps of histograms and postprocessors
-    loadSettings(0);
-    _IdList = new IdList();
+  VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "
+             <<_outputfilename
+             <<std::endl);
+  // set up list of all active postprocessors/histograms
+  // and fill maps of histograms and postprocessors
+  loadSettings(0);
+  _IdList = new IdList();
 }
 
 
 void PostProcessors::process(CASSEvent& event)
 {
-    for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
-        (*(_postprocessors[*iter]))(event);
-#warning catch when postprocessor throws an exeption and delete the postprocessor from the active list.
+  /** @todo catch when postprocessor throws an exeption and delete the
+   *        postprocessor from the active list.
+   */
+  for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+    (*(_postprocessors[*iter]))(event);
 }
 
 
 void PostProcessors::loadSettings(size_t)
 {
-    VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
-    QSettings settings;
-    settings.beginGroup("PostProcessors");
-    settings.beginGroup("active");
-    QStringList list(settings.childGroups());
-    _active.resize(list.size());
-    std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
-    std::cout << "   Number of unique postprocessor activations: " << _active.size() << std::endl;
-    setup();
-    std::cout << "   Active postprocessor(s): ";
-    for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
-        std::cout << *iter << " ";
+  VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
+  QSettings settings;
+  settings.beginGroup("PostProcessors");
+  settings.beginGroup("active");
+  QStringList list(settings.childGroups());
+  _active.resize(list.size());
+  std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
+  std::cout <<"   Number of unique postprocessor activations: "<<_active.size()
+      << std::endl;
+  setup();
+  std::cout <<"   Active postprocessor(s): ";
+  for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
+    std::cout << *iter << " ";
 }
 
 void PostProcessors::clear(key_t key)
 {
-    try
-    {
-      validate(key);
-    }
-    catch (InvalidHistogramError&)
-    {
-      return;
-    }
-    histograms_checkout().find(key)->second->clear();
-    histograms_release();
+  try
+  {
+    validate(key);
+  }
+  catch (InvalidHistogramError&)
+  {
+    return;
+  }
+  histograms_checkout().find(key)->second->clear();
+  histograms_release();
 }
 
 IdList* PostProcessors::getIdList()
 {
-    _IdList->clear();
-    _IdList->setList(_active);
-    return _IdList;
+  _IdList->clear();
+  _IdList->setList(_active);
+  return _IdList;
 }
 
 const std::string& PostProcessors::getMimeType(key_t key)
 {
-    histograms_t::iterator it = _histograms.find(key);
-    if (it!=_histograms.end())
-        return it->second->mimeType();
-    VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found " << type <<std::endl);
-    return _invalidMime;
+  histograms_t::iterator it = _histograms.find(key);
+  if (it!=_histograms.end())
+    return it->second->mimeType();
+  VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found "<<type
+             <<std::endl);
+  return _invalidMime;
 }
 
 void PostProcessors::_delete(key_t key)
 {
-    histograms_t::iterator iter(_histograms.find(key));
-    if (iter == _histograms.end())
-      return;
-    HistogramBackend *hist(iter->second);
-    _histograms.erase(iter);
-    delete hist;
+  histograms_t::iterator iter(_histograms.find(key));
+  if (iter == _histograms.end())
+    return;
+  HistogramBackend *hist(iter->second);
+  _histograms.erase(iter);
+  delete hist;
 }
 
 void PostProcessors::_replace(key_t key, HistogramBackend *hist)
 {
-    _delete(key);
-    hist->key() = key;
-    _histograms.insert(std::make_pair(key, hist));
+  _delete(key);
+  hist->key() = key;
+  _histograms.insert(std::make_pair(key, hist));
 }
 
 void PostProcessors::setup()
 {
   /** @todo do not delete all pp at beginning. but rather just load the settings.
-   *        be sure that all dependencies are correct. When deleting a postprocessor
-   *        that another pp has dependencies on... make somehting smart.
+   *        be sure that all dependencies are correct. When deleting a
+   *        postprocessor that another pp has dependencies on... make something
+   *        smart.
    */
   // for the time beeing delete all existing postprocessors
-  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+  for(postprocessors_t::iterator iter = _postprocessors.begin();
+      iter != _postprocessors.end();
+      ++iter)
     delete iter->second;
   _postprocessors.clear();
 
-  // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
-  // the postprocessor correctly initialize it whenever it wants to.
-  // When the PostProcessor has a dependency resolve it
+  // Add all PostProcessors on active list -- for histograms we simply make sure
+  // the pointer is 0 and let the postprocessor correctly initialize it whenever
+  // it wants to. When the PostProcessor has a dependency resolve it
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
   active_t::iterator iter(_active.begin());
   while(iter != _active.end())
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl);
+    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter
+               <<" is not implemented"
+               <<endl);
     // check that the postprocessor is not already implemented
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
-      VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter<<" in histogram container => creating it"<<endl);
+      VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter
+                 <<" in histogram container => creating it"
+                 <<endl);
       // create postprocessor
       _histograms[*iter] = 0;
       _postprocessors[*iter] = create(*iter);
-      VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter<<" Now checking its dependecies."<<endl);
-      // check for dependencies; if there are any open dependencies put all of them in front
-      // of us
+      VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter
+                 <<" Now checking its dependecies."
+                 <<endl);
+      // check for dependencies; if there are any open dependencies put all of
+      // them in front of us
       bool update(false);
       active_t deps(_postprocessors[*iter]->dependencies());
       for(active_t::iterator d=deps.begin(); d!=deps.end(); ++d)
@@ -219,7 +236,9 @@ void PostProcessors::setup()
 
   for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
   {
-    VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "<< iter->first<<std::endl);
+    VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "
+               << iter->first
+               <<std::endl);
     _postprocessors[*iter]->loadSettings(0);
   }
 
@@ -244,227 +263,76 @@ PostprocessorBackend * PostProcessors::create(key_t key)
 
     switch(ppid)
     {
-    case Pnccd1LastImage:
-    case Pnccd2LastImage:
-    case VmiCcdLastImage:
+    case SingleCcdImage:
         processor = new pp1(*this, key);
         break;
-    case FirstPnccdFrontBinnedConditionalRunningAverage:
-    case SecondPnccdFrontBinnedConditionalRunningAverage:
-    case FirstPnccdBackBinnedConditionalRunningAverage:
-    case SecondPnccdBackBinnedConditionalRunningAverage:
-    case FirstCommercialCCDBinnedConditionalRunningAverage:
-    case SecondCommercialCCDBinnedConditionalRunningAverage:
-        processor = new pp101(*this, key);
-        break;
-    case FirstImageSubstraction:
-    case SecondImageSubstraction:
-        processor = new pp106(*this, key);
-        break;
-    case VMIPhotonHits:
-    case PnCCDFrontPhotonHits:
-    case PnCCDBackPhotonHits:
+    case CCDPhotonHits:
         processor = new pp110(*this,key);
         break;
-    case VMIPhotonHits1d:
-    case PnCCDFrontPhotonHits1d:
-    case PnCCDBackPhotonHits1d:
+    case CCDPhotonHitsSpektrum:
         processor = new pp113(*this,key);
         break;
-    case VMIPhotonHitseV1d:
-    case PnCCDFrontPhotonHitseV1d:
-    case PnCCDBackPhotonHitseV1d:
-        processor = new pp116(*this,key);
-        break;
-    case CampChannel00LastWaveform:
-    case CampChannel01LastWaveform:
-    case CampChannel02LastWaveform:
-    case CampChannel03LastWaveform:
-    case CampChannel04LastWaveform:
-    case CampChannel05LastWaveform:
-    case CampChannel06LastWaveform:
-    case CampChannel07LastWaveform:
-    case CampChannel08LastWaveform:
-    case CampChannel09LastWaveform:
-    case CampChannel10LastWaveform:
-    case CampChannel11LastWaveform:
-    case CampChannel12LastWaveform:
-    case CampChannel13LastWaveform:
-    case CampChannel14LastWaveform:
-    case CampChannel15LastWaveform:
-    case CampChannel16LastWaveform:
-    case CampChannel17LastWaveform:
-    case CampChannel18LastWaveform:
-    case CampChannel19LastWaveform:
-    case ITofChannel00LastWaveform:
-    case ITofChannel01LastWaveform:
-    case ITofChannel02LastWaveform:
-    case ITofChannel03LastWaveform:
+    case AcqirisWaveform:
         processor = new pp4(*this,key);
         break;
-    case CampChannel00AveragedWaveform:
-    case CampChannel01AveragedWaveform:
-    case CampChannel02AveragedWaveform:
-    case CampChannel03AveragedWaveform:
-    case CampChannel04AveragedWaveform:
-    case CampChannel05AveragedWaveform:
-    case CampChannel06AveragedWaveform:
-    case CampChannel07AveragedWaveform:
-    case CampChannel08AveragedWaveform:
-    case CampChannel09AveragedWaveform:
-    case CampChannel10AveragedWaveform:
-    case CampChannel11AveragedWaveform:
-    case CampChannel12AveragedWaveform:
-    case CampChannel13AveragedWaveform:
-    case CampChannel14AveragedWaveform:
-    case CampChannel15AveragedWaveform:
-    case CampChannel16AveragedWaveform:
-    case CampChannel17AveragedWaveform:
-    case CampChannel18AveragedWaveform:
-    case CampChannel19AveragedWaveform:
-    case ITofChannel00AveragedWaveform:
-    case ITofChannel01AveragedWaveform:
-    case ITofChannel02AveragedWaveform:
-    case ITofChannel03AveragedWaveform:
-        processor = new pp500(*this,key);
-        break;
-    case HexMCPNbrSignals:
-    case QuadMCPNbrSignals:
-    case VMIMcpNbrSignals:
-    case FELBeamMonitorNbrSignals:
-    case YAGPhotodiodeNbrSignals:
-    case FsPhotodiodeNbrSignals:
+    case TofDetNbrSignals:
         processor = new pp550(*this, key);
         break;
-    case HexU1NbrSignals:
-    case HexU2NbrSignals:
-    case HexV1NbrSignals:
-    case HexV2NbrSignals:
-    case HexW1NbrSignals:
-    case HexW2NbrSignals:
-    case QuadX1NbrSignals:
-    case QuadX2NbrSignals:
-    case QuadY1NbrSignals:
-    case QuadY2NbrSignals:
-        processor = new pp551(*this, key);
-        break;
-    case HexU1U2Ratio:
-    case HexV1V2Ratio:
-    case HexW1W2Ratio:
-    case QuadX1X2Ratio:
-    case QuadY1Y2Ratio:
-        processor = new pp557(*this, key);
-        break;
-    case HexU1McpRatio:
-    case HexU2McpRatio:
-    case HexV1McpRatio:
-    case HexV2McpRatio:
-    case HexW1McpRatio:
-    case HexW2McpRatio:
-    case QuadX1McpRatio:
-    case QuadX2McpRatio:
-    case QuadY1McpRatio:
-    case QuadY2McpRatio:
-        processor = new pp558(*this, key);
-        break;
-    case HexRekMcpRatio:
-    case QuadRekMcpRatio:
-        processor = new pp566(*this, key);
-        break;
-    case HexAllMcp:
-    case QuadAllMcp:
-    case VMIMcpAllMcp:
-    case FELBeamMonitorAllMcp:
-    case YAGPhotodiodeAllMcp:
-    case FsPhotodiodeAllMcp:
+    case TofDetAllSignals:
         processor = new pp567(*this, key);
         break;
-    case HexTimesumU:
-    case HexTimesumV:
-    case HexTimesumW:
-    case QuadTimesumX:
-    case QuadTimesumY:
+    case WireendNbrSignals:
+        processor = new pp551(*this, key);
+        break;
+    case WireendAllSignals:
+        processor = new pp551(*this, key);
+        break;
+    case DelaylineNbrReconstructedHits:
+        processor = new pp566(*this, key);
+        break;
+    case AnodeTimesum:
         processor = new pp568(*this, key);
         break;
-    case HexTimesumUvsU:
-    case HexTimesumVvsV:
-    case HexTimesumWvsW:
-    case QuadTimesumXvsX:
-    case QuadTimesumYvsY:
+    case AnodeTimesumVsPos:
         processor = new pp571(*this, key);
         break;
-    case HexFirstUV:
-    case HexFirstUW:
-    case HexFirstVW:
-    case QuadFirstXY:
+    case DelaylineFirstGoodHit:
         processor = new pp574(*this, key);
         break;
-    case HexXY:
-    case HexXT:
-    case HexYT:
-    case QuadXY:
-    case QuadXT:
-    case QuadYT:
+    case DelaylineAllReconstuctedHits:
         processor = new pp578(*this, key);
         break;
-    case HexHeightvsFwhmMcp:
-    case QuadHeightvsFwhmMcp:
-    case VMIMcpHeightvsFwhmMcp:
-    case FELBeamMonitorHeightvsFwhmMcp:
-    case YAGPhotodiodeHeightvsFwhmMcp:
-    case FsPhotodiodeHeightvsFwhmMcp:
+    case TofDetMcpHeightVsFwhm:
         processor = new pp581(*this, key);
         break;
-    case HexHeightvsFwhmU1:
-    case HexHeightvsFwhmU2:
-    case HexHeightvsFwhmV1:
-    case HexHeightvsFwhmV2:
-    case HexHeightvsFwhmW1:
-    case HexHeightvsFwhmW2:
-    case QuadHeightvsFwhmX1:
-    case QuadHeightvsFwhmX2:
-    case QuadHeightvsFwhmY1:
-    case QuadHeightvsFwhmY2:
+    case WireendHeightvsFwhm:
         processor = new pp582(*this, key);
         break;
-    case HexPIPICO:
-    case HexQuadPIPICO:
+    case PIPICO:
         processor = new pp700(*this,key);
         break;
-    case VmiFixedCos2Theta:
+    case Cos2Theta:
         processor = new pp150(*this,key);
         break;
-    case AdvancedPhotonFinderFrontPnCCD:
-    case AdvancedPhotonFinderFrontPnCCDTwo:
-    case AdvancedPhotonFinderBackPnCCD:
-    case AdvancedPhotonFinderBackPnCCDTwo:
-    case AdvancedPhotonFinderCommercialCCD:
-    case AdvancedPhotonFinderCommercialCCDTwo:
+    case AdvancedPhotonFinder:
         processor = new pp160(*this,key);
         break;
-    case AdvancedPhotonFinderFrontPnCCD1dHist:
-    case AdvancedPhotonFinderFrontPnCCDTwo1dHist:
-    case AdvancedPhotonFinderBackPnCCD1dHist:
-    case AdvancedPhotonFinderBackPnCCDTwo1dHist:
-    case AdvancedPhotonFinderCommercialCCD1dHist:
-    case AdvancedPhotonFinderCommercialCCDTwo1dHist:
+    case AdvancedPhotonFinderSpectrum:
         processor = new pp166(*this,key);
         break;
-
 #ifdef HDF5
     case PnccdHDF5:
         processor = new pp1001(*this,key);
         break;
 #endif
-
 #ifdef CERNROOT
     case ROOTDump:
         processor = new pp2000(*this,key,_outputfilename);
         break;
 #endif
-
     default:
-        throw std::invalid_argument(QString("Postprocessor %1 not available").arg(key.c_str()).toStdString());
+        throw std::invalid_argument(QString("Postprocessortype %1 not available")
+                                    .arg(ppid).toStdString());
     }
     return processor;
 }

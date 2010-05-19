@@ -11,25 +11,37 @@
 namespace cass
 {
 
-// forward declaration
-class Histogram0DFloat;
-class Histogram1DFloat;
-class Histogram2DFloat;
+  // forward declaration
+  class Histogram0DFloat;
+  class Histogram1DFloat;
+  class Histogram2DFloat;
 
 
 
-/** Last CCD image.
- *
- * Postprocessor will get the last image from all kinds of ccd's.
- * Implements postprocessor id's 1-3.
- *
- * @author Jochen Kuepper
- * @author Lutz Foucar
- */
-class pp1 : public PostprocessorBackend
-{
-public:
-    /** constructor.*/
+
+
+
+  /** Last CCD image.
+   *
+   * Postprocessor will get the last image from all kinds of ccd's.
+   * Implements postprocessor id's 1-3.
+   *
+   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   *
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   */
+  class pp1 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
     pp1(PostProcessors&, PostProcessors::key_t);
 
     /** Free _image spcae */
@@ -38,93 +50,98 @@ public:
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
-protected:
-
-    /** CCD detector that contains the requested image*/
-    size_t _detector;
-
-    /** device the ccd image comes from*/
-    cass::CASSEvent::Device _device;
-
-    /** current image */
-    Histogram2DFloat *_image;
-};
-
-
-
-
-
-/** Averaged ccd image with optional condition.
- *
- * Running average of pnCCD or commercial ccd images. One has the choice to enforce
- * a condition on the average. This condition is a "tof" detector. The tof detector
- * will look whether it will find a singal in the assinged channel. If it does the
- * condition will evaluate to true. You have the option to invert the result of
- * the evaluation of the condition by setting the invert parameter to true.
- *
- * @cassttng PostProcessor/p\%id\%/{average}\n
- *           how many images should be averaged. Default is 1.
- * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
- *           Detector that you want to have the condition on. If the detector
- *           sees a signal than this condition evaluates true. If
- *           "InvalidDetector" or no Detector is chosen, than the condition
- *           is not evaluated at all.
- * @cassttng PostProcessor/p\%id\%/{Invert} \n
- *           Invert the Condition, when there is a valid detector condition chosen.
- *           default is "false".
- * @cassttng PostProcessor/p\%id\%/{bin_horizontal|bin_vertical}\n
- *           geometric binning (x and y). Binning must be a fraction of 1024 (in
- *           case of pnccd's) (unused for now)
- *
- *
- * Implements postprocessors 101, 103, 105
- *
- * @author Jochen Kuepper
- * @author Lutz Foucar
- */
-class pp101 : public PostprocessorBackend
-{
-public:
-
-    pp101(PostProcessors& hist, PostProcessors::key_t key);
-
-    /** Free _image space */
-    virtual ~pp101();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
+    /** load the settings for this pp */
     virtual void loadSettings(size_t);
 
-protected:
-
-    /** Length of average */
-    unsigned _average;
-
-    /** Scaling factor of new data to approximate running average */
-    float _scale;
-
-    /** how many pixels to bin in horizontal and vertical direction */
-    std::pair<unsigned, unsigned> _binning;
-
-    /** CCD detector to work on */
+  protected:
+    /** CCD detector that contains the requested image */
     size_t _detector;
 
-    /** the Detector that we make the condition on*/
-    ACQIRIS::Detectors _conditionDetector;
-
-    /** flag that will invert the condition */
-    bool _invert;
-
-    /** flag telling wether we run for the firsttime*/
-    bool _firsttime;
-
-    /** device the ccd image comes from*/
+    /** device the ccd image comes from */
     cass::CASSEvent::Device _device;
 
     /** current image */
     Histogram2DFloat *_image;
-};
+  };
+
+
+
+
+
+
+
+
+//  /** Averaged ccd image with optional condition.
+//   *
+//   * Running average of pnCCD or commercial ccd images. One has the choice to enforce
+//   * a condition on the average. This condition is a "tof" detector. The tof detector
+//   * will look whether it will find a singal in the assinged channel. If it does the
+//   * condition will evaluate to true. You have the option to invert the result of
+//   * the evaluation of the condition by setting the invert parameter to true.
+//   *
+//   * @cassttng PostProcessor/p\%id\%/{average}\n
+//   *           how many images should be averaged. Default is 1.
+//   * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
+//   *           Detector that you want to have the condition on. If the detector
+//   *           sees a signal than this condition evaluates true. If
+//   *           "InvalidDetector" or no Detector is chosen, than the condition
+//   *           is not evaluated at all.
+//   * @cassttng PostProcessor/p\%id\%/{Invert} \n
+//   *           Invert the Condition, when there is a valid detector condition chosen.
+//   *           default is "false".
+//   * @cassttng PostProcessor/p\%id\%/{bin_horizontal|bin_vertical}\n
+//   *           geometric binning (x and y). Binning must be a fraction of 1024 (in
+//   *           case of pnccd's) (unused for now)
+//   *
+//   *
+//   * Implements postprocessors 101, 103, 105
+//   *
+//   * @author Jochen Kuepper
+//   * @author Lutz Foucar
+//   */
+//  class pp101 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp101(PostProcessors& hist, PostProcessors::key_t key);
+//
+//    /** Free _image space */
+//    virtual ~pp101();
+//
+//    /** copy image from CASS event to histogram storage */
+//    virtual void operator()(const CASSEvent&);
+//
+//    /** load the settings for this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** Length of average */
+//    unsigned _average;
+//
+//    /** Scaling factor of new data to approximate running average */
+//    float _scale;
+//
+//    /** how many pixels to bin in horizontal and vertical direction */
+//    std::pair<unsigned, unsigned> _binning;
+//
+//    /** CCD detector to work on */
+//    size_t _detector;
+//
+//    /** the Detector that we make the condition on*/
+//    ACQIRIS::Detectors _conditionDetector;
+//
+//    /** flag that will invert the condition */
+//    bool _invert;
+//
+//    /** flag telling wether we run for the firsttime*/
+//    bool _firsttime;
+//
+//    /** device the ccd image comes from*/
+//    cass::CASSEvent::Device _device;
+//
+//    /** current image */
+//    Histogram2DFloat *_image;
+//  };
 
 
 
@@ -137,7 +154,7 @@ protected:
 
 
 
-/** PhotonHits of CCD's.
+  /** PhotonHits of CCD's.
  *
  * This postprocessor will fill a 2d histogram with the detected Photonhits.
  * Photonhits will be detected in the commercial Pre Analyzers. Set the Parameters
@@ -153,9 +170,9 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp110 : public PostprocessorBackend
-{
-public:
+  class pp110 : public PostprocessorBackend
+  {
+  public:
     /** constructor.
      * setting the appropriate device and detector
      */
@@ -170,7 +187,7 @@ public:
     /** set the histogram size */
     virtual void loadSettings(size_t);
 
-protected:
+  protected:
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -179,7 +196,7 @@ protected:
 
     /** averaged image */
     Histogram2DFloat *_image;
-};
+  };
 
 
 
@@ -188,7 +205,11 @@ protected:
 
 
 
-/** PhotonHits of CCD's in a 1D histogram.
+
+
+
+
+  /** PhotonHits of CCD's in a 1D histogram.
  *
  * This postprocessor will fill a 1d histogram with the z values detected Photonhits.
  * Photonhits will be detected in the commercial Pre Analyzer. They will
@@ -201,9 +222,9 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp113 : public PostprocessorBackend
-{
-public:
+  class pp113 : public PostprocessorBackend
+  {
+  public:
     /** constructor.*/
     pp113(PostProcessors& hist, PostProcessors::key_t key);
 
@@ -216,7 +237,7 @@ public:
     /** set the histogram size */
     virtual void loadSettings(size_t);
 
-protected:
+  protected:
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -225,9 +246,18 @@ protected:
 
     /** current image */
     Histogram1DFloat * _hist;
-};
+  };
 
-/** PhotonHits of CCD's in a 1D histogram.
+
+
+
+
+
+
+
+
+
+  /** PhotonHits of CCD's in a 1D histogram.
  *
  * This time energies are plotted in eV and not in arbitrary units
  *
@@ -242,9 +272,9 @@ protected:
  *
  * @author Lutz Foucar
  */
-class pp116 : public PostprocessorBackend
-{
-public:
+  class pp116 : public PostprocessorBackend
+  {
+  public:
     /** constructor.*/
     pp116(PostProcessors& hist, PostProcessors::key_t key);
 
@@ -257,7 +287,7 @@ public:
     /** set the histogram size */
     virtual void loadSettings(size_t);
 
-protected:
+  protected:
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -269,7 +299,7 @@ protected:
 
     /** current image */
     Histogram1DFloat * _hist;
-};
+  };
 
 
 
@@ -277,33 +307,33 @@ protected:
 
 
 
-///** @brief Integral of last CCD image (pp3)
-// * @todo fit this to new layout
-// */
-//class pp141 : public PostprocessorBackend
-//{
-//public:
-//
-//    pp141(PostProcessors&, PostProcessors::key_t);
-//
-//    /** Free _image space */
-//    virtual ~pp141();
-//
-//    /** copy image from CASS event to histogram storage
-//
-//    @todo confirm that the simple sum is good enough or whether we need something more accurate
-//    (i.e., Kahan summation, Shewchuk, or similar) (JK, 2010-03-29)
-//    */
-//    virtual void operator()(const CASSEvent&);
-//
-//    /*! Define postprocessor dependency on pp3 (last VMI image) */
-//    virtual PostProcessors::active_t dependencies() {
-//        return PostProcessors::active_t (1, PostProcessors::VmiCcdLastImage); };
-//
-//protected:
-//
-//    Histogram0DFloat *_value;
-//};
+  ///** @brief Integral of last CCD image (pp3)
+  // * @todo fit this to new layout
+  // */
+  //class pp141 : public PostprocessorBackend
+  //{
+  //public:
+  //
+  //    pp141(PostProcessors&, PostProcessors::key_t);
+  //
+  //    /** Free _image space */
+  //    virtual ~pp141();
+  //
+  //    /** copy image from CASS event to histogram storage
+  //
+  //    @todo confirm that the simple sum is good enough or whether we need something more accurate
+  //    (i.e., Kahan summation, Shewchuk, or similar) (JK, 2010-03-29)
+  //    */
+  //    virtual void operator()(const CASSEvent&);
+  //
+  //    /*! Define postprocessor dependency on pp3 (last VMI image) */
+  //    virtual PostProcessors::active_t dependencies() {
+  //        return PostProcessors::active_t (1, PostProcessors::VmiCcdLastImage); };
+  //
+  //protected:
+  //
+  //    Histogram0DFloat *_value;
+  //};
 
 
 

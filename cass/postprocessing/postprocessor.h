@@ -31,9 +31,9 @@ namespace cass
 
 
   /** Exception thrown when accessing invalid histograms
- *
- * @author Jochen Küpper
- */
+   *
+   * @author Jochen Küpper
+   */
   class InvalidHistogramError : public std::out_of_range
   {
   public:
@@ -59,26 +59,26 @@ namespace cass
 
 
   /** binary function for averaging.
- * this operator is capable of performing a cumulative moving average and
- * a Exponential moving average.
- * @see http://en.wikipedia.org/wiki/Moving_average
- * @author Lutz Foucar
- */
+   * this operator is capable of performing a cumulative moving average and
+   * a Exponential moving average.
+   * @see http://en.wikipedia.org/wiki/Moving_average
+   * @author Lutz Foucar
+   */
   class Average : std::binary_function<float,float,float>
   {
   public:
     /** constructor.
-   * initializes the \f$\alpha\f$ value
-   * @param alpha The \f$\alpha\f$ value
-   */
+     * initializes the \f$\alpha\f$ value
+     * @param alpha The \f$\alpha\f$ value
+     */
     explicit Average(float alpha)
       :_alpha(alpha)
     {}
     /** the operator calculates the average using the function
-   * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
-   * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
-   * otherwise it will be a exponential moving average.
-   */
+     * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
+     * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
+     * otherwise it will be a exponential moving average.
+     */
     float operator()(float currentValue, float Average_Nm1)
     {
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
@@ -90,25 +90,7 @@ namespace cass
 
 
 
-  /** function to set the 1d histogram properties from the ini file.
- * @param[out] hist pointer to the 1D Histogram whos properties should be updated
- *            (will be deleted and created with new settings)
- * @param[in] id the id of the postprocessor too look up in cass.ini
- * @author Lutz Foucar
- */
-  void set1DHist(cass::Histogram1DFloat*& hist, size_t id);
-
-  /** function to set the 2d histogram properties from the ini file.
- * @param[out] hist pointer to the 2D Histogram whos properties should be updated
- *            (will be deleted and created with new settings)
- * @param[in] id the id of the postprocessor too look up in cass.ini
- * @author Lutz Foucar
- */
-  void set2DHist(cass::Histogram2DFloat*& hist, size_t id);
-
-
-
-  /** @brief container and call handler for all registered postprocessors
+/** @brief container and call handler for all registered postprocessors
 
 All currently registered postprocessors are listed here, specifying their id, a description, and (in
 parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
@@ -824,6 +806,24 @@ please use doxygen style as then your documentation will be available on the web
 
 
 
+
+
+
+  /** function to set the 1d histogram properties from the ini file.
+   * @param[out] hist pointer to the 1D Histogram whos properties should be updated
+   *            (will be deleted and created with new settings)
+   * @param[in] key the key of the postprocessor too look up in cass.ini
+   * @author Lutz Foucar
+   */
+  void set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key);
+
+  /** function to set the 2d histogram properties from the ini file.
+   * @param[out] hist pointer to the 2D Histogram whos properties should be updated
+   *            (will be deleted and created with new settings)
+   * @param[in] key the key of the postprocessor too look up in cass.ini
+   * @author Lutz Foucar
+   */
+  void set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key);
 
 
 
