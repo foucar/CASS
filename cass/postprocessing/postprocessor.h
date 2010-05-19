@@ -105,81 +105,86 @@ histograms) and placed in the file for the most appropriate group according to t
 The Classes that implement the postprocessor are pointed out in parenthesis. See
 the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
-@todo the classes in parenthesis should be links to the actual classes
 @verbatim
 ---Operations--
-00809: Compare 0D histograms for less than constant
-00810: Compare 0D histograms for greater than constant
-00811: Compare 0D histograms for equal to constant
-00807: Compare two 0D histograms for boolean AND
-00808: Compare two 0D histograms for boolean OR
-00808: Compare two 0D histograms for boolean XOR
-00003: Compare two histograms whether first is less than second
-00004: Compare two histograms whether first is equal to second
+00000: Compare 0D histograms for less than constant
+00001: Compare 0D histograms for greater than constant
+00002: Compare 0D histograms for equal to constant
+00003: Apply 0D histograms for boolean XOR
+00004: Compare two 0D histograms for boolean AND
+00005: Compare two 0D histograms for boolean OR
+00006: Compare two histograms whether first is less than second
+00007: Compare two histograms whether first is equal to second
 
-00001: Difference between choosable averaged CCD images
-00802: Divide first histogram by second histogram
-00803: Multiply first histogram with second histogram
-00804: Multiply histogram with constant
+00020: Difference between choosable averaged CCD images
+00021: Divide first histogram by second histogram
+00022: Multiply first histogram with second histogram
+00023: Multiply histogram with constant
 
-00806: Project 2D histogram onto a axis
-00805: Integral of 1D histogram
-00000: Histogram values from a 0d Histogram
-00000: Average of a histogram
-00000: Summing up of histograms
+00050: Project 2D histogram onto a axis
+00051: Integral of 1D histogram
+
+00060: Histogram values from a 0D histogram
+00061: Average of a histogram
+00062: Summing up of histogram
 
 ---Data retrieval (Histogram contain only last shot)--
-00001: CCD image
+00100: CCD image
 00110: Photonhits Spectrum
-00000: Photonhits Image
-00004: Acqiris Waveform
-00850: Beamline data
-00851: Epics data
-00550: TofDetector number of signals in MCP waveform
-00567: TofDetector all signals
-00581: TofDetector signal height vs. fwhm
-00551: Delayline wireend number of signals
-00581: Delayline wireend signal height vs. fwhm
-00569: Delayline timesum on anode
-00571: Delayline timesum on anode vs. position
-00574: Delayline image of first good hit
-00000: Delayline reconstructed Number of detectorhits
-00578: Delayline data of all reconstructed detectorhits
+00111: Photonhits Image
+00120: Acqiris Waveform
+00130: Beamline data
+00140: Epics data
+00150: TofDetector number of signals in MCP waveform
+00151: TofDetector all signals
+00152: TofDetector signal height vs. fwhm
+00160: Delayline wireend number of signals
+00162: Delayline wireend signal height vs. fwhm
+00163: Delayline timesum on anode
+00164: Delayline timesum on anode vs. position
+00165: Delayline image of first good hit
+00167: Delayline reconstructed Number of detectorhits
+00168: Delayline data of all reconstructed detectorhits
 
 ---Data analysis--
-00150: Scalar value of <cos^2\theta> from 2D Histogram
-00160: Advanced photonhit finder Image
-00160: Advanced photonhit finder Spectrum
+00200: Scalar value of <cos^2\theta> from 2D Histogram
+00210: Advanced photonhit finder Image
+00211: Advanced photonhit finder Spectrum
 
 ---Output
-01001: Dump front and back pnCCD images (and more...) to HDF5
+01000: Dump front and back pnCCD images (and more...) to HDF5
 02000: Dump all 1d and 2d cass histograms to root file
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
-
+@todo updated this section for new layout
 @subsection nec Things that a postprocessor needs to have
 
 Your postprocessor needs to have the following members
-- a constructor that takes the a reference to the histogram container and the processor id
-- overloaded void operator()(const cass::CASSEvent&) which gets called for each event
+- a constructor that takes the a reference to the histogram container and the
+  processor id
+- overloaded void operator()(const cass::CASSEvent&) which gets called for each
+  event
 - (optionaly you could have a pointer the histogram in the histogram container)
 - you are responsible that the histogram get allocated and destructed.
 
 @subsection steps Register postprocessor
 
-Steps that one has to take in order to have a custom build postprocessor registered to the list of postprocessors:
+Steps that one has to take in order to have a custom build postprocessor registered
+to the list of postprocessors:
 - add your number to the above list an shortly describe what the postprocessor
-will be doing.
+  will be doing.
 - add a describtive enum to the id_t enum
 - add your postprossor in the switch statement of cass::PostProcessors::create
 - if the Object you are writing is responsible for more than one postprocessor
-just follow the example of the last pnccd processor(pp1).
+  just follow the example of the last pnccd processor(pp1).
 
 @subsection doc Documentation
 
-Please document what your postprocessor does so that other people now what it does. When documenting
-please use doxygen style as then your documentation will be available on the webserver.
+Please document what your postprocessor does so that other people now what it
+does. When documenting please use doxygen style as then your documentation will
+be available on the webserver. Documenting the parameters in cass.ini can be done
+using the custom doxygen tag cassttng.
 */
   class CASSSHARED_EXPORT PostProcessors : public QObject
   {
