@@ -30,8 +30,6 @@ namespace cass
   };
 
 
-
-
   QImage Histogram2DFloat::qimage()
   {
     QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
@@ -54,6 +52,25 @@ namespace cass
     _axis = rhs._axis;
     _nbrOfFills = rhs._nbrOfFills;
     _memory = rhs._memory;
+  }
+
+
+  void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
+  {
+    _memory.clear();
+    _axis.clear();
+    _memory.resize(nbrXBins+2);
+    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+  }
+
+  void Histogram2DFloat::resize(size_t nbrXBins, float xLow, float xUp,
+                                size_t nbrYBins, float yLow, float yUp)
+  {
+    _memory.clear();
+    _axis.clear();
+    _memory.resize(nbrXBins*nbrYBins+8);
+    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+    _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
   }
 
   Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const

@@ -224,8 +224,6 @@ public:
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
         :HistogramBackend(dim,ver),
         _memory(memory_size, 0.),
-        _fillwhenserialized(false),
-        _shouldbefilled(!_fillwhenserialized)
     {}
 
     /** read histogram from serializer.
@@ -309,18 +307,6 @@ protected:
      * for over/underflow statistics
      */
     storage_t _memory;
-
-    /** flag to tell whether histogram needs to only be filled when serialized*/
-    bool _fillwhenserialized;
-
-    /** flag to signal the postprocessor to fill the histogram*/
-    mutable bool _shouldbefilled;
-
-    /** mutex for waiting until we are filled*/
-    mutable QMutex _waitMutex;
-
-    /** condition that we will wait on until we were filled by the postprocessor*/
-    mutable QWaitCondition _fillcondition;
 };
 
 
@@ -394,6 +380,11 @@ public:
     Histogram1DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
+
+    /** resize histogram.
+     * will drop all memory and resize axis and memory to the newly requsted size
+     */
+    void resize(size_t nbrXBins, float xLow, float xUp);
 
     /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
@@ -505,6 +496,12 @@ public:
     Histogram2DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
+
+    /** resize histogram.
+     * will drop all memory and resize axis and memory to the newly requsted size
+     */
+    void resize(size_t nbrXBins, float xLow, float xUp,
+                size_t nbrYBins, float yLow, float yUp);
 
     /** @return shape of histogram (rows, columns) */
     std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); };
