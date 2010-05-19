@@ -496,7 +496,7 @@ using the custom doxygen tag cassttng.
         return false;
       }
       for(size_t ii=0; ii<_size; ++ii)
-        _list.push_back("temp");
+        _list.push_back(in->retrieveString());
       std::cerr << "list is done " << std::endl;
       return true;
     }
