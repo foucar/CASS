@@ -523,7 +523,7 @@ void getDataThread::getData(const std::string& attachId, int useSpectrogram)
     VERBOSEOUT(cout << "getDataThread::getData" << endl);
     _dataType = dat_Any;
     delete _attachId;
-    _attachId = new std::string(&attachId);
+    _attachId = new std::string(attachId);
     _useSpectrogram = useSpectrogram;
     start();
 }
@@ -535,7 +535,7 @@ void getDataThread::getImage(cass::ImageFormat format, const std::string& attach
     _dataType = dat_Image;
     _format = format;
     delete _attachId;
-    _attachId = new std::string(&attachId);
+    _attachId = new std::string(attachId);
     start();
 }
 
@@ -595,7 +595,7 @@ void getDataThread::getHistogram1D(const std::string& attachId)
     VERBOSEOUT(cout << "getDataThread::getHistogram1D" << endl);
     _dataType = dat_1DHistogram;
     delete _attachId;
-    _attachId = new std::string(&attachId);
+    _attachId = new std::string(attachId);
     start();
 }
 
@@ -604,7 +604,7 @@ void getDataThread::getHistogram0D(const std::string& attachId)
     VERBOSEOUT(cout << "getDataThread::getHistogram0D" << endl);
     _dataType = dat_0DHistogram;
     delete _attachId;
-    _attachId = new std::string(&attachId);
+    _attachId = new std::string(attachId);
     start();
 }
 
