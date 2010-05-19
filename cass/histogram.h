@@ -223,7 +223,7 @@ public:
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
         :HistogramBackend(dim,ver),
-        _memory(memory_size, 0.),
+        _memory(memory_size, 0.)
     {}
 
     /** read histogram from serializer.
@@ -279,11 +279,6 @@ public:
      */
     virtual value_t max() const {return std::numeric_limits<value_t>::max();}
 
-    /** return whether the histogram should be filled.
-     *this means that someone wants to have the histogram serialized
-     */
-    bool shouldBeFilled() {return _shouldbefilled;}
-
     /** clear the histogram memory*/
     virtual void clear()
     {
@@ -293,9 +288,6 @@ public:
       _nbrOfFills = 0;
       lock.unlock();
     }
-
-    /** notify histogram that is has been filled */
-    void notify() {_fillcondition.wakeAll();}
 
     /** assignment operator. will copy axis properties and memory */
     void operator=(const HistogramFloatBase& rhs);
@@ -619,15 +611,6 @@ inline size_t AxisProperty::bin(float pos) const
 //-----------------Base class-----------------------
 inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
 {
-  //if we need to wait until the histogram is filled before serialization//
-  //wait here and set the flag that this histogram needs to be filled//
-  if(_fillwhenserialized)
-  {
-    //tell that we should be filled//
-    _shouldbefilled = true;
-    //wait until we have been filled an can proceed//
-    _fillcondition.wait(&_waitMutex);
-  }
   lock.lockForRead();
   //the version//
   out.addUint16(_version);
@@ -643,10 +626,6 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.addFloat(*it);
   out.addString(_key);
-  //we have been filled and serialized so we need to tell that we don't want //
-  //to be filled again//
-  if(_fillwhenserialized)
-    _shouldbefilled=false;
   lock.unlock();
 }
 
@@ -673,7 +652,6 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
   _key = in.retrieveString();
-  _fillwhenserialized=false;
   lock.unlock();
   return true;
 }
