@@ -30,7 +30,7 @@ namespace cass
    * @todo adjust the name to the id that it will have
    * @author Lutz Foucar
    */
-  class pp4 : public PostprocessorBackend
+  class pp110 : public PostprocessorBackend
   {
   public:
     /** constructor.
@@ -38,10 +38,10 @@ namespace cass
      *        this postprocessor.
      * @param id the id of this postprocessor object
      */
-    pp4(PostProcessors &ppc, const PostProcessors::key_t &key);
+    pp110(PostProcessors &ppc, const PostProcessors::key_t &key);
 
     /** delete the histogram when you are destroyed*/
-    virtual ~pp4();
+    virtual ~pp110();
 
     /** copy the last waveform from the channel*/
     virtual void operator()(const CASSEvent&);

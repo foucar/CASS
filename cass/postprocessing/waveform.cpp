@@ -14,23 +14,22 @@
 
 
 //the last wavefrom postprocessor
-cass::pp4::pp4(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
+cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
   :cass::PostprocessorBackend(pp,key),
   _waveform(0)
 {
   loadSettings(0);
 }
 
-cass::pp4::~pp4()
+cass::pp110::~pp110()
 {
   _pp.histograms_delete(_key);
   _waveform=0;
 }
 
-void cass::pp4::loadSettings(size_t)
+void cass::pp110::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  /** @todo find a way to resize the histogram without deleting it */
   QSettings settings;
   settings.beginGroup("PostProcessor/active");
   settings.beginGroup(_key.c_str());
@@ -48,7 +47,7 @@ void cass::pp4::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp4::operator()(const cass::CASSEvent &cassevent)
+void cass::pp110::operator()(const cass::CASSEvent &cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a pointer to the Acqiris device//

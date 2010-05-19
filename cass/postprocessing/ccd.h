@@ -170,16 +170,16 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-  class pp110 : public PostprocessorBackend
+  class pp141 : public PostprocessorBackend
   {
   public:
     /** constructor.
      * setting the appropriate device and detector
      */
-    pp110(PostProcessors& hist, PostProcessors::key_t key);
+    pp141(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image spcae */
-    virtual ~pp110();
+    virtual ~pp141();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
