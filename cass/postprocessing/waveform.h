@@ -38,13 +38,16 @@ namespace cass
      *        this postprocessor.
      * @param id the id of this postprocessor object
      */
-    pp4(PostProcessors &ppc, PostProcessors::key_t key);
+    pp4(PostProcessors &ppc, const PostProcessors::key_t &key);
 
     /** delete the histogram when you are destroyed*/
     virtual ~pp4();
 
     /** copy the last waveform from the channel*/
     virtual void operator()(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
 
   protected:
     /** Mutex for locking this postprocessor*/
