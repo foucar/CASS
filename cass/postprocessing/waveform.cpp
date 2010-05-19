@@ -14,41 +14,11 @@
 
 
 //the last wavefrom postprocessor
-cass::pp4::pp4(cass::PostProcessors &pp, cass::PostProcessors::id_t id)
-  :cass::PostprocessorBackend(pp,id),
+cass::pp4::pp4(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
   _waveform(0)
 {
-  using namespace cass::ACQIRIS;
-  switch(_id)
-  {
-  case PostProcessors::CampChannel00LastWaveform: _channel=0;_instrument=Camp1;break;
-  case PostProcessors::CampChannel01LastWaveform: _channel=1;_instrument=Camp1;break;
-  case PostProcessors::CampChannel02LastWaveform: _channel=2;_instrument=Camp1;break;
-  case PostProcessors::CampChannel03LastWaveform: _channel=3;_instrument=Camp1;break;
-  case PostProcessors::CampChannel04LastWaveform: _channel=4;_instrument=Camp1;break;
-  case PostProcessors::CampChannel05LastWaveform: _channel=5;_instrument=Camp1;break;
-  case PostProcessors::CampChannel06LastWaveform: _channel=6;_instrument=Camp1;break;
-  case PostProcessors::CampChannel07LastWaveform: _channel=7;_instrument=Camp1;break;
-  case PostProcessors::CampChannel08LastWaveform: _channel=8;_instrument=Camp1;break;
-  case PostProcessors::CampChannel09LastWaveform: _channel=9;_instrument=Camp1;break;
-  case PostProcessors::CampChannel10LastWaveform: _channel=10;_instrument=Camp1;break;
-  case PostProcessors::CampChannel11LastWaveform: _channel=11;_instrument=Camp1;break;
-  case PostProcessors::CampChannel12LastWaveform: _channel=12;_instrument=Camp1;break;
-  case PostProcessors::CampChannel13LastWaveform: _channel=13;_instrument=Camp1;break;
-  case PostProcessors::CampChannel14LastWaveform: _channel=14;_instrument=Camp1;break;
-  case PostProcessors::CampChannel15LastWaveform: _channel=15;_instrument=Camp1;break;
-  case PostProcessors::CampChannel16LastWaveform: _channel=16;_instrument=Camp1;break;
-  case PostProcessors::CampChannel17LastWaveform: _channel=17;_instrument=Camp1;break;
-  case PostProcessors::CampChannel18LastWaveform: _channel=18;_instrument=Camp1;break;
-  case PostProcessors::CampChannel19LastWaveform: _channel=19;_instrument=Camp1;break;
-  case PostProcessors::ITofChannel00LastWaveform: _channel=0;_instrument=Camp2;break;
-  case PostProcessors::ITofChannel01LastWaveform: _channel=1;_instrument=Camp2;break;
-  case PostProcessors::ITofChannel02LastWaveform: _channel=2;_instrument=Camp2;break;
-  case PostProcessors::ITofChannel03LastWaveform: _channel=3;_instrument=Camp2;break;
-  default: throw std::invalid_argument(QString("postprocessor %1 is not for the last waveform").arg(_id).toStdString());
-  }
-  std::cout<<std::endl<< "PostProcessor_"<<_id<< " will show the last wavform of Channel "<< _channel
-      <<" of Instrument "<<_instrument<<std::endl;
+  loadSettings(0);
 }
 
 cass::pp4::~pp4()
@@ -57,50 +27,60 @@ cass::pp4::~pp4()
   _waveform=0;
 }
 
+void cass::pp4::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  /** @todo find a way to resize the histogram without deleting it */
+  QSettings settings;
+  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup(_key.c_str());
+
+  _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());
+  _channel    = settings.value("ChannelNbr",0).toUInt();
+
+  _pp.histograms_delete(_key);
+  _waveform = new Histogram1DFloat(1,0,1);
+  _pp.histograms_replace(_key,_waveform);
+
+  std::cout <<"PostProcessor "<<_key
+      <<" is showing channel "<<_channel
+      <<" of acqiris "<<_instrument
+      <<std::endl;
+}
+
 void cass::pp4::operator()(const cass::CASSEvent &cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a pointer to the Acqiris device//
-  const Device *dev =
-      dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second);
+  const Device *dev
+      (dynamic_cast<const Device*>(cassevent.devices().find(CASSEvent::Acqiris)->second));
   //retrieve a reference to the right instument//
-  Device::instruments_t::const_iterator instrI = dev->instruments().find(_instrument);
+  Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
   //check if instrument exists//
-  if (instrI == dev->instruments().end())
-  {
-    std::cerr << "did not find the requested Acqiris instrument: "<<_instrument
-        << " maybe the Acqiris converter is not active"<<std::endl;
-    return;
-  }
-  const Instrument &instr = instrI->second;
+  if (dev->instruments().end() == instrIt)
+    throw std::runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
+                             .arg(_key.c_str())
+                             .arg(_instrument));
+  const Instrument &instr(instrIt->second);
   //retrieve a reference to the right channel//
   if (instr.channels().size() <= _channel)
-  {
-    std::cerr << "In the current configuration now instrument "<<_instrument
-        << " does not have channel "<< _channel
-        << ". Check the configuration"<<std::endl;
-    return;
-  }
-  const Channel &channel = instr.channels()[_channel];
+    throw std::runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
+                             .arg(_key.c_str())
+                             .arg(_instrument)
+                             .arg(_channel));
+  const Channel &channel (instr.channels()[_channel]);
   //retrieve a reference to the waveform of the channel//
-  const waveform_t &waveform = channel.waveform();
+  const waveform_t &waveform (channel.waveform());
   //from here on only one thread should work at a time//
   QMutexLocker lock(&_mutex);
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of//
   //this channel//
-  if (!_waveform || (_waveform && _waveform->axis()[HistogramBackend::xAxis].nbrBins() !=
-                     waveform.size()))
-  {
-    _pp.histograms_delete(_id);
-    _waveform = new Histogram1DFloat(waveform.size(),
-                                     0,
-                                     waveform.size()*channel.sampleInterval());
-    _pp.histograms_replace(_id,_waveform);
-  }
-  //copy the waveform to our storage histogram
+  if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+    _waveform->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
+  //copy the waveform to our storage histogram and convert adc units to volts
+  //while copying
   _waveform->lock.lockForWrite();
-//  std::copy(waveform.begin(),waveform.end(),_waveform->memory().begin());
   std::transform(waveform.begin(),
                  waveform.end(),
                  _waveform->memory().begin(),
@@ -189,19 +169,6 @@ cass::pp500::~pp500()
   _waveform=0;
 }
 
-void cass::pp500::loadSettings(size_t)
-{
-  QSettings parameter;
-  parameter.beginGroup("PostProcessor");
-  parameter.beginGroup(QString("p") + QString::number(_id));
-  //load the nbr of averages, and calculate the alpha from it//
-  uint32_t N = parameter.value("NumberOfAverages",1).toUInt();
-  _alpha = static_cast<float>(2./(N+1));
-  std::cout <<"PostProcessor_"<<_id<<" is averaging over "<<N<<" events."
-      <<" alpha is :"<<_alpha
-      <<" Input is PostProcessor_"<<_idSingle
-      <<std::endl;
-}
 
 void cass::pp500::operator ()(const cass::CASSEvent &)
 {
