@@ -28,7 +28,7 @@ namespace cass
 
 // *** postprocessors 1, 2, 3 -- last images from a CCD ***
 
-pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp1::pp1(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id),_image(0)
 {
     int cols(0);
@@ -111,7 +111,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 
 // *** postprocessors 101, 103, 105 ***
 
-pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp101::pp101(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id),
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
@@ -259,7 +259,7 @@ void cass::pp101::operator()(const CASSEvent& event)
 // *** A Postprocessor that will display the photonhits of ccd detectors ***
 // *** used by postprocessors 110-112 ***
 
-pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp110::pp110(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id)
 {
     switch(id)
@@ -337,7 +337,7 @@ void cass::pp110::operator()(const CASSEvent& evt)
 // *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
 // ***  used by postprocessors 113-115 ***
 
-pp113::pp113(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp113::pp113(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id), _hist(0)
 {
     switch(id)
@@ -416,7 +416,7 @@ void cass::pp113::operator()(const CASSEvent& evt)
 // *** energies in eV 
 // ***  used by postprocessors 116-118 ***
 
-pp116::pp116(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp116::pp116(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id), _hist(0)
 {
     switch(id)
@@ -508,7 +508,7 @@ void cass::pp116::operator()(const CASSEvent& evt)
 
 // *** postprocessor 141 -- integral over last image from VMI CCD ***
 
-pp141::pp141(PostProcessors& pp, cass::PostProcessors::id_t id)
+pp141::pp141(PostProcessors& pp, cass::PostProcessors::key_t key)
     : PostprocessorBackend(pp, id), _value(new Histogram0DFloat)
 {
     _pp.histograms_replace(_id, _value);

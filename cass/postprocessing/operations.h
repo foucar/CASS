@@ -46,7 +46,7 @@ namespace cass
   {
   public:
 
-    pp106(PostProcessors& hist, PostProcessors::id_t id);
+    pp106(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp106();
@@ -57,7 +57,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** factor by which the first histogram will be weighted */
@@ -100,7 +100,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp800(PostProcessors& hist, PostProcessors::id_t id);
+    pp800(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp800();
@@ -111,7 +111,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -148,7 +148,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp801(PostProcessors& hist, PostProcessors::id_t id);
+    pp801(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp801();
@@ -159,7 +159,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** how many pixels to bin in horizontal and vertical direction */
@@ -200,7 +200,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp802(PostProcessors& hist, PostProcessors::id_t id);
+    pp802(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp802();
@@ -211,7 +211,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -253,7 +253,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp803(PostProcessors& hist, PostProcessors::id_t id);
+    pp803(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp803();
@@ -264,7 +264,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -300,7 +300,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp804(PostProcessors& hist, PostProcessors::id_t id);
+    pp804(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp804();
@@ -311,7 +311,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the histogram we multiply with a constant */
@@ -354,7 +354,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp805(PostProcessors& hist, PostProcessors::id_t id);
+    pp805(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp805();
@@ -366,7 +366,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the 1d histogram we want to have the integral of */
@@ -411,7 +411,7 @@ namespace cass
   {
   public:
     /** constructor */
-    pp806(PostProcessors& hist, PostProcessors::id_t id);
+    pp806(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp806();
@@ -423,7 +423,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the id of the 2d hist we want to project */

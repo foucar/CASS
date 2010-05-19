@@ -17,8 +17,8 @@ const std::pair<size_t, std::string> HistogramGetter::operator()(const Histogram
     // check out histograms storage map
     PostProcessors *pp(PostProcessors::instance(""));
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
-    pp->validate(hp.name);
-    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.name));
+    pp->validate(hp.key);
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
     // get dimension
     size_t dim(iter->second->dimension());
     // serialize the wanted histogram using the serializer
@@ -36,14 +36,14 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     PostProcessors *pp(PostProcessors::instance(""));
     const PostProcessors::histograms_t& hist(pp->histograms_checkout());
     // make sure the requested histogram is valid
-    pp->validate(hp.name);
+    pp->validate(hp.key);
     // create the image
-    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.name));
+    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
     //check wether requested histgogram is truly a 2d histogram//
     if (iter->second->dimension() != 2)
     {
       pp->histograms_release();
-      throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.name.c_str()).toStdString());
+      throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.key.c_str()).toStdString());
     }
     // create the QImage, release, return
     QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
@@ -57,9 +57,9 @@ void HistogramGetter::clear(const HistogramParameter& hp) const
   PostProcessors *pp(PostProcessors::instance(""));
   const PostProcessors::histograms_t& hist(pp->histograms_checkout());
   // make sure the requested histogram is valid//
-  pp->validate(hp.name);
+  pp->validate(hp.key);
   // retrieve iterator pointing to histogram//
-  PostProcessors::histograms_t::const_iterator iter(hist.find(hp.name));
+  PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
   // clear the histogram//
   iter->second->clear();
   // make sure that the histogram is accessable from others again//

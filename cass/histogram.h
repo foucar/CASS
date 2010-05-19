@@ -180,7 +180,7 @@ public:
     /** setter */
     size_t      &nbrOfFills()         {return _nbrOfFills;}
     std::string &MimeType()           {return _mime;}
-    PostProcessors::key_t &key() {return _key;}
+    PostProcessors::key_t &key()      {return _key;}
     //@}
     //@{
     /** getter*/

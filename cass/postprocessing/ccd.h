@@ -30,7 +30,7 @@ class pp1 : public PostprocessorBackend
 {
 public:
     /** constructor.*/
-    pp1(PostProcessors&, PostProcessors::id_t);
+    pp1(PostProcessors&, PostProcessors::key_t);
 
     /** Free _image spcae */
     virtual ~pp1();
@@ -86,7 +86,7 @@ class pp101 : public PostprocessorBackend
 {
 public:
 
-    pp101(PostProcessors& hist, PostProcessors::id_t id);
+    pp101(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image space */
     virtual ~pp101();
@@ -159,7 +159,7 @@ public:
     /** constructor.
      * setting the appropriate device and detector
      */
-    pp110(PostProcessors& hist, PostProcessors::id_t id);
+    pp110(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image spcae */
     virtual ~pp110();
@@ -205,7 +205,7 @@ class pp113 : public PostprocessorBackend
 {
 public:
     /** constructor.*/
-    pp113(PostProcessors& hist, PostProcessors::id_t id);
+    pp113(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image spcae */
     virtual ~pp113();
@@ -246,7 +246,7 @@ class pp116 : public PostprocessorBackend
 {
 public:
     /** constructor.*/
-    pp116(PostProcessors& hist, PostProcessors::id_t id);
+    pp116(PostProcessors& hist, PostProcessors::key_t key);
 
     /** Free _image spcae */
     virtual ~pp116();

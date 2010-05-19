@@ -133,19 +133,19 @@ class pp150 : public PostprocessorBackend
 {
 public:
   /** Construct postprocessor for Gaussian height of image */
-  pp150(PostProcessors&, PostProcessors::id_t);
+  pp150(PostProcessors&, PostProcessors::key_t key);
   /** Free _image space */
   virtual ~pp150();
   /** calculate \f$\cos^2\theta\f$ of averaged image */
   virtual void operator()(const CASSEvent&);
   /** Define postprocessor dependency on the requested image*/
-  virtual std::list<PostProcessors::id_t> dependencies();
+  virtual PostProcessors::active_t dependencies();
   /** load the histogram settings from cass.ini*/
   virtual void loadSettings(size_t);
 
 protected:
   /** image that we will calculate the \f$\cos^2\theta\f$ from*/
-  PostProcessors::id_t _imageId;
+  PostProcessors::key_t   _imagekey;
   std::pair<float, float> _center; //!< Image center
   float _minRadius;                //!< Minimum radius for analysis
   float _maxRadius;                //!< Maximum radius for analysis

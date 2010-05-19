@@ -52,7 +52,7 @@ namespace cass
   {
   public:
     /** constructor. */
-    pp160(PostProcessors& hist, PostProcessors::id_t id);
+    pp160(PostProcessors& hist, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp160();
     /** copy image from CASS event to histogram storage */
@@ -60,7 +60,7 @@ namespace cass
     /** load the settings*/
     virtual void loadSettings(size_t);
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** flag to invert the condition */
@@ -111,7 +111,7 @@ namespace cass
   {
   public:
     /** constructor. */
-    pp166(PostProcessors& hist, PostProcessors::id_t id);
+    pp166(PostProcessors& hist, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp166();
     /** copy image from CASS event to histogram storage */
@@ -119,7 +119,7 @@ namespace cass
     /** load the settings*/
     virtual void loadSettings(size_t);
     /** the two histograms that the user wants to substract */
-    virtual std::list<PostProcessors::id_t> dependencies();
+    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** flag to invert the condition */

@@ -20,9 +20,9 @@ class CASSSHARED_EXPORT PostprocessorBackend
 {
 public:
     /** constructor. */
-  PostprocessorBackend(PostProcessors& pp, PostProcessors::key_t key)
-        : _key(key), _pp(pp), _reinitialize(true)
-    {}
+  PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
+    : _key(key), _pp(pp)
+  {}
 
     virtual ~PostprocessorBackend() { }
 
@@ -31,19 +31,13 @@ public:
     /** @brief Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t) {std::cout << "calling backend' load settings"<<std::endl;}
 
-    void loadNecessary(size_t what) {if (_reinitialize) loadSettings(what);}
-
     /** Define all postprocessors we depend on
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
     virtual PostProcessors::active_t dependencies() { return PostProcessors::active_t(); };
 
-    /** getter for the reinitialize flag*/
-    bool reinitialize() {return _reinitialize;}
-
 protected:
-
     /** @return histogram of the actual postprocessor we call this for */
     virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_key); }
 
@@ -73,9 +67,6 @@ protected:
 
     /** reference to the PostProcessors container */
     PostProcessors& _pp;
-
-    /** flag telling whether postprocessor must still be initialized */
-    bool _reinitialize;
 };
 
 } //end namespace cass

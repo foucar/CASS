@@ -237,8 +237,8 @@ PostprocessorBackend * PostProcessors::create(key_t key)
     QSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup("active");
-    settings.beginGroup(key);
-    id_t ppid (settings.value("ID",0).toUInt());
+    settings.beginGroup(key.c_str());
+    id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
 
     PostprocessorBackend * processor(0);
 

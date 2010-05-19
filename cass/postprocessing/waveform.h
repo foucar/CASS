@@ -30,7 +30,7 @@ namespace cass
      *        this postprocessor.
      * @param id the id of this postprocessor object
      */
-    pp4(PostProcessors &ppc, PostProcessors::id_t id);
+    pp4(PostProcessors &ppc, PostProcessors::key_t key);
     /** delete the histogram when you are destroyed*/
     virtual ~pp4();
     /** copy the last waveform from the channel*/
@@ -73,7 +73,7 @@ namespace cass
      *        this postprocessor.
      * @param id the id of this postprocessor object
      */
-    pp500(PostProcessors &ppc, PostProcessors::id_t id);
+    pp500(PostProcessors &ppc, PostProcessors::key_t key);
     /*! delete the histogram when you are destroyed */
     virtual ~pp500();
     /*! read the average factor from cass.ini*/
@@ -81,8 +81,8 @@ namespace cass
     /*! copy the last waveform from the expected channel*/
     virtual void operator()(const CASSEvent&);
     /** we need the single waveform to be able to average */
-    virtual std::list<PostProcessors::id_t> dependencies()
-    {return std::list<PostProcessors::id_t>(1, _idSingle); }
+    virtual PostProcessors::active_t dependencies()
+    {return PostProcessors::active_t(1, _idSingle); }
 
   protected:
     /** Mutex for locking this postprocessor*/
@@ -92,7 +92,7 @@ namespace cass
     /*! the Acqiris channel Nbr of this processor*/
     size_t _channel;
     /** the id of the single waveform pp */
-    PostProcessors::id_t _idSingle;
+    PostProcessors::key_t _idSingle;
     /*! this is where we store the averaged waveform*/
     Histogram1DFloat *_waveform;
     /*! the averaging factor */

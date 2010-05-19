@@ -34,7 +34,7 @@ namespace cass
   {
   public:
     /** Constructor. Constructor for Number of Signals*/
-    pp550(PostProcessors &, PostProcessors::id_t);
+    pp550(PostProcessors &, PostProcessors::key_t key);
     /** Free histogram space */
     virtual ~pp550();
     /** Retrieve the number of Signals and histogram it */
@@ -71,7 +71,7 @@ namespace cass
   {
   public:
     /** Constructor for Number of Signals*/
-    pp551(PostProcessors&, PostProcessors::id_t);
+    pp551(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp551();
     /** Retrieve the number of Signals and histogram it */
@@ -112,7 +112,7 @@ namespace cass
   {
   public:
     /** Constructor for Ratio of the Signals of two Layers*/
-    pp557(PostProcessors&, PostProcessors::id_t);
+    pp557(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp557();
     /** Retrieve the number of Signals and histogram it */
@@ -151,7 +151,7 @@ namespace cass
   {
   public:
     /** Constructor for Ratio of the Signals of Layers vs MCP*/
-    pp558(PostProcessors&, PostProcessors::id_t);
+    pp558(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp558();
     /** Retrieve the number of Signals and histogram it */
@@ -193,7 +193,7 @@ namespace cass
   {
   public:
     /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-    pp566(PostProcessors&, PostProcessors::id_t);
+    pp566(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp566();
     /** Retrieve the number of Signals and histogram it */
@@ -233,7 +233,7 @@ namespace cass
   {
   public:
     /** Constructor*/
-    pp567(PostProcessors&, PostProcessors::id_t);
+    pp567(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp567();
     /** Retrieve the number of Signals and histogram it */
@@ -273,7 +273,7 @@ namespace cass
   {
   public:
     /** Constructor*/
-    pp568(PostProcessors&, PostProcessors::id_t);
+    pp568(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp568();
     /** Retrieve the number of Signals and histogram it */
@@ -315,7 +315,7 @@ namespace cass
   {
   public:
     /** Constructor */
-    pp571(PostProcessors&, PostProcessors::id_t);
+    pp571(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp571();
     /** Retrieve the number of Signals and histogram it */
@@ -357,7 +357,7 @@ namespace cass
   {
   public:
     /** Constructor */
-    pp574(PostProcessors&, PostProcessors::id_t);
+    pp574(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp574();
     /** Retrieve the number of Signals and histogram it */
@@ -405,7 +405,7 @@ namespace cass
   {
   public:
     /** Constructor */
-    pp578(PostProcessors&, PostProcessors::id_t);
+    pp578(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp578();
     /** Retrieve the number of Signals and histogram it */
@@ -454,7 +454,7 @@ namespace cass
   {
   public:
     /** Constructor*/
-    pp581(PostProcessors&, PostProcessors::id_t);
+    pp581(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp581();
     /** Retrieve the number of Signals and histogram it */
@@ -491,7 +491,7 @@ namespace cass
   {
   public:
     /** Constructor for Number of Signals*/
-    pp582(PostProcessors&, PostProcessors::id_t);
+    pp582(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp582();
     /** Retrieve the number of Signals and histogram it */
@@ -532,7 +532,7 @@ namespace cass
   {
   public:
     /** Constructor for Number of Signals*/
-    pp700(PostProcessors&, PostProcessors::id_t);
+    pp700(PostProcessors&, PostProcessors::key_t key);
     /** Free _image space */
     virtual ~pp700();
     /** Retrieve the number of Signals and histogram it */

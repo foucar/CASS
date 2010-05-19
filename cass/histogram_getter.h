@@ -8,7 +8,7 @@
 #include <QtGui/QImage>
 
 #include "cass.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessor.h"
 
 namespace cass
 {
@@ -19,11 +19,11 @@ namespace cass
 */
 struct HistogramParameter
 {
-  explicit HistogramParameter(const std::string& _name)
-    : name(_name)
+  explicit HistogramParameter(const PostProcessors::key_t& _key)
+    : key(_key)
   {}
 
-  std::string name;
+  PostProcessors::key_t key;
 };
 
 
