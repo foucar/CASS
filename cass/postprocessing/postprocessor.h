@@ -90,16 +90,11 @@ namespace cass
 
 
 
-/** @brief container and call handler for all registered postprocessors
+/** container and call handler for all registered postprocessors.
 
-All currently registered postprocessors are listed here, specifying their id, a description, and (in
-parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
-classes are named according to their number (or the first number for classes handling multiple
-histograms) and placed in the file for the most appropriate group according to their content.
-
-@cassttng PostProcessor/{active}\n
-          A list of all active postprocesors. The list does not need to
-          be in the right order since dependencies will be resolved.
+All currently registered postprocessors are listed here, specifying their id and a
+short description. The postprocessor classes are named according to their number
+and placed in the file for the most appropriate group according to their content.
 
 @section pplist List of Postprocessors
 The Classes that implement the postprocessor are pointed out in parenthesis. See
@@ -107,19 +102,20 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
-00000: Compare 0D histograms for less than constant
-00001: Compare 0D histograms for greater than constant
-00002: Compare 0D histograms for equal to constant
-00003: Apply 0D histograms for boolean XOR
-00004: Compare two 0D histograms for boolean AND
-00005: Compare two 0D histograms for boolean OR
-00006: Compare two histograms whether first is less than second
-00007: Compare two histograms whether first is equal to second
+00001: Compare 0D histograms for less than constant
+00002: Compare 0D histograms for greater than constant
+00003: Compare 0D histograms for equal to constant
+00004: Apply 0D histograms for boolean XOR
+00005: Compare two 0D histograms for boolean AND
+00006: Compare two 0D histograms for boolean OR
+00007: Compare two histograms whether first is less than second
+00008: Compare two histograms whether first is equal to second
 
 00020: Difference between choosable averaged CCD images
 00021: Divide first histogram by second histogram
 00022: Multiply first histogram with second histogram
 00023: Multiply histogram with constant
+00024: Substract Constant
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
@@ -130,26 +126,32 @@ the Class description for information about what parameters are user settable.
 
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
-00110: Photonhits Spectrum
-00111: Photonhits Image
-00120: Acqiris Waveform
-00130: Beamline data
-00140: Epics data
+00110: Acqiris Waveform
+00120: Beamline data
+00130: Epics data
+
+00140: Photonhits Spectrum
+00141: Photonhits Image
+
 00150: TofDetector number of signals in MCP waveform
 00151: TofDetector all signals
 00152: TofDetector signal height vs. fwhm
+
 00160: Delayline wireend number of signals
-00162: Delayline wireend signal height vs. fwhm
-00163: Delayline timesum on anode
-00164: Delayline timesum on anode vs. position
-00165: Delayline image of first good hit
-00167: Delayline reconstructed Number of detectorhits
-00168: Delayline data of all reconstructed detectorhits
+00161: Delayline wireend signal height vs. fwhm
+00162: Delayline timesum on anode
+00163: Delayline timesum on anode vs. position
+00164: Delayline image of first good hit
+00165: Delayline reconstructed Number of detectorhits
+00166: Delayline data of all reconstructed detectorhits
 
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
 00210: Advanced photonhit finder Image
 00211: Advanced photonhit finder Spectrum
+00220: PIPICO Spectrum
+00230: Photon energy of Shot
+00231: Wavelength of photons
 
 ---Output
 01000: Dump front and back pnCCD images (and more...) to HDF5
@@ -198,168 +200,59 @@ using the custom doxygen tag cassttng.
      */
     enum id_t
     {
-      Pnccd1LastImage=1, Pnccd2LastImage=2, VmiCcdLastImage=3,
-      CampChannel00LastWaveform=4,
-      CampChannel01LastWaveform=5,
-      CampChannel02LastWaveform=6,
-      CampChannel03LastWaveform=7,
-      CampChannel04LastWaveform=8,
-      CampChannel05LastWaveform=9,
-      CampChannel06LastWaveform=10,
-      CampChannel07LastWaveform=11,
-      CampChannel08LastWaveform=12,
-      CampChannel09LastWaveform=13,
-      CampChannel10LastWaveform=14,
-      CampChannel11LastWaveform=15,
-      CampChannel12LastWaveform=16,
-      CampChannel13LastWaveform=17,
-      CampChannel14LastWaveform=18,
-      CampChannel15LastWaveform=19,
-      CampChannel16LastWaveform=20,
-      CampChannel17LastWaveform=21,
-      CampChannel18LastWaveform=22,
-      CampChannel19LastWaveform=23,
-      ITofChannel00LastWaveform=24,
-      ITofChannel01LastWaveform=25,
-      ITofChannel02LastWaveform=26,
-      ITofChannel03LastWaveform=27,
-      FirstPnccdFrontBinnedConditionalRunningAverage=100, SecondPnccdFrontBinnedConditionalRunningAverage=101,
-      FirstPnccdBackBinnedConditionalRunningAverage=102, SecondPnccdBackBinnedConditionalRunningAverage=103,
-      FirstCommercialCCDBinnedConditionalRunningAverage=104, SecondCommercialCCDBinnedConditionalRunningAverage=105,
-      FirstImageSubstraction=106, SecondImageSubstraction=107,
-      VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
-      VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
-      VMIPhotonHitseV1d=116, PnCCDFrontPhotonHitseV1d=117, PnCCDBackPhotonHitseV1d=118,
-      VmiRunningAverage=121, VmiCos2Theta=131,
-      Integral3=141, Integral121=142,
-      GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
-      VmiFixedCos2Theta=150,
+      ConstantLess=1,
+      ConstantGreater=2,
+      ConstantEqual=3,
+      Xor=4,
+      BooleanAND=5,
+      BooleanOR=6,
+      CompareForLess=7,
+      CompareForEqual=8,
 
-      AdvancedPhotonFinderFrontPnCCD=160,
-      AdvancedPhotonFinderFrontPnCCDTwo=161,
-      AdvancedPhotonFinderBackPnCCD=162,
-      AdvancedPhotonFinderBackPnCCDTwo=163,
-      AdvancedPhotonFinderCommercialCCD=164,
-      AdvancedPhotonFinderCommercialCCDTwo=165,
+      SubstractHistograms=20,
+      DivideHistograms=21,
+      MultiplyHistograms=22,
+      MultiplyConstant=23,
+      SubstractConstant=24,
 
-      AdvancedPhotonFinderFrontPnCCD1dHist=166,
-      AdvancedPhotonFinderFrontPnCCDTwo1dHist=167,
-      AdvancedPhotonFinderBackPnCCD1dHist=168,
-      AdvancedPhotonFinderBackPnCCDTwo1dHist=169,
-      AdvancedPhotonFinderCommercialCCD1dHist=170,
-      AdvancedPhotonFinderCommercialCCDTwo1dHist=171,
+      TwoDProjection=50,
+      OneDIntergral=51,
 
-      CampChannel00AveragedWaveform=500,
-      CampChannel01AveragedWaveform=501,
-      CampChannel02AveragedWaveform=502,
-      CampChannel03AveragedWaveform=503,
-      CampChannel04AveragedWaveform=504,
-      CampChannel05AveragedWaveform=505,
-      CampChannel06AveragedWaveform=506,
-      CampChannel07AveragedWaveform=507,
-      CampChannel08AveragedWaveform=508,
-      CampChannel09AveragedWaveform=509,
-      CampChannel10AveragedWaveform=510,
-      CampChannel11AveragedWaveform=511,
-      CampChannel12AveragedWaveform=512,
-      CampChannel13AveragedWaveform=513,
-      CampChannel14AveragedWaveform=514,
-      CampChannel15AveragedWaveform=515,
-      CampChannel16AveragedWaveform=516,
-      CampChannel17AveragedWaveform=517,
-      CampChannel18AveragedWaveform=518,
-      CampChannel19AveragedWaveform=519,
-      ITofChannel00AveragedWaveform=520,
-      ITofChannel01AveragedWaveform=521,
-      ITofChannel02AveragedWaveform=522,
-      ITofChannel03AveragedWaveform=523,
+      ZeroDHistogramming=60,
+      HistogramAveraging=61,
+      HistogramSumming=62,
 
-      HexMCPNbrSignals=550,
-      HexU1NbrSignals=551,
-      HexU2NbrSignals=552,
-      HexV1NbrSignals=553,
-      HexV2NbrSignals=554,
-      HexW1NbrSignals=555,
-      HexW2NbrSignals=556,
-      HexU1U2Ratio=557,
-      HexU1McpRatio=558,
-      HexU2McpRatio=559,
-      HexV1V2Ratio=560,
-      HexV1McpRatio=561,
-      HexV2McpRatio=562,
-      HexW1W2Ratio=563,
-      HexW1McpRatio=564,
-      HexW2McpRatio=565,
-      HexRekMcpRatio=566,
-      HexAllMcp=567,
-      HexTimesumU=568,
-      HexTimesumV=569,
-      HexTimesumW=570,
-      HexTimesumUvsU=571,
-      HexTimesumVvsV=572,
-      HexTimesumWvsW=573,
-      HexFirstUV=574,
-      HexFirstUW=575,
-      HexFirstVW=576,
-      HexXY=578,
-      HexXT=579,
-      HexYT=580,
-      HexHeightvsFwhmMcp=581,
-      HexHeightvsFwhmU1=582,
-      HexHeightvsFwhmU2=583,
-      HexHeightvsFwhmV1=584,
-      HexHeightvsFwhmV2=585,
-      HexHeightvsFwhmW1=586,
-      HexHeightvsFwhmW2=587,
+      SingleCcdImage=100,
+      AcqirisWaveform=110,
+      BlData=120,
+      EpicsData=130,
 
-      QuadMCPNbrSignals=600,
-      QuadX1NbrSignals=601,
-      QuadX2NbrSignals=602,
-      QuadY1NbrSignals=603,
-      QuadY2NbrSignals=604,
-      QuadX1X2Ratio=605,
-      QuadX1McpRatio=606,
-      QuadX2McpRatio=607,
-      QuadY1Y2Ratio=608,
-      QuadY1McpRatio=609,
-      QuadY2McpRatio=610,
-      QuadRekMcpRatio=611,
-      QuadAllMcp=612,
-      QuadTimesumX=613,
-      QuadTimesumY=614,
-      QuadTimesumXvsX=615,
-      QuadTimesumYvsY=616,
-      QuadFirstXY=617,
-      QuadXY=618,
-      QuadXT=619,
-      QuadYT=620,
-      QuadHeightvsFwhmMcp=621,
-      QuadHeightvsFwhmX1=622,
-      QuadHeightvsFwhmX2=623,
-      QuadHeightvsFwhmY1=624,
-      QuadHeightvsFwhmY2=625,
+      CCDPhotonHitsSpectrum=140,
+      CCDPhotonHitsImage=141,
 
-      VMIMcpNbrSignals=650,
-      VMIMcpAllMcp=651,
-      VMIMcpHeightvsFwhmMcp=652,
+      TofDetNbrSignals=150,
+      TofDetAllSignals=151,
+      TofDetMcpHeightVsFwhm=152,
 
-      FELBeamMonitorNbrSignals=660,
-      FELBeamMonitorAllMcp=661,
-      FELBeamMonitorHeightvsFwhmMcp=662,
+      WireendNbrSignals=160,
+      WireendHeightvsFwhm=161,
+      AnodeTimesum=162,
+      AnodeTimesumVsPos=163,
+      DelaylineFirstGoodHit=164,
+      DelaylineNbrReconstructedHits=165,
+      DelaylineAllReconstuctedHits=166,
 
-      YAGPhotodiodeNbrSignals=670,
-      YAGPhotodiodeAllMcp=671,
-      YAGPhotodiodeHeightvsFwhmMcp=672,
+      Cos2Theta=200,
 
-      FsPhotodiodeNbrSignals=680,
-      FsPhotodiodeAllMcp=681,
-      FsPhotodiodeHeightvsFwhmMcp=682,
+      AdvancedPhotonFinder=210,
+      AdvancedPhotonFinderSpectrum=211,
 
-      HexPIPICO=700,
-      HexQuadPIPICO=701,
+      PIPICO=220,
 
-      PnccdHDF5=1001,
+      PhotonEnergy=230,
+      PhotonWavelength=231,
 
+      PnccdHDF5=1000,
       ROOTDump=2000,
 
       InvalidPP
