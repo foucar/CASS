@@ -107,6 +107,27 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @todo the classes in parenthesis should be links to the actual classes
 @verbatim
+---Operations--
+00809: Compare 0D histograms for less than constant  (pp809)
+00810: Compare 0D histograms for greater than constant  (pp810)
+00811: Compare 0D histograms for equal to constant  (pp811)
+00807: Compare two 0D histograms for boolean AND
+00808: Compare two 0D histograms for boolean OR
+00808: Compare two 0D histograms for boolean XOR
+00003: Compare two histograms whether first is less than second (pp800)
+00004: Compare two histograms whether first is equal to second (pp801)
+
+00001: Difference between choosable averaged CCD images
+00802: Divide first histogram by second histogram (pp802)
+00803: Multiply first histogram with second histogram (pp803)
+00804: Multiply histogram with constant (pp804)
+
+00806: Project 2D histogram onto a axis
+00805: Integral of 1D histogram
+00000: Histogram values from a 0d Histogram
+00000: Average of a histogram
+
+---Data retrieval--
 00001: Last plain image from Front pnCCD (pp1)
 00002: Last plain image from Back pnCCD (pp1)
 
@@ -310,20 +331,6 @@ the Class description for information about what parameters are user settable.
 00701: PIPICo of Hex and QuadDetector (pp700)
 
 ---Operants on histograms--
-00106: Difference between choosable averaged CCD images (pp106)
-00107: Difference between choosable averaged CCD images (pp106)
-00800: Compare two histograms whether first is less than second (pp800)
-00801: Compare two histograms whether first is equal to second (pp801)
-00802: Divide first histogram by second histogram (pp802)
-00803: Multiply first histogram with second histogram (pp803)
-00804: Multiply histogram with constant (pp804)
-00805: calc integral on 1d histogram between two boarders (pp805)
-00806: project 2d histogram to a given axis within chosen boarders (pp806)
-00807: Compare two 0D histograms for boolean AND (pp807)
-00808: Compare two 0D histograms for boolean OR  (pp808)
-00809: Compare 0D histograms for less than constant  (pp809)
-00810: Compare 0D histograms for greater than constant  (pp810)
-00811: Compare 0D histograms for equal to constant  (pp811)
 
 ---Machindata--
 00850: access for beamline data
@@ -370,7 +377,6 @@ please use doxygen style as then your documentation will be available on the web
     /** List of all currently registered postprocessors
      *
      * Keep this fully list synchronized with the documentation in the class header!
-     * @todo clean up list once the id for a pp is pair<id_t,size_t>
      */
     enum id_t
     {
