@@ -276,12 +276,12 @@ PostprocessorBackend * PostProcessors::create(key_t key)
   case EpicsData:
     processor = new pp130(*this,key);
     break;
-//  case CCDPhotonHitsImage:
-//    processor = new pp110(*this,key);
-//    break;
-//  case CCDPhotonHitsSpectrum:
-//    processor = new pp113(*this,key);
-//    break;
+  case CCDPhotonHitsSpectrum:
+    processor = new pp140(*this,key);
+    break;
+  case CCDPhotonHitsImage:
+    processor = new pp141(*this,key);
+    break;
 //  case TofDetNbrSignals:
 //    processor = new pp550(*this, key);
 //    break;
