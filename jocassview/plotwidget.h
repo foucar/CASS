@@ -522,7 +522,8 @@ protected slots:
     _cs_top = settings.value("pos1", 0.7).toDouble();
     _cs_bot = settings.value("pos2", 0.2).toDouble();
     _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
-    switch(_transformCol) {
+    switch(_transformCol)
+    {
     case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
       break;
     case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
@@ -603,7 +604,8 @@ public:
     QVector<double> qdata(hist->size());
     QVector<double> qx(hist->size());
     const cass::AxisProperty &axis = hist->axis()[0];
-    for (size_t ii=0;ii<hist->size();ii++) {
+    for (size_t ii=0;ii<hist->size();ii++)
+    {
       qx[ii]=static_cast<double>(axis.position(ii));
       qdata[ii]=static_cast<double>(hist->bin(ii));
     }
@@ -648,7 +650,8 @@ public:
 
   void customEvent( QEvent* event)
   {
-    if (event->type() == QEvent::User+111) {
+    if (event->type() == QEvent::User+111)
+    {
       EremoveCurve* removeCurveEvent = dynamic_cast<EremoveCurve*>(event);
       _overlayCurves.removeAll(removeCurveEvent->curve);
       _overlayCurveWidgets.removeAll(removeCurveEvent->curveWidget);
@@ -659,10 +662,13 @@ public:
 
   bool eventFilter(QObject *obj, QEvent *event)
   {
-    if ( _overlayCurveWidgets.contains(dynamic_cast<QWidget*>(obj)) ) {
-      if (event->type() == QEvent::MouseButtonPress) {
+    if ( _overlayCurveWidgets.contains(dynamic_cast<QWidget*>(obj)) )
+    {
+      if (event->type() == QEvent::MouseButtonPress)
+      {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if (mouseEvent->button() == Qt::RightButton) {
+        if (mouseEvent->button() == Qt::RightButton)
+        {
           QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
           if (curve) {
             EremoveCurve* removeCurveEvent = new EremoveCurve( static_cast<QEvent::Type>(QEvent::User+111) );
