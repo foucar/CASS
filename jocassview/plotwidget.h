@@ -435,7 +435,6 @@ public:
     _plot->plotLayout()->setAlignCanvasToScales(true);
     loadColorbar( current );
     _plot->replot();
-
   }
 
   void setData(cass::Histogram2DFloat* hist)
@@ -453,7 +452,6 @@ public:
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
-
     if (hist->getId() != oldId)
     {
       QRectF brect;
@@ -478,10 +476,9 @@ public:
       _zoomer->setZoomBase( brect  );
       _zoomer->zoom(0);
     }
-
     _plot->replot();
+  }
 
-  };
 protected slots:
   void saveColorbar()
   {
@@ -590,7 +587,7 @@ protected:
 
 
 
-
+/** 1d plot */
 class plotWidget : public QWidget
 {
   Q_OBJECT
@@ -876,7 +873,8 @@ public:
     setupUI();
   }
 
-  void setupUI() {
+  void setupUI()
+  {
     initPlot(_layout);
     _lblValue = new QLabel;
     _lblValue->setAlignment(Qt::AlignHCenter);
@@ -907,6 +905,7 @@ public:
     _values.enqueue(val);
     if (_values.size()>_accumulationLength) _values.dequeue();
   }
+
 protected:
   QLabel* _lblValue;
   QQueue<float> _values;
