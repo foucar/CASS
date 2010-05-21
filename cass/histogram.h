@@ -513,7 +513,7 @@ public:
     value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };
 
     /** Return histogram bin (row,col) */
-    const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
+    const value_t& bin(size_t row, size_t col) const { return _memory[col + row * _axis[0].size()]; };
 
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
@@ -528,7 +528,7 @@ public:
     /** Return histogram bin (row,col).
      * @overload
      */
-    value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
+    value_t& bin(size_t row, size_t col) { return _memory[col + row * _axis[0].size()]; };
 
     /** center of histogram.
      * @todo check and improve
