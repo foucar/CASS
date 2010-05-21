@@ -271,16 +271,10 @@ inline double cass::ACQIRIS::Signal::firstGood() const
     peaks_t::const_iterator it =
         std::find_if(_peaks.begin(),_peaks.end(),
                      PeakInRange(_grLow,_grHigh));
-                     //std::logical_and<bool>,bind2nd(less_equal<???>(),_grHigh);
-    /*std::vector<int>::iterator int_it=std::find_if(
-      ints.begin(),
-      ints.end(),
-      boost::bind(std::logical_and<bool>(),
-        boost::bind(std::greater<int>(),_1,5),
-        boost::bind(std::less_equal<int>(),_1,10)));*/
-
     //if it is not there retrun 0, otherwise the time of the found peak//
     _goodHit = (it==_peaks.end())? 0. : it->time();
+//    std::cout << _goodHit<<" find first good peak "<<_grLow<<" "<<_grHigh<<std::endl;
+
     _isNewEvent = false;
   }
   return _goodHit;

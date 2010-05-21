@@ -39,19 +39,21 @@ namespace cass
          _sf(1.)
       {}
 
-    public:
       /** map of signals that form the wireends of the layer*/
       typedef std::map<char,Signal> wireends_t;
-    public:
+
       /*! load values from cass.ini, should only be called by the detector*/
       void loadSettings(QSettings *p,const char * layername);
+
       /*! save values to cass.ini, should only be called by the detector*/
       void saveParameters(QSettings *p,const char * layername);
-    public:
+
       /*! returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
+
       /*! returns the timesum of the first good hit of this layer*/
       double timesum() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
+
       /*! returns the position of the first good hit*/
       double position() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
 
@@ -106,6 +108,7 @@ namespace cass
         _values['y']=y;
         _values['t']=t;
       }
+
       /** default constructor, initalizing every value to 0*/
       DelaylineDetectorHit()
         :_x_mm(0), _y_mm(0), _time(0)
@@ -130,17 +133,20 @@ namespace cass
       double &y()       {return _y_mm;}
       double &t()       {return _time;}
       //@}
+
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}
-
 
     private:
       /*! the x component of the detector in mm*/
       double  _x_mm;
+
       /*! the y component of the detector in mm*/
       double  _y_mm;
+
       /*! the mcp time of this hit on the detector*/
       double  _time;
+
       /** a map containing the three coordiantes of the hit*/
       std::map<char,double> _values;
     };
@@ -161,6 +167,9 @@ namespace cass
      *
      * @cassttng AcqirisDetectors/%detectorname%/{Runtime}\n
      *           maximum time a signal will run over the complete delayline.
+     * @cassttng AcqirisDetectors/%detectorname%/{Angle}\n
+     *           Angle in degree by which on can rotate the picture around 0,0.
+     *           Default is 0.
      * @cassttng AcqirisDetectors/%detectorname%/{McpRadius}\n
      *           Radius of the MCP in mm.
      * @cassttng AcqirisDetectors/%detectorname%/{AnalysisMethod}\n
@@ -203,6 +212,7 @@ namespace cass
          _layersToUse(UV),
          _delaylinetype(type)
       {_analyzerType =DelaylineSimple;}
+
       /** overwritten assignment operator.
        * this will overwrite the virtual assignment operator of the detectorbackend.
        * we need to do this to be able to easily copy the info of this detector in
@@ -215,12 +225,14 @@ namespace cass
     public:
       /** load the values from cass.ini*/
       virtual void loadSettings(QSettings *p);
+
       /** save values to cass.ini */
       virtual void saveParameters(QSettings *p);
 
     public:
       /** a vector of detector hits are the detector hits */
       typedef std::vector<DelaylineDetectorHit> dethits_t;
+
       /** a map of anodelayers */
       typedef std::map<char,AnodeLayer> anodelayers_t;
 
@@ -248,6 +260,7 @@ namespace cass
     public:
       /** @return the found detector hits*/
       const dethits_t     &hits()const            {return _hits;}
+
       /** @overload hits()const*/
       dethits_t           &hits()                 {return _hits;}
 
@@ -255,6 +268,7 @@ namespace cass
       //@{
       /** setter */
       std::string   &name()           {return _name;}
+      double        &angle()          {return _angle;}
       double        &runtime()        {return _runtime;}
       double        &wLayerOffset()   {return _wLayerOffset;}
       double        &mcpRadius()      {return _mcpRadius;}
@@ -268,6 +282,7 @@ namespace cass
       //@{
       /** getter */
       const std::string   &name()const            {return _name;}
+      double               angle()const           {return _angle;}
       double               runtime()const         {return _runtime;}
       double               wLayerOffset()const    {return _wLayerOffset;}
       double               mcpRadius()const       {return _mcpRadius;}
@@ -278,24 +293,35 @@ namespace cass
       DelaylineType        delaylineType()const   {return _delaylinetype;}
       LayersToUse          layersToUse()const     {return _layersToUse;}
       //@}
+
     private:
       /** the runtime of a signal over the anode */
       double _runtime;
+
+      /** the angle around which the x and y of detector will be rotated */
+      double _angle;
+
       /** the offset of w-layer towards u and v-layer, only used for hex detectors*/
       double _wLayerOffset;
+
       /** the radius of the MCP in mm*/
       double _mcpRadius;
+
       /** the Deadtime between to Signals on the MCP*/
       double _deadMcp;
+
       /** the deadtime between to Signals on the Layers */
       double _deadAnode;
+
       /** layer combination.
        * enum telling which Layers should be used to calculate the position when
        * using simple sorting
        */
       LayersToUse _layersToUse;
+
       /** type of the delayline (hex or quad)*/
       DelaylineType _delaylinetype;
+
       /** properties of layers*/
       anodelayers_t _anodelayers;
 
@@ -348,6 +374,7 @@ void cass::ACQIRIS::DelaylineDetector::loadSettings(QSettings *p)
   p->beginGroup(_name.c_str());
   _runtime      = p->value("Runtime",150).toDouble();
   _mcpRadius    = p->value("McpRadius",44.).toDouble();
+  _angle        = p->value("Angle",0.).toDouble()*3.1415/180.;
   _mcp.loadSettings(p,"MCP");
   _analyzerType =
       static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());

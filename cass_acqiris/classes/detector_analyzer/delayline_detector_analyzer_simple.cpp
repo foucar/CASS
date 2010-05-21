@@ -84,7 +84,8 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
   Signal::peaks_t &f1p  = f1.peaks();
   Signal::peaks_t &f2p  = f2.peaks();
   Signal::peaks_t &s1p  = s1.peaks();
-  Signal::peaks_t &s2p =  s2.peaks();
+  Signal::peaks_t &s2p  = s2.peaks();
+  const double angle    = d.angle();
 
 //  std::cout <<"mcp: "<<mcpp.size() <<" ";
 //  std::cout <<"f1: "<<f1.peaks().size() <<" ";
@@ -171,7 +172,9 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
             //check wether the hit is inside the radius of the MCP//
             if (radius_mm < radius)
             {
-              //std::cout << "found hit"<<std::endl;
+              //rotate x and y with angle
+              x_mm = x_mm * std::cos(angle) - y_mm * std::sin(angle);
+              y_mm = x_mm * std::sin(angle) + y_mm * std::cos(angle);
               //add a DetektorHit to the Detektor
               d.hits().push_back(DelaylineDetectorHit(x_mm,y_mm,mcp));
               //remember that this mcp Peak has already been used//
