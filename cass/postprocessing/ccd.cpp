@@ -115,130 +115,130 @@ pp101::pp101(PostProcessors& pp, cass::PostProcessors::id_t id)
     : PostprocessorBackend(pp, id),
       _scale(1.), _binning(std::make_pair(1, 1)), _image(0)
 {
-    loadSettings(0);
-    switch(id)
-    {
-    case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
-    case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
-        _detector = 0; _device=CASSEvent::pnCCD;
-        break;
-    case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
-    case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
-        _detector = 1; _device=CASSEvent::pnCCD;
-        break;
-    case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
-    case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
-        _detector = 0; _device=CASSEvent::CCD;
-        break;
-    default:
-        throw std::invalid_argument("Impossible postprocessor id for pp101");
-        break;
-    };
+  switch(id)
+  {
+  case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
+  case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
+    _detector = 0; _device=CASSEvent::pnCCD;
+    break;
+  case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
+  case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
+    _detector = 1; _device=CASSEvent::pnCCD;
+    break;
+  case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
+  case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
+    _detector = 0; _device=CASSEvent::CCD;
+    break;
+  default:
+    throw std::invalid_argument("Impossible postprocessor id for pp101");
+    break;
+  };
+  loadSettings(0);
 }
 
 
 cass::pp101::~pp101()
 {
-    _pp.histograms_delete(_id);
-    _image = 0;
+  _pp.histograms_delete(_id);
+  _image = 0;
 }
 
 
 void cass::pp101::loadSettings(size_t)
 {
-    using namespace cass::ACQIRIS;
-    int cols(0); int rows(0);
-    switch(_id)
-    {
-    case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
-    case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
-    case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
-    case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
-        cols = pnCCD::default_size; rows = pnCCD::default_size;
-        break;
-    case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
-    case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
-        cols = CCD::opal_default_size; rows = CCD::opal_default_size;
-        break;
-    default:
-        throw std::invalid_argument("Impossible postprocessor id for pp101");
-        break;
-    };
-    QSettings settings;
-    settings.beginGroup("PostProcessor");
-    settings.beginGroup(QString("p") + QString::number(_id));
-    _average = settings.value("average", 1).toUInt();
-    _scale =  2./(_average+1);
-    std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
-                                                         settings.value("bin_vertical", 1).toUInt()));
-    std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
-    if (name=="YAGPhotodiode")
-      _conditionDetector = YAGPhotodiode;
-    else if (name=="HexDetector")
-      _conditionDetector = HexDetector;
-    else if (name=="QuadDetector")
-      _conditionDetector = QuadDetector;
-    else if (name=="VMIMcp")
-      _conditionDetector = VMIMcp;
-    else if (name=="FELBeamMonitor")
-      _conditionDetector = FELBeamMonitor;
-    else if (name=="FsPhotodiode")
-      _conditionDetector = FsPhotodiode;
-    else
-      _conditionDetector = InvalidDetector;
+  using namespace cass::ACQIRIS;
+  int cols(0); int rows(0);
+  switch(_id)
+  {
+  case PostProcessors::FirstPnccdFrontBinnedConditionalRunningAverage:
+  case PostProcessors::SecondPnccdFrontBinnedConditionalRunningAverage:
+  case PostProcessors::FirstPnccdBackBinnedConditionalRunningAverage:
+  case PostProcessors::SecondPnccdBackBinnedConditionalRunningAverage:
+    cols = pnCCD::default_size; rows = pnCCD::default_size;
+    break;
+  case PostProcessors::FirstCommercialCCDBinnedConditionalRunningAverage:
+  case PostProcessors::SecondCommercialCCDBinnedConditionalRunningAverage:
+    cols = CCD::opal_default_size; rows = CCD::opal_default_size;
+    break;
+  default:
+    throw std::invalid_argument("Impossible postprocessor id for pp101");
+    break;
+  };
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString("p") + QString::number(_id));
+  _average = settings.value("average", 1).toUInt();
+  _scale =  2./(_average+1);
+  std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
+                                                       settings.value("bin_vertical", 1).toUInt()));
+  std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
+  if (name=="YAGPhotodiode")
+    _conditionDetector = YAGPhotodiode;
+  else if (name=="HexDetector")
+    _conditionDetector = HexDetector;
+  else if (name=="QuadDetector")
+    _conditionDetector = QuadDetector;
+  else if (name=="VMIMcp")
+    _conditionDetector = VMIMcp;
+  else if (name=="FELBeamMonitor")
+    _conditionDetector = FELBeamMonitor;
+  else if (name=="FsPhotodiode")
+    _conditionDetector = FsPhotodiode;
+  else
+    _conditionDetector = InvalidDetector;
 
-    _invert = settings.value("Invert",false).toBool();
+  _invert = settings.value("Invert",false).toBool();
 
-    std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average
-        <<" condition on detector:"<<name
-        <<" which has id:"<<_conditionDetector
-        <<" The Condition will be inverted:"<<std::boolalpha<<_invert
-        <<std::endl;
+  std::cout<<"Postprocessor_"<<_id<<": alpha for the averaging:"<<_scale<<" average:"<<_average
+      <<" condition on detector:"<<name
+      <<" which has id:"<<_conditionDetector
+      <<" The Condition will be inverted:"<<std::boolalpha<<_invert
+      <<std::endl;
 
-    if (_conditionDetector)
-      HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
+  if (_conditionDetector)
+    HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
 
-    _pp.histograms_delete(_id);
-    _image = new Histogram2DFloat(cols,rows);
-    _pp.histograms_replace(_id,_image);
+  _pp.histograms_delete(_id);
+  _image = new Histogram2DFloat(cols,rows);
+  _pp.histograms_replace(_id,_image);
 
-    _firsttime = true;
+  _firsttime = true;
 }
 
 
 
 void cass::pp101::operator()(const CASSEvent& event)
 {
-    using namespace cass::ACQIRIS;
+  using namespace cass::ACQIRIS;
 
-    //check whether detector exists
-    if (event.devices().find(_device)->second->detectors()->size() <= _detector)
-        throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+  //check whether detector exists
+  if (event.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
-    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-    const PixelDetector::frame_t& frame(det.frame());
+  const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+  const PixelDetector::frame_t& frame(det.frame());
 
-    //find out whether we should update//
-    bool update(true);
-    if (_conditionDetector != InvalidDetector)
-    {
-      TofDetector *det =
-          dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
-      update = det->mcp().peaks().size();
-      update ^= _invert;
-    }
-    // running average of data:
-    _image->lock.lockForWrite();
-    if (update)
-    {
-      ++_image->nbrOfFills();
-      float scale = (_image->nbrOfFills() < _average)? 1./_image->nbrOfFills() :_scale;
-      transform(frame.begin(),frame.end(),
-                _image->memory().begin(),
-                _image->memory().begin(),
-                Average(scale));
-    }
-    _image->lock.unlock();
+  //find out whether we should update//
+  bool update(true);
+  if (_conditionDetector != InvalidDetector)
+  {
+    TofDetector *det =
+        dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
+    update = det->mcp().peaks().size();
+    update ^= _invert;
+  }
+  // running average of data:
+  _image->lock.lockForWrite();
+  if (update)
+  {
+    ++_image->nbrOfFills();
+    float scale = (_image->nbrOfFills() < _average)? 1./_image->nbrOfFills() :_scale;
+    transform(frame.begin(),frame.end(),
+              _image->memory().begin(),
+              _image->memory().begin(),
+              Average(scale));
+  }
+  _image->lock.unlock();
 }
 
 
