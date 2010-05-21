@@ -17,6 +17,7 @@
 #include "hdf5dump.h"
 #include "operations.h"
 #include "imaging.h"
+#include "machine_data.h"
 #include "backend.h"
 
 
@@ -435,6 +436,9 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case AdvancedPhotonFinderCommercialCCD1dHist:
     case AdvancedPhotonFinderCommercialCCDTwo1dHist:
         processor = new pp166(*this,id);
+        break;
+    case PhotonEnergy:
+        processor = new pp852(*this,id);
         break;
 
 #ifdef HDF5

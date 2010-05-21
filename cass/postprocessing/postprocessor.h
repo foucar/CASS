@@ -342,6 +342,7 @@ the Class description for information about what parameters are user settable.
 ---Machindata--
 00850: access for beamline data
 00851: access for epics data
+00852: photonenergy from bld
 
 ---HDF5 output postprocessors--
 01001: Dump front and back pnCCD images (and more...) to HDF5
@@ -547,6 +548,8 @@ please use doxygen style as then your documentation will be available on the web
 
       HexPIPICO=700,
       HexQuadPIPICO=701,
+
+      PhotonEnergy=852,
 
       PnccdHDF5=1001,
 
