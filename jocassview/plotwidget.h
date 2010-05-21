@@ -304,8 +304,8 @@ public:
 
         if (ystep>0 && ystep<1)
         {
-          float topdiff = abs(ystep-_cs_top);
-          float botdiff = abs(ystep-_cs_bot);
+          float topdiff = std::abs(ystep-_cs_top);
+          float botdiff = std::abs(ystep-_cs_bot);
           if (topdiff<botdiff)
             _cs_top=ystep;
           else
