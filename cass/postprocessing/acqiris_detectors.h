@@ -423,6 +423,10 @@ namespace cass
     char _third;
     /** The condition that we impose on the third component*/
     std::pair<float, float> _condition;
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+    /** flag that will invert the update condition */
+    bool _invert;
     /** The Histogram storing the info*/
     Histogram2DFloat  *_hist;
   };

@@ -795,11 +795,29 @@ void cass::pp578::loadSettings(size_t)
   //load the condition on the third component//
   float f = param.value("ConditionLow",-50000.).toFloat();
   float s = param.value("ConditionHigh",50000.).toFloat();
-  param.endGroup();
   //make sure that the first value of the condition is the lower and second the higher value//
   _condition.first = (f<=s)?f:s;
   _condition.second = (s>f)?s:f;
   //tell the user what is loaded//
+
+  std::string name(param.value("ConditionDetector","InvalidDetector").toString().toStdString());
+  if (name=="YAGPhotodiode")
+    _conditionDetector = YAGPhotodiode;
+  else if (name=="HexDetector")
+    _conditionDetector = HexDetector;
+  else if (name=="QuadDetector")
+    _conditionDetector = QuadDetector;
+  else if (name=="VMIMcp")
+    _conditionDetector = VMIMcp;
+  else if (name=="FELBeamMonitor")
+    _conditionDetector = FELBeamMonitor;
+  else if (name=="FsPhotodiode")
+    _conditionDetector = FsPhotodiode;
+  else
+    _conditionDetector = InvalidDetector;
+
+  _invert = param.value("Invert",false).toBool();
+  param.endGroup();
 
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Property "<<_second
@@ -826,19 +844,32 @@ void cass::pp578::operator()(const cass::CASSEvent &evt)
   //get iterator to the hits//
   DelaylineDetector::dethits_t::iterator it = det->hits().begin();
 //  std::cout << det->hits().size()<<std::endl;
-  //go through all hits of the detector//
-  _hist->lock.lockForWrite();
-  for (; it != det->hits().end(); ++it)
+  //find out whether we should update//
+  bool update(true);
+  if (_conditionDetector != InvalidDetector)
   {
-//    std::cout
-//        <<" "<<_first<<":"<<it->values()[_first]
-//        <<" "<<_second<<":"<<it->values()[_second]
-//        <<" "<<_third<<":"<<it->values()[_third]
-//        <<std::endl;
-    if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
-      _hist->fill(it->values()[_first],it->values()[_second]);
+    TofDetector *det =
+        dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(evt));
+    update = det->mcp().peaks().size();
+    update ^= _invert;
   }
-  _hist->lock.unlock();
+
+  //go through all hits of the detector//
+  if (update)
+  {
+    _hist->lock.lockForWrite();
+    for (; it != det->hits().end(); ++it)
+    {
+      //    std::cout
+      //        <<" "<<_first<<":"<<it->values()[_first]
+      //        <<" "<<_second<<":"<<it->values()[_second]
+      //        <<" "<<_third<<":"<<it->values()[_third]
+      //        <<std::endl;
+      if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
+        _hist->fill(it->values()[_first],it->values()[_second]);
+    }
+    _hist->lock.unlock();
+  }
 }
 
 
