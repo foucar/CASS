@@ -228,6 +228,7 @@ namespace cass
       /** @returns the timesum of the first good hit for a given layer*/
       double timesum(char layer)
       {
+//        std::cout<< "del calc "<<layer<<" tsum: "<< _mcp.firstGood()<<std::endl;
         return _anodelayers[layer].timesum() - 2.* _mcp.firstGood();
       }
 
@@ -250,28 +251,33 @@ namespace cass
       /** @overload hits()const*/
       dethits_t           &hits()                 {return _hits;}
 
-    public: /** setters & getters */
+    public:
+      //@{
+      /** setter */
+      std::string   &name()           {return _name;}
+      double        &runtime()        {return _runtime;}
+      double        &wLayerOffset()   {return _wLayerOffset;}
+      double        &mcpRadius()      {return _mcpRadius;}
+      double        &deadTimeAnode()  {return _deadAnode;}
+      double        &deadTimeMCP()    {return _deadMcp;}
+      anodelayers_t &layers()         {return _anodelayers;}
+      Signal        &mcp()            {return _mcp;}
+      DelaylineType &delaylineType()  {return _delaylinetype;}
+      LayersToUse   &layersToUse()    {return _layersToUse;}
+      //@}
+      //@{
+      /** getter */
       const std::string   &name()const            {return _name;}
-      std::string         &name()                 {return _name;}
       double               runtime()const         {return _runtime;}
-      double              &runtime()              {return _runtime;}
       double               wLayerOffset()const    {return _wLayerOffset;}
-      double              &wLayerOffset()         {return _wLayerOffset;}
       double               mcpRadius()const       {return _mcpRadius;}
-      double              &mcpRadius()            {return _mcpRadius;}
       double               deadTimeAnode()const   {return _deadAnode;}
-      double              &deadTimeAnode()        {return _deadAnode;}
       double               deadTimeMCP()const     {return _deadMcp;}
-      double              &deadTimeMCP()          {return _deadMcp;}
       const anodelayers_t &layers()const          {return _anodelayers;}
-      anodelayers_t       &layers()               {return _anodelayers;}
       const Signal        &mcp()const             {return _mcp;}
-      Signal              &mcp()                  {return _mcp;}
       DelaylineType        delaylineType()const   {return _delaylinetype;}
-      DelaylineType       &delaylineType()        {return _delaylinetype;}
       LayersToUse          layersToUse()const     {return _layersToUse;}
-      LayersToUse         &layersToUse()          {return _layersToUse;}
-
+      //@}
     private:
       /** the runtime of a signal over the anode */
       double _runtime;
