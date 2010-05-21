@@ -221,15 +221,10 @@ public:
     {
       _interval.setMinValue( _hist->min() );
       _interval.setMaxValue( _hist->max() );
-      //            _boundRect.setLeft( _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
-      //            _boundRect.setTop( _hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
-      //            _boundRect.setWidth( _hist->axis()[cass::HistogramBackend::xAxis].upperLimit() - _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
-      //            _boundRect.setHeight( _hist->axis()[cass::HistogramBackend::yAxis].upperLimit() - _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
-      _boundRect.setCoords(
-          _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
-          _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
-          _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
-          _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
+      _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
+                           _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
+                           _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
+                           _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
       std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
           <<" hist left : "<<_boundRect.left()
           <<" hist right : "<<_boundRect.right()
@@ -295,7 +290,8 @@ public:
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if (mouseEvent->button() == Qt::RightButton)
         {
-          if((++_cb_scaleEngineIt)==_cb_scaleEngines->end()) _cb_scaleEngineIt=_cb_scaleEngines->begin();
+          if((++_cb_scaleEngineIt)==_cb_scaleEngines->end())
+              _cb_scaleEngineIt = _cb_scaleEngines->begin();
           updateColorBarScale();
         }
       }
@@ -308,8 +304,8 @@ public:
 
         if (ystep>0 && ystep<1)
         {
-          float topdiff = fabs(ystep-_cs_top);
-          float botdiff = fabs(ystep-_cs_bot);
+          float topdiff = abs(ystep-_cs_top);
+          float botdiff = abs(ystep-_cs_bot);
           if (topdiff<botdiff)
             _cs_top=ystep;
           else
@@ -326,7 +322,6 @@ public:
   void mouseMoveEvent ( QMouseEvent * /* event */)
   {
     //double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
-
     //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
   }
 
@@ -372,7 +367,6 @@ public:
     _toolbar->addWidget( _rad_colormap_exp );
     _toolbar->addWidget( _rad_colormap_sqrt );
     _toolbar->addWidget( _rad_colormap_sq );
-
 
     setMouseTracking(true);
     //_transformCol = QwtLogColorMap::trans_pow10;
@@ -550,8 +544,7 @@ protected slots:
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
     _spectrogram->setColorMap(*_colorMap);
-    _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMap);
+    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
     _plot->replot();
   }
 
@@ -917,3 +910,12 @@ protected:
 
 
 #endif
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// c-file-style: "gnu"
+// fill-column: 100
+// End:
