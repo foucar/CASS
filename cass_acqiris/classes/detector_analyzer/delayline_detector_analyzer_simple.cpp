@@ -173,10 +173,10 @@ void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS:
             if (radius_mm < radius)
             {
               //rotate x and y with angle
-              x_mm = x_mm * std::cos(angle) - y_mm * std::sin(angle);
-              y_mm = x_mm * std::sin(angle) + y_mm * std::cos(angle);
+              const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
+              const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
               //add a DetektorHit to the Detektor
-              d.hits().push_back(DelaylineDetectorHit(x_mm,y_mm,mcp));
+              d.hits().push_back(DelaylineDetectorHit(rot_x_mm,rot_y_mm,mcp));
               //remember that this mcp Peak has already been used//
               mcpp[iMcp].isUsed()    = true;
               f1p[iX1].isUsed() = true;
