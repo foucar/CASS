@@ -681,8 +681,8 @@ void cass::pp220::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector01 = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _detector02 = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector01 = static_cast<Detectors>(settings.value("FirstDetector",1).toUInt());
+  _detector02 = static_cast<Detectors>(settings.value("SecondDetector",1).toUInt());
   set2DHist(_pipico,_key);
   _pp.histograms_replace(_key,_pipico);
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
