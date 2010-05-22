@@ -563,7 +563,7 @@ public:
      * @param[in] range of the distances that you want to project
      * @param[in] Number of bins
      */
-    Histogram1DFloat radial_project(std::pair<float,float> centre, std::pair<float,float> range, float radius) const;
+    Histogram1DFloat radial_project(std::pair<float,float> centre, float radius) const;
 
     /** Reduce the 2D histogram to a 1D radar plot around a specified centre.
      * @param[in] centre(x,y),

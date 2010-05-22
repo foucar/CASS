@@ -49,14 +49,17 @@ namespace cass
     settings.beginGroup(QString("p") + QString::number(id));
     dependid = ( static_cast<PostProcessors::id_t>(settings.value(param_name,0).toInt()));
     //when histogram id is not yet on list we return false
+    pp.histograms_checkout();
     try
     {
       pp.validate(dependid);
     }
     catch (InvalidHistogramError&)
     {
+      pp.histograms_release();
       return false;
     }
+    pp.histograms_release();
     return true;
   }
 }
@@ -853,13 +856,13 @@ void cass::pp807::loadSettings(size_t)
     return;
 
   //make sure that lower and upper bound are not exceeding histograms boudaries
-  const Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  const HistogramFloatBase*one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //create the resulting histogram checking that the maximum radius is reasonable for
   // the origin-histogram
   _pp.histograms_delete(_id);
-
   //check that the centre is within the histogram's boundary
   if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit()) 
     _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
@@ -898,13 +901,13 @@ void cass::pp807::operator()(const CASSEvent&)
 {
   using namespace std;
   //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  Histogram2DFloat *one (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //retrieve the projection from the 2d hist//
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
-  *_projec = one->radial_project(_centre,_range,_radius);
+  *_projec = one->radial_project(_centre,_radius);
   _projec->lock.unlock();
   one->lock.unlock();
 }
@@ -961,7 +964,8 @@ void cass::pp808::loadSettings(size_t)
     return;
 
   //make sure that lower and upper bound are not exceeding histograms boudaries
-  const Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //create the resulting histogram checking that the maximum radius is reasonable for
