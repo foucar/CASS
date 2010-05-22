@@ -165,13 +165,15 @@ void cass::pp151::loadSettings(size_t)
 void cass::pp151::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   //get right filled detector from the helper
   TofDetector *det =
       dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
   //reference to all found peaks of the mcp channel//
   Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
-  //fill all found peaks into the histogram//
+  //clear histo and fill all found peaks into the histogram//
   _tof->lock.lockForWrite();
+  fill(_tof->memory().begin(),_tof->memory().end(),0);
   for (; it != det->mcp().peaks().end(); ++it)
     _tof->fill(it->time());
   _tof->lock.unlock();

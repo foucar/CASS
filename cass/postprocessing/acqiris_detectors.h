@@ -114,7 +114,49 @@ namespace cass
   };
 
 
-//--
+
+  /** FWHM vs. Height of wireend signals.
+   *
+   * This postprocessor will make a histogram of the fwhm and height of
+   * all Wireend Signals in a delaylinedetector.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   *
+   * implements postprocessor id's: 582-587, 622-625
+   *
+   * @author Lutz Foucar
+   */
+  class pp582 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp582(PostProcessors&, PostProcessors::key_t key);
+    /** Free _image space */
+    virtual ~pp582();
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+    /** The layer of the detector detector we are there for*/
+    char _layer;
+    /** The Signal of the layer detector we are there for*/
+    char _signal;
+    /** The Histogram storing the info*/
+    Histogram2DFloat  *_sigprop;
+  };
+
+
+
+  //--
 
 
 
@@ -425,44 +467,6 @@ namespace cass
 
 
 
-  /** FWHM vs. Height of wireend signals.
-   *
-   * This postprocessor will make a histogram of the fwhm and height of
-   * all Wireend Signals in a delaylinedetector.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
-   *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 582-587, 622-625
-   *
-   * @author Lutz Foucar
-   */
-  class pp582 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Number of Signals*/
-    pp582(PostProcessors&, PostProcessors::key_t key);
-    /** Free _image space */
-    virtual ~pp582();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Signal of the layer detector we are there for*/
-    char _signal;
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_sigprop;
-  };
 
 
 
