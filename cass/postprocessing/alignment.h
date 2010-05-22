@@ -133,19 +133,21 @@ class pp200 : public PostprocessorBackend
 {
 public:
   /** Construct postprocessor for Gaussian height of image */
-  pp200(PostProcessors&, PostProcessors::key_t key);
+  pp200(PostProcessors&, const PostProcessors::key_t&);
+
   /** Free _image space */
   virtual ~pp200();
+
   /** calculate \f$\cos^2\theta\f$ of averaged image */
   virtual void operator()(const CASSEvent&);
+
   /** Define postprocessor dependency on the requested image*/
   virtual PostProcessors::active_t dependencies();
+
   /** load the histogram settings from cass.ini*/
   virtual void loadSettings(size_t);
 
 protected:
-  /** image that we will calculate the \f$\cos^2\theta\f$ from*/
-  PostProcessors::key_t   _imagekey;
   std::pair<float, float> _center; //!< Image center
   float _minRadius;                //!< Minimum radius for analysis
   float _maxRadius;                //!< Maximum radius for analysis
@@ -154,7 +156,9 @@ protected:
   size_t _nbrRadialPoints;         //!< Number of radial points
   size_t _nbrAngularPoints;        //!< Number of angular points
   bool _drawCircle;               //!< flag to tell whether to draw the inner and outer circle
-  /** the cos2theta value*/
+  /** image that we will calculate the \f$\cos^2\theta\f$ from */
+  PostProcessors::key_t   _imagekey;
+  /** the cos2theta value */
   Histogram0DFloat *_value;
 };
 
