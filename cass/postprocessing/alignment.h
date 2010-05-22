@@ -124,8 +124,6 @@ class Histogram0DFloat;
  * @cassttng PostProcessor/p\%id\%/{DrawInnerOuterRadius}\n
  *           draw the inner and out include radius. default is false
  *
- * Implements Postprocessor id's: 150.
- *
  * @author Per Johnsson
  * @author Lutz Foucar
  */
