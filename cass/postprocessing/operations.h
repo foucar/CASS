@@ -440,6 +440,122 @@ namespace cass
   };
 
 
+  /** Radial Average/Projection of 2d Histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{XCentre|YCentre} \n
+   *           Xcoordinate and Y coordinate of the centre. Default is
+   *           512,512
+   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
+   *           Upper and lower bound of the area to project. Default is
+   *           0 ... radius
+   * @cassttng PostProcessor/p\%id\%/{Radius} \n
+   *           Default is 1024.
+   *           Possible choises are:
+   *           - 0 to Infinite
+   *           in case that the value is too large for the histogram this
+   *           value will be automatically reduced
+   *
+   * Implements postprocessors id's 807
+   *
+   * @author Nicola Coppola
+   */
+  class pp807 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp807(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image space */
+    virtual ~pp807();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+  protected:
+    /** the id of the 2d hist we want to project */
+    PostProcessors::id_t _idHist;
+
+    /** distance's range we want to see displayed */
+    std::pair<float,float> _range;
+
+    /** axis we want to project on */
+    size_t _axis;
+
+    /** centre's coordinates we use to calculate the radial average */
+    std::pair<float,float> _centre;
+
+    /** max Radius we want to use */
+    size_t _radius;
+
+    /** resulting histgram */
+    Histogram1DFloat *_projec;
+  };
+
+  /** Radar Plot of 2d Histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
+   *           Upper and lower bound of the area to project. Default is
+   *           0 ... radius
+   * @cassttng PostProcessor/p\%id\%/{Radii} \n
+   *           Default is 0,1024.
+   *           Possible choices are:
+   *           - 0 to Infinite
+   *           in case that the value is too large for the histogram this
+   *           value will be automatically reduced
+   *
+   * Implements postprocessors id's 808
+   *
+   * @author Nicola Coppola
+   */
+  class pp808 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp808(PostProcessors& hist, PostProcessors::id_t id);
+
+    /** Free _image space */
+    virtual ~pp808();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual std::list<PostProcessors::id_t> dependencies();
+
+  protected:
+    /** the id of the 2d hist we want to project */
+    PostProcessors::id_t _idHist;
+
+    /** inner outter radii we want to use displayed */
+    std::pair<float,float> _range;
+    std::pair<float,float> _radii;
+
+    /** axis we want to project on */
+    //size_t _axis;
+
+    /** centre's coordinates we use to calculate the radar plot */
+    std::pair<float,float> _centre;
+
+    /** resulting histgram */
+    Histogram1DFloat *_projec;
+  };
+
+
 }
 
 #endif

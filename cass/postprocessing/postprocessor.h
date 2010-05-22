@@ -552,6 +552,8 @@ please use doxygen style as then your documentation will be available on the web
 
       PhotonEnergy=852,
       Project2d=806,
+      Project2rho=807,
+      Project2phi=808,
 
       PnccdHDF5=1001,
 

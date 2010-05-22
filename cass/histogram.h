@@ -555,6 +555,21 @@ public:
      */
     Histogram1DFloat project(std::pair<float,float> range, Axis axis) const;
 
+    /** Reduce the 2D histogram to a 1D radial average/projection around a specified centre.
+     * @param[in] centre(x,y),
+     * @param[in] radius,
+     * @param[in] range of the distances that you want to project
+     * @param[in] Number of bins
+     */
+    Histogram1DFloat radial_project(std::pair<float,float> centre, std::pair<float,float> range, float radius) const;
+
+    /** Reduce the 2D histogram to a 1D radar plot around a specified centre.
+     * @param[in] centre(x,y),
+     * @param[in] radii (min,max),
+     * @param[in] Number of bins
+     */
+    Histogram1DFloat radar_plot(std::pair<float,float> centre, std::pair<float,float> range) const;
+
     /** Create a QImage of this histogram.
      *
      * This method does the necessary locking itself!

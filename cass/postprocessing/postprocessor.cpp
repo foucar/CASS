@@ -444,6 +444,12 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case Project2d:
         processor = new pp806(*this,id);
         break;
+    case Project2rho:
+        processor = new pp807(*this,id);
+        break;
+    case Project2phi:
+        processor = new pp808(*this,id);
+        break;
 
 #ifdef HDF5
     case PnccdHDF5:
