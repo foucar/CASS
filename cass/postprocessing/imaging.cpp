@@ -130,133 +130,79 @@ void cass::pp210::operator()(const CASSEvent& event)
 
 
 
-// *** postprocessors 166 in 1d histogram ***
+// *** postprocessors 211 in 1d histogram ***
 
-//cass::pp166::pp166(PostProcessors& pp, cass::PostProcessors::id_t id)
-//  : PostprocessorBackend(pp, id),
-//  _hist(0)
-//{
-//  loadSettings(0);
-//  switch(id)
-//  {
-//  case PostProcessors::AdvancedPhotonFinderFrontPnCCD1dHist:
-//  case PostProcessors::AdvancedPhotonFinderFrontPnCCDTwo1dHist:
-//      _detector = 0; _device=CASSEvent::pnCCD;
-//      break;
-//  case PostProcessors::AdvancedPhotonFinderBackPnCCD1dHist:
-//  case PostProcessors::AdvancedPhotonFinderBackPnCCDTwo1dHist:
-//      _detector = 1; _device=CASSEvent::pnCCD;
-//      break;
-//  case PostProcessors::AdvancedPhotonFinderCommercialCCD1dHist:
-//  case PostProcessors::AdvancedPhotonFinderCommercialCCDTwo1dHist:
-//      _detector = 0; _device=CASSEvent::CCD;
-//      break;
-//  default:
-//      throw std::invalid_argument("Impossible postprocessor id for pp166");
-//      break;
-//  };
-//
-//}
-//
-//cass::pp166::~pp166()
-//{
-//  _pp.histograms_delete(_id);
-//  _hist = 0;
-//}
-//
-//std::list<cass::PostProcessors::id_t> cass::pp166::dependencies()
-//{
-//  std::list<PostProcessors::id_t> list;
-//  list.push_front(_idAverage);
-//  return list;
-//}
-//
-//void cass::pp166::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(QString("p") + QString::number(_id));
-//
-//  _invert = settings.value("Invert",false).toBool();
-//  _idAverage = static_cast<PostProcessors::id_t>(settings.value("AveragedImage",100).toInt());
-//
-//  std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
-//  if (name=="YAGPhotodiode")
-//    _conditionDetector = YAGPhotodiode;
-//  else if (name=="HexDetector")
-//    _conditionDetector = HexDetector;
-//  else if (name=="QuadDetector")
-//    _conditionDetector = QuadDetector;
-//  else if (name=="VMIMcp")
-//    _conditionDetector = VMIMcp;
-//  else if (name=="FELBeamMonitor")
-//    _conditionDetector = FELBeamMonitor;
-//  else if (name=="FsPhotodiode")
-//    _conditionDetector = FsPhotodiode;
-//  else
-//    _conditionDetector = InvalidDetector;
-//
-//  //load condition detector's settings//
-//  if (_conditionDetector)
-//    HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
-//
-//  std::cout<<"Postprocessor_"<<_id
-//      <<" averging image for this pp:"<< _idAverage
-//      <<" condition on detector:"<<name
-//      <<" which has id:"<<_conditionDetector
-//      <<" The Condition will be inverted:"<<std::boolalpha<<_invert
-//      <<std::endl;
-//
-//  //create the histogram
-//  _pp.histograms_delete(_id);
-//  _hist=0;
-//  set1DHist(_hist,_id);
-//  _pp.histograms_replace(_id,_hist);
-//
-//}
-//
-//void cass::pp166::operator()(const CASSEvent& event)
-//{
-//  using namespace cass::ACQIRIS;
-//  using namespace std;
-//
-//  //check whether we need to update the histogram//
-//  bool update(true);
-//  if (_conditionDetector != InvalidDetector)
-//  {
-//    TofDetector *det =
-//        dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(event));
-//    update = det->mcp().peaks().size();
-//    update ^= _invert;
-//  }
-//
-//  if (update)
-//  {
-//    //check whether detector exists
-//    if (event.devices().find(_device)->second->detectors()->size() <=_detector)
-//      throw std::runtime_error(QString("PostProcessor_%1: detector %2 does not exist in device %3").arg(_id).arg(_detector).arg(_device).toStdString());
-//
-//    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-//    const PixelDetector::frame_t& frame(det.frame());
-//    //get the averaged histogram//
-//    const PostProcessors::histograms_t container (_pp.histograms_checkout());
-//    PostProcessors::histograms_t::const_iterator histIt(container.find(_idAverage));
-//    const HistogramFloatBase::storage_t average (dynamic_cast<Histogram2DFloat *>(histIt->second)->memory());
-//    _pp.histograms_release();
-//    //correct the histogram with the help of the helper, retrive a const reference to the corrected frame//
-//    histIt->second->lock.lockForRead();
-//    const PixelDetector::frame_t &corFrame
-//        (HelperAveragingOffsetCorrection::instance(_idAverage)->correctFrame(event.id(),frame,average));
-//    PixelDetector::frame_t::const_iterator corFrameIt(corFrame.begin());
-//    histIt->second->lock.unlock();
-//    //fill histogram with all pixels
-//    _hist->lock.lockForWrite();
-//    while(corFrameIt != corFrame.end())
-//      _hist->fill(*corFrameIt++);
-//    _hist->lock.unlock();
-//  }
-//}
-//
+cass::pp211::pp211(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _hist(0)
+{
+  loadSettings(0);
+}
+
+cass::pp211::~pp211()
+{
+  _pp.histograms_delete(_key);
+  _hist = 0;
+}
+
+cass::PostProcessors::active_t cass::pp211::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idAverage);
+  return list;
+}
+
+void cass::pp211::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+  if (!retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"Condition",_condition))
+    return;
+  _pp.histograms_delete(_key);
+  _hist=0;
+  set1DHist(_hist,_key);
+  _pp.histograms_replace(_key,_hist);
+  std::cout<<"Postprocessor "<<_key
+      <<": averging image for this pp:"<< _idAverage
+      <<" condition on pp:"<<_condition
+      <<std::endl;
+}
+
+void cass::pp211::operator()(const CASSEvent& event)
+{
+  using namespace std;
+  //check whether we need to update the histogram//
+  bool update = dynamic_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_condition)->second)->isTrue();
+
+  if (update)
+  {
+    if (event.devices().find(_device)->second->detectors()->size() <=_detector)
+      throw std::runtime_error(QString("PostProcessor_%1: detector %2 does not exist in device %3")
+                               .arg(_key.c_str())
+                               .arg(_detector)
+                               .arg(_device).toStdString());
+    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
+    const PixelDetector::frame_t& frame(det.frame());
+    //get the averaged histogram//
+    HistogramFloatBase *image
+        (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idAverage)->second));
+    _pp.histograms_release();
+    //correct the histogram with the help of the helper, retrive a const reference to the corrected frame//
+    image->lock.lockForRead();
+    PixelDetector::frame_t corFrame
+        (HelperAveragingOffsetCorrection::instance(_idAverage)->correctFrame(event.id(),frame,image->memory()));
+    PixelDetector::frame_t::const_iterator corFrameIt (corFrame.begin());
+    image->lock.unlock();
+     //fill histogram with all pixels
+    _hist->lock.lockForWrite();
+    while(corFrameIt != corFrame.end())
+      _hist->fill(*corFrameIt++);
+    _hist->lock.unlock();
+  }
+}
+
 

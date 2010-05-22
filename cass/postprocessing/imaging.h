@@ -104,16 +104,21 @@ namespace cass
    *
    * A 1D Histogram of all pixels in the corrected image.
    *
-   * @cassttng PostProcessor/p\%id\%/{Invert} \n
-   *           Inverts the condition. Default is false.
-   * @cassttng PostProcessor/p\%id\%/{ConditionDetector} \n
-   *           The ToF-Detector we make a condition on. Default is Invalid Detector
-   *           Which will result in no Condition.
-   * @cassttng PostProcessor/p\%id\%/{AveragedImage} \n
+   * @cassttng PostProcessor/\%name\%/{Condition} \n
+   *           The PostProcessor we make a condition on. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{AveragedImage} \n
    *           The id of the running average of we use for substraction. Default
-   *           is 100.
-   *
-   * Implements postprocessors id's 166 - 171
+   *           is 0.
+   * @cassttng PostProcessor/\%name\%/{Condition} \n
+   *           The PostProcessor we make a condition on. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
    *
    * @author Lutz Foucar
    */
@@ -121,39 +126,35 @@ namespace cass
   {
   public:
     /** constructor. */
-    pp211(PostProcessors& hist, PostProcessors::key_t key);
+    pp211(PostProcessors& hist, const PostProcessors::key_t&);
+
     /** Free _image space */
     virtual ~pp211();
+
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
+
     /** load the settings*/
     virtual void loadSettings(size_t);
+
     /** the two histograms that the user wants to substract */
     virtual PostProcessors::active_t dependencies();
 
   protected:
-    /** flag to invert the condition */
-    bool _invert;
-    /** the Detector that we make the condition on*/
-    ACQIRIS::Detectors _conditionDetector;
+    /** the pp that we make the condition on*/
+    PostProcessors::key_t _condition;
+
     /** the id of the averaged image */
-    PostProcessors::id_t _idAverage;
+    PostProcessors::key_t _idAverage;
+
     /** resulting 1d Histogram */
     Histogram1DFloat *_hist;
+
     /** CCD detector to work on */
     size_t _detector;
+
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
   };
-
-
-
-
-
-
-
 }
-
-
-
 #endif
