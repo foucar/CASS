@@ -173,6 +173,12 @@ public:
     virtual void loadSettings(size_t);
 
 protected:
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+
+    /** flag that will invert the condition */
+    bool _invert;
+
     /** range of the photonenergy */
     std::pair<float, float> _range;
 

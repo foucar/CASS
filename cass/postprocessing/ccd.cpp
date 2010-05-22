@@ -306,12 +306,29 @@ cass::pp110::~pp110()
 
 void cass::pp110::loadSettings(size_t)
 {
+  using namespace cass::ACQIRIS;
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
   _range = std::make_pair(settings.value("PhotonenergyLowerBound",0.).toFloat(),
                           settings.value("PhotonenergyUpperBound",10000).toFloat());
+  std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
+  if (name=="YAGPhotodiode")
+    _conditionDetector = YAGPhotodiode;
+  else if (name=="HexDetector")
+    _conditionDetector = HexDetector;
+  else if (name=="QuadDetector")
+    _conditionDetector = QuadDetector;
+  else if (name=="VMIMcp")
+    _conditionDetector = VMIMcp;
+  else if (name=="FELBeamMonitor")
+    _conditionDetector = FELBeamMonitor;
+  else if (name=="FsPhotodiode")
+    _conditionDetector = FsPhotodiode;
+  else
+    _conditionDetector = InvalidDetector;
+  _invert = settings.value("Invert",false).toBool();
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
       <<" of detector "<<_detector
@@ -325,33 +342,48 @@ void cass::pp110::loadSettings(size_t)
 void cass::pp110::operator()(const CASSEvent& evt)
 {
     using namespace std;
+    using namespace cass::ACQIRIS;
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
     //retrieve the detector's photon hits of the device we are working for.
 
-    PostProcessors::histograms_t c (_pp.histograms_checkout());
-    PostProcessors::histograms_t::iterator pi(c.find(PostProcessors::PhotonEnergy));
-    _pp.histograms_release();
-    float photonenergy(1);
-    if (pi != c.end())
+    //find out whether we should update//
+    bool update(true);
+    if (_conditionDetector != InvalidDetector)
     {
-      pi->second->lock.lockForRead();
-      photonenergy = dynamic_cast<Histogram0DFloat*>(pi->second)->getValue();
-      pi->second->lock.unlock();
+      TofDetector *det =
+          dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_conditionDetector)->detector(evt));
+      update = det->mcp().peaks().size();
+      update ^= _invert;
     }
-
-    if (min(_range.first,_range.second) < photonenergy &&
-        photonenergy < max(_range.first,_range.second))
+    // running average of data:
+    if (update)
     {
 
-      const PixelDetector::pixelList_t& pixellist
-          ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
-      PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-      _image->lock.lockForWrite();
-      for (; it != pixellist.end();++it)
-        _image->fill(it->x(),it->y());
-      _image->lock.unlock();
+      PostProcessors::histograms_t c (_pp.histograms_checkout());
+      PostProcessors::histograms_t::iterator pi(c.find(PostProcessors::PhotonEnergy));
+      _pp.histograms_release();
+      float photonenergy(1);
+      if (pi != c.end())
+      {
+        pi->second->lock.lockForRead();
+        photonenergy = dynamic_cast<Histogram0DFloat*>(pi->second)->getValue();
+        pi->second->lock.unlock();
+      }
+
+      if (min(_range.first,_range.second) < photonenergy &&
+          photonenergy < max(_range.first,_range.second))
+      {
+
+        const PixelDetector::pixelList_t& pixellist
+            ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+        PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+        _image->lock.lockForWrite();
+        for (; it != pixellist.end();++it)
+          _image->fill(it->x(),it->y());
+        _image->lock.unlock();
+      }
     }
   }
 
