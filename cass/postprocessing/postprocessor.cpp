@@ -249,6 +249,7 @@ PostprocessorBackend * PostProcessors::create(id_t id)
         processor = new pp106(*this, id);
         break;
     case VMIPhotonHits:
+    case VMIPhotonHitsTwo:
     case PnCCDFrontPhotonHits:
     case PnCCDBackPhotonHits:
         processor = new pp110(*this,id);

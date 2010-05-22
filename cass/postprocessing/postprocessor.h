@@ -421,6 +421,7 @@ please use doxygen style as then your documentation will be available on the web
       VMIPhotonHits=110, PnCCDFrontPhotonHits=111, PnCCDBackPhotonHits=112,
       VMIPhotonHits1d=113, PnCCDFrontPhotonHits1d=114, PnCCDBackPhotonHits1d=115,
       VMIPhotonHitseV1d=116, PnCCDFrontPhotonHitseV1d=117, PnCCDBackPhotonHitseV1d=118,
+      VMIPhotonHitsTwo=120,
       VmiRunningAverage=121, VmiCos2Theta=131,
       Integral3=141, Integral121=142,
       GaussWidth3=143, GaussHeight3=144, GaussWidth121=145, GaussHeight121=146,
