@@ -508,41 +508,45 @@ namespace cass
 
 
 
- //--
 
-  /** Ratio of reconstucted hits vs mcp hits.
+
+  /** Number of reconstucted hits.
    *
-   * This postprocessor will output the Ratio of the Number reconstructed
-   * detector hits with respect to the the number of Signals in the mcp channel.
+   * This postprocessor will output the number of reconstructed detector hits.
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 566, 611
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
    *
    * @author Lutz Foucar
    */
-  class pp566 : public PostprocessorBackend
+  class pp165 : public PostprocessorBackend
   {
   public:
     /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-    pp566(PostProcessors&, PostProcessors::key_t key);
+    pp165(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp566();
+    virtual ~pp165();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
+    Histogram0DFloat  *_nbrHits;
   };
 
 

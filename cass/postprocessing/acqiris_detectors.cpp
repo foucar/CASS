@@ -518,111 +518,101 @@ void cass::pp164::operator()(const cass::CASSEvent &evt)
 
 
 
-////----------------Ratio of rec. Hits vs. MCP Hits------------------------------
-////------------------------------pp566, pp611-----------------------------------
-//cass::pp566::pp566(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _ratio(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexRekMcpRatio:
-//    _detector = HexDetector;break;
-//  case PostProcessors::QuadRekMcpRatio:
-//    _detector = QuadDetector;break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of reconstructed Hits vs MCP Hits").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp566::~pp566()
-//{
-//  _pp.histograms_delete(_id);
-//  _ratio=0;
-//}
-//
-//void cass::pp566::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the ratio of reconstructed hits vs. Mcp peaks"
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_ratio,_id);
-//  _pp.histograms_replace(_id,_ratio);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp566::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  const float rek = det->hits().size();
-//  const float mcp = det->mcp().peaks().size();
-//  _ratio->lock.lockForWrite();
-//  _ratio->fill(rek/mcp);
-//  _ratio->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+
+
+
+
+
+
+
+//----------------Nbr of rec. Hits --------------------------------------------
+cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _nbrHits(0)
+{
+  loadSettings(0);
+}
+
+cass::pp165::~pp165()
+{
+  _pp.histograms_delete(_key);
+  _nbrHits=0;
+}
+
+void cass::pp165::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _pp.histograms_delete(_key);
+  _nbrHits = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_nbrHits);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": outputs the number of reconstructed hits"
+      <<" of detector "<<_detector
+      <<std::endl;
+}
+
+void cass::pp165::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrHits->lock.lockForWrite();
+  _nbrHits->fill(det->hits().size());
+  _nbrHits->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ////----------------Detector Values----------------------------------------------
 ////-----------pp578-580, pp61-620-----------------------------------------------
 //cass::pp578::pp578(PostProcessors &pp, PostProcessors::id_t id)
