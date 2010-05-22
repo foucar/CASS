@@ -274,15 +274,15 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case CompareForLess:
     processor = new pp7(*this, key);
     break;
-//  case CompareForEqual:
-//    processor = new pp8(*this, key);
-//    break;
-//  case SubstractHistograms:
-//    processor = new pp20(*this, key);
-//    break;
-//  case DivideHistograms:
-//    processor = new pp21(*this, key);
-//    break;
+  case CompareForEqual:
+    processor = new pp8(*this, key);
+    break;
+  case SubstractHistograms:
+    processor = new pp20(*this, key);
+    break;
+  case DivideHistograms:
+    processor = new pp21(*this, key);
+    break;
 //  case MultiplyHistograms:
 //    processor = new pp22(*this, key);
 //    break;
