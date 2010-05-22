@@ -171,6 +171,8 @@ void cass::pp101::loadSettings(size_t)
   _scale =  2./(_average+1);
   std::pair<unsigned, unsigned> binning(std::make_pair(settings.value("bin_horizontal", 1).toUInt(),
                                                        settings.value("bin_vertical", 1).toUInt()));
+  _range = std::make_pair(settings.value("PhotonenergyLowerBound",0.).toFloat(),
+                          settings.value("PhotonenergyUpperBound",10000).toFloat());
   std::string name(settings.value("ConditionDetector","InvalidDetector").toString().toStdString());
   if (name=="YAGPhotodiode")
     _conditionDetector = YAGPhotodiode;
@@ -210,10 +212,11 @@ void cass::pp101::loadSettings(size_t)
 void cass::pp101::operator()(const CASSEvent& event)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
 
   //check whether detector exists
   if (event.devices().find(_device)->second->detectors()->size() <= _detector)
-    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
+    throw runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
   const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
   const PixelDetector::frame_t& frame(det.frame());
@@ -228,17 +231,32 @@ void cass::pp101::operator()(const CASSEvent& event)
     update ^= _invert;
   }
   // running average of data:
-  _image->lock.lockForWrite();
   if (update)
   {
-    ++_image->nbrOfFills();
-    float scale = (_image->nbrOfFills() < _average)? 1./_image->nbrOfFills() :_scale;
-    transform(frame.begin(),frame.end(),
-              _image->memory().begin(),
-              _image->memory().begin(),
-              Average(scale));
+    PostProcessors::histograms_t c (_pp.histograms_checkout());
+    PostProcessors::histograms_t::iterator pi(c.find(PostProcessors::PhotonEnergy));
+    _pp.histograms_release();
+    float photonenergy(1);
+    if (pi != c.end())
+    {
+      pi->second->lock.lockForRead();
+      photonenergy = dynamic_cast<Histogram0DFloat*>(pi->second)->getValue();
+      pi->second->lock.unlock();
+    }
+
+    if (min(_range.first,_range.second) < photonenergy &&
+        photonenergy < max(_range.first,_range.second))
+    {
+      _image->lock.lockForWrite();
+      ++_image->nbrOfFills();
+      float scale = (_image->nbrOfFills() < _average)? 1./_image->nbrOfFills() :_scale;
+      transform(frame.begin(),frame.end(),
+                _image->memory().begin(),
+                _image->memory().begin(),
+                Average(scale));
+      _image->lock.unlock();
+    }
   }
-  _image->lock.unlock();
 }
 
 
@@ -288,6 +306,12 @@ cass::pp110::~pp110()
 
 void cass::pp110::loadSettings(size_t)
 {
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString("p") + QString::number(_id));
+
+  _range = std::make_pair(settings.value("PhotonenergyLowerBound",0.).toFloat(),
+                          settings.value("PhotonenergyUpperBound",10000).toFloat());
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
       <<" of detector "<<_detector
@@ -300,18 +324,36 @@ void cass::pp110::loadSettings(size_t)
 
 void cass::pp110::operator()(const CASSEvent& evt)
 {
+    using namespace std;
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
     //retrieve the detector's photon hits of the device we are working for.
-    const PixelDetector::pixelList_t& pixellist
-        ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
-    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-    _image->lock.lockForWrite();
-    for (; it != pixellist.end();++it)
+
+    PostProcessors::histograms_t c (_pp.histograms_checkout());
+    PostProcessors::histograms_t::iterator pi(c.find(PostProcessors::PhotonEnergy));
+    _pp.histograms_release();
+    float photonenergy(1);
+    if (pi != c.end())
+    {
+      pi->second->lock.lockForRead();
+      photonenergy = dynamic_cast<Histogram0DFloat*>(pi->second)->getValue();
+      pi->second->lock.unlock();
+    }
+
+    if (min(_range.first,_range.second) < photonenergy &&
+        photonenergy < max(_range.first,_range.second))
+    {
+
+      const PixelDetector::pixelList_t& pixellist
+          ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+      PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+      _image->lock.lockForWrite();
+      for (; it != pixellist.end();++it)
         _image->fill(it->x(),it->y());
-    _image->lock.unlock();
-}
+      _image->lock.unlock();
+    }
+  }
 
 
 
@@ -493,6 +535,24 @@ void cass::pp116::operator()(const CASSEvent& evt)
         _hist->fill(it->z()/adu2eV);
     _hist->lock.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

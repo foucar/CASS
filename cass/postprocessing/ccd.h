@@ -77,7 +77,7 @@ protected:
  *           case of pnccd's) (unused for now)
  *
  *
- * Implements postprocessors 101, 103, 105
+ * Implements postprocessors 101, 103, 104, 105
  *
  * @author Jochen Kuepper
  * @author Lutz Foucar
@@ -97,7 +97,6 @@ public:
     virtual void loadSettings(size_t);
 
 protected:
-
     /** Length of average */
     unsigned _average;
 
@@ -106,6 +105,9 @@ protected:
 
     /** how many pixels to bin in horizontal and vertical direction */
     std::pair<unsigned, unsigned> _binning;
+
+    /** range of the photonenergy */
+    std::pair<float, float> _range;
 
     /** CCD detector to work on */
     size_t _detector;
@@ -171,6 +173,9 @@ public:
     virtual void loadSettings(size_t);
 
 protected:
+    /** range of the photonenergy */
+    std::pair<float, float> _range;
+
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -270,6 +275,12 @@ protected:
     /** current image */
     Histogram1DFloat * _hist;
 };
+
+
+
+
+
+
 
 
 
