@@ -283,6 +283,7 @@ pp110::pp110(PostProcessors& pp, cass::PostProcessors::id_t id)
     switch(id)
     {
     case PostProcessors::VMIPhotonHits:
+    case PostProcessors::VMIPhotonHitsTwo:
         _device=CASSEvent::CCD; _detector = 0;
         break;
     case PostProcessors::PnCCDFrontPhotonHits:
