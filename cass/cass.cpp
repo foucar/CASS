@@ -182,6 +182,7 @@
  * @todo create pp that will histogram a 0d pp value
  * @todo create pp that will create an running average of a histogram
  * @todo create boolean xor 0d pp
+ * @todo make a file with all convenience helpers
  */
 
 /** \page authors Authors
