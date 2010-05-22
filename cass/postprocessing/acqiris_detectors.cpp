@@ -639,10 +639,12 @@ void cass::pp166::loadSettings(size_t)
 void cass::pp166::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   DelaylineDetector::dethits_t::iterator it (det->hits().begin());
   _hist->lock.lockForWrite();
+  fill(_hist->memory().begin(),_hist->memory().end(),0.f);
   for (; it != det->hits().end(); ++it)
   {
     if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
@@ -659,78 +661,65 @@ void cass::pp166::operator()(const cass::CASSEvent &evt)
 
 
 
-////----------------PIPICO-------------------------------------------------------
-////-----------pp700-701---------------------------------------------------------
-//cass::pp700::pp700(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _pipico(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexPIPICO:
-//    _detector01 = HexDetector; _detector02 = HexDetector; break;
-//  case PostProcessors::HexQuadPIPICO:
-//    _detector01 = HexDetector; _detector02 = QuadDetector; break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp700::~pp700()
-//{
-//  _pp.histograms_delete(_id);
-//  _pipico=0;
-//}
-//
-//void cass::pp700::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it create a PIPICO Histogram"
-//      <<" of detectors "<<_detector01
-//      <<" and "<<_detector02
-//      <<std::endl;
-//
-//  //create the histogram
-//  set2DHist(_pipico,_id);
-//  _pp.histograms_replace(_id,_pipico);
-//    //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector01)->loadSettings();
-//  HelperAcqirisDetectors::instance(_detector02)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp700::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get first detector from the helper
-//  TofDetector *det01 =
-//      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt));
-//  //get second detector from the helper
-//  TofDetector *det02 =
-//      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt));
-//  //get iterator of the peaks in the first detector//
-//  Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
-//  //draw all found hits vs another//
-//  _pipico->lock.lockForWrite();
-//  for (; it01 != det01->mcp().peaks().end();++it01)
-//  {
-//    //if both detectors are the same, then the second iterator should start
-//    //i+1, otherwise we will just draw all hits vs. all hits
-//    Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
-//                                         it01+1 :
-//                                         det02->mcp().peaks().begin());
-//    for (; it02 != det02->mcp().peaks().end(); ++it02)
-//    {
-//      _pipico->fill(it01->time(),it02->time());
-//    }
-//  }
-//  _pipico->lock.unlock();
-//}
+//----------------PIPICO-------------------------------------------------------
+cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _pipico(0)
+{
+  loadSettings(0);
+}
+
+cass::pp220::~pp220()
+{
+  _pp.histograms_delete(_key);
+  _pipico=0;
+}
+
+void cass::pp220::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector01 = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector02 = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  set2DHist(_pipico,_key);
+  _pp.histograms_replace(_key,_pipico);
+  HelperAcqirisDetectors::instance(_detector01)->loadSettings();
+  HelperAcqirisDetectors::instance(_detector02)->loadSettings();
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": create a PIPICO Histogram"
+      <<" of detectors "<<_detector01
+      <<" and "<<_detector02
+      <<std::endl;
+}
+
+void cass::pp220::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  //get first detector from the helper
+  TofDetector *det01 =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt));
+  //get second detector from the helper
+  TofDetector *det02 =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt));
+  //get iterator of the peaks in the first detector//
+  Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
+  //draw all found hits vs another//
+  _pipico->lock.lockForWrite();
+  fill(_pipico->memory().begin(),_pipico->memory().end(),0.f);
+  for (; it01 != det01->mcp().peaks().end();++it01)
+  {
+    //if both detectors are the same, then the second iterator should start
+    //i+1, otherwise we will just draw all hits vs. all hits
+    Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
+                                         it01+1 :
+                                         det02->mcp().peaks().begin());
+    for (; it02 != det02->mcp().peaks().end(); ++it02)
+    {
+      _pipico->fill(it01->time(),it02->time());
+    }
+  }
+  _pipico->lock.unlock();
+}

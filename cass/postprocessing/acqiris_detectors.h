@@ -643,36 +643,58 @@ namespace cass
 
   /** Pipico spectra.
    *
-   * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra.
+   * This postprocessor will create Photo-Ion Photo-Ion Coincidence Spectra.
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 700, 701
+   * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{SecondDetector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
    *
    * @author Lutz Foucar
    */
-  class pp700 : public PostprocessorBackend
+  class pp220 : public PostprocessorBackend
   {
   public:
     /** Constructor for Number of Signals*/
-    pp700(PostProcessors&, PostProcessors::key_t key);
+    pp220(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp700();
+    virtual ~pp220();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The first detector of the cooincdence*/
     ACQIRIS::Detectors _detector01;
+
     /** The second detector of the cooincdence*/
     ACQIRIS::Detectors _detector02;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_pipico;
   };
