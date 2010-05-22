@@ -119,6 +119,8 @@ the Class description for information about what parameters are user settable.
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
+00052: Project 2d to Radius
+00053: Angular Distribution / Radar Plot
 
 00060: Histogram values from a 0D histogram
 00061: Average of a histogram

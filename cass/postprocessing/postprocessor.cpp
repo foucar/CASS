@@ -271,6 +271,30 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   PostprocessorBackend * processor(0);
   switch(ppid)
   {
+  case CompareForLess:
+    processor = new pp7(*this, key);
+    break;
+  case CompareForEqual:
+    processor = new pp8(*this, key);
+    break;
+  case SubstractHistograms:
+    processor = new pp20(*this, key);
+    break;
+  case DivideHistograms:
+    processor = new pp21(*this, key);
+    break;
+  case MultiplyHistograms:
+    processor = new pp22(*this, key);
+    break;
+  case MultiplyConstant:
+    processor = new pp23(*this, key);
+    break;
+  case TwoDProjection:
+    processor = new pp50(*this, key);
+    break;
+  case OneDIntergral:
+    processor = new pp51(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;

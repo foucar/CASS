@@ -19,6 +19,103 @@ namespace cass
 
 
 
+
+  /** Compare two histograms for less.
+   *
+   * \f$result = hist_{one}  < hist_{two}\f$
+   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+   * respectivly
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   *           the postprocessor id's that contain the first histogram and second
+   *           histogram for the less comparison. Default is 0 for both. This
+   *           will result in an exception. Since pp 0 is not implemented.
+   *
+   * @author Lutz Foucar
+   */
+  class pp7 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp7(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp7();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** id of first histogram */
+    PostProcessors::key_t _idOne;
+
+    /** id of second histogram */
+    PostProcessors::key_t _idTwo;
+
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+  };
+
+
+
+
+
+
+
+  /** Compare two histograms for equality.
+   *
+   * \f$result = hist_{one}  == hist_{two}\f$
+   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+   * respectivly
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   *           the postprocessor id's that contain the first histogram and second
+   *           histogram for the operation. Default is 0 for both. This
+   *           will result in an exception. Since pp 0 is not implemented.
+   *
+   * @author Lutz Foucar
+   */
+  class pp8 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp8(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp8();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** how many pixels to bin in horizontal and vertical direction */
+    PostProcessors::key_t _idOne;
+
+    /** how many pixels to bin in horizontal and vertical direction */
+    PostProcessors::key_t _idTwo;
+
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+  };
+
+
+
+
+
+
+
+
+
   /** Difference between choosable histograms.
    *
    * This histogram will create a histogram which is the result of substracting
@@ -38,18 +135,16 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{FactorOne|FactorTwo} \n
    *           The factors that will weight the substraction. The default is 1.
    *
-   * Implements postprocessors id's 106, 107
-   *
    * @author Lutz Foucar
    */
-  class pp106 : public PostprocessorBackend
+  class pp20 : public PostprocessorBackend
   {
   public:
-
-    pp106(PostProcessors& hist, PostProcessors::key_t key);
+    /** constructor */
+    pp20(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp106();
+    virtual ~pp20();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -67,110 +162,16 @@ namespace cass
     float _fTwo;
 
     /** id of first histogram */
-    PostProcessors::id_t _idOne;
+    PostProcessors::key_t _idOne;
 
     /** id of second histogram */
-    PostProcessors::id_t _idTwo;
+    PostProcessors::key_t _idTwo;
 
     /** resulting histgram */
     HistogramFloatBase *_result;
   };
 
 
-
-
-
-
-  /** Compare two histograms for less.
-   *
-   * \f$result = hist_{one}  < hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
-   *           histogram for the less comparison. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   *
-   * Implements postprocessors id's 800
-   *
-   * @author Lutz Foucar
-   */
-  class pp800 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp800(PostProcessors& hist, PostProcessors::key_t key);
-
-    /** Free _image space */
-    virtual ~pp800();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-    virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
-
-  protected:
-    /** id of first histogram */
-    PostProcessors::id_t _idOne;
-
-    /** id of second histogram */
-    PostProcessors::id_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
-  };
-
-
-
-
-
-
-  /** Compare two histograms for equality.
-   *
-   * \f$result = hist_{one}  == hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
-   *           histogram for the operation. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   *
-   * Implements postprocessors id's 801
-   *
-   * @author Lutz Foucar
-   */
-  class pp801 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp801(PostProcessors& hist, PostProcessors::key_t key);
-
-    /** Free _image space */
-    virtual ~pp801();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-    virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
-
-  protected:
-    /** how many pixels to bin in horizontal and vertical direction */
-    PostProcessors::id_t _idOne;
-
-    /** how many pixels to bin in horizontal and vertical direction */
-    PostProcessors::id_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
-  };
 
 
 
@@ -192,18 +193,16 @@ namespace cass
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
-   * Implements postprocessors id's 802
-   *
    * @author Lutz Foucar
    */
-  class pp802 : public PostprocessorBackend
+  class pp21 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp802(PostProcessors& hist, PostProcessors::key_t key);
+    pp21(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp802();
+    virtual ~pp21();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -215,10 +214,10 @@ namespace cass
 
   protected:
     /** id of first histogram */
-    PostProcessors::id_t _idOne;
+    PostProcessors::key_t _idOne;
 
     /** id of second histogram */
-    PostProcessors::id_t _idTwo;
+    PostProcessors::key_t _idTwo;
 
     /** resulting histgram */
     HistogramFloatBase *_result;
@@ -245,18 +244,16 @@ namespace cass
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
-   * Implements postprocessors id's 803
-   *
    * @author Lutz Foucar
    */
-  class pp803 : public PostprocessorBackend
+  class pp22 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp803(PostProcessors& hist, PostProcessors::key_t key);
+    pp22(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp803();
+    virtual ~pp22();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -268,10 +265,10 @@ namespace cass
 
   protected:
     /** id of first histogram */
-    PostProcessors::id_t _idOne;
+    PostProcessors::key_t _idOne;
 
     /** if of second histogram */
-    PostProcessors::id_t _idTwo;
+    PostProcessors::key_t _idTwo;
 
     /** resulting histgram */
     HistogramFloatBase *_result;
@@ -292,18 +289,16 @@ namespace cass
    * @cassttng PostProcessor/p\%id\%/{Factor} \n
    *           Factor with which histogram should be multiplied. Default is 1.
    *
-   * Implements postprocessors id's 804
-   *
    * @author Lutz Foucar
    */
-  class pp804 : public PostprocessorBackend
+  class pp23 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp804(PostProcessors& hist, PostProcessors::key_t key);
+    pp23(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp804();
+    virtual ~pp23();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -315,7 +310,7 @@ namespace cass
 
   protected:
     /** id of the histogram we multiply with a constant */
-    PostProcessors::id_t _idHist;
+    PostProcessors::key_t _idHist;
 
     /** the factor we mulitply the histogram with */
     float _factor;
@@ -324,60 +319,6 @@ namespace cass
     HistogramFloatBase *_result;
   };
 
-
-
-
-
-
-
-
-
-
-  /** Integral of 1d Histogram.
-   *
-   * \f$result = hist_{one} \times f\f$
-   * where \f$hist_{one}\f$ is the histogram to be multiplied by f
-   *
-   * The resulting histogram will be created using the size and dimension of the
-   * first histogram.
-   *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
-   *           Postprocessor id with 1D-Histogram that we create the intgral from Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
-   *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
-   *
-   * Implements postprocessors id's 805
-   *
-   * @author Lutz Foucar
-   */
-  class pp805 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp805(PostProcessors& hist, PostProcessors::key_t key);
-
-    /** Free _image space */
-    virtual ~pp805();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-    /** load the settings of the pp */
-    virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
-
-  protected:
-    /** id of the 1d histogram we want to have the integral of */
-    PostProcessors::id_t _idHist;
-
-    /** range we want to have the integral over in histogram bins */
-    std::pair<float,float> _area;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
-  };
 
 
 
@@ -403,18 +344,16 @@ namespace cass
    *           - 0:xAxis
    *           - 1:yAxis
    *
-   * Implements postprocessors id's 806
-   *
    * @author Lutz Foucar
    */
-  class pp806 : public PostprocessorBackend
+  class pp50 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp806(PostProcessors& hist, PostProcessors::key_t key);
+    pp50(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** Free _image space */
-    virtual ~pp806();
+    virtual ~pp50();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -427,7 +366,7 @@ namespace cass
 
   protected:
     /** the id of the 2d hist we want to project */
-    PostProcessors::id_t _idHist;
+    PostProcessors::key_t _idHist;
 
     /** range we want to project */
     std::pair<float,float> _range;
@@ -439,6 +378,58 @@ namespace cass
     Histogram1DFloat *_projec;
   };
 
+
+
+
+
+
+
+
+
+
+  /** Integral of 1d Histogram.
+   *
+   * \f$result = hist_{one} \times f\f$
+   * where \f$hist_{one}\f$ is the histogram to be multiplied by f
+   *
+   * The resulting histogram will be created using the size and dimension of the
+   * first histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 1D-Histogram that we create the intgral from Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
+   *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
+   *
+   * @author Lutz Foucar
+   */
+  class pp51 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp51(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp51();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** id of the 1d histogram we want to have the integral of */
+    PostProcessors::key_t _idHist;
+
+    /** range we want to have the integral over in histogram bins */
+    std::pair<float,float> _area;
+
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+  };
 
 }
 
