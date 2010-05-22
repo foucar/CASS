@@ -348,9 +348,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case AdvancedPhotonFinder:
     processor = new pp210(*this,key);
     break;
-//  case AdvancedPhotonFinderSpectrum:
-//    processor = new pp211(*this,key);
-//    break;
+  case AdvancedPhotonFinderSpectrum:
+    processor = new pp211(*this,key);
+    break;
   case PIPICO:
     processor = new pp220(*this,key);
     break;
