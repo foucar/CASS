@@ -251,85 +251,70 @@ void cass::pp152::operator()(const cass::CASSEvent &evt)
 
 
 
-////----------------Nbr of Peaks Anode-------------------------------------------
-////-----------pp551 - pp556 & pp601 - 604---------------------------------------
-//cass::pp551::pp551(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _nbrSignals(0)
-//{
-//  using namespace cass::ACQIRIS;
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexU1NbrSignals:
-//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
-//  case PostProcessors::HexU2NbrSignals:
-//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
-//  case PostProcessors::HexV1NbrSignals:
-//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
-//  case PostProcessors::HexV2NbrSignals:
-//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
-//  case PostProcessors::HexW1NbrSignals:
-//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
-//  case PostProcessors::HexW2NbrSignals:
-//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
-//
-//  case PostProcessors::QuadX1NbrSignals:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
-//  case PostProcessors::QuadX2NbrSignals:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
-//  case PostProcessors::QuadY1NbrSignals:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
-//  case PostProcessors::QuadY2NbrSignals:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Nbr Anode Signals").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp551::~pp551()
-//{
-//  _pp.histograms_delete(_id);
-//  _nbrSignals=0;
-//}
-//
-//void cass::pp551::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the Nbr of Anode Layer Peaks "
-//      <<" of detector "<<_detector
-//      <<" layer "<<_layer
-//      <<" wireend "<<_signal
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_nbrSignals,_id);
-//  _pp.histograms_replace(_id,_nbrSignals);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp551::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  _nbrSignals->lock.lockForWrite();
-//  _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
-//  _nbrSignals->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
+//----------------Nbr of Peaks Anode-------------------------------------------
+cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _nbrSignals(0)
+{
+  loadSettings(0);
+}
+
+cass::pp160::~pp160()
+{
+  _pp.histograms_delete(_key);
+  _nbrSignals=0;
+}
+
+void cass::pp160::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",0).toUInt());
+  _layer = settings.value("Layer",'U').toChar().toAscii();
+  _signal = settings.value("Wireend",'1').toChar().toAscii();
+
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": histograms the nbr of signals in"
+      <<" detector "<<_detector
+      <<" layer "<<_layer
+      <<" wireend "<<_signal
+      <<std::endl;
+
+  //create the histogram
+  _pp.histograms_delete(_key);
+  _nbrSignals = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_nbrSignals);
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+}
+
+void cass::pp160::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->lock.lockForWrite();
+  _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
+  _nbrSignals->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ////----------------Ratio of Layers----------------------------------------------
 ////-----------pp557, pp560, pp563, pp605, pp608---------------------------------
 //cass::pp557::pp557(PostProcessors &pp, PostProcessors::id_t id)

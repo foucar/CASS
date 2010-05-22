@@ -115,10 +115,14 @@ namespace cass
 
 
 
+
+
+
+
   /** FWHM vs. Height of wireend signals.
    *
    * This postprocessor will make a histogram of the fwhm and height of
-   * all Wireend Signals in a delaylinedetector.
+   * found mcp signals.
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
@@ -164,7 +168,7 @@ namespace cass
 
 
 
-  //--
+
 
 
 
@@ -179,38 +183,63 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 551-556 & 601-604
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{Wireend}\n
+   *           The anode layer Wireend. Default is 1. Options are:
+   *           - 1: first wireend
+   *           - 2: second wireend
    *
    * @author Lutz Foucar
    */
-  class pp551 : public PostprocessorBackend
+  class pp160 : public PostprocessorBackend
   {
   public:
     /** Constructor for Number of Signals*/
-    pp551(PostProcessors&, PostProcessors::key_t key);
+    pp160(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp551();
+    virtual ~pp160();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The layer of the detector detector we are there for*/
     char _layer;
+
     /** The Signal of the layer detector we are there for*/
     char _signal;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_nbrSignals;
+    Histogram0DFloat  *_nbrSignals;
   };
 
 
 
-
+ //--
 
   /** Ratio of reconstucted hits vs mcp hits.
    *

@@ -48,13 +48,13 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp160 : public PostprocessorBackend
+  class pp210 : public PostprocessorBackend
   {
   public:
     /** constructor. */
-    pp160(PostProcessors& hist, PostProcessors::key_t key);
+    pp210(PostProcessors& hist, PostProcessors::key_t key);
     /** Free _image space */
-    virtual ~pp160();
+    virtual ~pp210();
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
     /** load the settings*/
