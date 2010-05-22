@@ -187,8 +187,8 @@ public:
     size_t   nbrOfFills()const {return _nbrOfFills;}
     size_t   dimension()const  {return _dimension;}
     const axis_t  &axis()const {return _axis;}
-    std::string& mimeType()    {return _mime;};
-    int getId()                {return _id;};
+    std::string& mimeType()    {return _mime;}
+    int getId()                {return _id;}
     //@}
 
 protected:
@@ -248,6 +248,7 @@ public:
       _memory(in.memory().size(),0.)
     {
       _axis = in.axis();
+      _mime = in._mime;
     }
 
     /** typedef describing the type of the values stored in memory*/
