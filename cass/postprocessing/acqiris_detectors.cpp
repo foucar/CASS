@@ -396,6 +396,122 @@ void cass::pp162::operator()(const cass::CASSEvent &evt)
 
 
 
+//----------------Timesum vs Postition for the layers--------------------------
+cass::pp163::pp163(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _timesumvsPos(0)
+{
+  loadSettings(0);
+}
+
+cass::pp163::~pp163()
+{
+  _pp.histograms_delete(_key);
+  _timesumvsPos=0;
+}
+
+void cass::pp163::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _layer = settings.value("Layer",'U').toChar().toAscii();
+  set2DHist(_timesumvsPos,_key);
+  _pp.histograms_replace(_key,_timesumvsPos);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": histograms the timesum vs Postion on layer "<<_layer
+      <<" of detector "<<_detector
+      <<std::endl;
+}
+
+void cass::pp163::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _timesumvsPos->lock.lockForWrite();
+  fill(_timesumvsPos->memory().begin(),_timesumvsPos->memory().end(),0.f);
+  _timesumvsPos->fill(det->position(_layer),det->timesum(_layer));
+  _timesumvsPos->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+//----------------Detector First Hit-------------------------------------------
+cass::pp164::pp164(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _pos(0)
+{
+  loadSettings(0);
+}
+
+cass::pp164::~pp164()
+{
+  _pp.histograms_delete(_key);
+  _pos=0;
+}
+
+void cass::pp164::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _first = settings.value("Layer",'U').toChar().toAscii();
+  _second = settings.value("Layer",'V').toChar().toAscii();
+  set2DHist(_pos,_key);
+  _pp.histograms_replace(_key,_pos);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": histograms a detector picture of the first Hit on the detector created"
+      <<" from  Layers "<<_first
+      <<" and "<<_second
+      <<" of detector "<<_detector
+      <<std::endl;
+}
+
+void cass::pp164::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  //get right filled detector from the helper
+  DelaylineDetector *det =
+      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //get the requested layers//
+  AnodeLayer &f = det->layers()[_first];
+  AnodeLayer &s = det->layers()[_second];
+  //get the timesums for the layers//
+  const double tsf = det->timesum(_first);
+  const double tss = det->timesum(_second);
+  //check timesum//
+  const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
+  const bool css = (s.tsLow() < tss && tss < s.tsHigh());
+  //only fill when timesum is fullfilled
+  _pos->lock.lockForWrite();
+  fill(_pos->memory().begin(),_pos->memory().end(),0.f);
+  if (csf && css)
+    _pos->fill(f.position(),s.position());
+  _pos->lock.unlock();
+}
+
+
+
+
+
 
 
 
@@ -469,74 +585,6 @@ void cass::pp162::operator()(const cass::CASSEvent &evt)
 //
 //
 //
-////----------------MCP Hits (Tof)-----------------------------------------------
-////-------------pp567, pp612, pp651, pp661, pp671, pp681------------------------
-//cass::pp567::pp567(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _tof(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexAllMcp:
-//    _detector = HexDetector;break;
-//  case PostProcessors::QuadAllMcp:
-//    _detector = QuadDetector;break;
-//  case PostProcessors::VMIMcpAllMcp:
-//    _detector = VMIMcp;break;
-//  case PostProcessors::FELBeamMonitorAllMcp:
-//    _detector = FELBeamMonitor;break;
-//  case PostProcessors::YAGPhotodiodeAllMcp:
-//    _detector = YAGPhotodiode;break;
-//  case PostProcessors::FsPhotodiodeAllMcp:
-//    _detector = FsPhotodiode;break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for All MCP Hits").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp567::~pp567()
-//{
-//  _pp.histograms_delete(_id);
-//  _tof=0;
-//}
-//
-//void cass::pp567::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms times of the found MCP Hits"
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_tof,_id);
-//  _pp.histograms_replace(_id,_tof);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp567::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  TofDetector *det =
-//      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  //reference to all found peaks of the mcp channel//
-//  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
-//  //fill all found peaks into the histogram//
-//  _tof->lock.lockForWrite();
-//  for (; it != det->mcp().peaks().end(); ++it)
-//    _tof->fill(it->time());
-//  _tof->lock.unlock();
-//}
 //
 //
 //
@@ -554,69 +602,6 @@ void cass::pp162::operator()(const cass::CASSEvent &evt)
 //
 //
 //
-////----------------Timesum vs Postition for the layers--------------------------
-////-----------pp571-573, pp615-616----------------------------------------------
-//cass::pp571::pp571(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _timesumvsPos(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexTimesumUvsU:
-//    _detector = HexDetector; _layer = 'U'; break;
-//  case PostProcessors::HexTimesumVvsV:
-//    _detector = HexDetector; _layer = 'V'; break;
-//  case PostProcessors::HexTimesumWvsW:
-//    _detector = HexDetector; _layer = 'W'; break;
-//
-//  case PostProcessors::QuadTimesumXvsX:
-//    _detector = QuadDetector; _layer = 'X'; break;
-//  case PostProcessors::QuadTimesumYvsY:
-//    _detector = QuadDetector; _layer = 'Y'; break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Timesum vs. Pos").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp571::~pp571()
-//{
-//  _pp.histograms_delete(_id);
-//  _timesumvsPos=0;
-//}
-//
-//void cass::pp571::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the timesum vs Postion on layer "<<_layer
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//
-//  //create the histogram
-//  set2DHist(_timesumvsPos,_id);
-//  _pp.histograms_replace(_id,_timesumvsPos);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp571::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  _timesumvsPos->lock.lockForWrite();
-//  _timesumvsPos->fill(det->position(_layer),det->timesum(_layer));
-//  _timesumvsPos->lock.unlock();
-//}
 //
 //
 //
@@ -627,80 +612,6 @@ void cass::pp162::operator()(const cass::CASSEvent &evt)
 //
 //
 //
-////----------------Detector First Hit-------------------------------------------
-////-----------pp574-577, pp617--------------------------------------------------
-//cass::pp574::pp574(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _pos(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexFirstUV:
-//    _detector = HexDetector; _first = 'U'; _second = 'V'; break;
-//  case PostProcessors::HexFirstUW:
-//    _detector = HexDetector; _first = 'U'; _second = 'W'; break;
-//  case PostProcessors::HexFirstVW:
-//    _detector = HexDetector; _first = 'V'; _second = 'W'; break;
-//
-//  case PostProcessors::QuadFirstXY:
-//    _detector = QuadDetector; _first = 'X'; _second = 'Y'; break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Picture of First Hit").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp574::~pp574()
-//{
-//  _pp.histograms_delete(_id);
-//  _pos=0;
-//}
-//
-//void cass::pp574::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms a detector picture of the first Hit on the detector created"
-//      <<" from  Layers "<<_first
-//      << " and "<<_second
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//
-//  //create the histogram
-//  set2DHist(_pos,_id);
-//  _pp.histograms_replace(_id,_pos);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp574::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  //get the requested layers//
-//  AnodeLayer &f = det->layers()[_first];
-//  AnodeLayer &s = det->layers()[_second];
-//  //get the timesums for the layers//
-//  const double tsf = det->timesum(_first);
-//  const double tss = det->timesum(_second);
-//  //check timesum//
-//  const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
-//  const bool css = (s.tsLow() < tss && tss < s.tsHigh());
-//  //only fill when timesum is fullfilled
-//  _pos->lock.lockForWrite();
-//  if (csf && css)
-//    _pos->fill(f.position(),s.position());
-//  _pos->lock.unlock();
-//}
 //
 //
 //
