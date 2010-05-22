@@ -39,7 +39,8 @@ namespace cass
    * @param[in] param_name paramenter name of the dependency in qsettings
    * @param[out] dependid reference to the pp id that we retrieve from qsettings
    */
-  bool retrieve_and_validate(cass::PostProcessors::id_t id,
+  bool retrieve_and_validate(PostProcessors& pp,
+                             cass::PostProcessors::id_t id,
                              const char * param_name,
                              cass::PostProcessors::id_t &dependid)
   {
@@ -50,7 +51,7 @@ namespace cass
     //when histogram id is not yet on list we return false
     try
     {
-      PostProcessors::instance("")->validate(dependid);
+      pp.validate(dependid);
     }
     catch (InvalidHistogramError&)
     {
@@ -102,9 +103,9 @@ void cass::pp106::loadSettings(size_t)
   _fOne = settings.value("FactorOne",1.).toFloat();
   _fTwo = settings.value("FactorTwo",1.).toFloat();
 
-  if (!retrieve_and_validate(_id,"HistOne",_idOne))
+  if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
-  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
+  if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
 
   //retrieve histograms from the two pp//
@@ -193,9 +194,9 @@ void cass::pp800::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  if (!retrieve_and_validate(_id,"HistOne",_idOne))
+  if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
-  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
+  if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
 
   //retrieve histograms from the two pp//
@@ -287,9 +288,9 @@ void cass::pp801::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  if (!retrieve_and_validate(_id,"HistOne",_idOne))
+  if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
-  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
+  if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
 
   //retrieve histograms from the two pp//
@@ -383,9 +384,9 @@ void cass::pp802::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  if (!retrieve_and_validate(_id,"HistOne",_idOne))
+  if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
-  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
+  if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
 
   //retrieve histograms from the two pp//
@@ -478,9 +479,9 @@ void cass::pp803::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  if (!retrieve_and_validate(_id,"HistOne",_idOne))
+  if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
-  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
+  if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
 
   //retrieve histograms from the two pp//
@@ -576,7 +577,7 @@ void cass::pp804::loadSettings(size_t)
 
   _factor = settings.value("Factor",1).toFloat();
 
-  if (!retrieve_and_validate(_id,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
     return;
 
   //retrieve histograms from the two pp//
@@ -663,7 +664,7 @@ void cass::pp805::loadSettings(size_t)
   _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
                     settings.value("UpperBound", 1e6).toFloat());
 
-  if (!retrieve_and_validate(_id,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
     return;
 
   //make sure that lower and upper bound are not exceeding histograms boudaries
@@ -747,6 +748,7 @@ std::list<cass::PostProcessors::id_t> cass::pp806::dependencies()
 
 void cass::pp806::loadSettings(size_t)
 {
+
   using namespace std;
   QSettings settings;
   settings.beginGroup("PostProcessor");
@@ -757,7 +759,7 @@ void cass::pp806::loadSettings(size_t)
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
 
 
-  if (!retrieve_and_validate(_id,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
     return;
 
   //make sure that lower and upper bound are not exceeding histograms boudaries
