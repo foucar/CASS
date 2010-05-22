@@ -240,7 +240,7 @@ inline void cass::ACQIRIS::Signal::loadSettings(QSettings *p, const char * signa
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
   _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
-//  std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl;
+  VERBOSEOUT(std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl);
   VERBOSEOUT(std::cerr<<"Signal load parameters: done loading"<<std::endl);
   p->endGroup();
 }
@@ -271,14 +271,6 @@ inline double cass::ACQIRIS::Signal::firstGood() const
     peaks_t::const_iterator it =
         std::find_if(_peaks.begin(),_peaks.end(),
                      PeakInRange(_grLow,_grHigh));
-                     //std::logical_and<bool>,bind2nd(less_equal<???>(),_grHigh);
-    /*std::vector<int>::iterator int_it=std::find_if(
-      ints.begin(),
-      ints.end(),
-      boost::bind(std::logical_and<bool>(),
-        boost::bind(std::greater<int>(),_1,5),
-        boost::bind(std::less_equal<int>(),_1,10)));*/
-
     //if it is not there retrun 0, otherwise the time of the found peak//
     _goodHit = (it==_peaks.end())? 0. : it->time();
     _isNewEvent = false;
