@@ -244,8 +244,10 @@ public:
      * properties of the parameter, but not copy the contents of the memory
      */
     HistogramFloatBase(const HistogramFloatBase &in)
-      :HistogramBackend(in.dimension(),0),
-      _memory(in.memory().size(),0.)
+      :HistogramBackend(in.dimension(),in._version),
+      _memory(in.memory().size(),0.),
+      _fillwhenserialized(in._fillwhenserialized),
+      _shouldbefilled(in._shouldbefilled)
     {
       _axis = in.axis();
       _mime = in._mime;
