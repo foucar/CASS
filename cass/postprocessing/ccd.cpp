@@ -39,7 +39,7 @@ cass::pp100::~pp100()
 void cass::pp100::loadSettings(size_t)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
@@ -133,7 +133,7 @@ cass::pp140::~pp140()
 void cass::pp140::loadSettings(size_t)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
@@ -195,7 +195,7 @@ cass::pp141::~pp141()
 void cass::pp141::loadSettings(size_t)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();

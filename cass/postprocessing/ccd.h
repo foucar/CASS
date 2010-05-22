@@ -25,11 +25,11 @@ namespace cass
    *
    * Postprocessor will get the raw image from all kinds of ccd's.
    *
-   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
    *           - 2: Commercial CCD
-   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
@@ -73,17 +73,17 @@ namespace cass
    * This postprocessor will fill a 1D histogram with the z values in detected
    * Photonhits. Photonhits will be detected in the according preanalyzer.
    *
-   * @cassttng PostProcessor/active/\%name\%/{XNbrBins|XLow|Xup}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
    *           properties of the 1D histogram:
-   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
    *           - 2: Commercial CCD
-   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   * @cassttng PostProcessor/active/\%name\%/{Adu2eV}\n
+   * @cassttng PostProcessor/\%name\%/{Adu2eV}\n
    *           conversion factor for converting the z value from ADU to eV.
    *           Default is 1.
    *
@@ -134,11 +134,11 @@ namespace cass
    *
    * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   * @cassttng PostProcessor/active/\%name\%/{Device}\n
+   * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
    *           - 2: Commercial CCD
-   * @cassttng PostProcessor/active/\%name\%/{Detector}\n
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
