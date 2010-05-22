@@ -343,9 +343,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case DelaylineAllReconstuctedHits:
     processor = new pp166(*this, key);
     break;
-//  case Cos2Theta:
-//    processor = new pp150(*this,key);
-//    break;
+  case Cos2Theta:
+    processor = new pp200(*this,key);
+    break;
 //  case AdvancedPhotonFinder:
 //    processor = new pp160(*this,key);
 //    break;
