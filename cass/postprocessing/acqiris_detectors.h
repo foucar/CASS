@@ -252,7 +252,7 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
@@ -558,24 +558,6 @@ namespace cass
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /** detector hits values.
    *
    * This postprocessor will output the Detector Hit values reqeuested.
@@ -588,37 +570,60 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   * @cassttng PostProcessor/p\%id\%/{ConditionLow|ConditionHigh}\n
-   *           conditions on third value
-   *
-   * implements postprocessor id's: 578-580, 618-620
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{XInput}\n
+   *           The value that should be put onto the x-axis of the histogram.
+   *           Default is 'x'. Options are:
+   *           - x: x-position of the reconstructed hit
+   *           - y: x-position of the reconstructed hit
+   *           - t: time of impact of the reconstructed hit
+   * @cassttng PostProcessor/\%name\%/{YInput}\n
+   *           The value that should be put onto the x-axis of the histogram.
+   *           Default is 'y'. Options are:
+   *           - x: x-position of the reconstructed hit
+   *           - y: x-position of the reconstructed hit
+   *           - t: time of impact of the reconstructed hit
+   * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
+   *           conditions on third value, the one not chosen with options above.
    *
    * @author Lutz Foucar
    */
-  class pp578 : public PostprocessorBackend
+  class pp166 : public PostprocessorBackend
   {
   public:
     /** Constructor */
-    pp578(PostProcessors&, PostProcessors::key_t key);
+    pp166(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp578();
+    virtual ~pp166();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The first value of the detector hit */
     char _first;
+
     /** The second value of the detector */
     char _second;
+
     /** The third value of the detector, that we will check the condition for*/
     char _third;
+
     /** The condition that we impose on the third component*/
     std::pair<float, float> _condition;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_hist;
   };

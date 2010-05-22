@@ -582,6 +582,74 @@ void cass::pp165::operator()(const cass::CASSEvent &evt)
 
 
 
+//----------------Detector Values----------------------------------------------
+cass::pp166::pp166(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _hist(0)
+
+{
+  loadSettings(0);
+}
+
+cass::pp166::~pp166()
+{
+  _pp.histograms_delete(_key);
+  _hist=0;
+}
+
+void cass::pp166::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _first = settings.value("XInput",'x').toChar().toAscii();
+  _second = settings.value("YInput",'y').toChar().toAscii();
+  _condition =
+      make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
+                    settings.value("ConditionHigh",50000.).toFloat()),
+                max(settings.value("ConditionLow",-50000.).toFloat(),
+                    settings.value("ConditionHigh",50000.).toFloat()));
+  set2DHist(_hist,_key);
+  _pp.histograms_replace(_key,_hist);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  if (_first == 'x' && _second == 'y')
+    _third = 't';
+  else if (_first == 'y' && _second == 'x')
+    _third = 't';
+  else if (_first == 'x' && _second == 't')
+    _third = 'y';
+  else if (_first == 't' && _second == 'x')
+    _third = 'y';
+  else if (_first == 'y' && _second == 't')
+    _third = 'x';
+  else if (_first == 't' && _second == 'y')
+    _third = 'x';
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": histograms the Property "<<_second
+      <<" vs. "<<_first
+      <<" of the reconstructed detectorhits of detector "<<_detector
+      <<" condition low "<<_condition.first
+      <<" high "<<_condition.second
+      <<" on Property "<< _third
+      <<std::endl;
+}
+
+void cass::pp166::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  DelaylineDetector::dethits_t::iterator it (det->hits().begin());
+  _hist->lock.lockForWrite();
+  for (; it != det->hits().end(); ++it)
+  {
+    if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
+      _hist->fill(it->values()[_first],it->values()[_second]);
+  }
+  _hist->lock.unlock();
+}
 
 
 
@@ -591,150 +659,6 @@ void cass::pp165::operator()(const cass::CASSEvent &evt)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////----------------Detector Values----------------------------------------------
-////-----------pp578-580, pp61-620-----------------------------------------------
-//cass::pp578::pp578(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _hist(0)
-//
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexXY:
-//    _detector = HexDetector; _first = 'x'; _second = 'y'; _third = 't'; break;
-//  case PostProcessors::HexXT:
-//    _detector = HexDetector; _first = 't'; _second = 'x'; _third = 'y'; break;
-//  case PostProcessors::HexYT:
-//    _detector = HexDetector; _first = 't'; _second = 'y'; _third = 'x'; break;
-//
-//  case PostProcessors::QuadXY:
-//    _detector = QuadDetector; _first = 'x'; _second = 'y'; _third = 't'; break;
-//  case PostProcessors::QuadXT:
-//    _detector = QuadDetector; _first = 't'; _second = 'x'; _third = 'y'; break;
-//  case PostProcessors::QuadYT:
-//    _detector = QuadDetector; _first = 't'; _second = 'y'; _third = 'x'; break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Detector Values").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp578::~pp578()
-//{
-//  _pp.histograms_delete(_id);
-//  _hist=0;
-//}
-//
-//void cass::pp578::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  QSettings param;
-//  param.beginGroup("PostProcessor");
-//  param.beginGroup(QString("p") + QString::number(_id));
-//  //load the condition on the third component//
-//  float f = param.value("ConditionLow",-50000.).toFloat();
-//  float s = param.value("ConditionHigh",50000.).toFloat();
-//  param.endGroup();
-//  //make sure that the first value of the condition is the lower and second the higher value//
-//  _condition.first = (f<=s)?f:s;
-//  _condition.second = (s>f)?s:f;
-//  //tell the user what is loaded//
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the Property "<<_second
-//      <<" vs. "<<_first
-//      <<" of the reconstructed Detectorhits of detector "<<_detector
-//      <<" condition Low "<<_condition.first
-//      <<" High "<<_condition.second
-//      <<" on Property "<< _third
-//      <<std::endl;
-//  //create the histogram
-//  set2DHist(_hist,_id);
-//  _pp.histograms_replace(_id,_hist);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp578::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  //get iterator to the hits//
-//  DelaylineDetector::dethits_t::iterator it = det->hits().begin();
-////  std::cout << det->hits().size()<<std::endl;
-//  //go through all hits of the detector//
-//  _hist->lock.lockForWrite();
-//  for (; it != det->hits().end(); ++it)
-//  {
-////    std::cout
-////        <<" "<<_first<<":"<<it->values()[_first]
-////        <<" "<<_second<<":"<<it->values()[_second]
-////        <<" "<<_third<<":"<<it->values()[_third]
-////        <<std::endl;
-//    if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
-//      _hist->fill(it->values()[_first],it->values()[_second]);
-//  }
-//  _hist->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 ////----------------PIPICO-------------------------------------------------------
 ////-----------pp700-701---------------------------------------------------------
 //cass::pp700::pp700(PostProcessors &pp, PostProcessors::id_t id)
