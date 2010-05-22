@@ -257,6 +257,28 @@ namespace cass
    *
    * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{Wireend}\n
+   *           The anode layer Wireend. Default is 1. Options are:
+   *           - 1: first wireend
+   *           - 2: second wireend
    *
    * @author Lutz Foucar
    */
@@ -288,6 +310,62 @@ namespace cass
     /** The Histogram storing the info*/
     Histogram2DFloat  *_sigprop;
   };
+
+
+
+
+
+
+
+
+
+
+  /** Timesum of Delayline.
+   *
+   * This postprocessor will output Timesum of a Delayline Anode for the first
+   * hit in a selectable good range.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/p\%id%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   *
+   * implements postprocessor id's: 568-570, 613, 614
+   *
+   * @author Lutz Foucar
+   */
+  class pp162 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor*/
+    pp162(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp162();
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+
+    /** The layer of the detector detector we are there for*/
+    char _layer;
+
+    /** The Histogram storing the info*/
+    Histogram0DFloat  *_timesum;
+  };
+
+
+
+
 
 
 
@@ -342,42 +420,6 @@ namespace cass
 
 
 
-  /** Timesum of Delayline.
-   *
-   * This postprocessor will output Timesum of a Delayline Anode for the first
-   * hit in a selectable good range.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 568-570, 613, 614
-   *
-   * @author Lutz Foucar
-   */
-  class pp568 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor*/
-    pp568(PostProcessors&, PostProcessors::key_t key);
-    /** Free _image space */
-    virtual ~pp568();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_timesum;
-  };
 
 
 
