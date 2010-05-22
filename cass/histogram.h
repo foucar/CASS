@@ -333,7 +333,7 @@ public:
     value_t getValue() { return _memory[0]; };
 
     /** evaluate whether value is non zero */
-    bool operator()()
+    bool isTrue()
     {
       return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());
     }

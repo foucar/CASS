@@ -265,7 +265,6 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
-//  settings.beginGroup("active");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
   PostprocessorBackend * processor(0);
@@ -346,11 +345,11 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case Cos2Theta:
     processor = new pp200(*this,key);
     break;
-//  case AdvancedPhotonFinder:
-//    processor = new pp160(*this,key);
-//    break;
+  case AdvancedPhotonFinder:
+    processor = new pp210(*this,key);
+    break;
 //  case AdvancedPhotonFinderSpectrum:
-//    processor = new pp166(*this,key);
+//    processor = new pp211(*this,key);
 //    break;
   case PIPICO:
     processor = new pp220(*this,key);
