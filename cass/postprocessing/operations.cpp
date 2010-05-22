@@ -586,6 +586,88 @@ void cass::pp23::operator()(const CASSEvent&)
 
 
 
+// *** postprocessors 50 projects 2d hist to 1d histo for a selected region of the axis ***
+
+cass::pp50::pp50(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _projec(0)
+{
+  loadSettings(0);
+}
+
+cass::pp50::~pp50()
+{
+  _pp.histograms_delete(_key);
+  _projec = 0;
+}
+
+cass::PostProcessors::active_t cass::pp50::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp50::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
+                     settings.value("UpperBound", 1e6).toFloat());
+  _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const Histogram2DFloat *one
+      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  _pp.histograms_delete(_key);
+  switch (_axis)
+  {
+  case (HistogramBackend::xAxis):
+    _range.first  = max(_range.first, one->axis()[HistogramBackend::yAxis].lowerLimit());
+    _range.second = min(_range.second,one->axis()[HistogramBackend::yAxis].upperLimit());
+    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
+                                   one->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   one->axis()[HistogramBackend::xAxis].upperLimit());
+    break;
+  case (HistogramBackend::yAxis):
+    _range.first  = max(_range.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
+    _range.second = min(_range.second,one->axis()[HistogramBackend::xAxis].upperLimit());
+    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
+                                   one->axis()[HistogramBackend::yAxis].lowerLimit(),
+                                   one->axis()[HistogramBackend::yAxis].upperLimit());
+    break;
+  }
+  _pp.histograms_replace(_key,_projec);
+  std::cout << "PostProcessor "<<_key
+      <<" will project histogram of PostProcessor "<<_idHist
+      <<" from "<<_range.first
+      <<" to "<<_range.second
+      <<" on axis "<<_axis
+      <<std::endl;
+}
+
+void cass::pp50::operator()(const CASSEvent&)
+{
+  using namespace std;
+  Histogram2DFloat *one
+      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  one->lock.lockForRead();
+  _projec->lock.lockForWrite();
+  *_projec = one->project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  _projec->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -683,88 +765,5 @@ void cass::pp23::operator()(const CASSEvent&)
 //
 //
 //
-//// *** postprocessors 806 projects 2d hist to 1d histo for a selected region of the axis ***
-//
-//cass::pp806::pp806(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-//  : PostprocessorBackend(pp, key), _projec(0)
-//{
-//  loadSettings(0);
-//}
-//
-//cass::pp806::~pp806()
-//{
-//  _pp.histograms_delete(_key);
-//  _projec = 0;
-//}
-//
-//cass::PostProcessors::active_t cass::pp806::dependencies()
-//{
-//  PostProcessors::active_t list;
-//  list.push_front(_idHist);
-//  return list;
-//}
-//
-//void cass::pp806::loadSettings(size_t)
-//{
-//  using namespace std;
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(QString("p") + QString::number(_id));
-//
-//  _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
-//                     settings.value("UpperBound", 1e6).toFloat());
-//  _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
-//
-//
-//  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
-//    return;
-//
-//  //make sure that lower and upper bound are not exceeding histograms boudaries
-//  const Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//
-//  //creat the resulting histogram from the right axis of the 2d
-//  _pp.histograms_delete(_key);
-//  switch (_axis)
-//  {
-//  case (HistogramBackend::xAxis):
-//    _range.first  = max(_range.first, one->axis()[HistogramBackend::yAxis].lowerLimit());
-//    _range.second = min(_range.second,one->axis()[HistogramBackend::yAxis].upperLimit());
-//    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
-//                                   one->axis()[HistogramBackend::xAxis].lowerLimit(),
-//                                   one->axis()[HistogramBackend::xAxis].upperLimit());
-//    break;
-//  case (HistogramBackend::yAxis):
-//    _range.first  = max(_range.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
-//    _range.second = min(_range.second,one->axis()[HistogramBackend::xAxis].upperLimit());
-//    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
-//                                   one->axis()[HistogramBackend::yAxis].lowerLimit(),
-//                                   one->axis()[HistogramBackend::yAxis].upperLimit());
-//    break;
-//  }
-//  _pp.histograms_replace(_key,_projec);
-//
-//  std::cout << "PostProcessor_"<<_key
-//      <<" will project histogram of PostProcessor_"<<_idHist
-//      <<" from "<<_range.first
-//      <<" to "<<_range.second
-//      <<" on axis "<<_axis
-//      <<std::endl;
-//}
-//
-//void cass::pp806::operator()(const CASSEvent&)
-//{
-//  using namespace std;
-//  //retrieve the memory of the to be substracted histograms//
-//  Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//
-//  //retrieve the projection from the 2d hist//
-//  one->lock.lockForRead();
-//  _projec->lock.lockForWrite();
-//  *_projec = one->project(_range,static_cast<HistogramBackend::Axis>(_axis));
-//  _projec->lock.unlock();
-//  one->lock.unlock();
-//}
 //
 //

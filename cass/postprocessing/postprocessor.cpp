@@ -286,12 +286,12 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case MultiplyHistograms:
     processor = new pp22(*this, key);
     break;
-//  case MultiplyConstant:
-//    processor = new pp23(*this, key);
-//    break;
-//  case TwoDProjection:
-//    processor = new pp50(*this, key);
-//    break;
+  case MultiplyConstant:
+    processor = new pp23(*this, key);
+    break;
+  case TwoDProjection:
+    processor = new pp50(*this, key);
+    break;
 //  case OneDIntergral:
 //    processor = new pp51(*this, key);
 //    break;
