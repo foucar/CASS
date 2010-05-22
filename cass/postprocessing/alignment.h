@@ -4,8 +4,8 @@
 #ifndef _ALGINMENT_POSTPROCESSOR_H_
 #define _ALGINMENT_POSTPROCESSOR_H_
 
-#include "postprocessing/backend.h"
-#include "postprocessing/postprocessor.h"
+#include "backend.h"
+#include "postprocessor.h"
 #include "cass_event.h"
 
 namespace cass
@@ -156,8 +156,10 @@ protected:
   size_t _nbrRadialPoints;         //!< Number of radial points
   size_t _nbrAngularPoints;        //!< Number of angular points
   bool _drawCircle;               //!< flag to tell whether to draw the inner and outer circle
+
   /** image that we will calculate the \f$\cos^2\theta\f$ from */
   PostProcessors::key_t   _imagekey;
+
   /** the cos2theta value */
   Histogram0DFloat *_value;
 };

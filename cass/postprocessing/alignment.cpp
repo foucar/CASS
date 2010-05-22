@@ -9,7 +9,7 @@
 #include <cmath>
 #include <cstdlib>
 
-#include "postprocessing/alignment.h"
+#include "alignment.h"
 #include "cass_event.h"
 #include "histogram.h"
 
