@@ -333,7 +333,7 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
     break;
 #ifdef HDF5
   case PnccdHDF5:
-    processor = new pp1001(*this,key);
+    processor = new pp1000(*this,key);
     break;
 #endif
 #ifdef CERNROOT
