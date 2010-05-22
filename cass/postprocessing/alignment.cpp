@@ -361,16 +361,9 @@ void cass::pp200::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _imagekey   = settings.value("ImageId",104).toString().toStdString();
   _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();
-  try
-  {
-    _pp.validate(_imagekey);
-  }
-  catch (InvalidHistogramError)
-  {
+  if(!retrieve_and_validate(_pp,_key,"ImageId",_imagekey))
     return;
-  }
   HistogramBackend * hist (_pp.histograms_checkout().find(_imagekey)->second);
   _pp.histograms_release();
   // Width of image - we assum the images ar esquare
