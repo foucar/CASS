@@ -169,7 +169,7 @@ namespace cass
         {
 
           //const float angle(180.*std::atan2(static_cast<double>(row-yc),static_cast<double>(col-xc))/M_PI);
-          const float angle(std::atan2(static_cast<double>(row)-yc,static_cast<double>(col)-xc));
+          const float angle(std::atan2(static_cast<float>(row)-yc,static_cast<float>(col)-xc));
           /*float cosangle;
           if ((square(col-xc)+square(row-yc))!=0)
             cosangle= (col-xc)/sqrt(square(col-xc)+square(row-yc)) ;
