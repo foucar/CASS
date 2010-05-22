@@ -13,7 +13,7 @@ namespace cass
   {
   public:
     /** Construct postprocessor for converting histograms to root histograms */
-    pp2000(PostProcessors&, PostProcessors::id_t, std::string rootfilename);
+    pp2000(PostProcessors&, const PostProcessors::key_t&, std::string rootfilename);
 
     /** when we are destroyed write all pp histograms to a root file*/
     virtual ~pp2000();
