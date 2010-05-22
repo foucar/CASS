@@ -289,39 +289,36 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case CCDPhotonHitsImage:
     processor = new pp141(*this,key);
     break;
-//  case TofDetNbrSignals:
-//    processor = new pp550(*this, key);
-//    break;
-//  case TofDetAllSignals:
-//    processor = new pp567(*this, key);
-//    break;
-//  case WireendNbrSignals:
-//    processor = new pp551(*this, key);
-//    break;
-//  case DelaylineNbrReconstructedHits:
-//    processor = new pp566(*this, key);
-//    break;
-//  case AnodeTimesum:
-//    processor = new pp568(*this, key);
-//    break;
-//  case AnodeTimesumVsPos:
-//    processor = new pp571(*this, key);
-//    break;
-//  case DelaylineFirstGoodHit:
-//    processor = new pp574(*this, key);
-//    break;
-//  case DelaylineAllReconstuctedHits:
-//    processor = new pp578(*this, key);
-//    break;
-//  case TofDetMcpHeightVsFwhm:
-//    processor = new pp581(*this, key);
-//    break;
-//  case WireendHeightvsFwhm:
-//    processor = new pp582(*this, key);
-//    break;
-//  case PIPICO:
-//    processor = new pp700(*this,key);
-//    break;
+  case TofDetNbrSignals:
+    processor = new pp150(*this, key);
+    break;
+  case TofDetAllSignals:
+    processor = new pp151(*this, key);
+    break;
+  case TofDetMcpHeightVsFwhm:
+    processor = new pp152(*this, key);
+    break;
+  case WireendNbrSignals:
+    processor = new pp160(*this, key);
+    break;
+  case WireendHeightvsFwhm:
+    processor = new pp161(*this, key);
+    break;
+  case AnodeTimesum:
+    processor = new pp162(*this, key);
+    break;
+  case AnodeTimesumVsPos:
+    processor = new pp163(*this, key);
+    break;
+  case DelaylineFirstGoodHit:
+    processor = new pp164(*this, key);
+    break;
+  case DelaylineNbrReconstructedHits:
+    processor = new pp165(*this, key);
+    break;
+  case DelaylineAllReconstuctedHits:
+    processor = new pp166(*this, key);
+    break;
 //  case Cos2Theta:
 //    processor = new pp150(*this,key);
 //    break;
@@ -331,6 +328,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
 //  case AdvancedPhotonFinderSpectrum:
 //    processor = new pp166(*this,key);
 //    break;
+  case PIPICO:
+    processor = new pp220(*this,key);
+    break;
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1001(*this,key);
