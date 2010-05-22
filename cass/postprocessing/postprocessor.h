@@ -550,6 +550,7 @@ please use doxygen style as then your documentation will be available on the web
       HexQuadPIPICO=701,
 
       PhotonEnergy=852,
+      Project2d=806,
 
       PnccdHDF5=1001,
 
@@ -617,7 +618,7 @@ please use doxygen style as then your documentation will be available on the web
       _histlock.lockForWrite();
       _replace(type, hist);
       _histlock.unlock();
-    };
+    }
 
     /** make sure a specific histogram exists and is not 0
      *
@@ -626,8 +627,10 @@ please use doxygen style as then your documentation will be available on the web
     void validate(id_t type)
     {
       if((_histograms.end() == _histograms.find(type)) || (0 == _histograms[type]))
+      {
         throw InvalidHistogramError(type);
-    };
+      }
+    }
 
     IdList* getIdList();
     std::string& getMimeType(id_t type);
@@ -723,13 +726,13 @@ please use doxygen style as then your documentation will be available on the web
 
 
   /** id-list
- *
- * used for SOAP communication of id-lists
- *
- * @todo document this class
- * @todo if possible put this class into a separate file.
- * @note do all these function need to be inlines?
- */
+   *
+   * used for SOAP communication of id-lists
+   *
+   * @todo document this class
+   * @todo if possible put this class into a separate file.
+   * @note do all these function need to be inlines?
+   */
   class IdList : public Serializable
   {
   public:

@@ -440,6 +440,9 @@ PostprocessorBackend * PostProcessors::create(id_t id)
     case PhotonEnergy:
         processor = new pp852(*this,id);
         break;
+    case Project2d:
+        processor = new pp806(*this,id);
+        break;
 
 #ifdef HDF5
     case PnccdHDF5:
