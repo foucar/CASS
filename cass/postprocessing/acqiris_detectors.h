@@ -24,8 +24,6 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 0: InvalidDetector
@@ -60,6 +58,64 @@ namespace cass
     /** The Histogram storing the info*/
     Histogram0DFloat  *_nbrSignals;
   };
+
+
+
+
+
+
+
+
+  /** all mcp signals.
+   *
+   * This postprocessor will output the times of all found singal int the
+   * mcp waveform of the detector. This is a Time of Flight Spectrum
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   *
+   * @author Lutz Foucar
+   */
+  class pp151 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor*/
+    pp151(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp151();
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+
+    /** The Histogram storing the info*/
+    Histogram1DFloat  *_tof;
+  };
+
+
+//--
+
 
 
 
@@ -104,85 +160,6 @@ namespace cass
 
 
 
-  /** Signal ratio for two layers.
-   *
-   * This postprocessor will output the Ratio of the Number of Signals with
-   * Respect to the other layer.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 577, 560, 563, 605, 608
-   *
-   * @author Lutz Foucar
-   */
-  class pp557 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Ratio of the Signals of two Layers*/
-    pp557(PostProcessors&, PostProcessors::key_t key);
-    /** Free _image space */
-    virtual ~pp557();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
-  };
-
-
-
-  /** Signal Ratio of wireend vs mcp.
-   *
-   * This postprocessor will output the Ratio of the Number of Signals with
-   * Respect to the the number of Singals in the MCP Channel.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 558-559, 561-562, 564-565, 606-507, 609-610
-   *
-   * @author Lutz Foucar
-   */
-  class pp558 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Ratio of the Signals of Layers vs MCP*/
-    pp558(PostProcessors&, PostProcessors::key_t key);
-    /** Free _image space */
-    virtual ~pp558();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Signal of the layer detector we are there for*/
-    char _wireend;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
-  };
-
-
 
 
   /** Ratio of reconstucted hits vs mcp hits.
@@ -224,41 +201,6 @@ namespace cass
 
 
 
-  /** all mcp hits.
-   *
-   * This postprocessor will output the times of all found Hits on the Mcp.
-   * This is more or less a Time of Flight Spektrum
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   *
-   * implements postprocessor id's: 567, 612, 651, 661, 671, 681
-   *
-   * @author Lutz Foucar
-   */
-  class pp567 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor*/
-    pp567(PostProcessors&, PostProcessors::key_t key);
-    /** Free _image space */
-    virtual ~pp567();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_tof;
-  };
 
 
 

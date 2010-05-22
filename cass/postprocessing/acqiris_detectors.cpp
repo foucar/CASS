@@ -121,6 +121,67 @@ void cass::pp150::operator()(const cass::CASSEvent &evt)
 
 
 
+
+
+
+
+
+//----------------MCP Hits (Tof)-----------------------------------------------
+cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _tof(0)
+{
+  //create the histogram by loading the settings//
+  loadSettings(0);
+}
+
+cass::pp151::~pp151()
+{
+  _pp.histograms_delete(_key);
+  _tof=0;
+}
+
+void cass::pp151::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",0).toUInt());
+
+  //create the histogram
+  set1DHist(_tof,_key);
+  _pp.histograms_replace(_key,_tof);
+
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": it histograms times of the found mcp signals"
+      <<" of detector "<<_detector
+      <<std::endl;
+}
+
+void cass::pp151::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  TofDetector *det =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  //reference to all found peaks of the mcp channel//
+  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
+  //fill all found peaks into the histogram//
+  _tof->lock.lockForWrite();
+  for (; it != det->mcp().peaks().end(); ++it)
+    _tof->fill(it->time());
+  _tof->lock.unlock();
+}
+
+
+
+
+
+
 ////----------------Nbr of Peaks Anode-------------------------------------------
 ////-----------pp551 - pp556 & pp601 - 604---------------------------------------
 //cass::pp551::pp551(PostProcessors &pp, PostProcessors::id_t id)
