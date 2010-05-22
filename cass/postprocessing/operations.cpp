@@ -422,114 +422,109 @@ void cass::pp21::operator()(const CASSEvent&)
 
 
 
-//// *** postprocessors 803 multiplies two histograms ***
-//
-//cass::pp803::pp803(PostProcessors& pp, cass::PostProcessors::id_t id)
-//  : PostprocessorBackend(pp, id), _result(0)
-//{
-//  loadSettings(0);
-//}
-//
-//cass::pp803::~pp803()
-//{
-//  _pp.histograms_delete(_id);
-//  _result = 0;
-//}
-//
-//cass::PostProcessors::active_t cass::pp803::dependencies()
-//{
-//  PostProcessors::active_t list;
-//  list.push_front(_idOne);
-//  list.push_front(_idTwo);
-//  return list;
-//}
-//
-//void cass::pp803::loadSettings(size_t)
-//{
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(QString("p") + QString::number(_id));
-//
-//  if (!retrieve_and_validate(_id,"HistOne",_idOne))
-//    return;
-//  if (!retrieve_and_validate(_id,"HistTwo",_idTwo))
-//    return;
-//
-//  //retrieve histograms from the two pp//
-//  const HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-//  _pp.histograms_release();
-//  const HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-//  _pp.histograms_release();
-//  //check whether they are the same type//
-//  if ((one->dimension() != two->dimension()) ||
-//      (one->memory().size() != two->memory().size()))
-//  {
-//    throw std::runtime_error("pp803 idOne is not the same type as idTwo or they have not the same size");
-//  }
-//
-//  //creat the resulting histogram from the first histogram
-//  _pp.histograms_delete(_id);
-//  _result = new HistogramFloatBase(*one);
-//  _pp.histograms_replace(_id,_result);
-//
-//  std::cout << "PostProcessor_"<<_id
-//      <<" will multiply Histogram in PostProcessor_"<<_idOne
-//      <<" with Histogram in PostProcessor_"<<_idTwo
-//      <<std::endl;
-//}
-//
-//void cass::pp803::operator()(const CASSEvent&)
-//{
-//  using namespace std;
-//  //retrieve the memory of the to be substracted histograms//
-//  HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-//  _pp.histograms_release();
-//  HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-//  _pp.histograms_release();
-//
-//  //substract using transform with a special build function//
-//  one->lock.lockForRead();
-//  two->lock.lockForRead();
-//  _result->lock.lockForWrite();
-//  transform(one->memory().begin(),
-//            one->memory().end(),
-//            two->memory().begin(),
-//            _result->memory().begin(),
-//            multiplies<float>());
-//  _result->lock.unlock();
-//  one->lock.unlock();
-//  two->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// *** postprocessors 22 multiplies two histograms ***
+
+cass::pp22::pp22(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp22::~pp22()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp22::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idOne);
+  list.push_front(_idTwo);
+  return list;
+}
+
+void cass::pp22::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo))
+    return;
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  const HistogramFloatBase *two
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
+  _pp.histograms_release();
+  if ((one->dimension() != two->dimension()) ||
+      (one->memory().size() != two->memory().size()))
+  {
+    throw std::runtime_error("pp803 idOne is not the same type as idTwo or they have not the same size");
+  }
+  _pp.histograms_delete(_key);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will multiply Histogram in PostProcessor "<<_idOne
+      <<" with Histogram in PostProcessor "<<_idTwo
+      <<std::endl;
+}
+
+void cass::pp22::operator()(const CASSEvent&)
+{
+  using namespace std;
+  HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  HistogramFloatBase *two
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
+  _pp.histograms_release();
+
+  one->lock.lockForRead();
+  two->lock.lockForRead();
+  _result->lock.lockForWrite();
+  transform(one->memory().begin(),
+            one->memory().end(),
+            two->memory().begin(),
+            _result->memory().begin(),
+            multiplies<float>());
+  _result->lock.unlock();
+  one->lock.unlock();
+  two->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //// *** postprocessors 804 multiplies histogram with constant ***
 //
-//cass::pp804::pp804(PostProcessors& pp, cass::PostProcessors::id_t id)
-//  : PostprocessorBackend(pp, id), _result(0)
+//cass::pp804::pp804(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key), _result(0)
 //{
 //  loadSettings(0);
 //}
 //
 //cass::pp804::~pp804()
 //{
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  _result = 0;
 //}
 //
@@ -548,7 +543,7 @@ void cass::pp21::operator()(const CASSEvent&)
 //
 //  _factor = settings.value("Factor",1).toFloat();
 //
-//  if (!retrieve_and_validate(_id,"HistId",_idHist))
+//  if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
 //    return;
 //
 //  //retrieve histograms from the two pp//
@@ -556,11 +551,11 @@ void cass::pp21::operator()(const CASSEvent&)
 //  _pp.histograms_release();
 //
 //  //creat the resulting histogram from the first histogram
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  _result = new HistogramFloatBase(*one);
-//  _pp.histograms_replace(_id,_result);
+//  _pp.histograms_replace(_key,_result);
 //
-//  std::cout << "PostProcessor_"<<_id
+//  std::cout << "PostProcessor_"<<_key
 //      <<" will multiply Histogram in PostProcessor_"<<_idHist
 //      <<" with "<<_factor
 //      <<std::endl;
@@ -606,15 +601,15 @@ void cass::pp21::operator()(const CASSEvent&)
 //
 //// *** postprocessors 805 calcs integral over a region in 1d histo ***
 //
-//cass::pp805::pp805(PostProcessors& pp, cass::PostProcessors::id_t id)
-//  : PostprocessorBackend(pp, id), _result(0)
+//cass::pp805::pp805(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key), _result(0)
 //{
 //  loadSettings(0);
 //}
 //
 //cass::pp805::~pp805()
 //{
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  _result = 0;
 //}
 //
@@ -635,7 +630,7 @@ void cass::pp21::operator()(const CASSEvent&)
 //  _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
 //                    settings.value("UpperBound", 1e6).toFloat());
 //
-//  if (!retrieve_and_validate(_id,"HistId",_idHist))
+//  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
 //    return;
 //
 //  //make sure that lower and upper bound are not exceeding histograms boudaries
@@ -648,11 +643,11 @@ void cass::pp21::operator()(const CASSEvent&)
 //  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].upperLimit());
 //
 //  //creat the resulting histogram from the first histogram
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  _result = new Histogram0DFloat();
-//  _pp.histograms_replace(_id,_result);
+//  _pp.histograms_replace(_key,_result);
 //
-//  std::cout << "PostProcessor_"<<_id
+//  std::cout << "PostProcessor_"<<_key
 //      <<" will create integral of 1d histogram in PostProcessor_"<<_idHist
 //      <<" from "<<_area.first
 //      <<" to "<<_area.second
@@ -698,15 +693,15 @@ void cass::pp21::operator()(const CASSEvent&)
 //
 //// *** postprocessors 806 projects 2d hist to 1d histo for a selected region of the axis ***
 //
-//cass::pp806::pp806(PostProcessors& pp, cass::PostProcessors::id_t id)
-//  : PostprocessorBackend(pp, id), _projec(0)
+//cass::pp806::pp806(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key), _projec(0)
 //{
 //  loadSettings(0);
 //}
 //
 //cass::pp806::~pp806()
 //{
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  _projec = 0;
 //}
 //
@@ -729,7 +724,7 @@ void cass::pp21::operator()(const CASSEvent&)
 //  _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
 //
 //
-//  if (!retrieve_and_validate(_id,"HistId",_idHist))
+//  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
 //    return;
 //
 //  //make sure that lower and upper bound are not exceeding histograms boudaries
@@ -737,7 +732,7 @@ void cass::pp21::operator()(const CASSEvent&)
 //  _pp.histograms_release();
 //
 //  //creat the resulting histogram from the right axis of the 2d
-//  _pp.histograms_delete(_id);
+//  _pp.histograms_delete(_key);
 //  switch (_axis)
 //  {
 //  case (HistogramBackend::xAxis):
@@ -755,9 +750,9 @@ void cass::pp21::operator()(const CASSEvent&)
 //                                   one->axis()[HistogramBackend::yAxis].upperLimit());
 //    break;
 //  }
-//  _pp.histograms_replace(_id,_projec);
+//  _pp.histograms_replace(_key,_projec);
 //
-//  std::cout << "PostProcessor_"<<_id
+//  std::cout << "PostProcessor_"<<_key
 //      <<" will project histogram of PostProcessor_"<<_idHist
 //      <<" from "<<_range.first
 //      <<" to "<<_range.second

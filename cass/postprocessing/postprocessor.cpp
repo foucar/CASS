@@ -283,9 +283,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case DivideHistograms:
     processor = new pp21(*this, key);
     break;
-//  case MultiplyHistograms:
-//    processor = new pp22(*this, key);
-//    break;
+  case MultiplyHistograms:
+    processor = new pp22(*this, key);
+    break;
 //  case MultiplyConstant:
 //    processor = new pp23(*this, key);
 //    break;
