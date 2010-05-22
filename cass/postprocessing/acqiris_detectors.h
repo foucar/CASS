@@ -10,6 +10,7 @@
 namespace cass
 {
   //forward declarations//
+  class Histogram0DFloat;
   class Histogram1DFloat;
   class Histogram2DFloat;
 
@@ -23,29 +24,41 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
    *           properties of the 1d histogram
-   *
-   * implements postprocessor id's 550, 600, 650, 660, 670, 680.
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
    *
    * @author Lutz Foucar
    */
-  class pp550 : public PostprocessorBackend
+  class pp150 : public PostprocessorBackend
   {
   public:
     /** Constructor. Constructor for Number of Signals*/
-    pp550(PostProcessors &, PostProcessors::key_t key);
+    pp150(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free histogram space */
-    virtual ~pp550();
+    virtual ~pp150();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_nbrSignals;
+    Histogram0DFloat  *_nbrSignals;
   };
 
 

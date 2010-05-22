@@ -129,13 +129,13 @@ class Histogram0DFloat;
  * @author Per Johnsson
  * @author Lutz Foucar
  */
-class pp150 : public PostprocessorBackend
+class pp200 : public PostprocessorBackend
 {
 public:
   /** Construct postprocessor for Gaussian height of image */
-  pp150(PostProcessors&, PostProcessors::key_t key);
+  pp200(PostProcessors&, PostProcessors::key_t key);
   /** Free _image space */
-  virtual ~pp150();
+  virtual ~pp200();
   /** calculate \f$\cos^2\theta\f$ of averaged image */
   virtual void operator()(const CASSEvent&);
   /** Define postprocessor dependency on the requested image*/

@@ -70,72 +70,57 @@ void cass::set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key)
 
 
 
-////----------------Nbr of Peaks MCP---------------------------------------------
-////-----------pp550, pp600, pp650, pp660, pp670, pp680--------------------------
-//cass::pp550::pp550(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _nbrSignals(0)
-//{
-//  using namespace cass::ACQIRIS;
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexMCPNbrSignals:
-//    _detector = HexDetector;break;
-//  case PostProcessors::QuadMCPNbrSignals:
-//    _detector = QuadDetector;break;
-//  case PostProcessors::VMIMcpNbrSignals:
-//    _detector = VMIMcp;break;
-//  case PostProcessors::FELBeamMonitorNbrSignals:
-//    _detector = FELBeamMonitor;break;
-//  case PostProcessors::YAGPhotodiodeNbrSignals:
-//    _detector = YAGPhotodiode;break;
-//  case PostProcessors::FsPhotodiodeNbrSignals:
-//    _detector = FsPhotodiode;break;
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not for Nbr MCP Signals").arg(_id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp550::~pp550()
-//{
-//  _pp.histograms_delete(_id);
-//  _nbrSignals=0;
-//}
-//
-//void cass::pp550::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the Nbr of Mcp Peaks"
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_nbrSignals,_id);
-//  _pp.histograms_replace(_id,_nbrSignals);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp550::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  TofDetector *det =
-//      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  _nbrSignals->lock.lockForWrite();
-//  _nbrSignals->fill(det->mcp().peaks().size());
-//  _nbrSignals->lock.unlock();
-//}
-//
-//
-//
-//
-//
+//----------------Nbr of Peaks MCP---------------------------------------------
+cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _nbrSignals(0)
+{
+  //create the histogram by loading the settings//
+  loadSettings(0);
+}
+
+cass::pp150::~pp150()
+{
+  _pp.histograms_delete(_key);
+  _nbrSignals=0;
+}
+
+void cass::pp150::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",0).toUInt());
+
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": retrieves the nbr of mcp signals"
+      <<" of detector "<<_detector
+      <<std::endl;
+
+  //create the histogram
+  _pp.histograms_delete(_key);
+  _nbrSignals = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_nbrSignals);
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+}
+
+void cass::pp150::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  //get right filled detector from the helper
+  TofDetector *det =
+      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  _nbrSignals->lock.lockForWrite();
+  _nbrSignals->fill(det->mcp().peaks().size());
+  _nbrSignals->lock.unlock();
+}
+
+
+
+
+
 ////----------------Nbr of Peaks Anode-------------------------------------------
 ////-----------pp551 - pp556 & pp601 - 604---------------------------------------
 //cass::pp551::pp551(PostProcessors &pp, PostProcessors::id_t id)
