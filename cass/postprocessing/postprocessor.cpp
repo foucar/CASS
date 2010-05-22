@@ -98,7 +98,7 @@ void PostProcessors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
 #ifdef VERBOSE
   std::cout << settings.fileName().toStdString() << " " ;
@@ -264,7 +264,7 @@ void PostProcessors::setup()
 PostprocessorBackend * PostProcessors::create(const key_t &key)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
 //  settings.beginGroup("active");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
