@@ -167,10 +167,10 @@ void cass::pp151::operator()(const cass::CASSEvent &evt)
   using namespace cass::ACQIRIS;
   using namespace std;
   //get right filled detector from the helper
-  TofDetector *det =
-      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   //reference to all found peaks of the mcp channel//
-  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
+  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
   //clear histo and fill all found peaks into the histogram//
   _tof->lock.lockForWrite();
   fill(_tof->memory().begin(),_tof->memory().end(),0.f);
@@ -228,10 +228,10 @@ void cass::pp152::operator()(const cass::CASSEvent &evt)
   using namespace cass::ACQIRIS;
   using namespace std;
   //get right filled detector from the helper
-  TofDetector *det =
-      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   //reference to all found peaks of the mcp channel//
-  Signal::peaks_t::const_iterator it = det->mcp().peaks().begin();
+  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
   //fill all found peaks into the histogram//
   _sigprop->lock.lockForWrite();
   fill(_sigprop->memory().begin(),_sigprop->memory().end(),0.f);
@@ -294,11 +294,72 @@ void cass::pp160::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
-  DelaylineDetector *det =
-      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _nbrSignals->lock.lockForWrite();
   _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
   _nbrSignals->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+//----------------FWHM vs. Height of Wireend Signals---------------------------
+cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _sigprop(0)
+{
+  loadSettings(0);
+}
+
+cass::pp161::~pp161()
+{
+  _pp.histograms_delete(_key);
+  _sigprop=0;
+}
+
+void cass::pp161::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = static_cast<Detectors>(settings.value("Detector",0).toUInt());
+  _layer = settings.value("Layer",'U').toChar().toAscii();
+  _signal = settings.value("Wireend",'1').toChar().toAscii();
+
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": histograms the FWHM vs the height of layer "<<_layer
+      << " wireend "<<_signal
+      <<" of detector "<<_detector
+      <<std::endl;
+  //create the histogram
+  set2DHist(_sigprop,_key);
+  _pp.histograms_replace(_key,_sigprop);
+  //load the detectors settings
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+}
+
+void cass::pp161::operator()(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Signal::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
+  _sigprop->lock.lockForWrite();
+  fill(_sigprop->memory().begin(),_sigprop->memory().end(),0.f);
+  for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
+    _sigprop->fill(it->fwhm(),it->height());
+  _sigprop->lock.unlock();
 }
 
 
@@ -315,164 +376,7 @@ void cass::pp160::operator()(const cass::CASSEvent &evt)
 
 
 
-////----------------Ratio of Layers----------------------------------------------
-////-----------pp557, pp560, pp563, pp605, pp608---------------------------------
-//cass::pp557::pp557(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _ratio(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexU1U2Ratio:
-//    _detector = HexDetector; _layer = 'U';break;
-//  case PostProcessors::HexV1V2Ratio:
-//    _detector = HexDetector; _layer = 'V';break;
-//  case PostProcessors::HexW1W2Ratio:
-//    _detector = HexDetector; _layer = 'W';break;
-//
-//  case PostProcessors::QuadX1X2Ratio:
-//    _detector = QuadDetector; _layer = 'X';break;
-//  case PostProcessors::QuadY1Y2Ratio:
-//    _detector = QuadDetector; _layer = 'X';break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Layers").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp557::~pp557()
-//{
-//  _pp.histograms_delete(_id);
-//  _ratio=0;
-//}
-//
-//void cass::pp557::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the Ratio of Anode Layer Peaks"
-//      <<" of detector "<<_detector
-//      <<" layer "<<_layer
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_ratio,_id);
-//  _pp.histograms_replace(_id,_ratio);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp557::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  const float one = det->layers()[_layer].wireend()['1'].peaks().size();
-//  const float two = det->layers()[_layer].wireend()['2'].peaks().size();
-//  _ratio->lock.lockForWrite();
-//  _ratio->fill(one/two);
-//  _ratio->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-////----------------Ratio of Signals vs. MCP-------------------------------------
-////-----------pp558-559, pp561-562, pp564-565, pp606-607, pp609-610-------------
-//cass::pp558::pp558(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _ratio(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexU1McpRatio:
-//    _detector = HexDetector; _layer = 'U'; _wireend = '1';break;
-//  case PostProcessors::HexU2McpRatio:
-//    _detector = HexDetector; _layer = 'U'; _wireend = '2';break;
-//  case PostProcessors::HexV1McpRatio:
-//    _detector = HexDetector; _layer = 'V'; _wireend = '1';break;
-//  case PostProcessors::HexV2McpRatio:
-//    _detector = HexDetector; _layer = 'V'; _wireend = '2';break;
-//  case PostProcessors::HexW1McpRatio:
-//    _detector = HexDetector; _layer = 'W'; _wireend = '1';break;
-//  case PostProcessors::HexW2McpRatio:
-//    _detector = HexDetector; _layer = 'W'; _wireend = '2';break;
-//
-//  case PostProcessors::QuadX1McpRatio:
-//    _detector = QuadDetector; _layer = 'X'; _wireend = '1';break;
-//  case PostProcessors::QuadX2McpRatio:
-//    _detector = QuadDetector; _layer = 'X'; _wireend = '2';break;
-//  case PostProcessors::QuadY1McpRatio:
-//    _detector = QuadDetector; _layer = 'Y'; _wireend = '1';break;
-//  case PostProcessors::QuadY2McpRatio:
-//    _detector = QuadDetector; _layer = 'Y'; _wireend = '2';break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for Ratio of Signals vs. MCP").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp558::~pp558()
-//{
-//  _pp.histograms_delete(_id);
-//  _ratio=0;
-//}
-//
-//void cass::pp558::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the Ratio of Anode Layer wireend Peaks vs Mcp Peaks "<<_layer
-//      <<" of detector "<<_detector
-//      << "layer "<<_layer
-//      <<" wireend "<<_wireend
-//      <<std::endl;
-//
-//  //create the histogram
-//  set1DHist(_ratio,_id);
-//  _pp.histograms_replace(_id,_ratio);
-//  //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp558::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  const float wireend = det->layers()[_layer].wireend()[_wireend].peaks().size();
-//  const float mcp = det->mcp().peaks().size();
-//  _ratio->lock.lockForWrite();
-//  _ratio->fill(wireend/mcp);
-//  _ratio->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
+
 ////----------------Ratio of rec. Hits vs. MCP Hits------------------------------
 ////------------------------------pp566, pp611-----------------------------------
 //cass::pp566::pp566(PostProcessors &pp, PostProcessors::id_t id)
@@ -958,84 +862,6 @@ void cass::pp160::operator()(const cass::CASSEvent &evt)
 //
 //
 //
-////----------------FWHM vs. Height of Wireend Signals---------------------------
-////-----------pp582-587, pp622-625----------------------------------------------
-//cass::pp582::pp582(PostProcessors &pp, PostProcessors::id_t id)
-//  :cass::PostprocessorBackend(pp,id),
-//  _sigprop(0)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  //find out which detector and Signal we should work on
-//  switch (_id)
-//  {
-//  case PostProcessors::HexHeightvsFwhmU1:
-//    _detector = HexDetector; _layer = 'U'; _signal = '1';break;
-//  case PostProcessors::HexHeightvsFwhmU2:
-//    _detector = HexDetector; _layer = 'U'; _signal = '2';break;
-//  case PostProcessors::HexHeightvsFwhmV1:
-//    _detector = HexDetector; _layer = 'V'; _signal = '1';break;
-//  case PostProcessors::HexHeightvsFwhmV2:
-//    _detector = HexDetector; _layer = 'V'; _signal = '2';break;
-//  case PostProcessors::HexHeightvsFwhmW1:
-//    _detector = HexDetector; _layer = 'W'; _signal = '1';break;
-//  case PostProcessors::HexHeightvsFwhmW2:
-//    _detector = HexDetector; _layer = 'W'; _signal = '2';break;
-//
-//  case PostProcessors::QuadHeightvsFwhmX1:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '1';break;
-//  case PostProcessors::QuadHeightvsFwhmX2:
-//    _detector = QuadDetector; _layer = 'X'; _signal = '2';break;
-//  case PostProcessors::QuadHeightvsFwhmY1:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '1';break;
-//  case PostProcessors::QuadHeightvsFwhmY2:
-//    _detector = QuadDetector; _layer = 'Y'; _signal = '2';break;
-//
-//  default:
-//    throw std::invalid_argument(QString("postprocessor %1 is not responsible for FWHM vs. Height of Layer Signals").arg(id).toStdString());
-//  }
-//  //create the histogram by loading the settings//
-//  loadSettings(0);
-//}
-//
-//cass::pp582::~pp582()
-//{
-//  _pp.histograms_delete(_id);
-//  _sigprop=0;
-//}
-//
-//void cass::pp582::loadSettings(size_t)
-//{
-//  using namespace cass::ACQIRIS;
-//
-//  std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
-//      <<" it histograms the FWHM vs the height of layer "<<_layer
-//      << " wireend "<<_signal
-//      <<" of detector "<<_detector
-//      <<std::endl;
-//  //create the histogram
-//  set2DHist(_sigprop,_id);
-//  _pp.histograms_replace(_id,_sigprop);
-//    //load the detectors settings
-//  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-//  std::cout << "done loading postprocessor "<<_id<<"'s parameters"<<std::endl;
-//}
-//
-//void cass::pp582::operator()(const cass::CASSEvent &evt)
-//{
-//  using namespace cass::ACQIRIS;
-//  //get right filled detector from the helper
-//  DelaylineDetector *det =
-//      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-//  //go through all peaks of the wireend//
-//  //reference to all found peaks of the wireend channel//
-//  Signal::peaks_t::const_iterator it = det->layers()[_layer].wireend()[_signal].peaks().begin();
-//  //fill all found peaks into the histogram//
-//  _sigprop->lock.lockForWrite();
-//  for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
-//    _sigprop->fill(it->fwhm(),it->height());
-//  _sigprop->lock.unlock();
-//}
 //
 //
 //
