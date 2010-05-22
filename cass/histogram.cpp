@@ -181,8 +181,8 @@ namespace cass
           */
           //hist.bin( angle ) += bin(row, col);
           //hist.fill( cosangle );
-          hist.fill( angle );
-          //hist.fill( angle,bin(row,col) );
+          //hist.fill( angle );
+          hist.fill( angle,bin(row,col) );
         }
       }
     return hist;
