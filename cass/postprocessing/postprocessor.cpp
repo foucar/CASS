@@ -292,9 +292,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case TwoDProjection:
     processor = new pp50(*this, key);
     break;
-//  case OneDIntergral:
-//    processor = new pp51(*this, key);
-//    break;
+  case OneDIntergral:
+    processor = new pp51(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;

@@ -673,97 +673,61 @@ void cass::pp50::operator()(const CASSEvent&)
 
 
 
-//// *** postprocessors 805 calcs integral over a region in 1d histo ***
-//
-//cass::pp805::pp805(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-//  : PostprocessorBackend(pp, key), _result(0)
-//{
-//  loadSettings(0);
-//}
-//
-//cass::pp805::~pp805()
-//{
-//  _pp.histograms_delete(_key);
-//  _result = 0;
-//}
-//
-//cass::PostProcessors::active_t cass::pp805::dependencies()
-//{
-//  PostProcessors::active_t list;
-//  list.push_front(_idHist);
-//  return list;
-//}
-//
-//void cass::pp805::loadSettings(size_t)
-//{
-//  using namespace std;
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(QString("p") + QString::number(_id));
-//
-//  _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
-//                    settings.value("UpperBound", 1e6).toFloat());
-//
-//  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
-//    return;
-//
-//  //make sure that lower and upper bound are not exceeding histograms boudaries
-//  const Histogram1DFloat *one (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//  /** @note this will only work when the 1d histogram has already been created at this point,
-//   * this is not true for the waveform histograms. need to change the way waveforms are created
-//   */
-//  _area.first  = max(_area.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
-//  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].upperLimit());
-//
-//  //creat the resulting histogram from the first histogram
-//  _pp.histograms_delete(_key);
-//  _result = new Histogram0DFloat();
-//  _pp.histograms_replace(_key,_result);
-//
-//  std::cout << "PostProcessor_"<<_key
-//      <<" will create integral of 1d histogram in PostProcessor_"<<_idHist
-//      <<" from "<<_area.first
-//      <<" to "<<_area.second
-//      <<std::endl;
-//}
-//
-//void cass::pp805::operator()(const CASSEvent&)
-//{
-//  using namespace std;
-//  //retrieve the memory of the to be substracted histograms//
-//  Histogram1DFloat *one (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//
-//  //substract using transform with a special build function//
-//  one->lock.lockForRead();
-//  _result->lock.lockForWrite();
-//  *_result = one->integral(_area);
-//  _result->lock.unlock();
-//  one->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// *** postprocessors 51 calcs integral over a region in 1d histo ***
+
+cass::pp51::pp51(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp51::~pp51()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp51::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp51::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
+                    settings.value("UpperBound", 1e6).toFloat());
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const Histogram1DFloat *one
+      (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  _area.first  = max(_area.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
+  _area.second = min(_area.second,one->axis()[HistogramBackend::xAxis].upperLimit());
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will create integral of 1d histogram in PostProcessor "<<_idHist
+      <<" from "<<_area.first
+      <<" to "<<_area.second
+      <<std::endl;
+}
+
+void cass::pp51::operator()(const CASSEvent&)
+{
+  using namespace std;
+  Histogram1DFloat *one
+      (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  *_result = one->integral(_area);
+  _result->lock.unlock();
+  one->lock.unlock();
+}
