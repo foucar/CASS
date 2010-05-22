@@ -514,91 +514,83 @@ void cass::pp22::operator()(const CASSEvent&)
 
 
 
-//// *** postprocessors 804 multiplies histogram with constant ***
-//
-//cass::pp804::pp804(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-//  : PostprocessorBackend(pp, key), _result(0)
-//{
-//  loadSettings(0);
-//}
-//
-//cass::pp804::~pp804()
-//{
-//  _pp.histograms_delete(_key);
-//  _result = 0;
-//}
-//
-//cass::PostProcessors::active_t cass::pp804::dependencies()
-//{
-//  PostProcessors::active_t list;
-//  list.push_front(_idHist);
-//  return list;
-//}
-//
-//void cass::pp804::loadSettings(size_t)
-//{
-//  QSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(QString("p") + QString::number(_id));
-//
-//  _factor = settings.value("Factor",1).toFloat();
-//
-//  if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
-//    return;
-//
-//  //retrieve histograms from the two pp//
-//  const HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//
-//  //creat the resulting histogram from the first histogram
-//  _pp.histograms_delete(_key);
-//  _result = new HistogramFloatBase(*one);
-//  _pp.histograms_replace(_key,_result);
-//
-//  std::cout << "PostProcessor_"<<_key
-//      <<" will multiply Histogram in PostProcessor_"<<_idHist
-//      <<" with "<<_factor
-//      <<std::endl;
-//}
-//
-//void cass::pp804::operator()(const CASSEvent&)
-//{
-//  using namespace std;
-//  //retrieve the memory of the to be substracted histograms//
-//  HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-//  _pp.histograms_release();
-//
-//  //substract using transform with a special build function//
-//  one->lock.lockForRead();
-//  _result->lock.lockForWrite();
-//  transform(one->memory().begin(),
-//            one->memory().end(),
-//            _result->memory().begin(),
-//            bind2nd(multiplies<float>(),_factor));
-//  _result->lock.unlock();
-//  one->lock.unlock();
-//}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+// *** postprocessors 23 multiplies histogram with constant ***
+
+cass::pp23::pp23(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp23::~pp23()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp23::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp23::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _factor = settings.value("Factor",1).toFloat();
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  _pp.histograms_delete(_key);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will multiply Histogram in PostProcessor "<<_idHist
+      <<" with "<<_factor
+      <<std::endl;
+}
+
+void cass::pp23::operator()(const CASSEvent&)
+{
+  using namespace std;
+  HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  transform(one->memory().begin(),
+            one->memory().end(),
+            _result->memory().begin(),
+            bind2nd(multiplies<float>(),_factor));
+  _result->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //// *** postprocessors 805 calcs integral over a region in 1d histo ***
 //
 //cass::pp805::pp805(PostProcessors& pp, const cass::PostProcessors::key_t &key)
