@@ -240,6 +240,9 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
       cassevent->id() = bunchId;
       //when the datagram was an event we need to tell the caller//
       retval = GoodData;
+      //clear the beamline data//
+      dynamic_cast<MachineData::MachineDataDevice*>
+          (cassevent->devices()[CASSEvent::MachineData])->clear();
     }
 
     //iterate through the datagram and find the wanted information//

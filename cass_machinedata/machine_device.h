@@ -57,6 +57,17 @@ namespace cass
       /** deserialize the device from the serializer*/
       bool deserialize(cass::SerializerBackend&);
 
+      /** clear the machine data by setting every value to 0 */
+      void clear()
+      {
+        bldMap_t::iterator bi (_blddata.begin());
+        for (; bi != _blddata.end();++bi)
+          bi->second = 0;
+        epicsDataMap_t::iterator ei (_epicsdata.begin());
+        for (; ei != _epicsdata.end();++ei)
+          ei->second = 0;
+      }
+
     public:
       //@{
       /** getter */
