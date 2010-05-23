@@ -84,6 +84,44 @@ namespace cass
     /** requested value */
     Histogram0DFloat *_value;
   };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /** retrieve photonenergy.
+   *
+   * This postprocessor will calculate the photonenergy from the BLD
+   *
+   * @author Lutz Foucar
+   */
+  class pp230 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp230(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp230();
+
+    /** copy data from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+  protected:
+    /** resulting histgram */
+    Histogram0DFloat *_data;
+  };
 }
 
 #endif

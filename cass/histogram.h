@@ -16,6 +16,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QWaitCondition>
+#include <QtGui/QColor>
 #include <QtGui/QImage>
 
 #include <stdint.h>
@@ -26,7 +27,6 @@
 
 namespace cass
 {
-
 /** Axis properties for histograms.
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
@@ -75,9 +75,9 @@ public:
     size_t size() const {return _size;}
 
     /** Convenience function.
-    * @deprecated Use size() instead
-    * @see size()
-    */
+     * @deprecated Use size() instead
+     * @see size()
+     */
     size_t nbrBins() const {return size();}
 
     /*! Lower limit of axis */
@@ -91,6 +91,12 @@ public:
 
     /*! position for bin-index idx */
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
+
+    /** convert user distance to distance in histogram memory coordinates*/
+    size_t user2hist(float user)const {return static_cast<size_t>(user*_size / (_up-_low));}
+
+    /** convert distance in histogram memory coordinates to user distance */
+    float hist2user(size_t hist)const {return hist*(_up-_low)/_size;}
 
 protected:
     size_t _size; //!< the number of bins in this axis
@@ -242,10 +248,11 @@ public:
      * properties of the parameter, but not copy the contents of the memory
      */
     HistogramFloatBase(const HistogramFloatBase &in)
-      :HistogramBackend(in.dimension(),0),
+      :HistogramBackend(in.dimension(),in._version),
       _memory(in.memory().size(),0.)
     {
       _axis = in.axis();
+      _mime = in._mime;
     }
 
     /** typedef describing the type of the values stored in memory*/
@@ -502,7 +509,7 @@ public:
     value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };
 
     /** Return histogram bin (row,col) */
-    const value_t& bin(size_t row, size_t col) const { return _memory[row + col * _axis[0].size()]; };
+    const value_t& bin(size_t row, size_t col) const { return _memory[col + row * _axis[0].size()]; };
 
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
@@ -517,7 +524,7 @@ public:
     /** Return histogram bin (row,col).
      * @overload
      */
-    value_t& bin(size_t row, size_t col) { return _memory[row + col * _axis[0].size()]; };
+    value_t& bin(size_t row, size_t col) { return _memory[col + row * _axis[0].size()]; };
 
     /** center of histogram.
      * @todo check and improve
@@ -542,6 +549,18 @@ public:
      * @param[in] axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
      */
     Histogram1DFloat project(std::pair<float,float> range, Axis axis) const;
+
+    /** Reduce the 2D histogram to a 1D radial average/projection around a specified centre.
+     * @param[in] center center in coordinates of this 2d histograms memroy
+     * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
+     */
+    Histogram1DFloat radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius) const;
+
+    /** Reduce the 2D histogram to a 1D radar plot around a specified centre.
+     * @param[in] center(x,y), x and y center in histogram memory coordinates
+     * @param[in] range min and max radii in histogram memory coordinates
+     */
+    Histogram1DFloat radar_plot(std::pair<size_t,size_t> center, std::pair<size_t,size_t> range) const;
 
     /** Create a QImage of this histogram.
      *
@@ -661,16 +680,13 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 inline void cass::Histogram1DFloat::fill(float x, float weight)
 {
   //calc the bin//
-//  lock.lockForRead();
   const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
-//  lock.unlock();
   const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //check whether the fill is in the right range//
   const bool xInRange = 0<=xBin && xBin<nxBins;
-//  lock.lockForWrite();
   // if in range fill the memory otherwise figure out whether over of underflow occured//
   if (xInRange)
     _memory[xBin] += weight;
@@ -680,7 +696,6 @@ inline void cass::Histogram1DFloat::fill(float x, float weight)
     _memory[nxBins+Underflow] += 1;
   //increase the number of fills//
   ++(_nbrOfFills);
-//  lock.unlock();
 }
 
 //-----------------2D Hist--------------------------
@@ -701,20 +716,7 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
   const bool xInRange = 0<=xBin && xBin<nxBins;
   const bool yInRange = 0<=yBin && yBin<nyBins;
   //lock the write operation//
-//  std::cout
-//      <<std::boolalpha
-//      <<" X:"<<x
-//      <<" NbrXbins"<<nxBins
-//      <<" Xbin:"<<xBin
-//      <<" XinRange:"<<xInRange
-//      <<"    "
-//      <<" Y:"<<y
-//      <<" NbrYbins:"<<nyBins
-//      <<" Ybin:"<<yBin
-//      <<" YinRange:"<<yInRange
-//      <<std::endl;
 
-//  lock.lockForRead();
   // if both bin coordinates are in range, fill the memory,//
   //otherwise figure out which quadrant needs to be filled//
   if (xInRange && yInRange)
@@ -735,12 +737,50 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
     _memory[maxSize+UpperMiddle]+=1;
   else if (xBin >= nxBins && yBin >= nyBins)
     _memory[maxSize+UpperRight]+=1;
-//  lock.unlock();
   // increase the number of fills
   ++_nbrOfFills;
 }
 
 
+
+/** Convert Histogram2DFloat::value_t to uint8_t
+*
+* @author Jochen Küpper
+*/
+class value2pixel
+{
+public:
+
+    value2pixel(Histogram2DFloat::value_t min, Histogram2DFloat::value_t max)
+        : _min(min), _max(max)
+        {};
+
+    uint8_t operator()(Histogram2DFloat::value_t val) {
+        return uint8_t((val - _min) / (_max - _min) * 0xff);
+    };
+
+protected:
+
+    Histogram2DFloat::value_t _min, _max;
+};
+
+
+
+inline QImage Histogram2DFloat::qimage() {
+    QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+    qi.setColorCount(256);
+    for(unsigned i=0; i<256; ++i)
+        qi.setColor(i, QColor(i, i, i).rgb());
+    qi.fill(0);
+    uint8_t *data(qi.bits());
+    //    value2pixel converter(0,1);
+    value2pixel converter(min(), max());
+    lock.lockForRead();
+    // Subtract 8 to get the size of the buffer excluding over/underflow flags
+    std::transform(_memory.begin(), _memory.end()-8, data, converter);
+    lock.unlock();
+    return qi;
+};
 
 
 } //end namespace cass

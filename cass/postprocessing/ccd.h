@@ -46,7 +46,7 @@ namespace cass
     /** Free _image spcae */
     virtual ~pp100();
 
-    /** copy image from CASS event to histogram storage */
+   /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
     /** load the settings for this pp */
@@ -105,6 +105,15 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+
+    /** flag that will invert the condition */
+    bool _invert;
+
+    /** range of the photonenergy */
+    std::pair<float, float> _range;
+
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -170,8 +179,6 @@ namespace cass
     /** pixel image */
     Histogram2DFloat *_image;
   };
-
-
 
 }
 

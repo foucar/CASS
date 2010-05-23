@@ -4,6 +4,7 @@
 #include <QtCore/QString>
 
 
+#include "cass.h"
 #include "operations.h"
 #include "postprocessor.h"
 #include "histogram.h"
@@ -43,14 +44,17 @@ namespace cass
     settings.beginGroup(key.c_str());
     dependid = settings.value(param_name,"0").toString().toStdString();
     //when histogram id is not yet on list we return false
+    pp.histograms_checkout();
     try
     {
       pp.validate(dependid);
     }
     catch (InvalidHistogramError&)
     {
+      pp.histograms_release();
       return false;
     }
+    pp.histograms_release();
     return true;
   }
 
@@ -102,7 +106,7 @@ void cass::pp7::loadSettings(size_t)
   if ((one->dimension() != two->dimension()) ||
       (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp800 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp type 7: idOne is not the same type as idTwo or they have not the same size");
   }
   _pp.histograms_delete(_key);
   _result = new Histogram0DFloat();
@@ -116,15 +120,14 @@ void cass::pp7::loadSettings(size_t)
 void cass::pp7::operator()(const CASSEvent&)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
+  // retrieve the memory of the to be substracted histograms//
   HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
   _pp.histograms_release();
   HistogramFloatBase *two
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
   _pp.histograms_release();
-
-  //substract using transform with a special build function//
+  // substract using transform with a special build function//
   one->lock.lockForRead();
   two->lock.lockForRead();
   float first (accumulate(one->memory().begin(),
@@ -133,8 +136,8 @@ void cass::pp7::operator()(const CASSEvent&)
   float second (accumulate(one->memory().begin(),
                            one->memory().end(),
                            0.f));
-  one->lock.unlock();
   two->lock.unlock();
+  one->lock.unlock();
   _result->lock.lockForWrite();
   *_result = (first < second);
   _result->lock.unlock();
@@ -236,7 +239,7 @@ void cass::pp8::operator()(const CASSEvent&)
 
 
 
-// *** postprocessors 106 substract two histograms ***
+// *** postprocessors 20 substract two histograms ***
 
 cass::pp20::pp20(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _result(0)
@@ -278,7 +281,7 @@ void cass::pp20::loadSettings(size_t)
   if ((one->dimension() != two->dimension()) ||
       (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp106 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp type 20: idOne is not the same type as idTwo or they have not the same size");
   }
   _pp.histograms_delete(_key);
   _result = new HistogramFloatBase(*one);
@@ -370,7 +373,7 @@ void cass::pp21::loadSettings(size_t)
   if ((one->dimension() != two->dimension()) ||
       (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp802 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp type 21: idOne is not the same type as idTwo or they have not the same size");
   }
   _pp.histograms_delete(_key);
   _result = new HistogramFloatBase(*one);
@@ -462,7 +465,7 @@ void cass::pp22::loadSettings(size_t)
   if ((one->dimension() != two->dimension()) ||
       (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp803 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp type 22: idOne is not the same type as idTwo or they have not the same size");
   }
   _pp.histograms_delete(_key);
   _result = new HistogramFloatBase(*one);
@@ -696,6 +699,7 @@ cass::PostProcessors::active_t cass::pp51::dependencies()
 
 void cass::pp51::loadSettings(size_t)
 {
+
   using namespace std;
   QSettings settings;
   settings.beginGroup("PostProcessor");
@@ -731,3 +735,182 @@ void cass::pp51::operator()(const CASSEvent&)
   _result->lock.unlock();
   one->lock.unlock();
 }
+
+
+
+
+
+
+// *** postprocessors 52 calculate the radial average of a 2d hist given a centre
+//     and 1 radius (in case the value is too large, the maximum reasonable value is used) ***
+
+
+cass::pp52::pp52(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _projec(0)
+{
+  loadSettings(0);
+}
+
+cass::pp52::~pp52()
+{
+  _pp.histograms_delete(_key);
+  _projec = 0;
+}
+
+cass::PostProcessors::active_t cass::pp52::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp52::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const HistogramFloatBase*one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  const float center_x_user (settings.value("XCenter",512).toFloat());
+  const float center_y_user (settings.value("YCenter",512).toFloat());
+  _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(center_x_user),
+                      one->axis()[HistogramBackend::yAxis].bin(center_y_user));
+  const size_t dist_center_x_right
+      (one->axis()[HistogramBackend::xAxis].nbrBins()-_center.first);
+  const size_t dist_center_y_top
+      (one->axis()[HistogramBackend::yAxis].nbrBins()-_center.second);
+  const size_t min_dist_x (min(dist_center_x_right, _center.first));
+  const size_t min_dist_y (min(dist_center_y_top, _center.second));
+  _radius = (min (min_dist_x, min_dist_y));
+  _pp.histograms_delete(_key);
+  _projec = new Histogram1DFloat(_radius,0,_radius);
+  _pp.histograms_replace(_key,_projec);
+  std::cout << "PostProcessor "<<_key
+      <<": will calculate the radial average of histogram of PostProcessor "<<_idHist
+      <<" with xcenter "<<settings.value("XCenter",512).toFloat()
+      <<" ycenter "<<settings.value("YCenter",512).toFloat()
+      <<" in histogram coordinates xcenter "<<_center.first
+      <<" ycenter "<<_center.second
+      <<" maximum radius calculated from the incoming histogram "<<_radius
+      <<std::endl;
+}
+
+void cass::pp52::operator()(const CASSEvent&)
+{
+  using namespace std;
+  //retrieve the memory of the to be substracted histograms//
+  Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  //retrieve the projection from the 2d hist//
+  one->lock.lockForRead();
+  _projec->lock.lockForWrite();
+  *_projec = one->radial_project(_center,_radius);
+  _projec->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+// *** postprocessors 808 calculate the radar plot of a 2d hist given a centre
+//     and 2 radii (in case the value is too large, the maximum reasonable value is used) ***
+
+cass::pp53::pp53(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _projec(0)
+{
+  loadSettings(0);
+}
+
+cass::pp53::~pp53()
+{
+  _pp.histograms_delete(_key);
+  _projec = 0;
+}
+
+cass::PostProcessors::active_t cass::pp53::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp53::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  const float center_x_user (settings.value("XCenter",512).toFloat());
+  const float center_y_user (settings.value("YCenter",512).toFloat());
+  _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(center_x_user),
+                      one->axis()[HistogramBackend::yAxis].bin(center_y_user));
+  const size_t dist_center_x_right
+      (one->axis()[HistogramBackend::xAxis].nbrBins()-_center.first);
+  const size_t dist_center_y_top
+      (one->axis()[HistogramBackend::yAxis].nbrBins()-_center.second);
+  const size_t min_dist_x (min(dist_center_x_right, _center.first));
+  const size_t min_dist_y (min(dist_center_y_top, _center.second));
+  const size_t max_radius (min(min_dist_x, min_dist_y));
+  const float minrad_user(settings.value("MinRadius",0.).toFloat());
+  const float maxrad_user(settings.value("MaxRadius",0.).toFloat());
+  const size_t minrad (one->axis()[HistogramBackend::xAxis].user2hist(minrad_user));
+  const size_t maxrad (one->axis()[HistogramBackend::xAxis].user2hist(maxrad_user));
+  _range = make_pair(min(max_radius, minrad),
+                     min(max_radius, maxrad));
+  _pp.histograms_delete(_key);
+  _projec = new Histogram1DFloat(360,0,360);
+  _pp.histograms_replace(_key,_projec);
+  std::cout << "PostProcessor "<<_key
+      <<": angular distribution with xcenter "<<settings.value("XCenter",512).toFloat()
+      <<" ycenter "<<settings.value("YCenter",512).toFloat()
+      <<" in histogram coordinates xcenter "<<_center.first
+      <<" ycenter "<<_center.second
+      <<" minimum radius "<<settings.value("MinRadius",0.).toFloat()
+      <<" maximum radius "<<settings.value("MaxRadius",512.).toFloat()
+      <<" in histogram coordinates minimum radius "<<_range.first
+      <<" maximum radius "<<_range.second
+      <<std::endl;
+}
+
+void cass::pp53::operator()(const CASSEvent&)
+{
+  using namespace std;
+  //retrieve the memory of the to be substracted histograms//
+  Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  // retrieve the projection from the 2d hist//
+  one->lock.lockForRead();
+  _projec->lock.lockForWrite();
+  *_projec = one->radar_plot(_center,_range);
+  _projec->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-style: "gnu"
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// fill-column: 100
+// End:

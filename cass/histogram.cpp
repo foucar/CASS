@@ -1,59 +1,19 @@
 // Copyright (C) 2010 Jochen Küpper
 
-#include <QtGui/QColor>
 #include <algorithm>
+#include <cmath>
 
 #include "histogram.h"
 
 
 namespace cass
 {
-  /** Convert Histogram2DFloat::value_t to uint8_t
- *
- * @author Jochen Küpper
- */
-  class value2pixel
-  {
-  public:
-
-    value2pixel(Histogram2DFloat::value_t min, Histogram2DFloat::value_t max)
-      : _min(min), _max(max)
-    {};
-
-    uint8_t operator()(Histogram2DFloat::value_t val) {
-      return uint8_t((val - _min) / (_max - _min) * 0xff);
-    };
-
-  protected:
-
-    Histogram2DFloat::value_t _min, _max;
-  };
-
-
-  QImage Histogram2DFloat::qimage()
-  {
-    QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
-    qi.setColorCount(256);
-    for(unsigned i=0; i<256; ++i)
-      qi.setColor(i, QColor(i, i, i).rgb());
-    qi.fill(0);
-    uint8_t *data(qi.bits());
-    //    value2pixel converter(0,1);
-    value2pixel converter(min(), max());
-    lock.lockForRead();
-    // Subtract 8 to get the size of the buffer excluding over/underflow flags
-    std::transform(_memory.begin(), _memory.end()-8, data, converter);
-    lock.unlock();
-    return qi;
-  }
-
   void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
   {
     _axis = rhs._axis;
     _nbrOfFills = rhs._nbrOfFills;
     _memory = rhs._memory;
   }
-
 
   void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
   {
@@ -83,8 +43,8 @@ namespace cass
       {
         size_t low(_axis[yAxis].bin(std::min(range.first,range.second)));
         size_t up (_axis[yAxis].bin(std::max(range.first,range.second)));
-        for(size_t col=0; col<columns; ++col)
-          for(size_t row=low; row<up; ++row)
+        for(size_t row=low; row<up; ++row)
+          for(size_t col=0; col<columns; ++col)
             hist.bin(col) += bin(row, col);
       }
       break;
@@ -104,6 +64,44 @@ namespace cass
   }
 
 
+  Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
+  {
+    Histogram1DFloat hist(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
+    for(size_t jr = 0;jr<maxRadius; jr++)
+    {
+      float val(0);
+      for(size_t jth = 1; jth<360; jth++)
+      {
+        const float radius(jr);
+        const float angle(2.*M_PI * float(jth) / float(360));
+        size_t col(size_t(center.first  + radius*sin(angle)));
+        size_t row(size_t(center.second + radius*cos(angle)));
+        val += _memory[col + row * _axis[0].nbrBins()];
+      }
+      hist.memory()[jr]+=val;
+    }
+    return hist;
+  }
+
+
+  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<size_t,size_t> center,
+                                                std::pair<size_t,size_t> range) const
+  {
+    Histogram1DFloat hist(180, 0., 360.);
+    for(size_t jr = range.first;jr<range.second; jr++)
+    {
+      for(size_t jth = 1; jth<360; jth++)
+      {
+        const float radius(jr);
+        const float angle(2.*M_PI * float(jth) / float(360));
+        size_t col(size_t(center.first  + radius*sin(angle)));
+        size_t row(size_t(center.second + radius*cos(angle)));
+        float val = _memory[col + row * _axis[0].nbrBins()];
+        hist.fill(jth-0.5,val);
+      }
+    }
+    return hist;
+  }
 } // end namespace cass
 
 

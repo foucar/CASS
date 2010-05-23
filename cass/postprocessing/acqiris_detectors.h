@@ -545,6 +545,10 @@ namespace cass
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
 
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+    /** flag that will invert the update condition */
+    bool _invert;
     /** The Histogram storing the info*/
     Histogram0DFloat  *_nbrHits;
   };

@@ -40,16 +40,16 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     // create the image
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
     //check wether requested histgogram is truly a 2d histogram//
-    if (iter->second->dimension() != 2)
-    {
+    if (iter->second->dimension() != 2) {
       pp->histograms_release();
       throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.key.c_str()).toStdString());
     }
     // create the QImage, release, return
-    QImage qi(dynamic_cast<Histogram2DFloat *>(iter->second)->qimage());
+    QImage qi(reinterpret_cast<Histogram2DFloat *>(iter->second)->qimage());
     pp->histograms_release();
     return qi;
 }
+
 
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {

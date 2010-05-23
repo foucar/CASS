@@ -315,47 +315,99 @@ void ImageViewer::loadData( QString fileName, bool overlay )
 
 void ImageViewer::on_save_data_triggered()
 {
-    QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save File"), QDir::currentPath(), filter);
-    QFileInfo fileInfo(fileName);
-    if (_dock->widget()==_imageWidget)
+    if (_dock->widget() == _imageWidget) {
+        QString filter("Portable Network Graphics (*.png)");
+        QString fileName(QFileDialog::getSaveFileName(this, tr("Save Image File"), QDir::currentPath(), filter));
         saveImage(fileName);
-    if (_dock->widget()==_plotWidget1D) {
-        if (fileInfo.suffix().toUpper() == QString("csv").toUpper() )
-            save1DData(fileName);
-        if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
+    } else if (_dock->widget() == _spectrogramWidget) {
+        QString filter("Portable Networks Graphics (*.png);;Comma Separated Values (*.dat *.csv);;Histogram binary files (*.hst)");
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), filter);
+        QFileInfo fileInfo(fileName);
+        if((fileInfo.suffix().toUpper() == QString("CSV")) || (fileInfo.suffix().toUpper() == QString("DAT"))) {
+            save2dAscii(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("PNG")) {
+            saveImage(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("HST")) {
             saveHistogram(fileName);
+        }
+    } else if(_dock->widget() == _plotWidget1D) {
+        QString filter("Comma Separated Values (*.dat *.csv);;Histogram binary files (*.hst)");
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), filter);
+        QFileInfo fileInfo(fileName);
+        if((fileInfo.suffix().toUpper() == QString("CSV")) || (fileInfo.suffix().toUpper() == QString("DAT"))) {
+            save1dAscii(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("HST")) {
+            saveHistogram(fileName);
+        }
     }
-    if (_dock->widget()==_spectrogramWidget)
-        saveHistogram(fileName);
 }
+
+
 
 void ImageViewer::on_auto_save_data_triggered()
 {
     QString fillZeros;
-    for (int ii=_attachId->currentText().length(); ii<3; ii++)
+    for(int ii=_attachId->currentText().length(); ii<3; ii++)
         fillZeros+=QString("0");
     QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString();
-    if (_dock->widget()==_imageWidget)
+    if(_dock->widget() == _imageWidget)
         saveImage(fileName + QString(".png"));
-    if (_dock->widget()==_plotWidget1D)
-        save1DData(fileName + QString(".csv"));
+    else if(_dock->widget() == _spectrogramWidget)
+        save2dAscii(fileName + QString(".dat"));
+    else if(_dock->widget() == _plotWidget1D)
+        save1dAscii(fileName + QString(".dat"));
 }
 
-void ImageViewer::save1DData(QString fileName)
+
+
+void ImageViewer::save1dAscii(QString fileName)
 {
     ofstream outfile;
     outfile.open(fileName.toStdString().c_str());
     _histogramlock.lockForRead();
-    cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
-    const cass::AxisProperty &axis = _lastHist->axis()[0];
-    for (size_t ii=0;ii< hist->size();ii++) {
+    cass::Histogram1DFloat* hist(dynamic_cast<cass::Histogram1DFloat*>(_lastHist));
+    const cass::AxisProperty &axis(_lastHist->axis()[0]);
+    for(size_t ii=0; ii< hist->size(); ++ii) {
         outfile << axis.position(ii) << ";" << hist->bin(ii) << std::endl;
     }
     _histogramlock.unlock();
     outfile.close();
 }
+
+
+
+void ImageViewer::save2dAscii(QString fileName)
+{
+    ofstream outfile;
+    outfile.open(fileName.toStdString().c_str());
+    _histogramlock.lockForRead();
+    cass::Histogram2DFloat* hist(dynamic_cast<cass::Histogram2DFloat*>(_lastHist));
+    const cass::AxisProperty &xaxis(_lastHist->axis()[0]);
+    const cass::AxisProperty &yaxis(_lastHist->axis()[1]);
+    outfile << "# 2d-histogram data: " << endl;
+    // write x-axis positions
+    outfile << "# x-positions: ";
+    for(size_t ix=0; ix< xaxis.size(); ++ix)
+        outfile<< xaxis.position(ix) << ", ";
+    outfile << endl;
+    // write y-axis positions
+    outfile << "# y-positions: ";
+    for(size_t iy=0; iy< yaxis.size(); ++iy)
+        outfile<< yaxis.position(iy) << ", ";
+    outfile << endl;
+    // write data - one row per row ;-)
+    outfile << "# data: " << endl;
+    for(size_t iy=0; iy< yaxis.size(); ++iy) {
+        for(size_t ix=0; ix< xaxis.size(); ++ix) {
+            outfile << hist->bin(ix, iy)<< ", " ;
+        }
+        outfile << endl;
+    }
+    _histogramlock.unlock();
+    outfile.close();
+}
+
+
 
 void ImageViewer::saveHistogram(QString filename)
 {
@@ -366,23 +418,37 @@ void ImageViewer::saveHistogram(QString filename)
     serializer.close();
 }
 
+
+
 void ImageViewer::saveImage(QString fileName)
 {
-    std::cout << fileName.toStdString() << std::endl;
-    if (_dock->widget()!=_imageWidget) {
-        QMessageBox::information(this, tr("jocassviewer"),
-                tr("Cannot retrieve image"));
+    VERBOSEOUT(std::cout << fileName.toStdString() << std::endl);
+    if(fileName.isEmpty()) {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an filename for saving image!"));
         return;
     }
-    if(!fileName.isEmpty()) {
+    if(_dock->widget() == _imageWidget) {
         QImage image(_imageLabel->pixmap()->toImage());
         if(image.isNull()) {
-            QMessageBox::information(this, tr("jocassviewer"),
-                    tr("Cannot retrieve image"));
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image from display!"));
             return;
         }
-        if (!image.save(fileName, "PNG")) QMessageBox::information(this, tr("jocassviewer"), tr("image could not be saved!"));
+        if(! image.save(fileName, "PNG"))
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Image could not be saved!"));
         updateActions();
+    } else if(_dock->widget() == _spectrogramWidget) {
+        QImage image(_spectrogramWidget->qimage());
+        if(image.isNull()) {
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image from display!"));
+            return;
+        }
+        if(! image.save(fileName, "PNG")) {
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Image could not be saved!"));
+            return;
+        }
+        updateActions();
+    } else {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an image for saving!"));
     }
 }
 
@@ -422,6 +488,7 @@ void ImageViewer::updatePixmap(const QImage *image)
                << "value mapping: " << _imageMapping->currentIndex() << " : " <<  _imageMapping->currentText().toStdString() << std::endl);
 }
 
+
 void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 {
     _spectrogramWidget->setData(hist);
@@ -431,8 +498,8 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
         _histogramlock.unlock();
     }
     _lastHist = hist;
-    if (_dock->widget()!=_spectrogramWidget) _dock->setWidget(_spectrogramWidget);
-
+    if (_dock->widget() != _spectrogramWidget)
+        _dock->setWidget(_spectrogramWidget);
     updateActions();
     //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
     // set rate info
@@ -447,6 +514,7 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
     _statusLED->setStatus(false);
     _ready = true;
 }
+
 
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 {

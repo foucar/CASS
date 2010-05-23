@@ -273,6 +273,8 @@ inline double cass::ACQIRIS::Signal::firstGood() const
                      PeakInRange(_grLow,_grHigh));
     //if it is not there retrun 0, otherwise the time of the found peak//
     _goodHit = (it==_peaks.end())? 0. : it->time();
+//    std::cout << _goodHit<<" find first good peak "<<_grLow<<" "<<_grHigh<<std::endl;
+
     _isNewEvent = false;
   }
   return _goodHit;

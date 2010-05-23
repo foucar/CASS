@@ -155,8 +155,143 @@ the Class description for information about what parameters are user settable.
 00230: Photon energy of Shot
 00231: Wavelength of photons
 
+<<<<<<< .working
 ---Output
 01000: Dump front and back pnCCD images (and more...) to HDF5
+=======
+---Hex Anode Postprocessors---
+00550: Hex Anode Number of Peaks in MCP (pp550)
+00551: Hex Anode Number of Peaks in U1 (pp551)
+00552: Hex Anode Number of Peaks in U2 (pp551)
+00553: Hex Anode Number of Peaks in V1 (pp551)
+00554: Hex Anode Number of Peaks in V2 (pp551)
+00555: Hex Anode Number of Peaks in W1 (pp551)
+00556: Hex Anode Number of Peaks in W2 (pp551)
+
+00557: Hex Anode Hit Ratio U1 / U2 (pp557)
+00558: Hex Anode Hit Ratio U1 / MCP (pp558)
+00559: Hex Anode Hit Ratio U2 / MCP (pp558)
+
+00560: Hex Anode Hit Ratio V1 / V2 (pp557)
+00561: Hex Anode Hit Ratio V1 / MCP (pp558)
+00562: Hex Anode Hit Ratio V2 / MCP (pp558)
+
+00563: Hex Anode Hit Ratio W1 / W2 (pp557)
+00564: Hex Anode Hit Ratio W1 / MCP (pp558)
+00565: Hex Anode Hit Ratio W2 / MCP (pp558)
+
+00566: Hex Anode Hit Ratio Reconstructed / MCP (pp566)
+
+00567: Hex Anode All Hits on MCP (pp567)
+
+00568: Hex Anode Delayline Timesum U (pp568)
+00569: Hex Anode Delayline Timesum V (pp568)
+00570: Hex Anode Delayline Timesum W (pp568)
+00571: Hex Anode Delayline Timesum U vs Pos U (pp571)
+00572: Hex Anode Delayline Timesum V vs Pos V (pp571)
+00573: Hex Anode Delayline Timesum W vs Pos W (pp571)
+
+00574: Hex Anode Delayline Picture of First Hit UV Layers in ns (pp574)
+00575: Hex Anode Delayline Picture of First Hit UW Layers in ns (pp574)
+00576: Hex Anode Delayline Picture of First Hit VW Layers in ns (pp574)
+
+00578: Hex Anode Delayline Picture all Hits in mm (pp578)
+00579: Hex Anode Delayline X vs Tof (pp578)
+00580: Hex Anode Delayline Y vs Tof (pp578)
+
+00581: Hex Anode Height vs. Fwhm MCP (pp581)
+00582: Hex Anode Height vs. Fwhm U1 (pp582)
+00583: Hex Anode Height vs. Fwhm U2 (pp582)
+00584: Hex Anode Height vs. Fwhm V1 (pp582)
+00585: Hex Anode Height vs. Fwhm V2 (pp582)
+00586: Hex Anode Height vs. Fwhm W1 (pp582)
+00587: Hex Anode Height vs. Fwhm W2 (pp582)
+
+---Quad Anode Postprocessors---
+00600: Quad Anode Number of Peaks in MCP (pp550)
+00601: Quad Anode Number of Peaks in X1 (pp551)
+00602: Quad Anode Number of Peaks in X2 (pp551)
+00603: Quad Anode Number of Peaks in Y1 (pp551)
+00604: Quad Anode Number of Peaks in Y2 (pp551)
+
+00605: Quad Anode Hit Ratio X1 / X2 (pp557)
+00606: Quad Anode Hit Ratio X1 / MCP (pp558)
+00607: Quad Anode Hit Ratio X2 / MCP (pp558)
+
+00608: Quad Anode Hit Ratio Y1 / Y2 (pp557)
+00609: Quad Anode Hit Ratio Y1 / MCP (pp558)
+00610: Quad Anode Hit Ratio Y2 / MCP (pp558)
+
+00611: Quad Anode Hit Ratio Reconstructed / MCP (pp566)
+
+00612: Quad Anode All Hits on MCP (pp567)
+
+00613: Quad Anode Delayline Timesum X (pp568)
+00614: Quad Anode Delayline Timesum Y (pp568)
+00615: Quad Anode Delayline Timesum X vs Pos X (pp571)
+00616: Quad Anode Delayline Timesum Y vs Pos Y (pp571)
+
+00617: Quad Anode Delayline Picture of First Hit in ns (pp574)
+
+00618: Quad Anode Delayline Picture all Hits in mm (pp578)
+00619: Quad Anode Delayline X vs Tof (pp578)
+00620: Quad Anode Delayline Y vs Tof (pp578)
+
+00621: Quad Anode Height vs. Fwhm MCP (pp581)
+00622: Quad Anode Height vs. Fwhm X1 (pp582)
+00623: Quad Anode Height vs. Fwhm X2 (pp582)
+00624: Quad Anode Height vs. Fwhm Y1 (pp582)
+00625: Quad Anode Height vs. Fwhm Y2 (pp582)
+
+---VMI Mcp Postprocessors--
+00650: VMIMcp Number of Peaks in Waveform (pp550)
+00651: VMIMcp All Hits on Mcp (pp567)
+00652: VMIMcp Height vs. Fwhm (pp581)
+
+---Beamdump Postprocessors--
+00660: FEL Beam Monitor Number of Peaks in Waveform (pp550)
+00661: FEL Beam Monitor All Hits on Mcp (pp567)
+00662: FEL Beam Monitor Height vs. Fwhm (pp581)
+
+---YAG Laser Diode Postprocessors--
+00670: YAG Laser Photodiode Number of Peaks in Waveform (pp550)
+00671: YAG Laser Photodiode All Hits on Mcp (pp567)
+00672: YAG Laser Photodiode Height vs. Fwhm (pp581)
+
+---TiSaph Laser Diode Postprocessors--
+00680: Femtosecond Laser Photodiode Number of Peaks in Waveform (pp550)
+00681: Femtosecond Laser Photodiode All Hits on Mcp (pp567)
+00682: Femtosecond Laser Photodiode Height vs. Fwhm (pp581)
+
+00700: PIPICo on Hexdetector (pp700)
+00701: PIPICo of Hex and QuadDetector (pp700)
+
+---Operants on histograms--
+00106: Difference between choosable averaged CCD images (pp106)
+00107: Difference between choosable averaged CCD images (pp106)
+00800: Compare two histograms whether first is less than second (pp800)
+00801: Compare two histograms whether first is equal to second (pp801)
+00802: Divide first histogram by second histogram (pp802)
+00803: Multiply first histogram with second histogram (pp803)
+00804: Multiply histogram with constant (pp804)
+00805: calc integral on 1d histogram between two boarders (pp805)
+00806: project 2d histogram to a given axis within chosen boarders (pp806)
+00807: Compare two 0D histograms for boolean AND (pp807)
+00808: Compare two 0D histograms for boolean OR  (pp808)
+00809: Compare 0D histograms for less than constant  (pp809)
+00810: Compare 0D histograms for greater than constant  (pp810)
+00811: Compare 0D histograms for equal to constant  (pp811)
+
+---Machindata--
+00850: access for beamline data
+00851: access for epics data
+00852: photonenergy from bld
+
+---HDF5 output postprocessors--
+01001: Dump front and back pnCCD images (and more...) to HDF5
+
+---ROOT file ouput postprocessor--
+>>>>>>> .merge-right.r2412
 02000: Dump all 1d and 2d cass histograms to root file
 @endverbatim
 

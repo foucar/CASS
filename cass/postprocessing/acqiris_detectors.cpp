@@ -560,8 +560,8 @@ void cass::pp165::operator()(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
-  DelaylineDetector *det =
-      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _nbrHits->lock.lockForWrite();
   _nbrHits->fill(det->hits().size());
   _nbrHits->lock.unlock();

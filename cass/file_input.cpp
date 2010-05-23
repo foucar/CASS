@@ -105,6 +105,7 @@ void cass::FileInput::run()
       std::cout <<"file \""<<filelistiterator->c_str()<<"\" could not be opened"<<std::endl;
 
   }
+  while(!_quit) this->sleep(1);
   if (!_quit)
     std::cout << "done with all files"<<std::endl;
 }

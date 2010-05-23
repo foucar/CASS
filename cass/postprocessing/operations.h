@@ -11,11 +11,11 @@
 
 namespace cass
 {
-  // forward declaration
-  class Histogram0DFloat;
-  class Histogram1DFloat;
-  class Histogram2DFloat;
-  class HistogramFloatBase;
+// forward declaration
+class Histogram0DFloat;
+class Histogram1DFloat;
+class Histogram2DFloat;
+class HistogramFloatBase;
 
 
 
@@ -431,6 +431,127 @@ namespace cass
     Histogram0DFloat *_result;
   };
 
+
+
+
+
+
+
+
+  /** Radial Average/Projection of 2d Histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   *           Xcoordinate and Y coordinate of the centre. Default is 512,512
+   *
+   * Implements postprocessors id's 807
+   *
+   * @author Nicola Coppola
+   * @author Lutz Foucar
+   */
+  class pp52 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp52(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp52();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the id of the 2d hist we want to project */
+    PostProcessors::key_t _idHist;
+
+    /** center coordinates we use to calculate the radial average in histogram coordinates */
+    std::pair<size_t,size_t> _center;
+
+    /** the maximum size of the radius, calculated from the two d histogram */
+    size_t _radius;
+
+    /** resulting histgram */
+    Histogram1DFloat *_projec;
+  };
+
+
+
+
+
+
+
+
+
+
+
+  /** Radar Plot of 2d Histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{MinRadius|MaxRadius} \n
+   *           Minimum and Maximum Radius to inlcude in the polar plot. Default
+   *           is 0 ... 512
+   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   *           X and Y Center of the images polar plot. Default is 512,512
+   *
+   * Implements postprocessors id's 808
+   *
+   * @author Nicola Coppola
+   * @author Lutz Foucar
+   */
+  class pp53 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp53(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp53();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the id of the 2d hist we want to project */
+    PostProcessors::key_t _idHist;
+
+    /** range of radii that we use for the angular distribution */
+    std::pair<size_t,size_t> _range;
+
+    /** centre's coordinates we use to calculate the radar plot */
+    std::pair<size_t,size_t> _center;
+
+    /** resulting histgram */
+    Histogram1DFloat *_projec;
+  };
+
+
 }
 
 #endif
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-style: "gnu"
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// fill-column: 100
+// End:
