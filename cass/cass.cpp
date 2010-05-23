@@ -95,13 +95,13 @@
  *
  * LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4
  * -s 0x1000000 -p test -r 120 -l\n
- * - f: filename of file that you want to create the shared memory with
- * - n: number of datagrams to be stored in the buffer
- * - s: size of the buffer for that stores one datagram
- * - p: the name of the partition tag
- * - r: the rate that you want to simulate
- * - l: loop. If the end of the file has been reached start from the beginning
- * - v: verbose output. Includes the spare time, which can be used to
+ * -f: filename of file that you want to create the shared memory with
+ * -n: number of datagrams to be stored in the buffer
+ * -s: size of the buffer for that stores one datagram
+ * -p: the name of the partition tag
+ * -r: the rate that you want to simulate
+ * -l: loop. If the end of the file has been reached start from the beginning
+ * -v: verbose output. Includes the spare time, which can be used to
  *         calculate the time in ns it took to read the event from file and put
  *         it into the shared memory (buisy time).\n
  *         sparetime = 1e9 / rate - buisy time.
@@ -199,7 +199,7 @@
 /** The main program.
  * @param i filename containing filesnames of xtcfiles to process
  * @param c client id for shared memory access
- * @param s soap port of the soap server
+ * @param s TCP port of the soap server
  * @param p partition tag for accessing the shared memory
  * @param o output filename passed to the postprocessor
  */
