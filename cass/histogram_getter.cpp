@@ -50,6 +50,7 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
     return qi;
 }
 
+
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {
   // check out histograms storage map//

@@ -16,6 +16,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QWaitCondition>
+#include <QtGui/QColor>
 #include <QtGui/QImage>
 
 #include <stdint.h>
@@ -26,7 +27,6 @@
 
 namespace cass
 {
-
 /** Axis properties for histograms.
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
@@ -784,6 +784,45 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
 }
 
 
+
+/** Convert Histogram2DFloat::value_t to uint8_t
+*
+* @author Jochen Küpper
+*/
+class value2pixel
+{
+public:
+
+    value2pixel(Histogram2DFloat::value_t min, Histogram2DFloat::value_t max)
+        : _min(min), _max(max)
+        {};
+
+    uint8_t operator()(Histogram2DFloat::value_t val) {
+        return uint8_t((val - _min) / (_max - _min) * 0xff);
+    };
+
+protected:
+
+    Histogram2DFloat::value_t _min, _max;
+};
+
+
+
+inline QImage Histogram2DFloat::qimage() {
+    QImage qi(shape().first, shape().second, QImage::Format_Indexed8);
+    qi.setColorCount(256);
+    for(unsigned i=0; i<256; ++i)
+        qi.setColor(i, QColor(i, i, i).rgb());
+    qi.fill(0);
+    uint8_t *data(qi.bits());
+    //    value2pixel converter(0,1);
+    value2pixel converter(min(), max());
+    lock.lockForRead();
+    // Subtract 8 to get the size of the buffer excluding over/underflow flags
+    std::transform(_memory.begin(), _memory.end()-8, data, converter);
+    lock.unlock();
+    return qi;
+};
 
 
 } //end namespace cass
