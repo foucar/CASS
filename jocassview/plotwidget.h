@@ -212,7 +212,7 @@ public:
     std::cout << "spectrogramdata overloaded constructor" << std::endl;
   }
 
-  void setHistogram(cass::Histogram2DFloat* hist)
+  void setHistogram(cass::Histogram2DFloat *hist)
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
@@ -236,6 +236,12 @@ public:
     }
     setBoundingRect( _boundRect );
   }
+
+
+    const cass::Histogram2DFloat *histogram() const {
+        return _hist;
+    }
+
 
   virtual QwtRasterData *copy() const
   {
@@ -268,6 +274,7 @@ protected:
 };
 
 
+
 /** spectrogramWidget
    * widget that can display 2d histograms.
    * usage:
@@ -280,7 +287,9 @@ protected:
 class spectrogramWidget : public QWidget
 {
   Q_OBJECT
+
 public:
+
   bool eventFilter(QObject *obj, QEvent *event)
   {
     if (obj == _rightAxis )
@@ -319,11 +328,13 @@ public:
     return QWidget::eventFilter(obj, event);
   }
 
+
   void mouseMoveEvent ( QMouseEvent * /* event */)
   {
     //double yval = _plot->invTransform(QwtPlot::yRight, event->pos().y()) ;
     //std::cout << "scalewidget mousepressevent yval" <<yval << std::endl;
   }
+
 
   spectrogramWidget()
   {
@@ -399,7 +410,6 @@ public:
     _colorMapInv->addColorStop(0.95, Qt::yellow);
     _colorMapInv->setTransformId(_transformCol_inv);
 
-
     _rightAxis->setColorMap(_spectrogram->data().range(),
                             *_colorMap);
 
@@ -430,6 +440,7 @@ public:
     loadColorbar( current );
     _plot->replot();
   }
+
 
   void setData(cass::Histogram2DFloat* hist)
   {
@@ -473,7 +484,14 @@ public:
     _plot->replot();
   }
 
+
+    QImage qimage() {
+        return const_cast<cass::Histogram2DFloat*>(_spectrogramData->histogram())->qimage();
+    };
+
+
 protected slots:
+
   void saveColorbar()
   {
     QSettings settings;
@@ -900,9 +918,13 @@ public:
   }
 
 protected:
+
   QLabel* _lblValue;
+
   QQueue<float> _values;
+
   int _accumulationLength;
+
   cass::Histogram1DFloat _histAccumulator;
 
   QVBoxLayout _layout;
@@ -915,7 +937,7 @@ protected:
 // Local Variables:
 // coding: utf-8
 // mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
 // c-file-style: "gnu"
+// c-file-offsets: ((c . 0) (innamespace . 0))
 // fill-column: 100
 // End:

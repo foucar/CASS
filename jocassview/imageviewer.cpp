@@ -423,21 +423,32 @@ void ImageViewer::saveHistogram(QString filename)
 void ImageViewer::saveImage(QString fileName)
 {
     VERBOSEOUT(std::cout << fileName.toStdString() << std::endl);
-    if(_dock->widget() != _imageWidget) {
-        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an image for saving"));
+    if(fileName.isEmpty()) {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an filename for saving image!"));
         return;
     }
-    if(fileName.isEmpty()) {
-        QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
-    } else {
+    if(_dock->widget() == _imageWidget) {
         QImage image(_imageLabel->pixmap()->toImage());
         if(image.isNull()) {
-            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image from display!"));
             return;
         }
         if(! image.save(fileName, "PNG"))
-            QMessageBox::warning(this, tr("jocassviewer"), tr("image could not be saved!"));
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Image could not be saved!"));
         updateActions();
+    } else if(_dock->widget() == _spectrogramWidget) {
+        QImage image(_spectrogramWidget->qimage());
+        if(image.isNull()) {
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image from display!"));
+            return;
+        }
+        if(! image.save(fileName, "PNG")) {
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Image could not be saved!"));
+            return;
+        }
+        updateActions();
+    } else {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an image for saving!"));
     }
 }
 
@@ -477,6 +488,7 @@ void ImageViewer::updatePixmap(const QImage *image)
                << "value mapping: " << _imageMapping->currentIndex() << " : " <<  _imageMapping->currentText().toStdString() << std::endl);
 }
 
+
 void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
 {
     _spectrogramWidget->setData(hist);
@@ -486,8 +498,8 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
         _histogramlock.unlock();
     }
     _lastHist = hist;
-    if (_dock->widget()!=_spectrogramWidget) _dock->setWidget(_spectrogramWidget);
-
+    if (_dock->widget() != _spectrogramWidget)
+        _dock->setWidget(_spectrogramWidget);
     updateActions();
     //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
     // set rate info
@@ -502,6 +514,7 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
     _statusLED->setStatus(false);
     _ready = true;
 }
+
 
 void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
 {
