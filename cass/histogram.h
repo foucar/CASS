@@ -75,9 +75,9 @@ public:
     size_t size() const {return _size;}
 
     /** Convenience function.
-    * @deprecated Use size() instead
-    * @see size()
-    */
+     * @deprecated Use size() instead
+     * @see size()
+     */
     size_t nbrBins() const {return size();}
 
     /*! Lower limit of axis */
@@ -91,6 +91,12 @@ public:
 
     /*! position for bin-index idx */
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
+
+    /** convert user distance to distance in histogram memory coordinates*/
+    size_t user2hist(float user)const {return user*_size / (_up-_low);}
+
+    /** convert distance in histogram memory coordinates to user distance */
+    float hist2user(size_t hist)const {return hist*(_up-_low)/_size;}
 
 protected:
     size_t _size; //!< the number of bins in this axis

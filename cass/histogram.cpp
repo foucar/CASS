@@ -49,7 +49,7 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
 
   Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
   {
-    Histogram1DFloat hist(maxRadius, 0., maxRadius);
+    Histogram1DFloat hist(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
     for(size_t jr = 0;jr<maxRadius; jr++)
     {
       float val(0);
