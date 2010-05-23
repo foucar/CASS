@@ -381,10 +381,27 @@ void ImageViewer::save2dAscii(QString fileName)
     ofstream outfile;
     outfile.open(fileName.toStdString().c_str());
     _histogramlock.lockForRead();
-    cass::Histogram1DFloat* hist(dynamic_cast<cass::Histogram1DFloat*>(_lastHist));
-    const cass::AxisProperty &axis(_lastHist->axis()[0]);
-    for(size_t ii=0; ii< hist->size(); ++ii) {
-        outfile << axis.position(ii) << ";" << hist->bin(ii) << std::endl;
+    cass::Histogram2DFloat* hist(dynamic_cast<cass::Histogram2DFloat*>(_lastHist));
+    const cass::AxisProperty &xaxis(_lastHist->axis()[0]);
+    const cass::AxisProperty &yaxis(_lastHist->axis()[1]);
+    outfile << "# 2d-histogram data: " << endl;
+    // write x-axis positions
+    outfile << "# x-positions: ";
+    for(size_t ix=0; ix< xaxis.size(); ++ix)
+        outfile<< xaxis.position(ix) << ", ";
+    outfile << endl;
+    // write y-axis positions
+    outfile << "# y-positions: ";
+    for(size_t iy=0; iy< yaxis.size(); ++iy)
+        outfile<< yaxis.position(iy) << ", ";
+    outfile << endl;
+    // write data - one row per row ;-)
+    outfile << "# data: ";
+    for(size_t iy=0; iy< yaxis.size(); ++iy) {
+        for(size_t ix=0; ix< xaxis.size(); ++ix) {
+            outfile << hist->bin(ix, iy)<< ", " ;
+        }
+        outfile << endl;
     }
     _histogramlock.unlock();
     outfile.close();
@@ -401,11 +418,13 @@ void ImageViewer::saveHistogram(QString filename)
     serializer.close();
 }
 
+
+
 void ImageViewer::saveImage(QString fileName)
 {
     VERBOSEOUT(std::cout << fileName.toStdString() << std::endl);
     if(_dock->widget() != _imageWidget) {
-        QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Do not have an image for saving"));
         return;
     }
     if(fileName.isEmpty()) {
