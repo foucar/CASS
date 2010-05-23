@@ -821,56 +821,49 @@ void cass::pp807::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
-
-  _centre = make_pair(settings.value("XCentre",512.0).toFloat(),
-                      settings.value("YCentre",512.0).toFloat());
-  _radius = settings.value("Radius",1024).toUInt();
-
-  _range = make_pair(settings.value("LowerBound",0.).toFloat(),
-                     settings.value("UpperBound",static_cast<float>(_radius)).toFloat());
-
   if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
     return;
-
-  //make sure that lower and upper bound are not exceeding histograms boudaries
   const HistogramFloatBase*one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
-
-  //create the resulting histogram checking that the maximum radius is reasonable for
-  // the origin-histogram
+  _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(settings.value("XCenter",512).toFloat()),
+                      one->axis()[HistogramBackend::xAxis].bin(settings.value("YCenter",512).toFloat()));
+  _radius = min(min(abs(static_cast<int>(_center.first)-static_cast<int>((one->axis()[HistogramBackend::xAxis].nbrBins()))),
+                    static_cast<int>(_center.first)),
+                min(abs(static_cast<int>(_center.second)-static_cast<int>((one->axis()[HistogramBackend::yAxis].nbrBins()))),
+                    static_cast<int>(_center.second)));
   _pp.histograms_delete(_id);
-  //check that the centre is within the histogram's boundary
-  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
-    _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
-  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
-    _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
-
-  if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
-    _centre.second=one->axis()[HistogramBackend::yAxis].lowerLimit();
-  if(_centre.second>one->axis()[HistogramBackend::yAxis].upperLimit())
-    _centre.second=one->axis()[HistogramBackend::yAxis].upperLimit();
-
-  /*the min distance to the boundary of the frame*/
-  const float _min_dist = min( min(abs(one->axis()[HistogramBackend::yAxis].upperLimit()-_centre.second) ,
-                                   abs(one->axis()[HistogramBackend::yAxis].lowerLimit()-_centre.second)) ,
-                               min(abs(one->axis()[HistogramBackend::xAxis].upperLimit()-_centre.first) ,
-                                   abs(one->axis()[HistogramBackend::xAxis].lowerLimit()-_centre.first) ) );
-  _range.second = min(_range.second,_min_dist);
-  _radius = min(_radius,static_cast<size_t>(floor(_range.second)));
-  size_t NbrBins=static_cast<size_t>(_range.second-_range.first);
-  _projec = new Histogram1DFloat(NbrBins,
-                                 _range.first,
-                                 _range.second );
+  _projec = new Histogram1DFloat(_radius,0,_radius);
+//  //check that the centre is within the histogram's boundary
+//  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
+//    _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
+//  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
+//    _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
+//
+//  if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
+//    _centre.second=one->axis()[HistogramBackend::yAxis].lowerLimit();
+//  if(_centre.second>one->axis()[HistogramBackend::yAxis].upperLimit())
+//    _centre.second=one->axis()[HistogramBackend::yAxis].upperLimit();
+//
+//  /*the min distance to the boundary of the frame*/
+//  const float _min_dist = min( min(abs(one->axis()[HistogramBackend::yAxis].upperLimit()-_centre.second) ,
+//                                   abs(one->axis()[HistogramBackend::yAxis].lowerLimit()-_centre.second)) ,
+//                               min(abs(one->axis()[HistogramBackend::xAxis].upperLimit()-_centre.first) ,
+//                                   abs(one->axis()[HistogramBackend::xAxis].lowerLimit()-_centre.first) ) );
+//  _range.second = min(_range.second,_min_dist);
+//  _radius = min(_radius,static_cast<size_t>(floor(_range.second)));
+//  size_t NbrBins=static_cast<size_t>(_range.second-_range.first);
+//  _projec = new Histogram1DFloat(NbrBins,
+//                                 _range.first,
+//                                 _range.second );
   _pp.histograms_replace(_id,_projec);
-
   std::cout << "PostProcessor_"<<_id
       <<" will calculate the radial average of histogram of PostProcessor_"<<_idHist
-      <<" with centre "<<_centre.first
-      <<" ; "<<_centre.second
-      <<  " with max radius " << _radius
-      << " between a distance of " << _range.first
-      << " and " << _range.second
+      <<" with xcenter "<<settings.value("XCenter",512).toFloat()
+      <<" ycenter "<<settings.value("YCenter",512).toFloat()
+      <<" in histogram coordinates xcenter "<<_center.first
+      <<" ycenter "<<_center.second
+      <<" maximum radius calculated from the incoming histogram "<<_radius
       <<std::endl;
 }
 
@@ -878,21 +871,28 @@ void cass::pp807::operator()(const CASSEvent&)
 {
   using namespace std;
   //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //retrieve the projection from the 2d hist//
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
-  *_projec = one->radial_project(_centre,_radius);
+  *_projec = one->radial_project(_center,_radius);
   _projec->lock.unlock();
   one->lock.unlock();
 }
 
 
+
+
+
+
+
+
+
 // *** postprocessors 808 calculate the radar plot of a 2d hist given a centre
 //     and 2 radii (in case the value is too large, the maximum reasonable value is used) ***
-
 
 cass::pp808::pp808(PostProcessors& pp, cass::PostProcessors::id_t id)
   : PostprocessorBackend(pp, id), _projec(0)
@@ -920,81 +920,95 @@ void cass::pp808::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
 
-  _centre = make_pair(settings.value("XCentre",512.).toFloat(),
-                      settings.value("YCentre", 512.).toFloat());
-  _radii = make_pair(abs(settings.value("RadiusMin",0.).toFloat()),  /* accepting positive values only*/
-                     abs(settings.value("RadiusMax", 512.).toFloat()));  /* accepting positive values only*/
-  /*
-  _radii = make_pair(abs(settings.value("LowerBound",0.).toFloat()),
-                     abs(settings.value("UpperBound",512.).toFloat()));
-  */
-  //order the values of the radii
-  if(_radii.first>_radii.second)
-  {
-    float safe_val=_radii.second;
-    _radii.second=_radii.first;
-    _radii.first=safe_val;
-  }
-  _range=_radii;
+//  _centre = make_pair(settings.value("XCentre",512.).toFloat(),
+//                      settings.value("YCentre", 512.).toFloat());
+//  _radii = make_pair(abs(settings.value("RadiusMin",0.).toFloat()),  /* accepting positive values only*/
+//                     abs(settings.value("RadiusMax", 512.).toFloat()));  /* accepting positive values only*/
+//
+//  _radii = make_pair(abs(settings.value("LowerBound",0.).toFloat()),
+//                     abs(settings.value("UpperBound",512.).toFloat()));
+//
+//  //order the values of the radii
+//  if(_radii.first>_radii.second)
+//  {
+//    float safe_val=_radii.second;
+//    _radii.second=_radii.first;
+//    _radii.first=safe_val;
+//  }
+//  _range=_radii;
 
   if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
     return;
-
-  //make sure that lower and upper bound are not exceeding histograms boudaries
   const HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
-
-  //create the resulting histogram checking that the maximum radius is reasonable for
-  // the origin-histogram
+  _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(settings.value("XCenter",512).toFloat()),
+                      one->axis()[HistogramBackend::xAxis].bin(settings.value("YCenter",512).toFloat()));
+  size_t maxRadius(min(min(abs(static_cast<int>(_center.first)-static_cast<int>((one->axis()[HistogramBackend::xAxis].nbrBins()))),
+                           static_cast<int>(_center.first)),
+                       min(abs(static_cast<int>(_center.second)-static_cast<int>((one->axis()[HistogramBackend::yAxis].nbrBins()))),
+                           static_cast<int>(_center.second))));
+  float minrad(settings.value("MinRadius",0.).toFloat()*one->axis()[HistogramBackend::xAxis].nbrBins() / (one->axis()[HistogramBackend::xAxis].upperLimit()-one->axis()[HistogramBackend::xAxis].lowerLimit()));
+  float maxrad(settings.value("MaxRadius",0.).toFloat()*one->axis()[HistogramBackend::xAxis].nbrBins() / (one->axis()[HistogramBackend::xAxis].upperLimit()-one->axis()[HistogramBackend::xAxis].lowerLimit()));
+  _range.first  = min(static_cast<unsigned>(maxRadius), static_cast<unsigned>(minrad));
+  _range.second = min(static_cast<unsigned>(maxRadius), static_cast<unsigned>(maxrad));
   _pp.histograms_delete(_id);
-  //
-  //check that the centre is within the histogram's boundary
-  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
-    _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
-  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
-    _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
-
-  if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
-    _centre.second=one->axis()[HistogramBackend::yAxis].lowerLimit();
-  if(_centre.second>one->axis()[HistogramBackend::yAxis].upperLimit())
-    _centre.second=one->axis()[HistogramBackend::yAxis].upperLimit();
-
-  /*the min distance to the boundary of the frame*/
-  const float _min_dist = min( min(abs(one->axis()[HistogramBackend::yAxis].upperLimit()-_centre.second) ,
-                                   abs(one->axis()[HistogramBackend::yAxis].lowerLimit()-_centre.second)) ,
-                               min(abs(one->axis()[HistogramBackend::xAxis].upperLimit()-_centre.first) ,
-                                   abs(one->axis()[HistogramBackend::xAxis].lowerLimit()-_centre.first) ) );
-  _range.second = min(_range.second,_min_dist);
-  //it is not protected!!
-
-  size_t NbrBins=static_cast<size_t>(_range.second-_range.first);
-  _projec = new Histogram1DFloat(NbrBins,
-                                 _range.first,
-                                 _range.second );
+  _projec = new Histogram1DFloat(360,0,360);
+//  //
+//  //check that the centre is within the histogram's boundary
+//  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
+//    _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
+//  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
+//    _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
+//
+//  if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
+//    _centre.second=one->axis()[HistogramBackend::yAxis].lowerLimit();
+//  if(_centre.second>one->axis()[HistogramBackend::yAxis].upperLimit())
+//    _centre.second=one->axis()[HistogramBackend::yAxis].upperLimit();
+//
+//  /*the min distance to the boundary of the frame*/
+//  const float _min_dist = min( min(abs(one->axis()[HistogramBackend::yAxis].upperLimit()-_centre.second) ,
+//                                   abs(one->axis()[HistogramBackend::yAxis].lowerLimit()-_centre.second)) ,
+//                               min(abs(one->axis()[HistogramBackend::xAxis].upperLimit()-_centre.first) ,
+//                                   abs(one->axis()[HistogramBackend::xAxis].lowerLimit()-_centre.first) ) );
+//  _range.second = min(_range.second,_min_dist);
+//  //it is not protected!!
+//
+//  size_t NbrBins=static_cast<size_t>(_range.second-_range.first);
+//  _projec = new Histogram1DFloat(NbrBins,
+//                                 _range.first,
+//                                 _range.second );
   _pp.histograms_replace(_id,_projec);
-
   std::cout << "PostProcessor_"<<_id
-      <<" will calculate the radar plot of histogram of PostProcessor_"<<_idHist
-      <<" with centre "<<_centre.first
-      <<" ; "<<_centre.second
-      <<  " with min radius " << _radii.first
-      <<  " with max radius " << _radii.second
-      << " between a distance of " << _range.first
-      << " and " << _range.second
+      <<" with xcenter "<<settings.value("XCenter",512).toFloat()
+      <<" ycenter "<<settings.value("YCenter",512).toFloat()
+      <<" in histogram coordinates xcenter "<<_center.first
+      <<" ycenter "<<_center.second
+      <<" minimum radius "<<settings.value("MinRadius",0.).toFloat()
+      <<" maximum radius "<<settings.value("MaxRadius",512.).toFloat()
+      <<" in histogram coordinates minimum radius "<<_range.first
+      <<" maximum radius "<<_range.second
+//      <<" will calculate the radar plot of histogram of PostProcessor_"<<_idHist
+//      <<" with centre "<<_centre.first
+//      <<" ; "<<_centre.second
+//      <<  " with min radius " << _radii.first
+//      <<  " with max radius " << _radii.second
+//      << " between a distance of " << _range.first
+//      << " and " << _range.second
       <<std::endl;
 }
 
 void cass::pp808::operator()(const CASSEvent&)
 {
   using namespace std;
-  // retrieve the memories of the histograms to be substracted //
-  Histogram2DFloat *one(reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  //retrieve the memory of the to be substracted histograms//
+  Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
   // retrieve the projection from the 2d hist//
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
-  *_projec = one->radar_plot(_centre,_range);
+  *_projec = one->radar_plot(_center,_range);
   _projec->lock.unlock();
   one->lock.unlock();
 }

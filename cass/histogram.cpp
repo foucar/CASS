@@ -47,45 +47,10 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
   }
 
 
-  Histogram1DFloat Histogram2DFloat::radial_project(std::pair<float,float> center,
-                                                    float radius) const
+  Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
   {
-
-//    size_t NbrBins=static_cast<size_t>(ceil(radius));
-//    const float NbrBins2=pow(NbrBins,2);
-//    Histogram1DFloat hist(NbrBins, 0., radius);
-//    Histogram1DFloat norms(NbrBins, 0., radius);
-//
-//    const int32_t xc(static_cast<int32_t>(centre.first));
-//    const int32_t yc(static_cast<int32_t>(centre.second));
-//
-//    const int32_t row_min(static_cast<int32_t>(yc-radius));
-//    const int32_t row_max(static_cast<int32_t>(yc+radius));
-//
-//    const int32_t col_min(static_cast<int32_t>(xc-radius));
-//    const int32_t col_max(static_cast<int32_t>(xc+radius));
-//
-//    //here the following are safe as the radius has been safely reduced
-//    for(int32_t row=row_min; row<row_max; ++row)
-//      for(int32_t col=col_min; col<col_max; ++col)
-//      {
-//        float iradius2= square(row-yc)+square(col-xc);
-//        //only if inside the radius add the bin-values
-//        if(iradius2<=NbrBins2)
-//        {
-//          hist.bin( static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) += bin(row, col);
-//          norms.bin(static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) +=1.;
-//        }
-//      }
-//    //and now normalise the output histogram
-//    for(size_t ibin=0; ibin<NbrBins; ibin++)
-//      if(norms.bin(ibin)>0)
-//        hist.bin(ibin)=hist.bin(ibin)/norms.bin(ibin);
-//    return hist;
-
-    Histogram1DFloat hist(static_cast<size_t>(radius), 0.f, radius);
-    /** @note make this have the right cols and rows when binning is used */
-    for(size_t jr = 0;jr<static_cast<size_t>(radius); jr++)
+    Histogram1DFloat hist(maxRadius, 0., maxRadius);
+    for(size_t jr = 0;jr<maxRadius; jr++)
     {
       float val(0);
       for(size_t jth = 1; jth<360; jth++)
@@ -101,12 +66,12 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
     return hist;
   }
 
-  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<float,float> center,
-                                                std::pair<float,float> range) const
+
+  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<size_t,size_t> center,
+                                                std::pair<size_t,size_t> range) const
   {
-    Histogram1DFloat hist(360, 0.f, 360.f);
-    /** @note make this have the right cols and rows when binning is used */
-    for(size_t jr = static_cast<size_t>(range.first);jr<static_cast<size_t>(range.second); jr++)
+    Histogram1DFloat hist(180, 0., 360.);
+    for(size_t jr = range.first;jr<range.second; jr++)
     {
       for(size_t jth = 1; jth<360; jth++)
       {
@@ -115,13 +80,11 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
         size_t col(size_t(center.first  + radius*sin(angle)));
         size_t row(size_t(center.second + radius*cos(angle)));
         float val = _memory[col + row * _axis[0].nbrBins()];
-        hist.memory()[jth-1]+=val;
+        hist.fill(jth-0.5,val);
       }
     }
     return hist;
   }
-
-
 } // end namespace cass
 
 

@@ -440,27 +440,23 @@ class HistogramFloatBase;
   };
 
 
+
+
+
+
+
   /** Radial Average/Projection of 2d Histogram.
    *
    * @cassttng PostProcessor/p\%id\%/{HistId} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{XCentre|YCentre} \n
-   *           Xcoordinate and Y coordinate of the centre. Default is
-   *           512,512
-   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
-   *           Upper and lower bound of the area to project. Default is
-   *           0 ... radius
-   * @cassttng PostProcessor/p\%id\%/{Radius} \n
-   *           Default is 1024.
-   *           Possible choises are:
-   *           - 0 to Infinite
-   *           in case that the value is too large for the histogram this
-   *           value will be automatically reduced
+   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   *           Xcoordinate and Y coordinate of the centre. Default is 512,512
    *
    * Implements postprocessors id's 807
    *
    * @author Nicola Coppola
+   * @author Lutz Foucar
    */
   class pp807 : public PostprocessorBackend
   {
@@ -484,40 +480,41 @@ class HistogramFloatBase;
     /** the id of the 2d hist we want to project */
     PostProcessors::id_t _idHist;
 
-    /** distance's range we want to see displayed */
-    std::pair<float,float> _range;
+    /** center coordinates we use to calculate the radial average in histogram coordinates */
+    std::pair<size_t,size_t> _center;
 
-    /** axis we want to project on */
-    size_t _axis;
-
-    /** centre's coordinates we use to calculate the radial average */
-    std::pair<float,float> _centre;
-
-    /** max Radius we want to use */
+    /** the maximum size of the radius, calculated from the two d histogram */
     size_t _radius;
 
     /** resulting histgram */
     Histogram1DFloat *_projec;
   };
 
+
+
+
+
+
+
+
+
+
+
   /** Radar Plot of 2d Histogram.
    *
    * @cassttng PostProcessor/p\%id\%/{HistId} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
-   *           Upper and lower bound of the area to project. Default is
-   *           0 ... radius
-   * @cassttng PostProcessor/p\%id\%/{Radii} \n
-   *           Default is 0,1024.
-   *           Possible choices are:
-   *           - 0 to Infinite
-   *           in case that the value is too large for the histogram this
-   *           value will be automatically reduced
+   * @cassttng PostProcessor/p\%id\%/{MinRadius|MaxRadius} \n
+   *           Minimum and Maximum Radius to inlcude in the polar plot. Default
+   *           is 0 ... 512
+   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   *           X and Y Center of the images polar plot. Default is 512,512
    *
    * Implements postprocessors id's 808
    *
    * @author Nicola Coppola
+   * @author Lutz Foucar
    */
   class pp808 : public PostprocessorBackend
   {
@@ -541,15 +538,11 @@ class HistogramFloatBase;
     /** the id of the 2d hist we want to project */
     PostProcessors::id_t _idHist;
 
-    /** inner outter radii we want to use displayed */
-    std::pair<float,float> _range;
-    std::pair<float,float> _radii;
-
-    /** axis we want to project on */
-    //size_t _axis;
+    /** range of radii that we use for the angular distribution */
+    std::pair<size_t,size_t> _range;
 
     /** centre's coordinates we use to calculate the radar plot */
-    std::pair<float,float> _centre;
+    std::pair<size_t,size_t> _center;
 
     /** resulting histgram */
     Histogram1DFloat *_projec;
