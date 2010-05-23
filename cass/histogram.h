@@ -93,7 +93,7 @@ public:
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
 
     /** convert user distance to distance in histogram memory coordinates*/
-    size_t user2hist(float user)const {return user*_size / (_up-_low);}
+    size_t user2hist(float user)const {return static_cast<size_t>(user*_size / (_up-_low));}
 
     /** convert distance in histogram memory coordinates to user distance */
     float hist2user(size_t hist)const {return hist*(_up-_low)/_size;}

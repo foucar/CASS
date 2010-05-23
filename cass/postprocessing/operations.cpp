@@ -836,7 +836,7 @@ void cass::pp807::loadSettings(size_t)
       (one->axis()[HistogramBackend::yAxis].nbrBins()-_center.second);
   const size_t min_dist_x (min(dist_center_x_right, _center.first));
   const size_t min_dist_y (min(dist_center_y_top, _center.second));
-  _radius (min (min_dist_x, min_dist_y));
+  _radius = (min (min_dist_x, min_dist_y));
   _pp.histograms_delete(_id);
   _projec = new Histogram1DFloat(_radius,0,_radius);
   _pp.histograms_replace(_id,_projec);
