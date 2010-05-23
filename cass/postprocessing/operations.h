@@ -535,6 +535,7 @@ class HistogramFloatBase;
     virtual std::list<PostProcessors::id_t> dependencies();
 
   protected:
+
     /** the id of the 2d hist we want to project */
     PostProcessors::id_t _idHist;
 

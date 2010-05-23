@@ -900,11 +900,13 @@ cass::pp808::pp808(PostProcessors& pp, cass::PostProcessors::id_t id)
   loadSettings(0);
 }
 
+
 cass::pp808::~pp808()
 {
   _pp.histograms_delete(_id);
   _projec = 0;
 }
+
 
 std::list<cass::PostProcessors::id_t> cass::pp808::dependencies()
 {
@@ -912,6 +914,7 @@ std::list<cass::PostProcessors::id_t> cass::pp808::dependencies()
   list.push_front(_idHist);
   return list;
 }
+
 
 void cass::pp808::loadSettings(size_t)
 {
@@ -997,6 +1000,7 @@ void cass::pp808::loadSettings(size_t)
 //      << " and " << _range.second
       <<std::endl;
 }
+
 
 void cass::pp808::operator()(const CASSEvent&)
 {
