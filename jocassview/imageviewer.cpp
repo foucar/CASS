@@ -315,21 +315,26 @@ void ImageViewer::loadData( QString fileName, bool overlay )
 
 void ImageViewer::on_save_data_triggered()
 {
-    QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
-    QString fileName = QFileDialog::getSaveFileName(this,
-            tr("Save File"), QDir::currentPath(), filter);
-    QFileInfo fileInfo(fileName);
-    if (_dock->widget()==_imageWidget)
+    if (_dock->widget()==_imageWidget) {
+        QString filter("Portable Network Graphics (*.png)");
+        QString fileName(QFileDialog::getSaveFileName(this, tr("Save Image File"), QDir::currentPath(), filter));
         saveImage(fileName);
-    if (_dock->widget()==_plotWidget1D) {
-        if (fileInfo.suffix().toUpper() == QString("csv").toUpper() )
-            save1DData(fileName);
-        if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
+    } else {
+        QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), filter);
+        QFileInfo fileInfo(fileName);
+        if(_dock->widget()==_plotWidget1D) {
+            if (fileInfo.suffix().toUpper() == QString("csv").toUpper() )
+                save1DData(fileName);
+            if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
+                saveHistogram(fileName);
+        } else if (_dock->widget()==_spectrogramWidget) {
             saveHistogram(fileName);
+        }
     }
-    if (_dock->widget()==_spectrogramWidget)
-        saveHistogram(fileName);
 }
+
+
 
 void ImageViewer::on_auto_save_data_triggered()
 {
@@ -368,20 +373,21 @@ void ImageViewer::saveHistogram(QString filename)
 
 void ImageViewer::saveImage(QString fileName)
 {
-    std::cout << fileName.toStdString() << std::endl;
-    if (_dock->widget()!=_imageWidget) {
-        QMessageBox::information(this, tr("jocassviewer"),
-                tr("Cannot retrieve image"));
+    VERBOSEOUT(std::cout << fileName.toStdString() << std::endl);
+    if(_dock->widget() != _imageWidget) {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
         return;
     }
-    if(!fileName.isEmpty()) {
+    if(fileName.isEmpty()) {
+        QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
+    } else {
         QImage image(_imageLabel->pixmap()->toImage());
         if(image.isNull()) {
-            QMessageBox::information(this, tr("jocassviewer"),
-                    tr("Cannot retrieve image"));
+            QMessageBox::warning(this, tr("jocassviewer"), tr("Cannot retrieve image"));
             return;
         }
-        if (!image.save(fileName, "PNG")) QMessageBox::information(this, tr("jocassviewer"), tr("image could not be saved!"));
+        if(! image.save(fileName, "PNG"))
+            QMessageBox::warning(this, tr("jocassviewer"), tr("image could not be saved!"));
         updateActions();
     }
 }
