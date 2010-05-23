@@ -396,7 +396,7 @@ void ImageViewer::save2dAscii(QString fileName)
         outfile<< yaxis.position(iy) << ", ";
     outfile << endl;
     // write data - one row per row ;-)
-    outfile << "# data: ";
+    outfile << "# data: " << endl;
     for(size_t iy=0; iy< yaxis.size(); ++iy) {
         for(size_t ix=0; ix< xaxis.size(); ++ix) {
             outfile << hist->bin(ix, iy)<< ", " ;
