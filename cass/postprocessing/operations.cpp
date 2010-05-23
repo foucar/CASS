@@ -4,6 +4,7 @@
 #include <QtCore/QString>
 
 
+#include "cass.h"
 #include "operations.h"
 #include "postprocessor.h"
 #include "histogram.h"
@@ -66,15 +67,6 @@ namespace cass
 
 
 
-
-
-
-
-
-
-
-
-
 // *** postprocessors 106 substract two histograms ***
 
 cass::pp106::pp106(PostProcessors& pp, cass::PostProcessors::id_t id)
@@ -89,6 +81,7 @@ cass::pp106::~pp106()
   _result = 0;
 }
 
+
 std::list<cass::PostProcessors::id_t> cass::pp106::dependencies()
 {
   std::list<PostProcessors::id_t> list;
@@ -97,73 +90,57 @@ std::list<cass::PostProcessors::id_t> cass::pp106::dependencies()
   return list;
 }
 
+
 void cass::pp106::loadSettings(size_t)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString("p") + QString::number(_id));
-
-  _fOne = settings.value("FactorOne",1.).toFloat();
-  _fTwo = settings.value("FactorTwo",1.).toFloat();
-
+  _fOne = settings.value("FactorOne", 1.).toFloat();
+  _fTwo = settings.value("FactorTwo", 1.).toFloat();
+  // make sure dependencies ar evalid
   if (!retrieve_and_validate(_pp,_id,"HistOne",_idOne))
     return;
   if (!retrieve_and_validate(_pp,_id,"HistTwo",_idTwo))
     return;
-
-  //retrieve histograms from the two pp//
-  const HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  // retrieve histograms from the two pp//
+  const HistogramFloatBase *one(dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
   _pp.histograms_release();
-  const HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
+  const HistogramFloatBase *two(dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
   _pp.histograms_release();
-  //check whether they are the same type//
-  if ((one->dimension() != two->dimension()) ||
-      (one->memory().size() != two->memory().size()))
+  // check whether they are the same type//
+  if((one->dimension() != two->dimension()) ||
+     (one->memory().size() != two->memory().size()))
   {
-    throw std::runtime_error("pp106 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("pp106: The two histograms specified as dependency are not of the same type or they do not have the same size");
   }
-
-  //creat the resulting histogram from the first histogram
+  // creat the resulting histogram from the first histogram
   _pp.histograms_delete(_id);
   _result = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_id,_result);
-
-  std::cout << "PostProcessor_"<<_id
-      <<" will substract Histogram in PostProcessor_"<<_idOne
-      <<" from Histogram in PostProcessor_"<<_idTwo
-      <<std::endl;
+  _pp.histograms_replace(_id, _result);
+  VERBOSEOUT(std::cout << "PostProcessor_"<< _id <<" will substract Histogram in PostProcessor_" << _idOne
+             << " from Histogram in PostProcessor_" << _idTwo << std::endl);
 }
+
 
 void cass::pp106::operator()(const CASSEvent&)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
+  // retrieve the memory of the to be substracted histograms//
   HistogramFloatBase *one (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
   _pp.histograms_release();
   HistogramFloatBase *two (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
   _pp.histograms_release();
-
-  //substract using transform with a special build function//
+  // substract using transform with a special build function//
   one->lock.lockForRead();
   two->lock.lockForRead();
   _result->lock.lockForWrite();
-  transform(one->memory().begin(),
-            one->memory().end(),
-            two->memory().begin(),
-            _result->memory().begin(),
-            weighted_minus(_fOne,_fTwo));
+  transform(one->memory().begin(), one->memory().end(), two->memory().begin(),
+            _result->memory().begin(), weighted_minus(_fOne,_fTwo));
   _result->lock.unlock();
-  one->lock.unlock();
   two->lock.unlock();
+  one->lock.unlock();
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -864,9 +841,9 @@ void cass::pp807::loadSettings(size_t)
   // the origin-histogram
   _pp.histograms_delete(_id);
   //check that the centre is within the histogram's boundary
-  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit()) 
+  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
     _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
-  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit()) 
+  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
     _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
 
   if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
@@ -950,7 +927,7 @@ void cass::pp808::loadSettings(size_t)
   /*
   _radii = make_pair(abs(settings.value("LowerBound",0.).toFloat()),
                      abs(settings.value("UpperBound",512.).toFloat()));
-*/
+  */
   //order the values of the radii
   if(_radii.first>_radii.second)
   {
@@ -973,9 +950,9 @@ void cass::pp808::loadSettings(size_t)
   _pp.histograms_delete(_id);
   //
   //check that the centre is within the histogram's boundary
-  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit()) 
+  if(_centre.first<one->axis()[HistogramBackend::xAxis].lowerLimit())
     _centre.first=one->axis()[HistogramBackend::xAxis].lowerLimit();
-  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit()) 
+  if(_centre.first>one->axis()[HistogramBackend::xAxis].upperLimit())
     _centre.first=one->axis()[HistogramBackend::xAxis].upperLimit();
 
   if(_centre.second<one->axis()[HistogramBackend::yAxis].lowerLimit())
@@ -1001,7 +978,7 @@ void cass::pp808::loadSettings(size_t)
       <<" will calculate the radar plot of histogram of PostProcessor_"<<_idHist
       <<" with centre "<<_centre.first
       <<" ; "<<_centre.second
-      <<  " with min radius " << _radii.first 
+      <<  " with min radius " << _radii.first
       <<  " with max radius " << _radii.second
       << " between a distance of " << _range.first
       << " and " << _range.second
@@ -1011,10 +988,10 @@ void cass::pp808::loadSettings(size_t)
 void cass::pp808::operator()(const CASSEvent&)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  // retrieve the memories of the histograms to be substracted //
+  Histogram2DFloat *one(reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
-  //retrieve the projection from the 2d hist//
+  // retrieve the projection from the 2d hist//
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
   *_projec = one->radar_plot(_centre,_range);
@@ -1023,3 +1000,13 @@ void cass::pp808::operator()(const CASSEvent&)
 }
 
 
+
+
+
+// Local Variables:
+// coding: utf-8
+// mode: C++
+// c-file-style: "gnu"
+// c-file-offsets: ((c . 0) (innamespace . 0))
+// fill-column: 100
+// End:

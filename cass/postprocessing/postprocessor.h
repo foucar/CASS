@@ -315,7 +315,7 @@ the Class description for information about what parameters are user settable.
 00671: YAG Laser Photodiode All Hits on Mcp (pp567)
 00672: YAG Laser Photodiode Height vs. Fwhm (pp581)
 
----TiSaph Laser Diode Postprocesors--
+---TiSaph Laser Diode Postprocessors--
 00680: Femtosecond Laser Photodiode Number of Peaks in Waveform (pp550)
 00681: Femtosecond Laser Photodiode All Hits on Mcp (pp567)
 00682: Femtosecond Laser Photodiode Height vs. Fwhm (pp581)

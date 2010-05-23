@@ -51,7 +51,8 @@ pp1::pp1(PostProcessors& pp, cass::PostProcessors::id_t id)
     std::cout<<"PostProcessor_"<<_id<<": set up: cols:"<<cols<<" rows:"<<rows<<std::endl;
     // save storage in PostProcessors container
     _image = new Histogram2DFloat(cols, 0, cols-1, rows, 0, rows-1);
-    //_image->setMimeType(std::string("application/image"));     // in future, default mime-type of 2d histograms is 2d histogram, not image. Mime type for individual postprocessors can be specialized like this.
+    // in future, the default mime-type of 2d histograms is 2d histogram, not image. Mime type for individual postprocessors can be specialized like this.
+    //_image->setMimeType(std::string("application/image"));
     _pp.histograms_replace(_id, _image);
     VERBOSEOUT(std::cout<<"Postprocessor_"<<_id<<"done."<<std::endl);
 }
@@ -488,7 +489,7 @@ void cass::pp113::operator()(const CASSEvent& evt)
 
 
 // *** A Postprocessor that will display the photonhits of ccd detectors in 1D hist***
-// *** energies in eV 
+// *** energies in eV
 // ***  used by postprocessors 116-118 ***
 
 pp116::pp116(PostProcessors& pp, cass::PostProcessors::id_t id)
