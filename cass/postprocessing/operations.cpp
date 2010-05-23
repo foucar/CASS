@@ -1012,7 +1012,7 @@ void cass::pp808::operator()(const CASSEvent&)
 {
   using namespace std;
   //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  Histogram2DFloat *one (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
   //retrieve the projection from the 2d hist//
   one->lock.lockForRead();
