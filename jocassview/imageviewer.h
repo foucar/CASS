@@ -239,10 +239,21 @@ private:
       */
     void saveImage(QString fileName);
 
-    /** save 1D data
-      * save helper function
-      */
-    void save1DData(QString fileName);
+    /** save 1D data to file
+    *
+    * save helper function
+    *
+    * @param fileName Name of file to save data to
+    */
+    void save1dAscii(QString fileName);
+
+    /** save 2D data to file
+    *
+    * save helper function
+    *
+    * @param fileName Name of file to save data to
+    */
+    void save2dAscii(QString fileName);
 
     /** save Histogram
       * save helper function

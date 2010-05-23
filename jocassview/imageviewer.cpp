@@ -315,20 +315,28 @@ void ImageViewer::loadData( QString fileName, bool overlay )
 
 void ImageViewer::on_save_data_triggered()
 {
-    if (_dock->widget()==_imageWidget) {
+    if (_dock->widget() == _imageWidget) {
         QString filter("Portable Network Graphics (*.png)");
         QString fileName(QFileDialog::getSaveFileName(this, tr("Save Image File"), QDir::currentPath(), filter));
         saveImage(fileName);
-    } else {
-        QString filter("Images (*.png *.tiff *.jpg);;Csv plot files (*.csv);;Histogram binary files (*.hst)");
+    } else if (_dock->widget() == _spectrogramWidget) {
+        QString filter("Portable Networks Graphics (*.png);;Comma Separated Values (*.dat *.csv);;Histogram binary files (*.hst)");
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), filter);
         QFileInfo fileInfo(fileName);
-        if(_dock->widget()==_plotWidget1D) {
-            if (fileInfo.suffix().toUpper() == QString("csv").toUpper() )
-                save1DData(fileName);
-            if (fileInfo.suffix().toUpper() == QString("hst").toUpper() )
-                saveHistogram(fileName);
-        } else if (_dock->widget()==_spectrogramWidget) {
+        if((fileInfo.suffix().toUpper() == QString("CSV")) || (fileInfo.suffix().toUpper() == QString("DAT"))) {
+            save2dAscii(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("PNG")) {
+            saveImage(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("HST")) {
+            saveHistogram(fileName);
+        }
+    } else if(_dock->widget() == _plotWidget1D) {
+        QString filter("Comma Separated Values (*.dat *.csv);;Histogram binary files (*.hst)");
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QDir::currentPath(), filter);
+        QFileInfo fileInfo(fileName);
+        if((fileInfo.suffix().toUpper() == QString("CSV")) || (fileInfo.suffix().toUpper() == QString("DAT"))) {
+            save1dAscii(fileName);
+        } else if(fileInfo.suffix().toUpper() == QString("HST")) {
             saveHistogram(fileName);
         }
     }
@@ -339,28 +347,50 @@ void ImageViewer::on_save_data_triggered()
 void ImageViewer::on_auto_save_data_triggered()
 {
     QString fillZeros;
-    for (int ii=_attachId->currentText().length(); ii<3; ii++)
+    for(int ii=_attachId->currentText().length(); ii<3; ii++)
         fillZeros+=QString("0");
     QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString();
-    if (_dock->widget()==_imageWidget)
+    if(_dock->widget() == _imageWidget)
         saveImage(fileName + QString(".png"));
-    if (_dock->widget()==_plotWidget1D)
-        save1DData(fileName + QString(".csv"));
+    else if(_dock->widget() == _spectrogramWidget)
+        save2dAscii(fileName + QString(".dat"));
+    else if(_dock->widget() == _plotWidget1D)
+        save1dAscii(fileName + QString(".dat"));
 }
 
-void ImageViewer::save1DData(QString fileName)
+
+
+void ImageViewer::save1dAscii(QString fileName)
 {
     ofstream outfile;
     outfile.open(fileName.toStdString().c_str());
     _histogramlock.lockForRead();
-    cass::Histogram1DFloat* hist = dynamic_cast<cass::Histogram1DFloat*>(_lastHist);
-    const cass::AxisProperty &axis = _lastHist->axis()[0];
-    for (size_t ii=0;ii< hist->size();ii++) {
+    cass::Histogram1DFloat* hist(dynamic_cast<cass::Histogram1DFloat*>(_lastHist));
+    const cass::AxisProperty &axis(_lastHist->axis()[0]);
+    for(size_t ii=0; ii< hist->size(); ++ii) {
         outfile << axis.position(ii) << ";" << hist->bin(ii) << std::endl;
     }
     _histogramlock.unlock();
     outfile.close();
 }
+
+
+
+void ImageViewer::save2dAscii(QString fileName)
+{
+    ofstream outfile;
+    outfile.open(fileName.toStdString().c_str());
+    _histogramlock.lockForRead();
+    cass::Histogram1DFloat* hist(dynamic_cast<cass::Histogram1DFloat*>(_lastHist));
+    const cass::AxisProperty &axis(_lastHist->axis()[0]);
+    for(size_t ii=0; ii< hist->size(); ++ii) {
+        outfile << axis.position(ii) << ";" << hist->bin(ii) << std::endl;
+    }
+    _histogramlock.unlock();
+    outfile.close();
+}
+
+
 
 void ImageViewer::saveHistogram(QString filename)
 {
