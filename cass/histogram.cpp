@@ -87,8 +87,9 @@ namespace cass
     return hist;
   }
 
+
   Histogram1DFloat Histogram2DFloat::radial_project(std::pair<float,float> centre,
-                                                    std::pair<float,float> range, float radius) const
+                                                    float radius) const
   {
 
     size_t NbrBins=static_cast<size_t>(ceil(radius));
@@ -109,82 +110,37 @@ namespace cass
     for(int32_t row=row_min; row<row_max; ++row)
       for(int32_t col=col_min; col<col_max; ++col)
       {
-        float iradius2= pow(row-yc,2)+pow(col-xc,2);
+        float iradius2= square(row-yc)+square(col-xc);
         //only if inside the radius add the bin-values
         if(iradius2<=NbrBins2)
         {
-          /*          std::cout<<"rad vs pos "<< row-yc << " "<< col-xc << " "<< floor(std::sqrt(iradius2)) << " " 
-                      << row << " " << col << " " << bin(row, col)<<std::endl;*/
           hist.bin( static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) += bin(row, col);
-          //hist.bin( static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) += 1.1;
           norms.bin(static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) +=1.;
         }
       }
     //and now normalise the output histogram
     for(size_t ibin=0; ibin<NbrBins; ibin++)
-      if(norms.bin(ibin)>0) hist.bin(ibin)=hist.bin(ibin)/norms.bin(ibin);
+      if(norms.bin(ibin)>0)
+        hist.bin(ibin)=hist.bin(ibin)/norms.bin(ibin);
     return hist;
   }
 
-  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<float,float> centre,
+  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<float,float> center,
                                                 std::pair<float,float> range) const
   {
-    size_t NbrBins=720;
-    const float NbrBins2_min=pow(range.first,2);
-    const float NbrBins2_max=pow(range.second,2);
-    //size_t NbrBins=100;
-    //Histogram1DFloat hist(NbrBins, -180.f, 180.f);
-    Histogram1DFloat hist(NbrBins, -M_PI, M_PI);
-    //Histogram1DFloat hist(NbrBins, -1.005f, 1.005f);
-    //Histogram1DFloat norms(NbrBins, 0., radius);
-
-    const float xc(centre.first-0.5);
-    const float yc(centre.second-0.5);
-
-    //here the following are NOT safe as the radius has NOT been reduced
-
-    int32_t row_min(static_cast<int32_t>(yc-range.second));
-    row_min=std::max(row_min,static_cast<int32_t>(_axis[yAxis].lowerLimit()));
-    int32_t row_max(static_cast<int32_t>(yc+range.second));
-    row_max=std::min(row_max,static_cast<int32_t>(_axis[yAxis].upperLimit()));
-
-    int32_t col_min(static_cast<int32_t>(xc-range.second));
-    col_min=std::max(col_min,static_cast<int32_t>(_axis[xAxis].lowerLimit()));
-    int32_t col_max(static_cast<int32_t>(xc+range.second));
-    col_max=std::min(col_max,static_cast<int32_t>(_axis[xAxis].upperLimit()));
-
-    /*std::cout<<"0 4 " 
-             <<row_min << " "<<row_max<<" "
-             <<col_min << " "<<col_max<<std::endl;*/
-    //std::cout<<"0 5 " <<std::endl;
-
-    //the following loop is quite generous...
-    for(int32_t row=row_min; row<row_max; ++row)
-      for(int32_t col=col_min; col<col_max; ++col)
+    Histogram1DFloat hist(360, 0.f, 360.f);
+    for(size_t jr = static_cast<size_t>(range.first);jr<static_cast<size_t>(range.second); jr++)
+    {
+      for(size_t jth = 1; jth<360; jth++)
       {
-        float iradius2= square(static_cast<float>(row)-yc)+square(static_cast<float>(col)-xc);
-        //only if inside the corona of range.first,range.second add the bin-values
-        //boundary included!!
-        if(iradius2<NbrBins2_max && iradius2>NbrBins2_min)
-        {
-
-          //const float angle(180.*std::atan2(static_cast<double>(row-yc),static_cast<double>(col-xc))/M_PI);
-          const float angle(std::atan2(static_cast<float>(row)-yc,static_cast<float>(col)-xc));
-          /*float cosangle;
-          if ((square(col-xc)+square(row-yc))!=0)
-            cosangle= (col-xc)/sqrt(square(col-xc)+square(row-yc)) ;
-          else
-          cosangle=0.;*/
-          /*
-          std::cout<<"angle vs pos "<< row-yc << " "<< col-xc << " "<< angle << " " 
-                      << row << " " << col <<std::endl;
-          */
-          //hist.bin( angle ) += bin(row, col);
-          //hist.fill( cosangle );
-          //hist.fill( angle );
-          hist.fill( angle,bin(row,col) );
-        }
+        const float radius(jr);
+        const float angle(2.*M_PI * float(jth) / float(360));
+        size_t col(size_t(center.first  + radius*sin(angle)));
+        size_t row(size_t(center.second + radius*cos(angle)));
+        float val = _memory[col + row * _axis[0].nbrBins()];
+        hist.memory()[jth-1]+=val;
       }
+    }
     return hist;
   }
 
