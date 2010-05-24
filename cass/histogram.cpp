@@ -99,8 +99,8 @@ namespace cass
   }
 
 
-  Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<size_t,size_t> center,
-                                                std::pair<size_t,size_t> range,
+  Histogram1DFloat Histogram2DFloat::radar_plot(const std::pair<size_t,size_t> &center,
+                                                const std::pair<size_t,size_t> &range,
                                                 size_t nbrBins) const
   {
 //    size_t NbrBins=720;
