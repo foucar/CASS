@@ -331,6 +331,8 @@ void cass::pp110::loadSettings(size_t)
   else
     _conditionDetector = InvalidDetector;
   _invert = settings.value("Invert",false).toBool();
+  if (_conditionDetector)
+    HelperAcqirisDetectors::instance(_conditionDetector)->loadSettings();
   std::cout <<std::endl<< "load the parameters of postprocessor "<<_id
       <<" it histograms the Nbr of Mcp Peaks"
       <<" of detector "<<_detector
