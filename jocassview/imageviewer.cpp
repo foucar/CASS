@@ -207,7 +207,7 @@ void ImageViewer::resizeEvent(QResizeEvent *event)
     VERBOSEOUT(cout << "resizeEvent width=" << event->size().width()
             << " height=" << event->size().height() << endl);
     if(_ui.fitToWindow->isChecked()) {
-#warning Resize window to keep the aspect ratio from _imagesize.
+    /** @todo Resize window to keep the aspect ratio from _imagesize.*/
     }
     event->accept();
 }
@@ -753,7 +753,7 @@ void getDataThread::run()
         break;
     }
     _cass->destroy();
-#warning Fix imageformat
+    /** @todo Fix imageformat*/
 }
 
 void ImageViewer::pictureTypeChanged(int /*newIndex*/)
