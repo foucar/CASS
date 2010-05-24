@@ -1,5 +1,19 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/** @file operations.h file contains postprocessors that will operate
+ * on histograms of other postprocessors
+ *
+ * @todo create boolean AND and boolean OR 0d pp
+ * @todo create comparison 0d pp less than constant
+ * @todo create comparison 0d pp greater than constant
+ * @todo create comparison 0d pp equal to constant
+ * @todo create boolean NOT pp
+ * @todo pp that histograms 0d value
+ * @todo create pp that will histogram a 0d pp value
+ * @todo pp that averages hists
+ * @author Lutz Foucar
+ */
+
 #ifndef _OPERATIONS_H_
 #define _OPERATIONS_H_
 
