@@ -180,6 +180,15 @@
  * @todo create comparison 0d pp greater than constant
  * @todo create comparison 0d pp equal to constant
  * @todo create pp that will histogram a 0d pp value
+ * @todo 1d hist, log of x,y axis
+ * @todo move the todos to approriate files
+ * @todo 1d hist scale overlay data, change color and thickness of overlay line
+ * @todo 1d hist zoom into x axis but let y axis scale automaticlz to highes value
+ * @todo make warnings to todos
+ * @todo make acqiris helper to pp.
+ * @todo discuss whether usign the helper approach will also work for the pp, to be able to use more than 1 thread
+ * @todo create an excutable with the reivision number to have some fallback
+ * @todo maybe only pp that noone depends on should be active. when their operator is called, then they should call the operator of their dpendencies
  */
 
 /** \page authors Authors
@@ -197,6 +206,7 @@
 
 
 /** The main program.
+ * @todo find out how show command line parameters in doxygen and use that here
  * @param i filename containing filesnames of xtcfiles to process
  * @param c client id for shared memory access
  * @param s TCP port of the soap server
