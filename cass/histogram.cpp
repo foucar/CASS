@@ -8,12 +8,12 @@
 
 namespace cass
 {
-void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
-{
-  _axis = rhs._axis;
-  _nbrOfFills = rhs._nbrOfFills;
-  _memory = rhs._memory;
-}
+  void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
+  {
+    _axis = rhs._axis;
+    _nbrOfFills = rhs._nbrOfFills;
+    _memory = rhs._memory;
+  }
 
 
   Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const
@@ -68,9 +68,10 @@ void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
 
 
   Histogram1DFloat Histogram2DFloat::radar_plot(std::pair<size_t,size_t> center,
-                                                std::pair<size_t,size_t> range) const
+                                                std::pair<size_t,size_t> range,
+                                                size_t nbrBins) const
   {
-    Histogram1DFloat hist(180, 0., 360.);
+    Histogram1DFloat hist(nbrBins, 0., 360.);
     for(size_t jr = range.first;jr<range.second; jr++)
     {
       for(size_t jth = 1; jth<360; jth++)
