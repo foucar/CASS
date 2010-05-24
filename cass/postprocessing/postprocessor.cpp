@@ -75,6 +75,10 @@ PostProcessors::PostProcessors(std::string outputfilename)
     VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "<<_outputfilename<<std::endl);
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
+    /**
+     * @todo maybe delay the call to load settings, so that in load settings
+     *       one can call instance again.
+     */
     loadSettings(0);
 }
 
