@@ -81,8 +81,13 @@ PostProcessors::PostProcessors(std::string outputfilename)
 
 void PostProcessors::process(CASSEvent& event)
 {
-    /** @todo catch when postprocessor throws an exeption and delete the
-     *        postprocessor from the active list.
+    /**
+     * @todo catch when postprocessor throws an exeption and delete the
+     *       postprocessor from the active list.
+     *       - create a remove list with all postprocessors that depend on this
+     *       - go through that list and fill all pp that depend on the ones in
+     *         the list recursivly.
+     *       - remove all pp that made it on the removelist
      */
     for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
         (*(_postprocessors[*iter]))(event);
