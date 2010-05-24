@@ -81,9 +81,11 @@ PostProcessors::PostProcessors(std::string outputfilename)
 
 void PostProcessors::process(CASSEvent& event)
 {
+    /** @todo catch when postprocessor throws an exeption and delete the
+     *        postprocessor from the active list.
+     */
     for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
         (*(_postprocessors[*iter]))(event);
-#warning catch when postprocessor throws an exeption and delete the postprocessor from the active list.
 }
 
 
