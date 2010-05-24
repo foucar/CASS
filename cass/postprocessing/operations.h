@@ -397,6 +397,9 @@ class HistogramFloatBase;
    * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to project. Default is
    *           -1e6 ... 1e6
+   * @cassttng PostProcessor/p\%id\%/{Normalize} \n
+   *           Normalize the projection, so that maximum value is always 1.
+   *           Default is false.
    * @cassttng PostProcessor/p\%id\%/{Axis} \n
    *           The axis we want to project to. Default is xAxis.
    *           Possible choises are:
@@ -428,6 +431,9 @@ class HistogramFloatBase;
   protected:
     /** the id of the 2d hist we want to project */
     PostProcessors::id_t _idHist;
+
+    /** flag whether we should normalize the values */
+    bool _normalize;
 
     /** range we want to project */
     std::pair<float,float> _range;

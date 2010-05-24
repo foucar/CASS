@@ -737,6 +737,7 @@ void cass::pp806::loadSettings(size_t)
   _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
                      settings.value("UpperBound", 1e6).toFloat());
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
+  _normalize = settings.value("Normalize",false).toBool();
 
 
   if (!retrieve_and_validate(_pp,_id,"HistId",_idHist))
@@ -773,6 +774,7 @@ void cass::pp806::loadSettings(size_t)
       <<" from "<<_range.first
       <<" to "<<_range.second
       <<" on axis "<<_axis
+      <<boolalpha<<" normalize "<<_normalize
       <<std::endl;
 }
 
@@ -788,6 +790,12 @@ void cass::pp806::operator()(const CASSEvent&)
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
   *_projec = one->project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  if(_normalize)
+  {
+    float maxvalue (_projec->max());
+    transform(_projec->memory().begin(),_projec->memory().end(),
+              _projec->memory().begin(),bind2nd(divides<float>(),maxvalue));
+  }
   _projec->lock.unlock();
   one->lock.unlock();
 }
