@@ -743,7 +743,8 @@ void cass::pp806::loadSettings(size_t)
     return;
 
   //make sure that lower and upper bound are not exceeding histograms boudaries
-  const Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  const Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //creat the resulting histogram from the right axis of the 2d
@@ -779,7 +780,8 @@ void cass::pp806::operator()(const CASSEvent&)
 {
   using namespace std;
   //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
+  Histogram2DFloat *one
+      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
   _pp.histograms_release();
 
   //retrieve the projection from the 2d hist//
