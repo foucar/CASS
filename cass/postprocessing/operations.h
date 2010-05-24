@@ -501,6 +501,8 @@ class HistogramFloatBase;
    * @cassttng PostProcessor/p\%id\%/{MinRadius|MaxRadius} \n
    *           Minimum and Maximum Radius to inlcude in the polar plot. Default
    *           is 0 ... 512
+   * @cassttng PostProcessor/p\%id\%/{NbrBins} \n
+   *           Number of Bins that the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
    *
@@ -536,6 +538,9 @@ class HistogramFloatBase;
 
     /** centre's coordinates we use to calculate the radar plot */
     std::pair<size_t,size_t> _center;
+
+    /** the number of bins in the resulting histogram, range is fixed */
+    size_t _nbrBins;
 
     /** resulting histgram */
     Histogram1DFloat *_projec;

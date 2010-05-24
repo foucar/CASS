@@ -858,6 +858,7 @@ void cass::pp53::loadSettings(size_t)
   _pp.histograms_release();
   const float center_x_user (settings.value("XCenter",512).toFloat());
   const float center_y_user (settings.value("YCenter",512).toFloat());
+  _nbrBins = settings.value("NbrBins",360).toUInt();
   _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(center_x_user),
                       one->axis()[HistogramBackend::yAxis].bin(center_y_user));
   const size_t dist_center_x_right
@@ -874,7 +875,7 @@ void cass::pp53::loadSettings(size_t)
   _range = make_pair(min(max_radius, minrad),
                      min(max_radius, maxrad));
   _pp.histograms_delete(_key);
-  _projec = new Histogram1DFloat(360,0,360);
+  _projec = new Histogram1DFloat(_nbrBins,0,360);
   _pp.histograms_replace(_key,_projec);
   std::cout << "PostProcessor "<<_key
       <<": angular distribution with xcenter "<<settings.value("XCenter",512).toFloat()
@@ -885,6 +886,7 @@ void cass::pp53::loadSettings(size_t)
       <<" maximum radius "<<settings.value("MaxRadius",512.).toFloat()
       <<" in histogram coordinates minimum radius "<<_range.first
       <<" maximum radius "<<_range.second
+      <<" Histogram has "<<_nbrBins<<" Bins"
       <<std::endl;
 }
 
@@ -898,7 +900,7 @@ void cass::pp53::operator()(const CASSEvent&)
   // retrieve the projection from the 2d hist//
   one->lock.lockForRead();
   _projec->lock.lockForWrite();
-  *_projec = one->radar_plot(_center,_range);
+  *_projec = one->radar_plot(_center,_range, _nbrBins);
   _projec->lock.unlock();
   one->lock.unlock();
 }

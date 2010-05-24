@@ -140,17 +140,15 @@ void cass::pp140::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _adu2eV = settings.value("Adu2eV",1).toFloat();
-
+  _pp.histograms_delete(_key);
+  _spec=0;
+  set1DHist(_spec,_key);
+  _pp.histograms_replace(_key,_spec);
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd spectrum of detector "<<_detector
       <<" in device "<<_device
       <<". Pixelvalues will be converter by factor "<<_adu2eV
       <<std::endl;
-
-  _pp.histograms_delete(_key);
-  _spec=0;
-  set1DHist(_spec,_key);
-  _pp.histograms_replace(_key,_spec);
 }
 
 void cass::pp140::operator()(const CASSEvent& evt)

@@ -550,17 +550,21 @@ public:
      */
     Histogram1DFloat project(std::pair<float,float> range, Axis axis) const;
 
-    /** Reduce the 2D histogram to a 1D radial average/projection around a specified centre.
+    /** Reduce the 2D histogram to a 1D radial average/projection around a specified center.
      * @param[in] center center in coordinates of this 2d histograms memroy
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      */
     Histogram1DFloat radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius) const;
 
-    /** Reduce the 2D histogram to a 1D radar plot around a specified centre.
-     * @param[in] center(x,y), x and y center in histogram memory coordinates
-     * @param[in] range min and max radii in histogram memory coordinates
+    /** Reduce the 2D histogram to a 1D radar plot around a specified center.
+     * @param[in] center(x,y), reference to x and y center in histogram memory coordinates
+     * @param[in] range reference to min and max radii in histogram memory coordinates
+     * @param[in] nbrBins the number of bins that the resulting histogram has.
+     *            Range will be 0 ... 360
      */
-    Histogram1DFloat radar_plot(std::pair<size_t,size_t> center, std::pair<size_t,size_t> range) const;
+    Histogram1DFloat radar_plot(const std::pair<size_t,size_t> &center,
+                                const std::pair<size_t,size_t> &range,
+                                size_t nbrBins) const;
 
     /** Create a QImage of this histogram.
      *
