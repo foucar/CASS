@@ -172,6 +172,9 @@
  * @todo create an excutable with the reivision number to have some fallback
  * @todo maybe only pp that noone depends on should be active. when their
  *       operator is called, then they should call the operator of their dpendenciess
+ * @todo maybe postprocessors should not have the list of all histograms. pp should
+ *       handle them => when requesting a histogram, one needs to ask the pp to give
+ *       the right one.
  */
 
 /** \page authors Authors
