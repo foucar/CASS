@@ -69,13 +69,13 @@ static inline PostProcessors::id_t QVarianttoId_t(QVariant i)
 
 
 PostProcessors::PostProcessors(std::string outputfilename)
-  :_outputfilename(outputfilename)
+  :_outputfilename(outputfilename),
+   _IdList(new IdList())
 {
     VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "<<_outputfilename<<std::endl);
     // set up list of all active postprocessors/histograms
     // and fill maps of histograms and postprocessors
     loadSettings(0);
-    _IdList = new IdList();
 }
 
 
