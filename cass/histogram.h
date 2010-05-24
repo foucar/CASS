@@ -573,7 +573,7 @@ public:
      * @param[in] center(x,y), reference to x and y center in histogram memory coordinates
      * @param[in] range reference to min and max radii in histogram memory coordinates
      * @param[in] nbrBins the number of bins that the resulting histogram has.
-     *            Range will be 0 ... 360
+     *                    Range will be 0 ... 360
      */
     Histogram1DFloat radar_plot(const std::pair<size_t,size_t> &center,
                                 const std::pair<size_t,size_t> &range,
