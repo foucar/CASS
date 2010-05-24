@@ -171,7 +171,7 @@ void PostProcessors::setup()
     /**
      * @todo don't delete all pp at the beginning:
      *       - go through all active and create / load settings, find depend, sort them
-     *         - when load settings throws an exeption InvalidHistogram, catch it
+     *         - when load settings throws exception InvalidHistogram, catch it
      *           put it to a reinitialize list.
      *       - go through reinitialize list and call load setting for them once more
      *         - when load settings throws an exception then remove this pp and
