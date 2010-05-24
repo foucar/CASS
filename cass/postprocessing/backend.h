@@ -27,8 +27,14 @@ public:
 
     virtual void operator()(const CASSEvent&) = 0;
 
-    /** @brief Provide default implementation of loadSettings that does nothing */
-    virtual void loadSettings(size_t) {std::cout << "calling backend' load settings"<<std::endl;}
+    /** Provide default implementation of loadSettings that does nothing
+     * @todo either make this return bool, or throw an exeption when dependencies do not
+     *       exist yet.
+     */
+    virtual void loadSettings(size_t)
+    {
+      VBEOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
+    }
 
     void loadNecessary(size_t what) {if (_reinitialize) loadSettings(what);}
 

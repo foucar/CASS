@@ -106,6 +106,8 @@ namespace cass
 
   /** @brief container and call handler for all registered postprocessors
 
+* @todo create function that will find all pp that depend on a given pp
+
 All currently registered postprocessors are listed here, specifying their id, a description, and (in
 parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
 classes are named according to their number (or the first number for classes handling multiple

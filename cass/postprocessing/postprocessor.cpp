@@ -139,6 +139,7 @@ IdList* PostProcessors::getIdList()
 
 std::string& PostProcessors::getMimeType(id_t type)
 {
+    /** @todo make sure that we do not need to block access to the histograms */
     histograms_t::iterator it = _histograms.find(type);
     if (it!=_histograms.end())
         return it->second->mimeType();
@@ -167,6 +168,18 @@ void PostProcessors::setup()
 {
     using namespace std;
 
+    /**
+     * @todo don't delete all pp at the beginning:
+     *       - go through all active and create / load settings, find depend, sort them
+     *         - when load settings throws an exeption InvalidHistogram, catch it
+     *           put it to a reinitialize list.
+     *       - go through reinitialize list and call load setting for them once more
+     *         - when load settings throws an exception then remove this pp and
+     *           all pp that depend on it (like in process)
+     *       - go through active list, compare to existing pp
+     *       - when there are existing pp that are not active put them on remove list
+     *       - delete all pp on the remove list
+     */
     // for the time beeing delete all existing postprocessors
     for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
       delete iter->second;
