@@ -3,10 +3,7 @@
 /** @file operations.h file contains postprocessors that will operate
  *                     on histograms of other postprocessors
  *
- * @todo create pp that will histogram a 0d pp value
- * @todo pp that sums hists
  * @todo pp conversion from 2d to r phi representation
- * @todo add constant true, constant false
  * @author Lutz Foucar
  */
 
