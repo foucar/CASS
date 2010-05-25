@@ -645,6 +645,56 @@ protected:
 
 
 
+
+
+  /** Substract constant from histogram.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   *           Postprocessor id with histogram that should be multiplied. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Factor} \n
+   *           Factor with which histogram should be substracted. Default is 1.
+   *
+   * @author Lutz Foucar
+   */
+  class pp24 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp24(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp24();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** id of the histogram we multiply with a constant */
+    PostProcessors::key_t _idHist;
+
+    /** the factor we substract the histogram with */
+    float _factor;
+
+    /** resulting histgram */
+    HistogramFloatBase *_result;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
   /** Projection of 2d Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistId} \n

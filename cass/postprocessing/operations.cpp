@@ -1085,6 +1085,72 @@ void cass::pp23::operator()(const CASSEvent&)
 
 
 
+// *** postprocessors 24 Substract constant from histogram ***
+
+cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp24::~pp24()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp24::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp24::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _factor = settings.value("Factor",1).toFloat();
+  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+    return;
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  _pp.histograms_delete(_key);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will multiply Histogram in PostProcessor "<<_idHist
+      <<" with "<<_factor
+      <<std::endl;
+}
+
+void cass::pp24::operator()(const CASSEvent&)
+{
+  using namespace std;
+  HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  transform(one->memory().begin(),
+            one->memory().end(),
+            _result->memory().begin(),
+            bind2nd(minus<float>(),_factor));
+  _result->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
