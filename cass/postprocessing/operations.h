@@ -852,6 +852,9 @@ namespace cass
 
 
 
+
+
+
   /** Radial Average/Projection of 2d Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistId} \n
@@ -859,8 +862,6 @@ namespace cass
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           Xcoordinate and Y coordinate of the centre. Default is 512,512
-   *
-   * Implements postprocessors id's 807
    *
    * @author Nicola Coppola
    * @author Lutz Foucar
@@ -920,8 +921,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
    *
-   * Implements postprocessors id's 808
-   *
    * @author Nicola Coppola
    * @author Lutz Foucar
    */
@@ -958,6 +957,67 @@ namespace cass
 
     /** resulting histgram */
     Histogram1DFloat *_projec;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /** Radius \f$ \phi \f$ Representation of 2D Histogram.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   *           Postprocessor id with 2D-Histogram we convert.
+   *           Default is 0.
+   * @cassttng PostProcessor/\%name\%/{NbrAngleBins} \n
+   *           Number of Bins that the 360 degrees will be put in. Default is 360
+   * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
+   *           X and Y Center of the images polar plot. Default is 512,512
+   *
+   * @author Lutz Foucar
+   */
+  class pp54 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp54(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp54();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the id of the 2d hist we want to project */
+    PostProcessors::key_t _idHist;
+
+    /** centre's coordinates we use to calculate the radar plot */
+    std::pair<size_t,size_t> _center;
+
+    /** the number of bins in the resulting histogram, range is fixed */
+    size_t _nbrBins;
+
+    /** the maximum size of the radius, calculated from the two d histogram */
+    size_t _radius;
+
+    /** resulting histgram */
+    Histogram2DFloat *_projec;
   };
 
 

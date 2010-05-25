@@ -580,7 +580,7 @@ public:
      * @param center reference to x and y cetner in histogram memory coordinates
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      * @param[in] nbrAngleBins the number of bins that the resulting histogram has.
-     *                    Range will be 0 ... 360
+     *                         Range will be 0 ... 360
      */
     Histogram2DFloat convert2RPhi(const std::pair<size_t,size_t> &center,
                                   const size_t maxRadius,

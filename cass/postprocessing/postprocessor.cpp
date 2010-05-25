@@ -350,6 +350,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case AngularDistribution:
     processor = new pp53(*this, key);
     break;
+  case R_Phi_Representation:
+    processor = new pp54(*this, key);
+    break;
   case ZeroDHistogramming:
     processor = new pp60(*this, key);
     break;
