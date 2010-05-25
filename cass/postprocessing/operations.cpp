@@ -66,6 +66,71 @@ namespace cass
 
 
 
+// *** postprocessor 1 compare histo for less than constant ***
+
+cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp1::~pp1()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp1::dependencies()
+{
+  PostProcessors::active_t  list;
+  list.push_front(_idOne);
+  return list;
+}
+
+void cass::pp1::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _value = settings.value("Value",0).toFloat();
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will compare whether hist in PostProcessor "<<_idOne
+      <<" is smaller than "<<_value
+      <<std::endl;
+}
+
+void cass::pp1::operator()(const CASSEvent&)
+{
+  using namespace std;
+  // retrieve the memory of the to be substracted histograms//
+  HistogramFloatBase *one
+      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  // substract using transform with a special build function//
+  one->lock.lockForRead();
+  float first (accumulate(one->memory().begin(),
+                          one->memory().end(),
+                          0.f));
+  one->lock.unlock();
+  _result->lock.lockForWrite();
+  *_result = first < _value;
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
 // *** postprocessor 5 boolean AND of two histos ***
 
 cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
@@ -87,6 +152,10 @@ cass::PostProcessors::active_t cass::pp5::dependencies()
   list.push_front(_idTwo);
   return list;
 }
+
+
+
+// *** postprocessor 5 boolean AND of two histos ***
 
 void cass::pp5::loadSettings(size_t)
 {
@@ -131,6 +200,88 @@ void cass::pp5::operator()(const CASSEvent&)
   two->lock.lockForRead();
   _result->lock.lockForWrite();
   *_result = one->isTrue() && two->isTrue();
+  _result->lock.unlock();
+  two->lock.unlock();
+  one->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 6 boolean OR of two histos ***
+
+cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp6::~pp6()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp6::dependencies()
+{
+  PostProcessors::active_t  list;
+  list.push_front(_idOne);
+  list.push_front(_idTwo);
+  return list;
+}
+
+void cass::pp6::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo))
+    return;
+  const HistogramFloatBase *one
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  const HistogramFloatBase *two
+      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
+  _pp.histograms_release();
+  if (one->dimension() != two->dimension())
+  {
+    throw std::runtime_error("pp type 6: idOne is not the same type as idTwo or they have not the same size");
+  }
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will OR  PostProcessor "<<_idOne
+      <<" with PostProcessor "<<_idTwo
+      <<std::endl;
+}
+
+void cass::pp6::operator()(const CASSEvent&)
+{
+  using namespace std;
+  // retrieve the memory of the to be substracted histograms//
+  Histogram0DFloat *one
+      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  Histogram0DFloat *two
+      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idTwo)->second));
+  _pp.histograms_release();
+  // substract using transform with a special build function//
+  one->lock.lockForRead();
+  two->lock.lockForRead();
+  _result->lock.lockForWrite();
+  *_result = one->isTrue() || two->isTrue();
   _result->lock.unlock();
   two->lock.unlock();
   one->lock.unlock();

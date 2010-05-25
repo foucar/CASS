@@ -342,7 +342,7 @@ public:
     /** evaluate whether value is non zero */
     bool isTrue()
     {
-      return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());
+      return (std::abs(_memory[0]) > std::sqrt(std::numeric_limits<value_t>::epsilon()));
     }
 
     /** Simple assignment ot the single value */

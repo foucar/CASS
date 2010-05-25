@@ -7,7 +7,6 @@
  * @todo Compare 0D histograms for greater than constant
  * @todo Compare 0D histograms for equal to constant
  * @todo Apply boolean NOT to 0D histograms
- * @todo create boolean AND and boolean OR 0d pp
  * @todo create comparison 0d pp less than constant
  * @todo create comparison 0d pp greater than constant
  * @todo create comparison 0d pp equal to constant
@@ -39,6 +38,54 @@ class HistogramFloatBase;
 
 
 
+/** Compare histogram for less than constant.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{Value} \n
+ *           Value to compare the histograms value to. Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp1 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp1(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp1();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** constant value to compare to */
+  float _value;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
+
+
+
+
+
+
+
+
 /** Boolean AND of two 0d pp.
  *
  * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
@@ -56,6 +103,49 @@ public:
 
   /** Free _image space */
   virtual ~pp5();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** id of second histogram */
+  PostProcessors::key_t _idTwo;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
+
+
+
+
+/** Boolean OR of two 0d pp.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+ *           the postprocessor id's that contain the first histogram and second
+ *           histogram for the boolean AND-ing. Default is 0 for both. This
+ *           will result in an exception. Since pp 0 is not implemented.
+ *
+ * @author Lutz Foucar
+ */
+class pp6 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp6(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp6();
 
   /** copy image from CASS event to histogram storage */
   virtual void operator()(const CASSEvent&);
