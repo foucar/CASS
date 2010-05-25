@@ -171,6 +171,48 @@ protected:
 
 
 
+
+
+
+/** Apply boolean NOT to 0D Histogram.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp4 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp4(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp4();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
+
+
+
+
 /** Boolean AND of two 0d pp.
  *
  * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n

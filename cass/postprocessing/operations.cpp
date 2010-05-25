@@ -197,9 +197,6 @@ void cass::pp2::operator()(const CASSEvent&)
 
 
 
-
-
-
 // *** postprocessor 3 compare histo for equal to constant ***
 
 cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
@@ -234,7 +231,7 @@ void cass::pp3::loadSettings(size_t)
   _pp.histograms_replace(_key,_result);
   std::cout << "PostProcessor "<<_key
       <<": will compare whether hist in PostProcessor "<<_idOne
-      <<" is greater than "<<_value
+      <<" is equal to "<<_value
       <<std::endl;
 }
 
@@ -254,6 +251,70 @@ void cass::pp3::operator()(const CASSEvent&)
   _result->lock.lockForWrite();
   *_result = abs(first - _value) < sqrt(numeric_limits<float>::epsilon());
   _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 4 apply boolean NOT to 0D Histogram ***
+
+cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp4::~pp4()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp4::dependencies()
+{
+  PostProcessors::active_t  list;
+  list.push_front(_idOne);
+  return list;
+}
+
+void cass::pp4::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  const Histogram0DFloat *one
+      (dynamic_cast<Histogram0DFloat*>(histogram_checkout(_idOne)));
+  if(one->dimension() != 0)
+    throw std::runtime_error("pp type 4: idOne is not a 0d Histogram");
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will apply NOT to PostProcessor "<<_idOne
+      <<std::endl;
+}
+
+void cass::pp4::operator()(const CASSEvent&)
+{
+  using namespace std;
+  // retrieve the memory of the to be substracted histograms//
+  Histogram0DFloat *one
+      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  // substract using transform with a special build function//
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+  *_result = (!one->isTrue());
+  _result->lock.unlock();
+  one->lock.unlock();
 }
 
 
