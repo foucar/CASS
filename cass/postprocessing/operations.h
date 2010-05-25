@@ -82,6 +82,46 @@ protected:
 
 
 
+/** Compare histogram for greater than constant.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{Value} \n
+ *           Value to compare the histograms value to. Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp2 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp2(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp2();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** constant value to compare to */
+  float _value;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
 
 
 

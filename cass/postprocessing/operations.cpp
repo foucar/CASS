@@ -131,6 +131,71 @@ void cass::pp1::operator()(const CASSEvent&)
 
 
 
+// *** postprocessor 2 compare histo for greater than constant ***
+
+cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp2::~pp2()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp2::dependencies()
+{
+  PostProcessors::active_t  list;
+  list.push_front(_idOne);
+  return list;
+}
+
+void cass::pp2::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _value = settings.value("Value",0).toFloat();
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will compare whether hist in PostProcessor "<<_idOne
+      <<" is greater than "<<_value
+      <<std::endl;
+}
+
+void cass::pp2::operator()(const CASSEvent&)
+{
+  using namespace std;
+  // retrieve the memory of the to be substracted histograms//
+  HistogramFloatBase *one
+      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  // substract using transform with a special build function//
+  one->lock.lockForRead();
+  float first (accumulate(one->memory().begin(),
+                          one->memory().end(),
+                          0.f));
+  one->lock.unlock();
+  _result->lock.lockForWrite();
+  *_result = first > _value;
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
 // *** postprocessor 5 boolean AND of two histos ***
 
 cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
