@@ -121,8 +121,9 @@ the Class description for information about what parameters are user settable.
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
-00052: Project 2d to Radius
+00052: Project 2D to radius
 00053: Angular Distribution / Radar Plot
+00054: Convert 2D histogram to Radius - Phi representation
 
 00060: Histogram values from a 0D histogram
 00061: Average of a histogram
@@ -359,6 +360,7 @@ using the custom doxygen tag cassttng.
       OneDIntergral=51,
       RadalProjection=52,
       AngularDistribution=53,
+      R_Phi_Representation=54,
 
       ZeroDHistogramming=60,
       HistogramAveraging=61,

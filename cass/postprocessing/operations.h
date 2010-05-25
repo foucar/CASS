@@ -1,11 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
 /** @file operations.h file contains postprocessors that will operate
- * on histograms of other postprocessors
+ *                     on histograms of other postprocessors
  *
- * @todo pp that histograms 0d value
  * @todo create pp that will histogram a 0d pp value
  * @todo pp that averages hists
+ * @todo pp that sums hists
  * @todo pp conversion from 2d to r phi representation
  * @author Lutz Foucar
  */
