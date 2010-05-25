@@ -221,6 +221,7 @@ int main(int argc, char **argv)
   //create a container for the partition tag
   int c;
   char partitionTag[128];
+  partitionTag[0]='\0';
   // filename containing XTC filenames
   std::string filelistname("filesToProcess.txt");
   // filename of the output filename
