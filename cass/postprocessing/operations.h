@@ -289,6 +289,11 @@ protected:
 
 
 
+
+
+
+
+
 /** Compare two histograms for less.
  *
  * \f$result = hist_{one}  < hist_{two}\f$
@@ -379,6 +384,48 @@ protected:
 
 
 
+
+
+
+
+
+  /** Check whether histogram is in range.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistOne} \n
+   *           the postprocessor name that contain the first histogram. Default
+   *           is 0.
+   * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit} \n
+   *           Upper and Lower limit of the range to check. Default is 0,0.
+   *
+   * @author Lutz Foucar
+   */
+  class pp9 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp9(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp9();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** id of first histogram */
+    PostProcessors::key_t _idOne;
+
+    /** the requested range that the histogram should be in */
+    std::pair<float,float> _range;
+
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+  };
 
 
 

@@ -575,6 +575,9 @@ void cass::pp7::operator()(const CASSEvent&)
 
 
 
+
+
+
 // *** postprocessors 8 compare two histos for equality ***
 
 cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
@@ -652,6 +655,82 @@ void cass::pp8::operator()(const CASSEvent&)
   *_result = abs(first - second) < sqrt(numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 9 check whether histogram is in range ***
+
+cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp9::~pp9()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp9::dependencies()
+{
+  PostProcessors::active_t  list;
+  list.push_front(_idOne);
+  return list;
+}
+
+void cass::pp9::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _range = make_pair(settings.value("UpperLimit",0).toFloat(),
+                     settings.value("LowerLimit",0).toFloat());
+  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+    return;
+  _pp.histograms_delete(_key);
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will check whether hist in PostProcessor "<<_idOne
+      <<" is between "<<_range.first
+      <<" and "<<_range.second
+      <<std::endl;
+}
+
+void cass::pp9::operator()(const CASSEvent&)
+{
+  using namespace std;
+  // retrieve the memory of the to be substracted histograms//
+  HistogramFloatBase *one
+      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
+  _pp.histograms_release();
+  // substract using transform with a special build function//
+  one->lock.lockForRead();
+  float value (accumulate(one->memory().begin(),
+                          one->memory().end(),
+                          0.f));
+  one->lock.unlock();
+  _result->lock.lockForWrite();
+  *_result = _range.first < value &&  value < _range.second;
+  _result->lock.unlock();
+}
+
+
+
+
+
+
 
 
 
