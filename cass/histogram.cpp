@@ -174,6 +174,31 @@ namespace cass
     }
     return hist;
   }
+
+  Histogram2DFloat Histogram2DFloat::convert2RPhi(const std::pair<size_t,size_t> &center,
+                                                  const size_t maxRadius,
+                                                  const size_t nbrAngleBins) const
+  {
+    Histogram2DFloat hist(nbrAngleBins, 0., 360.,
+                          maxRadius, 0., _axis[yAxis].hist2user(maxRadius));
+    for(size_t jr = 0;jr<maxRadius; jr++)
+    {
+      for(size_t jth = 1; jth<360; jth++)
+      {
+        const float radius(jr);
+        const float angle(2.*M_PI * float(jth) / float(360));
+        size_t col(size_t(center.first  + radius*sin(angle)));
+        size_t row(size_t(center.second + radius*cos(angle)));
+        float val = _memory[col + row * _axis[0].nbrBins()];
+        hist.fill(jth-0.5, _axis[yAxis].hist2user(jr) , val);
+      }
+    }
+    return hist;
+  }
+
+
+
+
 } // end namespace cass
 
 
