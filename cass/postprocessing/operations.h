@@ -3,6 +3,10 @@
 /** @file operations.h file contains postprocessors that will operate
  * on histograms of other postprocessors
  *
+ * @todo Compare 0D histograms for less than constant
+ * @todo Compare 0D histograms for greater than constant
+ * @todo Compare 0D histograms for equal to constant
+ * @todo Apply boolean NOT to 0D histograms
  * @todo create boolean AND and boolean OR 0d pp
  * @todo create comparison 0d pp less than constant
  * @todo create comparison 0d pp greater than constant
@@ -35,46 +39,85 @@ class HistogramFloatBase;
 
 
 
-  /** Compare two histograms for less.
-   *
-   * \f$result = hist_{one}  < hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
-   *           histogram for the less comparison. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   *
-   * @author Lutz Foucar
-   */
-  class pp7 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp7(PostProcessors& hist, const PostProcessors::key_t&);
+/** Boolean AND of two 0d pp.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+ *           the postprocessor id's that contain the first histogram and second
+ *           histogram for the boolean AND-ing. Default is 0 for both. This
+ *           will result in an exception. Since pp 0 is not implemented.
+ *
+ * @author Lutz Foucar
+ */
+class pp5 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp5(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp7();
+  /** Free _image space */
+  virtual ~pp5();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
 
-    virtual void loadSettings(size_t);
+  virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
 
-  protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
 
-    /** id of second histogram */
-    PostProcessors::key_t _idTwo;
+  /** id of second histogram */
+  PostProcessors::key_t _idTwo;
 
-    /** resulting histgram */
-    Histogram0DFloat *_result;
-  };
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
+/** Compare two histograms for less.
+ *
+ * \f$result = hist_{one}  < hist_{two}\f$
+ * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+ * respectivly
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+ *           the postprocessor id's that contain the first histogram and second
+ *           histogram for the less comparison. Default is 0 for both. This
+ *           will result in an exception. Since pp 0 is not implemented.
+ *
+ * @author Lutz Foucar
+ */
+class pp7 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp7(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp7();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** id of second histogram */
+  PostProcessors::key_t _idTwo;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
 
 
 
