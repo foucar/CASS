@@ -649,7 +649,7 @@ void cass::pp8::operator()(const CASSEvent&)
   one->lock.unlock();
   two->lock.unlock();
   _result->lock.lockForWrite();
-  *_result = (first == second);
+  *_result = abs(first - second) < sqrt(numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
 

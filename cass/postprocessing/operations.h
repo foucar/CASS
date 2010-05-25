@@ -3,12 +3,6 @@
 /** @file operations.h file contains postprocessors that will operate
  * on histograms of other postprocessors
  *
- * @todo Compare 0D histograms for equal to constant
- * @todo Apply boolean NOT to 0D histograms
- * @todo create comparison 0d pp less than constant
- * @todo create comparison 0d pp greater than constant
- * @todo create comparison 0d pp equal to constant
- * @todo create boolean NOT pp
  * @todo create is in range
  * @todo pp that histograms 0d value
  * @todo create pp that will histogram a 0d pp value
