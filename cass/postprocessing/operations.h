@@ -3,14 +3,13 @@
 /** @file operations.h file contains postprocessors that will operate
  * on histograms of other postprocessors
  *
- * @todo Compare 0D histograms for less than constant
- * @todo Compare 0D histograms for greater than constant
  * @todo Compare 0D histograms for equal to constant
  * @todo Apply boolean NOT to 0D histograms
  * @todo create comparison 0d pp less than constant
  * @todo create comparison 0d pp greater than constant
  * @todo create comparison 0d pp equal to constant
  * @todo create boolean NOT pp
+ * @todo create is in range
  * @todo pp that histograms 0d value
  * @todo create pp that will histogram a 0d pp value
  * @todo pp that averages hists
@@ -100,6 +99,52 @@ public:
 
   /** Free _image space */
   virtual ~pp2();
+
+  /** copy image from CASS event to histogram storage */
+  virtual void operator()(const CASSEvent&);
+
+  virtual void loadSettings(size_t);
+
+  /** the two histograms that the user wants to substract */
+  virtual PostProcessors::active_t dependencies();
+
+protected:
+  /** id of first histogram */
+  PostProcessors::key_t _idOne;
+
+  /** constant value to compare to */
+  float _value;
+
+  /** resulting histgram */
+  Histogram0DFloat *_result;
+};
+
+
+
+
+
+
+
+
+
+/** Compare histogram for equal to constant.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistOne} \n
+ *           the postprocessor name that contain the first histogram. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{Value} \n
+ *           Value to compare the histograms value to. Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp3 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp3(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** Free _image space */
+  virtual ~pp3();
 
   /** copy image from CASS event to histogram storage */
   virtual void operator()(const CASSEvent&);
