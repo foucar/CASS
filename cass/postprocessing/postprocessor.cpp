@@ -329,6 +329,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case MultiplyConstant:
     processor = new pp23(*this, key);
     break;
+  case SubstractConstant:
+    processor = new pp24(*this, key);
+    break;
   case TwoDProjection:
     processor = new pp50(*this, key);
     break;
