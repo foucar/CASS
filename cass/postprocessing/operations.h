@@ -3,7 +3,6 @@
 /** @file operations.h file contains postprocessors that will operate
  * on histograms of other postprocessors
  *
- * @todo create is in range
  * @todo pp that histograms 0d value
  * @todo create pp that will histogram a 0d pp value
  * @todo pp that averages hists

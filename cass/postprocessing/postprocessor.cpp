@@ -290,11 +290,32 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   PostprocessorBackend * processor(0);
   switch(ppid)
   {
+  case ConstantLess:
+    processor = new pp1(*this, key);
+    break;
+  case ConstantGreater:
+    processor = new pp2(*this, key);
+    break;
+  case ConstantEqual:
+    processor = new pp3(*this, key);
+    break;
+  case BooleanNOT:
+    processor = new pp4(*this, key);
+    break;
+  case BooleanAND:
+    processor = new pp5(*this, key);
+    break;
+  case BooleanOR:
+    processor = new pp6(*this, key);
+    break;
   case CompareForLess:
     processor = new pp7(*this, key);
     break;
   case CompareForEqual:
     processor = new pp8(*this, key);
+    break;
+  case CheckRange:
+    processor = new pp9(*this, key);
     break;
   case SubstractHistograms:
     processor = new pp20(*this, key);

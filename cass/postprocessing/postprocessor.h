@@ -342,11 +342,12 @@ using the custom doxygen tag cassttng.
       ConstantLess=1,
       ConstantGreater=2,
       ConstantEqual=3,
-      Xor=4,
+      BooleanNOT=4,
       BooleanAND=5,
       BooleanOR=6,
       CompareForLess=7,
       CompareForEqual=8,
+      CheckRange=9,
 
       SubstractHistograms=20,
       DivideHistograms=21,
