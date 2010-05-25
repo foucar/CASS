@@ -356,6 +356,9 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case HistogramAveraging:
     processor = new pp61(*this, key);
     break;
+  case HistogramSumming:
+    processor = new pp62(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;

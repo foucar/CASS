@@ -998,6 +998,9 @@ namespace cass
     /** load the settings */
     virtual void loadSettings(size_t);
 
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
   protected:
     /** alpha for the running average */
     float _alpha;
@@ -1050,6 +1053,9 @@ namespace cass
     /** load the settings */
     virtual void loadSettings(size_t);
 
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
   protected:
     /** alpha for the running average */
     float _alpha;
@@ -1062,6 +1068,50 @@ namespace cass
 
     /** averaged histogram */
     HistogramFloatBase *_average;
+  };
+
+
+
+
+
+  /** Histogram summing.
+   *
+   * Sums up histograms.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name containing the histogram that we average.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before we start averaging
+   *
+   * @author Lutz Foucar
+   */
+  class pp62 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp62(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp62();
+
+    /** average the histogram */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** summed histogram */
+    HistogramFloatBase *_sum;
   };
 
 

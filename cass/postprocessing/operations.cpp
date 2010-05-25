@@ -1498,6 +1498,14 @@ cass::pp60::~pp60()
   _hist = 0;
 }
 
+cass::PostProcessors::active_t cass::pp60::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
 void cass::pp60::loadSettings(size_t)
 {
   using namespace std;
@@ -1557,6 +1565,14 @@ cass::pp61::~pp61()
   _average = 0;
 }
 
+cass::PostProcessors::active_t cass::pp61::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
 void cass::pp61::loadSettings(size_t)
 {
   using namespace std;
@@ -1602,6 +1618,82 @@ void cass::pp61::operator()(const CASSEvent&)
               _average->memory().begin(),
               Average(scale));
     _average->lock.unlock();
+    one->lock.unlock();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 62 sums up histograms ***
+
+cass::pp62::pp62(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _sum(0)
+{
+  loadSettings(0);
+}
+
+cass::pp62::~pp62()
+{
+  _pp.histograms_delete(_key);
+  _sum = 0;
+}
+
+cass::PostProcessors::active_t cass::pp62::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
+void cass::pp62::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition))
+    return;
+  const HistogramFloatBase*one
+      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+  _pp.histograms_delete(_key);
+  _sum = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_sum);
+  std::cout<<"Postprocessor "<<_key
+      <<": sums up histograms from PostProcessor "<< _idHist
+      <<" condition on postprocessor:"<<_condition
+      <<std::endl;
+}
+
+void cass::pp62::operator()(const CASSEvent&)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    HistogramFloatBase* one
+        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+    one->lock.lockForRead();
+    _sum->lock.lockForWrite();
+    ++_sum->nbrOfFills();
+    transform(one->memory().begin(),one->memory().end(),
+              _sum->memory().begin(),
+              _sum->memory().begin(),
+              plus<float>());
+    _sum->lock.unlock();
     one->lock.unlock();
   }
 }
