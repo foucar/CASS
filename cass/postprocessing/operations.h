@@ -1,5 +1,20 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/** @file operations.h file contains postprocessors that will operate
+ * on histograms of other postprocessors
+ *
+ * @todo create boolean AND and boolean OR 0d pp
+ * @todo create comparison 0d pp less than constant
+ * @todo create comparison 0d pp greater than constant
+ * @todo create comparison 0d pp equal to constant
+ * @todo create boolean NOT pp
+ * @todo pp that histograms 0d value
+ * @todo create pp that will histogram a 0d pp value
+ * @todo pp that averages hists
+ * @todo pp conversion from 2d to r phi representation
+ * @author Lutz Foucar
+ */
+
 #ifndef _OPERATIONS_H_
 #define _OPERATIONS_H_
 
@@ -26,7 +41,7 @@ class HistogramFloatBase;
    * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
    * respectivly
    *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor id's that contain the first histogram and second
    *           histogram for the less comparison. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
@@ -73,7 +88,7 @@ class HistogramFloatBase;
    * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
    * respectivly
    *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor id's that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
@@ -128,11 +143,11 @@ class HistogramFloatBase;
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor id's that contain the first histogram and second
    *           histogram for the substraction. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/p\%id\%/{FactorOne|FactorTwo} \n
+   * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
    *           The factors that will weight the substraction. The default is 1.
    *
    * @author Lutz Foucar
@@ -188,7 +203,7 @@ class HistogramFloatBase;
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor id's that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
@@ -239,7 +254,7 @@ class HistogramFloatBase;
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistOne|HistTwo} \n
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor id's that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
@@ -284,9 +299,9 @@ class HistogramFloatBase;
 
   /** Multiply histogram with constant.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
    *           Postprocessor id with histogram that should be multiplied. Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{Factor} \n
+   * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be multiplied. Default is 1.
    *
    * @author Lutz Foucar
@@ -332,17 +347,20 @@ class HistogramFloatBase;
 
   /** Projection of 2d Histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
+   * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to project. Default is
    *           -1e6 ... 1e6
-   * @cassttng PostProcessor/p\%id\%/{Axis} \n
+   * @cassttng PostProcessor/\%name\%/{Axis} \n
    *           The axis we want to project to. Default is xAxis.
    *           Possible choises are:
    *           - 0:xAxis
    *           - 1:yAxis
+   * @cassttng PostProcessor/\%name\%/{Normalize} \n
+   *           Normalize the projection, so that maximum value is always 1.
+   *           Default is false.
    *
    * @author Lutz Foucar
    */
@@ -371,6 +389,9 @@ class HistogramFloatBase;
     /** range we want to project */
     std::pair<float,float> _range;
 
+    /** flag whether we should normalize the values */
+    bool _normalize;
+
     /** axis we want to project on */
     size_t _axis;
 
@@ -395,9 +416,9 @@ class HistogramFloatBase;
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
    *           Postprocessor id with 1D-Histogram that we create the intgral from Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{LowerBound|UpperBound} \n
+   * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
    *
    * @author Lutz Foucar
@@ -440,10 +461,10 @@ class HistogramFloatBase;
 
   /** Radial Average/Projection of 2d Histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           Xcoordinate and Y coordinate of the centre. Default is 512,512
    *
    * Implements postprocessors id's 807
@@ -495,15 +516,15 @@ class HistogramFloatBase;
 
   /** Radar Plot of 2d Histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistId} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{MinRadius|MaxRadius} \n
+   * @cassttng PostProcessor/\%name\%/{MinRadius|MaxRadius} \n
    *           Minimum and Maximum Radius to inlcude in the polar plot. Default
    *           is 0 ... 512
-   * @cassttng PostProcessor/p\%id\%/{NbrBins} \n
+   * @cassttng PostProcessor/\%name\%/{NbrBins} \n
    *           Number of Bins that the 360 degrees will be put in. Default is 360
-   * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
+   * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
    *
    * Implements postprocessors id's 808

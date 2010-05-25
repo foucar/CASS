@@ -30,6 +30,7 @@ namespace cass
 /** Axis properties for histograms.
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
+ * @todo add function that will give back list of possible rebinfactors
  * @author Lutz Foucar
  */
 class CASSSHARED_EXPORT AxisProperty : public Serializable
@@ -215,7 +216,6 @@ protected:
 
 /** base class for float histograms.
  * from this all float histograms should inherit
- * @todo check whether the wait until fill mechanism works
  * @author Lutz Foucar
  */
 class CASSSHARED_EXPORT HistogramFloatBase
@@ -353,6 +353,7 @@ public:
 
 /** 1D Histogram.
  * can be used for Graphs, ToF's etc.
+ * @todo add rebinning
  * @author Lutz Foucar
  * @author Jochen Küpper
  */
@@ -446,6 +447,7 @@ public:
 
 /** 2D Histogram.
  * can be used for detector images, i.e., pnCCD, VMI CCD, etc...
+ * @todo add rebinning
  * @author Lutz Foucar
  * @author Jochen Küpper
  */
@@ -560,7 +562,7 @@ public:
      * @param[in] center(x,y), reference to x and y center in histogram memory coordinates
      * @param[in] range reference to min and max radii in histogram memory coordinates
      * @param[in] nbrBins the number of bins that the resulting histogram has.
-     *            Range will be 0 ... 360
+     *                    Range will be 0 ... 360
      */
     Histogram1DFloat radar_plot(const std::pair<size_t,size_t> &center,
                                 const std::pair<size_t,size_t> &range,

@@ -73,22 +73,33 @@ static inline std::string QStringToStdString(QString str)
 
 
 PostProcessors::PostProcessors(std::string outputfilename)
-  :_invalidMime("invalidMimetype"),_outputfilename(outputfilename)
+  :_IdList(new IdList()),
+  _invalidMime("invalidMimetype"),
+  _outputfilename(outputfilename)
+
 {
   VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "
              <<_outputfilename
              <<std::endl);
-  // set up list of all active postprocessors/histograms
-  // and fill maps of histograms and postprocessors
-  loadSettings(0);
-  _IdList = new IdList();
+    // set up list of all active postprocessors/histograms
+    // and fill maps of histograms and postprocessors
+    /**
+     * @todo maybe delay the call to load settings, so that in load settings
+     *       one can call instance again.
+     */
+    loadSettings(0);
 }
 
 
 void PostProcessors::process(CASSEvent& event)
 {
-  /** @todo catch when postprocessor throws an exeption and delete the
-   *        postprocessor from the active list.
+  /**
+   * @todo catch when postprocessor throws an exeption and delete the
+   *       postprocessor from the active list.
+   *       - create a remove list with all postprocessors that depend on this
+   *       - go through that list and fill all pp that depend on the ones in
+   *         the list recursivly.
+   *       - remove all pp that made it on the removelist
    */
   for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
     (*(_postprocessors[*iter]))(event);
@@ -142,6 +153,7 @@ IdList* PostProcessors::getIdList()
 
 const std::string& PostProcessors::getMimeType(key_t key)
 {
+  /** @todo make sure that we do not need to block access to the histograms */
   histograms_t::iterator it = _histograms.find(key);
   if (it!=_histograms.end())
     return it->second->mimeType();
@@ -169,10 +181,17 @@ void PostProcessors::_replace(key_t key, HistogramBackend *hist)
 
 void PostProcessors::setup()
 {
-  /** @todo do not delete all pp at beginning. but rather just load the settings.
-   *        be sure that all dependencies are correct. When deleting a
-   *        postprocessor that another pp has dependencies on... make something
-   *        smart.
+  /**
+   * @todo don't delete all pp at the beginning:
+   *       - go through all active and create / load settings, find depend, sort them
+   *         - when load settings throws exception InvalidHistogram, catch it
+   *           put it to a reinitialize list.
+   *       - go through reinitialize list and call load setting for them once more
+   *         - when load settings throws an exception then remove this pp and
+   *           all pp that depend on it (like in process)
+   *       - go through active list, compare to existing pp
+   *       - when there are existing pp that are not active put them on remove list
+   *       - delete all pp on the remove list
    */
   // for the time beeing delete all existing postprocessors
   for(postprocessors_t::iterator iter = _postprocessors.begin();

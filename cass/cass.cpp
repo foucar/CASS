@@ -152,7 +152,6 @@
  *
  * @date 2009-2010
  *
- * @todo only retrieve the last ccd / waveform when requested
  * @todo describe how to use Nicolas ROI.
  * @todo create another acqiris detector, that will just measure the voltage
  *       on a given channel
@@ -160,26 +159,22 @@
  * @todo right now we cannot define a postprocessors dependency on the
  *       converter that it needs. We need to include this dependency.
  *       Maybe using cass.ini?
- * @todo create pp: cummulative average commercial ccd image with condition on
- *       tof and pos on delayline detector
  * @todo move main documentation to own file.
  * @todo next to the cass executable create a cass library so that the viewer
  *       can use the histogram part for it.
  * @todo find out how one can use xrefitem so that it will list consecutive
  *       items under one title, just like todo does.
- * @todo create pp that will convert all active pp histograms to root histo and
- *       store it in .root file.
- * @todo add possibilty in cassview to write 2d histograms as csv file
  * @todo add gui's to modify the postprocessors settings in cassviewer.
- * @todo make postprocessors is's to have pair<size_t,size_t> to be able to
- *       have userdefined number of instances of on pp
- * @todo create pp for beam energy
- * @todo create boolean AND and boolean OR 0d pp
- * @todo create boolean AND and boolean OR 0d pp
- * @todo create comparison 0d pp less than constant
- * @todo create comparison 0d pp greater than constant
- * @todo create comparison 0d pp equal to constant
- * @todo create pp that will histogram a 0d pp value
+ * @todo create getter for the serialized qsettings
+ * @todo convenvience functtions move to a file
+ * @todo discuss whether usign the helper approach will also work for the pp, to
+ *       be able to use more than 1 thread
+ * @todo create an excutable with the reivision number to have some fallback
+ * @todo maybe only pp that noone depends on should be active. when their
+ *       operator is called, then they should call the operator of their dpendenciess
+ * @todo maybe postprocessors should not have the list of all histograms. pp should
+ *       handle them => when requesting a histogram, one needs to ask the pp to give
+ *       the right one.
  * @todo create pp that will create an running average of a histogram
  * @todo create boolean xor 0d pp
  * @todo make a file with all convenience helpers
@@ -200,6 +195,7 @@
 
 
 /** The main program.
+ * @todo find out how show command line parameters in doxygen and use that here
  * @param i filename containing filesnames of xtcfiles to process
  * @param c client id for shared memory access
  * @param s TCP port of the soap server

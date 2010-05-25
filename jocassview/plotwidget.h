@@ -282,6 +282,8 @@ protected:
    *   right mouse goes back in zoom history
    *   left mouse drag on colorbar sets colorstops
    *   right mouse on colorbar cycles throug axis transformations
+   * @todo make different color sacle available
+   * @todo possibility to fix lowest and / or highest value
    * @author Stephan Kassemeyer
    */
 class spectrogramWidget : public QWidget
@@ -597,7 +599,13 @@ protected:
 
 
 
-/** 1d plot */
+/** 1d plot
+ *
+ * @todo 1d hist, log of x,y axis
+ * @todo scale overlay data, change color and thickness of overlay line
+ * @todo zoom into x axis but let y axis scale automaticlz to highes value
+ * @todo document this class
+ */
 class plotWidget : public QWidget
 {
   Q_OBJECT

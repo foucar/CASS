@@ -42,6 +42,7 @@ namespace cass
      * can call it without knowing about it.
      * @todo make sure that the detectors are protected from beeing written
      *       while they are read from
+     * @todo make acqiris helper to pp.
      * @author Lutz Foucar
      */
     class HelperAcqirisDetectors
