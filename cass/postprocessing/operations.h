@@ -3,7 +3,6 @@
 /** @file operations.h file contains postprocessors that will operate
  *                     on histograms of other postprocessors
  *
- * @todo pp conversion from 2d to r phi representation
  * @author Lutz Foucar
  */
 
