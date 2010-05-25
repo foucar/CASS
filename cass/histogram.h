@@ -323,6 +323,14 @@ public:
         : HistogramFloatBase(0, 1, 1)
     {_mime = "application/cass0Dhistogram";}
 
+    /** Create a 0d histogram with bool value */
+    explicit Histogram0DFloat(bool state)
+        : HistogramFloatBase(0, 1, 1)
+    {
+      _mime = "application/cass0Dhistogram";
+      _memory[0] = state;
+    }
+
     /** Constructor for reading a histogram from a stream */
     Histogram0DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
@@ -340,7 +348,7 @@ public:
     value_t getValue() { return _memory[0]; };
 
     /** evaluate whether value is non zero */
-    bool isTrue()
+    bool isTrue() const
     {
       return (std::abs(_memory[0]) > std::sqrt(std::numeric_limits<value_t>::epsilon()));
     }

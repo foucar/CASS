@@ -317,6 +317,12 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case CheckRange:
     processor = new pp9(*this, key);
     break;
+  case ConstantTrue:
+    processor = new pp10(*this, key);
+    break;
+  case ConstantFalse:
+    processor = new pp11(*this, key);
+    break;
   case SubstractHistograms:
     processor = new pp20(*this, key);
     break;
@@ -343,6 +349,12 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
     break;
   case AngularDistribution:
     processor = new pp53(*this, key);
+    break;
+  case ZeroDHistogramming:
+    processor = new pp60(*this, key);
+    break;
+  case HistogramAveraging:
+    processor = new pp61(*this, key);
     break;
   case SingleCcdImage:
     processor = new pp100(*this, key);

@@ -1479,6 +1479,143 @@ void cass::pp53::operator()(const CASSEvent&)
 
 
 
+
+
+
+
+
+// *** postprocessor 6 histograms 0D values ***
+
+cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _hist(0)
+{
+  loadSettings(0);
+}
+
+cass::pp60::~pp60()
+{
+  _pp.histograms_delete(_key);
+  _hist = 0;
+}
+
+void cass::pp60::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition))
+    return;
+  set1DHist(_hist,_key);
+  _pp.histograms_replace(_key,_hist);
+  std::cout<<"Postprocessor "<<_key
+      <<": histograms values from PostProcessor "<< _idHist
+      <<" condition on PostProcessor "<<_condition
+      <<std::endl;
+}
+
+void cass::pp60::operator()(const CASSEvent&)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    Histogram0DFloat* one
+        (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_idHist)));
+    one->lock.lockForRead();
+    _hist->lock.lockForWrite();
+    _hist->fill(one->getValue());
+    _hist->lock.unlock();
+    one->lock.unlock();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 61 averages histograms ***
+
+cass::pp61::pp61(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _average(0)
+{
+  loadSettings(0);
+}
+
+cass::pp61::~pp61()
+{
+  _pp.histograms_delete(_key);
+  _average = 0;
+}
+
+void cass::pp61::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition))
+    return;
+  unsigned average = settings.value("average", 1).toUInt();
+  _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
+  const HistogramFloatBase*one
+      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+  _pp.histograms_delete(_key);
+  _average = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_average);
+
+  std::cout<<"Postprocessor "<<_key
+      <<": averages histograms from PostProcessor "<< _idHist
+      <<" alpha for the averaging:"<<_alpha
+      <<" condition on postprocessor:"<<_condition
+      <<std::endl;
+}
+
+void cass::pp61::operator()(const CASSEvent&)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    HistogramFloatBase* one
+        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+    one->lock.lockForRead();
+    _average->lock.lockForWrite();
+    ++_average->nbrOfFills();
+    float scale = (1./_average->nbrOfFills() < _alpha) ?
+                  1./_average->nbrOfFills() :
+                  _alpha;
+    transform(one->memory().begin(),one->memory().end(),
+              _average->memory().begin(),
+              _average->memory().begin(),
+              Average(scale));
+    _average->lock.unlock();
+    one->lock.unlock();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 // Local Variables:
 // coding: utf-8
 // mode: C++

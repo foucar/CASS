@@ -4,9 +4,9 @@
  *                     on histograms of other postprocessors
  *
  * @todo create pp that will histogram a 0d pp value
- * @todo pp that averages hists
  * @todo pp that sums hists
  * @todo pp conversion from 2d to r phi representation
+ * @todo add constant true, constant false
  * @author Lutz Foucar
  */
 
@@ -15,19 +15,11 @@
 
 #include "backend.h"
 #include "cass_event.h"
-
-
+#include "histogram.h"
 
 
 namespace cass
 {
-  // forward declaration
-  class Histogram0DFloat;
-  class Histogram1DFloat;
-  class Histogram2DFloat;
-  class HistogramFloatBase;
-
-
 
 
   /** Compare histogram for less than constant.
@@ -427,6 +419,60 @@ namespace cass
   };
 
 
+
+
+
+
+  /** Constant true postprocessor.
+   *
+   * @author Lutz Foucar
+   */
+  class pp10 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp10(PostProcessors& pp, const PostProcessors::key_t &key)
+      :PostprocessorBackend(pp,key),
+      _constant(new Histogram0DFloat(true))
+    {}
+
+    /** delete constant */
+    virtual ~pp10() {delete _constant;_constant=0;}
+
+    /** just a stub not used here */
+    virtual void operator()(const CASSEvent&){}
+
+  protected:
+    /** resulting histgram */
+    Histogram0DFloat *_constant;
+  };
+
+
+
+
+  /** Constant false postprocessor.
+   *
+   * @author Lutz Foucar
+   */
+  class pp11 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp11(PostProcessors& pp, const PostProcessors::key_t &key)
+      :PostprocessorBackend(pp,key),
+      _constant(new Histogram0DFloat(false))
+    {}
+
+    /** delete constant */
+    virtual ~pp11() {delete _constant;_constant=0;}
+
+    /** just a stub not used here */
+    virtual void operator()(const CASSEvent&){}
+
+  protected:
+    /** resulting histgram */
+    Histogram0DFloat *_constant;
+  };
 
 
 
@@ -916,6 +962,112 @@ namespace cass
     /** resulting histgram */
     Histogram1DFloat *_projec;
   };
+
+
+
+
+
+
+
+
+  /** 0D histogramming.
+   *
+   * create a 1d histogram from 0d values
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name containing the 0D value to histogram
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before we histogram
+   *
+   * @author Lutz Foucar
+   */
+  class pp60 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp60(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp60();
+
+    /** average the histogram */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** alpha for the running average */
+    float _alpha;
+
+    /** the 0D histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** histogramed value */
+    Histogram1DFloat *_hist;
+  };
+
+
+
+
+
+
+
+
+
+
+  /** Histogram averaging.
+   *
+   * Running or cummulative average of a histogram.
+   *
+   * @cassttng PostProcessor/\%name\%/{average}\n
+   *           how many images should be averaged. When value is 0 its a cummulative
+   *           average. Default is 1.
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name containing the histogram that we average.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before we start averaging
+   *
+   * @author Lutz Foucar
+   */
+  class pp61 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp61(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp61();
+
+    /** average the histogram */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** alpha for the running average */
+    float _alpha;
+
+    /** the histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** averaged histogram */
+    HistogramFloatBase *_average;
+  };
+
+
+
+
+
 
 
 }
