@@ -33,7 +33,7 @@ public:
      */
     virtual void loadSettings(size_t)
     {
-      VBEOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
+      VERBOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
     }
 
     void loadNecessary(size_t what) {if (_reinitialize) loadSettings(what);}
