@@ -338,6 +338,12 @@ PostprocessorBackend * PostProcessors::create(const key_t &key)
   case OneDIntergral:
     processor = new pp51(*this, key);
     break;
+  case RadalProjection:
+    processor = new pp52(*this, key);
+    break;
+  case AngularDistribution:
+    processor = new pp53(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;

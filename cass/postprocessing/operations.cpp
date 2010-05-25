@@ -1393,7 +1393,7 @@ void cass::pp52::operator()(const CASSEvent&)
 
 
 
-// *** postprocessors 808 calculate the radar plot of a 2d hist given a centre
+// *** postprocessors 53 calculate the radar plot of a 2d hist given a centre
 //     and 2 radii (in case the value is too large, the maximum reasonable value is used) ***
 
 cass::pp53::pp53(PostProcessors& pp, const cass::PostProcessors::key_t &key)

@@ -357,6 +357,8 @@ using the custom doxygen tag cassttng.
 
       TwoDProjection=50,
       OneDIntergral=51,
+      RadalProjection=52,
+      AngularDistribution=53,
 
       ZeroDHistogramming=60,
       HistogramAveraging=61,
