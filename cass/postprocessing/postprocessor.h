@@ -564,6 +564,9 @@ please use doxygen style as then your documentation will be available on the web
       InvalidPP
     };
 
+    /** the key of the maps */
+    typedef id_t key_t;
+
     /** Container of all currently available histograms */
     typedef std::map<id_t, HistogramBackend*> histograms_t;
 
@@ -636,6 +639,12 @@ please use doxygen style as then your documentation will be available on the web
         throw InvalidHistogramError(type);
       }
     }
+
+    /** find all postprocessors that depend on the given on
+     * @return list of postprocessor key that depend on requested one
+     * @param[in] key key of postprocessor that we find the dependants for
+     */
+    active_t find_dependant(const key_t& key);
 
     IdList* getIdList();
     std::string& getMimeType(id_t type);

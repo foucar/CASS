@@ -82,7 +82,6 @@ PostProcessors::PostProcessors(std::string outputfilename)
     loadSettings(0);
 }
 
-
 void PostProcessors::process(CASSEvent& event)
 {
     /**
@@ -96,7 +95,6 @@ void PostProcessors::process(CASSEvent& event)
     for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
         (*(_postprocessors[*iter]))(event);
 }
-
 
 void PostProcessors::loadSettings(size_t)
 {
@@ -162,6 +160,21 @@ void PostProcessors::_replace(id_t type, HistogramBackend *hist)
     _delete(type);
     hist->setId(type);
     _histograms.insert(std::make_pair(type, hist));
+}
+
+PostProcessors::active_t PostProcessors::find_dependant(const PostProcessors::key_t &key)
+{
+    using namespace std;
+    //go trhough all pp and retrieve theier dependcies//
+    //make a list of all key that have a dependecy on the requested key
+    active_t dependandList;
+    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+    {
+      active_t dependencyList(iter->second->dependencies());
+      if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
+        dependandList.push_front(iter->first);
+    }
+    return dependandList;
 }
 
 void PostProcessors::setup()
