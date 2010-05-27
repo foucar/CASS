@@ -45,7 +45,8 @@ cass::pp4::pp4(cass::PostProcessors &pp, cass::PostProcessors::id_t id)
   case PostProcessors::ITofChannel01LastWaveform: _channel=1;_instrument=Camp2;break;
   case PostProcessors::ITofChannel02LastWaveform: _channel=2;_instrument=Camp2;break;
   case PostProcessors::ITofChannel03LastWaveform: _channel=3;_instrument=Camp2;break;
-  default: throw std::invalid_argument(QString("postprocessor %1 is not for the last waveform").arg(_id).toStdString());
+  default: throw std::invalid_argument(QString("postprocessor %1 is not for the last waveform")
+                                       .arg(_id).toStdString());
   }
   std::cout<<std::endl<< "PostProcessor_"<<_id<< " will show the last wavform of Channel "<< _channel
       <<" of Instrument "<<_instrument<<std::endl;
@@ -178,7 +179,8 @@ cass::pp500::pp500(cass::PostProcessors &ppc, cass::PostProcessors::id_t id)
   case PostProcessors::ITofChannel03AveragedWaveform:
     _channel=3;_instrument=Camp2;_idSingle=PostProcessors::ITofChannel03LastWaveform;break;
 
-  default: throw std::invalid_argument(QString("postprocessor %1 is not for averaging waveforms").arg(_id).toStdString());
+  default: throw std::invalid_argument(QString("postprocessor %1 is not for averaging waveforms")
+                                       .arg(_id).toStdString());
   }
   loadSettings(0);
 }
