@@ -5,20 +5,20 @@
 #include "machine_device.h"
 
 
-void cass::MachineData::Parameter::load()
-{
+//void cass::MachineData::Parameter::load()
+//{
 //  //sync before loading//
 //  sync();
 //  _lambda = value("UndulatorPeriod_cm",3).toDouble();
 //  _K = value("UndulatorK",3.5).toDouble();
-}
-
-void cass::MachineData::Parameter::save()
-{
+//}
+//
+//void cass::MachineData::Parameter::save()
+//{
 //  setValue("UndulatorPeriod_cm",_lambda);
 //  setValue("UndulatorK",_K);
-}
-
+//}
+//
 
 
 
