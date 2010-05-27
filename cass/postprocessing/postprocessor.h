@@ -106,7 +106,8 @@ namespace cass
 
   /** @brief container and call handler for all registered postprocessors
 
-* @todo create function that will find all pp that depend on a given pp
+* @todo maybe this class should not handle the histograms but only the pp. The
+*       histograms should be handled by the pp's.
 
 All currently registered postprocessors are listed here, specifying their id, a description, and (in
 parenthesis) the PostProcessor group they belong to (REMI, VMI, pnCCD, other) The postprocessor
