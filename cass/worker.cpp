@@ -167,7 +167,7 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
   }
   //load the settings for one worker, which will load the settings for all other
   //worker, since they are singletons//
-  _woker[0].loadSettings();
+  _worker[0].loadSettings();
 }
 
 cass::Workers::~Workers()
