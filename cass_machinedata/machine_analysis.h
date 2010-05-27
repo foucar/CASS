@@ -45,13 +45,12 @@ namespace cass
     {
     public:
       /** constructor loading the settings*/
-      Analysis()            {loadSettings();}
+      Analysis()            {}
       /** load settings from file*/
       void loadSettings()   {_param.load();}
       /** save settings to file*/
       void saveSettings()   {}
-
-      //! called for every event, does the analysis//
+      /** called for every event, does the analysis */
       void operator()(CASSEvent*);
 
     private:
