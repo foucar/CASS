@@ -173,17 +173,17 @@ PostProcessors::active_t PostProcessors::find_dependant(const PostProcessors::ke
 void PostProcessors::setup()
 {
   using namespace std;
-   /** @todo when load settings throws exception then remove this pp and all pp
-    *        that depend on it (like in process)
-    */
+  /** @todo when load settings throws exception then remove this pp and all pp
+   *        that depend on it (like in process)
+   */
   // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
   // the postprocessor correctly initialize it whenever it wants to.
   // When the PostProcessor has a dependency resolve it
-  // There can be the following cases:
-  // 1) pp is not in container and id is after dependand in active list
-  // 2) pp is not in conatiner and id is not in active list
-  // 3) pp is in container and id is before dependant on active list => GOOD!
-  // 4) pp is in container and id is after dependant on active list
+  //  There can be the following cases:
+  //  1) pp is not in container and id is after dependand in active list
+  //  2) pp is not in conatiner and id is not in active list
+  //  3) pp is in container and id is before dependant on active list => GOOD!
+  //  4) pp is in container and id is after dependant on active list
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
   active_t::iterator iter(_active.begin());
   while(iter != _active.end())
@@ -220,7 +220,7 @@ void PostProcessors::setup()
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
       {
-        //solves cases 1 - 2
+        //solves cases 2
         VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
                    <<" is not in pp container."
                    <<" Inserting it into the active list before "<<*iter
@@ -230,17 +230,17 @@ void PostProcessors::setup()
         active_t::iterator remove(find(iter, _active.end(), *d));
         if(_active.end() != remove)
         {
+          //solves cases 1
           VERBOSEOUT(cout<<"Postprocessor::setup(): our id "<<*d
                      <<" appeard after "<<*iter
                      <<" on list => remove the later entry."
                      <<endl);
           _active.erase(remove);
-
+        }
         update = true;
       }
       else
       {
-        //solves case 4
         VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
                    <<" is in the container, check if it appears after "<<*iter
                    <<" in the active list"
@@ -248,6 +248,7 @@ void PostProcessors::setup()
         active_t::iterator remove(find(iter, _active.end(), *d));
         if(_active.end() != remove)
         {
+          //solves case 4
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
                      <<" appeard after "<<*iter
                      <<" on list => put it before and remove the later entry."
@@ -268,6 +269,7 @@ void PostProcessors::setup()
     }
     ++iter;
   }
+
 
   //some of the postprocessors are have been created and are in the container
   //but might not be on the active list anymore. Check which they are. Put
@@ -301,6 +303,7 @@ void PostProcessors::setup()
     _postprocessors.erase(*it);
   }
 }
+
 
 PostprocessorBackend * PostProcessors::create(id_t id)
 {
