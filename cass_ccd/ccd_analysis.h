@@ -64,7 +64,7 @@ namespace cass
     {
     public:
       /** constructor will load the settings*/
-      Analysis()          {loadSettings();}
+      Analysis()          {/*loadSettings();*/}
       /** load the settings, lock it first*/
       void loadSettings();
       /** save the settings, lock it first*/
