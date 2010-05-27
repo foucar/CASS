@@ -184,6 +184,7 @@ void PostProcessors::setup()
   //  2) pp is not in conatiner and id is not in active list
   //  3) pp is in container and id is before dependant on active list => GOOD!
   //  4) pp is in container and id is after dependant on active list
+  //  5) pp is in container and id is not on list
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
   active_t::iterator iter(_active.begin());
   while(iter != _active.end())
@@ -224,7 +225,7 @@ void PostProcessors::setup()
         VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
                    <<" is not in pp container."
                    <<" Inserting it into the active list before "<<*iter
-                   <<"removing possible later entry in active list"
+                   <<" removing possible later entry in active list"
                    <<endl);
         _active.insert(iter, *d);
         active_t::iterator remove(find(iter, _active.end(), *d));
@@ -255,6 +256,20 @@ void PostProcessors::setup()
                      <<endl);
           _active.insert(iter,*remove);
           _active.erase(remove);
+          update = true;
+        }
+        VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
+                   <<" is in the container, check if its id is in the active list"
+                   <<endl);
+        active_t::iterator isthere(find(_active.begin(), _active.end(), *d));
+        if(_active.end() == isthere)
+        {
+          //solves case 5
+          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
+                     <<" appeard not at all in  active list "
+                     <<" => put it before "<<*iter
+                     <<endl);
+          _active.insert(iter,*d);
           update = true;
         }
       }
