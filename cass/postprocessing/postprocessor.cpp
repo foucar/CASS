@@ -179,24 +179,26 @@ void PostProcessors::setup()
   // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
   // the postprocessor correctly initialize it whenever it wants to.
   // When the PostProcessor has a dependency resolve it
+  // There can be the following cases:
+  // 1) pp is not in container and id is after dependand in active list
+  // 2) pp is not in conatiner and id is not in active list
+  // 3) pp is in container and id is before dependant on active list => GOOD!
+  // 4) pp is in container and id is after dependant on active list
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
   active_t::iterator iter(_active.begin());
   while(iter != _active.end())
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter
-               <<" is not implemented"
+    VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
+               <<" is not yet in pp container"
                <<endl);
-    // check that the postprocessor is not already implemented
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): did not find "<<*iter
-                 <<" in histogram container => creating it"
+                 <<" in pp container => creating it"
                  <<endl);
-      // create postprocessor
       _histograms[*iter] = 0;
       _postprocessors[*iter] = create(*iter);
     }
-    // otherwise just load the settings of the postprocessor
     else
     {
       VERBOSEOUT("Postprocessor::setup(): "<<*iter"
@@ -204,8 +206,6 @@ void PostProcessors::setup()
                  <<endl);
       _postprocessors[*iter]->loadSettings(0);
     }
-    //check postprocessor for dependencies; if there are any open dependencies
-    //put all of them in front of us
     VERBOSEOUT(cout<<"Postprocessor::setup(): done creating / loading "<<*iter
                <<" Now checking pp's dependecies."
                <<endl);
@@ -215,31 +215,42 @@ void PostProcessors::setup()
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
                  <<" depends on "<<*d
-                 <<" checking whether dependency pp is already there and in the
+                 <<" checking whether dependency pp is already there and his key in the
                  <<" right position"
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
       {
+        //solves cases 1 - 2
         VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
-                   <<" is not in postprocessor container"
-                   <<" inserting it into the active list before "<<*iter
+                   <<" is not in pp container."
+                   <<" Inserting it into the active list before "<<*iter
+                   <<"removing possible later entry in active list"
                    <<endl);
         _active.insert(iter, *d);
+        active_t::iterator remove(find(iter, _active.end(), *d));
+        if(_active.end() != remove)
+        {
+          VERBOSEOUT(cout<<"Postprocessor::setup(): our id "<<*d
+                     <<" appeard after "<<*iter
+                     <<" on list => remove the later entry."
+                     <<endl);
+          _active.erase(remove);
+
         update = true;
       }
-      //the requested pp is already there. If it appears after this,
-      //we need to put it in front of this item on the active list
       else
       {
-        VERBOSEOUT(cout<<"Postprocessor::setup(): check whether dependency pp "<<*d
-                   <<" is on the active list, but not at the right position"
+        //solves case 4
+        VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
+                   <<" is in the container, check if it appears after "<<*iter
+                   <<" in the active list"
                    <<endl);
         active_t::iterator remove(find(iter, _active.end(), *d));
         if(_active.end() != remove)
         {
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
-                     <<" was on list but listed after the current one"
-                     <<" => put it before and remove the later entry."
+                     <<" appeard after "<<*iter
+                     <<" on list => put it before and remove the later entry."
                      <<endl);
           _active.insert(iter,*remove);
           _active.erase(remove);
