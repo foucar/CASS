@@ -25,7 +25,7 @@
 
 
 
-void cass::MachineData::Analysis::operator()(cass::CASSEvent *cassevent)
+void cass::MachineData::Analysis::operator()(cass::CASSEvent */*cassevent*/)
 {
 
 //  //retrive refernce to the machinedevice//
