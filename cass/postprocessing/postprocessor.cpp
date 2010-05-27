@@ -73,13 +73,6 @@ PostProcessors::PostProcessors(std::string outputfilename)
   _outputfilename(outputfilename)
 {
     VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "<<_outputfilename<<std::endl);
-    // set up list of all active postprocessors/histograms
-    // and fill maps of histograms and postprocessors
-    /**
-     * @todo maybe delay the call to load settings, so that in load settings
-     *       one can call instance again.
-     */
-    loadSettings(0);
 }
 
 void PostProcessors::process(CASSEvent& event)
@@ -179,90 +172,124 @@ PostProcessors::active_t PostProcessors::find_dependant(const PostProcessors::ke
 
 void PostProcessors::setup()
 {
-    using namespace std;
-
-    /**
-     * @todo don't delete all pp at the beginning:
-     *       - go through all active and create / load settings, find depend, sort them
-     *         - when load settings throws exception InvalidHistogram, catch it
-     *           put it to a reinitialize list.
-     *       - go through reinitialize list and call load setting for them once more
-     *         - when load settings throws an exception then remove this pp and
-     *           all pp that depend on it (like in process)
-     *       - go through active list, compare to existing pp
-     *       - when there are existing pp that are not active put them on remove list
-     *       - delete all pp on the remove list
-     */
-    // for the time beeing delete all existing postprocessors
-    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-      delete iter->second;
-    _postprocessors.clear();
-
-    // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
-    // the postprocessor correctly initialize it whenever it wants to.
-    // When the PostProcessor has a dependency resolve it
-    VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
-    list<id_t>::iterator iter(_active.begin());
-    while(iter != _active.end())
+  using namespace std;
+   /** @todo when load settings throws exception then remove this pp and all pp
+    *        that depend on it (like in process)
+    */
+  // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
+  // the postprocessor correctly initialize it whenever it wants to.
+  // When the PostProcessor has a dependency resolve it
+  VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
+  active_t::iterator iter(_active.begin());
+  while(iter != _active.end())
+  {
+    VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter
+               <<" is not implemented"
+               <<endl);
+    // check that the postprocessor is not already implemented
+    if(_postprocessors.end() == _postprocessors.find(*iter))
     {
-        VERBOSEOUT(cout << "Postprocessor::setup(): check that "<<*iter<<" is not implemented"<<endl);
-        // check that the postprocessor is not already implemented
-        if(_postprocessors.end() == _postprocessors.find(*iter))
+      VERBOSEOUT(cout<<"Postprocessor::setup(): did not find "<<*iter
+                 <<" in histogram container => creating it"
+                 <<endl);
+      // create postprocessor
+      _histograms[*iter] = 0;
+      _postprocessors[*iter] = create(*iter);
+    }
+    // otherwise just load the settings of the postprocessor
+    else
+    {
+      VERBOSEOUT("Postprocessor::setup(): "<<*iter"
+                 <<" is on list. Now loading Settings for it"
+                 <<endl);
+      _postprocessors[*iter]->loadSettings(0);
+    }
+    //check postprocessor for dependencies; if there are any open dependencies
+    //put all of them in front of us
+    VERBOSEOUT(cout<<"Postprocessor::setup(): done creating / loading "<<*iter
+               <<" Now checking pp's dependecies."
+               <<endl);
+    bool update(false);
+    active_t deps(_postprocessors[*iter]->dependencies());
+    for(active_t::iterator d=deps.begin(); d!=deps.end(); ++d)
+    {
+      VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
+                 <<" depends on "<<*d
+                 <<" checking whether dependency pp is already there and in the
+                 <<" right position"
+                 <<endl);
+      if(_postprocessors.end() == _postprocessors.find(*d))
+      {
+        VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
+                   <<" is not in postprocessor container"
+                   <<" inserting it into the active list before "<<*iter
+                   <<endl);
+        _active.insert(iter, *d);
+        update = true;
+      }
+      //the requested pp is already there. If it appears after this,
+      //we need to put it in front of this item on the active list
+      else
+      {
+        VERBOSEOUT(cout<<"Postprocessor::setup(): check whether dependency pp "<<*d
+                   <<" is on the active list, but not at the right position"
+                   <<endl);
+        active_t::iterator remove(find(iter, _active.end(), *d));
+        if(_active.end() != remove)
         {
-            VERBOSEOUT(cout << "Postprocessor::setup(): did not find "<<*iter<<" in histogram container => creating it"<<endl);
-            // create postprocessor
-            _histograms[*iter] = 0;
-            _postprocessors[*iter] = create(*iter);
-            VERBOSEOUT(cout << "Postprocessor::setup(): done creating "<<*iter<<" Now checking its dependecies."<<endl);
-            // check for dependencies; if there are any open dependencies put all of them in front
-            // of us
-            bool update(false);
-            list<id_t> deps(_postprocessors[*iter]->dependencies());
-            for(list<id_t>::iterator d=deps.begin(); d!=deps.end(); ++d)
-            {
-                VERBOSEOUT(cout << "Postprocessor::setup(): "<<*iter<<" depends on "<<*d
-                           <<" checking whether dependecy is already there"<<endl);
-                if(_postprocessors.end() == _postprocessors.find(*d))
-                {
-                    VERBOSEOUT(cout << "Postprocessor::setup(): "<<*d<<" is not in postprocessor container"  <<" inserting it into the active list before "<<*iter<<endl);
-                    _active.insert(iter, *d);
-                    list<id_t>::iterator remove(find(iter, _active.end(), *d));
-                    VERBOSEOUT(cout << "Postprocessor::setup(): check whether dependency "<<*d
-                               <<" was on the active list, but not at the right position"<<endl);
-                    if(_active.end() != remove)
-                    {
-                         VERBOSEOUT(cout << "Postprocessor::setup(): dependency "<<*d <<" was on list"
-                                    <<" removing the later double entry."<<endl);
-                        _active.erase(remove);
-                    }
-                    update = true;
-                }
-            }
-            // if we have updated _active, start over again
-            if(update) {
-                // start over
-                VERBOSEOUT(cout << "Postprocessor::setup(): start over again."<<endl);
-                iter = _active.begin();
-                continue;
-            }
+          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
+                     <<" was on list but listed after the current one"
+                     <<" => put it before and remove the later entry."
+                     <<endl);
+          _active.insert(iter,*remove);
+          _active.erase(remove);
+          update = true;
         }
-        ++iter;
+      }
     }
-
-    for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+    // if we have updated _active, start over again
+    if(update)
     {
-      VERBOSEOUT(std::cout << "PostProcessor::setup(): 2nd loading: load settings of "<< iter->first<<std::endl);
-      iter->second->loadSettings(0);
+      // start over
+      VERBOSEOUT(cout<<"Postprocessor::setup(): start over again."<<endl);
+      iter = _active.begin();
+      continue;
     }
+    ++iter;
+  }
 
-#ifdef VERBOSE
-    VERBOSEOUT( cout << "active postprocessors processing order: ");
-    for(std::list<id_t>::iterator iter(_active.begin()); iter != _active.end(); ++iter)
-        VERBOSEOUT(cout << *iter << ", ");
-    VERBOSEOUT( cout << endl);
-#endif
+  //some of the postprocessors are have been created and are in the container
+  //but might not be on the active list anymore. Check which they are. Put
+  //them on a delete list and then delete them.
+  active_t eraseList;
+  for(postprocessors_t::iterator iter = _postprocessors.begin();
+      iter != _postprocessors.end();
+      ++iter)
+  {
+    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< iter->first
+               " is still on active list"
+               <<endl);
+    if(_active.end() == find(_active.begin(),_active.end(),iter->first))
+    {
+      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< iter->first
+                 " is not on active list. Put it to erase list"
+                 <<endl);
+      eraseList.push_back(iter->first);
+    }
+  }
+  //go through erase list and erase all postprocessors on that list
+  for(active_t::const_iterator it = eraseList.begin();
+      it != eraseList.end();
+      ++it)
+  {
+    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< iter->first
+               " from postprocessor container"
+               <<endl);
+    PostprocessorBackend* p = _postprocessors[*it];
+    delete p;
+    _postprocessors.erase(*it);
+  }
 }
-
 
 PostprocessorBackend * PostProcessors::create(id_t id)
 {
