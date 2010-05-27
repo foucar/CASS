@@ -206,7 +206,8 @@ void cass::pp500::loadSettings(size_t)
 void cass::pp500::operator ()(const cass::CASSEvent &)
 {
   //get the histogram with the single waveform//
-  Histogram1DFloat *singleWaveform (dynamic_cast<Histogram1DFloat *>(_pp.histograms_checkout().find(_idSingle)->second));
+  Histogram1DFloat *singleWaveform
+      (dynamic_cast<Histogram1DFloat *>(_pp.histograms_checkout().find(_idSingle)->second));
   _pp.histograms_release();
 
   //from here on only one thread should work at a time//
