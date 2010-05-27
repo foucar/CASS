@@ -201,7 +201,7 @@ void PostProcessors::setup()
     }
     else
     {
-      VERBOSEOUT("Postprocessor::setup(): "<<*iter"
+      VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
                  <<" is on list. Now loading Settings for it"
                  <<endl);
       _postprocessors[*iter]->loadSettings(0);
@@ -215,7 +215,7 @@ void PostProcessors::setup()
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
                  <<" depends on "<<*d
-                 <<" checking whether dependency pp is already there and his key in the
+                 <<" checking whether dependency pp is already there and his key in the"
                  <<" right position"
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
@@ -280,12 +280,12 @@ void PostProcessors::setup()
       ++iter)
   {
     VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< iter->first
-               " is still on active list"
+               <<" is still on active list"
                <<endl);
     if(_active.end() == find(_active.begin(),_active.end(),iter->first))
     {
       VERBOSEOUT(cout<<"PostProcessor::setup(): "<< iter->first
-                 " is not on active list. Put it to erase list"
+                 <<" is not on active list. Put it to erase list"
                  <<endl);
       eraseList.push_back(iter->first);
     }
@@ -295,8 +295,8 @@ void PostProcessors::setup()
       it != eraseList.end();
       ++it)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< iter->first
-               " from postprocessor container"
+    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *it
+               <<" from postprocessor container"
                <<endl);
     PostprocessorBackend* p = _postprocessors[*it];
     delete p;
