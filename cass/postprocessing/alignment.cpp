@@ -370,7 +370,6 @@ void cass::pp150::loadSettings(size_t)
   {
     _pp.validate(_imageId);
   } catch (InvalidHistogramError) {
-    _reinitialize = true;
     return;
   }
   HistogramBackend * hist (_pp.histograms_checkout().find(_imageId)->second);

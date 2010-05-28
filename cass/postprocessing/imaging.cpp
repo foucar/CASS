@@ -114,7 +114,6 @@ void cass::pp160::loadSettings(size_t)
   }
   catch (InvalidHistogramError)
   {
-    _reinitialize = true;
     return;
   }
 

@@ -7,7 +7,7 @@
 #include <list>
 
 #include "cass.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessor.h"
 
 namespace cass
 {
@@ -20,32 +20,24 @@ class CASSSHARED_EXPORT PostprocessorBackend
 public:
     /** constructor. */
     PostprocessorBackend(PostProcessors& pp, PostProcessors::id_t id)
-        : _id(id), _pp(pp), _reinitialize(true)
+        : _id(id), _pp(pp)
     {}
 
     virtual ~PostprocessorBackend() { }
 
     virtual void operator()(const CASSEvent&) = 0;
 
-    /** Provide default implementation of loadSettings that does nothing
-     * @todo either make this return bool, or throw an exeption when dependencies do not
-     *       exist yet.
-     */
+    /** Provide default implementation of loadSettings that does nothings */
     virtual void loadSettings(size_t)
     {
       VERBOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
     }
 
-    void loadNecessary(size_t what) {if (_reinitialize) loadSettings(what);}
-
     /** Define all postprocessors we depend on
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual std::list<PostProcessors::id_t> dependencies() { return std::list<PostProcessors::id_t>(); };
-
-    /** getter for the reinitialize flag*/
-    bool reinitialize() {return _reinitialize;}
+    virtual PostProcessors::active_t dependencies() { return PostProcessors::active_t(); }
 
 protected:
 
@@ -72,9 +64,6 @@ protected:
 
     /** reference to the PostProcessors container */
     PostProcessors& _pp;
-
-    /** flag telling whether postprocessor must still be initialized */
-    bool _reinitialize;
 };
 
 } //end namespace cass
