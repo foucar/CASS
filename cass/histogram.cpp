@@ -13,7 +13,7 @@ namespace cass
   {
     std::vector<size_t> factors;
     for (size_t i=2; i<_size;++i)
-      if(0== _size % i)
+      if(0 == _size % i)
         factors.push_back(i);
     return factors;
   }
