@@ -54,10 +54,13 @@ namespace cass
       {
         PostProcessors::histograms_t hist(_pp.histograms_checkout());
         _pp.validate(name);
+        _pp.histograms_release();
         return hist[name];
       }
       catch (InvalidHistogramError)
       {
+        std::cout << "Invalid histogram: "<<name<<std::endl;
+        _pp.histograms_release();
         return 0;
       }
     }
