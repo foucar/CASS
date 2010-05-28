@@ -272,6 +272,7 @@ using the custom doxygen tag cassttng.
 
       InvalidPP
     };
+
     /** type of postproccessor accessor key */
     typedef std::string key_t;
 
