@@ -30,7 +30,6 @@ namespace cass
 /** Axis properties for histograms.
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
- * @todo add function that will give back list of possible rebinfactors
  * @author Lutz Foucar
  */
 class CASSSHARED_EXPORT AxisProperty : public Serializable
@@ -72,7 +71,7 @@ public:
      */
     bool deserialize(SerializerBackend& in);
 
-    /*! @return size (nuber of bins) of axis */
+    /** @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
 
     /** Convenience function.
@@ -81,16 +80,16 @@ public:
      */
     size_t nbrBins() const {return size();}
 
-    /*! Lower limit of axis */
+    /** Lower limit of axis */
     float lowerLimit() const {return _low;};
 
-    /*! Upper limit of axis */
+    /** Upper limit of axis */
     float upperLimit() const {return _up;}
 
-    /*! bin-index for position x */
+    /** bin-index for position x */
     size_t bin(float x)const;
 
-    /*! position for bin-index idx */
+    /** position for bin-index idx */
     float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
 
     /** convert user distance to distance in histogram memory coordinates*/
@@ -98,6 +97,9 @@ public:
 
     /** convert distance in histogram memory coordinates to user distance */
     float hist2user(size_t hist)const {return hist*(_up-_low)/_size;}
+
+    /** get the possible rebinfactors for this nbr of bins */
+    std::vector<size_t> rebinfactors()const;
 
 protected:
     size_t _size; //!< the number of bins in this axis

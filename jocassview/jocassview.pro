@@ -18,8 +18,12 @@ SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += soapCASSsoapProxy
-QMAKE_EXTRA_TARGETS+= SOAPFiles
+versiontarget.target = ./update-version.sh
+versiontarget.commands = ./update-version.sh
+versiontarget.depends = FORCE
+
+PRE_TARGETDEPS     += update-version.sh soapCASSsoapProxy
+QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles
 
 
 
@@ -44,7 +48,7 @@ FORMS         += imageviewer.ui
 
 INCLUDEPATH   += $$PWD/.. \
                  $$PWD/../cass \
-                 $$(QWTINCDIR)
+                 $$QWTINCDIR
 
 LIBS          += -lgsoap++ -lgsoap \
                  -L../cass_acqiris -lcass_acqiris \
@@ -62,7 +66,8 @@ INSTALLS      += bin
 
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
-
+# TODO: THIS IS NOT CROSS-PLATFORM!!
+QMAKE_POST_LINK = sh backup_copy.sh
 
 
 ## Local Variables:

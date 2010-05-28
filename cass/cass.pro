@@ -93,8 +93,12 @@ SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-PRE_TARGETDEPS     += CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
-QMAKE_EXTRA_TARGETS+= SOAPFiles lclslibs #lclsapps <this is completely useless the makefile for lclsapps==lclslibs!!!
+versiontarget.target = ./update-version.sh
+versiontarget.commands = ./update-version.sh
+versiontarget.depends = FORCE
+
+PRE_TARGETDEPS     += update-version.sh CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
+QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles lclslibs #lclsapps <this is completely useless the makefile for lclsapps==lclslibs!!!
 
 # our own stuff
 SOURCES +=  analyzer.cpp \
@@ -206,7 +210,8 @@ headers.files  = $$HEADERS
 
 INSTALLS      += headers bin
 
-
+# TODO: THIS IS NOT CROSS-PLATFORM!!
+QMAKE_POST_LINK = sh backup_copy.sh
 
 
 ## Local Variables:
