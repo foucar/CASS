@@ -59,6 +59,7 @@ namespace cass
 
   Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
   {
+    /** @todo make new function with nicolas version, which is marked out*/
 //    size_t NbrBins=static_cast<size_t>(ceil(maxRadius));
 //    const float NbrBins2=pow(NbrBins,2);
 //    Histogram1DFloat hist(NbrBins, 0., maxRadius);
@@ -113,6 +114,7 @@ namespace cass
                                                 const std::pair<size_t,size_t> &range,
                                                 size_t nbrBins) const
   {
+    /** @todo make new function with nicolas version, which is marked out*/
 //    size_t NbrBins=720;
 //    const float NbrBins2_min=pow(range.first,2);
 //    const float NbrBins2_max=pow(range.second,2);
