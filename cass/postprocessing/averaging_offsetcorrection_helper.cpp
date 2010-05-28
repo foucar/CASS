@@ -20,7 +20,7 @@ cass::HelperAveragingOffsetCorrection* cass::HelperAveragingOffsetCorrection::in
   if (0 == _instances[key])
   {
     VERBOSEOUT(std::cout << "creating an instance of the Averaging correction Helper for postprocessor "
-               <<id
+               <<key
                <<std::endl);
     _instances[key] = new HelperAveragingOffsetCorrection();
   }
