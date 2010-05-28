@@ -47,13 +47,22 @@ namespace cass
     pp.histograms_checkout();
     try
     {
+      VERBOSEOUT(std::cout<<"retrive_and_validate(): Check whether "<<dependid
+                 <<" is a valid histogram"
+                 <<std::endl);
       pp.validate(dependid);
     }
     catch (InvalidHistogramError&)
     {
+      VERBOSEOUT(std::cout<<"retrive_and_validate(): "<<dependid
+                 <<" is NOT a valid histogram"
+                 <<std::endl);
       pp.histograms_release();
       return false;
     }
+    VERBOSEOUT(std::cout<<"retrive_and_validate(): "<<dependid
+               <<" is a valid histogram"
+               <<std::endl);
     pp.histograms_release();
     return true;
   }

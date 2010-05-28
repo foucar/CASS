@@ -339,6 +339,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
+  VERBOSEOUT(std::cout<<"PostProcessor::create(): Create PP with ID="<<ppid<<std::endl);
   PostprocessorBackend * processor(0);
   switch(ppid)
   {
