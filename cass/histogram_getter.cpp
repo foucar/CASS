@@ -6,7 +6,6 @@
 #include "histogram.h"
 #include "histogram_getter.h"
 #include "serializer.h"
-#include "postprocessing/postprocessor.h"
 
 
 using namespace cass;
@@ -15,9 +14,8 @@ using namespace cass;
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
     // check out histograms storage map
-    PostProcessors *pp(PostProcessors::instance(""));
-    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
-    pp->validate(hp.type);
+    const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
+    _postprocessors->validate(hp.type);
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
     // get dimension
     size_t dim(iter->second->dimension());
@@ -25,7 +23,7 @@ const std::pair<size_t, std::string> HistogramGetter::operator()(const Histogram
     Serializer serializer;
     iter->second->serialize(serializer);
     // release and return
-    pp->histograms_release();
+    _postprocessors->histograms_release();
     return make_pair(dim, serializer.buffer());
 }
 
@@ -33,37 +31,35 @@ const std::pair<size_t, std::string> HistogramGetter::operator()(const Histogram
 QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 {
     // check out histograms storage map
-    PostProcessors *pp(PostProcessors::instance(""));
-    const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+    const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
     // make sure the requested histogram is valid
-    pp->validate(hp.type);
+    _postprocessors->validate(hp.type);
     // create the image
     PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
     //check wether requested histgogram is truly a 2d histogram//
     if (iter->second->dimension() != 2) {
-      pp->histograms_release();
+      _postprocessors->histograms_release();
       throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.type).toStdString());
     }
     // create the QImage, release, return
     QImage qi(reinterpret_cast<Histogram2DFloat *>(iter->second)->qimage());
-    pp->histograms_release();
+    _postprocessors->histograms_release();
     return qi;
 }
 
 
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {
-  // check out histograms storage map//
-  PostProcessors *pp(PostProcessors::instance(""));
-  const PostProcessors::histograms_t& hist(pp->histograms_checkout());
+  // check out histograms storage map
+  const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
   // make sure the requested histogram is valid//
-  pp->validate(hp.type);
+  _postprocessors->validate(hp.type);
   // retrieve iterator pointing to histogram//
   PostProcessors::histograms_t::const_iterator iter(hist.find(hp.type));
   // clear the histogram//
   iter->second->clear();
   // make sure that the histogram is accessable from others again//
-  pp->histograms_release();
+  _postprocessors->histograms_release();
 }
 
 
