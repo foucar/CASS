@@ -1,4 +1,5 @@
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2010 Lutz Foucar
 
 #include <algorithm>
 #include <cmath>
@@ -8,6 +9,15 @@
 
 namespace cass
 {
+  std::vector<size_t> AxisProperty::rebinfactors()const
+  {
+    std::vector<size_t> factors;
+    for (size_t i=2; i<_size;++i)
+      if(0== _size % i)
+        factors.push_back(i);
+    return factors;
+  }
+
   void HistogramFloatBase::operator=(const HistogramFloatBase& rhs)
   {
     _axis = rhs._axis;
