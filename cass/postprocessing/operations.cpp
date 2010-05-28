@@ -1707,8 +1707,8 @@ void cass::pp61::operator()(const CASSEvent&)
     _average->lock.lockForWrite();
     ++_average->nbrOfFills();
     float scale = (1./_average->nbrOfFills() < _alpha) ?
-                  1./_average->nbrOfFills() :
-                  _alpha;
+                   _alpha :
+                   1./_average->nbrOfFills();
     transform(one->memory().begin(),one->memory().end(),
               _average->memory().begin(),
               _average->memory().begin(),
