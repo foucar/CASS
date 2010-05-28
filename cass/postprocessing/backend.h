@@ -12,26 +12,23 @@
 
 namespace cass
 {
-//forward declaration
-class CASSEvent;
+  //forward declaration
+  class CASSEvent;
 
-/** @brief base class for postprocessors */
-class CASSSHARED_EXPORT PostprocessorBackend
-{
-public:
+  /** @brief base class for postprocessors */
+  class CASSSHARED_EXPORT PostprocessorBackend
+  {
+  public:
     /** constructor. */
-  PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
-    : _key(key), _pp(pp)
-  {}
+    PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
+      : _key(key), _pp(pp)
+    {}
 
     virtual ~PostprocessorBackend() { }
 
     virtual void operator()(const CASSEvent&) = 0;
 
-    /** Provide default implementation of loadSettings that does nothing
-     * @todo either make this return bool, or throw an exeption when dependencies do not
-     *       exist yet.
-     */
+    /** Provide default implementation of loadSettings that does nothings */
     virtual void loadSettings(size_t)
     {
       VERBOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
@@ -41,9 +38,9 @@ public:
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual PostProcessors::active_t dependencies() { return PostProcessors::active_t(); };
+    virtual PostProcessors::active_t dependencies() { return PostProcessors::active_t(); }
 
-protected:
+  protected:
     /** @return histogram of the actual postprocessor we call this for */
     virtual HistogramBackend *histogram_checkout() { return histogram_checkout(_key); }
 
@@ -53,27 +50,27 @@ protected:
      */
     virtual HistogramBackend *histogram_checkout(std::string name)
     {
-        try
-        {
-            PostProcessors::histograms_t hist(_pp.histograms_checkout());
-            _pp.validate(name);
-            return hist[name];
-        }
-        catch (InvalidHistogramError)
-        {
-            return 0;
-        }
-    };
+      try
+      {
+        PostProcessors::histograms_t hist(_pp.histograms_checkout());
+        _pp.validate(name);
+        return hist[name];
+      }
+      catch (InvalidHistogramError)
+      {
+        return 0;
+      }
+    }
 
     /** release the histogram container readwritelock */
-    void histogram_release() { _pp.histograms_release(); };
+    void histogram_release() { _pp.histograms_release(); }
 
     /** the postprocessors key */
     PostProcessors::key_t _key;
 
     /** reference to the PostProcessors container */
     PostProcessors& _pp;
-};
+  };
 
 } //end namespace cass
 
