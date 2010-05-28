@@ -1,4 +1,4 @@
-mkdir cass_backup
+mkdir -p cass_backup
 
 ver=`cat cass_version.h | grep MY_BUILD_NUMBER`
 ver=${ver:24}

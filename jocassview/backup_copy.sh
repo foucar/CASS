@@ -1,4 +1,4 @@
-mkdir jocassview_backup
+mkdir -p jocassview_backup
 
 ver=`cat jocassview_version.h | grep MY_BUILD_NUMBER`
 ver=${ver:24}
