@@ -69,6 +69,7 @@ void pp1::operator()(const cass::CASSEvent& event)
 {
     //check whether detector exists
     // std::cout<<"BLA"<< event.devices().find(_device)->second->detectors()->size() << " "<< _detector <<std::endl;
+    return;
     if (event.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3").arg(_id).arg(_detector).arg(_device).toStdString());
 
@@ -533,7 +534,7 @@ void cass::pp116::loadSettings(size_t)
   param.beginGroup(QString("p") + QString::number(_id));
   //load the condition on the third component//
   adu2eV = param.value("adu2eV",5.).toDouble();
-  if(adu2eV<=0.) adu2eV=1.;
+  if(adu2eV<=0.) adu2eV=5.;
   //create the histogram
   _pp.histograms_delete(_id);
   _hist=0;
@@ -542,11 +543,11 @@ void cass::pp116::loadSettings(size_t)
     std::cerr << "Creating 1D histogram with"
               <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
               <<" XLow:"<<param.value("XLow",0).toFloat()
-              <<" XUp:"<<16384./param.value("adu2eV",0).toFloat()
+              <<" XUp:"<<16384./param.value("adu2eV",5).toFloat()
               <<std::endl;
     _hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                        param.value("XLow",0).toFloat(),
-                                       16384./param.value("adu2eV",0).toFloat());
+                                       16384./param.value("adu2eV",5).toFloat());
   }
   else  set1DHist(_hist,_id);
   _pp.histograms_replace(_id,_hist);
