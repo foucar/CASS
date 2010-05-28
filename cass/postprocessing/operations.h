@@ -430,10 +430,12 @@ namespace cass
     pp10(PostProcessors& pp, const PostProcessors::key_t &key)
       :PostprocessorBackend(pp,key),
       _constant(new Histogram0DFloat(true))
-    {}
+    {
+      _pp.histograms_replace(_key,_constant);
+    }
 
     /** delete constant */
-    virtual ~pp10() {delete _constant;_constant=0;}
+    virtual ~pp10() {_pp.histograms_delete(_key);_constant=0;}
 
     /** just a stub not used here */
     virtual void operator()(const CASSEvent&){}
@@ -457,10 +459,12 @@ namespace cass
     pp11(PostProcessors& pp, const PostProcessors::key_t &key)
       :PostprocessorBackend(pp,key),
       _constant(new Histogram0DFloat(false))
-    {}
+    {
+      _pp.histograms_replace(_key,_constant);
+    }
 
     /** delete constant */
-    virtual ~pp11() {delete _constant;_constant=0;}
+    virtual ~pp11() {_pp.histograms_delete(_key);_constant=0;}
 
     /** just a stub not used here */
     virtual void operator()(const CASSEvent&){}
