@@ -199,17 +199,15 @@ void cass::pp141::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
+  _pp.histograms_delete(_key);
+  _image=0;
+  set2DHist(_image,_key);
+  _pp.histograms_replace(_key,_image);
 
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd image of detector "<<_detector
       <<" in device "<<_device
       <<std::endl;
-
-  //create the histogram
-  _pp.histograms_delete(_key);
-  _image=0;
-  set2DHist(_image,_key);
-  _pp.histograms_replace(_key,_image);
 }
 
 void cass::pp141::operator()(const CASSEvent& evt)
