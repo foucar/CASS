@@ -485,7 +485,7 @@ class HistogramFloatBase;
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
+    /** the histogram that the user wants to use */
     virtual std::list<PostProcessors::id_t> dependencies();
 
   protected:
@@ -518,10 +518,10 @@ class HistogramFloatBase;
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/p\%id\%/{MinRadius|MaxRadius} \n
-   *           Minimum and Maximum Radius to inlcude in the polar plot. Default
+   *           Minimum and Maximum Radius to include in the polar plot. Default
    *           is 0 ... 512
    * @cassttng PostProcessor/p\%id\%/{NbrBins} \n
-   *           Number of Bins that the 360 degrees will be put in. Default is 360
+   *           Number of Bins where the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/p\%id\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
    *
@@ -545,7 +545,7 @@ class HistogramFloatBase;
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
+    /** the histogram that the user want to use */
     virtual std::list<PostProcessors::id_t> dependencies();
 
   protected:
