@@ -34,6 +34,9 @@ CONFIG      += staticlib
 # Uncomment the following line to enable ROOT Conversion of cass histograms
 #CONFIG      += cernroot
 
+# Uncomment the following line and set the path to your QWT header files,
+# if they are not found directly under /usr/include.
+#QWTINCDIR=/usr/include/qwt
 
 SUFFIX_STR =
 
