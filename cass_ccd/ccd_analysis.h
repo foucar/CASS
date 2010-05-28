@@ -1,6 +1,4 @@
-/*
- *  Created by Lutz Foucar on 23.02.2010
- */
+//Copyright (C) 2010 Lutz Foucar
 
 #ifndef _CCD_ANALYSIS_H_
 #define _CCD_ANALYSIS_H_
@@ -30,10 +28,11 @@ namespace cass
   class CASSEvent;
   namespace CCD
   {
-    /*! Parameters of the commercial ccd analysis
-
-      @author Lutz Foucar, Nicola Coppola
-    */
+    /** Parameters of the commercial ccd analysis
+     *
+     * @author Lutz Foucar
+     * @author Nicola Coppola
+     */
     class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
     {
     public:
@@ -45,27 +44,27 @@ namespace cass
       void load();
       /** save the parameters to cass.ini*/
       void save();
-      // I will have to introduce something on this line
+      // I (Nicola) will have to introduce something on this line
       //void loadDetectorParameter(size_t DetectorIndex);
 
     public:
       uint16_t   _threshold;                 //!< the threshold above which pixels are identified
       uint32_t   _rebinfactor;               //!< the rebinning factor by which the image gets rebinned
-      bool       _This_is_a_dark_run;        //flag to set the dark/not-dark run condition
+      bool       _This_is_a_dark_run;        //!< flag to set the dark/not-dark run condition
       cass::detROI_ _detROI;
       cass::ROI::ROImask_t _ROImask;         //!< The ROI mask
       cass::ROI::ROIiterator_t _ROIiterator; //!< The ROI iterators
     };
 
-    /*! Analysis of the commercial CCD.
-      Analyses the vmi image and calculates parameters
-      @author Lutz Foucar
-    */
+    /** Analysis of the commercial CCD.
+     * Analyses the vmi image and calculates parameters
+     * @author Lutz Foucar
+     */
     class CASS_CCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
       /** constructor will load the settings*/
-      Analysis()          {loadSettings();}
+      Analysis()          {/*loadSettings();*/}
       /** load the settings, lock it first*/
       void loadSettings();
       /** save the settings, lock it first*/

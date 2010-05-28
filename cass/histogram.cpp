@@ -66,37 +66,37 @@ namespace cass
 
   Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
   {
-    //    size_t NbrBins=static_cast<size_t>(ceil(radius));
-    //    const float NbrBins2=pow(NbrBins,2);
-    //    Histogram1DFloat hist(NbrBins, 0., radius);
-    //    Histogram1DFloat norms(NbrBins, 0., radius);
-    //
-    //    const int32_t xc(static_cast<int32_t>(centre.first));
-    //    const int32_t yc(static_cast<int32_t>(centre.second));
-    //
-    //    const int32_t row_min(static_cast<int32_t>(yc-radius));
-    //    const int32_t row_max(static_cast<int32_t>(yc+radius));
-    //
-    //    const int32_t col_min(static_cast<int32_t>(xc-radius));
-    //    const int32_t col_max(static_cast<int32_t>(xc+radius));
-    //
-    //    //here the following are safe as the radius has been safely reduced
-    //    for(int32_t row=row_min; row<row_max; ++row)
-    //      for(int32_t col=col_min; col<col_max; ++col)
-    //      {
-    //        float iradius2= square(row-yc)+square(col-xc);
-    //        //only if inside the radius add the bin-values
-    //        if(iradius2<=NbrBins2)
-    //        {
-    //          hist.bin( static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) += bin(row, col);
-    //          norms.bin(static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) +=1.;
-    //        }
-    //      }
-    //    //and now normalise the output histogram
-    //    for(size_t ibin=0; ibin<NbrBins; ibin++)
-    //      if(norms.bin(ibin)>0)
-    //        hist.bin(ibin)=hist.bin(ibin)/norms.bin(ibin);
-    //    return hist;
+//    size_t NbrBins=static_cast<size_t>(ceil(maxRadius));
+//    const float NbrBins2=pow(NbrBins,2);
+//    Histogram1DFloat hist(NbrBins, 0., maxRadius);
+//    Histogram1DFloat norms(NbrBins, 0., maxRadius);
+//
+//    const int32_t xc(static_cast<int32_t>(center.first));
+//    const int32_t yc(static_cast<int32_t>(center.second));
+//
+//    const int32_t row_min(static_cast<int32_t>(yc-maxRadius));
+//    const int32_t row_max(static_cast<int32_t>(yc+maxRadius));
+//
+//    const int32_t col_min(static_cast<int32_t>(xc-maxRadius));
+//    const int32_t col_max(static_cast<int32_t>(xc+maxRadius));
+//
+//    //here the following are safe as the radius has been safely reduced
+//    for(int32_t row=row_min; row<row_max; ++row)
+//      for(int32_t col=col_min; col<col_max; ++col)
+//      {
+//        float iradius2= square(row-yc)+square(col-xc);
+//        //only if inside the radius add the bin-values
+//        if(iradius2<=NbrBins2)
+//        {
+//          hist.bin( static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) += bin(row, col);
+//          norms.bin(static_cast<int32_t>( floor(std::sqrt(iradius2)) ) ) +=1.;
+//        }
+//      }
+//    //and now normalise the output histogram
+//    for(size_t ibin=0; ibin<NbrBins; ibin++)
+//      if(norms.bin(ibin)>0)
+//        hist.bin(ibin)=hist.bin(ibin)/norms.bin(ibin);
+//    return hist;
 
     Histogram1DFloat hist(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
     for(size_t jr = 0;jr<maxRadius; jr++)
@@ -191,6 +191,8 @@ namespace cass
     }
     return hist;
   }
+
+
 
   Histogram2DFloat Histogram2DFloat::convert2RPhi(const std::pair<size_t,size_t> &center,
                                                   const size_t maxRadius,

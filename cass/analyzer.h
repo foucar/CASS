@@ -45,7 +45,6 @@ namespace cass
     /** function to use the analyzers for the different instruments*/
     void processEvent(cass::CASSEvent*);
 
-    //slots called by the gui//
   public slots:
     /** save the settings of the analyzers*/
     void saveSettings();

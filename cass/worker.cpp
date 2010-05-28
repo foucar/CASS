@@ -165,6 +165,9 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
     _workers[i] = new cass::Worker(ringbuffer,outputfilename);
     connect(_workers[i],SIGNAL(processedEvent()),this,SIGNAL(processedEvent()));
   }
+  //load the settings for one worker, which will load the settings for all other
+  //worker, since they are singletons//
+  _workers[0]->loadSettings(0);
 }
 
 cass::Workers::~Workers()

@@ -137,8 +137,13 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
   if (datagram->xtc.sizeofPayload() > static_cast<int>(cass::DatagramBufferSize))
+  {
     std::cout << "datagram size is bigger than the maximum buffer size of "
-        <<cass::DatagramBufferSize/1024/1024<<" MB. Something is wrong"<<std::endl;
+        <<cass::DatagramBufferSize/1024/1024
+        <<" MB. Something is wrong. Skipping the datagram"
+        <<std::endl;
+    return _quit;
+  }
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
   //now convert the datagram to a cassevent//

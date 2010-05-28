@@ -215,7 +215,7 @@ void cass::pnCCD::Parameter::save()
 cass::pnCCD::Analysis::Analysis()
 {
   //load the settings//
-  loadSettings();
+//  loadSettings();
 }
 
 //------------------------------------------------------------------------------
