@@ -25,7 +25,7 @@ void cass::set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
-  param.beginGroup("PostProcessor/active");
+  param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
   std::cerr << "Creating 1D histogram with"
@@ -42,7 +42,7 @@ void cass::set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
-  param.beginGroup("PostProcessor/active");
+  param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
   std::cerr << "Creating 2D histogram with"

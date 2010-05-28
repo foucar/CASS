@@ -31,7 +31,7 @@ void cass::pp110::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
   _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());

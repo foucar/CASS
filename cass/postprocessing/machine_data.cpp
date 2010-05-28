@@ -25,7 +25,7 @@ cass::pp120::~pp120()
 void cass::pp120::loadSettings(size_t)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
 
@@ -83,7 +83,7 @@ cass::pp130::~pp130()
 void cass::pp130::loadSettings(size_t)
 {
   QSettings settings;
-  settings.beginGroup("PostProcessor/active");
+  settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
   //create the resulting histogram from the first histogram

@@ -17,14 +17,14 @@ namespace cass
    *
    * Class to show the last wavefrom of a channel.
    *
-   * @cassttng PostProcessor/active/\%name\%/{InstrumentId} \n
+   * @cassttng PostProcessor/\%name\%/{InstrumentId} \n
    *           The instrument id of the acqiris instrument that contains the
    *           channel. Default is 8. Options are:
    *           - 8: Camp Acqiris
    *           - 4: AMO ITof Acqiris
    *           - 2: AMO GD Acqiris
    *           - 5: AMO Mbes Acqiris
-   * @cassttng PostProcessor/active/\%name\%/{ChannelNbr} \n
+   * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
    *           The channel number of the acqiris instrument. Default is 0.
    *
    * @todo adjust the name to the id that it will have
