@@ -60,7 +60,7 @@ protected:
     void histogram_release() { _pp.histograms_release(); };
 
     /** the postprocessors id (see post_processor.h for an list of ids)*/
-    PostProcessors::id_t _id;
+    PostProcessors::key_t _id;
 
     /** reference to the PostProcessors container */
     PostProcessors& _pp;
