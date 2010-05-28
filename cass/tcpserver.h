@@ -22,6 +22,9 @@ namespace cass
 
 /*! Handle a single SOAP request
 
+ @todo setup soap, such that while compiling there are not warnings anymore:
+       soapC.cpp:457: warning: dereferencing type-punned pointer will break strict-aliasing rules
+       soapC.cpp:1093: warning: unused parameter 'tt'
 @author Jochen Küpper
 */
 class SoapHandler : public QRunnable
