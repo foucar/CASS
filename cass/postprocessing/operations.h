@@ -1179,6 +1179,60 @@ namespace cass
 
 
 
+  /** time average of 0d Histogram.
+   *
+   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   *           Postprocessor id with 0D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/p\%id\%/{MinTime|MaxTime} \n
+   *           Minimum and Maximum Time to plot in the histogram. Default
+   *           is 0 ... 500
+   * @cassttng PostProcessor/p\%id\%/{NbrSamples} \n
+   *           Number of values that are used per second to calculate the average. 
+   *           Default is 10
+   *
+   * Implements postprocessors id's 63
+   *
+   * @author Nicola Coppola
+   */
+  class pp63 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp63(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp63();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** range of time that we use for the angular distribution */
+    std::pair<size_t,size_t> _timerange;
+
+    /** the number of bins in the resulting histogram, range is fixed */
+    size_t _nbrSamples;
+
+    /** resulting time average histgram */
+    HistogramFloatBase *_time_avg;
+
+  protected:
+  };
+
+
 
 }
 

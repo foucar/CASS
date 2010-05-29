@@ -1798,7 +1798,85 @@ void cass::pp62::operator()(const CASSEvent&)
 
 
 
+// *** postprocessors 63 calculate the time average of a 0d hist given the number
+//     of samples that are going to be used in the calculation ***
 
+cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _time_avg(0)
+{
+  loadSettings(0);
+}
+
+cass::pp63::~pp63()
+{
+  _pp.histograms_delete(_key);
+  _time_avg = 0;
+}
+
+cass::PostProcessors::active_t cass::pp63::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
+void cass::pp63::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+    return;
+  if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition))
+    return;
+  const HistogramFloatBase*one
+      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+  _pp.histograms_delete(_key);
+
+
+  const size_t center_x_user (settings.value("XCenter",512).toUInt());
+  const size_t center_y_user (settings.value("YCenter",512).toUInt());
+  _timerange = make_pair(center_x_user,center_y_user);
+  _time_avg = new HistogramFloatBase(*one); //(_timerange.second,0,_timerange.second);
+  _pp.histograms_replace(_key,_time_avg);
+  std::cout << "PostProcessor "<<_key
+      <<" will calculate the time average of histogram of PostProcessor_"<<_idHist
+      <<" with xcenter "<<settings.value("XCenter",512).toUInt()
+      <<" ycenter "<<settings.value("YCenter",512).toUInt()
+      <<" in histogram  "<<_timerange.first
+      <<" ycenter "<<_timerange.second
+      <<std::endl;
+}
+
+void cass::pp63::operator()(const CASSEvent&)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    HistogramFloatBase* one
+        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+    //retrieve the projection from the 2d hist//
+    one->lock.lockForRead();
+    _time_avg->lock.lockForWrite();
+
+    ++_time_avg->nbrOfFills();
+    float scale = (1./_time_avg->nbrOfFills() < _nbrSamples) ?
+                   _nbrSamples :
+                   1./_time_avg->nbrOfFills();
+    transform(one->memory().begin(),one->memory().end(),
+              _time_avg->memory().begin(),
+              _time_avg->memory().begin(),
+              Average(scale));
+
+    //    *_time_avg = one->radial_project(_timerange,_nbrSamples);
+    _time_avg->lock.unlock();
+    one->lock.unlock();
+  }
+}
 
 
 
