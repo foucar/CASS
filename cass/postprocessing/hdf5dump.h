@@ -3,35 +3,33 @@
 #ifndef _HDF5_POSTPROCESSOR_H_
 #define _HDF5_POSTPROCESSOR_H_
 
-#include "postprocessing/backend.h"
+#include "backend.h"
+#include "postprocessor.h"
 #include "cass_event.h"
 #include "cass_acqiris.h"
 
 namespace cass
 {
+  /** HDF5 Dump
+   *
+   * This postprocessor will dump the pnCCD images and other relevant
+   * data to an HDF5 file.  One HDF5 file will be created for each
+   * event.
+   *
+   * @author Thomas White
+   */
+  class pp1000 : public PostprocessorBackend
+  {
+  public:
+      /** constructor.*/
+      pp1000(PostProcessors&, const PostProcessors::key_t&);
 
-/** HDF5 Dump
- *
- * This postprocessor will dump the pnCCD images and other relevant
- * data to an HDF5 file.  One HDF5 file will be created for each
- * event.
- *
- * @author Thomas White
- */
-class pp1001 : public PostprocessorBackend
-{
-public:
-    /** constructor.*/
-    pp1001(PostProcessors&, PostProcessors::id_t);
+      /** destructor */
+      virtual ~pp1000(){}
 
-    /** destructor */
-    virtual ~pp1001();
-
-    /** copy image from CASS event to HDF5 */
-    virtual void operator()(const CASSEvent&);
-
-};
-
+      /** copy image from CASS event to HDF5 */
+      virtual void operator()(const CASSEvent&);
+  };
 }
 
 #endif

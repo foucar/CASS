@@ -237,7 +237,7 @@ void cass::Workers::saveSettings()
       <<std::endl);
 }
 
-void cass::Workers::clearHistogram(size_t id)
+void cass::Workers::clearHistogram(PostProcessors::key_t key)
 {
   //make sure there is at least one worker//
   if(_workers.empty())
@@ -256,7 +256,7 @@ void cass::Workers::clearHistogram(size_t id)
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
-  _workers[0]->clear(id);
+  _workers[0]->clear(key);
   //resume the workers tasks//
   VERBOSEOUT(std::cout << "Workers: Clear: Done Loading. Now resume all workers"
       <<std::endl);

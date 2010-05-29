@@ -59,7 +59,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
 
-      DEBUGOUT(std::cout << "pnCCD::Converter frame debug " << detectorId << " "<< cassevent->id() << std::endl);
+      //DEBUGOUT(std::cout << "pnCCD::Converter frame debug " << detectorId << " "<< cassevent->id() << std::endl);
 
       //if necessary resize the detector container//
 //      std::cout<<"pnCCDConverter::DataXTC: resizing container"<<std::endl;

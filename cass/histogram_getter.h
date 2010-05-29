@@ -5,6 +5,7 @@
 #define __HISTOGRAM_GETTER_H__
 
 #include <string>
+
 #include <QtGui/QImage>
 
 #include "cass.h"
@@ -19,15 +20,11 @@ namespace cass
 */
 struct HistogramParameter
 {
-    explicit HistogramParameter(PostProcessors::id_t _type)
-        : type(_type)
-        {};
+  explicit HistogramParameter(const PostProcessors::key_t& _key)
+    : key(_key)
+  {}
 
-    explicit HistogramParameter(size_t _type)
-        : type(PostProcessors::id_t(_type))
-        {};
-
-    PostProcessors::id_t type;
+  PostProcessors::key_t key;
 };
 
 

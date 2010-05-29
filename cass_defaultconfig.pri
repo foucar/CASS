@@ -61,7 +61,7 @@ CONFIG(cernroot) {
 }
 
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
-QMAKE_CXXFLAGS_DEBUG   += -g -O -mtune=nocona
+QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
 QMAKE_LFLAGS +=
 QMAKE_STRIP  =
 

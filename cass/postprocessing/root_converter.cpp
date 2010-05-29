@@ -10,8 +10,8 @@
 #include "root_converter.h"
 #include "histogram.h"
 
-cass::pp2000::pp2000(PostProcessors& pp, cass::PostProcessors::id_t id, std::string rootfilename)
-    : PostprocessorBackend(pp, id),_rootfilename(rootfilename)
+cass::pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string rootfilename)
+    : PostprocessorBackend(pp, key),_rootfilename(rootfilename)
 {}
 
 cass::pp2000::~pp2000()

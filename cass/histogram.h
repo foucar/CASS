@@ -187,30 +187,30 @@ public:
 
     //@{
     /** setter */
-    size_t  &nbrOfFills()               {return _nbrOfFills;}
-    void setMimeType(std::string str)   {_mime=str; };
-    void setId(PostProcessors::id_t id) {_id = static_cast<int>(id);};
+    size_t      &nbrOfFills()         {return _nbrOfFills;}
+    std::string &MimeType()           {return _mime;}
+    PostProcessors::key_t &key()      {return _key;}
     //@}
     //@{
     /** getter*/
-    size_t   nbrOfFills()const {return _nbrOfFills;}
-    size_t   dimension()const  {return _dimension;}
-    const axis_t  &axis()const {return _axis;}
-    std::string& mimeType()    {return _mime;}
-    int getId()                {return _id;}
+    size_t             nbrOfFills()const  {return _nbrOfFills;}
+    size_t             dimension()const   {return _dimension;}
+    const axis_t      &axis()const        {return _axis;}
+    const std::string &mimeType()const    {return _mime;}
+    const PostProcessors::key_t &key()const{return _key;}
     //@}
 
 protected:
     /** dimension of the histogram */
-    size_t    _dimension;
+    size_t _dimension;
     /** the axis of this histogram */
-    axis_t    _axis;
+    axis_t _axis;
     /** how many times has this histogram been filled */
-    size_t    _nbrOfFills;
+    size_t _nbrOfFills;
     /** mime type of the histogram */
     std::string _mime;
     /** the id of the histogram */
-    uint32_t _id;
+    PostProcessors::key_t _key;
 };
 
 
@@ -231,9 +231,7 @@ public:
      */
     HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
         :HistogramBackend(dim,ver),
-        _memory(memory_size, 0.),
-        _fillwhenserialized(false),
-        _shouldbefilled(!_fillwhenserialized)
+        _memory(memory_size, 0.)
     {}
 
     /** read histogram from serializer.
@@ -253,9 +251,7 @@ public:
      */
     HistogramFloatBase(const HistogramFloatBase &in)
       :HistogramBackend(in.dimension(),in._version),
-      _memory(in.memory().size(),0.),
-      _fillwhenserialized(in._fillwhenserialized),
-      _shouldbefilled(in._shouldbefilled)
+      _memory(in.memory().size(),0.)
     {
       _axis = in.axis();
       _mime = in._mime;
@@ -292,23 +288,15 @@ public:
      */
     virtual value_t max() const {return std::numeric_limits<value_t>::max();}
 
-    /** return whether the histogram should be filled.
-     *this means that someone wants to have the histogram serialized
-     */
-    bool shouldBeFilled() {return _shouldbefilled;}
-
     /** clear the histogram memory*/
     virtual void clear()
     {
       lock.lockForWrite();
-      VERBOSEOUT(std::cout<<"clearing histogram "<<_id<<std::endl);
+      VERBOSEOUT(std::cout<<"clearing histogram "<<_key<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
       lock.unlock();
     }
-
-    /** notify histogram that is has been filled */
-    void notify() {_fillcondition.wakeAll();}
 
     /** assignment operator. will copy axis properties and memory */
     void operator=(const HistogramFloatBase& rhs);
@@ -320,18 +308,6 @@ protected:
      * for over/underflow statistics
      */
     storage_t _memory;
-
-    /** flag to tell whether histogram needs to only be filled when serialized*/
-    bool _fillwhenserialized;
-
-    /** flag to signal the postprocessor to fill the histogram*/
-    mutable bool _shouldbefilled;
-
-    /** mutex for waiting until we are filled*/
-    mutable QMutex _waitMutex;
-
-    /** condition that we will wait on until we were filled by the postprocessor*/
-    mutable QWaitCondition _fillcondition;
 };
 
 
@@ -347,7 +323,15 @@ public:
     /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
         : HistogramFloatBase(0, 1, 1)
-    {setMimeType(std::string("application/cass0Dhistogram"));};
+    {_mime = "application/cass0Dhistogram";}
+
+    /** Create a 0d histogram with bool value */
+    explicit Histogram0DFloat(bool state)
+        : HistogramFloatBase(0, 1, 1)
+    {
+      _mime = "application/cass0Dhistogram";
+      _memory[0] = state;
+    }
 
     /** Constructor for reading a histogram from a stream */
     Histogram0DFloat(SerializerBackend &in)
@@ -366,9 +350,9 @@ public:
     value_t getValue() { return _memory[0]; };
 
     /** evaluate whether value is non zero */
-    bool operator()()
+    bool isTrue() const
     {
-      return (std::abs(_memory[0]) < std::numeric_limits<value_t>::epsilon());
+      return (std::abs(_memory[0]) > std::sqrt(std::numeric_limits<value_t>::epsilon()));
     }
 
     /** Simple assignment ot the single value */
@@ -395,7 +379,7 @@ public:
     {
       //set up the axis
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-      setMimeType(std::string("application/cass1Dhistogram"));
+      _mime = "application/cass1Dhistogram";
     }
 
     /** read histogram from serializer while creating.
@@ -406,6 +390,11 @@ public:
     Histogram1DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
+
+    /** resize histogram.
+     * will drop all memory and resize axis and memory to the newly requsted size
+     */
+    void resize(size_t nbrXBins, float xLow, float xUp);
 
     /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
@@ -489,7 +478,7 @@ public:
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
         _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
         // for time beeing, export 2d histograms as image.
-        setMimeType(std::string("image/"));
+        _mime = "image/";
     }
 
     /** create default histogram.
@@ -507,7 +496,7 @@ public:
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
         _axis.push_back(AxisProperty(cols, 0., float(cols-1.)));
         //setMimeType(std::string("application/cass2Dhistogram"));
-        setMimeType(std::string("image/"));     // for time beeing, export 2d histograms as image.
+        _mime = "image/";     // for time beeing, export 2d histograms as image.
     }
 
     /** read histogram from serializer.
@@ -518,6 +507,12 @@ public:
     Histogram2DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
+
+    /** resize histogram.
+     * will drop all memory and resize axis and memory to the newly requsted size
+     */
+    void resize(size_t nbrXBins, float xLow, float xUp,
+                size_t nbrYBins, float yLow, float yUp);
 
     /** @return shape of histogram (rows, columns) */
     std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); };
@@ -587,7 +582,7 @@ public:
      * @param center reference to x and y cetner in histogram memory coordinates
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      * @param[in] nbrAngleBins the number of bins that the resulting histogram has.
-     *                    Range will be 0 ... 360
+     *                         Range will be 0 ... 360
      */
     Histogram2DFloat convert2RPhi(const std::pair<size_t,size_t> &center,
                                   const size_t maxRadius,
@@ -661,15 +656,6 @@ inline size_t AxisProperty::bin(float pos) const
 //-----------------Base class-----------------------
 inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
 {
-  //if we need to wait until the histogram is filled before serialization//
-  //wait here and set the flag that this histogram needs to be filled//
-  if(_fillwhenserialized)
-  {
-    //tell that we should be filled//
-    _shouldbefilled = true;
-    //wait until we have been filled an can proceed//
-    _fillcondition.wait(&_waitMutex);
-  }
   lock.lockForRead();
   //the version//
   out.addUint16(_version);
@@ -684,11 +670,7 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
   //the memory//
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.addFloat(*it);
-  out.addUint32(_id);
-  //we have been filled and serialized so we need to tell that we don't want //
-  //to be filled again//
-  if(_fillwhenserialized)
-    _shouldbefilled=false;
+  out.addString(_key);
   lock.unlock();
 }
 
@@ -714,8 +696,7 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   _memory.resize(size);
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
-  _id = in.retrieveUint32();
-  _fillwhenserialized=false;
+  _key = in.retrieveString();
   lock.unlock();
   return true;
 }
@@ -725,16 +706,13 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
 inline void cass::Histogram1DFloat::fill(float x, float weight)
 {
   //calc the bin//
-//  lock.lockForRead();
   const int nxBins    = static_cast<const int>(_axis[xAxis].nbrBins());
   const float xlow    = _axis[xAxis].lowerLimit();
   const float xup     = _axis[xAxis].upperLimit();
-//  lock.unlock();
   const int xBin      = static_cast<int>( nxBins * (x - xlow) / (xup-xlow));
 
   //check whether the fill is in the right range//
   const bool xInRange = 0<=xBin && xBin<nxBins;
-//  lock.lockForWrite();
   // if in range fill the memory otherwise figure out whether over of underflow occured//
   if (xInRange)
     _memory[xBin] += weight;
@@ -744,7 +722,6 @@ inline void cass::Histogram1DFloat::fill(float x, float weight)
     _memory[nxBins+Underflow] += 1;
   //increase the number of fills//
   ++(_nbrOfFills);
-//  lock.unlock();
 }
 
 //-----------------2D Hist--------------------------
@@ -765,20 +742,7 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
   const bool xInRange = 0<=xBin && xBin<nxBins;
   const bool yInRange = 0<=yBin && yBin<nyBins;
   //lock the write operation//
-//  std::cout
-//      <<std::boolalpha
-//      <<" X:"<<x
-//      <<" NbrXbins"<<nxBins
-//      <<" Xbin:"<<xBin
-//      <<" XinRange:"<<xInRange
-//      <<"    "
-//      <<" Y:"<<y
-//      <<" NbrYbins:"<<nyBins
-//      <<" Ybin:"<<yBin
-//      <<" YinRange:"<<yInRange
-//      <<std::endl;
 
-//  lock.lockForRead();
   // if both bin coordinates are in range, fill the memory,//
   //otherwise figure out which quadrant needs to be filled//
   if (xInRange && yInRange)
@@ -799,7 +763,6 @@ inline void Histogram2DFloat::fill(float x, float y, float weight)
     _memory[maxSize+UpperMiddle]+=1;
   else if (xBin >= nxBins && yBin >= nyBins)
     _memory[maxSize+UpperRight]+=1;
-//  lock.unlock();
   // increase the number of fills
   ++_nbrOfFills;
 }

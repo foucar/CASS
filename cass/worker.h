@@ -15,7 +15,7 @@
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
-#include "postprocessing/postprocessor.h"
+#include "postprocessor.h"
 
 
 namespace cass
@@ -84,7 +84,7 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clear(size_t id) { _postprocessor->clear(id); }
+    void clear(PostProcessors::key_t key) { _postprocessor->clear(key); }
 
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer; //!< the ringbuffer
@@ -142,7 +142,7 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clearHistogram(size_t);
+    void clearHistogram(PostProcessors::key_t);
 
   signals:
     /** this is emmitted once all workers have stoped */

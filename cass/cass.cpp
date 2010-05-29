@@ -175,6 +175,9 @@
  * @todo maybe postprocessors should not have the list of all histograms. pp should
  *       handle them => when requesting a histogram, one needs to ask the pp to give
  *       the right one.
+ * @todo create pp that will create an running average of a histogram
+ * @todo create boolean xor 0d pp
+ * @todo make a file with all convenience helpers
  */
 
 /** \page authors Authors

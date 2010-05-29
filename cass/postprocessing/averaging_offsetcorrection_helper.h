@@ -31,7 +31,7 @@ namespace cass
     /** static function creating instance of this.
      * create an instance of an helper for the requested average.
      */
-    static HelperAveragingOffsetCorrection * instance(PostProcessors::id_t);
+    static HelperAveragingOffsetCorrection * instance(const PostProcessors::key_t&);
 
     /** destroy the whole helper*/
     static void destroy();
@@ -78,7 +78,7 @@ namespace cass
     frameList_t _frameList;
 
     /** id of the postprocessor */
-    PostProcessors::id_t _id;
+    PostProcessors::key_t _key;
 
     /** the device that contains the frame that this helper is for*/
     CASSEvent::Device _device;
@@ -106,7 +106,7 @@ namespace cass
      *
      * the instances of this class put into map. One instance for each available detector
      */
-    static std::map<PostProcessors::id_t,HelperAveragingOffsetCorrection*> _instances;
+    static std::map<PostProcessors::key_t,HelperAveragingOffsetCorrection*> _instances;
 
     /** Singleton Mutex to lock write operations*/
     static QMutex _mutex;

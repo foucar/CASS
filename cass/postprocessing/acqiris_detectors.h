@@ -10,6 +10,7 @@
 namespace cass
 {
   //forward declarations//
+  class Histogram0DFloat;
   class Histogram1DFloat;
   class Histogram2DFloat;
 
@@ -23,30 +24,152 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's 550, 600, 650, 660, 670, 680.
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
    *
    * @author Lutz Foucar
    */
-  class pp550 : public PostprocessorBackend
+  class pp150 : public PostprocessorBackend
   {
   public:
     /** Constructor. Constructor for Number of Signals*/
-    pp550(PostProcessors &, PostProcessors::id_t);
+    pp150(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free histogram space */
-    virtual ~pp550();
+    virtual ~pp150();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_nbrSignals;
+    Histogram0DFloat  *_nbrSignals;
   };
+
+
+
+
+
+
+
+
+  /** all mcp signals.
+   *
+   * This postprocessor will output the times of all found singal int the
+   * mcp waveform of the detector. This is a Time of Flight Spectrum
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   *
+   * @author Lutz Foucar
+   */
+  class pp151 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor*/
+    pp151(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp151();
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+
+    /** The Histogram storing the info*/
+    Histogram1DFloat  *_tof;
+  };
+
+
+
+
+
+
+
+  /** FWHM vs. Height of mcp signals.
+   *
+   * This postprocessor will make a histogram of the fwhm and height of
+   * found mcp signals.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   *
+   * @author Lutz Foucar
+   */
+  class pp152 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp152(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp152();
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+
+    /** The Histogram storing the info*/
+    Histogram2DFloat  *_sigprop;
+  };
+
+
+
+
+
 
 
 
@@ -60,192 +183,129 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 551-556 & 601-604
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{Wireend}\n
+   *           The anode layer Wireend. Default is 1. Options are:
+   *           - 1: first wireend
+   *           - 2: second wireend
    *
    * @author Lutz Foucar
    */
-  class pp551 : public PostprocessorBackend
+  class pp160 : public PostprocessorBackend
   {
   public:
     /** Constructor for Number of Signals*/
-    pp551(PostProcessors&, PostProcessors::id_t);
+    pp160(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp551();
+    virtual ~pp160();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The layer of the detector detector we are there for*/
     char _layer;
+
     /** The Signal of the layer detector we are there for*/
     char _signal;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_nbrSignals;
-  };
-
-
-
-  /** Signal ratio for two layers.
-   *
-   * This postprocessor will output the Ratio of the Number of Signals with
-   * Respect to the other layer.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 577, 560, 563, 605, 608
-   *
-   * @author Lutz Foucar
-   */
-  class pp557 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Ratio of the Signals of two Layers*/
-    pp557(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp557();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
-  };
-
-
-
-  /** Signal Ratio of wireend vs mcp.
-   *
-   * This postprocessor will output the Ratio of the Number of Signals with
-   * Respect to the the number of Singals in the MCP Channel.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 558-559, 561-562, 564-565, 606-507, 609-610
-   *
-   * @author Lutz Foucar
-   */
-  class pp558 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Ratio of the Signals of Layers vs MCP*/
-    pp558(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp558();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Signal of the layer detector we are there for*/
-    char _wireend;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
-  };
-
-
-
-
-  /** Ratio of reconstucted hits vs mcp hits.
-   *
-   * This postprocessor will output the Ratio of the Number reconstructed
-   * detector hits with respect to the the number of Signals in the mcp channel.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 566, 611
-   *
-   * @author Lutz Foucar
-   */
-  class pp566 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
-    pp566(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp566();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_ratio;
+    Histogram0DFloat  *_nbrSignals;
   };
 
 
 
 
 
-  /** all mcp hits.
+
+
+
+
+
+
+  /** FWHM vs. Height of wireend signals.
    *
-   * This postprocessor will output the times of all found Hits on the Mcp.
-   * This is more or less a Time of Flight Spektrum
+   * This postprocessor will make a histogram of the fwhm and height of
+   * all identified signals in a detector.
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   *
-   * implements postprocessor id's: 567, 612, 651, 661, 671, 681
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{Wireend}\n
+   *           The anode layer Wireend. Default is 1. Options are:
+   *           - 1: first wireend
+   *           - 2: second wireend
    *
    * @author Lutz Foucar
    */
-  class pp567 : public PostprocessorBackend
+  class pp161 : public PostprocessorBackend
   {
   public:
     /** Constructor*/
-    pp567(PostProcessors&, PostProcessors::id_t);
+    pp161(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp567();
+    virtual ~pp161();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
+    /** The layer of the detector detector we are there for*/
+    char _layer;
+
+    /** The Signal of the layer detector we are there for*/
+    char _signal;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_tof;
+    Histogram2DFloat  *_sigprop;
   };
+
+
+
+
 
 
 
@@ -262,32 +322,50 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id%/{XNbrBins|XLow|XUp}\n
-   *           properties of the 1d histogram
-   *
-   * implements postprocessor id's: 568-570, 613, 614
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
    *
    * @author Lutz Foucar
    */
-  class pp568 : public PostprocessorBackend
+  class pp162 : public PostprocessorBackend
   {
   public:
     /** Constructor*/
-    pp568(PostProcessors&, PostProcessors::id_t);
+    pp162(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp568();
+    virtual ~pp162();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The layer of the detector detector we are there for*/
     char _layer;
+
     /** The Histogram storing the info*/
-    Histogram1DFloat  *_timesum;
+    Histogram0DFloat  *_timesum;
   };
+
+
+
 
 
 
@@ -304,32 +382,53 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 571-573, 615, 616
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{Layer}\n
+   *           The anode layer. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
    *
    * @author Lutz Foucar
    */
-  class pp571 : public PostprocessorBackend
+  class pp163 : public PostprocessorBackend
   {
   public:
     /** Constructor */
-    pp571(PostProcessors&, PostProcessors::id_t);
+    pp163(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp571();
+    virtual ~pp163();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The layer of the detector detector we are there for*/
     char _layer;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_timesumvsPos;
   };
+
+
+
+
 
 
 
@@ -346,34 +445,117 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 574-577, 617
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{FirstLayer}\n
+   *           The anode layer of the first coordinate. Default is U. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{SecondLayer}\n
+   *           The anode layer of the second coordinate. Default is V. Options are:
+   *           - for HexDetector
+   *             - U: U-Layer
+   *             - V: V-Layer
+   *             - W: W-Layer
+   *           - for Quad Detector
+   *             - X: X-Layer
+   *             - Y: Y-Layer
    *
    * @author Lutz Foucar
    */
-  class pp574 : public PostprocessorBackend
+  class pp164 : public PostprocessorBackend
   {
   public:
     /** Constructor */
-    pp574(PostProcessors&, PostProcessors::id_t);
+    pp164(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp574();
+    virtual ~pp164();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The first layer of the detector for the position */
     char _first;
+
     /** The second layer of the detector for the position */
     char _second;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_pos;
   };
+
+
+
+
+
+
+
+
+
+
+  /** Number of reconstucted hits.
+   *
+   * This postprocessor will output the number of reconstructed detector hits.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *
+   * @author Lutz Foucar
+   */
+  class pp165 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
+    pp165(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp165();
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::Detectors _detector;
+
+    /** the Detector that we make the condition on*/
+    ACQIRIS::Detectors _conditionDetector;
+    /** flag that will invert the update condition */
+    bool _invert;
+    /** The Histogram storing the info*/
+    Histogram0DFloat  *_nbrHits;
+  };
+
+
+
+
 
 
 
@@ -392,41 +574,60 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   * @cassttng PostProcessor/p\%id\%/{ConditionLow|ConditionHigh}\n
-   *           conditions on third value
-   *
-   * implements postprocessor id's: 578-580, 618-620
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{XInput}\n
+   *           The value that should be put onto the x-axis of the histogram.
+   *           Default is 'x'. Options are:
+   *           - x: x-position of the reconstructed hit
+   *           - y: x-position of the reconstructed hit
+   *           - t: time of impact of the reconstructed hit
+   * @cassttng PostProcessor/\%name\%/{YInput}\n
+   *           The value that should be put onto the x-axis of the histogram.
+   *           Default is 'y'. Options are:
+   *           - x: x-position of the reconstructed hit
+   *           - y: x-position of the reconstructed hit
+   *           - t: time of impact of the reconstructed hit
+   * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
+   *           conditions on third value, the one not chosen with options above.
    *
    * @author Lutz Foucar
    */
-  class pp578 : public PostprocessorBackend
+  class pp166 : public PostprocessorBackend
   {
   public:
     /** Constructor */
-    pp578(PostProcessors&, PostProcessors::id_t);
+    pp166(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp578();
+    virtual ~pp166();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
+
     /** The first value of the detector hit */
     char _first;
+
     /** The second value of the detector */
     char _second;
+
     /** The third value of the detector, that we will check the condition for*/
     char _third;
+
     /** The condition that we impose on the third component*/
     std::pair<float, float> _condition;
-    /** the Detector that we make the condition on*/
-    ACQIRIS::Detectors _conditionDetector;
-    /** flag that will invert the update condition */
-    bool _invert;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_hist;
   };
@@ -437,117 +638,67 @@ namespace cass
 
 
 
-  /** FWHM vs. Height of mcp signals.
-   *
-   * This postprocessor will make a histogram of the fwhm and height of
-   * all identified signals in a detector.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
-   *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 581, 621, 652, 662, 672, 682
-   *
-   * @author Lutz Foucar
-   */
-  class pp581 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor*/
-    pp581(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp581();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_sigprop;
-  };
 
 
 
-  /** FWHM vs. Height of wireend signals.
-   *
-   * This postprocessor will make a histogram of the fwhm and height of
-   * all Wireend Signals in a delaylinedetector.
-   *
-   * To set up the channel assignment for the requested detector one needs to set
-   * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
-   *
-   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
-   *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 582-587, 622-625
-   *
-   * @author Lutz Foucar
-   */
-  class pp582 : public PostprocessorBackend
-  {
-  public:
-    /** Constructor for Number of Signals*/
-    pp582(PostProcessors&, PostProcessors::id_t);
-    /** Free _image space */
-    virtual ~pp582();
-    /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
-    /** load the histogram settings from file*/
-    virtual void loadSettings(size_t);
-  protected:
-    /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
-    /** The layer of the detector detector we are there for*/
-    char _layer;
-    /** The Signal of the layer detector we are there for*/
-    char _signal;
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_sigprop;
-  };
 
 
 
 
   /** Pipico spectra.
    *
-   * This postprocessor will create Photo Ion Photo Ion Coincidence Spectra.
+   * This postprocessor will create Photo-Ion Photo-Ion Coincidence Spectra.
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
-   * @cassttng PostProcessor/p%id%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   *
-   * implements postprocessor id's: 700, 701
+   * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{SecondDetector}\n
+   *           The detector that we are responsible for. Default is 1. Options are:
+   *           - 0: InvalidDetector
+   *           - 1: HexDetector
+   *           - 2: QuadDetector
+   *           - 3: VMIMcp
+   *           - 4: FELBeamMonitor
+   *           - 5: YAGPhotodiode
+   *           - 6: FsPhotodiode
    *
    * @author Lutz Foucar
    */
-  class pp700 : public PostprocessorBackend
+  class pp220 : public PostprocessorBackend
   {
   public:
     /** Constructor for Number of Signals*/
-    pp700(PostProcessors&, PostProcessors::id_t);
+    pp220(PostProcessors&, const PostProcessors::key_t&);
+
     /** Free _image space */
-    virtual ~pp700();
+    virtual ~pp220();
+
     /** Retrieve the number of Signals and histogram it */
     virtual void operator()(const CASSEvent&);
+
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
+
   protected:
     /** The first detector of the cooincdence*/
     ACQIRIS::Detectors _detector01;
+
     /** The second detector of the cooincdence*/
     ACQIRIS::Detectors _detector02;
+
     /** The Histogram storing the info*/
     Histogram2DFloat  *_pipico;
   };

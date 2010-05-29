@@ -17,12 +17,20 @@ namespace cass
    *
    * Class to show the last wavefrom of a channel.
    *
-   * implements postprocessor id's 4-23.
+   * @cassttng PostProcessor/\%name\%/{InstrumentId} \n
+   *           The instrument id of the acqiris instrument that contains the
+   *           channel. Default is 8. Options are:
+   *           - 8: Camp Acqiris
+   *           - 4: AMO ITof Acqiris
+   *           - 2: AMO GD Acqiris
+   *           - 5: AMO Mbes Acqiris
+   * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
+   *           The channel number of the acqiris instrument. Default is 0.
    *
-   * @todo include also the other Acqiris instruments
+   * @todo adjust the name to the id that it will have
    * @author Lutz Foucar
    */
-  class pp4 : public PostprocessorBackend
+  class pp110 : public PostprocessorBackend
   {
   public:
     /** constructor.
@@ -30,73 +38,29 @@ namespace cass
      *        this postprocessor.
      * @param id the id of this postprocessor object
      */
-    pp4(PostProcessors &ppc, PostProcessors::id_t id);
+    pp110(PostProcessors &ppc, const PostProcessors::key_t &key);
+
     /** delete the histogram when you are destroyed*/
-    virtual ~pp4();
+    virtual ~pp110();
+
     /** copy the last waveform from the channel*/
     virtual void operator()(const CASSEvent&);
 
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
   protected:
     /** Mutex for locking this postprocessor*/
     QMutex _mutex;
+
     /** the instrument that contains the channel this postprocessor will work on*/
     cass::ACQIRIS::Instruments _instrument;
+
     /** the Acqiris channel number of this processor*/
     size_t _channel;
+
     /** this is where we store the waveform */
     Histogram1DFloat  *_waveform;
-  };
-
-
-
-  /** Averaged Acqiris channel's wavefrom.
-   *
-   * Class that lets you average the waveforms depending on the factor it will
-   * make a cumulative average or an exponential moving average. Uses the Average
-   * binary function to do the averaging.
-   * @see Average
-   *
-   * @cassttng PostProcessor/p\%id\%/{NumberOfAverages}\n
-   *           averaging length. In case one want to have a cummulative
-   *           averaging set averaging length to 1.
-   *
-   * implements postprocessor id's 500-519.
-   *
-   * @todo include also the other Acqiris instruments
-   * @author Lutz Foucar
-   */
-  class pp500 : public PostprocessorBackend
-  {
-  public:
-    /** constructor.
-     * @param ppc reference to the postprocessor container that contains
-     *        this postprocessor.
-     * @param id the id of this postprocessor object
-     */
-    pp500(PostProcessors &ppc, PostProcessors::id_t id);
-    /*! delete the histogram when you are destroyed */
-    virtual ~pp500();
-    /*! read the average factor from cass.ini*/
-    virtual void loadSettings(size_t);
-    /*! copy the last waveform from the expected channel*/
-    virtual void operator()(const CASSEvent&);
-    /** we need the single waveform to be able to average */
-    virtual std::list<PostProcessors::id_t> dependencies()
-    {return std::list<PostProcessors::id_t>(1, _idSingle); }
-
-  protected:
-    /** Mutex for locking this postprocessor*/
-    QMutex _mutex;
-    /** the instrument that contains the channel this postprocessor will work on*/
-    cass::ACQIRIS::Instruments _instrument;
-    /*! the Acqiris channel Nbr of this processor*/
-    size_t _channel;
-    /** the id of the single waveform pp */
-    PostProcessors::id_t _idSingle;
-    /*! this is where we store the averaged waveform*/
-    Histogram1DFloat *_waveform;
-    /*! the averaging factor */
-    float _alpha;
   };
 }
 

@@ -8,40 +8,39 @@
 #include "machine_device.h"
 
 
-// *** postprocessors 850 retrives beamline data ***
+// *** postprocessors 120 retrives beamline data ***
 
-cass::pp850::pp850(PostProcessors& pp, cass::PostProcessors::id_t id)
-  : PostprocessorBackend(pp, id), _data(0)
+cass::pp120::pp120(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _value(0)
 {
   loadSettings(0);
 }
 
-cass::pp850::~pp850()
+cass::pp120::~pp120()
 {
-  _pp.histograms_delete(_id);
-  _data = 0;
+  _pp.histograms_delete(_key);
+  _value = 0;
 }
 
-void cass::pp850::loadSettings(size_t)
+void cass::pp120::loadSettings(size_t)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString("p") + QString::number(_id));
-
-  _varname = settings.value("VarName","").toString().toStdString();
+  settings.beginGroup(_key.c_str());
+  _varname = settings.value("VariableName","").toString().toStdString();
 
   //creat the resulting histogram from the first histogram
-  _pp.histograms_delete(_id);
-  _data = new Histogram0DFloat();
-  _pp.histograms_replace(_id,_data);
+  _pp.histograms_delete(_key);
+  _value = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_value);
 
-  std::cout << "PostProcessor_"<<_id
-      <<" will retrieve data \""<<_varname
+  std::cout << "PostProcessor "<<_key
+      <<": will retrieve datafield \""<<_varname
       <<"\" from beamline data"
       <<std::endl;
 }
 
-void cass::pp850::operator()(const CASSEvent& evt)
+void cass::pp120::operator()(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
   //retrieve beamline data from cassevent
@@ -50,9 +49,9 @@ void cass::pp850::operator()(const CASSEvent& evt)
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
 
-  _data->lock.lockForWrite();
-  *_data = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
-  _data->lock.unlock();
+  _value->lock.lockForWrite();
+  *_value = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
+  _value->lock.unlock();
 }
 
 
@@ -67,40 +66,38 @@ void cass::pp850::operator()(const CASSEvent& evt)
 
 
 
-// *** postprocessors 851 retrives beamline data ***
+// *** postprocessors 130 retrives epics data ***
 
-cass::pp851::pp851(PostProcessors& pp, cass::PostProcessors::id_t id)
-  : PostprocessorBackend(pp, id), _data(0)
+cass::pp130::pp130(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _value(0)
 {
   loadSettings(0);
 }
 
-cass::pp851::~pp851()
+cass::pp130::~pp130()
 {
-  _pp.histograms_delete(_id);
-  _data = 0;
+  _pp.histograms_delete(_key);
+  _value = 0;
 }
 
-void cass::pp851::loadSettings(size_t)
+void cass::pp130::loadSettings(size_t)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(QString("p") + QString::number(_id));
+  settings.beginGroup(_key.c_str());
+  _varname = settings.value("VariableName","").toString().toStdString();
+  //create the resulting histogram from the first histogram
+  _pp.histograms_delete(_key);
+  _value = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_value);
 
-  _varname = settings.value("VarName","").toString().toStdString();
-
-  //creat the resulting histogram from the first histogram
-  _pp.histograms_delete(_id);
-  _data = new Histogram0DFloat();
-  _pp.histograms_replace(_id,_data);
-
-  std::cout << "PostProcessor_"<<_id
-      <<" will retrieve data \""<<_varname
+  std::cout << "PostProcessor "<<_key
+      <<": will retrieve datafield \""<<_varname
       <<"\" from epics data"
       <<std::endl;
 }
 
-void cass::pp851::operator()(const CASSEvent& evt)
+void cass::pp130::operator()(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
   //retrieve beamline data from cassevent
@@ -109,9 +106,9 @@ void cass::pp851::operator()(const CASSEvent& evt)
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t epics(mdev->EpicsData());
 
-  _data->lock.lockForWrite();
-  *_data = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
-  _data->lock.unlock();
+  _value->lock.lockForWrite();
+  *_value = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
+  _value->lock.unlock();
 }
 
 
@@ -126,28 +123,26 @@ void cass::pp851::operator()(const CASSEvent& evt)
 
 
 
-// *** postprocessors 852 retrives beamline data ***
+// *** postprocessors 230 calcs photonenergy from bld ***
 
-cass::pp852::pp852(PostProcessors& pp, cass::PostProcessors::id_t id)
-  : PostprocessorBackend(pp, id), _data(0)
+cass::pp230::pp230(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _data(0)
 {
-  _pp.histograms_delete(_id);
+  _pp.histograms_delete(_key);
   _data = new Histogram0DFloat();
-  _pp.histograms_replace(_id,_data);
-
-  std::cout << "PostProcessor_"<<_id
+  _pp.histograms_replace(_key,_data);
+  std::cout << "PostProcessor: "<<_key
       <<" calc photonenergy from beamline data"
       <<std::endl;
 }
 
-cass::pp852::~pp852()
+cass::pp230::~pp230()
 {
-  _pp.histograms_delete(_id);
+  _pp.histograms_delete(_key);
   _data = 0;
 }
 
-
-void cass::pp852::operator()(const CASSEvent& evt)
+void cass::pp230::operator()(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
   //retrieve beamline data from cassevent

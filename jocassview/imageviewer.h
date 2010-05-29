@@ -49,11 +49,11 @@ namespace jocassview
 
         getDataThread();
         cass::PostProcessors::active_t getIdList();
-        std::string getMimeType(int attachId);
-        void getData(int attachId, int useSpectrogram);
-        void getImage(cass::ImageFormat format, int attachId);
-        void getHistogram0D(int attachId);
-        void getHistogram1D(int attachId);
+        std::string getMimeType(const std::string& attachId);
+        void getData(const std::string& attachId, int useSpectrogram);
+        void getImage(cass::ImageFormat format, const std::string& attachId);
+        void getHistogram0D(const std::string& attachId);
+        void getHistogram1D(const std::string& attachId);
         void setImageFormat(cass::ImageFormat format) {_format=format;};
         void updateServer(std::string server);
 
@@ -79,7 +79,7 @@ namespace jocassview
 
         cass::ImageFormat _format;
 
-        int _attachId;
+        const std::string* _attachId;
         int _useSpectrogram;
     };
 

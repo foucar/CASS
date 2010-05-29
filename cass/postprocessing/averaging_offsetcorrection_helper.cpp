@@ -7,24 +7,24 @@
 
 
 //initialize static members//
-std::map<cass::PostProcessors::id_t,cass::HelperAveragingOffsetCorrection*>
+std::map<cass::PostProcessors::key_t,cass::HelperAveragingOffsetCorrection*>
     cass::HelperAveragingOffsetCorrection::_instances;
 QMutex cass::HelperAveragingOffsetCorrection::_mutex;
 
-cass::HelperAveragingOffsetCorrection* cass::HelperAveragingOffsetCorrection::instance(cass::PostProcessors::id_t id)
+cass::HelperAveragingOffsetCorrection* cass::HelperAveragingOffsetCorrection::instance(const cass::PostProcessors::key_t &key)
 {
   //lock this//
   QMutexLocker lock(&_mutex);
   //check if an instance of the helper class already exists//
   //return it, otherwise create one and return it//
-  if (0 == _instances[id])
+  if (0 == _instances[key])
   {
     VERBOSEOUT(std::cout << "creating an instance of the Averaging correction Helper for postprocessor "
-               <<id
+               <<key
                <<std::endl);
-    _instances[id] = new HelperAveragingOffsetCorrection();
+    _instances[key] = new HelperAveragingOffsetCorrection();
   }
-  return _instances[id];
+  return _instances[key];
 }
 
 void cass::HelperAveragingOffsetCorrection::destroy()
@@ -32,7 +32,7 @@ void cass::HelperAveragingOffsetCorrection::destroy()
   //lock this//
   QMutexLocker lock(&_mutex);
   //delete all instances of the helper class//
-  std::map<PostProcessors::id_t,HelperAveragingOffsetCorrection*>::iterator it(_instances.begin());
+  std::map<PostProcessors::key_t,HelperAveragingOffsetCorrection*>::iterator it(_instances.begin());
   for (;it != _instances.end(); ++it)
     delete it->second;
 }
