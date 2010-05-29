@@ -362,8 +362,8 @@ void cass::pp5::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -444,8 +444,8 @@ void cass::pp6::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -521,8 +521,8 @@ void cass::pp7::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -610,8 +610,8 @@ void cass::pp8::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -775,8 +775,8 @@ void cass::pp20::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _fOne = settings.value("FactorOne",1.).toFloat();
   _fTwo = settings.value("FactorTwo",1.).toFloat();
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -867,8 +867,8 @@ void cass::pp21::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -959,8 +959,8 @@ void cass::pp22::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase *one
@@ -1604,8 +1604,8 @@ void cass::pp60::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
   if (OneNotvalid || TwoNotvalid)
     return;
   set1DHist(_hist,_key);
@@ -1671,8 +1671,8 @@ void cass::pp61::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
   if (OneNotvalid || TwoNotvalid)
     return;
   unsigned average = settings.value("average", 1).toUInt();
@@ -1754,8 +1754,8 @@ void cass::pp62::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
   if (OneNotvalid || TwoNotvalid)
     return;
   const HistogramFloatBase*one
@@ -1823,8 +1823,8 @@ void cass::pp63::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
   if (OneNotvalid || TwoNotvalid)
     return;
   const size_t min_time_user (settings.value("MinTime",0).toUInt());
