@@ -237,7 +237,7 @@ using the custom doxygen tag cassttng.
       ZeroDHistogramming=60,
       HistogramAveraging=61,
       HistogramSumming=62,
-      TimingAverage=63,
+      TimeAverage=63,
 
       SingleCcdImage=100,
       AcqirisWaveform=110,

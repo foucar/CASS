@@ -415,7 +415,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case HistogramSumming:
     processor = new pp62(*this, key);
     break;
-  case TimingAverage:
+  case TimeAverage:
     processor = new pp63(*this, key);
     break;
   case SingleCcdImage:

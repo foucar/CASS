@@ -1798,7 +1798,7 @@ void cass::pp62::operator()(const CASSEvent&)
 
 
 
-// *** postprocessors 63 calculate the time average of a 0d hist given the number
+// *** postprocessors 63 calculate the time average of a 0d/1d/2d hist given the number
 //     of samples that are going to be used in the calculation ***
 
 cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
@@ -1831,22 +1831,26 @@ void cass::pp63::loadSettings(size_t)
     return;
   if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition))
     return;
+  const size_t min_time_user (settings.value("MinTime",0).toUInt());
+  const size_t max_time_user (settings.value("MaxTime",300).toUInt());
+  _timerange = make_pair(min_time_user,max_time_user);
+  const size_t _nbrSamples(settings.value("NumberOfSamples",5).toUInt());
+
   const HistogramFloatBase*one
       (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
   _pp.histograms_delete(_key);
 
-
-  const size_t center_x_user (settings.value("XCenter",512).toUInt());
-  const size_t center_y_user (settings.value("YCenter",512).toUInt());
-  _timerange = make_pair(center_x_user,center_y_user);
   _time_avg = new HistogramFloatBase(*one); //(_timerange.second,0,_timerange.second);
   _pp.histograms_replace(_key,_time_avg);
   std::cout << "PostProcessor "<<_key
       <<" will calculate the time average of histogram of PostProcessor_"<<_idHist
-      <<" with xcenter "<<settings.value("XCenter",512).toUInt()
-      <<" ycenter "<<settings.value("YCenter",512).toUInt()
-      <<" in histogram  "<<_timerange.first
-      <<" ycenter "<<_timerange.second
+      <<" from now "<<settings.value("MinTime",0).toUInt()
+      <<" to "<<settings.value("MaxTime",300).toUInt()
+      <<" seconds   "<<_timerange.first
+      <<" ; "<<_timerange.second
+      <<" each bin is equivalent to up to "<< _nbrSamples
+      <<" measurements"
+      <<" condition on postprocessor:"<<_condition
       <<std::endl;
 }
 
@@ -1859,7 +1863,7 @@ void cass::pp63::operator()(const CASSEvent&)
   {
     HistogramFloatBase* one
         (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-    //retrieve the projection from the 2d hist//
+    //retrieve the projection from the 0d/1d/2d hist//
     one->lock.lockForRead();
     _time_avg->lock.lockForWrite();
 

@@ -14,8 +14,8 @@ isEmpty ( INSTALLBASE ){
 }
 
 CONFIG      += release
-#CONFIG      += debug
-CONFIG      += thread
+CONFIG      += debug
+#CONFIG      += thread
 CONFIG      += warn_on
 CONFIG      += exceptions
 CONFIG      += rtti
