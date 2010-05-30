@@ -88,9 +88,9 @@ namespace cass
       return fmtname;
   };
 
-  /** MIMI names of known/supported Qt image formats
+  /** MIMI names of known/supported Qt image formats.
    *
-   * @param ImageFormat
+   * @param fmt the Image Format
    * @return MIME/type of format
    */
   inline const std::string imageformatMIMEtype(ImageFormat fmt)
@@ -109,7 +109,7 @@ namespace cass
 
   /** Names of known/supported Qt image formats
    *
-   * @param image format name
+   * @param name format name
    * @return ImageFormat
    */
 inline ImageFormat imageformat(const std::string& name)
