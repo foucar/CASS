@@ -1181,17 +1181,15 @@ namespace cass
 
   /** time average of 0d Histogram.
    *
-   * @cassttng PostProcessor/p\%id\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 0D-Histogram that we create project.
    *           Default is 0.
-   * @cassttng PostProcessor/p\%id\%/{MinTime|MaxTime} \n
+   * @cassttng PostProcessor/\%name\%/{MinTime|MaxTime} \n
    *           Minimum and Maximum Time to plot in the histogram. Default
    *           is 0 ... 500
-   * @cassttng PostProcessor/p\%id\%/{NbrSamples} \n
+   * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
    *           Number of values that are used per second to calculate the average. 
    *           Default is 10
-   *
-   * Implements postprocessors id's 63
    *
    * @author Nicola Coppola
    */
