@@ -37,6 +37,8 @@ namespace cass
   public:
     /** constructor.
      * @param rb the rinbguffer we get the events from
+     * @param outputfilename a name that is passed to special pp. Can be defined
+     *                       using -o in the commandline call of cass.
      * @param parent the qt parent of this object
      */
     Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
