@@ -112,16 +112,16 @@ class Histogram0DFloat;
  * This postprocessor reduces the running average of the requested image
  * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
  *
- * @cassttng PostProcessor/p\%id\%/{ImageXCenter|ImageYCenter}\n
+ * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
  *           values for the center of the image. Default is 0,0
- * @cassttng PostProcessor/p\%id\%/{SymmetryAngle}\n
+ * @cassttng PostProcessor/p\%name%/{SymmetryAngle}\n
  *           value for the symmetry angle. Default is 0.
- * @cassttng PostProcessor/p\%id\%/{ImageId}\n
+ * @cassttng PostProcessor/\%name%/{ImageId}\n
  *           The id of the PostProcessor that contains the image to calculate
  *           \f$\cos^2\theta\f$  from. Default is 104.
- * @cassttng PostProcessor/p\%id\%/{MaxIncludedRadius|MinIncludedRadius}\n
+ * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
  *           values for the interesting radius range. Default is 0,0
- * @cassttng PostProcessor/p\%id\%/{DrawInnerOuterRadius}\n
+ * @cassttng PostProcessor/\%name%/{DrawInnerOuterRadius}\n
  *           draw the inner and out include radius. default is false
  *
  * @author Per Johnsson
