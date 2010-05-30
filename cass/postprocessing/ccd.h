@@ -141,7 +141,7 @@ namespace cass
    * Photonhits will be detected in the pre analyzers. Set the Parameters
    * for detecting photonhits there. (PNCCD::Analyzer or CCD::Analyzer)
    *
-   * @cassttng PostProcessor/p\%id\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
