@@ -21,7 +21,7 @@ namespace cass
    * This postprocessor will retrieve the requested Beamline Data from
    * the cass event.
    *
-   * @cassttng PostProcessor/p\%id\$/{VariableName}
+   * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the beamline data variable you are interested in
    *
    * @author Lutz Foucar
@@ -57,7 +57,7 @@ namespace cass
    *
    * This postprocessor will retrieve the requested epics data from the cass-event.
    *
-   * @cassttng PostProcessor/p\%id\$/{VariableName}
+   * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
    *
    * @author Lutz Foucar
