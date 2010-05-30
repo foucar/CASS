@@ -319,10 +319,9 @@ using the custom doxygen tag cassttng.
     /** release read-lock for histograms container */
     void histograms_release() { _histlock.unlock(); };
 
-    /** Replace histogram in storage
+    /** Remove histogram from storage
      *
-     * @param type Histogram to replace
-     * @param hist New histogram to store
+     * @param key Histogram to remove
      */
     void histograms_delete(const key_t &key)
     {
@@ -331,9 +330,10 @@ using the custom doxygen tag cassttng.
       _histlock.unlock();
     }
 
-    /** Remove histogram from storage
+    /** Replace histogram in storage
      *
-     * @param type Histogram to remove
+     * @param key the key of the Histogram to replace
+     * @param hist New histogram to store
      */
     void histograms_replace(const key_t &key, HistogramBackend *hist)
     {
@@ -415,7 +415,7 @@ using the custom doxygen tag cassttng.
      *
      * This requires that locking is done outside!
      *
-     * @param type Histogram to replace
+     * @param key Histogram to replace
      * @param hist New histogram to store
      */
     void _replace(key_t key, HistogramBackend *hist);
