@@ -1181,6 +1181,8 @@ namespace cass
 
   /** time average of 0d Histogram.
    *
+   * Makes an running average of a given Histogram over a given time period.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 0D-Histogram that we create project.
    *           Default is 0.
