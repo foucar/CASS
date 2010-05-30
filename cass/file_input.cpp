@@ -117,6 +117,7 @@ void cass::FileInput::run()
     //quit if requested//
     if (_quit) break;
 
+
     //open the file
     std::ifstream xtcfile;
     xtcfile.open(filelistiterator->c_str(), std::ios::binary | std::ios::in);
@@ -127,16 +128,28 @@ void cass::FileInput::run()
       //read until we are finished with the file
       while(!xtcfile.eof() && !_quit)
       {
+        //pause execution if suspend has been called//
+        if (_pause)
+        {
+          //lock the mutex to prevent that more than one thread is calling pause//
+          _pauseMutex.lock();
+          //set the status flag to paused//
+          _paused=true;
+          //tell the wait until paused condtion that we are now pausing//
+          _waitUntilpausedCondition.wakeOne();
+          //wait until the condition is called again
+          _pauseCondition.wait(&_pauseMutex);
+          //set the status flag//
+          _paused=false;
+          //unlock the mutex, such that others can work again//
+          _pauseMutex.unlock();
+        }
+        //reset the cassevent pointer//
+        cassevent=0;
         //retrieve a new element from the ringbuffer
         _ringbuffer.nextToFill(cassevent);
         //read the datagram from the file in the ringbuffer
         Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
-        //	time_t eventTime = dg.seq.clock().seconds();
-        //	if(eventTime && cass::globalOptions.endTime.isValid() &&
-        //	   QDateTime::fromTime_t(eventTime).time() > cass::globalOptions.endTime.time()){
-        //	    printf("Skipping rest of file\n");
-        //	    return;
-        //	}
         xtcfile.read(cassevent->datagrambuffer(),sizeof(dg));
         xtcfile.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
         const bool isGood = _converter->processDatagram(cassevent);
