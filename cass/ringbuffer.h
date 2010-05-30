@@ -72,10 +72,11 @@ namespace cass
         gefuellt(false),
         inBearbeitung(false)
       {}
+
       /** Element equality.
        *
        * Two elements are equal when their addresses are equal.
-       * @param Element to compare me to.
+       * @param rhs Element to compare me to.
        */
       bool operator==(const_reference rhs) { return (element == rhs); }
       /** the pointer to the element*/
