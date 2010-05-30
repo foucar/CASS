@@ -645,7 +645,7 @@ namespace cass
 
   /** Multiply histogram with constant.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be multiplied. Default is 1.
@@ -695,7 +695,7 @@ namespace cass
 
   /** Substract constant from histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be substracted. Default is 1.
@@ -743,7 +743,7 @@ namespace cass
 
   /** Projection of 2d Histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
@@ -812,7 +812,7 @@ namespace cass
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 1D-Histogram that we create the intgral from Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
@@ -860,7 +860,7 @@ namespace cass
 
   /** Radial Average/Projection of 2d Histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
@@ -913,7 +913,7 @@ namespace cass
 
   /** Radar Plot of 2d Histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{MinRadius|MaxRadius} \n
@@ -978,7 +978,7 @@ namespace cass
 
   /** Radius \f$ \phi \f$ Representation of 2D Histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{HistId} \n
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 2D-Histogram we convert.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{NbrAngleBins} \n

@@ -1051,7 +1051,7 @@ void cass::pp23::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _factor = settings.value("Factor",1).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1117,7 +1117,7 @@ void cass::pp24::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _factor = settings.value("Factor",1).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1193,7 +1193,7 @@ void cass::pp50::loadSettings(size_t)
                      settings.value("UpperBound", 1e6).toFloat());
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
   _normalize = settings.value("Normalize",false).toBool();
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const Histogram2DFloat *one
       (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1281,7 +1281,7 @@ void cass::pp51::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
                     settings.value("UpperBound", 1e6).toFloat());
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const Histogram1DFloat *one
       (dynamic_cast<Histogram1DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1345,7 +1345,7 @@ void cass::pp52::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const HistogramFloatBase*one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1426,7 +1426,7 @@ void cass::pp53::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
@@ -1522,7 +1522,7 @@ void cass::pp54::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (!retrieve_and_validate(_pp,_key,"HistId",_idHist))
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
     return;
   const HistogramFloatBase *one
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
