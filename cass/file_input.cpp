@@ -117,7 +117,6 @@ void cass::FileInput::run()
     //quit if requested//
     if (_quit) break;
 
-
     //open the file
     std::ifstream xtcfile;
     xtcfile.open(filelistiterator->c_str(), std::ios::binary | std::ios::in);
@@ -163,11 +162,10 @@ void cass::FileInput::run()
     }
     else
       std::cout <<"file \""<<filelistiterator->c_str()<<"\" could not be opened"<<std::endl;
-
   }
-  while(!_quit) this->sleep(1);
-  if (!_quit)
-    std::cout << "done with all files"<<std::endl;
+  while(!_quit)
+    this->sleep(1);
+  std::cout << "closing the input"<<std::endl;
 }
 
 void cass::FileInput::end()
