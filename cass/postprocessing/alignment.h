@@ -153,7 +153,7 @@ protected:
   size_t _imageWidth;              //!< Image width
   size_t _nbrRadialPoints;         //!< Number of radial points
   size_t _nbrAngularPoints;        //!< Number of angular points
-  bool _drawCircle;               //!< flag to tell whether to draw the inner and outer circle
+  bool _drawCircle;                //!< flag to tell whether to draw the inner and outer circle
 
   /** image that we will calculate the \f$\cos^2\theta\f$ from */
   PostProcessors::key_t   _imagekey;
