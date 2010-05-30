@@ -48,15 +48,35 @@ namespace cass
     /** function with the main loop */
     void run();
 
+    /** suspends the thread.
+     * Suspends the thread after it has executed the event we are working on
+     * right now. Will return only when the thread has really suspenden by calling
+     * @see waitUntilSuspended() internally.
+     */
+    void suspend();
+
+    /** resumes the thread, when it was suspended. Otherwise it just retruns*/
+    void resume();
+
   public slots:
     /** slot to quit the input */
     void end();
+
+    /** load the parameters used for this thread*/
+    void loadSettings(size_t what);
 
   signals:
     /** signal to indicate that we are done processing an event.
      * this is used for by the ratemeter to evaluate how fast we get events.
      */
     void newEventAdded();
+
+  protected:
+    /** function that will wait until we really suspended.
+     * will be called by suspend, so that it returns only when thread has really
+     * suspended.
+     */
+    void waitUntilSuspended();
 
   private:
     /** reference to the ringbuffer */
@@ -72,6 +92,21 @@ namespace cass
      * The converter will convert the incomming data to our CASSEvent
      */
     FormatConverter *_converter;
+
+    /** a mutex for suspending the thread*/
+    QMutex _pauseMutex;
+
+    /** a condition that we will wait on until we are not suspended anymore*/
+    QWaitCondition _pauseCondition;
+
+    /** flag telling whether we shouodl suspend ourselves*/
+    bool _pause;
+
+    /** flag telling whether we are already suspended*/
+    bool _paused;
+
+    /** condition that will wait until the thread is rally suspended*/
+    QWaitCondition _waitUntilpausedCondition;
   };
 
 }//end namespace cass

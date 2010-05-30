@@ -27,6 +27,53 @@ cass::FileInput::~FileInput()
   VERBOSEOUT(std::cout<< "input is closed" <<std::endl);
 }
 
+void cass::FileInput::loadSettings(size_t what)
+{
+  //pause yourselve//
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspend before laoding settings"
+      <<std::endl);
+  suspend();
+  //load settings//
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspended. Now loading Settings"
+      <<std::endl);
+  _converter->loadSettings(what);
+  //resume yourselve//
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: Done loading Settings. Now Resuming Thread"
+      <<std::endl);
+  resume();
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: thread is resumed"
+      <<std::endl);
+}
+
+void cass::FileInput::suspend()
+{
+  _pause=true;
+  //wait until you are paused//
+  waitUntilSuspended();
+}
+
+void cass::FileInput::resume()
+{
+  //if the thread has not been paused return here//
+  if(!_pause)
+    return;
+  //reset the pause flag;
+  _pause=false;
+  //tell run to resume via the waitcondition//
+  _pauseCondition.wakeOne();
+}
+
+void cass::FileInput::waitUntilSuspended()
+{
+  //if it is already paused then retrun imidiatly//
+  if(_paused)
+    return;
+  //otherwise wait until the conditions has been called//
+  QMutex mutex;
+  QMutexLocker lock(&mutex);
+  _waitUntilpausedCondition.wait(&mutex);
+}
+
 void cass::FileInput::run()
 {
   //create a list where all files that should be processed are in
