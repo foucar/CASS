@@ -19,13 +19,19 @@ namespace cass
   class CASSSHARED_EXPORT PostprocessorBackend
   {
   public:
-    /** constructor. */
+    /** constructor
+     *
+     * @param pp reference to the class that contains all postprocessors
+     * @param key the key in the container of this postprocessor
+     */
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
       : _key(key), _pp(pp)
     {}
 
+    /** virtual destructor */
     virtual ~PostprocessorBackend() { }
 
+    /** the operator called for each event */
     virtual void operator()(const CASSEvent&) = 0;
 
     /** Provide default implementation of loadSettings that does nothings */
