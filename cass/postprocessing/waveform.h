@@ -33,11 +33,7 @@ namespace cass
   class pp110 : public PostprocessorBackend
   {
   public:
-    /** constructor.
-     * @param ppc reference to the postprocessor container that contains
-     *        this postprocessor.
-     * @param id the id of this postprocessor object
-     */
+    /** constructor */
     pp110(PostProcessors &ppc, const PostProcessors::key_t &key);
 
     /** delete the histogram when you are destroyed*/
