@@ -579,7 +579,7 @@ public:
                                 const std::pair<size_t,size_t> &range,
                                 size_t nbrBins) const;
 
-    /** convert histogram to Radius - \$f \phi \f$ representation
+    /** convert histogram to Radius - \f$ \phi \f$ representation
      * @param[in] center reference to x and y cetner in histogram memory coordinates
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      * @param[in] nbrAngleBins the number of bins that the resulting histogram has.
