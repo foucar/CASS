@@ -30,18 +30,18 @@ cass::FileInput::~FileInput()
 void cass::FileInput::loadSettings(size_t what)
 {
   //pause yourselve//
-  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspend before laoding settings"
+  VERBOSEOUT(std::cout << "File Input: Load Settings: suspend before laoding settings"
       <<std::endl);
   suspend();
   //load settings//
-  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspended. Now loading Settings"
+  VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
   _converter->loadSettings(what);
   //resume yourselve//
-  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: Done loading Settings. Now Resuming Thread"
+  VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<std::endl);
   resume();
-  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: thread is resumed"
+  VERBOSEOUT(std::cout << "File Input: Load Settings: thread is resumed"
       <<std::endl);
 }
 
@@ -85,7 +85,7 @@ void cass::FileInput::run()
   //put the names into a list of things that we want to process
   if (filelistfile.is_open())
   {
-    std::cout <<"filelist \""<<_filelistname<<"\" is open"<<std::endl;
+    VERBOSEOUT(std::cout <<"filelist \""<<_filelistname<<"\" is open"<<std::endl);
     //go through whole file
     while (!filelistfile.eof())
     {
@@ -103,7 +103,7 @@ void cass::FileInput::run()
         continue;
       }
       filelist.push_back(line);
-      std::cout <<"file \""<<line<<"\" added to processing list"<<std::endl;
+      VERBOSEOUT(std::cout <<"file \""<<line<<"\" added to processing list"<<std::endl);
     }
   }
 
@@ -170,7 +170,7 @@ void cass::FileInput::run()
 
 void cass::FileInput::end()
 {
-  std::cout << "input got signal that it should close"<<std::endl;
+  VERBOSEOUT(std::cout << "input got signal that it should close"<<std::endl);
   _quit=true;
 }
 
