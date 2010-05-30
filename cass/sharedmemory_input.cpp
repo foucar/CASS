@@ -128,7 +128,7 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   }
 
   //make a pointer to a element in the ringbuffer//
-  cass::CASSEvent *cassevent;
+  cass::CASSEvent *cassevent(0);
 
   //retrieve a new element from the ringbuffer//
   _ringbuffer.nextToFill(cassevent);
