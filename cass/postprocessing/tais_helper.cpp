@@ -5,6 +5,7 @@
 #include "tais_helper.h"
 #include "acqiris_device.h"
 #include "pixel_detector.h"
+#include "cass.h"
 
 //initialize static members//
 QMutex cass::Tais::TaisHelper::_mutex;
@@ -36,7 +37,10 @@ void cass::Tais::TaisHelper::destroy()
 
 cass::Tais::TaisHelper::TaisHelper()
 {
+  using namespace std;
   loadSettings();
+  for (size_t i=0 ; i<NbrOfWorkers ; ++i)
+    _conditionList.push_back(make_pair(0,false));
 }
 
 void cass::Tais::TaisHelper::loadSettings()
@@ -73,7 +77,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       using namespace cass::ACQIRIS;
 
       const cass::ACQIRIS::Instruments _instrument (Camp1);
-      const size_t _channel(0);
+      const size_t _channel(1);
 
       const Device *dev
           (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
@@ -81,7 +85,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
       //check if instrument exists//
       if (dev->instruments().end() == instrIt)
-        throw std::runtime_error(QString("TaisHelper: Data doesn't contain Instrument %1")
+        throw std::runtime_error(QString("TaisHelper::process(): Data doesn't contain Instrument %1")
                                  .arg(_instrument).toStdString());
       const Instrument &instr(instrIt->second);
       //retrieve a reference to the right channel//
@@ -101,9 +105,17 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
         integral += *it * gain - offset;
 
       cond = ((_tofCond.first < integral) && (integral < _tofCond.second));
+
+//      std::cout << "TaisHelper::process(): integral "<<integral
+//          <<" "<<_tofCond.first
+//          <<" "<<_tofCond.second
+//          <<" "<<(_tofCond.first < integral)
+//          <<" "<<(integral < _tofCond.second)
+//          <<" "<<cond
+//          <<std::endl;
     }
     break;
-  case VMI:
+  case PnCCD:
     {
       cass::CASSEvent::Device _device (CASSEvent::CCD);
       size_t _detector(0);
@@ -135,7 +147,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       cond = ((_ccdCond.first < (integral/integral2)) && ((integral/integral2) < _ccdCond.second));
     }
     break;
-  case PnCCD:
+  case VMI:
     {
       cass::CASSEvent::Device _device (CASSEvent::pnCCD);
       size_t _detector(0);
@@ -157,13 +169,13 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
         integral += frame[row*colwidth + col];
 
       cond = ((_ccdCond.first < integral) && (integral < _ccdCond.second));
-
     }
     break;
   default:
     break;
   }
 
+//  std::cout << "TaisHelper::process(): retrun "<<cond<<std::endl;
   return cond;
 }
 

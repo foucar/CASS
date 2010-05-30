@@ -1,13 +1,14 @@
 //Copyright (C) 2010 Lutz Foucar
 
-#ifndef _DETECTOR_HELPER_H_
-#define _DETECTOR_HELPER_H_
+#ifndef _TAIS_HELPER_H_
+#define _TAIS_HELPER_H_
 
 #include <stdint.h>
 #include <utility>
 #include <algorithm>
 #include <list>
 #include <map>
+#include <iostream>
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -68,11 +69,17 @@ namespace cass
         //find the pair containing the detector//
         conditionList_t::iterator it =
           std::find_if(_conditionList.begin(), _conditionList.end(), IsKey(evt.id()));
+
+//        std::cout<< "TaisHelper::validate():"
+//            <<" "<<it->first
+//            <<" "<<it->second
+//            <<std::endl;
         //check wether id is not already on the list//
         if(_conditionList.end() == it)
         {
           //process the event and find condition
           bool cond (process(evt));
+//          std::cout<< "TaisHelper::validate(): condition "<<cond<<std::endl;
           //create a new key from the id with the reloaded detector
           conditionList_t::value_type newPair = std::make_pair(evt.id(),cond);
           //put it to the beginning of the list//
