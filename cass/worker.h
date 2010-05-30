@@ -24,6 +24,7 @@ namespace cass
   class Analyzer;
 
   /** The worker thread.
+   *
    * The thread will do the following tasks in a loop:
    * - retrive an event form the buffer,
    * - analyze it using the analyzer,
@@ -36,6 +37,7 @@ namespace cass
     Q_OBJECT;
   public:
     /** constructor.
+     *
      * @param rb the rinbguffer we get the events from
      * @param outputfilename a name that is passed to special pp. Can be defined
      *                       using -o in the commandline call of cass.
@@ -120,6 +122,8 @@ namespace cass
     /** constructor.
      * will create the requested amount of threads.
      * @param rb the rinbguffer we get the events from
+     * @param outputfilename a name that is passed to special pp. Can be defined
+     *                       using -o in the commandline call of cass.
      * @param parent the qt parent of this object
      */
     Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
@@ -131,7 +135,6 @@ namespace cass
 
     //! starts the threads
     void start();
-
 
   public slots:
     /** will set the flags to end the threads */
