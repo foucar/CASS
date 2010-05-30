@@ -557,7 +557,7 @@ public:
     Histogram1DFloat reduce(Axis axis) const;
 
     /** Reduce the 2D histogram to a 1D integral along a specified axis.
-     * @param[in] from,to the range on the other axis that you want to project
+     * @param[in] range the range on the other axis that you want to project
      * @param[in] axis Reduce along x/rows (axis=xAxis) or y/columns (axis=yAxis)
      */
     Histogram1DFloat project(std::pair<float,float> range, Axis axis) const;
@@ -566,10 +566,11 @@ public:
      * @param[in] center center in coordinates of this 2d histograms memroy
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      */
-    Histogram1DFloat radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius) const;
+    Histogram1DFloat radial_project(const std::pair<size_t,size_t> &center,
+                                    size_t maxRadius) const;
 
     /** Reduce the 2D histogram to a 1D radar plot around a specified center.
-     * @param[in] center(x,y), reference to x and y center in histogram memory coordinates
+     * @param[in] center reference to pair x and y center in histogram memory coordinates
      * @param[in] range reference to min and max radii in histogram memory coordinates
      * @param[in] nbrBins the number of bins that the resulting histogram has.
      *                    Range will be 0 ... 360
@@ -579,7 +580,7 @@ public:
                                 size_t nbrBins) const;
 
     /** convert histogram to Radius - \$f \phi \f$ representation
-     * @param center reference to x and y cetner in histogram memory coordinates
+     * @param[in] center reference to x and y cetner in histogram memory coordinates
      * @param[in] maxRadius the maximal possible radius in histogram memory coordinates
      * @param[in] nbrAngleBins the number of bins that the resulting histogram has.
      *                         Range will be 0 ... 360
