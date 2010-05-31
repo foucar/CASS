@@ -76,6 +76,13 @@ void cass::FileInput::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
+void cass::FileInput::end()
+{
+  VERBOSEOUT(std::cout << "input got signal that it should close"
+             <<std::endl);
+  _quit=true;
+}
+
 void cass::FileInput::run()
 {
   //create a list where all files that should be processed are in
@@ -90,7 +97,9 @@ void cass::FileInput::run()
   //put the names into a list of things that we want to process
   if (filelistfile.is_open())
   {
-    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname<<"\" is open"<<std::endl);
+    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname
+               <<"\" is open"
+               <<std::endl);
     //go through whole file
     while (!filelistfile.eof())
     {
@@ -118,7 +127,7 @@ void cass::FileInput::run()
   }
 
   //make a pointer to a buffer
-  cass::CASSEvent *cassevent;
+  cass::CASSEvent *cassevent(0);
   //go through all files in the list
   for (std::vector<std::string>::iterator filelistiterator = filelist.begin();
        filelistiterator != filelist.end();
@@ -171,20 +180,14 @@ void cass::FileInput::run()
       xtcfile.close();
     }
     else
-      std::cout <<"FileInput::run(): file \""<<filelistiterator->c_str()<<"\" could not be opened"<<std::endl;
+      std::cout <<"FileInput::run(): file \""<<filelistiterator->c_str()
+          <<"\" could not be opened"
+          <<std::endl;
   }
   while(!_quit)
     this->sleep(1);
   std::cout << "closing the input"<<std::endl;
 }
-
-void cass::FileInput::end()
-{
-  VERBOSEOUT(std::cout << "input got signal that it should close"<<std::endl);
-  _quit=true;
-}
-
-
 
 
 // Local Variables:
