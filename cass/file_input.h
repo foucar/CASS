@@ -31,6 +31,10 @@ namespace cass
    * - if the iteration through the datagram was sucessfull put into the
    *   ringbuffer marked to be analyzed.
    *
+   * @cassttng FileInput/{Rewind}\n
+   *           Tells the program to start over running over all files when true.
+   *           Default is false.
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT FileInput : public QThread
@@ -104,6 +108,9 @@ namespace cass
 
     /** flag telling whether we are already suspended*/
     bool _paused;
+
+    /** flag to start over with the files when requested by user */
+    bool _rewind;
 
     /** condition that will wait until the thread is rally suspended*/
     QWaitCondition _waitUntilpausedCondition;

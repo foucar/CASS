@@ -1,5 +1,7 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
+#include <QtCore/QSettings>
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -33,7 +35,6 @@ cass::FileInput::~FileInput()
 
 void cass::FileInput::loadSettings(size_t what)
 {
-  /** @todo rewind when requested while load settings */
   //pause yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspend before laoding settings"
       <<std::endl);
@@ -42,6 +43,8 @@ void cass::FileInput::loadSettings(size_t what)
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
   _converter->loadSettings(what);
+  QSettings settings;
+  _rewind = settings.value("Rewind",false).toBool();
   //resume yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<std::endl);
@@ -140,8 +143,8 @@ void cass::FileInput::run()
     if (_quit) break;
 
     //open the file
-    std::ifstream xtcfile;
-    xtcfile.open(filelistiterator->c_str(), std::ios::binary | std::ios::in);
+    std::ifstream xtcfile
+        (filelistiterator->c_str(), std::ios::binary | std::ios::in);
     //if there was such a file then we want to load it
     if (xtcfile.is_open())
     {
@@ -164,16 +167,24 @@ void cass::FileInput::run()
           _paused=false;
           //unlock the mutex, such that others can work again//
           _pauseMutex.unlock();
+          //rewind if requested//
+          if (_rewind)
+          {
+            _rewind = false;
+            filelistiterator = filelist.begin();
+            break;
+          }
         }
         //reset the cassevent pointer//
         cassevent=0;
         //retrieve a new element from the ringbuffer
         _ringbuffer.nextToFill(cassevent);
         //read the datagram from the file in the ringbuffer
-        Pds::Dgram& dg = *reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
+        Pds::Dgram& dg
+            (*reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer()));
         xtcfile.read(cassevent->datagrambuffer(),sizeof(dg));
         xtcfile.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-        const bool isGood = _converter->processDatagram(cassevent);
+        const bool isGood (_converter->processDatagram(cassevent));
         cassevent->setFilename(filelistiterator->c_str());
         //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);
