@@ -17,7 +17,10 @@ cass::FileInput::FileInput(std::string filelistname,
                              _ringbuffer(ringbuffer),
                              _quit(false),
                              _filelistname(filelistname),
-                             _converter(cass::FormatConverter::instance())
+                             _converter(cass::FormatConverter::instance(),
+                             _pause(false),
+                             _paused(false),
+                             _rewind(false))
 {
   VERBOSEOUT(std::cout<< "FileInput::FileInput: constructed" <<std::endl);
 }
@@ -129,7 +132,7 @@ void cass::FileInput::run()
   //make a pointer to a buffer
   cass::CASSEvent *cassevent(0);
   //go through all files in the list
-  for (std::vector<std::string>::iterator filelistiterator = filelist.begin();
+  for (std::vector<std::string>::const_iterator filelistiterator = filelist.begin();
        filelistiterator != filelist.end();
        ++filelistiterator)
   {
