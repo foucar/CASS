@@ -215,7 +215,7 @@ void cass::pnCCD::Parameter::save()
 cass::pnCCD::Analysis::Analysis()
 {
   //load the settings//
-//  loadSettings();
+  //loadSettings();
 }
 
 //------------------------------------------------------------------------------
@@ -301,7 +301,7 @@ void cass::pnCCD::Analysis::loadSettings()
     else
     {
       std::cout<< printoutdef << "Not able to open file "<<dp._darkcalfilename.c_str()<<std::endl;
-      if(_param._isDarkframe) std::cout<< printoutdef << "and this is a Darkframe run"<<std::endl;
+      if(_param._isDarkframe) std::cout<< printoutdef << "but this is a Darkframe run"<<std::endl;
       else
       {
         std::cout<< printoutdef << "and this is NOT a Darkframe run"<<std::endl;
@@ -312,23 +312,24 @@ void cass::pnCCD::Analysis::loadSettings()
         // to load
         dp._ROImask.resize(pnCCD::default_size_sq);
         dp._ROImask_converter.resize(pnCCD::default_size_sq);
-      }
-      if(!dp._doOffsetCorrection)
-      {
-        std::cout<< printoutdef << "I am not going to apply offset corrections anyway"<<std::endl;
-        //safe net in case there is no file yet and I do not want to make offset-corrections
-        dp._offset.resize(pnCCD::default_size_sq);
-        dp._noise.resize(pnCCD::default_size_sq);
-        //resetting the offset/noise maps
-        dp._offset.assign(dp._offset.size(),0);
-        dp._noise.assign(dp._noise.size(),0);
-      }
-      else
-      {
-        //I should not get here
-        throw std::runtime_error(
+        if(!dp._doOffsetCorrection)
+        {
+          std::cout<< printoutdef << "I am not going to apply offset corrections anyway"<<std::endl;
+          //safe net in case there is no file yet and I do not want to make offset-corrections
+          dp._offset.resize(pnCCD::default_size_sq);
+          dp._noise.resize(pnCCD::default_size_sq);
+          //resetting the offset/noise maps
+          dp._offset.assign(dp._offset.size(),0);
+          dp._noise.assign(dp._noise.size(),0);
+        }
+        else
+        {
+          //I should not get here
+          //if(_param._isDarkframe)
+          throw std::runtime_error(
           QString("I have been asked to Offset correct the frames, but there is no darkframe file named:\n\t "
                   ).arg(dp._darkcalfilename.c_str()).toStdString());
+        }
       }
     }
     //in case this is a Dark-Run
