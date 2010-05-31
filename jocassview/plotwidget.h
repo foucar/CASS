@@ -25,6 +25,8 @@
 #include <QPushButton>
 #include <QComboBox>
 #include <QRadioButton>
+#include <QCheckBox>
+#include <QSpinBox>
 #include <QAction>
 #include <QFont>
 #include <QQueue>
@@ -212,27 +214,28 @@ public:
     VERBOSEOUT(std::cout << "spectrogramdata overloaded constructor" << std::endl);
   }
 
-  void setHistogram(cass::Histogram2DFloat *hist)
+  void setHistogram(cass::Histogram2DFloat *hist,
+                    bool manualScale, int min, int max)
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
     VERBOSEOUT(std::cout << "spectrogramdata setHistogram" << std::endl);
     if (_hist)
     {
-      _interval.setMinValue( _hist->min() );
-      _interval.setMaxValue( _hist->max() );
+      _interval.setMinValue(manualScale? min : _hist->min() );
+      _interval.setMaxValue(manualScale? max : _hist->max() );
       _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
       VERBOSEOUT(std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
-          <<" hist left : "<<_boundRect.left()
-          <<" hist right : "<<_boundRect.right()
-          <<" hist top : "<<_boundRect.top()
-          <<" hist bottom : "<<_boundRect.bottom()
-          <<" hist width : "<<_boundRect.width()
-          <<" hist height : "<<_boundRect.height()
-          << std::endl);
+                 <<" hist left : "<<_boundRect.left()
+                 <<" hist right : "<<_boundRect.right()
+                 <<" hist top : "<<_boundRect.top()
+                 <<" hist bottom : "<<_boundRect.bottom()
+                 <<" hist width : "<<_boundRect.width()
+                 <<" hist height : "<<_boundRect.height()
+                 << std::endl);
     }
     setBoundingRect( _boundRect );
   }
@@ -357,6 +360,18 @@ public:
 
     _colorbarPresets->setEditable(true);
     _saveColorbar = new QPushButton(tr("save colorbar"));
+
+    _bool_auto_scale = new QCheckBox(tr("man scale"));
+    _bool_auto_scale->setChecked( FALSE );
+    QLabel* _lbl_scale_min = new QLabel(tr("Min"),this);
+    _sbx_scale_min = new QSpinBox(this);
+    _sbx_scale_min->setRange(-10000,10000);
+    _sbx_scale_min->setValue(0);
+    QLabel* _lbl_scale_max = new QLabel(tr("Max"),this);
+    _sbx_scale_max = new QSpinBox(this);
+    _sbx_scale_max->setRange(-10000,10000);
+    _sbx_scale_max->setValue(1500);
+
     // populate colorbar presets:
     QSettings settings;
     settings.beginGroup("ColorBar");
@@ -380,6 +395,13 @@ public:
     _toolbar->addWidget( _rad_colormap_exp );
     _toolbar->addWidget( _rad_colormap_sqrt );
     _toolbar->addWidget( _rad_colormap_sq );
+    _toolbar->addSeparator();
+    _toolbar->addWidget(_bool_auto_scale);
+    _toolbar->addWidget(_lbl_scale_min);
+    _toolbar->addWidget(_sbx_scale_min);
+    _toolbar->addWidget(_lbl_scale_max);
+    _toolbar->addWidget(_sbx_scale_max);
+
 
     setMouseTracking(true);
     //_transformCol = QwtLogColorMap::trans_pow10;
@@ -450,7 +472,10 @@ public:
 
     _spectrogram->setData(*_spectrogramDataDummy); //hack
     dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
-    _spectrogramData->setHistogram(hist);
+    _spectrogramData->setHistogram(hist,
+                                   _bool_auto_scale->checkState(),
+                                   _sbx_scale_min->value(),
+                                   _sbx_scale_max->value() );
     _spectrogram->setData(*_spectrogramData);   //hack
     _spectrogram->invalidateCache();
     _spectrogram->itemChanged();
@@ -593,6 +618,10 @@ protected:
   QRadioButton* _rad_colormap_exp;
   QRadioButton* _rad_colormap_sqrt;
   QRadioButton* _rad_colormap_sq;
+
+  QCheckBox* _bool_auto_scale;
+  QSpinBox* _sbx_scale_min;
+  QSpinBox* _sbx_scale_max;
 };
 
 
