@@ -14,6 +14,7 @@
 #include <QtCore/QMutexLocker>
 
 #include "cass_event.h"
+#include "backend.h"
 
 
 namespace cass
@@ -100,7 +101,7 @@ namespace cass
       conditionList_t _conditionList;
 
       /** the condition type */
-      enum ConditionType{Tof,VMI,PnCCD} _conditiontype;
+      enum ConditionType{Tof, VMI, PnCCD, PnCCDPhotonhit} _conditiontype;
 
       /** tof boundaries for calc integral */
       std::pair<float,float> _tofBound;
@@ -140,6 +141,30 @@ namespace cass
       static TaisHelper* _instance;
     };
   }
+
+  class Histogram0DFloat;
+  /** Result of TaisHelper.
+   *
+   * @author Lutz Foucar
+   */
+  class pp4000 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp4000(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp4000();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+  protected:
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+  };
+
+
 }
 
 #endif

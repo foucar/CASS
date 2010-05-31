@@ -1,11 +1,13 @@
 //Copyright (C) 2010 Lutz Foucar
 
 #include <QtCore/QSettings>
+#include <cmath>
 
 #include "tais_helper.h"
 #include "acqiris_device.h"
 #include "pixel_detector.h"
 #include "cass.h"
+#include "histogram.h"
 
 //initialize static members//
 QMutex cass::Tais::TaisHelper::_mutex;
@@ -69,7 +71,7 @@ void cass::Tais::TaisHelper::loadSettings()
 bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
 {
   bool cond(false);
-
+  using namespace std;
   switch(_conditiontype)
   {
   case Tof:
@@ -96,11 +98,14 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       const Channel &channel (instr.channels()[_channel]);
       const double gain(channel.gain());
       const double offset(channel.offset());
+      const double sampInterval(channel.sampleInterval());
       //retrieve a reference to the waveform of the channel//
       const waveform_t &waveform (channel.waveform());
       float integral (0);
-      waveform_t::const_iterator it(waveform.begin() +static_cast<size_t>(_tofBound.first));
-      waveform_t::const_iterator end(waveform.begin() +static_cast<size_t>(_tofBound.second));
+      size_t beginoffset(_tofBound.first / sampInterval );
+      size_t endoffset(_tofBound.second / sampInterval );
+      waveform_t::const_iterator it(waveform.begin() + beginoffset);
+      waveform_t::const_iterator end(waveform.begin() + endoffset);
       for (; it !=end;++it)
         integral += *it * gain - offset;
 
@@ -117,7 +122,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
     break;
   case PnCCD:
     {
-      cass::CASSEvent::Device _device (CASSEvent::CCD);
+      cass::CASSEvent::Device _device (CASSEvent::pnCCD);
       size_t _detector(0);
       if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("TaisHelper: Detector %1 does not exist in Device %2")
@@ -144,12 +149,46 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
         for (size_t col(mincol2); col <maxcol2;++col)
         integral2 += frame[row*colwidth + col];
 
-      cond = ((_ccdCond.first < (integral/integral2)) && ((integral/integral2) < _ccdCond.second));
+      cond = ((_ccdCond.first < (abs(integral)/abs(integral2))) && ((abs(integral)/abs(integral2)) < _ccdCond.second));
+      if (cond)std::cout << (abs(integral)/abs(integral2))<<std::endl;
+    }
+    break;
+  case PnCCDPhotonhit:
+    {
+      cass::CASSEvent::Device _device (CASSEvent::pnCCD);
+      size_t _detector(0);
+      if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+        throw std::runtime_error(QString("TaisHelper: Detector %1 does not exist in Device %2")
+                                 .arg(_detector)
+                                 .arg(_device).toStdString());
+      const PixelDetector::pixelList_t pixellist
+          ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+      PixelDetector::pixelList_t::const_iterator it
+          (pixellist.begin());
+
+      float integral (0);
+      float integral2 (0);
+      for (;it != pixellist.end() ; ++it)
+      {
+        if( (it->x() >= _ccdBound.first.first)  &&
+            (it->x() <= _ccdBound.second.first) &&
+            (it->y() >= _ccdBound.first.second) &&
+            (it->y() <= _ccdBound.second.second) )
+          integral += 1.;
+        if( (it->x() >= _ccdBound2.first.first)  &&
+            (it->x() <= _ccdBound2.second.first) &&
+            (it->y() >= _ccdBound2.first.second) &&
+            (it->y() <= _ccdBound2.second.second) )
+          integral2 += 1.;
+      }
+
+      cond = integral > integral2;
+      if(cond)std::cout << integral << " " << integral2 <<std::endl;
     }
     break;
   case VMI:
     {
-      cass::CASSEvent::Device _device (CASSEvent::pnCCD);
+      cass::CASSEvent::Device _device (CASSEvent::CCD);
       size_t _detector(0);
       if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
         throw std::runtime_error(QString("TaisHelper: Detector %1 does not exist in Device %2")
@@ -177,5 +216,31 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
 
 //  std::cout << "TaisHelper::process(): retrun "<<cond<<std::endl;
   return cond;
+}
+
+
+
+
+
+// *** postprocessors 51 calcs integral over a region in 1d histo ***
+
+cass::pp4000::pp4000(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(new Histogram0DFloat())
+{
+  _pp.histograms_replace(_key,_result);
+}
+
+cass::pp4000::~pp4000()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+void cass::pp4000::operator()(const CASSEvent& evt)
+{
+  using namespace std;
+  _result->lock.lockForWrite();
+  *_result = cass::Tais::TaisHelper::instance()->condition(evt);
+  _result->lock.unlock();
 }
 

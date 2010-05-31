@@ -166,6 +166,9 @@ the Class description for information about what parameters are user settable.
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 02000: Dump all 1d and 2d cass histograms to root file
+
+--Hack (for time beeing)--
+04000: Answer of Taishelper
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -272,6 +275,7 @@ using the custom doxygen tag cassttng.
       PnccdHDF5=1000,
       ROOTDump=2000,
 
+      TaisHelperAnswer=4000,
       InvalidPP
     };
 

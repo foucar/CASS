@@ -21,6 +21,7 @@
 #include "machine_data.h"
 #include "backend.h"
 #include "machine_data.h"
+#include "tais_helper.h"
 
 
 
@@ -477,6 +478,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case PIPICO:
     processor = new pp220(*this,key);
+    break;
+  case TaisHelperAnswer:
+    processor = new pp4000(*this,key);
     break;
 #ifdef HDF5
   case PnccdHDF5:
