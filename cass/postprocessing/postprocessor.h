@@ -518,15 +518,15 @@ using the custom doxygen tag cassttng.
       }
       //number of bins, lower & upper limit
       _size = in->retrieveSizet();
-      std::cerr << "list size " << _size << std::endl;
+      VERBOSEOUT(std::cerr << "list size " << _size << std::endl);
       if (!in->endChecksumGroupForRead())
       {
-        std::cerr<<"wrong checksum IdList"<<std::endl;
+        VERBOSEOUT(std::cerr<<"wrong checksum IdList"<<std::endl);
         return false;
       }
       for(size_t ii=0; ii<_size; ++ii)
         _list.push_back(in->retrieveString());
-      std::cerr << "list is done " << std::endl;
+      VERBOSEOUT(std::cerr << "list is done " << std::endl);
       return true;
     }
 
