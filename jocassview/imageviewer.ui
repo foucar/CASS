@@ -57,7 +57,6 @@
      <string>Control</string>
     </property>
     <addaction name="getData"/>
-    <addaction name="getEvent"/>
     <addaction name="getHistogram"/>
     <addaction name="clearHistogram"/>
     <addaction name="readIni"/>
@@ -103,7 +102,8 @@
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
-  </action><action name="auto_save_data">
+  </action>
+  <action name="auto_save_data">
    <property name="text">
     <string>&amp;Save data (auto Filename)</string>
    </property>
@@ -210,25 +210,25 @@
     <string>Show about Qt.</string>
    </property>
   </action>
-   <action name="readIni">
+  <action name="readIni">
    <property name="text">
     <string>Read Ini</string>
    </property>
    <property name="toolTip">
     <string>Read Initialisation.</string>
    </property>
-    <property name="shortcut">
+   <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
   </action>
- <action name="writeIni">
+  <action name="writeIni">
    <property name="text">
-    <string>Write Ini</string>
+    <string>Write Darkcal File</string>
    </property>
    <property name="toolTip">
     <string>Write Initialisation.</string>
    </property>
-    <property name="shortcut">
+   <property name="shortcut">
     <string>Ctrl+W</string>
    </property>
   </action>
@@ -259,7 +259,7 @@
     <string>Ctrl+H</string>
    </property>
   </action>
- <action name="clearHistogram">
+  <action name="clearHistogram">
    <property name="text">
     <string>&amp;clear Histogram...</string>
    </property>
@@ -267,7 +267,6 @@
     <string>Ctrl+C</string>
    </property>
   </action>
-
  </widget>
  <resources/>
  <connections>
