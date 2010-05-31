@@ -682,7 +682,6 @@ void getDataThread::run()
     if (_dataType==dat_Any) {
         mime = getMimeType(*_attachId);
         VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
-        cout << "getDataThread::run mimetype: " << mime << endl;
         if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
         else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
         else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
