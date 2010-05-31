@@ -16,7 +16,7 @@ int cass::UnixSignalDaemon::sigtermFd[2];
 int cass::setup_unix_signal_handlers()
 {
   struct sigaction quit, term;
-  VERBOSEOUT(std::cout << "what to do in case signal to exit "<<std::endl);
+  VERBOSEOUT(std::cout << "Daemon: what to do in case signal to exit "<<std::endl);
 
   quit.sa_handler = cass::UnixSignalDaemon::quitSignalHandler;
   sigemptyset(&quit.sa_mask);
@@ -25,7 +25,7 @@ int cass::setup_unix_signal_handlers()
   if (sigaction(SIGQUIT, &quit, 0) > 0)
     return 1;
 
-  VERBOSEOUT(std::cout << "what to do in case signal to quit "<<std::endl);
+  VERBOSEOUT(std::cout << "Daemon: what to do in case signal to quit "<<std::endl);
   term.sa_handler = cass::UnixSignalDaemon::termSignalHandler;
   sigemptyset(&term.sa_mask);
   term.sa_flags = SA_RESTART;
@@ -54,22 +54,22 @@ cass::UnixSignalDaemon::UnixSignalDaemon(QObject *parent)
 /* See daemon.h for details of that's going on here */
 void cass::UnixSignalDaemon::quitSignalHandler(int)
 {
-  std::cout<<"quit signal seen"<<std::endl;
+  std::cout<<"Daemon::quitSignalHandler(): quit signal seen"<<std::endl;
   char a = 1;
   ssize_t r(::write(sigquitFd[0], &a, sizeof(a)));
   if ( r < 0 ) {
-    std::cout << "Quit signal write failed" << std::endl;
+    std::cout << "Daemon::quitSignalHandler(): Quit signal write failed" << std::endl;
   }
 }
 
 void cass::UnixSignalDaemon::handleSigQuit()
 {
-  std::cout<<"quit signal handle"<<std::endl;
+  std::cout<<"Daemon::handleSigQuit(): quit signal handle"<<std::endl;
   snQuit->setEnabled(false);
   char tmp;
   ssize_t r(::read(sigquitFd[1], &tmp, sizeof(tmp)));
   if ( r < 0 ) {
-    std::cout << "Quit signal read failed" << std::endl;
+    std::cout << "Daemon::handleSigQuit(): Quit signal read failed" << std::endl;
   }
   // do Qt stuff
   emit QuitSignal();
@@ -79,23 +79,23 @@ void cass::UnixSignalDaemon::handleSigQuit()
 
 void cass::UnixSignalDaemon::termSignalHandler(int)
 {
-  std::cout<<"term signal seen"<<std::endl;
+  std::cout<<"Daemon::termSignalHandler(): Quitterm signal seen"<<std::endl;
   char a = 1;
   ssize_t r(::write(sigtermFd[0], &a, sizeof(a)));
   if ( r < 0 ) {
-    std::cout << "Term signal write failed" << std::endl;
+    std::cout << "Daemon::termSignalHandler(): Term signal write failed" << std::endl;
   }
 }
 
 
 void cass::UnixSignalDaemon::handleSigTerm()
 {
-  std::cout<<"term signal handle"<<std::endl;
+  std::cout<<"Daemon::handleSigTerm(): term signal handle"<<std::endl;
   snTerm->setEnabled(false);
   char tmp;
   ssize_t r(::read(sigtermFd[1], &tmp, sizeof(tmp)));
   if ( r < 0 ) {
-    std::cout << "Term signal read failed" << std::endl;
+    std::cout << "Daemon::handleSigTerm(): Term signal read failed" << std::endl;
   }
 
   // do Qt stuff
