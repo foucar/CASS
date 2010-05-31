@@ -65,7 +65,8 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
     if(dp._thres_for_integral>0) 
       std::cout<< printoutdef << 
-        "Also the integral of the pixel above thresold will be calculated for detector "<<idx<<std::endl;
+        "The integral of the pixel(s) above thresold will be calculated for detector "
+               <<idx<<", with threshold set to "<< dp._thres_for_integral<<std::endl;
     dp._darkcalfilename =
       value("DarkCalibrationFileName",QString("darkcal_%1.cal").arg(idx)).toString().toStdString();
     if(_isDarkframe)
