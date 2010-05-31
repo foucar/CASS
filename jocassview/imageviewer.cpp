@@ -649,6 +649,7 @@ cass::PostProcessors::active_t getDataThread::getIdList() {
                << "Size=" << (*attachment).size << std::endl
                << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
                << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
+    /** @bug when jocassview is started without having a cass server running it crashes here */
     cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
     cass::IdList list(serializer);
     return list.getList();
