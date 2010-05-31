@@ -197,7 +197,7 @@ public:
   spectrogramData():
       QwtRasterData(QwtDoubleRect(0.0, 0.0,500 , 500.0)), _hist(NULL), _boundRect(0.0, 0.0, 100.0, 100.0), _interval(QwtDoubleInterval(0.0, 1.0))
   {
-    std::cout << "spectrogramdata default constructor" << std::endl;
+    VERBOSEOUT(std::cout << "spectrogramdata default constructor" << std::endl);
   }
 
   ~spectrogramData()
@@ -209,14 +209,14 @@ public:
       QwtRasterData(brect), _hist(hist), _boundRect(brect), _interval(interval)
   {
     //setI
-    std::cout << "spectrogramdata overloaded constructor" << std::endl;
+    VERBOSEOUT(std::cout << "spectrogramdata overloaded constructor" << std::endl);
   }
 
   void setHistogram(cass::Histogram2DFloat *hist)
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
-    std::cout << "spectrogramdata setHistogram" << std::endl;
+    VERBOSEOUT(std::cout << "spectrogramdata setHistogram" << std::endl);
     if (_hist)
     {
       _interval.setMinValue( _hist->min() );
@@ -225,34 +225,34 @@ public:
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
+      VERBOSEOUT(std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
           <<" hist left : "<<_boundRect.left()
           <<" hist right : "<<_boundRect.right()
           <<" hist top : "<<_boundRect.top()
           <<" hist bottom : "<<_boundRect.bottom()
           <<" hist width : "<<_boundRect.width()
           <<" hist height : "<<_boundRect.height()
-          << std::endl;
+          << std::endl);
     }
     setBoundingRect( _boundRect );
   }
 
-
-    const cass::Histogram2DFloat *histogram() const {
-        return _hist;
-    }
-
+  const cass::Histogram2DFloat *histogram() const
+  {
+    return _hist;
+  }
 
   virtual QwtRasterData *copy() const
   {
-    std::cout <<"spectrogramdata::copy()"<<std::endl;
+    VERBOSEOUT(std::cout <<"spectrogramdata::copy()"<<std::endl);
     return new spectrogramData(_hist, _boundRect, _interval);
   }
 
   virtual QwtDoubleInterval range() const
   {
-    std::cout << "spectrogramdata range: " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl;
+    VERBOSEOUT(std::cout << "spectrogramdata range: " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
     return _interval;
+//    return QwtDoubleInterval(0,1500);
   }
 
   virtual double value(double x, double y) const
@@ -472,14 +472,14 @@ public:
           hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      std::cout << "NEW"
+      VERBOSEOUT(std::cout << "NEW"
           <<" left: "<<brect.left()
           <<" right: "<<brect.right()
           <<" top: "<<brect.top()
           <<" bottom: "<<brect.bottom()
           <<" width: "<<brect.width()
           <<" height: "<<brect.height()
-          <<std::endl;
+          <<std::endl);
       _zoomer->setZoomBase( brect  );
       _zoomer->zoom(0);
     }
@@ -719,13 +719,15 @@ public slots:
   void ZoomY(double factor)
   {
     QStack<QRectF> stack = _zoomer->zoomStack();
+#ifdef VERBOSE
     int ii=0;
     for (QStack<QRectF>::iterator it=stack.begin(); it!=stack.end(); ++it)
       std::cout << "zoomstack " << ii++ << ":  left " << it->left() << "right " << it->right() << "top " << it->top() << "bot " << it->bottom() << std::endl;
     std::cout << std::endl;
+#endif
     //_zoomer->zoom(1);
     int idx = _zoomer->zoomRectIndex();
-    std::cout << "idx: " << idx << std::endl;
+    VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
     double newheight = newZoomRect.height() * factor;
@@ -887,7 +889,7 @@ public:
     : _accumulationLength(accumulationLength),
     _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp
   {
-    std::cout << "0d constr" << std::endl;
+    VERBOSEOUT(std::cout << "0d constr" << std::endl);
     setupUI();
   }
 
