@@ -186,8 +186,9 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
 
 void ImageViewer::updateImageList(QComboBox* box) {
     cass::PostProcessors::active_t stdlist = _gdthread.getIdList();
-    for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++) {
-      std::cout << "list iteration..." << std::endl;
+    for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
+    {
+      VERBOSEOUT(std::cout << "list iteration..." << std::endl);
       QString itemstring(QString::fromStdString(*it));
       if (box->findText(itemstring)==-1)
          box->addItem( itemstring, QVariant(0) );
@@ -643,7 +644,6 @@ cass::PostProcessors::active_t getDataThread::getIdList() {
         VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
         return cass::PostProcessors::active_t();
     }
-    cerr << "Hello2" << endl;
     soap_multipart::iterator attachment = _cass->dime.begin();
     VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
                << "Memory=" << (void*)(*attachment).ptr << std::endl
@@ -651,9 +651,7 @@ cass::PostProcessors::active_t getDataThread::getIdList() {
                << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
                << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
     cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-    cerr << "Hello3" << endl;
     cass::IdList list(serializer);
-    cerr << "Hello4" << endl;
     return list.getList();
 }
 
