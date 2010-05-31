@@ -111,13 +111,13 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
 
       cond = ((_tofCond.first < integral) && (integral < _tofCond.second));
 
-//      std::cout << "TaisHelper::process(): integral "<<integral
-//          <<" "<<_tofCond.first
-//          <<" "<<_tofCond.second
-//          <<" "<<(_tofCond.first < integral)
-//          <<" "<<(integral < _tofCond.second)
-//          <<" "<<cond
-//          <<std::endl;
+      if (cond)std::cout << "TaisHelper::process(): integral "<<integral
+          <<" "<<_tofCond.first
+          <<" "<<_tofCond.second
+          <<" "<<(_tofCond.first < integral)
+        <<" "<<(integral < _tofCond.second)
+        <<" "<<cond
+            <<std::endl;
     }
     break;
   case PnCCD:
@@ -150,7 +150,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
         integral2 += frame[row*colwidth + col];
 
       cond = ((_ccdCond.first < (abs(integral)/abs(integral2))) && ((abs(integral)/abs(integral2)) < _ccdCond.second));
-//      if (cond)std::cout << (abs(integral)/abs(integral2))<<std::endl;
+      if (cond)std::cout <<"TaisHelper::condition(): PnCCD Condition" <<(abs(integral)/abs(integral2))<<std::endl;
     }
     break;
   case PnCCDPhotonhit:
@@ -183,7 +183,7 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       }
 
       cond = integral > integral2;
-//      if(cond)std::cout << integral << " " << integral2 <<std::endl;
+      if(cond)std::cout <<"TaisHelper::condition(): PnCCD Photon Condition" << integral << " " << integral2 <<std::endl;
     }
     break;
   case VMI:
