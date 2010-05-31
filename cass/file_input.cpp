@@ -1,4 +1,4 @@
-// Copyright (C) 2009 LMF
+// Copyright (C) 2009, 2010 Lutz Foucar
 
 #include <iostream>
 #include <iomanip>
@@ -19,6 +19,7 @@ cass::FileInput::FileInput(std::string filelistname,
                              _filelistname(filelistname),
                              _converter(cass::FormatConverter::instance())
 {
+  VERBOSEOUT(std::cout<< "FileInput::FileInput: constructed" <<std::endl);
 }
 
 cass::FileInput::~FileInput()
@@ -80,12 +81,15 @@ void cass::FileInput::run()
   std::vector<std::string> filelist;
 
   //open the file with the filenames in it
+  VERBOSEOUT(std::cout <<"FileInput::run(): try to open filelist \""<<_filelistname
+             <<"\""
+             <<std::endl);
   std::ifstream filelistfile;
   filelistfile.open(_filelistname.c_str());
   //put the names into a list of things that we want to process
   if (filelistfile.is_open())
   {
-    VERBOSEOUT(std::cout <<"filelist \""<<_filelistname<<"\" is open"<<std::endl);
+    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname<<"\" is open"<<std::endl);
     //go through whole file
     while (!filelistfile.eof())
     {
@@ -103,8 +107,13 @@ void cass::FileInput::run()
         continue;
       }
       filelist.push_back(line);
-      VERBOSEOUT(std::cout <<"file \""<<line<<"\" added to processing list"<<std::endl);
+      VERBOSEOUT(std::cout <<"FileInput::run(): file \""<<line<<"\" added to processing list"<<std::endl);
     }
+  }
+  else
+  {
+    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname
+               <<"\" could not be opened"<<std::endl);
   }
 
   //make a pointer to a buffer
@@ -123,7 +132,7 @@ void cass::FileInput::run()
     //if there was such a file then we want to load it
     if (xtcfile.is_open())
     {
-      std::cout <<"processing file \""<<filelistiterator->c_str()<<"\""<<std::endl;
+      std::cout <<"FileInput::run(): processing file \""<<filelistiterator->c_str()<<"\""<<std::endl;
       //read until we are finished with the file
       while(!xtcfile.eof() && !_quit)
       {
@@ -161,7 +170,7 @@ void cass::FileInput::run()
       xtcfile.close();
     }
     else
-      std::cout <<"file \""<<filelistiterator->c_str()<<"\" could not be opened"<<std::endl;
+      std::cout <<"FileInput::run(): file \""<<filelistiterator->c_str()<<"\" could not be opened"<<std::endl;
   }
   while(!_quit)
     this->sleep(1);
