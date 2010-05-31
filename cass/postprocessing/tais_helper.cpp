@@ -102,8 +102,8 @@ bool cass::Tais::TaisHelper::process(const CASSEvent& evt)
       //retrieve a reference to the waveform of the channel//
       const waveform_t &waveform (channel.waveform());
       float integral (0);
-      size_t beginoffset(_tofBound.first / sampInterval );
-      size_t endoffset(_tofBound.second / sampInterval );
+      size_t beginoffset(static_cast<size_t>(_tofBound.first / sampInterval) );
+      size_t endoffset(static_cast<size_t>(_tofBound.second / sampInterval) );
       waveform_t::const_iterator it(waveform.begin() + beginoffset);
       waveform_t::const_iterator end(waveform.begin() + endoffset);
       for (; it !=end;++it)
