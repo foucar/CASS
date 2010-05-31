@@ -1,7 +1,7 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
-#ifndef CASS_EVENTQUEUE_H
-#define CASS_EVENTQUEUE_H
+#ifndef _FILEINPUT_H_
+#define _FILEINPUT_H_
 
 #include <QtCore/QObject>
 #include <QThread>
