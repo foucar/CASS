@@ -19,10 +19,10 @@ cass::FileInput::FileInput(std::string filelistname,
                              _ringbuffer(ringbuffer),
                              _quit(false),
                              _filelistname(filelistname),
-                             _converter(cass::FormatConverter::instance(),
+                             _converter(cass::FormatConverter::instance()),
                              _pause(false),
                              _paused(false),
-                             _rewind(false))
+                             _rewind(false)
 {
   VERBOSEOUT(std::cout<< "FileInput::FileInput: constructed" <<std::endl);
 }
