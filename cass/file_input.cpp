@@ -30,6 +30,7 @@ cass::FileInput::~FileInput()
 
 void cass::FileInput::loadSettings(size_t what)
 {
+  /** @todo rewind when requested while load settings */
   //pause yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspend before laoding settings"
       <<std::endl);
