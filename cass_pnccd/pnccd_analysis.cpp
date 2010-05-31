@@ -1194,7 +1194,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             {
               Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
               //I add only the pixel w/o a signal-photon
-              if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
+              //The first logical condition is commented out as
+              // it seems to be too restrictive in case "quite" some common mode
+              // influence is present
+              if( /*Pixel_wo_offset>0 &&*/ Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
               {
                 common_level+= Pixel_wo_offset;
                 used_pixel++;
@@ -1325,7 +1328,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             {
               Pixel_wo_offset= static_cast<double>(*itFrame) - *itOffset;
               //I add only the pixel w/o a signal-photon
-              if( Pixel_wo_offset>0 && Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
+              //The first logical condition is commented out as
+              // it seems to be too restrictive in case "quite" some common mode
+              // influence is present
+              if( /*Pixel_wo_offset>0 &&*/ Pixel_wo_offset< dp._sigmaMultiplier * *itNoise )
               {
                 common_level+= Pixel_wo_offset;
                 used_pixel++;
@@ -1334,7 +1340,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           }
           if(used_pixel>8)
           {
-            common_level/=(used_pixel-1);
+            common_level /= (used_pixel-1);
           }
           else common_level=0;
           //come back to the beginning of the line
