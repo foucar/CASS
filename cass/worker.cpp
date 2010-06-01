@@ -244,7 +244,7 @@ void cass::Workers::clearHistogram(PostProcessors::key_t key)
     throw std::bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  VERBOSEOUT(std::cout << "Workers: Clear: suspend all workers before loading settings"
+  VERBOSEOUT(std::cout << "Workers: Clear: suspend all workers before clearing histogram"
       <<std::endl);
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
