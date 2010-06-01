@@ -255,7 +255,7 @@ namespace cass
     //@{
     /** getter */
     uint64_t        integral()const          {return _integral;}
-    uint64_t        integral_overthes()const {return _integral_overthres;}
+    uint64_t        integral_overthres()const {return _integral_overthres;}
     pixel_t         maxPixelValue()const     {return _maxPixelValue;}
     uint16_t        columns()const           {return _columns;}
     uint16_t        rows()const              {return _rows;}
