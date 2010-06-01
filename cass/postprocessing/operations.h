@@ -1188,10 +1188,10 @@ namespace cass
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{MinTime|MaxTime} \n
    *           Minimum and Maximum Time to plot in the histogram. Default
-   *           is 0 ... 500
+   *           is 0 ... 300
    * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
    *           Number of values that are used per second to calculate the average. 
-   *           Default is 10
+   *           Default is 5
    *
    * @author Nicola Coppola
    */
