@@ -636,8 +636,8 @@ std::string getDataThread::getMimeType(const std::string& attachId)
 
 cass::PostProcessors::active_t getDataThread::getIdList() {
     bool ret;
-    _cass->getPostprocessorIds(&ret);
-    if(ret) {
+    int retcode=_cass->getPostprocessorIds(&ret);
+    if( (retcode==SOAP_OK) && ret) {
         VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
     } else {
         VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
