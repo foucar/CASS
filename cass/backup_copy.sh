@@ -1,6 +1,10 @@
-set -x
+#!/bin/sh
 
-mkdir -p cass_backup
+#set -x
+if [ ! -d cass_backup ]
+then
+  mkdir -p cass_backup
+fi
 
 ver=`cat cass_version.h | grep MY_BUILD_NUMBER`
 ver=${ver:24}
