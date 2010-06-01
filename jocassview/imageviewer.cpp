@@ -819,6 +819,10 @@ void ImageViewer::on_writeIni_triggered()
 
 void ImageViewer::on_readIni_triggered()
 {
+  /** @todo when read ini is sent, one should retrieve the new list of
+   *        postprocessors later, so that the dropdown list is always
+   *        up to date.
+   */
     VERBOSEOUT(cout << "readIni" << endl);
     bool ret;
     _cass->readini(0, &ret);
