@@ -147,7 +147,7 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clearHistogram(PostProcessors::key_t);
+    void clearHistogram(cass::PostProcessors::key_t);
 
   signals:
     /** this is emmitted once all workers have stoped */

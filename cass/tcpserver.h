@@ -114,7 +114,7 @@ protected:
     void emit_writeini(size_t what) { emit writeini(what); };
 
     /** allow our friends to emit the clearHistogram() signal */
-    void emit_clearHistogram(cass::PostProcessors::key_t type) { emit clearHistogram(type.c_str()); };
+    void emit_clearHistogram(cass::PostProcessors::key_t type) { emit clearHistogram(type); };
 
     /** the service */
     CASSsoapService *_soap;
