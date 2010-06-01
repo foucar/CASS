@@ -166,7 +166,6 @@
  *       items under one title, just like todo does.
  * @todo add gui's to modify the postprocessors settings in cassviewer.
  * @todo create getter for the serialized qsettings
- * @todo convenvience functtions move to a file
  * @todo discuss whether usign the helper approach will also work for the pp, to
  *       be able to use more than 1 thread
  * @todo create an excutable with the reivision number to have some fallback
@@ -175,8 +174,6 @@
  * @todo maybe postprocessors should not have the list of all histograms. pp should
  *       handle them => when requesting a histogram, one needs to ask the pp to give
  *       the right one.
- * @todo create pp that will create an running average of a histogram
- * @todo create boolean xor 0d pp
  * @todo make a file with all convenience helpers
  */
 
