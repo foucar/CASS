@@ -28,7 +28,7 @@ CONFIG      += staticlib
 # Uncomment this if you want to read files instead of connecting to shared LCLS memory
 #CONFIG      += offline
 
-# Uncomment the following line to enable pp1001 (HDF5 output)
+# Uncomment the following line to enable pp1000 (HDF5 output)
 #CONFIG      += hdf5
 
 # Uncomment the following line to enable ROOT Conversion of cass histograms
