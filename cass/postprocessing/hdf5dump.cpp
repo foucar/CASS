@@ -174,7 +174,6 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
   int n_acqiris_channels = instr.channels().size();
   hsize_t dims[2];
   int16_t n_acqiris_channels16 = (int16_t)n_acqiris_channels;
-  printf("Available acqiris channels: %li\n", (long int)n_acqiris_channels);
   dims[0] = 1;
   hid_t sh = H5Screate_simple(1, dims, NULL);
   if ( sh == 0 ) {
@@ -335,7 +334,6 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   buffer3[5] = '\0';
   sprintf(outfile, "LCLS_%s_%s_%s_%i_pnCCD.h5",
           buffer1, buffer2, buffer3, eventFiducial);
-  printf("Writing data to: %s\n", outfile);
 
   // Create the HDF5 file
   hid_t   fh;
