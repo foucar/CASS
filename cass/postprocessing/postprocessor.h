@@ -308,7 +308,7 @@ using the custom doxygen tag cassttng.
 
     /** Histogram storage access
      *
-     * We only allow read access to the histograms container. Obtaining acces will immediately put a
+     * We only allow read access to the histograms container. Obtaining access will immediately put a
      * lock on the container. You must release this with histograms_release.
      *
      * @return Histogram storage
