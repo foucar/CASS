@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #set -x
 if [ ! -d cass_backup ]

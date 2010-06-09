@@ -67,7 +67,7 @@ INSTALLS      += bin
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
 # TODO: THIS IS NOT CROSS-PLATFORM!!
-QMAKE_POST_LINK = sh backup_copy.sh
+QMAKE_POST_LINK = bash backup_copy.sh
 
 
 ## Local Variables:
