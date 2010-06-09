@@ -10,3 +10,6 @@ else {
     include(cass_defaultconfig.pri)
 }
 
+VERSION      = 0.1.0
+
+CODECFORTR   = UTF-8

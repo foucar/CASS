@@ -72,10 +72,6 @@ QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
 
-VERSION      = 0.1.0
-
-CODECFORTR   = UTF-8
-
 bin.path     = $$INSTALLBASE/bin
 libs.path    = $$INSTALLBASE/lib
 headers.path = $$INSTALLBASE/include
