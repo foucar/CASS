@@ -10,7 +10,7 @@ QMAKE_CLEAN        += jocassview
 VERSION             = 0.0.1
 
 SOAPFiles.target    = soapCASSsoapProxy
-SOAPFiles.commands  = newer soapCASSsoapProxy.h $$PWD/../cass/soapserver.h || soapcpp2 -C -i $$PWD/../cass/soapserver.h
+SOAPFiles.commands  = find $$PWD/../cass/soapserver.h -newer soapCASSsoapProxy.h || soapcpp2 -C -i $$PWD/../cass/soapserver.h
 SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
