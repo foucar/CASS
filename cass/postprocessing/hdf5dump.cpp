@@ -4,11 +4,11 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <functional>
 #include <numeric>
 #include <stdexcept>
 #include <utility>
-#include <math.h>
 #include <hdf5.h>
 
 #include <QtCore/QSettings>
@@ -649,7 +649,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   double wavelength_nm = -1;
   double wavelength_A = -1;
 
-  if ( !isnan(resonantPhotonEnergy) ) {
+  if (! std::isnan(resonantPhotonEnergy) ) {
 
     wavelength_nm = 1239.8/resonantPhotonEnergy;
     wavelength_A = 10*wavelength_nm;
@@ -674,7 +674,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
 
   }
 
-  if ( !isnan(resonantPhotonEnergyNoEnergyLossCorrection) ) {
+  if (! std::isnan(resonantPhotonEnergyNoEnergyLossCorrection) ) {
     dataset_id = H5Dcreate1(fh, "/LCLS/photon_energy_eV_no_energy_loss_correction",
                             H5T_NATIVE_DOUBLE, dataspace_id, H5P_DEFAULT);
     H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL,
