@@ -465,6 +465,25 @@ public:
     _plot->replot();
   }
 
+  ~spectrogramWidget() {
+     delete _colorMap;
+     delete _colorMapInv;
+     delete _spectrogram;
+     delete _spectrogramDataDummy;
+     delete _spectrogramData;
+     while (!_cb_scaleEngines->isEmpty())
+         delete _cb_scaleEngines->takeFirst();
+     delete _cb_scaleEngines;
+     delete _toolbar;
+     delete _colorbarPresets;
+     delete _rad_colormap_lin;
+     delete _rad_colormap_exp;
+     delete _rad_colormap_sqrt;
+     delete _rad_colormap_sq;
+     
+     delete _saveColorbar;
+  }
+
 
   void setData(cass::Histogram2DFloat* hist)
   {
@@ -583,6 +602,7 @@ protected slots:
   void updateColorBar()
   {
     // old colormap is deleted by _spectrogram->setColorMap !!
+    delete _colorMap;
     _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
     _colorMap->addColorStop(_cs_top, QColor(255,255,255));
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));

@@ -184,6 +184,19 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     updateActions();
 }
 
+ImageViewer::~ImageViewer() {
+   delete _lastImage;
+   delete _lastHist;
+   delete _cass;
+   delete _imageLabel;
+   delete _plotWidget1D;
+   delete _plotWidget0D;
+   delete _spectrogramWidget;
+   delete _imageScroller;
+
+}
+
+
 void ImageViewer::updateImageList(QComboBox* box) {
     cass::PostProcessors::active_t stdlist = _gdthread.getIdList();
     for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
@@ -580,6 +593,10 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
     _ready = true;
 }
 
+getDataThread::~getDataThread() {
+   delete _cass;
+   delete _cassCmd;
+}
 
 void getDataThread::updateServer(std::string server)
 {

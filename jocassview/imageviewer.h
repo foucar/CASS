@@ -48,6 +48,7 @@ namespace jocassview
     public:
 
         getDataThread();
+        ~getDataThread();
         cass::PostProcessors::active_t getIdList();
         std::string getMimeType(const std::string& attachId);
         void getData(const std::string& attachId, int useSpectrogram);
@@ -113,6 +114,8 @@ class ImageViewer : public QMainWindow
     public:
 
     ImageViewer(QWidget *parent = 0, Qt::WFlags flags = 0);
+
+    ~ImageViewer();
 
     /** load Data
       * loads data (image, 0d 1d 2d hist) into viewer.
