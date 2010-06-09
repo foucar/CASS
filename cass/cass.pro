@@ -85,7 +85,7 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
 # create SOAP sources and descriptions
 # use "newer" to make sure soapcpp2 is only run when necessary (this should be done by qmake, though!)
 SOAPFiles.target    = CASSsoapService
-SOAPFiles.commands  = newer soapCASSsoapService.h $$PWD/soapserver.h || soapcpp2 -S -i $$PWD/soapserver.h
+SOAPFiles.commands  = find $$PWD/soapserver.h -newer soapCASSsoapService.h || soapcpp2 -S -i $$PWD/soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
@@ -97,8 +97,8 @@ versiontarget.target = $$PWD/../cass/update-version.sh
 versiontarget.commands = $$PWD/../cass/update-version.sh
 versiontarget.depends = FORCE
 
-PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
-QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles lclslibs #lclsapps <this is completely useless the makefile for lclsapps==lclslibs!!!
+PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh CASSsoapService LCLSLibrary # LCLSApplication <- not necessary, as LCLSApplication >= LCLSLibrary
+QMAKE_EXTRA_TARGETS += versiontarget SOAPFiles lclslibs # lclsapps  <- not necessary, as lclsapps >= lclslibs
 
 # our own stuff
 SOURCES +=  analyzer.cpp \
