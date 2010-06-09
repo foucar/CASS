@@ -502,7 +502,7 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
     if (_dock->widget() != _spectrogramWidget)
         _dock->setWidget(_spectrogramWidget);
     updateActions();
-    //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
+    //VERBOSEOUT(cout << "updateHistogram2D: _scaleFactor=" << _scaleFactor << endl);
     // set rate info
     static QTime time;
     static float rate(0.);
