@@ -1,0 +1,6 @@
+/*.dylib
+/Makefile
+/libcass_pnccd.a
+/obj
+/moc
+/obj_d

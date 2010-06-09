@@ -1,0 +1,6 @@
+/*.dylib
+/Makefile
+/libcass_ccd.a
+/obj
+/moc
+/obj_d

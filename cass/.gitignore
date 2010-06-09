@@ -1,0 +1,17 @@
+/*.dylib
+/moc_*.cpp
+/Makefile
+/cass.app
+/cass
+/obj
+/*.xml
+/*.nsmap
+/*.wsdl
+/*.xsd
+/soapC.cpp
+/soapCASSsoapService.cpp
+/soapCASSsoapService.h
+/soapH.h
+/soapStub.h
+/moc
+/obj_d

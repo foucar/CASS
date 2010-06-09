@@ -1,0 +1,17 @@
+/*.nsmap
+/*.wsdl
+/*.xml
+/*.xsd
+/ui_*.h
+/jocassview
+/Makefile
+/obj
+/soapC.cpp
+/soapCASSsoapProxy.cpp
+/soapCASSsoapProxy.h
+/soapH.h
+/soapStub.h
+/jocassview.app
+/moc
+/obj_d
+/qrc_jocassview.cpp
