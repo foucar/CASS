@@ -93,11 +93,11 @@ SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp so
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-versiontarget.target = ./update-version.sh
-versiontarget.commands = ./update-version.sh
+versiontarget.target = $$PWD/../cass/update-version.sh
+versiontarget.commands = $$PWD/../cass/update-version.sh
 versiontarget.depends = FORCE
 
-PRE_TARGETDEPS     += update-version.sh CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
+PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh CASSsoapService LCLSLibrary #LCLSApplication <this is completely uselessthe makefile for LCLSLibrary== LCLSApplication!!!
 QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles lclslibs #lclsapps <this is completely useless the makefile for lclsapps==lclslibs!!!
 
 # our own stuff

@@ -18,11 +18,11 @@ SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-versiontarget.target = ./update-version.sh
-versiontarget.commands = ./update-version.sh
+versiontarget.target = $$PWD/../jocassview/update-version.sh
+versiontarget.commands = $$PWD/../jocassview//update-version.sh
 versiontarget.depends = FORCE
 
-PRE_TARGETDEPS     += update-version.sh soapCASSsoapProxy
+PRE_TARGETDEPS     += $$PWD/../jocassview/update-version.sh soapCASSsoapProxy
 QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles
 
 
