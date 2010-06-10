@@ -116,6 +116,7 @@ SOURCES +=  analyzer.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
             ./postprocessing/postprocessor.cpp \
+            ./postprocessing/id_list.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
@@ -156,6 +157,7 @@ HEADERS +=  analysis_backend.h \
             pixel_detector.h \
             xtciterator.h \
             ./postprocessing/postprocessor.h \
+            ./postprocessing/id_list.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/acqiris_detectors_helper.h \
             ./postprocessing/averaging_offsetcorrection_helper.h \
