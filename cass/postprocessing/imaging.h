@@ -156,5 +156,79 @@ namespace cass
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
   };
+
+
+  /** Dump events (from advanced corrected image) to file.
+   *
+   * Dumps events to file.
+   *
+   * @cassttng PostProcessor/\%name\%/{Condition} \n
+   *           The PostProcessor we make a condition on. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{AveragedImage} \n
+   *           The id of the running average of we use for substraction. Default
+   *           is 0.
+   * @cassttng PostProcessor/\%name\%/{Condition} \n
+   *           The PostProcessor we make a condition on. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{Filename}\n
+   *           The filename to dump events to.
+   *           There is no default - you must provide this value.
+   *
+   * @author Thomas White
+   */
+  class pp212 : public PostprocessorBackend
+  {
+
+  public:
+    /** Constructor */
+    pp212(PostProcessors& hist, const PostProcessors::key_t &);
+
+    /** Destructor */
+    virtual ~pp212();
+
+    /** Dump events */
+    virtual void operator()(const CASSEvent &);
+
+    /** Load settings */
+    virtual void loadSettings(size_t);
+
+    /** The two histograms that the user wants to subtract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** The PP providing the input */
+    PostProcessors::key_t _input;
+
+    /** The PP providing the condition */
+    PostProcessors::key_t _condition;
+
+    /** Threshold for peakfinding */
+    std::pair<float,float> _gate;
+
+    /** Threshold for coalescing */
+    std::pair<float,float> _pregate;
+
+    /** Filename to write events to */
+    std::string _filename;
+
+    /** File handle */
+    std::ofstream _fh;
+
+    /** Whether or not to coalesce (small) regions into one event */
+    bool _coalesce;
+
+    /** Function for recursively checking pixels */
+    bool check_pixel(float *f, int x, int y, int w, int h,
+                     double &val, int &depth);
+
+  };
+
 }
 #endif

@@ -157,8 +157,9 @@ the Class description for information about what parameters are user settable.
 
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
-00210: Advanced photonhit finder Image
-00211: Advanced photonhit finder Spectrum
+00210: Advanced photon finder - Image
+00211: Advanced photon finder - Spectrum
+00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
 00231: Wavelength of photons
@@ -266,6 +267,7 @@ using the custom doxygen tag cassttng.
 
       AdvancedPhotonFinder=210,
       AdvancedPhotonFinderSpectrum=211,
+      AdvancedPhotonFinderDump=212,
 
       PIPICO=220,
 

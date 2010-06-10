@@ -476,6 +476,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case AdvancedPhotonFinderSpectrum:
     processor = new pp211(*this,key);
     break;
+  case AdvancedPhotonFinderDump:
+    processor = new pp212(*this,key);
+    break;
   case PIPICO:
     processor = new pp220(*this,key);
     break;
