@@ -181,7 +181,7 @@ void cass::pnCCD::Parameter::save()
     setValue("CreatePixelList",dp._createPixellist);
     setValue("DoOffsetCorrection",dp._doOffsetCorrection);
     setValue("useCommonMode",dp._useCommonMode);
-    setValue("IntegralOverThres",static_cast<int32_t>(dp._thres_for_integral));
+    setValue("IntegralOverThres",static_cast<qint64>(dp._thres_for_integral));
     setValue("DarkCalibrationFileName",dp._darkcalfilename.c_str());
     setValue("DarkCalibrationSaveFileName",dp._savedarkcalfilename.c_str());
     //cass::PixelDetector::ROIsimple::save();

@@ -1798,7 +1798,7 @@ void cass::pp62::operator()(const CASSEvent&)
 //     of samples that are going to be used in the calculation ***
 
 cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _time_avg(0)
+  : PostprocessorBackend(pp, key), _time_avg(0), _num_seen_evt(0), _when_first_evt(0), _first_fiducials(0)
 {
   loadSettings(0);
 }
@@ -1807,6 +1807,9 @@ cass::pp63::~pp63()
 {
   _pp.histograms_delete(_key);
   _time_avg = 0;
+  _num_seen_evt=0;
+  _when_first_evt=0;
+  _first_fiducials=0;
 }
 
 cass::PostProcessors::active_t cass::pp63::dependencies()
@@ -1830,13 +1833,13 @@ void cass::pp63::loadSettings(size_t)
   const size_t min_time_user (settings.value("MinTime",0).toUInt());
   const size_t max_time_user (settings.value("MaxTime",300).toUInt());
   _timerange = make_pair(min_time_user,max_time_user);
-  const size_t _nbrSamples(settings.value("NumberOfSamples",5).toUInt());
+  _nbrSamples=settings.value("NumberOfSamples",5).toUInt();
 
   const HistogramFloatBase*one
       (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
   _pp.histograms_delete(_key);
 
-  _time_avg = new HistogramFloatBase(*one); //(_timerange.second,0,_timerange.second);
+  _time_avg = new HistogramFloatBase(*one); //(_timerange.second,_timerange.first,_timerange.second);
   _pp.histograms_replace(_key,_time_avg);
   std::cout << "PostProcessor "<<_key
       <<" will calculate the time average of histogram of PostProcessor_"<<_idHist
@@ -1845,14 +1848,22 @@ void cass::pp63::loadSettings(size_t)
       <<" seconds   "<<_timerange.first
       <<" ; "<<_timerange.second
       <<" each bin is equivalent to up to "<< _nbrSamples
-      <<" measurements"
+      <<" measurements,"
       <<" condition on postprocessor:"<<_condition
       <<std::endl;
 }
 
-void cass::pp63::operator()(const CASSEvent&)
+void cass::pp63::operator()(const cass::CASSEvent& evt)
 {
   using namespace std;
+  //#define debug1
+#ifdef debug1
+  char timeandday[40];
+  struct tm * timeinfo;
+#endif
+  uint32_t fiducials;
+  time_t now_of_event;
+
   const Histogram0DFloat*cond
       (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
   if (cond->isTrue())
@@ -1863,16 +1874,63 @@ void cass::pp63::operator()(const CASSEvent&)
     one->lock.lockForRead();
     _time_avg->lock.lockForWrite();
 
+    // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
+    //remember the time of the first event
+    if(_when_first_evt==0)
+    {
+      _when_first_evt=static_cast<time_t>(evt.id()>>32);
+#ifdef debug1
+      timeinfo = localtime ( &_when_first_evt );
+      strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+      cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
+#endif
+      _num_seen_evt=1;
+      _first_fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
+    }
+    now_of_event=static_cast<time_t>(evt.id()>>32);
+#ifdef debug1
+    timeinfo = localtime ( &now_of_event );
+    strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+#endif
+    fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
+#ifdef debug1
+      timeinfo = localtime ( &now_of_event );
+      strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+      //      cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
+      cout<<"ora "<< timeandday<<" "<<_first_fiducials << " " <<fiducials << " " << _num_seen_evt <<endl;
+#endif
+    if(fiducials>_first_fiducials+(_nbrSamples-1)*4608 /*0x1200 ??why*/
+        && now_of_event>=_when_first_evt)
+    {
+#ifdef debug1
+      cout <<"time to forget"<<endl;
+#endif
+     //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
+     _first_fiducials=fiducials;
+      _when_first_evt=now_of_event;
+      _num_seen_evt=1;
+    }
+
+    //    if(now_of_event<_when_first_evt-100)
+    if(_first_fiducials>fiducials)
+    {
+#ifdef debug1
+      cout <<"extra time to forget"<<endl;
+#endif
+     //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
+     _first_fiducials=fiducials;
+      _when_first_evt=now_of_event;
+      _num_seen_evt=1;
+    }
+
     ++_time_avg->nbrOfFills();
-    float scale = (1./_time_avg->nbrOfFills() < _nbrSamples) ?
-                   _nbrSamples :
-                   1./_time_avg->nbrOfFills();
     transform(one->memory().begin(),one->memory().end(),
               _time_avg->memory().begin(),
               _time_avg->memory().begin(),
-              Average(scale));
-
-    //    *_time_avg = one->radial_project(_timerange,_nbrSamples);
+              TimeAverage(float(_num_seen_evt)));
+    ++_num_seen_evt;
+    if(_num_seen_evt>_nbrSamples+1) cout<<"How... it smells like fish! "<< 
+                                      _num_seen_evt<< " " << _nbrSamples <<endl;
     _time_avg->lock.unlock();
     one->lock.unlock();
   }

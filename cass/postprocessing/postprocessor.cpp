@@ -422,6 +422,12 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;
+  case SingleCcdImageIntegral:
+    processor = new pp101(*this, key);
+    break;
+  case SingleCcdImageIntegralOverThres:
+    processor = new pp102(*this, key);
+    break;
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;

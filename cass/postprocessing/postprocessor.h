@@ -90,6 +90,36 @@ namespace cass
 
 
 
+  /** binary function for averaging.
+   * this operator performs a moving sum
+   * @author Nicola Coppola
+   */
+  class TimeAverage : std::binary_function<float,float,float>
+  {
+  public:
+    /** constructor.
+     * initializes the nEvents value
+     * @param nEvents The number of Events used up to now
+     */
+    explicit TimeAverage(float nEvents)
+      :_nEvents(nEvents)
+    {}
+    /** the operator calculates the average over the last _nEvents
+     */
+    float operator()(float currentValue, float Average_Nm1)
+    {
+      if(_nEvents!=0)
+        return ( Average_Nm1 * (_nEvents-1) + currentValue ) /_nEvents;
+      else
+        return currentValue;
+    }
+  protected:
+    /** nEvents for the average calculation */
+    float _nEvents;
+  };
+
+
+
 /** container and call handler for all registered postprocessors.
 
 @todo maybe this class should not handle the histograms but only the pp. The
@@ -136,6 +166,8 @@ the Class description for information about what parameters are user settable.
 
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
+00101: CCD image Integral
+00102: CCD image Integral using pixel(s) over user defined Threshold
 00110: Acqiris Waveform
 00120: Beamline data
 00130: Epics data
@@ -244,6 +276,8 @@ using the custom doxygen tag cassttng.
       TimeAverage=63,
 
       SingleCcdImage=100,
+      SingleCcdImageIntegral=101,
+      SingleCcdImageIntegralOverThres=102,
       AcqirisWaveform=110,
       BlData=120,
       EpicsData=130,

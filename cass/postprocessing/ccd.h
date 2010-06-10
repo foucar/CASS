@@ -63,6 +63,94 @@ namespace cass
     Histogram2DFloat *_image;
   };
 
+  /** Integral over the Last CCD image.
+   *
+   * Postprocessor will get the Integral over the whole image from all kinds of ccd's.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   *
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   * @author Nicola Coppola
+   */
+  class pp101 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp101(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image spcae */
+    virtual ~pp101();
+
+   /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** device the ccd image comes from */
+    cass::CASSEvent::Device _device;
+
+    /** Integral of the current image */
+    Histogram0DFloat *_ImageIntegral;
+  };
+
+
+
+  /** Integral over the Last CCD image for pixel above user def Threshold.
+   *
+   * Postprocessor will get the Integral over the whole image from all kinds of ccd's.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   *
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   * @author Nicola Coppola
+   */
+  class pp102 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp102(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image spcae */
+    virtual ~pp102();
+
+   /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** device the ccd image comes from */
+    cass::CASSEvent::Device _device;
+
+    /** Integral of the current image */
+    Histogram0DFloat *_ImageIntegralOverThres;
+  };
+
 
 
 

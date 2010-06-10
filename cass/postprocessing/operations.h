@@ -12,7 +12,7 @@
 #include "backend.h"
 #include "cass_event.h"
 #include "histogram.h"
-
+#include <time.h>
 
 namespace cass
 {
@@ -1228,6 +1228,13 @@ namespace cass
 
     /** resulting time average histgram */
     HistogramFloatBase *_time_avg;
+
+    /** the number of samples seen up to now and used in the point */
+    size_t _num_seen_evt;
+
+    /** time when the first samples was used in the point in time */
+    time_t _when_first_evt;
+    uint32_t _first_fiducials;
 
   protected:
   };
