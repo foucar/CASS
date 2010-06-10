@@ -122,7 +122,7 @@ namespace cass
     /** Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t)
     {
-      VERBOSEOUT(std::cout << "calling backend' load settings"<<std::endl);
+      VERBOSEOUT(std::cout << "calling backend's load settings"<<std::endl);
     }
 
     /** Define all postprocessors we depend on
