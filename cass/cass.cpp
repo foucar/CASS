@@ -113,13 +113,13 @@
  * working directory containing the names of the XTC files to use.  Then
  * simply run CASS as normal, without the "-p" option.  All postprocessors
  * and options can be used as normal, and you can additionally enable
- * postprocessor #1001 for HDF5 file output.
+ * postprocessor #1000 for HDF5 file output.
  *
  * Running CASS in this offline mode is similar to using "xtcmonserver", but
  * there is one important difference:  The event buffer will be made to block
  * if events cannot be processed quickly enough, instead of skipping events.
  *
- * If you get weird HDF5 error messages when using pp1001, make sure your
+ * If you get weird HDF5 error messages when using pp1000, make sure your
  * HDF5 library was compiled with thread safety enabled.
  *
  *

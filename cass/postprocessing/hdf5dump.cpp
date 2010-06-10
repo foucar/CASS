@@ -719,7 +719,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
 }
 
 
-// *** postprocessor 1001 -- Dump pnCCD (and other) data to HDF5 ***
+// *** postprocessor 1000 -- Dump pnCCD (and other) data to HDF5 ***
 
 pp1000::pp1000(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)

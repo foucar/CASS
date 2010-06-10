@@ -189,7 +189,7 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap
 
-# Extra stuff if compiling pp1001
+# Extra stuff if compiling pp1000
 hdf5 {
     INCLUDEPATH += $$(HDF5DIR)/include
     LIBS += -L$$(HDF5DIR)/lib -lhdf5
