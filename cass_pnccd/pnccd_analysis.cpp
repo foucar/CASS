@@ -1355,9 +1355,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             // I should mask the ROIs...
             if(mask[this_pix_i]==1) *itFrame = *itFrame;// - *itOffset - common_level ;
             else *itFrame = 0;
-            det.integral() += static_cast<uint64_t>(*itFrame);
+            det.integral() += static_cast<int64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-              det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+              det.integral_overthres() += static_cast<int64_t>(*itFrame);
             //save the value only if it is not ovfl
             if(det.maxPixelValue()< *itFrame && *itFrame<0x3FFF ) det.maxPixelValue()=*itFrame;
             //if user wants to extract the pixels that are above threshold, do it//
