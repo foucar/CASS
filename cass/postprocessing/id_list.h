@@ -11,9 +11,8 @@ namespace cass
    *
    * used for SOAP communication of id-lists
    *
-   * @todo document this class
-   * @todo if possible put this class into a separate file.
-   * @note do all these function need to be inlines?
+   * @author Stephan Kassemeyer
+   * @author Lutz Foucar
    */
   class IdList : public Serializable
   {
