@@ -236,8 +236,8 @@ namespace cass
   public:
     //@{
     /** setter */
-    uint64_t       &integral()               {return _integral;}
-    uint64_t       &integral_overthres()     {return _integral_overthres;}
+    int64_t       &integral()               {return _integral;}
+    int64_t       &integral_overthres()     {return _integral_overthres;}
     pixel_t        &maxPixelValue()          {return _maxPixelValue;}
     uint16_t       &columns()                {return _columns;}
     uint16_t       &rows()                   {return _rows;}
@@ -254,8 +254,8 @@ namespace cass
     //@}
     //@{
     /** getter */
-    uint64_t        integral()const          {return _integral;}
-    uint64_t        integral_overthres()const {return _integral_overthres;}
+    int64_t        integral()const          {return _integral;}
+    int64_t        integral_overthres()const {return _integral_overthres;}
     pixel_t         maxPixelValue()const     {return _maxPixelValue;}
     uint16_t        columns()const           {return _columns;}
     uint16_t        rows()const              {return _rows;}
@@ -299,8 +299,8 @@ namespace cass
 
 
     //data that gets calculated in Analysis//
-    uint64_t        _integral;            //!< the sum of all pixelvalues
-    uint64_t        _integral_overthres;  //!< the sum of all pixelvalues above a certain threshold
+    int64_t        _integral;            //!< the sum of all pixelvalues
+    int64_t        _integral_overthres;  //!< the sum of all pixelvalues above a certain threshold
     pixel_t         _maxPixelValue;       //!< the highest pixelvalue
     /** the pixellist.
      * The pixel list contains a list of pixel that were found using diffrent

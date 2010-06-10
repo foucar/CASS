@@ -62,7 +62,8 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(dp._useCommonMode) std::cout<< printoutdef 
                                    << "Common Mode Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "Common Mode Correction will NOT be applied for detector "<<idx<<std::endl;
-    dp._thres_for_integral = value("IntegralOverThres",0).toUInt();
+    //dp._thres_for_integral = static_cast<int64_t>(value("IntegralOverThres",0).toInt());
+    dp._thres_for_integral = value("IntegralOverThres",0).toLongLong();
     if(dp._thres_for_integral>0) 
       std::cout<< printoutdef << 
         "The integral of the pixel(s) above thresold will be calculated for detector "
@@ -180,7 +181,7 @@ void cass::pnCCD::Parameter::save()
     setValue("CreatePixelList",dp._createPixellist);
     setValue("DoOffsetCorrection",dp._doOffsetCorrection);
     setValue("useCommonMode",dp._useCommonMode);
-    setValue("IntegralOverThres",dp._thres_for_integral);
+    setValue("IntegralOverThres",static_cast<int32_t>(dp._thres_for_integral));
     setValue("DarkCalibrationFileName",dp._darkcalfilename.c_str());
     setValue("DarkCalibrationSaveFileName",dp._savedarkcalfilename.c_str());
     //cass::PixelDetector::ROIsimple::save();
@@ -1151,9 +1152,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
-          det.integral() += static_cast<uint64_t>(*itFrame);
+          det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            det.integral_overthres() += static_cast<int64_t>(*itFrame);
           if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
           //save the value only if it is not ovfl
           //if(det.maxPixelValue()< *itFrame && *itFrame< ) det.maxPixelValue()=*itFrame;
@@ -1224,9 +1225,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             // I should mask the ROIs...
             if(mask[this_pix_i]==1) *itFrame = *itFrame - *itOffset - common_level ;
             else *itFrame = 0;
-            det.integral() += static_cast<uint64_t>(*itFrame);
+            det.integral() += static_cast<int64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-              det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+              det.integral_overthres() += static_cast<int64_t>(*itFrame);
             if(det.maxPixelValue()< *itFrame) det.maxPixelValue()=*itFrame;
             //Should I do it also if _doOffsetCorrection==false?
             //if user wants to extract the pixels that are above threshold, do it//
@@ -1288,9 +1289,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
-          det.integral() += static_cast<uint64_t>(*itFrame);
+          det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
-            det.integral_overthres() += static_cast<uint64_t>(*itFrame);
+            det.integral_overthres() += static_cast<int64_t>(*itFrame);
           //save the value only if it is not ovfl
           if(det.maxPixelValue()< *itFrame && *itFrame<0x3FFF ) det.maxPixelValue()=*itFrame;
 
