@@ -320,15 +320,14 @@ using the custom doxygen tag cassttng.
     /** type of postproccessor accessor key */
     typedef std::string key_t;
 
-    /** Container of all currently available histograms */
-    typedef std::map<key_t, HistogramBackend*> histograms_t;
-
-    /** Container of all currently actice postprocessors */
+    /** Container of all currently active postprocessors */
     typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
 
-    /** List of active postprocessors */
-    typedef std::list<key_t> active_t;
+    /** List of postprocessors that need to be called because noone depends on them */
+    typedef std::list<key_t> leave_t;
 
+    /** List of postprocessor keys that one depends on */
+    typedef std::list<key_t> dependency_t;
 
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
@@ -340,51 +339,12 @@ using the custom doxygen tag cassttng.
 
     /** process event
      *
+     * This function will call postprocessors operator that are on the leave list
      * @param event CASSEvent to process by all active postprocessors
      */
-    void process(CASSEvent& event);
+    void process(const CASSEvent& event);
 
-    /** Histogram storage access
-     *
-     * We only allow read access to the histograms container. Obtaining access will immediately put a
-     * lock on the container. You must release this with histograms_release.
-     *
-     * @return Histogram storage
-     */
-    const histograms_t &histograms_checkout()
-    {
-      if(! _histlock.tryLockForRead(100))
-        _histlock.lockForWrite();
-      return _histograms;
-    };
-
-    /** release read-lock for histograms container */
-    void histograms_release() { _histlock.unlock(); };
-
-    /** Remove histogram from storage
-     *
-     * @param key Histogram to remove
-     */
-    void histograms_delete(const key_t &key)
-    {
-      _histlock.lockForWrite();
-      _delete(key);
-      _histlock.unlock();
-    }
-
-    /** Replace histogram in storage
-     *
-     * @param key the key of the Histogram to replace
-     * @param hist New histogram to store
-     */
-    void histograms_replace(const key_t &key, HistogramBackend *hist)
-    {
-      _histlock.lockForWrite();
-      _replace(key, hist);
-      _histlock.unlock();
-    }
-
-    /** make sure a specific histogram exists and is not 0
+    /** make sure a specific postprocessor exists
      *
      * This requires that locking is done outside!
      */
@@ -394,13 +354,17 @@ using the custom doxygen tag cassttng.
         throw InvalidHistogramError(key);
     }
 
-    /** find all postprocessors that depend on the given on
+    /** find all postprocessors that depend on the given one
+     *
      * @return list of postprocessor key that depend on requested one
      * @param[in] key key of postprocessor that we find the dependants for
      */
-    active_t find_dependant(const key_t& key);
+    dependency_t find_dependant(const key_t& key);
 
+    /** retrieve all activated postprocessors keys */
     IdList* getIdList();
+
+    /** retrieve the mime */
     const std::string& getMimeType(key_t);
 
   public slots:
@@ -417,41 +381,24 @@ using the custom doxygen tag cassttng.
     void clear(key_t);
 
   protected:
-    /** @brief (ordered) list of active postprocessors/histograms
-     *
-     * This list has order, i.e., postprocessors are called in the specified order. You can rely on the
-     * result of a postprocessor earlier in the list, but not on one that only occurs further back...
-     */
-    active_t _active;
+    /** list of postprocessors that noone depends on */
+    leave_t _leave;
 
     /** the list of id's */
-    IdList * _IdList;
+    IdList *_IdList;
 
-    /** defining an invalid mimetype */
-    std::string _invalidMime;
-
-    /** container for all histograms */
-    histograms_t _histograms;
-
-    /** container for registered (active) postprocessors */
+    /** container for user selected and registered postprocessors */
     postprocessors_t _postprocessors;
 
-    /** Create new Postprocessor for specified id and using the specified histogram container
+    /** Create new Postprocessor with key.
+     * Create Postprocessor with user definded id.
      *
      * @param[in] key the key of the postprocessor
      */
     PostprocessorBackend * create(const key_t &key);
 
-    /** Set up _histograms and _postprocessors using current _active*/
+    /** Set up _postprocessors using current _active*/
     void setup();
-
-    /** Internal method to actually remove histogram from storage
-     *
-     * This requires that locking is done outside!
-     *
-     * @param key Histogram to remove
-     */
-    void _delete(key_t key);
 
     /** Internal method to actually replace histogram from storage
      *
