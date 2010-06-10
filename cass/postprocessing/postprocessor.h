@@ -329,6 +329,9 @@ using the custom doxygen tag cassttng.
     /** List of postprocessor keys that one depends on */
     typedef std::list<key_t> dependency_t;
 
+    /** List of all postprocessor keys */
+    typedef std::list<key_t> postprocessorKeys_t;
+
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
      */
@@ -343,16 +346,6 @@ using the custom doxygen tag cassttng.
      * @param event CASSEvent to process by all active postprocessors
      */
     void process(const CASSEvent& event);
-
-    /** make sure a specific postprocessor exists
-     *
-     * This requires that locking is done outside!
-     */
-    void validate(const key_t &key)
-    {
-      if((_histograms.end() == _histograms.find(key)) || (0 == _histograms[key]))
-        throw InvalidHistogramError(key);
-    }
 
     /** find all postprocessors that depend on the given one
      *
@@ -400,25 +393,13 @@ using the custom doxygen tag cassttng.
     /** Set up _postprocessors using current _active*/
     void setup();
 
-    /** Internal method to actually replace histogram from storage
-     *
-     * This requires that locking is done outside!
-     *
-     * @param key Histogram to replace
-     * @param hist New histogram to store
-     */
-    void _replace(key_t key, HistogramBackend *hist);
-
-    /** histogram container lock */
-    QReadWriteLock _histlock;
-
     /** filename of the output file */
     std::string _outputfilename;
 
   private:
     /** Private constructor of singleton
      * @param outputfilename filename of the file containing the results. Used
-     *         in offline mode.
+     *                       by special postprocessors.
      */
     PostProcessors(std::string outputfilename);
 
@@ -437,109 +418,6 @@ using the custom doxygen tag cassttng.
     /** Singleton operation locker */
     static QMutex _mutex;
   };
-
-
-  /** id-list
-   *
-   * used for SOAP communication of id-lists
-   *
-   * @todo document this class
-   * @todo if possible put this class into a separate file.
-   * @note do all these function need to be inlines?
-   */
-  class IdList : public Serializable
-  {
-  public:
-
-    IdList()
-      : Serializable(1), _size(0)
-    {}
-
-    IdList(PostProcessors::active_t& list)
-      : Serializable(1), _list(list), _size(list.size())
-    {
-      std::cerr << "Initial list size = " << _size << std::endl;
-    }
-
-    IdList(SerializerBackend* in) : Serializable(1)
-    {
-      deserialize(in);
-    }
-
-    IdList( SerializerBackend &in) : Serializable(1)
-    {
-      deserialize(in);
-    }
-
-    void clear()
-    {
-      _list.clear();
-      _size=0;
-    }
-
-    void setList(PostProcessors::active_t& list)
-    {
-      clear();
-      _list = list;
-      _size = list.size();
-    }
-
-    PostProcessors::active_t& getList()
-    {
-      return _list;
-    }
-
-    bool deserialize(SerializerBackend& in)
-    {
-      return deserialize(&in);
-    }
-
-    bool deserialize(SerializerBackend *in)
-    {
-      _list.clear();
-      //check whether the version fits//
-      in->startChecksumGroupForRead();
-      uint16_t ver = in->retrieveUint16();
-      if(ver != _version)
-      {
-        std::cerr<<"version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
-        return false;
-      }
-      //number of bins, lower & upper limit
-      _size = in->retrieveSizet();
-      VERBOSEOUT(std::cerr << "list size " << _size << std::endl);
-      if (!in->endChecksumGroupForRead())
-      {
-        VERBOSEOUT(std::cerr<<"wrong checksum IdList"<<std::endl);
-        return false;
-      }
-      for(size_t ii=0; ii<_size; ++ii)
-        _list.push_back(in->retrieveString());
-      VERBOSEOUT(std::cerr << "list is done " << std::endl);
-      return true;
-    }
-
-    void serialize(SerializerBackend &out)
-    {
-      serialize(&out);
-    }
-
-    void serialize(SerializerBackend *out)
-    {
-      out->startChecksumGroupForWrite();
-      out->addUint16(_version);
-      out->addSizet(_size);
-      out->endChecksumGroupForWrite();
-      for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
-        out->addString(*it);
-    }
-
-  private:
-    PostProcessors::active_t _list;
-    size_t _size;
-  };
-
-
 
 
 
