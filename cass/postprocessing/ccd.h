@@ -7,6 +7,7 @@
 #include "backend.h"
 #include "cass_event.h"
 #include "cass_acqiris.h"
+#include "postprocessor.h"
 
 namespace cass
 {
@@ -33,7 +34,9 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   *
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
    * @author Jochen Kuepper
    * @author Lutz Foucar
    */
@@ -46,7 +49,10 @@ namespace cass
     /** Free _image spcae */
     virtual ~pp100();
 
-   /** copy image from CASS event to histogram storage */
+    /** dependancy: image retrieval can be conditional */
+    virtual PostProcessors::active_t dependencies();
+
+    /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
 
     /** load the settings for this pp */
@@ -61,6 +67,11 @@ namespace cass
 
     /** current image */
     Histogram2DFloat *_image;
+
+    /** the pp that contains the condition */
+    PostProcessors::key_t _condition;
+
+    bool _useCondition;
   };
 
   /** Integral over the Last CCD image.
