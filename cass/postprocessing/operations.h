@@ -733,7 +733,42 @@ namespace cass
 
 
 
+  /** Threshold histogram.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor id with histogram that should be thresholded. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Threshold} \n
+   *           Factor with which threshold value. Default is 0.
+   *
+   * @author Thomas White
+   */
+  class pp25 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp25(PostProcessors& hist, const PostProcessors::key_t&);
 
+    /** Free _image space */
+    virtual ~pp25();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    virtual void loadSettings(size_t);
+
+    /** the two histograms that the user wants to substract */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** id of the histogram we multiply with a constant */
+    PostProcessors::key_t _idHist;
+
+    /** the threshold */
+    float _threshold;
+
+    /** resulting histgram */
+    HistogramFloatBase *_result;
+  };
 
 
 

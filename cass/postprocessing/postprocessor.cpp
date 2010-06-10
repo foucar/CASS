@@ -392,6 +392,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SubstractConstant:
     processor = new pp24(*this, key);
     break;
+  case Threshold:
+    processor = new pp25(*this, key);
+    break;
   case TwoDProjection:
     processor = new pp50(*this, key);
     break;

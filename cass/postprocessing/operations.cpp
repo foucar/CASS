@@ -1149,7 +1149,73 @@ void cass::pp24::operator()(const CASSEvent&)
 
 
 
+// *** postprocessor 25 - threshold histogram ***
 
+cass::pp25::pp25(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp25::~pp25()
+{
+  _pp.histograms_delete(_key);
+  _result = 0;
+}
+
+cass::PostProcessors::active_t cass::pp25::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  return list;
+}
+
+void cass::pp25::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _threshold = settings.value("Threshold", 0.0).toFloat();
+  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist)) return;
+  const HistogramFloatBase *one(dynamic_cast<HistogramFloatBase*>
+                             (_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+  _pp.histograms_delete(_key);
+  _result = new HistogramFloatBase(*one);
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<": will threshold Histogram in PostProcessor "<<_idHist
+      <<" above "<<_threshold
+      <<std::endl;
+}
+
+class threshold : public std::binary_function<float, float, float>
+{
+  public:
+  float operator() (float value, float thresh)const
+    {
+       return (value > thresh) ? value : 0.0;
+    }
+};
+
+void cass::pp25::operator()(const CASSEvent&)
+{
+  using namespace std;
+  HistogramFloatBase *one(dynamic_cast<HistogramFloatBase*>
+                             (_pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
+
+  one->lock.lockForRead();
+  _result->lock.lockForWrite();
+
+  transform(one->memory().begin(),
+            one->memory().end(),
+            _result->memory().begin(),
+            bind2nd(threshold(), _threshold));
+
+  _result->lock.unlock();
+  one->lock.unlock();
+}
 
 
 

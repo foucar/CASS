@@ -152,6 +152,7 @@ the Class description for information about what parameters are user settable.
 00022: Multiply first histogram with second histogram
 00023: Multiply histogram with constant
 00024: Substract Constant
+00025: Threshold histogram
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
@@ -263,6 +264,7 @@ using the custom doxygen tag cassttng.
       MultiplyHistograms=22,
       MultiplyConstant=23,
       SubstractConstant=24,
+      Threshold=25,
 
       TwoDProjection=50,
       OneDIntergral=51,
