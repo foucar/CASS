@@ -38,9 +38,9 @@ cass::pp100::~pp100()
 
 cass::PostProcessors::active_t cass::pp100::dependencies()
 {
-    PostProcessors::active_t list;
-    if (_useCondition) list.push_front(_condition);
-    return list;
+  PostProcessors::active_t list;
+  if (_useCondition) list.push_front(_condition);
+  return list;
 }
 
 void cass::pp100::loadSettings(size_t)
@@ -50,11 +50,14 @@ void cass::pp100::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   //dependancy:
-  if (settings.contains("ConditionName")) {
-      _useCondition = true;
-      if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition)) return;
-  } else {
-      _useCondition = false;
+  if (settings.contains("ConditionName")) 
+  {
+    _useCondition = true;
+    if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition)) return;
+  } 
+  else
+  {
+    _useCondition = false;
   }
 
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
