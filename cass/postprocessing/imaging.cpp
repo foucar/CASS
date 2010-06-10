@@ -57,16 +57,20 @@ cass::PostProcessors::active_t cass::pp210::dependencies()
 void cass::pp210::loadSettings(size_t)
 {
   QSettings settings;
+  int r;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _gate = std::make_pair<float,float>(settings.value("LowerGateEnd",-1e6).toFloat(),
                                       settings.value("UpperGateEnd", 1e6).toFloat());
-  if (!retrieve_and_validate(_pp,_key,"Condition",_condition))
-    return;
-  if (!retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage))
-    return;
+
+  // Check dependencies
+  r = retrieve_and_validate(_pp,_key,"Condition",_condition);
+  r &= retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage);
+  // If either dependency did not succeed, go away for now and try again later
+  if ( !r ) return;
+
   const HistogramFloatBase *image
       (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idAverage)->second));
   _pp.histograms_release();
@@ -154,15 +158,18 @@ cass::PostProcessors::active_t cass::pp211::dependencies()
 void cass::pp211::loadSettings(size_t)
 {
   QSettings settings;
+  int r;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
-  if (!retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage))
-    return;
-  if (!retrieve_and_validate(_pp,_key,"Condition",_condition))
-    return;
-  _pp.histograms_delete(_key);
+
+  // Check dependencies
+  r = retrieve_and_validate(_pp,_key,"Condition",_condition);
+  r &= retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage);
+  // If either dependency did not succeed, go away for now and try again later
+  if ( !r ) return;  _pp.histograms_delete(_key);
+
   _hist=0;
   set1DHist(_hist,_key);
   _pp.histograms_replace(_key,_hist);
@@ -231,6 +238,7 @@ cass::PostProcessors::active_t cass::pp212::dependencies()
 void cass::pp212::loadSettings(size_t)
 {
   QSettings settings;
+  int r;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -249,10 +257,13 @@ void cass::pp212::loadSettings(size_t)
   _coalesce = settings.value("Coalesce",false).toBool();
 
   // Input image
-  if (!retrieve_and_validate(_pp, _key, "Input", _input)) return;
+  r = retrieve_and_validate(_pp, _key, "Input", _input);
 
   // Condition
-  if (!retrieve_and_validate(_pp, _key, "ConditionName", _condition)) return;
+  r &= retrieve_and_validate(_pp, _key, "ConditionName", _condition);
+
+  // If either dependency did not succeed, go away for now and try again later
+  if ( !r ) return;
 
   // Output filename
   _filename = settings.value("Filename", "events.lst").toString().toStdString();
