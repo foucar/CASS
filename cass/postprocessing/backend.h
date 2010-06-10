@@ -56,13 +56,24 @@ namespace cass
 
     /** process the event
      *
-     * this will evaluate the event and fill the resulting histogram. This needs
+     * This will evaluate the event and fill the resulting histogram. It needs
      * to be implemented in the postprocessors.
      * @param event the cassevent to work on
      */
     virtual void process(const CASSEvent& event) = 0;
 
-    /** the operator called for each event */
+    /** main operator
+     *
+     * will be called for each event by postprocesors. This function will check
+     * wether this event has already been processed and if the result is on the
+     * list. When its not on the list, then it will call the pure virtual
+     * function process event. The histogram where the result of the
+     * evaluation should go to is _result.
+     * Before this function does anything it will writelock itselve. After
+     * finishing this function the write lock will automaticly be released.
+     * @return const reference to the resulting histogram
+     * @param evt the cassevent to work on
+     */
     virtual const HistogramBackend& operator()(const CASSEvent& evt)
     {
       using namespace std;
@@ -83,7 +94,11 @@ namespace cass
 
     /** retrieve a histogram for a given id.
      *
-     * When parameter is 0 then it just returns the last known histogram.
+     * Lock this function with a readlock. When this function returns it will
+     * automaticaly release the lock.
+     * When parameter is 0 then it just returns the last known histogram. When
+     * there is no histogram for the requested event id, then this function will
+     * throw an invalid_argument exception.
      * @param eventid the event id of the histogram that is requested. Default is 0
      */
     virtual const HistogramBackend& getHist()(const uint64_t eventid)
@@ -92,9 +107,7 @@ namespace cass
       QReadLocker lock(&_histLock);
       //if eventId is 0 then just return the latest event//
       if (0 == eventId)
-      {
         return *_histList.back().second;
-      }
       else
       {
         histogramList_t::const_iterator it
@@ -116,9 +129,9 @@ namespace cass
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual PostProcessors::active_t dependencies()
+    virtual PostProcessors::dependency_t dependencies()
     {
-      return PostProcessors::active_t();
+      return PostProcessors::dependency_t();
     }
 
   protected:
@@ -128,7 +141,7 @@ namespace cass
     /** the list of histograms - event ids */
     histogramList_t _histList;
 
-    /** pointer to the current histogram */
+    /** pointer to the most recent histogram */
     HistogramBackend *_result;
 
     /** reference to the PostProcessors container */
