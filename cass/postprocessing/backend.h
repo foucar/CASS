@@ -50,7 +50,9 @@ namespace cass
      */
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
       :_key(key), _pp(pp)
-    {}
+    {
+      loadSettings(0);
+    }
 
     /** virtual destructor */
     virtual ~PostprocessorBackend() {}
