@@ -41,15 +41,77 @@
 #include "../cass/postprocessing/postprocessor.h"
 #include "soapCASSsoapProxy.h"
 
+#include <math.h>
+
 
 // prototypes:
 class cassData;
+
+     
+
+class NaNCurve : public QwtPlotCurve
+{
+public:
+
+    QwtDoubleRect boundingRect() const
+    {
+        const size_t sz = dataSize();
+
+        if ( sz <= 0 )
+            return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+
+        double minX, maxX, minY, maxY;
+        minX = maxX = x(0);
+        minY = maxY = y(0);
+
+        for ( size_t i = 1; i < sz; i++ )
+        {
+            const double xv = x(i);
+            if ( xv < minX )
+                minX = xv;
+            if ( xv > maxX )
+                maxX = xv;
+
+            const double yv = y(i);
+            if ( yv < minY && !(isnan(yv) || isinf(yv)))
+                minY = yv;
+            if ( yv > maxY && !(isnan(yv) || isinf(yv)))
+                maxY = yv;
+        }
+        return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+    } 
+
+    NaNCurve() : QwtPlotCurve() {}
+    NaNCurve(QString& str) : QwtPlotCurve(str) {}
+    void draw(QPainter *painter,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const
+    {   
+        if (to < 0)
+          to = dataSize() - 1;
+        // paint curve, but leave out all NaNs and Infs.
+        std::cout << " FROM: " << from << "TO: " << to << std::endl;
+        int ii=from;
+        while(ii<=to)
+        {
+            int _from;
+            while( (isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            _from = ii;
+            while( !(isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            if (ii>=to) ii=to+1;
+            std::cout << " FROM: " << ii << "TO: " << ii-1 << std::endl;
+            QwtPlotCurve::draw(painter, xMap, yMap, _from, ii-1);
+        }
+    }
+};
+
+
 
 class EremoveCurve : public QEvent
 {
 public:
   EremoveCurve(QEvent::Type type):QEvent(type) {}
-  QwtPlotCurve* curve;
+  NaNCurve* curve;
   QWidget* curveWidget;
   //Type type() { return static_cast<Type>(QEvent::User+111); }
 };
@@ -646,8 +708,6 @@ protected:
 
 
 
-
-
 /** 1d plot
  *
  * @todo 1d hist, log of x,y axis
@@ -661,7 +721,7 @@ class plotWidget : public QWidget
 public:
   void addOverlay(cass::Histogram1DFloat* hist, QString name)
   {
-    QwtPlotCurve* overlayCurve = new QwtPlotCurve(name);
+    NaNCurve* overlayCurve = new NaNCurve(name);
     overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
     //overlayCurve->setPen( QPen(Qt::red));
     _overlayCurves.append( overlayCurve );
@@ -733,7 +793,7 @@ public:
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if (mouseEvent->button() == Qt::RightButton)
         {
-          QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
+          NaNCurve* curve = dynamic_cast<NaNCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
           if (curve) {
             EremoveCurve* removeCurveEvent = new EremoveCurve( static_cast<QEvent::Type>(QEvent::User+111) );
             removeCurveEvent->curve = curve;
@@ -866,8 +926,8 @@ protected:
   QwtPlotGrid* _grid;
   QwtLegend* _legend;
   QwtDoubleRect _baseRect;
-  QwtPlotCurve _curve;
-  QList<QwtPlotCurve*> _overlayCurves;
+  NaNCurve _curve;
+  QList<NaNCurve*> _overlayCurves;
   QList<QWidget*> _overlayCurveWidgets;
 
   QToolBar* _toolbar;
