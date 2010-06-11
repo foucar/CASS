@@ -120,7 +120,7 @@ namespace cass
         histogramList_t::const_iterator it
             (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
         if (_histList.end() == it)
-          throw invalid_argument("PostProcessorBackend::getHist() : EventId is not present");
+          throw InvalidHistogramError(eventId);
         else
           return *(it.second);
       }
