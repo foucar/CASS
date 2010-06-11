@@ -11,6 +11,7 @@
 
 #include "cass.h"
 #include "postprocessor.h"
+#include "histogram.h"
 
 namespace cass
 {
@@ -111,7 +112,7 @@ namespace cass
       else
       {
         histogramList_t::const_iterator it
-            (find_if(histList.begin(),histList.end(),IsKey(eventid)));
+            (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
         if (_histList.end() == it)
           throw invalid_argument("PostProcessorBackend::getHist() : EventId is not present");
         else
@@ -129,9 +130,20 @@ namespace cass
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual PostProcessors::dependency_t dependencies()
+    virtual PostProcessors::postprocessorkeysList_t dependencies()
     {
-      return PostProcessors::dependency_t();
+      return PostProcessors::postprocessorkeysList_t();
+    }
+
+    /** clear the histograms
+     * this will lock for write access to the histograms before clearing them
+     */
+    void clear()
+    {
+      QWriteLocker lock(&_histLock);
+      histogramList_t::iterator it (_histList.begin());
+      for (;it != _histList.end();++it)
+        reinterpret_cast<HistogramFloatBase*>(it->second)->clear();
     }
 
   protected:
@@ -149,7 +161,6 @@ namespace cass
 
     /** histogram list lock */
     QReadWriteLock _histlock;
-
   };
 
 } //end namespace cass
