@@ -31,15 +31,40 @@ namespace cass
   class IdList;
 
 
-  /** Exception thrown when accessing invalid histograms
+  /** Exception thrown when accessing invalid histogram
    *
    * @author Jochen Küpper
    */
   class InvalidHistogramError : public std::out_of_range
   {
   public:
-    explicit InvalidHistogramError(const std::string &key)
-      : std::out_of_range("Invalid histogram requested!"), _key(key)
+    explicit InvalidHistogramError(uint64_t id)
+      : std::out_of_range("Event id  does not exist for histogram!"), _id(id)
+    {}
+
+    virtual const char* what() const throw()
+    {
+      std::ostringstream msg;
+      msg << "Event id (" << _id << ") does not exist for histogram!";
+      return msg.str().c_str();
+    }
+
+    virtual ~InvalidHistogramError() throw(){}
+
+  protected:
+    uint64_t _id;
+  };
+
+
+  /** Exception thrown when accessing invalid histogram
+   *
+   * @author Lutz Foucar
+   */
+  class InvalidPostProcessorError : public std::out_of_range
+  {
+  public:
+    explicit InvalidPostProcessorError(const std::string &key)
+      : std::out_of_range("Invalid postprocessor requested!"), _key(key)
     {}
 
     virtual const char* what() const throw()
