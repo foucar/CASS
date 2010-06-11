@@ -13,14 +13,12 @@ using namespace cass;
 
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-  // retrieve iterator pointing to postprocessor containing the histogram //
-  PostProcessors::postprocessors_t::const_iterator iter
+  PostprocessorBackend &pp
       (_postprocessors->getPostProcessor(hp.key));
-  if (!iter->second)
-    throw InvalidHistogramError("HistogramGetter::operator(): No such PostProcessor is available");
+  const HistogramBackend & pp.getHist(hp.eventId);
   Serializer serializer;
-  size_t dim(iter->second->dimension());
-  iter->second->serialize(serializer);
+  size_t dim(pp.dimension());
+  pp.serialize(serializer);
   return make_pair(dim, serializer.buffer());
 }
 
