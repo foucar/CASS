@@ -114,15 +114,14 @@ namespace cass
       QReadLocker lock(&_histLock);
       //if eventId is 0 then just return the latest event//
       if (0 == eventId)
-        return *_histList.back().second;
+        return *_histList.front().second;
       else
       {
         histogramList_t::const_iterator it
             (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
         if (_histList.end() == it)
           throw InvalidHistogramError(eventId);
-        else
-          return *(it.second);
+        return *(it.second);
       }
     }
 
