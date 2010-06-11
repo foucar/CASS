@@ -50,16 +50,12 @@ QImage HistogramGetter::qimage(const HistogramParameter& hp) const
 
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {
-  // check out histograms storage map
-  const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
-  // make sure the requested histogram is valid//
-  _postprocessors->validate(hp.key);
-  // retrieve iterator pointing to histogram//
-  PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
-  // clear the histogram//
-  iter->second->clear();
-  // make sure that the histogram is accessable from others again//
-  _postprocessors->histograms_release();
+  // retrieve iterator pointing to postprocessor containing the histogram //
+  PostProcessors::postprocessors_t::const_iterator iter
+      (_postprocessors->getPostProcessor(hp.key));
+  // clear the histograms of the postprocessor //
+  if (iter->second)
+    iter->second->clear();
 }
 
 
