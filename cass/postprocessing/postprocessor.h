@@ -346,6 +346,9 @@ using the custom doxygen tag cassttng.
     /** retrieve all activated postprocessors keys */
     IdList* getIdList();
 
+    /** retreive pp with key */
+    PostprocessorBackend* getPostProcessor(const key_t key);
+
   public slots:
     /** Load active postprocessors and histograms
      *
@@ -368,18 +371,18 @@ using the custom doxygen tag cassttng.
     PostprocessorBackend * create(const key_t &key);
 
     /** Set up _postprocessors using the user requested pp in active*/
-    void setup(const postprocessorkeysList_t&);
+    void setup(const keyList_t&);
 
     /** find all postprocessors that depend on the given one
      *
      * @return list of postprocessor key that depend on requested one
      * @param[in] key key of postprocessor that we find the dependants for
      */
-    postprocessorkeysList_t find_dependant(const key_t& key);
+    keyList_t find_dependant(const key_t& key);
 
   protected:
     /** list of postprocessors that noone depends on */
-    postprocessorkeysList_t _leave;
+    keyList_t _leave;
 
     /** the list of id's */
     IdList *_IdList;

@@ -92,7 +92,7 @@ void cass::PostProcessors::process(CASSEvent& event)
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
    */
-  for(postprocessorkeysList_t::iterator iter(_leave.begin()); iter != _leave.end(); ++iter)
+  for(keyList_t::iterator iter(_leave.begin()); iter != _leave.end(); ++iter)
     (*(_postprocessors[*iter]))(event);
 }
 
@@ -110,13 +110,13 @@ void cass::PostProcessors::loadSettings(size_t)
   }
   std::cout << std::endl;
 #endif
-  postprocessorkeysList_t active(list.size());
+  keyList_t active(list.size());
   std::transform(list.begin(), list.end(), active.begin(), QStringToStdString);
   std::cout <<"   Number of unique postprocessor activations: "<<active.size()
       << std::endl;
   setup(active);
   std::cout <<"   Active postprocessor(s): ";
-  for(postprocessorkeysList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
+  for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
     std::cout << *iter << " ";
 }
 
@@ -124,35 +124,44 @@ void cass::PostProcessors::clear(key_t key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() != it)
-    it->clear();
+    it->second->clear();
+}
+
+cass::PostprocessorBackend* PostProcessors::getPostProcessor(const key_t key)
+{
+  postprocessors_t::iterator it (_postprocessors.find(key));
+  if (_postprocessors.end() != it)
+    return it->second;
+  else
+    return 0;
 }
 
 cass::IdList* cass::PostProcessors::getIdList()
 {
   _IdList->clear();
-  postprocessorkeysList_t active;
+  keyList_t active;
   for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
     active.push_back(iter->first);
   _IdList->setList(active);
   return _IdList;
 }
 
-cass::PostProcessors::postprocessorkeysList_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
+cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
 {
   using namespace std;
-  //go trhough all pp and retrieve theier dependcies//
-  //make a list of all key that have a dependecy on the requested key
-  postprocessorkeysList_t dependandList;
+  //go through all pp and retrieve their dependencies//
+  //make a list of all key that have a dependency on the requested key
+  keyList_t dependandList;
   for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
   {
-    postprocessorkeysList_t dependencyList(iter->second->dependencies());
+    keyList_t dependencyList(iter->second->dependencies());
     if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
       dependandList.push_front(iter->first);
   }
   return dependandList;
 }
 
-void cass::PostProcessors::setup(const postprocessorkeysList_t &active)
+void cass::PostProcessors::setup(const keyList_t &active)
 {
   using namespace std;
   /** @todo when load settings throws exception then remove this pp and all pp
@@ -168,7 +177,7 @@ void cass::PostProcessors::setup(const postprocessorkeysList_t &active)
   //  4) pp is in container and id is after dependant on active list
   //  5) pp is in container and id is not on list
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
-  postprocessorkeysList_t::iterator iter(active.begin());
+  keyList_t::iterator iter(active.begin());
   while(iter != active.end())
   {
     VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
