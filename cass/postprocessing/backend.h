@@ -51,6 +51,7 @@ namespace cass
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
       :_key(key), _pp(pp)
     {
+      /** @note check whether this calls the overwritten function */
       loadSettings(0);
     }
 
