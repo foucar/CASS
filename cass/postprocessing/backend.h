@@ -136,7 +136,7 @@ namespace cass
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    virtual PostProcessors::postprocessorkeysList_t dependencies()
+    const PostProcessors::postprocessorkeysList_t& dependencies()
     {
       return _dependencies;
     }
@@ -149,7 +149,7 @@ namespace cass
       QWriteLocker lock(&_histLock);
       histogramList_t::iterator it (_histList.begin());
       for (;it != _histList.end();++it)
-        reinterpret_cast<HistogramFloatBase*>(it->second)->clear();
+        it->second->clear();
     }
 
   protected:
