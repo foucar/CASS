@@ -20,11 +20,12 @@ namespace cass
 */
 struct HistogramParameter
 {
-  explicit HistogramParameter(const PostProcessors::key_t& _key)
-    : key(_key)
+  explicit HistogramParameter(const PostProcessors::key_t& _key, uint64_t _eventId=0)
+    : key(_key), eventId(_eventId)
   {}
 
   PostProcessors::key_t key;
+  uint64_t eventId;
 };
 
 
@@ -59,7 +60,7 @@ public:
     QImage qimage(const HistogramParameter&) const;
 
 protected:
-    /** pointer to the postprocessors. will be retrieved using singleton */
+    /** pointer to the postprocessors class. will be retrieved using singleton */
     PostProcessors *_postprocessors;
 
 };
