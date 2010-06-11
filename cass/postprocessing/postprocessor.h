@@ -20,6 +20,7 @@
 #include "serializer.h"
 #include "serializable.h"
 
+
 namespace cass
 {
   class CASSEvent;
@@ -323,14 +324,8 @@ using the custom doxygen tag cassttng.
     /** Container of all currently active postprocessors */
     typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
 
-    /** List of postprocessors that need to be called because noone depends on them */
-    typedef std::list<key_t> leave_t;
-
-    /** List of postprocessor keys that one depends on */
-    typedef std::list<key_t> dependency_t;
-
     /** List of all postprocessor keys */
-    typedef std::list<key_t> postprocessorKeys_t;
+    typedef std::list<key_t> postprocessorkeysList_t;
 
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
@@ -352,13 +347,10 @@ using the custom doxygen tag cassttng.
      * @return list of postprocessor key that depend on requested one
      * @param[in] key key of postprocessor that we find the dependants for
      */
-    dependency_t find_dependant(const key_t& key);
+    postprocessorkeysList_t find_dependant(const key_t& key);
 
     /** retrieve all activated postprocessors keys */
     IdList* getIdList();
-
-    /** retrieve the mime */
-    const std::string& getMimeType(key_t);
 
   public slots:
     /** Load active postprocessors and histograms
@@ -375,7 +367,7 @@ using the custom doxygen tag cassttng.
 
   protected:
     /** list of postprocessors that noone depends on */
-    leave_t _leave;
+    postprocessorkeysList_t _leave;
 
     /** the list of id's */
     IdList *_IdList;
@@ -390,8 +382,8 @@ using the custom doxygen tag cassttng.
      */
     PostprocessorBackend * create(const key_t &key);
 
-    /** Set up _postprocessors using current _active*/
-    void setup();
+    /** Set up _postprocessors using the user requested pp in active*/
+    void setup(const postprocessorkeysList_t &active);
 
     /** filename of the output file */
     std::string _outputfilename;

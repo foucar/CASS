@@ -92,7 +92,7 @@ void cass::PostProcessors::process(CASSEvent& event)
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
    */
-  for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
+  for(postprocessorkeysList_t::iterator iter(_leave.begin()); iter != _leave.end(); ++iter)
     (*(_postprocessors[*iter]))(event);
 }
 
@@ -110,83 +110,49 @@ void cass::PostProcessors::loadSettings(size_t)
   }
   std::cout << std::endl;
 #endif
-  _active.resize(list.size());
-  std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
-  std::cout <<"   Number of unique postprocessor activations: "<<_active.size()
+  postprocessorkeysList_t active(list.size());
+  std::transform(list.begin(), list.end(), active.begin(), QStringToStdString);
+  std::cout <<"   Number of unique postprocessor activations: "<<active.size()
       << std::endl;
-  setup();
+  setup(active);
   std::cout <<"   Active postprocessor(s): ";
-  for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
+  for(postprocessorkeysList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
     std::cout << *iter << " ";
 }
 
 void cass::PostProcessors::clear(key_t key)
 {
-  try
-  {
-    validate(key);
-  }
-  catch (InvalidHistogramError&)
-  {
-    return;
-  }
-  histograms_checkout().find(key)->second->clear();
-  histograms_release();
+  postprocessors_t::iterator it (_postprocessors.find(key));
+  if (_postprocessors.end() != it)
+    it->clear();
 }
 
 cass::IdList* cass::PostProcessors::getIdList()
 {
   _IdList->clear();
-  _IdList->setList(_active);
+  postprocessorkeysList_t active;
+  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+    active.push_back(iter->first);
+  _IdList->setList(active);
   return _IdList;
 }
 
-const std::string& cass::PostProcessors::getMimeType(key_t key)
-{
-  /** @todo make sure that we do not need to block access to the histograms */
-  histograms_t::iterator it = _histograms.find(key);
-  if (it!=_histograms.end())
-    return it->second->mimeType();
-  VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found "<<key
-             <<std::endl);
-  return _invalidMime;
-}
-
-void cass::PostProcessors::_delete(key_t key)
-{
-  histograms_t::iterator iter(_histograms.find(key));
-  if (iter == _histograms.end())
-    return;
-  HistogramBackend *hist(iter->second);
-  _histograms.erase(iter);
-  delete hist;
-}
-
-
-void cass::PostProcessors::_replace(key_t key, HistogramBackend *hist)
-{
-  _delete(key);
-  hist->key() = key;
-  _histograms.insert(std::make_pair(key, hist));
-}
-
-
-cass::PostProcessors::active_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
+cass::PostProcessors::postprocessorkeysList_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
 {
   using namespace std;
   //go trhough all pp and retrieve theier dependcies//
   //make a list of all key that have a dependecy on the requested key
-  active_t dependandList;
+  postprocessorkeysList_t dependandList;
   for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
   {
-    active_t dependencyList(iter->second->dependencies());
+    postprocessorkeysList_t dependencyList(iter->second->dependencies());
     if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
       dependandList.push_front(iter->first);
   }
   return dependandList;
 }
 
-void cass::PostProcessors::setup()
+void cass::PostProcessors::setup(const postprocessorkeysList_t &active)
 {
   using namespace std;
   /** @todo when load settings throws exception then remove this pp and all pp
@@ -202,8 +168,8 @@ void cass::PostProcessors::setup()
   //  4) pp is in container and id is after dependant on active list
   //  5) pp is in container and id is not on list
   VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
-  active_t::iterator iter(_active.begin());
-  while(iter != _active.end())
+  postprocessorkeysList_t::iterator iter(active.begin());
+  while(iter != active.end())
   {
     VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
                <<" is not yet in pp container"
@@ -243,16 +209,16 @@ void cass::PostProcessors::setup()
                    <<" Inserting it into the active list before "<<*iter
                    <<" removing possible later entry in active list"
                    <<endl);
-        _active.insert(iter, *d);
-        active_t::iterator remove(find(iter, _active.end(), *d));
-        if(_active.end() != remove)
+        active.insert(iter, *d);
+        active_t::iterator remove(find(iter, active.end(), *d));
+        if(active.end() != remove)
         {
           //solves cases 1
           VERBOSEOUT(cout<<"Postprocessor::setup(): our id "<<*d
                      <<" appeard after "<<*iter
                      <<" on list => remove the later entry."
                      <<endl);
-          _active.erase(remove);
+          active.erase(remove);
         }
         update = true;
       }
@@ -262,40 +228,40 @@ void cass::PostProcessors::setup()
                    <<" is in the container, check if it appears after "<<*iter
                    <<" in the active list"
                    <<endl);
-        active_t::iterator remove(find(iter, _active.end(), *d));
-        if(_active.end() != remove)
+        active_t::iterator remove(find(iter, active.end(), *d));
+        if(active.end() != remove)
         {
           //solves case 4
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
                      <<" appeard after "<<*iter
                      <<" on list => put it before and remove the later entry."
                      <<endl);
-          _active.insert(iter,*remove);
-          _active.erase(remove);
+          active.insert(iter,*remove);
+          active.erase(remove);
           update = true;
         }
         VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
                    <<" is in the container, check if its id is in the active list"
                    <<endl);
-        active_t::iterator isthere(find(_active.begin(), _active.end(), *d));
-        if(_active.end() == isthere)
+        active_t::iterator isthere(find(active.begin(), active.end(), *d));
+        if(active.end() == isthere)
         {
           //solves case 5
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
                      <<" appeard not at all in  active list "
                      <<" => put it before "<<*iter
                      <<endl);
-          _active.insert(iter,*d);
+          active.insert(iter,*d);
           update = true;
         }
       }
     }
-    // if we have updated _active, start over again
+    // if we have updated active, start over again
     if(update)
     {
       // start over
       VERBOSEOUT(cout<<"Postprocessor::setup(): start over again."<<endl);
-      iter = _active.begin();
+      iter = active.begin();
       continue;
     }
     ++iter;
@@ -304,7 +270,7 @@ void cass::PostProcessors::setup()
   //some of the postprocessors are have been created and are in the container
   //but might not be on the active list anymore. Check which they are. Put
   //them on a delete list and then delete them.
-  active_t eraseList;
+  postprocessorkeysList_t eraseList;
   for(postprocessors_t::iterator iter = _postprocessors.begin();
       iter != _postprocessors.end();
       ++iter)
@@ -312,7 +278,7 @@ void cass::PostProcessors::setup()
     VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< iter->first
                <<" is still on active list"
                <<endl);
-    if(_active.end() == find(_active.begin(),_active.end(),iter->first))
+    if(active.end() == find(active.begin(),active.end(),iter->first))
     {
       VERBOSEOUT(cout<<"PostProcessor::setup(): "<< iter->first
                  <<" is not on active list. Put it to erase list"
@@ -321,7 +287,7 @@ void cass::PostProcessors::setup()
     }
   }
   //go through erase list and erase all postprocessors on that list
-  for(active_t::const_iterator it = eraseList.begin();
+  for(postprocessorkeysList_t::const_iterator it = eraseList.begin();
       it != eraseList.end();
       ++it)
   {
