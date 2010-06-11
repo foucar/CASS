@@ -36,6 +36,9 @@ namespace cass
   };
 
 
+
+
+
   /** base class for postprocessors */
   class CASSSHARED_EXPORT PostprocessorBackend
   {
@@ -132,7 +135,7 @@ namespace cass
      */
     virtual PostProcessors::postprocessorkeysList_t dependencies()
     {
-      return PostProcessors::postprocessorkeysList_t();
+      return _dependencies;
     }
 
     /** clear the histograms
@@ -152,6 +155,9 @@ namespace cass
 
     /** the list of histograms - event ids */
     histogramList_t _histList;
+
+    /** the list of dependencies */
+    PostProcessors::postprocessorkeysList_t _dependencies;
 
     /** pointer to the most recent histogram */
     HistogramBackend *_result;
