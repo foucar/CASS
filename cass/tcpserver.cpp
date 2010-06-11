@@ -106,7 +106,7 @@ int CASSsoapService::readini(size_t what, bool *success)
 
 int CASSsoapService::getPostprocessorIds(bool *success)
 {
-    static QQueue< cass::Serializer* > queue;
+    static QQueue< std::string* > queue;
     int result;
     cass::PostProcessors *pp(cass::PostProcessors::instance(""));
     cass::IdList* idlist(pp->getIdList());
@@ -114,10 +114,12 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     idlist->serialize(*ser);
     *success = true;
     soap_set_dime(this);
-    queue.enqueue(ser);
-    result = soap_set_dime_attachment(this, (char*) ser->buffer().data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
-    if(10 < queue.size())
+    std::string* datstr = new std::string(ser->buffer());
+    queue.enqueue(datstr);
+    result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
+    if(100 < queue.size())
         delete queue.dequeue();
+    delete ser;
     return result;
 }
 
