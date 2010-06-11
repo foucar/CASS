@@ -136,7 +136,7 @@ namespace cass
      *
      * The dependencies must be run before the actual postprocessor is run by itself.
      */
-    const PostProcessors::postprocessorkeysList_t& dependencies()
+    const PostProcessors::keyList_t& dependencies()
     {
       return _dependencies;
     }
@@ -160,7 +160,7 @@ namespace cass
     histogramList_t _histList;
 
     /** the list of dependencies */
-    PostProcessors::postprocessorkeysList_t _dependencies;
+    PostProcessors::keyList_t _dependencies;
 
     /** pointer to the most recent histogram */
     HistogramBackend *_result;
