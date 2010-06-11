@@ -372,7 +372,7 @@ using the custom doxygen tag cassttng.
     IdList* getIdList();
 
     /** retreive pp with key */
-    PostprocessorBackend* getPostProcessor(const key_t key);
+    PostprocessorBackend& getPostProcessor(const key_t key);
 
   public slots:
     /** Load active postprocessors and histograms

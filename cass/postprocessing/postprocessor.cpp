@@ -127,13 +127,12 @@ void cass::PostProcessors::clear(key_t key)
     it->second->clear();
 }
 
-cass::PostprocessorBackend* PostProcessors::getPostProcessor(const key_t key)
+cass::PostprocessorBackend& PostProcessors::getPostProcessor(const key_t key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
-  if (_postprocessors.end() != it)
-    return it->second;
-  else
-    return 0;
+  if (_postprocessors.end() == it)
+    throw InvalidPostProcessorError(key);
+  return *(it->second);
 }
 
 cass::IdList* cass::PostProcessors::getIdList()
