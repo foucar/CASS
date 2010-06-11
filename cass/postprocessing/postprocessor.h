@@ -315,6 +315,7 @@ using the custom doxygen tag cassttng.
       ROOTDump=2000,
 
       TaisHelperAnswer=4000,
+
       InvalidPP
     };
 
@@ -325,7 +326,7 @@ using the custom doxygen tag cassttng.
     typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
 
     /** List of all postprocessor keys */
-    typedef std::list<key_t> postprocessorkeysList_t;
+    typedef std::list<key_t> keyList_t;
 
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
@@ -341,13 +342,6 @@ using the custom doxygen tag cassttng.
      * @param event CASSEvent to process by all active postprocessors
      */
     void process(const CASSEvent& event);
-
-    /** find all postprocessors that depend on the given one
-     *
-     * @return list of postprocessor key that depend on requested one
-     * @param[in] key key of postprocessor that we find the dependants for
-     */
-    postprocessorkeysList_t find_dependant(const key_t& key);
 
     /** retrieve all activated postprocessors keys */
     IdList* getIdList();
@@ -366,15 +360,6 @@ using the custom doxygen tag cassttng.
     void clear(key_t);
 
   protected:
-    /** list of postprocessors that noone depends on */
-    postprocessorkeysList_t _leave;
-
-    /** the list of id's */
-    IdList *_IdList;
-
-    /** container for user selected and registered postprocessors */
-    postprocessors_t _postprocessors;
-
     /** Create new Postprocessor with key.
      * Create Postprocessor with user definded id.
      *
@@ -383,7 +368,24 @@ using the custom doxygen tag cassttng.
     PostprocessorBackend * create(const key_t &key);
 
     /** Set up _postprocessors using the user requested pp in active*/
-    void setup(const postprocessorkeysList_t &active);
+    void setup(const postprocessorkeysList_t&);
+
+    /** find all postprocessors that depend on the given one
+     *
+     * @return list of postprocessor key that depend on requested one
+     * @param[in] key key of postprocessor that we find the dependants for
+     */
+    postprocessorkeysList_t find_dependant(const key_t& key);
+
+  protected:
+    /** list of postprocessors that noone depends on */
+    postprocessorkeysList_t _leave;
+
+    /** the list of id's */
+    IdList *_IdList;
+
+    /** container for user selected and registered postprocessors */
+    postprocessors_t _postprocessors;
 
     /** filename of the output file */
     std::string _outputfilename;
@@ -402,7 +404,7 @@ using the custom doxygen tag cassttng.
     PostProcessors& operator=(const PostProcessors&);
 
     /** Prevent destruction unless going through destroy */
-    ~PostProcessors() {};
+    ~PostProcessors() {}
 
     /** pointer to the singleton instance */
     static PostProcessors *_instance;
