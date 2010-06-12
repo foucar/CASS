@@ -337,7 +337,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   strncpy(buffer3, xtcfile.toAscii().constData()+4, 5);
   buffer3[5] = '\0';
   sprintf(outfile, "LCLS_%s_%s_%s_%i_pnCCD.h5",
-          buffer1, buffer2, buffer3, eventFiducial);
+          buffer1, buffer3, buffer2, eventFiducial);
 
   // Create the HDF5 file
   hid_t   fh;
