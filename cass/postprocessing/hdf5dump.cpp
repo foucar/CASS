@@ -41,7 +41,7 @@ namespace cass
 #endif
 
 
-static void cleanup(hid_t fh)
+void pp1000::cleanup(hid_t fh)
 {
 	int n_ids, i;
 	hid_t ids[256];
@@ -61,8 +61,8 @@ static void cleanup(hid_t fh)
 }
 
 
-void add_bl_data(hid_t fh, hid_t sh, const char *field,
-                 MachineData::MachineDataDevice::bldMap_t d)
+void pp1000::add_bl_data(hid_t fh, hid_t sh, const char *field,
+                        MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find(field) == d.end() ) {
     std::cout << "Field '" << field << "' not found." << std::endl;
@@ -86,7 +86,7 @@ void add_bl_data(hid_t fh, hid_t sh, const char *field,
    Returns the photon energy in eV.
    It uses Rick K. code at psexport:/reg/neh/home/rkirian/ana2
 */
-double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
+double  pp1000::photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find("EbeamL3Energy") == d.end() ) {
     std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
@@ -121,7 +121,8 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
   double energyLossPerSegment = SRlossPerSegment + wakeLossPerSegment;
 
   // energy in first active undulator segment [GeV]
-  double energyProfile = DL2energyGeV - 0.001*LTUwakeLoss - 0.0005*energyLossPerSegment;
+  double energyProfile = DL2energyGeV - 0.001*LTUwakeLoss
+                                      - 0.0005*energyLossPerSegment;
 
   // Calculate the resonant photon energy of the first active segment
   double photonEnergyeV = 44.42*energyProfile*energyProfile;
@@ -136,7 +137,8 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
  *    2) undulator period (~3cm for LCLS)
  *    3) undulator K (~3.5 at the LCLS)
  */
-double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_t d)
+double pp1000::photonEnergyWithoutLossCorrection
+                                    (MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find("EbeamL3Energy") == d.end() ) {
     std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
@@ -154,8 +156,8 @@ double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_
 }
 
 
-void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
-                        const cass::CASSEvent &cassevent)
+void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
+                                const cass::CASSEvent &cassevent)
 {
   // Get Acqiris device
   const cass::ACQIRIS::Device *acq = dynamic_cast<const cass::ACQIRIS::Device *>
