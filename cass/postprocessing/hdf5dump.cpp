@@ -297,7 +297,7 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
 
 
 // export current pnCCD frames to HDF5 file
-void write_HDF5(const cass::CASSEvent &cassevent)
+void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 {
   // Dig out the pnCCD device from the CASSEvent
   pnCCD::pnCCDDevice *dev = dynamic_cast<pnCCD::pnCCDDevice *>
@@ -323,9 +323,15 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   }
   const Pds::Dgram *datagram = reinterpret_cast<const Pds::Dgram*>
                                                    (cassevent.datagrambuffer());
+
+  // Get time and fiducial ...
   time_t eventTime = datagram->seq.clock().seconds();
   int32_t eventFiducial = datagram->seq.stamp().fiducials();
+
+  // ... and turn them into something readable
+  _lt_lock.lock();
   struct tm *timeinfo = localtime(&eventTime);
+  _lt_lock.unlock();
   strftime(buffer1, 80, "%Y_%b%d", timeinfo);
   strftime(buffer2, 80, "%H%M%S", timeinfo);
   strncpy(buffer3, xtcfile.toAscii().constData()+4, 5);
