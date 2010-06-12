@@ -169,7 +169,9 @@ namespace cass
       if (!_result)
         throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
       QWriteLocker lock(&_histLock);
-      for (histogramList_t::iterator it (_histList.begin()); it != _histList.end(); ++it)
+      for (histogramList_t::iterator it (_histList.begin());
+           it != _histList.end();
+           ++it)
         delete it->second;
       _histList.clear();
       for (size_t i=0; i<size;++i)
