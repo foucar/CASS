@@ -12,6 +12,7 @@
 #include "cass.h"
 #include "postprocessor.h"
 #include "histogram.h"
+#include "cass_event.h"
 
 namespace cass
 {
@@ -49,7 +50,7 @@ namespace cass
      * @param key the key in the container of this postprocessor
      */
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
-      :_key(key), _pp(pp)
+      :_key(key), _pp(pp), _histLock(QReadWriteLock::Recursive)
     {
       /** @note check whether this calls the overwritten function */
       loadSettings(0);
@@ -60,14 +61,6 @@ namespace cass
 
     /** typedef describing how the list of histograms works */
     typedef std::list<std::pair<uint64_t, HistogramBackend*> > histogramList_t;
-
-    /** process the event
-     *
-     * This will evaluate the event and fill the resulting histogram. It needs
-     * to be implemented in the postprocessors.
-     * @param event the cassevent to work on
-     */
-    virtual void process(const CASSEvent& event) = 0;
 
     /** main operator
      *
@@ -149,6 +142,35 @@ namespace cass
       histogramList_t::iterator it (_histList.begin());
       for (;it != _histList.end();++it)
         it->second->clear();
+    }
+
+  protected:
+    /** process the event
+     *
+     * This will evaluate the event and fill the resulting histogram. It needs
+     * to be implemented in the postprocessors.
+     * @param event the cassevent to work on
+     */
+    virtual void process(const CASSEvent& event) = 0;
+
+    /** create histogram list.
+     *
+     * This function relies on that the the histogrambackened pointer has been
+     * newed. It will take it to create all the other histograms that are on
+     * the histogram list.
+     * @param[in] size The size of the list
+     */
+    void createHistList(size_t size)
+    {
+      using namespace std;
+      if (!_result)
+        throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
+      QWriteLocker lock(&_histLock);
+      for (size_t i=0; i<size;++i)
+      {
+        _histList.push_front
+            (make_pair(0, new HistogramFloatBase(*reinterpret_cast<HistogramFloatBase*>(_result))));
+      }
     }
 
   protected:
