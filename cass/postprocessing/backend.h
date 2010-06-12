@@ -77,7 +77,7 @@ namespace cass
      * @return const reference to the resulting histogram
      * @param evt the cassevent to work on
      */
-    virtual const HistogramBackend& operator()(const CASSEvent& evt)
+    const HistogramBackend& operator()(const CASSEvent& evt)
     {
       using namespace std;
       QWriteLocker lock(&_histLock);
@@ -104,7 +104,7 @@ namespace cass
      * throw an invalid_argument exception.
      * @param eventid the event id of the histogram that is requested. Default is 0
      */
-    virtual const HistogramBackend& getHist()(const uint64_t eventid)
+    const HistogramBackend& getHist()(const uint64_t eventid)
     {
       using namespace std;
       QReadLocker lock(&_histLock);
@@ -139,7 +139,7 @@ namespace cass
     /** clear the histograms
      * this will lock for write access to the histograms before clearing them
      */
-    void clear()
+    void clearHistograms()
     {
       QWriteLocker lock(&_histLock);
       histogramList_t::iterator it (_histList.begin());
