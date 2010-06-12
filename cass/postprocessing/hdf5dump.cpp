@@ -689,9 +689,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   // Time in human readable format
   // Strings are a little tricky --> this could be improved!
   char* timestr;
-  setenv("TZ","US/Pacific",1);
   timestr = ctime(&eventTime);
-  unsetenv("TZ");
   dataspace_id = H5Screate(H5S_SCALAR);
   datatype = H5Tcopy(H5T_C_S1);
   H5Tset_size(datatype,strlen(timestr)+1);
