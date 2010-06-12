@@ -740,6 +740,14 @@ public:
     curveWidget->installEventFilter(this);
   }
 
+  virtual void redraw() {std::cout << "base redraw" << std::endl;}
+
+  void setHistogramKey(std::string str)
+  {
+    _histogramKey = str;
+    redraw();
+  }
+
   void setData(cass::Histogram1DFloat* hist )
   {
     static std::string oldKey("");
@@ -808,6 +816,11 @@ public:
   }
 
 public slots:
+
+  void setHistogramKey(const QString& str)
+  {
+    setHistogramKey(str.toStdString());
+  }
 
   void legendChecked(QwtPlotItem* item, bool checked)
   {
@@ -937,6 +950,8 @@ protected:
   QAction* _act_gridtoggle;
 
   CASSsoapProxy* _cass;
+
+  std::string _histogramKey;
 };
 
 
@@ -1018,9 +1033,14 @@ public:
   void setData(cass::Histogram0DFloat* hist )
   {
     setValue(hist->getValue());
+    redraw();
+  }
+
+  void redraw()
+  {
     _histAccumulator.clear();
     int ii=0;
-    for (QQueue<float>::iterator valueit=_values.begin(); valueit!=_values.end(); valueit++)
+    for (QQueue<float>::iterator valueit=_values[_histogramKey].begin(); valueit!=_values[_histogramKey].end(); valueit++)
     {
       _histAccumulator.fill( ii, (*valueit));
       ii++;
@@ -1031,15 +1051,15 @@ public:
   void setValue(float val)
   {
     _lblValue->setText( QString::number(val) );
-    _values.enqueue(val);
-    if (_values.size()>_accumulationLength) _values.dequeue();
+    _values[_histogramKey].enqueue(val);
+    if (_values[_histogramKey].size()>_accumulationLength) _values[_histogramKey].dequeue();
   }
 
 protected:
 
   QLabel* _lblValue;
 
-  QQueue<float> _values;
+  std::map<std::string, QQueue<float> > _values;
 
   int _accumulationLength;
 
