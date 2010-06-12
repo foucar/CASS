@@ -168,6 +168,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     // widget for plots:
     _plotWidget1D = new plotWidget1D;
     _plotWidget0D = new plotWidget0D(1000);
+    connect(_attachId, SIGNAL(editTextChanged(const QString &)), _plotWidget0D, SLOT(setHistogramKey(const QString&)));
     // dock widget containing image or histograms:
     _dock = new QDockWidget(tr("Histogram"), this);
     _spectrogramWidget = new spectrogramWidget;
@@ -716,13 +717,13 @@ void getDataThread::run()
         _cass->getImage(_format, *_attachId, &ret);
         break;
     case dat_2DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     case dat_1DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     case dat_0DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     default:
         break;

@@ -41,15 +41,75 @@
 #include "../cass/postprocessing/postprocessor.h"
 #include "soapCASSsoapProxy.h"
 
+#include <math.h>
+
 
 // prototypes:
 class cassData;
+
+     
+
+class NaNCurve : public QwtPlotCurve
+{
+public:
+
+    QwtDoubleRect boundingRect() const
+    {
+        const size_t sz = dataSize();
+
+        if ( sz <= 0 )
+            return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+
+        double minX, maxX, minY, maxY;
+        minX = maxX = x(0);
+        minY = maxY = y(0);
+
+        for ( size_t i = 1; i < sz; i++ )
+        {
+            const double xv = x(i);
+            if ( xv < minX )
+                minX = xv;
+            if ( xv > maxX )
+                maxX = xv;
+
+            const double yv = y(i);
+            if ( yv < minY && !(isnan(yv) || isinf(yv)))
+                minY = yv;
+            if ( yv > maxY && !(isnan(yv) || isinf(yv)))
+                maxY = yv;
+        }
+        return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
+    } 
+
+    NaNCurve() : QwtPlotCurve() {}
+    NaNCurve(QString& str) : QwtPlotCurve(str) {}
+    void draw(QPainter *painter,
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        int from, int to) const
+    {   
+        if (to < 0)
+          to = dataSize() - 1;
+        // paint curve, but leave out all NaNs and Infs.
+        int ii=from;
+        while(ii<=to)
+        {
+            int _from;
+            while( (isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            _from = ii;
+            while( !(isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            if (ii>=to) ii=to+1;
+            QwtPlotCurve::draw(painter, xMap, yMap, _from, ii-1);
+        }
+    }
+};
+
+
 
 class EremoveCurve : public QEvent
 {
 public:
   EremoveCurve(QEvent::Type type):QEvent(type) {}
-  QwtPlotCurve* curve;
+  NaNCurve* curve;
   QWidget* curveWidget;
   //Type type() { return static_cast<Type>(QEvent::User+111); }
 };
@@ -646,8 +706,6 @@ protected:
 
 
 
-
-
 /** 1d plot
  *
  * @todo 1d hist, log of x,y axis
@@ -661,7 +719,7 @@ class plotWidget : public QWidget
 public:
   void addOverlay(cass::Histogram1DFloat* hist, QString name)
   {
-    QwtPlotCurve* overlayCurve = new QwtPlotCurve(name);
+    NaNCurve* overlayCurve = new NaNCurve(name);
     overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
     //overlayCurve->setPen( QPen(Qt::red));
     _overlayCurves.append( overlayCurve );
@@ -678,6 +736,14 @@ public:
     QWidget* curveWidget = _legend->find( overlayCurve );
     _overlayCurveWidgets.append(curveWidget);
     curveWidget->installEventFilter(this);
+  }
+
+  virtual void redraw() {std::cout << "base redraw" << std::endl;}
+
+  void setHistogramKey(std::string str)
+  {
+    _histogramKey = str;
+    redraw();
   }
 
   void setData(cass::Histogram1DFloat* hist )
@@ -733,7 +799,7 @@ public:
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if (mouseEvent->button() == Qt::RightButton)
         {
-          QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
+          NaNCurve* curve = dynamic_cast<NaNCurve*>( _legend->find(dynamic_cast<QWidget*>(obj)) );
           if (curve) {
             EremoveCurve* removeCurveEvent = new EremoveCurve( static_cast<QEvent::Type>(QEvent::User+111) );
             removeCurveEvent->curve = curve;
@@ -748,6 +814,11 @@ public:
   }
 
 public slots:
+
+  void setHistogramKey(const QString& str)
+  {
+    setHistogramKey(str.toStdString());
+  }
 
   void legendChecked(QwtPlotItem* item, bool checked)
   {
@@ -866,8 +937,8 @@ protected:
   QwtPlotGrid* _grid;
   QwtLegend* _legend;
   QwtDoubleRect _baseRect;
-  QwtPlotCurve _curve;
-  QList<QwtPlotCurve*> _overlayCurves;
+  NaNCurve _curve;
+  QList<NaNCurve*> _overlayCurves;
   QList<QWidget*> _overlayCurveWidgets;
 
   QToolBar* _toolbar;
@@ -877,6 +948,8 @@ protected:
   QAction* _act_gridtoggle;
 
   CASSsoapProxy* _cass;
+
+  std::string _histogramKey;
 };
 
 
@@ -958,9 +1031,14 @@ public:
   void setData(cass::Histogram0DFloat* hist )
   {
     setValue(hist->getValue());
+    redraw();
+  }
+
+  void redraw()
+  {
     _histAccumulator.clear();
     int ii=0;
-    for (QQueue<float>::iterator valueit=_values.begin(); valueit!=_values.end(); valueit++)
+    for (QQueue<float>::iterator valueit=_values[_histogramKey].begin(); valueit!=_values[_histogramKey].end(); valueit++)
     {
       _histAccumulator.fill( ii, (*valueit));
       ii++;
@@ -971,15 +1049,15 @@ public:
   void setValue(float val)
   {
     _lblValue->setText( QString::number(val) );
-    _values.enqueue(val);
-    if (_values.size()>_accumulationLength) _values.dequeue();
+    _values[_histogramKey].enqueue(val);
+    if (_values[_histogramKey].size()>_accumulationLength) _values[_histogramKey].dequeue();
   }
 
 protected:
 
   QLabel* _lblValue;
 
-  QQueue<float> _values;
+  std::map<std::string, QQueue<float> > _values;
 
   int _accumulationLength;
 

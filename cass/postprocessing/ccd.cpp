@@ -36,11 +36,30 @@ cass::pp100::~pp100()
   _image = 0;
 }
 
+cass::PostProcessors::active_t cass::pp100::dependencies()
+{
+  PostProcessors::active_t list;
+  if (_useCondition) list.push_front(_condition);
+  return list;
+}
+
 void cass::pp100::loadSettings(size_t)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
+  //dependancy:
+  if (settings.contains("ConditionName")) 
+  {
+    _useCondition = true;
+    if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition)) return;
+  } 
+  else
+  {
+    _useCondition = false;
+  }
+
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
 
@@ -77,6 +96,14 @@ void cass::pp100::loadSettings(size_t)
 void cass::pp100::operator()(const cass::CASSEvent& event)
 {
   using namespace std;
+
+  // if condition is in use and not met, don't do anything:
+  if (_useCondition) {
+      const Histogram0DFloat*cond
+          (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+      if (!cond->isTrue()) return;
+  }
+
   //check whether detector exists
   if (event.devices().find(_device)->second->detectors()->size() <= _detector)
     throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")

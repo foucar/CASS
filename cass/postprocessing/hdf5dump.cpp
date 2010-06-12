@@ -41,7 +41,7 @@ namespace cass
 #endif
 
 
-static void cleanup(hid_t fh)
+void pp1000::cleanup(hid_t fh)
 {
 	int n_ids, i;
 	hid_t ids[256];
@@ -61,8 +61,8 @@ static void cleanup(hid_t fh)
 }
 
 
-void add_bl_data(hid_t fh, hid_t sh, const char *field,
-                 MachineData::MachineDataDevice::bldMap_t d)
+void pp1000::add_bl_data(hid_t fh, hid_t sh, const char *field,
+                        MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find(field) == d.end() ) {
     std::cout << "Field '" << field << "' not found." << std::endl;
@@ -86,7 +86,7 @@ void add_bl_data(hid_t fh, hid_t sh, const char *field,
    Returns the photon energy in eV.
    It uses Rick K. code at psexport:/reg/neh/home/rkirian/ana2
 */
-double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
+double  pp1000::photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find("EbeamL3Energy") == d.end() ) {
     std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
@@ -121,7 +121,8 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
   double energyLossPerSegment = SRlossPerSegment + wakeLossPerSegment;
 
   // energy in first active undulator segment [GeV]
-  double energyProfile = DL2energyGeV - 0.001*LTUwakeLoss - 0.0005*energyLossPerSegment;
+  double energyProfile = DL2energyGeV - 0.001*LTUwakeLoss
+                                      - 0.0005*energyLossPerSegment;
 
   // Calculate the resonant photon energy of the first active segment
   double photonEnergyeV = 44.42*energyProfile*energyProfile;
@@ -136,7 +137,8 @@ double photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
  *    2) undulator period (~3cm for LCLS)
  *    3) undulator K (~3.5 at the LCLS)
  */
-double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_t d)
+double pp1000::photonEnergyWithoutLossCorrection
+                                    (MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find("EbeamL3Energy") == d.end() ) {
     std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
@@ -154,8 +156,8 @@ double photonEnergyWithoutLossCorrection(MachineData::MachineDataDevice::bldMap_
 }
 
 
-void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
-                        const cass::CASSEvent &cassevent)
+void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
+                                const cass::CASSEvent &cassevent)
 {
   // Get Acqiris device
   const cass::ACQIRIS::Device *acq = dynamic_cast<const cass::ACQIRIS::Device *>
@@ -297,7 +299,7 @@ void add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
 
 
 // export current pnCCD frames to HDF5 file
-void write_HDF5(const cass::CASSEvent &cassevent)
+void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 {
   // Dig out the pnCCD device from the CASSEvent
   pnCCD::pnCCDDevice *dev = dynamic_cast<pnCCD::pnCCDDevice *>
@@ -323,17 +325,20 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   }
   const Pds::Dgram *datagram = reinterpret_cast<const Pds::Dgram*>
                                                    (cassevent.datagrambuffer());
+
+  // Get time and fiducial ...
   time_t eventTime = datagram->seq.clock().seconds();
   int32_t eventFiducial = datagram->seq.stamp().fiducials();
-  setenv("TZ","US/Pacific",1);
-  struct tm *timeinfo=localtime( &eventTime );
-  unsetenv("TZ");
-  strftime(buffer1, 80, "%Y_%b%d", timeinfo);
-  strftime(buffer2, 80, "%H%M%S", timeinfo);
+
+  // ... and turn them into something readable
+  struct tm timeinfo;
+  localtime_r(&eventTime, &timeinfo);
+  strftime(buffer1, 80, "%Y_%b%d", &timeinfo);
+  strftime(buffer2, 80, "%H%M%S", &timeinfo);
   strncpy(buffer3, xtcfile.toAscii().constData()+4, 5);
   buffer3[5] = '\0';
   sprintf(outfile, "LCLS_%s_%s_%s_%i_pnCCD.h5",
-          buffer1, buffer2, buffer3, eventFiducial);
+          buffer1, buffer3, buffer2, eventFiducial);
 
   // Create the HDF5 file
   hid_t   fh;
@@ -434,7 +439,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
     int columns = det.columns();
     if ( !rows || !columns ) {
       skipped++;
-      printf("pnCCD frame with ilogical size %dx%d!\n",columns,rows);
+      printf("pnCCD frame with illogical size %dx%d!\n",columns,rows);
       continue;
     }
 
@@ -684,10 +689,8 @@ void write_HDF5(const cass::CASSEvent &cassevent)
 
   // Time in human readable format
   // Strings are a little tricky --> this could be improved!
-  char* timestr;
-  setenv("TZ","US/Pacific",1);
-  timestr = ctime(&eventTime);
-  unsetenv("TZ");
+  char *timestr(new char[128]);
+  timestr = ctime_r(&eventTime, timestr);
   dataspace_id = H5Screate(H5S_SCALAR);
   datatype = H5Tcopy(H5T_C_S1);
   H5Tset_size(datatype,strlen(timestr)+1);
@@ -698,6 +701,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
   H5Sclose(dataspace_id);
   hdf_error = H5Lcreate_soft("/LCLS/eventTimeString", fh,
                              "/LCLS/eventTime", 0, 0);
+  delete[](timestr);
 
   // Put the XTC filename somewhere
   dataspace_id = H5Screate(H5S_SCALAR);
