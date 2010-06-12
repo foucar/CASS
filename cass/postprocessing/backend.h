@@ -89,10 +89,13 @@ namespace cass
       VERBOSEOUT(std::cout << "calling backend's load settings"<<std::endl);
     }
 
-    /** Define all postprocessors we depend on
+    /** Define all postprocessors keys a postprocessor depends on
      *
      * If the dependencies are user choosable they must all be set in loadSettings
      * before it makes sense to call this function.
+     *
+     * This function will be called by PostProcessors::setup() when it creates
+     * the container with all activated postprocessors.
      */
     const PostProcessors::keyList_t& dependencies()
     {
@@ -109,6 +112,7 @@ namespace cass
      *
      * This will evaluate the event and fill the resulting histogram. It needs
      * to be implemented in the postprocessors.
+     *
      * @param event the cassevent to work on
      */
     virtual void process(const CASSEvent& event) = 0;
@@ -118,6 +122,7 @@ namespace cass
      * This function relies on that the the histogrambackened pointer has been
      * newed. It will take it to create all the other histograms that are on
      * the histogram list.
+     *
      * @param[in] size The size of the list
      */
     void createHistList(size_t size);
