@@ -325,9 +325,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
                                                    (cassevent.datagrambuffer());
   time_t eventTime = datagram->seq.clock().seconds();
   int32_t eventFiducial = datagram->seq.stamp().fiducials();
-  setenv("TZ","US/Pacific",1);
-  struct tm *timeinfo=localtime( &eventTime );
-  unsetenv("TZ");
+  struct tm *timeinfo = localtime(&eventTime);
   strftime(buffer1, 80, "%Y_%b%d", timeinfo);
   strftime(buffer2, 80, "%H%M%S", timeinfo);
   strncpy(buffer3, xtcfile.toAscii().constData()+4, 5);
