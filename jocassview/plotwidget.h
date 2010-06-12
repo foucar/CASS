@@ -90,7 +90,6 @@ public:
         if (to < 0)
           to = dataSize() - 1;
         // paint curve, but leave out all NaNs and Infs.
-        std::cout << " FROM: " << from << "TO: " << to << std::endl;
         int ii=from;
         while(ii<=to)
         {
@@ -99,7 +98,6 @@ public:
             _from = ii;
             while( !(isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
             if (ii>=to) ii=to+1;
-            std::cout << " FROM: " << ii << "TO: " << ii-1 << std::endl;
             QwtPlotCurve::draw(painter, xMap, yMap, _from, ii-1);
         }
     }
