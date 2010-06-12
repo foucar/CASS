@@ -64,6 +64,7 @@ namespace cass
      * evaluation should go to is _result.
      * Before this function does anything it will writelock itselve. After
      * finishing this function the write lock will automaticly be released.
+     *
      * @return const reference to the resulting histogram
      * @param evt the cassevent to work on
      */
@@ -76,7 +77,9 @@ namespace cass
      * When parameter is 0 then it just returns the last known histogram. When
      * there is no histogram for the requested event id, then this function will
      * throw an invalid_argument exception.
-     * @param eventid the event id of the histogram that is requested. Default is 0
+     *
+     * @param eventid the event id of the histogram that is requested.
+     *                Default is 0
      */
     const HistogramBackend& getHist()(const uint64_t eventid);
 
@@ -88,7 +91,8 @@ namespace cass
 
     /** Define all postprocessors we depend on
      *
-     * The dependencies must be run before the actual postprocessor is run by itself.
+     * If the dependencies are user choosable they must all be set in loadSettings
+     * before it makes sense to call this function.
      */
     const PostProcessors::keyList_t& dependencies()
     {
