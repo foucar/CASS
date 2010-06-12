@@ -717,13 +717,13 @@ void getDataThread::run()
         _cass->getImage(_format, *_attachId, &ret);
         break;
     case dat_2DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     case dat_1DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     case dat_0DHistogram:
-        _cass->getHistogram(*_attachId, &ret);
+        _cass->getHistogram(*_attachId, 0, &ret);
         break;
     default:
         break;

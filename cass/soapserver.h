@@ -37,7 +37,7 @@ int ns__getMimeType(std::string type, bool *success);
 int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 
 // get histogram from server
-int ns__getHistogram(std::string type, bool *success);
+int ns__getHistogram(std::string type, ULONG64 eventId, bool *success);
 
 // get image from server in format |format| (as defined in cass.h)
 int ns__getImage(int format, std::string type, bool *success);
