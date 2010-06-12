@@ -850,9 +850,12 @@ public slots:
     VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
+    // top: lower axis limit
+    // bottom: upper axis limit
+    double oldheight = newZoomRect.height();
     double newheight = newZoomRect.height() * factor;
     newZoomRect.setHeight( newheight );
-    newZoomRect.moveBottom( newheight/2 );
+    newZoomRect.moveBottom( newZoomRect.bottom() - (newheight-oldheight)/2 );
     newZoomRect = newZoomRect.normalized();
 
     stack.push( newZoomRect );
