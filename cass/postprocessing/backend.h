@@ -50,7 +50,10 @@ namespace cass
      * @param key the key in the container of this postprocessor
      */
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
-      :_key(key), _pp(pp), _histLock(QReadWriteLock::Recursive)
+      :_key(key),
+       _result(0),
+       _pp(pp),
+       _histLock(QReadWriteLock::Recursive)
     {
       /** @note check whether this calls the overwritten function */
       loadSettings(0);
@@ -166,6 +169,9 @@ namespace cass
       if (!_result)
         throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
       QWriteLocker lock(&_histLock);
+      for (histogramList_t::iterator it (_histList.begin()); it != _histList.end(); ++it)
+        delete it->second;
+      _histList.clear();
       for (size_t i=0; i<size;++i)
       {
         _histList.push_front
