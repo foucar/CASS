@@ -432,7 +432,7 @@ void write_HDF5(const cass::CASSEvent &cassevent)
     int columns = det.columns();
     if ( !rows || !columns ) {
       skipped++;
-      printf("pnCCD frame with ilogical size %dx%d!\n",columns,rows);
+      printf("pnCCD frame with illogical size %dx%d!\n",columns,rows);
       continue;
     }
 
