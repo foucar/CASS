@@ -329,11 +329,10 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   int32_t eventFiducial = datagram->seq.stamp().fiducials();
 
   // ... and turn them into something readable
-  _lt_lock.lock();
-  struct tm *timeinfo = localtime(&eventTime);
-  _lt_lock.unlock();
-  strftime(buffer1, 80, "%Y_%b%d", timeinfo);
-  strftime(buffer2, 80, "%H%M%S", timeinfo);
+  struct tm timeinfo;
+  localtime_r(&eventTime, &timeinfo);
+  strftime(buffer1, 80, "%Y_%b%d", &timeinfo);
+  strftime(buffer2, 80, "%H%M%S", &timeinfo);
   strncpy(buffer3, xtcfile.toAscii().constData()+4, 5);
   buffer3[5] = '\0';
   sprintf(outfile, "LCLS_%s_%s_%s_%i_pnCCD.h5",
@@ -688,8 +687,8 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 
   // Time in human readable format
   // Strings are a little tricky --> this could be improved!
-  char* timestr;
-  timestr = ctime(&eventTime);
+  char *timestr(new char[128]);
+  timestr = ctime_r(&eventTime, timestr);
   dataspace_id = H5Screate(H5S_SCALAR);
   datatype = H5Tcopy(H5T_C_S1);
   H5Tset_size(datatype,strlen(timestr)+1);
@@ -700,6 +699,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   H5Sclose(dataspace_id);
   hdf_error = H5Lcreate_soft("/LCLS/eventTimeString", fh,
                              "/LCLS/eventTime", 0, 0);
+  delete[](timestr);
 
   // Put the XTC filename somewhere
   dataspace_id = H5Screate(H5S_SCALAR);

@@ -30,10 +30,6 @@ namespace cass
       /** copy image from CASS event to HDF5 */
       virtual void operator()(const CASSEvent&);
 
-  protected:
-    /** mutex to protect "localtime()" */
-    QMutex _lt_lock;
-
     void write_HDF5(const cass::CASSEvent &cassevent);
   };
 }
