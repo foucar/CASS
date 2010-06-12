@@ -119,6 +119,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/id_list.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
+            ./postprocessing/backend.cpp \
             ./postprocessing/imaging.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \

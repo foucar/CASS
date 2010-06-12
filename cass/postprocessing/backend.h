@@ -4,6 +4,8 @@
 #ifndef _POSTPROCESSOR_BACKEND_H_
 #define _POSTPROCESSOR_BACKEND_H_
 
+#include <QtCore/QReadWriteLock>
+
 #include <list>
 #include <string>
 #include <stdint.h>
@@ -11,36 +13,24 @@
 
 #include "cass.h"
 #include "postprocessor.h"
-#include "histogram.h"
-#include "cass_event.h"
 
 namespace cass
 {
   //forward declaration
   class CASSEvent;
 
-  /** predicate class for find_if.
-   * this helps finding the right key in the list of pairs eventid - Histogram
+  /** base class for postprocessors.
+   *
+   * This class handles most of the functionality of a postprocessor. When
+   * creating a new postprocessor the user has just the overwrite the process
+   * function. There it will retrieve the result from either other postprocessors
+   * or from the cassevent itselve. All the rest is handled by the base class.
+   * Optionally, if one wants to have user interaction with the class, this can
+   * be implemented by overwriting loadSettings.
+   *
    * @author Lutz Foucar
+   * @author Jochen Kuepper
    */
-  class IsKey
-  {
-  public:
-    /** initialize the key in the constructor*/
-    IsKey(const uint64_t key):_key(key){}
-    /** compares the first element of the pair to the key*/
-    bool operator()(const std::pair<uint64_t,HistogramBackend*>& p)const
-    { return (_key == p.first); }
-  private:
-    /** the key that we will compare to in the operator*/
-    const uint64_t _key;
-  };
-
-
-
-
-
-  /** base class for postprocessors */
   class CASSSHARED_EXPORT PostprocessorBackend
   {
   public:
@@ -77,23 +67,7 @@ namespace cass
      * @return const reference to the resulting histogram
      * @param evt the cassevent to work on
      */
-    const HistogramBackend& operator()(const CASSEvent& evt)
-    {
-      using namespace std;
-      QWriteLocker lock(&_histLock);
-      histogramList_t::iterator it
-        (find_if(_histList.begin(), _histList.end(), IsKey(evt.id())));
-      if(_histList.end() == it)
-      {
-        _result = _histList.back().second;
-        process(evt);
-        histogramList_t::value_type newPair (std::make_pair(evt.id(),_result));
-        _histList.push_front(newPair);
-        _histList.pop_back();
-        it = _histList.begin();
-      }
-      return *(it->second);
-    }
+    const HistogramBackend& operator()(const CASSEvent& evt);
 
     /** retrieve a histogram for a given id.
      *
@@ -104,22 +78,7 @@ namespace cass
      * throw an invalid_argument exception.
      * @param eventid the event id of the histogram that is requested. Default is 0
      */
-    const HistogramBackend& getHist()(const uint64_t eventid)
-    {
-      using namespace std;
-      QReadLocker lock(&_histLock);
-      //if eventId is 0 then just return the latest event//
-      if (0 == eventId)
-        return *_histList.front().second;
-      else
-      {
-        histogramList_t::const_iterator it
-            (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
-        if (_histList.end() == it)
-          throw InvalidHistogramError(eventId);
-        return *(it.second);
-      }
-    }
+    const HistogramBackend& getHist()(const uint64_t eventid);
 
     /** Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t)
@@ -136,16 +95,10 @@ namespace cass
       return _dependencies;
     }
 
-    /** clear the histograms
+    /** clear the histograms.
      * this will lock for write access to the histograms before clearing them
      */
-    void clearHistograms()
-    {
-      QWriteLocker lock(&_histLock);
-      histogramList_t::iterator it (_histList.begin());
-      for (;it != _histList.end();++it)
-        it->second->clear();
-    }
+    void clearHistograms();
 
   protected:
     /** process the event
@@ -163,23 +116,7 @@ namespace cass
      * the histogram list.
      * @param[in] size The size of the list
      */
-    void createHistList(size_t size)
-    {
-      using namespace std;
-      if (!_result)
-        throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
-      QWriteLocker lock(&_histLock);
-      for (histogramList_t::iterator it (_histList.begin());
-           it != _histList.end();
-           ++it)
-        delete it->second;
-      _histList.clear();
-      for (size_t i=0; i<size;++i)
-      {
-        _histList.push_front
-            (make_pair(0, new HistogramFloatBase(*reinterpret_cast<HistogramFloatBase*>(_result))));
-      }
-    }
+    void createHistList(size_t size);
 
   protected:
     /** the postprocessors key */
