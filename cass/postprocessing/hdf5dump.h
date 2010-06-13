@@ -45,6 +45,8 @@ namespace cass
                      MachineData::MachineDataDevice::bldMap_t d);
     void cleanup(hid_t fh);
 
+    QMutex _hdf5_lock;
+
   };
 }
 

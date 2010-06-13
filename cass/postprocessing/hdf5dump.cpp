@@ -301,6 +301,8 @@ void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
 // export current pnCCD frames to HDF5 file
 void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 {
+  _hdf5_lock.lock();
+
   // Dig out the pnCCD device from the CASSEvent
   pnCCD::pnCCDDevice *dev = dynamic_cast<pnCCD::pnCCDDevice *>
                            (cassevent.devices().find(CASSEvent::pnCCD)->second);
@@ -720,6 +722,8 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 
   cleanup(fh);
   H5Fclose(fh);
+
+  _hdf5_lock.unlock();
 }
 
 

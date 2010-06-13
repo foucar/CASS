@@ -198,6 +198,7 @@ void cass::FileInput::run()
           <<"\" could not be opened"
           <<std::endl;
   }
+  std::cout << "Finished with all files." << std::endl;
   while(!_quit)
     this->sleep(1);
   std::cout << "closing the input"<<std::endl;
