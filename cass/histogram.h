@@ -63,7 +63,7 @@ public:
      * serializes this to the Serializer
      * @param out The Serializer that we will serialize this to
      */
-    void serialize(SerializerBackend& out);
+    void serialize(SerializerBackend& out)const;
 
     /** Deserialize this class.
      * deserializes this from the Serializer
@@ -164,7 +164,7 @@ public:
      * Mostly, this is done internally, but you have to use it if you directly access memory of a
      * histogram (appropriately for reading and writing).
      */
-    QReadWriteLock lock;
+    mutable QReadWriteLock lock;
 
     /** serialize this object to a serializer.
      * This function is pure virtual since it overwrites the
@@ -172,7 +172,7 @@ public:
      * inheriting from here
      * @param out The Serializer we serialize this to
      */
-    virtual void serialize(SerializerBackend &out)=0;
+    virtual void serialize(SerializerBackend &out)const=0;
 
     /** serialize this object from a serializer.
      * This function is pure virtual since it overwrites the
@@ -267,7 +267,7 @@ public:
     virtual ~HistogramFloatBase(){}
 
     /** serialize this histogram to the serializer*/
-    virtual void serialize(SerializerBackend&);
+    virtual void serialize(SerializerBackend&)const;
 
     /** deserialize this histogram from the serializer*/
     virtual bool deserialize(SerializerBackend&);
@@ -607,7 +607,7 @@ public:
 
 //---------------Axis-------------------------------
 
-inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)
+inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);
@@ -655,7 +655,7 @@ inline size_t AxisProperty::bin(float pos) const
 
 
 //-----------------Base class-----------------------
-inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
+inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
   lock.lockForRead();
   //the version//
@@ -663,7 +663,7 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
   //the dimension//
   out.addSizet(_dimension);
   //the axis properties//
-  for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
+  for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
   size_t size = _memory.size();

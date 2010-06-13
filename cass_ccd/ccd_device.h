@@ -32,7 +32,7 @@ namespace cass
       const cass::PixelDetector &detector()const  {return _detector;}
       cass::PixelDetector &detector()             {return _detector;}
       */
-      void serialize(cass::SerializerBackend&);
+      void serialize(cass::SerializerBackend&)const;
       bool deserialize(cass::SerializerBackend&);
 
     public:
@@ -47,7 +47,7 @@ namespace cass
 }
 
 
-inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)
+inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)const
 {
   //the version//
   out.addUint16(_version);
@@ -55,7 +55,7 @@ inline void cass::CCD::CCDDevice::serialize(cass::SerializerBackend& out)
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
   //serialize each detector//
-  for (detectors_t::iterator it=_detectors.begin(); it != _detectors.end();++it)
+  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
     it->serialize(out);
 }
 

@@ -25,7 +25,7 @@ namespace cass
       :Serializable(version)
     {}
     /** serializer is still pure virtual*/
-    virtual void serialize(cass::SerializerBackend &)=0;
+    virtual void serialize(cass::SerializerBackend &)const=0;
     /** deserializer is still pure virtual*/
     virtual bool deserialize(cass::SerializerBackend &)=0;
     /** virtual desctructor*/

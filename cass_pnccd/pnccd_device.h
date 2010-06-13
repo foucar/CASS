@@ -29,7 +29,7 @@ namespace cass
 
     public:
       /** serialize the device to the Serializer*/
-      void serialize(cass::SerializerBackend&);
+      void serialize(cass::SerializerBackend&)const;
       /** deserialize the device from the Serializer*/
       bool deserialize(cass::SerializerBackend&);
 
@@ -46,7 +46,7 @@ namespace cass
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
 
-inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)
+inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);
@@ -54,7 +54,7 @@ inline void cass::pnCCD::pnCCDDevice::serialize(cass::SerializerBackend &out)
   size_t nDets = _detectors.size();
   out.addSizet(nDets);
   //serialize each detector//
-  for (detectors_t::iterator it=_detectors.begin(); it != _detectors.end();++it)
+  for (detectors_t::const_iterator it=_detectors.begin(); it != _detectors.end();++it)
     it->serialize(out);
 }
 
