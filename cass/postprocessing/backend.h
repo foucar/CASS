@@ -50,7 +50,7 @@ namespace cass
     }
 
     /** virtual destructor */
-    virtual ~PostprocessorBackend() {}
+    virtual ~PostprocessorBackend();
 
     /** typedef describing how the list of histograms works */
     typedef std::list<std::pair<uint64_t, HistogramBackend*> > histogramList_t;
@@ -88,6 +88,9 @@ namespace cass
     {
       VERBOSEOUT(std::cout << "calling backend's load settings"<<std::endl);
     }
+
+    /** function that will be called when the postprocessor is about to be deleted */
+    virtual void aboutToQuit() {}
 
     /** Define all postprocessors keys a postprocessor depends on
      *
