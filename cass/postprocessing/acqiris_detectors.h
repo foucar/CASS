@@ -42,11 +42,8 @@ namespace cass
     /** Constructor. Constructor for Number of Signals*/
     pp150(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free histogram space */
-    virtual ~pp150();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -54,9 +51,6 @@ namespace cass
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
-
-    /** The Histogram storing the info*/
-    Histogram0DFloat  *_nbrSignals;
   };
 
 
@@ -96,11 +90,8 @@ namespace cass
     /** Constructor*/
     pp151(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp151();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -108,9 +99,6 @@ namespace cass
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
-
-    /** The Histogram storing the info*/
-    Histogram1DFloat  *_tof;
   };
 
 
@@ -149,11 +137,8 @@ namespace cass
     /** Constructor for Number of Signals*/
     pp152(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp152();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -161,9 +146,6 @@ namespace cass
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
-
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_sigprop;
   };
 
 

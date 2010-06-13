@@ -18,41 +18,41 @@
 #include "delayline_detector.h"
 #include "tof_analyzer_simple.h"
 #include "tof_detector.h"
+#include "cass.h"
 
 
-
-void cass::set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key)
+void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  std::cerr << "Creating 1D histogram with"
-      <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
-      <<" XLow:"<<param.value("XLow",0).toFloat()
-      <<" XUp:"<<param.value("XUp",0).toFloat()
-      <<std::endl;
+  VERBOSEOUT(std::cerr << "Creating 1D histogram with"
+             <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
+             <<" XLow:"<<param.value("XLow",0).toFloat()
+             <<" XUp:"<<param.value("XUp",0).toFloat()
+             <<std::endl);
   hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                     param.value("XLow",0).toFloat(),
                                     param.value("XUp",0).toFloat());
 }
 
-void cass::set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key)
+void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   QSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  std::cerr << "Creating 2D histogram with"
-      <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
-      <<" XLow:"<<param.value("XLow",0).toFloat()
-      <<" XUp:"<<param.value("XUp",0).toFloat()
-      <<" YNbrBins:"<<param.value("YNbrBins",1).toUInt()
-      <<" YLow:"<<param.value("YLow",0).toFloat()
-      <<" YUp:"<<param.value("YUp",0).toFloat()
-      <<std::endl;
+  VERBOSEOUT(std::cerr << "Creating 2D histogram with"
+             <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
+             <<" XLow:"<<param.value("XLow",0).toFloat()
+             <<" XUp:"<<param.value("XUp",0).toFloat()
+             <<" YNbrBins:"<<param.value("YNbrBins",1).toUInt()
+             <<" YLow:"<<param.value("YLow",0).toFloat()
+             <<" YUp:"<<param.value("YUp",0).toFloat()
+             <<std::endl);
   hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                                     param.value("XLow",0).toFloat(),
                                     param.value("XUp",0).toFloat(),
@@ -72,16 +72,9 @@ void cass::set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key)
 
 //----------------Nbr of Peaks MCP---------------------------------------------
 cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _nbrSignals(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp150::~pp150()
-{
-  _pp.histograms_delete(_key);
-  _nbrSignals=0;
+//  loadSettings(0);
 }
 
 void cass::pp150::loadSettings(size_t)
@@ -91,9 +84,8 @@ void cass::pp150::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _pp.histograms_delete(_key);
-  _nbrSignals = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_nbrSignals);
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the nbr of mcp signals"
@@ -101,14 +93,14 @@ void cass::pp150::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp150::operator()(const cass::CASSEvent &evt)
+void cass::pp150::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  TofDetector *det =
-      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  _nbrSignals->lock.lockForWrite();
-  _nbrSignals->fill(det->mcp().peaks().size());
-  _nbrSignals->lock.unlock();
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().peaks().size());
+  _result->lock.unlock();
 }
 
 
@@ -122,16 +114,9 @@ void cass::pp150::operator()(const cass::CASSEvent &evt)
 
 //----------------MCP Hits (Tof)-----------------------------------------------
 cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _tof(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp151::~pp151()
-{
-  _pp.histograms_delete(_key);
-  _tof=0;
+//  loadSettings(0);
 }
 
 void cass::pp151::loadSettings(size_t)
@@ -141,8 +126,8 @@ void cass::pp151::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  set1DHist(_tof,_key);
-  _pp.histograms_replace(_key,_tof);
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": it histograms times of the found mcp signals"
@@ -150,18 +135,18 @@ void cass::pp151::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp151::operator()(const cass::CASSEvent &evt)
+void cass::pp151::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
   TofDetector *det
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
-  _tof->lock.lockForWrite();
-  fill(_tof->memory().begin(),_tof->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it != det->mcp().peaks().end(); ++it)
-    _tof->fill(it->time());
-  _tof->lock.unlock();
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->time());
+  _result->lock.unlock();
 }
 
 
@@ -175,16 +160,9 @@ void cass::pp151::operator()(const cass::CASSEvent &evt)
 
 //----------------MCP Fwhm vs. height------------------------------------------
 cass::pp152::pp152(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _sigprop(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp152::~pp152()
-{
-  _pp.histograms_delete(_key);
-  _sigprop=0;
+//  loadSettings(0);
 }
 
 void cass::pp152::loadSettings(size_t)
@@ -194,12 +172,12 @@ void cass::pp152::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  set2DHist(_sigprop,_key);
-  _pp.histograms_replace(_key,_sigprop);
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the FWHM vs the height of the found mcp signals"
-      <<" of  detector "<<_detector
+      <<" of detector "<<_detector
       <<std::endl;
 }
 
@@ -210,11 +188,11 @@ void cass::pp152::operator()(const cass::CASSEvent &evt)
   TofDetector *det
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
-  _sigprop->lock.lockForWrite();
-  fill(_sigprop->memory().begin(),_sigprop->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (;it != det->mcp().peaks().end(); ++it)
-    _sigprop->fill(it->fwhm(),it->height());
-  _sigprop->lock.unlock();
+    _result->fill(it->fwhm(),it->height());
+  _result->lock.unlock();
 }
 
 
