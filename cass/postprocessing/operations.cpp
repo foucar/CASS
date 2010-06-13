@@ -34,37 +34,24 @@ namespace cass
     float _first_weight, _second_weight;
   };
 
-  bool retrieve_and_validate(cass::PostProcessors &pp,
-                             cass::PostProcessors::key_t key,
-                             const char * param_name,
-                             cass::PostProcessors::key_t &dependid)
+  PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
+                                              cass::PostProcessors::key_t key,
+                                              const char * param_name)
   {
     QSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup(key.c_str());
-    dependid = settings.value(param_name,"0").toString().toStdString();
-    //when histogram id is not yet on list we return false
-    pp.histograms_checkout();
+    PostProcessors::key_t dependkey
+        (settings.value(param_name,"0").toString().toStdString());
     try
     {
-      VERBOSEOUT(std::cout<<"retrive_and_validate(): Check whether "<<dependid
-                 <<" is a valid histogram"
-                 <<std::endl);
-      pp.validate(dependid);
+      PostprocessorBackend *dependpp(pp.getPostProcessor(dependkey));
     }
-    catch (InvalidHistogramError&)
+    catch (InvalidPostProcessorError&)
     {
-      VERBOSEOUT(std::cout<<"retrive_and_validate(): "<<dependid
-                 <<" is NOT a valid histogram"
-                 <<std::endl);
-      pp.histograms_release();
-      return false;
+      return 0;
     }
-    VERBOSEOUT(std::cout<<"retrive_and_validate(): "<<dependid
-               <<" is a valid histogram"
-               <<std::endl);
-    pp.histograms_release();
-    return true;
+    return dependpp;
   }
 
 }
