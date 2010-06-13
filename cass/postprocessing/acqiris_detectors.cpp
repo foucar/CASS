@@ -181,7 +181,7 @@ void cass::pp152::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp152::operator()(const cass::CASSEvent &evt)
+void cass::pp152::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
@@ -191,7 +191,7 @@ void cass::pp152::operator()(const cass::CASSEvent &evt)
   _result->clear();
   _result->lock.lockForWrite();
   for (;it != det->mcp().peaks().end(); ++it)
-    _result->fill(it->fwhm(),it->height());
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->fwhm(),it->height());
   _result->lock.unlock();
 }
 
