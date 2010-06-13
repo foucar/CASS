@@ -456,7 +456,7 @@ using the custom doxygen tag cassttng.
    * @param[in] key the key of the postprocessor too look up in cass.ini
    * @author Lutz Foucar
    */
-  void set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key);
+  void set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
 
   /** function to set the 2d histogram properties from the ini file.
    * @param[out] hist pointer to the 2D Histogram whos properties should be updated
@@ -464,7 +464,7 @@ using the custom doxygen tag cassttng.
    * @param[in] key the key of the postprocessor too look up in cass.ini
    * @author Lutz Foucar
    */
-  void set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key);
+  void set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
 
   /** function to retrieve and validate a postprocessors dependency
    * @return true when the dependcy exists
