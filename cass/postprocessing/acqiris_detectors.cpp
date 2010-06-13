@@ -255,16 +255,9 @@ void cass::pp160::process(const cass::CASSEvent &evt)
 
 //----------------FWHM vs. Height of Wireend Signals---------------------------
 cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _sigprop(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp161::~pp161()
-{
-  _pp.histograms_delete(_key);
-  _sigprop=0;
+//  loadSettings(0);
 }
 
 void cass::pp161::loadSettings(size_t)
@@ -276,8 +269,8 @@ void cass::pp161::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
   _signal = settings.value("Wireend",'1').toChar().toAscii();
-  set2DHist(_sigprop,_key);
-  _pp.histograms_replace(_key,_sigprop);
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the FWHM vs the height of layer "<<_layer
@@ -286,18 +279,18 @@ void cass::pp161::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp161::operator()(const cass::CASSEvent &evt)
+void cass::pp161::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   Signal::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
-  _sigprop->lock.lockForWrite();
-  fill(_sigprop->memory().begin(),_sigprop->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
-    _sigprop->fill(it->fwhm(),it->height());
-  _sigprop->lock.unlock();
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->fwhm(),it->height());
+  _result->lock.unlock();
 }
 
 
@@ -311,16 +304,9 @@ void cass::pp161::operator()(const cass::CASSEvent &evt)
 
 //----------------Timesum for the layers---------------------------------------
 cass::pp162::pp162(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _timesum(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp162::~pp162()
-{
-  _pp.histograms_delete(_key);
-  _timesum=0;
+//  loadSettings(0);
 }
 
 void cass::pp162::loadSettings(size_t)
@@ -331,25 +317,23 @@ void cass::pp162::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
-  _pp.histograms_delete(_key);
-  _timesum = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_timesum);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<" it histograms the timesum of layer "<<_layer
       <<" of detector "<<_detector
       <<std::endl;
 }
 
-void cass::pp162::operator()(const cass::CASSEvent &evt)
+void cass::pp162::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  _timesum->lock.lockForWrite();
-  _timesum->fill(det->timesum(_layer));
-  _timesum->lock.unlock();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->timesum(_layer));
+  _result->lock.unlock();
 }
 
 
