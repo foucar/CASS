@@ -81,7 +81,7 @@ namespace cass
      * @param eventid the event id of the histogram that is requested.
      *                Default is 0
      */
-    const HistogramBackend& getHist()(const uint64_t eventid);
+    const HistogramBackend& getHist(const uint64_t eventid);
 
     /** Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t)
@@ -144,7 +144,7 @@ namespace cass
     PostProcessors &_pp;
 
     /** histogram list lock */
-    QReadWriteLock _histlock;
+    QReadWriteLock _histLock;
   };
 
 } //end namespace cass
