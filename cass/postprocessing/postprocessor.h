@@ -74,7 +74,7 @@ namespace cass
       return msg.str().c_str();
     }
 
-    virtual ~InvalidHistogramError() throw(){}
+    virtual ~InvalidPostProcessorError() throw(){}
 
   protected:
     std::string _key;
