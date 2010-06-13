@@ -96,6 +96,14 @@ void cass::PostProcessors::process(CASSEvent& event)
     (*(_postprocessors[*iter]))(event);
 }
 
+void cass::PostProcessors::aboutToQuit()
+{
+  for(postprocessors_t::iterator iter = _postprocessors.begin();
+      iter != _postprocessors.end();
+      ++iter)
+    iter->aboutToQuit();
+}
+
 void cass::PostProcessors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);

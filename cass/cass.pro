@@ -115,6 +115,7 @@ SOURCES +=  analyzer.cpp \
             worker.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
+            ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
@@ -122,7 +123,6 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/backend.cpp \
             ./postprocessing/imaging.cpp \
-            ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/operations.cpp \
             ./postprocessing/machine_data.cpp \

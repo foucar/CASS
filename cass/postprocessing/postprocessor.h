@@ -374,6 +374,9 @@ using the custom doxygen tag cassttng.
     /** retreive pp with key */
     PostprocessorBackend& getPostProcessor(const key_t key);
 
+    /** will be called when program will quit */
+    void aboutToQuit();
+
   public slots:
     /** Load active postprocessors and histograms
      *
