@@ -424,8 +424,8 @@ void cass::pp164::process(const cass::CASSEvent &evt)
   using namespace cass::ACQIRIS;
   using namespace std;
   //get right filled detector from the helper
-  DelaylineDetector *det =
-      dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   //get the requested layers//
   AnodeLayer &f = det->layers()[_first];
   AnodeLayer &s = det->layers()[_second];
@@ -511,17 +511,10 @@ void cass::pp165::process(const cass::CASSEvent &evt)
 
 //----------------Detector Values----------------------------------------------
 cass::pp166::pp166(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _hist(0)
+  :cass::PostprocessorBackend(pp,key)
 
 {
-  loadSettings(0);
-}
-
-cass::pp166::~pp166()
-{
-  _pp.histograms_delete(_key);
-  _hist=0;
+//  loadSettings(0);
 }
 
 void cass::pp166::loadSettings(size_t)
@@ -538,8 +531,8 @@ void cass::pp166::loadSettings(size_t)
                     settings.value("ConditionHigh",50000.).toFloat()),
                 max(settings.value("ConditionLow",-50000.).toFloat(),
                     settings.value("ConditionHigh",50000.).toFloat()));
-  set2DHist(_hist,_key);
-  _pp.histograms_replace(_key,_hist);
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   if (_first == 'x' && _second == 'y')
     _third = 't';
@@ -563,21 +556,21 @@ void cass::pp166::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp166::operator()(const cass::CASSEvent &evt)
+void cass::pp166::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   DelaylineDetector::dethits_t::iterator it (det->hits().begin());
-  _hist->lock.lockForWrite();
-  fill(_hist->memory().begin(),_hist->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it != det->hits().end(); ++it)
   {
     if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
-      _hist->fill(it->values()[_first],it->values()[_second]);
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->values()[_first],it->values()[_second]);
   }
-  _hist->lock.unlock();
+  _result->lock.unlock();
 }
 
 

@@ -545,11 +545,8 @@ namespace cass
     /** Constructor */
     pp166(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp166();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -569,9 +566,6 @@ namespace cass
 
     /** The condition that we impose on the third component*/
     std::pair<float, float> _condition;
-
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_hist;
   };
 
 
