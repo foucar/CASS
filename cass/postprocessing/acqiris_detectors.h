@@ -484,11 +484,8 @@ namespace cass
     /** Constructor for Ratio of the reconstructed Hits vs MCP Hits*/
     pp165(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp165();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -496,13 +493,6 @@ namespace cass
   protected:
     /** The detector we are there for*/
     ACQIRIS::Detectors _detector;
-
-    /** the Detector that we make the condition on*/
-    ACQIRIS::Detectors _conditionDetector;
-    /** flag that will invert the update condition */
-    bool _invert;
-    /** The Histogram storing the info*/
-    Histogram0DFloat  *_nbrHits;
   };
 
 

@@ -462,16 +462,9 @@ void cass::pp164::process(const cass::CASSEvent &evt)
 
 //----------------Nbr of rec. Hits --------------------------------------------
 cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _nbrHits(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp165::~pp165()
-{
-  _pp.histograms_delete(_key);
-  _nbrHits=0;
+//  loadSettings(0);
 }
 
 void cass::pp165::loadSettings(size_t)
@@ -481,9 +474,8 @@ void cass::pp165::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _pp.histograms_delete(_key);
-  _nbrHits = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_nbrHits);
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": outputs the number of reconstructed hits"
@@ -491,15 +483,15 @@ void cass::pp165::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp165::operator()(const cass::CASSEvent &evt)
+void cass::pp165::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   //get right filled detector from the helper
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  _nbrHits->lock.lockForWrite();
-  _nbrHits->fill(det->hits().size());
-  _nbrHits->lock.unlock();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->hits().size());
+  _result->lock.unlock();
 }
 
 
