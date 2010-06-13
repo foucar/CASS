@@ -394,16 +394,9 @@ void cass::pp163::process(const cass::CASSEvent &evt)
 
 //----------------Detector First Hit-------------------------------------------
 cass::pp164::pp164(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _pos(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp164::~pp164()
-{
-  _pp.histograms_delete(_key);
-  _pos=0;
+//  loadSettings(0);
 }
 
 void cass::pp164::loadSettings(size_t)
@@ -415,8 +408,8 @@ void cass::pp164::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _first = settings.value("Layer",'U').toChar().toAscii();
   _second = settings.value("Layer",'V').toChar().toAscii();
-  set2DHist(_pos,_key);
-  _pp.histograms_replace(_key,_pos);
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms a detector picture of the first Hit on the detector created"
@@ -426,7 +419,7 @@ void cass::pp164::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp164::operator()(const cass::CASSEvent &evt)
+void cass::pp164::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
@@ -443,11 +436,11 @@ void cass::pp164::operator()(const cass::CASSEvent &evt)
   const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
   const bool css = (s.tsLow() < tss && tss < s.tsHigh());
   //only fill when timesum is fullfilled
-  _pos->lock.lockForWrite();
-  fill(_pos->memory().begin(),_pos->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   if (csf && css)
-    _pos->fill(f.position(),s.position());
-  _pos->lock.unlock();
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(f.position(),s.position());
+  _result->lock.unlock();
 }
 
 
