@@ -619,11 +619,8 @@ namespace cass
     /** Constructor for Number of Signals*/
     pp220(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp220();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -634,9 +631,6 @@ namespace cass
 
     /** The second detector of the cooincdence*/
     ACQIRIS::Detectors _detector02;
-
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_pipico;
   };
 
 

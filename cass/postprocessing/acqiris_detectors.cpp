@@ -583,16 +583,9 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 
 //----------------PIPICO-------------------------------------------------------
 cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _pipico(0)
+  :cass::PostprocessorBackend(pp,key)
 {
   loadSettings(0);
-}
-
-cass::pp220::~pp220()
-{
-  _pp.histograms_delete(_key);
-  _pipico=0;
 }
 
 void cass::pp220::loadSettings(size_t)
@@ -603,8 +596,8 @@ void cass::pp220::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _detector01 = static_cast<Detectors>(settings.value("FirstDetector",1).toUInt());
   _detector02 = static_cast<Detectors>(settings.value("SecondDetector",1).toUInt());
-  set2DHist(_pipico,_key);
-  _pp.histograms_replace(_key,_pipico);
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
   HelperAcqirisDetectors::instance(_detector02)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
@@ -614,21 +607,21 @@ void cass::pp220::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp220::operator()(const cass::CASSEvent &evt)
+void cass::pp220::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
   //get first detector from the helper
-  TofDetector *det01 =
-      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt));
+  TofDetector *det01
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt)));
   //get second detector from the helper
-  TofDetector *det02 =
-      dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt));
+  TofDetector *det02
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt)));
   //get iterator of the peaks in the first detector//
   Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
   //draw all found hits vs another//
-  _pipico->lock.lockForWrite();
-  fill(_pipico->memory().begin(),_pipico->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it01 != det01->mcp().peaks().end();++it01)
   {
     //if both detectors are the same, then the second iterator should start
@@ -637,9 +630,7 @@ void cass::pp220::operator()(const cass::CASSEvent &evt)
                                          it01+1 :
                                          det02->mcp().peaks().begin());
     for (; it02 != det02->mcp().peaks().end(); ++it02)
-    {
-      _pipico->fill(it01->time(),it02->time());
-    }
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it01->time(),it02->time());
   }
-  _pipico->lock.unlock();
+  _result->lock.unlock();
 }
