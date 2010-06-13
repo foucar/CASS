@@ -15,6 +15,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QWriteLocker>
 #include <QtCore/QWaitCondition>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
@@ -291,11 +292,10 @@ public:
     /** clear the histogram memory*/
     virtual void clear()
     {
-      lock.lockForWrite();
+      QWriteLocker wlock(&lock);
       VERBOSEOUT(std::cout<<"clearing histogram "<<_key<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
-      lock.unlock();
     }
 
     /** assignment operator. will copy axis properties and memory */
