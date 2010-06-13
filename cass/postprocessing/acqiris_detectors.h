@@ -191,11 +191,8 @@ namespace cass
     /** Constructor for Number of Signals*/
     pp160(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp160();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -209,9 +206,6 @@ namespace cass
 
     /** The Signal of the layer detector we are there for*/
     char _signal;
-
-    /** The Histogram storing the info*/
-    Histogram0DFloat  *_nbrSignals;
   };
 
 

@@ -208,16 +208,9 @@ void cass::pp152::process(const cass::CASSEvent &evt)
 
 //----------------Nbr of Peaks Anode-------------------------------------------
 cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _nbrSignals(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp160::~pp160()
-{
-  _pp.histograms_delete(_key);
-  _nbrSignals=0;
+//  loadSettings(0);
 }
 
 void cass::pp160::loadSettings(size_t)
@@ -229,31 +222,25 @@ void cass::pp160::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
   _signal = settings.value("Wireend",'1').toChar().toAscii();
-
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the nbr of signals in"
       <<" detector "<<_detector
       <<" layer "<<_layer
       <<" wireend "<<_signal
       <<std::endl;
-
-  //create the histogram
-  _pp.histograms_delete(_key);
-  _nbrSignals = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_nbrSignals);
-  //load the detectors settings
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
 }
 
-void cass::pp160::operator()(const cass::CASSEvent &evt)
+void cass::pp160::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  //get right filled detector from the helper
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  _nbrSignals->lock.lockForWrite();
-  _nbrSignals->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
-  _nbrSignals->lock.unlock();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
+  _result->lock.unlock();
 }
 
 
