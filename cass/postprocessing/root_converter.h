@@ -15,11 +15,11 @@ namespace cass
     /** Construct postprocessor for converting histograms to root histograms */
     pp2000(PostProcessors&, const PostProcessors::key_t&, std::string rootfilename);
 
-    /** when we are destroyed write all pp histograms to a root file*/
-    virtual ~pp2000();
-
     /** only a stub does nothing, but needs to be there because its pure virtual in base class */
-    virtual void operator()(const CASSEvent&){}
+    virtual void process()(const CASSEvent&){}
+
+    /** dump all histogram to a root file just before quitting */
+    virtual void aboutToQuit();
 
   protected:
     /** the root filename where we store the data in */
