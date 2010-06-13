@@ -23,17 +23,21 @@ namespace cass
     explicit Serializable(uint16_t version)
       :_version(version)
     {}
+
     /** virtual destructor to avoid warning with gcc 4.1.2 */
     virtual ~Serializable(){}
+
     /** pure virtual function that needs to be defined by the derived class.
      * will serialize an object to the Serializer class
      */
     virtual void serialize(cass::SerializerBackend&)=0;
+
     /** pure virtual function that needs to be defined by the derived class.
      * will deserialize an object from the Serializer class
      */
     virtual bool deserialize(cass::SerializerBackend&)=0;
-  protected:
+
+protected:
     /** the version for de/serializing*/
     uint16_t _version;
   };
