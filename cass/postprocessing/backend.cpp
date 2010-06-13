@@ -30,6 +30,15 @@ namespace cass
 
 using namespace cass;
 
+PostprocessorBackend::~PostprocessorBackend()
+{
+  QWriteLocker lock(&_histLock);
+  histogramList_t::iterator it (_histList.begin());
+  for (;it != _histList.end(); ++it)
+    delete it->second;
+  _histList.clear();
+}
+
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
   using namespace std;
@@ -84,7 +93,8 @@ void PostprocessorBackend::createHistList(size_t size)
        ++it)
     delete it->second;
   _histList.clear();
-  for (size_t i=0; i<size;++i)
+  _histList.push_front (make_pair(0, _result));
+  for (size_t i=1; i<size;++i)
   {
     _histList.push_front
         (make_pair(0, new HistogramFloatBase(*reinterpret_cast<HistogramFloatBase*>(_result))));
