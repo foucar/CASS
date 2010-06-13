@@ -370,11 +370,8 @@ namespace cass
     /** Constructor */
     pp163(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp163();
-
     /** Retrieve the number of Signals and histogram it */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from file*/
     virtual void loadSettings(size_t);
@@ -385,9 +382,6 @@ namespace cass
 
     /** The layer of the detector detector we are there for*/
     char _layer;
-
-    /** The Histogram storing the info*/
-    Histogram2DFloat  *_timesumvsPos;
   };
 
 
