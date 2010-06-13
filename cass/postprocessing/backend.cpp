@@ -2,12 +2,14 @@
 
 #include "cass_event.h"
 #include "histogram.h"
-
+#include "backend.h"
 
 namespace cass
 {
   /** predicate class for find_if.
+   *
    * this helps finding the right key in the list of pairs eventid - Histogram
+   *
    * @author Lutz Foucar
    */
   class IsKey
