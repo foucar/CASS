@@ -63,7 +63,7 @@ const HistogramBackend& PostprocessorBackend::getHist()(const uint64_t eventid)
   QReadLocker lock(&_histLock);
   //if eventId is 0 then just return the latest event//
   if (0 == eventId)
-    return *_histList.front().second;
+    return *(_histList.front().second);
   else
   {
     histogramList_t::const_iterator it
