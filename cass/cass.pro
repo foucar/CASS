@@ -166,6 +166,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/imaging.h \
             ./postprocessing/waveform.h \
             ./postprocessing/machine_data.h \
+            ./postprocessing/root_converter.h \
             ./postprocessing/hdf5dump.h
 
 INCLUDEPATH   += postprocessing \
