@@ -10,21 +10,15 @@
 #include "waveform.h"
 #include "histogram.h"
 #include "cass_event.h"
+#include "cass.h"
 #include "acqiris_device.h"
 
 
 //the last wavefrom postprocessor
 cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _waveform(0)
+  :cass::PostprocessorBackend(pp,key)
 {
   loadSettings(0);
-}
-
-cass::pp110::~pp110()
-{
-  _pp.histograms_delete(_key);
-  _waveform=0;
 }
 
 void cass::pp110::loadSettings(size_t)
@@ -37,9 +31,8 @@ void cass::pp110::loadSettings(size_t)
   _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());
   _channel    = settings.value("ChannelNbr",0).toUInt();
 
-  _pp.histograms_delete(_key);
-  _waveform = new Histogram1DFloat(1,0,1);
-  _pp.histograms_replace(_key,_waveform);
+  _result = new Histogram1DFloat(1,0,1);
+  createHistList(2*cass::NbrOfWorkers);
 
   std::cout <<"PostProcessor "<<_key
       <<" is showing channel "<<_channel
@@ -47,7 +40,7 @@ void cass::pp110::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp110::operator()(const cass::CASSEvent &cassevent)
+void cass::pp110::process(const cass::CASSEvent &cassevent)
 {
   using namespace cass::ACQIRIS;
   //retrieve a pointer to the Acqiris device//
@@ -75,14 +68,14 @@ void cass::pp110::operator()(const cass::CASSEvent &cassevent)
   //check wether the wavefrom histogram has been created//
   //and is still valid for the now incomming wavefrom of//
   //this channel//
-  if (_waveform->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
-    _waveform->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
   //copy the waveform to our storage histogram and convert adc units to volts
   //while copying
-  _waveform->lock.lockForWrite();
+  _result->lock.lockForWrite();
   std::transform(waveform.begin(),
                  waveform.end(),
-                 _waveform->memory().begin(),
+                 dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
                  cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
-  _waveform->lock.unlock();
+  _result->lock.unlock();
 }

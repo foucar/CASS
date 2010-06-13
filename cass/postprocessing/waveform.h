@@ -36,11 +36,8 @@ namespace cass
     /** constructor */
     pp110(PostProcessors &ppc, const PostProcessors::key_t &key);
 
-    /** delete the histogram when you are destroyed*/
-    virtual ~pp110();
-
     /** copy the last waveform from the channel*/
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
@@ -49,14 +46,11 @@ namespace cass
     /** Mutex for locking this postprocessor*/
     QMutex _mutex;
 
-    /** the instrument that contains the channel this postprocessor will work on*/
+    /** the instrument that contains the channel this postprocessor will work on */
     cass::ACQIRIS::Instruments _instrument;
 
-    /** the Acqiris channel number of this processor*/
+    /** the Acqiris channel number of this processor */
     size_t _channel;
-
-    /** this is where we store the waveform */
-    Histogram1DFloat  *_waveform;
   };
 }
 
