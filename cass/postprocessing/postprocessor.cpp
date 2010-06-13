@@ -127,14 +127,14 @@ void cass::PostProcessors::loadSettings(size_t)
     std::cout << *iter << " ";
 }
 
-void cass::PostProcessors::clear(key_t key)
+void cass::PostProcessors::clear(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() != it)
     it->second->clear();
 }
 
-cass::PostprocessorBackend& PostProcessors::getPostProcessor(const key_t key)
+cass::PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() == it)
