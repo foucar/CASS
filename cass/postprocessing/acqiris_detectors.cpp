@@ -191,7 +191,7 @@ void cass::pp152::process(const cass::CASSEvent &evt)
   _result->clear();
   _result->lock.lockForWrite();
   for (;it != det->mcp().peaks().end(); ++it)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->fwhm(),it->height());
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
   _result->lock.unlock();
 }
 
@@ -239,7 +239,7 @@ void cass::pp160::process(const cass::CASSEvent &evt)
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
   _result->lock.unlock();
 }
 
@@ -289,7 +289,7 @@ void cass::pp161::process(const cass::CASSEvent &evt)
   _result->clear();
   _result->lock.lockForWrite();
   for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->fwhm(),it->height());
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
   _result->lock.unlock();
 }
 
@@ -332,7 +332,7 @@ void cass::pp162::process(const cass::CASSEvent &evt)
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->timesum(_layer));
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->timesum(_layer));
   _result->lock.unlock();
 }
 
@@ -378,7 +378,7 @@ void cass::pp163::process(const cass::CASSEvent &evt)
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _result->clear();
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->position(_layer),det->timesum(_layer));
+  dynamic_cast<Histogram2DFloat*>(_result)->fill(det->position(_layer),det->timesum(_layer));
   _result->lock.unlock();
 }
 
@@ -439,7 +439,7 @@ void cass::pp164::process(const cass::CASSEvent &evt)
   _result->clear();
   _result->lock.lockForWrite();
   if (csf && css)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(f.position(),s.position());
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(f.position(),s.position());
   _result->lock.unlock();
 }
 
@@ -490,7 +490,7 @@ void cass::pp165::process(const cass::CASSEvent &evt)
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(det->hits().size());
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->hits().size());
   _result->lock.unlock();
 }
 
