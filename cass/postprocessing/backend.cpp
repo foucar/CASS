@@ -57,20 +57,20 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   return *(it->second);
 }
 
-const HistogramBackend& PostprocessorBackend::getHist()(const uint64_t eventid)
+const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 {
   using namespace std;
   QReadLocker lock(&_histLock);
   //if eventId is 0 then just return the latest event//
-  if (0 == eventId)
+  if (0 == eventid)
     return *(_histList.front().second);
   else
   {
     histogramList_t::const_iterator it
         (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
     if (_histList.end() == it)
-      throw InvalidHistogramError(eventId);
-    return *(it.second);
+      throw InvalidHistogramError(eventid);
+    return *(it->second);
   }
 }
 

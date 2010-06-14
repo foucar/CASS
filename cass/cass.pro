@@ -115,17 +115,17 @@ SOURCES +=  analyzer.cpp \
             worker.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
+            ./postprocessing/backend.cpp \
             ./postprocessing/waveform.cpp \
+            ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/acqiris_detectors.cpp \
-            ./postprocessing/id_list.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
-            ./postprocessing/backend.cpp \
             ./postprocessing/imaging.cpp \
-            ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/operations.cpp \
             ./postprocessing/machine_data.cpp \
             ./postprocessing/postprocessor.cpp \
+            ./postprocessing/id_list.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp
