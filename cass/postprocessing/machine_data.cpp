@@ -11,15 +11,9 @@
 // *** postprocessors 120 retrives beamline data ***
 
 cass::pp120::pp120(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _value(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp120::~pp120()
-{
-  _pp.histograms_delete(_key);
-  _value = 0;
+//  loadSettings(0);
 }
 
 void cass::pp120::loadSettings(size_t)
@@ -28,30 +22,24 @@ void cass::pp120::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-
-  //creat the resulting histogram from the first histogram
-  _pp.histograms_delete(_key);
-  _value = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_value);
-
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from beamline data"
       <<std::endl;
 }
 
-void cass::pp120::operator()(const CASSEvent& evt)
+void cass::pp120::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
-
-  _value->lock.lockForWrite();
-  *_value = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
-  _value->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
+  _result->lock.unlock();
 }
 
 

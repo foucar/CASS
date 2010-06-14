@@ -119,11 +119,11 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/acqiris_detectors.cpp \
+            ./postprocessing/machine_data.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
             ./postprocessing/operations.cpp \
-            ./postprocessing/machine_data.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
             soapCASSsoapService.cpp \

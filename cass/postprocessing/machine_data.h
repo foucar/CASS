@@ -32,11 +32,8 @@ namespace cass
     /** constructor */
     pp120(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp120();
-
     /** copy data from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings from cass.ini */
     virtual void loadSettings(size_t);
@@ -44,9 +41,6 @@ namespace cass
   protected:
     /** name of the variable in the beamline data */
     std::string _varname;
-
-    /** requested value */
-    Histogram0DFloat *_value;
   };
 
 
