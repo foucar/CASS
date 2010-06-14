@@ -110,6 +110,9 @@ namespace cass
      */
     void clearHistograms();
 
+    /** retrieve the key of this postprocessor */
+    const PostProcessors::key_t key() const {return _key;}
+
   protected:
     /** process the event
      *
@@ -142,6 +145,9 @@ namespace cass
 
     /** pointer to the most recent histogram */
     HistogramBackend *_result;
+
+    /** pointer to the postprocessor that will contain the condition */
+    PostprocessorBackend* _condition;
 
     /** reference to the PostProcessors container */
     PostProcessors &_pp;
