@@ -422,6 +422,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TimeAverage:
     processor = new pp63(*this, key);
     break;
+  case running1Dfrom0D:
+    processor = new pp64(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;
