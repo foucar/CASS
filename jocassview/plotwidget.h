@@ -900,7 +900,7 @@ public slots:
     _plot.replot();
   }
 
-  void YAxisToggle(bool checked)
+  void YAxisToggle(int checked)
   {
     _linyaxis=checked;
     if((++_cb_scaleEngineIt)==_cb_scaleEngines->end())
@@ -931,15 +931,21 @@ protected:
     _toolbar->addAction(_act_zoomreset);
     _toolbar->addAction(_act_gridtoggle);
 
-    QLabel* _linlog_yscale = new QLabel(tr("  lin/log y-scale "),this);
-    _toolbar->addWidget(_linlog_yscale);
-
-    _bool_1d_lin_yscale = new QAction( QIcon(":images/chart-Axis_Features.jpg"), tr("toggle lin/log y-scale"), this);
+    //QLabel* _linlog_yscale = new QLabel(tr("  lin/log y-scale "),this);
+    //_toolbar->addWidget(_linlog_yscale);
+    //_bool_1d_lin_yscale = new QAction( QIcon(":images/chart-Axis_Features.jpg"), tr("toggle lin/log y-scale"), this);
+    //_bool_1d_lin_yscale = new QAction( QIcon(":images/Modelica_Math_log10I.png"), tr("toggle lin/log y-scale"), this);
     //_bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"));
-    _bool_1d_lin_yscale->setCheckable( true );
-    _bool_1d_lin_yscale->setChecked( true );
-    _toolbar->addAction(_bool_1d_lin_yscale);
-    connect(_bool_1d_lin_yscale, SIGNAL(toggled(bool)), this, SLOT(YAxisToggle(bool)));
+    //_bool_1d_lin_yscale->setCheckable( true );
+    //_bool_1d_lin_yscale->setChecked( true );
+    //_toolbar->addAction(_bool_1d_lin_yscale);
+    //connect(_bool_1d_lin_yscale, SIGNAL(toggled(bool)), this, SLOT(YAxisToggle(bool)));
+
+    _bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"),this);
+    _bool_1d_lin_yscale->setChecked( TRUE );
+    _toolbar->addWidget(_bool_1d_lin_yscale);
+
+    connect(_bool_1d_lin_yscale, SIGNAL(stateChanged(int)), this, SLOT(YAxisToggle(int)));
     _cb_scaleEngines = new QList< createScaleEngine* >();
     _cb_scaleEngines->append( new createLinearScaleEngine );
     _cb_scaleEngines->append( new createLog10ScaleEngine );
@@ -1014,8 +1020,8 @@ protected:
   QAction* _act_zoomreset;
   QAction* _act_gridtoggle;
 
-  QAction* _bool_1d_lin_yscale;
-  //QCheckBox* _bool_1d_lin_yscale;
+  //QAction* _bool_1d_lin_yscale;
+  QCheckBox* _bool_1d_lin_yscale;
   bool _linyaxis;
   QList< createScaleEngine* >* _cb_scaleEngines;
   QList< createScaleEngine* >::iterator _cb_scaleEngineIt;
