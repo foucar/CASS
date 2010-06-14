@@ -1,7 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
-#ifndef __POSTPROCESSOR_H__
-#define __POSTPROCESSOR_H__
+#ifndef __CASS_EXCEPTIONS_H__
+#define __CASS_EXCEPTIONS_H__
 
 #include <stdexcept>
 
