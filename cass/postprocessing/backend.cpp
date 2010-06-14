@@ -38,7 +38,6 @@ PostprocessorBackend::~PostprocessorBackend()
   for (;it != _histList.end(); ++it)
     delete it->second;
   _histList.clear();
-  delete _condition;
 }
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
