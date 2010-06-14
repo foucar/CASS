@@ -115,6 +115,7 @@ SOURCES +=  analyzer.cpp \
             worker.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
+            ./postprocessing/convenience_functions.cpp \
             ./postprocessing/backend.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
@@ -156,6 +157,7 @@ HEADERS +=  analysis_backend.h \
             pixel_detector.h \
             xtciterator.h \
             cass_exceptions.h \
+            ./postprocessing/convenience_functions.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/id_list.h \
             ./postprocessing/acqiris_detectors.h \

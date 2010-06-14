@@ -3,6 +3,7 @@
 #include "cass_event.h"
 #include "histogram.h"
 #include "backend.h"
+#include "cass_exceptions.h"
 
 namespace cass
 {

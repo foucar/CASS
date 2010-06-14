@@ -10,56 +10,6 @@
 #include "histogram.h"
 
 
-namespace cass
-{
-  /** binary function for weighted substracting.
-   *
-   * @author Lutz Foucar
-   */
-  class weighted_minus : std::binary_function<float, float, float>
-  {
-  public:
-    /** constructor.
-     *
-     * @param first_weight the weight value of the first substrant
-     * @param second_weight the weight value of the second substrant
-     */
-    weighted_minus(float first_weight, float second_weight)
-      :_first_weight(first_weight),_second_weight(second_weight)
-    {}
-    /** operator */
-    float operator() (float first, float second)
-    { return first * _first_weight - second * _second_weight;}
-  protected:
-    float _first_weight, _second_weight;
-  };
-
-  PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
-                                              cass::PostProcessors::key_t key,
-                                              const char * param_name)
-  {
-    QSettings settings;
-    settings.beginGroup("PostProcessor");
-    settings.beginGroup(key.c_str());
-    PostProcessors::key_t dependkey
-        (settings.value(param_name,"0").toString().toStdString());
-    try
-    {
-      PostprocessorBackend *dependpp(pp.getPostProcessor(dependkey));
-    }
-    catch (InvalidPostProcessorError&)
-    {
-      return 0;
-    }
-    return dependpp;
-  }
-
-}
-
-
-
-
-
 
 
 // *** postprocessor 1 compare histo for less than constant ***
