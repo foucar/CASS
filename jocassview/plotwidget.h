@@ -17,6 +17,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 #include <qwt_scale_draw.h>
+#include <qwt_color_map.h>
 #include <qdialog.h>
 #include <QDockWidget>
 #include <QLabel>
@@ -642,9 +643,9 @@ protected slots:
     {
     case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
       break;
-    case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
-      break;
     case QwtLogColorMap::trans_log10: _rad_colormap_log->setChecked(true);
+      break;
+    case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
       break;
     case QwtLogColorMap::trans_square: _rad_colormap_sq->setChecked(true);
       break;
