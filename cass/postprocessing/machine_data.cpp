@@ -103,26 +103,18 @@ void cass::pp130::process(const CASSEvent& evt)
 // *** postprocessors 230 calcs photonenergy from bld ***
 
 cass::pp230::pp230(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _data(0)
+  : PostprocessorBackend(pp, key)
 {
-  _pp.histograms_delete(_key);
-  _data = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_data);
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor: "<<_key
       <<" calc photonenergy from beamline data"
       <<std::endl;
 }
 
-cass::pp230::~pp230()
-{
-  _pp.histograms_delete(_key);
-  _data = 0;
-}
-
-void cass::pp230::operator()(const CASSEvent& evt)
+void cass::pp230::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
@@ -158,7 +150,7 @@ void cass::pp230::operator()(const CASSEvent& evt)
   // Calculate the resonant photon energy of the first active segment
   const double photonenergy (44.42*energyProfile*energyProfile);
 
-  _data->lock.lockForWrite();
-  *_data = photonenergy;
-  _data->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = photonenergy;
+  _result->lock.unlock();
 }

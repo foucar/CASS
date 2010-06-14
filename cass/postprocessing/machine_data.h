@@ -100,15 +100,8 @@ namespace cass
     /** constructor */
     pp230(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp230();
-
-    /** copy data from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-  protected:
-    /** resulting histgram */
-    Histogram0DFloat *_data;
+    /** calc the photonenergy from the bld */
+    virtual void process(const CASSEvent&);
   };
 }
 
