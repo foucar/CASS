@@ -102,13 +102,23 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
           det.camaxMagic() = pnccdConfig->camexMagic();
           rowsOfSegment = pnccdConfig->numSubmoduleRows();
           columnsOfSegment = pnccdConfig->numSubmoduleChannels();
-//          std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
-//          std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
+          if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
+          {
+            std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
+            std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
+            //in this case I am overwriting the values
+            rowsOfSegment=512;
+            columnsOfSegment=512;
+            det.rows() = 1024;
+            det.columns() = 1024;
+            det.originalrows() = 1024; 
+            det.originalcolumns() = 1024;
+          }
           break;
         default:
           throw std::range_error("Unsupported pnCCD configuration version");
@@ -118,6 +128,9 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
         const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
         const size_t NbrOfSegments = pnccdConfig->numLinks();
         const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
+
+        //std::cout << "test " << sizeOfOneSegment << " " << NbrOfSegments 
+        //          << " " << FrameSize<<std::endl;
 
         //resize the frame to what we will receive//
         det.frame().resize(FrameSize);

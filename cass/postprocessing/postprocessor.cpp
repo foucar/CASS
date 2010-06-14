@@ -469,6 +469,12 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TaisHelperAnswer:
     processor = new pp4000(*this,key);
     break;
+  case SingleCcdImageWithConditions:
+    processor = new pp4100(*this,key);
+    break;
+  case SingleHalfCcdImage:
+    processor = new pp4101(*this,key);
+    break;
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1000(*this,key);

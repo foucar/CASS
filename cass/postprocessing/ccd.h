@@ -283,6 +283,125 @@ namespace cass
     Histogram2DFloat *_image;
   };
 
+
+  /** Last CCD image subset of it.
+   *
+   * Postprocessor will get the raw image from all kinds of ccd's.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   * @author Nicola Coppola
+   */
+  class pp4101 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp4101(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image spcae */
+    virtual ~pp4101();
+
+    /** dependancy: image retrieval can be conditional */
+    virtual PostProcessors::active_t dependencies();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** the X-bin range */
+    size_t _Xmin, _Xmax;
+
+    /** the Y-bin range */
+    size_t _Ymin, _Ymax;
+
+    /** device the ccd image comes from */
+    cass::CASSEvent::Device _device;
+
+    /** current image */
+    Histogram2DFloat *_image;
+
+    /** the pp that contains the condition */
+    PostProcessors::key_t _condition;
+
+    bool _useCondition;
+  };
+
+  /** Last CCD image with 2 conditions.
+   *
+   * Postprocessor will get the raw image from all kinds of ccd's.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   * @author Nicola Coppola
+   */
+  class pp4100 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp4100(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image spcae */
+    virtual ~pp4100();
+
+    /** dependancy: image retrieval can be conditional */
+    virtual PostProcessors::active_t dependencies();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** the minimal value of the integral */
+    float _minIntegral;
+
+    /** the minimal number of photons detected in the image */
+    size_t _minNofPhotons;
+
+    /** device the ccd image comes from */
+    cass::CASSEvent::Device _device;
+
+    /** current image */
+    Histogram2DFloat *_image;
+
+    /** the pp that contains the condition */
+    PostProcessors::key_t _condition;
+
+    bool _useCondition;
+  };
+
 }
 
 #endif

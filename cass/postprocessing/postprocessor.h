@@ -115,6 +115,8 @@ the Class description for information about what parameters are user settable.
 
 --Hack (for time beeing)--
 04000: Answer of Taishelper
+04100: Special single frame image
+04101: Special single"half" frame image
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -226,7 +228,8 @@ using the custom doxygen tag cassttng.
       ROOTDump=2000,
 
       TaisHelperAnswer=4000,
-
+      SingleCcdImageWithConditions=4100,
+      SingleHalfCcdImage=4101,
       InvalidPP
     };
 
