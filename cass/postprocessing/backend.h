@@ -42,6 +42,7 @@ namespace cass
     PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
       :_key(key),
        _result(0),
+       _condition(0),
        _pp(pp),
        _histLock(QReadWriteLock::Recursive)
     {
