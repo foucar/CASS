@@ -117,7 +117,6 @@ SOURCES +=  analyzer.cpp \
             rate_plotter.cpp \
             ./postprocessing/waveform.cpp \
             ./postprocessing/acqiris_detectors.cpp \
-            ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
@@ -126,6 +125,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/operations.cpp \
             ./postprocessing/machine_data.cpp \
+            ./postprocessing/postprocessor.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp

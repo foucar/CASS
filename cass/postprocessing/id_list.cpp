@@ -3,7 +3,7 @@
 #include "id_list.h"
 
 
-cass::IdList(const PostProcessors::postprocessorkeysList_t& list)
+cass::IdList::IdList(const PostProcessors::keyList_t& list)
   : Serializable(1), _list(list), _size(list.size())
 {
   VERBOSEOUT(std::cerr << "Initial list size = " << _size << std::endl);
@@ -39,7 +39,7 @@ void cass::IdList::serialize(SerializerBackend *out)
   out->addUint16(_version);
   out->addSizet(_size);
   out->endChecksumGroupForWrite();
-  for (PostProcessors::postprocessorkeysList_t::iterator it=_list.begin();
+  for (PostProcessors::keyList_t::iterator it=_list.begin();
        it!=_list.end();
        it++)
     out->addString(*it);
@@ -51,9 +51,13 @@ void cass::IdList::clear()
   _size=0;
 }
 
-void setList(const PostProcessors::postprocessors_t &list)
+void cass::IdList::setList(const PostProcessors::postprocessors_t &ppcont)
 {
   clear();
-  _list = list;
-  _size = list.size();
+  for (PostProcessors::postprocessors_t::const_iterator it (ppcont.begin());
+       it != ppcont.end();
+       ++it)
+    _list.push_back(it->first);
+  _size = ppcont.size();
+
 }
