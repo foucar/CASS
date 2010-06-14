@@ -57,15 +57,9 @@ void cass::pp120::process(const CASSEvent& evt)
 // *** postprocessors 130 retrives epics data ***
 
 cass::pp130::pp130(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _value(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp130::~pp130()
-{
-  _pp.histograms_delete(_key);
-  _value = 0;
+//  loadSettings(0);
 }
 
 void cass::pp130::loadSettings(size_t)
@@ -74,29 +68,24 @@ void cass::pp130::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-  //create the resulting histogram from the first histogram
-  _pp.histograms_delete(_key);
-  _value = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_value);
-
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from epics data"
       <<std::endl;
 }
 
-void cass::pp130::operator()(const CASSEvent& evt)
+void cass::pp130::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t epics(mdev->EpicsData());
-
-  _value->lock.lockForWrite();
-  *_value = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
-  _value->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
+  _result->lock.unlock();
 }
 
 
