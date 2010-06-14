@@ -110,16 +110,14 @@ namespace cass
 
 
   /** function to retrieve and validate a postprocessors dependency
-   * @return true when the dependcy exists
+   * @return pointer to the right postprocessor or 0 if postprocessor is not on list
    * @param[in] pp reference to the postprocessor instance that contains the histograms
    * @param[in] key the key of the postprocessor asking for another postprocessors id
    * @param[in] param_name paramenter name of the dependency in qsettings
-   * @param[out] dependid reference to the pp id that we retrieve from qsettings
    */
   bool retrieve_and_validate(cass::PostProcessors &pp,
                              cass::PostProcessors::key_t key,
-                             const char * param_name,
-                             cass::PostProcessors::key_t &dependid);
+                             const char * param_name);
 
 
   /** Qt names of known/supported Qt image formats
