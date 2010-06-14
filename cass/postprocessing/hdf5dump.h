@@ -27,11 +27,8 @@ namespace cass
       /** constructor.*/
       pp1000(PostProcessors&, const PostProcessors::key_t&);
 
-      /** destructor */
-      virtual ~pp1000(){}
-
       /** copy image from CASS event to HDF5 */
-      virtual void operator()(const CASSEvent&);
+      virtual void process(const CASSEvent&);
 
   protected:
     void write_HDF5(const cass::CASSEvent &cassevent);

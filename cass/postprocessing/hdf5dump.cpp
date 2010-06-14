@@ -735,7 +735,7 @@ pp1000::pp1000(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     std::cout<<"Postprocessor "<<key<<": set up."<<std::endl;
 }
 
-void pp1000::operator()(const cass::CASSEvent &event)
+void pp1000::process(const cass::CASSEvent &event)
 {
   write_HDF5(event);
 }
