@@ -17,6 +17,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 #include <qwt_scale_draw.h>
+#include <qwt_color_map.h>
 #include <qdialog.h>
 #include <QDockWidget>
 #include <QLabel>
@@ -275,7 +276,7 @@ public:
   }
 
   void setHistogram(cass::Histogram2DFloat *hist,
-                    bool manualScale, int min, int max)
+                    bool manualScale, double min, double max)
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
@@ -424,13 +425,16 @@ public:
     _bool_auto_scale = new QCheckBox(tr("man scale"));
     _bool_auto_scale->setChecked( FALSE );
     QLabel* _lbl_scale_min = new QLabel(tr("Min"),this);
-    _sbx_scale_min = new QSpinBox(this);
-    _sbx_scale_min->setRange(-10000,10000);
-    _sbx_scale_min->setValue(0);
+    _sbx_scale_min = new QDoubleSpinBox(this);
+    _sbx_scale_min->setRange(-2e12,2e12);
+    _sbx_scale_min->setValue(0.);
+    _sbx_scale_min->setDecimals(12);
+
     QLabel* _lbl_scale_max = new QLabel(tr("Max"),this);
-    _sbx_scale_max = new QSpinBox(this);
-    _sbx_scale_max->setRange(-10000,10000);
-    _sbx_scale_max->setValue(1500);
+    _sbx_scale_max = new QDoubleSpinBox(this);
+    _sbx_scale_max->setRange(-2e12,2e12);
+    _sbx_scale_max->setValue(1500.);
+    _sbx_scale_max->setDecimals(12);
 
     // populate colorbar presets:
     QSettings settings;
@@ -461,7 +465,6 @@ public:
     _toolbar->addWidget(_sbx_scale_min);
     _toolbar->addWidget(_lbl_scale_max);
     _toolbar->addWidget(_sbx_scale_max);
-
 
     setMouseTracking(true);
     //_transformCol = QwtLogColorMap::trans_pow10;
@@ -640,9 +643,9 @@ protected slots:
     {
     case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
       break;
-    case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
-      break;
     case QwtLogColorMap::trans_log10: _rad_colormap_log->setChecked(true);
+      break;
+    case QwtLogColorMap::trans_pow10: _rad_colormap_exp->setChecked(true);
       break;
     case QwtLogColorMap::trans_square: _rad_colormap_sq->setChecked(true);
       break;
@@ -700,8 +703,8 @@ protected:
   QRadioButton* _rad_colormap_sq;
 
   QCheckBox* _bool_auto_scale;
-  QSpinBox* _sbx_scale_min;
-  QSpinBox* _sbx_scale_max;
+  QDoubleSpinBox* _sbx_scale_min;
+  QDoubleSpinBox* _sbx_scale_max;
 };
 
 
@@ -710,7 +713,7 @@ protected:
  *
  * @todo 1d hist, log of x,y axis
  * @todo scale overlay data, change color and thickness of overlay line
- * @todo zoom into x axis but let y axis scale automaticlz to highes value
+ * @todo zoom into x axis but let y axis scale automatically to highest value
  * @todo document this class
  */
 class plotWidget : public QWidget
@@ -723,6 +726,8 @@ public:
     overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
     //overlayCurve->setPen( QPen(Qt::red));
     _overlayCurves.append( overlayCurve );
+
+
     QVector<double> qdata(hist->size());
     QVector<double> qx(hist->size());
     const cass::AxisProperty &axis = hist->axis()[0];
@@ -757,20 +762,34 @@ public:
     const cass::AxisProperty &axis = hist->axis()[0];
     for (size_t ii=0;ii<hist->size();ii++) {
       qx[ii]=static_cast<double>(axis.position(ii));
-      qdata[ii]=static_cast<double>(hist->bin(ii));
+      if(!_linyaxis)
+        qdata[ii]=static_cast<double>(hist->bin(ii))+1.e-6;
+      else
+        qdata[ii]=static_cast<double>(hist->bin(ii));
     }
     _curve.attach(&_plot);
     _curve.setData(static_cast<QwtArray<double> >(qx), static_cast<QwtArray<double> >(qdata));
 
     dynamic_cast<TrackZoomer1D*>(_zoomer)->setHistogram(hist);
 
+    _baseRect.setTop( hist->max() );
+    _baseRect.setBottom( hist->min() );
+    if(!_bool_auto_scale1d->checkState())
+    {
+      if (_linyaxis) _plot.setAxisScale(QwtPlot::yLeft,hist->min(),hist->max(),0.);
+      else
+        _plot.setAxisScale(QwtPlot::yLeft,hist->max()/1.e5,hist->max(),0.);
+    }
+    else
+    {
+      _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->value(),_sbx_scale1d_max->value(),0.);
+    }
+
     if (hist->key() != oldKey)
     {
       oldKey = hist->key();
       _baseRect.setLeft( axis.position(0) );
       _baseRect.setRight( axis.position(hist->size()) );
-      _baseRect.setTop( hist->max() );
-      _baseRect.setBottom( hist->min() );
       _zoomer->setZoomBase(_baseRect);
       _zoomer->setZoomBase();
       _zoomer->zoom(0);
@@ -832,6 +851,8 @@ public slots:
     _zoomer->zoom(0);
     _plot.setAxisAutoScale(QwtPlot::xBottom);
     _plot.setAxisAutoScale(QwtPlot::yLeft);
+    //    if(_linyaxis) _plot.setAxisAutoScale(QwtPlot::yLeft);
+    //else _plot.setAxisScale(QwtPlot::yLeft,hist->max()/1.e5,hist->max(),0.);
     _plot.replot();
     _zoomer->setZoomBase();
   }
@@ -880,6 +901,16 @@ public slots:
     _plot.replot();
   }
 
+  void YAxisToggle(int checked)
+  {
+    _linyaxis=checked;
+    if((++_cb_scaleEngineIt)==_cb_scaleEngines->end())
+      _cb_scaleEngineIt = _cb_scaleEngines->begin();
+    if(_linyaxis) _plot.setAxisScaleEngine(QwtPlot::yLeft, (*_cb_scaleEngineIt)->create());
+    if(!_linyaxis)  _plot.setAxisScaleEngine(QwtPlot::yLeft, (*_cb_scaleEngineIt)->create());
+    _plot.replot();
+  }
+
 protected:
 
   void initToolbar(QLayout& layout)
@@ -900,6 +931,46 @@ protected:
     _toolbar->addAction(_act_zoomout);
     _toolbar->addAction(_act_zoomreset);
     _toolbar->addAction(_act_gridtoggle);
+
+    //QLabel* _linlog_yscale = new QLabel(tr("  lin/log y-scale "),this);
+    //_toolbar->addWidget(_linlog_yscale);
+    //_bool_1d_lin_yscale = new QAction( QIcon(":images/chart-Axis_Features.jpg"), tr("toggle lin/log y-scale"), this);
+    //_bool_1d_lin_yscale = new QAction( QIcon(":images/Modelica_Math_log10I.png"), tr("toggle lin/log y-scale"), this);
+    //_bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"));
+    //_bool_1d_lin_yscale->setCheckable( true );
+    //_bool_1d_lin_yscale->setChecked( true );
+    //_toolbar->addAction(_bool_1d_lin_yscale);
+    //connect(_bool_1d_lin_yscale, SIGNAL(toggled(bool)), this, SLOT(YAxisToggle(bool)));
+
+    _bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"),this);
+    _bool_1d_lin_yscale->setChecked( TRUE );
+    _toolbar->addWidget(_bool_1d_lin_yscale);
+
+    connect(_bool_1d_lin_yscale, SIGNAL(stateChanged(int)), this, SLOT(YAxisToggle(int)));
+    _cb_scaleEngines = new QList< createScaleEngine* >();
+    _cb_scaleEngines->append( new createLinearScaleEngine );
+    _cb_scaleEngines->append( new createLog10ScaleEngine );
+    _cb_scaleEngineIt = _cb_scaleEngines->begin();
+
+    _bool_auto_scale1d = new QCheckBox(tr("man scale"));
+    _bool_auto_scale1d->setChecked( FALSE );
+    QLabel* _lbl_scale1d_min = new QLabel(tr("Min"),this);
+    _sbx_scale1d_min = new QDoubleSpinBox(this);
+    _sbx_scale1d_min->setRange(-2.e6,2.e6);
+    _sbx_scale1d_min->setValue(1);
+    _sbx_scale1d_min->setDecimals(12);
+
+    QLabel* _lbl_scale1d_max = new QLabel(tr("Max"),this);
+    _sbx_scale1d_max = new QDoubleSpinBox(this);
+    _sbx_scale1d_max->setRange(-2.e9,2.e9);
+    _sbx_scale1d_max->setValue(1.e6);
+    _sbx_scale1d_max->setDecimals(12);
+    _toolbar->addWidget(_bool_auto_scale1d);
+    _toolbar->addWidget(_lbl_scale1d_min);
+    _toolbar->addWidget(_sbx_scale1d_min);
+    _toolbar->addWidget(_lbl_scale1d_max);
+    _toolbar->addWidget(_sbx_scale1d_max);
+
     layout.addWidget(_toolbar);
   }
 
@@ -949,6 +1020,17 @@ protected:
   QAction* _act_zoomout;
   QAction* _act_zoomreset;
   QAction* _act_gridtoggle;
+
+  //QAction* _bool_1d_lin_yscale;
+  QCheckBox* _bool_1d_lin_yscale;
+  bool _linyaxis;
+  QList< createScaleEngine* >* _cb_scaleEngines;
+  QList< createScaleEngine* >::iterator _cb_scaleEngineIt;
+
+  QCheckBox* _bool_auto_scale1d;
+  QDoubleSpinBox* _sbx_scale1d_min;
+  QDoubleSpinBox* _sbx_scale1d_max;
+
 
   CASSsoapProxy* _cass;
 
