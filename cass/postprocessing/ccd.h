@@ -37,6 +37,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
+   *
    * @author Jochen Kuepper
    * @author Lutz Foucar
    */
@@ -46,14 +47,8 @@ namespace cass
     /** constructor */
     pp100(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image spcae */
-    virtual ~pp100();
-
-    /** dependancy: image retrieval can be conditional */
-    virtual PostProcessors::active_t dependencies();
-
     /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings for this pp */
     virtual void loadSettings(size_t);
@@ -65,14 +60,17 @@ namespace cass
     /** device the ccd image comes from */
     cass::CASSEvent::Device _device;
 
-    /** current image */
-    Histogram2DFloat *_image;
-
     /** the pp that contains the condition */
-    PostProcessors::key_t _condition;
-
-    bool _useCondition;
+    PostprocessorBackend* _condition;
   };
+
+
+
+
+
+
+
+
 
   /** Integral over the Last CCD image.
    *
@@ -119,6 +117,10 @@ namespace cass
 
 
 
+
+
+
+
   /** Integral over the Last CCD image for pixel above user def Threshold.
    *
    * Postprocessor will get the Integral over the whole image from all kinds of ccd's.
@@ -161,6 +163,8 @@ namespace cass
     /** Integral of the current image */
     Histogram0DFloat *_ImageIntegralOverThres;
   };
+
+
 
 
 

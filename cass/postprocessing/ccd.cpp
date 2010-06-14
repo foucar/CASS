@@ -25,22 +25,9 @@
 // *** postprocessor 100 -- single images from a CCD ***
 
 cass::pp100::pp100(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  :PostprocessorBackend(pp, key),_image(0)
+  :PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp100::~pp100()
-{
-  _pp.histograms_delete(_key);
-  _image = 0;
-}
-
-cass::PostProcessors::active_t cass::pp100::dependencies()
-{
-  PostProcessors::active_t list;
-  if (_useCondition) list.push_front(_condition);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp100::loadSettings(size_t)
@@ -49,7 +36,6 @@ void cass::pp100::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
-  //dependancy:
   if (settings.contains("ConditionName")) 
   {
     _useCondition = true;
@@ -93,15 +79,16 @@ void cass::pp100::loadSettings(size_t)
   _pp.histograms_replace(_key,_image);
 }
 
-void cass::pp100::operator()(const cass::CASSEvent& event)
+void cass::pp100::process(const cass::CASSEvent& evt)
 {
   using namespace std;
 
   // if condition is in use and not met, don't do anything:
-  if (_useCondition) {
-      const Histogram0DFloat*cond
-          (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
-      if (!cond->isTrue()) return;
+  if (_useCondition)
+  {
+    const Histogram0DFloat*cond
+        (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+    if (!cond->isTrue()) return;
   }
 
   //check whether detector exists
@@ -114,7 +101,7 @@ void cass::pp100::operator()(const cass::CASSEvent& event)
   //get frame and fill image//
   const PixelDetector::frame_t& frame
       ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
-/*
+  /*
   // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
   if(frame.size()!=_image->shape().first *_image->shape().second)
   {
