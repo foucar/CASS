@@ -115,9 +115,9 @@ namespace cass
    * @param[in] key the key of the postprocessor asking for another postprocessors id
    * @param[in] param_name paramenter name of the dependency in qsettings
    */
-  bool retrieve_and_validate(cass::PostProcessors &pp,
-                             cass::PostProcessors::key_t key,
-                             const char * param_name);
+  PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
+                                              cass::PostProcessors::key_t key,
+                                              const char * param_name);
 
 
   /** Qt names of known/supported Qt image formats
