@@ -120,10 +120,10 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/acqiris_detectors.cpp \
             ./postprocessing/machine_data.cpp \
+            ./postprocessing/operations.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
-            ./postprocessing/operations.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
             soapCASSsoapService.cpp \
@@ -155,6 +155,7 @@ HEADERS +=  analysis_backend.h \
             worker.h \
             pixel_detector.h \
             xtciterator.h \
+            cass_exceptions.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/id_list.h \
             ./postprocessing/acqiris_detectors.h \
