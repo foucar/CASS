@@ -4,6 +4,7 @@
 #define __CONVENIENCE_FUNCTIONS_H__
 
 #include "postprocessor.h"
+#include "cass.h"
 
 namespace cass
 {
@@ -120,6 +121,100 @@ namespace cass
                              const char * param_name,
                              cass::PostProcessors::key_t &dependid);
 
+
+  /** Qt names of known/supported Qt image formats
+   *
+   * @param fmt the Image Format
+   * @return Qt name of format
+   */
+  inline const std::string imageformatName(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("PNG"); break;
+      case TIFF: fmtname = std::string("TIFF"); break;
+      case JPEG: fmtname = std::string("JPEG"); break;
+      case GIF:  fmtname = std::string("GIF"); break;
+      case BMP:  fmtname = std::string("BMP"); break;
+      }
+      return fmtname;
+  };
+
+
+  /** File extensions of known/supported Qt image formats
+   *
+   * @param fmt the Image Format
+   * @return File extension of format
+   */
+  inline const std::string imageExtension(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("png"); break;
+      case TIFF: fmtname = std::string("tiff"); break;
+      case JPEG: fmtname = std::string("jpg"); break;
+      case GIF:  fmtname = std::string("gif"); break;
+      case BMP:  fmtname = std::string("bmp"); break;
+      }
+      return fmtname;
+  };
+
+
+  /** MIMI names of known/supported Qt image formats.
+   *
+   * @param fmt the Image Format
+   * @return MIME/type of format
+   */
+  inline const std::string imageformatMIMEtype(ImageFormat fmt)
+  {
+      std::string fmtname;
+      switch(fmt) {
+      case PNG:  fmtname = std::string("image/png"); break;
+      case TIFF: fmtname = std::string("image/tiff"); break;
+      case JPEG: fmtname = std::string("image/jpeg"); break;
+      case GIF:  fmtname = std::string("image/gif"); break;
+      case BMP:  fmtname = std::string("image/bmp"); break;
+      }
+      return fmtname;
+  };
+
+
+  /** Names of known/supported Qt image formats
+   *
+   * @param name format name
+   * @return ImageFormat
+   */
+  inline ImageFormat imageformat(const std::string& name)
+  {
+      ImageFormat fmt(PNG);
+      if(std::string("PNG") == name) fmt = PNG;
+      else if(std::string("TIFF") == name) fmt = TIFF;
+      else if(std::string("JPEG") == name) fmt = TIFF;
+      else if(std::string("GIF") == name) fmt = TIFF;
+      else if(std::string("BMP") == name) fmt = TIFF;
+      return fmt;
+  };
+
+  /*! Helper function to delete duplicates from a std::list
+
+    This keeps the earliest entry in the list and removes all later ones
+    @param l List to remove duplicates from.
+    */
+  template<typename T>
+  inline void unique(std::list<T>& l)
+  {
+    // shorten list by removing consecutive duplicates
+    l.unique();
+    // now remove remaining (harder) duplicates
+    for(typename std::list<T>::iterator i1 = l.begin();
+    i1 != l.end();
+    ++i1) {
+      typename std::list<T>::iterator i2(i1);
+      ++i2;
+      while(l.end() != (i2 = find(i2, l.end(), *i1)))
+        l.erase(i2);
+    }
+  }
 }
 
 #endif
