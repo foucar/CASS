@@ -56,13 +56,12 @@ void cass::pp100::loadSettings(size_t)
   }
   _result = new Histogram2DFloat(cols,rows);
   createHistList(2*cass::NbrOfWorkers);
-  std::cout<<"Postprocessor "<<_key<<":"
-      <<" will display ccd image of detector "<<_detector
+  std::cout<<"Postprocessor "<<_key<<
+      <<": will display ccd image of detector "<<_detector
       <<" in device "<<_device
       <<". The image has "<<rows
       <<" rows and "<<cols
-      <<" columns."
-      <<" It will use condition "<<_condition->key()
+      <<" columns. It will use condition "<<_condition->key()
       <<std::endl;
 }
 
