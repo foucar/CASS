@@ -124,9 +124,9 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
-            ./postprocessing/operations.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
+            ./postprocessing/operations.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp

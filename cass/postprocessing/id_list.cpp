@@ -33,13 +33,13 @@ bool cass::IdList::deserialize(SerializerBackend *in)
   return true;
 }
 
-void cass::IdList::serialize(SerializerBackend *out)
+void cass::IdList::serialize(SerializerBackend *out)const
 {
   out->startChecksumGroupForWrite();
   out->addUint16(_version);
   out->addSizet(_size);
   out->endChecksumGroupForWrite();
-  for (PostProcessors::keyList_t::iterator it=_list.begin();
+  for (PostProcessors::keyList_t::const_iterator it=_list.begin();
        it!=_list.end();
        it++)
     out->addString(*it);
@@ -51,13 +51,10 @@ void cass::IdList::clear()
   _size=0;
 }
 
-void cass::IdList::setList(const PostProcessors::postprocessors_t &ppcont)
+void cass::IdList::setList(const PostProcessors::keyList_t &list)
 {
   clear();
-  for (PostProcessors::postprocessors_t::const_iterator it (ppcont.begin());
-       it != ppcont.end();
-       ++it)
-    _list.push_back(it->first);
-  _size = ppcont.size();
+  _list = list;
+  _size = list.size();
 
 }

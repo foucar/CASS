@@ -21,6 +21,8 @@
 #include "machine_data.h"
 #include "backend.h"
 #include "machine_data.h"
+#include "id_list.h"
+#include "cass_exceptions.h"
 
 
 
@@ -72,7 +74,6 @@ static inline std::string QStringToStdString(QString str)
 
 cass::PostProcessors::PostProcessors(std::string outputfilename)
   :_IdList(new IdList()),
-  _invalidMime("invalidMimetype"),
   _outputfilename(outputfilename)
 
 {
@@ -81,7 +82,7 @@ cass::PostProcessors::PostProcessors(std::string outputfilename)
              <<std::endl);
 }
 
-void cass::PostProcessors::process(CASSEvent& event)
+void cass::PostProcessors::process(const CASSEvent& event)
 {
   /**
    * @todo catch when postprocessor throws an exeption and delete the
@@ -100,7 +101,7 @@ void cass::PostProcessors::aboutToQuit()
   for(postprocessors_t::iterator iter = _postprocessors.begin();
       iter != _postprocessors.end();
       ++iter)
-    iter->aboutToQuit();
+    iter->second->aboutToQuit();
 }
 
 void cass::PostProcessors::loadSettings(size_t)
@@ -135,10 +136,10 @@ void cass::PostProcessors::clear(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() != it)
-    it->second->clear();
+    it->second->clearHistograms();
 }
 
-cass::PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
+cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() == it)
@@ -173,7 +174,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
   return dependandList;
 }
 
-void cass::PostProcessors::setup(const keyList_t &active)
+void cass::PostProcessors::setup(keyList_t &active)
 {
   using namespace std;
   /** @todo when load settings throws exception then remove this pp and all pp
@@ -461,12 +462,6 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case Cos2Theta:
     processor = new pp200(*this,key);
     break;
-  case AdvancedPhotonFinder:
-    processor = new pp210(*this,key);
-    break;
-  case AdvancedPhotonFinderSpectrum:
-    processor = new pp211(*this,key);
-    break;
   case AdvancedPhotonFinderDump:
     processor = new pp212(*this,key);
     break;
@@ -475,15 +470,6 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case TestImage:
     processor = new pp240(*this,key);
-    break;
-  case TaisHelperAnswer:
-    processor = new pp4000(*this,key);
-    break;
-  case SingleCcdImageWithConditions:
-    processor = new pp4100(*this,key);
-    break;
-  case SingleHalfCcdImage:
-    processor = new pp4101(*this,key);
     break;
 #ifdef HDF5
   case PnccdHDF5:

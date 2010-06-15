@@ -280,7 +280,7 @@ using the custom doxygen tag cassttng.
     void saveSettings() {}
 
     /** clear the histogram that has id */
-    void clear(key_t);
+    void clear(const key_t&);
 
   protected:
     /** Create new Postprocessor with key.
@@ -291,7 +291,7 @@ using the custom doxygen tag cassttng.
     PostprocessorBackend * create(const key_t &key);
 
     /** Set up _postprocessors using the user requested pp in active*/
-    void setup(const keyList_t&);
+    void setup(keyList_t&);
 
     /** find all postprocessors that depend on the given one
      *

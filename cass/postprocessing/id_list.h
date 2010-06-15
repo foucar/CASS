@@ -44,7 +44,7 @@ namespace cass
     void clear();
 
     /** copy the list to us */
-    void setList(const PostProcessors::postprocessors_t &list);
+    void setList(const PostProcessors::keyList_t &list);
 
     /** getter for the internal list */
     const PostProcessors::keyList_t& getList() { return _list; }
@@ -56,10 +56,10 @@ namespace cass
     bool deserialize(SerializerBackend& in) { return deserialize(&in); }
 
     /** serialize the list to the serializer */
-    void serialize(SerializerBackend *out);
+    void serialize(SerializerBackend *out)const;
 
     /** @overload */
-    void serialize(SerializerBackend &out) { serialize(&out); }
+    void serialize(SerializerBackend &out)const { serialize(&out); }
 
   private:
     /** a list of all postprocessor keys */
