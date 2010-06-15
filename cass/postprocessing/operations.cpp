@@ -1,8 +1,8 @@
 // Copyright (C) 2010 Lutz Foucar
+// (C) 2010 Thomas White - Updated to new PP framework
 
 #include <QtCore/QSettings>
 #include <QtCore/QString>
-
 
 #include "cass.h"
 #include "operations.h"
@@ -11,45 +11,51 @@
 #include "convenience_functions.h"
 
 
-
-
-// *** postprocessor 1 compare histo for less than constant ***
-
-cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-//  loadSettings(0);
-}
+// ********* Postprocessor 1: Compare histogram for less than constant *********
 
 void cass::pp1::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
+  // Get the value to compare against
   _value = settings.value("Value",0).toFloat();
+
+  // Get the input
   PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne",keyOne);
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if (!_one)
-    return;
+  if (!_one) return;
+
+  // Create result
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<keyOne
-      <<" is smaller than "<<_value
-      <<std::endl;
+
+  // Gloat about how fantastic we are
+  std::cout << "PostProcessor " << _key
+      << ": will compare whether hist in PostProcessor " << keyOne
+      << " is smaller than " << _value
+      << std::endl;
 }
 
 void cass::pp1::process(const CASSEvent& evt)
 {
   using namespace std;
+
+  // Get and lock input
   const HistogramFloatBase &one
       (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Sum values, then unlock
   one.lock.lockForRead();
   float first (accumulate(one.memory().begin(),
                           one.memory().end(),
                           0.f));
   one.lock.unlock();
+
+  // Compare and write result
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = first < _value;
   _result->lock.unlock();
@@ -57,64 +63,48 @@ void cass::pp1::process(const CASSEvent& evt)
 
 
 
-
-
-
-
-
-
-
-// *** postprocessor 2 compare histo for greater than constant ***
-
-cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp2::~pp2()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp2::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  return list;
-}
+// ******** Postprocessor 2: Compare histogram for greater than constant *******
 
 void cass::pp2::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
+  // Get value for comparison
   _value = settings.value("Value",0).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
-    return;
-  _pp.histograms_delete(_key);
+
+  // Get input
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+  if (!_one) return;
+
+  // Create output
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
+  createHistList(2*cass::NbrOfWorkers);
+
   std::cout << "PostProcessor "<<_key
       <<": will compare whether hist in PostProcessor "<<_idOne
       <<" is greater than "<<_value
       <<std::endl;
 }
 
-void cass::pp2::operator()(const CASSEvent&)
+void cass::pp2::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  float first (accumulate(one->memory().begin(),
-                          one->memory().end(),
+  // Get and lock input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Sum values
+  one.lock.lockForRead();
+  float first (std::accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  one->lock.unlock();
+  one.lock.unlock();
+
+  // Compare and write result
   _result->lock.lockForWrite();
   *_result = first > _value;
   _result->lock.unlock();
@@ -122,551 +112,382 @@ void cass::pp2::operator()(const CASSEvent&)
 
 
 
-
-
-
-
-
-
-
-
-// *** postprocessor 3 compare histo for equal to constant ***
-
-cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp3::~pp3()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp3::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  return list;
-}
+// ********** Postprocessor 3: Compare histogram for equal to constant *********
 
 void cass::pp3::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
+  // What is the value with which we will compare?
   _value = settings.value("Value",0).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
-    return;
-  _pp.histograms_delete(_key);
+
+  // Where will the input come from?
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne));
+  _dependencies.push_back(keyOne);
+  if (!_one) return;
+
+  // Where will the result be stored?
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<_idOne
-      <<" is equal to "<<_value
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will compare whether hist in PostProcessor " << _idOne
+      << " is equal to " << _value
+      << std::endl;
 }
 
-void cass::pp3::operator()(const CASSEvent&)
+void cass::pp3::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  float first (accumulate(one->memory().begin(),
-                          one->memory().end(),
+  // Get the input data
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Sum values
+  one.lock.lockForRead();
+  float first (std::accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  one->lock.unlock();
+  one.lock.unlock();
+
+  // Compare and store the result
   _result->lock.lockForWrite();
-  *_result = abs(first - _value) < sqrt(numeric_limits<float>::epsilon());
+  *dynamic_cast<Histogram0DFloat*>(_result) =
+                   abs(first - _value) < sqrt(numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-// *** postprocessor 4 apply boolean NOT to 0D Histogram ***
-
-cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp4::~pp4()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp4::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  return list;
-}
+// ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
 
 void cass::pp4::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
-    return;
-  const Histogram0DFloat *one
-      (dynamic_cast<Histogram0DFloat*>(histogram_checkout(_idOne)));
-  if(one->dimension() != 0)
-    throw std::runtime_error("pp type 4: idOne is not a 0d Histogram");
-  _pp.histograms_delete(_key);
+
+  // Get input
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+  if (!_one) return;
+
+  // Set up output
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will apply NOT to PostProcessor "<<_idOne
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will apply NOT to PostProcessor " << _idOne
+      << std::endl;
 }
 
-void cass::pp4::operator()(const CASSEvent&)
+void cass::pp4::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  Histogram0DFloat *one
-      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
+  // Get the input data
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Lock both input and output, and perform negation
+  one.lock.lockForRead();
   _result->lock.lockForWrite();
-  *_result = (!one->isTrue());
+  *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
   _result->lock.unlock();
-  one->lock.unlock();
+  one.lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-// *** postprocessor 5 boolean AND of two histos ***
-
-cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp5::~pp5()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp5::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  list.push_front(_idTwo);
-  return list;
-}
+// *********** Postprocessor 5: Apply boolean AND to two histograms ************
 
 void cass::pp5::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
-  if (OneNotvalid || TwoNotvalid)
-    return;
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  const HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  if (one->dimension() != two->dimension())
+
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+
+  PostProcessors::key_t keyTwo;
+  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _dependencies.push_back(keyTwo);
+
+  if ( !(_one && _two) ) return;
+
+  if (_one.dimension() != _two->dimension())
   {
-    throw std::runtime_error("pp type 5: idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("PP type 5: HistOne is not the same type "
+                             " as HistTwo, or they have not the same size.");
   }
-  _pp.histograms_delete(_key);
+
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will AND  PostProcessor "<<_idOne
-      <<" with PostProcessor "<<_idTwo
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will AND  PostProcessor " << _idOne
+      << " with PostProcessor " << _idTwo
+      << std::endl;
 }
 
-void cass::pp5::operator()(const CASSEvent&)
+void cass::pp5::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  Histogram0DFloat *one
-      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  Histogram0DFloat *two
-      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  two->lock.lockForRead();
+  // Get first input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Get second input
+  const HistogramFloatBase &two
+      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+
+  // Perform the AND (under appropriate locks)
+  one.lock.lockForRead();
+  two.lock.lockForRead();
   _result->lock.lockForWrite();
-  *_result = one->isTrue() && two->isTrue();
+  *_result = one.isTrue() && two.isTrue();
   _result->lock.unlock();
-  two->lock.unlock();
-  one->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-// *** postprocessor 6 boolean OR of two histos ***
-
-cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp6::~pp6()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp6::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  list.push_front(_idTwo);
-  return list;
-}
+// ******* Postprocessor 6: Calculate boolean OR between two histograms ********
 
 void cass::pp6::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
-  if (OneNotvalid || TwoNotvalid)
-    return;
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  const HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  if (one->dimension() != two->dimension())
+
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+
+  PostProcessors::key_t keyTwo;
+  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _dependencies.push_back(keyTwo);
+
+  if ( !(_one && _two) ) return;
+
+  if (_one.dimension() != _two->dimension())
   {
-    throw std::runtime_error("pp type 6: idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("PP type 6: HistOne is not the same type "
+                             " as HistTwo, or they have not the same size.");
   }
-  _pp.histograms_delete(_key);
+
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will OR  PostProcessor "<<_idOne
-      <<" with PostProcessor "<<_idTwo
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will OR  PostProcessor " << _idOne
+      << " with PostProcessor " << _idTwo
+      << std::endl;
 }
 
-void cass::pp6::operator()(const CASSEvent&)
+void cass::pp6::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  Histogram0DFloat *one
-      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  Histogram0DFloat *two
-      (reinterpret_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  two->lock.lockForRead();
+  // Get first input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Get second input
+  const HistogramFloatBase &two
+      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+
+  // Perform the AND (under appropriate locks)
+  one.lock.lockForRead();
+  two.lock.lockForRead();
   _result->lock.lockForWrite();
-  *_result = one->isTrue() || two->isTrue();
+  *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() || two.isTrue();
   _result->lock.unlock();
-  two->lock.unlock();
-  one->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
 }
 
 
 
-
-
-
-
-
-// *** postprocessor 7 compare two histos for less ***
-
-cass::pp7::pp7(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp7::~pp7()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp7::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  list.push_front(_idTwo);
-  return list;
-}
+// *********** Postprocessor 7: Compare histograms (for one < two) *************
 
 void cass::pp7::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
-  if (OneNotvalid || TwoNotvalid)
-    return;
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  const HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  if ((one->dimension() != two->dimension()) ||
-      (one->memory().size() != two->memory().size()))
+
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+
+  PostProcessors::key_t keyTwo;
+  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _dependencies.push_back(keyTwo);
+
+  if ( !(_one && _two) ) return;
+
+  if (_one.dimension() != _two.dimension())
   {
-    throw std::runtime_error("pp type 7: idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("PP type 6: HistOne is not the same type "
+                             " as HistTwo, or they have not the same size.");
   }
-  _pp.histograms_delete(_key);
+
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will check whether Histogram in PostProcessor "<<_idOne
-      <<" is smaller than Histogram in PostProcessor "<<_idTwo
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will check whether Histogram in PostProcessor " << _idOne
+      << " is smaller than Histogram in PostProcessor " << _idTwo
+      << std::endl;
 }
 
-void cass::pp7::operator()(const CASSEvent&)
+void cass::pp7::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  two->lock.lockForRead();
-  float first (accumulate(one->memory().begin(),
-                          one->memory().end(),
+  // Get first input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Get second input
+  const HistogramFloatBase &two
+      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+
+  // Add up both histograms (under locks)
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  float first (accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  float second (accumulate(one->memory().begin(),
-                           one->memory().end(),
+  float second (accumulate(two.memory().begin(),
+                           two.memory().end(),
                            0.f));
-  two->lock.unlock();
-  one->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+
   _result->lock.lockForWrite();
-  *_result = (first < second);
+  *dynamic_cast<Histogram0DFloat*>(_result) = (first < second);
   _result->lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-// *** postprocessors 8 compare two histos for equality ***
-
-cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp8::~pp8()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp8::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idOne);
-  list.push_front(_idTwo);
-  return list;
-}
+// *********** Postprocessor 8: Compare histograms (for one = two) *************
 
 void cass::pp8::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistOne",_idOne));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"HistTwo",_idTwo));
-  if (OneNotvalid || TwoNotvalid)
-    return;
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  const HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
-  if ((one->dimension() != two->dimension()) ||
-      (one->memory().size() != two->memory().size()))
+
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+
+  PostProcessors::key_t keyTwo;
+  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _dependencies.push_back(keyTwo);
+
+  if ( !(_one && _two) ) return;
+
+  if (_one.dimension() != _two.dimension())
   {
-    throw std::runtime_error("pp801 idOne is not the same type as idTwo or they have not the same size");
+    throw std::runtime_error("PP type 6: HistOne is not the same type "
+                             " as HistTwo, or they have not the same size.");
   }
-  _pp.histograms_delete(_key);
+
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will check whether Histogram in PostProcessor "<<_idOne
-      <<" is equal to Histogram in PostProcessor "<<_idTwo
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will check whether Histogram in PostProcessor " << _idOne
+      << " is equal to Histogram in PostProcessor " << _idTwo
+      << std::endl;
 }
 
-void cass::pp8::operator()(const CASSEvent&)
+void cass::pp8::process(const CASSEvent&)
 {
-  using namespace std;
-  //retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  HistogramFloatBase *two
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idTwo)->second));
-  _pp.histograms_release();
+ // Get first input
+ const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  //substract using transform with a special build function//
-  one->lock.lockForRead();
-  two->lock.lockForRead();
-  float first (accumulate(one->memory().begin(),
-                          one->memory().end(),
+  // Get second input
+  const HistogramFloatBase &two
+      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+
+  // Add up both histograms (under locks)
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  float first (accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  float second (accumulate(one->memory().begin(),
-                           one->memory().end(),
+  float second (accumulate(two.memory().begin(),
+                           two.memory().end(),
                            0.f));
-  one->lock.unlock();
-  two->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+
   _result->lock.lockForWrite();
-  *_result = abs(first - second) < sqrt(numeric_limits<float>::epsilon());
+  *dynamic_cast<Histogram0DFloat*>(_result) =
+                   abs(first - second) < sqrt(numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-
-
-// *** postprocessor 9 check whether histogram is in range ***
-
-cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp9::~pp9()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp9::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  return list;
-}
+// ********** Postprocessor 9: Check if histogram is in given range ************
 
 void cass::pp9::loadSettings(size_t)
 {
-  using namespace std;
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
+  // Get the range
   _range = make_pair(settings.value("UpperLimit",0).toFloat(),
                      settings.value("LowerLimit",0).toFloat());
-  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
-    return;
-  _pp.histograms_delete(_key);
+
+  // Get the input
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+
+  // Create the output
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will check whether hist in PostProcessor "<<_idOne
-      <<" is between "<<_range.first
-      <<" and "<<_range.second
-      <<std::endl;
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will check whether hist in PostProcessor " << _idOne
+      << " is between " << _range.first
+      << " and " << _range.second
+      << std::endl;
 }
 
-void cass::pp9::operator()(const CASSEvent&)
+void cass::pp9::process(const CASSEvent&)
 {
-  using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  float value (accumulate(one->memory().begin(),
-                          one->memory().end(),
+ // Get the input
+ const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Sum up the histogram under lock
+  one.lock.lockForRead();
+  float value (accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  one->lock.unlock();
+  one.lock.unlock();
+
   _result->lock.lockForWrite();
-  *_result = _range.first < value &&  value < _range.second;
+  *dynamic_cast<Histogram0DFloat*>(_result) =
+                                 _range.first < value &&  value < _range.second;
   _result->lock.unlock();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
