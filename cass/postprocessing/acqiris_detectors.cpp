@@ -38,6 +38,8 @@ void cass::pp150::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  if (!setupCondition())
+    return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
@@ -50,11 +52,14 @@ void cass::pp150::loadSettings(size_t)
 void cass::pp150::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  TofDetector *det
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().peaks().size());
-  _result->lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    TofDetector *det
+        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+    _result->lock.lockForWrite();
+    dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().peaks().size());
+    _result->lock.unlock();
+  }
 }
 
 
