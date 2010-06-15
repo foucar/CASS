@@ -33,6 +33,10 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
