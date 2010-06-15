@@ -133,8 +133,10 @@ namespace cass
      *           0D Postprocessor name that we check before filling image.
      *           if this setting is not defined, this postprocessor is unconditional.
      *           Therefore its always true.
+     *
+     * @return true when condition is there, false otherwise
      */
-    void setupCondition();
+    bool setupCondition();
 
   protected:
     /** the postprocessors key */

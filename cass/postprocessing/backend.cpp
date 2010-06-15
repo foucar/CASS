@@ -92,7 +92,7 @@ void PostprocessorBackend::createHistList(size_t size)
   }
 }
 
-void PostprocessorBackend::setupCondition()
+bool PostprocessorBackend::setupCondition()
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
