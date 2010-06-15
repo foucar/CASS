@@ -122,6 +122,7 @@ void cass::PostProcessors::loadSettings(size_t)
   std::cout <<"   Number of unique postprocessor activations: "<<active.size()
       << std::endl;
   //add a default true pp to container//
+  /** @note this might be a memory leak */
   active.push_back("DefaultTrueHist");
   _postprocessors["DefaultTrueHist"] = create("DefaultTrueHist");
   setup(active);
