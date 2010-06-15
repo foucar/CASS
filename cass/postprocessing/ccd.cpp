@@ -78,8 +78,7 @@ void cass::pp100::loadSettings(size_t)
 void cass::pp100::process(const cass::CASSEvent& evt)
 {
   using namespace std;
-
-  if (dynamic_cast<Histogram0DFloat&>((*_condition)(evt)).isTrue())
+  if (dynamic_cast<const Histogram0DFloat&>((*_condition)(evt)).isTrue())
   {
     //check whether detector exists
     if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
