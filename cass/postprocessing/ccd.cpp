@@ -40,7 +40,9 @@ void cass::pp100::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   if (settings.contains("ConditionName")) 
   {
-    _condition = retrieve_and_validate(_pp,_key,"ConditionName");
+    PostProcessors::key_t keycondition;
+    _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
+    _dependencies.push_back(keycondition);
     if (!_condition)
       return;
   } 
