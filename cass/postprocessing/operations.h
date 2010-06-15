@@ -80,7 +80,7 @@ namespace cass
 
   protected:
     /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    PostprocessorBackend *_one;
 
     /** constant value to compare to */
     float _value;
@@ -673,8 +673,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the id of the 2d hist we want to project */
-    PostProcessors::key_t _idHist;
+    /** pp containing the 2d hist we want to project */
+    PostprocessorBackend *_pHist;
 
     /** range we want to project */
     std::pair<float,float> _range;
