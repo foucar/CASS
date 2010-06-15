@@ -85,6 +85,10 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -132,6 +136,10 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -186,6 +194,10 @@ namespace cass
    *           The anode layer Wireend. Default is 1. Options are:
    *           - 1: first wireend
    *           - 2: second wireend
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -251,6 +263,10 @@ namespace cass
    *           The anode layer Wireend. Default is 1. Options are:
    *           - 1: first wireend
    *           - 2: second wireend
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -309,6 +325,10 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -365,6 +385,10 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -431,6 +455,10 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -479,6 +507,10 @@ namespace cass
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 1: HexDetector
    *           - 2: QuadDetector
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -540,6 +572,10 @@ namespace cass
    *           - t: time of impact of the reconstructed hit
    * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
    *           conditions on third value, the one not chosen with options above.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -614,6 +650,10 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
