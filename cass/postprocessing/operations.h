@@ -34,26 +34,18 @@ namespace cass
     /** constructor */
     pp1(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp1();
+    /** process event */
+    virtual void process(const CASSEvent&);
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
-
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing the histogram */
+    PostprocessorBackend *_one;
 
     /** constant value to compare to */
     float _value;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -81,13 +73,12 @@ namespace cass
     /** Free _image space */
     virtual ~pp2();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -127,9 +118,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp3();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -172,9 +164,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp4();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -212,9 +205,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp5();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -255,13 +249,11 @@ namespace cass
     /** Free _image space */
     virtual ~pp6();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -303,9 +295,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp7();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -350,9 +343,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp8();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -395,9 +389,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp9();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -507,9 +502,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp20();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -565,9 +561,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp21();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -616,9 +613,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp22();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -661,9 +659,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp23();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -679,11 +678,6 @@ namespace cass
     /** resulting histgram */
     HistogramFloatBase *_result;
   };
-
-
-
-
-
 
 
 
@@ -711,9 +705,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp24();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -729,6 +724,10 @@ namespace cass
     /** resulting histgram */
     HistogramFloatBase *_result;
   };
+
+
+
+
 
 
 
@@ -751,9 +750,10 @@ namespace cass
     /** Free _image space */
     virtual ~pp25();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
+    /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
     /** the two histograms that the user wants to substract */
@@ -804,8 +804,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp50();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -863,8 +863,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp51();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -913,8 +913,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp52();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -971,8 +971,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp53();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -1032,8 +1032,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp54();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -1087,8 +1087,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp60();
 
-    /** average the histogram */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
@@ -1142,8 +1142,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp61();
 
-    /** average the histogram */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
@@ -1189,8 +1189,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp62();
 
-    /** average the histogram */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
@@ -1239,8 +1239,8 @@ namespace cass
     /** Free _image space */
     virtual ~pp63();
 
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
@@ -1270,12 +1270,7 @@ namespace cass
     /** time when the first samples was used in the point in time */
     time_t _when_first_evt;
     uint32_t _first_fiducials;
-
-  protected:
   };
-
-
-
 }
 
 #endif
