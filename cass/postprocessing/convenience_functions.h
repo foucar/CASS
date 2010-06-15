@@ -8,6 +8,26 @@
 
 namespace cass
 {
+  /** predicate class for find_if.
+   *
+   * this helps finding the right key in the list of pairs eventid - Histogram
+   *
+   * @author Lutz Foucar
+   */
+  class IsKey
+  {
+  public:
+    /** initialize the key in the constructor*/
+    IsKey(const uint64_t key):_key(key){}
+    /** compares the first element of the pair to the key*/
+    bool operator()(const std::pair<uint64_t,HistogramBackend*>& p)const
+    { return (_key == p.first); }
+  private:
+    /** the key that we will compare to in the operator*/
+    const uint64_t _key;
+  };
+
+
   /** binary function for weighted substracting.
    *
    * @author Lutz Foucar
