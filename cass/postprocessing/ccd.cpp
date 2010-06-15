@@ -120,19 +120,15 @@ void cass::pp100::process(const cass::CASSEvent& evt)
 
 
 
-// *** Integral over the Image ***
+
+
+
+// *** postprocessor 101:  Integral over the Image ***
 
 cass::pp101::pp101(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _ImageIntegral(0)
+  :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
-}
-
-cass::pp101::~pp101()
-{
-  _pp.histograms_delete(_key);
-  _ImageIntegral=0;
+//  loadSettings(0);
 }
 
 void cass::pp101::loadSettings(size_t)
@@ -155,34 +151,29 @@ void cass::pp101::loadSettings(size_t)
                              .arg(_device).toStdString());
     break;
   }
-  _pp.histograms_delete(_key);
-  _ImageIntegral = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_ImageIntegral);
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
       <<" detector."
       <<std::endl;
 }
 
-void cass::pp101::operator()(const cass::CASSEvent &evt)
+void cass::pp101::process(const cass::CASSEvent &evt)
 {
   using namespace std;
-  //check whether detector exists
   if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
     throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
                              .arg(_key.c_str())
                              .arg(_detector)
                              .arg(_device).toStdString());
-
-  //get frame and fill image//
   const float& integral
       (static_cast<float>(
           (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
 
-
-  _ImageIntegral->lock.lockForWrite();
-  _ImageIntegral->fill(integral);
-  _ImageIntegral->lock.unlock();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(integral);
+  _result->lock.unlock();
 }
 
 
