@@ -1308,12 +1308,6 @@ void cass::pp51::operator()(const CASSEvent&)
 
 // *** postprocessors 52 calculate the radial average of a 2d hist given a centre
 //     and 1 radius (in case the value is too large, the maximum reasonable value is used) ***
-/**
- * @todo improve and generalize radial projection to account for different distance of detector to beam line
- * @todo add treatment of possible asymmetric positions of detectors to beam line
- * @todo add possibility to have circle partially outside the physical detector dimensions
- */
-
 
 cass::pp52::pp52(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _projec(0)
