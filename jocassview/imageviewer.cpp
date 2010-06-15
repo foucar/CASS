@@ -81,6 +81,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _attachId = new QComboBox();
     _attachId->setToolTip("Attachment identifier.");
     _attachId->setEditable(true);
+    _attachId->installEventFilter(this);
     updateImageList(_attachId);    // todo: doesn't work yet. data is correctly serialized on server side, but doesn't arrive correctly...
     _ui.toolBar->addWidget(_attachId);
     // Add picture type respectively format to toolbar.
@@ -196,6 +197,23 @@ ImageViewer::~ImageViewer() {
    delete _imageScroller;
 
 }
+
+
+bool ImageViewer::eventFilter(QObject *obj, QEvent *event)
+ {
+     if (obj == _attachId) {
+         if (event->type() == QEvent::MouseButtonPress) {
+             updateImageList(_attachId);
+             return false;
+         } else {
+             return false;
+         }
+     } else {
+         // pass the event on to the parent class
+         return QMainWindow::eventFilter(obj, event);
+     }
+     return false;
+ }
 
 
 void ImageViewer::updateImageList(QComboBox* box) {
