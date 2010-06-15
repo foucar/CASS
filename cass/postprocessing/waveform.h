@@ -26,6 +26,10 @@ namespace cass
    *           - 5: AMO Mbes Acqiris
    * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
    *           The channel number of the acqiris instrument. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @todo adjust the name to the id that it will have
    * @author Lutz Foucar
