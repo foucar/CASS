@@ -2,7 +2,7 @@
 
 /** @file operations.h file contains postprocessors that will operate
  *                     on histograms of other postprocessors
- *
+ * @todo add pp that will maks out given areas of a histogram
  * @author Lutz Foucar
  */
 
