@@ -54,7 +54,8 @@ void cass::pp100::loadSettings(size_t)
                              .arg(_device).toStdString());
     break;
   }
-  setupCondition();
+  if (!setupCondition())
+    return;
   _result = new Histogram2DFloat(cols,rows);
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
