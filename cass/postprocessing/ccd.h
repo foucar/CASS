@@ -284,9 +284,16 @@ namespace cass
   };
 
 
+
+
+
+
+
+
   /** Last CCD image subset of it.
    *
-   * Postprocessor will get the raw image from all kinds of ccd's.
+   * Postprocessor will get the raw image from all kinds of ccd's. And will
+   * fill the resulting histogram only with a subset of the image.
    *
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
@@ -299,6 +306,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
+   *
    * @author Jochen Kuepper
    * @author Lutz Foucar
    * @author Nicola Coppola
@@ -311,9 +319,6 @@ namespace cass
 
     /** Free _image spcae */
     virtual ~pp4101();
-
-    /** dependancy: image retrieval can be conditional */
-    virtual PostProcessors::active_t dependencies();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);
@@ -370,9 +375,6 @@ namespace cass
 
     /** Free _image spcae */
     virtual ~pp4100();
-
-    /** dependancy: image retrieval can be conditional */
-    virtual PostProcessors::active_t dependencies();
 
     /** copy image from CASS event to histogram storage */
     virtual void operator()(const CASSEvent&);

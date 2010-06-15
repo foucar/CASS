@@ -121,8 +121,8 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/acqiris_detectors_helper.cpp \
             ./postprocessing/acqiris_detectors.cpp \
             ./postprocessing/machine_data.cpp \
-            ./postprocessing/operations.cpp \
             ./postprocessing/ccd.cpp \
+            ./postprocessing/operations.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
             ./postprocessing/postprocessor.cpp \
