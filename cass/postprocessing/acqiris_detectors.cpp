@@ -553,7 +553,7 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
+  if ((*PostprocessorBackend::_condition)(evt).isTrue())
   {
     DelaylineDetector *det
         (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
