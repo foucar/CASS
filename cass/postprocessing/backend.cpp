@@ -103,8 +103,9 @@ bool PostprocessorBackend::setupCondition()
     _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
     _dependencies.push_back(keycondition);
     if (!_condition)
-      return;
+      return false;
   }
   else
     _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
+  return true;
 }
