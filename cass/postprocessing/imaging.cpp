@@ -19,201 +19,7 @@
 #include "imaging.h"
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
-#include "averaging_offsetcorrection_helper.h"
-
-
-
-
-
-
-
-
-
-
-
-
-// *** postprocessors 210 advanced photon finding ***
-
-cass::pp210::pp210(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key),_image(0)
-{
-  loadSettings(0);
-}
-
-cass::pp210::~pp210()
-{
-  _pp.histograms_delete(_key);
-  _image = 0;
-}
-
-cass::PostProcessors::active_t cass::pp210::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idAverage);
-  list.push_front(_condition);
-  return list;
-}
-
-void cass::pp210::loadSettings(size_t)
-{
-  QSettings settings;
-  int r;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
-  _detector = settings.value("Detector",0).toUInt();
-  _gate = std::make_pair<float,float>(settings.value("LowerGateEnd",-1e6).toFloat(),
-                                      settings.value("UpperGateEnd", 1e6).toFloat());
-
-  // Check dependencies
-  r = retrieve_and_validate(_pp,_key,"Condition",_condition);
-  r &= retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage);
-  // If either dependency did not succeed, go away for now and try again later
-  if ( !r ) return;
-
-  const HistogramFloatBase *image
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idAverage)->second));
-  _pp.histograms_release();
-  _pp.histograms_delete(_key);
-  _image = new Histogram2DFloat(image->axis()[HistogramBackend::xAxis].size(),
-                                image->axis()[HistogramBackend::yAxis].size());
-  _pp.histograms_replace(_key,_image);
-  std::cout<<"Postprocessor "<<_key
-      <<": Lower Gate:"<<_gate.first<<" Upper Gate:"<<_gate.second
-      <<" averging image for this pp:"<< _idAverage
-      <<" condition on postprocessor:"<<_condition
-      <<std::endl;
-}
-
-
-
-void cass::pp210::operator()(const CASSEvent& event)
-{
-  using namespace std;
-  bool update = dynamic_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_condition)->second)->isTrue();
-  if (update)
-  {
-    if (event.devices().find(_device)->second->detectors()->size() <=_detector)
-      throw std::runtime_error(QString("PostProcessor_%1: detector %2 does not exist in device %3")
-                               .arg(_key.c_str())
-                               .arg(_detector)
-                               .arg(_device).toStdString());
-    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-    const PixelDetector::frame_t& frame(det.frame());
-    //get the averaged histogram//
-    HistogramFloatBase *image
-        (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idAverage)->second));
-    _pp.histograms_release();
-    //correct the histogram with the help of the helper, retrive a const reference to the corrected frame//
-    image->lock.lockForRead();
-    PixelDetector::frame_t::const_iterator corFrameIt
-        (HelperAveragingOffsetCorrection::instance(_idAverage)->correctFrame(event.id(),frame,image->memory()).begin());
-    image->lock.unlock();
-    //write it to resulting image
-    _image->lock.lockForWrite();
-    HistogramFloatBase::storage_t::iterator hIt(_image->memory().begin());
-    while(hIt != _image->memory().end())
-    {
-      *hIt++ += ((_gate.first < *corFrameIt) && (*corFrameIt  < _gate.second));
-      ++corFrameIt;
-    }
-    _image->lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// *** postprocessors 211 in 1d histogram ***
-
-cass::pp211::pp211(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _hist(0)
-{
-  loadSettings(0);
-}
-
-cass::pp211::~pp211()
-{
-  _pp.histograms_delete(_key);
-  _hist = 0;
-}
-
-cass::PostProcessors::active_t cass::pp211::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idAverage);
-  return list;
-}
-
-void cass::pp211::loadSettings(size_t)
-{
-  QSettings settings;
-  int r;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
-  _detector = settings.value("Detector",0).toUInt();
-
-  // Check dependencies
-  r = retrieve_and_validate(_pp,_key,"Condition",_condition);
-  r &= retrieve_and_validate(_pp,_key,"AveragedImage",_idAverage);
-  // If either dependency did not succeed, go away for now and try again later
-  if ( !r ) return;  _pp.histograms_delete(_key);
-
-  _hist=0;
-  set1DHist(_hist,_key);
-  _pp.histograms_replace(_key,_hist);
-  std::cout<<"Postprocessor "<<_key
-      <<": averging image for this pp:"<< _idAverage
-      <<" condition on pp:"<<_condition
-      <<std::endl;
-}
-
-void cass::pp211::operator()(const CASSEvent& event)
-{
-  using namespace std;
-  //check whether we need to update the histogram//
-  bool update = dynamic_cast<Histogram0DFloat*>(_pp.histograms_checkout().find(_condition)->second)->isTrue();
-
-  if (update)
-  {
-    if (event.devices().find(_device)->second->detectors()->size() <=_detector)
-      throw std::runtime_error(QString("PostProcessor_%1: detector %2 does not exist in device %3")
-                               .arg(_key.c_str())
-                               .arg(_detector)
-                               .arg(_device).toStdString());
-    const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-    const PixelDetector::frame_t& frame(det.frame());
-    //get the averaged histogram//
-    HistogramFloatBase *image
-        (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idAverage)->second));
-    _pp.histograms_release();
-    //correct the histogram with the help of the helper, retrive a const reference to the corrected frame//
-    image->lock.lockForRead();
-    PixelDetector::frame_t corFrame
-        (HelperAveragingOffsetCorrection::instance(_idAverage)->correctFrame(event.id(),frame,image->memory()));
-    PixelDetector::frame_t::const_iterator corFrameIt (corFrame.begin());
-    image->lock.unlock();
-     //fill histogram with all pixels
-    _hist->lock.lockForWrite();
-    while(corFrameIt != corFrame.end())
-      _hist->fill(*corFrameIt++);
-    _hist->lock.unlock();
-  }
-}
-
-
-
+#include "convenience_functions.h"
 
 
 
@@ -222,51 +28,33 @@ void cass::pp211::operator()(const CASSEvent& event)
 cass::pp212::pp212(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp212::~pp212()
-{
-  _fh.close();
-  _pp.histograms_delete(_key);
-}
-
-cass::PostProcessors::active_t cass::pp212::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_input);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp212::loadSettings(size_t)
 {
   QSettings settings;
-  int r;
-
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
   // Pre-gate (don't even think about pixels outside this range)
-  _pregate = std::make_pair<float,float>
-                            (settings.value("LowerPreGate", -1e6).toFloat(),
-                             settings.value("UpperPreGate",  1e6).toFloat());
+  _pregate = std::make_pair(settings.value("LowerPreGate", -1e6).toFloat(),
+                            settings.value("UpperPreGate",  1e6).toFloat());
 
   // Gate (store events within this range after coalescing)
-  _gate = std::make_pair<float,float>
-                               (settings.value("LowerGate", -1e6).toFloat(),
-                                settings.value("UpperGate",  1e6).toFloat());
+  _gate = std::make_pair(settings.value("LowerGate", -1e6).toFloat(),
+                         settings.value("UpperGate",  1e6).toFloat());
 
   // Coalesce pixels into single events?
   _coalesce = settings.value("Coalesce",false).toBool();
 
   // Input image
-  r = retrieve_and_validate(_pp, _key, "Input", _input);
-
-  // Condition
-  r &= retrieve_and_validate(_pp, _key, "ConditionName", _condition);
+  PostProcessors::key_t inputkey;
+  _input = retrieve_and_validate(_pp, _key, "Input", inputkey);
+  bool ret (setupCondition());
 
   // If either dependency did not succeed, go away for now and try again later
-  if ( !r ) return;
+  if ( !_input && !ret ) return;
 
   // Output filename
   _filename = settings.value("Filename", "events.lst").toString().toStdString();
@@ -314,72 +102,71 @@ bool cass::pp212::check_pixel(float *f, int x, int y, int w, int h,
 }
 
 
-void cass::pp212::operator()(const CASSEvent &)
+void cass::pp212::process(const CASSEvent & evt)
 {
   using namespace std;
 
   // Check condition, and do nothing if not true
-  const Histogram0DFloat*cond(reinterpret_cast<Histogram0DFloat*>
-                              (histogram_checkout(_condition)));
-  if ( !cond->isTrue() ) return;
+  if ((*_condition)(evt).isTrue())
+  {
 
-  // Get the input histogram
-  HistogramFloatBase *image(dynamic_cast<HistogramFloatBase*>
-                            (_pp.histograms_checkout().find(_input)->second));
-  _pp.histograms_release();
+    // Get the input histogram
+    const HistogramFloatBase &image
+        (dynamic_cast<const HistogramFloatBase&>((*_input)(evt)));
 
-  // Get width/height
-  const int w(image->axis()[HistogramBackend::xAxis].size());
-  const int h(image->axis()[HistogramBackend::yAxis].size());
+    // Get width/height
+    const int w(image.axis()[HistogramBackend::xAxis].size());
+    const int h(image.axis()[HistogramBackend::yAxis].size());
 
-  // Detect events and write to file
+    // Detect events and write to file
 
-  if ( _coalesce ) {
+    if ( _coalesce )
+    {
+      // Copy the input, because it'll get modified here
+      float *in(new float[w*h+8]);
+      copy(image.memory().begin(), image.memory().end(), in);
 
-    // Copy the input, because it'll get modified here
-    float *in(new float[w*h+8]);
-    copy(image->memory().begin(), image->memory().end(), in);
+      for ( int x=0; x<w; x++ ) {
+        for ( int y=0; y<h; y++ ) {
 
-    for ( int x=0; x<w; x++ ) {
-    for ( int y=0; y<h; y++ ) {
+          double sum = 0.0;
+          int depth = 0;
 
-      double sum = 0.0;
-      int depth = 0;
+          // Skip over quickly if this pixel isn't interesting
+          if ( (in[x+w*y] < _pregate.first) || (in[x+w*y] > _pregate.second) )
+            continue;
 
-      // Skip over quickly if this pixel isn't interesting
-      if ( (in[x+w*y] < _pregate.first) || (in[x+w*y] > _pregate.second) )
-         continue;
+          // Check this pixel and its neighbours
+          if ( check_pixel(in, x, y, w, h, sum, depth) )
+          {
+            _fh << x << " " << y << " " << sum << " " << depth << std::endl;
+          }
 
-      // Check this pixel and its neighbours
-      if ( check_pixel(in, x, y, w, h, sum, depth) )
-      {
-         _fh << x << " " << y << " " << sum << " " << depth << std::endl;
+        }
+      }
+
+      delete[](in);
+
+    } else {
+
+      // Do it the easier and faster way
+      for ( int x=0; x<w; x++ ) {
+        for ( int y=0; y<h; y++ ) {
+
+          // Skip over quickly if this pixel isn't interesting
+          if ( (image.memory()[x+w*y] < _gate.first)
+            || (image.memory()[x+w*y] > _gate.second) ) continue;
+
+          // Save pixel
+          _fh << x << " " << y << " " << image.memory()[x+w*y] << " 1" << std::endl;
+
+        }
       }
 
     }
-    }
 
-    delete[](in);
-
-  } else {
-
-    // Do it the easier and faster way
-    for ( int x=0; x<w; x++ ) {
-    for ( int y=0; y<h; y++ ) {
-
-      // Skip over quickly if this pixel isn't interesting
-      if ( (image->memory()[x+w*y] < _gate.first)
-        || (image->memory()[x+w*y] > _gate.second) ) continue;
-
-      // Save pixel
-      _fh << x << " " << y << " " << image->memory()[x+w*y] << " 1" << std::endl;
-
-    }
-    }
-
-   }
-
-   _fh << std::endl;
+    _fh << std::endl;
+  }
 }
 
 
@@ -394,15 +181,9 @@ void cass::pp212::operator()(const CASSEvent &)
 // *** test image ***
 
 cass::pp240::pp240(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key),_image(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp240::~pp240()
-{
-  _pp.histograms_delete(_key);
-  _image = 0;
+//  loadSettings(0);
 }
 
 void cass::pp240::loadSettings(size_t)
@@ -412,26 +193,25 @@ void cass::pp240::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _sizeX = settings.value("sizeX", 1024).toInt();
   _sizeY = settings.value("sizeY", 1024).toInt();
-  _image = new Histogram2DFloat(_sizeX, _sizeY);
-  _pp.histograms_replace(_key,_image);
+  _result = new Histogram2DFloat(_sizeX, _sizeY);
+  createHistList(1);
   std::cout<<"Postprocessor "<<_key
-      <<": sizeX:"<<_sizeX<<" sizeY:"<<_sizeY
+      <<": creates test image and has size X:"<<_sizeX
+      <<" Y:"<<_sizeY
       <<std::endl;
 }
 
-
-
-void cass::pp240::operator()(const CASSEvent& event)
+void cass::pp240::process(const CASSEvent& /*event*/)
 {
   using namespace std;
   //write test image
-  _image->lock.lockForWrite();
+  _result->lock.lockForWrite();
   for (int xx=0; xx<_sizeX; ++xx)
     for (int yy=0; yy<_sizeY; ++yy)
     {
-      _image->bin(xx,yy) = xx*yy;
+      dynamic_cast<Histogram2DFloat*>(_result)->bin(xx,yy) = xx*yy;
     }
-  _image->lock.unlock();
+  _result->lock.unlock();
 }
 
 

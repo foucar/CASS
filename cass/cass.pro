@@ -123,8 +123,8 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/machine_data.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
-            ./postprocessing/operations.cpp \
             ./postprocessing/imaging.cpp \
+            ./postprocessing/operations.cpp \
             ./postprocessing/postprocessor.cpp \
             ./postprocessing/id_list.cpp \
             soapCASSsoapService.cpp \
