@@ -5,8 +5,36 @@
 #include "backend.h"
 #include "cass_exceptions.h"
 #include "convenience_functions.h"
+#include "operations.h"
 
 using namespace cass;
+
+PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key, bool useCondition)
+  :_key(key),
+   _result(0),
+   _condition(0),
+   _pp(pp),
+   _histLock(QReadWriteLock::Recursive)
+{
+  if (useCondition)
+  {
+    QSettings settings;
+    settings.beginGroup("PostProcessor");
+    settings.beginGroup(_key.c_str());
+    if (settings.contains("ConditionName"))
+    {
+      PostProcessors::key_t keycondition;
+      _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
+      _dependencies.push_back(keycondition);
+      if (!_condition)
+        return;
+    }
+    else
+      _condition = &(_pp.getPostProcessor("TrueHist"));
+  }
+  /** @note check whether this calls the overwritten function */
+  loadSettings(0);
+}
 
 PostprocessorBackend::~PostprocessorBackend()
 {

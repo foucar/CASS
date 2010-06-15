@@ -36,19 +36,16 @@ namespace cass
   public:
     /** constructor
      *
+     * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+     *           0D Postprocessor name that we check before filling image.
+     *           if this setting is not defined, this postprocessor is unconditional.
+     *           Therefore its always true.
+     *
      * @param pp reference to the class that contains all postprocessors
      * @param key the key in the container of this postprocessor
+     * @param useCondition flag to tell whether the pp should use a condition. Default is true
      */
-    PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key)
-      :_key(key),
-       _result(0),
-       _condition(0),
-       _pp(pp),
-       _histLock(QReadWriteLock::Recursive)
-    {
-      /** @note check whether this calls the overwritten function */
-      loadSettings(0);
-    }
+    PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key, bool useCondition=true);
 
     /** virtual destructor */
     virtual ~PostprocessorBackend();

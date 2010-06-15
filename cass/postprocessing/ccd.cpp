@@ -21,7 +21,6 @@
 #include "postprocessor.h"
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
-#include "operations.h"
 #include "convenience_functions.h"
 
 
@@ -38,16 +37,6 @@ void cass::pp100::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (settings.contains("ConditionName")) 
-  {
-    PostProcessors::key_t keycondition;
-    _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
-    _dependencies.push_back(keycondition);
-    if (!_condition)
-      return;
-  } 
-  else
-    _condition = new pp10(_pp, "TrueHist");
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   int cols(0); int rows(0);
