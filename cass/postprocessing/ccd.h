@@ -238,11 +238,8 @@ namespace cass
     /** constructor */
     pp141(PostProcessors&, const PostProcessors::key_t&);
 
-    /** destructor */
-    virtual ~pp141();
-
     /** copy pixels from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** set the histogram size */
     virtual void loadSettings(size_t);
@@ -253,9 +250,6 @@ namespace cass
 
     /** detector to work on */
     size_t _detector;
-
-    /** pixel image */
-    Histogram2DFloat *_image;
   };
 
 

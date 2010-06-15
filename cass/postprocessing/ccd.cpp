@@ -274,13 +274,7 @@ void cass::pp140::process(const CASSEvent& evt)
 cass::pp141::pp141(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp141::~pp141()
-{
-  _pp.histograms_delete(_key);
-  _image = 0;
+//  loadSettings(0);
 }
 
 void cass::pp141::loadSettings(size_t)
@@ -290,35 +284,30 @@ void cass::pp141::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
-  _pp.histograms_delete(_key);
-  _image=0;
-  set2DHist(_image,_key);
-  _pp.histograms_replace(_key,_image);
-
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd image of detector "<<_detector
       <<" in device "<<_device
       <<std::endl;
 }
 
-void cass::pp141::operator()(const CASSEvent& evt)
+void cass::pp141::process(const CASSEvent& evt)
 {
   using namespace std;
-  //check whether detector exists
   if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
     throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
                              .arg(_key.c_str())
                              .arg(_detector)
                              .arg(_device).toStdString());
-
   const PixelDetector::pixelList_t& pixellist
       ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
   PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-  _image->lock.lockForWrite();
-  fill(_image->memory().begin(),_image->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it != pixellist.end();++it)
-    _image->fill(it->x(),it->y());
-  _image->lock.unlock();
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+  _result->lock.unlock();
 }
 
 
