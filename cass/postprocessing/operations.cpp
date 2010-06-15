@@ -86,12 +86,12 @@ void cass::pp2::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<_idOne
+      <<": will compare whether hist in PostProcessor "<<_one
       <<" is greater than "<<_value
       <<std::endl;
 }
 
-void cass::pp2::process(const CASSEvent&)
+void cass::pp2::process(const CASSEvent& evt)
 {
   // Get and lock input
   const HistogramFloatBase &one
@@ -106,9 +106,12 @@ void cass::pp2::process(const CASSEvent&)
 
   // Compare and write result
   _result->lock.lockForWrite();
-  *_result = first > _value;
+  *dynamic_cast<Histogram0DFloat*>(_result) = first > _value;
   _result->lock.unlock();
 }
+
+
+
 
 
 
@@ -126,7 +129,7 @@ void cass::pp3::loadSettings(size_t)
 
   // Where will the input come from?
   PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne));
+  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
   if (!_one) return;
 
@@ -216,7 +219,7 @@ void cass::pp5::loadSettings(size_t)
   _dependencies.push_back(keyOne);
 
   PostProcessors::key_t keyTwo;
-  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
 
   if ( !(_one && _two) ) return;
@@ -272,7 +275,7 @@ void cass::pp6::loadSettings(size_t)
   _dependencies.push_back(keyOne);
 
   PostProcessors::key_t keyTwo;
-  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
 
   if ( !(_one && _two) ) return;
@@ -328,7 +331,7 @@ void cass::pp7::loadSettings(size_t)
   _dependencies.push_back(keyOne);
 
   PostProcessors::key_t keyTwo;
-  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
 
   if ( !(_one && _two) ) return;
@@ -391,7 +394,7 @@ void cass::pp8::loadSettings(size_t)
   _dependencies.push_back(keyOne);
 
   PostProcessors::key_t keyTwo;
-  _two retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
 
   if ( !(_one && _two) ) return;
@@ -976,22 +979,9 @@ void cass::pp25::operator()(const CASSEvent&)
 // *** postprocessors 50 projects 2d hist to 1d histo for a selected region of the axis ***
 
 cass::pp50::pp50(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _projec(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp50::~pp50()
-{
-  _pp.histograms_delete(_key);
-  _projec = 0;
-}
-
-cass::PostProcessors::active_t cass::pp50::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp50::loadSettings(size_t)
@@ -1004,32 +994,33 @@ void cass::pp50::loadSettings(size_t)
                      settings.value("UpperBound", 1e6).toFloat());
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
   _normalize = settings.value("Normalize",false).toBool();
-  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back();
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
     return;
-  const Histogram2DFloat *one
-      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _pp.histograms_delete(_key);
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
   switch (_axis)
   {
   case (HistogramBackend::xAxis):
     _range.first  = max(_range.first, one->axis()[HistogramBackend::yAxis].lowerLimit());
     _range.second = min(_range.second,one->axis()[HistogramBackend::yAxis].upperLimit());
-    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
+    _result = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
                                    one->axis()[HistogramBackend::xAxis].lowerLimit(),
                                    one->axis()[HistogramBackend::xAxis].upperLimit());
     break;
   case (HistogramBackend::yAxis):
     _range.first  = max(_range.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
     _range.second = min(_range.second,one->axis()[HistogramBackend::xAxis].upperLimit());
-    _projec = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
+    _result = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
                                    one->axis()[HistogramBackend::yAxis].lowerLimit(),
                                    one->axis()[HistogramBackend::yAxis].upperLimit());
     break;
   }
-  _pp.histograms_replace(_key,_projec);
   std::cout << "PostProcessor "<<_key
-      <<" will project histogram of PostProcessor "<<_idHist
+      <<" will project histogram of PostProcessor "<<keyHist
       <<" from "<<_range.first
       <<" to "<<_range.second
       <<" on axis "<<_axis
@@ -1037,17 +1028,19 @@ void cass::pp50::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp50::operator()(const CASSEvent&)
+void cass::pp50::operator()(const CASSEvent& evt)
 {
   using namespace std;
-  Histogram2DFloat *one
-      (dynamic_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  one->lock.lockForRead();
-  _projec->lock.lockForWrite();
-  *_projec = one->project(_range,static_cast<HistogramBackend::Axis>(_axis));
-  _projec->lock.unlock();
-  one->lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *_result = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
 
 
