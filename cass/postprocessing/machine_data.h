@@ -109,6 +109,9 @@ namespace cass
 
     /** calc the photonenergy from the bld */
     virtual void process(const CASSEvent&);
+
+    /** load the settings from cass.ini */
+    virtual void loadSettings(size_t);
   };
 }
 
