@@ -186,6 +186,12 @@ public:
     /** clear the histogram*/
     virtual void clear()=0;
 
+    /** evaluate whether value is non zero
+     * @note this should only be implemented by Histogram0DFloat
+     */
+    virtual bool isTrue() const {assert(false);return false;}
+
+
     //@{
     /** setter */
     size_t      &nbrOfFills()         {return _nbrOfFills;}
