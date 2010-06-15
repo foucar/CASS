@@ -9,29 +9,14 @@
 
 using namespace cass;
 
-PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const PostProcessors::key_t &key, bool useCondition)
+PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
+                                           const PostProcessors::key_t &key)
   :_key(key),
    _result(0),
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
 {
-  if (useCondition)
-  {
-    QSettings settings;
-    settings.beginGroup("PostProcessor");
-    settings.beginGroup(_key.c_str());
-    if (settings.contains("ConditionName"))
-    {
-      PostProcessors::key_t keycondition;
-      _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
-      _dependencies.push_back(keycondition);
-      if (!_condition)
-        return;
-    }
-    else
-      _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
-  }
   /** @note check whether this calls the overwritten function */
   loadSettings(0);
 }
@@ -105,4 +90,21 @@ void PostprocessorBackend::createHistList(size_t size)
     _histList.push_front
         (make_pair(0, new HistogramFloatBase(*reinterpret_cast<HistogramFloatBase*>(_result))));
   }
+}
+
+void PostprocessorBackend::setupCondition()
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  if (settings.contains("ConditionName"))
+  {
+    PostProcessors::key_t keycondition;
+    _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
+    _dependencies.push_back(keycondition);
+    if (!_condition)
+      return;
+  }
+  else
+    _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
 }
