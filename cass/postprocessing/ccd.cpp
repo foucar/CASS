@@ -188,14 +188,14 @@ void cass::pp102::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
-  createHistList(2*cass::NumberOfWorkers);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
       <<" detector calculated using pixels over threshold."
       <<std::endl;
 }
 
-void cass::pp102::operator()(const cass::CASSEvent &evt)
+void cass::pp102::process(const cass::CASSEvent &evt)
 {
   using namespace std;
   if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
