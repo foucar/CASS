@@ -8,13 +8,13 @@ using namespace cass;
 
 PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
                                             cass::PostProcessors::key_t key,
-                                            const char * param_name)
+                                            const char * param_name,
+                                            PostProcessors::key_t& dependkey)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(key.c_str());
-  PostProcessors::key_t dependkey
-      (settings.value(param_name,"0").toString().toStdString());
+  dependkey = settings.value(param_name,"0").toString().toStdString();
   PostprocessorBackend *dependpp(0);
   try
   {

@@ -114,10 +114,12 @@ namespace cass
    * @param[in] pp reference to the postprocessor instance that contains the histograms
    * @param[in] key the key of the postprocessor asking for another postprocessors id
    * @param[in] param_name paramenter name of the dependency in qsettings
+   * @param[out] dependkey the returned key value in the settings
    */
   PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
                                               cass::PostProcessors::key_t key,
-                                              const char * param_name);
+                                              const char * param_name,
+                                              cass::PostProcessors::key_t &dependkey);
 
 
   /** Qt names of known/supported Qt image formats
