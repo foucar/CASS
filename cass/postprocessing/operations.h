@@ -70,9 +70,6 @@ namespace cass
     /** constructor */
     pp2(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp2();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
@@ -86,9 +83,6 @@ namespace cass
 
     /** constant value to compare to */
     float _value;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -115,17 +109,11 @@ namespace cass
     /** constructor */
     pp3(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp3();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -133,9 +121,6 @@ namespace cass
 
     /** constant value to compare to */
     float _value;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -161,24 +146,15 @@ namespace cass
     /** constructor */
     pp4(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp4();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
-
   protected:
     /** id of first histogram */
     PostProcessors::key_t _idOne;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -202,17 +178,11 @@ namespace cass
     /** constructor */
     pp5(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp5();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -220,9 +190,6 @@ namespace cass
 
     /** id of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -246,9 +213,6 @@ namespace cass
     /** constructor */
     pp6(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp6();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
@@ -261,9 +225,6 @@ namespace cass
 
     /** id of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -292,17 +253,11 @@ namespace cass
     /** constructor */
     pp7(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp7();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -310,9 +265,6 @@ namespace cass
 
     /** id of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -340,17 +292,11 @@ namespace cass
     /** constructor */
     pp8(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp8();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** how many pixels to bin in horizontal and vertical direction */
@@ -358,9 +304,6 @@ namespace cass
 
     /** how many pixels to bin in horizontal and vertical direction */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -386,17 +329,11 @@ namespace cass
     /** constructor */
     pp9(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp9();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -404,9 +341,6 @@ namespace cass
 
     /** the requested range that the histogram should be in */
     std::pair<float,float> _range;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -423,21 +357,13 @@ namespace cass
   public:
     /** constructor */
     pp10(PostProcessors& pp, const PostProcessors::key_t &key)
-      :PostprocessorBackend(pp,key),
-      _constant(new Histogram0DFloat(true))
+      :PostprocessorBackend(pp,key)
     {
-      _pp.histograms_replace(_key,_constant);
+      _result = (new Histogram0DFloat(true));
+      createHistList(1);
     }
-
-    /** delete constant */
-    virtual ~pp10() {_pp.histograms_delete(_key);_constant=0;}
-
-    /** just a stub not used here */
-    virtual void operator()(const CASSEvent&){}
-
-  protected:
-    /** resulting histgram */
-    Histogram0DFloat *_constant;
+    /** don't do anything to the histogram */
+    virtual void process(const CASSEvent&){}
   };
 
 
@@ -452,21 +378,13 @@ namespace cass
   public:
     /** constructor */
     pp11(PostProcessors& pp, const PostProcessors::key_t &key)
-      :PostprocessorBackend(pp,key),
-      _constant(new Histogram0DFloat(false))
+      :PostprocessorBackend(pp,key)
     {
-      _pp.histograms_replace(_key,_constant);
+      _result = (new Histogram0DFloat(false));
+      createHistList(1);
     }
-
-    /** delete constant */
-    virtual ~pp11() {_pp.histograms_delete(_key);_constant=0;}
-
-    /** just a stub not used here */
-    virtual void operator()(const CASSEvent&){}
-
-  protected:
-    /** resulting histgram */
-    Histogram0DFloat *_constant;
+    /** don't do anything to the histogram */
+    virtual void process(const CASSEvent&){}
   };
 
 
@@ -499,17 +417,11 @@ namespace cass
     /** constructor */
     pp20(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp20();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** factor by which the first histogram will be weighted */
@@ -523,9 +435,6 @@ namespace cass
 
     /** id of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -558,17 +467,11 @@ namespace cass
     /** constructor */
     pp21(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp21();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -576,9 +479,6 @@ namespace cass
 
     /** id of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -610,17 +510,11 @@ namespace cass
     /** constructor */
     pp22(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp22();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of first histogram */
@@ -628,9 +522,6 @@ namespace cass
 
     /** if of second histogram */
     PostProcessors::key_t _idTwo;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -656,17 +547,11 @@ namespace cass
     /** constructor */
     pp23(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp23();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the histogram we multiply with a constant */
@@ -674,9 +559,6 @@ namespace cass
 
     /** the factor we mulitply the histogram with */
     float _factor;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -702,17 +584,11 @@ namespace cass
     /** constructor */
     pp24(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp24();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the histogram we multiply with a constant */
@@ -720,9 +596,6 @@ namespace cass
 
     /** the factor we substract the histogram with */
     float _factor;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -747,17 +620,11 @@ namespace cass
     /** constructor */
     pp25(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp25();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the histogram we multiply with a constant */
@@ -765,9 +632,6 @@ namespace cass
 
     /** the threshold */
     float _threshold;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
   };
 
 
@@ -801,17 +665,11 @@ namespace cass
     /** constructor */
     pp50(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp50();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the id of the 2d hist we want to project */
@@ -825,9 +683,6 @@ namespace cass
 
     /** axis we want to project on */
     size_t _axis;
-
-    /** resulting histgram */
-    Histogram1DFloat *_projec;
   };
 
 
@@ -860,17 +715,11 @@ namespace cass
     /** constructor */
     pp51(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp51();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** id of the 1d histogram we want to have the integral of */
@@ -878,9 +727,6 @@ namespace cass
 
     /** range we want to have the integral over in histogram bins */
     std::pair<float,float> _area;
-
-    /** resulting histgram */
-    Histogram0DFloat *_result;
   };
 
 
@@ -910,17 +756,11 @@ namespace cass
     /** constructor */
     pp52(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp52();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the histogram that the user wants to use */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the id of the 2d hist we want to project */
@@ -931,9 +771,6 @@ namespace cass
 
     /** the maximum size of the radius, calculated from the two d histogram */
     size_t _radius;
-
-    /** resulting histgram */
-    Histogram1DFloat *_projec;
   };
 
 
@@ -968,17 +805,11 @@ namespace cass
     /** constructor */
     pp53(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp53();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the histogram that the user want to use */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the id of the 2d hist we want to project */
@@ -992,9 +823,6 @@ namespace cass
 
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _nbrBins;
-
-    /** resulting histgram */
-    Histogram1DFloat *_projec;
   };
 
 
@@ -1029,17 +857,11 @@ namespace cass
     /** constructor */
     pp54(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp54();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the two histograms that the user wants to substract */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the id of the 2d hist we want to project */
@@ -1053,9 +875,6 @@ namespace cass
 
     /** the maximum size of the radius, calculated from the two d histogram */
     size_t _radius;
-
-    /** resulting histgram */
-    Histogram2DFloat *_projec;
   };
 
 
@@ -1084,17 +903,11 @@ namespace cass
     /** constructor */
     pp60(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp60();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
-
-    /** the dependencies on condition and input histogram */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** alpha for the running average */
@@ -1102,12 +915,6 @@ namespace cass
 
     /** the 0D histogram to work on */
     PostProcessors::key_t _idHist;
-
-    /** the pp that contains the  condition */
-    PostProcessors::key_t  _condition;
-
-    /** histogramed value */
-    Histogram1DFloat *_hist;
   };
 
 
@@ -1139,17 +946,11 @@ namespace cass
     /** constructor */
     pp61(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp61();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
-
-    /** the dependencies on condition and input histogram */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** alpha for the running average */
@@ -1157,12 +958,6 @@ namespace cass
 
     /** the histogram to work on */
     PostProcessors::key_t _idHist;
-
-    /** the pp that contains the  condition */
-    PostProcessors::key_t  _condition;
-
-    /** averaged histogram */
-    HistogramFloatBase *_average;
   };
 
 
@@ -1186,27 +981,15 @@ namespace cass
     /** constructor */
     pp62(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp62();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings */
     virtual void loadSettings(size_t);
 
-    /** the dependencies on condition and input histogram */
-    virtual PostProcessors::active_t dependencies();
-
   protected:
     /** the histogram to work on */
     PostProcessors::key_t _idHist;
-
-    /** the pp that contains the  condition */
-    PostProcessors::key_t  _condition;
-
-    /** summed histogram */
-    HistogramFloatBase *_sum;
   };
 
 
@@ -1236,24 +1019,15 @@ namespace cass
     /** constructor */
     pp63(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp63();
-
     /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
-    /** the dependencies on condition and input histogram */
-    virtual PostProcessors::active_t dependencies();
-
   protected:
     /** the histogram to work on */
     PostProcessors::key_t _idHist;
-
-    /** the pp that contains the  condition */
-    PostProcessors::key_t  _condition;
 
     /** range of time that we use for the angular distribution */
     std::pair<size_t,size_t> _timerange;
