@@ -120,6 +120,147 @@ void cass::pp100::process(const cass::CASSEvent& evt)
 
 
 
+// *** Integral over the Image ***
+
+cass::pp101::pp101(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _ImageIntegral(0)
+{
+  loadSettings(0);
+}
+
+cass::pp101::~pp101()
+{
+  _pp.histograms_delete(_key);
+  _ImageIntegral=0;
+}
+
+void cass::pp101::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+  switch(_device)
+  {
+  case CASSEvent::CCD:
+    break;
+  case CASSEvent::pnCCD:
+    break;
+  default:
+    throw std::runtime_error(QString("%1: Device %2 is not an ccd containing device")
+                             .arg(_key.c_str())
+                             .arg(_device).toStdString());
+    break;
+  }
+  _pp.histograms_delete(_key);
+  _ImageIntegral = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_ImageIntegral);
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": retrieves the Integral over the whole "<<_detector
+      <<" detector."
+      <<std::endl;
+}
+
+void cass::pp101::operator()(const cass::CASSEvent &evt)
+{
+  using namespace std;
+  //check whether detector exists
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  //get frame and fill image//
+  const float& integral
+      (static_cast<float>(
+          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
+
+
+  _ImageIntegral->lock.lockForWrite();
+  _ImageIntegral->fill(integral);
+  _ImageIntegral->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+// *** Integral over the Image for pixel(s) above thres ***
+
+cass::pp102::pp102(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key),
+  _ImageIntegralOverThres(0)
+{
+  loadSettings(0);
+}
+
+cass::pp102::~pp102()
+{
+  _pp.histograms_delete(_key);
+  _ImageIntegralOverThres=0;
+}
+
+void cass::pp102::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+  switch(_device)
+  {
+  case CASSEvent::CCD:
+    break;
+  case CASSEvent::pnCCD:
+    break;
+  default:
+    throw std::runtime_error(QString("%1: Device %2 is not an ccd containing device")
+                             .arg(_key.c_str())
+                             .arg(_device).toStdString());
+    break;
+  }
+  _pp.histograms_delete(_key);
+  _ImageIntegralOverThres = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_ImageIntegralOverThres);
+  //??::instance(_detector)->loadSettings();
+  std::cout <<std::endl<< "PostProcessor "<<_key
+      <<": retrieves the Integral over the whole "<<_detector
+      <<" detector calculated using pixels over threshold."
+      <<std::endl;
+}
+
+void cass::pp102::operator()(const cass::CASSEvent &evt)
+{
+  using namespace std;
+  //check whether detector exists
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  //get frame and fill image//
+  const float& integral_overthres
+      (static_cast<float>(
+          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
+//maxPixelValue
+//integral_overthres
+  _ImageIntegralOverThres->lock.lockForWrite();
+  _ImageIntegralOverThres->fill(integral_overthres);
+  _ImageIntegralOverThres->lock.unlock();
+}
+
+
+
 
 
 
@@ -236,141 +377,6 @@ void cass::pp141::operator()(const CASSEvent& evt)
 
 
 
-// *** Integral over the Image ***
-
-cass::pp101::pp101(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _ImageIntegral(0)
-{
-  loadSettings(0);
-}
-
-cass::pp101::~pp101()
-{
-  _pp.histograms_delete(_key);
-  _ImageIntegral=0;
-}
-
-void cass::pp101::loadSettings(size_t)
-{
-  using namespace std;
-  QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
-  _detector = settings.value("Detector",0).toUInt();
-  switch(_device)
-  {
-  case CASSEvent::CCD:
-    break;
-  case CASSEvent::pnCCD:
-    break;
-  default:
-    throw std::runtime_error(QString("%1: Device %2 is not an ccd containing device")
-                             .arg(_key.c_str())
-                             .arg(_device).toStdString());
-    break;
-  }
-  _pp.histograms_delete(_key);
-  _ImageIntegral = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_ImageIntegral);
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": retrieves the Integral over the whole "<<_detector
-      <<" detector."
-      <<std::endl;
-}
-
-void cass::pp101::operator()(const cass::CASSEvent &evt)
-{
-  using namespace std;
-  //check whether detector exists
-  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                             .arg(_key.c_str())
-                             .arg(_detector)
-                             .arg(_device).toStdString());
-
-  //get frame and fill image//
-  const float& integral
-      (static_cast<float>(
-          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
-
-
-  _ImageIntegral->lock.lockForWrite();
-  _ImageIntegral->fill(integral);
-  _ImageIntegral->lock.unlock();
-}
-
-
-
-
-
-
-// *** Integral over the Image for pixel(s) above thres ***
-
-cass::pp102::pp102(PostProcessors &pp, const PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key),
-  _ImageIntegralOverThres(0)
-{
-  loadSettings(0);
-}
-
-cass::pp102::~pp102()
-{
-  _pp.histograms_delete(_key);
-  _ImageIntegralOverThres=0;
-}
-
-void cass::pp102::loadSettings(size_t)
-{
-  using namespace std;
-  QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
-  _detector = settings.value("Detector",0).toUInt();
-  switch(_device)
-  {
-  case CASSEvent::CCD:
-    break;
-  case CASSEvent::pnCCD:
-    break;
-  default:
-    throw std::runtime_error(QString("%1: Device %2 is not an ccd containing device")
-                             .arg(_key.c_str())
-                             .arg(_device).toStdString());
-    break;
-  }
-  _pp.histograms_delete(_key);
-  _ImageIntegralOverThres = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_ImageIntegralOverThres);
-  //??::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": retrieves the Integral over the whole "<<_detector
-      <<" detector calculated using pixels over threshold."
-      <<std::endl;
-}
-
-void cass::pp102::operator()(const cass::CASSEvent &evt)
-{
-  using namespace std;
-  //check whether detector exists
-  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                             .arg(_key.c_str())
-                             .arg(_detector)
-                             .arg(_device).toStdString());
-
-  //get frame and fill image//
-  const float& integral_overthres
-      (static_cast<float>(
-          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
-//maxPixelValue
-//integral_overthres
-  _ImageIntegralOverThres->lock.lockForWrite();
-  _ImageIntegralOverThres->fill(integral_overthres);
-  _ImageIntegralOverThres->lock.unlock();
-}
 
 
 
