@@ -346,9 +346,9 @@ protected:
    *   right mouse goes back in zoom history
    *   left mouse drag on colorbar sets colorstops
    *   right mouse on colorbar cycles throug axis transformations
-   * @todo make different color sacle available
-   * @todo possibility to fix lowest and / or highest value
+   * @todo make different color scAle available
    * @author Stephan Kassemeyer
+   * @author Nicola Coppola
    */
 class spectrogramWidget : public QWidget
 {
@@ -496,9 +496,10 @@ public:
     _colorMapInv->addColorStop(0.6, Qt::green);
     _colorMapInv->addColorStop(0.95, Qt::yellow);
     _colorMapInv->setTransformId(_transformCol_inv);
+    _spectrogram->setColorMap(*_colorMapInv);
 
     _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMap);
+                            *_colorMapInv);
 
     //_plot->setAxisScaleEngine(QwtPlot::yRight, new QwtLog10ScaleEngine);
     _plot->setAxisScale(QwtPlot::yRight,
@@ -562,7 +563,7 @@ public:
     _spectrogram->invalidateCache();
     _spectrogram->itemChanged();
     _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMap);
+                            *_colorMapInv);
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
@@ -670,8 +671,8 @@ protected slots:
     _colorMap->addColorStop(_cs_top, QColor(255,255,255));
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
-    _spectrogram->setColorMap(*_colorMap);
-    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
+    _spectrogram->setColorMap(*_colorMapInv);
+    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapInv);
     _plot->replot();
   }
 
@@ -711,7 +712,9 @@ protected:
 
 /** 1d plot
  *
- * @todo 1d hist, log of x,y axis
+ * @author Stephan Kassemeyer
+ * @author Nicola Coppola
+ * @todo 1d hist, log of x axis
  * @todo scale overlay data, change color and thickness of overlay line
  * @todo zoom into x axis but let y axis scale automatically to highest value
  * @todo document this class
