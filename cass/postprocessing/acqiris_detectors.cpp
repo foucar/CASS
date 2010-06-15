@@ -581,7 +581,7 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
   :cass::PostprocessorBackend(pp,key)
 {
-  loadSettings(0);
+//  loadSettings(0);
 }
 
 void cass::pp220::loadSettings(size_t)
