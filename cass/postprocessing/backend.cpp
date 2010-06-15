@@ -30,7 +30,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp, const PostProcess
         return;
     }
     else
-      _condition = &(_pp.getPostProcessor("TrueHist"));
+      _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
   }
   /** @note check whether this calls the overwritten function */
   loadSettings(0);
