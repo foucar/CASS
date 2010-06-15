@@ -8,6 +8,7 @@
 #include "operations.h"
 #include "postprocessor.h"
 #include "histogram.h"
+#include "convenience_functions.h"
 
 
 
@@ -15,22 +16,9 @@
 // *** postprocessor 1 compare histo for less than constant ***
 
 cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp1::~pp1()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp1::dependencies()
-{
-  PostProcessors::active_t  list;
-  list.push_front(_idOne);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp1::loadSettings(size_t)
@@ -39,32 +27,31 @@ void cass::pp1::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _value = settings.value("Value",0).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistOne",_idOne))
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp,_key,"HistOne",keyOne);
+  _dependencies.push_back(keyOne);
+  if (!_one)
     return;
-  _pp.histograms_delete(_key);
   _result = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_result);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<_idOne
+      <<": will compare whether hist in PostProcessor "<<keyOne
       <<" is smaller than "<<_value
       <<std::endl;
 }
 
-void cass::pp1::operator()(const CASSEvent&)
+void cass::pp1::process(const CASSEvent& evt)
 {
   using namespace std;
-  // retrieve the memory of the to be substracted histograms//
-  HistogramFloatBase *one
-      (reinterpret_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idOne)->second));
-  _pp.histograms_release();
-  // substract using transform with a special build function//
-  one->lock.lockForRead();
-  float first (accumulate(one->memory().begin(),
-                          one->memory().end(),
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+  one.lock.lockForRead();
+  float first (accumulate(one.memory().begin(),
+                          one.memory().end(),
                           0.f));
-  one->lock.unlock();
+  one.lock.unlock();
   _result->lock.lockForWrite();
-  *_result = first < _value;
+  *dynamic_cast<Histogram0DFloat*>(_result) = first < _value;
   _result->lock.unlock();
 }
 
