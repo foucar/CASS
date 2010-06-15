@@ -123,6 +123,10 @@ namespace cass
    *           values for the interesting radius range. Default is 0,0
    * @cassttng PostProcessor/\%name%/{DrawInnerOuterRadius}\n
    *           draw the inner and out include radius. default is false
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Per Johnsson
    * @author Lutz Foucar
@@ -133,14 +137,8 @@ namespace cass
     /** Construct postprocessor for Gaussian height of image */
     pp200(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp200();
-
     /** calculate \f$\cos^2\theta\f$ of averaged image */
-    virtual void operator()(const CASSEvent&);
-
-    /** Define postprocessor dependency on the requested image */
-    virtual PostProcessors::active_t dependencies();
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from CASS.ini*/
     virtual void loadSettings(size_t);
@@ -155,11 +153,8 @@ namespace cass
     size_t _nbrAngularPoints;        //!< Number of angular points
     bool _drawCircle;                //!< flag to tell whether to draw the inner and outer circle
 
-    /** image that we will calculate the \f$\cos^2\theta\f$ from */
-    PostProcessors::key_t   _imagekey;
-
-    /** the cos2theta value */
-    Histogram0DFloat *_value;
+    /** pp containing image that we will calculate the \f$\cos^2\theta\f$ from */
+    PostprocessorBackend*   _image;
   };
 
 }
