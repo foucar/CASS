@@ -23,6 +23,10 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the beamline data variable you are interested in
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -53,6 +57,10 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -82,15 +90,14 @@ namespace cass
 
 
 
-
-
-
-
-
-
   /** retrieve photonenergy.
    *
    * This postprocessor will calculate the photonenergy from the BLD
+   *
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
