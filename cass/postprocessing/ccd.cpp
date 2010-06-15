@@ -131,6 +131,8 @@ void cass::pp101::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
+  if (!setupCondition())
+    return;
   createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
@@ -141,17 +143,20 @@ void cass::pp101::loadSettings(size_t)
 void cass::pp101::process(const cass::CASSEvent &evt)
 {
   using namespace std;
-  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                             .arg(_key.c_str())
-                             .arg(_detector)
-                             .arg(_device).toStdString());
-  const float& integral
-      (static_cast<float>(
-          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(integral);
-  _result->lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+      throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                               .arg(_key.c_str())
+                               .arg(_detector)
+                               .arg(_device).toStdString());
+    const float& integral
+        (static_cast<float>(
+            (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
+    _result->lock.lockForWrite();
+    dynamic_cast<Histogram0DFloat*>(_result)->fill(integral);
+    _result->lock.unlock();
+  }
 }
 
 
@@ -179,6 +184,8 @@ void cass::pp102::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
+  if (!setupCondition())
+    return;
   createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
@@ -189,17 +196,21 @@ void cass::pp102::loadSettings(size_t)
 void cass::pp102::process(const cass::CASSEvent &evt)
 {
   using namespace std;
-  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                             .arg(_key.c_str())
-                             .arg(_detector)
-                             .arg(_device).toStdString());
-  const float& integral_overthres
-      (static_cast<float>(
-          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(integral_overthres);
-  _result->lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+
+    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+      throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                               .arg(_key.c_str())
+                               .arg(_detector)
+                               .arg(_device).toStdString());
+    const float& integral_overthres
+        (static_cast<float>(
+            (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
+    _result->lock.lockForWrite();
+    dynamic_cast<Histogram0DFloat*>(_result)->fill(integral_overthres);
+    _result->lock.unlock();
+  }
 }
 
 
@@ -226,6 +237,8 @@ void cass::pp140::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _adu2eV = settings.value("Adu2eV",1).toFloat();
+  if (!setupCondition())
+    return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key<<":"
@@ -275,6 +288,8 @@ void cass::pp141::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
+  if (!setupCondition())
+    return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key<<":"

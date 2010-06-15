@@ -60,9 +60,6 @@ namespace cass
 
     /** device the ccd image comes from */
     cass::CASSEvent::Device _device;
-
-    /** the pp that contains the condition */
-    PostprocessorBackend* _condition;
   };
 
 
@@ -85,6 +82,10 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -129,6 +130,10 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -179,6 +184,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Adu2eV}\n
    *           conversion factor for converting the z value from ADU to eV.
    *           Default is 1.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -229,6 +238,10 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
