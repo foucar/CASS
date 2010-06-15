@@ -1063,11 +1063,11 @@ namespace cass
    *
    * @author Stephan Kassemeyer
    */
-  class pp64 : public PostprocessorBackend
+  class pp70 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp64(PostProcessors& hist, const PostProcessors::key_t&);
+    pp70(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);
