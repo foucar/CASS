@@ -164,7 +164,7 @@ namespace cass
   /** Spectrum of PhotonHits of CCD's.
    *
    * This postprocessor will fill a 1D histogram with the z values in detected
-   * Photonhits. Photonhits will be detected in the according preanalyzer.
+   * Photonhits. Photonhits will be detected in the according pre analyzer.
    *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
    *           properties of the 1D histogram:
@@ -188,25 +188,13 @@ namespace cass
     /** constructor */
     pp140(PostProcessors&, const PostProcessors::key_t&);
 
-    /** destructor */
-    virtual ~pp140();
-
     /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** set the histogram size + retrieve device and detector to work on*/
     virtual void loadSettings(size_t);
 
   protected:
-    /** the Detector that we make the condition on*/
-    ACQIRIS::Detectors _conditionDetector;
-
-    /** flag that will invert the condition */
-    bool _invert;
-
-    /** range of the photonenergy */
-    std::pair<float, float> _range;
-
     /** device the ccd image comes from*/
     cass::CASSEvent::Device _device;
 
@@ -215,9 +203,6 @@ namespace cass
 
     /** the adu to eV calibration value*/
     float _adu2eV;
-
-    /** current image */
-    Histogram1DFloat * _spec;
   };
 
 

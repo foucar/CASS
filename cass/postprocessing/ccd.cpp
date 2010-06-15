@@ -235,10 +235,8 @@ void cass::pp140::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _adu2eV = settings.value("Adu2eV",1).toFloat();
-  _pp.histograms_delete(_key);
-  _spec=0;
-  set1DHist(_spec,_key);
-  _pp.histograms_replace(_key,_spec);
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd spectrum of detector "<<_detector
       <<" in device "<<_device
@@ -246,23 +244,21 @@ void cass::pp140::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp140::operator()(const CASSEvent& evt)
+void cass::pp140::process(const CASSEvent& evt)
 {
-  //check whether detector exists
   if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
     throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
                              .arg(_key.c_str())
                              .arg(_detector)
                              .arg(_device).toStdString());
-
   const PixelDetector::pixelList_t& pixellist
       ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
   PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
-  _spec->lock.lockForWrite();
-  fill(_spec->memory().begin(),_spec->memory().end(),0.f);
+  _result->clear();
+  _result->lock.lockForWrite();
   for (; it != pixellist.end();++it)
-    _spec->fill(it->z()*_adu2eV);
-  _spec->lock.unlock();
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->z()*_adu2eV);
+  _result->lock.unlock();
 }
 
 
