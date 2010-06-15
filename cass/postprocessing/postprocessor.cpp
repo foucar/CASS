@@ -121,6 +121,9 @@ void cass::PostProcessors::loadSettings(size_t)
   std::transform(list.begin(), list.end(), active.begin(), QStringToStdString);
   std::cout <<"   Number of unique postprocessor activations: "<<active.size()
       << std::endl;
+  //add a default true pp to container//
+  active.push_back("DefaultTrueHist");
+  _postprocessors["DefaultTrueHist"] = create("DefaultTrueHist");
   setup(active);
   std::cout <<"   Active postprocessor(s): ";
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
