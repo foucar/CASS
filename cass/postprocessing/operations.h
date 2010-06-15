@@ -1047,6 +1047,9 @@ namespace cass
   };
 
 
+
+
+
   /** record 0d Histogram into 1d Histogram.
    *
    * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
@@ -1066,32 +1069,18 @@ namespace cass
     /** constructor */
     pp64(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp64();
-
-    /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    /** process event */
+    virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
-
-    /** the dependencies on condition and input histogram */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** the histogram to work on */
     PostProcessors::key_t _idHist;
 
-    /** the pp that contains the  condition */
-    PostProcessors::key_t  _condition;
-
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _size;
-
-    /** resulting histgram */
-    HistogramFloatBase *_result;
-
-  protected:
   };
 
 
