@@ -1045,6 +1045,57 @@ namespace cass
     time_t _when_first_evt;
     uint32_t _first_fiducials;
   };
+
+
+  /** record 0d Histogram into 1d Histogram.
+   *
+   * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor id with 0D-Histogram that we create project.
+   *           Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Size} \n
+   *           Number of values that are stored
+   *           Default is 10000
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp64 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp64(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp64();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** the number of bins in the resulting histogram, range is fixed */
+    size_t _size;
+
+    /** resulting histgram */
+    HistogramFloatBase *_result;
+
+  protected:
+  };
+
+
+
 }
 
 #endif

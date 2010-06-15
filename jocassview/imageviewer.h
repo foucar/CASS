@@ -237,6 +237,8 @@ private:
 
     void updateImageList(QComboBox* box);
 
+    bool eventFilter(QObject *obj, QEvent *ev);
+
     /** save Image
       * save helper function
       */

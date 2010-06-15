@@ -397,6 +397,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TimeAverage:
     processor = new pp63(*this, key);
     break;
+  case running1Dfrom0D:
+    processor = new pp64(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;
@@ -465,6 +468,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case PIPICO:
     processor = new pp220(*this,key);
+    break;
+  case TestImage:
+    processor = new pp240(*this,key);
     break;
   case TaisHelperAnswer:
     processor = new pp4000(*this,key);

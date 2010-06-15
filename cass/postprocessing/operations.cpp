@@ -1943,6 +1943,73 @@ void cass::pp63::operator()(const cass::CASSEvent& evt)
 
 
 
+
+// ***  pp 64 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
+//    *** while shifting all other previously saved values one bin to the left.
+
+cass::pp64::pp64(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp64::~pp64()
+{
+  _pp.histograms_delete(_key);
+}
+
+cass::PostProcessors::active_t cass::pp64::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
+void cass::pp64::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  if (OneNotvalid || TwoNotvalid)
+    return;
+  _size = (settings.value("Size",10000).toUInt());
+
+  _result = new Histogram1DFloat(_size, 0, _size-1);
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<" condition on postprocessor:"<<_condition
+      <<std::endl;
+}
+
+void cass::pp64::operator()(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    HistogramFloatBase* one
+        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+    one->lock.lockForRead();
+    _result->lock.lockForWrite();
+    ++_result->nbrOfFills();
+    std::rotate(_result->memory().begin(), _result->memory().begin()+1, _result->memory().end() );
+    _result->memory()[_size-1] = dynamic_cast<Histogram0DFloat*>(one)->getValue();
+    _result->lock.unlock();
+    one->lock.unlock();
+  }
+}
+
+
+
+
+
+
+
 // Local Variables:
 // coding: utf-8
 // mode: C++
