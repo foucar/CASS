@@ -141,7 +141,7 @@ namespace cass
     pp102(PostProcessors&, const PostProcessors::key_t&);
 
     /** copy image from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings for this pp */
     virtual void loadSettings(size_t);
@@ -152,9 +152,6 @@ namespace cass
 
     /** device the ccd image comes from */
     cass::CASSEvent::Device _device;
-
-    /** Integral of the current image */
-    Histogram0DFloat *_ImageIntegralOverThres;
   };
 
 
