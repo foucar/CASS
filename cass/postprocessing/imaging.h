@@ -230,5 +230,41 @@ namespace cass
 
   };
 
+
+
+  /** Test image
+   *
+   * @cassttng PostProcessor/\%name\%/{sizeX} \n
+   *           Width of testimage (default = 1024)
+   * @cassttng PostProcessor/\%name\%/{sizeY} \n
+   *           Height of testimage (default = 1024)
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp240 : public PostprocessorBackend
+  {
+  public:
+    /** constructor. */
+    pp240(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp240();
+
+    /** create Test image*/
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** resulting image */
+    Histogram2DFloat *_image;
+    int _sizeX;
+    int _sizeY;
+
+  };
+
+
+
 }
 #endif

@@ -214,6 +214,9 @@ void cass::pp211::operator()(const CASSEvent& event)
 
 
 
+
+
+
 // *** Postprocessor 212 - advanced photon finding and dump events to file ***
 
 cass::pp212::pp212(PostProcessors& pp, const cass::PostProcessors::key_t &key)
@@ -378,3 +381,58 @@ void cass::pp212::operator()(const CASSEvent &)
 
    _fh << std::endl;
 }
+
+
+
+
+
+
+
+
+
+
+// *** test image ***
+
+cass::pp240::pp240(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key),_image(0)
+{
+  loadSettings(0);
+}
+
+cass::pp240::~pp240()
+{
+  _pp.histograms_delete(_key);
+  _image = 0;
+}
+
+void cass::pp240::loadSettings(size_t)
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _sizeX = settings.value("sizeX", 1024).toInt();
+  _sizeY = settings.value("sizeY", 1024).toInt();
+  _image = new Histogram2DFloat(_sizeX, _sizeY);
+  _pp.histograms_replace(_key,_image);
+  std::cout<<"Postprocessor "<<_key
+      <<": sizeX:"<<_sizeX<<" sizeY:"<<_sizeY
+      <<std::endl;
+}
+
+
+
+void cass::pp240::operator()(const CASSEvent& event)
+{
+  using namespace std;
+  //write test image
+  _image->lock.lockForWrite();
+  for (int xx=0; xx<_sizeX; ++xx)
+    for (int yy=0; yy<_sizeY; ++yy)
+    {
+      _image->bin(xx,yy) = xx*yy;
+    }
+  _image->lock.unlock();
+}
+
+
+

@@ -314,6 +314,8 @@ using the custom doxygen tag cassttng.
       PhotonEnergy=230,
       PhotonWavelength=231,
 
+      TestImage=240,
+
       PnccdHDF5=1000,
       ROOTDump=2000,
 
