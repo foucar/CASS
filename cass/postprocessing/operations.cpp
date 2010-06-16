@@ -185,11 +185,11 @@ void cass::pp4::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will apply NOT to PostProcessor " << _idOne
+      << ": will apply NOT to PostProcessor " << keyOne
       << std::endl;
 }
 
-void cass::pp4::process(const CASSEvent&)
+void cass::pp4::process(const CASSEvent& evt)
 {
   // Get the input data
   const HistogramFloatBase &one
