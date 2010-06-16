@@ -1296,23 +1296,9 @@ void cass::pp60::process(const CASSEvent& evt)
 // *** postprocessor 61 averages histograms ***
 
 cass::pp61::pp61(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _average(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp61::~pp61()
-{
-  _pp.histograms_delete(_key);
-  _average = 0;
-}
-
-cass::PostProcessors::active_t cass::pp61::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  list.push_front(_condition);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp61::loadSettings(size_t)
@@ -1321,46 +1307,43 @@ void cass::pp61::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
-  if (OneNotvalid || TwoNotvalid)
-    return;
   unsigned average = settings.value("average", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
-  const HistogramFloatBase*one
-      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-  _pp.histograms_delete(_key);
-  _average = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_key,_average);
-
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back(keyHist);
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
+    return;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
+  _result = new HistogramFloatBase(one);
   std::cout<<"Postprocessor "<<_key
-      <<": averages histograms from PostProcessor "<< _idHist
+      <<": averages histograms from PostProcessor "<< keyHist
       <<" alpha for the averaging:"<<_alpha
-      <<" condition on postprocessor:"<<_condition
+      <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp61::operator()(const CASSEvent&)
+void cass::pp61::process(const CASSEvent& evt)
 {
   using namespace std;
-  const Histogram0DFloat*cond
-      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
-  if (cond->isTrue())
+  if ((*_condition)(evt).isTrue())
   {
-    HistogramFloatBase* one
-        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-    one->lock.lockForRead();
-    _average->lock.lockForWrite();
-    ++_average->nbrOfFills();
-    float scale = (1./_average->nbrOfFills() < _alpha) ?
+    const HistogramFloatBase& one
+        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    ++_result->nbrOfFills();
+    float scale = (1./_result->nbrOfFills() < _alpha) ?
                    _alpha :
-                   1./_average->nbrOfFills();
-    transform(one->memory().begin(),one->memory().end(),
-              _average->memory().begin(),
-              _average->memory().begin(),
+                   1./_result->nbrOfFills();
+    transform(one.memory().begin(),one.memory().end(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
               Average(scale));
-    _average->lock.unlock();
-    one->lock.unlock();
+    _result->lock.unlock();
+    one.lock.unlock();
   }
 }
 
