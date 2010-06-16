@@ -869,8 +869,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the id of the 2d hist we want to project */
-    PostProcessors::key_t _idHist;
+    /** pp containing the 2d hist we want to project */
+    PostprocessorBackend *_pHist;
 
     /** centre's coordinates we use to calculate the radar plot */
     std::pair<size_t,size_t> _center;
