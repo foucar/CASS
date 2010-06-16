@@ -723,8 +723,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of the 1d histogram we want to have the integral of */
-    PostProcessors::key_t _idHist;
+    /** pp containing the 1d hist we want to integrate */
+    PostprocessorBackend *_pHist;
 
     /** range we want to have the integral over in histogram bins */
     std::pair<float,float> _area;
