@@ -167,7 +167,7 @@ namespace cass
   /** Boolean AND of two 0d pp.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the boolean AND-ing. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -202,7 +202,7 @@ namespace cass
   /** Boolean OR of two 0d pp.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the boolean AND-ing. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -242,7 +242,7 @@ namespace cass
    * respectivly
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the less comparison. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -281,7 +281,7 @@ namespace cass
    * respectivly
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -404,7 +404,7 @@ namespace cass
    * first histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the substraction. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
@@ -456,7 +456,7 @@ namespace cass
    * first histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -499,7 +499,7 @@ namespace cass
    * first histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor id's that contain the first histogram and second
+   *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    *
@@ -536,7 +536,7 @@ namespace cass
   /** Multiply histogram with constant.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with histogram that should be multiplied. Default is 0.
+   *           Postprocessor name with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be multiplied. Default is 1.
    *
@@ -573,7 +573,7 @@ namespace cass
   /** Substract constant from histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with histogram that should be multiplied. Default is 0.
+   *           Postprocessor name with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be substracted. Default is 1.
    *
@@ -609,7 +609,7 @@ namespace cass
   /** Threshold histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with histogram that should be thresholded. Default is 0.
+   *           Postprocessor name with histogram that should be thresholded. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Threshold} \n
    *           Factor with which threshold value. Default is 0.
    *
@@ -644,7 +644,7 @@ namespace cass
   /** Projection of 2d Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to project. Default is
@@ -704,7 +704,7 @@ namespace cass
    * first histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with 1D-Histogram that we create the intgral from Default is 0.
+   *           Postprocessor name with 1D-Histogram that we create the intgral from Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
    *
@@ -743,7 +743,7 @@ namespace cass
   /** Radial Average/Projection of 2d Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           Xcoordinate and Y coordinate of the centre. Default is 512,512
@@ -791,7 +791,7 @@ namespace cass
   /** Radar Plot of 2d Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with 2D-Histogram that we create project.
+   *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{MinRadius|MaxRadius} \n
    *           Minimum and Maximum Radius to include in the polar plot. Default
@@ -847,7 +847,7 @@ namespace cass
   /** Radius \f$ \phi \f$ Representation of 2D Histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor id with 2D-Histogram we convert.
+   *           Postprocessor name with 2D-Histogram we convert.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{NbrAngleBins} \n
    *           Number of Bins that the 360 degrees will be put in. Default is 360
@@ -898,7 +898,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the 0D value to histogram
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before we histogram
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -937,7 +939,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the histogram that we average.
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before we start averaging
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -972,7 +976,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the histogram that we average.
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before we start averaging
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -1060,6 +1066,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Size} \n
    *           Number of values that are stored
    *           Default is 10000
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Stephan Kassemeyer
    */
