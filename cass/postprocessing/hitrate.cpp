@@ -97,27 +97,22 @@ void cass::pp589::operator()(const CASSEvent&)
   if (_xend < 0) _xend = nxbins-1;
   if (_yend < 0) _yend = nybins-1;
 
-  //for (size_t row=0; row<nybins; ++row)
-  //  for (size_t col=0; col<nxbins; ++col) {
-  //}
 
-  std::cout << "INTEGRAL IMAGE: XXXXXXXXXXXX [" <<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]" << std::endl;
-
-      // calculate integral-image:
-      // row sum initialize first row:
-      for (int xx = _xstart; xx<=_xend; ++xx)
-        rowsum_mem[xx-_xstart] = img_mem[xx + _ystart*nxbins];
-      // row sum rest:
-      for (int xx = _xstart; xx<=_xend; ++xx)
-        for (int yy=_ystart+1; yy<=_yend; ++yy)
-          rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins] = rowsum_mem[xx-_xstart + (yy-_ystart-1)*nxbins] + img_mem[xx + yy*nxbins];
-      // intImg first col:
-      for (int yy = _ystart; yy<=_yend; ++yy)
-        integralimg_mem[(yy-_ystart)*nxbins] = rowsum_mem[(yy-_ystart)*nxbins];
-      // intImg rest:
-      for (int xx = _xstart+1; xx<=_xend; ++xx)
-        for (int yy = _ystart; yy<=_yend; ++yy)
-          integralimg_mem[xx-_xstart + (yy-_ystart)*nxbins] = integralimg_mem[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins];
+  // calculate integral-image:
+  // row sum initialize first row:
+  for (int xx = _xstart; xx<=_xend; ++xx)
+    rowsum_mem[xx-_xstart] = img_mem[xx + _ystart*nxbins];
+  // row sum rest:
+  for (int xx = _xstart; xx<=_xend; ++xx)
+    for (int yy=_ystart+1; yy<=_yend; ++yy)
+      rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins] = rowsum_mem[xx-_xstart + (yy-_ystart-1)*nxbins] + img_mem[xx + yy*nxbins];
+  // intImg first col:
+  for (int yy = _ystart; yy<=_yend; ++yy)
+    integralimg_mem[(yy-_ystart)*nxbins] = rowsum_mem[(yy-_ystart)*nxbins];
+  // intImg rest:
+  for (int xx = _xstart+1; xx<=_xend; ++xx)
+    for (int yy = _ystart; yy<=_yend; ++yy)
+      integralimg_mem[xx-_xstart + (yy-_ystart)*nxbins] = integralimg_mem[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins];
 
 
 //  one->lock.unlock();
