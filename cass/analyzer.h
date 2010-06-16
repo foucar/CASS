@@ -45,7 +45,7 @@ namespace cass
     /** function to use the analyzers for the different instruments*/
     void processEvent(cass::CASSEvent*);
     /** function that one can implement when one wants to do something just before quitting*/
-    void aboutToQuit();
+    void aboutToQuit() {};
 
   public slots:
     /** save the settings of the analyzers*/
