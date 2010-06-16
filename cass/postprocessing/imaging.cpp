@@ -28,7 +28,7 @@
 cass::pp212::pp212(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp212::loadSettings(size_t)
@@ -183,7 +183,7 @@ void cass::pp212::process(const CASSEvent & evt)
 cass::pp240::pp240(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp240::loadSettings(size_t)
