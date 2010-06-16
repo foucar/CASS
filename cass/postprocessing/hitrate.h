@@ -3,6 +3,8 @@
 #ifndef _HITRATE_H_
 #define _HITRATE_H_
 
+#include <math.h>
+
 #include "backend.h"
 #include "cass_event.h"
 #include "cass_acqiris.h"
@@ -31,6 +33,8 @@ namespace cass
    *           ROI for calculations. Last pixel = -1 (default).
    * @cassttng PostProcessor/\%name\%/{yend}\n
    *           ROI for calculations. Last pixel = -1 (default).
+   * 
+   * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
    *
    * @author Stephan Kassemeyer
    */

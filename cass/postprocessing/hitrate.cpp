@@ -53,7 +53,7 @@ void cass::pp589::loadSettings(size_t)
   _yend = settings.value("yend", -1).toInt();
   _pp.histograms_delete(_key);
   _result = new Histogram0DFloat;
-  //_pp.histograms_replace(_key,_result);
+  _pp.histograms_replace(_key,_result);
 
 
   const Histogram2DFloat* img
@@ -63,7 +63,7 @@ void cass::pp589::loadSettings(size_t)
   _integralimg = new Histogram2DFloat(*img);
   _rowsum = new Histogram2DFloat(*img);
 
-  _pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
+  //_pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
 
   std::cout<<"Postprocessor "<<_key
       <<": detects Single particle hits in PostProcessor "<< _idHist
@@ -114,16 +114,128 @@ void cass::pp589::operator()(const CASSEvent&)
     for (int yy = _ystart; yy<=_yend; ++yy)
       integralimg_mem[xx-_xstart + (yy-_ystart)*nxbins] = integralimg_mem[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins];
 
+  // calculate variation features:
+  int xsize_intimg = _xend-_xstart+1;
+  int ysize_intimg = _yend-_ystart+1;
+
+  //
+  // 1st variation feature: sum(cell-avg)^2
+  float var0 = 0;
+  { // start new scope
+  int xsteps = 3;
+  int ysteps = 3;
+  float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  for (int ii=0; ii<xsteps; ++ii)
+  {
+    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    for (int jj=0; jj<ysteps; ++jj)
+    {
+      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      float val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
+      var0 += (val-avg)*(val-avg);
+    }
+  }
+  var0 /= (avg*avg);  // norm result
+  } //end scope
+
+  //
+  // 2nd variation feature:  (bottom to top, sum(cell-topneighbour)^2
+  float var1 = 0;
+  { // start new scope
+  int xsteps = 10;
+  int ysteps = 10;
+  // ToDo: check orientation. maybe go left-right instead top-bottom!
+  for (int ii=0; ii<xsteps; ++ii)
+  {
+    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    for (int jj=0; jj<ysteps-1; ++jj)
+    {
+      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      var1 += diff*diff;
+    }
+  }
+  } // end scope
+
+  //
+  // 3rd variation feature:  (bottom to top, sum(cell-topneighbour)^2  like 2nd one, but with different scale
+  float var2 = 0;
+  { // start new scope
+  int xsteps = 15;
+  int ysteps = 15;
+  // ToDo: check orientation. maybe go left-right instead top-bottom!
+  for (int ii=0; ii<xsteps; ++ii)
+  {
+    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    for (int jj=0; jj<ysteps-1; ++jj)
+    {
+      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      var2 += diff*diff;
+    }
+  }
+  } // end scope
+
+  //
+  // 4th variation feature: chequerboard
+  float var3 = 0;
+  { // start new scope
+  int xsteps = 15;
+  int ysteps = 15;
+  int xfactor = -1;
+  int yfactor = -1;
+  int factor;
+  float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  for (int ii=0; ii<xsteps; ++ii)
+  {
+    xfactor = -xfactor;
+    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    for (int jj=0; jj<ysteps; ++jj)
+    {
+      yfactor = -yfactor;
+      factor = xfactor*yfactor;
+      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      var3 += factor*integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
+    }
+  }
+  } //end scope  //
+
+  // 5th variation feature: integral intensity
+  float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+
+
+
+
 
 //  one->lock.unlock();
 //  _integralimg->lock.unlock();
 //  _rowsum->lock.unlock();
-//  _result->lock.lockForWrite();
-  *_result = _threshold;
-//  _result->lock.unlock();
+  _result->lock.lockForWrite();
+  *_result = var1;
+  _result->lock.unlock();
 }
 
-
+/*
+ToDo: add receiveCommand(std::string) to postprocessor backend.
+   send string-commands over soap.
+   use a command to reset the outlier detection.
+   split up postprocessor in several postprocessors:
+   -integralimage (2d)
+   -variationfeatures (1d)
+   -outlierDistance(1d)
+   -threshold(0d)
+   -postprocessor to extract value or 1d from nd histogram.
+   */
 
 
 }
