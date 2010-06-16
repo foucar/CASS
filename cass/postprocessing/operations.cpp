@@ -15,7 +15,7 @@
 cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp1::loadSettings(size_t)
