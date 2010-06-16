@@ -4,6 +4,7 @@
 #define _HITRATE_H_
 
 #include <math.h>
+#include <vigra/linear_algebra.hxx>
 
 #include "backend.h"
 #include "cass_event.h"
@@ -81,6 +82,17 @@ namespace cass
 
     /** storage for row sum (1d integral of image) */
     Histogram2DFloat* _rowsum;
+
+    // outlier detection postprocessor:
+    int _nTrainingSetSize;
+    int _nFeatures;
+    vigra::Matrix<double> _variationFeatures;
+    vigra::Matrix<double> _mean; // mean (one scalar per column or feature)
+    vigra::Matrix<double> _cov;
+    vigra::Matrix<double> _covI;
+    int _trainingSetsInserted; // counts how many training data items are already included in training set.
+    int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
+
   };
 
 

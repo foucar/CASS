@@ -56,6 +56,15 @@ void cass::pp589::loadSettings(size_t)
   _pp.histograms_replace(_key,_result);
 
 
+  // outlier postprocessor:
+  _nTrainingSetSize = settings.value("TrainingSetSize", 100).toInt();
+  int nFeatures = 5;
+  _variationFeatures = vigra::Matrix<double>(_nTrainingSetSize, _nFeatures);
+  _cov = vigra::Matrix<double>( nFeatures, nFeatures );
+  _covI = vigra::Matrix<double>( nFeatures, nFeatures);
+  _trainingSetsInserted = 0;
+
+
   const Histogram2DFloat* img
       //(dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
       (dynamic_cast<Histogram2DFloat*>( _pp.histograms_checkout().find(_idHist)->second));
@@ -212,6 +221,26 @@ void cass::pp589::operator()(const CASSEvent&)
 
   // 5th variation feature: integral intensity
   float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+
+
+  // populate Trainingset
+  if ( _trainingSetsInserted < _nTrainingSetSize )
+  {
+    _variationFeatures[_trainingSetsInserted, 0] = var0;
+    _variationFeatures[_trainingSetsInserted, 1] = var1;
+    ++_trainingSetsInserted;
+    /*if ( _TrainingSetsInserted == _nTrainingSetSize )*/ _reTrain = true;
+  }
+  if ( _reTrain )
+  {
+    _cov = vigra::linalg::covarianceMatrixOfRows( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
+    _covI = vigra::linalg::inverse(_cov);
+    _reTrain = false;
+  }
+  else
+  {
+      // use mean and covariance to
+  }
 
 
 
