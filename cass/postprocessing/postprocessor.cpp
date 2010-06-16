@@ -125,7 +125,7 @@ void cass::PostProcessors::loadSettings(size_t)
   //add a default true pp to container//
   /** @note this might be a memory leak */
   active.push_back("DefaultTrueHist");
-  _postprocessors["DefaultTrueHist"] = create("DefaultTrueHist");
+  _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist");
   setup(active);
   std::cout <<"   Active postprocessor(s): ";
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
