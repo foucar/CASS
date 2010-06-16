@@ -235,7 +235,7 @@ void cass::pp589::operator()(const CASSEvent&)
   }
   if ( _reTrain )
   {
-    _cov = vigra::linalg::covarianceMatrixOfRows( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
+    _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
     vigra::Matrix<double>::traverser itt = _variationFeatures.traverser_begin();
     for (vigra::Matrix<double>::traverser::next_type it0 = itt.begin(); it0!=itt.end(); ++it0)
 //        for (vigra::Matrix<double>::traverser::next_type::next_type it1 = it0.begin(); it1!=it0.end(); ++it1)
@@ -261,8 +261,13 @@ void cass::pp589::operator()(const CASSEvent&)
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   vigra::Matrix<double> y(1, _nFeatures);
   // y = submatrix
-  float mahal_dist = vigra::linalg::mmul(  _covI, (y-_mean) )[0];
-  //float mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
+
+  /*
+  std::cout << "rows: " << vigra::rowCount(y) << std::endl;
+  std::cout << "cols: " << vigra::columnCount(y) << std::endl;
+  std::cout << "rows: " << vigra::rowCount(_covI) << std::endl;
+  std::cout << "cols: " << vigra::columnCount(_covI) << std::endl;*/
+  float mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
 
 
 
