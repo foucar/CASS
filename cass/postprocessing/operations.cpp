@@ -1318,6 +1318,7 @@ void cass::pp61::loadSettings(size_t)
   const HistogramFloatBase &one
       (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
   _result = new HistogramFloatBase(one);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
       <<": averages histograms from PostProcessor "<< keyHist
       <<" alpha for the averaging:"<<_alpha
@@ -1362,23 +1363,9 @@ void cass::pp61::process(const CASSEvent& evt)
 // *** postprocessor 62 sums up histograms ***
 
 cass::pp62::pp62(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _sum(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp62::~pp62()
-{
-  _pp.histograms_delete(_key);
-  _sum = 0;
-}
-
-cass::PostProcessors::active_t cass::pp62::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  list.push_front(_condition);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp62::loadSettings(size_t)
@@ -1387,39 +1374,38 @@ void cass::pp62::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
-  if (OneNotvalid || TwoNotvalid)
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back(keyHist);
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
     return;
-  const HistogramFloatBase*one
-      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-  _pp.histograms_delete(_key);
-  _sum = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_key,_sum);
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
+  _result = new HistogramFloatBase(one);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
-      <<": sums up histograms from PostProcessor "<< _idHist
-      <<" condition on postprocessor:"<<_condition
+      <<": sums up histograms from PostProcessor "<< keyHist
+      <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp62::operator()(const CASSEvent&)
+void cass::pp62::process(const CASSEvent& evt)
 {
   using namespace std;
-  const Histogram0DFloat*cond
-      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
-  if (cond->isTrue())
+  if ((*_condition)(evt).isTrue())
   {
-    HistogramFloatBase* one
-        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-    one->lock.lockForRead();
-    _sum->lock.lockForWrite();
-    ++_sum->nbrOfFills();
-    transform(one->memory().begin(),one->memory().end(),
-              _sum->memory().begin(),
-              _sum->memory().begin(),
+    const HistogramFloatBase& one
+        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    ++_result->nbrOfFills();
+    transform(one.memory().begin(),one.memory().end(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
               plus<float>());
-    _sum->lock.unlock();
-    one->lock.unlock();
+    _result->lock.unlock();
+    one.lock.unlock();
   }
 }
 

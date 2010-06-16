@@ -989,8 +989,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the histogram to work on */
-    PostProcessors::key_t _idHist;
+    /** pp containing histogram to work on */
+    PostprocessorBackend *_pHist;
   };
 
 
