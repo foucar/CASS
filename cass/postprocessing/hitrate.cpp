@@ -163,7 +163,7 @@ void cass::pp589::operator()(const CASSEvent&)
   {
     int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
     int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
-    for (int jj=0; jj<ysteps-1; ++jj)
+    for (int jj=0; jj<ysteps-2; ++jj)
     {
       int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
       int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
@@ -185,7 +185,7 @@ void cass::pp589::operator()(const CASSEvent&)
   {
     int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
     int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
-    for (int jj=0; jj<ysteps-1; ++jj)
+    for (int jj=0; jj<ysteps-2; ++jj)
     {
       int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
       int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
@@ -217,7 +217,7 @@ void cass::pp589::operator()(const CASSEvent&)
       factor = xfactor*yfactor;
       int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
       int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      var3 += factor*integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
+      var3 += factor*(integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins]);
     }
   }
   } //end scope  //
@@ -285,7 +285,8 @@ void cass::pp589::operator()(const CASSEvent&)
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   matrixType y(1, _nFeatures);
-  y = _variationFeatures.subarray( matrixType::difference_type(0,0), matrixType::difference_type(1,_nFeatures));
+  y[0] = var0; y[1] = var1; y[2] = var2; y[3] = var3; y[4] = var4; 
+  //y = _variationFeatures.subarray( matrixType::difference_type(0,0), matrixType::difference_type(1,_nFeatures));
 
   /*
   std::cout << "rows: " << vigra::rowCount(y) << std::endl;
