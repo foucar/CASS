@@ -284,7 +284,7 @@ void cass::pp6::loadSettings(size_t)
 
   if ( !(_one && _two) ) return;
 
-  if (_one.dimension() != _two->dimension())
+  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
   {
     throw std::runtime_error("PP type 6: HistOne is not the same type "
                              " as HistTwo, or they have not the same size.");
@@ -294,12 +294,12 @@ void cass::pp6::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will OR  PostProcessor " << _idOne
-      << " with PostProcessor " << _idTwo
+      << ": will OR  PostProcessor " << keyOne
+      << " with PostProcessor " << keyTwo
       << std::endl;
 }
 
-void cass::pp6::process(const CASSEvent&)
+void cass::pp6::process(const CASSEvent& evt)
 {
   // Get first input
   const HistogramFloatBase &one
