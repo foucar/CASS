@@ -80,7 +80,7 @@ void cass::pp1::process(const CASSEvent& evt)
 cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp2::loadSettings(size_t)
@@ -144,7 +144,7 @@ void cass::pp2::process(const CASSEvent& evt)
 cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp3::loadSettings(size_t)
@@ -207,7 +207,7 @@ void cass::pp3::process(const CASSEvent& evt)
 cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp4::loadSettings(size_t)
@@ -260,7 +260,7 @@ void cass::pp4::process(const CASSEvent& evt)
 cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp5::loadSettings(size_t)
@@ -331,7 +331,7 @@ void cass::pp5::process(const CASSEvent& evt)
 cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp6::loadSettings(size_t)
@@ -401,7 +401,7 @@ void cass::pp6::process(const CASSEvent& evt)
 cass::pp7::pp7(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp7::loadSettings(size_t)
@@ -476,7 +476,7 @@ void cass::pp7::process(const CASSEvent &evt)
 cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp8::loadSettings(size_t)
@@ -554,7 +554,7 @@ void cass::pp8::process(const CASSEvent &evt)
 cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp9::loadSettings(size_t)
@@ -619,7 +619,7 @@ void cass::pp9::process(const CASSEvent &evt)
 cass::pp20::pp20(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp20::loadSettings(size_t)
@@ -700,7 +700,7 @@ void cass::pp20::process(const CASSEvent &evt)
 cass::pp21::pp21(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp21::loadSettings(size_t)
@@ -779,7 +779,7 @@ void cass::pp21::process(const CASSEvent &evt)
 cass::pp22::pp22(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp22::loadSettings(size_t)
@@ -858,7 +858,7 @@ void cass::pp22::process(const CASSEvent &evt)
 cass::pp23::pp23(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp23::loadSettings(size_t)
@@ -918,7 +918,7 @@ void cass::pp23::process(const CASSEvent &evt)
 cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp24::loadSettings(size_t)
@@ -980,7 +980,7 @@ void cass::pp24::process(const CASSEvent &evt)
 cass::pp25::pp25(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp25::loadSettings(size_t)
@@ -1036,7 +1036,7 @@ void cass::pp25::process(const CASSEvent &evt)
 cass::pp50::pp50(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp50::loadSettings(size_t)
@@ -1116,7 +1116,7 @@ void cass::pp50::process(const CASSEvent& evt)
 cass::pp51::pp51(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp51::loadSettings(size_t)
@@ -1173,7 +1173,7 @@ void cass::pp51::process(const CASSEvent& evt)
 cass::pp52::pp52(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp52::loadSettings(size_t)
@@ -1244,7 +1244,7 @@ void cass::pp52::process(const CASSEvent& evt)
 cass::pp53::pp53(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp53::loadSettings(size_t)
@@ -1329,7 +1329,7 @@ void cass::pp53::process(const CASSEvent& evt)
 cass::pp54::pp54(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp54::loadSettings(size_t)
@@ -1398,7 +1398,7 @@ void cass::pp54::process(const CASSEvent& evt)
 cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp60::loadSettings(size_t)
@@ -1451,7 +1451,7 @@ void cass::pp60::process(const CASSEvent& evt)
 cass::pp61::pp61(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp61::loadSettings(size_t)
@@ -1518,7 +1518,7 @@ void cass::pp61::process(const CASSEvent& evt)
 cass::pp62::pp62(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp62::loadSettings(size_t)
@@ -1575,7 +1575,7 @@ void cass::pp62::process(const CASSEvent& evt)
 cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _num_seen_evt(0), _when_first_evt(0), _first_fiducials(0)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp63::loadSettings(size_t)
@@ -1702,7 +1702,7 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 cass::pp70::pp70(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
-//  loadSettings(0);
+  loadSettings(0);
 }
 
 void cass::pp70::loadSettings(size_t)
