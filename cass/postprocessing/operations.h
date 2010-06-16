@@ -801,6 +801,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
    *
+   * @todo improve and generalize radial projection to account for different distance of detector to beam line
+   * @todo add treatment of possible asymmetric positions of detectors to beam line
+   * @todo add possibility to have circle partially outside the physical detector dimensions
+   *
    * @author Nicola Coppola
    * @author Lutz Foucar
    */

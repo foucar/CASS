@@ -6,10 +6,10 @@
 
 using namespace cass;
 
-PostprocessorBackend* retrieve_and_validate(cass::PostProcessors &pp,
-                                            cass::PostProcessors::key_t key,
-                                            const char * param_name,
-                                            PostProcessors::key_t& dependkey)
+PostprocessorBackend* cass::retrieve_and_validate(cass::PostProcessors &pp,
+                                                  cass::PostProcessors::key_t key,
+                                                  const char * param_name,
+                                                  PostProcessors::key_t& dependkey)
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
