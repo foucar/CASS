@@ -12,6 +12,11 @@
 
 
 // ********* Postprocessor 1: Compare histogram for less than constant *********
+cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp1::loadSettings(size_t)
 {
@@ -63,7 +68,20 @@ void cass::pp1::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
 // ******** Postprocessor 2: Compare histogram for greater than constant *******
+cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp2::loadSettings(size_t)
 {
@@ -115,7 +133,19 @@ void cass::pp2::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
 // ********** Postprocessor 3: Compare histogram for equal to constant *********
+cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp3::loadSettings(size_t)
 {
@@ -165,7 +195,20 @@ void cass::pp3::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
+cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp4::loadSettings(size_t)
 {
@@ -205,7 +248,20 @@ void cass::pp4::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
 // *********** Postprocessor 5: Apply boolean AND to two histograms ************
+cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp5::loadSettings(size_t)
 {
@@ -262,7 +318,21 @@ void cass::pp5::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
+
 // ******* Postprocessor 6: Calculate boolean OR between two histograms ********
+cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp6::loadSettings(size_t)
 {
@@ -318,7 +388,21 @@ void cass::pp6::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
+
+
 // *********** Postprocessor 7: Compare histograms (for one < two) *************
+cass::pp7::pp7(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp7::loadSettings(size_t)
 {
@@ -381,7 +465,19 @@ void cass::pp7::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
 // *********** Postprocessor 8: Compare histograms (for one = two) *************
+cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp8::loadSettings(size_t)
 {
@@ -445,7 +541,21 @@ void cass::pp8::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
+
 // ********** Postprocessor 9: Check if histogram is in given range ************
+
+cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp9::loadSettings(size_t)
 {
@@ -496,7 +606,21 @@ void cass::pp9::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
+
 // **************** Postprocessor 20: Subtract two histograms ******************
+
+cass::pp20::pp20(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp20::loadSettings(size_t)
 {
@@ -563,7 +687,21 @@ void cass::pp20::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
+
 // ***************** Postprocessor 21: Divide two histograms *******************
+
+cass::pp21::pp21(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp21::loadSettings(size_t)
 {
@@ -628,7 +766,21 @@ void cass::pp21::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
+
 // **************** Postprocessor 22: Multiply two histograms ******************
+
+cass::pp22::pp22(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp22::loadSettings(size_t)
 {
@@ -692,7 +844,22 @@ void cass::pp22::process(const CASSEvent &evt)
 }
 
 
+
+
+
+
+
+
+
+
+
 // ************ Postprocessor 23: Multiply histogram by constant ***************
+
+cass::pp23::pp23(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp23::loadSettings(size_t)
 {
@@ -739,7 +906,20 @@ void cass::pp23::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
 // *********** Postprocessor 24: Subtract constant from histogram **************
+
+cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp24::loadSettings(size_t)
 {
@@ -786,7 +966,22 @@ void cass::pp24::process(const CASSEvent &evt)
 
 
 
+
+
+
+
+
+
+
+
+
 // ****************** Postprocessor 25: Threshold histogram ********************
+
+cass::pp25::pp25(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
 
 void cass::pp25::loadSettings(size_t)
 {
@@ -967,6 +1162,11 @@ void cass::pp51::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
 // *** postprocessors 52 calculate the radial average of a 2d hist given a centre
 //     and 1 radius (in case the value is too large, the maximum reasonable value is used) ***
 
@@ -1034,14 +1234,12 @@ void cass::pp52::process(const CASSEvent& evt)
 
 
 
+
+
+
+
 // *** postprocessors 53 calculate the radar plot of a 2d hist given a centre
 //     and 2 radii (in case the value is too large, the maximum reasonable value is used) ***
-/**
- * @todo improve and generalize radial projection to account for different distance of detector to beam line
- * @todo add treatment of possible asymmetric positions of detectors to beam line
- * @todo add possibility to have circle partially outside the physical detector dimensions
- */
-
 
 cass::pp53::pp53(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
@@ -1195,7 +1393,7 @@ void cass::pp54::process(const CASSEvent& evt)
 
 
 
-// *** postprocessor 6 histograms 0D values ***
+// *** postprocessor 60 histograms 0D values ***
 
 cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
@@ -1501,6 +1699,12 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 // ***  pp 70 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
 //    *** while shifting all other previously saved values one bin to the left.
 
+cass::pp70::pp70(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+//  loadSettings(0);
+}
+
 void cass::pp70::loadSettings(size_t)
 {
   using namespace std;
@@ -1528,7 +1732,8 @@ void cass::pp70::loadSettings(size_t)
 
 void cass::pp70::process(const cass::CASSEvent &evt)
 {
-  if ( (*_condition)(evt).isTrue() ) {
+  if ( (*_condition)(evt).isTrue() )
+  {
 
     const Histogram0DFloat &one
                     (reinterpret_cast<const Histogram0DFloat &>((*_one)(evt)));
