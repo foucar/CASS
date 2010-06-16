@@ -554,7 +554,7 @@ void cass::pp20::process(const CASSEvent &evt)
   _result->lock.lockForWrite();
   transform(one.memory().begin(), one.memory().end(),
             two.memory().begin(),
-            (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
+            (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
             weighted_minus(_fOne,_fTwo));
   _result->lock.unlock();
   one.lock.unlock();
@@ -617,9 +617,10 @@ void cass::pp21::process(const CASSEvent &evt)
   one.lock.lockForRead();
   two.lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(), two.memory().begin(),
-          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
-          std::divides<float>());
+  std::transform(one.memory().begin(), one.memory().end(),
+                 two.memory().begin(),
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 std::divides<float>());
   _result->lock.unlock();
   one.lock.unlock();
   two.lock.unlock();
@@ -681,9 +682,10 @@ void cass::pp22::process(const CASSEvent &evt)
   one.lock.lockForRead();
   two.lock.lockForRead();
   _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(), two.memory().begin(),
-          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
-          std::multiplies<float>());
+  std::transform(one.memory().begin(), one.memory().end(),
+                 two.memory().begin(),
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 std::multiplies<float>());
   _result->lock.unlock();
   one.lock.unlock();
   two.lock.unlock();
@@ -729,8 +731,8 @@ void cass::pp23::process(const CASSEvent &evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   std::transform(one.memory().begin(), one.memory().end(),
-          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
-          std::bind2nd(std::multiplies<float>(),_factor));
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 std::bind2nd(std::multiplies<float>(),_factor));
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -776,8 +778,8 @@ void cass::pp24::process(const CASSEvent &evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   std::transform(one.memory().begin(), one.memory().end(),
-          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
-          bind2nd(std::minus<float>(), _factor));
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 bind2nd(std::minus<float>(), _factor));
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -807,15 +809,6 @@ void cass::pp25::loadSettings(size_t)
       << std::endl;
 }
 
-class threshold : public std::binary_function<float, float, float>
-{
-  public:
-  float operator() (float value, float thresh)const
-    {
-       return (value > thresh) ? value : 0.0;
-    }
-};
-
 void cass::pp25::process(const CASSEvent &evt)
 {
   // Get the input
@@ -826,8 +819,8 @@ void cass::pp25::process(const CASSEvent &evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   std::transform(one.memory().begin(), one.memory().end(),
-          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
-          bind2nd(threshold(), _threshold));
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 bind2nd(threshold(), _threshold));
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -1302,8 +1295,8 @@ void cass::pp61::process(const CASSEvent& evt)
                    _alpha :
                    1./_result->nbrOfFills();
     transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
               Average(scale));
     _result->lock.unlock();
     one.lock.unlock();
@@ -1363,8 +1356,8 @@ void cass::pp62::process(const CASSEvent& evt)
     _result->lock.lockForWrite();
     ++_result->nbrOfFills();
     transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
               plus<float>());
     _result->lock.unlock();
     one.lock.unlock();
@@ -1484,8 +1477,8 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 
     ++_result->nbrOfFills();
     transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
               TimeAverage(float(_num_seen_evt)));
     ++_num_seen_evt;
     if(_num_seen_evt>_nbrSamples+1) cout<<"pp64::process(): How... it smells like fish! "
