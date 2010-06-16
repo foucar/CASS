@@ -62,6 +62,7 @@ void cass::pp589::loadSettings(size_t)
   _variationFeatures = vigra::Matrix<double>(_nTrainingSetSize, _nFeatures);
   _cov = vigra::Matrix<double>( nFeatures, nFeatures );
   _covI = vigra::Matrix<double>( nFeatures, nFeatures);
+  _mean = vigra::Matrix<double>( _nTrainingSetSize,1 );
   _trainingSetsInserted = 0;
 
 
@@ -236,13 +237,17 @@ void cass::pp589::operator()(const CASSEvent&)
     _cov = vigra::linalg::covarianceMatrixOfRows( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
     _covI = vigra::linalg::inverse(_cov);
     _reTrain = false;
-  }
-  else
-  {
-      // use mean and covariance to
-  }
+    //calculate collumn-averate and store in _mean
+    // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
+    /*transformMultiArray(srcMultiArrayRange(_variationFeatures),
+                        destMultiArrayRange(_mean.insertSingletonDimension(1)),
+                        FindAverage<double>());*/
+    vigra::transformMultiArray(srcMultiArrayRange(_variationFeatures),
+                        destMultiArrayRange(_mean),
+                        vigra::FindAverage<double>());
 
-
+  }
+  // use mean and covariance to predict outliers:
 
 
 

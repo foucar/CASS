@@ -5,6 +5,8 @@
 
 #include <math.h>
 #include <vigra/linear_algebra.hxx>
+#include <vigra/inspectimage.hxx>
+#include <vigra/multi_pointoperators.hxx> 
 
 #include "backend.h"
 #include "cass_event.h"
