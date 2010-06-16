@@ -1368,6 +1368,9 @@ void cass::pp62::process(const CASSEvent& evt)
 
 
 
+
+
+
 // *** postprocessors 63 calculate the time average of a 0d/1d/2d hist given the number
 //     of samples that are going to be used in the calculation ***
 
@@ -1514,7 +1517,8 @@ void cass::pp70::loadSettings(size_t)
   _two = retrieve_and_validate(_pp, _key, "ConditionName", keyTwo);
   _dependencies.push_back(keyOne);
 
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   _size = settings.value("Size", 10000).toUInt();
 
