@@ -1115,22 +1115,9 @@ void cass::pp51::process(const CASSEvent& evt)
 //     and 1 radius (in case the value is too large, the maximum reasonable value is used) ***
 
 cass::pp52::pp52(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _projec(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp52::~pp52()
-{
-  _pp.histograms_delete(_key);
-  _projec = 0;
-}
-
-cass::PostProcessors::active_t cass::pp52::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp52::loadSettings(size_t)
@@ -1139,27 +1126,29 @@ void cass::pp52::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back(keyHist);
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
     return;
-  const HistogramFloatBase*one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
   const float center_x_user (settings.value("XCenter",512).toFloat());
   const float center_y_user (settings.value("YCenter",512).toFloat());
-  _center = make_pair(one->axis()[HistogramBackend::xAxis].bin(center_x_user),
-                      one->axis()[HistogramBackend::yAxis].bin(center_y_user));
+  _center = make_pair(one.axis()[HistogramBackend::xAxis].bin(center_x_user),
+                      one.axis()[HistogramBackend::yAxis].bin(center_y_user));
   const size_t dist_center_x_right
-      (one->axis()[HistogramBackend::xAxis].nbrBins()-_center.first);
+      (one.axis()[HistogramBackend::xAxis].nbrBins()-_center.first);
   const size_t dist_center_y_top
-      (one->axis()[HistogramBackend::yAxis].nbrBins()-_center.second);
+      (one.axis()[HistogramBackend::yAxis].nbrBins()-_center.second);
   const size_t min_dist_x (min(dist_center_x_right, _center.first));
   const size_t min_dist_y (min(dist_center_y_top, _center.second));
   _radius = (min (min_dist_x, min_dist_y));
-  _pp.histograms_delete(_key);
-  _projec = new Histogram1DFloat(_radius,0,_radius);
-  _pp.histograms_replace(_key,_projec);
+  _result = new Histogram1DFloat(_radius,0,_radius);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<": will calculate the radial average of histogram of PostProcessor "<<_idHist
+      <<": will calculate the radial average of histogram of PostProcessor "<<keyHist
       <<" with xcenter "<<settings.value("XCenter",512).toFloat()
       <<" ycenter "<<settings.value("YCenter",512).toFloat()
       <<" in histogram coordinates xcenter "<<_center.first
@@ -1168,20 +1157,17 @@ void cass::pp52::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp52::operator()(const CASSEvent&)
+void cass::pp52::process(const CASSEvent& evt)
 {
   using namespace std;
   //retrieve the memory of the to be substracted histograms//
-  Histogram2DFloat *one
-      (reinterpret_cast<Histogram2DFloat*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-
-  //retrieve the projection from the 2d hist//
-  one->lock.lockForRead();
-  _projec->lock.lockForWrite();
-  *_projec = one->radial_project(_center,_radius);
-  _projec->lock.unlock();
-  one->lock.unlock();
+  const Histogram2DFloat &one
+      (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 

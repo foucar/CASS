@@ -768,8 +768,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the id of the 2d hist we want to project */
-    PostProcessors::key_t _idHist;
+    /** pp containing the 2d hist we want to project */
+    PostprocessorBackend *_pHist;
 
     /** center coordinates we use to calculate the radial average in histogram coordinates */
     std::pair<size_t,size_t> _center;
