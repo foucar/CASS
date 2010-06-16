@@ -353,7 +353,7 @@ public:
     }
 
     /** getter for the 0d value*/
-    value_t getValue() { return _memory[0]; };
+    value_t getValue()const { return _memory[0]; };
 
     /** evaluate whether value is non zero */
     bool isTrue() const
