@@ -1513,12 +1513,8 @@ void cass::pp70::loadSettings(size_t)
   _one = retrieve_and_validate(_pp, _key, "HistName", keyOne);
   _dependencies.push_back(keyOne);
 
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp, _key, "ConditionName", keyTwo);
-  _dependencies.push_back(keyOne);
-
   bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
+  if ( !(_one && ret) ) return;
 
   _size = settings.value("Size", 10000).toUInt();
 
