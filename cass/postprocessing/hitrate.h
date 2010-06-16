@@ -90,6 +90,7 @@ namespace cass
     int _nFeatures;
     vigra::Matrix<double> _variationFeatures;
     vigra::Matrix<double> _mean; // mean (one scalar per column or feature)
+//    vigra::MultiArray<1,double> _mean; // mean (one scalar per column or feature)
     vigra::Matrix<double> _cov;
     vigra::Matrix<double> _covI;
     int _trainingSetsInserted; // counts how many training data items are already included in training set.

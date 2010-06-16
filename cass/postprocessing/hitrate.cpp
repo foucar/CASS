@@ -58,11 +58,12 @@ void cass::pp589::loadSettings(size_t)
 
   // outlier postprocessor:
   _nTrainingSetSize = settings.value("TrainingSetSize", 100).toInt();
-  int nFeatures = 5;
+  _nFeatures = 5;
   _variationFeatures = vigra::Matrix<double>(_nTrainingSetSize, _nFeatures);
-  _cov = vigra::Matrix<double>( nFeatures, nFeatures );
-  _covI = vigra::Matrix<double>( nFeatures, nFeatures);
-  _mean = vigra::Matrix<double>( _nTrainingSetSize,1 );
+  _cov = vigra::Matrix<double>( _nFeatures, _nFeatures );
+  _covI = vigra::Matrix<double>( _nFeatures, _nFeatures);
+  _mean = vigra::Matrix<double>( 1,_nFeatures );
+//  _mean = vigra::MultiArray<1,double>( vigra::MultiArray<1,float>::difference_type(_nTrainingSetSize) );
   _trainingSetsInserted = 0;
 
 
@@ -235,19 +236,33 @@ void cass::pp589::operator()(const CASSEvent&)
   if ( _reTrain )
   {
     _cov = vigra::linalg::covarianceMatrixOfRows( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
-    _covI = vigra::linalg::inverse(_cov);
+    vigra::Matrix<double>::traverser itt = _variationFeatures.traverser_begin();
+    for (vigra::Matrix<double>::traverser::next_type it0 = itt.begin(); it0!=itt.end(); ++it0)
+//        for (vigra::Matrix<double>::traverser::next_type::next_type it1 = it0.begin(); it1!=it0.end(); ++it1)
+//            print *it1;
+            std::cout << *it0;
+//    _covI = vigra::linalg::inverse(_cov);
+    _covI = _cov;
     _reTrain = false;
-    //calculate collumn-averate and store in _mean
+    //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
     /*transformMultiArray(srcMultiArrayRange(_variationFeatures),
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
+    vigra::linalg::columnStatistics(_variationFeatures, _mean);
+    // also possible:
+    /*
     vigra::transformMultiArray(srcMultiArrayRange(_variationFeatures),
                         destMultiArrayRange(_mean),
-                        vigra::FindAverage<double>());
+                        vigra::FindAverage<double>());*/
 
   }
   // use mean and covariance to predict outliers:
+  // mahalanobis^2 = (y-mean)T Cov^-1 y
+  vigra::Matrix<double> y(1, _nFeatures);
+  // y = submatrix
+  float mahal_dist = vigra::linalg::mmul(  _covI, (y-_mean) )[0];
+  //float mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
 
 
 
@@ -255,7 +270,7 @@ void cass::pp589::operator()(const CASSEvent&)
 //  _integralimg->lock.unlock();
 //  _rowsum->lock.unlock();
   _result->lock.lockForWrite();
-  *_result = var1;
+  *_result = mahal_dist;
   _result->lock.unlock();
 }
 
