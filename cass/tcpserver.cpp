@@ -12,6 +12,7 @@
 #include "histogram_getter.h"
 #include "postprocessing/postprocessor.h"
 #include "tcpserver.h"
+#include "id_list.h"
 
 
 namespace cass
