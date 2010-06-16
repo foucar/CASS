@@ -31,6 +31,9 @@ CONFIG      += staticlib
 # Uncomment the following line to enable pp1000 (HDF5 output)
 #CONFIG      += hdf5
 
+# Uncomment this if you want to compile and use the single-particle hit detection postprocessors
+#CONFIG      += singleparticle_hit
+
 # Uncomment the following line to enable ROOT Conversion of cass histograms
 #CONFIG      += cernroot
 
@@ -54,6 +57,10 @@ CONFIG(offline) {
 
 CONFIG(hdf5) {
     DEFINES += HDF5
+}
+
+CONFIG(singleparticle_hit) {
+    DEFINES += SINGLEPARTICLE_HIT
 }
 
 CONFIG(cernroot) {
