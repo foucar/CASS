@@ -77,9 +77,9 @@ void cass::pp589::operator()(const CASSEvent&)
   using namespace std;
   Histogram2DFloat* one
       (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
-  _integralimg->lock.lockForWrite();
-  _rowsum->lock.lockForWrite();
-  one->lock.lockForRead();
+//  _integralimg->lock.lockForWrite();
+//  _rowsum->lock.lockForWrite();
+//  one->lock.lockForRead();
 
 
   const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
@@ -102,6 +102,7 @@ void cass::pp589::operator()(const CASSEvent&)
   //}
 
   std::cout << "INTEGRAL IMAGE: XXXXXXXXXXXX [" <<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]" << std::endl;
+
       // calculate integral-image:
       // row sum initialize first row:
       for (int xx = _xstart; xx<=_xend; ++xx)
@@ -118,12 +119,13 @@ void cass::pp589::operator()(const CASSEvent&)
         for (int yy = _ystart; yy<=_yend; ++yy)
           integralimg_mem[xx-_xstart + (yy-_ystart)*nxbins] = integralimg_mem[xx-_xstart-1 + (yy-_ystart)*nxbins] + rowsum_mem[xx-_xstart + (yy-_ystart)*nxbins];
 
-  one->lock.unlock();
-  _integralimg->lock.unlock();
-  _rowsum->lock.unlock();
-  _result->lock.lockForWrite();
+
+//  one->lock.unlock();
+//  _integralimg->lock.unlock();
+//  _rowsum->lock.unlock();
+//  _result->lock.lockForWrite();
   *_result = _threshold;
-  _result->lock.unlock();
+//  _result->lock.unlock();
 }
 
 
