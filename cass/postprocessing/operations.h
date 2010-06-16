@@ -154,7 +154,7 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** ipp containing histogram */
+    /** pp containing histogram */
     PostprocessorBackend *_one;
   };
 
@@ -186,11 +186,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** id of second histogram */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 

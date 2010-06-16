@@ -224,7 +224,8 @@ void cass::pp5::loadSettings(size_t)
 
   if ( !(_one && _two) ) return;
 
-  if (_one.dimension() != _two->dimension())
+
+  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
   {
     throw std::runtime_error("PP type 5: HistOne is not the same type "
                              " as HistTwo, or they have not the same size.");
@@ -234,12 +235,12 @@ void cass::pp5::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will AND  PostProcessor " << _idOne
-      << " with PostProcessor " << _idTwo
+      << ": will AND  PostProcessor " << keyOne
+      << " with PostProcessor " << keyTwo
       << std::endl;
 }
 
-void cass::pp5::process(const CASSEvent&)
+void cass::pp5::process(const CASSEvent& evt)
 {
   // Get first input
   const HistogramFloatBase &one
@@ -253,11 +254,14 @@ void cass::pp5::process(const CASSEvent&)
   one.lock.lockForRead();
   two.lock.lockForRead();
   _result->lock.lockForWrite();
-  *_result = one.isTrue() && two.isTrue();
+  *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() && two.isTrue();
   _result->lock.unlock();
   two.lock.unlock();
   one.lock.unlock();
 }
+
+
+
 
 
 
