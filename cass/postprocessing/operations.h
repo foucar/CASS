@@ -817,8 +817,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the id of the 2d hist we want to project */
-    PostProcessors::key_t _idHist;
+    /** pp containing the 2d hist we want to project */
+    PostprocessorBackend *_pHist;
 
     /** range of radii that we use for the angular distribution */
     std::pair<size_t,size_t> _range;
