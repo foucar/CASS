@@ -1000,7 +1000,7 @@ void cass::pp50::loadSettings(size_t)
   _normalize = settings.value("Normalize",false).toBool();
   PostProcessors::key_t keyHist;
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back();
+  _dependencies.push_back(keyHist);
   bool ret (setupCondition());
   if (!ret && !_pHist)
     return;
@@ -1009,18 +1009,18 @@ void cass::pp50::loadSettings(size_t)
   switch (_axis)
   {
   case (HistogramBackend::xAxis):
-    _range.first  = max(_range.first, one->axis()[HistogramBackend::yAxis].lowerLimit());
-    _range.second = min(_range.second,one->axis()[HistogramBackend::yAxis].upperLimit());
-    _result = new Histogram1DFloat(one->axis()[HistogramBackend::xAxis].nbrBins(),
-                                   one->axis()[HistogramBackend::xAxis].lowerLimit(),
-                                   one->axis()[HistogramBackend::xAxis].upperLimit());
+    _range.first  = max(_range.first, one.axis()[HistogramBackend::yAxis].lowerLimit());
+    _range.second = min(_range.second,one.axis()[HistogramBackend::yAxis].upperLimit());
+    _result = new Histogram1DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
+                                   one.axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   one.axis()[HistogramBackend::xAxis].upperLimit());
     break;
   case (HistogramBackend::yAxis):
-    _range.first  = max(_range.first, one->axis()[HistogramBackend::xAxis].lowerLimit());
-    _range.second = min(_range.second,one->axis()[HistogramBackend::xAxis].upperLimit());
-    _result = new Histogram1DFloat(one->axis()[HistogramBackend::yAxis].nbrBins(),
-                                   one->axis()[HistogramBackend::yAxis].lowerLimit(),
-                                   one->axis()[HistogramBackend::yAxis].upperLimit());
+    _range.first  = max(_range.first, one.axis()[HistogramBackend::xAxis].lowerLimit());
+    _range.second = min(_range.second,one.axis()[HistogramBackend::xAxis].upperLimit());
+    _result = new Histogram1DFloat(one.axis()[HistogramBackend::yAxis].nbrBins(),
+                                   one.axis()[HistogramBackend::yAxis].lowerLimit(),
+                                   one.axis()[HistogramBackend::yAxis].upperLimit());
     break;
   }
   std::cout << "PostProcessor "<<_key
@@ -1032,16 +1032,16 @@ void cass::pp50::loadSettings(size_t)
       <<std::endl;
 }
 
-void cass::pp50::operator()(const CASSEvent& evt)
+void cass::pp50::process(const CASSEvent& evt)
 {
   using namespace std;
   if ((*_condition)(evt).isTrue())
   {
     const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt));
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
-    *_result = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
+    *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
     _result->lock.unlock();
     one.lock.unlock();
   }
