@@ -657,7 +657,7 @@ void cass::pp20::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
    std::cout << "PostProcessor " << _key
-      << ": will substract Histogram in PostProcessor " << keyOne
+      << ": will subtract Histogram in PostProcessor " << keyOne
       << " from Histogram in PostProcessor " << keyTwo
       << std::endl;
 }
@@ -1216,7 +1216,7 @@ void cass::pp52::loadSettings(size_t)
 void cass::pp52::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
+  //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
       (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   one.lock.lockForRead();
@@ -1298,7 +1298,7 @@ void cass::pp53::loadSettings(size_t)
 void cass::pp53::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
+  //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
       (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   // retrieve the projection from the 2d hist//
@@ -1373,7 +1373,7 @@ void cass::pp54::loadSettings(size_t)
 void cass::pp54::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be substracted histograms//
+  //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
       (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   // retrieve the projection from the 2d hist//

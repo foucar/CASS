@@ -393,7 +393,7 @@ namespace cass
 
   /** Difference between choosable histograms.
    *
-   * This histogram will create a histogram which is the result of substracting
+   * This histogram will create a histogram which is the result of subtracting
    * histogram in pp with id one from histogram in pp with id two. The resulting
    * histogram will follow the formular:
    * \f$Result = One * f_{one}  - Two * f_{two}\f$
@@ -405,10 +405,10 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor names that contain the first histogram and second
-   *           histogram for the substraction. Default is 0 for both. This
+   *           histogram for the subtraction. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
    * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
-   *           The factors that will weight the substraction. The default is 1.
+   *           The factors that will weight the subtraction. The default is 1.
    *
    * @author Lutz Foucar
    */
@@ -570,12 +570,12 @@ namespace cass
 
 
 
-  /** Substract constant from histogram.
+  /** Subtract constant from histogram.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
-   *           Factor with which histogram should be substracted. Default is 1.
+   *           Factor with which histogram should be subtracted. Default is 1.
    *
    * @author Lutz Foucar
    */
