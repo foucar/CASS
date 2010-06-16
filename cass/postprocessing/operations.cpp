@@ -442,7 +442,7 @@ void cass::pp8::process(const CASSEvent &evt)
 
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) =
-              abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
+      std::abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
 
