@@ -760,7 +760,6 @@ void ImageViewer::on_getData_triggered()
     if(_ready) {
         _statusLED->setStatus(true, Qt::green);
         _ready = false;
-        _gdthread.setImageFormat(cass::ImageFormat(_picturetype->currentIndex() + 1));
         _gdthread.getData(_attachId->currentText().toStdString(), _useSpectrogram );
     } else {
         _statusLED->setStatus(true, Qt::red);
