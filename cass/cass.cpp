@@ -184,12 +184,15 @@
 
 
 /** The main program.
- * @todo find out how show command line parameters in doxygen and use that here
- * @param i filename containing filesnames of xtcfiles to process
- * @param c client id for shared memory access
- * @param s TCP port of the soap server
- * @param p partition tag for accessing the shared memory
- * @param o output filename passed to the postprocessor
+ *
+ * commandline parameters:
+ * - i filename containing filesnames of xtcfiles to process
+ * - c client id for shared memory access
+ * - s TCP port of the soap server
+ * - p partition tag for accessing the shared memory
+ * - o output filename passed to the postprocessor
+ *
+ * @author Lutz Foucar
  */
 int main(int argc, char **argv)
 {
