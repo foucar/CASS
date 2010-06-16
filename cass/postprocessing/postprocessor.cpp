@@ -22,6 +22,7 @@
 #include "backend.h"
 #include "machine_data.h"
 #include "tais_helper.h"
+#include "hitrate.h"
 
 
 
@@ -505,6 +506,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case SingleHalfCcdImage:
     processor = new pp4101(*this,key);
+    break;
+  case SingleParticleDetection:
+    processor = new pp589(*this,key);
     break;
 #ifdef HDF5
   case PnccdHDF5:

@@ -322,6 +322,10 @@ using the custom doxygen tag cassttng.
       TaisHelperAnswer=4000,
       SingleCcdImageWithConditions=4100,
       SingleHalfCcdImage=4101,
+
+      SingleParticleDetection=589,
+
+
       InvalidPP
     };
 

@@ -125,6 +125,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/averaging_offsetcorrection_helper.cpp \
             ./postprocessing/tais_helper.cpp \
             ./postprocessing/operations.cpp \
+            ./postprocessing/hitrate.cpp \
             ./postprocessing/machine_data.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
@@ -161,6 +162,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/averaging_offsetcorrection_helper.h \
             ./postprocessing/tais_helper.cpp \
             ./postprocessing/operations.h \
+            ./postprocessing/hitrate.h \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
