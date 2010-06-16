@@ -86,13 +86,15 @@ namespace cass
     Histogram2DFloat* _rowsum;
 
     // outlier detection postprocessor:
+    typedef vigra::Matrix<double> matrixType;
+    
     int _nTrainingSetSize;
     int _nFeatures;
-    vigra::Matrix<double> _variationFeatures;
-    vigra::Matrix<double> _mean; // mean (one scalar per column or feature)
+    matrixType _variationFeatures;
+    matrixType _mean; // mean (one scalar per column or feature)
 //    vigra::MultiArray<1,double> _mean; // mean (one scalar per column or feature)
-    vigra::Matrix<double> _cov;
-    vigra::Matrix<double> _covI;
+    matrixType _cov;
+    matrixType _covI;
     int _trainingSetsInserted; // counts how many training data items are already included in training set.
     int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
 

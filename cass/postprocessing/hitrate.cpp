@@ -59,12 +59,13 @@ void cass::pp589::loadSettings(size_t)
   // outlier postprocessor:
   _nTrainingSetSize = settings.value("TrainingSetSize", 100).toInt();
   _nFeatures = 5;
-  _variationFeatures = vigra::Matrix<double>(_nTrainingSetSize, _nFeatures);
-  _cov = vigra::Matrix<double>( _nFeatures, _nFeatures );
-  _covI = vigra::Matrix<double>( _nFeatures, _nFeatures);
-  _mean = vigra::Matrix<double>( 1,_nFeatures );
+  _variationFeatures = matrixType(_nTrainingSetSize, _nFeatures);
+  _cov = matrixType( _nFeatures, _nFeatures );
+  _covI = matrixType( _nFeatures, _nFeatures);
+  _mean = matrixType( 1,_nFeatures );
 //  _mean = vigra::MultiArray<1,double>( vigra::MultiArray<1,float>::difference_type(_nTrainingSetSize) );
   _trainingSetsInserted = 0;
+  _reTrain = false;
 
 
   const Histogram2DFloat* img
@@ -224,25 +225,49 @@ void cass::pp589::operator()(const CASSEvent&)
   // 5th variation feature: integral intensity
   float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
+  // output current features:
+  std::cout << "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl;
+
 
   // populate Trainingset
   if ( _trainingSetsInserted < _nTrainingSetSize )
   {
-    _variationFeatures[_trainingSetsInserted, 0] = var0;
-    _variationFeatures[_trainingSetsInserted, 1] = var1;
+    _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 0)] = var0;
+    _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 1)] = var1;
+    _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 2)] = var2;
+    _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 3)] = var3;
+    _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 4)] = var4;
     ++_trainingSetsInserted;
-    /*if ( _TrainingSetsInserted == _nTrainingSetSize )*/ _reTrain = true;
+    if ( _trainingSetsInserted == _nTrainingSetSize ) _reTrain = true;
+    std::cout << "inserted: " << _trainingSetsInserted << std::endl;
   }
   if ( _reTrain )
   {
-    _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures ); // todo: proper handle uncomplete training set with #trainingsets < size of _variationFeatures
-    vigra::Matrix<double>::traverser itt = _variationFeatures.traverser_begin();
-    for (vigra::Matrix<double>::traverser::next_type it0 = itt.begin(); it0!=itt.end(); ++it0)
-//        for (vigra::Matrix<double>::traverser::next_type::next_type it1 = it0.begin(); it1!=it0.end(); ++it1)
-//            print *it1;
-            std::cout << *it0;
-//    _covI = vigra::linalg::inverse(_cov);
-    _covI = _cov;
+
+  std::cout << "rows: " << vigra::rowCount(_cov) << std::endl;
+  std::cout << "cols: " << vigra::columnCount(_cov) << std::endl;
+
+    _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<float>::difference_type(0,0), vigra::Matrix<float>::difference_type(_trainingSetsInserted,_nFeatures)) );
+
+    typedef matrixType::traverser ttt;
+
+    for (ttt it0 = _cov.traverser_begin(); it0!=_cov.traverser_end(); ++it0) {
+        std::cout << std::endl;
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    for (ttt it0 = _variationFeatures.traverser_begin(); it0!=_variationFeatures.traverser_end(); ++it0) {
+        std::cout << std::endl;
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    _covI = vigra::linalg::inverse(_cov);
     _reTrain = false;
     //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
@@ -259,8 +284,8 @@ void cass::pp589::operator()(const CASSEvent&)
   }
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
-  vigra::Matrix<double> y(1, _nFeatures);
-  // y = submatrix
+  matrixType y(1, _nFeatures);
+  y = _variationFeatures.subarray( matrixType::difference_type(0,0), matrixType::difference_type(1,_nFeatures));
 
   /*
   std::cout << "rows: " << vigra::rowCount(y) << std::endl;
