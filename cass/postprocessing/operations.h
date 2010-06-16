@@ -555,8 +555,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of the histogram we multiply with a constant */
-    PostProcessors::key_t _idHist;
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
 
     /** the factor we mulitply the histogram with */
     float _factor;
@@ -592,10 +592,10 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of the histogram we multiply with a constant */
-    PostProcessors::key_t _idHist;
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
 
-    /** the factor we substract the histogram with */
+    /** the number we subtract from the histogram */
     float _factor;
   };
 
@@ -628,8 +628,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of the histogram we multiply with a constant */
-    PostProcessors::key_t _idHist;
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
 
     /** the threshold */
     float _threshold;

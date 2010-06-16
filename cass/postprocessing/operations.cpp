@@ -262,9 +262,6 @@ void cass::pp5::process(const CASSEvent& evt)
 
 
 
-
-
-
 // ******* Postprocessor 6: Calculate boolean OR between two histograms ********
 
 void cass::pp6::loadSettings(size_t)
@@ -465,6 +462,7 @@ void cass::pp9::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
   _dependencies.push_back(keyOne);
+  if ( !_one ) return;
 
   // Create the output
   _result = new Histogram0DFloat();
@@ -679,7 +677,7 @@ void cass::pp22::process(const CASSEvent &evt)
   const HistogramFloatBase &two
       (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Multiply using transform with a special function
+  // Multiply using transform
   one.lock.lockForRead();
   two.lock.lockForRead();
   _result->lock.lockForWrite();
@@ -702,144 +700,111 @@ void cass::pp23::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   _factor = settings.value("Factor",1).toFloat();
+
+  // Get input
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
+  if ( !_one ) return;
 
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _pp.histograms_delete(_key);
-  _result = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will multiply Histogram in PostProcessor "<<_idHist
-      <<" with "<<_factor
-      <<std::endl;
+  // Create result histogram with the right dimensionality
+  const HistogramFloatBase &one
+                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
+  _result = new HistogramFloatBase(one);
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will multiply Histogram in PostProcessor " << keyOne
+      << " by " << _factor
+      << std::endl;
 }
 
-void cass::pp23::operator()(const CASSEvent&)
+void cass::pp23::process(const CASSEvent &evt)
 {
-  using namespace std;
-  HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
+  // Get the input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Multiply using transform (under locks)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
-  transform(one.memory().begin(),
-            one.memory().end(),
-            _result->memory().begin(),
-            bind2nd(multiplies<float>(),_factor));
+  std::transform(one.memory().begin(), one.memory().end(),
+          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
+          std::bind2nd(std::multiplies<float>(),_factor));
   _result->lock.unlock();
   one.lock.unlock();
 }
 
 
 
-
-
-
-
-
-
-
-// *** postprocessors 24 Substract constant from histogram ***
-
-cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp24::~pp24()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp24::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
-}
+// *********** Postprocessor 24: Subtract constant from histogram **************
 
 void cass::pp24::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
   _factor = settings.value("Factor",1).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist))
-    return;
-  const HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _pp.histograms_delete(_key);
-  _result = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will multiply Histogram in PostProcessor "<<_idHist
-      <<" with "<<_factor
-      <<std::endl;
+
+  // Get input
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+  _dependencies.push_back(keyOne);
+  if ( !_one ) return;
+
+  // Create result histogram with the right dimensionality
+  const HistogramFloatBase &one
+                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
+  _result = new HistogramFloatBase(one);
+  createHistList(2*cass::NbrOfWorkers);
+
+  std::cout << "PostProcessor " << _key
+      << ": will subtract " << _factor
+      << "from histogram in PostProcessor " << keyOne
+      << std::endl;
 }
 
-void cass::pp24::operator()(const CASSEvent&)
+void cass::pp24::process(const CASSEvent &evt)
 {
-  using namespace std;
-  HistogramFloatBase *one
-      (dynamic_cast<HistogramFloatBase*>(_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
+  // Get the input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+
+  // Subtract using transform (under locks)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
-  transform(one.memory().begin(),
-            one.memory().end(),
-            _result->memory().begin(),
-            bind2nd(minus<float>(),_factor));
+  std::transform(one.memory().begin(), one.memory().end(),
+          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
+          bind2nd(std::minus<float>(), _factor));
   _result->lock.unlock();
   one.lock.unlock();
 }
 
 
 
-// *** postprocessor 25 - threshold histogram ***
-
-cass::pp25::pp25(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
-}
-
-cass::pp25::~pp25()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp25::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
-}
+// ****************** Postprocessor 25: Threshold histogram ********************
 
 void cass::pp25::loadSettings(size_t)
 {
   QSettings settings;
+
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+
   _threshold = settings.value("Threshold", 0.0).toFloat();
-  if (!retrieve_and_validate(_pp,_key,"HistName",_idHist)) return;
-  const HistogramFloatBase *one(dynamic_cast<HistogramFloatBase*>
-                             (_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _pp.histograms_delete(_key);
-  _result = new HistogramFloatBase(*one);
-  _pp.histograms_replace(_key,_result);
-  std::cout << "PostProcessor "<<_key
-      <<": will threshold Histogram in PostProcessor "<<_idHist
-      <<" above "<<_threshold
-      <<std::endl;
+
+  // Get input
+  PostProcessors::key_t keyOne;
+  _one = retrieve_and_validate(_pp, _key, "HistName", keyOne);
+  _dependencies.push_back(keyOne);
+  if ( !_one ) return;
+
+  std::cout << "PostProcessor " << _key
+      << ": will threshold Histogram in PostProcessor " << keyOne
+      << " above " << _threshold
+      << std::endl;
 }
 
 class threshold : public std::binary_function<float, float, float>
@@ -851,21 +816,18 @@ class threshold : public std::binary_function<float, float, float>
     }
 };
 
-void cass::pp25::operator()(const CASSEvent&)
+void cass::pp25::process(const CASSEvent &evt)
 {
-  using namespace std;
-  HistogramFloatBase *one(dynamic_cast<HistogramFloatBase*>
-                             (_pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
+  // Get the input
+  const HistogramFloatBase &one
+      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
 
+  // Subtract using transform (under locks)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
-
-  transform(one.memory().begin(),
-            one.memory().end(),
-            _result->memory().begin(),
-            bind2nd(threshold(), _threshold));
-
+  std::transform(one.memory().begin(), one.memory().end(),
+          (dynamic_cast<const HistogramFloatBase *>(_result))->memory().begin(),
+          bind2nd(threshold(), _threshold));
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -1548,7 +1510,7 @@ void cass::pp63::operator()(const cass::CASSEvent& evt)
               _time_avg->memory().begin(),
               TimeAverage(float(_num_seen_evt)));
     ++_num_seen_evt;
-    if(_num_seen_evt>_nbrSamples+1) cout<<"How... it smells like fish! "<< 
+    if(_num_seen_evt>_nbrSamples+1) cout<<"How... it smells like fish! "<<
                                       _num_seen_evt<< " " << _nbrSamples <<endl;
     _time_avg->lock.unlock();
     one->lock.unlock();
