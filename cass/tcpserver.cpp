@@ -124,15 +124,6 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     return result;
 }
 
-int CASSsoapService::getMimeType(std::string type, bool *success)
-{
-    cass::PostProcessors *pp(cass::PostProcessors::instance(""));
-    const std::string& mimetype(pp->getMimeType(type));
-    *success = true;
-    soap_set_dime(this); // enable dime
-    VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " << mimetype.size() << std::endl);
-    return soap_set_dime_attachment(this, (char*) mimetype.c_str(), mimetype.size()+1, "application/octet-stream", "0", 0, NULL);
-}
 
 int CASSsoapService::writeini(size_t what, bool *success)
 {

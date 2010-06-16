@@ -30,9 +30,6 @@ int ns__clearHistogram(std::string type, bool *success);
 // get list of active postprocessor-ids
 int ns__getPostprocessorIds(bool *success);
 
-// get expected mime type
-int ns__getMimeType(std::string type, bool *success);
-
 // get CASSEvent from server
 int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 

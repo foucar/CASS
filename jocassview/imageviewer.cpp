@@ -16,7 +16,7 @@
 
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
-
+#include "cass/postprocessing/id_list.h"
 
 namespace jocassview
 {
@@ -217,8 +217,8 @@ bool ImageViewer::eventFilter(QObject *obj, QEvent *event)
 
 
 void ImageViewer::updateImageList(QComboBox* box) {
-    cass::PostProcessors::active_t stdlist = _gdthread.getIdList();
-    for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
+    cass::PostProcessors::keyList_t stdlist = _gdthread.getIdList();
+    for (cass::PostProcessors::keyList_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
     {
       VERBOSEOUT(std::cout << "list iteration..." << std::endl);
       QString itemstring(QString::fromStdString(*it));
@@ -644,40 +644,16 @@ void getDataThread::getImage(cass::ImageFormat format, const std::string& attach
     start();
 }
 
-std::string getDataThread::getMimeType(const std::string& attachId)
-{
-    VERBOSEOUT(cout << "getDataThread::getMimeType" << endl);
-    bool ret;
-    _cass->getMimeType(attachId, &ret);
-    if(ret) {
-        VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
-    } else {
-        VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
-        return std::string("");
-    }
-    soap_multipart::iterator attachment = _cass->dime.begin();
-    if(_cass->dime.end() == attachment) {
-        cerr << "Did not get attachment!" << endl;
-        emit newNone();
-        return std::string("");
-    }
-    VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
-               << "Memory=" << (void*)(*attachment).ptr << std::endl
-               << "Size=" << (*attachment).size << std::endl
-               << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
-               << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
-    return std::string((*attachment).ptr, (*attachment).size-1);
-}
 
 
-cass::PostProcessors::active_t getDataThread::getIdList() {
+cass::PostProcessors::keyList_t getDataThread::getIdList() {
     bool ret;
     int retcode=_cass->getPostprocessorIds(&ret);
     if( (retcode==SOAP_OK) && ret) {
         VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
     } else {
         VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
-        return cass::PostProcessors::active_t();
+        return cass::PostProcessors::keyList_t();
     }
     soap_multipart::iterator attachment = _cass->dime.begin();
     VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
@@ -712,40 +688,12 @@ void getDataThread::getHistogram0D(const std::string& attachId)
 
 void getDataThread::run()
 {
-    std::string mime;
-    if (_dataType==dat_Any) {
-        mime = getMimeType(*_attachId);
-        VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
-        if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
-        else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
-        else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
-        else if (!mime.compare(0,6,std::string("image/"))) _dataType=dat_Image;  // todo: use cass::imageformatName(cass::PNG)...
-    }
-    if (_dataType==dat_Any) {
-        std::cerr << "getDataThread::run: cannot handle mime type " << mime << std::endl;
-        emit newNone();
-        return;
-    }
+
     VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
     bool ret = FALSE;
-    if (_useSpectrogram && _dataType==dat_Image) _dataType = dat_2DHistogram;
-    if (!_useSpectrogram && _dataType==dat_2DHistogram) _dataType = dat_Image;
-    switch(_dataType) {
-    case dat_Image:
-        _cass->getImage(_format, *_attachId, &ret);
-        break;
-    case dat_2DHistogram:
-        _cass->getHistogram(*_attachId, 0, &ret);
-        break;
-    case dat_1DHistogram:
-        _cass->getHistogram(*_attachId, 0, &ret);
-        break;
-    case dat_0DHistogram:
-        _cass->getHistogram(*_attachId, 0, &ret);
-        break;
-    default:
-        break;
-    }
+    // todo: get rid of _useSpectrogram
+
+    _cass->getHistogram(*_attachId, 0, &ret);
     if(! ret) {
         std::cerr << "Did not get soap data" << std::endl;
         emit newNone();
@@ -763,13 +711,16 @@ void getDataThread::run()
                << "  Size=" << (*attachment).size << endl
                << "  Type=" << ((*attachment).type?(*attachment).type:"null") << endl
                << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
+
+    // find out Type of Data (Histogramtype, dimension):
+    std::string mime((*attachment).id);
+    VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
+    if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
+    else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
+    else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
+    else if (!mime.compare(0,6,std::string("image/"))) _dataType=dat_Image;  // todo: use cass::imageformatName(cass::PNG)...
+
     switch(_dataType) {
-    case dat_Image: {
-        QImage* image = new QImage(QImage::fromData((uchar*)(*attachment).ptr, (*attachment).size,
-                imageformatName(cass::ImageFormat(_format)).c_str()));
-        VERBOSEOUT(cout << "getDataThread::run: byteCount=" << image->byteCount() << endl);
-        emit newImage(image);
-        break; }
     case dat_2DHistogram: {
         cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
         cass::Histogram2DFloat* hist = new cass::Histogram2DFloat(serializer);
