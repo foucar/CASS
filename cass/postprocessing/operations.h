@@ -261,11 +261,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** id of second histogram */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 
@@ -300,11 +300,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** how many pixels to bin in horizontal and vertical direction */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** how many pixels to bin in horizontal and vertical direction */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 
@@ -337,8 +337,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
     /** the requested range that the histogram should be in */
     std::pair<float,float> _range;
@@ -431,11 +431,11 @@ namespace cass
     /** factor by which the second histogram will be weighted */
     float _fTwo;
 
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** id of second histogram */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 
@@ -475,11 +475,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** id of second histogram */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 
@@ -518,11 +518,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
 
-    /** if of second histogram */
-    PostProcessors::key_t _idTwo;
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
   };
 
 
@@ -1013,7 +1013,7 @@ namespace cass
    *           Minimum and Maximum Time to plot in the histogram. Default
    *           is 0 ... 300 (WARNING: for the moment this setting is not active)
    * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
-   *           Number of values that are used per second to calculate the average. 
+   *           Number of values that are used per second to calculate the average.
    *           Default is 5
    *
    * @author Nicola Coppola
