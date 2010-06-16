@@ -22,7 +22,15 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName}\n
    *           Postprocessor name containing the histogram in which hits should be detected.
    * @cassttng PostProcessor/\%name\%/{threshold}\n
-   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset).
+   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset) default = 1.0 .
+   * @cassttng PostProcessor/\%name\%/{xstart}\n
+   *           ROI for calculations. First pixel = 0 (default).
+   * @cassttng PostProcessor/\%name\%/{ystart}\n
+   *           ROI for calculations. First pixel = 0 (default).
+   * @cassttng PostProcessor/\%name\%/{xend}\n
+   *           ROI for calculations. Last pixel = -1 (default).
+   * @cassttng PostProcessor/\%name\%/{yend}\n
+   *           ROI for calculations. Last pixel = -1 (default).
    *
    * @author Stephan Kassemeyer
    */
@@ -46,6 +54,15 @@ namespace cass
     virtual PostProcessors::active_t dependencies();
 
   protected:
+    /** xstart - ROI for calculations*/
+    int _xstart;
+    /** ystart - ROI for calculations*/
+    int _ystart;
+    /** xend - ROI for calculations*/
+    int _xend;
+    /** yend - ROI for calculations*/
+    int _yend;
+
     /** Threshold for outlier detection based discrimination (mahalanobis distance to dataset). */
     float _threshold;
 
@@ -54,6 +71,12 @@ namespace cass
 
     /** result */
     Histogram0DFloat *_result;
+
+    /** storage for integralimage (2d integral of entire image) */
+    Histogram2DFloat* _integralimg;
+
+    /** storage for row sum (1d integral of image) */
+    Histogram2DFloat* _rowsum;
   };
 
 
