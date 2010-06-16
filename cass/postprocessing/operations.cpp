@@ -1379,26 +1379,9 @@ void cass::pp62::process(const CASSEvent& evt)
 //     of samples that are going to be used in the calculation ***
 
 cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _time_avg(0), _num_seen_evt(0), _when_first_evt(0), _first_fiducials(0)
+  : PostprocessorBackend(pp, key), _num_seen_evt(0), _when_first_evt(0), _first_fiducials(0)
 {
-  loadSettings(0);
-}
-
-cass::pp63::~pp63()
-{
-  _pp.histograms_delete(_key);
-  _time_avg = 0;
-  _num_seen_evt=0;
-  _when_first_evt=0;
-  _first_fiducials=0;
-}
-
-cass::PostProcessors::active_t cass::pp63::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  list.push_front(_condition);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp63::loadSettings(size_t)
@@ -1407,34 +1390,33 @@ void cass::pp63::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
-  if (OneNotvalid || TwoNotvalid)
-    return;
   const size_t min_time_user (settings.value("MinTime",0).toUInt());
   const size_t max_time_user (settings.value("MaxTime",300).toUInt());
   _timerange = make_pair(min_time_user,max_time_user);
   _nbrSamples=settings.value("NumberOfSamples",5).toUInt();
-
-  const HistogramFloatBase*one
-      (dynamic_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-  _pp.histograms_delete(_key);
-
-  _time_avg = new HistogramFloatBase(*one); //(_timerange.second,_timerange.first,_timerange.second);
-  _pp.histograms_replace(_key,_time_avg);
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back(keyHist);
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
+    return;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
+  _result = new HistogramFloatBase(one);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<" will calculate the time average of histogram of PostProcessor_"<<_idHist
+      <<" will calculate the time average of histogram of PostProcessor_"<<keyHist
       <<" from now "<<settings.value("MinTime",0).toUInt()
       <<" to "<<settings.value("MaxTime",300).toUInt()
       <<" seconds   "<<_timerange.first
       <<" ; "<<_timerange.second
       <<" each bin is equivalent to up to "<< _nbrSamples
       <<" measurements,"
-      <<" condition on postprocessor:"<<_condition
+      <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp63::operator()(const cass::CASSEvent& evt)
+void cass::pp63::process(const cass::CASSEvent& evt)
 {
   using namespace std;
   //#define debug1
@@ -1445,16 +1427,12 @@ void cass::pp63::operator()(const cass::CASSEvent& evt)
   uint32_t fiducials;
   time_t now_of_event;
 
-  const Histogram0DFloat*cond
-      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
-  if (cond->isTrue())
+  if ((*_condition)(evt).isTrue())
   {
-    HistogramFloatBase* one
-        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
-    //retrieve the projection from the 0d/1d/2d hist//
-    one->lock.lockForRead();
-    _time_avg->lock.lockForWrite();
-
+    const HistogramFloatBase& one
+        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
     // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
     //remember the time of the first event
     if(_when_first_evt==0)
@@ -1504,16 +1482,18 @@ void cass::pp63::operator()(const cass::CASSEvent& evt)
       _num_seen_evt=1;
     }
 
-    ++_time_avg->nbrOfFills();
-    transform(one->memory().begin(),one->memory().end(),
-              _time_avg->memory().begin(),
-              _time_avg->memory().begin(),
+    ++_result->nbrOfFills();
+    transform(one.memory().begin(),one.memory().end(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
+              dynamic_cast<const HistogramFloatBase*>(_result)->memory().begin(),
               TimeAverage(float(_num_seen_evt)));
     ++_num_seen_evt;
-    if(_num_seen_evt>_nbrSamples+1) cout<<"How... it smells like fish! "<<
-                                      _num_seen_evt<< " " << _nbrSamples <<endl;
-    _time_avg->lock.unlock();
-    one->lock.unlock();
+    if(_num_seen_evt>_nbrSamples+1) cout<<"pp64::process(): How... it smells like fish! "
+        <<_num_seen_evt
+        <<" "<<_nbrSamples
+        <<endl;
+    _result->lock.unlock();
+    one.lock.unlock();
   }
 }
 

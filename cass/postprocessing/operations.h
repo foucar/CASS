@@ -1027,8 +1027,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the histogram to work on */
-    PostProcessors::key_t _idHist;
+    /** pp containing histogram to work on */
+    PostprocessorBackend *_pHist;
 
     /** range of time that we use for the angular distribution */
     std::pair<size_t,size_t> _timerange;
@@ -1036,15 +1036,14 @@ namespace cass
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _nbrSamples;
 
-    /** resulting time average histgram */
-    HistogramFloatBase *_time_avg;
-
     /** the number of samples seen up to now and used in the point */
     size_t _num_seen_evt;
 
+    //@{
     /** time when the first samples was used in the point in time */
     time_t _when_first_evt;
     uint32_t _first_fiducials;
+    //@}
   };
 
 
