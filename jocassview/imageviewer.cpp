@@ -713,7 +713,7 @@ void getDataThread::run()
                << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
 
     // find out Type of Data (Histogramtype, dimension):
-    std::string mime((*attachment).id);
+    std::string mime((*attachment).type);
     VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
     if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
     else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
