@@ -587,8 +587,8 @@ void cass::pp9::loadSettings(size_t)
 
 void cass::pp9::process(const CASSEvent &evt)
 {
- // Get the input
- const HistogramFloatBase &one
+  // Get the input
+  const HistogramFloatBase &one
       (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Sum up the histogram under lock

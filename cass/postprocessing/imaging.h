@@ -24,7 +24,7 @@ namespace cass
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
    * @cassttng PostProcessor/\%name\%/{AveragedImage} \n
-   *           The id of the running average of we use for substraction. Default
+   *           The id of the running average of we use for subtraction. Default
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:

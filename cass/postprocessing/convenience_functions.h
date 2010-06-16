@@ -43,7 +43,7 @@ namespace cass
     }
   };
 
-  /** binary function for weighted substracting.
+  /** binary function for weighted subtraction.
    *
    * @author Lutz Foucar
    */
@@ -52,8 +52,8 @@ namespace cass
   public:
     /** constructor.
      *
-     * @param first_weight the weight value of the first substrant
-     * @param second_weight the weight value of the second substrant
+     * @param first_weight the weight value of the first histogram
+     * @param second_weight the weight value of the second histogram
      */
     weighted_minus(float first_weight, float second_weight)
       :_first_weight(first_weight),_second_weight(second_weight)

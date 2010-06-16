@@ -357,7 +357,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case ConstantFalse:
     processor = new pp11(*this, key);
     break;
-  case SubstractHistograms:
+  case SubtractHistograms:
     processor = new pp20(*this, key);
     break;
   case DivideHistograms:
@@ -369,7 +369,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case MultiplyConstant:
     processor = new pp23(*this, key);
     break;
-  case SubstractConstant:
+  case SubtractConstant:
     processor = new pp24(*this, key);
     break;
   case Threshold:

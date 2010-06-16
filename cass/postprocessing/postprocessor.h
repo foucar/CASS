@@ -63,7 +63,7 @@ the Class description for information about what parameters are user settable.
 00021: Divide first histogram by second histogram
 00022: Multiply first histogram with second histogram
 00023: Multiply histogram with constant
-00024: Substract Constant
+00024: Subtract Constant
 00025: Threshold histogram
 
 00050: Project 2D histogram onto a axis
@@ -168,11 +168,11 @@ using the custom doxygen tag cassttng.
       ConstantTrue=10,
       ConstantFalse=11,
 
-      SubstractHistograms=20,
+      SubtractHistograms=20,
       DivideHistograms=21,
       MultiplyHistograms=22,
       MultiplyConstant=23,
-      SubstractConstant=24,
+      SubtractConstant=24,
       Threshold=25,
 
       TwoDProjection=50,
