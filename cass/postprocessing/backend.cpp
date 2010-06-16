@@ -16,10 +16,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
-{
-  /** @note check whether this calls the overwritten function */
-  loadSettings(0);
-}
+{}
 
 PostprocessorBackend::~PostprocessorBackend()
 {
