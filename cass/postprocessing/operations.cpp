@@ -86,7 +86,7 @@ void cass::pp2::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<_one
+      <<": will compare whether hist in PostProcessor "<<_one->key()
       <<" is greater than "<<_value
       <<std::endl;
 }
@@ -138,12 +138,12 @@ void cass::pp3::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will compare whether hist in PostProcessor " << _idOne
+      << ": will compare whether hist in PostProcessor " << _one->key()
       << " is equal to " << _value
       << std::endl;
 }
 
-void cass::pp3::process(const CASSEvent&)
+void cass::pp3::process(const CASSEvent& evt)
 {
   // Get the input data
   const HistogramFloatBase &one
@@ -159,7 +159,7 @@ void cass::pp3::process(const CASSEvent&)
   // Compare and store the result
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) =
-                   abs(first - _value) < sqrt(numeric_limits<float>::epsilon());
+      std::abs(first - _value) < std::sqrt(std::numeric_limits<float>::epsilon());
   _result->lock.unlock();
 }
 

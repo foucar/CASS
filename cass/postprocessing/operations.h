@@ -79,7 +79,7 @@ namespace cass
 
 
   protected:
-    /** id of first histogram */
+    /** pp containing histogram */
     PostprocessorBackend *_one;
 
     /** constant value to compare to */
@@ -117,8 +117,8 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** id of first histogram */
-    PostProcessors::key_t _idOne;
+    /** pp containing histogram */
+    PostprocessorBackend *_one;
 
     /** constant value to compare to */
     float _value;
