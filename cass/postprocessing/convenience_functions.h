@@ -27,6 +27,21 @@ namespace cass
     const uint64_t _key;
   };
 
+  /** Binary function for thresholding
+   *
+   * Returns the value if it is below threshold.  Otherwise, returns 0.
+   *
+   * @author Thomas White
+   */
+  class threshold : public std::binary_function<float, float, float>
+  {
+  public:
+    /** operator */
+    float operator() (float value, float thresh)const
+    {
+      return (value > thresh) ? value : 0.0;
+    }
+  };
 
   /** binary function for weighted substracting.
    *
@@ -44,7 +59,7 @@ namespace cass
       :_first_weight(first_weight),_second_weight(second_weight)
     {}
     /** operator */
-    float operator() (float first, float second)
+    float operator() (const float first, const float second)
     { return first * _first_weight - second * _second_weight;}
   protected:
     float _first_weight, _second_weight;
