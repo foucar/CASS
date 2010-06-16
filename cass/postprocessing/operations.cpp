@@ -1243,23 +1243,9 @@ void cass::pp54::process(const CASSEvent& evt)
 // *** postprocessor 6 histograms 0D values ***
 
 cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _hist(0)
+  : PostprocessorBackend(pp, key)
 {
-  loadSettings(0);
-}
-
-cass::pp60::~pp60()
-{
-  _pp.histograms_delete(_key);
-  _hist = 0;
-}
-
-cass::PostProcessors::active_t cass::pp60::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  list.push_front(_condition);
-  return list;
+//  loadSettings(0);
 }
 
 void cass::pp60::loadSettings(size_t)
@@ -1268,32 +1254,32 @@ void cass::pp60::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
-  if (OneNotvalid || TwoNotvalid)
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
+  _dependencies.push_back(keyHist);
+  bool ret (setupCondition());
+  if (!ret && !_pHist)
     return;
-  set1DHist(_hist,_key);
-  _pp.histograms_replace(_key,_hist);
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
-      <<": histograms values from PostProcessor "<< _idHist
-      <<" condition on PostProcessor "<<_condition
+      <<": histograms values from PostProcessor "<< keyHist
+      <<" condition on PostProcessor "<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp60::operator()(const CASSEvent&)
+void cass::pp60::process(const CASSEvent& evt)
 {
   using namespace std;
-  const Histogram0DFloat*cond
-      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
-  if (cond->isTrue())
+  if ((*_condition)(evt).isTrue())
   {
-    Histogram0DFloat* one
-        (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_idHist)));
-    one->lock.lockForRead();
-    _hist->lock.lockForWrite();
-    _hist->fill(one->getValue());
-    _hist->lock.unlock();
-    one->lock.unlock();
+    const Histogram0DFloat &one
+        (reinterpret_cast<const Histogram0DFloat&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
+    _result->lock.unlock();
+    one.lock.unlock();
   }
 }
 

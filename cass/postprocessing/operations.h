@@ -918,13 +918,9 @@ namespace cass
     /** alpha for the running average */
     float _alpha;
 
-    /** the 0D histogram to work on */
-    PostProcessors::key_t _idHist;
+    /** pp containing 0D histogram to work on */
+    PostprocessorBackend *_pHist;
   };
-
-
-
-
 
 
 
