@@ -1076,8 +1076,11 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** the histogram to work on */
-    PostProcessors::key_t _idHist;
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
+
+    /** pp containing input histogram */
+    PostprocessorBackend *_two;
 
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _size;
