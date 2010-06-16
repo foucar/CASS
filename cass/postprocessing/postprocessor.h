@@ -120,11 +120,41 @@ the Class description for information about what parameters are user settable.
 
 Your postprocessor needs to have the following members
 - a constructor that takes the a reference to the histogram container and the
-  processor id
-- overloaded void operator()(const cass::CASSEvent&) which gets called for each
-  event
-- (optionaly you could have a pointer the histogram in the histogram container)
-- you are responsible that the histogram get allocated and destructed.
+  processor key
+- overloaded void process()(const cass::CASSEvent&)
+- (optionaly you could have a pointer the pp that contains the histogram you
+   depend on.)
+- the pp handles the histograms and therefore it must set it up.
+  - each pp has a list of histograms, which needs to be created.
+  - each pp has also a pointer to the most recent one (_result)
+  - it will create the list by calling createHistList(size of list).
+  - since the above command uses _result to create the other histograms in list
+    you need to make sure that you have created a histogram in that _result points
+    to.
+
+ If you want to use the optional condition:
+ - the pp that contains the conditon is defaulty set by "ConditionName" in
+   cass.ini
+ - document that you pp is using the optional condition.
+ - using setupCondition() one can setup the condition. The retrun value will
+   tell you whether the dependency is is already on the list
+ - to use the condition, just add the line \n
+   if ((*_condition)(evt).isTrue())\n
+   in your code
+
+ If you want an additional dependencies do the following
+ - create a key
+ - use "retrieve_and_validate(_pp,_key,"HistName",keyHist)" to retrieve a pointer
+   to the pp that you depend on.
+   - _pp : reference to the postprocessors container
+   - _key : key of this pp
+   - "HistName" : Name of the dependency pp in cass.ini (needs to be documented)
+   - keyHist : name of the key created in first step
+ - put the key on the dependency list (_dependencies.push_back(keyHist);)
+
+ If you want to retrieve a histogram while you setup your pp (in loadSettings)
+ do the following:
+ - use the "getHist(0)" member function of the pp that you depend on.
 
 @subsection steps Register postprocessor
 
@@ -135,7 +165,7 @@ to the list of postprocessors:
 - add a describtive enum to the id_t enum
 - add your postprossor in the switch statement of cass::PostProcessors::create
 - if the Object you are writing is responsible for more than one postprocessor
-  just follow the example of the last pnccd processor(pp1).
+  just follow the example of the last ccd processor(pp100).
 
 @subsection doc Documentation
 
