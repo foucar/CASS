@@ -57,7 +57,9 @@ void cass::pp589::loadSettings(size_t)
 
 
   const Histogram2DFloat* img
-      (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
+      //(dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
+      (dynamic_cast<Histogram2DFloat*>( _pp.histograms_checkout().find(_idHist)->second));
+  _pp.histograms_release();
   _integralimg = new Histogram2DFloat(*img);
   _rowsum = new Histogram2DFloat(*img);
 
