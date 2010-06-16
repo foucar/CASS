@@ -73,8 +73,8 @@ void cass::pp589::loadSettings(size_t)
 void cass::pp589::operator()(const CASSEvent&)
 {
   using namespace std;
-  HistogramFloatBase* one
-      (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+  Histogram2DFloat* one
+      (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
   _integralimg->lock.lockForWrite();
   _rowsum->lock.lockForWrite();
   one->lock.lockForRead();
@@ -100,7 +100,6 @@ void cass::pp589::operator()(const CASSEvent&)
   //}
 
   std::cout << "INTEGRAL IMAGE: XXXXXXXXXXXX [" <<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]" << std::endl;
-
       // calculate integral-image:
       // row sum initialize first row:
       for (int xx = _xstart; xx<=_xend; ++xx)
