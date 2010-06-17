@@ -129,7 +129,7 @@ void cass::PostProcessors::loadSettings(size_t)
   //add a default true pp to container//
   active.push_back("DefaultTrueHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
-    _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist");
+    _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
   setup(active);
   std::cout <<"   Active postprocessor(s): ";
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)

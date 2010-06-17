@@ -12,6 +12,7 @@
 
 
 // ********* Postprocessor 1: Compare histogram for less than constant *********
+
 cass::pp1::pp1(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
@@ -822,6 +823,7 @@ void cass::pp22::loadSettings(size_t)
   _dependencies.push_back(keyOne);
   _dependencies.push_back(keyTwo);
   bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   // Get (empty) histograms to check dimensionality
   const HistogramBackend &one(_one->getHist(0));
