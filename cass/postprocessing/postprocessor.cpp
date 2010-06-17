@@ -356,10 +356,10 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp9(*this, key);
     break;
   case ConstantTrue:
-    processor = new pp10(*this, key);
+    processor = new pp10(*this, key, true);
     break;
   case ConstantFalse:
-    processor = new pp11(*this, key);
+    processor = new pp10(*this, key, false);
     break;
   case SubtractHistograms:
     processor = new pp20(*this, key);
