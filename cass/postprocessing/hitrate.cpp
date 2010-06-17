@@ -148,12 +148,12 @@ void cass::pp589::operator()(const CASSEvent&)
   float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
       float val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
       var0 += (val-avg)*(val-avg);
     }
@@ -170,13 +170,13 @@ void cass::pp589::operator()(const CASSEvent&)
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
       float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var1 += diff*diff;
     }
@@ -192,13 +192,13 @@ void cass::pp589::operator()(const CASSEvent&)
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
       float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var2 += diff*diff;
     }
@@ -214,18 +214,17 @@ void cass::pp589::operator()(const CASSEvent&)
   int xfactor = -1;
   int yfactor = -1;
   int factor;
-  float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
     xfactor = -xfactor;
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
       yfactor = -yfactor;
       factor = xfactor*yfactor;
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
       var3 += factor*(integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins]);
     }
   }
