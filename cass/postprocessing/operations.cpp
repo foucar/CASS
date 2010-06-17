@@ -77,61 +77,61 @@
 
 
 
-// ******** Postprocessor 2: Compare histogram for greater than constant *******
-cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp2::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  // Get value for comparison
-  _value = settings.value("Value",0).toFloat();
-
-  // Get input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if (!_one || !ret) return;
-
-  // Create output
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor "<<_key
-      <<": will compare whether hist in PostProcessor "<<_one->key()
-      <<" is greater than "<<_value
-      <<std::endl;
-}
-
-void cass::pp2::process(const CASSEvent& evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get and lock input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Sum values
-    one.lock.lockForRead();
-    float first (std::accumulate(one.memory().begin(),
-                                 one.memory().end(),
-                                 0.f));
-    one.lock.unlock();
-
-    // Compare and write result
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = first > _value;
-    _result->lock.unlock();
-  }
-}
+//// ******** Postprocessor 2: Compare histogram for greater than constant *******
+//cass::pp2::pp2(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp2::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  // Get value for comparison
+//  _value = settings.value("Value",0).toFloat();
+//
+//  // Get input
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if (!_one || !ret) return;
+//
+//  // Create output
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor "<<_key
+//      <<": will compare whether hist in PostProcessor "<<_one->key()
+//      <<" is greater than "<<_value
+//      <<std::endl;
+//}
+//
+//void cass::pp2::process(const CASSEvent& evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get and lock input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Sum values
+//    one.lock.lockForRead();
+//    float first (std::accumulate(one.memory().begin(),
+//                                 one.memory().end(),
+//                                 0.f));
+//    one.lock.unlock();
+//
+//    // Compare and write result
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) = first > _value;
+//    _result->lock.unlock();
+//  }
+//}
 
 
 

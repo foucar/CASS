@@ -8,6 +8,7 @@
 #include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <functional>
 
 #include "acqiris_detectors.h"
 #include "histogram.h"
@@ -111,30 +112,32 @@ void cass::PostProcessors::aboutToQuit()
 
 void cass::PostProcessors::loadSettings(size_t)
 {
-  VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
+  using namepspace std;
+  VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
   QSettings settings;
   settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
 #ifdef VERBOSE
-  std::cout << settings.fileName().toStdString() << " " ;
-  std::cout << "Entries of "<< settings.group().toStdString() << ": ";
+  cout << settings.fileName().toStdString() << " " ;
+  cout << "Entries of "<< settings.group().toStdString() << ": ";
   foreach(QString str, list){
-    std::cout<<str.toStdString() << ", ";
+    cout<<str.toStdString() << ", ";
   }
-  std::cout << std::endl;
+  cout << endl;
 #endif
   keyList_t active(list.size());
-  std::transform(list.begin(), list.end(), active.begin(), QStringToStdString);
-  std::cout <<"   Number of unique postprocessor activations: "<<active.size()
-      << std::endl;
+  transform(list.begin(), list.end(), active.begin(), QStringToStdString);
+  cout <<"   Number of unique postprocessor activations: "<<active.size()
+      << endl;
   //add a default true pp to container//
   active.push_back("DefaultTrueHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
     _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
   setup(active);
-  std::cout <<"   Active postprocessor(s): ";
+  cout <<"   Active postprocessor(s): ";
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
-    std::cout << *iter << " ";
+    cout << *iter << " ";
+  cout<<endl;
 }
 
 void cass::PostProcessors::clear(const key_t &key)
@@ -321,6 +324,7 @@ void cass::PostProcessors::setup(keyList_t &active)
 
 cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 {
+  using namespace std;
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
@@ -330,10 +334,10 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   switch(ppid)
   {
   case ConstantLess:
-    processor = new pp1(*this, key);
+    processor = new pp1<less<float> >(*this, key, less<float>());
     break;
   case ConstantGreater:
-    processor = new pp2(*this, key);
+    processor = new pp1<greater<float> >(*this, key, greater<float>());
     break;
   case ConstantEqual:
     processor = new pp3(*this, key);

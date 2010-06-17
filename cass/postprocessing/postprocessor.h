@@ -47,8 +47,8 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
-00001: Compare histograms for less than constant
-00002: Compare histograms for greater than constant
+00001: Compare histograms for less than constant (pp1)
+00002: Compare histograms for greater than constant (pp1)
 00003: Compare histograms for equal to constant
 00004: Apply boolean NOT to 0D histograms
 00005: Compare two 0D histograms for boolean AND
