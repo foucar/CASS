@@ -225,9 +225,14 @@ void cass::pp589::operator()(const CASSEvent&)
   // 5th variation feature: integral intensity
   float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
+  var0 /= 1;
+  var1 /= 1e12;
+  var2 /= 1e12;
+  var3 /= 1e8;
+  var4 /= 1e7;
+
   // output current features:
   std::cout << "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl;
-
 
   // populate Trainingset
   if ( _trainingSetsInserted < _nTrainingSetSize )
