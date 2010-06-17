@@ -104,8 +104,8 @@ void cass::pp589::operator()(const CASSEvent&)
   // sanity checks and auto-set nxbins. todo: restore -1 so that nxbins/nybins gets updated on size change?
   if (_xstart < 0) _xstart = 0;
   if (_ystart < 0) _ystart = 0;
-  if (_xend >= nxbins) _xend = nxbins-1;
-  if (_yend >= nybins) _yend = nybins-1;
+  if (_xend >= static_cast<int>(nxbins)) _xend = nxbins-1;
+  if (_yend >= static_cast<int>(nybins)) _yend = nybins-1;
   if (_xend < 0) _xend = nxbins-1;
   if (_yend < 0) _yend = nybins-1;
 
