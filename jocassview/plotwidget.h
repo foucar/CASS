@@ -496,10 +496,9 @@ public:
     _colorMapInv->addColorStop(0.6, Qt::green);
     _colorMapInv->addColorStop(0.95, Qt::yellow);
     _colorMapInv->setTransformId(_transformCol_inv);
-    _spectrogram->setColorMap(*_colorMapInv);
 
     _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMapInv);
+                            *_colorMap);
 
     //_plot->setAxisScaleEngine(QwtPlot::yRight, new QwtLog10ScaleEngine);
     _plot->setAxisScale(QwtPlot::yRight,
@@ -563,7 +562,7 @@ public:
     _spectrogram->invalidateCache();
     _spectrogram->itemChanged();
     _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMapInv);
+                            *_colorMap);
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
@@ -672,16 +671,8 @@ protected slots:
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
 
-    delete _colorMapInv;
-    _colorMapInv = new QwtLogColorMap(Qt::darkCyan, Qt::red);
-    _colorMapInv->addColorStop(0.1, Qt::cyan);
-    _colorMapInv->addColorStop(0.6, Qt::green);
-    _colorMapInv->addColorStop(0.95, Qt::yellow);
-    _colorMapInv->setTransformId(_transformCol);
-    _spectrogram->setColorMap(*_colorMapInv);
-
-    //_spectrogram->setColorMap(*_colorMapInv);
-    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapInv);
+    _sepctrogram->setColorMap(*_colorMap);
+    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
     _plot->replot();
   }
 
