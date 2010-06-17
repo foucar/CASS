@@ -199,6 +199,13 @@ hdf5 {
     SOURCES += ./postprocessing/hdf5dump.cpp
 }
 
+# extra files if compiling single particle detector.
+# depends on VIGRA template library. (by Ullrich Koethe)
+singleparticle_hit {
+    SOURCES +=  ./postprocessing/hitrate.cpp
+    HEADERS +=  ./postprocessing/hitrate.h \
+}
+
 cernroot {
     INCLUDEPATH += $$(ROOTSYS)/include
     LIBS += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint

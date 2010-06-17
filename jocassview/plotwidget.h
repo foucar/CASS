@@ -346,7 +346,7 @@ protected:
    *   right mouse goes back in zoom history
    *   left mouse drag on colorbar sets colorstops
    *   right mouse on colorbar cycles throug axis transformations
-   * @todo make different color scAle available
+   * @todo make different color scale available
    * @author Stephan Kassemeyer
    * @author Nicola Coppola
    */
@@ -428,13 +428,13 @@ public:
     _sbx_scale_min = new QDoubleSpinBox(this);
     _sbx_scale_min->setRange(-2e12,2e12);
     _sbx_scale_min->setValue(0.);
-    _sbx_scale_min->setDecimals(12);
+    _sbx_scale_min->setDecimals(3);
 
     QLabel* _lbl_scale_max = new QLabel(tr("Max"),this);
     _sbx_scale_max = new QDoubleSpinBox(this);
     _sbx_scale_max->setRange(-2e12,2e12);
     _sbx_scale_max->setValue(1500.);
-    _sbx_scale_max->setDecimals(12);
+    _sbx_scale_max->setDecimals(3);
 
     // populate colorbar presets:
     QSettings settings;
@@ -671,7 +671,16 @@ protected slots:
     _colorMap->addColorStop(_cs_top, QColor(255,255,255));
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
+
+    delete _colorMapInv;
+    _colorMapInv = new QwtLogColorMap(Qt::darkCyan, Qt::red);
+    _colorMapInv->addColorStop(0.1, Qt::cyan);
+    _colorMapInv->addColorStop(0.6, Qt::green);
+    _colorMapInv->addColorStop(0.95, Qt::yellow);
+    _colorMapInv->setTransformId(_transformCol);
     _spectrogram->setColorMap(*_colorMapInv);
+
+    //_spectrogram->setColorMap(*_colorMapInv);
     _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapInv);
     _plot->replot();
   }
@@ -961,13 +970,13 @@ protected:
     _sbx_scale1d_min = new QDoubleSpinBox(this);
     _sbx_scale1d_min->setRange(-2.e6,2.e6);
     _sbx_scale1d_min->setValue(1);
-    _sbx_scale1d_min->setDecimals(12);
+    _sbx_scale1d_min->setDecimals(3);
 
     QLabel* _lbl_scale1d_max = new QLabel(tr("Max"),this);
     _sbx_scale1d_max = new QDoubleSpinBox(this);
     _sbx_scale1d_max->setRange(-2.e9,2.e9);
     _sbx_scale1d_max->setValue(1.e6);
-    _sbx_scale1d_max->setDecimals(12);
+    _sbx_scale1d_max->setDecimals(3);
     _toolbar->addWidget(_bool_auto_scale1d);
     _toolbar->addWidget(_lbl_scale1d_min);
     _toolbar->addWidget(_sbx_scale1d_min);

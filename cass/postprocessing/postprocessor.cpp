@@ -24,6 +24,10 @@
 #include "id_list.h"
 #include "cass_exceptions.h"
 
+#ifdef SINGLEPARTICLE_HIT
+#include "hitrate.h"
+#endif
+
 
 
 
@@ -471,6 +475,11 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TestImage:
     processor = new pp240(*this,key);
     break;
+#ifdef SINGLEPARTICLE_HIT
+  case SingleParticleDetection:
+    processor = new pp589(*this,key);
+    break;
+#endif
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1000(*this,key);

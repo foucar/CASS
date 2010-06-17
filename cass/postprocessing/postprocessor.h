@@ -253,6 +253,10 @@ using the custom doxygen tag cassttng.
       PnccdHDF5=1000,
       ROOTDump=2000,
 
+
+      SingleParticleDetection=589,
+
+
       InvalidPP
     };
 
