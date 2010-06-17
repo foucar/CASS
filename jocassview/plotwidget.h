@@ -426,6 +426,7 @@ public:
     _bool_auto_scale->setChecked( FALSE );
     QLabel* _lbl_scale_min = new QLabel(tr("Min"),this);
     _sbx_scale_min = new QDoubleSpinBox(this);
+    _sbx_scale_min->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
     _sbx_scale_min->setRange(-2e12,2e12);
     _sbx_scale_min->setValue(0.);
     _sbx_scale_min->setDecimals(3);
