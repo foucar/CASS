@@ -232,7 +232,7 @@ void cass::pp589::operator()(const CASSEvent&)
   var4 /= 1e7;
 
   // output current features:
-  std::cout << "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl;
+  VERBOSEOUT(std::cout<< "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl);
 
   // populate Trainingset
   if ( _trainingSetsInserted < _nTrainingSetSize )
@@ -244,13 +244,13 @@ void cass::pp589::operator()(const CASSEvent&)
     _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 4)] = var4;
     ++_trainingSetsInserted;
     if ( _trainingSetsInserted == _nTrainingSetSize ) _reTrain = true;
-    std::cout << "inserted: " << _trainingSetsInserted << std::endl;
+    VERBOSEOUT(std::cout << "inserted: " << _trainingSetsInserted << std::endl);
   }
   if ( _reTrain )
   {
 
-  std::cout << "rows: " << vigra::rowCount(_cov) << std::endl;
-  std::cout << "cols: " << vigra::columnCount(_cov) << std::endl;
+  VERBOSEOUT(std::cout << "rows: " << vigra::rowCount(_cov) << std::endl);
+  VERBOSEOUT(std::cout << "cols: " << vigra::columnCount(_cov) << std::endl);
 
     _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<float>::difference_type(0,0), vigra::Matrix<float>::difference_type(_trainingSetsInserted,_nFeatures)) );
 
