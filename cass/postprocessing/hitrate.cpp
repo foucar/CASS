@@ -95,7 +95,7 @@ void cass::pp589::operator()(const CASSEvent&)
 
 
   _result->lock.lockForRead();
-  if (_result->nbrOfFills() )
+  if (!_result->nbrOfFills() )
   {
     // first run or histogram has been cleared -> start training phase.
     _trainingSetsInserted = 0;
