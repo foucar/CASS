@@ -89,9 +89,9 @@ void cass::pp589::operator()(const CASSEvent&)
   using namespace std;
   Histogram2DFloat* one
       (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
-//  _integralimg->lock.lockForWrite();
-//  _rowsum->lock.lockForWrite();
-//  one->lock.lockForRead();
+  _integralimg->lock.lockForWrite();
+  _rowsum->lock.lockForWrite();
+  one->lock.lockForRead();
 
 
   const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
@@ -297,9 +297,9 @@ void cass::pp589::operator()(const CASSEvent&)
 
 
 
-//  one->lock.unlock();
-//  _integralimg->lock.unlock();
-//  _rowsum->lock.unlock();
+  one->lock.unlock();
+  _integralimg->lock.unlock();
+  _rowsum->lock.unlock();
   _result->lock.lockForWrite();
   *_result = mahal_dist;
   _result->lock.unlock();
