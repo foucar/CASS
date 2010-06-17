@@ -94,6 +94,15 @@ void cass::pp589::operator()(const CASSEvent&)
   one->lock.lockForRead();
 
 
+  _result->lock.lockForRead();
+  if (_result->nbrOfFills() )
+  {
+    // first run or histogram has been cleared -> start training phase.
+    _trainingSetsInserted = 0;
+
+  }
+  _result->lock.unlock();
+
   const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
   const size_t nybins (one->axis()[HistogramBackend::yAxis].nbrBins());
 
@@ -330,6 +339,7 @@ void cass::pp589::operator()(const CASSEvent&)
   _rowsum->lock.unlock();
   _result->lock.lockForWrite();
   *_result = mahal_dist;
+  ++_result->nbrOfFills();  // todo: remove this once it is implemented inside fill()
   _result->lock.unlock();
 }
 
