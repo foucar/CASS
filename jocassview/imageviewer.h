@@ -49,7 +49,6 @@ namespace jocassview
 
         getDataThread();
         ~getDataThread();
-        cass::PostProcessors::active_t getIdList();
         std::string getMimeType(const std::string& attachId);
         void getData(const std::string& attachId, int useSpectrogram);
         void getImage(cass::ImageFormat format, const std::string& attachId);
@@ -234,6 +233,8 @@ private:
     void scaleImage(double factor);
 
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
+
+    cass::PostProcessors::active_t getIdList();
 
     void updateImageList(QComboBox* box);
 

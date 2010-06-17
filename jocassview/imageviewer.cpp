@@ -216,8 +216,29 @@ bool ImageViewer::eventFilter(QObject *obj, QEvent *event)
  }
 
 
+cass::PostProcessors::active_t ImageViewer::getIdList() {
+    bool ret;
+    int retcode=_cass->getPostprocessorIds(&ret);
+    if( (retcode==SOAP_OK) && ret) {
+        VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
+    } else {
+        VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
+        return cass::PostProcessors::active_t();
+    }
+    soap_multipart::iterator attachment = _cass->dime.begin();
+    VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
+               << "Memory=" << (void*)(*attachment).ptr << std::endl
+               << "Size=" << (*attachment).size << std::endl
+               << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
+               << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
+    /** @bug when jocassview is started without having a cass server running it crashes here */
+    cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+    cass::IdList list(serializer);
+    return list.getList();
+}
+
 void ImageViewer::updateImageList(QComboBox* box) {
-    cass::PostProcessors::active_t stdlist = _gdthread.getIdList();
+    cass::PostProcessors::active_t stdlist = getIdList();
     for (cass::PostProcessors::active_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
     {
       VERBOSEOUT(std::cout << "list iteration..." << std::endl);
@@ -667,28 +688,6 @@ std::string getDataThread::getMimeType(const std::string& attachId)
                << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
                << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
     return std::string((*attachment).ptr, (*attachment).size-1);
-}
-
-
-cass::PostProcessors::active_t getDataThread::getIdList() {
-    bool ret;
-    int retcode=_cass->getPostprocessorIds(&ret);
-    if( (retcode==SOAP_OK) && ret) {
-        VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
-    } else {
-        VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
-        return cass::PostProcessors::active_t();
-    }
-    soap_multipart::iterator attachment = _cass->dime.begin();
-    VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
-               << "Memory=" << (void*)(*attachment).ptr << std::endl
-               << "Size=" << (*attachment).size << std::endl
-               << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
-               << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
-    /** @bug when jocassview is started without having a cass server running it crashes here */
-    cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-    cass::IdList list(serializer);
-    return list.getList();
 }
 
 
