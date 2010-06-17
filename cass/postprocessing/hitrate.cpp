@@ -250,22 +250,26 @@ void cass::pp589::operator()(const CASSEvent&)
     _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<float>::difference_type(0,0), vigra::Matrix<float>::difference_type(_trainingSetsInserted,_nFeatures)) );
 
     typedef matrixType::traverser ttt;
-
+#ifdef VERBOSE
+    std::cout << std::endl << "_cov= [";
     for (ttt it0 = _cov.traverser_begin(); it0!=_cov.traverser_end(); ++it0) {
-        std::cout << std::endl;
+        std::cout << "[";
         for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << " ";
+            std::cout << *it1 << ", ";
         }
+        std::cout << "]; ";
     }
-    std::cout << std::endl;
-
+    std::cout << "] " << std::endl;
+    std::cout << std::endl << "_variationFeatures= [";
     for (ttt it0 = _variationFeatures.traverser_begin(); it0!=_variationFeatures.traverser_end(); ++it0) {
-        std::cout << std::endl;
+        std::cout << "[";
         for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << " ";
+            std::cout << *it1 << ", ";
         }
+        std::cout << "]; ";
     }
-    std::cout << std::endl;
+    std::cout << "] " << std::endl;
+#endif
 
     try{
         _covI = vigra::linalg::inverse(_cov);
@@ -275,6 +279,17 @@ void cass::pp589::operator()(const CASSEvent&)
         vigra::linalg::identityMatrix(_covI); 
     };
 
+#ifdef VERBOSE
+    std::cout << std::endl << "_covI = [";
+    for (ttt it0 = _covI.traverser_begin(); it0!=_covI.traverser_end(); ++it0) {
+        std::cout << "[";
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << ", ";
+        }
+        std::cout << "]; ";
+    }
+    std::cout << "] " << std::endl;
+#endif
 
     _reTrain = false;
     //calculate collumn-average and store in _mean
