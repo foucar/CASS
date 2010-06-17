@@ -718,10 +718,8 @@ void cass::pp21::loadSettings(size_t)
   if ( !(_one && _two) ) return;
 
   // Get (empty) histograms to check dimensionality
-  const HistogramFloatBase &one
-                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
-  const HistogramFloatBase &two
-                   (dynamic_cast<const HistogramFloatBase &>(_two->getHist(0)));
+  const HistogramBackend &one(_one->getHist(0));
+  const HistogramBackend &two(_two->getHist(0));
 
   if (one.dimension() != two.dimension())
   {
@@ -730,7 +728,7 @@ void cass::pp21::loadSettings(size_t)
   }
 
   // Create result histogram with the right dimensionality
-  _result = new HistogramFloatBase(one);
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
@@ -742,11 +740,11 @@ void cass::pp21::loadSettings(size_t)
 void cass::pp21::process(const CASSEvent &evt)
 {
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Divide using transform with a special function
   one.lock.lockForRead();
@@ -797,10 +795,8 @@ void cass::pp22::loadSettings(size_t)
   if ( !(_one && _two) ) return;
 
   // Get (empty) histograms to check dimensionality
-  const HistogramFloatBase &one
-                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
-  const HistogramFloatBase &two
-                   (dynamic_cast<const HistogramFloatBase &>(_two->getHist(0)));
+  const HistogramBackend &one(_one->getHist(0));
+  const HistogramBackend &two(_two->getHist(0));
 
   if (one.dimension() != two.dimension())
   {
@@ -809,7 +805,7 @@ void cass::pp22::loadSettings(size_t)
   }
 
   // Create result histogram with the right dimensionality
-  _result = new HistogramFloatBase(one);
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
@@ -821,11 +817,11 @@ void cass::pp22::loadSettings(size_t)
 void cass::pp22::process(const CASSEvent &evt)
 {
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Multiply using transform
   one.lock.lockForRead();
@@ -874,9 +870,8 @@ void cass::pp23::loadSettings(size_t)
   if ( !_one ) return;
 
   // Create result histogram with the right dimensionality
-  const HistogramFloatBase &one
-                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
-  _result = new HistogramFloatBase(one);
+  const HistogramBackend &one(_one->getHist(0));
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
@@ -889,7 +884,7 @@ void cass::pp23::process(const CASSEvent &evt)
 {
   // Get the input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Multiply using transform (under locks)
   one.lock.lockForRead();
@@ -934,9 +929,8 @@ void cass::pp24::loadSettings(size_t)
   if ( !_one ) return;
 
   // Create result histogram with the right dimensionality
-  const HistogramFloatBase &one
-                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
-  _result = new HistogramFloatBase(one);
+  const HistogramBackend &one(_one->getHist(0));
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
@@ -949,7 +943,7 @@ void cass::pp24::process(const CASSEvent &evt)
 {
   // Get the input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Subtract using transform (under locks)
   one.lock.lockForRead();
@@ -1465,9 +1459,8 @@ void cass::pp61::loadSettings(size_t)
   bool ret (setupCondition());
   if (!ret && !_pHist)
     return;
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
-  _result = new HistogramFloatBase(one);
+  const HistogramBackend &one(_pHist->getHist(0));
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
       <<": averages histograms from PostProcessor "<< keyHist
@@ -1482,7 +1475,7 @@ void cass::pp61::process(const CASSEvent& evt)
   if ((*_condition)(evt).isTrue())
   {
     const HistogramFloatBase& one
-        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
     ++_result->nbrOfFills();
@@ -1530,9 +1523,8 @@ void cass::pp62::loadSettings(size_t)
   bool ret (setupCondition());
   if (!ret && !_pHist)
     return;
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
-  _result = new HistogramFloatBase(one);
+  const HistogramBackend &one(_pHist->getHist(0));
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
       <<": sums up histograms from PostProcessor "<< keyHist
@@ -1546,7 +1538,7 @@ void cass::pp62::process(const CASSEvent& evt)
   if ((*_condition)(evt).isTrue())
   {
     const HistogramFloatBase& one
-        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
     ++_result->nbrOfFills();
@@ -1591,9 +1583,8 @@ void cass::pp63::loadSettings(size_t)
   bool ret (setupCondition());
   if (!ret && !_pHist)
     return;
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
-  _result = new HistogramFloatBase(one);
+  const HistogramBackend &one(_pHist->getHist(0));
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
       <<" will calculate the time average of histogram of PostProcessor_"<<keyHist
@@ -1621,7 +1612,7 @@ void cass::pp63::process(const cass::CASSEvent& evt)
   if ((*_condition)(evt).isTrue())
   {
     const HistogramFloatBase& one
-        (reinterpret_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
     // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
@@ -1733,7 +1724,7 @@ void cass::pp70::process(const cass::CASSEvent &evt)
   {
 
     const Histogram0DFloat &one
-                    (reinterpret_cast<const Histogram0DFloat &>((*_one)(evt)));
+                    (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
     ++_result->nbrOfFills();
