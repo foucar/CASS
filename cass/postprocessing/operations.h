@@ -410,151 +410,59 @@ namespace cass
 
 
 
-  /** Difference between choosable histograms.
-   *
-   * This histogram will create a histogram which is the result of subtracting
-   * histogram in pp with id one from histogram in pp with id two. The resulting
-   * histogram will follow the formular:
-   * \f$Result = One * f_{one}  - Two * f_{two}\f$
-   * where \f$f_{one}\f$ and \f$f_{two}\f$ are factors that one can weight the
-   * first and second part with.
-   *
-   * The resulting histogram will be created using the size and dimension of the
-   * first histogram.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the subtraction. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
-   *           The factors that will weight the subtraction. The default is 1.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp20 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp20(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** factor by which the first histogram will be weighted */
-    float _fOne;
-
-    /** factor by which the second histogram will be weighted */
-    float _fTwo;
-
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
 
 
 
-
-
-
-
-
-
-  /** Divide two histograms.
-   *
-   * \f$result = \frac{hist_{one}}{hist_{two}}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * The resulting histogram will be created using the size and dimension of the
-   * first histogram.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the operation. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp21 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp21(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
-
-
-
-
-
-
-
-
-  /** Multiply two histograms.
-   *
-   * \f$result = hist_{one} \times hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * The resulting histogram will be created using the size and dimension of the
-   * first histogram.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the operation. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp22 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp22(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
+//  /** Difference between choosable histograms.
+//   *
+//   * This histogram will create a histogram which is the result of subtracting
+//   * histogram in pp with id one from histogram in pp with id two. The resulting
+//   * histogram will follow the formular:
+//   * \f$Result = One * f_{one}  - Two * f_{two}\f$
+//   * where \f$f_{one}\f$ and \f$f_{two}\f$ are factors that one can weight the
+//   * first and second part with.
+//   *
+//   * The resulting histogram will be created using the size and dimension of the
+//   * first histogram.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the subtraction. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
+//   *           The factors that will weight the subtraction. The default is 1.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp20 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp20(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** factor by which the first histogram will be weighted */
+//    float _fOne;
+//
+//    /** factor by which the second histogram will be weighted */
+//    float _fTwo;
+//
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
 
@@ -564,38 +472,46 @@ namespace cass
 
 
 
-  /** Multiply histogram with constant.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name with histogram that should be multiplied. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{Factor} \n
-   *           Factor with which histogram should be multiplied. Default is 1.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp23 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp23(PostProcessors& hist, const PostProcessors::key_t&);
+//  /** Divide two histograms.
+//   *
+//   * \f$result = \frac{hist_{one}}{hist_{two}}\f$
+//   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+//   * respectivly
+//   *
+//   * The resulting histogram will be created using the size and dimension of the
+//   * first histogram.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the operation. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp21 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp21(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing input histogram */
-    PostprocessorBackend *_one;
-
-    /** the factor we mulitply the histogram with */
-    float _factor;
-  };
 
 
 
@@ -603,40 +519,127 @@ namespace cass
 
 
 
+//  /** Multiply two histograms.
+//   *
+//   * \f$result = hist_{one} \times hist_{two}\f$
+//   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+//   * respectivly
+//   *
+//   * The resulting histogram will be created using the size and dimension of the
+//   * first histogram.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the operation. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp22 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp22(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
-  /** Subtract constant from histogram.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name with histogram that should be multiplied. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{Factor} \n
-   *           Factor with which histogram should be subtracted. Default is 1.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp24 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp24(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** process event */
-    virtual void process(const CASSEvent&);
 
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
 
-  protected:
-    /** pp containing input histogram */
-    PostprocessorBackend *_one;
 
-    /** the number we subtract from the histogram */
-    float _factor;
-  };
+
+
+
+//  /** Multiply histogram with constant.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistName} \n
+//   *           Postprocessor name with histogram that should be multiplied. Default is 0.
+//   * @cassttng PostProcessor/\%name\%/{Factor} \n
+//   *           Factor with which histogram should be multiplied. Default is 1.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp23 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp23(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing input histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** the factor we mulitply the histogram with */
+//    float _factor;
+//  };
+
+
+
+
+
+
+
+
+
+//  /** Subtract constant from histogram.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistName} \n
+//   *           Postprocessor name with histogram that should be multiplied. Default is 0.
+//   * @cassttng PostProcessor/\%name\%/{Factor} \n
+//   *           Factor with which histogram should be subtracted. Default is 1.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp24 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp24(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing input histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** the number we subtract from the histogram */
+//    float _factor;
+//  };
 
 
 
@@ -658,11 +661,11 @@ namespace cass
    *
    * @author Thomas White
    */
-  class pp25 : public PostprocessorBackend
+  class pp40 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp25(PostProcessors& hist, const PostProcessors::key_t&);
+    pp40(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);

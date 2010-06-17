@@ -640,381 +640,381 @@ void cass::pp9::process(const CASSEvent &evt)
 
 
 
-// **************** Postprocessor 20: Subtract two histograms ******************
+//// **************** Postprocessor 20: Subtract two histograms ******************
+//
+//cass::pp20::pp20(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp20::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  _fOne = settings.value("FactorOne",1.).toFloat();
+//  _fTwo = settings.value("FactorTwo",1.).toFloat();
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  const HistogramBackend &one(_one->getHist(0));
+//  const HistogramBackend &two(_two->getHist(0));
+//  if (one.dimension() != two.dimension())
+//  {
+//    throw std::runtime_error("PP type 20: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  _result = one.clone();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//   std::cout << "PostProcessor " << _key
+//      << ": will subtract Histogram in PostProcessor " << keyOne
+//      << " from Histogram in PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp20::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get first input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Subtract using transform with a special function
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    transform(one.memory().begin(), one.memory().end(),
+//              two.memory().begin(),
+//              (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+//              weighted_minus(_fOne,_fTwo));
+//    _result->lock.unlock();
+//    one.lock.unlock();
+//    two.lock.unlock();
+//  }
+//}
 
-cass::pp20::pp20(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+
+
+
+
+
+
+
+
+
+//// ***************** Postprocessor 21: Divide two histograms *******************
+//
+//cass::pp21::pp21(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp21::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  // Get (empty) histograms to check dimensionality
+//  const HistogramBackend &one(_one->getHist(0));
+//  const HistogramBackend &two(_two->getHist(0));
+//
+//  if (one.dimension() != two.dimension())
+//  {
+//    throw std::runtime_error("PP type 20: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  // Create result histogram with the right dimensionality
+//  _result = one.clone();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will divide Histogram in PostProcessor " << keyOne
+//      << " by Histogram in PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp21::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Divide using transform with a special function
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    std::transform(one.memory().begin(), one.memory().end(),
+//                   two.memory().begin(),
+//                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+//                   std::divides<float>());
+//    _result->lock.unlock();
+//    one.lock.unlock();
+//    two.lock.unlock();
+//  }
+//}
+
+
+
+
+
+
+
+
+
+
+//// **************** Postprocessor 22: Multiply two histograms ******************
+//
+//cass::pp22::pp22(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp22::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
+//  _dependencies.push_back(keyOne);
+//  _dependencies.push_back(keyTwo);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  // Get (empty) histograms to check dimensionality
+//  const HistogramBackend &one(_one->getHist(0));
+//  const HistogramBackend &two(_two->getHist(0));
+//
+//  if (one.dimension() != two.dimension())
+//  {
+//    throw std::runtime_error("PP type 20: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  // Create result histogram with the right dimensionality
+//  _result = one.clone();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will divide Histogram in PostProcessor " << keyOne
+//      << " by Histogram in PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp22::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Multiply using transform
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    std::transform(one.memory().begin(), one.memory().end(),
+//                   two.memory().begin(),
+//                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+//                   std::multiplies<float>());
+//    _result->lock.unlock();
+//    one.lock.unlock();
+//    two.lock.unlock();
+//  }
+//}
+
+
+
+
+
+
+
+
+
+
+
+//// ************ Postprocessor 23: Multiply histogram by constant ***************
+//
+//cass::pp23::pp23(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp23::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  _factor = settings.value("Factor",1).toFloat();
+//
+//  // Get input
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if (!(_one && ret)) return;
+//
+//  // Create result histogram with the right dimensionality
+//  const HistogramBackend &one(_one->getHist(0));
+//  _result = one.clone();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will multiply Histogram in PostProcessor " << keyOne
+//      << " by " << _factor
+//      << std::endl;
+//}
+//
+//void cass::pp23::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get the input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Multiply using transform (under locks)
+//    one.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    std::transform(one.memory().begin(), one.memory().end(),
+//                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+//                   std::bind2nd(std::multiplies<float>(),_factor));
+//    _result->lock.unlock();
+//    one.lock.unlock();
+//  }
+//}
+
+
+
+
+
+
+
+
+
+//// *********** Postprocessor 24: Subtract constant from histogram **************
+//
+//cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp24::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  _factor = settings.value("Factor",1).toFloat();
+//
+//  // Get input
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if (!(_one && ret)) return;
+//
+//  // Create result histogram with the right dimensionality
+//  const HistogramBackend &one(_one->getHist(0));
+//  _result = one.clone();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will subtract " << _factor
+//      << "from histogram in PostProcessor " << keyOne
+//      << std::endl;
+//}
+//
+//void cass::pp24::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get the input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Subtract using transform (under locks)
+//    one.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    std::transform(one.memory().begin(), one.memory().end(),
+//                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+//                   bind2nd(std::minus<float>(), _factor));
+//    _result->lock.unlock();
+//    one.lock.unlock();
+//  }
+//}
+
+
+
+
+
+
+
+
+
+
+
+// ****************** Postprocessor 40: Threshold histogram ********************
+
+cass::pp40::pp40(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-void cass::pp20::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  _fOne = settings.value("FactorOne",1.).toFloat();
-  _fTwo = settings.value("FactorTwo",1.).toFloat();
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  const HistogramBackend &one(_one->getHist(0));
-  const HistogramBackend &two(_two->getHist(0));
-  if (one.dimension() != two.dimension())
-  {
-    throw std::runtime_error("PP type 20: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
-
-   std::cout << "PostProcessor " << _key
-      << ": will subtract Histogram in PostProcessor " << keyOne
-      << " from Histogram in PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp20::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get first input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Subtract using transform with a special function
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    _result->lock.lockForWrite();
-    transform(one.memory().begin(), one.memory().end(),
-              two.memory().begin(),
-              (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-              weighted_minus(_fOne,_fTwo));
-    _result->lock.unlock();
-    one.lock.unlock();
-    two.lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-// ***************** Postprocessor 21: Divide two histograms *******************
-
-cass::pp21::pp21(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp21::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  // Get (empty) histograms to check dimensionality
-  const HistogramBackend &one(_one->getHist(0));
-  const HistogramBackend &two(_two->getHist(0));
-
-  if (one.dimension() != two.dimension())
-  {
-    throw std::runtime_error("PP type 20: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  // Create result histogram with the right dimensionality
-  _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will divide Histogram in PostProcessor " << keyOne
-      << " by Histogram in PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp21::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Divide using transform with a special function
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    _result->lock.lockForWrite();
-    std::transform(one.memory().begin(), one.memory().end(),
-                   two.memory().begin(),
-                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                   std::divides<float>());
-    _result->lock.unlock();
-    one.lock.unlock();
-    two.lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-// **************** Postprocessor 22: Multiply two histograms ******************
-
-cass::pp22::pp22(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp22::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
-  _dependencies.push_back(keyOne);
-  _dependencies.push_back(keyTwo);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  // Get (empty) histograms to check dimensionality
-  const HistogramBackend &one(_one->getHist(0));
-  const HistogramBackend &two(_two->getHist(0));
-
-  if (one.dimension() != two.dimension())
-  {
-    throw std::runtime_error("PP type 20: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  // Create result histogram with the right dimensionality
-  _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will divide Histogram in PostProcessor " << keyOne
-      << " by Histogram in PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp22::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Multiply using transform
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    _result->lock.lockForWrite();
-    std::transform(one.memory().begin(), one.memory().end(),
-                   two.memory().begin(),
-                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                   std::multiplies<float>());
-    _result->lock.unlock();
-    one.lock.unlock();
-    two.lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-// ************ Postprocessor 23: Multiply histogram by constant ***************
-
-cass::pp23::pp23(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp23::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  _factor = settings.value("Factor",1).toFloat();
-
-  // Get input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if (!(_one && ret)) return;
-
-  // Create result histogram with the right dimensionality
-  const HistogramBackend &one(_one->getHist(0));
-  _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will multiply Histogram in PostProcessor " << keyOne
-      << " by " << _factor
-      << std::endl;
-}
-
-void cass::pp23::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Multiply using transform (under locks)
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    std::transform(one.memory().begin(), one.memory().end(),
-                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                   std::bind2nd(std::multiplies<float>(),_factor));
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-// *********** Postprocessor 24: Subtract constant from histogram **************
-
-cass::pp24::pp24(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp24::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  _factor = settings.value("Factor",1).toFloat();
-
-  // Get input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if (!(_one && ret)) return;
-
-  // Create result histogram with the right dimensionality
-  const HistogramBackend &one(_one->getHist(0));
-  _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will subtract " << _factor
-      << "from histogram in PostProcessor " << keyOne
-      << std::endl;
-}
-
-void cass::pp24::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Subtract using transform (under locks)
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    std::transform(one.memory().begin(), one.memory().end(),
-                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                   bind2nd(std::minus<float>(), _factor));
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-// ****************** Postprocessor 25: Threshold histogram ********************
-
-cass::pp25::pp25(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp25::loadSettings(size_t)
+void cass::pp40::loadSettings(size_t)
 {
   QSettings settings;
 
@@ -1036,7 +1036,7 @@ void cass::pp25::loadSettings(size_t)
       << std::endl;
 }
 
-void cass::pp25::process(const CASSEvent &evt)
+void cass::pp40::process(const CASSEvent &evt)
 {
   if ((*_condition)(evt).isTrue())
   {

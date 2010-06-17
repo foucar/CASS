@@ -367,22 +367,31 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp10(*this, key, false);
     break;
   case SubtractHistograms:
-    processor = new pp20(*this, key);
+    processor = new pp20<minus<float> >(*this, key, minus<float>());
+    break;
+  case AddHistograms:
+    processor = new pp20<plus<float> >(*this, key, plus<float>());
     break;
   case DivideHistograms:
-    processor = new pp21(*this, key);
+    processor = new pp20<divides<float> >(*this, key, divides<float>());
     break;
   case MultiplyHistograms:
-    processor = new pp22(*this, key);
-    break;
-  case MultiplyConstant:
-    processor = new pp23(*this, key);
+    processor = new pp20<multiplies<float> >(*this, key, multiplies<float>());
     break;
   case SubtractConstant:
-    processor = new pp24(*this, key);
+    processor = new pp23<minus<float> >(*this, key, minus<float>());
+    break;
+  case AddConstant:
+    processor = new pp23<plus<float> >(*this, key, plus<float>());
+    break;
+  case MultiplyConstant:
+    processor = new pp23<multiplies<float> >(*this, key, multiplies<float>());
+    break;
+  case DivideConstant:
+    processor = new pp23<divides<float> >(*this, key, divides<float>());
     break;
   case Threshold:
-    processor = new pp25(*this, key);
+    processor = new pp40(*this, key);
     break;
   case TwoDProjection:
     processor = new pp50(*this, key);

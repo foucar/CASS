@@ -200,8 +200,9 @@ namespace cass
    * This template compares the sum of all bins of two histograms.
    *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor name that contain the first histogram. Needs to
-   *           be implemented, because default is "", which is invalid.
+   *           the postprocessor names that contain the first and second
+   *           histogram. Needs to be implemented, because default is "",
+   *           which is invalid.
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
@@ -282,6 +283,189 @@ namespace cass
     /** the comparison operation done with the data */
     ComparisonOperator op;
   };
+
+
+
+
+
+  /** Operation on two histograms.
+   *
+   * templated operation on two histograms. The operation will be performed
+   * bin by bin.
+   *
+   * The two histograms need to be of the same dimension and size.
+   *
+   * The resulting histogram will be created using the size and dimension of the
+   * first histogram.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           the postprocessor names that contain the first and second
+   *           histogram. Needs to be implemented, because default is "",
+   *           which is invalid.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
+   *
+   * @tparam Operator operator that will work on the data
+   * @author Lutz Foucar
+   */
+  template <class Operator>
+  class pp20 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp20(PostProcessors& pp, const PostProcessors::key_t& key, const Operator& x)
+      : PostprocessorBackend(pp, key), op (x)
+    {
+      loadSettings(0);
+    }
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t)
+    {
+      QSettings settings;
+      settings.beginGroup("PostProcessor");
+      settings.beginGroup(_key.c_str());
+      PostProcessors::key_t keyOne;
+      _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+      _dependencies.push_back(keyOne);
+      PostProcessors::key_t keyTwo;
+      _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
+      _dependencies.push_back(keyOne);
+      bool ret (setupCondition());
+      if ( !(_one && _two && ret) ) return;
+      const HistogramBackend &one(_one->getHist(0));
+      const HistogramBackend &two(_two->getHist(0));
+      if (one.dimension() != two.dimension() ||
+          dynamic_cast<const HistogramFloatBase&>(one).memory().size() !=
+          dynamic_cast<const HistogramFloatBase&>(two).memory().size())
+        throw std::runtime_error("PP type 20: HistOne is not the same type "
+                                 " as HistTwo, or they have not the same size.");
+      _result = one.clone();
+      createHistList(2*cass::NbrOfWorkers);
+      std::cout << "PostProcessor " << _key
+          << ": operation "<< typeid(op).name()
+          << " on Histogram in PostProcessor " << keyOne
+          << " with Histogram in PostProcessor " << keyTwo
+          << std::endl;
+    }
+
+    /** process event */
+    virtual void process(const CASSEvent& evt)
+    {
+      if ((*_condition)(evt).isTrue())
+      {
+        const HistogramFloatBase &one
+            (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+        const HistogramFloatBase &two
+            (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+        one.lock.lockForRead();
+        two.lock.lockForRead();
+        _result->lock.lockForWrite();
+        transform(one.memory().begin(), one.memory().end(),
+                  two.memory().begin(),
+                  (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                  op);
+        _result->lock.unlock();
+        one.lock.unlock();
+        two.lock.unlock();
+      }
+    }
+
+  protected:
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
+
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
+
+    /** the operation done with the data */
+    Operator op;
+  };
+
+
+
+
+
+
+  /** Operate histogram with constant.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           the postprocessor name that contain the first histogram. Needs to
+   *           be implemented, because default is "", which is invalid.
+   * @cassttng PostProcessor/\%name\%/{Value} \n
+   *           Value for the operation. Default is 1.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
+   *
+   * @tparam Operator operator that will work on the data
+   * @author Lutz Foucar
+   */
+  template <class Operator>
+  class pp23 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp23(PostProcessors& pp, const PostProcessors::key_t& key, const Operator& x)
+      : PostprocessorBackend(pp, key), op (x)
+    {
+      loadSettings(0);
+    }
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t)
+    {
+      QSettings settings;
+      settings.beginGroup("PostProcessor");
+      settings.beginGroup(_key.c_str());
+      _value = settings.value("Factor",1).toFloat();
+      PostProcessors::key_t keyOne;
+      _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+      _dependencies.push_back(keyOne);
+      bool ret (setupCondition());
+      if (!(_one && ret)) return;
+      const HistogramBackend &one(_one->getHist(0));
+      _result = one.clone();
+      createHistList(2*cass::NbrOfWorkers);
+      std::cout << "PostProcessor " << _key
+          << ": operation "<< typeid(op).name()
+          << " on Histogram in PostProcessor " << keyOne
+          << " with " << _value
+          << std::endl;
+    }
+
+    /** process event */
+    virtual void process(const CASSEvent& evt)
+    {
+      using namespace std;
+      if ((*_condition)(evt).isTrue())
+      {
+        const HistogramFloatBase &one
+            (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+        one.lock.lockForRead();
+        _result->lock.lockForWrite();
+        transform(one.memory().begin(), one.memory().end(),
+                  dynamic_cast<HistogramFloatBase *>(_result)->memory().begin(),
+                  bind2nd(op,_value));
+        _result->lock.unlock();
+        one.lock.unlock();
+      }
+    }
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_one;
+
+    /** the factor we mulitply the histogram with */
+    float _value;
+
+    /** the operation done with the data */
+    Operator op;
+  };
+
 
 
 }//end namespace

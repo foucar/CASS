@@ -59,12 +59,16 @@ the Class description for information about what parameters are user settable.
 00010: Constant true (pp10)
 00011: Constant false (pp10)
 
-00020: Subtract first histogram by second histogram
-00021: Divide first histogram by second histogram
-00022: Multiply first histogram with second histogram
-00023: Multiply histogram with constant
-00024: Subtract Constant
-00025: Threshold histogram
+00020: Subtract first histogram by second histogram (pp20)
+00021: Add first histogram to second histogram (pp20)
+00022: Divide first histogram by second histogram (pp20)
+00023: Multiply first histogram with second histogram (pp20)
+00024: Subtract Constant to histogram (pp23)
+00025: Add Constant to histogram (pp23)
+00026: Multiply histogram with constant (pp23)
+00027: Divide histogram constant constant (pp23)
+
+00040: Threshold histogram
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
@@ -199,11 +203,15 @@ using the custom doxygen tag cassttng.
       ConstantFalse=11,
 
       SubtractHistograms=20,
-      DivideHistograms=21,
-      MultiplyHistograms=22,
-      MultiplyConstant=23,
+      AddHistograms=21,
+      DivideHistograms=22,
+      MultiplyHistograms=23,
       SubtractConstant=24,
-      Threshold=25,
+      AddConstant=25,
+      MultiplyConstant=26,
+      DivideConstant=27,
+
+      Threshold=40,
 
       TwoDProjection=50,
       OneDIntergral=51,
