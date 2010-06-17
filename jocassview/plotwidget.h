@@ -671,7 +671,7 @@ protected slots:
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
 
-    _sepctrogram->setColorMap(*_colorMap);
+    _spectrogram->setColorMap(*_colorMap);
     _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
     _plot->replot();
   }
