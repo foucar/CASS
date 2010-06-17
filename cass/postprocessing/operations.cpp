@@ -51,7 +51,7 @@ void cass::pp1::process(const CASSEvent& evt)
 
   // Get and lock input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Sum values, then unlock
   one.lock.lockForRead();
@@ -113,7 +113,7 @@ void cass::pp2::process(const CASSEvent& evt)
 {
   // Get and lock input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Sum values
   one.lock.lockForRead();
@@ -177,7 +177,7 @@ void cass::pp3::process(const CASSEvent& evt)
 {
   // Get the input data
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Sum values
   one.lock.lockForRead();
@@ -236,7 +236,7 @@ void cass::pp4::process(const CASSEvent& evt)
 {
   // Get the input data
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Lock both input and output, and perform negation
   one.lock.lockForRead();
@@ -300,11 +300,11 @@ void cass::pp5::process(const CASSEvent& evt)
 {
   // Get first input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Perform the AND (under appropriate locks)
   one.lock.lockForRead();
@@ -370,11 +370,11 @@ void cass::pp6::process(const CASSEvent& evt)
 {
   // Get first input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Perform the AND (under appropriate locks)
   one.lock.lockForRead();
@@ -440,11 +440,11 @@ void cass::pp7::process(const CASSEvent &evt)
 {
   // Get first input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Add up both histograms (under locks)
   one.lock.lockForRead();
@@ -515,11 +515,11 @@ void cass::pp8::process(const CASSEvent &evt)
 {
   // Get first input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Add up both histograms (under locks)
   one.lock.lockForRead();
@@ -589,7 +589,7 @@ void cass::pp9::process(const CASSEvent &evt)
 {
   // Get the input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Sum up the histogram under lock
   one.lock.lockForRead();
@@ -663,11 +663,11 @@ void cass::pp20::process(const CASSEvent &evt)
 {
   // Get first input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Get second input
   const HistogramFloatBase &two
-      (reinterpret_cast<const HistogramFloatBase&>((*_two)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
   // Subtract using transform with a special function
   one.lock.lockForRead();
@@ -999,7 +999,7 @@ void cass::pp25::process(const CASSEvent &evt)
 {
   // Get the input
   const HistogramFloatBase &one
-      (reinterpret_cast<const HistogramFloatBase&>((*_one)(evt)));
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
   // Subtract using transform (under locks)
   one.lock.lockForRead();
@@ -1209,7 +1209,7 @@ void cass::pp52::process(const CASSEvent& evt)
   using namespace std;
   //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
-      (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
@@ -1291,7 +1291,7 @@ void cass::pp53::process(const CASSEvent& evt)
   using namespace std;
   //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
-      (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   // retrieve the projection from the 2d hist//
   one.lock.lockForRead();
   _result->lock.lockForWrite();
@@ -1366,7 +1366,7 @@ void cass::pp54::process(const CASSEvent& evt)
   using namespace std;
   //retrieve the memory of the to be subtracted histograms//
   const Histogram2DFloat &one
-      (reinterpret_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   // retrieve the projection from the 2d hist//
   one.lock.lockForRead();
   _result->lock.lockForWrite();
@@ -1418,7 +1418,7 @@ void cass::pp60::process(const CASSEvent& evt)
   if ((*_condition)(evt).isTrue())
   {
     const Histogram0DFloat &one
-        (reinterpret_cast<const Histogram0DFloat&>((*_pHist)(evt)));
+        (dynamic_cast<const Histogram0DFloat&>((*_pHist)(evt)));
     one.lock.lockForRead();
     _result->lock.lockForWrite();
     dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
