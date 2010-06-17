@@ -296,7 +296,7 @@ void cass::pp589::process(const CASSEvent& evt)
 //  _integralimg->lock.unlock();
 //  _rowsum->lock.unlock();
   _result->lock.lockForWrite();
-  *reinterpret_cast<Histogram0DFloat*>(_result) = mahal_dist;
+  *dynamic_cast<Histogram0DFloat*>(_result) = mahal_dist;
   _result->lock.unlock();
 }
 
