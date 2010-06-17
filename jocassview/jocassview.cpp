@@ -21,8 +21,11 @@ int main(int argc, char *argv[])
 
     QDesktopWidget *my_desktop= app.desktop();
     const QRect displ(my_desktop->availableGeometry(-1));
-    const int displ_height= displ.height();
-    const int displ_width= displ.width();
+    int displ_height= displ.height();
+    int displ_width= displ.width();
+    //trick to fake the number of screens
+    if(displ_height>2000)displ_height /=2;
+    if(displ_width>2000)displ_width /=2;
     const int min_size = std::min(displ_height,displ_width);
     const int nscreens= my_desktop->screenCount();
     const QRect screen(my_desktop->screenGeometry(-1));
@@ -32,8 +35,9 @@ int main(int argc, char *argv[])
              << displ_width << " " << nscreens
              << " "
              << screen_height << " x " 
-             << screen_width << " " <<  my_desktop->isVirtualDesktop() <<std::endl;
-    window.resize(min_size/2,min_size/2);
+             << screen_width << " " <<  my_desktop->isVirtualDesktop()
+             << " " <<  my_desktop->primaryScreen() <<std::endl;
+    window.resize(min_size,min_size);
 
     window.show();
     return app.exec();
