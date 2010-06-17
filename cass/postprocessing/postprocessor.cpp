@@ -112,7 +112,7 @@ void cass::PostProcessors::aboutToQuit()
 
 void cass::PostProcessors::loadSettings(size_t)
 {
-  using namepspace std;
+  using namespace std;
   VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
   QSettings settings;
   settings.beginGroup("PostProcessor");
@@ -340,7 +340,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp1<greater<float> >(*this, key, greater<float>());
     break;
   case ConstantEqual:
-    processor = new pp3(*this, key);
+    processor = new pp1<equal_to<float> >(*this, key, equal_to<float>());
     break;
   case BooleanNOT:
     processor = new pp4(*this, key);

@@ -102,39 +102,39 @@ namespace cass
 
 
 
-  /** Compare histogram for equal to constant.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne} \n
-   *           the postprocessor name that contain the first histogram. Default
-   *           is 0.
-   * @cassttng PostProcessor/\%name\%/{Value} \n
-   *           Value to compare the histograms value to. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp3 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp3(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing histogram */
-    PostprocessorBackend *_one;
-
-    /** constant value to compare to */
-    float _value;
-  };
+//  /** Compare histogram for equal to constant.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne} \n
+//   *           the postprocessor name that contain the first histogram. Default
+//   *           is 0.
+//   * @cassttng PostProcessor/\%name\%/{Value} \n
+//   *           Value to compare the histograms value to. Default is 0.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp3 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp3(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** constant value to compare to */
+//    float _value;
+//  };
 
 
 

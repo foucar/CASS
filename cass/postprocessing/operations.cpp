@@ -145,62 +145,62 @@
 
 
 
-// ********** Postprocessor 3: Compare histogram for equal to constant *********
-cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp3::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  // What is the value with which we will compare?
-  _value = settings.value("Value",0).toFloat();
-
-  // Where will the input come from?
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-  bool ret (setupCondition());
-  if (!_one || !ret) return;
-
-  // Where will the result be stored?
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will compare whether hist in PostProcessor " << _one->key()
-      << " is equal to " << _value
-      << std::endl;
-}
-
-void cass::pp3::process(const CASSEvent& evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input data
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Sum values
-    one.lock.lockForRead();
-    float first (std::accumulate(one.memory().begin(),
-                                 one.memory().end(),
-                                 0.f));
-    one.lock.unlock();
-
-    // Compare and store the result
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) =
-        std::abs(first - _value) < std::sqrt(std::numeric_limits<float>::epsilon());
-    _result->lock.unlock();
-  }
-}
+//// ********** Postprocessor 3: Compare histogram for equal to constant *********
+//cass::pp3::pp3(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp3::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  // What is the value with which we will compare?
+//  _value = settings.value("Value",0).toFloat();
+//
+//  // Where will the input come from?
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//  bool ret (setupCondition());
+//  if (!_one || !ret) return;
+//
+//  // Where will the result be stored?
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will compare whether hist in PostProcessor " << _one->key()
+//      << " is equal to " << _value
+//      << std::endl;
+//}
+//
+//void cass::pp3::process(const CASSEvent& evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get the input data
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Sum values
+//    one.lock.lockForRead();
+//    float first (std::accumulate(one.memory().begin(),
+//                                 one.memory().end(),
+//                                 0.f));
+//    one.lock.unlock();
+//
+//    // Compare and store the result
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) =
+//        std::abs(first - _value) < std::sqrt(std::numeric_limits<float>::epsilon());
+//    _result->lock.unlock();
+//  }
+//}
 
 
 
