@@ -278,9 +278,11 @@ public:
     /** clone the histogram.
      * This function will create a new copy of this on the heap. It will not copy
      * the data in memory but rather set it to 0.
-     * Needs to be implemented by the different flavors of histograms.
      */
-    virtual HistogramBackend* clone()const=0;
+    virtual HistogramBackend* clone()const
+    {
+      return new HistogramFloatBase(dimension(),memory().size(),ver());
+    }
 
     /** typedef describing the type of the values stored in memory*/
     typedef float value_t;
