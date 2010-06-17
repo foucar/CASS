@@ -10,19 +10,20 @@
 #define _OPERATION_TEMPLATES_H_
 
 #include "backend.h"
-#include "cass_event.h"
 #include "histogram.h"
-#include <time.h>
+#include "convenience_functions.h"
 
 namespace cass
 {
 
 
-  /** Compare histogram for less than constant.
+  /** Compare to a constant constant.
+   *
+   * this templated class will compare the sum of all bins to a constant value
    *
    * @cassttng PostProcessor/\%name\%/{HistOne} \n
-   *           the postprocessor name that contain the first histogram. Default
-   *           is 0.
+   *           the postprocessor name that contain the first histogram. Needs to
+   *           be implemented, because default is "", which is invalid.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value to compare the histograms value to. Default is 0.
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
@@ -33,13 +34,13 @@ namespace cass
    * @tparam ComparisonOperator comaprison-operator that will work on the data
    * @author Lutz Foucar
    */
-  template < class ComparisonOperator>
+  template <class ComparisonOperator>
   class pp1 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp1(PostProcessors& hist, const PostProcessors::key_t&)
-      : PostprocessorBackend(pp, key)
+    pp1(PostProcessors& pp, const PostProcessors::key_t& key, const ComparisonOperator& x)
+      : PostprocessorBackend(pp, key), op (x)
     {
       loadSettings(0);
     }
@@ -58,14 +59,15 @@ namespace cass
       if (!_one || !ret) return;
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout << "PostProcessor " << _key
-          << ": will compare whether hist in PostProcessor " << keyOne
-          << " is smaller than " << _value
+      std::cout<< "PostProcessor "<<_key
+          <<": will compare hist in PostProcessor "<<keyOne
+          <<" to constant "<<_value
+          <<" using "<< typeid(op).name()
           << std::endl;
     }
 
     /** process event */
-    virtual void process(const CASSEvent&)
+    virtual void process(const CASSEvent& evt)
     {
       using namespace std;
       if ((*_condition)(evt).isTrue())
@@ -78,7 +80,7 @@ namespace cass
                                 0.f));
         one.lock.unlock();
         _result->lock.lockForWrite();
-        *dynamic_cast<Histogram0DFloat*>(_result) = ComparisonOperator(first, _value);
+        *dynamic_cast<Histogram0DFloat*>(_result) = op(first, _value);
         _result->lock.unlock();
       }
     }
@@ -89,4 +91,10 @@ namespace cass
 
     /** constant value to compare to */
     float _value;
+
+    /** the comparison operation done with the data */
+    ComparisonOperator op;
   };
+
+}//end namespace
+#endif
