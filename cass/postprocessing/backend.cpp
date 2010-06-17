@@ -85,7 +85,7 @@ void PostprocessorBackend::createHistList(size_t size)
   for (size_t i=1; i<size;++i)
   {
     _histList.push_front
-        (make_pair(0, new HistogramFloatBase(*reinterpret_cast<HistogramFloatBase*>(_result))));
+        (make_pair(0, _result->clone()));
   }
 }
 
