@@ -267,7 +267,15 @@ void cass::pp589::operator()(const CASSEvent&)
     }
     std::cout << std::endl;
 
-    _covI = vigra::linalg::inverse(_cov);
+    try{
+        _covI = vigra::linalg::inverse(_cov);
+     }
+    catch( vigra::PreconditionViolation E ) {
+        // matrix is singular. use normalized euclidean distance instead of mahalanobis:
+        vigra::linalg::identityMatrix(_covI); 
+    };
+
+
     _reTrain = false;
     //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
