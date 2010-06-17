@@ -26,6 +26,10 @@ namespace cass
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value to compare the histograms value to. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -62,6 +66,10 @@ namespace cass
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value to compare the histograms value to. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -101,6 +109,10 @@ namespace cass
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value to compare the histograms value to. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -138,6 +150,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistOne} \n
    *           the postprocessor name that contain the first histogram. Default
    *           is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -170,6 +186,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the boolean AND-ing. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -205,6 +225,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the boolean AND-ing. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -245,6 +269,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the less comparison. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -284,6 +312,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -321,6 +353,10 @@ namespace cass
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit} \n
    *           Upper and Lower limit of the range to check. Default is 0,0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -349,7 +385,11 @@ namespace cass
 
 
 
-  /** Constant true postprocessor.
+
+
+  /** Constant BOOLEAN postprocessor.
+   *
+   * implements pp id 10 and 11
    *
    * @author Lutz Foucar
    */
@@ -357,31 +397,10 @@ namespace cass
   {
   public:
     /** constructor */
-    pp10(PostProcessors& pp, const PostProcessors::key_t &key)
+    pp10(PostProcessors& pp, const PostProcessors::key_t &key, bool boolean)
       :PostprocessorBackend(pp,key)
     {
-      _result = (new Histogram0DFloat(true));
-      createHistList(1);
-    }
-    /** don't do anything to the histogram */
-    virtual void process(const CASSEvent&){}
-  };
-
-
-
-
-  /** Constant false postprocessor.
-   *
-   * @author Lutz Foucar
-   */
-  class pp11 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp11(PostProcessors& pp, const PostProcessors::key_t &key)
-      :PostprocessorBackend(pp,key)
-    {
-      _result = (new Histogram0DFloat(false));
+      _result = (new Histogram0DFloat(boolean));
       createHistList(1);
     }
     /** don't do anything to the histogram */
@@ -409,6 +428,10 @@ namespace cass
    *           will result in an exception. Since pp 0 is not implemented.
    * @cassttng PostProcessor/\%name\%/{FactorOne|FactorTwo} \n
    *           The factors that will weight the subtraction. The default is 1.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -459,6 +482,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -502,6 +529,10 @@ namespace cass
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the operation. Default is 0 for both. This
    *           will result in an exception. Since pp 0 is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -539,6 +570,10 @@ namespace cass
    *           Postprocessor name with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be multiplied. Default is 1.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -576,6 +611,10 @@ namespace cass
    *           Postprocessor name with histogram that should be multiplied. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Factor with which histogram should be subtracted. Default is 1.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -612,6 +651,10 @@ namespace cass
    *           Postprocessor name with histogram that should be thresholded. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Threshold} \n
    *           Factor with which threshold value. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Thomas White
    */
@@ -657,6 +700,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Normalize} \n
    *           Normalize the projection, so that maximum value is always 1.
    *           Default is false.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -707,6 +754,10 @@ namespace cass
    *           Postprocessor name with 1D-Histogram that we create the intgral from Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -747,6 +798,10 @@ namespace cass
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           Xcoordinate and Y coordinate of the centre. Default is 512,512
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @todo improve and generalize radial projection to account for different distance of detector to beam line
    * @todo add treatment of possible asymmetric positions of detectors to beam line
@@ -800,6 +855,10 @@ namespace cass
    *           Number of Bins where the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @todo improve and generalize radial projection to account for different distance of detector to beam line
    * @todo add treatment of possible asymmetric positions of detectors to beam line
@@ -857,6 +916,10 @@ namespace cass
    *           Number of Bins that the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Lutz Foucar
    */
@@ -1021,6 +1084,10 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
    *           Number of values that are used per second to calculate the average.
    *           Default is 5
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
    *
    * @author Nicola Coppola
    */

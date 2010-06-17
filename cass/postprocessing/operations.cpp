@@ -32,7 +32,8 @@ void cass::pp1::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if (!_one) return;
+  bool ret (setupCondition());
+  if (!_one || !ret) return;
 
   // Create result
   _result = new Histogram0DFloat();
@@ -48,24 +49,23 @@ void cass::pp1::loadSettings(size_t)
 void cass::pp1::process(const CASSEvent& evt)
 {
   using namespace std;
-
-  // Get and lock input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-  // Sum values, then unlock
-  one.lock.lockForRead();
-  float first (accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  one.lock.unlock();
-
-  // Compare and write result
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = first < _value;
-  _result->lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get and lock input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+    // Sum values, then unlock
+    one.lock.lockForRead();
+    float first (accumulate(one.memory().begin(),
+                            one.memory().end(),
+                            0.f));
+    one.lock.unlock();
+    // Compare and write result
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = first < _value;
+    _result->lock.unlock();
+  }
 }
-
 
 
 
@@ -97,7 +97,8 @@ void cass::pp2::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if (!_one) return;
+  bool ret (setupCondition());
+  if (!_one || !ret) return;
 
   // Create output
   _result = new Histogram0DFloat();
@@ -111,21 +112,24 @@ void cass::pp2::loadSettings(size_t)
 
 void cass::pp2::process(const CASSEvent& evt)
 {
-  // Get and lock input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get and lock input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Sum values
-  one.lock.lockForRead();
-  float first (std::accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  one.lock.unlock();
+    // Sum values
+    one.lock.lockForRead();
+    float first (std::accumulate(one.memory().begin(),
+                                 one.memory().end(),
+                                 0.f));
+    one.lock.unlock();
 
-  // Compare and write result
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = first > _value;
-  _result->lock.unlock();
+    // Compare and write result
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = first > _value;
+    _result->lock.unlock();
+  }
 }
 
 
@@ -161,7 +165,8 @@ void cass::pp3::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if (!_one) return;
+  bool ret (setupCondition());
+  if (!_one || !ret) return;
 
   // Where will the result be stored?
   _result = new Histogram0DFloat();
@@ -175,22 +180,25 @@ void cass::pp3::loadSettings(size_t)
 
 void cass::pp3::process(const CASSEvent& evt)
 {
-  // Get the input data
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input data
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Sum values
-  one.lock.lockForRead();
-  float first (std::accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  one.lock.unlock();
+    // Sum values
+    one.lock.lockForRead();
+    float first (std::accumulate(one.memory().begin(),
+                                 one.memory().end(),
+                                 0.f));
+    one.lock.unlock();
 
-  // Compare and store the result
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) =
-      std::abs(first - _value) < std::sqrt(std::numeric_limits<float>::epsilon());
-  _result->lock.unlock();
+    // Compare and store the result
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) =
+        std::abs(first - _value) < std::sqrt(std::numeric_limits<float>::epsilon());
+    _result->lock.unlock();
+  }
 }
 
 
@@ -221,7 +229,8 @@ void cass::pp4::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if (!_one) return;
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
 
   // Set up output
   _result = new Histogram0DFloat();
@@ -234,16 +243,19 @@ void cass::pp4::loadSettings(size_t)
 
 void cass::pp4::process(const CASSEvent& evt)
 {
-  // Get the input data
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input data
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Lock both input and output, and perform negation
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
-  _result->lock.unlock();
-  one.lock.unlock();
+    // Lock both input and output, and perform negation
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
 
 
@@ -277,8 +289,8 @@ void cass::pp5::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
 
   if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
@@ -298,22 +310,25 @@ void cass::pp5::loadSettings(size_t)
 
 void cass::pp5::process(const CASSEvent& evt)
 {
-  // Get first input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get first input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Perform the AND (under appropriate locks)
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() && two.isTrue();
-  _result->lock.unlock();
-  two.lock.unlock();
-  one.lock.unlock();
+    // Perform the AND (under appropriate locks)
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() && two.isTrue();
+    _result->lock.unlock();
+    two.lock.unlock();
+    one.lock.unlock();
+  }
 }
 
 
@@ -348,8 +363,8 @@ void cass::pp6::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
   {
@@ -368,24 +383,26 @@ void cass::pp6::loadSettings(size_t)
 
 void cass::pp6::process(const CASSEvent& evt)
 {
-  // Get first input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get first input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Perform the AND (under appropriate locks)
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() || two.isTrue();
-  _result->lock.unlock();
-  two.lock.unlock();
-  one.lock.unlock();
+    // Perform the AND (under appropriate locks)
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() || two.isTrue();
+    _result->lock.unlock();
+    two.lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -418,8 +435,8 @@ void cass::pp7::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
   {
@@ -438,31 +455,33 @@ void cass::pp7::loadSettings(size_t)
 
 void cass::pp7::process(const CASSEvent &evt)
 {
-  // Get first input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get first input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Add up both histograms (under locks)
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  float first (accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  float second (accumulate(two.memory().begin(),
-                           two.memory().end(),
-                           0.f));
-  two.lock.unlock();
-  one.lock.unlock();
+    // Add up both histograms (under locks)
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    float first (accumulate(one.memory().begin(),
+                            one.memory().end(),
+                            0.f));
+    float second (accumulate(two.memory().begin(),
+                             two.memory().end(),
+                             0.f));
+    two.lock.unlock();
+    one.lock.unlock();
 
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = (first < second);
-  _result->lock.unlock();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = (first < second);
+    _result->lock.unlock();
+  }
 }
-
 
 
 
@@ -493,8 +512,8 @@ void cass::pp8::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
   _dependencies.push_back(keyTwo);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
   {
@@ -513,30 +532,33 @@ void cass::pp8::loadSettings(size_t)
 
 void cass::pp8::process(const CASSEvent &evt)
 {
-  // Get first input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get first input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Add up both histograms (under locks)
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  float first (accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  float second (accumulate(two.memory().begin(),
-                           two.memory().end(),
-                           0.f));
-  two.lock.unlock();
-  one.lock.unlock();
+    // Add up both histograms (under locks)
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    float first (accumulate(one.memory().begin(),
+                            one.memory().end(),
+                            0.f));
+    float second (accumulate(two.memory().begin(),
+                             two.memory().end(),
+                             0.f));
+    two.lock.unlock();
+    one.lock.unlock();
 
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) =
-      std::abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
-  _result->lock.unlock();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) =
+        std::abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
+    _result->lock.unlock();
+  }
 }
 
 
@@ -572,7 +594,8 @@ void cass::pp9::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if ( !_one ) return;
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
 
   // Create the output
   _result = new Histogram0DFloat();
@@ -587,23 +610,25 @@ void cass::pp9::loadSettings(size_t)
 
 void cass::pp9::process(const CASSEvent &evt)
 {
-  // Get the input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Sum up the histogram under lock
-  one.lock.lockForRead();
-  float value (accumulate(one.memory().begin(),
-                          one.memory().end(),
-                          0.f));
-  one.lock.unlock();
+    // Sum up the histogram under lock
+    one.lock.lockForRead();
+    float value (accumulate(one.memory().begin(),
+                            one.memory().end(),
+                            0.f));
+    one.lock.unlock();
 
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) =
-                                 _range.first < value &&  value < _range.second;
-  _result->lock.unlock();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) =
+        _range.first < value &&  value < _range.second;
+    _result->lock.unlock();
+  }
 }
-
 
 
 
@@ -639,8 +664,8 @@ void cass::pp20::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
   _dependencies.push_back(keyOne);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   const HistogramBackend &one(_one->getHist(0));
   const HistogramBackend &two(_two->getHist(0));
@@ -661,27 +686,29 @@ void cass::pp20::loadSettings(size_t)
 
 void cass::pp20::process(const CASSEvent &evt)
 {
-  // Get first input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get first input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Subtract using transform with a special function
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  _result->lock.lockForWrite();
-  transform(one.memory().begin(), one.memory().end(),
-            two.memory().begin(),
-            (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-            weighted_minus(_fOne,_fTwo));
-  _result->lock.unlock();
-  one.lock.unlock();
-  two.lock.unlock();
+    // Subtract using transform with a special function
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    _result->lock.lockForWrite();
+    transform(one.memory().begin(), one.memory().end(),
+              two.memory().begin(),
+              (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+              weighted_minus(_fOne,_fTwo));
+    _result->lock.unlock();
+    one.lock.unlock();
+    two.lock.unlock();
+  }
 }
-
 
 
 
@@ -714,8 +741,8 @@ void cass::pp21::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
   _dependencies.push_back(keyOne);
-
-  if ( !(_one && _two) ) return;
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) ) return;
 
   // Get (empty) histograms to check dimensionality
   const HistogramBackend &one(_one->getHist(0));
@@ -739,26 +766,28 @@ void cass::pp21::loadSettings(size_t)
 
 void cass::pp21::process(const CASSEvent &evt)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Divide using transform with a special function
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(),
-                 two.memory().begin(),
-                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                 std::divides<float>());
-  _result->lock.unlock();
-  one.lock.unlock();
-  two.lock.unlock();
+    // Divide using transform with a special function
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    _result->lock.lockForWrite();
+    std::transform(one.memory().begin(), one.memory().end(),
+                   two.memory().begin(),
+                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                   std::divides<float>());
+    _result->lock.unlock();
+    one.lock.unlock();
+    two.lock.unlock();
+  }
 }
-
 
 
 
@@ -791,8 +820,8 @@ void cass::pp22::loadSettings(size_t)
   PostProcessors::key_t keyTwo;
   _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
   _dependencies.push_back(keyOne);
-
-  if ( !(_one && _two) ) return;
+  _dependencies.push_back(keyTwo);
+  bool ret (setupCondition());
 
   // Get (empty) histograms to check dimensionality
   const HistogramBackend &one(_one->getHist(0));
@@ -816,24 +845,27 @@ void cass::pp22::loadSettings(size_t)
 
 void cass::pp22::process(const CASSEvent &evt)
 {
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Get second input
-  const HistogramFloatBase &two
-      (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+    // Get second input
+    const HistogramFloatBase &two
+        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
 
-  // Multiply using transform
-  one.lock.lockForRead();
-  two.lock.lockForRead();
-  _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(),
-                 two.memory().begin(),
-                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                 std::multiplies<float>());
-  _result->lock.unlock();
-  one.lock.unlock();
-  two.lock.unlock();
+    // Multiply using transform
+    one.lock.lockForRead();
+    two.lock.lockForRead();
+    _result->lock.lockForWrite();
+    std::transform(one.memory().begin(), one.memory().end(),
+                   two.memory().begin(),
+                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                   std::multiplies<float>());
+    _result->lock.unlock();
+    one.lock.unlock();
+    two.lock.unlock();
+  }
 }
 
 
@@ -867,7 +899,8 @@ void cass::pp23::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if ( !_one ) return;
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
 
   // Create result histogram with the right dimensionality
   const HistogramBackend &one(_one->getHist(0));
@@ -882,20 +915,22 @@ void cass::pp23::loadSettings(size_t)
 
 void cass::pp23::process(const CASSEvent &evt)
 {
-  // Get the input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Multiply using transform (under locks)
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(),
-                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                 std::bind2nd(std::multiplies<float>(),_factor));
-  _result->lock.unlock();
-  one.lock.unlock();
+    // Multiply using transform (under locks)
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    std::transform(one.memory().begin(), one.memory().end(),
+                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                   std::bind2nd(std::multiplies<float>(),_factor));
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -926,7 +961,8 @@ void cass::pp24::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
   _dependencies.push_back(keyOne);
-  if ( !_one ) return;
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
 
   // Create result histogram with the right dimensionality
   const HistogramBackend &one(_one->getHist(0));
@@ -941,20 +977,22 @@ void cass::pp24::loadSettings(size_t)
 
 void cass::pp24::process(const CASSEvent &evt)
 {
-  // Get the input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Subtract using transform (under locks)
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(),
-                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                 bind2nd(std::minus<float>(), _factor));
-  _result->lock.unlock();
-  one.lock.unlock();
+    // Subtract using transform (under locks)
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    std::transform(one.memory().begin(), one.memory().end(),
+                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                   bind2nd(std::minus<float>(), _factor));
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -987,7 +1025,8 @@ void cass::pp25::loadSettings(size_t)
   PostProcessors::key_t keyOne;
   _one = retrieve_and_validate(_pp, _key, "HistName", keyOne);
   _dependencies.push_back(keyOne);
-  if ( !_one ) return;
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
 
   std::cout << "PostProcessor " << _key
       << ": will threshold Histogram in PostProcessor " << keyOne
@@ -997,18 +1036,21 @@ void cass::pp25::loadSettings(size_t)
 
 void cass::pp25::process(const CASSEvent &evt)
 {
-  // Get the input
-  const HistogramFloatBase &one
-      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  if ((*_condition)(evt).isTrue())
+  {
+    // Get the input
+    const HistogramFloatBase &one
+        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Subtract using transform (under locks)
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  std::transform(one.memory().begin(), one.memory().end(),
-                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                 bind2nd(threshold(), _threshold));
-  _result->lock.unlock();
-  one.lock.unlock();
+    // Subtract using transform (under locks)
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    std::transform(one.memory().begin(), one.memory().end(),
+                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                   bind2nd(threshold(), _threshold));
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
 
 
@@ -1044,7 +1086,7 @@ void cass::pp50::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const Histogram2DFloat &one
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -1121,7 +1163,8 @@ void cass::pp51::loadSettings(size_t)
   PostProcessors::key_t HistId;
   _pHist = retrieve_and_validate(_pp,_key,"HistName",HistId);
   _dependencies.push_back(HistId);
-  if (!_pHist)
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
     return;
   const Histogram1DFloat &one
       (dynamic_cast<const Histogram1DFloat&>(_pHist->getHist(0)));
@@ -1139,15 +1182,17 @@ void cass::pp51::loadSettings(size_t)
 void cass::pp51::process(const CASSEvent& evt)
 {
   using namespace std;
-  const Histogram1DFloat &one
-      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = one.integral(_area);
-  _result->lock.unlock();
-  one.lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    const Histogram1DFloat &one
+        (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = one.integral(_area);
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -1177,7 +1222,7 @@ void cass::pp52::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const Histogram2DFloat &one
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -1207,14 +1252,17 @@ void cass::pp52::loadSettings(size_t)
 void cass::pp52::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be subtracted histograms//
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
-  _result->lock.unlock();
-  one.lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    //retrieve the memory of the to be subtracted histograms//
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
 
 
@@ -1248,7 +1296,7 @@ void cass::pp53::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const Histogram2DFloat &one
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -1289,17 +1337,19 @@ void cass::pp53::loadSettings(size_t)
 void cass::pp53::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be subtracted histograms//
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  // retrieve the projection from the 2d hist//
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram1DFloat*>(_result) = one.radar_plot(_center,_range, _nbrBins);
-  _result->lock.unlock();
-  one.lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    //retrieve the memory of the to be subtracted histograms//
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+    // retrieve the projection from the 2d hist//
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram1DFloat*>(_result) = one.radar_plot(_center,_range, _nbrBins);
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -1333,7 +1383,7 @@ void cass::pp54::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const Histogram2DFloat &one
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -1364,17 +1414,19 @@ void cass::pp54::loadSettings(size_t)
 void cass::pp54::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be subtracted histograms//
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-  // retrieve the projection from the 2d hist//
-  one.lock.lockForRead();
-  _result->lock.lockForWrite();
-  *dynamic_cast<Histogram2DFloat*>(_result) = one.convert2RPhi(_center,_radius, _nbrBins);
-  _result->lock.unlock();
-  one.lock.unlock();
+  if ((*_condition)(evt).isTrue())
+  {
+    //retrieve the memory of the to be subtracted histograms//
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+    // retrieve the projection from the 2d hist//
+    one.lock.lockForRead();
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram2DFloat*>(_result) = one.convert2RPhi(_center,_radius, _nbrBins);
+    _result->lock.unlock();
+    one.lock.unlock();
+  }
 }
-
 
 
 
@@ -1402,7 +1454,7 @@ void cass::pp60::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
@@ -1457,7 +1509,7 @@ void cass::pp61::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
@@ -1521,7 +1573,7 @@ void cass::pp62::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
@@ -1581,7 +1633,7 @@ void cass::pp63::loadSettings(size_t)
   _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
   _dependencies.push_back(keyHist);
   bool ret (setupCondition());
-  if (!ret && !_pHist)
+  if (!(ret && _pHist))
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
@@ -1601,16 +1653,16 @@ void cass::pp63::loadSettings(size_t)
 void cass::pp63::process(const cass::CASSEvent& evt)
 {
   using namespace std;
-  //#define debug1
-#ifdef debug1
-  char timeandday[40];
-  struct tm * timeinfo;
-#endif
-  uint32_t fiducials;
-  time_t now_of_event;
 
   if ((*_condition)(evt).isTrue())
   {
+    //#define debug1
+  #ifdef debug1
+    char timeandday[40];
+    struct tm * timeinfo;
+  #endif
+    uint32_t fiducials;
+    time_t now_of_event;
     const HistogramFloatBase& one
         (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
     one.lock.lockForRead();
@@ -1722,7 +1774,6 @@ void cass::pp70::process(const cass::CASSEvent &evt)
 {
   if ( (*_condition)(evt).isTrue() )
   {
-
     const Histogram0DFloat &one
                     (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));
     one.lock.lockForRead();
