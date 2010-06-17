@@ -642,18 +642,15 @@ void cass::pp20::loadSettings(size_t)
 
   if ( !(_one && _two) ) return;
 
-  const HistogramFloatBase &one
-                   (dynamic_cast<const HistogramFloatBase &>(_one->getHist(0)));
-  const HistogramFloatBase &two
-                   (dynamic_cast<const HistogramFloatBase &>(_two->getHist(0)));
-
+  const HistogramBackend &one(_one->getHist(0));
+  const HistogramBackend &two(_two->getHist(0));
   if (one.dimension() != two.dimension())
   {
     throw std::runtime_error("PP type 20: HistOne is not the same type "
                              " as HistTwo, or they have not the same size.");
   }
 
-  _result = new HistogramFloatBase(one);
+  _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
 
    std::cout << "PostProcessor " << _key
