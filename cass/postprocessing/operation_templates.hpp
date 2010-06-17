@@ -96,5 +96,97 @@ namespace cass
     ComparisonOperator op;
   };
 
+
+
+
+
+
+
+
+
+  /** Boolean Comparison of two 0d pp.
+   *
+   * this templated class will boolean compare two 0d histograms
+   *
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           the postprocessor names that contain the first histogram and second
+   *           histogram for the boolean comparison. Default is "" for both. This
+   *           will result in an exception. Since pp "" is not implemented.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
+   *
+   * @tparam BooleanOperator boolean operator to operate on 0D Hists
+   * @author Lutz Foucar
+   */
+  template <class BooleanOperator>
+  class pp5 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp5(PostProcessors& pp, const PostProcessors::key_t& key, const BooleanOperator& x)
+      : PostprocessorBackend(pp, key), op(x)
+    {
+      loadSettings(0);
+    }
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t)
+    {
+      QSettings settings;
+      settings.beginGroup("PostProcessor");
+      settings.beginGroup(_key.c_str());
+      PostProcessors::key_t keyOne;
+      _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+      _dependencies.push_back(keyOne);
+      PostProcessors::key_t keyTwo;
+      _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+      _dependencies.push_back(keyTwo);
+      bool ret (setupCondition());
+      if ( !(_one && _two && ret) ) return;
+      if (_one->getHist(0).dimension() != 0 ||
+          _two->getHist(0).dimension() != 0)
+        throw std::runtime_error("PP type 5: Either HistOne or HistTwo is not a 0D Hist");
+      _result = new Histogram0DFloat();
+      createHistList(2*cass::NbrOfWorkers);
+      std::cout << "PostProcessor " << _key
+          << ": will boolean compare PostProcessor " << keyOne
+          << " to PostProcessor " << keyTwo
+          <<" using "<< typeid(op).name()
+          << std::endl;
+    }
+
+    /** process event */
+    virtual void process(const CASSEvent& evt)
+    {
+      if ((*_condition)(evt).isTrue())
+      {
+        const HistogramFloatBase &one
+            (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+        const HistogramFloatBase &two
+            (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+        one.lock.lockForRead();
+        two.lock.lockForRead();
+        _result->lock.lockForWrite();
+        *dynamic_cast<Histogram0DFloat*>(_result) = op(one.isTrue(), two.isTrue());
+        _result->lock.unlock();
+        two.lock.unlock();
+        one.lock.unlock();
+      }
+    }
+
+  protected:
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
+
+    /** pp containing second histogram */
+    PostprocessorBackend *_two;
+
+    /** the boolean operation done with the 0D data */
+    BooleanOperator op;
+  };
+
+
 }//end namespace
 #endif

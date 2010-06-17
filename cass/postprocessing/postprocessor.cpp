@@ -346,10 +346,10 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp4(*this, key);
     break;
   case BooleanAND:
-    processor = new pp5(*this, key);
+    processor = new pp5<logical_and<bool> >(*this, key, logical_and<bool>());
     break;
   case BooleanOR:
-    processor = new pp6(*this, key);
+    processor = new pp5<logical_or<bool> >(*this, key, logical_or<bool>());
     break;
   case CompareForLess:
     processor = new pp7(*this, key);

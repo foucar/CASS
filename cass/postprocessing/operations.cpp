@@ -269,70 +269,68 @@ void cass::pp4::process(const CASSEvent& evt)
 
 
 
-// *********** Postprocessor 5: Apply boolean AND to two histograms ************
-cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp5::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
-  _dependencies.push_back(keyTwo);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-
-  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
-  {
-    throw std::runtime_error("PP type 5: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will AND  PostProcessor " << keyOne
-      << " with PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp5::process(const CASSEvent& evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get first input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Perform the AND (under appropriate locks)
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() && two.isTrue();
-    _result->lock.unlock();
-    two.lock.unlock();
-    one.lock.unlock();
-  }
-}
-
-
+//// *********** Postprocessor 5: Apply boolean AND to two histograms ************
+//cass::pp5::pp5(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp5::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+//  _dependencies.push_back(keyTwo);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//
+//  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
+//  {
+//    throw std::runtime_error("PP type 5: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will AND  PostProcessor " << keyOne
+//      << " with PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp5::process(const CASSEvent& evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get first input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Perform the AND (under appropriate locks)
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() && two.isTrue();
+//    _result->lock.unlock();
+//    two.lock.unlock();
+//    one.lock.unlock();
+//  }
+//}
 
 
 
@@ -343,67 +341,69 @@ void cass::pp5::process(const CASSEvent& evt)
 
 
 
-// ******* Postprocessor 6: Calculate boolean OR between two histograms ********
-cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
 
-void cass::pp6::loadSettings(size_t)
-{
-  QSettings settings;
 
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
-  _dependencies.push_back(keyTwo);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
-  {
-    throw std::runtime_error("PP type 6: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will OR  PostProcessor " << keyOne
-      << " with PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp6::process(const CASSEvent& evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get first input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Perform the AND (under appropriate locks)
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() || two.isTrue();
-    _result->lock.unlock();
-    two.lock.unlock();
-    one.lock.unlock();
-  }
-}
+//// ******* Postprocessor 6: Calculate boolean OR between two histograms ********
+//cass::pp6::pp6(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp6::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+//  _dependencies.push_back(keyTwo);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
+//  {
+//    throw std::runtime_error("PP type 6: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will OR  PostProcessor " << keyOne
+//      << " with PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp6::process(const CASSEvent& evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get first input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Perform the AND (under appropriate locks)
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) = one.isTrue() || two.isTrue();
+//    _result->lock.unlock();
+//    two.lock.unlock();
+//    one.lock.unlock();
+//  }
+//}
 
 
 

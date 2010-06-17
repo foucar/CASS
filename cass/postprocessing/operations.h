@@ -149,7 +149,7 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{HistOne} \n
    *           the postprocessor name that contain the first histogram. Default
-   *           is 0.
+   *           is "".
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
@@ -180,77 +180,77 @@ namespace cass
 
 
 
-  /** Boolean AND of two 0d pp.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the boolean AND-ing. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp5 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp5(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
-
-
+//  /** Boolean AND of two 0d pp.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the boolean AND-ing. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp5 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp5(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
 
 
 
-  /** Boolean OR of two 0d pp.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the boolean AND-ing. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp6 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp6(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** process event */
-    virtual void process(const CASSEvent&);
 
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
+//  /** Boolean OR of two 0d pp.
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the boolean AND-ing. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp6 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp6(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
 

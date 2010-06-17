@@ -51,8 +51,8 @@ the Class description for information about what parameters are user settable.
 00002: Compare histograms for greater than constant (pp1)
 00003: Compare histograms for equal to constant (pp1)
 00004: Apply boolean NOT to 0D histograms
-00005: Compare two 0D histograms for boolean AND
-00006: Compare two 0D histograms for boolean OR
+00005: Compare two 0D histograms for boolean AND (pp5)
+00006: Compare two 0D histograms for boolean OR (pp5)
 00007: Compare two histograms whether first is less than second
 00008: Compare two histograms whether first is equal to second
 00009: Check whether histogram is in a range
