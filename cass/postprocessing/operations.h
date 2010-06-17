@@ -259,85 +259,85 @@ namespace cass
 
 
 
-  /** Compare two histograms for less.
-   *
-   * \f$result = hist_{one}  < hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the less comparison. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp7 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp7(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
-
-
+//  /** Compare two histograms for less.
+//   *
+//   * \f$result = hist_{one}  < hist_{two}\f$
+//   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+//   * respectivly
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the less comparison. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp7 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp7(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
 
 
 
-  /** Compare two histograms for equality.
-   *
-   * \f$result = hist_{one}  == hist_{two}\f$
-   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
-   * respectivly
-   *
-   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
-   *           the postprocessor names that contain the first histogram and second
-   *           histogram for the operation. Default is 0 for both. This
-   *           will result in an exception. Since pp 0 is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   *
-   * @author Lutz Foucar
-   */
-  class pp8 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp8(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** process event */
-    virtual void process(const CASSEvent&);
 
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** pp containing second histogram */
-    PostprocessorBackend *_two;
-  };
+//  /** Compare two histograms for equality.
+//   *
+//   * \f$result = hist_{one}  == hist_{two}\f$
+//   * where \f$hist_{one}\f$ and \f$hist_{two}\f$ are histograms one or two
+//   * respectivly
+//   *
+//   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+//   *           the postprocessor names that contain the first histogram and second
+//   *           histogram for the operation. Default is 0 for both. This
+//   *           will result in an exception. Since pp 0 is not implemented.
+//   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+//   *           0D Postprocessor name that we check before filling image.
+//   *           if this setting is not defined, this postprocessor is unconditional.
+//   *           Therefore its always true.
+//   *
+//   * @author Lutz Foucar
+//   */
+//  class pp8 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp8(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing first histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** pp containing second histogram */
+//    PostprocessorBackend *_two;
+//  };
 
 
 

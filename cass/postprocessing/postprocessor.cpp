@@ -352,10 +352,10 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp5<logical_or<bool> >(*this, key, logical_or<bool>());
     break;
   case CompareForLess:
-    processor = new pp7(*this, key);
+    processor = new pp7<less<float> >(*this, key, less<float>());
     break;
   case CompareForEqual:
-    processor = new pp8(*this, key);
+    processor = new pp7<greater<float> >(*this, key, greater<float>());
     break;
   case CheckRange:
     processor = new pp9(*this, key);

@@ -415,76 +415,74 @@ void cass::pp4::process(const CASSEvent& evt)
 
 
 
-// *********** Postprocessor 7: Compare histograms (for one < two) *************
-cass::pp7::pp7(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
-
-void cass::pp7::loadSettings(size_t)
-{
-  QSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
-  _dependencies.push_back(keyTwo);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
-  {
-    throw std::runtime_error("PP type 6: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will check whether Histogram in PostProcessor " << keyOne
-      << " is smaller than Histogram in PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp7::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get first input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Add up both histograms (under locks)
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    float first (accumulate(one.memory().begin(),
-                            one.memory().end(),
-                            0.f));
-    float second (accumulate(two.memory().begin(),
-                             two.memory().end(),
-                             0.f));
-    two.lock.unlock();
-    one.lock.unlock();
-
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = (first < second);
-    _result->lock.unlock();
-  }
-}
-
-
+//// *********** Postprocessor 7: Compare histograms (for one < two) *************
+//cass::pp7::pp7(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp7::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+//  _dependencies.push_back(keyTwo);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
+//  {
+//    throw std::runtime_error("PP type 6: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will check whether Histogram in PostProcessor " << keyOne
+//      << " is smaller than Histogram in PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp7::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get first input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Add up both histograms (under locks)
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    float first (accumulate(one.memory().begin(),
+//                            one.memory().end(),
+//                            0.f));
+//    float second (accumulate(two.memory().begin(),
+//                             two.memory().end(),
+//                             0.f));
+//    two.lock.unlock();
+//    one.lock.unlock();
+//
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) = (first < second);
+//    _result->lock.unlock();
+//  }
+//}
 
 
 
@@ -492,75 +490,77 @@ void cass::pp7::process(const CASSEvent &evt)
 
 
 
-// *********** Postprocessor 8: Compare histograms (for one = two) *************
-cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key)
-{
-  loadSettings(0);
-}
 
-void cass::pp8::loadSettings(size_t)
-{
-  QSettings settings;
 
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
-  _dependencies.push_back(keyOne);
-
-  PostProcessors::key_t keyTwo;
-  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
-  _dependencies.push_back(keyTwo);
-  bool ret (setupCondition());
-  if ( !(_one && _two && ret) ) return;
-
-  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
-  {
-    throw std::runtime_error("PP type 6: HistOne is not the same type "
-                             " as HistTwo, or they have not the same size.");
-  }
-
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
-
-  std::cout << "PostProcessor " << _key
-      << ": will check whether Histogram in PostProcessor " << keyOne
-      << " is equal to Histogram in PostProcessor " << keyTwo
-      << std::endl;
-}
-
-void cass::pp8::process(const CASSEvent &evt)
-{
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get first input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
-
-    // Get second input
-    const HistogramFloatBase &two
-        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
-
-    // Add up both histograms (under locks)
-    one.lock.lockForRead();
-    two.lock.lockForRead();
-    float first (accumulate(one.memory().begin(),
-                            one.memory().end(),
-                            0.f));
-    float second (accumulate(two.memory().begin(),
-                             two.memory().end(),
-                             0.f));
-    two.lock.unlock();
-    one.lock.unlock();
-
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) =
-        std::abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
-    _result->lock.unlock();
-  }
-}
+//// *********** Postprocessor 8: Compare histograms (for one = two) *************
+//cass::pp8::pp8(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+//  : PostprocessorBackend(pp, key)
+//{
+//  loadSettings(0);
+//}
+//
+//void cass::pp8::loadSettings(size_t)
+//{
+//  QSettings settings;
+//
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//
+//  PostProcessors::key_t keyOne;
+//  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
+//  _dependencies.push_back(keyOne);
+//
+//  PostProcessors::key_t keyTwo;
+//  _two = retrieve_and_validate(_pp,_key,"HistTwo", keyTwo);
+//  _dependencies.push_back(keyTwo);
+//  bool ret (setupCondition());
+//  if ( !(_one && _two && ret) ) return;
+//
+//  if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
+//  {
+//    throw std::runtime_error("PP type 6: HistOne is not the same type "
+//                             " as HistTwo, or they have not the same size.");
+//  }
+//
+//  _result = new Histogram0DFloat();
+//  createHistList(2*cass::NbrOfWorkers);
+//
+//  std::cout << "PostProcessor " << _key
+//      << ": will check whether Histogram in PostProcessor " << keyOne
+//      << " is equal to Histogram in PostProcessor " << keyTwo
+//      << std::endl;
+//}
+//
+//void cass::pp8::process(const CASSEvent &evt)
+//{
+//  if ((*_condition)(evt).isTrue())
+//  {
+//    // Get first input
+//    const HistogramFloatBase &one
+//        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+//
+//    // Get second input
+//    const HistogramFloatBase &two
+//        (dynamic_cast<const HistogramFloatBase&>((*_two)(evt)));
+//
+//    // Add up both histograms (under locks)
+//    one.lock.lockForRead();
+//    two.lock.lockForRead();
+//    float first (accumulate(one.memory().begin(),
+//                            one.memory().end(),
+//                            0.f));
+//    float second (accumulate(two.memory().begin(),
+//                             two.memory().end(),
+//                             0.f));
+//    two.lock.unlock();
+//    one.lock.unlock();
+//
+//    _result->lock.lockForWrite();
+//    *dynamic_cast<Histogram0DFloat*>(_result) =
+//        std::abs(first - second) < sqrt(std::numeric_limits<float>::epsilon());
+//    _result->lock.unlock();
+//  }
+//}
 
 
 
