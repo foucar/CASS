@@ -23,6 +23,7 @@
 #include "machine_data.h"
 #include "id_list.h"
 #include "cass_exceptions.h"
+#include "operation_templates.hpp"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"

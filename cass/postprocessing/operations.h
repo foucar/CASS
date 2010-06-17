@@ -33,25 +33,26 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp1 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp1(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing the histogram */
-    PostprocessorBackend *_one;
-
-    /** constant value to compare to */
-    float _value;
-  };
+//  template < class Operator>
+//  class pp1 : public PostprocessorBackend
+//  {
+//  public:
+//    /** constructor */
+//    pp1(PostProcessors& hist, const PostProcessors::key_t&);
+//
+//    /** process event */
+//    virtual void process(const CASSEvent&);
+//
+//    /** load the settings of this pp */
+//    virtual void loadSettings(size_t);
+//
+//  protected:
+//    /** pp containing the histogram */
+//    PostprocessorBackend *_one;
+//
+//    /** constant value to compare to */
+//    float _value;
+//  };
 
 
 

@@ -163,6 +163,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/acqiris_detectors_helper.h \
             ./postprocessing/operations.h \
+            ./postprocessing/operation_templates.hpp \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
