@@ -37,6 +37,9 @@ namespace cass
      */
     virtual bool deserialize(cass::SerializerBackend&)=0;
 
+    /** retrieve the version of the serializer */
+    uint16_t ver()const {return _version;}
+
 protected:
     /** the version for de/serializing*/
     uint16_t _version;
