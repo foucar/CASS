@@ -8,33 +8,24 @@
 #include "hitrate.h"
 #include "postprocessor.h"
 #include "histogram.h"
-
+#include "convenience_functions.h"
 
 namespace cass
 {
 
 // *** postprocessor 589 finds Single particle hits ***
 cass::pp589::pp589(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0), _integralimg(NULL), _rowsum(NULL)
+  : PostprocessorBackend(pp, key), _integralimg(NULL), _rowsum(NULL)
 {
   loadSettings(0);
 }
 
 cass::pp589::~pp589()
 {
-  _pp.histograms_delete(_key);
   delete _integralimg;
   _integralimg = NULL;
   delete _rowsum;
   _rowsum = NULL;
-  _result = 0;
-}
-
-cass::PostProcessors::active_t cass::pp589::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
 }
 
 void cass::pp589::loadSettings(size_t)
@@ -43,17 +34,22 @@ void cass::pp589::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  if (OneNotvalid)
-    return;
+
+  // Get the input
+  PostProcessors::key_t keyHist;
+  _pHist = retrieve_and_validate(_pp,_key,"HistName", keyHist);
+  _dependencies.push_back(keyHist);
+  if (!_pHist) return;
+
   _threshold = settings.value("threshold", 1.0).toFloat();
   _xstart = settings.value("xstart", 0).toInt();
   _ystart = settings.value("ystart", 0).toInt();
   _xend = settings.value("xend", -1).toInt();
   _yend = settings.value("yend", -1).toInt();
-  _pp.histograms_delete(_key);
-  _result = new Histogram0DFloat;
-  _pp.histograms_replace(_key,_result);
+
+  // Create result
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
 
 
   // outlier postprocessor:
@@ -68,36 +64,35 @@ void cass::pp589::loadSettings(size_t)
   _reTrain = false;
 
 
-  const Histogram2DFloat* img
-      //(dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
-      (dynamic_cast<Histogram2DFloat*>( _pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _integralimg = new Histogram2DFloat(*img);
-  _rowsum = new Histogram2DFloat(*img);
+  const Histogram2DFloat &img
+      (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
+
+  _integralimg = new Histogram2DFloat(img);
+  _rowsum = new Histogram2DFloat(img);
 
   //_pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
 
   std::cout<<"Postprocessor "<<_key
-      <<": detects Single particle hits in PostProcessor "<< _idHist
+      <<": detects Single particle hits in PostProcessor "<< keyHist 
       <<" threshold for detection:"<<_threshold
       <<" ROI for detection: ["<<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]"
       <<std::endl;
 }
 
-void cass::pp589::operator()(const CASSEvent&)
+void cass::pp589::process(const CASSEvent& evt)
 {
   using namespace std;
-  Histogram2DFloat* one
-      (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
 //  _integralimg->lock.lockForWrite();
 //  _rowsum->lock.lockForWrite();
 //  one->lock.lockForRead();
+  const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
 
 
-  const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t nybins (one->axis()[HistogramBackend::yAxis].nbrBins());
+  const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());
 
-  HistogramFloatBase::storage_t& img_mem( one->memory() );
+  const HistogramFloatBase::storage_t& img_mem( one.memory() );
   HistogramFloatBase::storage_t& rowsum_mem( _rowsum->memory() );
   HistogramFloatBase::storage_t& integralimg_mem( _integralimg->memory() );
 
@@ -301,7 +296,7 @@ void cass::pp589::operator()(const CASSEvent&)
 //  _integralimg->lock.unlock();
 //  _rowsum->lock.unlock();
   _result->lock.lockForWrite();
-  *_result = mahal_dist;
+  *reinterpret_cast<Histogram0DFloat*>(_result) = mahal_dist;
   _result->lock.unlock();
 }
 

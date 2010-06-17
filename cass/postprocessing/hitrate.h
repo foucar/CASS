@@ -52,13 +52,10 @@ namespace cass
     virtual ~pp589();
 
    /** check if image specified in settings contains a single particle hit*/
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings for this pp */
     virtual void loadSettings(size_t);
-
-    /** the dependencies on input histogram */
-    virtual PostProcessors::active_t dependencies();
 
   protected:
     /** xstart - ROI for calculations*/
@@ -74,10 +71,7 @@ namespace cass
     float _threshold;
 
     /** the histogram to work on */
-    PostProcessors::key_t _idHist;
-
-    /** result */
-    Histogram0DFloat *_result;
+    PostprocessorBackend* _pHist;
 
     /** storage for integralimage (2d integral of entire image) */
     Histogram2DFloat* _integralimg;
