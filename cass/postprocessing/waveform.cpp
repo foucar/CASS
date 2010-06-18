@@ -37,6 +37,7 @@ void cass::pp110::loadSettings(size_t)
   std::cout <<"PostProcessor "<<_key
       <<" is showing channel "<<_channel
       <<" of acqiris "<<_instrument
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -71,3 +72,5 @@ void cass::pp110::process(const cass::CASSEvent &evt)
     _result->lock.unlock();
   }
 }
+
+

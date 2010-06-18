@@ -377,6 +377,7 @@ namespace cass
     _nbrAngularPoints = 360;
     std::cout <<std::endl<< "PostProcessor "<<_key
         <<": calcluates cos2theta of image from PostProcessor "<<imageKey
+        <<". Condition is"<<_condition->key()
         <<std::endl;
   }
 

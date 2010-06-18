@@ -46,6 +46,7 @@ void cass::pp150::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the nbr of mcp signals"
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -93,6 +94,7 @@ void cass::pp151::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": it histograms times of the found mcp signals"
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -144,6 +146,7 @@ void cass::pp152::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the FWHM vs the height of the found mcp signals"
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -201,6 +204,7 @@ void cass::pp160::loadSettings(size_t)
       <<" detector "<<_detector
       <<" layer "<<_layer
       <<" wireend "<<_signal
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -252,6 +256,7 @@ void cass::pp161::loadSettings(size_t)
       <<": histograms the FWHM vs the height of layer "<<_layer
       << " wireend "<<_signal
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -303,6 +308,7 @@ void cass::pp162::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<" it histograms the timesum of layer "<<_layer
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -351,6 +357,7 @@ void cass::pp163::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the timesum vs Postion on layer "<<_layer
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -405,6 +412,7 @@ void cass::pp164::loadSettings(size_t)
       <<" from  Layers "<<_first
       <<" and "<<_second
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -469,6 +477,7 @@ void cass::pp165::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": outputs the number of reconstructed hits"
       <<" of detector "<<_detector
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -546,6 +555,7 @@ void cass::pp166::loadSettings(size_t)
       <<" condition low "<<_condition.first
       <<" high "<<_condition.second
       <<" on Property "<< _third
+      <<". Condition is"<<PostprocessorBackend::_condition->key()
       <<std::endl;
 }
 
@@ -602,6 +612,7 @@ void cass::pp220::loadSettings(size_t)
       <<": create a PIPICO Histogram"
       <<" of detectors "<<_detector01
       <<" and "<<_detector02
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 

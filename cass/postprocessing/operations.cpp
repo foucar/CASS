@@ -39,6 +39,7 @@ void cass::pp4::loadSettings(size_t)
 
   std::cout << "PostProcessor " << _key
       << ": will apply NOT to PostProcessor " << keyOne
+      <<". Condition is"<<_condition->key()
       << std::endl;
 }
 
@@ -103,6 +104,7 @@ void cass::pp9::loadSettings(size_t)
       << ": will check whether hist in PostProcessor " << keyOne
       << " is between " << _range.first
       << " and " << _range.second
+      <<". Condition is"<<_condition->key()
       << std::endl;
 }
 
@@ -166,6 +168,7 @@ void cass::pp40::loadSettings(size_t)
   std::cout << "PostProcessor " << _key
       << ": will threshold Histogram in PostProcessor " << keyOne
       << " above " << _threshold
+      <<". Condition is"<<_condition->key()
       << std::endl;
 }
 
@@ -249,6 +252,7 @@ void cass::pp50::loadSettings(size_t)
       <<" to "<<_range.second
       <<" on axis "<<_axis
       <<boolalpha<<" normalize "<<_normalize
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -311,6 +315,7 @@ void cass::pp51::loadSettings(size_t)
       <<": will create integral of 1d histogram in PostProcessor "<<HistId
       <<" from "<<_area.first
       <<" to "<<_area.second
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -381,6 +386,7 @@ void cass::pp52::loadSettings(size_t)
       <<" in histogram coordinates xcenter "<<_center.first
       <<" ycenter "<<_center.second
       <<" maximum radius calculated from the incoming histogram "<<_radius
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -466,6 +472,7 @@ void cass::pp53::loadSettings(size_t)
       <<" in histogram coordinates minimum radius "<<_range.first
       <<" maximum radius "<<_range.second
       <<" Histogram has "<<_nbrBins<<" Bins"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -543,6 +550,7 @@ void cass::pp54::loadSettings(size_t)
       <<" ycenter "<<_center.second
       <<" Histogram has "<<_nbrBins<<" Bins"
       <<" the maximum Radius in histogram coordinates "<<_radius
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 

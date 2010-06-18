@@ -136,7 +136,8 @@ void cass::pp101::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
-      <<" detector."
+      <<" detector"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -190,6 +191,7 @@ void cass::pp102::loadSettings(size_t)
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": retrieves the Integral over the whole "<<_detector
       <<" detector calculated using pixels over threshold."
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -245,6 +247,7 @@ void cass::pp140::loadSettings(size_t)
       <<" will display ccd spectrum of detector "<<_detector
       <<" in device "<<_device
       <<". Pixelvalues will be converter by factor "<<_adu2eV
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -295,6 +298,7 @@ void cass::pp141::loadSettings(size_t)
   std::cout<<"Postprocessor "<<_key<<":"
       <<" will display ccd image of detector "<<_detector
       <<" in device "<<_device
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 

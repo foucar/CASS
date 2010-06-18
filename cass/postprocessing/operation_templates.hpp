@@ -63,6 +63,7 @@ namespace cass
           <<": will compare hist in PostProcessor "<<keyOne
           <<" to constant "<<_value
           <<" using "<< typeid(op).name()
+          <<". Condition is"<<_condition->key()
           << std::endl;
     }
 
@@ -154,6 +155,7 @@ namespace cass
           << ": will boolean compare PostProcessor " << keyOne
           << " to PostProcessor " << keyTwo
           <<" using "<< typeid(op).name()
+          <<". Condition is"<<_condition->key()
           << std::endl;
     }
 
@@ -245,6 +247,7 @@ namespace cass
           << ": compares Histogram in PostProcessor " << keyOne
           << " to Histogram in PostProcessor " << keyTwo
           <<" using "<< typeid(op).name()
+          <<". Condition is"<<_condition->key()
           << std::endl;
     }
 
@@ -348,6 +351,7 @@ namespace cass
           << ": operation "<< typeid(op).name()
           << " on Histogram in PostProcessor " << keyOne
           << " with Histogram in PostProcessor " << keyTwo
+          <<". Condition is"<<_condition->key()
           << std::endl;
     }
 
@@ -434,6 +438,7 @@ namespace cass
           << ": operation "<< typeid(op).name()
           << " on Histogram in PostProcessor " << keyOne
           << " with " << _value
+          <<". Condition is"<<_condition->key()
           << std::endl;
     }
 

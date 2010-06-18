@@ -29,6 +29,7 @@ void cass::pp120::loadSettings(size_t)
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from beamline data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -80,6 +81,7 @@ void cass::pp130::loadSettings(size_t)
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from epics data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
@@ -126,6 +128,7 @@ void cass::pp230::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor: "<<_key
       <<" calc photonenergy from beamline data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
