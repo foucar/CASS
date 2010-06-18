@@ -289,7 +289,7 @@ public:
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram: hist min : "<< _hist->min()<<" max: "<<_hist->max()
+      VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram(): hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
                  <<" hist right : "<<_boundRect.right()
                  <<" hist top : "<<_boundRect.top()
@@ -308,13 +308,13 @@ public:
 
   virtual QwtRasterData *copy() const
   {
-    VERBOSEOUT(std::cout <<"spectrogramdata::copy()"<<std::endl);
+    VERBOSEOUT(std::cout <<"spectrogramData::copy()"<<std::endl);
     return new spectrogramData(_hist, _boundRect, _interval);
   }
 
   virtual QwtDoubleInterval range() const
   {
-    VERBOSEOUT(std::cout << "spectrogramdata range: " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
+    VERBOSEOUT(std::cout << "spectrogramData::range(): " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
     return _interval;
 //    return QwtDoubleInterval(0,1500);
   }
