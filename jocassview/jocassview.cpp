@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     const QRect screen(my_desktop->screenGeometry(-1));
     const int screen_height= screen.height();
     const int screen_width= screen.width();
-    std::cout<<"Display dimensions: "<< displ_height << " x " 
+    std::cout<<"main():: Display dimensions: "<< displ_height << " x "
              << displ_width << " " << nscreens
              << " "
              << screen_height << " x " 
