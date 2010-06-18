@@ -233,6 +233,7 @@ void cass::pp589::operator()(const CASSEvent&)
   // 5th variation feature: integral intensity
   float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
+  // try to unify feature scales:
   var0 /= 1;
   var1 /= 1e12;
   var2 /= 1e12;
