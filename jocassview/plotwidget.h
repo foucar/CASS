@@ -289,7 +289,7 @@ public:
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      VERBOSEOUT(std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
+      VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram: hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
                  <<" hist right : "<<_boundRect.right()
                  <<" hist top : "<<_boundRect.top()
