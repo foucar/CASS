@@ -268,7 +268,7 @@ void ImageViewer::showEvent(QShowEvent *event)
 
 void ImageViewer::resizeEvent(QResizeEvent *event)
 {
-  VERBOSEOUT(cout << "resizeEvent width=" << event->size().width()
+  VERBOSEOUT(cout << "ImageViewer::resizeEvent: width=" << event->size().width()
              << " height=" << event->size().height() << endl);
   if(_ui.fitToWindow->isChecked())
   {
