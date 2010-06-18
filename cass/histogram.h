@@ -319,7 +319,7 @@ public:
     virtual void clear()
     {
       QWriteLocker wlock(&lock);
-      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram "<<_key<<std::endl);
+      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram \""<<_key<<"\""<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
     }
