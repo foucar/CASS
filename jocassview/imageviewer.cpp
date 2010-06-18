@@ -560,7 +560,7 @@ void ImageViewer::updateNone()
 
 void ImageViewer::updatePixmap(const QImage *image)
 {
-  VERBOSEOUT(cout << "updatePixmap: byteCount=" << image->byteCount()
+  VERBOSEOUT(cout << "ImageViewer::updatePixmap(): byteCount=" << image->byteCount()
              << " width=" << image->size().width()
              << " height=" << image->size().height() << endl);
   _imageLabel->setPixmap(QPixmap::fromImage(*image));
@@ -599,7 +599,7 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
   if (_dock->widget() != _spectrogramWidget)
     _dock->setWidget(_spectrogramWidget);
   updateActions();
-  //VERBOSEOUT(cout << "updateHistogram2D: _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
@@ -627,7 +627,7 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
   if (_dock->widget()!=_plotWidget1D) _dock->setWidget(_plotWidget1D);
 
   updateActions();
-  //VERBOSEOUT(cout << "updateHistogram1D: _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
@@ -666,7 +666,7 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
   if (_dock->widget()!=_plotWidget0D) _dock->setWidget(_plotWidget0D);
 
   updateActions();
-  //VERBOSEOUT(cout << "updateHistogram0D: _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
@@ -694,7 +694,7 @@ void getDataThread::updateServer(std::string server)
 
 void getDataThread::getData(const std::string& attachId, int useSpectrogram)
 {
-  VERBOSEOUT(cout << "getDataThread::getData" << endl);
+  VERBOSEOUT(cout << "getDataThread::getData()" << endl);
   _dataType = dat_Any;
   delete _attachId;
   _attachId = new std::string(attachId);
@@ -705,7 +705,7 @@ void getDataThread::getData(const std::string& attachId, int useSpectrogram)
 
 void getDataThread::getImage(cass::ImageFormat format, const std::string& attachId)
 {
-  VERBOSEOUT(cout << "getDataThread::getImage" << endl);
+  VERBOSEOUT(cout << "getDataThread::getImage()" << endl);
   _dataType = dat_Image;
   _format = format;
   delete _attachId;
@@ -721,11 +721,11 @@ cass::PostProcessors::keyList_t getDataThread::getIdList()
   int retcode=_cass->getPostprocessorIds(&ret);
   if( (retcode==SOAP_OK) && ret)
   {
-    VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
+    VERBOSEOUT(std::cout << "getDataThread::getIdList(): return value: 'true'" << std::endl);
   }
   else
   {
-    VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
+    VERBOSEOUT(std::cout << "getDataThread::getIdList(): return value is 'false'" << std::endl);
     return cass::PostProcessors::keyList_t();
   }
   soap_multipart::iterator attachment = _cass->dime.begin();
@@ -743,7 +743,7 @@ cass::PostProcessors::keyList_t getDataThread::getIdList()
 
 void getDataThread::getHistogram1D(const std::string& attachId)
 {
-  VERBOSEOUT(cout << "getDataThread::getHistogram1D" << endl);
+  VERBOSEOUT(cout << "getDataThread::getHistogram1D()" << endl);
   _dataType = dat_1DHistogram;
   delete _attachId;
   _attachId = new std::string(attachId);
@@ -752,7 +752,7 @@ void getDataThread::getHistogram1D(const std::string& attachId)
 
 void getDataThread::getHistogram0D(const std::string& attachId)
 {
-  VERBOSEOUT(cout << "getDataThread::getHistogram0D" << endl);
+  VERBOSEOUT(cout << "getDataThread::getHistogram0D()" << endl);
   _dataType = dat_0DHistogram;
   delete _attachId;
   _attachId = new std::string(attachId);
@@ -781,15 +781,15 @@ void getDataThread::run()
     emit newNone();
     return;
   }
-  VERBOSEOUT(std::cout << "getDataThread::run: DIME attachment:" << std::endl
-             << "  Memory=" << (void*)(*attachment).ptr << endl
-             << "  Size=" << (*attachment).size << endl
-             << "  Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-             << "  ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
+  VERBOSEOUT(std::cout << "getDataThread::run(): DIME attachment:" << std::endl
+             << " getDataThread::run(): Memory=" << (void*)(*attachment).ptr << endl
+             << " getDataThread::run(): Size=" << (*attachment).size << endl
+             << " getDataThread::run(): Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+             << " getDataThread::run(): ID=" << ((*attachment).id?(*attachment).id:"null") << endl);
 
   // find out Type of Data (Histogramtype, dimension):
   std::string mime((*attachment).type);
-  VERBOSEOUT(cout << "getDataThread::run mimetype: " << mime << endl);
+  VERBOSEOUT(cout << "getDataThread::run(): mimetype: " << mime << endl);
   if (!mime.compare(std::string("application/cass0Dhistogram")))      _dataType=dat_0DHistogram;
   else if (!mime.compare(std::string("application/cass1Dhistogram"))) _dataType=dat_1DHistogram;
   else if (!mime.compare(std::string("application/cass2Dhistogram"))) _dataType=dat_2DHistogram;
@@ -838,7 +838,7 @@ void ImageViewer::pictureTypeChanged(int /*newIndex*/)
 
 void ImageViewer::on_getData_triggered()
 {
-  VERBOSEOUT(cout << "on_getData_triggered" << endl);
+  VERBOSEOUT(cout << "ImageViewer::on_getData_triggered()" << endl);
   if(_ready)
   {
     _statusLED->setStatus(true, Qt::green);
@@ -868,7 +868,7 @@ void ImageViewer::on_clearHistogram_triggered()
 
 void ImageViewer::running()
 {
-  VERBOSEOUT(cout << "running" << endl);
+  VERBOSEOUT(cout << "ImageViewer::running()" << endl);
   if(_running->isChecked())
   {
     _updater->start(int(1000 / _rate->value()));
@@ -883,7 +883,7 @@ void ImageViewer::running()
 
 void ImageViewer::on_writeIni_triggered()
 {
-  VERBOSEOUT(cout << "readIni" << endl);
+  VERBOSEOUT(cout << "ImageViewer::on_writeIni_triggered()" << endl);
   bool ret;
   _cass->writeini(0, &ret);
   if(!ret)
@@ -897,7 +897,7 @@ void ImageViewer::on_readIni_triggered()
    *        postprocessors later, so that the dropdown list is always
    *        up to date.
    */
-  VERBOSEOUT(cout << "readIni" << endl);
+  VERBOSEOUT(cout << "ImageViewer::on_readIni_triggered()" << endl);
   bool ret;
   _cass->readini(0, &ret);
   if(!ret)
@@ -908,7 +908,7 @@ void ImageViewer::on_readIni_triggered()
 
 void ImageViewer::on_quitServer_triggered()
 {
-  VERBOSEOUT(cout << "quitServer" << endl);
+  VERBOSEOUT(cout << "ImageViewer::on_quitServer_triggered()" << endl);
   bool ret;
   _cass->quit(&ret);
   if(!ret)
@@ -972,7 +972,7 @@ void ImageViewer::on_normalSize_triggered()
 
 void ImageViewer::on_fitToWindow_triggered()
 {
-  VERBOSEOUT(cout << "on_fitToWindow_triggered" << endl);
+  VERBOSEOUT(cout << "ImageViewer::on_fitToWindow_triggered()" << endl);
   bool fitToWindow = _ui.fitToWindow->isChecked();
   _imageScroller->setWidgetResizable(fitToWindow);
   if(!fitToWindow)
@@ -992,7 +992,7 @@ void ImageViewer::on_about_triggered()
 
 void ImageViewer::updateActions()
 {
-  VERBOSEOUT(cout << "updateActions" << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateActions()" << endl);
   _ui.zoomIn->setEnabled(! _ui.fitToWindow->isChecked());
   _ui.zoomOut->setEnabled(! _ui.fitToWindow->isChecked());
   _ui.normalSize->setEnabled(! _ui.fitToWindow->isChecked());
@@ -1002,7 +1002,7 @@ void ImageViewer::updateActions()
 
 void ImageViewer::updateServer()
 {
-  VERBOSEOUT(cout << "updateServer: ");
+  VERBOSEOUT(cout << "ImageViewer::updateServer(): ");
   _server = (_servername->text() + ":" +_serverport->text()).toStdString();
   _gdthread.updateServer(_server);
   _cass->soap_endpoint = _server.c_str();
@@ -1013,7 +1013,7 @@ void ImageViewer::updateServer()
 
 void ImageViewer::scaleImage(double factor)
 {
-  VERBOSEOUT(cout << "scaleImage: factor=" << factor << endl);
+  VERBOSEOUT(cout << "ImageViewer::scaleImage(): factor=" << factor << endl);
   if(! _imageLabel->pixmap())
     return;
   _scaleFactor *= factor;
@@ -1035,7 +1035,7 @@ void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 getDataThread::getDataThread()
   : _format(cass::PNG)
 {
-  VERBOSEOUT(cout << "getDataThread::getDataThread" << endl);
+  VERBOSEOUT(cout << "getDataThread::getDataThread()" << endl);
   _cass = new CASSsoapProxy;
   _cassCmd = new CASSsoapProxy;
   _dataType = dat_Any;
