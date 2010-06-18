@@ -280,7 +280,7 @@ public:
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
-    VERBOSEOUT(std::cout << "spectrogramdata setHistogram" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData::setHistogram()" << std::endl);
     if (_hist)
     {
       _interval.setMinValue(manualScale? min : _hist->min() );
