@@ -732,6 +732,8 @@ protected slots:
     settings.setValue("pos1", _cs_top );
     settings.setValue("pos2", _cs_bot );
     settings.setValue("transformCol", _transformCol);
+    std::cout<<"Col to save is "<<_selectColMap<<std::endl;
+    settings.setValue("selectColMap", _selectColMap);
   }
 
   void Replot()
@@ -758,8 +760,9 @@ protected slots:
 
   void changeColorInt()
   {
-    saveColorbar();
     updateColorBar(_color_scale->value());
+    _selectColMap=_color_scale->value();
+    saveColorbar();
   }
 
   void on_colorbarPreset_changed(const QString& name)
@@ -779,6 +782,7 @@ protected slots:
     _cs_top = settings.value("pos1", 0.7).toDouble();
     _cs_bot = settings.value("pos2", 0.1).toDouble();
     _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
+    //std::cout<<"Test " << _cs_top<<" "<<_cs_bot <<std::endl;
     switch(_transformCol)
     {
     case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
@@ -792,7 +796,9 @@ protected slots:
     case QwtLogColorMap::trans_sqrt: _rad_colormap_sqrt->setChecked(true);
       break;
     }
-    updateColorBar(_color_scale->value());
+    _selectColMap=settings.value("selectColMap",-1).toInt();
+    std::cout<<"Test " << _selectColMap<<" "<< _transformCol <<std::endl;
+    updateColorBar(_selectColMap);
   }
 
   void updateColorBarScale()
@@ -919,6 +925,7 @@ protected:
   QwtPlotZoomer* _zoomer;
 
   double _cs_top, _cs_bot;
+  int _selectColMap;
   QList< createScaleEngine* >* _cb_scaleEngines;
   QList< createScaleEngine* >::iterator _cb_scaleEngineIt;
 
@@ -1233,8 +1240,8 @@ protected:
     _toolbar->addWidget(_sbx_scale1d_min);
     _toolbar->addWidget(_lbl_scale1d_max);
     _toolbar->addWidget(_sbx_scale1d_max);
-    connect(_sbx_scale1d_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
-    connect(_sbx_scale1d_min, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+    connect(_sbx_scale1d_max, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
+    connect(_sbx_scale1d_min, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
 
     if(_sbx_scale1d_max->text().toDouble() < _sbx_scale1d_min->text().toDouble() )
     {
