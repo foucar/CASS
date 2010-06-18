@@ -236,10 +236,10 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
   }
   soap_multipart::iterator attachment = _cass->dime.begin();
   VERBOSEOUT(std::cout << "ImageViewer::getIdList(): DIME attachment:" << std::endl
-             << "Memory=" << (void*)(*attachment).ptr << std::endl
-             << "Size=" << (*attachment).size << std::endl
-             << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
-             << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
+             << "ImageViewer::getIdList(): Memory=" << (void*)(*attachment).ptr << std::endl
+             << "ImageViewer::getIdList(): Size=" << (*attachment).size << std::endl
+             << "ImageViewer::getIdList(): Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
+             << "ImageViewer::getIdList(): ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
   /** @bug when jocassview is started without having a cass server running it crashes here */
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   cass::IdList list(serializer);
