@@ -761,14 +761,14 @@ void getDataThread::getHistogram0D(const std::string& attachId)
 void getDataThread::run()
 {
 
-  VERBOSEOUT(cout << "getDataThread::run " << _dataType << endl);
+  VERBOSEOUT(cout << "getDataThread::run(): " << _dataType << endl);
   bool ret = FALSE;
   // todo: get rid of _useSpectrogram
 
   _cass->getHistogram(*_attachId, 0, &ret);
   if(! ret)
   {
-    std::cerr << "Did not get soap data" << std::endl;
+    std::cerr << "getDataThread::run(): Did not get soap data" << std::endl;
     emit newNone();
     return;
   }
@@ -776,7 +776,7 @@ void getDataThread::run()
   soap_multipart::iterator attachment(_cass->dime.begin());
   if(_cass->dime.end() == attachment)
   {
-    cerr << "Did not get attachment!" << endl;
+    cerr << "getDataThread::run() :Did not get attachment!" << endl;
     emit newNone();
     return;
   }
