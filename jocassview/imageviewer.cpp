@@ -729,11 +729,11 @@ cass::PostProcessors::keyList_t getDataThread::getIdList()
     return cass::PostProcessors::keyList_t();
   }
   soap_multipart::iterator attachment = _cass->dime.begin();
-  VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
-             << "Memory=" << (void*)(*attachment).ptr << std::endl
-             << "Size=" << (*attachment).size << std::endl
-             << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
-             << "ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
+  VERBOSEOUT(std::cout << "getDataThread::getIdList(): DIME attachment:" << std::endl
+             << "getDataThread::getIdList(): Memory=" << (void*)(*attachment).ptr << std::endl
+             << "getDataThread::getIdList(): Size=" << (*attachment).size << std::endl
+             << "getDataThread::getIdList(): Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
+             << "getDataThread::getIdList(): ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
   /** @bug when jocassview is started without having a cass server running it crashes here */
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   cass::IdList list(serializer);
