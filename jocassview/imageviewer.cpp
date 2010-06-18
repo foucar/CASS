@@ -599,7 +599,7 @@ void ImageViewer::updateHistogram(cass::Histogram2DFloat* hist)
   if (_dock->widget() != _spectrogramWidget)
     _dock->setWidget(_spectrogramWidget);
   updateActions();
-  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(2d): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
@@ -627,7 +627,7 @@ void ImageViewer::updateHistogram(cass::Histogram1DFloat* hist)
   if (_dock->widget()!=_plotWidget1D) _dock->setWidget(_plotWidget1D);
 
   updateActions();
-  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(1d): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
@@ -666,7 +666,7 @@ void ImageViewer::updateHistogram(cass::Histogram0DFloat* hist)
   if (_dock->widget()!=_plotWidget0D) _dock->setWidget(_plotWidget0D);
 
   updateActions();
-  VERBOSEOUT(cout << "ImageViewer::updateHistogram(): _scaleFactor=" << _scaleFactor << endl);
+  VERBOSEOUT(cout << "ImageViewer::updateHistogram(0d): _scaleFactor=" << _scaleFactor << endl);
   // set rate info
   static QTime time;
   static float rate(0.);
