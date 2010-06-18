@@ -762,7 +762,8 @@ protected slots:
   {
     updateColorBar(_color_scale->value());
     _selectColMap=_color_scale->value();
-    saveColorbar();
+    //I doubt that the next is necessary, in case the user may manually save the colour-map settings
+    //saveColorbar();
   }
 
   void on_colorbarPreset_changed(const QString& name)
@@ -797,7 +798,8 @@ protected slots:
       break;
     }
     _selectColMap=settings.value("selectColMap",-1).toInt();
-    std::cout<<"Test " << _selectColMap<<" "<< _transformCol <<std::endl;
+    _color_scale->setValue(_selectColMap);
+    std::cout<<"Selected colour is  " << _selectColMap<<" scale is "<< _transformCol <<std::endl;
     updateColorBar(_selectColMap);
   }
 
