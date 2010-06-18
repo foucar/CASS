@@ -236,6 +236,8 @@ private:
 
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
+    cass::PostProcessors::keyList_t getIdList();
+
     void updateImageList(QComboBox* box);
 
     bool eventFilter(QObject *obj, QEvent *ev);

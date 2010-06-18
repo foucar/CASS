@@ -181,7 +181,7 @@ INCLUDEPATH   += postprocessing \
                  ../cass_ccd \
                  ../cass_pnccd \
                  ../cass_machinedata \
-                 $$PWD/../LCLS \
+                 $$PWD/../LCLS
 
 DEPENDPATH    += ./postprocessing
 
@@ -203,8 +203,12 @@ hdf5 {
 # extra files if compiling single particle detector.
 # depends on VIGRA template library. (by Ullrich Koethe)
 singleparticle_hit {
+    VIGRAINC =   /reg/neh/home/skassem/vigra_inc
+    INCLUDEPATH += $$VIGRAINC
+    #message ("The vigra dir is set to $$VIGRAINC")
+    #message ($$INCLUDEPATH)
     SOURCES +=  ./postprocessing/hitrate.cpp
-    HEADERS +=  ./postprocessing/hitrate.h \
+    HEADERS +=  ./postprocessing/hitrate.h
 }
 
 cernroot {

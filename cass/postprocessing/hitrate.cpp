@@ -82,15 +82,24 @@ void cass::pp589::loadSettings(size_t)
 void cass::pp589::process(const CASSEvent& evt)
 {
   using namespace std;
-//  _integralimg->lock.lockForWrite();
-//  _rowsum->lock.lockForWrite();
-//  one->lock.lockForRead();
+  _integralimg->lock.lockForWrite();
+  _rowsum->lock.lockForWrite();
+  one->lock.lockForRead();
   const Histogram2DFloat &one
         (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
 
 
-  const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());
+  _result->lock.lockForRead();
+  if (!_result->nbrOfFills() )
+  {
+    // first run or histogram has been cleared -> start training phase.
+    _trainingSetsInserted = 0;
+
+  }
+  _result->lock.unlock();
+
+  const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t nybins (one->axis()[HistogramBackend::yAxis].nbrBins());
 
   const HistogramFloatBase::storage_t& img_mem( one.memory() );
   HistogramFloatBase::storage_t& rowsum_mem( _rowsum->memory() );
@@ -99,8 +108,8 @@ void cass::pp589::process(const CASSEvent& evt)
   // sanity checks and auto-set nxbins. todo: restore -1 so that nxbins/nybins gets updated on size change?
   if (_xstart < 0) _xstart = 0;
   if (_ystart < 0) _ystart = 0;
-  if (_xend >= nxbins) _xend = nxbins-1;
-  if (_yend >= nybins) _yend = nybins-1;
+  if (_xend >= static_cast<int>(nxbins)) _xend = nxbins-1;
+  if (_yend >= static_cast<int>(nybins)) _yend = nybins-1;
   if (_xend < 0) _xend = nxbins-1;
   if (_yend < 0) _yend = nybins-1;
 
@@ -134,12 +143,12 @@ void cass::pp589::process(const CASSEvent& evt)
   float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
       float val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
       var0 += (val-avg)*(val-avg);
     }
@@ -156,13 +165,13 @@ void cass::pp589::process(const CASSEvent& evt)
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
       float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var1 += diff*diff;
     }
@@ -178,13 +187,13 @@ void cass::pp589::process(const CASSEvent& evt)
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = round( static_cast<float>(jj+2)*ysize_intimg/ysteps);
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
       float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var2 += diff*diff;
     }
@@ -200,18 +209,17 @@ void cass::pp589::process(const CASSEvent& evt)
   int xfactor = -1;
   int yfactor = -1;
   int factor;
-  float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
     xfactor = -xfactor;
-    int xx_prev = round( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = round(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
       yfactor = -yfactor;
       factor = xfactor*yfactor;
-      int yy_prev = round( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = round(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
       var3 += factor*(integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins]);
     }
   }
@@ -220,9 +228,14 @@ void cass::pp589::process(const CASSEvent& evt)
   // 5th variation feature: integral intensity
   float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
-  // output current features:
-  std::cout << "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl;
+  var0 /= 1;
+  var1 /= 1e12;
+  var2 /= 1e12;
+  var3 /= 1e8;
+  var4 /= 1e7;
 
+  // output current features:
+  VERBOSEOUT(std::cout<< "current features: " << var0 << ",  " << var1 << ",  " << var2 << ",  " << var3 << ",  " << var4 << std::endl);
 
   // populate Trainingset
   if ( _trainingSetsInserted < _nTrainingSetSize )
@@ -234,35 +247,58 @@ void cass::pp589::process(const CASSEvent& evt)
     _variationFeatures[matrixType::difference_type(_trainingSetsInserted, 4)] = var4;
     ++_trainingSetsInserted;
     if ( _trainingSetsInserted == _nTrainingSetSize ) _reTrain = true;
-    std::cout << "inserted: " << _trainingSetsInserted << std::endl;
+    VERBOSEOUT(std::cout << "inserted: " << _trainingSetsInserted << std::endl);
   }
   if ( _reTrain )
   {
 
-  std::cout << "rows: " << vigra::rowCount(_cov) << std::endl;
-  std::cout << "cols: " << vigra::columnCount(_cov) << std::endl;
+  VERBOSEOUT(std::cout << "rows: " << vigra::rowCount(_cov) << std::endl);
+  VERBOSEOUT(std::cout << "cols: " << vigra::columnCount(_cov) << std::endl);
 
     _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<float>::difference_type(0,0), vigra::Matrix<float>::difference_type(_trainingSetsInserted,_nFeatures)) );
 
     typedef matrixType::traverser ttt;
-
+#ifdef VERBOSE
+    std::cout << std::endl << "_cov= [";
     for (ttt it0 = _cov.traverser_begin(); it0!=_cov.traverser_end(); ++it0) {
-        std::cout << std::endl;
+        std::cout << "[";
         for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << " ";
+            std::cout << *it1 << ", ";
         }
+        std::cout << "]; ";
     }
-    std::cout << std::endl;
-
+    std::cout << "] " << std::endl;
+    std::cout << std::endl << "_variationFeatures= [";
     for (ttt it0 = _variationFeatures.traverser_begin(); it0!=_variationFeatures.traverser_end(); ++it0) {
-        std::cout << std::endl;
+        std::cout << "[";
         for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << " ";
+            std::cout << *it1 << ", ";
         }
+        std::cout << "]; ";
     }
-    std::cout << std::endl;
+    std::cout << "] " << std::endl;
+#endif
 
-    _covI = vigra::linalg::inverse(_cov);
+    try{
+        _covI = vigra::linalg::inverse(_cov);
+     }
+    catch( vigra::PreconditionViolation E ) {
+        // matrix is singular. use normalized euclidean distance instead of mahalanobis:
+        vigra::linalg::identityMatrix(_covI); 
+    };
+
+#ifdef VERBOSE
+    std::cout << std::endl << "_covI = [";
+    for (ttt it0 = _covI.traverser_begin(); it0!=_covI.traverser_end(); ++it0) {
+        std::cout << "[";
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << ", ";
+        }
+        std::cout << "]; ";
+    }
+    std::cout << "] " << std::endl;
+#endif
+
     _reTrain = false;
     //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
@@ -292,11 +328,12 @@ void cass::pp589::process(const CASSEvent& evt)
 
 
 
-//  one->lock.unlock();
-//  _integralimg->lock.unlock();
-//  _rowsum->lock.unlock();
+  one->lock.unlock();
+  _integralimg->lock.unlock();
+  _rowsum->lock.unlock();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = mahal_dist;
+  ++_result->nbrOfFills();  // todo: remove this once it is implemented inside fill()
   _result->lock.unlock();
 }
 

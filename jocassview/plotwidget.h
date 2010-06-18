@@ -386,7 +386,7 @@ public:
           else
             _cs_bot=ystep;
 
-          updateColorBar();
+          updateColorBar(_color_scale->value());
         }
       }
     }
@@ -405,7 +405,7 @@ public:
   spectrogramWidget()
   {
     _cs_top = 0.7;
-    _cs_bot = 0.2;
+    _cs_bot = 0.1;
     _cb_scaleEngines = new QList< createScaleEngine* >();
     _cb_scaleEngines->append( new createLinearScaleEngine );
     _cb_scaleEngines->append( new createLog10ScaleEngine );
@@ -436,6 +436,22 @@ public:
     _sbx_scale_max->setValue(1500.);
     _sbx_scale_max->setDecimals(3);
 
+    if(_sbx_scale_max->value() < _sbx_scale_min->value())
+    {
+      _sbx_scale_min->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+      _sbx_scale_max->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sbx_scale_min->setStyleSheet("QDoubleSpinBox {color: black; background-color: #000000}");
+      _sbx_scale_max->setStyleSheet("QDoubleSpinBox {color: black; background-color: #000000}");
+    }
+
+    QLabel* _lbl_color_scale = new QLabel(tr("Color"),this);
+    _color_scale = new QSpinBox(this);
+    _color_scale->setRange(-1,5);
+    _color_scale->setValue(-1);
+
     // populate colorbar presets:
     QSettings settings;
     settings.beginGroup("ColorBar");
@@ -452,6 +468,11 @@ public:
     connect(_saveColorbar, SIGNAL(clicked()), this, SLOT(saveColorbar()));
     connect(_colorbarPresets, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(on_colorbarPreset_changed(const QString&)));
 
+    connect(_color_scale, SIGNAL(valueChanged(int)), this, SLOT(updateColorBar(int)));
+
+    connect(_sbx_scale_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+    connect(_sbx_scale_min, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+
     _toolbar->addWidget( _colorbarPresets );
     _toolbar->addWidget( _saveColorbar );
     _toolbar->addWidget( _rad_colormap_lin );
@@ -465,6 +486,9 @@ public:
     _toolbar->addWidget(_sbx_scale_min);
     _toolbar->addWidget(_lbl_scale_max);
     _toolbar->addWidget(_sbx_scale_max);
+
+    _toolbar->addWidget(_lbl_color_scale);
+    _toolbar->addWidget(_color_scale);
 
     setMouseTracking(true);
     //_transformCol = QwtLogColorMap::trans_pow10;
@@ -485,6 +509,43 @@ public:
     _spectrogram->setData(*_spectrogramData);
     _spectrogram->attach(_plot);
 
+    _colorMapCol1 = new QwtLogColorMap(Qt::darkCyan, Qt::red);
+    _colorMapCol1->addColorStop(0.1, Qt::cyan);
+    _colorMapCol1->addColorStop(0.6, Qt::green);
+    _colorMapCol1->addColorStop(0.95, Qt::yellow);
+    _colorMapCol1->setTransformId(_transformCol);
+
+    _colorMapColMany = new QwtLogColorMap(Qt::darkCyan, Qt::red);
+    _colorMapColMany->addColorStop(0.1, Qt::cyan);
+    _colorMapColMany->addColorStop(0.6, Qt::green);
+    _colorMapColMany->addColorStop(0.95, Qt::yellow);
+    _colorMapColMany->setTransformId(_transformCol);
+
+    _colorMapColRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
+    _colorMapColRed->addColorStop(_cs_top, QColor(180,0,0));
+    _colorMapColRed->addColorStop(_cs_bot, QColor(50,0,0));
+    _colorMapColRed->setTransformId(_transformCol);
+
+    _colorMapColGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
+    _colorMapColGreen->addColorStop(_cs_top, QColor(0,180,0));
+    _colorMapColGreen->addColorStop(_cs_bot, QColor(0,50,0));
+    _colorMapColGreen->setTransformId(_transformCol);
+
+    _colorMapColBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
+    _colorMapColBlue->addColorStop(_cs_top, QColor(0,0,180));
+    _colorMapColBlue->addColorStop(_cs_bot, QColor(0,0,50));
+    _colorMapColBlue->setTransformId(_transformCol);
+
+    _colorMapColVio = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
+    _colorMapColVio->addColorStop(_cs_top, QColor(0,180,180));
+    _colorMapColVio->addColorStop(_cs_bot, QColor(0,50,50));
+    _colorMapColVio->setTransformId(_transformCol);
+
+    _colorMapColCyn = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
+    _colorMapColCyn->addColorStop(_cs_top, QColor(180,0,180));
+    _colorMapColCyn->addColorStop(_cs_bot, QColor(50,0,50));
+    _colorMapColCyn->setTransformId(_transformCol);
+
     // A color bar on the right axis
     _rightAxis = _plot->axisWidget(QwtPlot::yRight);
     _rightAxis->setTitle("Intensity");
@@ -496,11 +557,14 @@ public:
     _colorMapInv->addColorStop(0.6, Qt::green);
     _colorMapInv->addColorStop(0.95, Qt::yellow);
     _colorMapInv->setTransformId(_transformCol_inv);
-    _spectrogram->setColorMap(*_colorMapInv);
+    //_spectrogram->setColorMap(*_colorMapInv);
 
+    _spectrogram->setColorMap(*_colorMap);
     _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMapInv);
-
+                            *_colorMap);
+                            
+    //_rightAxis->setColorMap(_spectrogram->data().range(),
+    //                        *_colorMapInv);
     //_plot->setAxisScaleEngine(QwtPlot::yRight, new QwtLog10ScaleEngine);
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue(),
@@ -531,6 +595,16 @@ public:
 
   ~spectrogramWidget() {
      delete _colorMap;
+
+     delete _colorMapCol1;
+     delete _colorMapColMany;
+     delete _colorMapColBlue;
+     delete _colorMapColRed;
+     delete _colorMapColGreen;
+
+     delete _colorMapColVio;
+     delete _colorMapColCyn;
+
      delete _colorMapInv;
      delete _spectrogram;
      delete _spectrogramDataDummy;
@@ -546,6 +620,7 @@ public:
      delete _rad_colormap_sq;
      
      delete _saveColorbar;
+     delete _color_scale;
   }
 
 
@@ -559,11 +634,40 @@ public:
                                    _bool_auto_scale->checkState(),
                                    _sbx_scale_min->value(),
                                    _sbx_scale_max->value() );
+    if(_sbx_scale_max->value() < _sbx_scale_min->value())
+    {
+      _sbx_scale_min->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+      _sbx_scale_max->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sbx_scale_min->setStyleSheet("QDoubleSpinBox {color: black; background-color: #FFFFFF}");
+      _sbx_scale_max->setStyleSheet("QDoubleSpinBox {color: black; background-color: #FFFFFF}");
+    }
+
     _spectrogram->setData(*_spectrogramData);   //hack
     _spectrogram->invalidateCache();
     _spectrogram->itemChanged();
-    _rightAxis->setColorMap(_spectrogram->data().range(),
-                            *_colorMapInv);
+
+    if(_color_scale->value()==-1)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
+    else if(_color_scale->value()==0)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColMany);
+    else if(_color_scale->value()==1)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColRed);
+    else if(_color_scale->value()==2)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColGreen);
+    else if(_color_scale->value()==3)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColBlue);
+    else if(_color_scale->value()==4)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColVio);
+    else if(_color_scale->value()==5)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColCyn);
+
+    /*    _rightAxis->setColorMap(_spectrogram->data().range(),
+     *_colorMap);*/
+    //_rightAxis->setColorMap(_spectrogram->data().range(),
+    //                        *_colorMapInv);
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
@@ -612,6 +716,22 @@ protected slots:
     settings.setValue("transformCol", _transformCol);
   }
 
+  void Replot()
+  {
+    /*    _spectrogramData->setHistogram(hist,
+                                   _bool_auto_scale->checkState(),
+                                   _sbx_scale_min->value(),
+                                   _sbx_scale_max->value() );*/
+
+
+    if(_bool_auto_scale->checkState())
+      _plot->setAxisScale(QwtPlot::yRight,
+                        _sbx_scale_min->value(),
+                        _sbx_scale_max->value() );
+    _plot->replot();
+  }
+
+
   void changeColorIntLin(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_lin; changeColorInt();}
   void changeColorIntLog(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_log10; changeColorInt();}
   void changeColorIntExp(bool checked) {if (checked) _transformCol = QwtLogColorMap::trans_pow10; changeColorInt();}
@@ -621,7 +741,7 @@ protected slots:
   void changeColorInt()
   {
     saveColorbar();
-    updateColorBar();
+    updateColorBar(_color_scale->value());
   }
 
   void on_colorbarPreset_changed(const QString& name)
@@ -635,10 +755,11 @@ protected slots:
   void loadColorbar(QString name)
   {
     QSettings settings;
+
     settings.beginGroup("ColorBar");
     settings.beginGroup( name );
     _cs_top = settings.value("pos1", 0.7).toDouble();
-    _cs_bot = settings.value("pos2", 0.2).toDouble();
+    _cs_bot = settings.value("pos2", 0.1).toDouble();
     _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
     switch(_transformCol)
     {
@@ -653,7 +774,7 @@ protected slots:
     case QwtLogColorMap::trans_sqrt: _rad_colormap_sqrt->setChecked(true);
       break;
     }
-    updateColorBar();
+    updateColorBar(_color_scale->value());
   }
 
   void updateColorBarScale()
@@ -663,25 +784,97 @@ protected slots:
   }
 
 
-  void updateColorBar()
+  void updateColorBar(int _color_scale)
   {
     // old colormap is deleted by _spectrogram->setColorMap !!
+    /*
     delete _colorMap;
     _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
     _colorMap->addColorStop(_cs_top, QColor(255,255,255));
     _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
+    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
+    */
+    if(_color_scale==-1)
+    {
+      delete _colorMap;
+      _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
+      _colorMap->addColorStop(_cs_top, QColor(255,255,255));
+      _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
+      _colorMap->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
+      _spectrogram->setColorMap(*_colorMap);
+    }
+    else if(_color_scale==0)
+    {
+      delete _colorMapColMany;
+      _colorMapColMany = new QwtLogColorMap(Qt::darkCyan, Qt::red);
+      _colorMapColMany->addColorStop(0.1, Qt::cyan);
+      _colorMapColMany->addColorStop(0.6, Qt::green);
+      _colorMapColMany->addColorStop(0.95, Qt::yellow);
+      _colorMapColMany->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColMany);
+      _spectrogram->setColorMap(*_colorMapColMany);
+    }
+    else if(_color_scale==1)
+    {
+      delete _colorMapColRed;
+      _colorMapColRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
+      _colorMapColRed->addColorStop(_cs_top, QColor(180,0,0));
+      _colorMapColRed->addColorStop(_cs_bot, QColor(50,0,0));
+      _colorMapColRed->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,0));
+      _colorMapColRed->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColRed);
+      _spectrogram->setColorMap(*_colorMapColRed);
+    }
+    else if(_color_scale==2)
+    {
+      delete _colorMapColGreen;
+      _colorMapColGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
+      _colorMapColGreen->addColorStop(_cs_top, QColor(0,180,0));
+      _colorMapColGreen->addColorStop(_cs_bot, QColor(0,50,0));
+      _colorMapColGreen->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,0));
+      _colorMapColGreen->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColGreen);
+      _spectrogram->setColorMap(*_colorMapColGreen);
+    }
+    else if(_color_scale==3)
+    {
+      delete _colorMapColBlue;
+      _colorMapColBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
+      _colorMapColBlue->addColorStop(_cs_top, QColor(0,0,180));
+      _colorMapColBlue->addColorStop(_cs_bot, QColor(0,0,50));
+      _colorMapColBlue->addColorStop((_cs_top+_cs_bot)/2., QColor(0,0,115));
+      _colorMapColBlue->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColBlue);
+      _spectrogram->setColorMap(*_colorMapColBlue);
+    }
+    else if(_color_scale==4)
+    {
+      delete _colorMapColVio;
+      _colorMapColVio = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
+      _colorMapColVio->addColorStop(_cs_top, QColor(180,0,180));
+      _colorMapColVio->addColorStop(_cs_bot, QColor(50,0,50));
+      _colorMapColVio->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,115));
+      _colorMapColVio->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColVio);
+      _spectrogram->setColorMap(*_colorMapColVio);
+    }
+    else if(_color_scale==5)
+    {
+      delete _colorMapColCyn;
+      _colorMapColCyn = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
+      _colorMapColCyn->addColorStop(_cs_top, QColor(0,180,180));
+      _colorMapColCyn->addColorStop(_cs_bot, QColor(0,50,50));
+      _colorMapColCyn->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,115));
+      _colorMapColCyn->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColCyn);
+      _spectrogram->setColorMap(*_colorMapColCyn);
+    }
 
-    delete _colorMapInv;
-    _colorMapInv = new QwtLogColorMap(Qt::darkCyan, Qt::red);
-    _colorMapInv->addColorStop(0.1, Qt::cyan);
-    _colorMapInv->addColorStop(0.6, Qt::green);
-    _colorMapInv->addColorStop(0.95, Qt::yellow);
-    _colorMapInv->setTransformId(_transformCol);
-    _spectrogram->setColorMap(*_colorMapInv);
 
     //_spectrogram->setColorMap(*_colorMapInv);
-    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapInv);
+
     _plot->replot();
   }
 
@@ -690,6 +883,15 @@ protected:
   QwtLogColorMap::transformId _transformCol, _transformCol_inv;
   QwtLogColorMap* _colorMapInv;
   QwtLogColorMap* _colorMap;
+
+  QwtLogColorMap* _colorMapCol1;
+  QwtLogColorMap* _colorMapColMany;
+  QwtLogColorMap* _colorMapColBlue;
+  QwtLogColorMap* _colorMapColRed;
+  QwtLogColorMap* _colorMapColGreen;
+  QwtLogColorMap* _colorMapColVio;
+  QwtLogColorMap* _colorMapColCyn;
+
   spectrogramData* _spectrogramData;
   spectrogramDataDummy* _spectrogramDataDummy;
   QwtPlotSpectrogram* _spectrogram;
@@ -715,6 +917,7 @@ protected:
   QCheckBox* _bool_auto_scale;
   QDoubleSpinBox* _sbx_scale_min;
   QDoubleSpinBox* _sbx_scale_max;
+  QSpinBox* _color_scale;
 };
 
 
@@ -797,6 +1000,17 @@ public:
       _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->value(),_sbx_scale1d_max->value(),0.);
     }
 
+    if(_sbx_scale1d_max->value() < _sbx_scale1d_min->value())
+    {
+      _sbx_scale1d_min->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+      _sbx_scale1d_max->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sbx_scale1d_min->setStyleSheet("QDoubleSpinBox {color: black; background-color: #FFFFFF}");
+      _sbx_scale1d_max->setStyleSheet("QDoubleSpinBox {color: black; background-color: #FFFFFF}");
+    }
+
     if (hist->key() != oldKey)
     {
       oldKey = hist->key();
@@ -849,6 +1063,13 @@ public slots:
   void setHistogramKey(const QString& str)
   {
     setHistogramKey(str.toStdString());
+  }
+
+  void Replot()
+  {
+    if(_bool_auto_scale1d->checkState())
+      _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->value(),_sbx_scale1d_max->value(),0.);
+    _plot.replot();
   }
 
   void legendChecked(QwtPlotItem* item, bool checked)
@@ -982,6 +1203,19 @@ protected:
     _toolbar->addWidget(_sbx_scale1d_min);
     _toolbar->addWidget(_lbl_scale1d_max);
     _toolbar->addWidget(_sbx_scale1d_max);
+    connect(_sbx_scale1d_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+    connect(_sbx_scale1d_min, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+
+    if(_sbx_scale1d_max->value() < _sbx_scale1d_min->value())
+    {
+      _sbx_scale1d_min->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+      _sbx_scale1d_max->setStyleSheet("QDoubleSpinBox {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sbx_scale1d_min->setStyleSheet("QDoubleSpinBox {color: black; background-color: #000000}");
+      _sbx_scale1d_max->setStyleSheet("QDoubleSpinBox {color: black; background-color: #000000}");
+    }
 
     layout.addWidget(_toolbar);
   }
