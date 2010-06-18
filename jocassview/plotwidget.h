@@ -672,6 +672,9 @@ public:
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
+    VERBOSEOUT(std::cout << "spectrogramWidget::setData(): \""<<hist->key()
+               << "\" \""<< oldKey<<"\""
+               <<std::endl);
     if (hist->key() != oldKey)
     {
       QRectF brect;
@@ -959,7 +962,7 @@ public:
     curveWidget->installEventFilter(this);
   }
 
-  virtual void redraw() {std::cout << "base redraw" << std::endl;}
+  virtual void redraw() {std::cout << "plotWidget::redraw(): base redraw" << std::endl;}
 
   void setHistogramKey(std::string str)
   {
