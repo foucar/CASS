@@ -310,8 +310,8 @@ void cass::PostProcessors::setup(keyList_t &active)
   // go through active list and retrieve the list of dependands. If thats
   // empty than we put it to the leave list
   _leave.clear();
-  for(keyList_t::const_iterator it = eraseList.begin();
-      it != eraseList.end();
+  for(keyList_t::const_iterator it = active.begin();
+      it != active.end();
       ++it)
   {
     VERBOSEOUT(cout<<"PostProcessor::setup():"
