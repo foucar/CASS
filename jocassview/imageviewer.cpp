@@ -227,15 +227,15 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
   int retcode=_cass->getPostprocessorIds(&ret);
   if( (retcode==SOAP_OK) && ret)
   {
-    VERBOSEOUT(std::cout << "return value: 'true'" << std::endl);
+    VERBOSEOUT(std::cout << "ImageViewer::getIdList(): return value: 'true'" << std::endl);
   }
   else
   {
-    VERBOSEOUT(std::cout << "return value is 'false'" << std::endl);
+    VERBOSEOUT(std::cout << "ImageViewer::getIdList(): return value is 'false'" << std::endl);
     return cass::PostProcessors::keyList_t();
   }
   soap_multipart::iterator attachment = _cass->dime.begin();
-  VERBOSEOUT(std::cout << "DIME attachment:" << std::endl
+  VERBOSEOUT(std::cout << "ImageViewer::getIdList(): DIME attachment:" << std::endl
              << "Memory=" << (void*)(*attachment).ptr << std::endl
              << "Size=" << (*attachment).size << std::endl
              << "Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
@@ -251,7 +251,7 @@ void ImageViewer::updateImageList(QComboBox* box)
   cass::PostProcessors::keyList_t stdlist = _gdthread.getIdList();
   for (cass::PostProcessors::keyList_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
   {
-    VERBOSEOUT(std::cout << "list iteration..." << std::endl);
+    VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): list iteration..." << std::endl);
     QString itemstring(QString::fromStdString(*it));
     if (box->findText(itemstring)==-1)
       box->addItem( itemstring, QVariant(0) );
