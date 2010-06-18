@@ -260,7 +260,7 @@ public:
   spectrogramData():
       QwtRasterData(QwtDoubleRect(0.0, 0.0,500 , 500.0)), _hist(NULL), _boundRect(0.0, 0.0, 100.0, 100.0), _interval(QwtDoubleInterval(0.0, 1.0))
   {
-    VERBOSEOUT(std::cout << "spectrogramdata default constructor" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData:: default constructor" << std::endl);
   }
 
   ~spectrogramData()
@@ -272,7 +272,7 @@ public:
       QwtRasterData(brect), _hist(hist), _boundRect(brect), _interval(interval)
   {
     //setI
-    VERBOSEOUT(std::cout << "spectrogramdata overloaded constructor" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData:: overloaded constructor" << std::endl);
   }
 
   void setHistogram(cass::Histogram2DFloat *hist,
@@ -630,6 +630,7 @@ public:
 
     _spectrogram->setData(*_spectrogramDataDummy); //hack
     dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
+
     _spectrogramData->setHistogram(hist,
                                    _bool_auto_scale->checkState(),
                                    _sbx_scale_min->value(),
@@ -684,7 +685,7 @@ public:
           hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      VERBOSEOUT(std::cout << "NEW"
+      VERBOSEOUT(std::cout << "spectrogramWidget::setData(): NEW"
           <<" left: "<<brect.left()
           <<" right: "<<brect.right()
           <<" top: "<<brect.top()
@@ -1101,7 +1102,7 @@ public slots:
 #endif
     //_zoomer->zoom(1);
     int idx = _zoomer->zoomRectIndex();
-    VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
+    VERBOSEOUT(std::cout << "plotWidget::YoomY(): idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
     // top: lower axis limit
@@ -1342,7 +1343,7 @@ public:
     : _accumulationLength(accumulationLength),
     _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp
   {
-    VERBOSEOUT(std::cout << "0d constr" << std::endl);
+    VERBOSEOUT(std::cout << "plotWidget0D::plotWidget0D(): constr" << std::endl);
     setupUI();
   }
 
