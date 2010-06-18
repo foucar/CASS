@@ -348,7 +348,8 @@ protected:
    *   right mouse goes back in zoom history
    *   left mouse drag on colorbar sets colorstops
    *   right mouse on colorbar cycles throug axis transformations
-   * @todo make different color scale available
+   * @todo make most-general colour scale available
+   * @todo add user defined "stops" in colour scale
    * @author Stephan Kassemeyer
    * @author Nicola Coppola
    */
@@ -406,7 +407,7 @@ public:
 
   spectrogramWidget()
   {
-    _cs_top = 0.7;
+    _cs_top = 0.8;
     _cs_bot = 0.1;
     _cb_scaleEngines = new QList< createScaleEngine* >();
     _cb_scaleEngines->append( new createLinearScaleEngine );
@@ -515,8 +516,8 @@ public:
     _plot = new MyPlot;
 
     _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
-    _colorMap->addColorStop(0.7, QColor(255,255,255));
-    _colorMap->addColorStop(0.2, QColor(0,0,0));
+    _colorMap->addColorStop(0.8, QColor(255,255,255));
+    _colorMap->addColorStop(0.1, QColor(0,0,0));
     _colorMap->setTransformId(_transformCol);
     _spectrogram->setColorMap(*_colorMap);
 
@@ -780,7 +781,7 @@ protected slots:
 
     settings.beginGroup("ColorBar");
     settings.beginGroup( name );
-    _cs_top = settings.value("pos1", 0.7).toDouble();
+    _cs_top = settings.value("pos1", 0.8).toDouble();
     _cs_bot = settings.value("pos2", 0.1).toDouble();
     _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
     //std::cout<<"Test " << _cs_top<<" "<<_cs_bot <<std::endl;
