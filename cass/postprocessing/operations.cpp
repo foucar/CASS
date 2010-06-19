@@ -104,7 +104,7 @@ void cass::pp9::loadSettings(size_t)
       << ": will check whether hist in PostProcessor " << keyOne
       << " is between " << _range.first
       << " and " << _range.second
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       << std::endl;
 }
 
