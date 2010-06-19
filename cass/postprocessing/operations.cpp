@@ -562,7 +562,7 @@ void cass::pp60::loadSettings(size_t)
   if (!(ret && _pHist))
     return;
   set1DHist(_result,_key);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   std::cout<<"Postprocessor "<<_key
       <<": histograms values from PostProcessor "<< _pHist->key()
       <<" condition on PostProcessor "<<_condition->key()
@@ -613,7 +613,7 @@ void cass::pp61::loadSettings(size_t)
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   std::cout<<"Postprocessor "<<_key
       <<": averages histograms from PostProcessor "<< _pHist->key()
       <<" alpha for the averaging:"<<_alpha
@@ -672,7 +672,7 @@ void cass::pp62::loadSettings(size_t)
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   std::cout<<"Postprocessor "<<_key
       <<": sums up histograms from PostProcessor "<< _pHist->key()
       <<" condition on postprocessor:"<<_condition->key()
@@ -727,7 +727,7 @@ void cass::pp63::loadSettings(size_t)
     return;
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   std::cout << "PostProcessor "<<_key
       <<" will calculate the time average of histogram of PostProcessor_"<<_pHist->key()
       <<" from now "<<settings.value("MinTime",0).toUInt()
@@ -848,7 +848,7 @@ void cass::pp70::loadSettings(size_t)
   _size = settings.value("Size", 10000).toUInt();
 
   _result = new Histogram1DFloat(_size, 0, _size-1);
-  createHistList(1);
+  createHistList(2*cass::NbrOfWorkers,true);
 
   std::cout << "PostProcessor " << _key
       << ": will make a history of 0d histogram in pp "<< _one->key()
