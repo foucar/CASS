@@ -56,11 +56,16 @@ namespace cass
 
     /** main operator
      *
-     * will be called for each event by postprocesors. This function will check
-     * wether this event has already been processed and if the result is on the
+     * will be called for each event by postprocesors or postprocessors container.
+     * This function will check
+     * whether this event has already been processed and if the result is on the
      * list. When its not on the list, then it will call the pure virtual
-     * function process event. The histogram where the result of the
-     * evaluation should go to is _result.
+     * function process event. The latter is done only if either there is no
+     * condition or the condition is true. The histogram where the result of the
+     * evaluation should go to is _result. When the condition is false, then
+     * it will be put into the list as second to first. So that only the first
+     * element of the list contains the last processed histogram.
+     *
      * Before this function does anything it will writelock itselve. After
      * finishing this function the write lock will automaticly be released.
      *
@@ -104,6 +109,9 @@ namespace cass
       return _dependencies;
     }
 
+    /** clear the dependenies */
+    void clearDependencies() {_dependencies.clear();}
+
     /** clear the histograms.
      * this will lock for write access to the histograms before clearing them
      */
@@ -127,13 +135,20 @@ namespace cass
 
     /** create histogram list.
      *
-     * This function relies on that the the histogrambackened pointer has been
-     * newed. It will take it to create all the other histograms that are on
-     * the histogram list.
+     * Before creating the list the contents of the old list will be deleted.
+     *
+     * This function relies on that the the histogrambackened pointer (_result)
+     * points to a valid histogram. It will take it to create all the other
+     * histograms that will be put on the histogram list.
+     *
+     * When this postprocessor is an accumulating postprocessor, then it will
+     * not clone the histogram _result, but create the list with pointers to
+     * the same result. Default is false (non accumulating pp)
      *
      * @param[in] size The size of the list
+     * @param[in] isaccumulate flag to tell this that it is a accumulating pp
      */
-    void createHistList(size_t size);
+    void createHistList(size_t size, bool isaccumulate=false);
 
     /** setup the condition.
      *
