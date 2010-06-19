@@ -198,7 +198,7 @@ int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 even
         *success = false;
         return SOAP_FATAL_ERROR;
     }
-    } catch(cass::InvalidPostProcessorError) {
+    catch(cass::InvalidPostProcessorError) {
         *success = false;
         return SOAP_FATAL_ERROR;
     }
