@@ -164,7 +164,7 @@ cass::IdList* cass::PostProcessors::getIdList()
   _IdList->clear();
   keyList_t active;
   for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-#ifndef VERBOSE
+#ifndef DEBUG
     if (!iter->second->hide())
 #endif
       active.push_back(iter->first);
@@ -319,6 +319,14 @@ void cass::PostProcessors::setup(keyList_t &active)
                  <<endl);
       eraseList.push_back(it->first);
     }
+#ifdef VERBOSE
+    else
+    {
+      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
+                 <<" is still on active list."
+                 <<endl);
+    }
+#endif
   }
   // go through erase list and erase all postprocessors on that list
   iter = (eraseList.begin());
