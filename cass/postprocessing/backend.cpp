@@ -42,8 +42,8 @@ PostprocessorBackend::~PostprocessorBackend()
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 {
   using namespace std;
-  assert(!_histList.empty());
   QWriteLocker lock(&_histLock);
+  assert(!_histList.empty());
   histogramList_t::iterator it
     (find_if(_histList.begin(), _histList.end(), IsKey(evt.id())));
   if(_histList.end() == it)
@@ -95,9 +95,9 @@ void PostprocessorBackend::clearHistograms()
 void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
 {
   using namespace std;
+  QWriteLocker lock(&_histLock);
   if (!_result)
     throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
-  QWriteLocker lock(&_histLock);
   if (isaccumulate)
   {
     if (!_histList.empty())
@@ -105,9 +105,8 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   }
   else
   {
-    for (histogramList_t::iterator it (_histList.begin());
-    it != _histList.end();
-    ++it)
+    histogramList_t::iterator it (_histList.begin());
+    for (;it != _histList.end();++it)
       delete it->second;
   }
   _histList.clear();
