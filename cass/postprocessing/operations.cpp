@@ -27,9 +27,7 @@ void cass::pp4::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   // Get input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistOne", keyOne);
-  _dependencies.push_back(keyOne);
+  _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
@@ -38,26 +36,23 @@ void cass::pp4::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will apply NOT to PostProcessor " << keyOne
+      << ": will apply NOT to PostProcessor " << _one->key()
       <<". Condition is"<<_condition->key()
       << std::endl;
 }
 
 void cass::pp4::process(const CASSEvent& evt)
 {
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input data
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  // Get the input data
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-    // Lock both input and output, and perform negation
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  // Lock both input and output, and perform negation
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -90,9 +85,7 @@ void cass::pp9::loadSettings(size_t)
                           settings.value("UpperLimit",0).toFloat());
 
   // Get the input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp,_key,"HistOne", keyOne);
-  _dependencies.push_back(keyOne);
+  _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
@@ -101,7 +94,7 @@ void cass::pp9::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will check whether hist in PostProcessor " << keyOne
+      << ": will check whether hist in PostProcessor " << _one->key()
       << " is between " << _range.first
       << " and " << _range.second
       <<". Condition is "<<_condition->key()
@@ -110,24 +103,22 @@ void cass::pp9::loadSettings(size_t)
 
 void cass::pp9::process(const CASSEvent &evt)
 {
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  // Get the input
+  using namespace std;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-    // Sum up the histogram under lock
-    one.lock.lockForRead();
-    float value (accumulate(one.memory().begin(),
-                            one.memory().end(),
-                            0.f));
-    one.lock.unlock();
+  // Sum up the histogram under lock
+  one.lock.lockForRead();
+  float value (accumulate(one.memory().begin(),
+                          one.memory().end(),
+                          0.f));
+  one.lock.unlock();
 
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) =
-        _range.first < value &&  value < _range.second;
-    _result->lock.unlock();
-  }
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) =
+      _range.first < value &&  value < _range.second;
+  _result->lock.unlock();
 }
 
 
@@ -159,9 +150,7 @@ void cass::pp40::loadSettings(size_t)
   _threshold = settings.value("Threshold", 0.0).toFloat();
 
   // Get input
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistName", keyOne);
-  _dependencies.push_back(keyOne);
+  _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
@@ -169,7 +158,7 @@ void cass::pp40::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
-      << ": will threshold Histogram in PostProcessor " << keyOne
+      << ": will threshold Histogram in PostProcessor " << _one->key()
       << " above " << _threshold
       <<". Condition is"<<_condition->key()
       << std::endl;
@@ -177,21 +166,18 @@ void cass::pp40::loadSettings(size_t)
 
 void cass::pp40::process(const CASSEvent &evt)
 {
-  if ((*_condition)(evt).isTrue())
-  {
-    // Get the input
-    const HistogramFloatBase &one
-        (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+  // Get the input
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-    // Subtract using transform (under locks)
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    std::transform(one.memory().begin(), one.memory().end(),
-                   (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
-                   bind2nd(threshold(), _threshold));
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  // Subtract using transform (under locks)
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  std::transform(one.memory().begin(), one.memory().end(),
+                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
+                 bind2nd(threshold(), _threshold));
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -223,9 +209,7 @@ void cass::pp50::loadSettings(size_t)
                      settings.value("UpperBound", 1e6).toFloat());
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
   _normalize = settings.value("Normalize",false).toBool();
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -250,7 +234,7 @@ void cass::pp50::loadSettings(size_t)
   }
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<" will project histogram of PostProcessor "<<keyHist
+      <<" will project histogram of PostProcessor "<<_pHist->key()
       <<" from "<<_range.first
       <<" to "<<_range.second
       <<" on axis "<<_axis
@@ -262,16 +246,13 @@ void cass::pp50::loadSettings(size_t)
 void cass::pp50::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -302,9 +283,7 @@ void cass::pp51::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
                     settings.value("UpperBound", 1e6).toFloat());
-  PostProcessors::key_t HistId;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",HistId);
-  _dependencies.push_back(HistId);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -315,7 +294,7 @@ void cass::pp51::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<": will create integral of 1d histogram in PostProcessor "<<HistId
+      <<": will create integral of 1d histogram in PostProcessor "<<_pHist->key()
       <<" from "<<_area.first
       <<" to "<<_area.second
       <<". Condition is"<<_condition->key()
@@ -325,16 +304,13 @@ void cass::pp51::loadSettings(size_t)
 void cass::pp51::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    const Histogram1DFloat &one
-        (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram0DFloat*>(_result) = one.integral(_area);
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  const Histogram1DFloat &one
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = one.integral(_area);
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -361,9 +337,7 @@ void cass::pp52::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -383,7 +357,7 @@ void cass::pp52::loadSettings(size_t)
   _result = new Histogram1DFloat(_radius,0,_radius);
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<": will calculate the radial average of histogram of PostProcessor "<<keyHist
+      <<": will calculate the radial average of histogram of PostProcessor "<<_pHist->key()
       <<" with xcenter "<<settings.value("XCenter",512).toFloat()
       <<" ycenter "<<settings.value("YCenter",512).toFloat()
       <<" in histogram coordinates xcenter "<<_center.first
@@ -396,17 +370,14 @@ void cass::pp52::loadSettings(size_t)
 void cass::pp52::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    //retrieve the memory of the to be subtracted histograms//
-    const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  //retrieve the memory of the to be subtracted histograms//
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -436,9 +407,7 @@ void cass::pp53::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -465,7 +434,7 @@ void cass::pp53::loadSettings(size_t)
   _result = new Histogram1DFloat(_nbrBins,0,360);
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<": angular distribution of hist "<<keyHist
+      <<": angular distribution of hist "<<_pHist->key()
       <<" with xcenter "<<settings.value("XCenter",512).toFloat()
       <<" ycenter "<<settings.value("YCenter",512).toFloat()
       <<" in histogram coordinates xcenter "<<_center.first
@@ -482,18 +451,15 @@ void cass::pp53::loadSettings(size_t)
 void cass::pp53::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    //retrieve the memory of the to be subtracted histograms//
-    const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-    // retrieve the projection from the 2d hist//
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram1DFloat*>(_result) = one.radar_plot(_center,_range, _nbrBins);
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  //retrieve the memory of the to be subtracted histograms//
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  // retrieve the projection from the 2d hist//
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram1DFloat*>(_result) = one.radar_plot(_center,_range, _nbrBins);
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -524,9 +490,7 @@ void cass::pp54::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -553,25 +517,22 @@ void cass::pp54::loadSettings(size_t)
       <<" ycenter "<<_center.second
       <<" Histogram has "<<_nbrBins<<" Bins"
       <<" the maximum Radius in histogram coordinates "<<_radius
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       <<std::endl;
 }
 
 void cass::pp54::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    //retrieve the memory of the to be subtracted histograms//
-    const Histogram2DFloat &one
-        (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
-    // retrieve the projection from the 2d hist//
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    *dynamic_cast<Histogram2DFloat*>(_result) = one.convert2RPhi(_center,_radius, _nbrBins);
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  //retrieve the memory of the to be subtracted histograms//
+  const Histogram2DFloat &one
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  // retrieve the projection from the 2d hist//
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram2DFloat*>(_result) = one.convert2RPhi(_center,_radius, _nbrBins);
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -596,16 +557,14 @@ void cass::pp60::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
-      <<": histograms values from PostProcessor "<< keyHist
+      <<": histograms values from PostProcessor "<< _pHist->key()
       <<" condition on PostProcessor "<<_condition->key()
       <<std::endl;
 }
@@ -613,16 +572,13 @@ void cass::pp60::loadSettings(size_t)
 void cass::pp60::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    const Histogram0DFloat &one
-        (dynamic_cast<const Histogram0DFloat&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  const Histogram0DFloat &one
+      (dynamic_cast<const Histogram0DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -651,9 +607,7 @@ void cass::pp61::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   unsigned average = settings.value("average", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -661,7 +615,7 @@ void cass::pp61::loadSettings(size_t)
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
-      <<": averages histograms from PostProcessor "<< keyHist
+      <<": averages histograms from PostProcessor "<< _pHist->key()
       <<" alpha for the averaging:"<<_alpha
       <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
@@ -670,23 +624,20 @@ void cass::pp61::loadSettings(size_t)
 void cass::pp61::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    const HistogramFloatBase& one
-        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    ++_result->nbrOfFills();
-    float scale = (1./_result->nbrOfFills() < _alpha) ?
-                   _alpha :
-                   1./_result->nbrOfFills();
-    transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              Average(scale));
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  ++_result->nbrOfFills();
+  float scale = (1./_result->nbrOfFills() < _alpha) ?
+                _alpha :
+                1./_result->nbrOfFills();
+  transform(one.memory().begin(),one.memory().end(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            Average(scale));
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -715,9 +666,7 @@ void cass::pp62::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -725,7 +674,7 @@ void cass::pp62::loadSettings(size_t)
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout<<"Postprocessor "<<_key
-      <<": sums up histograms from PostProcessor "<< keyHist
+      <<": sums up histograms from PostProcessor "<< _pHist->key()
       <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
 }
@@ -733,20 +682,17 @@ void cass::pp62::loadSettings(size_t)
 void cass::pp62::process(const CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    const HistogramFloatBase& one
-        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    ++_result->nbrOfFills();
-    transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              plus<float>());
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  ++_result->nbrOfFills();
+  transform(one.memory().begin(),one.memory().end(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            plus<float>());
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -775,9 +721,7 @@ void cass::pp63::loadSettings(size_t)
   const size_t max_time_user (settings.value("MaxTime",300).toUInt());
   _timerange = make_pair(min_time_user,max_time_user);
   _nbrSamples=settings.value("NumberOfSamples",5).toUInt();
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName",keyHist);
-  _dependencies.push_back(keyHist);
+  _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -785,7 +729,7 @@ void cass::pp63::loadSettings(size_t)
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
-      <<" will calculate the time average of histogram of PostProcessor_"<<keyHist
+      <<" will calculate the time average of histogram of PostProcessor_"<<_pHist->key()
       <<" from now "<<settings.value("MinTime",0).toUInt()
       <<" to "<<settings.value("MaxTime",300).toUInt()
       <<" seconds   "<<_timerange.first
@@ -800,81 +744,78 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 {
   using namespace std;
 
-  if ((*_condition)(evt).isTrue())
+  //#define debug1
+#ifdef debug1
+  char timeandday[40];
+  struct tm * timeinfo;
+#endif
+  uint32_t fiducials;
+  time_t now_of_event;
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
+  //remember the time of the first event
+  if(_when_first_evt==0)
   {
-    //#define debug1
-  #ifdef debug1
-    char timeandday[40];
-    struct tm * timeinfo;
-  #endif
-    uint32_t fiducials;
-    time_t now_of_event;
-    const HistogramFloatBase& one
-        (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    // using docu at http://asg.mpimf-heidelberg.mpg.de/index.php/Howto_retrieve_the_Bunch-/Event-id
-    //remember the time of the first event
-    if(_when_first_evt==0)
-    {
-      _when_first_evt=static_cast<time_t>(evt.id()>>32);
+    _when_first_evt=static_cast<time_t>(evt.id()>>32);
 #ifdef debug1
-      timeinfo = localtime ( &_when_first_evt );
-      strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
-      cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
-#endif
-      _num_seen_evt=1;
-      _first_fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
-    }
-    now_of_event=static_cast<time_t>(evt.id()>>32);
-#ifdef debug1
-    timeinfo = localtime ( &now_of_event );
+    timeinfo = localtime ( &_when_first_evt );
     strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+    cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
 #endif
-    fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
-#ifdef debug1
-      timeinfo = localtime ( &now_of_event );
-      strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
-      //      cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
-      cout<<"ora "<< timeandday<<" "<<_first_fiducials << " " <<fiducials << " " << _num_seen_evt <<endl;
-#endif
-    if(fiducials>_first_fiducials+(_nbrSamples-1)*4608 /*0x1200 ??why*/
-        && now_of_event>=_when_first_evt)
-    {
-#ifdef debug1
-      cout <<"time to forget"<<endl;
-#endif
-     //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
-     _first_fiducials=fiducials;
-      _when_first_evt=now_of_event;
-      _num_seen_evt=1;
-    }
-
-    //    if(now_of_event<_when_first_evt-100)
-    if(_first_fiducials>fiducials)
-    {
-#ifdef debug1
-      cout <<"extra time to forget"<<endl;
-#endif
-     //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
-     _first_fiducials=fiducials;
-      _when_first_evt=now_of_event;
-      _num_seen_evt=1;
-    }
-
-    ++_result->nbrOfFills();
-    transform(one.memory().begin(),one.memory().end(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-              TimeAverage(float(_num_seen_evt)));
-    ++_num_seen_evt;
-    if(_num_seen_evt>_nbrSamples+1) cout<<"pp64::process(): How... it smells like fish! "
-        <<_num_seen_evt
-        <<" "<<_nbrSamples
-        <<endl;
-    _result->lock.unlock();
-    one.lock.unlock();
+    _num_seen_evt=1;
+    _first_fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
   }
+  now_of_event=static_cast<time_t>(evt.id()>>32);
+#ifdef debug1
+  timeinfo = localtime ( &now_of_event );
+  strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+#endif
+  fiducials=static_cast<uint32_t>(evt.id() & 0x000000001FFFFF00);
+#ifdef debug1
+  timeinfo = localtime ( &now_of_event );
+  strftime(timeandday,40,"%Y%m%d %H%M%S",timeinfo);
+  //      cout<<"Starting now is "<< timeandday <<" "<<_num_seen_evt<< " "<<_nbrSamples <<endl;
+  cout<<"ora "<< timeandday<<" "<<_first_fiducials << " " <<fiducials << " " << _num_seen_evt <<endl;
+#endif
+  if(fiducials>_first_fiducials+(_nbrSamples-1)*4608 /*0x1200 ??why*/
+     && now_of_event>=_when_first_evt)
+  {
+#ifdef debug1
+    cout <<"time to forget"<<endl;
+#endif
+    //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
+    _first_fiducials=fiducials;
+    _when_first_evt=now_of_event;
+    _num_seen_evt=1;
+  }
+
+  //    if(now_of_event<_when_first_evt-100)
+  if(_first_fiducials>fiducials)
+  {
+#ifdef debug1
+    cout <<"extra time to forget"<<endl;
+#endif
+    //remember the time also whenever (_num_seen_evt-1)%_nbrSamples==0
+    _first_fiducials=fiducials;
+    _when_first_evt=now_of_event;
+    _num_seen_evt=1;
+  }
+
+  ++_result->nbrOfFills();
+  transform(one.memory().begin(),one.memory().end(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+            TimeAverage(float(_num_seen_evt)));
+  ++_num_seen_evt;
+  if(_num_seen_evt>_nbrSamples+1) cout<<"pp64::process(): How... it smells like fish! "
+      <<_num_seen_evt
+      <<" "<<_nbrSamples
+      <<endl;
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
@@ -899,9 +840,7 @@ void cass::pp70::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
-  PostProcessors::key_t keyOne;
-  _one = retrieve_and_validate(_pp, _key, "HistName", keyOne);
-  _dependencies.push_back(keyOne);
+  _one = setupDependency("HistName");
 
   bool ret (setupCondition());
   if ( !(_one && ret) ) return;
@@ -912,6 +851,7 @@ void cass::pp70::loadSettings(size_t)
   createHistList(1);
 
   std::cout << "PostProcessor " << _key
+      << ": will make a history of 0d histogram in pp "<< _one->key()
             << ", condition on postprocessor:" << _condition
             << ", size of history: " << _size
             << std::endl;
@@ -919,21 +859,18 @@ void cass::pp70::loadSettings(size_t)
 
 void cass::pp70::process(const cass::CASSEvent &evt)
 {
-  if ( (*_condition)(evt).isTrue() )
-  {
-    const Histogram0DFloat &one
-                    (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));
-    one.lock.lockForRead();
-    _result->lock.lockForWrite();
-    ++_result->nbrOfFills();
+  const Histogram0DFloat &one
+      (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  ++_result->nbrOfFills();
 
-    HistogramFloatBase::storage_t &mem((dynamic_cast<Histogram1DFloat *>(_result))->memory());
+  HistogramFloatBase::storage_t &mem((dynamic_cast<Histogram1DFloat *>(_result))->memory());
 
-    std::rotate(mem.begin(), mem.begin()+1, mem.end());
-    mem[_size-1] = one.getValue();
-    _result->lock.unlock();
-    one.lock.unlock();
-  }
+  std::rotate(mem.begin(), mem.begin()+1, mem.end());
+  mem[_size-1] = one.getValue();
+  _result->lock.unlock();
+  one.lock.unlock();
 }
 
 
