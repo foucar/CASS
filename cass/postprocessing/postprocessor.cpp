@@ -98,8 +98,10 @@ void cass::PostProcessors::process(const CASSEvent& event)
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
    */
-  for(keyList_t::iterator iter(_leave.begin()); iter != _leave.end(); ++iter)
-    (*(_postprocessors[*iter]))(event);
+  for(postprocessors_t::iterator iter(_postprocessors.begin());
+      iter != _postprocessors.end();
+      ++iter)
+    (*(iter->second))(event);
 }
 
 void cass::PostProcessors::aboutToQuit()
@@ -192,7 +194,8 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
 void cass::PostProcessors::setup(keyList_t &active)
 {
   using namespace std;
-  /** @todo when load settings throws exception then remove this pp and all pp
+  /**
+   * @todo when load settings throws exception then remove this pp and all pp
    *        that depend on it (like in process)
    * @todo clear dependcies before starting to load settings
    * @todo dont create leave list, use active list and later iterate through whole container

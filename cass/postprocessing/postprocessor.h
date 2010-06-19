@@ -284,7 +284,7 @@ using the custom doxygen tag cassttng.
 
     /** process event
      *
-     * This function will call postprocessors operator that are on the leave list
+     * This function will call postprocessors operators in the container
      * @param event CASSEvent to process by all active postprocessors
      */
     void process(const CASSEvent& event);
@@ -333,10 +333,9 @@ using the custom doxygen tag cassttng.
     keyList_t find_dependant(const key_t& key);
 
   protected:
-    /** list of postprocessors that noone depends on */
-    keyList_t _leave;
-
-    /** the list of id's */
+    /** the list of keys.
+     * used to create the combobox in cassview
+     */
     IdList *_IdList;
 
     /** container for user selected and registered postprocessors */
