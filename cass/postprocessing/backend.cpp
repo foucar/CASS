@@ -108,3 +108,11 @@ bool PostprocessorBackend::setupCondition()
     _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
   return true;
 }
+
+void PostprocessorBackend::setupHideFlag()
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _hide = settings.value("Hide",false).toBool();
+}

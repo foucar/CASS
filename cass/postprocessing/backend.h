@@ -141,6 +141,17 @@ namespace cass
      */
     bool setupCondition();
 
+    /** setup the hiding flag.
+     *
+     * this will look up in cass.ini whether the user wants to hide this pp in
+     * the dropdown list of cassview.
+     *
+     * @cassttng PostProcessor/\%name\%/{Hide} \n
+     *           Flag to tell whether to hide this pp in jocassview combobox.
+     *           Default is false.
+     */
+    void setupHideFlag();
+
   protected:
     /** the postprocessors key */
     PostProcessors::key_t _key;
