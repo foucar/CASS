@@ -852,7 +852,7 @@ void cass::pp70::loadSettings(size_t)
 
   std::cout << "PostProcessor " << _key
       << ": will make a history of 0d histogram in pp "<< _one->key()
-            << ", condition on postprocessor:" << _condition
+            << ", condition on postprocessor:" << _condition->key()
             << ", size of history: " << _size
             << std::endl;
 }
