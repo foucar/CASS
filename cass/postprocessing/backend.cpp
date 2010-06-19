@@ -145,8 +145,26 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   settings.beginGroup(_key.c_str());
   PostProcessors::key_t dependkey;
   dependkey = settings.value(depVarName,"").toString().toStdString();
+  VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): "<<_key
+             <<" will search for key in "<<depVarName
+             <<" which is "<<dependkey
+             <<". Check whether this key is already on the dependency list"
+             <<endl);
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
+  {
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key"<<dependkey
+               <<" is not on dependency list => add it"
+               <<endl);
     _dependencies.push_back(dependkey);
+  }
+#ifdef VERBOSE
+  else
+  {
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key"<<dependkey
+               <<" is on dependency list!"
+               <<endl);
+  }
+#endif
   PostprocessorBackend *dependpp(0);
   try
   {
