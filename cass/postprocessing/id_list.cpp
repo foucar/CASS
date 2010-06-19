@@ -56,5 +56,4 @@ void cass::IdList::setList(const PostProcessors::keyList_t &list)
   clear();
   _list = list;
   _size = list.size();
-
 }

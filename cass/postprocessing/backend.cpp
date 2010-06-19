@@ -12,6 +12,7 @@ using namespace cass;
 PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
                                            const PostProcessors::key_t &key)
   :_key(key),
+   _hide(false),
    _result(0),
    _condition(0),
    _pp(pp),

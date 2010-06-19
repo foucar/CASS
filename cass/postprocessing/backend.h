@@ -105,6 +105,9 @@ namespace cass
     /** retrieve the key of this postprocessor */
     const PostProcessors::key_t key() const {return _key;}
 
+    /** retrieve the hide flag of this postprocessor */
+    bool hide()const {return _hide;}
+
   protected:
     /** process the event
      *
@@ -141,6 +144,9 @@ namespace cass
   protected:
     /** the postprocessors key */
     PostProcessors::key_t _key;
+
+    /** flag to tell whether this pp should be hidden in the dropdown list */
+    bool _hide;
 
     /** the list of histograms - event ids */
     histogramList_t _histList;

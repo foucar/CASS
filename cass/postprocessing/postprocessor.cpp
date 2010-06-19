@@ -160,7 +160,8 @@ cass::IdList* cass::PostProcessors::getIdList()
   _IdList->clear();
   keyList_t active;
   for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
-    active.push_back(iter->first);
+    if (!iter->second->hide())
+      active.push_back(iter->first);
   _IdList->setList(active);
   return _IdList;
 }
