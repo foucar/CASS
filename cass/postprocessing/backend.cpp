@@ -17,7 +17,12 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
-{}
+{
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _hide = settings.value("Hide",false).toBool();
+}
 
 PostprocessorBackend::~PostprocessorBackend()
 {
@@ -109,10 +114,22 @@ bool PostprocessorBackend::setupCondition()
   return true;
 }
 
-void PostprocessorBackend::setupHideFlag()
+PostprocessorBackend* PostprocessorBackend::setupDependecy()
 {
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _hide = settings.value("Hide",false).toBool();
+  PostProcessors::key_t dependkey;
+  dependkey = settings.value(param_name,"0").toString().toStdString();
+  _dependencies.push_back(dependkey);
+  PostprocessorBackend *dependpp(0);
+  try
+  {
+    dependpp = &(pp.getPostProcessor(dependkey));
+  }
+  catch (InvalidPostProcessorError&)
+  {
+    return 0;
+  }
+  return dependpp;
 }

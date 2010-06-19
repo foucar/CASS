@@ -150,7 +150,7 @@ namespace cass
      *           Flag to tell whether to hide this pp in jocassview combobox.
      *           Default is false.
      */
-    void setupHideFlag();
+    PostprocessorBackend* setupDependecy();
 
   protected:
     /** the postprocessors key */

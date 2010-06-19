@@ -6,27 +6,6 @@
 
 using namespace cass;
 
-PostprocessorBackend* cass::retrieve_and_validate(cass::PostProcessors &pp,
-                                                  cass::PostProcessors::key_t key,
-                                                  const char * param_name,
-                                                  PostProcessors::key_t& dependkey)
-{
-  QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(key.c_str());
-  dependkey = settings.value(param_name,"0").toString().toStdString();
-  PostprocessorBackend *dependpp(0);
-  try
-  {
-    dependpp = &(pp.getPostProcessor(dependkey));
-  }
-  catch (InvalidPostProcessorError&)
-  {
-    return 0;
-  }
-  return dependpp;
-}
-
 void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
