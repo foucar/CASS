@@ -627,8 +627,8 @@ public:
      while (!_cb_scaleEngines->isEmpty())
          delete _cb_scaleEngines->takeFirst();
      delete _cb_scaleEngines;
-     delete _toolbar;
      delete _colorbarPresets;
+
      delete _rad_colormap_lin;
      delete _rad_colormap_exp;
      delete _rad_colormap_sqrt;
@@ -640,6 +640,8 @@ public:
 
      delete _saveColorbar;
      delete _color_scale;
+
+     delete _toolbar;
   }
 
 
@@ -838,7 +840,7 @@ protected slots:
       _colorMapColMany = new QwtLogColorMap(Qt::darkCyan, Qt::red);
       _colorMapColMany->addColorStop(0.1, Qt::cyan);
       _colorMapColMany->addColorStop(0.6, Qt::green);
-      _colorMapColMany->addColorStop(0.95, Qt::yellow);
+      _colorMapColMany->addColorStop(0.90, Qt::yellow);
       _colorMapColMany->setTransformId(_transformCol);
       _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColMany);
       _spectrogram->setColorMap(*_colorMapColMany);
