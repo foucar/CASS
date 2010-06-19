@@ -142,10 +142,6 @@ void cass::PostProcessors::loadSettings(size_t)
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
     cout << *iter << " ";
   cout<<endl;
-  cout <<"   Called postprocessor(s): ";
-  for(keyList_t::iterator iter = _leave.begin(); iter != _leave.end(); ++iter)
-    cout << *iter << " ";
-  cout<<endl;
 }
 
 void cass::PostProcessors::clear(const key_t &key)
@@ -210,12 +206,25 @@ void cass::PostProcessors::setup(keyList_t &active)
   //  2) pp is not in conatiner and key is not in active list
   //  3) pp is in container
   //  5) pp is in container and id is not on list
-  VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
+
+  VERBOSEOUT(cout << "Postprocessor::setup(): clear all postprocessors dependencies"
+             <<"since they will be setup now again"<<endl);
+  for(postprocessors_t::iterator iter = _postprocessors.begin();
+      iter != _postprocessors.end();
+      ++iter)
+  {
+    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of"<<iter->second->key()
+               <<endl);
+    iter->second->clearDependencies();
+  }
+
+  VERBOSEOUT(cout << "Postprocessor::setup(): go through active list and check"
+             <<" whether pp is already in container"<<endl);
   keyList_t::iterator iter(active.begin());
   while(iter != active.end())
   {
     VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
-               <<" is not yet in pp container"
+               <<" is in pp container"
                <<endl);
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
@@ -227,34 +236,38 @@ void cass::PostProcessors::setup(keyList_t &active)
     else
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
-                 <<" is on list. Now loading Settings for it"
+                 <<" is in container. Now loading Settings for it"
                  <<endl);
       _postprocessors[*iter]->loadSettings(0);
     }
     VERBOSEOUT(cout<<"Postprocessor::setup(): done creating / loading "<<*iter
-               <<" Now checking pp's dependecies."
+               <<" Now checking its dependecies."
                <<endl);
     bool update(false);
     keyList_t deps(_postprocessors[*iter]->dependencies());
 #ifdef VERBOSE
     if (deps.empty())
       cout<<"Postprocessor::setup(): "<<*iter
-          <<" has no dependecies"
+          <<" has no dependencies"
           <<endl;
 #endif
     for(keyList_t::iterator d=deps.begin(); d!=deps.end(); ++d)
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
                  <<" depends on "<<*d
-                 <<" checking whether dependency pp is already there"
+                 <<". Check whether it is in container."
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
       {
         //solves cases 2
         VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
                    <<" is not in pp container."
-                   <<" Inserting it into the active list"
+                   <<" If this is already on active list we will move it to front of list."
+                   <<" If its not there, we will add it to front of list."
+                   <<" This ensures that during the next cycle it will be created before "<<*iter
                    <<endl);
+        if(active.end() != find(active.begin(), active.end(), *d))
+          active.remove(*d);
         active.push_front(*d);
         update = true;
       }
@@ -264,8 +277,7 @@ void cass::PostProcessors::setup(keyList_t &active)
                    <<" of "<<*iter
                    <<" is in the container, check if its key is in the active list"
                    <<endl);
-        keyList_t::iterator isthere(find(active.begin(), active.end(), *d));
-        if(active.end() == isthere)
+        if(active.end() == find(active.begin(), active.end(), *d))
         {
           //solves case 5
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
@@ -275,6 +287,14 @@ void cass::PostProcessors::setup(keyList_t &active)
           active.push_front(*d);
           update = true;
         }
+#ifdef VERBOSE
+        else
+        {
+          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
+                     <<" is in active list "
+                     <<endl);
+        }
+#endif
       }
     }
     // if we have updated active, start over again
@@ -318,32 +338,6 @@ void cass::PostProcessors::setup(keyList_t &active)
     PostprocessorBackend* p = _postprocessors[*it];
     delete p;
     _postprocessors.erase(*it);
-  }
-
-  // now we need to find out which of the postprocessors noone depends on.
-  // go through active list and retrieve the list of dependands. If thats
-  // empty than we put it to the leave list
-  _leave.clear();
-  for(keyList_t::const_iterator it = active.begin();
-      it != active.end();
-      ++it)
-  {
-    VERBOSEOUT(cout<<"PostProcessor::setup():"
-               <<" check whether someone depends on "<<*it
-               <<endl);
-    if (find_dependant(*it).empty())
-    {
-      VERBOSEOUT(cout<<"PostProcessor::setup():"
-                 <<" noone depends on "<<*it
-                 <<endl);
-      _leave.push_front(*it);
-    }
-    else
-    {
-      VERBOSEOUT(cout<<"PostProcessor::setup():"
-                 <<" someone depends on "<<*it
-                 <<endl);
-    }
   }
 }
 
