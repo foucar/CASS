@@ -1288,6 +1288,8 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Size} \n
    *           Number of values that are stored
    *           Default is 10000
+   * @cassttng PostProcessor/\%name\%/{Condition} \n
+   *           only do something if Condition histogram != 0
    *
    * @author Stephan Kassemeyer
    */
