@@ -86,8 +86,8 @@ void cass::pp9::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   // Get the range
-  _range = std::make_pair(settings.value("UpperLimit",0).toFloat(),
-                          settings.value("LowerLimit",0).toFloat());
+  _range = std::make_pair(settings.value("LowerLimit",0).toFloat(),
+                          settings.value("UpperLimit",0).toFloat());
 
   // Get the input
   PostProcessors::key_t keyOne;
