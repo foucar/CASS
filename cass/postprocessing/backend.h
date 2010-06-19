@@ -36,6 +36,13 @@ namespace cass
   public:
     /** constructor
      *
+     * This constructor will setup the hide flag.
+     *
+     * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+     *           0D Postprocessor name that we check before filling image.
+     *           if this setting is not defined, this postprocessor is unconditional.
+     *           Therefore its always true.
+     *
      * @param pp reference to the class that contains all postprocessors
      * @param key the key in the container of this postprocessor
      */
@@ -132,25 +139,23 @@ namespace cass
      *
      * this will setup the condition with the default name ConditionList
      *
-     * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-     *           0D Postprocessor name that we check before filling image.
-     *           if this setting is not defined, this postprocessor is unconditional.
-     *           Therefore its always true.
      *
      * @return true when condition is there, false otherwise
      */
     bool setupCondition();
 
-    /** setup the hiding flag.
+    /** setup the dependecy.
      *
-     * this will look up in cass.ini whether the user wants to hide this pp in
-     * the dropdown list of cassview.
+     * this will look up the dependecy key in cass.ini and tries to get it from
+     * the postprocessors. It will return the pointer to the dependecy postprocessor
+     * when it is there. If it's not in the container it will return 0.
+     * When the depencendy key is not already in the list with all dependcies.
+     * it will be added.
      *
-     * @cassttng PostProcessor/\%name\%/{Hide} \n
-     *           Flag to tell whether to hide this pp in jocassview combobox.
-     *           Default is false.
+     * @return pointer to the dependency postprocessor
+     * @param[in] depVarName the name of the setting that hold the dependcy key
      */
-    PostprocessorBackend* setupDependecy();
+    PostprocessorBackend* setupDependency(const char * depVarName);
 
   protected:
     /** the postprocessors key */

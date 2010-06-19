@@ -1,5 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
+#include <algorithm>
+
 #include "cass_event.h"
 #include "histogram.h"
 #include "backend.h"
@@ -103,9 +105,7 @@ bool PostprocessorBackend::setupCondition()
   settings.beginGroup(_key.c_str());
   if (settings.contains("ConditionName"))
   {
-    PostProcessors::key_t keycondition;
-    _condition = retrieve_and_validate(_pp,_key,"ConditionName",keycondition);
-    _dependencies.push_back(keycondition);
+    _condition = setupDependency("ConditionName");
     if (!_condition)
       return false;
   }
@@ -114,18 +114,20 @@ bool PostprocessorBackend::setupCondition()
   return true;
 }
 
-PostprocessorBackend* PostprocessorBackend::setupDependecy()
+PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName)
 {
+  using namespace std;
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   PostProcessors::key_t dependkey;
-  dependkey = settings.value(param_name,"0").toString().toStdString();
-  _dependencies.push_back(dependkey);
+  dependkey = settings.value(depVarName,"").toString().toStdString();
+  if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
+    _dependencies.push_back(dependkey);
   PostprocessorBackend *dependpp(0);
   try
   {
-    dependpp = &(pp.getPostProcessor(dependkey));
+    dependpp = &(_pp.getPostProcessor(dependkey));
   }
   catch (InvalidPostProcessorError&)
   {
