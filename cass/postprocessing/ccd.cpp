@@ -418,6 +418,17 @@ void cass::pp103::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
+  //dependancy:
+  if (settings.contains("ConditionName")) 
+  {
+    _useCondition = true;
+    if (!retrieve_and_validate(_pp,_key,"ConditionName",_condition)) return;
+  } 
+  else
+  {
+    _useCondition = false;
+  }
+
   _threshold = settings.value("Threshold", 3.9e6).toFloat();
 
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
