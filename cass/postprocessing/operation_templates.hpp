@@ -335,7 +335,7 @@ namespace cass
       _dependencies.push_back(keyOne);
       PostProcessors::key_t keyTwo;
       _two = retrieve_and_validate(_pp, _key, "HistTwo", keyTwo);
-      _dependencies.push_back(keyOne);
+      _dependencies.push_back(keyTwo);
       bool ret (setupCondition());
       if ( !(_one && _two && ret) ) return;
       const HistogramBackend &one(_one->getHist(0));
