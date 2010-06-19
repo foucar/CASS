@@ -284,6 +284,7 @@ using the custom doxygen tag cassttng.
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,
       SingleCcdImageIntegralOverThres=102,
+      SingleCcdImageIntegralOverThreshold_up=103,
       AcqirisWaveform=110,
       BlData=120,
       EpicsData=130,
