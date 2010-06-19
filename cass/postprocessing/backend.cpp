@@ -30,8 +30,12 @@ PostprocessorBackend::~PostprocessorBackend()
 {
   QWriteLocker lock(&_histLock);
   histogramList_t::iterator it (_histList.begin());
+  HistogramBackend * old = it->second;
+  delete it->second;
+  ++it;
   for (;it != _histList.end(); ++it)
-    delete it->second;
+    if (old != it->second)
+      delete it->second;
   _histList.clear();
 }
 
