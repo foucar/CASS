@@ -38,10 +38,9 @@ namespace cass
      *
      * This constructor will setup the hide flag.
      *
-     * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-     *           0D Postprocessor name that we check before filling image.
-     *           if this setting is not defined, this postprocessor is unconditional.
-     *           Therefore its always true.
+     * @cassttng PostProcessor/\%name\%/{Hide} \n
+     *           Flag that will hide this postprocessor in cassview's combobox.
+     *           Default is false
      *
      * @param pp reference to the class that contains all postprocessors
      * @param key the key in the container of this postprocessor
@@ -154,6 +153,10 @@ namespace cass
      *
      * this will setup the condition with the default name ConditionList
      *
+     * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+     *           0D Postprocessor name that we check before filling image.
+     *           if this setting is not defined, this postprocessor is unconditional.
+     *           Therefore its always true.
      *
      * @return true when condition is there, false otherwise
      */
