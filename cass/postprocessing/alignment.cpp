@@ -351,9 +351,7 @@ namespace cass
     settings.beginGroup("PostProcessor");
     settings.beginGroup(_key.c_str());
     _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();
-    PostProcessors::key_t imageKey;
-    _image = retrieve_and_validate(_pp,_key,"HistOne",imageKey);
-    _dependencies.push_back(imageKey);
+    _image = setupDependency("HistName");
     bool ret = setupCondition();
     if (!_image && !ret)
       return;
@@ -376,7 +374,7 @@ namespace cass
     _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
     _nbrAngularPoints = 360;
     std::cout <<std::endl<< "PostProcessor "<<_key
-        <<": calcluates cos2theta of image from PostProcessor "<<imageKey
+        <<": calcluates cos2theta of image from PostProcessor "<<_image->key()
         <<". Condition is"<<_condition->key()
         <<std::endl;
   }
@@ -384,138 +382,135 @@ namespace cass
   void pp200::process(const CASSEvent& evt)
   {
     using namespace std;
-    if ((*_condition)(evt).isTrue())
+    const Histogram2DFloat &image
+        (dynamic_cast<const Histogram2DFloat&>((*_image)(evt)));
+    image.lock.lockForRead();
+    const HistogramFloatBase::storage_t &imageMemory(image.memory());
+    float nom(0), denom(0), maxval(0);
+    float symangle(_symAngle/180*M_PI);
+    for(size_t jr = 0; jr<_nbrRadialPoints; jr++)
     {
-      const Histogram2DFloat &image
-          (dynamic_cast<const Histogram2DFloat&>((*_image)(evt)));
-      image.lock.lockForRead();
-      const HistogramFloatBase::storage_t &imageMemory(image.memory());
-      float nom(0), denom(0), maxval(0);
-      float symangle(_symAngle/180*M_PI);
-      for(size_t jr = 0; jr<_nbrRadialPoints; jr++)
+      for(size_t jth = 1; jth<_nbrAngularPoints; jth++)
       {
-        for(size_t jth = 1; jth<_nbrAngularPoints; jth++)
-        {
-          const float radius(_minRadius + jr);
-          const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
-          size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
-          size_t row(size_t(_center.second + radius*cos(angle + symangle)));
-          float val = imageMemory[col + row * _imageWidth];
-          denom += val * square(radius);
-          nom   += val * square(cos(angle)) * square(radius);
-          maxval = max(val,maxval);
-        }
+        const float radius(_minRadius + jr);
+        const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
+        size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
+        size_t row(size_t(_center.second + radius*cos(angle + symangle)));
+        float val = imageMemory[col + row * _imageWidth];
+        denom += val * square(radius);
+        nom   += val * square(cos(angle)) * square(radius);
+        maxval = max(val,maxval);
       }
-      image.lock.unlock();
-//      jocassview should be able to draw a circle or a line, it should not be done here
-//      if (_drawCircle)
-//      {
-//        maxval/= 4.;
-//        image.lock.lockForWrite();
-//        //max circle
-//        for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
-//        {
-//          const float radius(_minRadius + _nbrRadialPoints);
-//          const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
-//          size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
-//          size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-//          imageMemory[col + row * _imageWidth] = maxval;
-//        }
-//        //min circle
-//        for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
-//        {
-//          const float radius(_minRadius);
-//          const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
-//          size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
-//          size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
-//          imageMemory[col + row * _imageWidth] = maxval;
-//        }
-//
-//        //the following seems to be not precise enough...
-//        int32_t  xlocal1,ylocal1,xlocal2,ylocal2;
-//        // the max number of points I have/want to consider
-//        //this is in principle not the largest possible value if the centre of the circles
-//        //is not around the middle of the frame and the circles are small
-//        int32_t index_max=static_cast<int32_t>(_imageWidth*7/5/2);
-//        /**
-//       * @todo improve the value of index_max
-//       * //to calculate the max value of index_max...
-//       * // I have to consider the max distance to the sides
-//       * // but this may still be too much... if the circles are on one side and the line is not
-//       * // "too much" tilted than some of the distances in the following are never to be reached...
-//       * index_max=std::max(static_cast<size_t>(_center.first),_imageWidth-static_cast<size_t>(_center.first),
-//       *                    static_cast<size_t>(_center.second),_imageWidth-static_cast<size_t>(_center.second));
-//       * //and then take into account the slope...
-//       */
-//
-//        int32_t this_index;
-//        const int32_t _imageSize=static_cast<int32_t>(_imageWidth*_imageWidth);
-//        const int32_t s_imageWidth=static_cast<int32_t>(_imageWidth);
-//        const double sin_dslope=std::sin(symangle+M_PI/2.);
-//        const double cos_dslope=std::cos(symangle+M_PI/2.);
-//        double d_minRadius= static_cast<double>(_minRadius);
-//        double d_maxRadius= static_cast<double>(_maxRadius);
-//        /**
-//       * @todo improve the loop over iFrame to minimize the number of if statement that need to be evaluated
-//       * //the following are the xpoints of the line with the 2 circles.
-//       * // But to trace the segments I would have to recalculate the
-//       * // stepsize in order to reach the intersections and worry of the fact that cos/sin may be zero...
-//       * int32_t x_cross_i=static_cast<int32_t>(d_minRadius*cos_dslope);
-//       * int32_t y_cross_i=static_cast<int32_t>(d_minRadius*sin_dslope);
-//       * int32_t x_cross_e=static_cast<int32_t>(d_maxRadius*cos_dslope);
-//       * int32_t y_cross_e=static_cast<int32_t>(d_maxRadius*sin_dslope);
-//       */
-//        for(int32_t iFrame=0;iFrame<index_max; ++iFrame)
-//        {
-//          double d_iFrame=static_cast<double>(iFrame);
-//          xlocal1=static_cast<int32_t>(_center.first) + static_cast<int32_t>(d_iFrame*cos_dslope);
-//          xlocal2=static_cast<int32_t>(_center.first) - static_cast<int32_t>(d_iFrame*cos_dslope);
-//          ylocal1=static_cast<int32_t>(_center.second) + static_cast<int32_t>(d_iFrame *sin_dslope);
-//          ylocal2=static_cast<int32_t>(_center.second) - static_cast<int32_t>(d_iFrame *sin_dslope);
-//          const double dthis_distance=pow(d_iFrame*cos_dslope,2) + pow(d_iFrame*sin_dslope,2)  ;
-//          //Inside the first radius
-//          if( dthis_distance < d_minRadius * d_minRadius )
-//          {
-//            if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth)
-//            {
-//              this_index=xlocal1 + s_imageWidth * (ylocal1);
-//              if (this_index>=0 && (this_index < _imageSize ) )
-//                imageMemory[static_cast<size_t>(this_index)] = maxval;
-//            }
-//            if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
-//            {
-//              this_index=xlocal2 + s_imageWidth * (ylocal2);
-//              if (this_index>=0 && (this_index < _imageSize ))
-//                imageMemory[static_cast<size_t>(this_index)] = maxval;
-//            }
-//          }
-//
-//          else
-//          {
-//            //Outside the second radius
-//            if( dthis_distance > (d_maxRadius * d_maxRadius) )
-//            {
-//              if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth)
-//              {
-//                this_index=xlocal1 + s_imageWidth * (ylocal1);
-//                if (this_index>=0 && (this_index < _imageSize) )
-//                  imageMemory[static_cast<size_t>(this_index)] = maxval;
-//              }
-//              if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
-//              {
-//                this_index=xlocal2 + s_imageWidth * (ylocal2);
-//                if (this_index>=0 && (this_index < _imageSize) )
-//                  imageMemory[static_cast<size_t>(this_index)] = maxval;
-//              }
-//            }
-//          }
-//        }
-//        image->lock.unlock();
-//      }
-      _result->lock.lockForWrite();
-      *dynamic_cast<Histogram0DFloat*>(_result) = (abs(denom) < 1e-15)?0.5:nom/denom;
-      _result->lock.unlock();
     }
+    image.lock.unlock();
+    //      jocassview should be able to draw a circle or a line, it should not be done here
+    //      if (_drawCircle)
+    //      {
+    //        maxval/= 4.;
+    //        image.lock.lockForWrite();
+    //        //max circle
+    //        for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
+    //        {
+    //          const float radius(_minRadius + _nbrRadialPoints);
+    //          const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
+    //          size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
+    //          size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
+    //          imageMemory[col + row * _imageWidth] = maxval;
+    //        }
+    //        //min circle
+    //        for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
+    //        {
+    //          const float radius(_minRadius);
+    //          const float angle(2.*M_PI * static_cast<float>(jth) / static_cast<float>(_nbrAngularPoints));
+    //          size_t col (static_cast<size_t>(round(_center.first  + radius*sin(angle + symangle))));
+    //          size_t row (static_cast<size_t>(round(_center.second + radius*cos(angle + symangle))));
+    //          imageMemory[col + row * _imageWidth] = maxval;
+    //        }
+    //
+    //        //the following seems to be not precise enough...
+    //        int32_t  xlocal1,ylocal1,xlocal2,ylocal2;
+    //        // the max number of points I have/want to consider
+    //        //this is in principle not the largest possible value if the centre of the circles
+    //        //is not around the middle of the frame and the circles are small
+    //        int32_t index_max=static_cast<int32_t>(_imageWidth*7/5/2);
+    //        /**
+    //       * @todo improve the value of index_max
+    //       * //to calculate the max value of index_max...
+    //       * // I have to consider the max distance to the sides
+    //       * // but this may still be too much... if the circles are on one side and the line is not
+    //       * // "too much" tilted than some of the distances in the following are never to be reached...
+    //       * index_max=std::max(static_cast<size_t>(_center.first),_imageWidth-static_cast<size_t>(_center.first),
+    //       *                    static_cast<size_t>(_center.second),_imageWidth-static_cast<size_t>(_center.second));
+    //       * //and then take into account the slope...
+    //       */
+    //
+    //        int32_t this_index;
+    //        const int32_t _imageSize=static_cast<int32_t>(_imageWidth*_imageWidth);
+    //        const int32_t s_imageWidth=static_cast<int32_t>(_imageWidth);
+    //        const double sin_dslope=std::sin(symangle+M_PI/2.);
+    //        const double cos_dslope=std::cos(symangle+M_PI/2.);
+    //        double d_minRadius= static_cast<double>(_minRadius);
+    //        double d_maxRadius= static_cast<double>(_maxRadius);
+    //        /**
+    //       * @todo improve the loop over iFrame to minimize the number of if statement that need to be evaluated
+    //       * //the following are the xpoints of the line with the 2 circles.
+    //       * // But to trace the segments I would have to recalculate the
+    //       * // stepsize in order to reach the intersections and worry of the fact that cos/sin may be zero...
+    //       * int32_t x_cross_i=static_cast<int32_t>(d_minRadius*cos_dslope);
+    //       * int32_t y_cross_i=static_cast<int32_t>(d_minRadius*sin_dslope);
+    //       * int32_t x_cross_e=static_cast<int32_t>(d_maxRadius*cos_dslope);
+    //       * int32_t y_cross_e=static_cast<int32_t>(d_maxRadius*sin_dslope);
+    //       */
+    //        for(int32_t iFrame=0;iFrame<index_max; ++iFrame)
+    //        {
+    //          double d_iFrame=static_cast<double>(iFrame);
+    //          xlocal1=static_cast<int32_t>(_center.first) + static_cast<int32_t>(d_iFrame*cos_dslope);
+    //          xlocal2=static_cast<int32_t>(_center.first) - static_cast<int32_t>(d_iFrame*cos_dslope);
+    //          ylocal1=static_cast<int32_t>(_center.second) + static_cast<int32_t>(d_iFrame *sin_dslope);
+    //          ylocal2=static_cast<int32_t>(_center.second) - static_cast<int32_t>(d_iFrame *sin_dslope);
+    //          const double dthis_distance=pow(d_iFrame*cos_dslope,2) + pow(d_iFrame*sin_dslope,2)  ;
+    //          //Inside the first radius
+    //          if( dthis_distance < d_minRadius * d_minRadius )
+    //          {
+    //            if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth)
+    //            {
+    //              this_index=xlocal1 + s_imageWidth * (ylocal1);
+    //              if (this_index>=0 && (this_index < _imageSize ) )
+    //                imageMemory[static_cast<size_t>(this_index)] = maxval;
+    //            }
+    //            if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
+    //            {
+    //              this_index=xlocal2 + s_imageWidth * (ylocal2);
+    //              if (this_index>=0 && (this_index < _imageSize ))
+    //                imageMemory[static_cast<size_t>(this_index)] = maxval;
+    //            }
+    //          }
+    //
+    //          else
+    //          {
+    //            //Outside the second radius
+    //            if( dthis_distance > (d_maxRadius * d_maxRadius) )
+    //            {
+    //              if(xlocal1>0 && ylocal1>0 && xlocal1<s_imageWidth && ylocal1<s_imageWidth)
+    //              {
+    //                this_index=xlocal1 + s_imageWidth * (ylocal1);
+    //                if (this_index>=0 && (this_index < _imageSize) )
+    //                  imageMemory[static_cast<size_t>(this_index)] = maxval;
+    //              }
+    //              if(xlocal2>0 && ylocal2>0 && xlocal2<s_imageWidth && ylocal2<s_imageWidth)
+    //              {
+    //                this_index=xlocal2 + s_imageWidth * (ylocal2);
+    //                if (this_index>=0 && (this_index < _imageSize) )
+    //                  imageMemory[static_cast<size_t>(this_index)] = maxval;
+    //              }
+    //            }
+    //          }
+    //        }
+    //        image->lock.unlock();
+    //      }
+    _result->lock.lockForWrite();
+    *dynamic_cast<Histogram0DFloat*>(_result) = (abs(denom) < 1e-15)?0.5:nom/denom;
+    _result->lock.unlock();
   }
 
 } // end namespace cass

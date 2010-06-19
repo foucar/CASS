@@ -112,13 +112,13 @@ namespace cass
    * This postprocessor reduces the running average of the requested image
    * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
    *
+   * @cassttng PostProcessor/\%name%/{HistName}\n
+   *           The name of the PostProcessor that contains the image to calculate
+   *           \f$\cos^2\theta\f$  from. Default is 104.
    * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
    *           values for the center of the image. Default is 0,0
    * @cassttng PostProcessor/p\%name%/{SymmetryAngle}\n
    *           value for the symmetry angle. Default is 0.
-   * @cassttng PostProcessor/\%name%/{ImageId}\n
-   *           The id of the PostProcessor that contains the image to calculate
-   *           \f$\cos^2\theta\f$  from. Default is 104.
    * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
    *           values for the interesting radius range. Default is 0,0
    * @cassttng PostProcessor/\%name%/{DrawInnerOuterRadius}\n
@@ -127,6 +127,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Per Johnsson
    * @author Lutz Foucar
