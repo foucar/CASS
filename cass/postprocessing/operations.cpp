@@ -2083,6 +2083,68 @@ void cass::pp64::operator()(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 65 returns the number of fills of a given histogram ***
+
+cass::pp65::pp65(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _result(0)
+{
+  loadSettings(0);
+}
+
+cass::pp65::~pp65()
+{
+  _pp.histograms_delete(_key);
+}
+
+cass::PostProcessors::active_t cass::pp65::dependencies()
+{
+  PostProcessors::active_t list;
+  list.push_front(_idHist);
+  list.push_front(_condition);
+  return list;
+}
+
+void cass::pp65::loadSettings(size_t)
+{
+  using namespace std;
+  QSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
+  bool TwoNotvalid (!retrieve_and_validate(_pp,_key,"ConditionName",_condition));
+  if (OneNotvalid || TwoNotvalid)
+    return;
+
+  _result = new Histogram0DFloat();
+  _pp.histograms_replace(_key,_result);
+  std::cout << "PostProcessor "<<_key
+      <<" condition on postprocessor:"<<_condition
+      <<std::endl;
+}
+
+void cass::pp65::operator()(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram0DFloat*cond
+      (reinterpret_cast<Histogram0DFloat*>(histogram_checkout(_condition)));
+  if (cond->isTrue())
+  {
+    HistogramFloatBase* one
+        (reinterpret_cast<HistogramFloatBase*>(histogram_checkout(_idHist)));
+    one->lock.lockForRead();
+    _result->lock.lockForWrite();
+    ++_result->nbrOfFills();  //todo remove this once hist->fill() does this.
+    _result->fill( dynamic_cast<HistogramFloatBase*>(one)->nbrOfFills() );
+    _result->lock.unlock();
+    one->lock.unlock();
+  }
+}
+
+
+
+
+
+
 
 // Local Variables:
 // coding: utf-8

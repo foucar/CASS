@@ -509,6 +509,7 @@ void cass::pp103::operator()(const cass::CASSEvent& event)
   {
     _image->lock.lockForWrite();
     copy(frame.begin(), frame.end(), _image->memory().begin());
+    ++_image->nbrOfFills();
     _image->lock.unlock();
   }
 }

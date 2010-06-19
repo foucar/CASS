@@ -1327,6 +1327,47 @@ namespace cass
 
 
 
+  /** return number of fills of a given histogram
+   *
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp65 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp65(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** Free _image space */
+    virtual ~pp65();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** the dependencies on condition and input histogram */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** the histogram to work on */
+    PostProcessors::key_t _idHist;
+
+    /** the pp that contains the  condition */
+    PostProcessors::key_t  _condition;
+
+    /** resulting histgram */
+    Histogram0DFloat *_result;
+
+  protected:
+  };
+
+
+
 }
 
 #endif

@@ -165,6 +165,7 @@ the Class description for information about what parameters are user settable.
 00062: Summing up of histogram
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
+00065: nbrOfFills of given histogram
 
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
@@ -280,6 +281,7 @@ using the custom doxygen tag cassttng.
       HistogramSumming=62,
       TimeAverage=63,
       running1Dfrom0D=64,
+      nbrOfFills=65,
 
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,
