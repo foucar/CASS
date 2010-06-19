@@ -613,6 +613,7 @@ public:
          delete _cb_scaleEngines->takeFirst();
      delete _cb_scaleEngines;
      delete _toolbar;
+     /** @bug jocassview sefaults when closing, here (deleting _colorbarPresets) */
      delete _colorbarPresets;
      delete _rad_colormap_lin;
      delete _rad_colormap_exp;
