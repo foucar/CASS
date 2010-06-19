@@ -165,6 +165,9 @@ void cass::pp40::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret)) return;
 
+  _result = _one->getHist(0).clone();
+  createHistList(2*cass::NbrOfWorkers);
+
   std::cout << "PostProcessor " << _key
       << ": will threshold Histogram in PostProcessor " << keyOne
       << " above " << _threshold
@@ -906,7 +909,7 @@ void cass::pp70::loadSettings(size_t)
   _size = settings.value("Size", 10000).toUInt();
 
   _result = new Histogram1DFloat(_size, 0, _size-1);
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(1);
 
   std::cout << "PostProcessor " << _key
             << ", condition on postprocessor:" << _condition
