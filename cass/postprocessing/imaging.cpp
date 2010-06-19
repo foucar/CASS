@@ -49,8 +49,8 @@ void cass::pp212::loadSettings(size_t)
   _coalesce = settings.value("Coalesce",false).toBool();
 
   // Input image
-  PostProcessors::key_t inputkey;
-  _input = retrieve_and_validate(_pp, _key, "Input", inputkey);
+  _input = setupDependency("HistName");
+
   bool ret (setupCondition());
 
   // If either dependency did not succeed, go away for now and try again later
@@ -68,7 +68,7 @@ void cass::pp212::loadSettings(size_t)
       << "Upper Gate: " << _gate.second << " "
       << "Lower Pre-Gate:" << _pregate.first << " "
       << "Upper Pre-Gate:" << _pregate.second << " "
-      << "Input:" << _input << " "
+      << "Input:" << _input->key() << " "
       << "Filename: " << _filename
       <<". Condition is"<<_condition->key()
       << std::endl;
@@ -107,67 +107,62 @@ void cass::pp212::process(const CASSEvent & evt)
 {
   using namespace std;
 
-  // Check condition, and do nothing if not true
-  if ((*_condition)(evt).isTrue())
+  // Get the input histogram
+  const HistogramFloatBase &image
+      (dynamic_cast<const HistogramFloatBase&>((*_input)(evt)));
+
+  // Get width/height
+  const int w(image.axis()[HistogramBackend::xAxis].size());
+  const int h(image.axis()[HistogramBackend::yAxis].size());
+
+  // Detect events and write to file
+
+  if ( _coalesce )
   {
+    // Copy the input, because it'll get modified here
+    float *in(new float[w*h+8]);
+    copy(image.memory().begin(), image.memory().end(), in);
 
-    // Get the input histogram
-    const HistogramFloatBase &image
-        (dynamic_cast<const HistogramFloatBase&>((*_input)(evt)));
+    for ( int x=0; x<w; x++ ) {
+      for ( int y=0; y<h; y++ ) {
 
-    // Get width/height
-    const int w(image.axis()[HistogramBackend::xAxis].size());
-    const int h(image.axis()[HistogramBackend::yAxis].size());
+        double sum = 0.0;
+        int depth = 0;
 
-    // Detect events and write to file
+        // Skip over quickly if this pixel isn't interesting
+        if ( (in[x+w*y] < _pregate.first) || (in[x+w*y] > _pregate.second) )
+          continue;
 
-    if ( _coalesce )
-    {
-      // Copy the input, because it'll get modified here
-      float *in(new float[w*h+8]);
-      copy(image.memory().begin(), image.memory().end(), in);
-
-      for ( int x=0; x<w; x++ ) {
-        for ( int y=0; y<h; y++ ) {
-
-          double sum = 0.0;
-          int depth = 0;
-
-          // Skip over quickly if this pixel isn't interesting
-          if ( (in[x+w*y] < _pregate.first) || (in[x+w*y] > _pregate.second) )
-            continue;
-
-          // Check this pixel and its neighbours
-          if ( check_pixel(in, x, y, w, h, sum, depth) )
-          {
-            _fh << x << " " << y << " " << sum << " " << depth << std::endl;
-          }
-
+        // Check this pixel and its neighbours
+        if ( check_pixel(in, x, y, w, h, sum, depth) )
+        {
+          _fh << x << " " << y << " " << sum << " " << depth << std::endl;
         }
+
       }
-
-      delete[](in);
-
-    } else {
-
-      // Do it the easier and faster way
-      for ( int x=0; x<w; x++ ) {
-        for ( int y=0; y<h; y++ ) {
-
-          // Skip over quickly if this pixel isn't interesting
-          if ( (image.memory()[x+w*y] < _gate.first)
-            || (image.memory()[x+w*y] > _gate.second) ) continue;
-
-          // Save pixel
-          _fh << x << " " << y << " " << image.memory()[x+w*y] << " 1" << std::endl;
-
-        }
-      }
-
     }
 
-    _fh << std::endl;
+    delete[](in);
+
+  } else {
+
+    // Do it the easier and faster way
+    for ( int x=0; x<w; x++ ) {
+      for ( int y=0; y<h; y++ ) {
+
+        // Skip over quickly if this pixel isn't interesting
+        if ( (image.memory()[x+w*y] < _gate.first)
+          || (image.memory()[x+w*y] > _gate.second) ) continue;
+
+        // Save pixel
+        _fh << x << " " << y << " " << image.memory()[x+w*y] << " 1" << std::endl;
+
+      }
+    }
+
   }
+
+  _fh << std::endl;
 }
 
 

@@ -23,20 +23,22 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{AveragedImage} \n
-   *           The id of the running average of we use for subtraction. Default
-   *           is 0.
-   * @cassttng PostProcessor/\%name\%/{Device}\n
-   *           The device that contains the ccd image.Default is 0. Options are:
-   *           - 0: pnCCD
-   *           - 2: Commercial CCD
-   * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that contains the ccd image. Default is 0. Options are:
-   *           - 0: Front pnCCD / Commercial CCD
-   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           The name of the input postprocessor. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{Coalesce} \n
+   *           Coalesce pixels into single events?. Default is false.
+   * @cassttng PostProcessor/\%name\%/{LowerPreGate|UpperPreGate}\n
+   *           Pre-gate (don't even think about pixels outside this range).
+   *           Default is -1e6 ... 1e6
+   * @cassttng PostProcessor/\%name\%/{LowerGate|UpperGate}\n
+   *           Gate (store events within this range after coalescing). Default
+   *           is -1e6 ... 1e6
    * @cassttng PostProcessor/\%name\%/{Filename}\n
    *           The filename to dump events to.
    *           There is no default - you must provide this value.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Thomas White
    */
