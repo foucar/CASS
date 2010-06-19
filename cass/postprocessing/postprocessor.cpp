@@ -138,6 +138,10 @@ void cass::PostProcessors::loadSettings(size_t)
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
     cout << *iter << " ";
   cout<<endl;
+  cout <<"   Called postprocessor(s): ";
+  for(keyList_t::iterator iter = _leave.begin(); iter != _leave.end(); ++iter)
+    cout << *iter << " ";
+  cout<<endl;
 }
 
 void cass::PostProcessors::clear(const key_t &key)
@@ -321,7 +325,18 @@ void cass::PostProcessors::setup(keyList_t &active)
                <<" check whether someone depends on "<<*it
                <<endl);
     if (find_dependant(*it).empty())
+    {
+      VERBOSEOUT(cout<<"PostProcessor::setup():"
+                 <<" noone depends on "<<*it
+                 <<endl);
       _leave.push_front(*it);
+    }
+    else
+    {
+      VERBOSEOUT(cout<<"PostProcessor::setup():"
+                 <<" someone depends on "<<*it
+                 <<endl);
+    }
   }
 }
 
