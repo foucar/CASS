@@ -142,9 +142,6 @@ Your postprocessor needs to have the following members
  - document that you pp is using the optional condition.
  - using setupCondition() one can setup the condition. The retrun value will
    tell you whether the dependency is is already on the list
- - to use the condition, just add the line \n
-   if ((*_condition)(evt).isTrue())\n
-   in your code
 
  If you want an additional dependencies do the following
  - create a key
