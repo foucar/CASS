@@ -44,33 +44,30 @@ void cass::pp110::loadSettings(size_t)
 void cass::pp110::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  if ((*_condition)(evt).isTrue())
-  {
-    const Device *dev
-        (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
-    Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
-    if (dev->instruments().end() == instrIt)
-      throw std::runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
-                               .arg(_key.c_str())
-                               .arg(_instrument).toStdString());
-    const Instrument &instr(instrIt->second);
-    if (instr.channels().size() <= _channel)
-      throw std::runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
-                               .arg(_key.c_str())
-                               .arg(_instrument)
-                               .arg(_channel).toStdString());
-    const Channel &channel (instr.channels()[_channel]);
-    const waveform_t &waveform (channel.waveform());
-    QMutexLocker lock(&_mutex);
-    if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
-      dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
-    _result->lock.lockForWrite();
-    std::transform(waveform.begin(),
-                   waveform.end(),
-                   dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-                   cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
-    _result->lock.unlock();
-  }
+  const Device *dev
+      (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
+  Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
+  if (dev->instruments().end() == instrIt)
+    throw std::runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
+                             .arg(_key.c_str())
+                             .arg(_instrument).toStdString());
+  const Instrument &instr(instrIt->second);
+  if (instr.channels().size() <= _channel)
+    throw std::runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
+                             .arg(_key.c_str())
+                             .arg(_instrument)
+                             .arg(_channel).toStdString());
+  const Channel &channel (instr.channels()[_channel]);
+  const waveform_t &waveform (channel.waveform());
+  QMutexLocker lock(&_mutex);
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
+  _result->lock.lockForWrite();
+  std::transform(waveform.begin(),
+                 waveform.end(),
+                 dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+                 cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
+  _result->lock.unlock();
 }
 
 
