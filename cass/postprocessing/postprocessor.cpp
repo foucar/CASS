@@ -178,9 +178,8 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
   //go through all pp and retrieve their dependencies//
   //make a list of all key that have a dependency on the requested key
   keyList_t dependandList;
-  for(postprocessors_t::iterator iter = _postprocessors.begin();
-      iter != _postprocessors.end();
-      ++iter)
+  postprocessors_t::iterator iter = _postprocessors.begin();
+  for(;iter != _postprocessors.end(); ++iter)
   {
     keyList_t dependencyList(iter->second->dependencies());
     if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
@@ -205,13 +204,12 @@ void cass::PostProcessors::setup(keyList_t &active)
 
   VERBOSEOUT(cout << "Postprocessor::setup(): clear all postprocessors dependencies"
              <<"since they will be setup now again"<<endl);
-  for(postprocessors_t::iterator iter = _postprocessors.begin();
-      iter != _postprocessors.end();
-      ++iter)
+  postprocessors_t::iterator it (_postprocessors.begin());
+  for(;it != _postprocessors.end();++it)
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of "<<iter->second->key()
+    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of "<<it->second->key()
                <<endl);
-    iter->second->clearDependencies();
+    it->second->clearDependencies();
   }
 
   VERBOSEOUT(cout << "Postprocessor::setup(): go through active list and check"
@@ -308,32 +306,30 @@ void cass::PostProcessors::setup(keyList_t &active)
   // but might not be on the active list anymore. Check which they are. Put
   // them on a delete list and then delete them.
   keyList_t eraseList;
-  for(postprocessors_t::iterator iter = _postprocessors.begin();
-      iter != _postprocessors.end();
-      ++iter)
+  it = _postprocessors.begin();
+  for(;it != _postprocessors.end(); ++it)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< iter->first
+    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< it->first
                <<" is still on active list"
                <<endl);
-    if(active.end() == find(active.begin(),active.end(),iter->first))
+    if(active.end() == find(active.begin(),active.end(),it->first))
     {
-      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< iter->first
+      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
                  <<" is not on active list. Put it to erase list"
                  <<endl);
-      eraseList.push_back(iter->first);
+      eraseList.push_back(it->first);
     }
   }
   // go through erase list and erase all postprocessors on that list
-  for(keyList_t::const_iterator it = eraseList.begin();
-      it != eraseList.end();
-      ++it)
+  iter = (eraseList.begin());
+  for(;iter != eraseList.end(); ++iter)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *it
+    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *iter
                <<" from postprocessor container"
                <<endl);
-    PostprocessorBackend* p = _postprocessors[*it];
+    PostprocessorBackend* p = _postprocessors[*iter];
     delete p;
-    _postprocessors.erase(*it);
+    _postprocessors.erase(*iter);
   }
 }
 
