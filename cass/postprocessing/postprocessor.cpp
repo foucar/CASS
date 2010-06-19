@@ -196,14 +196,12 @@ void cass::PostProcessors::setup(keyList_t &active)
    * @todo when load settings throws exception then remove this pp and all pp
    *        that depend on it (like in process)
    */
-  // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
-  // the postprocessor correctly initialize it whenever it wants to.
-  // When the PostProcessor has a dependency resolve it
   //  There can be the following cases:
   //  1) pp is not in container but key is on active list
-  //  2) pp is not in conatiner and key is not in active list
-  //  3) pp is in container
-  //  5) pp is in container and id is not on list
+  //  2) pp is not in conatiner and key is not in active list, but it's a
+  //     dependency of another pp
+  //  3) pp is in container and key is on active list
+  //  5) pp is in container and key is not on active list
 
   VERBOSEOUT(cout << "Postprocessor::setup(): clear all postprocessors dependencies"
              <<"since they will be setup now again"<<endl);
@@ -211,7 +209,7 @@ void cass::PostProcessors::setup(keyList_t &active)
       iter != _postprocessors.end();
       ++iter)
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of"<<iter->second->key()
+    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of "<<iter->second->key()
                <<endl);
     iter->second->clearDependencies();
   }

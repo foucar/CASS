@@ -330,7 +330,8 @@ using the custom doxygen tag cassttng.
      *
      * Delete all postprocessors that are not on the active list.
      *
-     * @param active list of all postprocessors that should be in container
+     * @param active reference to list of all postprocessors that should be in
+     *               container.
      */
     void setup(keyList_t& active);
 
