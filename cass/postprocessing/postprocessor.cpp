@@ -195,8 +195,6 @@ void cass::PostProcessors::setup(keyList_t &active)
   /**
    * @todo when load settings throws exception then remove this pp and all pp
    *        that depend on it (like in process)
-   * @todo clear dependcies before starting to load settings
-   * @todo dont create leave list, use active list and later iterate through whole container
    */
   // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
   // the postprocessor correctly initialize it whenever it wants to.

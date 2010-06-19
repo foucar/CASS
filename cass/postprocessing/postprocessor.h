@@ -316,14 +316,23 @@ using the custom doxygen tag cassttng.
 
   protected:
     /** Create new Postprocessor with key.
-     * Create Postprocessor with user definded id.
      *
+     * @return the newly created postprocessor
      * @param[in] key the key of the postprocessor
      */
     PostprocessorBackend * create(const key_t &key);
 
-    /** Set up _postprocessors using the user requested pp in active*/
-    void setup(keyList_t&);
+    /** Set up _postprocessors using the user requested pp in active
+     *
+     * Make sure that all PostProcessors on active list are in the pp container.
+     * When the PostProcessor has a dependency resolve it, add it to the active
+     * list if it's not already on it.
+     *
+     * Delete all postprocessors that are not on the active list.
+     *
+     * @param active list of all postprocessors that should be in container
+     */
+    void setup(keyList_t& active);
 
     /** find all postprocessors that depend on the given one
      *
