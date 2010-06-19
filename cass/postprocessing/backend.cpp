@@ -156,7 +156,7 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
              <<endl);
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
-    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key"<<dependkey
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key "<<dependkey
                <<" is not on dependency list => add it"
                <<endl);
     _dependencies.push_back(dependkey);
