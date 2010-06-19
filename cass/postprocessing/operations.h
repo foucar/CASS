@@ -111,6 +111,7 @@ namespace cass
     {
       _result = (new Histogram0DFloat(boolean));
       createHistList(1);
+      _hide = true;
     }
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
