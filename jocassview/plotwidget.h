@@ -463,7 +463,7 @@ public:
 
     QLabel* _lbl_color_scale = new QLabel(tr("Color"),this);
     _color_scale = new QSpinBox(this);
-    _color_scale->setRange(-1,5);
+    _color_scale->setRange(-1,11);
     _color_scale->setValue(-1);
 
     // populate colorbar presets:
@@ -536,30 +536,77 @@ public:
     _colorMapColMany->addColorStop(0.95, Qt::yellow);
     _colorMapColMany->setTransformId(_transformCol);
 
-    _colorMapColRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
-    _colorMapColRed->addColorStop(_cs_top, QColor(180,0,0));
-    _colorMapColRed->addColorStop(_cs_bot, QColor(50,0,0));
-    _colorMapColRed->setTransformId(_transformCol);
+    _colorMapRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
+    _colorMapRed->addColorStop(_cs_top, QColor(180,0,0));
+    _colorMapRed->addColorStop(_cs_bot, QColor(50,0,0));
+    _colorMapRed->setTransformId(_transformCol);
 
-    _colorMapColGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
-    _colorMapColGreen->addColorStop(_cs_top, QColor(0,180,0));
-    _colorMapColGreen->addColorStop(_cs_bot, QColor(0,50,0));
-    _colorMapColGreen->setTransformId(_transformCol);
+    _colorMapGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
+    _colorMapGreen->addColorStop(_cs_top, QColor(0,180,0));
+    _colorMapGreen->addColorStop(_cs_bot, QColor(0,50,0));
+    _colorMapGreen->setTransformId(_transformCol);
 
-    _colorMapColBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
-    _colorMapColBlue->addColorStop(_cs_top, QColor(0,0,180));
-    _colorMapColBlue->addColorStop(_cs_bot, QColor(0,0,50));
-    _colorMapColBlue->setTransformId(_transformCol);
+    _colorMapBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
+    _colorMapBlue->addColorStop(_cs_top, QColor(0,0,180));
+    _colorMapBlue->addColorStop(_cs_bot, QColor(0,0,50));
+    _colorMapBlue->setTransformId(_transformCol);
 
-    _colorMapColVio = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
-    _colorMapColVio->addColorStop(_cs_top, QColor(0,180,180));
-    _colorMapColVio->addColorStop(_cs_bot, QColor(0,50,50));
-    _colorMapColVio->setTransformId(_transformCol);
+    _colorMapVio = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
+    _colorMapVio->addColorStop(_cs_top, QColor(0,180,180));
+    _colorMapVio->addColorStop(_cs_bot, QColor(0,50,50));
+    _colorMapVio->setTransformId(_transformCol);
 
-    _colorMapColCyn = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
-    _colorMapColCyn->addColorStop(_cs_top, QColor(180,0,180));
-    _colorMapColCyn->addColorStop(_cs_bot, QColor(50,0,50));
-    _colorMapColCyn->setTransformId(_transformCol);
+    _colorMapCyn = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
+    _colorMapCyn->addColorStop(_cs_top, QColor(180,0,180));
+    _colorMapCyn->addColorStop(_cs_bot, QColor(50,0,50));
+    _colorMapCyn->setTransformId(_transformCol);
+
+    _colorMapColAll = new QwtLogColorMap(Qt::black, Qt::red);
+    _colorMapColAll->addColorStop(0.1, Qt::blue);
+    _colorMapColAll->addColorStop(0.3, Qt::darkCyan);
+    _colorMapColAll->addColorStop(0.4, Qt::cyan);
+    _colorMapColAll->addColorStop(0.6, Qt::darkGreen);
+    _colorMapColAll->addColorStop(0.7, Qt::green);
+    _colorMapColAll->addColorStop(0.95, Qt::yellow);
+    _colorMapColAll->setTransformId(_transformCol);
+
+    _colorMapTemperature = new QwtLogColorMap(Qt::darkBlue, Qt::white);
+    _colorMapTemperature->addColorStop(0.15, Qt::blue);
+    _colorMapTemperature->addColorStop(0.3, QColor(255,90,255)); //pink-magenta
+    _colorMapTemperature->addColorStop(0.4, Qt::yellow);
+    _colorMapTemperature->addColorStop(0.6, Qt::darkYellow);
+    _colorMapTemperature->addColorStop(0.7, Qt::red);
+    _colorMapTemperature->addColorStop(0.8, Qt::darkRed);
+    _colorMapTemperature->addColorStop(0.95, QColor(149,34,0) ); //brown
+    _colorMapTemperature->setTransformId(_transformCol);
+
+    //_colorMapTemperatureCool = new QwtLogColorMap(QColor(75,236,255), QColor(255, 51, 204));//Razzle Dazzle Rose
+    _colorMapTemperatureCool = new QwtLogColorMap(QColor(65,105,241), QColor(255, 51, 204));//Razzle Dazzle Rose
+    _colorMapTemperatureCool->addColorStop(0.1, QColor(0,127,255));
+    _colorMapTemperatureCool->addColorStop(0.6, QColor(221,0,255));
+    _colorMapTemperatureCool->addColorStop(0.95, QColor(255, 51, 204));
+    _colorMapTemperatureCool->setTransformId(_transformCol);
+
+    _colorMapTemperatureHot = new QwtLogColorMap(QColor(72,6,7), Qt::white);//brown, Bulgarian Rose
+    _colorMapTemperatureHot->addColorStop(0.1, QColor(72,6,7));
+    _colorMapTemperatureHot->addColorStop(0.2, Qt::darkRed);
+    _colorMapTemperatureHot->addColorStop(0.35, Qt::red);
+    _colorMapTemperatureHot->addColorStop(0.65, QColor(255,195,59));
+    _colorMapTemperatureHot->addColorStop(0.85, Qt::yellow);
+    _colorMapTemperatureHot->addColorStop(0.98, Qt::white);
+    _colorMapTemperatureHot->setTransformId(_transformCol);
+
+    _colorMapBluetoGreen = new QwtLogColorMap(QColor(16,16,255), QColor(0,255,129));
+    _colorMapBluetoGreen->addColorStop(0.1, QColor(16,16,255));
+    _colorMapBluetoGreen->addColorStop(0.5, Qt::cyan);
+    _colorMapBluetoGreen->addColorStop(0.9, QColor(0,255,155));
+    _colorMapBluetoGreen->setTransformId(_transformCol);
+
+    _colorMapCopper = new QwtLogColorMap(QColor(10,10,10), QColor(184,115,51)); //copper
+    _colorMapCopper->addColorStop(0.1, QColor(10,10,10));
+    _colorMapCopper->addColorStop(0.2, QColor(149,34,0));
+    _colorMapCopper->addColorStop(0.9, QColor(184,115,51));
+    _colorMapCopper->setTransformId(_transformCol);
 
     // A color bar on the right axis
     _rightAxis = _plot->axisWidget(QwtPlot::yRight);
@@ -613,12 +660,20 @@ public:
 
      delete _colorMapCol1;
      delete _colorMapColMany;
-     delete _colorMapColBlue;
-     delete _colorMapColRed;
-     delete _colorMapColGreen;
+     delete _colorMapBlue;
+     delete _colorMapRed;
+     delete _colorMapGreen;
 
-     delete _colorMapColVio;
-     delete _colorMapColCyn;
+     delete _colorMapVio;
+     delete _colorMapCyn;
+
+     delete _colorMapColAll;
+
+     delete _colorMapTemperature;
+     delete _colorMapTemperatureCool;
+     delete _colorMapTemperatureHot;
+     delete _colorMapBluetoGreen;
+     delete _colorMapCopper;
 
      delete _colorMapInv;
      delete _spectrogram;
@@ -675,15 +730,27 @@ public:
     else if(_color_scale->value()==0)
       _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColMany);
     else if(_color_scale->value()==1)
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColRed);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapRed);
     else if(_color_scale->value()==2)
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColGreen);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapGreen);
     else if(_color_scale->value()==3)
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColBlue);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBlue);
     else if(_color_scale->value()==4)
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColVio);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapVio);
     else if(_color_scale->value()==5)
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColCyn);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCyn);
+    else if(_color_scale->value()==6)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColAll);
+    else if(_color_scale->value()==7)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperature);
+    else if(_color_scale->value()==8)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureCool);
+    else if(_color_scale->value()==9)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureHot);
+    else if(_color_scale->value()==10)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBluetoGreen);
+    else if(_color_scale->value()==11)
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCopper);
 
     /*    _rightAxis->setColorMap(_spectrogram->data().range(),
      *_colorMap);*/
@@ -847,60 +914,136 @@ protected slots:
     }
     else if(_color_scale==1)
     {
-      delete _colorMapColRed;
-      _colorMapColRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
-      _colorMapColRed->addColorStop(_cs_top, QColor(180,0,0));
-      _colorMapColRed->addColorStop(_cs_bot, QColor(50,0,0));
-      _colorMapColRed->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,0));
-      _colorMapColRed->setTransformId(_transformCol);
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColRed);
-      _spectrogram->setColorMap(*_colorMapColRed);
+      delete _colorMapRed;
+      _colorMapRed = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,0));
+      _colorMapRed->addColorStop(_cs_top, QColor(180,0,0));
+      _colorMapRed->addColorStop(_cs_bot, QColor(50,0,0));
+      _colorMapRed->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,0));
+      _colorMapRed->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapRed);
+      _spectrogram->setColorMap(*_colorMapRed);
     }
     else if(_color_scale==2)
     {
-      delete _colorMapColGreen;
-      _colorMapColGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
-      _colorMapColGreen->addColorStop(_cs_top, QColor(0,180,0));
-      _colorMapColGreen->addColorStop(_cs_bot, QColor(0,50,0));
-      _colorMapColGreen->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,0));
-      _colorMapColGreen->setTransformId(_transformCol);
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColGreen);
-      _spectrogram->setColorMap(*_colorMapColGreen);
+      delete _colorMapGreen;
+      _colorMapGreen = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,0));
+      _colorMapGreen->addColorStop(_cs_top, QColor(0,180,0));
+      _colorMapGreen->addColorStop(_cs_bot, QColor(0,50,0));
+      _colorMapGreen->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,0));
+      _colorMapGreen->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapGreen);
+      _spectrogram->setColorMap(*_colorMapGreen);
     }
     else if(_color_scale==3)
     {
-      delete _colorMapColBlue;
-      _colorMapColBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
-      _colorMapColBlue->addColorStop(_cs_top, QColor(0,0,180));
-      _colorMapColBlue->addColorStop(_cs_bot, QColor(0,0,50));
-      _colorMapColBlue->addColorStop((_cs_top+_cs_bot)/2., QColor(0,0,115));
-      _colorMapColBlue->setTransformId(_transformCol);
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColBlue);
-      _spectrogram->setColorMap(*_colorMapColBlue);
+      delete _colorMapBlue;
+      _colorMapBlue = new QwtLogColorMap(QColor(0,0,0), QColor(0,0,255));
+      _colorMapBlue->addColorStop(_cs_top, QColor(0,0,180));
+      _colorMapBlue->addColorStop(_cs_bot, QColor(0,0,50));
+      _colorMapBlue->addColorStop((_cs_top+_cs_bot)/2., QColor(0,0,115));
+      _colorMapBlue->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBlue);
+      _spectrogram->setColorMap(*_colorMapBlue);
     }
     else if(_color_scale==4)
     {
-      delete _colorMapColVio;
-      _colorMapColVio = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
-      _colorMapColVio->addColorStop(_cs_top, QColor(180,0,180));
-      _colorMapColVio->addColorStop(_cs_bot, QColor(50,0,50));
-      _colorMapColVio->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,115));
-      _colorMapColVio->setTransformId(_transformCol);
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColVio);
-      _spectrogram->setColorMap(*_colorMapColVio);
+      delete _colorMapVio;
+      _colorMapVio = new QwtLogColorMap(QColor(0,0,0), QColor(255,0,255));
+      _colorMapVio->addColorStop(_cs_top, QColor(180,0,180));
+      _colorMapVio->addColorStop(_cs_bot, QColor(50,0,50));
+      _colorMapVio->addColorStop((_cs_top+_cs_bot)/2., QColor(115,0,115));
+      _colorMapVio->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapVio);
+      _spectrogram->setColorMap(*_colorMapVio);
     }
     else if(_color_scale==5)
     {
-      delete _colorMapColCyn;
-      _colorMapColCyn = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
-      _colorMapColCyn->addColorStop(_cs_top, QColor(0,180,180));
-      _colorMapColCyn->addColorStop(_cs_bot, QColor(0,50,50));
-      _colorMapColCyn->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,115));
-      _colorMapColCyn->setTransformId(_transformCol);
-      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColCyn);
-      _spectrogram->setColorMap(*_colorMapColCyn);
+      delete _colorMapCyn;
+      _colorMapCyn = new QwtLogColorMap(QColor(0,0,0), QColor(0,255,255));
+      _colorMapCyn->addColorStop(_cs_top, QColor(0,180,180));
+      _colorMapCyn->addColorStop(_cs_bot, QColor(0,50,50));
+      _colorMapCyn->addColorStop((_cs_top+_cs_bot)/2., QColor(0,115,115));
+      _colorMapCyn->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCyn);
+      _spectrogram->setColorMap(*_colorMapCyn);
     }
-
+    else if(_color_scale==6)
+    {
+      delete _colorMapColAll;
+      _colorMapColAll = new QwtLogColorMap(Qt::black, Qt::red);
+      _colorMapColAll->addColorStop(0.1, Qt::blue);
+      _colorMapColAll->addColorStop(0.3, Qt::darkCyan);
+      _colorMapColAll->addColorStop(0.4, Qt::cyan);
+      _colorMapColAll->addColorStop(0.6, Qt::darkGreen);
+      _colorMapColAll->addColorStop(0.7, Qt::green);
+      _colorMapColAll->addColorStop(0.95, Qt::yellow);
+      _colorMapColAll->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapColAll);
+      _spectrogram->setColorMap(*_colorMapColAll);
+    }
+    else if(_color_scale==7)
+    {
+      delete _colorMapTemperature;
+      _colorMapTemperature = new QwtLogColorMap(Qt::darkBlue, Qt::white);
+      _colorMapTemperature->addColorStop(0.15, Qt::blue);
+      _colorMapTemperature->addColorStop(0.3, QColor(255,90,255)); //pink-magenta
+      _colorMapTemperature->addColorStop(0.4, Qt::yellow);
+      _colorMapTemperature->addColorStop(0.6, Qt::darkYellow);
+      _colorMapTemperature->addColorStop(0.7, Qt::red);
+      _colorMapTemperature->addColorStop(0.8, Qt::darkRed);
+      _colorMapTemperature->addColorStop(0.95, QColor(149,34,0) ); //brown
+      _colorMapTemperature->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperature);
+      _spectrogram->setColorMap(*_colorMapTemperature);
+    }
+    else if(_color_scale==8)
+    {
+      delete _colorMapTemperatureCool;
+      //_colorMapTemperatureCool = new QwtLogColorMap(QColor(75,236,255), QColor(255, 51, 204));//Razzle Dazzle Rose
+      _colorMapTemperatureCool = new QwtLogColorMap(QColor(65,105,241), QColor(255, 51, 204));//Razzle Dazzle Rose
+      _colorMapTemperatureCool->addColorStop(0.1, QColor(0,127,255));
+      _colorMapTemperatureCool->addColorStop(0.6, QColor(221,0,255));
+      _colorMapTemperatureCool->addColorStop(0.95, QColor(255, 51, 204));
+      _colorMapTemperatureCool->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureCool);
+      _spectrogram->setColorMap(*_colorMapTemperatureCool);
+    }
+    else if(_color_scale==9)
+    {
+      delete _colorMapTemperatureHot;
+      _colorMapTemperatureHot = new QwtLogColorMap(QColor(72,6,7), Qt::white);//brown, Bulgarian Rose
+      _colorMapTemperatureHot->addColorStop(0.1, QColor(72,6,7));
+      _colorMapTemperatureHot->addColorStop(0.2, Qt::darkRed);
+      _colorMapTemperatureHot->addColorStop(0.35, Qt::red);
+      _colorMapTemperatureHot->addColorStop(0.65, QColor(255,195,59));
+      _colorMapTemperatureHot->addColorStop(0.85, Qt::yellow);
+      _colorMapTemperatureHot->addColorStop(0.98, Qt::white);
+      _colorMapTemperatureHot->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapTemperatureHot);
+      _spectrogram->setColorMap(*_colorMapTemperatureHot);
+    }
+    else if(_color_scale==10)
+    {
+      delete _colorMapBluetoGreen;
+      _colorMapBluetoGreen = new QwtLogColorMap(QColor(16,16,255), QColor(0,255,129));
+      _colorMapBluetoGreen->addColorStop(0.1, QColor(16,16,255));
+      _colorMapBluetoGreen->addColorStop(0.5, Qt::cyan);
+      _colorMapBluetoGreen->addColorStop(0.9, QColor(0,255,155));
+      _colorMapBluetoGreen->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapBluetoGreen);
+      _spectrogram->setColorMap(*_colorMapBluetoGreen);
+    }
+    else if(_color_scale==11)
+    {
+      delete _colorMapCopper;
+      _colorMapCopper = new QwtLogColorMap(QColor(10,10,10), QColor(184,115,51)); //copper
+      _colorMapCopper->addColorStop(0.1, QColor(10,10,10));
+      _colorMapCopper->addColorStop(0.2, QColor(149,34,0));
+      _colorMapCopper->addColorStop(0.9, QColor(184,115,51));
+      _colorMapCopper->setTransformId(_transformCol);
+      _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMapCopper);
+      _spectrogram->setColorMap(*_colorMapCopper);
+    }
 
     //_spectrogram->setColorMap(*_colorMapInv);
 
@@ -915,11 +1058,19 @@ protected:
 
   QwtLogColorMap* _colorMapCol1;
   QwtLogColorMap* _colorMapColMany;
-  QwtLogColorMap* _colorMapColBlue;
-  QwtLogColorMap* _colorMapColRed;
-  QwtLogColorMap* _colorMapColGreen;
-  QwtLogColorMap* _colorMapColVio;
-  QwtLogColorMap* _colorMapColCyn;
+  QwtLogColorMap* _colorMapRed;
+  QwtLogColorMap* _colorMapGreen;
+  QwtLogColorMap* _colorMapBlue;
+  QwtLogColorMap* _colorMapVio;
+  QwtLogColorMap* _colorMapCyn;
+
+  QwtLogColorMap* _colorMapColAll;
+
+  QwtLogColorMap* _colorMapTemperature;
+  QwtLogColorMap* _colorMapTemperatureCool;
+  QwtLogColorMap* _colorMapTemperatureHot;
+  QwtLogColorMap* _colorMapBluetoGreen;
+  QwtLogColorMap* _colorMapCopper;
 
   spectrogramData* _spectrogramData;
   spectrogramDataDummy* _spectrogramDataDummy;
