@@ -53,14 +53,11 @@ void cass::pp150::loadSettings(size_t)
 void cass::pp150::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  if ((*_condition)(evt).isTrue())
-  {
-    TofDetector *det
-        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().peaks().size());
-    _result->lock.unlock();
-  }
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().peaks().size());
+  _result->lock.unlock();
 }
 
 
@@ -102,17 +99,14 @@ void cass::pp151::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    TofDetector *det
-        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
-    _result->clear();
-    _result->lock.lockForWrite();
-    for (; it != det->mcp().peaks().end(); ++it)
-      dynamic_cast<Histogram1DFloat*>(_result)->fill(it->time());
-    _result->lock.unlock();
-  }
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it != det->mcp().peaks().end(); ++it)
+    dynamic_cast<Histogram1DFloat*>(_result)->fill(it->time());
+  _result->lock.unlock();
 }
 
 
@@ -154,17 +148,14 @@ void cass::pp152::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    TofDetector *det
-        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
-    _result->clear();
-    _result->lock.lockForWrite();
-    for (;it != det->mcp().peaks().end(); ++it)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
-    _result->lock.unlock();
-  }
+  TofDetector *det
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (;it != det->mcp().peaks().end(); ++it)
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
+  _result->lock.unlock();
 }
 
 
@@ -211,14 +202,11 @@ void cass::pp160::loadSettings(size_t)
 void cass::pp160::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].peaks().size());
+  _result->lock.unlock();
 }
 
 
@@ -264,17 +252,14 @@ void cass::pp161::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    Signal::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
-    _result->clear();
-    _result->lock.lockForWrite();
-    for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Signal::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(it->fwhm(),it->height());
+  _result->lock.unlock();
 }
 
 
@@ -315,14 +300,11 @@ void cass::pp162::loadSettings(size_t)
 void cass::pp162::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(det->timesum(_layer));
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->timesum(_layer));
+  _result->lock.unlock();
 }
 
 
@@ -365,15 +347,12 @@ void cass::pp163::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    _result->clear();
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram2DFloat*>(_result)->fill(det->position(_layer),det->timesum(_layer));
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->clear();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram2DFloat*>(_result)->fill(det->position(_layer),det->timesum(_layer));
+  _result->lock.unlock();
 }
 
 
@@ -420,22 +399,19 @@ void cass::pp164::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    AnodeLayer &f = det->layers()[_first];
-    AnodeLayer &s = det->layers()[_second];
-    const double tsf = det->timesum(_first);
-    const double tss = det->timesum(_second);
-    const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
-    const bool css = (s.tsLow() < tss && tss < s.tsHigh());
-    _result->clear();
-    _result->lock.lockForWrite();
-    if (csf && css)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(f.position(),s.position());
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  AnodeLayer &f = det->layers()[_first];
+  AnodeLayer &s = det->layers()[_second];
+  const double tsf = det->timesum(_first);
+  const double tss = det->timesum(_second);
+  const bool csf = (f.tsLow() < tsf && tsf < f.tsHigh());
+  const bool css = (s.tsLow() < tss && tss < s.tsHigh());
+  _result->clear();
+  _result->lock.lockForWrite();
+  if (csf && css)
+    dynamic_cast<Histogram2DFloat*>(_result)->fill(f.position(),s.position());
+  _result->lock.unlock();
 }
 
 
@@ -484,14 +460,11 @@ void cass::pp165::loadSettings(size_t)
 void cass::pp165::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
-  if ((*_condition)(evt).isTrue())
-  {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(det->hits().size());
-    _result->lock.unlock();
-  }
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->hits().size());
+  _result->lock.unlock();
 }
 
 
@@ -563,20 +536,17 @@ void cass::pp166::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*PostprocessorBackend::_condition)(evt).isTrue())
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  DelaylineDetector::dethits_t::iterator it (det->hits().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it != det->hits().end(); ++it)
   {
-    DelaylineDetector *det
-        (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-    DelaylineDetector::dethits_t::iterator it (det->hits().begin());
-    _result->clear();
-    _result->lock.lockForWrite();
-    for (; it != det->hits().end(); ++it)
-    {
-      if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
-        dynamic_cast<Histogram2DFloat*>(_result)->fill(it->values()[_first],it->values()[_second]);
-    }
-    _result->lock.unlock();
+    if (_condition.first < it->values()[_third] && it->values()[_third] < _condition.second)
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->values()[_first],it->values()[_second]);
   }
+  _result->lock.unlock();
 }
 
 
@@ -620,25 +590,22 @@ void cass::pp220::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  if ((*_condition)(evt).isTrue())
+  TofDetector *det01
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt)));
+  TofDetector *det02
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt)));
+  Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it01 != det01->mcp().peaks().end();++it01)
   {
-    TofDetector *det01
-        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt)));
-    TofDetector *det02
-        (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt)));
-    Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
-    _result->clear();
-    _result->lock.lockForWrite();
-    for (; it01 != det01->mcp().peaks().end();++it01)
-    {
-      //if both detectors are the same, then the second iterator should start
-      //i+1, otherwise we will just draw all hits vs. all hits
-      Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
-                                           it01+1 :
-                                           det02->mcp().peaks().begin());
-      for (; it02 != det02->mcp().peaks().end(); ++it02)
-        dynamic_cast<Histogram2DFloat*>(_result)->fill(it01->time(),it02->time());
-    }
-    _result->lock.unlock();
+    //if both detectors are the same, then the second iterator should start
+    //i+1, otherwise we will just draw all hits vs. all hits
+    Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
+                                         it01+1 :
+                                         det02->mcp().peaks().begin());
+    for (; it02 != det02->mcp().peaks().end(); ++it02)
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it01->time(),it02->time());
   }
+  _result->lock.unlock();
 }
