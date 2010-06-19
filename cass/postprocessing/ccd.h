@@ -38,6 +38,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -86,6 +89,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -134,6 +140,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -188,6 +197,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -242,6 +254,9 @@ namespace cass
    *           0D Postprocessor name that we check before filling image.
    *           if this setting is not defined, this postprocessor is unconditional.
    *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    *
    * @author Lutz Foucar
    */

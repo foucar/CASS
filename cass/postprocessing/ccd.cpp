@@ -70,19 +70,17 @@ void cass::pp100::loadSettings(size_t)
 void cass::pp100::process(const cass::CASSEvent& evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    //check whether detector exists
-    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-      throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                               .arg(_key.c_str())
-                               .arg(_detector)
-                               .arg(_device).toStdString());
+  //check whether detector exists
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
 
-    //get frame and fill image//
-    const PixelDetector::frame_t& frame
-        ((*(evt.devices().find(_device)->second)->detectors())[_detector].frame());
-    /*
+  //get frame and fill image//
+  const PixelDetector::frame_t& frame
+      ((*(evt.devices().find(_device)->second)->detectors())[_detector].frame());
+  /*
       // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
       if(frame.size()!=_image->shape().first *_image->shape().second)
       {
@@ -100,12 +98,11 @@ void cass::pp100::process(const cass::CASSEvent& evt)
       std::cout<< "cacca " << ROIiterator_pp.size()
         <<std::endl;
   */
-    _result->lock.lockForWrite();
-    copy(frame.begin(),
-         frame.end(),
-         dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
-    _result->lock.unlock();
-  }
+  _result->lock.lockForWrite();
+  copy(frame.begin(),
+       frame.end(),
+       dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
+  _result->lock.unlock();
 }
 
 
@@ -144,20 +141,17 @@ void cass::pp101::loadSettings(size_t)
 void cass::pp101::process(const cass::CASSEvent &evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
-    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-      throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                               .arg(_key.c_str())
-                               .arg(_detector)
-                               .arg(_device).toStdString());
-    const float& integral
-        (static_cast<float>(
-            (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(integral);
-    _result->lock.unlock();
-  }
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+  const float& integral
+      (static_cast<float>(
+          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral()));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(integral);
+  _result->lock.unlock();
 }
 
 
@@ -198,21 +192,18 @@ void cass::pp102::loadSettings(size_t)
 void cass::pp102::process(const cass::CASSEvent &evt)
 {
   using namespace std;
-  if ((*_condition)(evt).isTrue())
-  {
 
-    if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
-      throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
-                               .arg(_key.c_str())
-                               .arg(_detector)
-                               .arg(_device).toStdString());
-    const float& integral_overthres
-        (static_cast<float>(
-            (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
-    _result->lock.lockForWrite();
-    dynamic_cast<Histogram0DFloat*>(_result)->fill(integral_overthres);
-    _result->lock.unlock();
-  }
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+  const float& integral_overthres
+      (static_cast<float>(
+          (*(evt.devices().find(_device)->second)->detectors())[_detector].integral_overthres()));
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(integral_overthres);
+  _result->lock.unlock();
 }
 
 
