@@ -61,7 +61,7 @@ namespace cass
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
       std::cout<< "PostProcessor "<<_key
-          <<": will compare hist in PostProcessor "<<keyOne
+          <<": will compare hist in PostProcessor "<<_one->key()
           <<" to constant "<<_value
           <<" using "<< typeid(op).name()
           <<". Condition is"<<_condition->key()
@@ -149,8 +149,8 @@ namespace cass
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
       std::cout << "PostProcessor " << _key
-          << ": will boolean compare PostProcessor " << keyOne
-          << " to PostProcessor " << keyTwo
+          << ": will boolean compare PostProcessor " << _one->key()
+          << " to PostProcessor " << _two->key()
           <<" using "<< typeid(op).name()
           <<". Condition is"<<_condition->key()
           << std::endl;
@@ -237,8 +237,8 @@ namespace cass
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
       std::cout << "PostProcessor " << _key
-          << ": compares Histogram in PostProcessor " << keyOne
-          << " to Histogram in PostProcessor " << keyTwo
+          << ": compares Histogram in PostProcessor " << _one->key()
+          << " to Histogram in PostProcessor " << _two->key()
           <<" using "<< typeid(op).name()
           <<". Condition is"<<_condition->key()
           << std::endl;
@@ -338,8 +338,8 @@ namespace cass
       createHistList(2*cass::NbrOfWorkers);
       std::cout << "PostProcessor " << _key
           << ": operation "<< typeid(op).name()
-          << " on Histogram in PostProcessor " << keyOne
-          << " with Histogram in PostProcessor " << keyTwo
+          << " on Histogram in PostProcessor " << _one->key()
+          << " with Histogram in PostProcessor " << _two->key()
           <<". Condition is"<<_condition->key()
           << std::endl;
     }
@@ -423,7 +423,7 @@ namespace cass
       createHistList(2*cass::NbrOfWorkers);
       std::cout << "PostProcessor " << _key
           << ": operation "<< typeid(op).name()
-          << " on Histogram in PostProcessor " << keyOne
+          << " on Histogram in PostProcessor " << _one->key()
           << " with " << _value
           <<". Condition is"<<_condition->key()
           << std::endl;
