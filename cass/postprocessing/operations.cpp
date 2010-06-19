@@ -906,6 +906,7 @@ void cass::pp70::loadSettings(size_t)
   _size = settings.value("Size", 10000).toUInt();
 
   _result = new Histogram1DFloat(_size, 0, _size-1);
+  createHistList(2*cass::NbrOfWorkers);
 
   std::cout << "PostProcessor " << _key
             << ", condition on postprocessor:" << _condition
