@@ -45,11 +45,20 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   if(_histList.end() == it)
   {
     _result = _histList.back().second;
-    process(evt);
     histogramList_t::value_type newPair (std::make_pair(evt.id(),_result));
-    _histList.push_front(newPair);
     _histList.pop_back();
-    it = _histList.begin();
+    if (_condition && !(*_condition)(evt).isTrue())
+    {
+      it = _histList.begin();
+      ++it;
+      it =_histList.insert(it,newPair);
+    }
+    else
+    {
+      process(evt);
+      _histList.push_front(newPair);
+      it = _histList.begin();
+    }
   }
   return *(it->second);
 }

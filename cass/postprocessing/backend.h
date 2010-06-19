@@ -56,8 +56,8 @@ namespace cass
 
     /** main operator
      *
-     * will be called for each event by postprocesors or postprocessors container.
-     * This function will check
+     * Will be called for each event by postprocessors container. Sometimes by
+     * postprocessors that depend on this pp. This function will check
      * whether this event has already been processed and if the result is on the
      * list. When its not on the list, then it will call the pure virtual
      * function process event. The latter is done only if either there is no
