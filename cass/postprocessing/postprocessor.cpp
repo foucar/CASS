@@ -97,6 +97,8 @@ void cass::PostProcessors::process(const CASSEvent& event)
    *       - go through that list and fill all pp that depend on the ones in
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
+   *       - this needs to be done in a locked way since more than one thread
+   *         do this
    */
   for(postprocessors_t::iterator iter(_postprocessors.begin());
       iter != _postprocessors.end();
