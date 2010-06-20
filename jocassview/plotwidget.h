@@ -813,12 +813,13 @@ protected slots:
                                    _sbx_scale_min->value(),
                                    _sbx_scale_max->value() );*/
 
-
     if(_bool_auto_scale->checkState())
+    {
       _plot->setAxisScale(QwtPlot::yRight,
-                        _sbx_scale_min->text().toDouble(),
-                        _sbx_scale_max->text().toDouble() );
-    _plot->replot();
+                          _sbx_scale_min->text().toDouble(),
+                          _sbx_scale_max->text().toDouble() );
+      _plot->replot();
+    }
   }
 
 
@@ -1252,8 +1253,10 @@ public slots:
   void Replot()
   {
     if(_bool_auto_scale1d->checkState())
+    {
       _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->text().toDouble(),_sbx_scale1d_max->text().toDouble(),0.);
-    _plot.replot();
+      _plot.replot();
+    }
   }
 
   void legendChecked(QwtPlotItem* item, bool checked)
@@ -1288,13 +1291,32 @@ public slots:
     VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
-    // top: lower axis limit
-    // bottom: upper axis limit
-    double oldheight = newZoomRect.height();
-    double newheight = newZoomRect.height() * factor;
-    newZoomRect.setHeight( newheight );
-    newZoomRect.moveBottom( newZoomRect.bottom() - (newheight-oldheight)/2 );
-    newZoomRect = newZoomRect.normalized();
+    if(!_bool_auto_scale1d->checkState())
+    {
+      // top: lower axis limit
+      // bottom: upper axis limit
+      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+      double oldheight = newZoomRect.height();
+      double newheight = newZoomRect.height() * factor;
+      newZoomRect.setHeight( newheight );
+      newZoomRect.moveBottom( newZoomRect.bottom() - (newheight-oldheight)/2 );
+      newZoomRect = newZoomRect.normalized();
+      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+    }
+    else
+    {
+      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+      double oldheight = _sbx_scale1d_max->text().toDouble()-_sbx_scale1d_min->text().toDouble();
+      double newheight = oldheight * factor;
+      newZoomRect.setHeight( newheight );
+      newZoomRect.setBottom( _sbx_scale1d_min->text().toDouble() *factor );
+      newZoomRect = newZoomRect.normalized();
+      QString newyaxis=QString("%1").arg(newheight,0,'E',4);
+      _sbx_scale1d_min->setText(newyaxis);
+      newyaxis=QString("%1").arg( _sbx_scale1d_min->text().toDouble() * factor ,0,'E',4);
+      _sbx_scale1d_max->setText(newyaxis);
+      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+    }
 
     stack.push( newZoomRect );
     //stack[0] = newZoomRect.unite(stack[0]);
@@ -1431,6 +1453,10 @@ protected:
     _zoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::RightButton,
                              Qt::ControlModifier);
     _zoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::RightButton);
+
+    _zoomer->zoom(0);
+    _zoomer->setZoomBase();
+
     // Grid for the plot
     _grid = new QwtPlotGrid;
     _grid->setMajPen(QPen(Qt::black, 0, Qt::DashLine));
