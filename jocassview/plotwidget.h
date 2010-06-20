@@ -1319,7 +1319,7 @@ public slots:
       _sbx_scale1d_min->setText(newyaxis);
       newyaxis=QString("%1").arg( _sbx_scale1d_min->text().toDouble() * factor ,0,'E',4);
       _sbx_scale1d_max->setText(newyaxis);
-      VERBOSEOUT(std::cout<< "plotWidget::ZoomY(): Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+      VERBOSEOUT(std::cout<< "plotWidget::ZoomY(): Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl);
     }
 
     stack.push( newZoomRect );
