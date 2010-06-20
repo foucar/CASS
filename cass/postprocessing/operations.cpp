@@ -605,7 +605,7 @@ void cass::pp61::loadSettings(size_t)
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  unsigned average = settings.value("average", 1).toUInt();
+  unsigned average = settings.value("NbrOfAverages", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());

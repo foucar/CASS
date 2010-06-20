@@ -505,7 +505,7 @@ namespace cass
    *
    * Running or cummulative average of a histogram.
    *
-   * @cassttng PostProcessor/\%name\%/{average}\n
+   * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
    *           how many images should be averaged. When value is 0 its a cummulative
    *           average. Default is 1.
    * @cassttng PostProcessor/\%name\%/{HistName} \n
