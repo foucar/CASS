@@ -1,7 +1,6 @@
 // Copyright (C) 2010 Uwe Hoppe
 // Copyright (C) 2010 Jochen Kuepper
 
-//#define VERBOSE 1
 
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
@@ -13,6 +12,7 @@
 #include <QtGui/QPainter>
 #include <QImageReader>
 #include <fstream>
+#include <algorithm>
 
 #include "imageviewer.h"
 #include "CASSsoap.nsmap"
@@ -81,6 +81,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
   _attachId->setToolTip("Attachment identifier.");
   _attachId->setEditable(true);
   _attachId->installEventFilter(this);
+  _attachId->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   updateImageList(_attachId);
   _ui.toolBar->addWidget(_attachId);
   // Add picture type respectively format to toolbar.
@@ -254,6 +255,28 @@ void ImageViewer::updateImageList(QComboBox* box)
     QString itemstring(QString::fromStdString(*it));
     if (box->findText(itemstring)==-1)
       box->addItem( itemstring, QVariant(0) );
+  }
+  for (int i=0;i<box->count();++i)
+  {
+    VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): total counts"<< box->count()
+               <<" index:"<<i
+               <<" text:"<< box->itemText(i).toStdString()
+               << std::endl);
+    if (stdlist.end() == std::find(stdlist.begin(),stdlist.end(),box->itemText(i).toStdString()))
+    {
+      VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): "<< box->itemText(i).toStdString()
+                 <<" not on list => remove"
+                 << std::endl);
+      box->removeItem(i);
+    }
+#ifdef VERBOSE
+    else
+    {
+      VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): "<< box->itemText(i).toStdString()
+                 <<" is on list"
+                 << std::endl);
+    }
+#endif
   }
 }
 
