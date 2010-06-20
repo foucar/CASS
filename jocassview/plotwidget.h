@@ -325,7 +325,7 @@ public:
   {
     try
     {
-      return (*_hist)(x,y);
+      return (*_hist)(y,x);
     }
     catch (std::out_of_range)
     {
