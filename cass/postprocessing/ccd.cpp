@@ -557,6 +557,7 @@ void cass::pp104::loadSettings(size_t)
     _useCondition = false;
   }
 
+  (Hit::HitHelper::instance()->loadSettings()
   _threshold = settings.value("Threshold", 3.9e6).toFloat();
 
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());

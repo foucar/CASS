@@ -121,6 +121,10 @@ void cass::pp111::loadSettings(size_t)
       <<" is showing channel "<<_channel
       <<" of acqiris "<<_instrument
       <<std::endl;
+
+
+  Hit::HitHelper::instance()->loadSettings()
+
 }
 
 void cass::pp111::operator()(const cass::CASSEvent &cassevent)
