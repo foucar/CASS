@@ -50,7 +50,6 @@ namespace jocassview
 
         getDataThread();
         ~getDataThread();
-        cass::PostProcessors::keyList_t getIdList();
         std::string getMimeType(const std::string& attachId);
         void getData(const std::string& attachId, int useSpectrogram);
         void getImage(cass::ImageFormat format, const std::string& attachId);

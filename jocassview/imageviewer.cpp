@@ -81,7 +81,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
   _attachId->setToolTip("Attachment identifier.");
   _attachId->setEditable(true);
   _attachId->installEventFilter(this);
-  updateImageList(_attachId);    // todo: doesn't work yet. data is correctly serialized on server side, but doesn't arrive correctly...
+  updateImageList(_attachId);
   _ui.toolBar->addWidget(_attachId);
   // Add picture type respectively format to toolbar.
   _picturetype = new QComboBox();
@@ -240,7 +240,6 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
              << "ImageViewer::getIdList(): Size=" << (*attachment).size << std::endl
              << "ImageViewer::getIdList(): Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
              << "ImageViewer::getIdList(): ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
-  /** @bug when jocassview is started without having a cass server running it crashes here */
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   cass::IdList list(serializer);
   return list.getList();
@@ -248,7 +247,7 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
 
 void ImageViewer::updateImageList(QComboBox* box)
 {
-  cass::PostProcessors::keyList_t stdlist = _gdthread.getIdList();
+  cass::PostProcessors::keyList_t stdlist = getIdList();
   for (cass::PostProcessors::keyList_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
   {
     VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): list iteration..." << std::endl);
@@ -712,33 +711,6 @@ void getDataThread::getImage(cass::ImageFormat format, const std::string& attach
   _attachId = new std::string(attachId);
   start();
 }
-
-
-
-cass::PostProcessors::keyList_t getDataThread::getIdList()
-{
-  bool ret;
-  int retcode=_cass->getPostprocessorIds(&ret);
-  if( (retcode==SOAP_OK) && ret)
-  {
-    VERBOSEOUT(std::cout << "getDataThread::getIdList(): return value: 'true'" << std::endl);
-  }
-  else
-  {
-    VERBOSEOUT(std::cout << "getDataThread::getIdList(): return value is 'false'" << std::endl);
-    return cass::PostProcessors::keyList_t();
-  }
-  soap_multipart::iterator attachment = _cass->dime.begin();
-  VERBOSEOUT(std::cout << "getDataThread::getIdList(): DIME attachment:" << std::endl
-             << "getDataThread::getIdList(): Memory=" << (void*)(*attachment).ptr << std::endl
-             << "getDataThread::getIdList(): Size=" << (*attachment).size << std::endl
-             << "getDataThread::getIdList(): Type=" << ((*attachment).type?(*attachment).type:"null") << std::endl
-             << "getDataThread::getIdList(): ID=" << ((*attachment).id?(*attachment).id:"null") << std::endl);
-  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-  cass::IdList list(serializer);
-  return list.getList();
-}
-
 
 void getDataThread::getHistogram1D(const std::string& attachId)
 {
