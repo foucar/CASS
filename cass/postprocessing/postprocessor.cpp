@@ -444,6 +444,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SingleCcdImageIntegralOverThreshold_up:
     processor = new pp103(*this, key);
     break;
+  case SingleCcdImageOnSPHit:
+    processor = new pp104(*this, key);
+    break;
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;
