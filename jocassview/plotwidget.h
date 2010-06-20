@@ -1175,9 +1175,9 @@ public:
     _baseRect.setBottom( hist->min() );
     if(!_bool_auto_scale1d->checkState())
     {
-      if (_linyaxis) _plot.setAxisScale(QwtPlot::yLeft,hist->min(),hist->max(),0.);
-      else
-        _plot.setAxisScale(QwtPlot::yLeft,hist->max()/1.e5,hist->max(),0.);
+      //if (_linyaxis) _plot.setAxisScale(QwtPlot::yLeft,hist->min(),hist->max(),0.);
+      //else
+      //  _plot.setAxisScale(QwtPlot::yLeft,hist->max()/1.e5,hist->max(),0.);
     }
     else
     {
