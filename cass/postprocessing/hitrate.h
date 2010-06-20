@@ -26,8 +26,6 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{HistName}\n
    *           Postprocessor name containing the histogram in which hits should be detected.
-   * @cassttng PostProcessor/\%name\%/{threshold}\n
-   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset) default = 1.0 .
    * @cassttng PostProcessor/\%name\%/{xstart}\n
    *           ROI for calculations. First pixel = 0 (default).
    * @cassttng PostProcessor/\%name\%/{ystart}\n
@@ -36,20 +34,29 @@ namespace cass
    *           ROI for calculations. Last pixel = -1 (default).
    * @cassttng PostProcessor/\%name\%/{yend}\n
    *           ROI for calculations. Last pixel = -1 (default).
+   * @cassttng PostProcessor/\%name\%/{TrainingSetSize}\n
+   *           How many images should be included in training phase. default = 200.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
    * 
    * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
    *
    * @author Stephan Kassemeyer
    */
 
-  class pp589 : public PostprocessorBackend
+  class pp300 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp589(PostProcessors&, const PostProcessors::key_t&);
+    pp300(PostProcessors&, const PostProcessors::key_t&);
 
-    /** destructor */
-    virtual ~pp589();
+    /** virtual destructor */
+    virtual ~pp300();
 
    /** check if image specified in settings contains a single particle hit*/
     virtual void process(const CASSEvent&);
@@ -60,15 +67,15 @@ namespace cass
   protected:
     /** xstart - ROI for calculations*/
     int _xstart;
+
     /** ystart - ROI for calculations*/
     int _ystart;
+
     /** xend - ROI for calculations*/
     int _xend;
+
     /** yend - ROI for calculations*/
     int _yend;
-
-    /** Threshold for outlier detection based discrimination (mahalanobis distance to dataset). */
-    float _threshold;
 
     /** the histogram to work on */
     PostprocessorBackend* _pHist;
@@ -91,7 +98,6 @@ namespace cass
     matrixType _covI;
     int _trainingSetsInserted; // counts how many training data items are already included in training set.
     int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
-
   };
 
 

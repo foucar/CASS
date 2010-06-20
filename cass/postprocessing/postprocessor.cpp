@@ -513,7 +513,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
-    processor = new pp589(*this,key);
+    processor = new pp300(*this,key);
     break;
 #endif
 #ifdef HDF5

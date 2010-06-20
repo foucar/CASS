@@ -14,13 +14,13 @@ namespace cass
 {
 
 // *** postprocessor 589 finds Single particle hits ***
-cass::pp589::pp589(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+cass::pp300::pp300(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _integralimg(NULL), _rowsum(NULL)
 {
   loadSettings(0);
 }
 
-cass::pp589::~pp589()
+cass::pp300::~pp300()
 {
   delete _integralimg;
   _integralimg = NULL;
@@ -28,7 +28,7 @@ cass::pp589::~pp589()
   _rowsum = NULL;
 }
 
-void cass::pp589::loadSettings(size_t)
+void cass::pp300::loadSettings(size_t)
 {
   using namespace std;
   QSettings settings;
@@ -36,12 +36,11 @@ void cass::pp589::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   // Get the input
-  PostProcessors::key_t keyHist;
-  _pHist = retrieve_and_validate(_pp,_key,"HistName", keyHist);
-  _dependencies.push_back(keyHist);
-  if (!_pHist) return;
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
 
-  _threshold = settings.value("threshold", 1.0).toFloat();
   _xstart = settings.value("xstart", 0).toInt();
   _ystart = settings.value("ystart", 0).toInt();
   _xend = settings.value("xend", -1).toInt();
@@ -53,7 +52,7 @@ void cass::pp589::loadSettings(size_t)
 
 
   // outlier postprocessor:
-  _nTrainingSetSize = settings.value("TrainingSetSize", 100).toInt();
+  _nTrainingSetSize = settings.value("TrainingSetSize", 200).toInt();
   _nFeatures = 5;
   _variationFeatures = matrixType(_nTrainingSetSize, _nFeatures);
   _cov = matrixType( _nFeatures, _nFeatures );
@@ -73,20 +72,20 @@ void cass::pp589::loadSettings(size_t)
   //_pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
 
   std::cout<<"Postprocessor "<<_key
-      <<": detects Single particle hits in PostProcessor "<< keyHist 
-      <<" threshold for detection:"<<_threshold
+      <<": detects Single particle hits in PostProcessor "<< _pHist->key()
       <<" ROI for detection: ["<<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp589::process(const CASSEvent& evt)
+void cass::pp300::process(const CASSEvent& evt)
 {
   using namespace std;
   _integralimg->lock.lockForWrite();
   _rowsum->lock.lockForWrite();
-  one->lock.lockForRead();
   const Histogram2DFloat &one
         (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
 
 
   _result->lock.lockForRead();
@@ -98,8 +97,8 @@ void cass::pp589::process(const CASSEvent& evt)
   }
   _result->lock.unlock();
 
-  const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t nybins (one->axis()[HistogramBackend::yAxis].nbrBins());
+  const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());
 
   const HistogramFloatBase::storage_t& img_mem( one.memory() );
   HistogramFloatBase::storage_t& rowsum_mem( _rowsum->memory() );
@@ -327,14 +326,13 @@ void cass::pp589::process(const CASSEvent& evt)
   std::cout << "cols: " << vigra::columnCount(_covI) << std::endl;*/
   float mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
 
-
-
-  one->lock.unlock();
+  one.lock.unlock();
   _integralimg->lock.unlock();
   _rowsum->lock.unlock();
+
+
   _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = mahal_dist;
-  ++_result->nbrOfFills();  // todo: remove this once it is implemented inside fill()
+  dynamic_cast<Histogram0DFloat*>(_result)->fill( mahal_dist );
   _result->lock.unlock();
 }
 

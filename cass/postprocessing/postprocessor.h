@@ -115,6 +115,8 @@ the Class description for information about what parameters are user settable.
 00230: Photon energy of Shot
 00231: Wavelength of photons
 
+00300: single particle detection
+
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 02000: Dump all 1d and 2d cass histograms to root file
@@ -259,11 +261,12 @@ using the custom doxygen tag cassttng.
 
       TestImage=240,
 
+      SingleParticleDetection=300,
+
       PnccdHDF5=1000,
       ROOTDump=2000,
 
 
-      SingleParticleDetection=589,
 
 
       InvalidPP
