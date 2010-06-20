@@ -663,9 +663,6 @@ cass::pp62::pp62(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp62::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -869,6 +866,46 @@ void cass::pp70::process(const cass::CASSEvent &evt)
 
   std::rotate(mem.begin(), mem.begin()+1, mem.end());
   mem[_size-1] = one.getValue();
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+// ***  pp 80 returns the number of fills of a given histogram ***
+
+cass::pp80::pp80(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp80::loadSettings(size_t)
+{
+  using namespace std;
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  cout << "PostProcessor "<<_key
+      <<": returns the number of fills of histogram in pp " << _pHist->key()
+      <<" condition on postprocessor:"<<_condition->key()
+      <<endl;
+}
+
+void cass::pp80::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill( one.nbrOfFills() );
   _result->lock.unlock();
   one.lock.unlock();
 }

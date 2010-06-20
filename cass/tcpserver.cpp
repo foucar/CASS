@@ -187,7 +187,7 @@ int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 even
         }
         // keep bytes around for a while -- this should mitigate the "zeros" problem
         queue.enqueue(data);
-        if(10 < queue.size())
+        if(200 < queue.size())
             delete queue.dequeue();
         // answer request
         *success = true;

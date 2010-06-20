@@ -129,7 +129,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/operations.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
-            tcpserver.cpp
+            tcpserver.cpp \
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -171,7 +171,8 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/waveform.h \
             ./postprocessing/machine_data.h \
             ./postprocessing/root_converter.h \
-            ./postprocessing/hdf5dump.h
+            ./postprocessing/hdf5dump.h \
+
 
 INCLUDEPATH   += postprocessing \
                  ../cass_acqiris \

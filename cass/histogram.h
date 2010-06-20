@@ -376,9 +376,8 @@ public:
     /** fill the 0d histogram with a value */
     void fill(value_t value=0.)
     {
-      lock.lockForWrite();
       _memory[0] = value;
-      lock.unlock();
+      ++_nbrOfFills;
     }
 
     /** getter for the 0d value*/

@@ -686,6 +686,40 @@ namespace cass
 
 
 
+  /** return number of fills of a given histogram
+   *
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   *           Therefore its always true.
+   * @cassttng PostProcessor/\%name\%/{Hide} \n
+   *           Flag that will hide this postprocessor in cassview's combobox.
+   *           Default is false
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp80 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp80(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
 }
 
 #endif
