@@ -172,6 +172,7 @@ the Class description for information about what parameters are user settable.
 00101: CCD image Integral
 00102: CCD image Integral using pixel(s) over user defined Threshold
 00110: Acqiris Waveform
+00111: Acqiris Waveform with single particle condition on ccd
 00120: Beamline data
 00130: Epics data
 
@@ -289,6 +290,7 @@ using the custom doxygen tag cassttng.
       SingleCcdImageIntegralOverThreshold_up=103,
       SingleCcdImageOnSPHit=104,
       AcqirisWaveform=110,
+      AcqirisWaveformSP=111,
       BlData=120,
       EpicsData=130,
 

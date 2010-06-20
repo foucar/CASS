@@ -58,6 +58,57 @@ namespace cass
     /** this is where we store the waveform */
     Histogram1DFloat  *_waveform;
   };
+
+
+
+  /** last acqiris channel waveform with condition on single-particle hit on ccd.
+   *
+   * Class to show the last wavefrom of a channel, when the hit-helper has detected
+   * a single particle hit on a ccd for this event.
+   *
+   * @cassttng PostProcessor/\%name\%/{InstrumentId} \n
+   *           The instrument id of the acqiris instrument that contains the
+   *           channel. Default is 8. Options are:
+   *           - 8: Camp Acqiris
+   *           - 4: AMO ITof Acqiris
+   *           - 2: AMO GD Acqiris
+   *           - 5: AMO Mbes Acqiris
+   * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
+   *           The channel number of the acqiris instrument. Default is 0.
+   *
+   * @todo adjust the name to the id that it will have
+   * @author Lutz Foucar, Stephan Kassemeyer
+   */
+  class pp111 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp111(PostProcessors &ppc, const PostProcessors::key_t &key);
+
+    /** delete the histogram when you are destroyed*/
+    virtual ~pp111();
+
+    /** copy the last waveform from the channel*/
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** Mutex for locking this postprocessor*/
+    QMutex _mutex;
+
+    /** the instrument that contains the channel this postprocessor will work on*/
+    cass::ACQIRIS::Instruments _instrument;
+
+    /** the Acqiris channel number of this processor*/
+    size_t _channel;
+
+    /** this is where we store the waveform */
+    Histogram1DFloat  *_waveform;
+  };
+
+
 }
 
 #endif

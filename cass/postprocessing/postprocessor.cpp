@@ -450,6 +450,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;
+  case AcqirisWaveformSP:
+    processor = new pp111(*this,key);
+    break;
   case BlData:
     processor = new pp120(*this,key);
     break;
