@@ -123,7 +123,7 @@ void cass::pp111::loadSettings(size_t)
       <<std::endl;
 
 
-  Hit::HitHelper::instance()->loadSettings()
+  Hit::HitHelper::instance()->loadSettings();
 
 }
 
