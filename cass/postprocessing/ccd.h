@@ -185,9 +185,6 @@ namespace cass
     /** current image */
     Histogram2DFloat *_image;
 
-    /** trheshold for update */
-    float _threshold;
-
     /** the pp that contains the condition */
     PostProcessors::key_t _condition;
 

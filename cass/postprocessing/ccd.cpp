@@ -505,7 +505,6 @@ void cass::pp103::operator()(const cass::CASSEvent& event)
   std::cout<< "cacca " << ROIiterator_pp.size()
       <<std::endl;
 */
-  Histogram2DFloat *_origimage(_image);
   float integral = std::accumulate(frame.begin(), frame.end(), 0.0);
   if (integral >= _threshold)
   {
@@ -558,7 +557,6 @@ void cass::pp104::loadSettings(size_t)
   }
 
   Hit::HitHelper::instance()->loadSettings();
-  _threshold = settings.value("Threshold", 3.9e6).toFloat();
 
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
@@ -632,8 +630,6 @@ void cass::pp104::operator()(const cass::CASSEvent& event)
   std::cout<< "cacca " << ROIiterator_pp.size()
       <<std::endl;
 */
-  Histogram2DFloat *_origimage(_image);
-  float integral = std::accumulate(frame.begin(), frame.end(), 0.0);
 
   if (Hit::HitHelper::instance()->condition(event) )
   {
