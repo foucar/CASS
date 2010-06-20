@@ -31,12 +31,12 @@ int main(int argc, char *argv[])
     const QRect screen(my_desktop->screenGeometry(-1));
     const int screen_height= screen.height();
     const int screen_width= screen.width();
-    std::cout<<"main():: Display dimensions: "<< displ_height << " x "
-             << displ_width << " " << nscreens
-             << " "
-             << screen_height << " x " 
-             << screen_width << " " <<  my_desktop->isVirtualDesktop()
-             << " " <<  my_desktop->primaryScreen() <<std::endl;
+    VERBOSE(std::cout<<"main():: Display dimensions: "<< displ_height << " x "
+            << displ_width << " " << nscreens
+            << " "
+            << screen_height << " x "
+            << screen_width << " " <<  my_desktop->isVirtualDesktop()
+            << " " <<  my_desktop->primaryScreen() <<std::endl);
     window.resize(min_size,min_size);
 
     window.show();
