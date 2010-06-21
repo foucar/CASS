@@ -14,10 +14,12 @@
 
 cass::FileInput::FileInput(std::string filelistname,
                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
+                           bool quitWhenDone,
                            QObject *parent)
                              :QThread(parent),
                              _ringbuffer(ringbuffer),
                              _quit(false),
+                             _quitWhenDone(quitWhenDone),
                              _filelistname(filelistname),
                              _converter(cass::FormatConverter::instance()),
                              _pause(false),
@@ -199,8 +201,9 @@ void cass::FileInput::run()
           <<std::endl;
   }
   std::cout << "Finished with all files." << std::endl;
-  while(!_quit)
-    this->sleep(1);
+  if(!_quitWhenDone)
+    while(!_quit)
+      this->sleep(1);
   std::cout << "closing the input"<<std::endl;
 }
 

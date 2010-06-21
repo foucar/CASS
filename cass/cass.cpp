@@ -186,11 +186,12 @@
 /** The main program.
  *
  * commandline parameters:
- * - i filename containing filesnames of xtcfiles to process
- * - c client id for shared memory access
- * - s TCP port of the soap server
- * - p partition tag for accessing the shared memory
- * - o output filename passed to the postprocessor
+ * - i filename containing filesnames of xtcfiles to process (offline)
+ * - c client id for shared memory access (online)
+ * - s TCP port of the soap server (offline / online)
+ * - p partition tag for accessing the shared memory (online)
+ * - o output filename passed to the postprocessor (offline / online)
+ * - q quit after finished with all files (offline)
  *
  * @author Lutz Foucar
  */
@@ -225,7 +226,8 @@ int main(int argc, char **argv)
   size_t soap_port(12321);
   //the sharememory client index
   int index(0);
-  //check if at least 1 param is given
+  //flag to tell to quit when program has finished executing all files
+  bool quitwhendone(false);
 
   //get the partition string
   while((c = getopt(argc, argv, "p:s:c:i:o:")) != -1)
@@ -240,6 +242,9 @@ int main(int argc, char **argv)
       break;
     case 'c':
       index = strtol(optarg, 0, 0);
+      break;
+    case 'q':
+      quitwhendone = true;
       break;
     case 'i':
       filelistname = optarg;

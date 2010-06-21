@@ -44,6 +44,7 @@ namespace cass
     /** constructor */
     FileInput(std::string filelistname,
               cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,
+              bool,
               QObject *parent=0);
 
     /** destructor */
@@ -88,6 +89,11 @@ namespace cass
 
     /** flag to quit the input */
     bool _quit;
+
+    /** user settable flag.
+     * to tell whether program should close when all files are processed
+     */
+    bool _quitWhenDone;
 
     /** name of the file containing all files that we need to process */
     std::string _filelistname;
