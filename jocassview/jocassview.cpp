@@ -27,16 +27,18 @@ int main(int argc, char *argv[])
   if(displ_height>2000)displ_height /=2;
   if(displ_width>2000)displ_width /=2;
   const int min_size = std::min(displ_height,displ_width);
+#ifdef VERBOSE
   const int nscreens= my_desktop->screenCount();
   const QRect screen(my_desktop->screenGeometry(-1));
   const int screen_height= screen.height();
   const int screen_width= screen.width();
-  VERBOSEOUT(std::cout<<"main():: Display dimensions: "<< displ_height << " x "
-             << displ_width << " " << nscreens
-             << " "
-             << screen_height << " x "
-             << screen_width << " " <<  my_desktop->isVirtualDesktop()
-             << " " <<  my_desktop->primaryScreen() <<std::endl);
+  std::cout<<"main():: Display dimensions: "<< displ_height << " x "
+      << displ_width << " " << nscreens
+      << " "
+      << screen_height << " x "
+      << screen_width << " " <<  my_desktop->isVirtualDesktop()
+      << " " <<  my_desktop->primaryScreen() <<std::endl;
+#endif
   window.resize(min_size,min_size);
 
   window.show();
