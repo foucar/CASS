@@ -250,6 +250,7 @@ cass::PostProcessors::keyList_t ImageViewer::getIdList()
 
 void ImageViewer::updateImageList(QComboBox* box)
 {
+  /** @todo make list always add items at right alphabetical postion */
   cass::PostProcessors::keyList_t stdlist = getIdList();
   for (cass::PostProcessors::keyList_t::iterator it = stdlist.begin(); it!=stdlist.end(); it++)
   {
