@@ -20,6 +20,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
 {
+  /** @todo make it such that the hide option is also set through a loadsettings */
   QSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
