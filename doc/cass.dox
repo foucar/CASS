@@ -16,6 +16,7 @@
 -# @ref run
 -# @ref add_pp
 -# @ref pplist
+-# @ref ini_examples
 -# @ref cred
 
 @section licence License
@@ -115,6 +116,21 @@ If you get weird HDF5 error messages when using pp1000, make sure your
 HDF5 library was compiled with thread safety enabled.
 
 
+@section ini_examples Example CASS.ini files
+@example hdf5dump.ini
+This example shows you how to setup the Chapman crew HDF5 File Dumper.
+@example photodiode-photonhits.ini
+This example shows you how to setup a condition and use it to gate the pnccd
+Detector for yag on / off.
+@example threshold-average.ini
+This example shows you how to use Stephans Hit finder and make a condition on
+it. Then use this condition to create a running average and substract the
+running average from the image that contains a hit. The result is then threholded
+to set all pixels below a certain value to 0.
+
+
+
+
 @section cred Credits
 @par Authors:
 
@@ -156,18 +172,24 @@ Lutz Foucar
       items under one title, just like todo does.
 @todo add gui's to modify the postprocessors settings in cassviewer.
 @todo create an excutable with the revision number to have some fallback
-
 */
 
-/** \page authors Authors
-  @include "AUTHORS"
- */
+/**
+\page authors Authors
+@include "AUTHORS"
+*/
 
-/** \page casslicense License
-  @include "License"
-  @include "License.GPLv3"
- */
+/**
+\page casslicense License
+@include "License"
+@include "License.GPLv3"
+*/
 
-/** \page cassinstall INSTALL
-  @include "INSTALL"
- */
+/**
+\page cassinstall INSTALL
+@include "INSTALL"
+*/
+
+/**
+*/
+
