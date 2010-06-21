@@ -79,7 +79,9 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
   // Add Attachment identifier to toolbar.
   _attachId = new QComboBox();
   _attachId->setToolTip("Attachment identifier.");
-  _attachId->setEditable(true);
+  _attachId->setDuplicatesEnabled(false);
+  _attachId->setInsertPolicy(QComboBox::InsertAlphabetically);
+  _attachId->setEditable(false);
   _attachId->installEventFilter(this);
   _attachId->setSizeAdjustPolicy(QComboBox::AdjustToContents);
   updateImageList(_attachId);
