@@ -15,6 +15,9 @@ namespace cass
    * This class is needed since one cannot set the filename of the cass.ini
    * globally.
    *
+   * @todo Make this class serializable, so that the settings can be send
+   *       to a program that can modify it and send it back.
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT CASSSettings : public QSettings

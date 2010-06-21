@@ -153,7 +153,6 @@
  *
  * @date 2009-2010
  *
- * @todo describe how to use Nicolas ROI.
  * @todo create another acqiris detector, that will just measure the voltage
  *       on a given channel
  * @todo make detector evaluation lazy by having the getters calc all values.
@@ -166,8 +165,7 @@
  * @todo find out how one can use xrefitem so that it will list consecutive
  *       items under one title, just like todo does.
  * @todo add gui's to modify the postprocessors settings in cassviewer.
- * @todo create getter for the serialized qsettings
- * @todo create an excutable with the reivision number to have some fallback
+ * @todo create an excutable with the revision number to have some fallback
  */
 
 /** \page authors Authors
