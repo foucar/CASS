@@ -256,7 +256,7 @@ int main(int argc, char **argv)
 #ifndef OFFLINE
       std::cout << "please give me at least a partition tag" <<std::endl;
 #else
-      std::cout << "please give me at least an input filename" <<std::endl;
+      std::cout << "please give me at least an filename that contains the xtcfilenames you want to process" <<std::endl;
 #endif
       return 2;
       break;
