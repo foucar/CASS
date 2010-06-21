@@ -15,6 +15,11 @@ namespace cass
    * them to a root file. Filename can be chosen with the -o parameter at
    * program start.
    *
+   * @todo make conditional. When a condition is true dump all histograms
+   *       to a folder that has the name of the event id. When program stops
+   *       dump all histograms to a folder called run summary.
+   * @note the condition for this should be always false
+   *
    * @author Lutz Foucar
    */
   class pp2000 : public PostprocessorBackend
