@@ -73,8 +73,10 @@ defaultly found in the user scope path. From the QSettings documentary:
 "The default UserScope paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings)
 can be overridden by the user by setting the XDG_CONFIG_HOME environment variable."
 @see http://doc.trolltech.com/4.6/qsettings.html#setPath
+
 One is also able to tell the program which cass.ini it should use.
 @see main for all program parameters
+
 
 @subsection testing Testing CASS in offline mode (DAQ simulation)
 For testing CASS you can create the shared memory using xtcmonserver located
@@ -83,8 +85,7 @@ put the contents into the shared memory. You have to give it serval commands
 which are documented when you run it without any command. A typical start
 command will look like this:\n
 
-LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4
-- s 0x1000000 -p test -r 120 -l\n
+LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
 - f: filename of file that you want to create the shared memory with
 - n: number of datagrams to be stored in the buffer
 - s: size of the buffer for that stores one datagram
