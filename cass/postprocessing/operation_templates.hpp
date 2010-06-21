@@ -1,8 +1,9 @@
 // Copyright (C) 2010 Lutz Foucar
 
-/** @file operations_templates.h file contains templated postprocessors that
- *                               will operate on histograms of other
- *                               postprocessors
+/**
+ * @file operations_templates.hpp file contains templated postprocessors that
+ *                                will operate on histograms of other
+ *                                postprocessors
  * @author Lutz Foucar
  */
 
