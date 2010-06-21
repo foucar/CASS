@@ -350,6 +350,7 @@ protected:
    *   right mouse on colorbar cycles throug axis transformations
    * @todo make most-general colour scale available
    * @todo add user defined "stops" in colour scale
+   * @todo insert switch to "keep" aspect ratio both while resizing the window and zooming in
    * @author Stephan Kassemeyer
    * @author Nicola Coppola
    */
@@ -428,37 +429,37 @@ public:
     _bool_auto_scale = new QCheckBox(tr("man scale"));
     _bool_auto_scale->setChecked( FALSE );
 
-    _sbx_validator = new QDoubleValidator(-2e12,2e12,3,this);
+    _sbz_validator = new QDoubleValidator(-2e12,2e12,3,this);
 
     QLabel* _lbl_scale_min = new QLabel(tr("Min"),this);
-    _sbx_scale_min = new QLineEdit(this);
-    _sbx_scale_min->setValidator(_sbx_validator);
-    _sbx_scale_min->setText("0.");
-    _sbx_scale_min->setMaximumWidth(120);
-    //_sbx_scale_min = new QDoubleSpinBox(this);
-    //_sbx_scale_min->setRange(-2e12,2e12);
-    //_sbx_scale_min->setDecimals(3);
-    //_sbx_scale_min->setValue(0.);
+    _sbz_scale_min = new QLineEdit(this);
+    _sbz_scale_min->setValidator(_sbz_validator);
+    _sbz_scale_min->setText("0.");
+    _sbz_scale_min->setMaximumWidth(120);
+    //_sbz_scale_min = new QDoubleSpinBox(this);
+    //_sbz_scale_min->setRange(-2e12,2e12);
+    //_sbz_scale_min->setDecimals(3);
+    //_sbz_scale_min->setValue(0.);
 
     QLabel* _lbl_scale_max = new QLabel(tr("Max"),this);
-    //_sbx_scale_max = new QDoubleSpinBox(this);
-    //_sbx_scale_max->setRange(-2e12,2e12);
-    //_sbx_scale_max->setValue(1500.);
-    //_sbx_scale_max->setDecimals(3);
-    _sbx_scale_max = new QLineEdit(this);
-    _sbx_scale_max->setValidator(_sbx_validator);
-    _sbx_scale_max->setText("1500.");
-    _sbx_scale_max->setMaximumWidth(120);
+    //_sbz_scale_max = new QDoubleSpinBox(this);
+    //_sbz_scale_max->setRange(-2e12,2e12);
+    //_sbz_scale_max->setValue(1500.);
+    //_sbz_scale_max->setDecimals(3);
+    _sbz_scale_max = new QLineEdit(this);
+    _sbz_scale_max->setValidator(_sbz_validator);
+    _sbz_scale_max->setText("1500.");
+    _sbz_scale_max->setMaximumWidth(120);
 
-    if(_sbx_scale_max->text().toDouble() < _sbx_scale_min->text().toDouble())
+    if(_sbz_scale_max->text().toDouble() < _sbz_scale_min->text().toDouble())
     {
-      _sbx_scale_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
-      _sbx_scale_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbz_scale_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbz_scale_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
     }
     else
     {
-      _sbx_scale_min->setStyleSheet("QLineEdit {color: black; background-color: #000000}");
-      _sbx_scale_max->setStyleSheet("QLineEdit {color: black; background-color: #000000}");
+      _sbz_scale_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbz_scale_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     }
 
     QLabel* _lbl_color_scale = new QLabel(tr("Color"),this);
@@ -484,9 +485,9 @@ public:
 
     connect(_color_scale, SIGNAL(valueChanged(int)), this, SLOT(updateColorBar(int)));
 
-    connect(_sbx_scale_min, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
-    connect(_sbx_scale_max, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
-    //connect(_sbx_scale_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
+    connect(_sbz_scale_min, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
+    connect(_sbz_scale_max, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
+    //connect(_sbz_scale_max, SIGNAL(valueChanged(double)), this, SLOT(Replot()));
 
     _toolbar->addWidget( _colorbarPresets );
     _toolbar->addWidget( _saveColorbar );
@@ -498,9 +499,9 @@ public:
     _toolbar->addSeparator();
     _toolbar->addWidget(_bool_auto_scale);
     _toolbar->addWidget(_lbl_scale_min);
-    _toolbar->addWidget(_sbx_scale_min);
+    _toolbar->addWidget(_sbz_scale_min);
     _toolbar->addWidget(_lbl_scale_max);
-    _toolbar->addWidget(_sbx_scale_max);
+    _toolbar->addWidget(_sbz_scale_max);
 
     _toolbar->addWidget(_lbl_color_scale);
     _toolbar->addWidget(_color_scale);
@@ -690,8 +691,8 @@ public:
      delete _rad_colormap_sq;
 
      delete _bool_auto_scale;
-     delete _sbx_scale_min;
-     delete _sbx_scale_max;
+     delete _sbz_scale_min;
+     delete _sbz_scale_max;
 
      delete _saveColorbar;
      delete _color_scale;
@@ -708,19 +709,20 @@ public:
     dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
     _spectrogramData->setHistogram(hist,
                                    _bool_auto_scale->checkState(),
-                                   _sbx_scale_min->text().toDouble(),
-                                   _sbx_scale_max->text().toDouble() );
-    if(_sbx_scale_max->text().toDouble() < _sbx_scale_min->text().toDouble() )
+                                   _sbz_scale_min->text().toDouble(),
+                                   _sbz_scale_max->text().toDouble() );
+    if(_sbz_scale_max->text().toDouble() < _sbz_scale_min->text().toDouble() )
     {
-      _sbx_scale_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
-      _sbx_scale_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbz_scale_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbz_scale_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
     }
     else
     {
-      _sbx_scale_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
-      _sbx_scale_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbz_scale_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbz_scale_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     }
 
+    //Here to rotate...?? extend  class "definition"
     _spectrogram->setData(*_spectrogramData);   //hack
     _spectrogram->invalidateCache();
     _spectrogram->itemChanged();
@@ -810,14 +812,14 @@ protected slots:
   {
     /*    _spectrogramData->setHistogram(hist,
                                    _bool_auto_scale->checkState(),
-                                   _sbx_scale_min->value(),
-                                   _sbx_scale_max->value() );*/
+                                   _sbz_scale_min->value(),
+                                   _sbz_scale_max->value() );*/
 
     if(_bool_auto_scale->checkState())
     {
       _plot->setAxisScale(QwtPlot::yRight,
-                          _sbx_scale_min->text().toDouble(),
-                          _sbx_scale_max->text().toDouble() );
+                          _sbz_scale_min->text().toDouble(),
+                          _sbz_scale_max->text().toDouble() );
       _plot->replot();
     }
   }
@@ -854,7 +856,6 @@ protected slots:
     _cs_top = settings.value("pos1", 0.8).toDouble();
     _cs_bot = settings.value("pos2", 0.1).toDouble();
     _transformCol = static_cast<QwtLogColorMap::transformId>( settings.value("transformCol", QwtLogColorMap::trans_lin).toInt() );
-    //std::cout<<"Test " << _cs_top<<" "<<_cs_bot <<std::endl;
     switch(_transformCol)
     {
     case QwtLogColorMap::trans_lin: _rad_colormap_lin->setChecked(true);
@@ -870,7 +871,7 @@ protected slots:
     }
     _selectColMap=settings.value("selectColMap",-1).toInt();
     _color_scale->setValue(_selectColMap);
-    std::cout<<"Selected colour is  " << _selectColMap<<" scale is "<< _transformCol <<std::endl;
+    //std::cout<<"Selected colour is  " << _selectColMap<<" scale is "<< _transformCol <<std::endl;
     updateColorBar(_selectColMap);
   }
 
@@ -883,15 +884,6 @@ protected slots:
 
   void updateColorBar(int _color_scale)
   {
-    // old colormap is deleted by _spectrogram->setColorMap !!
-    /*
-    delete _colorMap;
-    _colorMap = new QwtLogColorMap(QColor(0,0,0), QColor(255,255,255));
-    _colorMap->addColorStop(_cs_top, QColor(255,255,255));
-    _colorMap->addColorStop(_cs_bot, QColor(0,0,0));
-    _colorMap->setTransformId(_transformCol);
-    _rightAxis->setColorMap(_spectrogram->data().range(), *_colorMap);
-    */
     if(_color_scale==-1)
     {
       delete _colorMap;
@@ -1097,11 +1089,11 @@ protected:
   QRadioButton* _rad_colormap_sq;
 
   QCheckBox* _bool_auto_scale;
-  //QDoubleSpinBox* _sbx_scale_min;
-  //QDoubleSpinBox* _sbx_scale_max;
-  QDoubleValidator* _sbx_validator;
-  QLineEdit* _sbx_scale_min;
-  QLineEdit* _sbx_scale_max;
+  //QDoubleSpinBox* _sbz_scale_min;
+  //QDoubleSpinBox* _sbz_scale_max;
+  QDoubleValidator* _sbz_validator;
+  QLineEdit* _sbz_scale_min;
+  QLineEdit* _sbz_scale_max;
   QSpinBox* _color_scale;
 };
 
@@ -1113,7 +1105,9 @@ protected:
  * @author Nicola Coppola
  * @todo 1d hist: log of x axis
  * @todo scale overlay data, change color and thickness of overlay line
- * @todo zoom into x axis but let y axis scale automatically to highest value
+ * @todo color with "green" or some color if the manual limit(s) is(are) outside
+ *       the min/max x-scale range
+ * @todo stretch _toolbox in case the window is too small to show the whole
  * @todo document this class
  */
 class plotWidget : public QWidget
@@ -1174,7 +1168,7 @@ public:
 
     _baseRect.setTop( hist->max() );
     _baseRect.setBottom( hist->min() );
-    if(!_bool_auto_scale1d->checkState())
+    if(!_bool_auto_Yscale1d->checkState())
     {
       //if (_linyaxis) _plot.setAxisScale(QwtPlot::yLeft,hist->min(),hist->max(),0.);
       //else
@@ -1182,18 +1176,34 @@ public:
     }
     else
     {
-      _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->text().toDouble(),_sbx_scale1d_max->text().toDouble(),0.);
+      _plot.setAxisScale(QwtPlot::yLeft,_sby_scale1d_min->text().toDouble(),_sby_scale1d_max->text().toDouble(),0.);
+    }
+
+    if(_sby_scale1d_max->text().toDouble() < _sby_scale1d_min->text().toDouble())
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     }
 
     if(_sbx_scale1d_max->text().toDouble() < _sbx_scale1d_min->text().toDouble())
     {
-      _sbx_scale1d_min->setStyleSheet("QLineText {color: blue; background-color: #FF0000}");
-      _sbx_scale1d_max->setStyleSheet("QLineText {color: blue; background-color: #FF0000}");
+      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
     }
     else
     {
-      _sbx_scale1d_min->setStyleSheet("QLineText {color: black; background-color: #FFFFFF}");
-      _sbx_scale1d_max->setStyleSheet("QLineText {color: black; background-color: #FFFFFF}");
+      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+    }
+
+    if(_bool_auto_Xscale1d->checkState())
+    {
+      _plot.setAxisScale(QwtPlot::xBottom,_sbx_scale1d_min->text().toDouble(),_sbx_scale1d_max->text().toDouble(),0.);
     }
 
     if (hist->key() != oldKey)
@@ -1250,14 +1260,56 @@ public slots:
     setHistogramKey(str.toStdString());
   }
 
-  void Replot()
+  void YReplot()
   {
-    if(_bool_auto_scale1d->checkState())
+    if(_bool_auto_Yscale1d->checkState())
     {
-      _plot.setAxisScale(QwtPlot::yLeft,_sbx_scale1d_min->text().toDouble(),_sbx_scale1d_max->text().toDouble(),0.);
-      _plot.replot();
+      _plot.setAxisScale(QwtPlot::yLeft,_sby_scale1d_min->text().toDouble(),_sby_scale1d_max->text().toDouble(),0.);
     }
+    else
+    {
+      ZoomReset();
+    }
+
+    if(_sby_scale1d_max->text().toDouble() < _sby_scale1d_min->text().toDouble())
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+    }
+    _plot.replot();
+
   }
+
+  void XReplot()
+  {
+    if(_bool_auto_Xscale1d->checkState())
+    {
+      _plot.setAxisScale(QwtPlot::xBottom,_sbx_scale1d_min->text().toDouble(),_sbx_scale1d_max->text().toDouble(),0.);
+    }
+    else
+    {
+      ZoomReset();
+    }
+
+    if(_sbx_scale1d_max->text().toDouble() < _sbx_scale1d_min->text().toDouble())
+    {
+      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+    }
+    _plot.replot();
+
+  }
+
 
   void legendChecked(QwtPlotItem* item, bool checked)
   {
@@ -1291,31 +1343,33 @@ public slots:
     VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
-    if(!_bool_auto_scale1d->checkState())
+    if(!_bool_auto_Yscale1d->checkState())
     {
       // top: lower axis limit
       // bottom: upper axis limit
-      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
       double oldheight = newZoomRect.height();
       double newheight = newZoomRect.height() * factor;
       newZoomRect.setHeight( newheight );
       newZoomRect.moveBottom( newZoomRect.bottom() - (newheight-oldheight)/2 );
       newZoomRect = newZoomRect.normalized();
-      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
     }
     else
     {
-      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
-      double oldheight = _sbx_scale1d_max->text().toDouble()-_sbx_scale1d_min->text().toDouble();
-      double newheight = oldheight * factor;
-      newZoomRect.setHeight( newheight );
-      newZoomRect.setBottom( _sbx_scale1d_min->text().toDouble() *factor );
+      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
+      double oldtop = _sby_scale1d_max->text().toDouble();
+      double newtop = oldtop * factor;
+      newZoomRect.setTop( newtop );
+      newZoomRect.setBottom( _sby_scale1d_min->text().toDouble() *factor );
       newZoomRect = newZoomRect.normalized();
-      QString newyaxis=QString("%1").arg(newheight,0,'E',4);
-      _sbx_scale1d_min->setText(newyaxis);
-      newyaxis=QString("%1").arg( _sbx_scale1d_min->text().toDouble() * factor ,0,'E',4);
-      _sbx_scale1d_max->setText(newyaxis);
-      std::cout<< "Zoom YCoord "<<newZoomRect.height() << " "<<newZoomRect.bottom() <<std::endl;
+
+      QString newyaxis=QString("%1").arg( _sby_scale1d_min->text().toDouble() * factor,0,'E',4);
+      _sby_scale1d_min->setText(newyaxis);
+
+      newyaxis=QString("%1").arg( _sby_scale1d_max->text().toDouble() * factor ,0,'E',4);
+      _sby_scale1d_max->setText(newyaxis);
+      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
     }
 
     stack.push( newZoomRect );
@@ -1354,6 +1408,8 @@ protected:
 
   void initToolbar(QLayout& layout)
   {
+    //_imageValuesLayout = new QHBoxLayout;
+    //_toolbar = new QToolBar;
     _toolbar = new QToolBar(tr("plot toolbar"), this);
     _act_zoomin  = new QAction( QIcon(":images/zoomin.png"), tr("&Zoom in"), this);
     _act_zoomout = new QAction( QIcon(":images/zoomout.png"), tr("Zoom in"), this);
@@ -1375,11 +1431,14 @@ protected:
     //_toolbar->addWidget(_linlog_yscale);
     //_bool_1d_lin_yscale = new QAction( QIcon(":images/chart-Axis_Features.jpg"), tr("toggle lin/log y-scale"), this);
     //_bool_1d_lin_yscale = new QAction( QIcon(":images/Modelica_Math_log10I.png"), tr("toggle lin/log y-scale"), this);
-    //_bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"));
-    //_bool_1d_lin_yscale->setCheckable( true );
-    //_bool_1d_lin_yscale->setChecked( true );
-    //_toolbar->addAction(_bool_1d_lin_yscale);
-    //connect(_bool_1d_lin_yscale, SIGNAL(toggled(bool)), this, SLOT(YAxisToggle(bool)));
+    
+    //_bool_1d_lin_yscale_ = new QAction( QIcon(":images/log-lin.png"), tr("toggle lin/log y-scale"), this);
+    //_bool_1d_lin_yscale_ = new QAction( QIcon(":images/chart-Axis_Features1.jpg"), tr("toggle lin/log y-scale"), this);
+    //_bool_1d_lin_yscale_->setCheckable( true );
+    //_bool_1d_lin_yscale_->setChecked( true );
+    //_toolbar->addAction(_bool_1d_lin_yscale_);
+
+    //connect(_bool_1d_lin_yscale_, SIGNAL(toggled(bool)), this, SLOT(YAxisToggle(bool)));
 
     _bool_1d_lin_yscale = new QCheckBox(tr("lin/log y-scale"),this);
     _bool_1d_lin_yscale->setChecked( TRUE );
@@ -1391,36 +1450,77 @@ protected:
     _cb_scaleEngines->append( new createLog10ScaleEngine );
     _cb_scaleEngineIt = _cb_scaleEngines->begin();
 
-    _bool_auto_scale1d = new QCheckBox(tr("man scale"));
-    _bool_auto_scale1d->setChecked( FALSE );
+    _bool_auto_Yscale1d = new QCheckBox(tr("Man Y-scale"));
+    _bool_auto_Yscale1d->setChecked( FALSE );
+    _toolbar->addWidget(_bool_auto_Yscale1d);
+
+    connect(_bool_auto_Yscale1d, SIGNAL(stateChanged(int)), this, SLOT(YReplot()));
 
     _sbx_validator1d = new QDoubleValidator(-2e12,2e12,3,this);
 
-    QLabel* _lbl_scale1d_min = new QLabel(tr("Min"),this);
+    QLabel* _lbl_Yscale1d_min = new QLabel(tr("Y-Min"),this);
+    _sby_scale1d_min = new QLineEdit(this);
+    _sby_scale1d_min->setValidator(_sbx_validator1d);
+    _sby_scale1d_min->setText("1.");
+    _sby_scale1d_min->setMaximumWidth(120);
+
+    //_sby_scale1d_min = new QDoubleSpinBox(this);
+    //_sby_scale1d_min->setRange(-2.e6,2.e6);
+    //_sby_scale1d_min->setValue(1);
+    //_sby_scale1d_min->setDecimals(3);
+
+    QLabel* _lbl_Yscale1d_max = new QLabel(tr("Y-Max"),this);
+    _sby_scale1d_max = new QLineEdit(this);
+    _sby_scale1d_max->setValidator(_sbx_validator1d);
+    _sby_scale1d_max->setText("1.e6");
+    _sby_scale1d_max->setMaximumWidth(120);
+    
+    connect(_sby_scale1d_max, SIGNAL(textChanged(QString)), this, SLOT(YReplot()));
+    connect(_sby_scale1d_min, SIGNAL(textChanged(QString)), this, SLOT(YReplot()));
+
+    _toolbar->addWidget(_lbl_Yscale1d_min);
+    _toolbar->addWidget(_sby_scale1d_min);
+    _toolbar->addWidget(_lbl_Yscale1d_max);
+    _toolbar->addWidget(_sby_scale1d_max);
+
+    _bool_auto_Xscale1d = new QCheckBox(tr("Man X-scale"));
+    _bool_auto_Xscale1d->setChecked( FALSE );
+    _toolbar->addWidget(_bool_auto_Xscale1d);
+
+    connect(_bool_auto_Xscale1d, SIGNAL(stateChanged(int)), this, SLOT(XReplot()));
+
+    QLabel* _lbl_Xscale1d_min = new QLabel(tr("X-Min"),this);
     _sbx_scale1d_min = new QLineEdit(this);
     _sbx_scale1d_min->setValidator(_sbx_validator1d);
     _sbx_scale1d_min->setText("1.");
     _sbx_scale1d_min->setMaximumWidth(120);
 
-    //_sbx_scale1d_min = new QDoubleSpinBox(this);
-    //_sbx_scale1d_min->setRange(-2.e6,2.e6);
-    //_sbx_scale1d_min->setValue(1);
-    //_sbx_scale1d_min->setDecimals(3);
-
-    QLabel* _lbl_scale1d_max = new QLabel(tr("Max"),this);
+    QLabel* _lbl_Xscale1d_max = new QLabel(tr("X-Max"),this);
     _sbx_scale1d_max = new QLineEdit(this);
     _sbx_scale1d_max->setValidator(_sbx_validator1d);
     _sbx_scale1d_max->setText("1.e6");
     _sbx_scale1d_max->setMaximumWidth(120);
 
-    _toolbar->addWidget(_bool_auto_scale1d);
-    _toolbar->addWidget(_lbl_scale1d_min);
-    _toolbar->addWidget(_sbx_scale1d_min);
-    _toolbar->addWidget(_lbl_scale1d_max);
-    _toolbar->addWidget(_sbx_scale1d_max);
-    connect(_sbx_scale1d_max, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
-    connect(_sbx_scale1d_min, SIGNAL(textChanged(QString)), this, SLOT(Replot()));
+    connect(_sbx_scale1d_max, SIGNAL(textChanged(QString)), this, SLOT(XReplot()));
+    connect(_sbx_scale1d_min, SIGNAL(textChanged(QString)), this, SLOT(XReplot()));
 
+    _toolbar->addWidget(_lbl_Xscale1d_min);
+    _toolbar->addWidget(_sbx_scale1d_min);
+    _toolbar->addWidget(_lbl_Xscale1d_max);
+    _toolbar->addWidget(_sbx_scale1d_max);
+
+    /*
+    if(_sby_scale1d_max->text().toDouble() < _sby_scale1d_min->text().toDouble() )
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
+    }
+    else
+    {
+      _sby_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sby_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+    }
+    
     if(_sbx_scale1d_max->text().toDouble() < _sbx_scale1d_min->text().toDouble() )
     {
       _sbx_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
@@ -1428,10 +1528,15 @@ protected:
     }
     else
     {
-      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #000000}");
-      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #000000}");
+      _sbx_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
+      _sbx_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     }
+    */
 
+    //layout.addItem(_imageValuesLayout);
+    //layout.setSizeConstraint ( QLayout::SetNoConstraint );
+    _toolbar->setFloatable(true);//setScaledContents(true);
+    //_toolbar.setMouseTracking(true);
     layout.addWidget(_toolbar);
   }
 
@@ -1486,19 +1591,24 @@ protected:
   QAction* _act_zoomreset;
   QAction* _act_gridtoggle;
 
-  //QAction* _bool_1d_lin_yscale;
+  //QAction* _bool_1d_lin_yscale_;
   QCheckBox* _bool_1d_lin_yscale;
   bool _linyaxis;
   QList< createScaleEngine* >* _cb_scaleEngines;
   QList< createScaleEngine* >::iterator _cb_scaleEngineIt;
 
-  QCheckBox* _bool_auto_scale1d;
-  //QDoubleSpinBox* _sbx_scale1d_min;
-  //QDoubleSpinBox* _sbx_scale1d_max;
+  QCheckBox* _bool_auto_Yscale1d;
+  QLineEdit* _sby_scale1d_min;
+  QLineEdit* _sby_scale1d_max;
+
+  QDoubleValidator* _sbx_validator1d;
+
+  QCheckBox* _bool_auto_Xscale1d;
   QLineEdit* _sbx_scale1d_min;
   QLineEdit* _sbx_scale1d_max;
-  QDoubleValidator* _sbx_validator1d;
+
   CASSsoapProxy* _cass;
+  //QHBoxLayout* _imageValuesLayout;
 
   std::string _histogramKey;
 };
@@ -1513,6 +1623,7 @@ protected:
    *   left mouse drag zooms
    *   right mouse goes back in zoom history
    * @author Stephan Kassemeyer
+   * @author Nicola Coppola
    */
 class plotWidget1D : public plotWidget
 {
@@ -1525,6 +1636,8 @@ public:
 
   void setupUI()
   {
+    //_layout.setexpandingDirections(Qt::Vertical | Qt::Horizontal);
+    //_imageWidget->setLayout(_imageLayout);
     initPlot(_layout);
     initToolbar(_layout);
     setLayout(&_layout);
@@ -1554,6 +1667,7 @@ private:
  *   left mouse drag zooms
  *   right mouse goes back in zoom history
  * @author Stephan Kassemeyer
+ * @author Nicola Coppola
  */
 class plotWidget0D: public plotWidget
 {
