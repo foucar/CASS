@@ -50,6 +50,8 @@ namespace cass
   typedef std::vector<PixelDetector> detectors_t;
   /** known/supported Qt image formats */
   enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
+  /** global name of the cass.ini to load, needed to circumvent QSettings limitations */
+//  std::string CassIniFilename;
 }
 
 

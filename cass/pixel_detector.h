@@ -11,7 +11,7 @@
 #include "cass.h"
 #include "serializer.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
+#include "cass_settings.h"
 #include "serializable.h"
 
 namespace cass
@@ -148,7 +148,7 @@ namespace cass
    * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
    * @author Nicola Coppola
    */
-  class CASSSHARED_EXPORT ROI : public cass::ParameterBackend
+  class CASSSHARED_EXPORT ROI : public cass::CASSSettings
   {
   public:
     /** default constructor */

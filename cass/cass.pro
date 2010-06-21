@@ -157,6 +157,7 @@ HEADERS +=  analysis_backend.h \
             pixel_detector.h \
             xtciterator.h \
             cass_exceptions.h \
+            cass_settings.h \
             ./postprocessing/convenience_functions.h \
             ./postprocessing/postprocessor.h \
             ./postprocessing/id_list.h \

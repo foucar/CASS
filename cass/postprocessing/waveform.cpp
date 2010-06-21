@@ -12,6 +12,7 @@
 #include "cass_event.h"
 #include "cass.h"
 #include "acqiris_device.h"
+#include "convenience_functions.h"
 
 
 //the last wavefrom postprocessor
@@ -66,7 +67,7 @@ void cass::pp110::process(const cass::CASSEvent &evt)
   std::transform(waveform.begin(),
                  waveform.end(),
                  dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-                 cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
+                 cass::Adc2Volts(channel.gain(),channel.offset()));
   _result->lock.unlock();
 }
 

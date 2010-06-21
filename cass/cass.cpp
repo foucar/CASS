@@ -210,6 +210,14 @@ int main(int argc, char **argv)
   // for(QStringList::iterator iter = keys.begin(); iter != keys.end(); ++iter)
   //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
+  settings.setPath(QSettings::IniFormat,QSettings::UserScope,"~/.config/CFEL-ASG");
+  std::cout << settings.fileName().toStdString()<<" "<<settings.format()<<std::endl;
+  std::cout << QCoreApplication::organizationName().toStdString()
+      <<" "<< QCoreApplication::organizationDomain().toStdString()
+      <<" "<< QCoreApplication::applicationName().toStdString()
+      <<" "<< QSettings::defaultFormat()
+      <<std::endl;
+
 
   // register size_t as Qt meta type
   qRegisterMetaType<size_t>("size_t");

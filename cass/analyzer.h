@@ -9,7 +9,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
-#include "parameter_backend.h"
 
 namespace cass
 {

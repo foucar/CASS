@@ -9,7 +9,7 @@
 #include <QtCore/QObject>
 #include "cass.h"
 #include "conversion_backend.h"
-#include "parameter_backend.h"
+#include "cass_settings.h"
 #include "pdsdata/xtc/TypeId.hh"
 
 namespace cass
@@ -22,7 +22,7 @@ namespace cass
    * The Parameters used by the Format Converter
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT ConverterParameter : public cass::ParameterBackend
+  class CASSSHARED_EXPORT ConverterParameter : public cass::CASSSettings
   {
   public:
     /** constructor starts the group called "Converter"*/

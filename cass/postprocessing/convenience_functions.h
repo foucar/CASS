@@ -5,6 +5,7 @@
 
 #include "postprocessor.h"
 #include "cass.h"
+#include "cass_acqiris.h"
 
 namespace cass
 {
@@ -65,6 +66,35 @@ namespace cass
     float _first_weight, _second_weight;
   };
 
+
+
+  /** Convert Waveform Point
+   *
+   * unary function for converting the waveform points that are in ADC Values to
+   * Volts.
+   *
+   * @author Lutz Foucar
+   */
+  class Adc2Volts : public std::unary_function<ACQIRIS::waveform_t::value_type, float>
+  {
+  public:
+    /** constructor.
+     *
+     * @param gain the gain of the channel that contains the waveform
+     * @param offset the offset in Volts of the channel
+     */
+    Adc2Volts(double gain, double offset):
+        _gain(gain),_offset(offset)
+    {}
+
+    /** operator. converts adc values to volts*/
+    float operator ()(ACQIRIS::waveform_t::value_type adc)
+    { return adc * _gain - _offset;}
+
+  protected:
+    double _gain;
+    double _offset;
+  };
 
   /** binary function for averaging.
    * this operator is capable of performing a cumulative moving average and

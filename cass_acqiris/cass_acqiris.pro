@@ -27,7 +27,6 @@ HEADERS += acqiris_analysis.h \
            cass_acqiris.h  \
            acqiris_device.h \
            ../cass/analysis_backend.h \
-           ../cass/parameter_backend.h \
            ../cass/conversion_backend.h \
            ../cass/device_backend.h \
            ../cass/serializer.h \

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include "cass_pnccd.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
+#include "cass_settings.h"
 #include "pixel_detector.h"
 
 
@@ -116,7 +116,7 @@ namespace cass
       cass::ROI::ROIiterator_t _ROIiterator_converter;
     };
 
-    class CASS_PNCCDSHARED_EXPORT Parameter : public cass::ParameterBackend
+    class CASS_PNCCDSHARED_EXPORT Parameter : public cass::CASSSettings
     {
     public:
       /** constructor creates group "pnCCD" */

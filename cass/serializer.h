@@ -7,6 +7,7 @@
 #include <fstream>
 #include <string>
 #include <stdint.h>
+
 #include "cass.h"
 
 #define SERIALIZER_INTERFACE_TEST // if this is set, SerializerBackend is made abstract (pure virtual member)
