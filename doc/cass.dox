@@ -74,8 +74,9 @@ defaultly found in the user scope path. From the QSettings documentary:
 can be overridden by the user by setting the XDG_CONFIG_HOME environment variable."
 @see http://doc.trolltech.com/4.6/qsettings.html#setPath
 
-One is also able to tell the program which cass.ini it should use.
-@see main for all program parameters
+One is also able to tell the program which cass.ini it should use via a command
+line parameter.
+@see @ref clpar for all program parameters
 
 
 @subsection testing Testing CASS in offline mode (DAQ simulation)
