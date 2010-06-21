@@ -230,7 +230,7 @@ int main(int argc, char **argv)
   bool quitwhendone(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:s:c:i:o:q:")) != -1)
+  while((c = getopt(argc, argv, "qp:s:c:i:o:")) != -1)
   {
     switch (c)
     {
@@ -253,7 +253,11 @@ int main(int argc, char **argv)
       outputfilename = optarg;
       break;
     default:
-      std::cout << "please give me a partition tag" <<std::endl;
+#ifndef OFFLINE
+      std::cout << "please give me at least a partition tag" <<std::endl;
+#else
+      std::cout << "please give me at least an input filename" <<std::endl;
+#endif
       return 2;
       break;
     }
