@@ -4,7 +4,6 @@
 #include <cmath>
 #include <algorithm>
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "acqiris_detectors.h"
@@ -20,7 +19,7 @@
 #include "tof_detector.h"
 #include "cass.h"
 #include "convenience_functions.h"
-
+#include "cass_settings.h"
 
 
 
@@ -34,7 +33,7 @@ cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp150::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -79,7 +78,7 @@ cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp151::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -128,7 +127,7 @@ cass::pp152::pp152(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp152::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -179,7 +178,7 @@ cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp160::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -229,7 +228,7 @@ cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp161::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -281,7 +280,7 @@ cass::pp162::pp162(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp162::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -326,7 +325,7 @@ cass::pp163::pp163(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp163::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -375,7 +374,7 @@ cass::pp164::pp164(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp164::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -441,7 +440,7 @@ cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp165::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
@@ -494,7 +493,7 @@ void cass::pp166::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _first = settings.value("XInput",'x').toChar().toAscii();
@@ -567,7 +566,7 @@ cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp220::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector01 = static_cast<Detectors>(settings.value("FirstDetector",1).toUInt());

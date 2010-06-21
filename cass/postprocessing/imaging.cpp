@@ -8,7 +8,6 @@
 #include <utility>
 #include <math.h>
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "ccd_device.h"
@@ -20,7 +19,7 @@
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
 #include "convenience_functions.h"
-
+#include "cass_settings.h"
 
 
 // *** Postprocessor 212 - advanced photon finding and dump events to file ***
@@ -33,7 +32,7 @@ cass::pp212::pp212(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp212::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
@@ -184,7 +183,7 @@ cass::pp240::pp240(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp240::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _sizeX = settings.value("sizeX", 1024).toInt();

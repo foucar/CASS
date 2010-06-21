@@ -5,14 +5,13 @@
 #include <algorithm>
 #include <string>
 
-#include <QtCore/QSettings>
-
 #include "waveform.h"
 #include "histogram.h"
 #include "cass_event.h"
 #include "cass.h"
 #include "acqiris_device.h"
 #include "convenience_functions.h"
+#include "cass_settings.h"
 
 
 //the last wavefrom postprocessor
@@ -25,7 +24,7 @@ cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &
 void cass::pp110::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());

@@ -2,7 +2,6 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <QtCore/QMutex>
-#include <QtCore/QSettings>
 #include <QtCore/QStringList>
 
 #include <cassert>
@@ -25,6 +24,7 @@
 #include "id_list.h"
 #include "cass_exceptions.h"
 #include "operation_templates.hpp"
+#include "cass_settings.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -115,7 +115,7 @@ void cass::PostProcessors::loadSettings(size_t)
 {
   using namespace std;
   VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
 #ifdef VERBOSE
@@ -341,7 +341,7 @@ void cass::PostProcessors::setup(keyList_t &active)
 cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));

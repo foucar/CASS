@@ -1,12 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "machine_data.h"
 #include "histogram.h"
 #include "machine_device.h"
-
+#include "cass_settings.h"
 
 // *** postprocessors 120 retrives beamline data ***
 
@@ -18,7 +17,7 @@ cass::pp120::pp120(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp120::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
@@ -67,7 +66,7 @@ cass::pp130::pp130(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp130::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();

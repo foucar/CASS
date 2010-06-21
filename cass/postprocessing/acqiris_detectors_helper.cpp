@@ -8,6 +8,7 @@
 #include "tof_detector.h"
 #include "com.h"
 #include "cfd.h"
+#include "cass_settings.h"
 
 
 //initialize static members//
@@ -141,7 +142,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 void cass::ACQIRIS::HelperAcqirisDetectors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl);
-  QSettings par;
+  CASSSettings par;
 //  par.beginGroup("postprocessors");
   par.beginGroup("AcqirisDetectors");
   _detector->loadSettings(&par);

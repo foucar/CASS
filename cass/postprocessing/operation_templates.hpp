@@ -9,6 +9,7 @@
 #ifndef _OPERATION_TEMPLATES_H_
 #define _OPERATION_TEMPLATES_H_
 
+#include "cass_settings.h"
 #include "backend.h"
 #include "histogram.h"
 #include "convenience_functions.h"
@@ -51,7 +52,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      QSettings settings;
+      CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Value",0).toFloat();
@@ -136,7 +137,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      QSettings settings;
+      CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _one = setupDependency("HistOne");
@@ -224,7 +225,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      QSettings settings;
+      CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _one = setupDependency("HistOne");
@@ -320,7 +321,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      QSettings settings;
+      CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _one = setupDependency("HistOne");
@@ -411,7 +412,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      QSettings settings;
+      CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Factor",1).toFloat();

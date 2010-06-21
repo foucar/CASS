@@ -3,6 +3,7 @@
 
 
 #include <QCoreApplication>
+#include <QtCore/QSettings>
 #include <string>
 #include <iostream>
 

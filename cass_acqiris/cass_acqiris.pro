@@ -18,6 +18,7 @@ DEPENDPATH    += ../cass ./classes ./classes/waveformanalyzer ./classes/detector
 SOURCES += acqiris_analysis.cpp \
            acqiris_converter.cpp \
            acqiris_device.cpp \
+           ./classes/waveform_signal.cpp \
            ./classes/waveformanalyzer/cfd.cpp \
            ./classes/waveformanalyzer/com.cpp \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp

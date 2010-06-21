@@ -1,14 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
-
 
 #include "cass.h"
 #include "hitrate.h"
 #include "postprocessor.h"
 #include "histogram.h"
 #include "convenience_functions.h"
+#include "cass_settings.h"
 
 namespace cass
 {
@@ -31,7 +30,7 @@ cass::pp300::~pp300()
 void cass::pp300::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 

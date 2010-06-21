@@ -1,7 +1,5 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
-#include <QtCore/QSettings>
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -11,6 +9,7 @@
 #include "pdsdata/xtc/Dgram.hh"
 #include "cass_event.h"
 #include "format_converter.h"
+#include "cass_settings.h"
 
 cass::FileInput::FileInput(std::string filelistname,
                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
@@ -45,7 +44,7 @@ void cass::FileInput::loadSettings(size_t what)
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
   _converter->loadSettings(what);
-  QSettings settings;
+  CASSSettings settings;
   _rewind = settings.value("Rewind",false).toBool();
   //resume yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"

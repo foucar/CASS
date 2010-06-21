@@ -3,11 +3,13 @@
 
 #include <iostream>
 #include <QtCore/QMutexLocker>
+
 #include "analyzer.h"
 #include "acqiris_analysis.h"
 #include "ccd_analysis.h"
 #include "pnccd_analysis.h"
 #include "machine_analysis.h"
+#include "cass_settings.h"
 
 
 // ============define static members==============
@@ -60,7 +62,7 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 
 void cass::Analyzer::loadSettings(size_t)
 {
-  QSettings param;
+  CASSSettings param;
   param.beginGroup("PreAnalyzer");
   //install the requested analyzers//
   if(param.value("useCommercialCCDAnalyzer",true).toBool()) _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);

@@ -8,6 +8,7 @@
 #include "cass_exceptions.h"
 #include "convenience_functions.h"
 #include "operations.h"
+#include "cass_settings.h"
 
 using namespace cass;
 
@@ -21,7 +22,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _histLock(QReadWriteLock::Recursive)
 {
   /** @todo make it such that the hide option is also set through a loadsettings */
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _hide = settings.value("Hide",false).toBool();
@@ -127,7 +128,7 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
 
 bool PostprocessorBackend::setupCondition()
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   if (settings.contains("ConditionName"))
@@ -144,7 +145,7 @@ bool PostprocessorBackend::setupCondition()
 PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarName)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   PostProcessors::key_t dependkey;

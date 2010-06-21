@@ -6,6 +6,7 @@
 #include "cass_acqiris.h"
 #include "detector_backend.h"
 #include "waveform_signal.h"
+#include "cass_settings.h"
 
 namespace cass
 {
@@ -34,9 +35,9 @@ namespace cass
        */
       virtual DetectorBackend& operator= (const DetectorBackend& rhs);
       /** load the values from cass.ini */
-      virtual void loadSettings(QSettings *p);
+      virtual void loadSettings(CASSSettings *p);
       /** save values to cass.ini */
-      virtual void saveParameters(QSettings *){};
+      virtual void saveParameters(CASSSettings *){};
       /** getter for the signal*/
       const Signal        &mcp()const {return _mcp;}
       /** setter for the singal*/
@@ -49,7 +50,7 @@ namespace cass
 }
 
 inline
-void cass::ACQIRIS::TofDetector::loadSettings(QSettings *p)
+void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)
 {
   p->beginGroup(_name.c_str());
   _mcp.loadSettings(p,"Signal");

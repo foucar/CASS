@@ -1,7 +1,6 @@
 // Copyright (C) 2010 Lutz Foucar
 // (C) 2010 Thomas White - Updated to new PP framework
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "cass.h"
@@ -9,7 +8,7 @@
 #include "postprocessor.h"
 #include "histogram.h"
 #include "convenience_functions.h"
-
+#include "cass_settings.h"
 
 
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
@@ -21,7 +20,7 @@ cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp4::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -75,7 +74,7 @@ cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp9::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -142,7 +141,7 @@ cass::pp40::pp40(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp40::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -202,7 +201,7 @@ cass::pp50::pp50(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp50::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
@@ -278,7 +277,7 @@ cass::pp51::pp51(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp51::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
@@ -334,7 +333,7 @@ cass::pp52::pp52(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp52::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
@@ -404,7 +403,7 @@ cass::pp53::pp53(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp53::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
@@ -487,7 +486,7 @@ cass::pp54::pp54(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp54::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
@@ -554,7 +553,7 @@ cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp60::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
@@ -602,7 +601,7 @@ cass::pp61::pp61(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp61::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   unsigned average = settings.value("NbrOfAverages", 1).toUInt();
@@ -711,7 +710,7 @@ cass::pp63::pp63(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp63::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   const size_t min_time_user (settings.value("MinTime",0).toUInt());
@@ -832,7 +831,7 @@ cass::pp70::pp70(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp70::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());

@@ -3,13 +3,14 @@
 #include "convenience_functions.h"
 #include "cass_exceptions.h"
 #include "histogram.h"
+#include "cass_settings.h"
 
 using namespace cass;
 
 void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
-  QSettings param;
+  CASSSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
@@ -26,7 +27,7 @@ void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
-  QSettings param;
+  CASSSettings param;
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//

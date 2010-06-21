@@ -13,6 +13,7 @@
 #include "cass_event.h"
 #include "histogram.h"
 #include "convenience_functions.h"
+#include "cass_settings.h"
 
 
 
@@ -347,7 +348,7 @@ namespace cass
   void cass::pp200::loadSettings(size_t)
   {
     using namespace std;
-    QSettings settings;
+    CASSSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup(_key.c_str());
     _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();

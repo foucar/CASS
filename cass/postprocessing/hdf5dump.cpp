@@ -11,7 +11,6 @@
 #include <utility>
 #include <hdf5.h>
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <qfileinfo.h>
 

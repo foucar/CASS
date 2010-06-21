@@ -14,7 +14,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QObject>
-#include <QtCore/QSettings>
 
 #include "cass.h"
 #include "serializer.h"

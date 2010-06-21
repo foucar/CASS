@@ -9,7 +9,6 @@
 #include <utility>
 #include <cmath>
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "ccd.h"
@@ -22,7 +21,7 @@
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
 #include "convenience_functions.h"
-
+#include "cass_settings.h"
 
 // *** postprocessor 100 -- single images from a CCD ***
 
@@ -34,7 +33,7 @@ cass::pp100::pp100(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp100::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
@@ -122,7 +121,7 @@ cass::pp101::pp101(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp101::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
@@ -173,7 +172,7 @@ cass::pp102::pp102(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp102::loadSettings(size_t)
 {
   using namespace std;
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
@@ -224,7 +223,7 @@ cass::pp140::pp140(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp140::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
@@ -277,7 +276,7 @@ cass::pp141::pp141(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp141::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());

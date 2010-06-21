@@ -10,6 +10,7 @@
 #include "cass_acqiris.h"
 #include "tof_detector.h"
 #include "waveform_signal.h"
+#include "cass_settings.h"
 
 
 
@@ -43,10 +44,10 @@ namespace cass
       typedef std::map<char,Signal> wireends_t;
 
       /*! load values from cass.ini, should only be called by the detector*/
-      void loadSettings(QSettings *p,const char * layername);
+      void loadSettings(CASSSettings *p,const char * layername);
 
       /*! save values to cass.ini, should only be called by the detector*/
-      void saveParameters(QSettings *p,const char * layername);
+      void saveParameters(CASSSettings *p,const char * layername);
 
       /*! returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
@@ -224,10 +225,10 @@ namespace cass
 
     public:
       /** load the values from cass.ini*/
-      virtual void loadSettings(QSettings *p);
+      virtual void loadSettings(CASSSettings *p);
 
       /** save values to cass.ini */
-      virtual void saveParameters(QSettings *p);
+      virtual void saveParameters(CASSSettings *p);
 
     public:
       /** a vector of detector hits are the detector hits */
@@ -337,7 +338,7 @@ namespace cass
 //----function definition-------
 //-----------Anode Layer--------
 inline
-void cass::ACQIRIS::AnodeLayer::loadSettings(QSettings *p,const char * layername)
+void cass::ACQIRIS::AnodeLayer::loadSettings(CASSSettings *p,const char * layername)
 {
   VERBOSEOUT(std::cerr <<"Anode Layer load parameters: loading  for layer \""<<layername<<"\""
       <<" of detector " << p->group().toStdString()<<std::endl);
@@ -351,7 +352,7 @@ void cass::ACQIRIS::AnodeLayer::loadSettings(QSettings *p,const char * layername
   VERBOSEOUT(std::cout <<"Anode Layer load parameters: done loading"<<std::endl);
 }
 inline
-void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layername)
+void cass::ACQIRIS::AnodeLayer::saveParameters(CASSSettings *p,const char * layername)
 {
   p->beginGroup(layername);
   p->setValue("LowerTimesumConditionLimit",_tsLow);
@@ -365,7 +366,7 @@ void cass::ACQIRIS::AnodeLayer::saveParameters(QSettings *p,const char * layerna
 
 //-----------Detector--------
 inline
-void cass::ACQIRIS::DelaylineDetector::loadSettings(QSettings *p)
+void cass::ACQIRIS::DelaylineDetector::loadSettings(CASSSettings *p)
 {
   VERBOSEOUT(std::cout<< "Delayline Detector load parameters: loading "<<_name
       <<"'s parameters. It is a "
@@ -419,7 +420,7 @@ void cass::ACQIRIS::DelaylineDetector::loadSettings(QSettings *p)
              <<std::endl);
 }
 inline
-void cass::ACQIRIS::DelaylineDetector::saveParameters(QSettings *p)
+void cass::ACQIRIS::DelaylineDetector::saveParameters(CASSSettings *p)
 {
   p->beginGroup(_name.c_str());
   //save the parameters//
