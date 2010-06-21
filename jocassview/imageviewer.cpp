@@ -159,8 +159,8 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
     _imageMapping->addItem(tr("Lin"));
     _imageMapping->addItem(tr("Log"));
     _imageMapping->addItem(tr("Sqrt"));
-    _imageMinLabel->setText(tr("min:"));
-    _imageMaxLabel->setText(tr("max:"));
+    _imageMinLabel->setText(tr("Min:"));
+    _imageMaxLabel->setText(tr("Max:"));
     _imageValuesLayout->addWidget(_imageMaxLabel);
     _imageValuesLayout->addWidget(_imageMaxValue);
     _imageLayout->addWidget(_imageScroller);
