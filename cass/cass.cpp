@@ -270,7 +270,7 @@ int main(int argc, char **argv)
                                                              ringbuffer));
 #else
   // create file input object
-  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),quitwhendone,ringbuffer));
+  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
 #endif
 
   //create workers//
