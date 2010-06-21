@@ -44,7 +44,7 @@ namespace cass
     /** constructor */
     FileInput(std::string filelistname,
               cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,
-              bool,
+              bool quitwhendone,
               QObject *parent=0);
 
     /** destructor */
