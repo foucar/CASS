@@ -256,6 +256,7 @@ void ImageViewer::updateImageList(QComboBox* box)
     if (box->findText(itemstring)==-1)
       box->addItem( itemstring, QVariant(0) );
   }
+  cass::PostProcessors::keyList_t removelist;
   for (int i=0;i<box->count();++i)
   {
     VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): total counts"<< box->count()
@@ -267,7 +268,7 @@ void ImageViewer::updateImageList(QComboBox* box)
       VERBOSEOUT(std::cout << "ImageViewer::updateImageList(): "<< box->itemText(i).toStdString()
                  <<" not on list => remove"
                  << std::endl);
-      box->removeItem(i);
+      removelist.push_back(box->itemText(i).toStdString());
     }
 #ifdef VERBOSE
     else
@@ -278,6 +279,8 @@ void ImageViewer::updateImageList(QComboBox* box)
     }
 #endif
   }
+  for (cass::PostProcessors::keyList_t::iterator it(removelist.begin()); it!=removelist.end(); it++)
+    box->removeItem(box->findText(it->c_str()));
 }
 
 
