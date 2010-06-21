@@ -105,7 +105,9 @@ namespace cass
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
-      int64_t        _thres_for_integral;//!< the thresold for special integral
+      bool            _auto_saveDarkframe;//!< flag to automatically save darkframe(s) to files as soon as a preper number of frames is reached.
+      bool            _mask_BadPixel     ;//!< flag to mask or not bad pixels based on noise levels from darkframe(s)
+      int64_t         _thres_for_integral;//!< the thresold for special integral
       std::string     _darkcalfilename;   //!< filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector, it is automatically generated//
       cass::detROI_   _detROI;
