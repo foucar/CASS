@@ -2,7 +2,10 @@
 // Copyright (C) 2009 Nils Kimmel
 // Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2009, 2010  Nicola Coppola
-
+/**
+ * @todo add extra freedom to decide whether to mask badpixels based on information saved in darkcal masks
+ * @todo add extra switch to discard pixels that after offset correction have too large ADU-values
+ */
 #include <QtCore/QMutexLocker>
 #include <iostream>
 #include <fstream>
