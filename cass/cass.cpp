@@ -23,7 +23,7 @@
 
 /** The main program.
  *
- * commandline parameters:
+ * @section clpar CASS Commandline Parameters:
  * - i filename containing filesnames of xtcfiles to process (offline)
  * - c client id for shared memory access (online)
  * - s TCP port of the soap server (offline / online)
