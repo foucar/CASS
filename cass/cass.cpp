@@ -230,7 +230,7 @@ int main(int argc, char **argv)
   bool quitwhendone(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:s:c:i:o:")) != -1)
+  while((c = getopt(argc, argv, "p:s:c:i:o:q:")) != -1)
   {
     switch (c)
     {
