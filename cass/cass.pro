@@ -115,6 +115,7 @@ SOURCES +=  analyzer.cpp \
             worker.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
+            cass_settings.cpp \
             ./postprocessing/convenience_functions.cpp \
             ./postprocessing/backend.cpp \
             ./postprocessing/waveform.cpp \

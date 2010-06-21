@@ -3,7 +3,9 @@
 #ifndef _CASS_SETTINGS_H_
 #define _CASS_SETTINGS_H_
 
+#include <string>
 #include <QtCore/QSettings>
+
 #include "cass.h"
 
 namespace cass
@@ -24,11 +26,21 @@ namespace cass
      * (userScope)/organizationName/applicationName.ini
      */
     CASSSettings()
-//      : QSettings(CassIniFilename.c_str(),QSettings::defaultFormat())
+      : QSettings(_filename.c_str(),QSettings::defaultFormat())
     {}
 
     /** virtual destructor */
     virtual ~CASSSettings() {}
+
+    /** function to set the filename */
+    static void setFilename(const std::string &in) { _filename = in;}
+
+  protected:
+    /** cass.ini filname
+     * name with complete path to the cass.ini to load, needed to circumvent
+     * QSettings limitations.
+     */
+    static std::string _filename;
   };
 }//end namespace cass
 

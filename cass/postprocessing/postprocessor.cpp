@@ -37,7 +37,6 @@
 cass::PostProcessors *cass::PostProcessors::_instance(0);
 QMutex cass::PostProcessors::_mutex;
 
-
 // create an instance of the singleton
 cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
 {
@@ -54,8 +53,6 @@ cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
   }
   return _instance;
 }
-
-
 
 // destroy the instance of the singleton
 void cass::PostProcessors::destroy()

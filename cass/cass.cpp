@@ -16,6 +16,7 @@
 #include "sharedmemory_input.h"
 #include "tcpserver.h"
 #include "worker.h"
+#include "cass_settings.h"
 
 
 /** @mainpage CASS (CFEL ASG Software Suite)
@@ -192,6 +193,7 @@
  * - p partition tag for accessing the shared memory (online)
  * - o output filename passed to the postprocessor (offline / online)
  * - q quit after finished with all files (offline)
+ * - f optional complete path to the cass.ini to use (offline / online)
  *
  * @author Lutz Foucar
  */
@@ -210,14 +212,9 @@ int main(int argc, char **argv)
   // for(QStringList::iterator iter = keys.begin(); iter != keys.end(); ++iter)
   //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
-  settings.setPath(QSettings::IniFormat,QSettings::UserScope,"~/.config/CFEL-ASG");
-  std::cout << settings.fileName().toStdString()<<" "<<settings.format()<<std::endl;
-  std::cout << QCoreApplication::organizationName().toStdString()
-      <<" "<< QCoreApplication::organizationDomain().toStdString()
-      <<" "<< QCoreApplication::applicationName().toStdString()
-      <<" "<< QSettings::defaultFormat()
-      <<std::endl;
-
+  // setup cass settings. when one wants a user settable cass.ini, just use
+  // CASSSettings instead of QSettings
+  cass::CASSSettings::setFilename(settings.fileName().toStdString());
 
   // register size_t as Qt meta type
   qRegisterMetaType<size_t>("size_t");
@@ -238,7 +235,7 @@ int main(int argc, char **argv)
   bool quitwhendone(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "qp:s:c:i:o:")) != -1)
+  while((c = getopt(argc, argv, "qp:s:c:i:o:f:")) != -1)
   {
     switch (c)
     {
@@ -256,6 +253,9 @@ int main(int argc, char **argv)
       break;
     case 'i':
       filelistname = optarg;
+      break;
+    case 'f':
+      cass::CASSSettings::setFilename(optarg);
       break;
     case 'o':
       outputfilename = optarg;
