@@ -9,6 +9,14 @@
 
 namespace cass
 {
+  /** root file converter
+   *
+   * will convert all histograms defined in cass to root histograms and write
+   * them to a root file. Filename can be chosen with the -o parameter at
+   * program start.
+   *
+   * @author Lutz Foucar
+   */
   class pp2000 : public PostprocessorBackend
   {
   public:
