@@ -819,16 +819,16 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 
 
 
-// ***  pp 70 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
+// ***  pp 64 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
 //    *** while shifting all other previously saved values one bin to the left.
 
-cass::pp70::pp70(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+cass::pp64::pp64(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-void cass::pp70::loadSettings(size_t)
+void cass::pp64::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
@@ -853,7 +853,7 @@ void cass::pp70::loadSettings(size_t)
             << std::endl;
 }
 
-void cass::pp70::process(const cass::CASSEvent &evt)
+void cass::pp64::process(const cass::CASSEvent &evt)
 {
   const Histogram0DFloat &one
       (dynamic_cast<const Histogram0DFloat &>((*_one)(evt)));

@@ -437,7 +437,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp63(*this, key);
     break;
   case running1Dfrom0D:
-    processor = new pp70(*this, key);
+    processor = new pp64(*this, key);
     break;
   case nbrOfFills:
     processor = new pp80(*this, key);
