@@ -312,13 +312,25 @@ void cass::pp589::operator()(const CASSEvent&)
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
     vigra::linalg::columnStatistics(_variationFeatures, _mean);
+#ifdef VERBOSE
+    std::cout << std::endl << "_mean= [";
+    for (ttt it0 = _mean.traverser_begin(); it0!=_mean.traverser_end(); ++it0) {
+        std::cout << "[";
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << ", ";
+        }
+        std::cout << "]; ";
+    }
+    std::cout << "] " << std::endl;
+#endif
+
     // also possible:
     /*
     vigra::transformMultiArray(srcMultiArrayRange(_variationFeatures),
                         destMultiArrayRange(_mean),
                         vigra::FindAverage<double>());*/
 
-  }
+  } //end reTrain
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   matrixType y(1, _nFeatures);
