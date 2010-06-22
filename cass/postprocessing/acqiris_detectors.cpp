@@ -37,6 +37,7 @@ void cass::pp150::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  generalSetup();
   if (!setupCondition())
     return;
   _result = new Histogram0DFloat();
@@ -82,6 +83,7 @@ void cass::pp151::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  generalSetup();
   if (!setupCondition())
     return;
   set1DHist(_result,_key);
@@ -131,6 +133,7 @@ void cass::pp152::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
@@ -185,6 +188,7 @@ void cass::pp160::loadSettings(size_t)
   _layer = settings.value("Layer",'U').toChar().toAscii();
   _signal = settings.value("Wireend",'1').toChar().toAscii();
   _result = new Histogram0DFloat();
+  generalSetup();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
@@ -234,6 +238,7 @@ void cass::pp161::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
   _signal = settings.value("Wireend",'1').toChar().toAscii();
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
@@ -286,6 +291,7 @@ void cass::pp162::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
   _result = new Histogram0DFloat();
+  generalSetup();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
@@ -330,6 +336,7 @@ void cass::pp163::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _layer = settings.value("Layer",'U').toChar().toAscii();
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
@@ -380,6 +387,7 @@ void cass::pp164::loadSettings(size_t)
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _first = settings.value("Layer",'U').toChar().toAscii();
   _second = settings.value("Layer",'V').toChar().toAscii();
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
@@ -445,6 +453,7 @@ void cass::pp165::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _result = new Histogram0DFloat();
+  generalSetup();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
@@ -503,6 +512,7 @@ void cass::pp166::loadSettings(size_t)
                     settings.value("ConditionHigh",50000.).toFloat()),
                 max(settings.value("ConditionLow",-50000.).toFloat(),
                     settings.value("ConditionHigh",50000.).toFloat()));
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
@@ -571,6 +581,7 @@ void cass::pp220::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _detector01 = static_cast<Detectors>(settings.value("FirstDetector",1).toUInt());
   _detector02 = static_cast<Detectors>(settings.value("SecondDetector",1).toUInt());
+  generalSetup();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);

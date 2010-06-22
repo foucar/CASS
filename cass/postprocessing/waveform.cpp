@@ -34,7 +34,6 @@ void cass::pp110::loadSettings(size_t)
     return;
   _result = new Histogram1DFloat(1,0,1);
   createHistList(2*cass::NbrOfWorkers);
-
   std::cout <<"PostProcessor "<<_key
       <<" is showing channel "<<_channel
       <<" of acqiris "<<_instrument

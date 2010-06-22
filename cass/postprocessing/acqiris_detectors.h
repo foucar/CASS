@@ -24,6 +24,9 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 0: InvalidDetector
@@ -33,13 +36,6 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -77,6 +73,9 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
    *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -88,13 +87,6 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -131,6 +123,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -142,13 +137,6 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -186,6 +174,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 1: HexDetector
@@ -203,13 +194,6 @@ namespace cass
    *           The anode layer Wireend. Default is 1. Options are:
    *           - 1: first wireend
    *           - 2: second wireend
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -256,6 +240,9 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -275,13 +262,6 @@ namespace cass
    *           The anode layer Wireend. Default is 1. Options are:
    *           - 1: first wireend
    *           - 2: second wireend
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -327,6 +307,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 1: HexDetector
@@ -340,13 +323,6 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -388,6 +364,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -403,13 +382,6 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -452,6 +424,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -476,13 +451,6 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -527,17 +495,13 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that we are responsible for. Default is 1. Options are:
    *           - 1: HexDetector
    *           - 2: QuadDetector
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -579,6 +543,9 @@ namespace cass
    * @see cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
@@ -599,13 +566,6 @@ namespace cass
    *           - t: time of impact of the reconstructed hit
    * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
    *           conditions on third value, the one not chosen with options above.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -660,6 +620,9 @@ namespace cass
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
    *      cass::ACQIRIS::Signal
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
@@ -680,13 +643,6 @@ namespace cass
    *           - 4: FELBeamMonitor
    *           - 5: YAGPhotodiode
    *           - 6: FsPhotodiode
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
