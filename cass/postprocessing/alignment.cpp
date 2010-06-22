@@ -352,6 +352,7 @@ namespace cass
     settings.beginGroup("PostProcessor");
     settings.beginGroup(_key.c_str());
     _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();
+    generalSetup();
     _image = setupDependency("HistName");
     bool ret = setupCondition();
     if (!_image && !ret)
