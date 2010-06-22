@@ -210,8 +210,7 @@ singleparticle_hit {
     INCLUDEPATH += $$VIGRAINC
     #message ("The vigra dir is set to $$VIGRAINC")
     #message ($$INCLUDEPATH)
-    SOURCES +=  ./postprocessing/hitrate.cpp ./postprocessing/hit_helper.cpp \
-                ./postprocessing/hit_helper2.cpp
+    SOURCES +=  ./postprocessing/hitrate.cpp
     HEADERS +=  ./postprocessing/hitrate.h
 }
 
