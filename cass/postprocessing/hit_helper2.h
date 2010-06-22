@@ -32,7 +32,7 @@ namespace cass
     {
        uint64_t eventId;
        bool wasHit;
-       float mahal_dist;
+       double mahal_dist;
     };
 
     /** predicate class for find_if.
@@ -68,7 +68,7 @@ namespace cass
 
       /** retrieve detector for event. */
       bool wasHit(const CASSEvent& evt)  {return getResults(evt)->wasHit;}
-      float mahalDist(const CASSEvent& evt) {return getResults(evt)->mahal_dist;}
+      double mahalDist(const CASSEvent& evt) {return getResults(evt)->mahal_dist;}
 
       /** tell the detector owned by this instance to reload its settings*/
       void loadSettings();
@@ -79,7 +79,7 @@ namespace cass
       /** typdef defining the list of conditions for more readable code*/
       typedef std::list<results_t*> conditionList_t;
       
-      float _threshold;
+      double _threshold;
 
       size_t nxbins;
       size_t nybins;
