@@ -208,7 +208,7 @@ public:
     QString text_string(text.text());
     try
     {
-      if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x(), pos.y()) );
+      if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.y(), pos.x()) );
     }
     catch (std::out_of_range)
     {
@@ -287,10 +287,10 @@ public:
     {
       _interval.setMinValue(manualScale? min : _hist->min() );
       _interval.setMaxValue(manualScale? max : _hist->max() );
-      _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
-                           _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
+      _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::yAxis].lowerLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
-                           _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
+                           _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
+                           _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
       VERBOSEOUT(std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
                  <<" hist right : "<<_boundRect.right()
@@ -765,15 +765,15 @@ public:
     {
       QRectF brect;
       oldKey = hist->key();
-      //            brect.setLeft( hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
-      //            brect.setTop( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
-      //            brect.setWidth( hist->axis()[cass::HistogramBackend::xAxis].upperLimit() - hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
-      //            brect.setHeight( hist->axis()[cass::HistogramBackend::yAxis].upperLimit()- hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
+      //            brect.setLeft( hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
+      //            brect.setTop( hist->axis()[cass::HistogramBackend::xAxis].upperLimit() );
+      //            brect.setWidth( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() - hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
+      //            brect.setHeight( hist->axis()[cass::HistogramBackend::xAxis].upperLimit()- hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
       brect.setCoords(
-          hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
-          hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
+          hist->axis()[cass::HistogramBackend::yAxis].lowerLimit(),
           hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
-          hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
+          hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
+          hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
       VERBOSEOUT(std::cout << "NEW"
           <<" left: "<<brect.left()
           <<" right: "<<brect.right()
