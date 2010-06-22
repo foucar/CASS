@@ -17,6 +17,9 @@ namespace cass
    *
    * Class to show the last wavefrom of a channel.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{InstrumentId} \n
    *           The instrument id of the acqiris instrument that contains the
    *           channel. Default is 8. Options are:
@@ -26,13 +29,6 @@ namespace cass
    *           - 5: AMO Mbes Acqiris
    * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
    *           The channel number of the acqiris instrument. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @todo adjust the name to the id that it will have
    * @author Lutz Foucar
