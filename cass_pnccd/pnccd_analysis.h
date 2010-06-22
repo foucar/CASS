@@ -48,24 +48,44 @@ namespace cass
      *        By default the value is set to 1.\n
      *  @cassttng
      *  CreatePixelList\n
-     *        True of false, if true and if _doOffsetCorrection==true
+     *        True or false, if true and if _doOffsetCorrection==true
      *            (irregardless of the value of _useCommonMode) a list of Photons will be created
      *            for each pixel with value larger that _sigmaMultiplier*noise(of the pixel).\n
      *        By default the value is set to false.\n
      *  @cassttng
      *  DoOffsetCorrection\n
-     *        True of false, if true the darkcalibration maps will be used to subtract the ADC
+     *        True or false, if true the darkcalibration maps will be used to subtract the ADC
      *            offset, to correct the raw frame.\n
      *        By default the value is set to false.\n
      *  @cassttng
      *  useCommonMode\n
-     *       True of false, useful only if _doOffsetCorrection==true,\n
+     *       True or false, useful only if _doOffsetCorrection==true,\n
      *            if true the CommonMode correction will be calculated and applied to the pixels
      *            each "row" of 128-pixel is separately considered: the pixels that have
      *            value below _sigmaMultiplier*noise(of the pixel), once their offset is removed,
      *            and that are not marked as BAD are used, the arithmetical mean is calculated and
      *            subtracted from all the pixels.\n
      *        By default the value is set to false.
+     *  @cassttng
+     *  UseDarkcalBadPixelInfo\n
+     *       True or false, by default UseDarkcalBadPixelInfo==false,\n
+     *            useful only if IsDarkFrames==false,\n
+     *            if true the pixel(s) that have a noise larger than MaxNoise are masked, regardless
+     *            of the fact that the offset correction and/or the common mode correction are
+     *            performed;\n
+     *            if false, no extra pixel will be masked on base of its noise level!
+     *  @cassttng
+     *  autoSaveDarkCals\n
+     *       True or false, by default autoSaveDarkCals==false,
+     *            useful only if IsDarkFrames==true.\n
+     *            If true when exactly 200 frames (per detector) have been collected, the Darkcal 
+     *            filemap(s) is(are) saved and the value of _isDarkframe is set to false.\n
+     *            The program is NOT able to reload the setting-file as the file itself has not been changed.\n
+     *            The user should reload the cass-settings, or restart cass, only after he/she is sure that
+     *            the cassini file has been modified in the proper way!\n
+     *            If false the program will continue indefinetly to add frames to the darkcal arrays,
+     *            and the user needs to give from jocassview (or any client application that would perform
+     *            similar tasks) the "Write Darkcal File" command to save the calibrations into file(s).
      *  @cassttng
      *  IntegralOverThres (internally called _thres_for_integral )\n
      *       Any Integer>=0 is accepted, in case the value is >0 than a second integral over the
@@ -105,7 +125,9 @@ namespace cass
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
-      int64_t        _thres_for_integral;//!< the thresold for special integral
+      bool            _auto_saveDarkframe;//!< flag to automatically save darkframe(s) to files as soon as a preper number of frames is reached.
+      bool            _mask_BadPixel     ;//!< flag to mask or not bad pixels based on noise levels from darkframe(s)
+      int64_t         _thres_for_integral;//!< the thresold for special integral
       std::string     _darkcalfilename;   //!< filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;// Dark frame calibration save file names for each detector, it is automatically generated//
       cass::detROI_   _detROI;
@@ -135,23 +157,27 @@ namespace cass
       detparameters_t _detectorparameters;  //!< the parameters of the detector
 
       /**
-       *  The following is a user settable parameter
-       *  it decide for both pnCCD detectors if the following frames are
-       *  to be used to calculate the offset corrections and noise map
-       *  that are needed to calculate a corrected frame from the raw one.\n
-       *
-       *    After 200 Frames have been seen a warning will be printed out,
-       *    the user can then send a "Save ini" command to CASS to save the
-       *    calibration constants to files. The calculation will proceed anyway
-       *    even after the user has save the darkcal-frames to file
-       *    allowing for a still improved statistical accuracy, in case needed.\n
-       *
-       *    If IsDarkFrames is set to true all the previously described parameters
-       *    are NOT active as also any ROI that may be defined in the CASS.ini file.\n
-       *
-       *    Unfortunately there is a similar parameter for the commercial CCD
-       *    and they can be set to opposite values.
-      **/
+      *  @cassttng
+      *  IsDarkFrames\n
+      *    True or false, default is false
+      *  The following is a user settable parameter
+      *  it decide for both pnCCD detectors if the following frames are
+      *  to be used to calculate the offset corrections and noise map
+      *  that are needed to calculate a corrected frame from the raw one.\n
+      *
+      *    After 200 Frames have been seen a warning will be printed out,
+      *    the user can then send a "Save ini" command to CASS to save the
+      *    calibration constants to files. The calculation will proceed anyway
+      *    even after the user has save the darkcal-frames to file
+      *    allowing for a still improved statistical accuracy, in case needed.\n
+      *
+      *    If IsDarkFrames is set to true all the previously described parameters
+      *    are NOT active as also any ROI that may be defined in the CASS.ini file.\n
+      *
+      *    Unfortunately there is a similar parameter for the commercial CCD
+      *    and they can be set to opposite values.
+      *  @author Nicola Coppola
+      */
       bool            _isDarkframe;         //!< switch telling whether we are collecting darkframes right now
       //flag to set the dark/not-dark run condition
       bool            _This_is_a_dark_run;

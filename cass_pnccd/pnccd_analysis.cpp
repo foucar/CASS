@@ -2,7 +2,9 @@
 // Copyright (C) 2009 Nils Kimmel
 // Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2009, 2010  Nicola Coppola
-
+/**
+ * @todo add extra switch to discard pixels that, after offset correction, have too large ADU-values
+ */
 #include <QtCore/QMutexLocker>
 #include <iostream>
 #include <fstream>
@@ -58,10 +60,22 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(dp._doOffsetCorrection)
         std::cout<< printoutdef <<"Offset Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "Offset Correction will NOT be applied for detector "<<idx<<std::endl;
+    dp._mask_BadPixel = value("UseDarkcalBadPixelInfo",true).toBool();
+    if(dp._mask_BadPixel)
+        std::cout<< printoutdef <<"Bad Pixel(s) will be masked for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "Bad Pixel(s) will NOT be masked for detector "<<idx<<std::endl;
+
     dp._useCommonMode = value("useCommonMode",false).toBool();
     if(dp._useCommonMode) std::cout<< printoutdef 
                                    << "Common Mode Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "Common Mode Correction will NOT be applied for detector "<<idx<<std::endl;
+
+    dp._auto_saveDarkframe = value("autoSaveDarkCals",false).toBool();
+    if(dp._auto_saveDarkframe) std::cout<< printoutdef 
+                                   << "User Decided to automatically save Darkcal file for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "User Decided NOT to automatically save Darkcal file for detector "<<idx<<std::endl;
+
+
     //dp._thres_for_integral = static_cast<int64_t>(value("IntegralOverThres",0).toInt());
     dp._thres_for_integral = value("IntegralOverThres",0).toLongLong();
     if(dp._thres_for_integral>0) 
@@ -945,22 +959,25 @@ void cass::pnCCD::Analysis::loadSettings()
       size_t nextPixel=0;
       dp._ROIiterator.resize(dp._ROImask.size()-number_of_pixelsettozero);
       size_t extra_masked_pixel=0;
-      for(size_t iPixel=0;iPixel<dp._ROImask.size(); ++iPixel)
+      if(dp._mask_BadPixel)
       {
-        // the "pointer" is the location/index of the next pixel to be used
-        if(dp._ROImask[iPixel]!=0)
+        for(size_t iPixel=0;iPixel<dp._ROImask.size(); ++iPixel)
         {
-          //I have to compare std dev with std dev...
-          if(dp._noise[iPixel]<dp._max_noise)
+          // the "pointer" is the location/index of the next pixel to be used
+          if(dp._ROImask[iPixel]!=0)
           {
-            dp._ROIiterator[nextPixel]=iPixel+1;
-            nextPixel++;
-          }
-          else
-          {
-            extra_masked_pixel++;
-            dp._ROImask[iPixel]=2; //I'll put it to 2 in this case instead
+            //I have to compare std dev with std dev...
+            if(dp._noise[iPixel]<dp._max_noise)
+            {
+              dp._ROIiterator[nextPixel]=iPixel+1;
+              nextPixel++;
+            }
+            else
+            {
+              extra_masked_pixel++;
+              dp._ROImask[iPixel]=2; //I'll put it to 2 in this case instead
                                    // so that I know that it was maked BAD...
+            }
           }
         }
       }
@@ -1416,6 +1433,13 @@ void cass::pnCCD::Analysis::createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice &de
     ++dp._nbrDarkframes;
     if(dp._nbrDarkframes>=200 && (dp._nbrDarkframes%20)==0) 
       std::cout<< printoutdef << "reached "<< dp._nbrDarkframes<< " darkframes for pnCCD "<<iDet<<std::endl;
+    if(dp._auto_saveDarkframe && dp._nbrDarkframes==200 )
+    {
+      saveSettings();
+      _param._isDarkframe=false;
+      std::cout<<"pnCCD_analysis setting Darkframe run condition to false"<<std::endl;
+    }
+
     /*
     if(dp._nbrDarkframes>101 && not_saved_yet)
     {

@@ -22,10 +22,10 @@ namespace cass
      *
      * class containing the properties of a anode layer of the detector
      *
-     * @cassttng AcqirisDetectors/%detectorname%/%Layername%/
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%Layername\%/
      *           {LowerTimesumConditionLimit|UpperTimesumConditionLimit}\n
      *           the timesum condition range for the layer.
-     * @cassttng AcqirisDetectors/%detectorname%/%Layername%/{Scalefactor}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%Layername\%/{Scalefactor}\n
      *           scalefactor to convert time => mm:
      *
      * @author Lutz Foucar
@@ -166,17 +166,17 @@ namespace cass
      * It contains all information that is needed in order to sort the signals
      * in the waveforms to detector hits.
      *
-     * @cassttng AcqirisDetectors/%detectorname%/{Runtime}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{Runtime}\n
      *           maximum time a signal will run over the complete delayline.
-     * @cassttng AcqirisDetectors/%detectorname%/{Angle}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{Angle}\n
      *           Angle in degree by which on can rotate the picture around 0,0.
      *           Default is 0.
-     * @cassttng AcqirisDetectors/%detectorname%/{McpRadius}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{McpRadius}\n
      *           Radius of the MCP in mm.
-     * @cassttng AcqirisDetectors/%detectorname%/{AnalysisMethod}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{AnalysisMethod}\n
      *           Method that is used to reconstruct the detector hits, choises are:
      *           - 0: Simple Analysis
-     * @cassttng AcqirisDetectors/%detectorname%/{LayersToUse}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{LayersToUse}\n
      *           Layers that should be used (when using the simple reconstruction method).
      *           - if HexAnode:
      *             - 0: Layers U and V
@@ -184,13 +184,13 @@ namespace cass
      *             - 2: Layers V and W
      *           - if QuadAnode (only one option available):
      *             - 0: Layers X and Y
-     * @cassttng AcqirisDetectors/%detectorname%/{DeadTimeMcp}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{DeadTimeMcp}\n
      *           Dead time when detecting MCP Signals (used for future more advanced
      *           reconstruction methods)
-     * @cassttng AcqirisDetectors/%detectorname%/{DeadTimeAnode}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{DeadTimeAnode}\n
      *           Dead time when detecting anode layer Signals (used for future more
      *           advanced reconstruction methods)
-     * @cassttng AcqirisDetectors/%detectorname%/{WLayerOffset}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/{WLayerOffset}\n
      *           The W-Layer offset with respect to layers U and V (used for future more
      *           advanced Hex-Detector reconstruction methods)
      *

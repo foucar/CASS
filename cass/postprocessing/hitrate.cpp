@@ -305,13 +305,25 @@ void cass::pp300::process(const CASSEvent& evt)
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
     vigra::linalg::columnStatistics(_variationFeatures, _mean);
+#ifdef VERBOSE
+    std::cout << std::endl << "_mean= [";
+    for (ttt it0 = _mean.traverser_begin(); it0!=_mean.traverser_end(); ++it0) {
+        std::cout << "[";
+        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+            std::cout << *it1 << ", ";
+        }
+        std::cout << "]; ";
+    }
+    std::cout << "] " << std::endl;
+#endif
+
     // also possible:
     /*
     vigra::transformMultiArray(srcMultiArrayRange(_variationFeatures),
                         destMultiArrayRange(_mean),
                         vigra::FindAverage<double>());*/
 
-  }
+  } //end reTrain
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   matrixType y(1, _nFeatures);
@@ -334,18 +346,4 @@ void cass::pp300::process(const CASSEvent& evt)
   dynamic_cast<Histogram0DFloat*>(_result)->fill( mahal_dist );
   _result->lock.unlock();
 }
-
-/*
-ToDo: add receiveCommand(std::string) to postprocessor backend.
-   send string-commands over soap.
-   use a command to reset the outlier detection.
-   split up postprocessor in several postprocessors:
-   -integralimage (2d)
-   -variationfeatures (1d)
-   -outlierDistance(1d)
-   -threshold(0d)
-   -postprocessor to extract value or 1d from nd histogram.
-   */
-
-
 }
