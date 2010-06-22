@@ -238,7 +238,7 @@ bool cass::Hit2::HitHelper2::process(const CASSEvent& event, results_t* results)
   // 5th variation feature: integral intensity
   double var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
-  // try to unify feature scales:
+  // try to unify feature scales (avoid ill-conditioned matrices, also, matrix should not be singular):
   var0 /= 1;
   var1 /= 1e12;
   var2 /= 1e12;
