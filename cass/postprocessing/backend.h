@@ -36,12 +36,6 @@ namespace cass
   public:
     /** constructor
      *
-     * This constructor will setup the hide flag.
-     *
-     * @cassttng PostProcessor/\%name\%/{Hide} \n
-     *           Flag that will hide this postprocessor in cassview's combobox.
-     *           Default is false
-     *
      * @param pp reference to the class that contains all postprocessors
      * @param key the key in the container of this postprocessor
      */
@@ -150,6 +144,19 @@ namespace cass
     void createHistList(size_t size, bool isaccumulate=false);
 
     /** general setup of the postprocessor
+     *
+     * will setup the options that are available for all postprocessors
+     *
+     * @cassttng PostProcessor/\%name\%/{Hide} \n
+     *           Flag that will hide this postprocessor in cassview's combobox.
+     *           Default is false
+     * @cassttng PostProcessor/\%name\%/{Write} \n
+     *           Flag that will tell a dumper to write this postprocessor into
+     *           the file. Default is true
+     * @cassttng PostProcessor/\%name\%/{Comment} \n
+     *           A comment with a short description of what this postprocessor
+     *           is doing. Will be added to the file, when its written.
+     *           Default is "".
      */
     void setupGeneral();
 
@@ -187,6 +194,14 @@ namespace cass
 
     /** flag to tell whether this pp should be hidden in the dropdown list */
     bool _hide;
+
+    /** flag to tell whether to write this pp into file */
+    bool _write;
+
+    /** optional comment that one can add to a postprocessor.
+     * Will be used when writing this pp to file.
+     */
+    std::string _comment;
 
     /** the list of histograms - event ids */
     histogramList_t _histList;

@@ -16,6 +16,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
                                            const PostProcessors::key_t &key)
   :_key(key),
    _hide(false),
+   _write(true),
    _result(0),
    _condition(0),
    _pp(pp),
@@ -126,6 +127,8 @@ void PostprocessorBackend::setupGeneral()
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _hide = settings.value("Hide",false).toBool();
+  _write = settings.value("Write",false).toBool();
+  _comment = settings.value("Comment","").toString().toStdString();
 }
 
 
