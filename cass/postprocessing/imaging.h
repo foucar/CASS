@@ -19,10 +19,9 @@ namespace cass
    *
    * Dumps events to file.
    *
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           The name of the input postprocessor. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Coalesce} \n
@@ -36,9 +35,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Filename}\n
    *           The filename to dump events to.
    *           There is no default - you must provide this value.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Thomas White
    */
@@ -83,6 +79,9 @@ namespace cass
 
 
   /** Test image
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{sizeX} \n
    *           Width of testimage (default = 1024)
