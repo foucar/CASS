@@ -21,15 +21,11 @@ namespace cass
    * This postprocessor will retrieve the requested Beamline Data from
    * the cass event.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the beamline data variable you are interested in
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -58,15 +54,11 @@ namespace cass
    *
    * This postprocessor will retrieve the requested epics data from the cass-event.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -100,13 +92,8 @@ namespace cass
    *
    * This postprocessor will calculate the photonenergy from the BLD
    *
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
    *
    * @author Lutz Foucar
    */
