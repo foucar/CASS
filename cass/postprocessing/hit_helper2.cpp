@@ -1,61 +1,73 @@
-// Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010 Lutz Foucar
 
 #include <QtCore/QSettings>
-#include <QtCore/QString>
-
-
-#include "cass.h"
-#include "hitrate.h"
-#include "postprocessor.h"
-#include "histogram.h"
+#include <cmath>
 
 #include "hit_helper2.h"
+#include "ccd_device.h"
+#include "pixel_detector.h"
+#include "cass.h"
+#include "histogram.h"
 
-namespace cass
-{
+//initialize static members//
+QMutex cass::Hit2::HitHelper2::_mutex;
+cass::Hit2::HitHelper2 *cass::Hit2::HitHelper2::_instance(0);
 
-// *** postprocessor 589 finds Single particle hits ***
-cass::pp589::pp589(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0), _integralimg(NULL), _rowsum(NULL)
+cass::Hit2::HitHelper2* cass::Hit2::HitHelper2::instance()
 {
-  loadSettings(0);
+  //lock this//
+  QMutexLocker lock(&_mutex);
+  //check if an instance of the helper class already exists//
+  //return it, otherwise create one and return it//
+  if (0 == _instance)
+  {
+    VERBOSEOUT(std::cout << "creating an instance of the Hit Helper"
+               <<std::endl);
+    _instance = new HitHelper2();
+  }
+  return _instance;
 }
 
-cass::pp589::~pp589()
+void cass::Hit2::HitHelper2::destroy()
 {
-  _pp.histograms_delete(_key);
-  delete _integralimg;
-  _integralimg = NULL;
-  delete _rowsum;
-  _rowsum = NULL;
-  _result = 0;
+  //lock this//
+  QMutexLocker lock(&_mutex);
+  delete _instance;
+  _instance=0;
 }
 
-cass::PostProcessors::active_t cass::pp589::dependencies()
-{
-  PostProcessors::active_t list;
-  list.push_front(_idHist);
-  return list;
-}
 
-void cass::pp589::loadSettings(size_t)
+cass::Hit2::HitHelper2::HitHelper2()
 {
   using namespace std;
+  loadSettings();
+  for (size_t i=0 ; i<NbrOfWorkers ; ++i) {
+    results_t* emptyres = new results_t;
+    emptyres->wasHit=0;
+    emptyres->mahal_dist = 0;
+    _conditionList.push_back( emptyres );
+  }
+}
+
+void cass::Hit2::HitHelper2::loadSettings()
+{
+
+  nxbins=1024;
+  nybins=1024;
+
+  using namespace std;
   QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  bool OneNotvalid (!retrieve_and_validate(_pp,_key,"HistName",_idHist));
-  if (OneNotvalid)
-    return;
-  _threshold = settings.value("threshold", 1.0).toFloat();
+  settings.beginGroup("HitSpecial2");
+  _threshold = settings.value("Threshold", 4e6).toFloat();
+
+  _device = static_cast<CASSEvent::Device>(0);
+  _detector = 1;
+
+  using namespace std;
   _xstart = settings.value("xstart", 0).toInt();
   _ystart = settings.value("ystart", 0).toInt();
   _xend = settings.value("xend", -1).toInt();
   _yend = settings.value("yend", -1).toInt();
-  _pp.histograms_delete(_key);
-  _result = new Histogram0DFloat;
-  _pp.histograms_replace(_key,_result);
-
 
   // outlier postprocessor:
   _nTrainingSetSize = settings.value("TrainingSetSize", 100).toInt();
@@ -68,46 +80,38 @@ void cass::pp589::loadSettings(size_t)
   _trainingSetsInserted = 0;
   _reTrain = false;
 
+  _integralimg = new Histogram2DFloat(nxbins,0,1, nybins, 0,1);
+  _rowsum = new Histogram2DFloat(nxbins,0,1, nybins, 0,1);
 
-  const Histogram2DFloat* img
-      //(dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
-      (dynamic_cast<Histogram2DFloat*>( _pp.histograms_checkout().find(_idHist)->second));
-  _pp.histograms_release();
-  _integralimg = new Histogram2DFloat(*img);
-  _rowsum = new Histogram2DFloat(*img);
-
-  //_pp.histograms_replace(_key,_integralimg);  // for debuging, output _integralimage instead of _result
-
-  std::cout<<"Postprocessor "<<_key
-      <<": detects Single particle hits in PostProcessor "<< _idHist
+  std::cout<<"Hit Helper 2"
+      <<": detects Single particle hits in pnccd detector 1"
       <<" threshold for detection:"<<_threshold
       <<" ROI for detection: ["<<_xstart<<","<<_ystart<<","<<_xend<<","<<_yend<<"]"
       <<std::endl;
+
 }
 
-void cass::pp589::operator()(const CASSEvent&)
+bool cass::Hit2::HitHelper2::process(const CASSEvent& event, results_t* results)
+{
+  bool cond(false);
+  using namespace std;
+
+  if (event.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("Hit Helper: Detector %2 does not exist in Device %3")
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+
+  const PixelDetector::frame_t& img_mem
+      ((*(event.devices().find(_device)->second)->detectors())[_detector].frame());
+  
+
 {
   using namespace std;
-  Histogram2DFloat* one
-      (dynamic_cast<Histogram2DFloat*>(histogram_checkout(_idHist)));
   _integralimg->lock.lockForWrite();
   _rowsum->lock.lockForWrite();
-  one->lock.lockForRead();
 
+  // todo: retrain on cleared histogram ( maybe retrain() function)
 
-  _result->lock.lockForRead();
-  if (!_result->nbrOfFills() )
-  {
-    // first run or histogram has been cleared -> start training phase.
-    _trainingSetsInserted = 0;
-
-  }
-  _result->lock.unlock();
-
-  const size_t nxbins (one->axis()[HistogramBackend::xAxis].nbrBins());
-  const size_t nybins (one->axis()[HistogramBackend::yAxis].nbrBins());
-
-  HistogramFloatBase::storage_t& img_mem( one->memory() );
   HistogramFloatBase::storage_t& rowsum_mem( _rowsum->memory() );
   HistogramFloatBase::storage_t& integralimg_mem( _integralimg->memory() );
 
@@ -331,7 +335,7 @@ void cass::pp589::operator()(const CASSEvent&)
                         destMultiArrayRange(_mean),
                         vigra::FindAverage<double>());*/
 
-  } //end reTrain
+  }
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
   matrixType y(1, _nFeatures);
@@ -347,95 +351,14 @@ void cass::pp589::operator()(const CASSEvent&)
 
 
 
-  one->lock.unlock();
   _integralimg->lock.unlock();
   _rowsum->lock.unlock();
-  _result->lock.lockForWrite();
-  *_result = mahal_dist;
-  ++_result->nbrOfFills();  // todo: remove this once it is implemented inside fill()
-  _result->lock.unlock();
+  results->wasHit = mahal_dist>=_threshold;
+  results->mahal_dist = mahal_dist;
 }
 
-/*
-ToDo: add receiveCommand(std::string) to postprocessor backend.
-   send string-commands over soap.
-   use a command to reset the outlier detection.
-   split up postprocessor in several postprocessors:
-   -integralimage (2d)
-   -variationfeatures (1d)
-   -outlierDistance(1d)
-   -threshold(0d)
-   -postprocessor to extract value or 1d from nd histogram.
-   */
 
-
-// *** postprocessor 590 finds Single particle hits using HitHelper2***
-cass::pp590::pp590(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _result(0)
-{
-  loadSettings(0);
+  return cond;
 }
 
-cass::pp590::~pp590()
-{
-  _pp.histograms_delete(_key);
-  _result = 0;
-}
 
-cass::PostProcessors::active_t cass::pp590::dependencies()
-{
-  PostProcessors::active_t list;
-  return list;
-}
-
-void cass::pp590::loadSettings(size_t)
-{
-  using namespace std;
-  QSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
-  _pp.histograms_delete(_key);
-  _result = new Histogram0DFloat;
-  _pp.histograms_replace(_key,_result);
-
-
-  Hit2::HitHelper2::instance()->loadSettings();
-  std::cout<<"Postprocessor "<<_key
-      <<std::endl;
-}
-
-void cass::pp590::operator()(const CASSEvent& event)
-{
-  using namespace std;
-
-  _result->lock.lockForRead();
-  if (!_result->nbrOfFills() )
-  {
-    // first run or histogram has been cleared -> start training phase.
-    //_trainingSetsInserted = 0;
-    // todo: pass to helper
-
-  }
-  _result->lock.unlock();
-
-  _result->lock.lockForWrite();
-  *_result = Hit2::HitHelper2::instance()->mahalDist(event);
-  ++_result->nbrOfFills();  // todo: remove this once it is implemented inside fill()
-  _result->lock.unlock();
-}
-
-/*
-ToDo: add receiveCommand(std::string) to postprocessor backend.
-   send string-commands over soap.
-   use a command to reset the outlier detection.
-   split up postprocessor in several postprocessors:
-   -integralimage (2d)
-   -variationfeatures (1d)
-   -outlierDistance(1d)
-   -threshold(0d)
-   -postprocessor to extract value or 1d from nd histogram.
-   */
-
-
-}

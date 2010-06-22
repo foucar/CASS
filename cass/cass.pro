@@ -129,7 +129,8 @@ SOURCES +=  analyzer.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
             tcpserver.cpp \
-            ./postprocessing/hit_helper.cpp
+            ./postprocessing/hit_helper.cpp \
+            ./postprocessing/hit_helper2.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -169,7 +170,8 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/waveform.h \
             ./postprocessing/machine_data.h \
             ./postprocessing/hdf5dump.h \
-            ./postprocessing/hit_helper.h
+            ./postprocessing/hit_helper.h \
+            ./postprocessing/hit_helper2.h
 
 
 INCLUDEPATH   += postprocessing \

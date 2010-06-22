@@ -193,6 +193,62 @@ namespace cass
 
 
 
+  /** Last CCD image if Hit Helper says this event is a single particle hit.
+   *
+   * Postprocessor will get the raw image from all kinds of ccd's.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
+   *           0D Postprocessor name that we check before filling image.
+   *           if this setting is not defined, this postprocessor is unconditional.
+   * @cassttng PostProcessor/\%name\%/{Threshold} \n
+   *           image is only updated if its integral is over threshold.
+   * @author Jochen Kuepper
+   * @author Lutz Foucar
+   */
+  class pp105 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp105(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Free _image spcae */
+    virtual ~pp105();
+
+    /** dependancy: image retrieval can be conditional */
+    virtual PostProcessors::active_t dependencies();
+
+    /** copy image from CASS event to histogram storage */
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** device the ccd image comes from */
+    cass::CASSEvent::Device _device;
+
+    /** current image */
+    Histogram2DFloat *_image;
+
+    /** the pp that contains the condition */
+    PostProcessors::key_t _condition;
+
+    bool _useCondition;
+  };
+
+
+
   /** Integral over the Last CCD image.
    *
    * Postprocessor will get the Integral over the whole image from all kinds of ccd's.

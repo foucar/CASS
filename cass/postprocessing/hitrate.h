@@ -100,6 +100,52 @@ namespace cass
 
   };
 
+  /** Single particle hit - using HitHelper2.
+   *
+   * detect Single Particle hits.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName}\n
+   *           Postprocessor name containing the histogram in which hits should be detected.
+   * @cassttng PostProcessor/\%name\%/{threshold}\n
+   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset) default = 1.0 .
+   * @cassttng PostProcessor/\%name\%/{xstart}\n
+   *           ROI for calculations. First pixel = 0 (default).
+   * @cassttng PostProcessor/\%name\%/{ystart}\n
+   *           ROI for calculations. First pixel = 0 (default).
+   * @cassttng PostProcessor/\%name\%/{xend}\n
+   *           ROI for calculations. Last pixel = -1 (default).
+   * @cassttng PostProcessor/\%name\%/{yend}\n
+   *           ROI for calculations. Last pixel = -1 (default).
+   * 
+   * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
+   *
+   * @author Stephan Kassemeyer
+   */
+
+  class pp590 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp590(PostProcessors&, const PostProcessors::key_t&);
+
+    /** destructor */
+    virtual ~pp590();
+
+   /** check if image specified in settings contains a single particle hit*/
+    virtual void operator()(const CASSEvent&);
+
+    /** load the settings for this pp */
+    virtual void loadSettings(size_t);
+
+    /** the dependencies on input histogram */
+    virtual PostProcessors::active_t dependencies();
+
+  protected:
+    /** result */
+    Histogram0DFloat *_result;
+
+  };
+
 
 }
 #endif

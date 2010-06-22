@@ -289,6 +289,7 @@ using the custom doxygen tag cassttng.
       SingleCcdImageIntegralOverThres=102,
       SingleCcdImageIntegralOverThreshold_up=103,
       SingleCcdImageOnSPHit=104,
+      SingleCcdImageOnSPHit2=105,
       AcqirisWaveform=110,
       AcqirisWaveformSP=111,
       BlData=120,
@@ -330,6 +331,7 @@ using the custom doxygen tag cassttng.
       SingleHalfCcdImage=4101,
 
       SingleParticleDetection=589,
+      SingleParticleDetection2=590,
 
 
       InvalidPP

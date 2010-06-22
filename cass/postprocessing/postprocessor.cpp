@@ -447,6 +447,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SingleCcdImageOnSPHit:
     processor = new pp104(*this, key);
     break;
+  case SingleCcdImageOnSPHit2:
+    processor = new pp105(*this, key);
+    break;
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;
@@ -525,6 +528,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
     processor = new pp589(*this,key);
+    break;
+  case SingleParticleDetection2:
+    processor = new pp590(*this,key);
     break;
 #endif
 #ifdef HDF5
