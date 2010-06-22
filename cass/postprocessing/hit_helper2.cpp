@@ -295,6 +295,7 @@ bool cass::Hit2::HitHelper2::process(const CASSEvent& event, results_t* results)
      }
     catch( vigra::PreconditionViolation E ) {
         // matrix is singular. use normalized euclidean distance instead of mahalanobis:
+        std::cout << E.what() << std::endl;
         vigra::linalg::identityMatrix(_covI); 
     };
 
