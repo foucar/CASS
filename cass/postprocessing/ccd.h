@@ -26,6 +26,9 @@ namespace cass
    *
    * Postprocessor will get the raw image from all kinds of ccd's.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
@@ -34,13 +37,6 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -77,6 +73,9 @@ namespace cass
    *
    * Postprocessor will get the Integral over the whole image from all kinds of ccd's.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
@@ -85,13 +84,6 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -128,6 +120,9 @@ namespace cass
    * Integral is for pixels above user defined threshold. The threshold is
    * defined in the pre analysis of the pnccd or ccd.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
    *           - 0: pnCCD
@@ -136,13 +131,6 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -180,6 +168,9 @@ namespace cass
    * This postprocessor will fill a 1D histogram with the z values in detected
    * Photonhits. Photonhits will be detected in the according pre analyzer.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
    *           properties of the 1D histogram:
    * @cassttng PostProcessor/\%name\%/{Device}\n
@@ -193,13 +184,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Adu2eV}\n
    *           conversion factor for converting the z value from ADU to eV.
    *           Default is 1.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -240,6 +224,9 @@ namespace cass
    * Photonhits will be detected in the pre analyzers. Set the Parameters
    * for detecting photonhits there. (PNCCD::Analyzer or CCD::Analyzer)
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Device}\n
@@ -250,13 +237,6 @@ namespace cass
    *           The detector that contains the ccd image. Default is 0. Options are:
    *           - 0: Front pnCCD / Commercial CCD
    *           - 1: Rear pnCCD
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
