@@ -29,7 +29,7 @@ void cass::pp110::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());
   _channel    = settings.value("ChannelNbr",0).toUInt();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   _result = new Histogram1DFloat(1,0,1);

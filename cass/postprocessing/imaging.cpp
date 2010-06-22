@@ -50,7 +50,7 @@ void cass::pp212::loadSettings(size_t)
   // Input image
   _input = setupDependency("HistName");
 
-  generalSetup();
+  setupGeneral();
 
   bool ret (setupCondition());
 
@@ -192,7 +192,7 @@ void cass::pp240::loadSettings(size_t)
   _sizeY = settings.value("sizeY", 1024).toInt();
   _result = new Histogram2DFloat(_sizeX, _sizeY);
   createHistList(1);
-  generalSetup();
+  setupGeneral();
   std::cout<<"Postprocessor "<<_key
       <<": creates test image and has size X:"<<_sizeX
       <<" Y:"<<_sizeY

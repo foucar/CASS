@@ -53,7 +53,7 @@ namespace cass
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Value",0).toFloat();
-      generalSetup();
+      setupGeneral();
       _one = setupDependency("HistName");
       bool ret (setupCondition());
       if (!_one || !ret) return;
@@ -131,7 +131,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      generalSetup();
+      setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -213,7 +213,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      generalSetup();
+      setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -303,7 +303,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      generalSetup();
+      setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -392,7 +392,7 @@ namespace cass
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Factor",1).toFloat();
-      generalSetup();
+      setupGeneral();
       _one = setupDependency("HistName");
       bool ret (setupCondition());
       if (!(_one && ret)) return;

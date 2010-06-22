@@ -21,7 +21,7 @@ void cass::pp120::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   _result = new Histogram0DFloat();
@@ -71,7 +71,7 @@ void cass::pp130::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   _result = new Histogram0DFloat();
@@ -120,7 +120,7 @@ void cass::pp230::loadSettings(size_t)
   if (!setupCondition())
     return;
   _result = new Histogram0DFloat();
-  generalSetup();
+  setupGeneral();
   createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor: "<<_key
       <<" calc photonenergy from beamline data"

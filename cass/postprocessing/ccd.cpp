@@ -53,7 +53,7 @@ void cass::pp100::loadSettings(size_t)
                              .arg(_device).toStdString());
     break;
   }
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   _result = new Histogram2DFloat(cols,rows);
@@ -128,7 +128,7 @@ void cass::pp101::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
@@ -180,7 +180,7 @@ void cass::pp102::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
@@ -232,7 +232,7 @@ void cass::pp140::loadSettings(size_t)
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _adu2eV = settings.value("Adu2eV",1).toFloat();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   set1DHist(_result,_key);
@@ -285,7 +285,7 @@ void cass::pp141::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
-  generalSetup();
+  setupGeneral();
   if (!setupCondition())
     return;
   set2DHist(_result,_key);
