@@ -156,24 +156,6 @@ namespace cass
       /** list of pairs of id-condition */
       conditionList_t _conditionList;
 
-      /** the condition type */
-      enum ConditionType{Tof, VMI, PnCCD, PnCCDPhotonhit} _conditiontype;
-
-      /** tof boundaries for calc integral */
-      std::pair<float,float> _tofBound;
-
-      /** range for condition of integral */
-      std::pair<float,float> _tofCond;
-
-      /** ccd integral boundaries */
-      std::pair< std::pair<float,float> , std::pair<float,float> > _ccdBound;
-
-      /** second ccd integral boundaries */
-      std::pair< std::pair<float,float> , std::pair<float,float> > _ccdBound2;
-
-      /** range for condition of integral */
-      std::pair<float,float> _ccdCond;
-
     private:
       /** prevent people from constructin other than using instance().*/
       HitHelper2();
