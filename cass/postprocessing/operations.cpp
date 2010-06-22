@@ -20,11 +20,7 @@ cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp4::loadSettings(size_t)
 {
-  CASSSettings settings;
-
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-
+  generalSetup();
   // Get input
   _one = setupDependency("HistName");
   bool ret (setupCondition());
@@ -82,6 +78,7 @@ void cass::pp9::loadSettings(size_t)
   // Get the range
   _range = std::make_pair(settings.value("LowerLimit",0).toFloat(),
                           settings.value("UpperLimit",0).toFloat());
+  generalSetup();
 
   // Get the input
   _one = setupDependency("HistName");
@@ -147,6 +144,7 @@ void cass::pp40::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
 
   _threshold = settings.value("Threshold", 0.0).toFloat();
+  generalSetup();
 
   // Get input
   _one = setupDependency("HistName");
@@ -208,6 +206,7 @@ void cass::pp50::loadSettings(size_t)
                      settings.value("UpperBound", 1e6).toFloat());
   _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
   _normalize = settings.value("Normalize",false).toBool();
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -282,6 +281,7 @@ void cass::pp51::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _area = make_pair(settings.value("LowerBound",-1e6).toFloat(),
                     settings.value("UpperBound", 1e6).toFloat());
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -336,6 +336,7 @@ void cass::pp52::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -407,6 +408,7 @@ void cass::pp53::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _pHist = setupDependency("HistName");
+  generalSetup();
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
@@ -489,6 +491,7 @@ void cass::pp54::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -556,6 +559,7 @@ void cass::pp60::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -604,6 +608,7 @@ void cass::pp61::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+  generalSetup();
   unsigned average = settings.value("NbrOfAverages", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _pHist = setupDependency("HistName");
@@ -662,6 +667,7 @@ cass::pp62::pp62(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp62::loadSettings(size_t)
 {
   using namespace std;
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -717,6 +723,7 @@ void cass::pp63::loadSettings(size_t)
   const size_t max_time_user (settings.value("MaxTime",300).toUInt());
   _timerange = make_pair(min_time_user,max_time_user);
   _nbrSamples=settings.value("NumberOfSamples",5).toUInt();
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
@@ -819,6 +826,13 @@ void cass::pp63::process(const cass::CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
 // ***  pp 64 takes a 0d histogram (value) as input and writes it in the last bin of a 1d histogram
 //    *** while shifting all other previously saved values one bin to the left.
 
@@ -841,6 +855,7 @@ void cass::pp64::loadSettings(size_t)
   bool ret (setupCondition());
   if ( !(_one && ret) ) return;
 
+  generalSetup();
   _size = settings.value("Size", 10000).toUInt();
 
   _result = new Histogram1DFloat(_size, 0, _size-1);
@@ -885,6 +900,7 @@ cass::pp80::pp80(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp80::loadSettings(size_t)
 {
   using namespace std;
+  generalSetup();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))

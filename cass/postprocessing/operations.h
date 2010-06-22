@@ -22,16 +22,12 @@ namespace cass
 
   /** Apply boolean NOT to 0D Histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Default
    *           is "".
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -61,18 +57,14 @@ namespace cass
 
   /** Check whether histogram is in range.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Default
    *           is 0.
    * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit} \n
    *           Upper and Lower limit of the range to check. Default is 0,0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -132,17 +124,13 @@ namespace cass
 
   /** Threshold histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with histogram that should be thresholded. Default is 0.
    * @cassttng PostProcessor/\%name\%/{Threshold} \n
    *           Factor with which threshold value. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Thomas White
    */
@@ -174,6 +162,9 @@ namespace cass
 
   /** Projection of 2d Histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
@@ -188,13 +179,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Normalize} \n
    *           Normalize the projection, so that maximum value is always 1.
    *           Default is false.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -241,17 +225,13 @@ namespace cass
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with 1D-Histogram that we create the intgral from Default is 0.
    * @cassttng PostProcessor/\%name\%/{LowerBound|UpperBound} \n
    *           Upper and lower bound of the area to integrate. Default is -1e6 ... 1e6
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -287,18 +267,14 @@ namespace cass
 
   /** Radial Average/Projection of 2d Histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           Xcoordinate and Y coordinate of the centre. Default is 512,512
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @todo improve and generalize radial projection to account for different distance of detector to beam line
    * @todo add treatment of possible asymmetric positions of detectors to beam line
@@ -342,6 +318,9 @@ namespace cass
 
   /** Radar Plot of 2d Histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with 2D-Histogram that we create project.
    *           Default is 0.
@@ -352,13 +331,6 @@ namespace cass
    *           Number of Bins where the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @todo improve and generalize radial projection to account for different distance of detector to beam line
    * @todo add treatment of possible asymmetric positions of detectors to beam line
@@ -409,6 +381,9 @@ namespace cass
 
   /** Radius \f$ \phi \f$ Representation of 2D Histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name with 2D-Histogram we convert.
    *           Default is 0.
@@ -416,13 +391,6 @@ namespace cass
    *           Number of Bins that the 360 degrees will be put in. Default is 360
    * @cassttng PostProcessor/\%name\%/{XCenter|YCenter} \n
    *           X and Y Center of the images polar plot. Default is 512,512
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -463,17 +431,13 @@ namespace cass
    *
    * create a 1d histogram from 0d values
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
    *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the 0D value to histogram
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -506,18 +470,14 @@ namespace cass
    *
    * Running or cummulative average of a histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{NbrOfAverages}\n
    *           how many images should be averaged. When value is 0 its a cummulative
    *           average. Default is 1.
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the histogram that we average.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -549,15 +509,11 @@ namespace cass
    *
    * Sums up histograms.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor name containing the histogram that we average.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Lutz Foucar
    */
@@ -587,6 +543,9 @@ namespace cass
    *
    * Makes an running average of a given Histogram over a given time period.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 0D-Histogram that we create project.
    *           Default is 0.
@@ -596,13 +555,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{NbrSamples} \n
    *           Number of values that are used per second to calculate the average.
    *           Default is 5
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Nicola Coppola
    */
@@ -646,19 +598,15 @@ namespace cass
    *
    * appends values from 0d histogram at end of 1d histogram and shifts the old values to the left.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           Postprocessor id with 0D-Histogram that we create project.
    *           Default is 0.
    * @cassttng PostProcessor/\%name\%/{Size} \n
    *           Number of values that are stored
    *           Default is 10000
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Stephan Kassemeyer
    */
@@ -689,16 +637,11 @@ namespace cass
 
   /** return number of fills of a given histogram
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           histogram name for which we count fills. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @author Stephan Kassemeyer
    */
