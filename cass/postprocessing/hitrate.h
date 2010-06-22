@@ -24,6 +24,9 @@ namespace cass
    *
    * detect Single Particle hits.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName}\n
    *           Postprocessor name containing the histogram in which hits should be detected.
    * @cassttng PostProcessor/\%name\%/{xstart}\n
@@ -36,13 +39,6 @@ namespace cass
    *           ROI for calculations. Last pixel = -1 (default).
    * @cassttng PostProcessor/\%name\%/{TrainingSetSize}\n
    *           How many images should be included in training phase. default = 200.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    * 
    * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
    *

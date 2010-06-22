@@ -36,6 +36,7 @@ void cass::pp300::loadSettings(size_t)
 
   // Get the input
   _pHist = setupDependency("HistName");
+  generalSetup();
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
