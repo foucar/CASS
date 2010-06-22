@@ -23,18 +23,14 @@ namespace cass
    *
    * this templated class will compare the sum of all bins to a constant value
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Needs to
    *           be implemented, because default is "", which is invalid.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value to compare the histograms value to. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @tparam ComparisonOperator comaprison-operator that will work on the data
    * @author Lutz Foucar
@@ -57,6 +53,7 @@ namespace cass
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Value",0).toFloat();
+      generalSetup();
       _one = setupDependency("HistName");
       bool ret (setupCondition());
       if (!_one || !ret) return;
@@ -109,17 +106,13 @@ namespace cass
    *
    * this templated class will boolean compare two 0d histograms
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor names that contain the first histogram and second
    *           histogram for the boolean comparison. Default is "" for both. This
    *           will result in an exception. Since pp "" is not implemented.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @tparam BooleanOperator boolean operator to operate on 0D Hists
    * @author Lutz Foucar
@@ -138,9 +131,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      CASSSettings settings;
-      settings.beginGroup("PostProcessor");
-      settings.beginGroup(_key.c_str());
+      generalSetup();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -197,17 +188,13 @@ namespace cass
    *
    * This template compares the sum of all bins of two histograms.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor names that contain the first and second
    *           histogram. Needs to be implemented, because default is "",
    *           which is invalid.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @tparam ComparisonOperator comaprison-operator that will work on the data
    * @author Lutz Foucar
@@ -226,9 +213,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      CASSSettings settings;
-      settings.beginGroup("PostProcessor");
-      settings.beginGroup(_key.c_str());
+      generalSetup();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -293,17 +278,13 @@ namespace cass
    * The resulting histogram will be created using the size and dimension of the
    * first histogram.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
    *           the postprocessor names that contain the first and second
    *           histogram. Needs to be implemented, because default is "",
    *           which is invalid.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @tparam Operator operator that will work on the data
    * @author Lutz Foucar
@@ -322,9 +303,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
-      CASSSettings settings;
-      settings.beginGroup("PostProcessor");
-      settings.beginGroup(_key.c_str());
+      generalSetup();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
@@ -383,18 +362,14 @@ namespace cass
 
   /** Operate histogram with constant.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Needs to
    *           be implemented, because default is "", which is invalid.
    * @cassttng PostProcessor/\%name\%/{Value} \n
    *           Value for the operation. Default is 1.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           0D Postprocessor name that we check before filling image.
-   *           if this setting is not defined, this postprocessor is unconditional.
-   *           Therefore its always true.
-   * @cassttng PostProcessor/\%name\%/{Hide} \n
-   *           Flag that will hide this postprocessor in cassview's combobox.
-   *           Default is false
    *
    * @tparam Operator operator that will work on the data
    * @author Lutz Foucar
@@ -417,6 +392,7 @@ namespace cass
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
       _value = settings.value("Factor",1).toFloat();
+      generalSetup();
       _one = setupDependency("HistName");
       bool ret (setupCondition());
       if (!(_one && ret)) return;
