@@ -20,13 +20,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
    _condition(0),
    _pp(pp),
    _histLock(QReadWriteLock::Recursive)
-{
-  /** @todo make it such that the hide option is also set through a loadsettings */
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  _hide = settings.value("Hide",false).toBool();
-}
+{}
 
 PostprocessorBackend::~PostprocessorBackend()
 {
@@ -126,7 +120,16 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
     it->second->key() = _key;
 }
 
-bool PostprocessorBackend::setupCondition()
+void PostprocessorBackend::setupGeneral()
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _hide = settings.value("Hide",false).toBool();
+}
+
+
+bool PostprocessorBackend::setupCondition(bool conditiontype)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
@@ -138,7 +141,12 @@ bool PostprocessorBackend::setupCondition()
       return false;
   }
   else
-    _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
+  {
+    if (conditiontype)
+      _condition = &(_pp.getPostProcessor("DefaultTrueHist"));
+    else
+      _condition = &(_pp.getPostProcessor("DefaultFalseHist"));
+  }
   return true;
 }
 
@@ -181,3 +189,5 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   }
   return dependpp;
 }
+
+

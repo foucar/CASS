@@ -130,10 +130,13 @@ void cass::PostProcessors::loadSettings(size_t)
   transform(list.begin(), list.end(), active.begin(), QStringToStdString);
   cout <<"   Number of unique postprocessor activations: "<<active.size()
       << endl;
-  //add a default true pp to container//
+  //add a default true and false pp to container//
   active.push_back("DefaultTrueHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
     _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
+  active.push_back("DefaultFalseHist");
+  if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
+    _postprocessors["DefaultFalseHist"] = new pp10(*this, "DefaultFalseHist",false);
   setup(active);
   cout <<"   Active postprocessor(s): ";
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)

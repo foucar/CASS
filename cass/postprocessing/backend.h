@@ -149,6 +149,10 @@ namespace cass
      */
     void createHistList(size_t size, bool isaccumulate=false);
 
+    /** general setup of the postprocessor
+     */
+    void setupGeneral();
+
     /** setup the condition.
      *
      * this will setup the condition with the default name ConditionList
@@ -159,8 +163,10 @@ namespace cass
      *           Therefore its always true.
      *
      * @return true when condition is there, false otherwise
+     * @param defaultConditionType the type of condition that should be used when
+     *                             there is no ConditionName defined in cass.ini
      */
-    bool setupCondition();
+    bool setupCondition(bool defaultConditionType=true);
 
     /** setup the dependecy.
      *
