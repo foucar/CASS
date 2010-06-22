@@ -125,12 +125,13 @@ This example shows you how to setup the Chapman crew HDF5 File Dumper.
 @example photodiode-photonhits.ini
 This example shows you how to setup a condition and use it to gate the pnccd
 Detector for yag on / off.
-@example threshold-average.ini
+@example singleParticleDetection.ini
 This example shows you how to use Stephans Hit finder and make a condition on
 it. Then use this condition to create a running average and substract the
 running average from the image that contains a hit. The result is then threholded
 to set all pixels below a certain value to 0.
-
+@example threshold-average.ini
+Example CASS.ini for calculating the running average of thresholded frames.
 
 
 
