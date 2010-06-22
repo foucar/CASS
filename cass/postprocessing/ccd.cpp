@@ -21,8 +21,10 @@
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
 
+#ifdef SINGLEPARTICLE_HIT
 #include "hit_helper.h"
 #include "hit_helper2.h"
+#endif /* SINGLEPARTICLE_HIT */
 
 
 // *** postprocessor 100 -- single images from a CCD ***
@@ -517,7 +519,7 @@ void cass::pp103::operator()(const cass::CASSEvent& event)
 }
 
 
-
+#ifdef SINGLEPARTICLE_HIT
 
 // *** postprocessor 104 -- single images from a CCD, only updated if the hit-helper says it's a hit. ***/
 
@@ -767,7 +769,7 @@ void cass::pp105::operator()(const cass::CASSEvent& event)
   }
 }
 
-
+#endif /* SINGLEPARTICLE_HIT */
 
 
 

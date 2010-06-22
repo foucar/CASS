@@ -12,7 +12,9 @@
 #include "cass_event.h"
 #include "acqiris_device.h"
 
+#ifdef SINGLEPARTICLE_HIT
 #include "hit_helper.h"
+#endif /* SINGLEPARTICLE_HIT */
 
 //the last wavefrom postprocessor
 cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
@@ -89,7 +91,9 @@ void cass::pp110::operator()(const cass::CASSEvent &cassevent)
 }
 
 
-//the last waveform postprocessor with condition on single-particle hits 
+#ifdef SINGLEPARTICLE_HIT
+
+//the last waveform postprocessor with condition on single-particle hits
 cass::pp111::pp111(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
   :cass::PostprocessorBackend(pp,key),
   _waveform(0)
@@ -167,3 +171,5 @@ void cass::pp111::operator()(const cass::CASSEvent &cassevent)
                  cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
   _waveform->lock.unlock();
 }
+
+#endif /* SINGLEPARTICLE_HIT */

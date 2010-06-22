@@ -128,9 +128,7 @@ SOURCES +=  analyzer.cpp \
             ./postprocessing/machine_data.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
-            tcpserver.cpp \
-            ./postprocessing/hit_helper.cpp \
-            ./postprocessing/hit_helper2.cpp
+            tcpserver.cpp
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -208,7 +206,8 @@ singleparticle_hit {
     INCLUDEPATH += $$VIGRAINC
     #message ("The vigra dir is set to $$VIGRAINC")
     #message ($$INCLUDEPATH)
-    SOURCES +=  ./postprocessing/hitrate.cpp
+    SOURCES +=  ./postprocessing/hitrate.cpp ./postprocessing/hit_helper.cpp \
+                ./postprocessing/hit_helper2.cpp
     HEADERS +=  ./postprocessing/hitrate.h
 }
 
