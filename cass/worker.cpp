@@ -32,8 +32,13 @@ cass::Worker::~Worker()
 void cass::Worker::end()
 {
   VERBOSEOUT(std::cout << "worker "<<this<<" is told to close"<<std::endl);
-  //tell run that we want to close
   _quit = true;
+}
+
+void cass::Worker::aboutToQuit()
+{
+  _postprocessor->aboutToQuit();
+  _analyzer->aboutToQuit();
 }
 
 void cass::Worker::suspend()
@@ -283,6 +288,8 @@ void cass::Workers::end()
   //wait until we run has really finished
   for (size_t i=0;i<_workers.size();++i)
   _workers[i]->wait();
+  //tell one worker that we are about to quit//
+  _workers[0]->aboutToQuit();
   //emit that all workers are finished//
   emit finished();
 }

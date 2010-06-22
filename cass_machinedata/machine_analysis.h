@@ -6,7 +6,6 @@
 
 #include "cass_machine.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
 
 namespace cass
 {
@@ -35,7 +34,7 @@ namespace cass
 //    };
 
 
-    /** The Machine Data Analyzis.
+    /** The Machine Data Analysis.
      * functor doing calculations on the machine data.
      * This uses Rick K. code at psexport.slac.stanford.edu:/reg/neh/home/rkirian/ana2
      * to calculate the photon energy and wavelength from the Beamlinedata

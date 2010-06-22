@@ -15,6 +15,7 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
+#include <QtCore/QWriteLocker>
 #include <QtCore/QWaitCondition>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
@@ -63,7 +64,7 @@ public:
      * serializes this to the Serializer
      * @param out The Serializer that we will serialize this to
      */
-    void serialize(SerializerBackend& out);
+    void serialize(SerializerBackend& out)const;
 
     /** Deserialize this class.
      * deserializes this from the Serializer
@@ -109,6 +110,9 @@ protected:
 
 
 
+
+
+
 /** histogram base class.
  * every type of histogram inherits from this. It contains information
  * about the dimesion of the histogram. Also it contains all of the properties
@@ -120,7 +124,6 @@ class CASSSHARED_EXPORT HistogramBackend
     : public Serializable
 {
 protected:
-
     /** constructor.
      * initializing the properties and sets the Serialization version
      * @param dim the Dimension of the histogram ie. 1d,2d
@@ -130,10 +133,22 @@ protected:
         : Serializable(ver),lock(QReadWriteLock::Recursive), _dimension(dim), _nbrOfFills(0)
     {}
 
-public:
-    /** destructor.
-     * virtual destructor, since it is a baseclass. Does nothing
+    /** copy constructor.
+     * We need to implement this ourselves, since it is not possitble to copy
+     * construct the lock
      */
+    HistogramBackend(const cass::HistogramBackend& in)
+      : Serializable(in),
+        lock(QReadWriteLock::Recursive),
+        _dimension(in._dimension),
+        _axis(in._axis),
+        _nbrOfFills(in._nbrOfFills),
+        _mime(in._mime),
+        _key(in._key)
+    {}
+
+public:
+    /** destructor */
     virtual ~HistogramBackend() {}
 
     /** typedef for more readable code*/
@@ -158,21 +173,13 @@ public:
      */
     enum OverUnderFlow{Overflow=0, Underflow};
 
-    /** Read-write lock for internal memory/data
-     *
-     * This is a public property of every histogram. It must be locked for all access to the histogram.
-     * Mostly, this is done internally, but you have to use it if you directly access memory of a
-     * histogram (appropriately for reading and writing).
-     */
-    QReadWriteLock lock;
-
     /** serialize this object to a serializer.
      * This function is pure virtual since it overwrites the
      * serializables serialize function. Needs to be implemented by the classes
      * inheriting from here
      * @param out The Serializer we serialize this to
      */
-    virtual void serialize(SerializerBackend &out)=0;
+    virtual void serialize(SerializerBackend &out)const=0;
 
     /** serialize this object from a serializer.
      * This function is pure virtual since it overwrites the
@@ -182,8 +189,21 @@ public:
      */
     virtual bool deserialize(SerializerBackend &in)=0;
 
+    /** clone the histogram.
+     * This function will create a new copy of this on the heap. It will not copy
+     * the data in memory but rather set it to 0.
+     * Needs to be implemented by the different flavors of histograms.
+     */
+    virtual HistogramBackend* clone()const=0;
+
     /** clear the histogram*/
     virtual void clear()=0;
+
+    /** evaluate whether value is non zero
+     * @note this should only be implemented by Histogram0DFloat
+     */
+    virtual bool isTrue() const {assert(false);return false;}
+
 
     //@{
     /** setter */
@@ -200,6 +220,15 @@ public:
     const PostProcessors::key_t &key()const{return _key;}
     //@}
 
+public:
+    /** Read-write lock for internal memory/data
+     *
+     * This is a public property of every histogram. It must be locked for all access to the histogram.
+     * Mostly, this is done internally, but you have to use it if you directly access memory of a
+     * histogram (appropriately for reading and writing).
+     */
+    mutable QReadWriteLock lock;
+
 protected:
     /** dimension of the histogram */
     size_t _dimension;
@@ -211,6 +240,7 @@ protected:
     std::string _mime;
     /** the id of the histogram */
     PostProcessors::key_t _key;
+
 };
 
 
@@ -245,16 +275,13 @@ public:
         deserialize(in);
     }
 
-    /** copy constructor.
-     * this copy constuctor will just create a histogram with all
-     * properties of the parameter, but not copy the contents of the memory
+    /** clone the histogram.
+     * This function will create a new copy of this on the heap. It will not copy
+     * the data in memory but rather set it to 0.
      */
-    HistogramFloatBase(const HistogramFloatBase &in)
-      :HistogramBackend(in.dimension(),in._version),
-      _memory(in.memory().size(),0.)
+    virtual HistogramBackend* clone()const
     {
-      _axis = in.axis();
-      _mime = in._mime;
+      return new HistogramFloatBase(dimension(),memory().size(),ver());
     }
 
     /** typedef describing the type of the values stored in memory*/
@@ -267,13 +294,13 @@ public:
     virtual ~HistogramFloatBase(){}
 
     /** serialize this histogram to the serializer*/
-    virtual void serialize(SerializerBackend&);
+    virtual void serialize(SerializerBackend&)const;
 
     /** deserialize this histogram from the serializer*/
     virtual bool deserialize(SerializerBackend&);
 
     /** return const reference to histogram data */
-    const storage_t& memory() const {return _memory;}
+    const storage_t& memory()const {return _memory;}
 
     /** return reference to histogram data, so that one can manipulate the data */
     storage_t& memory() { return _memory; };
@@ -288,14 +315,13 @@ public:
      */
     virtual value_t max() const {return std::numeric_limits<value_t>::max();}
 
-    /** clear the histogram memory*/
+    /** clear the histogram memory */
     virtual void clear()
     {
-      lock.lockForWrite();
-      VERBOSEOUT(std::cout<<"clearing histogram "<<_key<<std::endl);
+      QWriteLocker wlock(&lock);
+      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram \""<<_key<<"\""<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
-      lock.unlock();
     }
 
     /** assignment operator. will copy axis properties and memory */
@@ -338,16 +364,24 @@ public:
         : HistogramFloatBase(in)
     {}
 
+    /** clone the histogram.
+     * This function will create a new copy of this on the heap. It will not copy
+     * the data in memory but rather set it to 0.
+     */
+    virtual HistogramBackend* clone()const
+    {
+      return new Histogram0DFloat();
+    }
+
     /** fill the 0d histogram with a value */
     void fill(value_t value=0.)
     {
-      lock.lockForWrite();
       _memory[0] = value;
-      lock.unlock();
+      ++_nbrOfFills;
     }
 
     /** getter for the 0d value*/
-    value_t getValue() { return _memory[0]; };
+    value_t getValue()const { return _memory[0]; };
 
     /** evaluate whether value is non zero */
     bool isTrue() const
@@ -390,6 +424,17 @@ public:
     Histogram1DFloat(SerializerBackend &in)
         : HistogramFloatBase(in)
     {}
+
+    /** clone the histogram.
+     * This function will create a new copy of this on the heap. It will not copy
+     * the data in memory but rather set it to 0.
+     */
+    virtual HistogramBackend* clone()const
+    {
+      return new Histogram1DFloat(_axis[xAxis].nbrBins(),
+                                  _axis[xAxis].lowerLimit(),
+                                  _axis[xAxis].upperLimit());
+    }
 
     /** resize histogram.
      * will drop all memory and resize axis and memory to the newly requsted size
@@ -508,6 +553,21 @@ public:
         : HistogramFloatBase(in)
     {}
 
+    /** clone the histogram.
+     * This function will create a new copy of this on the heap. It will not copy
+     * the data in memory but rather set it to 0.
+     */
+    virtual HistogramBackend* clone()const
+    {
+      return new Histogram2DFloat(_axis[xAxis].nbrBins(),
+                                  _axis[xAxis].lowerLimit(),
+                                  _axis[xAxis].upperLimit(),
+                                  _axis[yAxis].nbrBins(),
+                                  _axis[yAxis].lowerLimit(),
+                                  _axis[yAxis].upperLimit());
+    }
+
+
     /** resize histogram.
      * will drop all memory and resize axis and memory to the newly requsted size
      */
@@ -607,7 +667,7 @@ public:
 
 //---------------Axis-------------------------------
 
-inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)
+inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);
@@ -655,7 +715,7 @@ inline size_t AxisProperty::bin(float pos) const
 
 
 //-----------------Base class-----------------------
-inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
+inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
   lock.lockForRead();
   //the version//
@@ -663,7 +723,7 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)
   //the dimension//
   out.addSizet(_dimension);
   //the axis properties//
-  for (axis_t::iterator it=_axis.begin(); it !=_axis.end();++it)
+  for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
   size_t size = _memory.size();

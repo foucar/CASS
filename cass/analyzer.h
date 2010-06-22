@@ -9,7 +9,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
 #include "cass.h"
-#include "parameter_backend.h"
 
 namespace cass
 {
@@ -44,6 +43,8 @@ namespace cass
     static void destroy();
     /** function to use the analyzers for the different instruments*/
     void processEvent(cass::CASSEvent*);
+    /** function that one can implement when one wants to do something just before quitting*/
+    void aboutToQuit() {};
 
   public slots:
     /** save the settings of the analyzers*/

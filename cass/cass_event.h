@@ -37,7 +37,7 @@ namespace cass
 
   public:
     /** serialize a event to the Serializer*/
-    void serialize(SerializerBackend&);
+    void serialize(SerializerBackend&)const;
     /** deserialize an event from the Serializer*/
     bool deserialize(SerializerBackend&);
 

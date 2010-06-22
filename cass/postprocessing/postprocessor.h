@@ -14,11 +14,11 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QObject>
-#include <QtCore/QSettings>
 
 #include "cass.h"
 #include "serializer.h"
 #include "serializable.h"
+
 
 namespace cass
 {
@@ -28,95 +28,6 @@ namespace cass
   class Histogram1DFloat;
   class Histogram2DFloat;
   class IdList;
-
-
-  /** Exception thrown when accessing invalid histograms
-   *
-   * @author Jochen Küpper
-   */
-  class InvalidHistogramError : public std::out_of_range
-  {
-  public:
-    explicit InvalidHistogramError(const std::string &key)
-      : std::out_of_range("Invalid histogram requested!"), _key(key)
-    {}
-
-    virtual const char* what() const throw()
-    {
-      std::ostringstream msg;
-      msg << "Invalid histogram " << _key << " requested!";
-      return msg.str().c_str();
-    }
-
-    virtual ~InvalidHistogramError() throw(){}
-
-  protected:
-    std::string _key;
-  };
-
-
-
-
-
-  /** binary function for averaging.
-   * this operator is capable of performing a cumulative moving average and
-   * a Exponential moving average.
-   * @see http://en.wikipedia.org/wiki/Moving_average
-   * @author Lutz Foucar
-   */
-  class Average : std::binary_function<float,float,float>
-  {
-  public:
-    /** constructor.
-     * initializes the \f$\alpha\f$ value
-     * @param alpha The \f$\alpha\f$ value
-     */
-    explicit Average(float alpha)
-      :_alpha(alpha)
-    {}
-    /** the operator calculates the average using the function
-     * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
-     * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
-     * otherwise it will be a exponential moving average.
-     */
-    float operator()(float currentValue, float Average_Nm1)
-    {
-      return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
-    }
-  protected:
-    /** \f$\alpha\f$ for the average calculation */
-    float _alpha;
-  };
-
-
-
-  /** binary function for averaging.
-   * this operator performs a moving sum
-   * @author Nicola Coppola
-   */
-  class TimeAverage : std::binary_function<float,float,float>
-  {
-  public:
-    /** constructor.
-     * initializes the nEvents value
-     * @param nEvents The number of Events used up to now
-     */
-    explicit TimeAverage(float nEvents)
-      :_nEvents(nEvents)
-    {}
-    /** the operator calculates the average over the last _nEvents
-     */
-    float operator()(float currentValue, float Average_Nm1)
-    {
-      if(_nEvents!=0)
-        return ( Average_Nm1 * (_nEvents-1) + currentValue ) /_nEvents;
-      else
-        return currentValue;
-    }
-  protected:
-    /** nEvents for the average calculation */
-    float _nEvents;
-  };
 
 
 
@@ -135,24 +46,28 @@ the Class description for information about what parameters are user settable.
 (Keep in mind that cases matter)
 @verbatim
 ---Operations--
-00001: Compare histograms for less than constant
-00002: Compare histograms for greater than constant
-00003: Compare histograms for equal to constant
+00001: Compare histograms for less than constant (pp1)
+00002: Compare histograms for greater than constant (pp1)
+00003: Compare histograms for equal to constant (pp1)
 00004: Apply boolean NOT to 0D histograms
-00005: Compare two 0D histograms for boolean AND
-00006: Compare two 0D histograms for boolean OR
-00007: Compare two histograms whether first is less than second
-00008: Compare two histograms whether first is equal to second
-00009: Check wether histogram is in a range
-00010: Constant true
-00011: Constant false
+00005: Compare two 0D histograms for boolean AND (pp5)
+00006: Compare two 0D histograms for boolean OR (pp5)
+00007: Compare two histograms whether first is less than second (pp7)
+00008: Compare two histograms whether first is equal to second (pp7)
+00009: Check whether histogram is in a range
+00010: Constant true (pp10)
+00011: Constant false (pp10)
 
-00020: Difference between choosable averaged CCD images
-00021: Divide first histogram by second histogram
-00022: Multiply first histogram with second histogram
-00023: Multiply histogram with constant
-00024: Substract Constant
-00025: Threshold histogram
+00020: Subtract first histogram by second histogram (pp20)
+00021: Add first histogram to second histogram (pp20)
+00022: Divide first histogram by second histogram (pp20)
+00023: Multiply first histogram with second histogram (pp20)
+00024: Subtract Constant to histogram (pp23)
+00025: Add Constant to histogram (pp23)
+00026: Multiply histogram with constant (pp23)
+00027: Divide histogram constant constant (pp23)
+
+00040: Threshold histogram
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
@@ -165,14 +80,14 @@ the Class description for information about what parameters are user settable.
 00062: Summing up of histogram
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
-00065: nbrOfFills of given histogram
+
+00080: nbrOfFills of given histogram
 
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
 00101: CCD image Integral
 00102: CCD image Integral using pixel(s) over user defined Threshold
 00110: Acqiris Waveform
-00111: Acqiris Waveform with single particle condition on ccd
 00120: Beamline data
 00130: Epics data
 
@@ -193,21 +108,17 @@ the Class description for information about what parameters are user settable.
 
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
-00210: Advanced photon finder - Image
-00211: Advanced photon finder - Spectrum
 00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
 00231: Wavelength of photons
 
+00300: single particle detection
+
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 02000: Dump all 1d and 2d cass histograms to root file
 
---Hack (for time beeing)--
-04000: Answer of Taishelper
-04100: Special single frame image
-04101: Special single"half" frame image
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -216,11 +127,38 @@ the Class description for information about what parameters are user settable.
 
 Your postprocessor needs to have the following members
 - a constructor that takes the a reference to the histogram container and the
-  processor id
-- overloaded void operator()(const cass::CASSEvent&) which gets called for each
-  event
-- (optionaly you could have a pointer the histogram in the histogram container)
-- you are responsible that the histogram get allocated and destructed.
+  processor key
+- overloaded void process()(const cass::CASSEvent&)
+- (optionaly you could have a pointer the pp that contains the histogram you
+   depend on.)
+- the pp handles the histograms and therefore it must set it up.
+  - each pp has a list of histograms, which needs to be created.
+  - each pp has also a pointer to the most recent one (_result)
+  - it will create the list by calling createHistList(size of list).
+  - since the above command uses _result to create the other histograms in list
+    you need to make sure that you have created a histogram in that _result points
+    to.
+
+ If you want to use the optional condition:
+ - the pp that contains the conditon is defaulty set by "ConditionName" in
+   cass.ini
+ - document that you pp is using the optional condition.
+ - using setupCondition() one can setup the condition. The retrun value will
+   tell you whether the dependency is is already on the list
+
+ If you want an additional dependencies do the following
+ - create a key
+ - use "retrieve_and_validate(_pp,_key,"HistName",keyHist)" to retrieve a pointer
+   to the pp that you depend on.
+   - _pp : reference to the postprocessors container
+   - _key : key of this pp
+   - "HistName" : Name of the dependency pp in cass.ini (needs to be documented)
+   - keyHist : name of the key created in first step
+ - put the key on the dependency list (_dependencies.push_back(keyHist);)
+
+ If you want to retrieve a histogram while you setup your pp (in loadSettings)
+ do the following:
+ - use the "getHist(0)" member function of the pp that you depend on.
 
 @subsection steps Register postprocessor
 
@@ -231,7 +169,7 @@ to the list of postprocessors:
 - add a describtive enum to the id_t enum
 - add your postprossor in the switch statement of cass::PostProcessors::create
 - if the Object you are writing is responsible for more than one postprocessor
-  just follow the example of the last pnccd processor(pp1).
+  just follow the example of the last ccd processor(pp100).
 
 @subsection doc Documentation
 
@@ -264,12 +202,16 @@ using the custom doxygen tag cassttng.
       ConstantTrue=10,
       ConstantFalse=11,
 
-      SubstractHistograms=20,
-      DivideHistograms=21,
-      MultiplyHistograms=22,
-      MultiplyConstant=23,
-      SubstractConstant=24,
-      Threshold=25,
+      SubtractHistograms=20,
+      AddHistograms=21,
+      DivideHistograms=22,
+      MultiplyHistograms=23,
+      SubtractConstant=24,
+      AddConstant=25,
+      MultiplyConstant=26,
+      DivideConstant=27,
+
+      Threshold=40,
 
       TwoDProjection=50,
       OneDIntergral=51,
@@ -282,16 +224,13 @@ using the custom doxygen tag cassttng.
       HistogramSumming=62,
       TimeAverage=63,
       running1Dfrom0D=64,
-      nbrOfFills=65,
+
+      nbrOfFills=80,
 
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,
       SingleCcdImageIntegralOverThres=102,
-      SingleCcdImageIntegralOverThreshold_up=103,
-      SingleCcdImageOnSPHit=104,
-      SingleCcdImageOnSPHit2=105,
       AcqirisWaveform=110,
-      AcqirisWaveformSP=111,
       BlData=120,
       EpicsData=130,
 
@@ -312,8 +251,6 @@ using the custom doxygen tag cassttng.
 
       Cos2Theta=200,
 
-      AdvancedPhotonFinder=210,
-      AdvancedPhotonFinderSpectrum=211,
       AdvancedPhotonFinderDump=212,
 
       PIPICO=220,
@@ -323,15 +260,12 @@ using the custom doxygen tag cassttng.
 
       TestImage=240,
 
+      SingleParticleDetection=300,
+
       PnccdHDF5=1000,
       ROOTDump=2000,
 
-      TaisHelperAnswer=4000,
-      SingleCcdImageWithConditions=4100,
-      SingleHalfCcdImage=4101,
 
-      SingleParticleDetection=589,
-      SingleParticleDetection2=590,
 
 
       InvalidPP
@@ -340,15 +274,11 @@ using the custom doxygen tag cassttng.
     /** type of postproccessor accessor key */
     typedef std::string key_t;
 
-    /** Container of all currently available histograms */
-    typedef std::map<key_t, HistogramBackend*> histograms_t;
-
-    /** Container of all currently actice postprocessors */
+    /** Container of all currently active postprocessors */
     typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
 
-    /** List of active postprocessors */
-    typedef std::list<key_t> active_t;
-
+    /** List of all postprocessor keys */
+    typedef std::list<key_t> keyList_t;
 
     /** create the instance if not it does not exist already.
      * @param outputfilename filename of the outputfile
@@ -360,68 +290,22 @@ using the custom doxygen tag cassttng.
 
     /** process event
      *
+     * This function will call postprocessors operators in the container
      * @param event CASSEvent to process by all active postprocessors
      */
-    void process(CASSEvent& event);
+    void process(const CASSEvent& event);
 
-    /** Histogram storage access
-     *
-     * We only allow read access to the histograms container. Obtaining access will immediately put a
-     * lock on the container. You must release this with histograms_release.
-     *
-     * @return Histogram storage
-     */
-    const histograms_t &histograms_checkout()
-    {
-      if(! _histlock.tryLockForRead(100))
-        _histlock.lockForWrite();
-      return _histograms;
-    };
-
-    /** release read-lock for histograms container */
-    void histograms_release() { _histlock.unlock(); };
-
-    /** Remove histogram from storage
-     *
-     * @param key Histogram to remove
-     */
-    void histograms_delete(const key_t &key)
-    {
-      _histlock.lockForWrite();
-      _delete(key);
-      _histlock.unlock();
-    }
-
-    /** Replace histogram in storage
-     *
-     * @param key the key of the Histogram to replace
-     * @param hist New histogram to store
-     */
-    void histograms_replace(const key_t &key, HistogramBackend *hist)
-    {
-      _histlock.lockForWrite();
-      _replace(key, hist);
-      _histlock.unlock();
-    }
-
-    /** make sure a specific histogram exists and is not 0
-     *
-     * This requires that locking is done outside!
-     */
-    void validate(const key_t &key)
-    {
-      if((_histograms.end() == _histograms.find(key)) || (0 == _histograms[key]))
-        throw InvalidHistogramError(key);
-    }
-
-    /** find all postprocessors that depend on the given on
-     * @return list of postprocessor key that depend on requested one
-     * @param[in] key key of postprocessor that we find the dependants for
-     */
-    active_t find_dependant(const key_t& key);
-
+    /** retrieve all activated postprocessors keys */
     IdList* getIdList();
-    const std::string& getMimeType(key_t);
+
+    /** retreive pp with key */
+    PostprocessorBackend& getPostProcessor(const key_t &key);
+
+    /** retrieve pp container */
+    const postprocessors_t& postprocessors() {return _postprocessors;}
+
+    /** will be called when program will quit */
+    void aboutToQuit();
 
   public slots:
     /** Load active postprocessors and histograms
@@ -434,56 +318,44 @@ using the custom doxygen tag cassttng.
     void saveSettings() {}
 
     /** clear the histogram that has id */
-    void clear(key_t);
+    void clear(const key_t&);
 
   protected:
-    /** @brief (ordered) list of active postprocessors/histograms
+    /** Create new Postprocessor with key.
      *
-     * This list has order, i.e., postprocessors are called in the specified order. You can rely on the
-     * result of a postprocessor earlier in the list, but not on one that only occurs further back...
-     */
-    active_t _active;
-
-    /** the list of id's */
-    IdList * _IdList;
-
-    /** defining an invalid mimetype */
-    std::string _invalidMime;
-
-    /** container for all histograms */
-    histograms_t _histograms;
-
-    /** container for registered (active) postprocessors */
-    postprocessors_t _postprocessors;
-
-    /** Create new Postprocessor for specified id and using the specified histogram container
-     *
+     * @return the newly created postprocessor
      * @param[in] key the key of the postprocessor
      */
     PostprocessorBackend * create(const key_t &key);
 
-    /** Set up _histograms and _postprocessors using current _active*/
-    void setup();
-
-    /** Internal method to actually remove histogram from storage
+    /** Set up _postprocessors using the user requested pp in active
      *
-     * This requires that locking is done outside!
+     * Make sure that all PostProcessors on active list are in the pp container.
+     * When the PostProcessor has a dependency resolve it, add it to the active
+     * list if it's not already on it.
      *
-     * @param key Histogram to remove
+     * Delete all postprocessors that are not on the active list.
+     *
+     * @param active reference to list of all postprocessors that should be in
+     *               container.
      */
-    void _delete(key_t key);
+    void setup(keyList_t& active);
 
-    /** Internal method to actually replace histogram from storage
+    /** find all postprocessors that depend on the given one
      *
-     * This requires that locking is done outside!
-     *
-     * @param key Histogram to replace
-     * @param hist New histogram to store
+     * @return list of postprocessor key that depend on requested one
+     * @param[in] key key of postprocessor that we find the dependants for
      */
-    void _replace(key_t key, HistogramBackend *hist);
+    keyList_t find_dependant(const key_t& key);
 
-    /** histogram container lock */
-    QReadWriteLock _histlock;
+  protected:
+    /** the list of keys.
+     * used to create the combobox in cassview
+     */
+    IdList *_IdList;
+
+    /** container for user selected and registered postprocessors */
+    postprocessors_t _postprocessors;
 
     /** filename of the output file */
     std::string _outputfilename;
@@ -491,7 +363,7 @@ using the custom doxygen tag cassttng.
   private:
     /** Private constructor of singleton
      * @param outputfilename filename of the file containing the results. Used
-     *         in offline mode.
+     *                       by special postprocessors.
      */
     PostProcessors(std::string outputfilename);
 
@@ -502,7 +374,7 @@ using the custom doxygen tag cassttng.
     PostProcessors& operator=(const PostProcessors&);
 
     /** Prevent destruction unless going through destroy */
-    ~PostProcessors() {};
+    ~PostProcessors() {}
 
     /** pointer to the singleton instance */
     static PostProcessors *_instance;
@@ -511,139 +383,6 @@ using the custom doxygen tag cassttng.
     static QMutex _mutex;
   };
 
-
-  /** id-list
-   *
-   * used for SOAP communication of id-lists
-   *
-   * @todo document this class
-   * @todo if possible put this class into a separate file.
-   * @note do all these function need to be inlines?
-   */
-  class IdList : public Serializable
-  {
-  public:
-
-    IdList()
-      : Serializable(1), _size(0)
-    {}
-
-    IdList(PostProcessors::active_t& list)
-      : Serializable(1), _list(list), _size(list.size())
-    {
-      std::cerr << "Initial list size = " << _size << std::endl;
-    }
-
-    IdList(SerializerBackend* in) : Serializable(1)
-    {
-      deserialize(in);
-    }
-
-    IdList( SerializerBackend &in) : Serializable(1)
-    {
-      deserialize(in);
-    }
-
-    void clear()
-    {
-      _list.clear();
-      _size=0;
-    }
-
-    void setList(PostProcessors::active_t& list)
-    {
-      clear();
-      _list = list;
-      _size = list.size();
-    }
-
-    PostProcessors::active_t& getList()
-    {
-      return _list;
-    }
-
-    bool deserialize(SerializerBackend& in)
-    {
-      return deserialize(&in);
-    }
-
-    bool deserialize(SerializerBackend *in)
-    {
-      _list.clear();
-      //check whether the version fits//
-      in->startChecksumGroupForRead();
-      uint16_t ver = in->retrieveUint16();
-      if(ver != _version)
-      {
-        std::cerr<<"version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
-        return false;
-      }
-      //number of bins, lower & upper limit
-      _size = in->retrieveSizet();
-      VERBOSEOUT(std::cerr << "list size " << _size << std::endl);
-      if (!in->endChecksumGroupForRead())
-      {
-        VERBOSEOUT(std::cerr<<"wrong checksum IdList"<<std::endl);
-        return false;
-      }
-      for(size_t ii=0; ii<_size; ++ii)
-        _list.push_back(in->retrieveString());
-      VERBOSEOUT(std::cerr << "list is done " << std::endl);
-      return true;
-    }
-
-    void serialize(SerializerBackend &out)
-    {
-      serialize(&out);
-    }
-
-    void serialize(SerializerBackend *out)
-    {
-      out->startChecksumGroupForWrite();
-      out->addUint16(_version);
-      out->addSizet(_size);
-      out->endChecksumGroupForWrite();
-      for (PostProcessors::active_t::iterator it=_list.begin(); it!=_list.end(); it++)
-        out->addString(*it);
-    }
-
-  private:
-    PostProcessors::active_t _list;
-    size_t _size;
-  };
-
-
-
-
-
-
-  /** function to set the 1d histogram properties from the ini file.
-   * @param[out] hist pointer to the 1D Histogram whos properties should be updated
-   *            (will be deleted and created with new settings)
-   * @param[in] key the key of the postprocessor too look up in cass.ini
-   * @author Lutz Foucar
-   */
-  void set1DHist(cass::Histogram1DFloat*& hist, PostProcessors::key_t key);
-
-  /** function to set the 2d histogram properties from the ini file.
-   * @param[out] hist pointer to the 2D Histogram whos properties should be updated
-   *            (will be deleted and created with new settings)
-   * @param[in] key the key of the postprocessor too look up in cass.ini
-   * @author Lutz Foucar
-   */
-  void set2DHist(cass::Histogram2DFloat*& hist, PostProcessors::key_t key);
-
-  /** function to retrieve and validate a postprocessors dependency
-   * @return true when the dependcy exists
-   * @param[in] pp reference to the postprocessor instance that contains the histograms
-   * @param[in] key the key of the postprocessor asking for another postprocessors id
-   * @param[in] param_name paramenter name of the dependency in qsettings
-   * @param[out] dependid reference to the pp id that we retrieve from qsettings
-   */
-  bool retrieve_and_validate(cass::PostProcessors &pp,
-                             cass::PostProcessors::key_t key,
-                             const char * param_name,
-                             cass::PostProcessors::key_t &dependid);
 } // namespace cass
 
 

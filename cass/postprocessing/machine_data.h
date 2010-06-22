@@ -21,6 +21,9 @@ namespace cass
    * This postprocessor will retrieve the requested Beamline Data from
    * the cass event.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the beamline data variable you are interested in
    *
@@ -32,11 +35,8 @@ namespace cass
     /** constructor */
     pp120(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp120();
-
     /** copy data from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings from cass.ini */
     virtual void loadSettings(size_t);
@@ -44,9 +44,6 @@ namespace cass
   protected:
     /** name of the variable in the beamline data */
     std::string _varname;
-
-    /** requested value */
-    Histogram0DFloat *_value;
   };
 
 
@@ -56,6 +53,9 @@ namespace cass
   /** retrieval of Epics data.
    *
    * This postprocessor will retrieve the requested epics data from the cass-event.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
@@ -68,11 +68,8 @@ namespace cass
     /** constructor */
     pp130(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp130();
-
     /** copy data from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings from cass.ini */
     virtual void loadSettings(size_t);
@@ -80,16 +77,7 @@ namespace cass
   protected:
     /** name of the variable in the beamline data */
     std::string _varname;
-
-    /** requested value */
-    Histogram0DFloat *_value;
   };
-
-
-
-
-
-
 
 
 
@@ -104,6 +92,9 @@ namespace cass
    *
    * This postprocessor will calculate the photonenergy from the BLD
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @author Lutz Foucar
    */
   class pp230 : public PostprocessorBackend
@@ -112,15 +103,11 @@ namespace cass
     /** constructor */
     pp230(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp230();
+    /** calc the photonenergy from the bld */
+    virtual void process(const CASSEvent&);
 
-    /** copy data from CASS event to histogram storage */
-    virtual void operator()(const CASSEvent&);
-
-  protected:
-    /** resulting histgram */
-    Histogram0DFloat *_data;
+    /** load the settings from cass.ini */
+    virtual void loadSettings(size_t);
   };
 }
 

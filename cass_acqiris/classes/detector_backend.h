@@ -4,8 +4,8 @@
 #define _DETECTOR_BACKEND_H_
 
 #include <iostream>
-#include <QtCore/QSettings>
 #include "cass_acqiris.h"
+#include "cass_settings.h"
 
 namespace cass
 {
@@ -28,7 +28,7 @@ namespace cass
       virtual ~DetectorBackend() {}
 
       /** pure virtual function that will load the detector parameters from cass.ini*/
-      virtual void loadSettings(QSettings*)=0;
+      virtual void loadSettings(CASSSettings*)=0;
 
       /** pure virtual assignment operator.*/
       virtual DetectorBackend& operator= (const DetectorBackend&)=0;
@@ -51,7 +51,7 @@ namespace cass
       /** which analyzer should be used*/
       DetectorAnalyzers _analyzerType;
 
-      /** the name of the detector. used for qsettings group*/
+      /** the name of the detector. used for casssettings group*/
       std::string _name;
 
     private:

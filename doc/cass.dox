@@ -1,0 +1,201 @@
+/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************/
+
+/*
+  This file contains NO source code, just some documentation for doxygen to
+  parse.
+*/
+
+/**
+@mainpage CASS (CFEL ASG Software Suite)
+
+@section toc Table of Contents
+-# @ref licence
+-# @ref download
+-# @ref desc
+-# @ref inst
+-# @ref run
+-# @ref add_pp
+-# @ref pplist
+-# @ref ini_examples
+-# @ref cred
+
+@section licence License
+CASS is delveloped under the terms of the GNU General Public
+License, version 3 as of 29 June 2007. See @ref casslicense for details.
+
+If you use this software for publishable work, please cite and
+acknowledge the authors and the CASS collaboration in your
+publication. The suggested reference is:\n
+CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2010.
+
+@section download Getting CASS
+You can access cass via svn from the following Repository:\n
+https://www.mpi-hd.mpg.de/repos/lutz/diode \n
+The version we are working with right now is to be found in\n
+/trunk\n
+an "anonymous" readonly access for checking out can be done using\n
+username: asg\n
+password: cass\n
+(please contact Lutz Foucar for write access)
+
+@section desc Brief description about program flow
+There are two types of threads running. They are both accessing a shared entity
+the ringbuffer. The producer thread is the shared memory input. The are several
+worker threads that will work on the created cassevents. Here is a short
+describtion of what the two thread types will do:
+-# Shared Memory Thread (single thread)
+  -# get lcls data
+  -# takes out a cassevent from ringbuffer
+  -# converter converts lcls -> cassevent
+  -# puts it back to ringbuffer
+-# Worker Thread (optional multiple threads)
+  -# takes cassevent out of ringbuffer
+  -# puts it to
+   -# analyzer
+     -# puts it to the preanalyzers of different devices
+   -# postanalyzers
+     -# list of userdefined analyzers that extract info from cassevent and
+        put results it in histograms.
+  -# puts worked on cassevent back to ringbuffer to be filled again
+
+- Program control is done via a tcpip interface
+- Accesss histograms created by postprocessors via tcpip interface
+- Parameters are loaded using qt's qsettings. @see @ref run
+
+@section inst Installing CASS
+See the @ref cassinstall file as the primary installation documentation.
+
+@section run Running CASS
+In Order to run the cass you need to start it with a parameter, the partition
+tag. When running at LCLS in the daq state you need to provide the partition
+tag of the shared memory server you want to connect to. \n
+User settable parameters are to be found in "CASS.ini". The latter can be
+defaultly found in the user scope path. From the QSettings documentary:
+"The default UserScope paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings)
+can be overridden by the user by setting the XDG_CONFIG_HOME environment variable."
+@see http://doc.trolltech.com/4.6/qsettings.html#setPath
+
+One is also able to tell the program which cass.ini it should use via a command
+line parameter.
+@see @ref clpar for all program parameters
+
+
+@subsection testing Testing CASS in offline mode (DAQ simulation)
+For testing CASS you can create the shared memory using xtcmonserver located
+in the build directory of the LCLS subfolder. This will take a xtc file and
+put the contents into the shared memory. You have to give it serval commands
+which are documented when you run it without any command. A typical start
+command will look like this:\n
+
+LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x1000000 -p test -r 120 -l\n
+- f: filename of file that you want to create the shared memory with
+- n: number of datagrams to be stored in the buffer
+- s: size of the buffer for that stores one datagram
+- p: the name of the partition tag
+- r: the rate that you want to simulate
+- l: loop. If the end of the file has been reached start from the beginning
+- v: verbose output. Includes the spare time, which can be used to
+        calculate the time in ns it took to read the event from file and put
+        it into the shared memory (buisy time).\n
+        sparetime = 1e9 / rate - buisy time.
+
+@subsection Running CASS with file input ("offlinecass")
+If CASS has been compiled in offline mode (see the @ref cassinstall file),
+then it will read data from XTC files on the filesystem rather than from
+shared memory.  First, create a file called "filesToProcess.txt" in the
+working directory containing the names of the XTC files to use.  Then
+simply run CASS as normal, without the "-p" option.  All postprocessors
+and options can be used as normal, and you can additionally enable
+postprocessor #1000 for HDF5 file output.
+
+Running CASS in this offline mode is similar to using "xtcmonserver", but
+there is one important difference:  The event buffer will be made to block
+if events cannot be processed quickly enough, instead of skipping events.
+
+If you get weird HDF5 error messages when using pp1000, make sure your
+HDF5 library was compiled with thread safety enabled.
+
+
+@section ini_examples Example CASS.ini files
+Carefully inspect these examples as the id's of the postprocessors and the
+parameter names might have changed. Always check website to see the most recent
+id and parameter list.
+@example hdf5dump.ini
+This example shows you how to setup the Chapman crew HDF5 File Dumper.
+@example photodiode-photonhits.ini
+This example shows you how to setup a condition and use it to gate the pnccd
+Detector for yag on / off.
+@example threshold-average.ini
+This example shows you how to use Stephans Hit finder and make a condition on
+it. Then use this condition to create a running average and substract the
+running average from the image that contains a hit. The result is then threholded
+to set all pixels below a certain value to 0.
+
+
+
+
+@section cred Credits
+@par Authors:
+
+Nicola Coppola
+- depreciated cass_database
+- depreciated cass_dictionary
+- new pnCCD analysis
+- Region of Interest (ROI) implementation
+- CASS testing, debug and development
+
+Nils Kimmel
+- original pnCCD analysis
+
+Jochen Kuepper
+- CASS design, infrastructure development
+- cass framework implementation
+- postprocessor setup
+- TCP/SOAP server
+
+@par Project admin:
+
+Lutz Foucar
+- cass, cass_acqiris, cass_ccd, cass_machinedata implementation
+- CASS design, infrastructure development
+
+@see @ref authors file in distribution for details
+
+@date 2009-2010
+
+@todo create another acqiris detector, that will just measure the voltage
+      on a given channel
+@todo make detector evaluation lazy by having the getters calc all values.
+@todo right now we cannot define a postprocessors dependency on the
+      converter that it needs. We need to include this dependency.
+      Maybe using cass.ini?
+@todo next to the cass executable create a cass library so that the viewer
+      can use the histogram part for it.
+@todo find out how one can use xrefitem so that it will list consecutive
+      items under one title, just like todo does.
+@todo add gui's to modify the postprocessors settings in cassviewer.
+@todo create an excutable with the revision number to have some fallback
+@todo hdf5 2d hist: 2d table with 3 columns (x,y,z), x*y rows
+           1d hist: 2d table with 2 columns (x,y), x rows
+           0d hist: find out
+*/
+
+/**
+\page authors Authors
+@include "AUTHORS"
+*/
+
+/**
+\page casslicense License
+@include "License"
+@include "License.GPLv3"
+*/
+
+/**
+\page cassinstall INSTALL
+@include "INSTALL"
+*/
+
+/**
+*/
+

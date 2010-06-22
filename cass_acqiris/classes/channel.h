@@ -31,7 +31,7 @@ namespace cass
 
     public:
       /** will serialize this channel to the serializer*/
-      void serialize(cass::SerializerBackend&);
+      void serialize(cass::SerializerBackend&)const;
       /** deserialize this channel from the serializer*/
       bool deserialize(cass::SerializerBackend&);
 
@@ -72,7 +72,7 @@ namespace cass
   }//end namespace remi
 }//end namespace cass
 
-inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)
+inline void cass::ACQIRIS::Channel::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addSizet(_version);

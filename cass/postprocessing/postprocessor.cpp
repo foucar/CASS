@@ -2,12 +2,12 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <QtCore/QMutex>
-#include <QtCore/QSettings>
 #include <QtCore/QStringList>
 
 #include <cassert>
 #include <algorithm>
 #include <iostream>
+#include <functional>
 
 #include "acqiris_detectors.h"
 #include "histogram.h"
@@ -21,7 +21,10 @@
 #include "machine_data.h"
 #include "backend.h"
 #include "machine_data.h"
-#include "tais_helper.h"
+#include "id_list.h"
+#include "cass_exceptions.h"
+#include "operation_templates.hpp"
+#include "cass_settings.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -33,7 +36,6 @@
 // ============define static members (do not touch)==============
 cass::PostProcessors *cass::PostProcessors::_instance(0);
 QMutex cass::PostProcessors::_mutex;
-
 
 // create an instance of the singleton
 cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
@@ -51,8 +53,6 @@ cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
   }
   return _instance;
 }
-
-
 
 // destroy the instance of the singleton
 void cass::PostProcessors::destroy()
@@ -77,7 +77,6 @@ static inline std::string QStringToStdString(QString str)
 
 cass::PostProcessors::PostProcessors(std::string outputfilename)
   :_IdList(new IdList()),
-  _invalidMime("invalidMimetype"),
   _outputfilename(outputfilename)
 
 {
@@ -86,7 +85,7 @@ cass::PostProcessors::PostProcessors(std::string outputfilename)
              <<std::endl);
 }
 
-void cass::PostProcessors::process(CASSEvent& event)
+void cass::PostProcessors::process(const CASSEvent& event)
 {
   /**
    * @todo catch when postprocessor throws an exeption and delete the
@@ -95,252 +94,257 @@ void cass::PostProcessors::process(CASSEvent& event)
    *       - go through that list and fill all pp that depend on the ones in
    *         the list recursivly.
    *       - remove all pp that made it on the removelist
+   *       - this needs to be done in a locked way since more than one thread
+   *         do this
    */
-  for(active_t::iterator iter(_active.begin()); iter != _active.end(); ++iter)
-    (*(_postprocessors[*iter]))(event);
+  for(postprocessors_t::iterator iter(_postprocessors.begin());
+      iter != _postprocessors.end();
+      ++iter)
+    (*(iter->second))(event);
+}
+
+void cass::PostProcessors::aboutToQuit()
+{
+  for(postprocessors_t::iterator iter = _postprocessors.begin();
+      iter != _postprocessors.end();
+      ++iter)
+    iter->second->aboutToQuit();
 }
 
 void cass::PostProcessors::loadSettings(size_t)
 {
-  VERBOSEOUT(std::cout << "Postprocessor::loadSettings" << std::endl);
-  QSettings settings;
+  using namespace std;
+  VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
 #ifdef VERBOSE
-  std::cout << settings.fileName().toStdString() << " " ;
-  std::cout << "Entries of "<< settings.group().toStdString() << ": ";
+  cout << settings.fileName().toStdString() << " " ;
+  cout << "Entries of "<< settings.group().toStdString() << ": ";
   foreach(QString str, list){
-    std::cout<<str.toStdString() << ", ";
+    cout<<str.toStdString() << ", ";
   }
-  std::cout << std::endl;
+  cout << endl;
 #endif
-  _active.resize(list.size());
-  std::transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
-  std::cout <<"   Number of unique postprocessor activations: "<<_active.size()
-      << std::endl;
-  setup();
-  std::cout <<"   Active postprocessor(s): ";
-  for(active_t::iterator iter = _active.begin(); iter != _active.end(); ++iter)
-    std::cout << *iter << " ";
+  keyList_t active(list.size());
+  transform(list.begin(), list.end(), active.begin(), QStringToStdString);
+  cout <<"   Number of unique postprocessor activations: "<<active.size()
+      << endl;
+  //add a default true and false pp to container//
+  active.push_back("DefaultTrueHist");
+  if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
+    _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
+  active.push_back("DefaultFalseHist");
+  if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
+    _postprocessors["DefaultFalseHist"] = new pp10(*this, "DefaultFalseHist",false);
+  setup(active);
+  cout <<"   Active postprocessor(s): ";
+  for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
+    cout << *iter << " ";
+  cout<<endl;
 }
 
-void cass::PostProcessors::clear(key_t key)
+void cass::PostProcessors::clear(const key_t &key)
 {
-  try
-  {
-    validate(key);
-  }
-  catch (InvalidHistogramError&)
-  {
-    return;
-  }
-  histograms_checkout().find(key)->second->clear();
-  histograms_release();
+  postprocessors_t::iterator it (_postprocessors.find(key));
+  if (_postprocessors.end() != it)
+    it->second->clearHistograms();
+}
+
+cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &key)
+{
+  postprocessors_t::iterator it (_postprocessors.find(key));
+  if (_postprocessors.end() == it)
+    throw InvalidPostProcessorError(key);
+  return *(it->second);
 }
 
 cass::IdList* cass::PostProcessors::getIdList()
 {
   _IdList->clear();
-  _IdList->setList(_active);
+  keyList_t active;
+  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+#ifndef DEBUG
+    if (!iter->second->hide())
+#endif
+      active.push_back(iter->first);
+  _IdList->setList(active);
   return _IdList;
 }
 
-const std::string& cass::PostProcessors::getMimeType(key_t key)
-{
-  /** @todo make sure that we do not need to block access to the histograms */
-  histograms_t::iterator it = _histograms.find(key);
-  if (it!=_histograms.end())
-    return it->second->mimeType();
-  VERBOSEOUT(std::cout << "PostProcessors::getMimeType id not found "<<key
-             <<std::endl);
-  return _invalidMime;
-}
-
-void cass::PostProcessors::_delete(key_t key)
-{
-  histograms_t::iterator iter(_histograms.find(key));
-  if (iter == _histograms.end())
-    return;
-  HistogramBackend *hist(iter->second);
-  _histograms.erase(iter);
-  delete hist;
-}
-
-
-void cass::PostProcessors::_replace(key_t key, HistogramBackend *hist)
-{
-  _delete(key);
-  hist->key() = key;
-  _histograms.insert(std::make_pair(key, hist));
-}
-
-
-cass::PostProcessors::active_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
+cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
 {
   using namespace std;
-  //go trhough all pp and retrieve theier dependcies//
-  //make a list of all key that have a dependecy on the requested key
-  active_t dependandList;
-  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+  //go through all pp and retrieve their dependencies//
+  //make a list of all key that have a dependency on the requested key
+  keyList_t dependandList;
+  postprocessors_t::iterator iter = _postprocessors.begin();
+  for(;iter != _postprocessors.end(); ++iter)
   {
-    active_t dependencyList(iter->second->dependencies());
+    keyList_t dependencyList(iter->second->dependencies());
     if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
       dependandList.push_front(iter->first);
   }
   return dependandList;
 }
 
-void cass::PostProcessors::setup()
+void cass::PostProcessors::setup(keyList_t &active)
 {
   using namespace std;
-  /** @todo when load settings throws exception then remove this pp and all pp
+  /**
+   * @todo when load settings throws exception then remove this pp and all pp
    *        that depend on it (like in process)
    */
-  // Add all PostProcessors on active list -- for histograms we simply make sure the pointer is 0 and let
-  // the postprocessor correctly initialize it whenever it wants to.
-  // When the PostProcessor has a dependency resolve it
   //  There can be the following cases:
-  //  1) pp is not in container and id is after dependand in active list
-  //  2) pp is not in conatiner and id is not in active list
-  //  3) pp is in container and id is before dependant on active list => GOOD!
-  //  4) pp is in container and id is after dependant on active list
-  //  5) pp is in container and id is not on list
-  VERBOSEOUT(cout << "Postprocessor::setup(): add postprocessors to list"<<endl);
-  active_t::iterator iter(_active.begin());
-  while(iter != _active.end())
+  //  1) pp is not in container but key is on active list
+  //  2) pp is not in conatiner and key is not in active list, but it's a
+  //     dependency of another pp
+  //  3) pp is in container and key is on active list
+  //  5) pp is in container and key is not on active list
+
+  VERBOSEOUT(cout << "Postprocessor::setup(): clear all postprocessors dependencies"
+             <<"since they will be setup now again"<<endl);
+  postprocessors_t::iterator it (_postprocessors.begin());
+  for(;it != _postprocessors.end();++it)
+  {
+    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of "<<it->second->key()
+               <<endl);
+    it->second->clearDependencies();
+  }
+
+  VERBOSEOUT(cout << "Postprocessor::setup(): go through active list and check"
+             <<" whether pp is already in container"<<endl);
+  keyList_t::iterator iter(active.begin());
+  while(iter != active.end())
   {
     VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
-               <<" is not yet in pp container"
+               <<" is in pp container"
                <<endl);
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): did not find "<<*iter
                  <<" in pp container => creating it"
                  <<endl);
-      _histograms[*iter] = 0;
       _postprocessors[*iter] = create(*iter);
     }
     else
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
-                 <<" is on list. Now loading Settings for it"
+                 <<" is in container. Now loading Settings for it"
                  <<endl);
       _postprocessors[*iter]->loadSettings(0);
     }
     VERBOSEOUT(cout<<"Postprocessor::setup(): done creating / loading "<<*iter
-               <<" Now checking pp's dependecies."
+               <<" Now checking its dependecies."
                <<endl);
     bool update(false);
-    active_t deps(_postprocessors[*iter]->dependencies());
-    for(active_t::iterator d=deps.begin(); d!=deps.end(); ++d)
+    keyList_t deps(_postprocessors[*iter]->dependencies());
+#ifdef VERBOSE
+    if (deps.empty())
+      cout<<"Postprocessor::setup(): "<<*iter
+          <<" has no dependencies"
+          <<endl;
+#endif
+    for(keyList_t::iterator d=deps.begin(); d!=deps.end(); ++d)
     {
       VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
                  <<" depends on "<<*d
-                 <<" checking whether dependency pp is already there and his key in the"
-                 <<" right position"
+                 <<". Check whether it is in container."
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
       {
         //solves cases 2
         VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
                    <<" is not in pp container."
-                   <<" Inserting it into the active list before "<<*iter
-                   <<" removing possible later entry in active list"
+                   <<" If this is already on active list we will move it to front of list."
+                   <<" If its not there, we will add it to front of list."
+                   <<" This ensures that during the next cycle it will be created before "<<*iter
                    <<endl);
-        _active.insert(iter, *d);
-        active_t::iterator remove(find(iter, _active.end(), *d));
-        if(_active.end() != remove)
-        {
-          //solves cases 1
-          VERBOSEOUT(cout<<"Postprocessor::setup(): our id "<<*d
-                     <<" appeard after "<<*iter
-                     <<" on list => remove the later entry."
-                     <<endl);
-          _active.erase(remove);
-        }
+        if(active.end() != find(active.begin(), active.end(), *d))
+          active.remove(*d);
+        active.push_front(*d);
         update = true;
       }
       else
       {
         VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
-                   <<" is in the container, check if it appears after "<<*iter
-                   <<" in the active list"
+                   <<" of "<<*iter
+                   <<" is in the container, check if its key is in the active list"
                    <<endl);
-        active_t::iterator remove(find(iter, _active.end(), *d));
-        if(_active.end() != remove)
-        {
-          //solves case 4
-          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
-                     <<" appeard after "<<*iter
-                     <<" on list => put it before and remove the later entry."
-                     <<endl);
-          _active.insert(iter,*remove);
-          _active.erase(remove);
-          update = true;
-        }
-        VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
-                   <<" is in the container, check if its id is in the active list"
-                   <<endl);
-        active_t::iterator isthere(find(_active.begin(), _active.end(), *d));
-        if(_active.end() == isthere)
+        if(active.end() == find(active.begin(), active.end(), *d))
         {
           //solves case 5
           VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
-                     <<" appeard not at all in  active list "
-                     <<" => put it before "<<*iter
+                     <<" appeard not at all in active list "
+                     <<" => add it "<<*iter
                      <<endl);
-          _active.insert(iter,*d);
+          active.push_front(*d);
           update = true;
         }
+#ifdef VERBOSE
+        else
+        {
+          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
+                     <<" is in active list "
+                     <<endl);
+        }
+#endif
       }
     }
-    // if we have updated _active, start over again
+    // if we have updated active, start over again
     if(update)
     {
       // start over
       VERBOSEOUT(cout<<"Postprocessor::setup(): start over again."<<endl);
-      iter = _active.begin();
+      iter = active.begin();
       continue;
     }
     ++iter;
   }
 
-  //some of the postprocessors are have been created and are in the container
-  //but might not be on the active list anymore. Check which they are. Put
-  //them on a delete list and then delete them.
-  active_t eraseList;
-  for(postprocessors_t::iterator iter = _postprocessors.begin();
-      iter != _postprocessors.end();
-      ++iter)
+  // some of the postprocessors are have been created and are in the container
+  // but might not be on the active list anymore. Check which they are. Put
+  // them on a delete list and then delete them.
+  keyList_t eraseList;
+  it = _postprocessors.begin();
+  for(;it != _postprocessors.end(); ++it)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< iter->first
+    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< it->first
                <<" is still on active list"
                <<endl);
-    if(_active.end() == find(_active.begin(),_active.end(),iter->first))
+    if(active.end() == find(active.begin(),active.end(),it->first))
     {
-      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< iter->first
+      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
                  <<" is not on active list. Put it to erase list"
                  <<endl);
-      eraseList.push_back(iter->first);
+      eraseList.push_back(it->first);
     }
+#ifdef VERBOSE
+    else
+    {
+      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
+                 <<" is still on active list."
+                 <<endl);
+    }
+#endif
   }
-  //go through erase list and erase all postprocessors on that list
-  for(active_t::const_iterator it = eraseList.begin();
-      it != eraseList.end();
-      ++it)
+  // go through erase list and erase all postprocessors on that list
+  iter = (eraseList.begin());
+  for(;iter != eraseList.end(); ++iter)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *it
+    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *iter
                <<" from postprocessor container"
                <<endl);
-    PostprocessorBackend* p = _postprocessors[*it];
+    PostprocessorBackend* p = _postprocessors[*iter];
     delete p;
-    _postprocessors.erase(*it);
+    _postprocessors.erase(*iter);
   }
 }
 
 cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 {
-  QSettings settings;
+  using namespace std;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
@@ -349,55 +353,64 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   switch(ppid)
   {
   case ConstantLess:
-    processor = new pp1(*this, key);
+    processor = new pp1<less<float> >(*this, key, less<float>());
     break;
   case ConstantGreater:
-    processor = new pp2(*this, key);
+    processor = new pp1<greater<float> >(*this, key, greater<float>());
     break;
   case ConstantEqual:
-    processor = new pp3(*this, key);
+    processor = new pp1<equal_to<float> >(*this, key, equal_to<float>());
     break;
   case BooleanNOT:
     processor = new pp4(*this, key);
     break;
   case BooleanAND:
-    processor = new pp5(*this, key);
+    processor = new pp5<logical_and<bool> >(*this, key, logical_and<bool>());
     break;
   case BooleanOR:
-    processor = new pp6(*this, key);
+    processor = new pp5<logical_or<bool> >(*this, key, logical_or<bool>());
     break;
   case CompareForLess:
-    processor = new pp7(*this, key);
+    processor = new pp7<less<float> >(*this, key, less<float>());
     break;
   case CompareForEqual:
-    processor = new pp8(*this, key);
+    processor = new pp7<greater<float> >(*this, key, greater<float>());
     break;
   case CheckRange:
     processor = new pp9(*this, key);
     break;
   case ConstantTrue:
-    processor = new pp10(*this, key);
+    processor = new pp10(*this, key, true);
     break;
   case ConstantFalse:
-    processor = new pp11(*this, key);
+    processor = new pp10(*this, key, false);
     break;
-  case SubstractHistograms:
-    processor = new pp20(*this, key);
+  case SubtractHistograms:
+    processor = new pp20<minus<float> >(*this, key, minus<float>());
+    break;
+  case AddHistograms:
+    processor = new pp20<plus<float> >(*this, key, plus<float>());
     break;
   case DivideHistograms:
-    processor = new pp21(*this, key);
+    processor = new pp20<divides<float> >(*this, key, divides<float>());
     break;
   case MultiplyHistograms:
-    processor = new pp22(*this, key);
+    processor = new pp20<multiplies<float> >(*this, key, multiplies<float>());
+    break;
+  case SubtractConstant:
+    processor = new pp23<minus<float> >(*this, key, minus<float>());
+    break;
+  case AddConstant:
+    processor = new pp23<plus<float> >(*this, key, plus<float>());
     break;
   case MultiplyConstant:
-    processor = new pp23(*this, key);
+    processor = new pp23<multiplies<float> >(*this, key, multiplies<float>());
     break;
-  case SubstractConstant:
-    processor = new pp24(*this, key);
+  case DivideConstant:
+    processor = new pp23<divides<float> >(*this, key, divides<float>());
     break;
   case Threshold:
-    processor = new pp25(*this, key);
+    processor = new pp40(*this, key);
     break;
   case TwoDProjection:
     processor = new pp50(*this, key);
@@ -430,7 +443,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp64(*this, key);
     break;
   case nbrOfFills:
-    processor = new pp65(*this, key);
+    processor = new pp80(*this, key);
     break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
@@ -441,25 +454,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SingleCcdImageIntegralOverThres:
     processor = new pp102(*this, key);
     break;
-  case SingleCcdImageIntegralOverThreshold_up:
-    processor = new pp103(*this, key);
-    break;
-#ifdef SINGLEPARTICLE_HIT
-  case SingleCcdImageOnSPHit:
-    processor = new pp104(*this, key);
-    break;
-  case SingleCcdImageOnSPHit2:
-    processor = new pp105(*this, key);
-    break;
-#endif /* SINGLEPARTICLE_HIT */
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;
-#ifdef SINGLEPARTICLE_HIT
-  case AcqirisWaveformSP:
-    processor = new pp111(*this,key);
-    break;
-#endif /* SINGLEPARTICLE_HIT */
   case BlData:
     processor = new pp120(*this,key);
     break;
@@ -505,12 +502,6 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case Cos2Theta:
     processor = new pp200(*this,key);
     break;
-  case AdvancedPhotonFinder:
-    processor = new pp210(*this,key);
-    break;
-  case AdvancedPhotonFinderSpectrum:
-    processor = new pp211(*this,key);
-    break;
   case AdvancedPhotonFinderDump:
     processor = new pp212(*this,key);
     break;
@@ -520,21 +511,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TestImage:
     processor = new pp240(*this,key);
     break;
-  case TaisHelperAnswer:
-    processor = new pp4000(*this,key);
-    break;
-  case SingleCcdImageWithConditions:
-    processor = new pp4100(*this,key);
-    break;
-  case SingleHalfCcdImage:
-    processor = new pp4101(*this,key);
-    break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
-    processor = new pp589(*this,key);
-    break;
-  case SingleParticleDetection2:
-    processor = new pp590(*this,key);
+    processor = new pp300(*this,key);
     break;
 #endif
 #ifdef HDF5

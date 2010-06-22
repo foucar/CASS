@@ -14,7 +14,7 @@ cass::pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key,
     : PostprocessorBackend(pp, key),_rootfilename(rootfilename)
 {}
 
-cass::pp2000::~pp2000()
+void cass::pp2000::aboutToQuit()
 {
   //create a root file//
   rootfile = TFile::Open(_rootfileame.c_str(),"RECREATE");
@@ -26,12 +26,12 @@ cass::pp2000::~pp2000()
   //create a temporary storage for pointer so that we can delete them later on//
   std::vector<TH1*> tobedeleted;
   //retrieve all active histograms and create according root histogram from them//
-  const PostProcessors::histograms_t& container(_pp.histograms_checkout());
-  PostProcessors::histograms_t::const_iterator hIt (container.begin());
-  for (;hIt != container.end(); ++hIt)
+  const PostProcessors::postprocessors_t& container(_pp.postprocessors());
+  PostProcessors::postprocessors_t::const_iterator it (container.begin());
+  for (;it != container.end(); ++it)
   {
     //get our hist//
-    HistogramFloatBase *h(hIt->second);
+    HistogramFloatBase *h(it->second->getHist());
     //create hist pointer//
     TH1 * roothist(0);
     //create the histogram according to the dimension of our histogram//

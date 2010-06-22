@@ -18,12 +18,13 @@ namespace cass
 {
   class CASSEvent;
 
-  /*! Base class for Converters
-
-    Inherit from this class if you would like to add a new Converter
-    @author Lutz Foucar
-    @author Jochen Kuepper
-    */
+  /** Base class for Converters
+   *
+   * Inherit from this class if you would like to add a new Converter
+   *
+   * @author Lutz Foucar
+   * @author Jochen Kuepper
+   */
   class CASSSHARED_EXPORT ConversionBackend
   {
   public:

@@ -19,7 +19,7 @@ SOURCES       += ccd_analysis.cpp \
                  ccd_converter.cpp
 
 HEADERS       += ../cass/analysis_backend.h \
-                 ../cass/parameter_backend.h \
+                 ../cass/cass_settings.h \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/ccd_detector.h \

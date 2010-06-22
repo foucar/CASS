@@ -4,9 +4,11 @@
 # which contains all commonly used config parameters
 
 exists ( cass_myconfig.pri ) {
+    message ("Using cass_myconfig.pri")
     include(cass_myconfig.pri)
 }
 else {
+    message ("Using cass_defaultconfig.pri")
     include(cass_defaultconfig.pri)
 }
 

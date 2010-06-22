@@ -1,7 +1,5 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
-#include <QtCore/QSettings>
-
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -11,13 +9,16 @@
 #include "pdsdata/xtc/Dgram.hh"
 #include "cass_event.h"
 #include "format_converter.h"
+#include "cass_settings.h"
 
 cass::FileInput::FileInput(std::string filelistname,
                            cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
+                           bool quitWhenDone,
                            QObject *parent)
                              :QThread(parent),
                              _ringbuffer(ringbuffer),
                              _quit(false),
+                             _quitWhenDone(quitWhenDone),
                              _filelistname(filelistname),
                              _converter(cass::FormatConverter::instance()),
                              _pause(false),
@@ -43,7 +44,7 @@ void cass::FileInput::loadSettings(size_t what)
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
   _converter->loadSettings(what);
-  QSettings settings;
+  CASSSettings settings;
   _rewind = settings.value("Rewind",false).toBool();
   //resume yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
@@ -199,8 +200,9 @@ void cass::FileInput::run()
           <<std::endl;
   }
   std::cout << "Finished with all files." << std::endl;
-  while(!_quit)
-    this->sleep(1);
+  if(!_quitWhenDone)
+    while(!_quit)
+      this->sleep(1);
   std::cout << "closing the input"<<std::endl;
 }
 

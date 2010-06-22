@@ -6,60 +6,28 @@
 #include "histogram.h"
 #include "histogram_getter.h"
 #include "serializer.h"
-
+#include "backend.h"
 
 using namespace cass;
 
-
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-    // check out histograms storage map
-    const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
-    _postprocessors->validate(hp.key);
-    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
-    // get dimension
-    size_t dim(iter->second->dimension());
-    // serialize the wanted histogram using the serializer
-    Serializer serializer;
-    iter->second->serialize(serializer);
-    // release and return
-    _postprocessors->histograms_release();
-    return make_pair(dim, serializer.buffer());
+  PostprocessorBackend &pp
+      (_postprocessors->getPostProcessor(hp.key));
+  const HistogramBackend &hist (pp.getHist(hp.eventId));
+  Serializer serializer;
+  size_t dim(hist.dimension());
+  hist.serialize(serializer);
+  return make_pair(dim, serializer.buffer());
 }
-
-
-QImage HistogramGetter::qimage(const HistogramParameter& hp) const
-{
-    // check out histograms storage map
-    const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
-    // make sure the requested histogram is valid
-    _postprocessors->validate(hp.key);
-    // create the image
-    PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
-    //check wether requested histgogram is truly a 2d histogram//
-    if (iter->second->dimension() != 2) {
-      _postprocessors->histograms_release();
-      throw std::invalid_argument(QString("requested histogram %1 is not a 2d histogram").arg(hp.key.c_str()).toStdString());
-    }
-    // create the QImage, release, return
-    QImage qi(reinterpret_cast<Histogram2DFloat *>(iter->second)->qimage());
-    _postprocessors->histograms_release();
-    return qi;
-}
-
 
 void HistogramGetter::clear(const HistogramParameter& hp) const
 {
-  // check out histograms storage map
-  const PostProcessors::histograms_t& hist(_postprocessors->histograms_checkout());
-  // make sure the requested histogram is valid//
-  _postprocessors->validate(hp.key);
-  // retrieve iterator pointing to histogram//
-  PostProcessors::histograms_t::const_iterator iter(hist.find(hp.key));
-  // clear the histogram//
-  iter->second->clear();
-  // make sure that the histogram is accessable from others again//
-  _postprocessors->histograms_release();
+  // retrieve iterator pointing to postprocessor containing the histogram //
+  PostprocessorBackend &pp
+      (_postprocessors->getPostProcessor(hp.key));
+  // clear the histograms of the postprocessor //
+  pp.clearHistograms();
 }
 
 

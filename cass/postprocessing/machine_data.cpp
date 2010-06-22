@@ -1,57 +1,48 @@
 // Copyright (C) 2010 Lutz Foucar
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include "machine_data.h"
 #include "histogram.h"
 #include "machine_device.h"
-
+#include "cass_settings.h"
 
 // *** postprocessors 120 retrives beamline data ***
 
 cass::pp120::pp120(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _value(0)
+  : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-cass::pp120::~pp120()
-{
-  _pp.histograms_delete(_key);
-  _value = 0;
-}
-
 void cass::pp120::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-
-  //creat the resulting histogram from the first histogram
-  _pp.histograms_delete(_key);
-  _value = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_value);
-
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from beamline data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp120::operator()(const CASSEvent& evt)
+void cass::pp120::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
-
-  _value->lock.lockForWrite();
-  *_value = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
-  _value->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
+  _result->lock.unlock();
 }
 
 
@@ -69,46 +60,39 @@ void cass::pp120::operator()(const CASSEvent& evt)
 // *** postprocessors 130 retrives epics data ***
 
 cass::pp130::pp130(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _value(0)
+  : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-cass::pp130::~pp130()
-{
-  _pp.histograms_delete(_key);
-  _value = 0;
-}
-
 void cass::pp130::loadSettings(size_t)
 {
-  QSettings settings;
+  CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _varname = settings.value("VariableName","").toString().toStdString();
-  //create the resulting histogram from the first histogram
-  _pp.histograms_delete(_key);
-  _value = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_value);
-
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor "<<_key
       <<": will retrieve datafield \""<<_varname
       <<"\" from epics data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
-void cass::pp130::operator()(const CASSEvent& evt)
+void cass::pp130::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t epics(mdev->EpicsData());
-
-  _value->lock.lockForWrite();
-  *_value = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
-  _value->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
+  _result->lock.unlock();
 }
 
 
@@ -126,26 +110,27 @@ void cass::pp130::operator()(const CASSEvent& evt)
 // *** postprocessors 230 calcs photonenergy from bld ***
 
 cass::pp230::pp230(PostProcessors& pp, const cass::PostProcessors::key_t &key)
-  : PostprocessorBackend(pp, key), _data(0)
+  : PostprocessorBackend(pp, key)
 {
-  _pp.histograms_delete(_key);
-  _data = new Histogram0DFloat();
-  _pp.histograms_replace(_key,_data);
+  loadSettings(0);
+}
+
+void cass::pp230::loadSettings(size_t)
+{
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  setupGeneral();
+  createHistList(2*cass::NbrOfWorkers);
   std::cout << "PostProcessor: "<<_key
       <<" calc photonenergy from beamline data"
+      <<". Condition is"<<_condition->key()
       <<std::endl;
 }
 
-cass::pp230::~pp230()
-{
-  _pp.histograms_delete(_key);
-  _data = 0;
-}
-
-void cass::pp230::operator()(const CASSEvent& evt)
+void cass::pp230::process(const CASSEvent& evt)
 {
   using namespace cass::MachineData;
-  //retrieve beamline data from cassevent
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
@@ -156,13 +141,13 @@ void cass::pp230::operator()(const CASSEvent& evt)
   const double peakCurrent
       (bld.find("EbeamPkCurrBC2") == bld.end() ? 0 : bld.find("EbeamPkCurrBC2")->second);
 
-//  const double K (3.5);         // K of the undulator (provided by Marc Messerschmidt)
-//  const double lambda (3.0e7);  // LCLS undulator period in nm
-//  const double hc (1239.84172); // in eV*nm
-//  // electron energy in rest mass units (E/mc^2)
-//  double gamma (ebEnergy/(0.510998903));
-//  // resonant photon wavelength in same units as undulator period)
-//  double photonenergy (hc*2*gamma*gamma/(lambda*(1+K*K/2)));
+  //  const double K (3.5);         // K of the undulator (provided by Marc Messerschmidt)
+  //  const double lambda (3.0e7);  // LCLS undulator period in nm
+  //  const double hc (1239.84172); // in eV*nm
+  //  // electron energy in rest mass units (E/mc^2)
+  //  double gamma (ebEnergy/(0.510998903));
+  //  // resonant photon wavelength in same units as undulator period)
+  //  double photonenergy (hc*2*gamma*gamma/(lambda*(1+K*K/2)));
 
   //=======================================================================================
 
@@ -181,7 +166,7 @@ void cass::pp230::operator()(const CASSEvent& evt)
   // Calculate the resonant photon energy of the first active segment
   const double photonenergy (44.42*energyProfile*energyProfile);
 
-  _data->lock.lockForWrite();
-  *_data = photonenergy;
-  _data->lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = photonenergy;
+  _result->lock.unlock();
 }

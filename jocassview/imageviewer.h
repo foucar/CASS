@@ -19,6 +19,7 @@
 #include <QtGui/QSpinBox>
 
 #include "cass/cass.h"
+#include "cass/postprocessing/convenience_functions.h"
 #include "cass/histogram.h"
 #include "ui_imageviewer.h"
 #include "soapCASSsoapProxy.h"
@@ -234,7 +235,7 @@ private:
 
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
-    cass::PostProcessors::active_t getIdList();
+    cass::PostProcessors::keyList_t getIdList();
 
     void updateImageList(QComboBox* box);
 

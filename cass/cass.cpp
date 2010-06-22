@@ -16,188 +16,23 @@
 #include "sharedmemory_input.h"
 #include "tcpserver.h"
 #include "worker.h"
+#include "cass_settings.h"
 
 
-/** @mainpage CASS (CFEL ASG Software Suite)
- *
- * @section toc Table of Contents
- * -# @ref licence
- * -# @ref download
- * -# @ref desc
- * -# @ref inst
- * -# @ref run
- * -# @ref add_pp
- * -# @ref pplist
- * -# @ref cred
- *
- * @section licence License
- * CASS is delveloped under the terms of the GNU General Public
- * License, version 3 as of 29 June 2007. See @ref casslicense for details.
- *
- * If you use this software for publishable work, please cite and
- * acknowledge the authors and the CASS collaboration in your
- * publication. The suggested reference is:\n
- * CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2010.
- *
- * @section download Getting CASS
- * You can access cass via svn from the following Repository:\n
- * https://www.mpi-hd.mpg.de/repos/lutz/diode \n
- * The version we are working with right now is to be found in\n
- * /trunk\n
- * an "anonymous" readonly access for checking out can be done using\n
- * username: asg\n
- * password: cass\n
- * (please contact Lutz Foucar for write access)
- *
- * @section desc Brief description about program flow
- * There are two types of threads running. They are both accessing a shared entity
- * the ringbuffer. The producer thread is the shared memory input. The are several
- * worker threads that will work on the created cassevents. Here is a short
- * describtion of what the two thread types will do:
- * -# Shared Memory Thread (single thread)
- *   -# get lcls data
- *   -# takes out a cassevent from ringbuffer
- *   -# converter converts lcls -> cassevent
- *   -# puts it back to ringbuffer
- * -# Worker Thread (optional multiple threads)
- *   -# takes cassevent out of ringbuffer
- *   -# puts it to
- *    -# analyzer
- *      -# puts it to the preanalyzers of different devices
- *    -# postanalyzers
- *      -# list of userdefined analyzers that extract info from cassevent and
- *         put results it in histograms.
- *   -# puts worked on cassevent back to ringbuffer to be filled again
- *
- * - Program control is done via a tcpip interface
- * - Accesss histograms created by postprocessors via tcpip interface
- * - Parameters are loaded using qt's qsettings. @see @ref run
- *
- * @section inst Installing CASS
- * See the @ref cassinstall file as the primary installation documentation.
- *
- * @section run Running CASS
- * In Order to run the cass you need to start it with a parameter, the partition
- * tag. When running at LCLS in the daq state you need to provide the partition
- * tag of the shared memory server you want to connect to. \n
- * User settable parameters are to be found in "CASS.ini". The latter can be found
- * in the user scope path. From the QSettings documentary: "The default UserScope
- * paths on Unix and Mac OS X ($HOME/.config or $HOME/Settings) can be overridden
- * by the user by setting the XDG_CONFIG_HOME environment variable."
- * @see http://doc.trolltech.com/4.6/qsettings.html#setPath
- *
- * @subsection testing Testing CASS in offline mode (DAQ simulation)
- * For testing CASS you can create the shared memory using xtcmonserver located
- * in the build directory of the LCLS subfolder. This will take a xtc file and
- * put the contents into the shared memory. You have to give it serval commands
- * which are documented when you run it without any command. A typical start
- * command will look like this:\n
- *
- * LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4
- * -s 0x1000000 -p test -r 120 -l\n
- * -f: filename of file that you want to create the shared memory with
- * -n: number of datagrams to be stored in the buffer
- * -s: size of the buffer for that stores one datagram
- * -p: the name of the partition tag
- * -r: the rate that you want to simulate
- * -l: loop. If the end of the file has been reached start from the beginning
- * -v: verbose output. Includes the spare time, which can be used to
- *         calculate the time in ns it took to read the event from file and put
- *         it into the shared memory (buisy time).\n
- *         sparetime = 1e9 / rate - buisy time.
- *
- * @subsection Running CASS with file input ("offlinecass")
- * If CASS has been compiled in offline mode (see the @ref cassinstall file),
- * then it will read data from XTC files on the filesystem rather than from
- * shared memory.  First, create a file called "filesToProcess.txt" in the
- * working directory containing the names of the XTC files to use.  Then
- * simply run CASS as normal, without the "-p" option.  All postprocessors
- * and options can be used as normal, and you can additionally enable
- * postprocessor #1000 for HDF5 file output.
- *
- * Running CASS in this offline mode is similar to using "xtcmonserver", but
- * there is one important difference:  The event buffer will be made to block
- * if events cannot be processed quickly enough, instead of skipping events.
- *
- * If you get weird HDF5 error messages when using pp1000, make sure your
- * HDF5 library was compiled with thread safety enabled.
- *
- *
- * @section cred Credits
- * @par Authors:
- *
- * Nicola Coppola
- * - depreciated cass_database
- * - depreciated cass_dictionary
- * - new pnCCD analysis
- * - Region of Interest (ROI) implementation
- * - CASS testing, debug and development
- *
- * Nils Kimmel
- * - original pnCCD analysis
- *
- * Jochen Kuepper
- * - CASS design, infrastructure development
- * - cass framework implementation
- * - postprocessor setup
- * - TCP/SOAP server
- *
- * @par Project admin:
- *
- * Lutz Foucar
- * - cass, cass_acqiris, cass_ccd, cass_machinedata implementation
- * - CASS design, infrastructure development
- *
- * @see @ref authors file in distribution for details
- *
- * @date 2009-2010
- *
- * @todo describe how to use Nicolas ROI.
- * @todo create another acqiris detector, that will just measure the voltage
- *       on a given channel
- * @todo make detector evaluation lazy by having the getters calc all values.
- * @todo right now we cannot define a postprocessors dependency on the
- *       converter that it needs. We need to include this dependency.
- *       Maybe using cass.ini?
- * @todo move main documentation to own file.
- * @todo next to the cass executable create a cass library so that the viewer
- *       can use the histogram part for it.
- * @todo find out how one can use xrefitem so that it will list consecutive
- *       items under one title, just like todo does.
- * @todo add gui's to modify the postprocessors settings in cassviewer.
- * @todo create getter for the serialized qsettings
- * @todo discuss whether usign the helper approach will also work for the pp, to
- *       be able to use more than 1 thread
- * @todo create an excutable with the reivision number to have some fallback
- * @todo maybe only pp that noone depends on should be active. when their
- *       operator is called, then they should call the operator of their dpendenciess
- * @todo maybe postprocessors should not have the list of all histograms. pp should
- *       handle them => when requesting a histogram, one needs to ask the pp to give
- *       the right one.
- * @todo make a file with all convenience helpers
- */
-
-/** \page authors Authors
- * @include "AUTHORS"
- */
-
-/** \page casslicense License
- * @include "License"
- * @include "License.GPLv3"
- */
-
-/** \page cassinstall INSTALL
- * @include "INSTALL"
- */
 
 
 /** The main program.
- * @todo find out how show command line parameters in doxygen and use that here
- * @param i filename containing filesnames of xtcfiles to process
- * @param c client id for shared memory access
- * @param s TCP port of the soap server
- * @param p partition tag for accessing the shared memory
- * @param o output filename passed to the postprocessor
+ *
+ * @section clpar CASS Commandline Parameters:
+ * - i filename containing filesnames of xtcfiles to process (offline)
+ * - c client id for shared memory access (online)
+ * - s TCP port of the soap server (offline / online)
+ * - p partition tag for accessing the shared memory (online)
+ * - o output filename passed to the postprocessor (offline / online)
+ * - q quit after finished with all files (offline)
+ * - f optional complete path to the cass.ini to use (offline / online)
+ *
+ * @author Lutz Foucar
  */
 int main(int argc, char **argv)
 {
@@ -214,6 +49,9 @@ int main(int argc, char **argv)
   // for(QStringList::iterator iter = keys.begin(); iter != keys.end(); ++iter)
   //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
+  // setup cass settings. when one wants a user settable cass.ini, just use
+  // CASSSettings instead of QSettings
+  cass::CASSSettings::setFilename(settings.fileName().toStdString());
 
   // register size_t as Qt meta type
   qRegisterMetaType<size_t>("size_t");
@@ -230,10 +68,11 @@ int main(int argc, char **argv)
   size_t soap_port(12321);
   //the sharememory client index
   int index(0);
-  //check if at least 1 param is given
+  //flag to tell to quit when program has finished executing all files
+  bool quitwhendone(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "p:s:c:i:o:")) != -1)
+  while((c = getopt(argc, argv, "qp:s:c:i:o:f:")) != -1)
   {
     switch (c)
     {
@@ -246,14 +85,24 @@ int main(int argc, char **argv)
     case 'c':
       index = strtol(optarg, 0, 0);
       break;
+    case 'q':
+      quitwhendone = true;
+      break;
     case 'i':
       filelistname = optarg;
+      break;
+    case 'f':
+      cass::CASSSettings::setFilename(optarg);
       break;
     case 'o':
       outputfilename = optarg;
       break;
     default:
-      std::cout << "please give me a partition tag" <<std::endl;
+#ifndef OFFLINE
+      std::cout << "please give me at least a partition tag" <<std::endl;
+#else
+      std::cout << "please give me at least an filename that contains the xtcfilenames you want to process" <<std::endl;
+#endif
       return 2;
       break;
     }
@@ -270,7 +119,7 @@ int main(int argc, char **argv)
                                                              ringbuffer));
 #else
   // create file input object
-  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer));
+  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
 #endif
 
   //create workers//

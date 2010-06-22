@@ -35,7 +35,7 @@ cass::SharedMemoryInput::~SharedMemoryInput()
 void cass::SharedMemoryInput::loadSettings(size_t what)
 {
   //pause yourselve//
-  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspend before laoding settings"
+  VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspend before loading settings"
       <<std::endl);
   suspend();
   //load settings//

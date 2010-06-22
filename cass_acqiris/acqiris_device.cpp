@@ -13,12 +13,12 @@ cass::ACQIRIS::Device::Device()
 //  _instruments[Camp1] = Instrument();
 }
 
-void cass::ACQIRIS::Device::serialize(cass::SerializerBackend &out)
+void cass::ACQIRIS::Device::serialize(cass::SerializerBackend &out)const
 {
   //the version
   out.addUint16(_version);
   //the instruments
-  for(instruments_t::iterator it=_instruments.begin(); it != _instruments.end(); ++it)
+  for(instruments_t::const_iterator it=_instruments.begin(); it != _instruments.end(); ++it)
       it->second.serialize(out);
 }
 
@@ -44,14 +44,14 @@ bool cass::ACQIRIS::Device::deserialize(cass::SerializerBackend &in)
 
 //--the instruments--
 
-void cass::ACQIRIS::Instrument::serialize(cass::SerializerBackend &out)
+void cass::ACQIRIS::Instrument::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);
   //copy the size of the channels and then all channels//
   size_t nChannels = _channels.size();
   out.addSizet(nChannels);
-  for(channels_t::iterator it=_channels.begin(); it != _channels.end(); ++it)
+  for(channels_t::const_iterator it=_channels.begin(); it != _channels.end(); ++it)
       it->serialize(out);
 }
 

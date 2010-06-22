@@ -112,13 +112,16 @@ namespace cass
    * This postprocessor reduces the running average of the requested image
    * to a scalar that represents the \f$\cos^2\theta\f$ (degree of alignment).
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name%/{HistName}\n
+   *           The name of the PostProcessor that contains the image to calculate
+   *           \f$\cos^2\theta\f$  from. Default is 104.
    * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
    *           values for the center of the image. Default is 0,0
    * @cassttng PostProcessor/p\%name%/{SymmetryAngle}\n
    *           value for the symmetry angle. Default is 0.
-   * @cassttng PostProcessor/\%name%/{ImageId}\n
-   *           The id of the PostProcessor that contains the image to calculate
-   *           \f$\cos^2\theta\f$  from. Default is 104.
    * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
    *           values for the interesting radius range. Default is 0,0
    * @cassttng PostProcessor/\%name%/{DrawInnerOuterRadius}\n
@@ -133,14 +136,8 @@ namespace cass
     /** Construct postprocessor for Gaussian height of image */
     pp200(PostProcessors&, const PostProcessors::key_t&);
 
-    /** Free _image space */
-    virtual ~pp200();
-
     /** calculate \f$\cos^2\theta\f$ of averaged image */
-    virtual void operator()(const CASSEvent&);
-
-    /** Define postprocessor dependency on the requested image */
-    virtual PostProcessors::active_t dependencies();
+    virtual void process(const CASSEvent&);
 
     /** load the histogram settings from CASS.ini*/
     virtual void loadSettings(size_t);
@@ -155,11 +152,8 @@ namespace cass
     size_t _nbrAngularPoints;        //!< Number of angular points
     bool _drawCircle;                //!< flag to tell whether to draw the inner and outer circle
 
-    /** image that we will calculate the \f$\cos^2\theta\f$ from */
-    PostProcessors::key_t   _imagekey;
-
-    /** the cos2theta value */
-    Histogram0DFloat *_value;
+    /** pp containing image that we will calculate the \f$\cos^2\theta\f$ from */
+    PostprocessorBackend*   _image;
   };
 
 }

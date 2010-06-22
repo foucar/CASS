@@ -12,6 +12,8 @@
 #include "histogram_getter.h"
 #include "postprocessing/postprocessor.h"
 #include "tcpserver.h"
+#include "id_list.h"
+#include "cass_exceptions.h"
 
 
 namespace cass
@@ -123,15 +125,6 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     return result;
 }
 
-int CASSsoapService::getMimeType(std::string type, bool *success)
-{
-    cass::PostProcessors *pp(cass::PostProcessors::instance(""));
-    const std::string& mimetype(pp->getMimeType(type));
-    *success = true;
-    soap_set_dime(this); // enable dime
-    VERBOSEOUT(std::cout << "CASSsoapService::getMimeType " << mimetype <<" size: " << mimetype.size() << std::endl);
-    return soap_set_dime_attachment(this, (char*) mimetype.c_str(), mimetype.size()+1, "application/octet-stream", "0", 0, NULL);
-}
 
 int CASSsoapService::writeini(size_t what, bool *success)
 {
@@ -205,38 +198,14 @@ int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 even
         *success = false;
         return SOAP_FATAL_ERROR;
     }
-}
-
-
-
-int CASSsoapService::getImage(int format, cass::PostProcessors::key_t type, bool *success)
-{
-    VERBOSEOUT(std::cerr << "CASSsoapService::getImage" << std::endl);
-    // keep bytes around for a while -- this should mitigate the "zeros" problem
-    static QQueue<QByteArray *> queue;
-    int result;
-    try {
-        QByteArray *ba(new QByteArray);
-        QBuffer buffer(ba);
-        // get image from histogram
-        QImage image(cass::SoapServer::instance()->get_histogram.qimage(cass::HistogramParameter(type)));
-        // save image to bytearray and attach it to SOAP message
-        buffer.open(QIODevice::WriteOnly);
-        image.save(&buffer, cass::imageformatName(cass::ImageFormat(format)).c_str());
-        *success = true;
-        soap_set_dime(this); // enable dime
-        result = soap_set_dime_attachment(this, ba->data(), ba->size(),
-                                          cass::imageformatMIMEtype(cass::ImageFormat(format)).c_str(),
-                                          type.c_str(), 0, NULL);
-        queue.enqueue(ba);
-        if(10 < queue.size())
-            delete queue.dequeue();
-    } catch(std::exception) { // includes InvalidHistogram
-        success = false;
+    catch(cass::InvalidPostProcessorError) {
+        *success = false;
         return SOAP_FATAL_ERROR;
     }
-    return result;
 }
+
+
+
 
 
 

@@ -11,7 +11,7 @@
 #include "cass.h"
 #include "serializer.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
+#include "cass_settings.h"
 #include "serializable.h"
 
 namespace cass
@@ -148,7 +148,7 @@ namespace cass
    * @todo add examples how to iterate over the frame (in principle pnccd_analysis.cpp is full thereof)
    * @author Nicola Coppola
    */
-  class CASSSHARED_EXPORT ROI : public cass::ParameterBackend
+  class CASSSHARED_EXPORT ROI : public cass::CASSSettings
   {
   public:
     /** default constructor */
@@ -229,7 +229,7 @@ namespace cass
 
   public:
     /** serialize the pixeldetector to the Serializer*/
-    void serialize(cass::SerializerBackend&);
+    void serialize(cass::SerializerBackend&)const;
     /** deserialize the pixeldetector from the Serializer*/
     bool deserialize(cass::SerializerBackend&);
 
@@ -312,7 +312,7 @@ namespace cass
 }//end namespace cass
 
 
-inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)
+inline void cass::PixelDetector::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);

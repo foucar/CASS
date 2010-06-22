@@ -10,12 +10,13 @@ namespace cass
 {
   //forward declarations
   class CASSEvent;
-  /*! Base class for preanalyzers
-
-    The Base class for all Preanalyzers.
-    @author Lutz Foucar
-    @author Jochen Kuepper
-    */
+  /** Base class for preanalyzers
+   *
+   * The Base class for all Preanalyzers.
+   *
+   * @author Lutz Foucar
+   * @author Jochen Kuepper
+   */
   class CASSSHARED_EXPORT AnalysisBackend
   {
   public:

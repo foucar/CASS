@@ -115,20 +115,22 @@ SOURCES +=  analyzer.cpp \
             worker.cpp \
             pixel_detector.cpp \
             rate_plotter.cpp \
-            ./postprocessing/postprocessor.cpp \
+            cass_settings.cpp \
+            ./postprocessing/convenience_functions.cpp \
+            ./postprocessing/backend.cpp \
+            ./postprocessing/waveform.cpp \
+            ./postprocessing/acqiris_detectors_helper.cpp \
+            ./postprocessing/acqiris_detectors.cpp \
+            ./postprocessing/machine_data.cpp \
             ./postprocessing/ccd.cpp \
             ./postprocessing/alignment.cpp \
             ./postprocessing/imaging.cpp \
-            ./postprocessing/waveform.cpp \
-            ./postprocessing/acqiris_detectors.cpp \
-            ./postprocessing/acqiris_detectors_helper.cpp \
-            ./postprocessing/averaging_offsetcorrection_helper.cpp \
-            ./postprocessing/tais_helper.cpp \
+            ./postprocessing/postprocessor.cpp \
+            ./postprocessing/id_list.cpp \
             ./postprocessing/operations.cpp \
-            ./postprocessing/machine_data.cpp \
             soapCASSsoapService.cpp \
             soapC.cpp \
-            tcpserver.cpp
+            tcpserver.cpp \
 
 HEADERS +=  analysis_backend.h \
             analyzer.h \
@@ -155,21 +157,23 @@ HEADERS +=  analysis_backend.h \
             worker.h \
             pixel_detector.h \
             xtciterator.h \
+            cass_exceptions.h \
+            cass_settings.h \
+            ./postprocessing/convenience_functions.h \
             ./postprocessing/postprocessor.h \
+            ./postprocessing/id_list.h \
             ./postprocessing/acqiris_detectors.h \
             ./postprocessing/acqiris_detectors_helper.h \
-            ./postprocessing/averaging_offsetcorrection_helper.h \
-            ./postprocessing/tais_helper.cpp \
             ./postprocessing/operations.h \
+            ./postprocessing/operation_templates.hpp \
             ./postprocessing/alignment.h \
             ./postprocessing/backend.h \
             ./postprocessing/ccd.h \
             ./postprocessing/imaging.h \
             ./postprocessing/waveform.h \
             ./postprocessing/machine_data.h \
+            ./postprocessing/root_converter.h \
             ./postprocessing/hdf5dump.h \
-            ./postprocessing/hit_helper.h \
-            ./postprocessing/hit_helper2.h
 
 
 INCLUDEPATH   += postprocessing \
@@ -206,8 +210,7 @@ singleparticle_hit {
     INCLUDEPATH += $$VIGRAINC
     #message ("The vigra dir is set to $$VIGRAINC")
     #message ($$INCLUDEPATH)
-    SOURCES +=  ./postprocessing/hitrate.cpp ./postprocessing/hit_helper.cpp \
-                ./postprocessing/hit_helper2.cpp
+    SOURCES +=  ./postprocessing/hitrate.cpp
     HEADERS +=  ./postprocessing/hitrate.h
 }
 

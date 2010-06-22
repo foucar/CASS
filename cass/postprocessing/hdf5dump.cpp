@@ -11,7 +11,6 @@
 #include <utility>
 #include <hdf5.h>
 
-#include <QtCore/QSettings>
 #include <QtCore/QString>
 #include <qfileinfo.h>
 
@@ -732,10 +731,13 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 pp1000::pp1000(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
 {
-    std::cout<<"Postprocessor "<<key<<": set up."<<std::endl;
+  // Create dummy histogram to make sure we actually get called
+  _result = new Histogram0DFloat();
+  createHistList(1);
+  std::cout << "Postprocessor " << key << ": set up." << std::endl;
 }
 
-void pp1000::operator()(const cass::CASSEvent &event)
+void pp1000::process(const cass::CASSEvent &event)
 {
   write_HDF5(event);
 }

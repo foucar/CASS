@@ -73,6 +73,9 @@ namespace cass
     /** will continue the thread */
     void resume();
 
+    /** notice that we are about to quit */
+    void aboutToQuit();
+
   signals:
     /** emit signal when you are done with one event */
     void processedEvent();

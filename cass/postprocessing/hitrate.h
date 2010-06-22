@@ -24,10 +24,11 @@ namespace cass
    *
    * detect Single Particle hits.
    *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
    * @cassttng PostProcessor/\%name\%/{HistName}\n
    *           Postprocessor name containing the histogram in which hits should be detected.
-   * @cassttng PostProcessor/\%name\%/{threshold}\n
-   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset) default = 1.0 .
    * @cassttng PostProcessor/\%name\%/{xstart}\n
    *           ROI for calculations. First pixel = 0 (default).
    * @cassttng PostProcessor/\%name\%/{ystart}\n
@@ -36,48 +37,44 @@ namespace cass
    *           ROI for calculations. Last pixel = -1 (default).
    * @cassttng PostProcessor/\%name\%/{yend}\n
    *           ROI for calculations. Last pixel = -1 (default).
+   * @cassttng PostProcessor/\%name\%/{TrainingSetSize}\n
+   *           How many images should be included in training phase. default = 200.
    * 
    * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
    *
    * @author Stephan Kassemeyer
    */
 
-  class pp589 : public PostprocessorBackend
+  class pp300 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp589(PostProcessors&, const PostProcessors::key_t&);
+    pp300(PostProcessors&, const PostProcessors::key_t&);
 
-    /** destructor */
-    virtual ~pp589();
+    /** virtual destructor */
+    virtual ~pp300();
 
    /** check if image specified in settings contains a single particle hit*/
-    virtual void operator()(const CASSEvent&);
+    virtual void process(const CASSEvent&);
 
     /** load the settings for this pp */
     virtual void loadSettings(size_t);
 
-    /** the dependencies on input histogram */
-    virtual PostProcessors::active_t dependencies();
-
   protected:
     /** xstart - ROI for calculations*/
     int _xstart;
+
     /** ystart - ROI for calculations*/
     int _ystart;
+
     /** xend - ROI for calculations*/
     int _xend;
+
     /** yend - ROI for calculations*/
     int _yend;
 
-    /** Threshold for outlier detection based discrimination (mahalanobis distance to dataset). */
-    float _threshold;
-
     /** the histogram to work on */
-    PostProcessors::key_t _idHist;
-
-    /** result */
-    Histogram0DFloat *_result;
+    PostprocessorBackend* _pHist;
 
     /** storage for integralimage (2d integral of entire image) */
     Histogram2DFloat* _integralimg;
@@ -97,53 +94,6 @@ namespace cass
     matrixType _covI;
     int _trainingSetsInserted; // counts how many training data items are already included in training set.
     int _reTrain; // manages retraining of mean and covariance matrix used to determine outliers.
-
-  };
-
-  /** Single particle hit - using HitHelper2.
-   *
-   * detect Single Particle hits.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName}\n
-   *           Postprocessor name containing the histogram in which hits should be detected.
-   * @cassttng PostProcessor/\%name\%/{threshold}\n
-   *           Threshold for outlier detection based discrimination (mahalanobis distance to dataset) default = 1.0 .
-   * @cassttng PostProcessor/\%name\%/{xstart}\n
-   *           ROI for calculations. First pixel = 0 (default).
-   * @cassttng PostProcessor/\%name\%/{ystart}\n
-   *           ROI for calculations. First pixel = 0 (default).
-   * @cassttng PostProcessor/\%name\%/{xend}\n
-   *           ROI for calculations. Last pixel = -1 (default).
-   * @cassttng PostProcessor/\%name\%/{yend}\n
-   *           ROI for calculations. Last pixel = -1 (default).
-   * 
-   * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
-   *
-   * @author Stephan Kassemeyer
-   */
-
-  class pp590 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp590(PostProcessors&, const PostProcessors::key_t&);
-
-    /** destructor */
-    virtual ~pp590();
-
-   /** check if image specified in settings contains a single particle hit*/
-    virtual void operator()(const CASSEvent&);
-
-    /** load the settings for this pp */
-    virtual void loadSettings(size_t);
-
-    /** the dependencies on input histogram */
-    virtual PostProcessors::active_t dependencies();
-
-  protected:
-    /** result */
-    Histogram0DFloat *_result;
-
   };
 
 

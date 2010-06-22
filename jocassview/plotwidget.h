@@ -3,6 +3,7 @@
 
 
 #include <QCoreApplication>
+#include <QtCore/QSettings>
 #include <string>
 #include <iostream>
 
@@ -262,7 +263,7 @@ public:
   spectrogramData():
       QwtRasterData(QwtDoubleRect(0.0, 0.0,500 , 500.0)), _hist(NULL), _boundRect(0.0, 0.0, 100.0, 100.0), _interval(QwtDoubleInterval(0.0, 1.0))
   {
-    VERBOSEOUT(std::cout << "spectrogramdata default constructor" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData:: default constructor" << std::endl);
   }
 
   ~spectrogramData()
@@ -274,7 +275,7 @@ public:
       QwtRasterData(brect), _hist(hist), _boundRect(brect), _interval(interval)
   {
     //setI
-    VERBOSEOUT(std::cout << "spectrogramdata overloaded constructor" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData:: overloaded constructor" << std::endl);
   }
 
   void setHistogram(cass::Histogram2DFloat *hist,
@@ -282,7 +283,7 @@ public:
   {
     //delete _hist;   // don't delete: spectrogram keeps a shallow copy of spectrogramdata and calls destructor in setData.
     _hist = hist;
-    VERBOSEOUT(std::cout << "spectrogramdata setHistogram" << std::endl);
+    VERBOSEOUT(std::cout << "SpectorgramData::setHistogram()" << std::endl);
     if (_hist)
     {
       _interval.setMinValue(manualScale? min : _hist->min() );
@@ -291,7 +292,7 @@ public:
                            _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
-      VERBOSEOUT(std::cout<<" hist min : "<< _hist->min()<<" max: "<<_hist->max()
+      VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram(): hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
                  <<" hist right : "<<_boundRect.right()
                  <<" hist top : "<<_boundRect.top()
@@ -310,13 +311,13 @@ public:
 
   virtual QwtRasterData *copy() const
   {
-    VERBOSEOUT(std::cout <<"spectrogramdata::copy()"<<std::endl);
+    VERBOSEOUT(std::cout <<"spectrogramData::copy()"<<std::endl);
     return new spectrogramData(_hist, _boundRect, _interval);
   }
 
   virtual QwtDoubleInterval range() const
   {
-    VERBOSEOUT(std::cout << "spectrogramdata range: " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
+    VERBOSEOUT(std::cout << "spectrogramData::range(): " << _interval.minValue() << " " <<_interval.maxValue()  << std::endl);
     return _interval;
 //    return QwtDoubleInterval(0,1500);
   }
@@ -707,6 +708,7 @@ public:
 
     _spectrogram->setData(*_spectrogramDataDummy); //hack
     dynamic_cast<TrackZoomer2D*>(_zoomer)->setHistogram(hist);
+
     _spectrogramData->setHistogram(hist,
                                    _bool_auto_scale->checkState(),
                                    _sbz_scale_min->text().toDouble(),
@@ -761,6 +763,9 @@ public:
     _plot->setAxisScale(QwtPlot::yRight,
                         _spectrogram->data().range().minValue()+0.001,
                         _spectrogram->data().range().maxValue() );
+    VERBOSEOUT(std::cout << "spectrogramWidget::setData(): \""<<hist->key()
+               << "\" \""<< oldKey<<"\""
+               <<std::endl);
     if (hist->key() != oldKey)
     {
       QRectF brect;
@@ -774,7 +779,7 @@ public:
           hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
           hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
-      VERBOSEOUT(std::cout << "NEW"
+      VERBOSEOUT(std::cout << "spectrogramWidget::setData(): NEW"
           <<" left: "<<brect.left()
           <<" right: "<<brect.right()
           <<" top: "<<brect.top()
@@ -804,7 +809,7 @@ protected slots:
     settings.setValue("pos1", _cs_top );
     settings.setValue("pos2", _cs_bot );
     settings.setValue("transformCol", _transformCol);
-    std::cout<<"Col to save is "<<_selectColMap<<std::endl;
+    VERBOSEOUT(std::cout<<"spectrogramWidget::saveColorbar(): Col to save is "<<_selectColMap<<std::endl);
     settings.setValue("selectColMap", _selectColMap);
   }
 
@@ -1137,7 +1142,7 @@ public:
     curveWidget->installEventFilter(this);
   }
 
-  virtual void redraw() {std::cout << "base redraw" << std::endl;}
+  virtual void redraw() {std::cout << "plotWidget::redraw(): base redraw" << std::endl;}
 
   void setHistogramKey(std::string str)
   {
@@ -1335,12 +1340,12 @@ public slots:
 #ifdef VERBOSE
     int ii=0;
     for (QStack<QRectF>::iterator it=stack.begin(); it!=stack.end(); ++it)
-      std::cout << "zoomstack " << ii++ << ":  left " << it->left() << "right " << it->right() << "top " << it->top() << "bot " << it->bottom() << std::endl;
+      std::cout << "plotWidget::ZoomY(): zoomstack " << ii++ << ":  left " << it->left() << "right " << it->right() << "top " << it->top() << "bot " << it->bottom() << std::endl;
     std::cout << std::endl;
 #endif
     //_zoomer->zoom(1);
     int idx = _zoomer->zoomRectIndex();
-    VERBOSEOUT(std::cout << "idx: " << idx << std::endl);
+    VERBOSEOUT(std::cout << "plotWidget::YoomY(): idx: " << idx << std::endl);
     QRectF newZoomRect = stack[idx];
 
     if(!_bool_auto_Yscale1d->checkState())
@@ -1353,7 +1358,7 @@ public slots:
       newZoomRect.setHeight( newheight );
       newZoomRect.moveBottom( newZoomRect.bottom() - (newheight-oldheight)/2 );
       newZoomRect = newZoomRect.normalized();
-      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
+      VERBOSEOUT(std::cout<< "plotWidget::ZoomY(): Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
     }
     else
     {
@@ -1363,13 +1368,12 @@ public slots:
       newZoomRect.setTop( newtop );
       newZoomRect.setBottom( _sby_scale1d_min->text().toDouble() *factor );
       newZoomRect = newZoomRect.normalized();
-
       QString newyaxis=QString("%1").arg( _sby_scale1d_min->text().toDouble() * factor,0,'E',4);
       _sby_scale1d_min->setText(newyaxis);
 
       newyaxis=QString("%1").arg( _sby_scale1d_max->text().toDouble() * factor ,0,'E',4);
       _sby_scale1d_max->setText(newyaxis);
-      VERBOSEOUT(std::cout<< "Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
+      VERBOSEOUT(std::cout<< "plotWidget::ZoomY(): Zoom YCoord "<<newZoomRect.top() << " "<<newZoomRect.bottom() <<std::endl);
     }
 
     stack.push( newZoomRect );
@@ -1676,7 +1680,7 @@ public:
     : _accumulationLength(accumulationLength),
     _histAccumulator(accumulationLength, 0, accumulationLength-1)   // hist: nbrXBins, xLow, xUp
   {
-    VERBOSEOUT(std::cout << "0d constr" << std::endl);
+    VERBOSEOUT(std::cout << "plotWidget0D::plotWidget0D(): constr" << std::endl);
     setupUI();
   }
 

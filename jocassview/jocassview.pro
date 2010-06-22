@@ -34,7 +34,8 @@ SOURCES       += jocassview.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
                  soapC.cpp \
-                 soapCASSsoapProxy.cpp
+                 soapCASSsoapProxy.cpp \
+                 ../cass/postprocessing/id_list.cpp
 
 HEADERS       += soapH.h \
                  imageviewer.h \
@@ -42,7 +43,8 @@ HEADERS       += soapH.h \
                  qwt_scroll_zoomer.h \
                  qwt_scroll_bar.h \
                  soapCASSsoapProxy.h \
-                 soapStub.h
+                 soapStub.h \
+                 ../cass/postprocessing/id_list.h
 
 FORMS         += imageviewer.ui
 

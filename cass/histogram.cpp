@@ -112,8 +112,8 @@ namespace cass
       }
     return hist;
 
-    /** @todo make new function with somebody-else version, which is marked out*/
-    /** the following works only if the 2*pi*maxRadius<360 otherwise is ABSOLUTELY mathematically INCORRECT */
+    /* @todo make new function with somebody-else version, which is marked out*/
+    /* the following works only if the 2*pi*maxRadius<360 otherwise is ABSOLUTELY mathematically INCORRECT */
     //    Histogram1DFloat hist(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
     //    for(size_t jr = 0;jr<maxRadius; jr++)
     //    {
@@ -187,8 +187,8 @@ namespace cass
 //      }
       }
 
-    /** the following works only if the 2*pi*maxRadius<360 otherwise is ABSOLUTELY mathematically INCORRECT */
-    /** and it is clearly not as general as the previously implemented code */
+    /* the following works only if the 2*pi*maxRadius<360 otherwise is ABSOLUTELY mathematically INCORRECT */
+    /* and it is clearly not as general as the previously implemented code */
     //    Histogram1DFloat hist(nbrBins, 0., 360.);
     for(size_t jr = range.first;jr<range.second; jr++)
     {

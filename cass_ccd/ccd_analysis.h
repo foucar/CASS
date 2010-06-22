@@ -18,7 +18,7 @@
 
 #include "cass_ccd.h"
 #include "analysis_backend.h"
-#include "parameter_backend.h"
+#include "cass_settings.h"
 
 #include "pixel_detector.h"
 
@@ -33,7 +33,7 @@ namespace cass
      * @author Lutz Foucar
      * @author Nicola Coppola
      */
-    class CASS_CCDSHARED_EXPORT Parameter : public cass::ParameterBackend
+    class CASS_CCDSHARED_EXPORT Parameter : public cass::CASSSettings
     {
     public:
       /** constructor creates group "CCD" */
