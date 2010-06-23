@@ -32,7 +32,7 @@ void cass::pp4::loadSettings(size_t)
 
   std::cout << "PostProcessor " << _key
       << ": will apply NOT to PostProcessor " << _one->key()
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       << std::endl;
 }
 
@@ -157,7 +157,7 @@ void cass::pp40::loadSettings(size_t)
   std::cout << "PostProcessor " << _key
       << ": will threshold Histogram in PostProcessor " << _one->key()
       << " above " << _threshold
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       << std::endl;
 }
 
@@ -237,7 +237,7 @@ void cass::pp50::loadSettings(size_t)
       <<" to "<<_range.second
       <<" on axis "<<_axis
       <<boolalpha<<" normalize "<<_normalize
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       <<std::endl;
 }
 
@@ -296,7 +296,7 @@ void cass::pp51::loadSettings(size_t)
       <<": will create integral of 1d histogram in PostProcessor "<<_pHist->key()
       <<" from "<<_area.first
       <<" to "<<_area.second
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       <<std::endl;
 }
 
@@ -363,7 +363,7 @@ void cass::pp52::loadSettings(size_t)
       <<" in histogram coordinates xcenter "<<_center.first
       <<" ycenter "<<_center.second
       <<" maximum radius calculated from the incoming histogram "<<_radius
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       <<std::endl;
 }
 
@@ -445,7 +445,7 @@ void cass::pp53::loadSettings(size_t)
       <<" in histogram coordinates minimum radius "<<_range.first
       <<" maximum radius "<<_range.second
       <<" Histogram has "<<_nbrBins<<" Bins"
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       <<std::endl;
 }
 

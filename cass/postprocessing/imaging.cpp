@@ -71,7 +71,7 @@ void cass::pp212::loadSettings(size_t)
       << "Upper Pre-Gate:" << _pregate.second << " "
       << "Input:" << _input->key() << " "
       << "Filename: " << _filename
-      <<". Condition is"<<_condition->key()
+      <<". Condition is "<<_condition->key()
       << std::endl;
 }
 
