@@ -60,6 +60,10 @@ void cass::pp212::loadSettings(size_t)
   // Output filename
   _filename = settings.value("Filename", "events.lst").toString().toStdString();
 
+  // Create dummy histogram to make sure we actually get called
+  _result = new Histogram0DFloat();
+  createHistList(1);
+
   // Open file
   _fh.open(_filename.c_str());
   _fh << " x   y  val/ADU npix" << std::endl;
