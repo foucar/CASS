@@ -67,6 +67,9 @@ namespace cass
     /** File handle */
     std::ofstream _fh;
 
+    /** Lock to protect the output stream */
+    QMutex _output_lock;
+
     /** Whether or not to coalesce (small) regions into one event */
     bool _coalesce;
 

@@ -120,6 +120,8 @@ void cass::pp212::process(const CASSEvent & evt)
 
   if ( _coalesce )
   {
+    QMutexLocker lock(&_output_lock);
+
     // Copy the input, because it'll get modified here
     float *in(new float[w*h+8]);
     copy(image.memory().begin(), image.memory().end(), in);
@@ -146,6 +148,8 @@ void cass::pp212::process(const CASSEvent & evt)
     delete[](in);
 
   } else {
+
+    QMutexLocker lock(&_output_lock);
 
     // Do it the easier and faster way
     for ( int x=0; x<w; x++ ) {
