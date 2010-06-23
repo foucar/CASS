@@ -10,6 +10,8 @@
 #ifndef _OPERATION_TEMPLATES_H_
 #define _OPERATION_TEMPLATES_H_
 
+#include <typeinfo>
+
 #include "cass_settings.h"
 #include "backend.h"
 #include "histogram.h"

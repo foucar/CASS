@@ -22,6 +22,7 @@
 #include "cass_event.h"
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/hdf5dump.h"
+#include "postprocessing/convenience_functions.h"
 #include "acqiris_detectors_helper.h"
 #include "tof_detector.h"
 #include "pdsdata/xtc/Dgram.hh"
@@ -266,7 +267,7 @@ void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
       // Convert to volts
       float *volts(new float[waveform.size()]);
       std::transform(waveform.begin(), waveform.end(), volts,
-                     cass::ACQIRIS::Adc2Volts(channel.gain(),channel.offset()));
+                     cass::Adc2Volts(channel.gain(),channel.offset()));
 
       snprintf(fieldname, 63, "ch%i_V", i);
 

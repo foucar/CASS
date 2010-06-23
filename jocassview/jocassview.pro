@@ -50,6 +50,7 @@ FORMS         += imageviewer.ui
 
 INCLUDEPATH   += $$PWD/.. \
                  $$PWD/../cass \
+                 $$PWD/../cass_acqiris \
                  $$QWTINCDIR
 
 LIBS          += -lgsoap++ -lgsoap \
