@@ -201,6 +201,7 @@ hdf5 {
     INCLUDEPATH += $$(HDF5DIR)/include
     LIBS += -L$$(HDF5DIR)/lib -lhdf5
     SOURCES += ./postprocessing/hdf5dump.cpp
+    DEFINES += HDF5
 }
 
 # extra files if compiling single particle detector.
@@ -212,12 +213,26 @@ singleparticle_hit {
     #message ($$INCLUDEPATH)
     SOURCES +=  ./postprocessing/hitrate.cpp
     HEADERS +=  ./postprocessing/hitrate.h
+    DEFINES += SINGLEPARTICLE_HIT
 }
 
 cernroot {
     INCLUDEPATH += $$(ROOTSYS)/include
     LIBS += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
     SOURCES += ./postprocessing/root_converter.cpp
+    DEFINES += CERNROOT
+}
+
+CONFIG(debug, debug|release) {
+    DEFINES += DEBUG VERBOSE QT_DEBUG
+    SUFFIX_STR = _d
+}
+else {
+    DEFINES += NDEBUG QT_NO_DEBUG
+}
+
+CONFIG(offline) {
+    DEFINES += OFFLINE RINGBUFFER_BLOCKING
 }
 
 TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \

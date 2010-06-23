@@ -43,30 +43,6 @@ CONFIG      += staticlib
 
 SUFFIX_STR =
 
-CONFIG(debug, debug|release) {
-    DEFINES += DEBUG VERBOSE QT_DEBUG
-    SUFFIX_STR = _d
-}
-else {
-    DEFINES += NDEBUG QT_NO_DEBUG
-}
-
-CONFIG(offline) {
-    DEFINES += OFFLINE RINGBUFFER_BLOCKING
-}
-
-CONFIG(hdf5) {
-    DEFINES += HDF5
-}
-
-CONFIG(singleparticle_hit) {
-    DEFINES += SINGLEPARTICLE_HIT
-}
-
-CONFIG(cernroot) {
-    DEFINES += CERNROOT
-}
-
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
 QMAKE_LFLAGS +=
