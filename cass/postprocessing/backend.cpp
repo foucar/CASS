@@ -163,8 +163,8 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   dependkey = settings.value(depVarName,"").toString().toStdString();
   VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): "<<_key
              <<" will search for key in "<<depVarName
-             <<" which is "<<dependkey
-             <<". Check whether this key is already on the dependency list"
+             <<" which is '"<<dependkey
+             <<"'. Check whether this key is already on the dependency list"
              <<endl);
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
