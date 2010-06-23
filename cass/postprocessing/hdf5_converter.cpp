@@ -5,8 +5,10 @@
 
 #include "hdf5_converter.h"
 #include "histogram.h"
+#include "cass_event.h"
 
-
+namespace cass
+{
 hid_t createGroupNameFromEventId(uint64_t eventid, hid_t filehandler)
 {
 
@@ -26,7 +28,7 @@ void write2DHist(const Histogram2DFloat& hist, hid_t groupid)
 {
 
 }
-
+}
 cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key, const std::string& outfilename)
   :cass::PostprocessorBackend(pp,key),_outfilename(outfilename)
 {
@@ -40,7 +42,7 @@ void cass::pp1001::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  _filehandle = H5Fcreate(_outfilename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  _filehandle = H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   std::cout <<"PostProcessor "<<_key
       <<" will write all chosen histograms to hdf5 "<<_outfilename
       <<". Condition is"<<_condition->key()
@@ -62,13 +64,13 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
       switch (hist.dimension())
       {
       case 0:
-        write0DHist(dynamic_cast<Histogram0DFloat&>(hist,ppgrouphandle));
+        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
         break;
       case 1:
-        write0DHist(dynamic_cast<Histogram0DFloat&>(hist,ppgrouphandle));
+        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
         break;
       case 2:
-        write0DHist(dynamic_cast<Histogram0DFloat&>(hist,ppgrouphandle));
+        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
         break;
       }
       H5Gclose(ppgrouphandle);

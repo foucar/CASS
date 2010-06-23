@@ -301,7 +301,7 @@ using the custom doxygen tag cassttng.
     PostprocessorBackend& getPostProcessor(const key_t &key);
 
     /** retrieve pp container */
-    const postprocessors_t& postprocessors() {return _postprocessors;}
+    /*const*/ postprocessors_t& postprocessors() {return _postprocessors;}
 
     /** will be called when program will quit */
     void aboutToQuit();

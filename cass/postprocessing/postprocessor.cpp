@@ -519,7 +519,7 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp1000(*this,key);
     break;
   case HDF5Converter:
-    processor = new pp1001(*this,key,_outputfilename;
+    processor = new pp1001(*this,key,_outputfilename);
     break;
 #endif
 #ifdef CERNROOT
