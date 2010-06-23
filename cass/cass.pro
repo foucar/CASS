@@ -174,6 +174,7 @@ HEADERS +=  analysis_backend.h \
             ./postprocessing/machine_data.h \
             ./postprocessing/root_converter.h \
             ./postprocessing/hdf5dump.h \
+            ./postprocessing/hdf5_converter.h \
 
 
 INCLUDEPATH   += postprocessing \
@@ -196,11 +197,12 @@ LIBS          += -L../cass_acqiris -lcass_acqiris \
                  -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap
 
-# Extra stuff if compiling pp1000
+# Extra stuff if compiling pp1000,pp10001
 hdf5 {
     INCLUDEPATH += $$(HDF5DIR)/include
     LIBS += -L$$(HDF5DIR)/lib -lhdf5
-    SOURCES += ./postprocessing/hdf5dump.cpp
+    SOURCES += ./postprocessing/hdf5dump.cpp \
+               ./postprocessing/hdf5_converter.cpp
     DEFINES += HDF5
 }
 

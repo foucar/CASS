@@ -117,6 +117,7 @@ the Class description for information about what parameters are user settable.
 
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
+01001: Put selected Histograms to HDF5-File
 02000: Dump all 1d and 2d cass histograms to root file
 
 @endverbatim
@@ -263,10 +264,8 @@ using the custom doxygen tag cassttng.
       SingleParticleDetection=300,
 
       PnccdHDF5=1000,
+      HDF5Converter=1001,
       ROOTDump=2000,
-
-
-
 
       InvalidPP
     };

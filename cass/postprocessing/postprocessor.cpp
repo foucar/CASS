@@ -25,6 +25,7 @@
 #include "cass_exceptions.h"
 #include "operation_templates.hpp"
 #include "cass_settings.h"
+#include "hdf5_converter.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -516,6 +517,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1000(*this,key);
+    break;
+  case HDF5Converter:
+    processor = new pp1001(*this,key,_outputfilename;
     break;
 #endif
 #ifdef CERNROOT
