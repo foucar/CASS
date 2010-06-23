@@ -209,7 +209,7 @@ public:
     QString text_string(text.text());
     try
     {
-      if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.y(), pos.x()) );
+      if (_hist) text_string = text_string + " : " + QString::number( (*_hist)(pos.x(), pos.y()) );
     }
     catch (std::out_of_range)
     {
@@ -288,10 +288,10 @@ public:
     {
       _interval.setMinValue(manualScale? min : _hist->min() );
       _interval.setMaxValue(manualScale? max : _hist->max() );
-      _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::yAxis].lowerLimit(),
-                           _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
+      _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
-                           _hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
+                           _hist->axis()[cass::HistogramBackend::xAxis].upperLimit());
+                           _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
       VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram(): hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
                  <<" hist right : "<<_boundRect.right()
@@ -326,7 +326,7 @@ public:
   {
     try
     {
-      return (*_hist)(y,x);
+      return (*_hist)(x,y);
     }
     catch (std::out_of_range)
     {
@@ -770,15 +770,15 @@ public:
     {
       QRectF brect;
       oldKey = hist->key();
-      //            brect.setLeft( hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
-      //            brect.setTop( hist->axis()[cass::HistogramBackend::xAxis].upperLimit() );
-      //            brect.setWidth( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() - hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
-      //            brect.setHeight( hist->axis()[cass::HistogramBackend::xAxis].upperLimit()- hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
+      //            brect.setLeft( hist->axis()[cass::HistogramBackend::xAxis].lowerLimit() );
+      //            brect.setTop( hist->axis()[cass::HistogramBackend::yAxis].upperLimit() );
+      //            brect.setWidth( hist->axis()[cass::HistogramBackend::xAxis].upperLimit() - hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
+      //            brect.setHeight( hist->axis()[cass::HistogramBackend::yAxis].upperLimit()- hist->axis()[cass::HistogramBackend::yAxis].lowerLimit() );
       brect.setCoords(
-          hist->axis()[cass::HistogramBackend::yAxis].lowerLimit(),
-          hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
+          hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
           hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
-          hist->axis()[cass::HistogramBackend::xAxis].lowerLimit());
+          hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
+          hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
       VERBOSEOUT(std::cout << "spectrogramWidget::setData(): NEW"
           <<" left: "<<brect.left()
           <<" right: "<<brect.right()
