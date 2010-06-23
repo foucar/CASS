@@ -202,64 +202,64 @@ void cass::PostProcessors::setup(keyList_t &active)
   //  3) pp is in container and key is on active list
   //  5) pp is in container and key is not on active list
 
-  VERBOSEOUT(cout << "Postprocessor::setup(): clear all postprocessors dependencies"
-             <<"since they will be setup now again"<<endl);
+  VERBOSEOUT(cout << "Postprocessor::setup(): Clearing all postprocessor "
+                  << "dependencies, since they will now be setup again."
+                  << endl);
   postprocessors_t::iterator it (_postprocessors.begin());
   for(;it != _postprocessors.end();++it)
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): clearing dependencies of "<<it->second->key()
-               <<endl);
+    VERBOSEOUT(cout << "Postprocessor::setup(): Clearing dependencies of "
+                    << it->second->key() << endl);
     it->second->clearDependencies();
   }
 
-  VERBOSEOUT(cout << "Postprocessor::setup(): go through active list and check"
-             <<" whether pp is already in container"<<endl);
+  VERBOSEOUT(cout << "Postprocessor::setup(): Going through the active list, "
+                  << "and checking whether each PP is already in the container."
+                  << endl);
   keyList_t::iterator iter(active.begin());
   while(iter != active.end())
   {
-    VERBOSEOUT(cout << "Postprocessor::setup(): check if "<<*iter
-               <<" is in pp container"
-               <<endl);
+    VERBOSEOUT(cout << "Postprocessor::setup(): Checking if '" << *iter
+                    << "' is in the PP container." << endl);
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
-      VERBOSEOUT(cout<<"Postprocessor::setup(): did not find "<<*iter
-                 <<" in pp container => creating it"
-                 <<endl);
+      VERBOSEOUT(cout << "Postprocessor::setup(): Did not find '" << *iter
+                      << "in the PP container, so I am creating it." << endl);
       _postprocessors[*iter] = create(*iter);
     }
     else
     {
-      VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
-                 <<" is in container. Now loading Settings for it"
-                 <<endl);
+      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
+                      << "' is in the container. Now loading Settings for it."
+                      << endl);
       _postprocessors[*iter]->loadSettings(0);
     }
-    VERBOSEOUT(cout<<"Postprocessor::setup(): done creating / loading "<<*iter
-               <<" Now checking its dependecies."
-               <<endl);
+    VERBOSEOUT(cout << "Postprocessor::setup(): Done creating/loading '"
+                    << *iter <<"'.  Now checking its dependencies..."
+                    << endl);
     bool update(false);
     keyList_t deps(_postprocessors[*iter]->dependencies());
 #ifdef VERBOSE
     if (deps.empty())
-      cout<<"Postprocessor::setup(): "<<*iter
-          <<" has no dependencies"
-          <<endl;
+      cout << "Postprocessor::setup(): '" << *iter <<"' has no dependencies."
+           << endl;
 #endif
     for(keyList_t::iterator d=deps.begin(); d!=deps.end(); ++d)
     {
-      VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*iter
-                 <<" depends on "<<*d
-                 <<". Check whether it is in container."
+      VERBOSEOUT(cout << "Postprocessor::setup(): '" << *iter
+                      << "' depends on '" << *d
+                      <<"'. Checking whether it is in the container..."
                  <<endl);
       if(_postprocessors.end() == _postprocessors.find(*d))
       {
         //solves cases 2
-        VERBOSEOUT(cout<<"Postprocessor::setup(): "<<*d
-                   <<" is not in pp container."
-                   <<" If this is already on active list we will move it to front of list."
-                   <<" If its not there, we will add it to front of list."
-                   <<" This ensures that during the next cycle it will be created before "<<*iter
-                   <<endl);
+        VERBOSEOUT(cout << "Postprocessor::setup(): '" << *d
+                        << "' is not in the PP container. "
+                        << "If it is already on active list, we will move it "
+                        << "to the front of the list. "
+                        << "If its not there, we will add it to front of list. "
+                        << "This ensures that during the next cycle it will be "
+                        << "created before '" << *iter << "'." << endl);
         if(active.end() != find(active.begin(), active.end(), *d))
           active.remove(*d);
         active.push_front(*d);
@@ -267,26 +267,24 @@ void cass::PostProcessors::setup(keyList_t &active)
       }
       else
       {
-        VERBOSEOUT(cout<<"Postprocessor::setup(): dependency pp "<<*d
-                   <<" of "<<*iter
-                   <<" is in the container, check if its key is in the active list"
-                   <<endl);
+        VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+                        << "' of '" << *iter
+                        << "' is in the container. Check if its key is in the "
+                        << "active list..." << endl);
         if(active.end() == find(active.begin(), active.end(), *d))
         {
           //solves case 5
-          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
-                     <<" appeard not at all in active list "
-                     <<" => add it "<<*iter
-                     <<endl);
+          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+                          << "' did not appear in the active list, so I will "
+                          << "add it for '" << *iter << "'." << endl);
           active.push_front(*d);
           update = true;
         }
 #ifdef VERBOSE
         else
         {
-          VERBOSEOUT(cout<<"Postprocessor::setup(): dependency "<<*d
-                     <<" is in active list "
-                     <<endl);
+          VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
+                          << "' is in active list." << endl);
         }
 #endif
       }
@@ -295,7 +293,7 @@ void cass::PostProcessors::setup(keyList_t &active)
     if(update)
     {
       // start over
-      VERBOSEOUT(cout<<"Postprocessor::setup(): start over again."<<endl);
+      VERBOSEOUT(cout<< "Postprocessor::setup(): Starting over again." << endl);
       iter = active.begin();
       continue;
     }
@@ -309,22 +307,21 @@ void cass::PostProcessors::setup(keyList_t &active)
   it = _postprocessors.begin();
   for(;it != _postprocessors.end(); ++it)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): Check whether "<< it->first
-               <<" is still on active list"
-               <<endl);
+    VERBOSEOUT(cout << "PostProcessor::setup(): Checking whether '" << it->first
+                    << "' is still on active list." << endl);
     if(active.end() == find(active.begin(),active.end(),it->first))
     {
-      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
-                 <<" is not on active list. Put it to erase list"
-                 <<endl);
+      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
+                      << "' is not on active list.  Adding it to the erase "
+                      << "list." << endl);
       eraseList.push_back(it->first);
     }
 #ifdef VERBOSE
     else
     {
-      VERBOSEOUT(cout<<"PostProcessor::setup(): "<< it->first
-                 <<" is still on active list."
-                 <<endl);
+      VERBOSEOUT(cout << "PostProcessor::setup(): '"<< it->first
+                      << "' is still on active list."
+                      << endl);
     }
 #endif
   }
@@ -332,9 +329,8 @@ void cass::PostProcessors::setup(keyList_t &active)
   iter = (eraseList.begin());
   for(;iter != eraseList.end(); ++iter)
   {
-    VERBOSEOUT(cout<<"PostProcessor::setup(): erasing "<< *iter
-               <<" from postprocessor container"
-               <<endl);
+    VERBOSEOUT(cout << "PostProcessor::setup(): Erasing '"<< *iter
+                    << "' from the postprocessor container." << endl);
     PostprocessorBackend* p = _postprocessors[*iter];
     delete p;
     _postprocessors.erase(*iter);
@@ -348,7 +344,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
   id_t ppid (static_cast<PostProcessors::id_t>(settings.value("ID",0).toUInt()));
-  VERBOSEOUT(std::cout<<"PostProcessor::create(): Create PP " << key << " with ID="<<ppid<<std::endl);
+  VERBOSEOUT(std::cout << "PostProcessor::create(): Creating PP '" << key
+                       << "' with ID=" << ppid << std::endl);
   PostprocessorBackend * processor(0);
   switch(ppid)
   {
