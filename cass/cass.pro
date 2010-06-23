@@ -245,7 +245,8 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
 bin.files      = cass
 headers.files  = $$HEADERS
 
-INSTALLS      += headers bin
+#INSTALLS      += headers bin
+INSTALLS      += bin
 
 # TODO: THIS IS NOT CROSS-PLATFORM!!
 QMAKE_POST_LINK = bash backup_copy.sh

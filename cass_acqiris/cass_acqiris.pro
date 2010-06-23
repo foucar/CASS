@@ -50,8 +50,8 @@ HEADERS += acqiris_analysis.h \
 headers.files   = $$HEADERS
 libs.files     = libcass_acqiris.a
 
-INSTALLS      += headers libs
-
+#INSTALLS      += headers libs
+INSTALLS      += libs
 
 
 

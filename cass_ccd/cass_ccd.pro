@@ -32,7 +32,8 @@ HEADERS       += ../cass/analysis_backend.h \
 
 headers.files   = $$HEADERS
 libs.files     = libcass_ccd.a
-INSTALLS      += headers libs
+#INSTALLS      += headers libs
+INSTALLS      += libs
 
 
 
