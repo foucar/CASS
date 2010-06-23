@@ -287,7 +287,7 @@ void cass::pp300::process(const CASSEvent& evt)
         vigra::linalg::identityMatrix(_covI); 
     };
 
-#ifdef VERBOSE
+//#ifdef VERBOSE
     std::cout << std::endl << "_covI = [";
     for (ttt it0 = _covI.traverser_begin(); it0!=_covI.traverser_end(); ++it0) {
         std::cout << "[";
@@ -297,7 +297,7 @@ void cass::pp300::process(const CASSEvent& evt)
         std::cout << "]; ";
     }
     std::cout << "] " << std::endl;
-#endif
+//#endif
 
     _reTrain = false;
     //calculate collumn-average and store in _mean
@@ -306,7 +306,7 @@ void cass::pp300::process(const CASSEvent& evt)
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
     vigra::linalg::columnStatistics(_variationFeatures, _mean);
-#ifdef VERBOSE
+//#ifdef VERBOSE
     std::cout << std::endl << "_mean= [";
     for (ttt it0 = _mean.traverser_begin(); it0!=_mean.traverser_end(); ++it0) {
         std::cout << "[";
@@ -316,7 +316,7 @@ void cass::pp300::process(const CASSEvent& evt)
         std::cout << "]; ";
     }
     std::cout << "] " << std::endl;
-#endif
+//#endif
 
     // also possible:
     /*
