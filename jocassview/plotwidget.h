@@ -290,7 +290,7 @@ public:
       _interval.setMaxValue(manualScale? max : _hist->max() );
       _boundRect.setCoords(_hist->axis()[cass::HistogramBackend::xAxis].lowerLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].upperLimit(),
-                           _hist->axis()[cass::HistogramBackend::xAxis].upperLimit());
+                           _hist->axis()[cass::HistogramBackend::xAxis].upperLimit(),
                            _hist->axis()[cass::HistogramBackend::yAxis].lowerLimit());
       VERBOSEOUT(std::cout<<"SpectorgramData::setHistogram(): hist min : "<< _hist->min()<<" max: "<<_hist->max()
                  <<" hist left : "<<_boundRect.left()
