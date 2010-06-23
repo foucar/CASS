@@ -116,6 +116,12 @@ namespace cass
     /** retrieve the hide flag of this postprocessor */
     bool hide()const {return _hide;}
 
+    /** retrieve the write flag of this postprocessor */
+    bool write()const {return _write;}
+
+    /** retrieve the comment of this postprocessor */
+    const std::string& comment()const {return _comment;}
+
   protected:
     /** process the event
      *
