@@ -95,7 +95,8 @@ namespace cass
 
   /** Constant BOOLEAN postprocessor.
    *
-   * implements pp id 10 and 11
+   * implements pp id 10 and 11. It will not show up in the pp list and not be
+   * written to file.
    *
    * @author Lutz Foucar
    */
@@ -104,11 +105,10 @@ namespace cass
   public:
     /** constructor */
     pp10(PostProcessors& pp, const PostProcessors::key_t &key, bool boolean)
-      :PostprocessorBackend(pp,key)
+      :PostprocessorBackend(pp,key),_hide(true),_write(false)
     {
       _result = (new Histogram0DFloat(boolean));
       createHistList(1);
-      _hide = true;
     }
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
