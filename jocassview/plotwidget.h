@@ -1122,7 +1122,9 @@ public:
   void addOverlay(cass::Histogram1DFloat* hist, QString name)
   {
     NaNCurve* overlayCurve = new NaNCurve(name);
-    overlayCurve->setPen( QPen(QColor::fromHsv(qrand() % 256, 255, 190)) );
+    QPen pen(QColor::fromHsv(qrand() % 256, 255, 190));
+    pen.setWidthF( _strokeWidth );
+    overlayCurve->setPen( pen );
     //overlayCurve->setPen( QPen(Qt::red));
     _overlayCurves.append( overlayCurve );
 
@@ -1259,6 +1261,15 @@ public:
   }
 
 public slots:
+
+  void setStrokeWidth(double width)
+  {
+    _strokeWidth = width;
+    QPen pen(_strokeCol);
+    pen.setWidthF( _strokeWidth );
+    _curve.setPen( pen );
+    _plot.replot();
+  }
 
   void setHistogramKey(const QString& str)
   {
@@ -1513,6 +1524,14 @@ protected:
     _toolbar->addWidget(_lbl_Xscale1d_max);
     _toolbar->addWidget(_sbx_scale1d_max);
 
+    QLabel* _lbl_strokeWidth = new QLabel(tr("LineWidth:"),this);
+    QDoubleSpinBox* _spin_StrokeWidth = new QDoubleSpinBox(this);
+    _spin_StrokeWidth->setRange(0.0, 20);
+    _spin_StrokeWidth->setValue(0.0);
+    _toolbar->addWidget(_lbl_strokeWidth);
+    _toolbar->addWidget(_spin_StrokeWidth);
+    connect(_spin_StrokeWidth, SIGNAL(valueChanged(double)), this, SLOT(setStrokeWidth(double)));
+
     /*
     if(_sby_scale1d_max->text().toDouble() < _sby_scale1d_min->text().toDouble() )
     {
@@ -1548,7 +1567,11 @@ protected:
   {
     layout.addWidget(&_plot);
     _plot.replot();
-    _curve.setPen( QPen(Qt::blue) );
+    _strokeCol = Qt::blue;
+    _strokeWidth = 0.0;
+    QPen pen(_strokeCol);
+    pen.setWidthF( _strokeWidth );
+    _curve.setPen( pen );
     _zoomer = new TrackZoomer1D(_plot.canvas());
     _zoomer->setSelectionFlags( QwtPicker::RectSelection | QwtPicker::DragSelection );
     /*_zoomer = new TrackZoomer1D(QwtPlot::xBottom, QwtPlot::yLeft,
@@ -1615,6 +1638,9 @@ protected:
   //QHBoxLayout* _imageValuesLayout;
 
   std::string _histogramKey;
+
+  float _strokeWidth;
+  QColor _strokeCol;
 };
 
 
