@@ -93,7 +93,6 @@ void cass::pp300::process(const CASSEvent& evt)
   {
     // first run or histogram has been cleared -> start training phase.
     _trainingSetsInserted = 0;
-
   }
   _result->lock.unlock();
 
