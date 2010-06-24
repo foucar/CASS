@@ -453,7 +453,7 @@ void cass::pp53::loadSettings(size_t)
 void cass::pp53::process(const CASSEvent& evt)
 {
   using namespace std;
-  //retrieve the memory of the to be subtracted histograms//
+  //retrieve the memory of the to be converted histograms//
   const Histogram2DFloat &one
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   // retrieve the projection from the 2d hist//
