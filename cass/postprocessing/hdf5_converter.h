@@ -21,10 +21,14 @@ namespace cass
    * Underflow values of the histograms available.
    *
    * This postprocessor is optional conditional to only output the events the
-   * user is interested in. It will create a group for each event it outputs.
+   * user is interested in. When no condition is selected it won't write anyting.
+   * It will create a group for each event it outputs.
+   *
    * The groupname will be created from the event id, which is converted into
    * something human readable before. At the end of the analysis, when all files
    * are processed it will output all chosen histograms in a summary.
+   *
+   *
    *
    * @todo close the filehandle when postproessor is deleted
    *

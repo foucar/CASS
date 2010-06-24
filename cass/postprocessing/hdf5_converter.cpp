@@ -370,7 +370,9 @@ namespace cass
 
 
 cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key, const std::string& outfilename)
-  :cass::PostprocessorBackend(pp,key),_outfilename(outfilename)
+  :cass::PostprocessorBackend(pp,key),
+   _outfilename(outfilename),
+   _filehandle(H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT))
 {
   loadSettings(0);
 }
@@ -378,12 +380,11 @@ cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t
 void cass::pp1001::loadSettings(size_t)
 {
   setupGeneral();
-  if (!setupCondition())
+  if (!setupCondition(false))
     return;
+  _write = false;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  _filehandle = H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-  /** @todo rethink open close points */
   std::cout <<"PostProcessor "<<_key
       <<" will write all chosen histograms to hdf5 "<<_outfilename
       <<". Condition is"<<_condition->key()
@@ -393,38 +394,6 @@ void cass::pp1001::loadSettings(size_t)
 void cass::pp1001::process(const cass::CASSEvent &evt)
 {
   hid_t eventgrouphandle (createGroupNameFromEventId(evt.id(),_filehandle));
-  PostProcessors::postprocessors_t& ppc(_pp.postprocessors());
-  PostProcessors::postprocessors_t::iterator it (ppc.begin());
-  for (;it != ppc.end(); ++it)
-  {
-    PostprocessorBackend &pp (*(it->second));
-    if (pp.write())
-    {
-      hid_t ppgrouphandle (H5Gcreate1(eventgrouphandle, pp.key().c_str(),0));
-      const HistogramBackend &hist (pp(evt));
-      //write comment//
-      hid_t dataspace_id (H5Screate(H5S_SCALAR));
-      hid_t datatype (H5Tcopy(H5T_C_S1));
-      H5Tset_size(datatype,pp.comment().size()+1);
-      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "comment", datatype,
-                                   dataspace_id, H5P_DEFAULT));
-      H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-               pp.comment().c_str());
-      H5Dclose(dataset_id);
-      H5Sclose(dataspace_id);
-      switch (hist.dimension())
-      {
-      case 0:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
-        break;
-      case 1:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
-        break;
-      case 2:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
-        break;
-      }
-      H5Gclose(ppgrouphandle);
-    }
-  }
+  writePostprocessors(_pp.postprocessors(),evt,eventgrouphandle);
+  H5Gclose(eventgrouphandle);
 }
