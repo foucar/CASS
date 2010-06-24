@@ -635,6 +635,54 @@ namespace cass
 
 
 
+
+
+
+
+  /** Subset Histogram
+   *
+   * Will copy a subset of another histogram and return it in a new histogram.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           name of postprocessor that contains the histogram you want a
+   *           subset from. Default is "".
+   *
+   * @author Lutz Foucar
+   */
+  class pp70 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp70(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** nbr of bins in y (1 for 1D Hist) */
+    size_t _nyBins;
+
+    /** xlow of input in Histogram coordinates */
+    size_t _inputXLow;
+  };
+
+
+
+
+
+
+
+
+
   /** return number of fills of a given histogram
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini

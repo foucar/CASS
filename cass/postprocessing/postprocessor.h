@@ -81,6 +81,8 @@ the Class description for information about what parameters are user settable.
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
 
+00070: Subset a Histogram
+
 00080: nbrOfFills of given histogram
 
 ---Data retrieval (Histogram contain only last shot)--
@@ -225,6 +227,8 @@ using the custom doxygen tag cassttng.
       HistogramSumming=62,
       TimeAverage=63,
       running1Dfrom0D=64,
+
+      SubsetHistogram=70,
 
       nbrOfFills=80,
 

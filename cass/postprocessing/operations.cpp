@@ -2,6 +2,7 @@
 // (C) 2010 Thomas White - Updated to new PP framework
 
 #include <QtCore/QString>
+#include <iterator>
 
 #include "cass.h"
 #include "operations.h"
@@ -883,6 +884,93 @@ void cass::pp64::process(const cass::CASSEvent &evt)
   _result->lock.unlock();
   one.lock.unlock();
 }
+
+
+
+
+
+
+// ***  pp 70 subsets a histogram ***
+
+cass::pp70::pp70(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp70::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
+  if (0 == one.dimension())
+    throw runtime_error("pp70::loadSettings(): Unknown dimension of incomming histogram");
+  const AxisProperty &xaxis (one.axis()[HistogramBackend::xAxis]);
+  const size_t binXLow(xaxis.bin(settings.value("XLow",0).toFloat()));
+  const size_t binXUp (xaxis.bin(settings.value("XUp",1).toFloat()));
+  const size_t nXBins (binXUp-binXLow);
+  const float xLow (xaxis.position(binXLow));
+  const float xUp (xaxis.position(binXUp));
+  cout << "PostProcessor "<<_key
+      <<": returns a subset of histogram in pp '" << _pHist->key()
+      <<"'. Subset is xLow:"<<xLow
+      <<", xUp:"<<xUp;
+  if (1 == one.dimension())
+  {
+    _nyBins = 1;
+    _result = new Histogram1DFloat(nXBins,xLow,xUp);
+  }
+  else if (2 == one.dimension())
+  {
+    const AxisProperty &yaxis (one.axis()[HistogramBackend::yAxis]);
+    const size_t binYLow(yaxis.bin(settings.value("YLow",0).toFloat()));
+    const size_t binYUp (yaxis.bin(settings.value("YUp",1).toFloat()));
+    _nyBins = (binYUp - binYLow);
+    const float yLow (yaxis.position(binYLow));
+    const float yUp (yaxis.position(binYUp));
+    _result = new Histogram2DFloat(nXBins,xLow,xUp,
+                                   _nyBins,yLow,yUp);
+    cout <<", yLow:"<<yLow
+        <<", yUp:"<<yUp;
+  }
+  cout <<". Condition on postprocessor:'"<<_condition->key()<<"'"
+      <<endl;
+  createHistList(2*cass::NbrOfWorkers);
+}
+
+void cass::pp70::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase& input
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  input.lock.lockForRead();
+  _result->lock.lockForWrite();
+  const HistogramFloatBase::storage_t &imem (input.memory());
+  HistogramFloatBase::storage_t::const_iterator iit
+      (imem.begin()+_inputXLow);
+  HistogramFloatBase::storage_t &rmem
+      (dynamic_cast<HistogramFloatBase*>(_result)->memory());
+  HistogramFloatBase::storage_t::iterator rit(rmem.begin());
+  const size_t &resultNbrXBins (_result->axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t &inputNbrXBins (input.axis()[HistogramBackend::xAxis].nbrBins());
+  for (size_t yBins=0;yBins < _nyBins; ++yBins)
+  {
+    copy(iit,iit+resultNbrXBins,rit);
+    advance(iit,inputNbrXBins);
+    advance(rit,resultNbrXBins);
+  }
+  _result->lock.unlock();
+  input.lock.unlock();
+}
+
 
 
 

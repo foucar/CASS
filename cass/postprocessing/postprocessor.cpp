@@ -440,6 +440,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case running1Dfrom0D:
     processor = new pp64(*this, key);
     break;
+  case SubsetHistogram:
+    processor = new pp70(*this, key);
+    break;
   case nbrOfFills:
     processor = new pp80(*this, key);
     break;
