@@ -135,20 +135,20 @@ void cass::pp300::process(const CASSEvent& evt)
 
   //
   // 1st variation feature: sum(cell-avg)^2
-  float var0 = 0;
+  double var0 = 0;
   { // start new scope
   int xsteps = 3;
   int ysteps = 3;
-  float avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  double avg = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<double>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<double>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
-      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      float val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
+      int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
+      double val = integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins];
       var0 += (val-avg)*(val-avg);
     }
   }
@@ -157,21 +157,21 @@ void cass::pp300::process(const CASSEvent& evt)
 
   //
   // 2nd variation feature:  (bottom to top, sum(cell-topneighbour)^2
-  float var1 = 0;
+  double var1 = 0;
   { // start new scope
   int xsteps = 10;
   int ysteps = 10;
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<double>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<double>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
-      float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<double>(jj+2)*ysize_intimg/ysteps);
+      double diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var1 += diff*diff;
     }
   }
@@ -179,21 +179,21 @@ void cass::pp300::process(const CASSEvent& evt)
 
   //
   // 3rd variation feature:  (bottom to top, sum(cell-topneighbour)^2  like 2nd one, but with different scale
-  float var2 = 0;
+  double var2 = 0;
   { // start new scope
   int xsteps = 15;
   int ysteps = 15;
   // ToDo: check orientation. maybe go left-right instead top-bottom!
   for (int ii=0; ii<xsteps; ++ii)
   {
-    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<double>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<double>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps-2; ++jj)
     {
-      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
-      int yy_next = lround( static_cast<float>(jj+2)*ysize_intimg/ysteps);
-      float diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
+      int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_next = lround( static_cast<double>(jj+2)*ysize_intimg/ysteps);
+      double diff = 2*integralimg_mem[xx+yy*nxbins] + integralimg_mem[xx_prev+yy_prev*nxbins] - integralimg_mem[xx+yy_prev*nxbins] - 2*integralimg_mem[xx_prev+yy*nxbins] - integralimg_mem[xx+yy_next*nxbins] + integralimg_mem[xx_prev+yy_next*nxbins];
       var2 += diff*diff;
     }
   }
@@ -201,7 +201,7 @@ void cass::pp300::process(const CASSEvent& evt)
 
   //
   // 4th variation feature: chequerboard
-  float var3 = 0;
+  double var3 = 0;
   { // start new scope
   int xsteps = 15;
   int ysteps = 15;
@@ -211,23 +211,23 @@ void cass::pp300::process(const CASSEvent& evt)
   for (int ii=0; ii<xsteps; ++ii)
   {
     xfactor = -xfactor;
-    int xx_prev = lround( static_cast<float>(ii)*xsize_intimg/xsteps );
-    int xx = lround(  static_cast<float>(ii+1)*xsize_intimg/xsteps-1 );
+    int xx_prev = lround( static_cast<double>(ii)*xsize_intimg/xsteps );
+    int xx = lround(  static_cast<double>(ii+1)*xsize_intimg/xsteps-1 );
     for (int jj=0; jj<ysteps; ++jj)
     {
       yfactor = -yfactor;
       factor = xfactor*yfactor;
-      int yy_prev = lround( static_cast<float>(jj)*ysize_intimg/ysteps );
-      int yy = lround(  static_cast<float>(jj+1)*ysize_intimg/ysteps-1 );
+      int yy_prev = lround( static_cast<double>(jj)*ysize_intimg/ysteps );
+      int yy = lround(  static_cast<double>(jj+1)*ysize_intimg/ysteps-1 );
       var3 += factor*(integralimg_mem[xx + yy*nxbins] + integralimg_mem[xx_prev + yy_prev*nxbins] - integralimg_mem[xx + yy_prev*nxbins] - integralimg_mem[xx_prev + yy*nxbins]);
     }
   }
   } //end scope  //
 
   // 5th variation feature: integral intensity
-  float var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
+  double var4 = integralimg_mem[xsize_intimg-1 + (ysize_intimg-1)*nxbins];
 
-  // try to unify feature scales:
+  // try to unify feature scales (avoid ill-conditioned matrices, also, matrix should not be singular):
   var0 /= 1;
   var1 /= 1e12;
   var2 /= 1e12;
@@ -255,7 +255,7 @@ void cass::pp300::process(const CASSEvent& evt)
   VERBOSEOUT(std::cout << "rows: " << vigra::rowCount(_cov) << std::endl);
   VERBOSEOUT(std::cout << "cols: " << vigra::columnCount(_cov) << std::endl);
 
-    _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<float>::difference_type(0,0), vigra::Matrix<float>::difference_type(_trainingSetsInserted,_nFeatures)) );
+    _cov = vigra::linalg::covarianceMatrixOfColumns( _variationFeatures.subarray(vigra::Matrix<double>::difference_type(0,0), vigra::Matrix<double>::difference_type(_trainingSetsInserted,_nFeatures)) );
 
     typedef matrixType::traverser ttt;
 #ifdef VERBOSE
@@ -284,6 +284,7 @@ void cass::pp300::process(const CASSEvent& evt)
      }
     catch( vigra::PreconditionViolation E ) {
         // matrix is singular. use normalized euclidean distance instead of mahalanobis:
+        std::cout << "Hit_Helper2::process: " << E.what() << std::endl;
         vigra::linalg::identityMatrix(_covI); 
     };
 
@@ -336,7 +337,9 @@ void cass::pp300::process(const CASSEvent& evt)
   std::cout << "cols: " << vigra::columnCount(y) << std::endl;
   std::cout << "rows: " << vigra::rowCount(_covI) << std::endl;
   std::cout << "cols: " << vigra::columnCount(_covI) << std::endl;*/
-  float mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
+  double mahal_dist = vigra::linalg::mmul(  (y-_mean), vigra::linalg::mmul( _covI , (y-_mean).transpose() ))[0];
+
+
 
   one.lock.unlock();
   _integralimg->lock.unlock();
