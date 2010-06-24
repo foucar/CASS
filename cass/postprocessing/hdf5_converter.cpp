@@ -23,7 +23,34 @@ namespace cass
 
   void write0DHist(const Histogram0DFloat& hist, hid_t groupid)
   {
+    // Create the data space for the dataset.
+    hsize_t dims[2];
+    dims[0] = 1;
+    hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
 
+    //Create the dataset.
+    hid_t dataset_id (H5Dcreate1(groupid, "Value",
+                                 H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    //get copy of value to write
+    const float value (hist.getValue());
+    //write value
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &value);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+
+    //Create the dataset.
+    dataset_id = H5Dcreate1(groupid, "NumberOfFills",
+                            H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT);
+    //get copy of value to write
+    const int nfill (hist.nbrOfFills());
+    //write value
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &nfill);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+    //Terminate access to the data space.
+    H5Sclose(dataspace_id);
   }
 
   void write1DHist(const Histogram1DFloat& hist, hid_t groupid)
@@ -68,8 +95,17 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
     if (pp.write())
     {
       hid_t ppgrouphandle (H5Gcreate1(eventgrouphandle, pp.key().c_str(),0));
-      /** @todo write metadata to group */
       const HistogramBackend &hist (pp(evt));
+      //write comment//
+      hid_t dataspace_id (H5Screate(H5S_SCALAR));
+      hid_t datatype (H5Tcopy(H5T_C_S1));
+      H5Tset_size(datatype,pp.comment().size()+1);
+      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "comment", datatype,
+                                   dataspace_id, H5P_DEFAULT));
+      H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+               pp.comment().c_str());
+      H5Dclose(dataset_id);
+      H5Sclose(dataspace_id);
       switch (hist.dimension())
       {
       case 0:
