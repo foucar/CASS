@@ -21,6 +21,11 @@ namespace cass
     return H5Gcreate1(filehandler, groupname.str().c_str(),0);
   }
 
+  void writeAxisProperty(const AxisProperty& axis, hid_t groupid)
+  {
+
+  }
+
   void write0DHist(const Histogram0DFloat& hist, hid_t groupid)
   {
     // Create the data space for the dataset.
@@ -49,13 +54,71 @@ namespace cass
              H5P_DEFAULT, &nfill);
     //End access to the dataset and release resources used by it.
     H5Dclose(dataset_id);
+
     //Terminate access to the data space.
     H5Sclose(dataspace_id);
   }
 
   void write1DHist(const Histogram1DFloat& hist, hid_t groupid)
   {
+    const HistogramFloatBase::storage_t &data (hist.memory());
+    const size_t nxbins (hist.axis()[HistogramBackend::xAxis].nbrBins());
 
+    // Create the data space for the dataset.
+    hsize_t dims[2];
+    dims[0] = 1;
+    hid_t dataspace_id = H5Screate_simple(1, dims, NULL);
+    //Create the dataset.
+    hid_t dataset_id (H5Dcreate1(groupid, "Underflow",
+                                 H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    //get copy of value to write
+    const float underflow (data[nxbins+HistogramBackend::Underflow]);
+    //write value
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &underflow);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+
+    //Create the dataset.
+    dataset_id = (H5Dcreate1(groupid, "Overflow",
+                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    //get copy of value to write
+    const float overflow (data[nxbins+HistogramBackend::Overflow]);
+    //write value
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &overflow);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+
+    //Create the dataset.
+    dataset_id = H5Dcreate1(groupid, "NumberOfFills",
+                            H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT);
+    //get copy of value to write
+    const int nfill (hist.nbrOfFills());
+    //write value
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &nfill);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+
+    //Terminate access to the data space.
+    H5Sclose(dataspace_id);
+
+    // Create the data space for the dataset.
+    dims[0] = data.size()-2;
+    dims[1] = 1;
+    dataspace_id = H5Screate_simple(2, dims, NULL);
+
+    //Create the dataset.
+    dataset_id = (H5Dcreate1(groupid, "HistData",
+                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    //write data
+    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &data[0]);
+    //End access to the dataset and release resources used by it.
+    H5Dclose(dataset_id);
+    //Terminate access to the data space.
+    H5Sclose(dataspace_id);
   }
 
   void write2DHist(const Histogram2DFloat& hist, hid_t groupid)
