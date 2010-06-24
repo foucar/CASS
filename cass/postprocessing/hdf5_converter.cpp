@@ -145,6 +145,7 @@ void cass::pp1001::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
   _filehandle = H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  /** @todo rethink open close points */
   std::cout <<"PostProcessor "<<_key
       <<" will write all chosen histograms to hdf5 "<<_outfilename
       <<". Condition is"<<_condition->key()
