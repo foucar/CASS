@@ -2,9 +2,7 @@
 
 /** @file operations.h file contains postprocessors that will operate
  *                     on histograms of other postprocessors
- * @todo add pp that will maks out given areas of a histogram
  * @todo add pp that has input and condition output is copy of input
- * @todo add pp that will return a subset of a histogram
  * @author Lutz Foucar
  */
 
