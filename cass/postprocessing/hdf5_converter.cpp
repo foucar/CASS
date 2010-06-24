@@ -17,11 +17,14 @@ namespace cass
 {
   hid_t createGroupNameFromEventId(uint64_t eventid, hid_t filehandler)
   {
+    uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
+    uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
     std::stringstream groupname;
     QDateTime time;
-    time.setTime_t( (static_cast<uint32_t>(eventid & 0xFFFFFFFF00000000 >> 32) ));
-    uint32_t eventFiducial = static_cast<uint32_t>(eventid & 0xFFFFFFFF00000000);
-    groupname << time.toString(Qt::ISODate).toStdString() <<" "<<eventFiducial;
+    time.setTime_t(timet);
+    groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+    VERBOSEOUT(std::cout<<"createGroupNameFromEventId(): creating group: "<<groupname.str()
+               <<std::endl);
     return H5Gcreate1(filehandler, groupname.str().c_str(),0);
   }
 
