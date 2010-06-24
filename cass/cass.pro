@@ -243,13 +243,12 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_machinedata/libcass_machinedata.a
 
 bin.files      = cass
+# TODO: THIS IS NOT CROSS-PLATFORM!!
+bin.extra     += bash backup_copy.sh $${INSTALLBASE}
 headers.files  = $$HEADERS
 
 #INSTALLS      += headers bin
 INSTALLS      += bin
-
-# TODO: THIS IS NOT CROSS-PLATFORM!!
-QMAKE_POST_LINK = bash backup_copy.sh
 
 
 ## Local Variables:
