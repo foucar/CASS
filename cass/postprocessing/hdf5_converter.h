@@ -28,10 +28,6 @@ namespace cass
    * something human readable before. At the end of the analysis, when all files
    * are processed it will output all chosen histograms in a summary.
    *
-   *
-   *
-   * @todo close the filehandle when postproessor is deleted
-   *
    * @author Lutz Foucar
    */
   class pp1001 : public PostprocessorBackend
@@ -45,6 +41,9 @@ namespace cass
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
+
+    /** dump all pp histograms to summary group just before quitting */
+    virtual void aboutToQuit();
 
   protected:
     /** the filename that the data will be written to */
