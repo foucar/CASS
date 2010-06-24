@@ -142,26 +142,33 @@ Your postprocessor needs to have the following members
     you need to make sure that you have created a histogram in that _result points
     to.
 
- If you want to use the optional condition:
- - the pp that contains the conditon is defaulty set by "ConditionName" in
-   cass.ini
- - document that you pp is using the optional condition.
- - using setupCondition() one can setup the condition. The retrun value will
-   tell you whether the dependency is is already on the list
+If your postprocessor needs to have the general available settings call
+setupGeneral().
 
- If you want an additional dependencies do the following
- - create a key
- - use "retrieve_and_validate(_pp,_key,"HistName",keyHist)" to retrieve a pointer
-   to the pp that you depend on.
-   - _pp : reference to the postprocessors container
-   - _key : key of this pp
-   - "HistName" : Name of the dependency pp in cass.ini (needs to be documented)
-   - keyHist : name of the key created in first step
- - put the key on the dependency list (_dependencies.push_back(keyHist);)
+If you want to use the optional condition:
+- the pp that contains the conditon is defaulty set by "ConditionName" in
+cass.ini
+- document that you pp is using the optional condition.
+- using setupCondition() one can setup the condition. The retrun value will
+tell you whether the dependency is is already on the list
 
- If you want to retrieve a histogram while you setup your pp (in loadSettings)
- do the following:
- - use the "getHist(0)" member function of the pp that you depend on.
+If you want an additional dependencies do the following
+- create a key
+- use "retrieve_and_validate(_pp,_key,"HistName",keyHist)" to retrieve a pointer
+to the pp that you depend on.
+- _pp : reference to the postprocessors container
+- _key : key of this pp
+- "HistName" : Name of the dependency pp in cass.ini (needs to be documented)
+- keyHist : name of the key created in first step
+- put the key on the dependency list (_dependencies.push_back(keyHist);)
+
+If you want to retrieve a histogram while you setup your pp (in loadSettings)
+do the following:
+- use the "getHist(0)" member function of the pp that you depend on.
+
+Make sure that you document all the different things your postprocessor does.
+If you have have settings other than the generaly available that the user needs
+to set in cass ini, document them with the doxygen tag cassttng.
 
 @subsection steps Register postprocessor
 
