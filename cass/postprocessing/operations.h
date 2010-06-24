@@ -105,10 +105,12 @@ namespace cass
   public:
     /** constructor */
     pp10(PostProcessors& pp, const PostProcessors::key_t &key, bool boolean)
-      :PostprocessorBackend(pp,key),_hide(true),_write(false)
+      :PostprocessorBackend(pp,key)
     {
       _result = (new Histogram0DFloat(boolean));
       createHistList(1);
+      _hide =true;
+      _write =false;
     }
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
