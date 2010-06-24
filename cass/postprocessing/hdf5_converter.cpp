@@ -1,5 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
+#include <QtCore/QDateTime>
+
 #include <hdf5.h>
 #include <stdint.h>
 
@@ -11,7 +13,12 @@ namespace cass
 {
   hid_t createGroupNameFromEventId(uint64_t eventid, hid_t filehandler)
   {
-    return 0;
+    std::stringstream groupname;
+    QDateTime time;
+    time.setTime_t( (static_cast<uint32_t>(eventid & 0xFFFFFFFF00000000 >> 32) ));
+    uint32_t eventFiducial = static_cast<uint32_t>(eventid & 0xFFFFFFFF00000000);
+    groupname << time.toString(Qt::ISODate).toStdString() <<" "<<eventFiducial;
+    return H5Gcreate1(filehandler, groupname.str().c_str(),0);
   }
 
   void write0DHist(const Histogram0DFloat& hist, hid_t groupid)
