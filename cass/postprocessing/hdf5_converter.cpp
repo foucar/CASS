@@ -61,6 +61,10 @@ namespace cass
 
   void write1DHist(const Histogram1DFloat& hist, hid_t groupid)
   {
+
+    hid_t axisgrouphandle (H5Gcreate1(groupid, "xAxis",0));
+    writeAxisProperty(hist.axis()[HistogramBackend::xAxis],axisgrouphandle);
+
     const HistogramFloatBase::storage_t &data (hist.memory());
     const size_t nxbins (hist.axis()[HistogramBackend::xAxis].nbrBins());
 
