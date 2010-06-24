@@ -586,6 +586,7 @@ INPUT                  = ../cass \
                          ../cass_ccd \
                          ../cass_machinedata \
                          ../cass_pnccd \
+                         ../doc \
                          ../jocassview
 
 # This tag can be used to specify the character encoding of the source files
