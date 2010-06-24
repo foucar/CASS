@@ -11,7 +11,7 @@ namespace cass
 {
   hid_t createGroupNameFromEventId(uint64_t eventid, hid_t filehandler)
   {
-
+    return 0;
   }
 
   void write0DHist(const Histogram0DFloat& hist, hid_t groupid)
