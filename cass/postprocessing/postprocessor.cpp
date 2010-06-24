@@ -139,9 +139,9 @@ void cass::PostProcessors::loadSettings(size_t)
   if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
     _postprocessors["DefaultFalseHist"] = new pp10(*this, "DefaultFalseHist",false);
   setup(active);
-  cout <<"   Active postprocessor(s): ";
+  cout <<"   Active postprocessor(s): "<<endl;
   for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
-    cout << *iter << " ";
+    cout << *iter << " "<<endl;
   cout<<endl;
 }
 
