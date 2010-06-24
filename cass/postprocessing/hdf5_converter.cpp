@@ -1,5 +1,9 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/** @file hdf5_converter.h definition of pp1001 (hdf5_converter)
+ * @author Lutz Foucar
+ */
+
 #include <QtCore/QDateTime>
 
 #include <hdf5.h>
