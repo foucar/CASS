@@ -64,6 +64,7 @@ namespace cass
 
     hid_t axisgrouphandle (H5Gcreate1(groupid, "xAxis",0));
     writeAxisProperty(hist.axis()[HistogramBackend::xAxis],axisgrouphandle);
+    H5Gclose(axisgrouphandle);
 
     const HistogramFloatBase::storage_t &data (hist.memory());
     const size_t nxbins (hist.axis()[HistogramBackend::xAxis].nbrBins());
@@ -155,6 +156,7 @@ void cass::pp1001::loadSettings(size_t)
 void cass::pp1001::process(const cass::CASSEvent &evt)
 {
   hid_t eventgrouphandle (createGroupNameFromEventId(evt.id(),_filehandle));
+  /** @todo make the code below in a function */
   PostProcessors::postprocessors_t& ppc(_pp.postprocessors());
   PostProcessors::postprocessors_t::iterator it (ppc.begin());
   for (;it != ppc.end(); ++it)
