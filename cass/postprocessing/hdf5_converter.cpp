@@ -392,8 +392,8 @@ void cass::pp1001::aboutToQuit()
   H5Gclose(grouphandle);
 
   // close file//
-  H5Fflush(fh,H5F_SCOPE_LOCAL);
-  H5Fclose(fh);
+  H5Fflush(_filehandle,H5F_SCOPE_LOCAL);
+  H5Fclose(_filehandle);
 }
 
 void cass::pp1001::process(const cass::CASSEvent &evt)
