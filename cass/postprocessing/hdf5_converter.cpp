@@ -385,16 +385,24 @@ void cass::pp1001::aboutToQuit()
                pp.comment().c_str());
       H5Dclose(dataset_id);
       H5Sclose(dataspace_id);
+      VERBOSEOUT(std::cout << "pp1001::aboutToQuit: write '"<<pp.key()
+                 << "' which is");
       switch (hist.dimension())
       {
       case 0:
+        VERBOSEOUT(std::cout<< " 0D"<<std::endl);
         write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 1:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< " 1D"<<std::endl);
+        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 2:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< " 2D"<<std::endl);
+        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       }
       H5Gclose(ppgrouphandle);
@@ -429,16 +437,24 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
                pp.comment().c_str());
       H5Dclose(dataset_id);
       H5Sclose(dataspace_id);
+      VERBOSEOUT(std::cout << "pp1001::process: write '"<<pp.key()
+                 << "' which is");
       switch (hist.dimension())
       {
       case 0:
+        VERBOSEOUT(std::cout<< " 0D"<<std::endl);
         write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 1:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< " 1D"<<std::endl);
+        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 2:
-        write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< " 2D"<<std::endl);
+        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle);
+        VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       }
       H5Gclose(ppgrouphandle);
