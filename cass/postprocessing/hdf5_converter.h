@@ -17,7 +17,7 @@ namespace cass
    *
    * Will go through all postprocessors and checks their write flag. If it is
    * true the histogram will be converted into a csv style data format.
-   * - 2D histogram: a 3 column (x,y,z) by x*x rows table.
+   * - 2D histogram: a 3 column (x,y,z) by x*y rows table.
    * - 1D histogram: a 2 column (x,y) by x rows table.
    * - 0D histogram: a single value
    *
