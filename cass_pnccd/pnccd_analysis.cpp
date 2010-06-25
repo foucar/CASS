@@ -4,6 +4,8 @@
 // Copyright (C) 2009, 2010  Nicola Coppola
 /**
  * @todo add extra switch to discard pixels that, after offset correction, have too large ADU-values
+ * @todo add when calculating offset maps, veto of a frame that could have stray light
+ * @todo add gain "map" calibration
  */
 #include <QtCore/QMutexLocker>
 #include <iostream>
