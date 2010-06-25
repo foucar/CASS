@@ -75,11 +75,12 @@ the Class description for information about what parameters are user settable.
 00053: Angular Distribution / Radar Plot
 00054: Convert 2D histogram to Radius - Phi representation
 
-00060: Histogram values from a 0D histogram
+00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
 00062: Summing up of histogram
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
+00065: Histogram tow 0D values to a 2D histogram
 
 00070: Subset a Histogram
 
@@ -234,6 +235,7 @@ using the custom doxygen tag cassttng.
       HistogramSumming=62,
       TimeAverage=63,
       running1Dfrom0D=64,
+      ZeroDto2DHistogramming=65,
 
       SubsetHistogram=70,
 
