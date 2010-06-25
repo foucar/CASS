@@ -21,6 +21,10 @@ namespace cass
     uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
     std::stringstream groupname;
     QDateTime time;
+    /** @todo make sure that it will be always converted to the timezone in
+     *        stanford otherwise people get confused. Timezones are not
+     *        yet supported in QDateTime
+     */
     time.setTime_t(timet);
     groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
     VERBOSEOUT(std::cout<<"createGroupNameFromEventId(): creating group: "<<groupname.str()
