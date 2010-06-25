@@ -164,26 +164,26 @@ namespace cass
     H5Sclose(dataspace_id);
 
     // Create the data space for the dataset.
-    dims[0] = 2;
-    dims[1] = data.size()-2;
+    dims[0] = data.size()-2;
+    dims[1] = 2;
     dataspace_id = H5Screate_simple(2, dims, NULL);
 
     std::vector<float> table(dims[0]*dims[1]);
-    std::vector<float>::iterator tit (table.begin());
-    HistogramFloatBase::storage_t::const_iterator dit (data.begin());
+    std::vector<float>::iterator tableIt (table.begin());
+    HistogramFloatBase::storage_t::const_iterator dataIt (data.begin());
     const AxisProperty & xaxis (hist.axis()[HistogramBackend::xAxis]);
-    for (size_t ibin(0); ibin<dims[1]; ++ibin)
+    for (size_t ibin(0); ibin<xaxis.nbrBins(); ++ibin)
     {
-      *tit++ = xaxis.position(ibin);
-      *tit++ = *dit++;
+      *tableIt++ = xaxis.position(ibin);
+      *tableIt++ = *dataIt++;
     }
 
     //Create the dataset.
-    dataset_id = (H5Dcreate1(groupid, "HistData",
+    dataset_id = (H5Dcreate1(groupid, "1DHistData",
                              H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
     //write data
     H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-             H5P_DEFAULT, &data[0]);
+             H5P_DEFAULT, &table[0]);
     //End access to the dataset and release resources used by it.
     H5Dclose(dataset_id);
     //Terminate access to the data space.
@@ -305,22 +305,22 @@ namespace cass
     H5Sclose(dataspace_id);
 
     // Create the data space for the dataset.
-    dims[0] = 3;
-    dims[1] = data.size()-8;
+    dims[0] = data.size()-8;
+    dims[1] = 3;
     dataspace_id = H5Screate_simple(2, dims, NULL);
 
     std::vector<float> table(dims[0]*dims[1]);
-    std::vector<float>::iterator tit (table.begin());
-    HistogramFloatBase::storage_t::const_iterator dit (data.begin());
+    std::vector<float>::iterator tableIt (table.begin());
+    HistogramFloatBase::storage_t::const_iterator dataIt (data.begin());
     const AxisProperty & xaxis (hist.axis()[HistogramBackend::xAxis]);
     const AxisProperty & yaxis (hist.axis()[HistogramBackend::yAxis]);
     for (size_t iybin(0); iybin<yaxis.nbrBins(); ++iybin)
     {
       for (size_t ixbin(0); ixbin<xaxis.nbrBins(); ++ixbin)
       {
-        *tit++ = xaxis.position(ixbin);
-        *tit++ = yaxis.position(iybin);
-        *tit++ = *dit++;
+        *tableIt++ = xaxis.position(ixbin);
+        *tableIt++ = yaxis.position(iybin);
+        *tableIt++ = *dataIt++;
       }
     }
     //Create the dataset.
@@ -328,7 +328,7 @@ namespace cass
                              H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
     //write data
     H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
-             H5P_DEFAULT, &data[0]);
+             H5P_DEFAULT, &table[0]);
     //End access to the dataset and release resources used by it.
     H5Dclose(dataset_id);
     //Terminate access to the data space.
@@ -379,7 +379,7 @@ void cass::pp1001::aboutToQuit()
       hid_t dataspace_id (H5Screate(H5S_SCALAR));
       hid_t datatype (H5Tcopy(H5T_C_S1));
       H5Tset_size(datatype,pp.comment().size()+1);
-      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "comment", datatype,
+      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "Comment", datatype,
                                    dataspace_id, H5P_DEFAULT));
       H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
                pp.comment().c_str());
