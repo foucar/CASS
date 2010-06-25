@@ -127,7 +127,7 @@ void PostprocessorBackend::setupGeneral()
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _hide = settings.value("Hide",false).toBool();
-  _write = settings.value("Write",false).toBool();
+  _write = settings.value("Write",true).toBool();
   _comment = settings.value("Comment","").toString().toStdString();
 }
 
