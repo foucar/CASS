@@ -314,9 +314,9 @@ namespace cass
     HistogramFloatBase::storage_t::const_iterator dit (data.begin());
     const AxisProperty & xaxis (hist.axis()[HistogramBackend::xAxis]);
     const AxisProperty & yaxis (hist.axis()[HistogramBackend::yAxis]);
-    for (size_t iybin(0); iybin<dims[1]; ++iybin)
+    for (size_t iybin(0); iybin<yaxis.nbrBins(); ++iybin)
     {
-      for (size_t ixbin(0); ixbin<dims[1]; ++ixbin)
+      for (size_t ixbin(0); ixbin<xaxis.nbrBins(); ++ixbin)
       {
         *tit++ = xaxis.position(ixbin);
         *tit++ = yaxis.position(iybin);
