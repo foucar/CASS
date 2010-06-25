@@ -562,9 +562,6 @@ cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 void cass::pp60::loadSettings(size_t)
 {
   using namespace std;
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
@@ -889,6 +886,61 @@ void cass::pp64::process(const cass::CASSEvent &evt)
   _result->lock.unlock();
   one.lock.unlock();
 }
+
+
+
+
+
+
+
+// *** postprocessor 65 histograms 2 0D values to 1D histogram ***
+
+cass::pp65::pp65(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp65::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _one = setupDependency("HistOne");
+  _two = setupDependency("HistTwo");
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) )
+    return;
+  if (_one->getHist(0).dimension() != 0 ||
+      _two->getHist(0).dimension() != 0)
+    throw std::runtime_error("PP type 65: Either HistOne or HistTwo is not a 0D Hist");
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers,true);
+  std::cout<<"Postprocessor '"<<_key
+      <<"': histograms values from PostProcessor '"<< _one->key()
+      <<"' and '"<< _two->key()
+      <<". condition on PostProcessor '"<<_condition->key()<<"'"
+      <<std::endl;
+}
+
+void cass::pp65::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram0DFloat &one
+      (dynamic_cast<const Histogram0DFloat&>((*_one)(evt)));
+  const Histogram0DFloat &two
+      (dynamic_cast<const Histogram0DFloat&>((*_two)(evt)));
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue(),two.getValue());
+  _result->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
 
 
 

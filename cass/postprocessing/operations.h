@@ -427,9 +427,9 @@ namespace cass
 
 
 
-  /** 0D histogramming.
+  /** 0D to 1D histogramming.
    *
-   * create a 1d histogram from 0d values
+   * histogram 0d values into a 1D Histogram
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
@@ -454,9 +454,6 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** alpha for the running average */
-    float _alpha;
-
     /** pp containing 0D histogram to work on */
     PostprocessorBackend *_pHist;
   };
@@ -631,6 +628,45 @@ namespace cass
 
     /** the number of bins in the resulting histogram, range is fixed */
     size_t _size;
+  };
+
+
+
+
+
+
+  /** 0D to 2D histogramming.
+   *
+   * histograms two 0d values into one 2D Histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           Postprocessor names containing the 0D values to histogram.
+   *
+   * @author Lutz Foucar
+   */
+  class pp65 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp65(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing first 0D histogram to work on */
+    PostprocessorBackend *_one;
+
+    /** pp containing second 0D histogram to work on */
+    PostprocessorBackend *_two;
   };
 
 
