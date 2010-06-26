@@ -34,5 +34,4 @@ int ns__getPostprocessorIds(bool *success);
 int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 
 // get histogram from server
-int ns__getHistogram(std::string type, ULONG64 eventId, bool *success);
-
+int ns__getHistogram(std::string type, uint64_t eventId, bool *success);
