@@ -2,6 +2,8 @@
 #define PLOTWIDGET_H
 
 
+#include <cmath>
+
 #include <QCoreApplication>
 #include <QtCore/QSettings>
 #include <string>
@@ -45,13 +47,12 @@
 #include "../cass/postprocessing/postprocessor.h"
 #include "soapCASSsoapProxy.h"
 
-#include <math.h>
 
 
 // prototypes:
 class cassData;
 
-     
+
 
 class NaNCurve : public QwtPlotCurve
 {
@@ -83,14 +84,14 @@ public:
                 maxY = yv;
         }
         return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
-    } 
+    }
 
     NaNCurve() : QwtPlotCurve() {}
     NaNCurve(QString& str) : QwtPlotCurve(str) {}
     void draw(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const
-    {   
+    {
         if (to < 0)
           to = dataSize() - 1;
         // paint curve, but leave out all NaNs and Infs.
@@ -626,7 +627,7 @@ public:
     _spectrogram->setColorMap(*_colorMap);
     _rightAxis->setColorMap(_spectrogram->data().range(),
                             *_colorMap);
-                            
+
     //_rightAxis->setColorMap(_spectrogram->data().range(),
     //                        *_colorMapInv);
     //_plot->setAxisScaleEngine(QwtPlot::yRight, new QwtLog10ScaleEngine);
@@ -1446,7 +1447,7 @@ protected:
     //_toolbar->addWidget(_linlog_yscale);
     //_bool_1d_lin_yscale = new QAction( QIcon(":images/chart-Axis_Features.jpg"), tr("toggle lin/log y-scale"), this);
     //_bool_1d_lin_yscale = new QAction( QIcon(":images/Modelica_Math_log10I.png"), tr("toggle lin/log y-scale"), this);
-    
+
     //_bool_1d_lin_yscale_ = new QAction( QIcon(":images/log-lin.png"), tr("toggle lin/log y-scale"), this);
     //_bool_1d_lin_yscale_ = new QAction( QIcon(":images/chart-Axis_Features1.jpg"), tr("toggle lin/log y-scale"), this);
     //_bool_1d_lin_yscale_->setCheckable( true );
@@ -1489,7 +1490,7 @@ protected:
     _sby_scale1d_max->setValidator(_sbx_validator1d);
     _sby_scale1d_max->setText("1.e6");
     _sby_scale1d_max->setMaximumWidth(120);
-    
+
     connect(_sby_scale1d_max, SIGNAL(textChanged(QString)), this, SLOT(YReplot()));
     connect(_sby_scale1d_min, SIGNAL(textChanged(QString)), this, SLOT(YReplot()));
 
@@ -1543,7 +1544,7 @@ protected:
       _sby_scale1d_min->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
       _sby_scale1d_max->setStyleSheet("QLineEdit {color: black; background-color: #FFFFFF}");
     }
-    
+
     if(_sbx_scale1d_max->text().toDouble() < _sbx_scale1d_min->text().toDouble() )
     {
       _sbx_scale1d_min->setStyleSheet("QLineEdit {color: blue; background-color: #FF0000}");
