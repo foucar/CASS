@@ -78,9 +78,9 @@ public:
                 maxX = xv;
 
             const double yv = y(i);
-            if ( yv < minY && !(isnan(yv) || isinf(yv)))
+            if ( yv < minY && !(std::isnan(yv) || std::isinf(yv)))
                 minY = yv;
-            if ( yv > maxY && !(isnan(yv) || isinf(yv)))
+            if ( yv > maxY && !(std::isnan(yv) || std::isinf(yv)))
                 maxY = yv;
         }
         return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
@@ -99,9 +99,9 @@ public:
         while(ii<=to)
         {
             int _from;
-            while( (isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            while( (std::isnan(y(ii)) || std::isinf(y(ii))) && ii<to) ++ii;
             _from = ii;
-            while( !(isnan(y(ii)) || isinf(y(ii))) && ii<to) ++ii;
+            while( !(std::isnan(y(ii)) || std::isinf(y(ii))) && ii<to) ++ii;
             if (ii>=to) ii=to+1;
             QwtPlotCurve::draw(painter, xMap, yMap, _from, ii-1);
         }
