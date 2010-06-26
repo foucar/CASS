@@ -33,6 +33,9 @@ namespace cass
    * something human readable before. At the end of the analysis, when all files
    * are processed it will output all chosen histograms in a summary.
    *
+   * @todo compress the tables with 1d and 2d data
+   * @todo use hyperslab to have data provided also as xbins x ybins matrix
+   *
    * @author Lutz Foucar
    */
   class pp1001 : public PostprocessorBackend
