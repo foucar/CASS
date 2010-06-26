@@ -85,7 +85,7 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
 # create SOAP sources and descriptions
 # use "newer" to make sure soapcpp2 is only run when necessary (this should be done by qmake, though!)
 SOAPFiles.target    = CASSsoapService
-SOAPFiles.commands  = find $$PWD/soapserver.h -newer soapCASSsoapService.h || soapcpp2 -S -i $$PWD/soapserver.h
+SOAPFiles.commands  = find $$PWD/soapserver.h -newer soapCASSsoapService.h | grep -v soapserver || soapcpp2 -S -i $$PWD/soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
