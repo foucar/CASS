@@ -167,7 +167,7 @@ namespace cass
     typedef std::vector<uint32_t> ROIiterator_converter_t;
     /** creating the roi entities.
      * This functor will calculate the requested entities.
-     * 
+     *
      * @param detectorname a unique name for which detector we create the mask
      *        we need this info, to be able to extract the right info from cass.ini
      *        (for the moment this is not needed, as the way that would allow to use it
