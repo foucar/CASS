@@ -160,7 +160,7 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 
 
-int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, uint64_t /* eventId */, bool *success)
+int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 eventId, bool *success)
 {
     VERBOSEOUT(std::cerr << "CASSsoapService::getHistogram" << std::endl);
     static QQueue<std::pair<size_t, std::string> *> queue;
