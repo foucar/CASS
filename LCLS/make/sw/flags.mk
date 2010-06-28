@@ -1,7 +1,7 @@
 # Architecture flags
 # ------------------
 arch_tgts := ppc-rtems-rce405 ppc-rtems-ml405 i386-linux x86_64-linux x86_64-linux-static sparc-solaris
-arch_opts := opt dbg
+arch_opts := opt dbg noshmem
 
 define arch_opt_template
 arch_tgts += $$(addsuffix -$(1),$$(arch_tgts))
@@ -122,6 +122,10 @@ endif
 
 ifneq ($(findstring -opt,$(tgt_arch)),)
 DEFINES += -O4
+endif
+
+ifneq ($(findstring -noshmem,$(tgt_arch)),)
+DEFINES += -DNO_SHMEM
 endif
 
 ifneq ($(findstring -dbg,$(tgt_arch)),)
