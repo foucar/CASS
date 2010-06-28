@@ -17,6 +17,7 @@
 -# @ref add_pp
 -# @ref pplist
 -# @ref ini_examples
+-# @ref getting_help
 -# @ref cred
 
 @section licence License
@@ -133,6 +134,12 @@ to set all pixels below a certain value to 0.
 @example threshold-average.ini
 Example CASS.ini for calculating the running average of thresholded frames.
 
+
+@section getting_help Getting Help
+If you need further assistence please subscripe yourself to the cass-mailinglist.\n
+https://www.asg.mpg.de/mailman/listinfo/cass\n
+Where people should share theier experience and user are helping other users
+to solve their problems.
 
 
 @section cred Credits
