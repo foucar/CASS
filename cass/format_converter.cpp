@@ -1,4 +1,5 @@
 // Copyright (C) 2009 Jochen Küpper
+// Copyright (C) 2009,2010 Lutz Foucar
 #include <iostream>
 
 #include <iomanip>
@@ -17,9 +18,17 @@
 //create a black converter for all ids that we are not interested in//
 namespace cass
 {
+  /** Converter that does nothing
+   *
+   * This converter is a blank that does nothing. It will be used for converting
+   * xtc id's that we either don't care about or the user has disabled in .ini
+   *
+   * @author Lutz Foucar
+   */
   class CASSSHARED_EXPORT BlankConverter : public ConversionBackend
   {
   public:
+    /** do nothing */
     void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
   };
 }
