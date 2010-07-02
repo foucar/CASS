@@ -80,7 +80,7 @@ the Class description for information about what parameters are user settable.
 00062: Summing up of histogram
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
-00065: Histogram tow 0D values to a 2D histogram
+00065: Histogram two 0D values to a 2D histogram
 
 00070: Subset a Histogram
 
