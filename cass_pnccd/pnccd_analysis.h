@@ -187,6 +187,17 @@ namespace cass
 
     class pnCCDDevice;
 
+    /** pre analysis of the pnCCD
+     *
+     * Put the pnCCDEvent object through the analysis chain.
+     * A new corrected pnCCD image is generated and X-ray
+     * photon hits are extracted if the user wishes to so. In addition, some
+     * basic parameters are recorded, e.g. The integral over the corrected
+     * frame, the integral over the corrected frame using only the pixel over
+     * a certain threshold, the max value of the pixel over the frame.
+     *
+     * @author Nicola Coppola
+     */
     class CASS_PNCCDSHARED_EXPORT Analysis : public cass::AnalysisBackend
     {
     public:
@@ -212,10 +223,10 @@ namespace cass
       void rebin(cass::pnCCD::pnCCDDevice&,size_t DetectorIndex);
 
     private:
-      QReadWriteLock              _RWlock; //a mutex to lock write operations but allow read
-      QMutex                      _mutex; //a mutex to lock write operations
+      QReadWriteLock              _RWlock;//!< a mutex to lock write operations but allow read
+      QMutex                      _mutex; //!< a mutex to lock write operations
       Parameter                   _param; //!< the parameters used to analyze the pnccd detectors
-      cass::PixelDetector::frame_t  _tmp; //temporary storage for rebinning frames
+      cass::PixelDetector::frame_t  _tmp; //!< temporary storage for rebinning frames
     };
   } // end of scope of namespace pnCCD
 } // end of scope of namespace cass
