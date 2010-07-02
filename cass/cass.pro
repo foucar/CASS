@@ -100,8 +100,12 @@ versiontarget.target = $$PWD/../cass/update-version.sh
 versiontarget.commands = $$PWD/../cass/update-version.sh
 versiontarget.depends = FORCE
 
-PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh CASSsoapService LCLSLibrary # LCLSApplication <- not necessary, as LCLSApplication >= LCLSLibrary
-QMAKE_EXTRA_TARGETS += versiontarget SOAPFiles lclslibs # lclsapps  <- not necessary, as lclsapps >= lclslibs
+PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh 
+PRE_TARGETDEPS     += CASSsoapService 
+PRE_TARGETDEPS     += LCLSLibrary # LCLSApplication <- not necessary, as LCLSApplication >= LCLSLibrary
+QMAKE_EXTRA_TARGETS += versiontarget 
+QMAKE_EXTRA_TARGETS += SOAPFiles 
+QMAKE_EXTRA_TARGETS += lclslibs # lclsapps  <- not necessary, as lclsapps >= lclslibs
 
 # our own stuff
 SOURCES +=  analyzer.cpp \
