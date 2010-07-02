@@ -117,22 +117,6 @@ If you get weird HDF5 error messages when using pp1000, make sure your
 HDF5 library was compiled with thread safety enabled.
 
 
-@section ini_examples Example CASS.ini files
-Carefully inspect these examples as the id's of the postprocessors and the
-parameter names might have changed. Always check website to see the most recent
-id and parameter list.
-@example hdf5dump.ini
-This example shows you how to setup the Chapman crew HDF5 File Dumper.
-@example photodiode-photonhits.ini
-This example shows you how to setup a condition and use it to gate the pnccd
-Detector for yag on / off.
-@example singleParticleDetection.ini
-This example shows you how to use Stephans Hit finder and make a condition on
-it. Then use this condition to create a running average and substract the
-running average from the image that contains a hit. The result is then threholded
-to set all pixels below a certain value to 0.
-@example threshold-average.ini
-Example CASS.ini for calculating the running average of thresholded frames.
 
 
 @section getting_help Getting Help
@@ -205,5 +189,22 @@ Lutz Foucar
 */
 
 /**
+\page examples Examples
+@section ini_examples Example CASS.ini files
+Carefully inspect these examples as the id's of the postprocessors and the
+parameter names might have changed. Always check website to see the most recent
+id and parameter list.
+@example hdf5dump.ini
+This example shows you how to setup the Chapman crew HDF5 File Dumper.
+@example photodiode-photonhits.ini
+This example shows you how to setup a condition and use it to gate the pnccd
+Detector for yag on / off.
+@example singleParticleDetection.ini
+This example shows you how to use Stephans Hit finder and make a condition on
+it. Then use this condition to create a running average and substract the
+running average from the image that contains a hit. The result is then threholded
+to set all pixels below a certain value to 0.
+@example threshold-average.ini
+Example CASS.ini for calculating the running average of thresholded frames.\n
 */
 
