@@ -138,6 +138,28 @@ namespace cass
       cass::ROI::ROIiterator_t _ROIiterator_converter;
     };
 
+    /**
+     *  @cassttng
+     *  IsDarkFrames\n
+     *    True or false, default is false
+     *  The following is a user settable parameter
+     *  it decide for both pnCCD detectors if the following frames are
+     *  to be used to calculate the offset corrections and noise map
+     *  that are needed to calculate a corrected frame from the raw one.\n
+     *
+     *    After 200 Frames have been seen a warning will be printed out,
+     *    the user can then send a "Save ini" command to CASS to save the
+     *    calibration constants to files. The calculation will proceed anyway
+     *    even after the user has save the darkcal-frames to file
+     *    allowing for a still improved statistical accuracy, in case needed.\n
+     *
+     *    If IsDarkFrames is set to true all the previously described parameters
+     *    are NOT active as also any ROI that may be defined in the CASS.ini file.\n
+     *
+     *    Unfortunately there is a similar parameter for the commercial CCD
+     *    and they can be set to opposite values.
+     *  @author Nicola Coppola
+     */
     class CASS_PNCCDSHARED_EXPORT Parameter : public cass::CASSSettings
     {
     public:
@@ -155,32 +177,8 @@ namespace cass
       typedef std::vector<DetectorParameter> detparameters_t;
     public:
       detparameters_t _detectorparameters;  //!< the parameters of the detector
-
-      /**
-      *  @cassttng
-      *  IsDarkFrames\n
-      *    True or false, default is false
-      *  The following is a user settable parameter
-      *  it decide for both pnCCD detectors if the following frames are
-      *  to be used to calculate the offset corrections and noise map
-      *  that are needed to calculate a corrected frame from the raw one.\n
-      *
-      *    After 200 Frames have been seen a warning will be printed out,
-      *    the user can then send a "Save ini" command to CASS to save the
-      *    calibration constants to files. The calculation will proceed anyway
-      *    even after the user has save the darkcal-frames to file
-      *    allowing for a still improved statistical accuracy, in case needed.\n
-      *
-      *    If IsDarkFrames is set to true all the previously described parameters
-      *    are NOT active as also any ROI that may be defined in the CASS.ini file.\n
-      *
-      *    Unfortunately there is a similar parameter for the commercial CCD
-      *    and they can be set to opposite values.
-      *  @author Nicola Coppola
-      */
       bool            _isDarkframe;         //!< switch telling whether we are collecting darkframes right now
-      //flag to set the dark/not-dark run condition
-      bool            _This_is_a_dark_run;
+      bool            _This_is_a_dark_run;  //!< flag to set the dark/not-dark run condition
     };
 
 
