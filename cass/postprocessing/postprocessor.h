@@ -33,9 +33,6 @@ namespace cass
 
 /** container and call handler for all registered postprocessors.
 
-@todo maybe this class should not handle the histograms but only the pp. The
-      histograms should be handled by the pp's.
-
 All currently registered postprocessors are listed here, specifying their id and a
 short description. The postprocessor classes are named according to their number
 and placed in the file for the most appropriate group according to their content.
