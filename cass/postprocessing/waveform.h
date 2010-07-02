@@ -30,7 +30,6 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
    *           The channel number of the acqiris instrument. Default is 0.
    *
-   * @todo adjust the name to the id that it will have
    * @author Lutz Foucar
    */
   class pp110 : public PostprocessorBackend
