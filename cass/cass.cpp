@@ -95,7 +95,7 @@ int main(int argc, char **argv)
       break;
     case 'q':
 #ifndef OFFLINE
-      std::cout<<"WARNING: quit when done has no effect in online mode.";
+      std::cout<<"WARNING: 'quit when done' has no effect in online mode.";
 #endif
       quitwhendone = true;
       break;
