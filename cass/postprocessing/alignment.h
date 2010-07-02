@@ -12,13 +12,13 @@ namespace cass
 {
   class Histogram0DFloat;
 
-  ///*! \f$\cos^2\theta\f$ of CCD image
+  // /*! \f$\cos^2\theta\f$ of CCD image
   //
   //This postprocessor reduces the running average of the CCD image (pp121) to a scalar that represents
   //the \f$\cos^2\theta\f$ (degree of alignment)
   //
   //@author Jochen Küpper
-  //*/
+  // */
   //class pp131 : public PostprocessorBackend
   //{
   //public:
@@ -43,13 +43,13 @@ namespace cass
   //
   //
   //
-  ///*! Gaussian width of CCD image
+  // /*! Gaussian width of CCD image
   //
   //This reduced the running average of the CCD image (pp121) to a scalar
   //that represents the FWHM of a Gaussain fit to the column histogram
   //
   //@author Jochen Küpper
-  //*/
+  // */
   //class pp143 : public PostprocessorBackend
   //{
   //public:
@@ -74,14 +74,14 @@ namespace cass
   //
   //
   //
-  ///*! Gaussian height of CCD image
+  // /*! Gaussian height of CCD image
   //
   //This reduced the running average of the CCD image (pp121) to a scalar
   //that represents the FWHM of a Gaussain fit to the row histogram
   //
   //@author Jochen Küpper
   //@todo Uncouple 143 and 144 -- I have only done that for demonstration puposes
-  //*/
+  // */
   //class pp144 : public PostprocessorBackend
   //{
   //public:
