@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   // filename containing XTC filenames
   std::string filelistname("filesToProcess.txt");
   // filename of the output filename
-  std::string outputfilename("output.root");
+  std::string outputfilename("output.ext");
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
   //the sharememory client index
@@ -77,18 +77,34 @@ int main(int argc, char **argv)
     switch (c)
     {
     case 'p':
+#ifdef OFFLINE
+      std::cout<<"WARNING: partition tag for shm: '"<<optarg
+          <<"' will be ignored in offline mode."<<std::endl;
+#endif
       strcpy(partitionTag, optarg);
       break;
     case 's':
       soap_port = strtol(optarg, 0, 0);
       break;
     case 'c':
+#ifdef OFFLINE
+      std::cout<<"WARNING: client id for shm: '"<<optarg
+          <<"' will be ignored in offline mode."<<std::endl;
+#endif
       index = strtol(optarg, 0, 0);
       break;
     case 'q':
+#ifndef OFFLINE
+      std::cout<<"WARNING: quit when done has no effect in  online mode.";
+#endif
       quitwhendone = true;
       break;
     case 'i':
+#ifndef OFFLINE
+      std::cout<<"WARNING: file '"<<optarg
+          <<"' containing all filenames will be ignored in online mode."
+          <<std::endl;
+#endif
       filelistname = optarg;
       break;
     case 'f':
@@ -101,7 +117,9 @@ int main(int argc, char **argv)
 #ifndef OFFLINE
       std::cout << "please give me at least a partition tag" <<std::endl;
 #else
-      std::cout << "please give me at least an filename that contains the xtcfilenames you want to process" <<std::endl;
+      std::cout << "please give me at least an filename that contains the"
+          <<" xtcfilenames you want to process"
+          <<std::endl;
 #endif
       return 2;
       break;
