@@ -155,8 +155,6 @@ Lutz Foucar
 
 @date 2009-2010
 
-@todo create another acqiris detector, that will just measure the voltage
-      on a given channel
 @todo make detector evaluation lazy by having the getters calc all values.
 @todo right now we cannot define a postprocessors dependency on the
       converter that it needs. We need to include this dependency.

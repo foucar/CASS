@@ -1,5 +1,15 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file detector_backend.h contains the base class declaration for all detectors
+ *                          that are attached to an acqiris device.
+ *
+ * @todo create another acqiris detector, that will just measure the voltage
+ *       on a given channel
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _DETECTOR_BACKEND_H_
 #define _DETECTOR_BACKEND_H_
 
