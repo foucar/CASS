@@ -190,10 +190,6 @@ Lutz Foucar
 
 /**
 \page examples Examples
-@section ini_examples Example CASS.ini files
-Carefully inspect these examples as the id's of the postprocessors and the
-parameter names might have changed. Always check website to see the most recent
-id and parameter list.
 @example hdf5dump.ini
 This example shows you how to setup the Chapman crew HDF5 File Dumper.
 @example photodiode-photonhits.ini
