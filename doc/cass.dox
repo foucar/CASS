@@ -100,7 +100,7 @@ LCLS/build/pdsdata/bin/x86_64-linux/xtcmonserver -f xtcfile.xtc -n 4 -s 0x100000
         it into the shared memory (buisy time).\n
         sparetime = 1e9 / rate - buisy time.
 
-@subsection Running CASS with file input ("offlinecass")
+@subsection Running CASS with file input (formerly known as "offlinecass")
 If CASS has been compiled in offline mode (see the @ref cassinstall file),
 then it will read data from XTC files on the filesystem rather than from
 shared memory.  First, create a file called "filesToProcess.txt" in the
