@@ -206,5 +206,11 @@ running average from the image that contains a hit. The result is then threholde
 to set all pixels below a certain value to 0.
 @example threshold-average.ini
 Example CASS.ini for calculating the running average of thresholded frames.\n
+@example acqiris_detectors.ini
+This example shows how to get the hex-anode data. make conditions on different
+time of flights and see the image for that. Later selected histograms are
+written to a hdf5 file. This file also contains an example on how to setup
+the tof detectors, but their values are never extracted. One can use
+the examples on how to extract \n
 */
 
