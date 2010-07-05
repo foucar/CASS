@@ -167,9 +167,6 @@ Lutz Foucar
       items under one title, just like todo does.
 @todo add gui's to modify the postprocessors settings in cassviewer.
 @todo create an excutable with the revision number to have some fallback
-@todo hdf5 2d hist: 2d table with 3 columns (x,y,z), x*y rows
-           1d hist: 2d table with 2 columns (x,y), x rows
-           0d hist: find out
 */
 
 /**
