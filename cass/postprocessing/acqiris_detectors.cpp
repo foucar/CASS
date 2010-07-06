@@ -507,6 +507,7 @@ void cass::pp166::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _first = settings.value("XInput",'x').toChar().toAscii();
   _second = settings.value("YInput",'y').toChar().toAscii();
+  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _condition =
       make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
                     settings.value("ConditionHigh",50000.).toFloat()),
