@@ -76,7 +76,6 @@ namespace cass
 
   Histogram1DFloat Histogram2DFloat::radial_project(const std::pair<size_t,size_t> &center, size_t maxRadius)const
   {
-
     Histogram1DFloat hist(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
     Histogram1DFloat norms(maxRadius, 0., _axis[xAxis].hist2user(maxRadius));
 
