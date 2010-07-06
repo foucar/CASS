@@ -1,6 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
-/** @file hdf5_converter.h definition of pp1001 (hdf5_converter)
+/**
+ * @file hdf5_converter.cpp definition of pp1001 (hdf5_converter)
+ *
  * @author Lutz Foucar
  */
 
