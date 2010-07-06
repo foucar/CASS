@@ -225,7 +225,7 @@ void cass::PostProcessors::setup(keyList_t &active)
     if(_postprocessors.end() == _postprocessors.find(*iter))
     {
       VERBOSEOUT(cout << "Postprocessor::setup(): Did not find '" << *iter
-                      << "in the PP container, so I am creating it." << endl);
+                      << "' in the PP container, so I am creating it." << endl);
       _postprocessors[*iter] = create(*iter);
     }
     else
@@ -258,7 +258,7 @@ void cass::PostProcessors::setup(keyList_t &active)
                         << "' is not in the PP container. "
                         << "If it is already on active list, we will move it "
                         << "to the front of the list. "
-                        << "If its not there, we will add it to front of list. "
+                        << "If it's not there, we will add it to front of list. "
                         << "This ensures that during the next cycle it will be "
                         << "created before '" << *iter << "'." << endl);
         if(active.end() != find(active.begin(), active.end(), *d))
@@ -277,7 +277,7 @@ void cass::PostProcessors::setup(keyList_t &active)
           //solves case 5
           VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
                           << "' did not appear in the active list, so I will "
-                          << "add it for '" << *iter << "'." << endl);
+                          << "add it befor '" << *iter << "'." << endl);
           active.push_front(*d);
           update = true;
         }
