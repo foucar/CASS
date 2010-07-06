@@ -15,3 +15,23 @@ else {
 VERSION      = 0.1.0
 
 CODECFORTR   = UTF-8
+
+MOC_DIR      = moc
+OBJECTS_DIR  = obj$${SUFFIX_STR}
+
+QMAKE_CLEAN += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN += $$MOC_DIR/moc_*
+QMAKE_CLEAN += $$TARGET
+
+CONFIG(debug, debug|release) {
+    DEFINES += DEBUG VERBOSE QT_DEBUG
+    SUFFIX_STR = _d
+}
+else {
+    DEFINES += NDEBUG QT_NO_DEBUG
+}
+
+bin.path     = $$INSTALLBASE/bin
+libs.path    = $$INSTALLBASE/lib
+headers.path = $$INSTALLBASE/include
+

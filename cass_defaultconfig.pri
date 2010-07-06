@@ -41,23 +41,12 @@ CONFIG      += staticlib
 # if they are not found directly under /usr/include.
 #QWTINCDIR=/usr/include/qwt
 
-SUFFIX_STR =
 
 QMAKE_CXXFLAGS_RELEASE += -ftree-vectorize -g -O3 -mtune=nocona -mfpmath=sse,387
 QMAKE_CXXFLAGS_DEBUG   += -g -mtune=nocona
 QMAKE_LFLAGS +=
 QMAKE_STRIP  =
 
-MOC_DIR      = moc
-OBJECTS_DIR  = obj$${SUFFIX_STR}
-
-QMAKE_CLEAN += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN += $$MOC_DIR/moc_*
-QMAKE_CLEAN += $$TARGET
-
-bin.path     = $$INSTALLBASE/bin
-libs.path    = $$INSTALLBASE/lib
-headers.path = $$INSTALLBASE/include
 
 
 

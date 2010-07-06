@@ -232,13 +232,6 @@ cernroot {
     DEFINES += CERNROOT
 }
 
-CONFIG(debug, debug|release) {
-    DEFINES += DEBUG VERBOSE QT_DEBUG
-    SUFFIX_STR = _d
-}
-else {
-    DEFINES += NDEBUG QT_NO_DEBUG
-}
 
 CONFIG(offline) {
     DEFINES += OFFLINE RINGBUFFER_BLOCKING
