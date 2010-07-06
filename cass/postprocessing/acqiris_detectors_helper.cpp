@@ -63,7 +63,7 @@ void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
     delete itdm->second;
   waveformanalyzer_t::iterator itwa (_waveformanalyzer.begin());
   for (;itwa!=_waveformanalyzer.end();++itwa)
-    delete itwf->second;
+    delete itwa->second;
   detectoranalyzer_t::iterator itda (_detectoranalyzer.begin());
   for (;itda!=_detectoranalyzer.end();++itda)
     delete itda->second;
