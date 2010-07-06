@@ -27,7 +27,7 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
   //if the maps with the analyzers are empty, fill them//
   if (_waveformanalyzer.empty())
   {
-    VERBOSEOUT(std::cout << "the list of waveform analyzers is empty, we need to inflate it"<<std::endl);
+    VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): the list of waveform analyzers is empty, we need to inflate it"<<std::endl);
     _waveformanalyzer[cfd8]  = new CFD8Bit();
     _waveformanalyzer[cfd16] = new CFD16Bit();
     _waveformanalyzer[com8]  = new CoM8Bit();
@@ -35,15 +35,20 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
   }
   if (_detectoranalyzer.empty())
   {
-    VERBOSEOUT(std::cout << "the list of detector analyzers is empty, we need to inflate it"<<std::endl);
-    _detectoranalyzer[DelaylineSimple] = new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
+    VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): the list of "
+               <<" detector analyzers is empty, we need to inflate it"
+               <<std::endl);
+    _detectoranalyzer[DelaylineSimple] =
+        new DelaylineDetectorAnalyzerSimple(&_waveformanalyzer);
     _detectoranalyzer[ToFSimple] = new ToFAnalyzerSimple(&_waveformanalyzer);
   }
   //check if an instance of the helper class already exists//
   //return it, otherwise create one and return it//
   if (0 == _instances[dettype])
   {
-    VERBOSEOUT(std::cout << "creating an instance of the Acqiris Detector Helper for detector type "<<dettype<<std::endl);
+    VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): creating an"
+               <<" instance of the Acqiris Detector Helper for detector type "<<dettype
+               <<std::endl);
     _instances[dettype] = new HelperAcqirisDetectors(dettype);
   }
   return _instances[dettype];
@@ -51,27 +56,23 @@ cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::in
 
 void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
 {
-  //lock this//
   QMutexLocker lock(&_mutex);
-  //delete all instances of the helper class//
-  for (std::map<ACQIRIS::Detectors,HelperAcqirisDetectors*>::iterator it=_instances.begin();
-       it != _instances.end();
-       ++it)
-    delete it->second;
-  //destroy all analyzers//
-  for (waveformanalyzer_t::iterator it=_waveformanalyzer.begin();
-       it != _waveformanalyzer.end();
-       ++it)
-    delete it->second;
-  for (detectoranalyzer_t::iterator it=_detectoranalyzer.begin();
-       it != _detectoranalyzer.end();
-       ++it)
-    delete it->second;
+  std::map<ACQIRIS::Detectors,HelperAcqirisDetectors*>::iterator itdm
+      (_instances.begin());
+  for (;itdm!=_instances.end();++itdm)
+    delete itdm->second;
+  waveformanalyzer_t::iterator itwa (_waveformanalyzer.begin());
+  for (;itwa!=_waveformanalyzer.end();++itwa)
+    delete itwf->second;
+  detectoranalyzer_t::iterator itda (_detectoranalyzer.begin());
+  for (;itda!=_detectoranalyzer.end();++itda)
+    delete itda->second;
 }
 
 cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
 {
-  VERBOSEOUT(std::cout << "AcqirisDetectorHelper constructor: we are responsible for det type "<<dettype<<", which name is ");
+  VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: we are responsible for det type "<<dettype
+             <<", which name is ");
   //create the detector
   //create the detector list with twice the amount of elements than workers
   switch(dettype)
@@ -124,7 +125,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
         _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
     }
     break;
-  default: throw std::invalid_argument("no such detector is present");
+  default: throw std::invalid_argument("HelperAcqirisDetectors::constructor: no such detector is present");
   }
 }
 
@@ -141,10 +142,10 @@ cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 
 void cass::ACQIRIS::HelperAcqirisDetectors::loadSettings(size_t)
 {
-  VERBOSEOUT(std::cout << "Acqiris Helper load Parameters: loading parameters of detector "<< _detector->name()<<std::endl);
+  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): loading parameters of detector "<< _detector->name()<<std::endl);
   CASSSettings par;
 //  par.beginGroup("postprocessors");
   par.beginGroup("AcqirisDetectors");
   _detector->loadSettings(&par);
-  VERBOSEOUT(std::cout << "Acqiris Helper load Parameters: done loading for "<< _detector->name()<<std::endl);
+  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): done loading for "<< _detector->name()<<std::endl);
 }
