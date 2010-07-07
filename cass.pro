@@ -1,7 +1,7 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
 
 TEMPLATE       = subdirs
-
+CONFIG        += ordered
 SUBDIRS        = \
                  cass_acqiris \
                  cass_ccd \
