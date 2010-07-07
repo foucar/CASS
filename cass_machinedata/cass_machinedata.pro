@@ -28,8 +28,8 @@ HEADERS += ../cass/analysis_backend.h \
            machine_device.h \
 
 
-headers.files   = $$HEADERS
-libs.files     = libcass_machinedata.a
+headers.files  = $$HEADERS
+libs.files     = $$TARGET
 #INSTALLS      += headers libs
 INSTALLS      += libs
 

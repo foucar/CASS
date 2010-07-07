@@ -31,9 +31,8 @@ HEADERS       += ../cass/analysis_backend.h \
                  pnccd_device.h \
                  pnccd_detector.h
 
-headers.files   = $$HEADERS
-libs.files     = libcass_pnccd.a
-
+headers.files  = $$HEADERS
+libs.files     = $$TARGET
 #INSTALLS      += headers libs
 INSTALLS      += libs
 

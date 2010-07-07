@@ -47,11 +47,11 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
-headers.files   = $$HEADERS
-libs.files     = libcass_acqiris.a
+libs.files     = $$TARGET
+headers.files  = $$HEADERS
 
 #INSTALLS      += headers libs
-INSTALLS      += libs
+INSTALLS       += libs
 
 
 

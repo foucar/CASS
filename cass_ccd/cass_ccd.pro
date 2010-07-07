@@ -30,8 +30,8 @@ HEADERS       += ../cass/analysis_backend.h \
                  cass_ccd.h \
                  ccd_device.h
 
-headers.files   = $$HEADERS
-libs.files     = libcass_ccd.a
+headers.files  = $$HEADERS
+libs.files     = $$TARGET
 #INSTALLS      += headers libs
 INSTALLS      += libs
 

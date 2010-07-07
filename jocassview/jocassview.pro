@@ -68,8 +68,7 @@ LIBS          += -lgsoap++ -lgsoap \
                  -lgsoap++ -lgsoap \
                  -lqwt
 
-bin.files      = jocassview
-bin.path       = $$INSTALLBASE/bin
+bin.files      = $$TARGET
 # TODO: THIS IS NOT CROSS-PLATFORM!!
 bin.extra     +=bash backup_copy.sh $${INSTALLBASE}
 INSTALLS      += bin
