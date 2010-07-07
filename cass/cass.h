@@ -32,8 +32,10 @@
 #endif
 
 /** multiply number by itself
+ *
  * @tparam T type of value to be squared
  * @param val value to be squared
+ *
  * @author Jochen Kuepper
  */
 template<typename T>
