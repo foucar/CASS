@@ -31,7 +31,13 @@
 #define DEBUGOUT(a) {}
 #endif
 
-template<typename T> inline T square(const T& val) { return val * val; };
+/** multiply number by itself
+ * @tparam T type of value to be squared
+ * @param val value to be squared
+ * @author Jochen Kuepper
+ */
+template<typename T>
+inline T square(const T& val) { return val * val; };
 
 
 namespace cass
