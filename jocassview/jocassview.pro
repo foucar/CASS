@@ -15,6 +15,9 @@ SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
                       CASSsoap.quit.req.xml CASSsoap.quit.res.xml CASSsoap.readini.req.xml CASSsoap.readini.res.xml \
+                      CASSsoap.clearHistogram.req.xml CASSsoap.clearHistogram.res.xml \
+                      CASSsoap.getPostprocessorIds.req.xml CASSsoap.getPostprocessorIds.res.xml \
+                      CASSsoap.writeini.req.xml CASSsoap.writeini.res.xml \
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
 QMAKE_CLEAN        += $$SOAPFiles.files
 
