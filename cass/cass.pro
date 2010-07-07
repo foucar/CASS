@@ -236,10 +236,10 @@ CONFIG(offline) {
     DEFINES += OFFLINE RINGBUFFER_BLOCKING
 }
 
-TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
-                 ../cass_pnccd/libcass_pnccd.a \
-                 ../cass_ccd/libcass_ccd.a \
-                 ../cass_machinedata/libcass_machinedata.a
+TARGETDEPS    += $${CASS_ROOT}/lib/libcass_acqiris.a \
+                 $${CASS_ROOT}/lib/libcass_pnccd.a \
+                 $${CASS_ROOT}/lib/libcass_ccd.a \
+                 $${CASS_ROOT}/lib/libcass_machinedata.a
 
 bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE}
 headers.files  = $$HEADERS
