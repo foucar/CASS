@@ -73,10 +73,9 @@ LIBS          += -lgsoap++ -lgsoap \
                  -lgsoap++ -lgsoap \
                  -lqwt
 
-bin.files      = $$TARGET
 # TODO: THIS IS NOT CROSS-PLATFORM!!
-bin.extra     +=bash backup_copy.sh $${INSTALLBASE}
-INSTALLS      += bin
+bin_copy.extra+=bash backup_copy.sh $${INSTALLBASE}
+INSTALLS      += target bin_copy
 
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
