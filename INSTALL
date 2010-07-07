@@ -4,58 +4,110 @@ Install instructions for CASS
 Prerequisites
 -------------
 
-The following software packages need to be installed and available for building and running CASS:
-  - Qt version 4.6.x
-  - gSOAP 2.7.x
+The following software packages need to be installed and available for building
+and running CASS:
 
-For compiling offline mode, which includes the ability to dump data to HDF5
-files, you'll also require the HDF5 library, version 1.8.x.
+QT (version 4.6.x and above)
+
+gSOAP (version 2.7.x and above):
+ Download gSOAP from here
+   http://sourceforge.net/projects/gsoap2/files/
+ to compile and install do the following
+   ./configure --prefix=/somewhere
+   make
+   make install
+ where "somewhere" is the place that you want to install the libraries to be
+ installed to (ie. /usr/local)
+
+
+QWT (version 5.2.x and above):
+ To obtain qwt do the following:
+   svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.2
+ to compile and install the libs to the following:
+   modify qwtconfig.pri and set INSTALLBASE to where the libraries should be
+   installed to (ie. /usr/local).
+   qmake
+   make
+   make install
+
+
+
+optional Prerequisites
+----------------------
+
+The following software packages are needed when enabeling optional components in
+CASS:
+
+HDF5 (version 1.8.5 and above):
+ Download hdf5 library from here
+   http://www.hdfgroup.org/ftp/HDF5/current/src/
+ to compile and install do the following:
+   ./configure --prefix=/somewhere --enable-threadsafe --with-pthread=/usr
+   make
+   make install
+ where "somewhere" is the place that you want to install the libraries to be
+ installed to (ie. /usr/local)
+
+VIGRA (version 1.7.0 and above) (for single_particle detection):
+ Download vigra template library from here:
+   http://hci.iwr.uni-heidelberg.de/vigra/vigra-1.7.0-src.tar.gz
+ just install the headers by copying them
+   cp -r include/. /usr/local/include/.
+ where the above /usr/local is just an example on where to install the headers
+
+ROOT (version 5.26 and above):
+ Download root sources from here
+   http://root.cern.ch/drupal/content/downloading-root
+ to compile and install
+   ./configure
+   make
+
 
 Needed Environment Variables
 ----------------------------
 
-LCLSSYSINCLUDE: needs to point to the root folder of LCLS Stuff that contains the pdsdata folder
-LCLSSYSLIB: needs to point to the folder the build libraries are in.
 QTDIR: needs to point to the Qt installation directory
+CPLUS_INCLUDE_PATH: points to place where installed headers are (ie. /usr/local/include)
+LIBRARY_PATH: points to place where installed libraries are (ie. /usr/local/lib)
+LD_LIBRARY_PATH: points to place where installed libraries are (ie. /usr/local/lib)
+PATH: points there where you installed the binaries (ie. /usr/local/bin)
 
-Furthermore, you need fully administratively installed Qt and gSOAP libraries, that is,
-PATH/path, CPLUS_INCLUDE_PATH, and LIBRARY_PATH must be set up.
 
-The above means the following, set up the following envionment variables:
+When root is enabled you need:
+ROOTSYS: pointing to where root is. Additionally you need to add ROOTSYS variable
+         to the PATH and LD_LIBRARY_PATH variables:
+  export PATH=$ROOTSYS/bin:$PATH
+  export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+ or
+  setenv PATH ${ROOTSYS}/bin:${PATH}
+  setenv LD_LIBRARY_PATH ${ROOTSYS}/lib:${LD_LIBRARY_PATH}
 
-GSOAP: pointing to the directory where gsoap is installed
-       (at SLAC it is installed under /reg/g/cass/)
 
-CPLUS_INCLUDE_PATH: $GSOAP/include:$LCLSSYSINCLUDE
-LIBRARY_PATH: $GSOAP/lib:$LCLSSYSLIB
-
-If you are compiling in offline mode, you'll need to also define:
-
+If you are compiling hdf5 enabled, you'll need to also define:
 HDF5DIR: pointing at the directory where the HDF5 library is installed.
          The HDF5 library must have been compiled with the "--enable-threadsafe"
          option, otherwise it will break at runtime.
+NOTE: the above should not be necessary, if you installed the HDF5 library as
+      described.
 
 
-Building CASS
--------------
-Do the following
-  cd ${CASS top-level directory}
-  qmake -r INSTALLBASE=some/path
+Downloading & Building CASS
+---------------------------
+We are encouraging you to not build the sources in the same directory. Therefore
+please do the following:
+  svn co --username asg --password cass https://www.mpi-hd.mpg.de/repos/lutz/diode/trunk cass
+  cp cass/cass_defaultconfig.pri cass/cass_myconfig.pri
+now modify cass/cass_myconfig.pri and enable the parts that you want to be using
+there. You can also specify the installation directory by modifying the
+INSTALLBASE variable. This can also be done later (see below).
+Now continue with doing
+  mkdir cass_build
+  cd cass_build
+  qmake ../cass/cass.pro [INSTALLBASE=some/path]
   make
   make install
-to build and install the software.
-
-To compile offline mode, first edit cass_config.pri and uncomment the line
-as indicated.  You'll need to "make clean" then repeat the "qmake -r" step to
-ensure CASS is configured correctly after making this change.
-
-The qmake command will output warnings when run for the first time. The files it is
-complaining about not beeing there will be created by the MAKEFILES qmake will create
-from the project files.
+to build and install. The option in brackets is optional and sets the
+installation point during the qmake call. As described above this can also be
+set by changing the INSTALLBASE variable in cass_myconfig.pri
 
 
-Running CASS
-------------
-in order to run cass the LD_LIBRARY_PATH or equivalent environment should be properly set; for example:
-  <tcsh>  setenv LD_LIBRARY $QTDIR/lib
-  <bash>  export LD_LIBRARY_PATH=$QTDIR/lib
