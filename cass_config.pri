@@ -31,7 +31,5 @@ QMAKE_CLEAN += $$OBJECTS_DIR/*.o
 QMAKE_CLEAN += $$MOC_DIR/moc_*
 QMAKE_CLEAN += $$TARGET
 
-bin.path     = $$INSTALLBASE/bin
-libs.path    = $$INSTALLBASE/lib
 headers.path = $$INSTALLBASE/include
 

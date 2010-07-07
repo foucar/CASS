@@ -2,11 +2,13 @@
 # Copyright (C) 2009, 2010 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
-TEMPLATE       = app
-TARGET         = cass
+CASS_ROOT = ..
+include( $${CASS_ROOT}/cass_config.pri )
 
-CASS_ROOT = ../
-include($${CASS_ROOT}/cass_config.pri )
+TARGET         = cass
+TEMPLATE       = app
+DESTDIR        = $${CASS_ROOT}/bin
+target.path    = $$INSTALLBASE/bin
 
 CONFIG        -= gui
 

@@ -1,12 +1,13 @@
 # Copyright (C) 2009 Jochen Küpper
 # Copyright (C) 2009, 2010 Lutz Foucar
 
-TEMPLATE       = lib
+CASS_ROOT = ..
+include( $${CASS_ROOT}/cass_config.pri )
+
 TARGET         = cass_machinedata
-
-CASS_ROOT = ../
-
-include($${CASS_ROOT}/cass_config.pri )
+TEMPLATE       = lib
+DESTDIR        = $${CASS_ROOT}/lib
+target.path    = $$INSTALLBASE/lib
 
 QT            -= core gui
 
@@ -29,9 +30,8 @@ HEADERS += ../cass/analysis_backend.h \
 
 
 headers.files  = $$HEADERS
-libs.files     = $$TARGET
-#INSTALLS      += headers libs
-INSTALLS      += libs
+#INSTALLS      += headers target
+INSTALLS      += target
 
 
 

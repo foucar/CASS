@@ -2,12 +2,13 @@
 # Copyright (C) 2009 N Coppola
 # Copyright (C) 2009, 2010 Lutz Foucar
 
-TEMPLATE       = lib
+CASS_ROOT = ..
+include( $${CASS_ROOT}/cass_config.pri )
+
 TARGET         = cass_acqiris
-
-CASS_ROOT = ../
-
-include($${CASS_ROOT}/cass_config.pri )
+TEMPLATE       = lib
+DESTDIR        = $${CASS_ROOT}/lib
+target.path    = $$INSTALLBASE/lib
 
 QT            -= core gui
 
@@ -47,11 +48,9 @@ HEADERS += acqiris_analysis.h \
            ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
            ./classes/detector_analyzer/tof_analyzer_simple.h \
 
-libs.files     = $$TARGET
 headers.files  = $$HEADERS
-
-#INSTALLS      += headers libs
-INSTALLS       += libs
+INSTALLS       += target
+#INSTALLS      += headers target
 
 
 

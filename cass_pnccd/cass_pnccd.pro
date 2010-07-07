@@ -3,11 +3,13 @@
 # Copyright (C) 2009 Nicola Coppola
 # Copyright (C) 2009, 2010 Lutz Foucar
 
-TEMPLATE       = lib
-TARGET         = cass_pnccd
-CASS_ROOT = ../
+CASS_ROOT = ..
+include( $${CASS_ROOT}/cass_config.pri )
 
-include($${CASS_ROOT}/cass_config.pri )
+TARGET         = cass_pnccd
+TEMPLATE       = lib
+DESTDIR        = $${CASS_ROOT}/lib
+target.path    = $$INSTALLBASE/lib
 
 QT            -= core
 
@@ -32,9 +34,9 @@ HEADERS       += ../cass/analysis_backend.h \
                  pnccd_detector.h
 
 headers.files  = $$HEADERS
-libs.files     = $$TARGET
-#INSTALLS      += headers libs
-INSTALLS      += libs
+target.path    = $$INSTALLBASE/lib
+INSTALLS      += target
+#INSTALLS      += headers target
 
 
 

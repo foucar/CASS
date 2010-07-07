@@ -1,10 +1,15 @@
 # Copyright (C) 2010 Jochen Küpper
+# Copyright (C) 2010 Lutz Foucar
+
+
+CASS_ROOT = ..
+include( $${CASS_ROOT}/cass_config.pri )
 
 TARGET              = jocassview
 TEMPLATE            = app
+DESTDIR             = $${CASS_ROOT}/bin
+target.path         = $$INSTALLBASE/bin
 
-CASS_ROOT = ../
-include($${CASS_ROOT}/cass_config.pri )
 
 QMAKE_CLEAN        += jocassview
 VERSION             = 0.0.1
