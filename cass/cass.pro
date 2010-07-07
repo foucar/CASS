@@ -244,13 +244,10 @@ TARGETDEPS    += ../cass_acqiris/libcass_acqiris.a \
                  ../cass_ccd/libcass_ccd.a \
                  ../cass_machinedata/libcass_machinedata.a
 
-bin.files      = $$TARGET
-# TODO: THIS IS NOT CROSS-PLATFORM!!
-bin.extra     += bash backup_copy.sh $${INSTALLBASE}
+bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE}
 headers.files  = $$HEADERS
-
-#INSTALLS      += headers bin
-INSTALLS      += bin
+INSTALLS      += target bin_copy
+#INSTALLS      += headers target bin_copy
 
 
 ## Local Variables:
