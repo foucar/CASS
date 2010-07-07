@@ -14,8 +14,8 @@ target.path         = $$INSTALLBASE/bin
 QMAKE_CLEAN        += jocassview
 VERSION             = 0.0.1
 
-SOAPFiles.target    = soapCASSsoapProxy
-SOAPFiles.commands  = [ -r soapCASSsoapProxy.h ] && [ `find $$PWD/../cass/soapserver.h -newer soapCASSsoapProxy.h | grep -c soapserver` > "0" ] || soapcpp2 -C -i $$PWD/../cass/soapserver.h
+SOAPFiles.target    = soapCASSsoapProxy.cpp
+SOAPFiles.commands  = @soapcpp2 -C -i $$PWD/../cass/soapserver.h
 SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
@@ -24,27 +24,31 @@ SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.
                       CASSsoap.getPostprocessorIds.req.xml CASSsoap.getPostprocessorIds.res.xml \
                       CASSsoap.writeini.req.xml CASSsoap.writeini.res.xml \
                       ns.xsd CASSsoap.nsmap CASSsoap.wsdl
+SOAPFiles.depends   = $$PWD/../cass/soapserver.h
+
+SOAPFiles2.target   = soapC.cpp
+SOAPFiles2.depends  = soapCASSsoapProxy.cpp
+
 QMAKE_CLEAN        += $$SOAPFiles.files
 
 versiontarget.target = $$PWD/../jocassview/update-version.sh
-versiontarget.commands = $$PWD/../jocassview//update-version.sh
+versiontarget.commands = $$PWD/../jocassview/update-version.sh
 versiontarget.depends = FORCE
 
 PRE_TARGETDEPS     += $$PWD/../jocassview/update-version.sh
-PRE_TARGETDEPS     += soapCASSsoapProxy
 QMAKE_EXTRA_TARGETS+= versiontarget
-QMAKE_EXTRA_TARGETS+= SOAPFiles
+QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 
 
-SOURCES       += jocassview.cpp \
+SOURCES       += soapCASSsoapProxy.cpp \
+                 soapC.cpp \
+                 jocassview.cpp \
                  imageviewer.cpp \
                  plotwidget.cpp \
                  qwt_logcolor_map.cpp \
                  qwt_scroll_zoomer.cpp \
                  qwt_scroll_bar.cpp \
-                 soapC.cpp \
-                 soapCASSsoapProxy.cpp \
                  ../cass/postprocessing/id_list.cpp
 
 HEADERS       += soapH.h \
