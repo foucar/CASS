@@ -22,8 +22,10 @@ versiontarget.target = $$PWD/../jocassview/update-version.sh
 versiontarget.commands = $$PWD/../jocassview//update-version.sh
 versiontarget.depends = FORCE
 
-PRE_TARGETDEPS     += $$PWD/../jocassview/update-version.sh soapCASSsoapProxy
-QMAKE_EXTRA_TARGETS+= versiontarget SOAPFiles
+PRE_TARGETDEPS     += $$PWD/../jocassview/update-version.sh
+PRE_TARGETDEPS     += soapCASSsoapProxy
+QMAKE_EXTRA_TARGETS+= versiontarget
+QMAKE_EXTRA_TARGETS+=SOAPFiles
 
 
 
