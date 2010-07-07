@@ -75,7 +75,7 @@ QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr 
 
 # create SOAP sources and descriptions
 SOAPFiles.target    = soapCASSsoapService.cpp
-SOAPFiles.commands  = soapcpp2 -S -i $$PWD/soapserver.h 
+SOAPFiles.commands  = @soapcpp2 -S -i $$PWD/soapserver.h
 SOAPFiles.files    += soapCASSsoapService.cpp soapCASSsoapService.h soapC.cpp soapH.h soapStub.h \
                       CASSsoap.getEvent.req.xml CASSsoap.getEvent.res.xml CASSsoap.getHistogram.req.xml \
                       CASSsoap.getHistogram.res.xml CASSsoap.getImage.req.xml CASSsoap.getImage.res.xml \
