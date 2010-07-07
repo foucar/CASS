@@ -165,72 +165,71 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
 
-INCLUDEPATH         += postprocessing \
-                       ../cass_acqiris \
-                       ../cass_acqiris/classes \
-                       ../cass_acqiris/classes/detector_analyzer \
-                       ../cass_acqiris/classes/waveformanalyzer \
-                       ../cass_ccd \
-                       ../cass_pnccd \
-                       ../cass_machinedata \
-                       $$PWD/../LCLS
+INCLUDEPATH        += postprocessing \
+                      ../cass_acqiris \
+                      ../cass_acqiris/classes \
+                      ../cass_acqiris/classes/detector_analyzer \
+                      ../cass_acqiris/classes/waveformanalyzer \
+                      ../cass_ccd \
+                      ../cass_pnccd \
+                      ../cass_machinedata \
+                      $$PWD/../LCLS
 
-DEPENDPATH          += ./postprocessing
+DEPENDPATH         += ./postprocessing
 
-LIBS                += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
-                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
-                       -lgsoap++ -lgsoap
+LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
+                      -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
+                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
+                      -lgsoap++ -lgsoap
 
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
-    INCLUDEPATH     += $$(HDF5DIR)/include
-    LIBS            += -L$$(HDF5DIR)/lib -lhdf5
-    SOURCES         += ./postprocessing/hdf5dump.cpp \
-                       ./postprocessing/hdf5_converter.cpp
-    DEFINES         += HDF5
+    INCLUDEPATH    += $$(HDF5DIR)/include
+    LIBS           += -L$$(HDF5DIR)/lib -lhdf5
+    SOURCES        += ./postprocessing/hdf5dump.cpp \
+                      ./postprocessing/hdf5_converter.cpp
+    DEFINES        += HDF5
 }
 
 # extra files if compiling single particle detector.
 # depends on VIGRA template library. (by Ullrich Koethe)
 singleparticle_hit {
-    SOURCES         +=  ./postprocessing/hitrate.cpp
-    HEADERS         +=  ./postprocessing/hitrate.h
-    DEFINES         += SINGLEPARTICLE_HIT
+    SOURCES        += ./postprocessing/hitrate.cpp
+    HEADERS        += ./postprocessing/hitrate.h
+    DEFINES        += SINGLEPARTICLE_HIT
 }
 
 cernroot {
-    INCLUDEPATH     += $$(ROOTSYS)/include
-    LIBS            += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
-    SOURCES         += ./postprocessing/root_converter.cpp
-    DEFINES         += CERNROOT
+    INCLUDEPATH    += $$(ROOTSYS)/include
+    LIBS           += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
+    SOURCES        += ./postprocessing/root_converter.cpp
+    DEFINES        += CERNROOT
 }
-
 
 CONFIG(offline) {
-    DEFINES += OFFLINE RINGBUFFER_BLOCKING
+    DEFINES        += OFFLINE RINGBUFFER_BLOCKING
 }
 
-lclslibs.path        = $$INSTALLBASE/lib
-lclslibs.files       = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
-lclsapps. path       = $$INSTALLBASE/bin
-lclsapps.files       = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
-bin_copy.path        = ./
-bin_copy.extra      += bash backup_copy.sh $${INSTALLBASE}
-headers.files        = $$HEADERS
-INSTALLS            += target bin_copy lclslibs lclsapps
+lclslibs.path       = $$INSTALLBASE/lib
+lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libbld.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcamdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcontroldata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libepics.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libevrdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
+lclsapps. path      = $$INSTALLBASE/bin
+lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
+bin_copy.path       = ./
+bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE}
+headers.files       = $$HEADERS
+INSTALLS           += target bin_copy lclslibs lclsapps
 
 #INSTALLS           += headers target bin_copy lclslibs lclsapps
 
