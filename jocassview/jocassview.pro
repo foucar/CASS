@@ -68,10 +68,9 @@ INCLUDEPATH   += $$PWD/.. \
                  $$QWTINCDIR
 
 LIBS          += -lgsoap++ -lgsoap \
-                 -L../cass_acqiris -lcass_acqiris \
-                 -L../cass_pnccd -lcass_pnccd \
-                 -L../cass_ccd -lcass_ccd \
-                 -L../cass_machinedata -lcass_machinedata \
+                 -L$${CASS_ROOT}/lib -lcass_acqiris \
+                 -lcass_pnccd -lcass_ccd \
+                 -lcass_machinedata \
                  -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                  -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                  -lgsoap++ -lgsoap \
