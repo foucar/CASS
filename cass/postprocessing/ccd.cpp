@@ -102,6 +102,7 @@ void cass::pp100::process(const cass::CASSEvent& evt)
   copy(frame.begin(),
        frame.end(),
        dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
+  ++_result->nbrOfFills();
   _result->lock.unlock();
 }
 
