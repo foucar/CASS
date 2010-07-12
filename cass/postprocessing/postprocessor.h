@@ -71,6 +71,7 @@ the Class description for information about what parameters are user settable.
 00052: Project 2D to radius
 00053: Angular Distribution / Radar Plot
 00054: Convert 2D histogram to Radius - Phi representation
+00055: radial average
 
 00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
@@ -116,7 +117,6 @@ the Class description for information about what parameters are user settable.
 
 00300: single particle detection
 
-00401: radial average
 
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
@@ -229,6 +229,7 @@ using the custom doxygen tag cassttng.
       RadalProjection=52,
       AngularDistribution=53,
       R_Phi_Representation=54,
+      radialAverage=55,
 
       ZeroDHistogramming=60,
       HistogramAveraging=61,
@@ -277,7 +278,6 @@ using the custom doxygen tag cassttng.
 
       SingleParticleDetection=300,
 
-      radialAverage=401,
 
       PnccdHDF5=1000,
       HDF5Converter=1001,

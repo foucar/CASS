@@ -1156,15 +1156,15 @@ void cass::pp80::process(const cass::CASSEvent& evt)
 
 
 
-// ***  pp 401 returns radial average of 2d histogram ***
+// ***  pp 55 returns radial average of 2d histogram ***
 
-cass::pp401::pp401(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+cass::pp55::pp55(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _count(NULL)
 {
   loadSettings(0);
 }
 
-void cass::pp401::loadSettings(size_t)
+void cass::pp55::loadSettings(size_t)
 {
   using namespace std;
 
@@ -1192,7 +1192,7 @@ void cass::pp401::loadSettings(size_t)
       <<endl;
 }
 
-void cass::pp401::process(const cass::CASSEvent& evt)
+void cass::pp55::process(const cass::CASSEvent& evt)
 {
   const Histogram2DFloat& one
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
