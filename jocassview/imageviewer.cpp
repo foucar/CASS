@@ -172,6 +172,7 @@ ImageViewer::ImageViewer(QWidget *parent, Qt::WFlags flags)
   _plotWidget1D = new plotWidget1D;
   _plotWidget0D = new plotWidget0D(1000);
   connect(_attachId, SIGNAL(editTextChanged(const QString &)), _plotWidget0D, SLOT(setHistogramKey(const QString&)));
+  connect(_attachId, SIGNAL(currentIndexChanged(const QString &)), _plotWidget0D, SLOT(setHistogramKey(const QString&)));
   // dock widget containing image or histograms:
   _dock = new QDockWidget(tr("Histogram"), this);
   _spectrogramWidget = new spectrogramWidget;
