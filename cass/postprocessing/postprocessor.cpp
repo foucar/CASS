@@ -17,6 +17,7 @@
 #include "waveform.h"
 #include "hdf5dump.h"
 #include "operations.h"
+#include "rankfilter.h"
 #include "imaging.h"
 #include "machine_data.h"
 #include "backend.h"

@@ -119,6 +119,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/postprocessor.cpp \
                       ./postprocessing/id_list.cpp \
                       ./postprocessing/operations.cpp \
+                      ./postprocessing/rankfilter.cpp \
                       tcpserver.cpp \
 
 HEADERS            += analysis_backend.h \
@@ -154,6 +155,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/acqiris_detectors.h \
                       ./postprocessing/acqiris_detectors_helper.h \
                       ./postprocessing/operations.h \
+                      ./postprocessing/rankfilter.h \
                       ./postprocessing/operation_templates.hpp \
                       ./postprocessing/alignment.h \
                       ./postprocessing/backend.h \

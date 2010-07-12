@@ -13,7 +13,6 @@
 #include "cass_event.h"
 #include "histogram.h"
 #include <time.h>
-#include <deque>
 
 namespace cass
 {
@@ -679,49 +678,6 @@ namespace cass
   };
 
 
-
-
-
-
-
-  /** calculate median of last values. If input histogram is > 0d, its values get
-   *  summed up prior to median calculation.
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           the postprocessor name that contain the first histogram. Default
-   *           is 0.
-   * @cassttng PostProcessor/\%name\%/{medianSize} \n
-   *           how many last values should be included in median calculation.
-   *           default is 100.
-   *
-   * @todo make more general: operate on bins. now operates on sum.
-   * @author Stephan Kassemeyer.
-   */
-  class pp66 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp66(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** process event */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of this pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing first histogram */
-    PostprocessorBackend *_one;
-
-    /** last N items to be used for median calculation */
-    unsigned int _medianSize;
-
-    /** storage of last values for median calculation */
-    std::deque<float> *_medianStorage;
-  };
 
 
 
