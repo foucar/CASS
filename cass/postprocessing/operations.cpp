@@ -1137,7 +1137,7 @@ void cass::pp401::process(const cass::CASSEvent& evt)
       float rad = sqrt( xx*xx+yy*yy );
       if (rad <= _maxRad)
       {
-        int irad( round(rad) );
+        int irad( lround(rad) );
         result_mem[irad] += img_mem[(_cx+xx) + nx*(_cy+yy)];
         ++count_mem[irad];
       }

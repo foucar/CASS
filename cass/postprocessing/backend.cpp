@@ -89,7 +89,7 @@ void PostprocessorBackend::clearHistograms()
     it->second->clear();
 }
 
-void PostprocessorBackend::processCommand(std::string command)
+void PostprocessorBackend::processCommand(std::string /*command*/)
 {
   // overwrite this function in pp. can do whatever it wants to
   // do as a reaction on command.
