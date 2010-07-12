@@ -168,6 +168,14 @@ void cass::pp300::clearHistogramEvent()
   startNewTraining();
 }
 
+void cass::pp300::processCommand(std::string command)
+{
+  if (command == "retrain") {
+    std::cout << std::endl << "single particle hit: received command to restart training." << std::endl;
+    startNewTraining();
+  }
+}
+
 void cass::pp300::process(const CASSEvent& evt)
 {
   using namespace std;

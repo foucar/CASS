@@ -87,6 +87,9 @@ namespace cass
     /** */
     virtual void clearHistogramEvent();
 
+    /** */
+    virtual void processCommand(std::string command);
+
     virtual void saveSettings(size_t);
 
 
