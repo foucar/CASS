@@ -458,9 +458,6 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case ZeroDto2DHistogramming:
     processor = new pp65(*this, key);
     break;
-  case medianLastValues:
-    processor = new pp66(*this,key);
-  break;
   case SubsetHistogram:
     processor = new pp70(*this, key);
     break;
@@ -538,6 +535,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp300(*this,key);
     break;
 #endif
+  case medianLastValues:
+    processor = new pp301(*this,key);
+  break;
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1000(*this,key);
