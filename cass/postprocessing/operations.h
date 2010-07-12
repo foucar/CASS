@@ -761,6 +761,9 @@ namespace cass
    *           histogram name for which we count fills. Default is 0.
    * @cassttng PostProcessor/\%name\%/{ConditionName} \n
    *           condition
+   * @cassttng PostProcessor/\%name\%/{maximalRadius} \n
+   * @cassttng PostProcessor/\%name\%/{centerX} \n
+   * @cassttng PostProcessor/\%name\%/{centerY} \n
    * @author Stephan Kassemeyer
    */
   class pp401 : public PostprocessorBackend
@@ -781,6 +784,12 @@ namespace cass
 
     /** setting: maximal radius */
     int _maxRad;
+
+    /** setting: center x*/
+    int _cx;
+
+    /** setting: center y*/
+    int _cy;
 
     /** tmp hist: number of values filled in for each rad, for averaging*/
     Histogram1DFloat* _count;

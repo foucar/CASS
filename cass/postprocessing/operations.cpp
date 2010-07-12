@@ -1095,6 +1095,8 @@ void cass::pp401::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _maxRad = settings.value("maximalRadius",1024).toInt();
+  _cx = settings.value("centerX",512).toInt();
+  _cy = settings.value("centerY",512).toInt();
 
   setupGeneral();
   _pHist = setupDependency("HistName");
@@ -1125,8 +1127,8 @@ void cass::pp401::process(const cass::CASSEvent& evt)
 
   for (int ii=0; ii<=_maxRad; ++ii)
     result_mem[ii] = 0;
-  for (int xx=0; xx<=_maxRad; ++xx)
-    for (int yy=0; yy<=_maxRad; ++yy)
+  for (int xx=_cx; xx<=_cx+_maxRad; ++xx)
+    for (int yy=_cy; yy<=_cy+_maxRad; ++yy)
     {
       float rad = sqrt( xx*xx+yy*yy );
       if (rad <= _maxRad)
