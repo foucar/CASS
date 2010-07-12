@@ -130,7 +130,6 @@ void cass::pp300::loadSettings(size_t)
   _covI = matrixType( _nFeatures, _nFeatures);
   _mean = matrixType( 1,_nFeatures );
 
-
   _saveTraining = settings.value("saveTraining",true).toBool();
   _readTraining = settings.contains("readTrainingFile");
   if (_readTraining)
@@ -163,6 +162,12 @@ void cass::pp300::loadSettings(size_t)
       <<std::endl;
 }
 
+void cass::pp300::clearHistogramEvent()
+{
+  std::cout << std::endl << "single particle hit: cleared histogram -> restart training." << std::endl;
+  startNewTraining();
+}
+
 void cass::pp300::process(const CASSEvent& evt)
 {
   using namespace std;
@@ -171,15 +176,6 @@ void cass::pp300::process(const CASSEvent& evt)
   const Histogram2DFloat &one
         (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   one.lock.lockForRead();
-
-
-  _result->lock.lockForRead();
-  if (!_result->nbrOfFills() )
-  {
-    // first run or histogram has been cleared -> start training phase.
-    _trainingSetsInserted = 0;
-  }
-  _result->lock.unlock();
 
   const size_t nxbins (one.axis()[HistogramBackend::xAxis].nbrBins());
   const size_t nybins (one.axis()[HistogramBackend::yAxis].nbrBins());

@@ -84,6 +84,9 @@ namespace cass
     /** */
     void printTrainingMatrices();
 
+    /** */
+    virtual void clearHistogramEvent();
+
     virtual void saveSettings(size_t);
 
 
