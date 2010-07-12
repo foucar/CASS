@@ -71,7 +71,6 @@ the Class description for information about what parameters are user settable.
 00052: radial average / Project 2D to radius
 00053: Angular Distribution / Radar Plot
 00054: Convert 2D histogram to Radius - Phi representation
-00055: radial average
 
 00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
@@ -229,7 +228,6 @@ using the custom doxygen tag cassttng.
       RadalProjection=52,
       AngularDistribution=53,
       R_Phi_Representation=54,
-      radialAverage=55,
 
       ZeroDHistogramming=60,
       HistogramAveraging=61,

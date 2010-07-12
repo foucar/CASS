@@ -428,53 +428,6 @@ namespace cass
 
 
 
-  /** return radial average of a given 2D histogram
-   *
-   * @see PostprocessorBackend for a list of all commonly available cass.ini
-   *      settings.
-   *
-   * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           histogram name for which we count fills. Default is 0.
-   * @cassttng PostProcessor/\%name\%/{ConditionName} \n
-   *           condition
-   * @cassttng PostProcessor/\%name\%/{maximalRadius} \n
-   * @cassttng PostProcessor/\%name\%/{centerX} \n
-   * @cassttng PostProcessor/\%name\%/{centerY} \n
-   * @author Stephan Kassemeyer
-   */
-  class pp55 : public PostprocessorBackend
-  {
-  public:
-    /** constructor */
-    pp55(PostProcessors& hist, const PostProcessors::key_t&);
-
-    /** copy image from CASS event to histogram storage */
-    virtual void process(const CASSEvent&);
-
-    /** load the settings of the pp */
-    virtual void loadSettings(size_t);
-
-  protected:
-    /** pp containing input histogram */
-    PostprocessorBackend *_pHist;
-
-    /** setting: maximal radius */
-    int _maxRad;
-
-    /** setting: center x*/
-    int _cx;
-
-    /** setting: center y*/
-    int _cy;
-
-    /** tmp hist: number of values filled in for each rad, for averaging*/
-    Histogram1DFloat* _count;
-
-
-  };
-
-
-
 
 
 
