@@ -522,6 +522,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TestImage:
     processor = new pp240(*this,key);
     break;
+  case radialAverage:
+    processor = new pp401(*this,key);
+    break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
     processor = new pp300(*this,key);

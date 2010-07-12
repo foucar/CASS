@@ -1076,6 +1076,83 @@ void cass::pp80::process(const cass::CASSEvent& evt)
 
 
 
+
+// ***  pp 401 returns the number of fills of a given histogram ***
+
+cass::pp401::pp401(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key), _count(NULL)
+{
+  loadSettings(0);
+}
+
+void cass::pp401::loadSettings(size_t)
+{
+  using namespace std;
+
+  using namespace std;
+  CASSSettings settings;
+
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _maxRad = settings.value("maximalRadius",1024).toInt();
+
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist)) return;
+
+  _result = new Histogram1DFloat(0,_maxRad, _maxRad+1);
+  _count = new Histogram1DFloat(0,_maxRad, _maxRad+1);
+  createHistList(2*cass::NbrOfWorkers,true);
+
+  cout << "PostProcessor "<<_key
+      <<": returns 1d hist: radial averag in pp " << _pHist->key()
+      <<" condition on postprocessor:"<<_condition->key()
+      <<endl;
+}
+
+void cass::pp401::process(const cass::CASSEvent& evt)
+{
+  const Histogram2DFloat& one
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  const HistogramFloatBase::storage_t& img_mem( one.memory() );
+  HistogramFloatBase::storage_t& result_mem( dynamic_cast<Histogram1DFloat*>(_result)->memory() );
+  HistogramFloatBase::storage_t& count_mem( _count->memory() );
+  const size_t nx (one.axis()[HistogramBackend::xAxis].nbrBins());
+
+  for (int ii=0; ii<=_maxRad; ++ii)
+    result_mem[ii] = 0;
+  for (int xx=0; xx<=_maxRad; ++xx)
+    for (int yy=0; yy<=_maxRad; ++yy)
+    {
+      float rad = sqrt( xx*xx+yy*yy );
+      if (rad <= _maxRad)
+      {
+        int irad( round(rad) );
+        result_mem[irad] += img_mem[xx + nx*yy];
+        ++count_mem[irad];
+      }
+    }
+  for (int ii=0; ii<=_maxRad; ++ii)
+    result_mem[ii] /= count_mem[ii];
+  _result->lock.unlock();
+
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 // Local Variables:
 // coding: utf-8
 // mode: C++

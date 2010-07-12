@@ -115,6 +115,8 @@ the Class description for information about what parameters are user settable.
 
 00300: single particle detection
 
+00401: radial average
+
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
@@ -272,6 +274,8 @@ using the custom doxygen tag cassttng.
       TestImage=240,
 
       SingleParticleDetection=300,
+
+      radialAverage=401,
 
       PnccdHDF5=1000,
       HDF5Converter=1001,
