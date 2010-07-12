@@ -271,6 +271,35 @@ void cass::Workers::clearHistogram(PostProcessors::key_t key)
       <<std::endl);
 }
 
+void cass::Workers::receiveCommand(PostProcessors::key_t key, std::string command)
+{
+  //make sure there is at least one worker//
+  if(_workers.empty())
+    throw std::bad_exception();
+  //lock this from here on, so that it is reentrant
+  QMutexLocker lock(&_mutex);
+  VERBOSEOUT(std::cout << "Workers: receiveCommand: suspend all workers before processing command."
+      <<std::endl);
+  //suspend all workers//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->suspend();
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilSuspended();
+  VERBOSEOUT(std::cout << "Workers: receiveCommand: Workers are suspend."
+      <<" process command in requested histogram."<<std::endl);
+  //process command of one worker//
+  //since the workers have only singletons this will make sure//
+  //that the parameters are the same for all workers//
+  _workers[0]->receiveCommand(key, command);
+  //resume the workers tasks//
+  VERBOSEOUT(std::cout << "Workers: receiveCommand: Done. Now resume all workers"
+      <<std::endl);
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->resume();
+  VERBOSEOUT(std::cout << "Workers: receiveCommand: Workers are resumed"
+      <<std::endl);
+}
+
 void cass::Workers::start()
 {
   //start all workers//

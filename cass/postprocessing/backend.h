@@ -110,6 +110,11 @@ namespace cass
      */
     void clearHistograms();
 
+    /** process command in pp.
+     * this will lock for write access to the histograms before clearing them
+     */
+    virtual void processCommand(std::string command);
+
     /** retrieve the key of this postprocessor */
     const PostProcessors::key_t key() const {return _key;}
 

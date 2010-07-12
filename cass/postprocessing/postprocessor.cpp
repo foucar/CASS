@@ -152,6 +152,13 @@ void cass::PostProcessors::clear(const key_t &key)
     it->second->clearHistograms();
 }
 
+void cass::PostProcessors::receiveCommand(const key_t &key, std::string command)
+{
+  postprocessors_t::iterator it (_postprocessors.find(key));
+  if (_postprocessors.end() != it)
+    it->second->processCommand(command);
+}
+
 cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));

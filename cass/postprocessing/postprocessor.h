@@ -328,6 +328,9 @@ using the custom doxygen tag cassttng.
 
     /** clear the histogram that has id */
     void clear(const key_t&);
+ 
+    /** process command in pp that has id */
+    void receiveCommand(const key_t&, std::string command);
 
   protected:
     /** Create new Postprocessor with key.

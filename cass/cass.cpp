@@ -182,6 +182,7 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
   qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
+  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 
   //start Qt event loop
   int retval(app.exec());

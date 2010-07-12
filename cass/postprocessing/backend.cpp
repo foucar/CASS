@@ -89,6 +89,12 @@ void PostprocessorBackend::clearHistograms()
     it->second->clear();
 }
 
+void PostprocessorBackend::processCommand(std::string command)
+{
+  // overwrite this function in pp. can do whatever it wants to
+  // do as a reaction on command.
+}
+
 void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
 {
   using namespace std;

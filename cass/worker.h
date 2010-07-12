@@ -93,6 +93,9 @@ namespace cass
     /** clear histogram with id */
     void clear(PostProcessors::key_t key) { _postprocessor->clear(key); }
 
+    /** process command in pp with id */
+    void receiveCommand(PostProcessors::key_t key, std::string command) { _postprocessor->receiveCommand(key, command); }
+
   private:
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer; //!< the ringbuffer
     Analyzer      *_analyzer;         //!< pointer to the analyzer
@@ -151,6 +154,9 @@ namespace cass
 
     /** clear histogram with id */
     void clearHistogram(cass::PostProcessors::key_t);
+
+    /** process command in postprocessor with id */
+    void receiveCommand(cass::PostProcessors::key_t, std::string command);
 
   signals:
     /** this is emmitted once all workers have stoped */

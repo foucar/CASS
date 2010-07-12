@@ -82,6 +82,8 @@ signals:
     void writeini(size_t what);
 
     void clearHistogram(cass::PostProcessors::key_t type);
+ 
+    void receiveCommand(cass::PostProcessors::key_t type, std::string);
 
 
 protected:
@@ -115,6 +117,9 @@ protected:
 
     /** allow our friends to emit the clearHistogram() signal */
     void emit_clearHistogram(cass::PostProcessors::key_t type) { emit clearHistogram(type); };
+ 
+    /** allow our friends to emit the receiveCommand() signal */
+    void emit_receiveCommand(cass::PostProcessors::key_t type, std::string command) { emit receiveCommand(type, command); };
 
     /** the service */
     CASSsoapService *_soap;

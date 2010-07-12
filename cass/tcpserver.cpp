@@ -142,6 +142,14 @@ int CASSsoapService::clearHistogram(cass::PostProcessors::key_t type, bool *succ
     return SOAP_OK;
 }
 
+int CASSsoapService::receiveCommand(cass::PostProcessors::key_t type, std::string command, bool *success)
+{
+    VERBOSEOUT(std::cerr << "CASSsoapService::receiveCommand(type=" << type << ")" << std::endl);
+    cass::SoapServer::instance()->emit_receiveCommand(type, command);
+    *success = true;;
+    return SOAP_OK;
+}
+
 
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
