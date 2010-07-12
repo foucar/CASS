@@ -40,6 +40,13 @@ namespace cass
 #endif
 #endif
 
+void pp1000::loadSettings(size_t)
+{
+  if (!setupCondition()) return;
+  // Create dummy histogram to make sure we actually get called
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+}
 
 void pp1000::cleanup(hid_t fh)
 {
@@ -730,9 +737,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 pp1000::pp1000(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
 {
-  // Create dummy histogram to make sure we actually get called
-  _result = new Histogram0DFloat();
-  createHistList(1);
+  loadSettings(0);
   std::cout << "Postprocessor " << key << ": set up." << std::endl;
 }
 
