@@ -57,11 +57,11 @@ void cass::pp300::loadSettings(size_t)
   _variationFeatures = matrixType(_nTrainingSetSize, _nFeatures);
   _cov = matrixType( _nFeatures, _nFeatures );
   _covI = matrixType( _nFeatures, _nFeatures);
+  vigra::linalg::identityMatrix(_covI);
   _mean = matrixType( 1,_nFeatures );
 //  _mean = vigra::MultiArray<1,double>( vigra::MultiArray<1,float>::difference_type(_nTrainingSetSize) );
   _trainingSetsInserted = 0;
   _reTrain = false;
-
 
   const Histogram2DFloat &img
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -277,14 +277,20 @@ void cass::pp300::process(const CASSEvent& evt)
     }
     std::cout << "] " << std::endl;
 #endif
-
+  
     try{
         _covI = vigra::linalg::inverse(_cov);
      }
     catch( vigra::PreconditionViolation E ) {
         // matrix is singular. use normalized euclidean distance instead of mahalanobis:
         std::cout << "Hit_Helper2::process: " << E.what() << std::endl;
-        vigra::linalg::identityMatrix(_covI); 
+        vigra::linalg::identityMatrix(_covI);
+        _trainingSetsInserted = 0;  // retrain
+        one.lock.unlock();
+        _integralimg->lock.unlock();
+        _rowsum->lock.unlock();
+        _reTrain = false;
+        return;
     };
 
 //#ifdef VERBOSE
@@ -299,7 +305,6 @@ void cass::pp300::process(const CASSEvent& evt)
     std::cout << "] " << std::endl;
 //#endif
 
-    _reTrain = false;
     //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
     /*transformMultiArray(srcMultiArrayRange(_variationFeatures),
@@ -324,6 +329,7 @@ void cass::pp300::process(const CASSEvent& evt)
                         destMultiArrayRange(_mean),
                         vigra::FindAverage<double>());*/
 
+    _reTrain = false;
   } //end reTrain
   // use mean and covariance to predict outliers:
   // mahalanobis^2 = (y-mean)T Cov^-1 y
