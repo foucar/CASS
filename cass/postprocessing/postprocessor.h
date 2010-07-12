@@ -68,7 +68,7 @@ the Class description for information about what parameters are user settable.
 
 00050: Project 2D histogram onto a axis
 00051: Integral of 1D histogram
-00052: Project 2D to radius
+00052: radial average / Project 2D to radius
 00053: Angular Distribution / Radar Plot
 00054: Convert 2D histogram to Radius - Phi representation
 00055: radial average
