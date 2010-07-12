@@ -13,15 +13,11 @@ CONFIG        -= gui
 DEFINES       += CASS_LIBRARY
 
 SOURCES       += analyzer.cpp \
-                 cass.cpp \
                  cass_event.cpp \
-                 daemon.cpp \
                  event_getter.cpp \
-                 file_input.cpp \
                  format_converter.cpp \
                  histogram.cpp \
                  histogram_getter.cpp \
-                 sharedmemory_input.cpp \
                  ratemeter.cpp \
                  worker.cpp \
                  pixel_detector.cpp \
@@ -39,8 +35,6 @@ SOURCES       += analyzer.cpp \
                  ./postprocessing/postprocessor.cpp \
                  ./postprocessing/id_list.cpp \
                  ./postprocessing/operations.cpp \
-                 soapCASSsoapService.cpp \
-                 soapC.cpp \
                  tcpserver.cpp \
 
 HEADERS       += analysis_backend.h \
@@ -51,7 +45,6 @@ HEADERS       += analysis_backend.h \
                  conversion_backend.h \
                  daemon.h \
                  event_getter.h \
-                 file_input.h \
                  format_converter.h \
                  histogram.h \
                  histogram_getter.h \
@@ -60,10 +53,6 @@ HEADERS       += analysis_backend.h \
                  rate_plotter.h \
                  serializable.h \
                  serializer.h \
-                 sharedmemory_input.h \
-                 soapCASSsoapService.h \
-                 soapH.h \
-                 soapStub.h \
                  tcpserver.h \
                  worker.h \
                  pixel_detector.h \
@@ -128,4 +117,4 @@ CONFIG(offline) {
 
 headers.files  = $$HEADERS
 INSTALLS      += target
-#INSTALLS      += headers target bin_copy
+#INSTALLS      += headers target
