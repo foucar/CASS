@@ -37,6 +37,7 @@
 int main(int argc, char **argv)
 {
   // construct Qt application object
+  qRegisterMetaType< std::string >("std::string");
   QApplication app(argc, argv,false);
   // set up details for QSettings and Co.
   // (So we can simply use QSettings settings; everywhere else.)
