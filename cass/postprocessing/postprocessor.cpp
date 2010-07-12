@@ -525,6 +525,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case radialAverage:
     processor = new pp401(*this,key);
     break;
+  case medianLastValues:
+    processor = new pp402(*this,key);
+  break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
     processor = new pp300(*this,key);
