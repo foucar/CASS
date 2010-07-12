@@ -817,11 +817,11 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp402 : public PostprocessorBackend
+  class pp66 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp402(PostProcessors& hist, const PostProcessors::key_t&);
+    pp66(PostProcessors& hist, const PostProcessors::key_t&);
 
     /** process event */
     virtual void process(const CASSEvent&);

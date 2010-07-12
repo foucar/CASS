@@ -78,6 +78,7 @@ the Class description for information about what parameters are user settable.
 00063: Time Average of a histogram over given time-intervals
 00064: 0d into 1d (append on right end, shifting old values to the left)
 00065: Histogram two 0D values to a 2D histogram
+00066: median over last values
 
 00070: Subset a Histogram
 
@@ -116,7 +117,6 @@ the Class description for information about what parameters are user settable.
 00300: single particle detection
 
 00401: radial average
-00402: median over last values
 
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
@@ -236,6 +236,7 @@ using the custom doxygen tag cassttng.
       TimeAverage=63,
       running1Dfrom0D=64,
       ZeroDto2DHistogramming=65,
+      medianLastValues=66,
 
       SubsetHistogram=70,
 
@@ -277,7 +278,6 @@ using the custom doxygen tag cassttng.
       SingleParticleDetection=300,
 
       radialAverage=401,
-      medianLastValues=402,
 
       PnccdHDF5=1000,
       HDF5Converter=1001,
