@@ -1101,9 +1101,9 @@ void cass::pp401::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(ret && _pHist)) return;
 
-  _result = new Histogram1DFloat(0,_maxRad, _maxRad+1);
-  _count = new Histogram1DFloat(0,_maxRad, _maxRad+1);
-  createHistList(2*cass::NbrOfWorkers,true);
+  _result = new Histogram1DFloat(_maxRad+1, 0, _maxRad);
+  _count = new Histogram1DFloat(_maxRad+1, 0, _maxRad);
+  createHistList(2*cass::NbrOfWorkers);
 
   cout << "PostProcessor "<<_key
       <<": returns 1d hist: radial averag in pp " << _pHist->key()
@@ -1117,6 +1117,7 @@ void cass::pp401::process(const cass::CASSEvent& evt)
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   one.lock.lockForRead();
   _result->lock.lockForWrite();
+  _count->lock.lockForWrite();
   const HistogramFloatBase::storage_t& img_mem( one.memory() );
   HistogramFloatBase::storage_t& result_mem( dynamic_cast<Histogram1DFloat*>(_result)->memory() );
   HistogramFloatBase::storage_t& count_mem( _count->memory() );
@@ -1137,8 +1138,8 @@ void cass::pp401::process(const cass::CASSEvent& evt)
     }
   for (int ii=0; ii<=_maxRad; ++ii)
     result_mem[ii] /= count_mem[ii];
+  _count->lock.unlock();
   _result->lock.unlock();
-
   one.lock.unlock();
 }
 
