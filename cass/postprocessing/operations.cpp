@@ -1126,20 +1126,23 @@ void cass::pp401::process(const cass::CASSEvent& evt)
   const size_t nx (one.axis()[HistogramBackend::xAxis].nbrBins());
 
   for (int ii=0; ii<=_maxRad; ++ii)
+  {
     result_mem[ii] = 0;
-  for (int xx=_cx; xx<=_cx+_maxRad; ++xx)
-    for (int yy=_cy; yy<=_cy+_maxRad; ++yy)
+    count_mem[ii] = 0;
+  }
+  for (int xx=0; xx<=_maxRad; ++xx)
+    for (int yy=0; yy<=_maxRad; ++yy)
     {
       float rad = sqrt( xx*xx+yy*yy );
       if (rad <= _maxRad)
       {
         int irad( round(rad) );
-        result_mem[irad] += img_mem[xx + nx*yy];
+        result_mem[irad] += img_mem[(_cx+xx) + nx*(_cy+yy)];
         ++count_mem[irad];
       }
     }
   for (int ii=0; ii<=_maxRad; ++ii)
-    result_mem[ii] /= count_mem[ii];
+    if (count_mem[ii]) result_mem[ii] /= count_mem[ii];
   _count->lock.unlock();
   _result->lock.unlock();
   one.lock.unlock();
