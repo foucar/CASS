@@ -116,6 +116,11 @@ namespace cass
      */
     void clearHistograms();
 
+    /** postprocessors can override this virtual function to execute
+     *  code after the histograms for this postprocessor have been cleared.
+     */
+    virtual void clearHistogramEvent() { std::cout<<"PostProcessor backend clearHistogramEvent" << std::endl; };
+
     /** process command in pp.
      * this will lock for write access to the histograms before clearing them
      */
