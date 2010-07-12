@@ -59,6 +59,7 @@
     <addaction name="getData"/>
     <addaction name="getHistogram"/>
     <addaction name="clearHistogram"/>
+    <addaction name="sendCommand"/>
     <addaction name="readIni"/>
     <addaction name="writeIni"/>
     <addaction name="separator"/>
@@ -265,6 +266,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="sendCommand">
+   <property name="text">
+    <string>&amp;send custom Command...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
  </widget>

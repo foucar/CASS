@@ -17,6 +17,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QScrollBar>
 #include <QtGui/QSpinBox>
+#include <QInputDialog>
 
 #include "cass/cass.h"
 #include "cass/postprocessing/convenience_functions.h"
@@ -159,6 +160,8 @@ private slots:
     void on_getHistogram_triggered();
 
     void on_clearHistogram_triggered();
+
+    void on_sendCommand_triggered();
 
     void on_print_triggered();
 

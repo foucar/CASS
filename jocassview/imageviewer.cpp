@@ -867,6 +867,17 @@ void ImageViewer::on_clearHistogram_triggered()
 
 }
 
+void ImageViewer::on_sendCommand_triggered()
+{
+  bool ret;
+  QString command(QInputDialog::getText(this, tr("send Command to ") + _attachId->currentText(), tr("command to send to ") + _attachId->currentText() + ":"));
+  _cass->receiveCommand( _attachId->currentText().toStdString(), command.toStdString(), &ret);
+  if(!ret)
+    QMessageBox::information(this, tr("jocassviewer"),
+                             tr("Error: Cannot communicate receiveCommand command."));
+
+}
+
 void ImageViewer::running()
 {
   VERBOSEOUT(cout << "ImageViewer::running()" << endl);
