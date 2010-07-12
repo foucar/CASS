@@ -815,7 +815,8 @@ namespace cass
    *           how many last values should be included in median calculation.
    *           default is 100.
    *
-   * @author Lutz Foucar
+   * @todo make more general: operate on bins. now operates on sum.
+   * @author Stephan Kassemeyer.
    */
   class pp66 : public PostprocessorBackend
   {
