@@ -159,6 +159,13 @@ void cass::PostProcessors::receiveCommand(const key_t &key, std::string command)
     it->second->processCommand(command);
 }
 
+void cass::PostProcessors::saveSettings()
+{
+  // call saveSettings for each postprocessor.
+  for (postprocessors_t::iterator it=_postprocessors.begin(); it!=_postprocessors.end(); ++it)
+    it->second->saveSettings(0); 
+}
+
 cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));

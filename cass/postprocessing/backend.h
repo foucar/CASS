@@ -86,6 +86,12 @@ namespace cass
       VERBOSEOUT(std::cout << "calling backend's load settings"<<std::endl);
     }
 
+    /** Provide default implementation of saveSettings that does nothing */
+    virtual void saveSettings(size_t)
+    {
+      VERBOSEOUT(std::cout << "calling backend's save settings"<<std::endl);
+    }
+
     /** function that will be called when the postprocessor is about to be deleted */
     virtual void aboutToQuit() {}
 

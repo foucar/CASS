@@ -330,7 +330,7 @@ using the custom doxygen tag cassttng.
     void loadSettings(size_t);
 
     /** Save active postprocessors and histograms */
-    void saveSettings() {}
+    void saveSettings();
 
     /** clear the histogram that has id */
     void clear(const key_t&);
