@@ -13,7 +13,7 @@
 namespace cass
 {
 
-// *** postprocessor 589 finds Single particle hits ***
+// *** postprocessor 300 finds Single particle hits ***
 cass::pp300::pp300(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _integralimg(NULL), _rowsum(NULL)
 {
