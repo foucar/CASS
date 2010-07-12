@@ -1078,7 +1078,7 @@ void cass::pp80::process(const cass::CASSEvent& evt)
 
 
 
-// ***  pp 401 returns the number of fills of a given histogram ***
+// ***  pp 401 returns radial average of 2d histogram ***
 
 cass::pp401::pp401(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _count(NULL)
