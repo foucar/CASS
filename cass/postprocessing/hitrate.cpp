@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010 Stephan Kassemeyer
 
 #include <QtCore/QString>
 #include <time.h>
