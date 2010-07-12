@@ -39,6 +39,13 @@ namespace cass
    *           ROI for calculations. Last pixel = -1 (default).
    * @cassttng PostProcessor/\%name\%/{TrainingSetSize}\n
    *           How many images should be included in training phase. default = 200.
+   * @cassttng PostProcessor/\%name\%/{saveTraining}\n
+   *           optional. If true (default), save Training matrices to
+   *           files with automaic names in currend directory.
+   * @cassttng PostProcessor/\%name\%/{readTrainingFile}\n
+   *           optional filename to read training matrices from.
+   *           If setting doesn't exist, training is not read but
+   *           calculated on "loadSettings".
    * 
    * (good ROI for single particle in pnCCD images:    xstart=402;xend=485; ystart=402;yend=485;
    *
@@ -61,6 +68,25 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
+
+    /** */
+    void trainingFinished();
+
+    /** */
+    void startNewTraining();
+    
+    /** */
+    void readTrainingMatrices();
+
+    /** */
+    void saveTrainingMatrices();
+
+    /** */
+    void printTrainingMatrices();
+
+    virtual void saveSettings(size_t);
+
+
     /** xstart - ROI for calculations*/
     int _xstart;
 
@@ -87,6 +113,16 @@ namespace cass
     
     int _nTrainingSetSize;
     int _nFeatures;
+
+    /** user setting: do (default) or don't save training matrices to file */
+    int _saveTraining;
+
+    /** if filename is given in settings, load instead of calculate */
+    int _readTraining;
+
+    /** optional user-setting: filename to read training from*/
+    std::string _trainingFile;
+
     matrixType _variationFeatures;
     matrixType _mean; // mean (one scalar per column or feature)
 //    vigra::MultiArray<1,double> _mean; // mean (one scalar per column or feature)

@@ -1,6 +1,7 @@
 // Copyright (C) 2010 Lutz Foucar
 
 #include <QtCore/QString>
+#include <time.h>
 
 #include "cass.h"
 #include "hitrate.h"
@@ -25,6 +26,76 @@ cass::pp300::~pp300()
   _integralimg = NULL;
   delete _rowsum;
   _rowsum = NULL;
+}
+
+void cass::pp300::trainingFinished()
+{
+  _trainingSetsInserted = _nTrainingSetSize;
+  _reTrain = false;
+}
+
+void cass::pp300::startNewTraining()
+{
+  _trainingSetsInserted = 0;
+  _reTrain = 0;
+}
+
+void cass::pp300::readTrainingMatrices()
+{
+  std::ifstream infile(_trainingFile.c_str(), std::ios::binary|std::ios::in);
+  infile.read(reinterpret_cast<char*>(_covI.data()), _covI.size()*sizeof(double));
+  infile.read(reinterpret_cast<char*>(_mean.data()), _mean.size()*sizeof(double));
+  infile.close();
+}
+
+void cass::pp300::saveTrainingMatrices()
+{
+  time_t rawtime;
+  struct tm * timeinfo;
+  time ( &rawtime );
+  size_t dateSize=9+4+1;
+  char date_and_time[dateSize];
+  timeinfo = localtime ( &rawtime );
+  strftime(date_and_time,dateSize,"%Y%m%d_%H%M",timeinfo);
+  QString saveName( QString("sp_training_%1.dat").arg(date_and_time) );
+  std::cout << "Saving Single Particle Data to " << saveName.toStdString() << std::endl;
+  std::ofstream outfile(saveName.toStdString().c_str(), std::ios::binary|std::ios::out);
+  if (outfile.is_open())
+  {
+    //write the training data to the file//
+    outfile.write(reinterpret_cast<const char*>( _covI.data()), _covI.size()*sizeof(double) );
+    outfile.write(reinterpret_cast<const char*>( _mean.data()), _mean.size()*sizeof(double) );
+  }
+  outfile.close();
+}
+
+void cass::pp300::printTrainingMatrices()
+{
+  typedef matrixType::traverser ttt;
+  std::cout << std::endl << "_covI = [";
+  for (ttt it0 = _covI.traverser_begin(); it0!=_covI.traverser_end(); ++it0) {
+      std::cout << "[";
+      for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+          std::cout << *it1 << ", ";
+      }
+      std::cout << "]; ";
+  }
+  std::cout << "] " << std::endl;
+  std::cout << std::endl << "_mean= [";
+  for (ttt it0 = _mean.traverser_begin(); it0!=_mean.traverser_end(); ++it0) {
+      std::cout << "[";
+      for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
+          std::cout << *it1 << ", ";
+      }
+      std::cout << "]; ";
+  }
+  std::cout << "] " << std::endl;
+}
+
+
+void cass::pp300::saveSettings(size_t)
+{
+  saveTrainingMatrices();
 }
 
 void cass::pp300::loadSettings(size_t)
@@ -57,11 +128,25 @@ void cass::pp300::loadSettings(size_t)
   _variationFeatures = matrixType(_nTrainingSetSize, _nFeatures);
   _cov = matrixType( _nFeatures, _nFeatures );
   _covI = matrixType( _nFeatures, _nFeatures);
-  vigra::linalg::identityMatrix(_covI);
   _mean = matrixType( 1,_nFeatures );
-//  _mean = vigra::MultiArray<1,double>( vigra::MultiArray<1,float>::difference_type(_nTrainingSetSize) );
-  _trainingSetsInserted = 0;
-  _reTrain = false;
+
+
+  _saveTraining = settings.value("saveTraining",true).toBool();
+  _readTraining = settings.contains("readTrainingFile");
+  if (_readTraining)
+  {
+    _trainingFile = settings.value("readTrainingFile","sp_training.dat").toString().toStdString();
+    readTrainingMatrices();
+    std::cout << "read training matrices:" << std::endl;
+    printTrainingMatrices();
+    trainingFinished();
+  }
+  else
+  {
+    vigra::linalg::identityMatrix(_covI);
+    startNewTraining();
+  }
+
 
   const Histogram2DFloat &img
       (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
@@ -285,25 +370,12 @@ void cass::pp300::process(const CASSEvent& evt)
         // matrix is singular. use normalized euclidean distance instead of mahalanobis:
         std::cout << "Hit_Helper2::process: " << E.what() << std::endl;
         vigra::linalg::identityMatrix(_covI);
-        _trainingSetsInserted = 0;  // retrain
+        startNewTraining();  // try again: retrain... 
         one.lock.unlock();
         _integralimg->lock.unlock();
         _rowsum->lock.unlock();
-        _reTrain = false;
         return;
     };
-
-//#ifdef VERBOSE
-    std::cout << std::endl << "_covI = [";
-    for (ttt it0 = _covI.traverser_begin(); it0!=_covI.traverser_end(); ++it0) {
-        std::cout << "[";
-        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << ", ";
-        }
-        std::cout << "]; ";
-    }
-    std::cout << "] " << std::endl;
-//#endif
 
     //calculate collumn-average and store in _mean
     // transformMultArray reduces source-dimensions to scalar for each singleton-dest-dimension 
@@ -311,17 +383,7 @@ void cass::pp300::process(const CASSEvent& evt)
                         destMultiArrayRange(_mean.insertSingletonDimension(1)),
                         FindAverage<double>());*/
     vigra::linalg::columnStatistics(_variationFeatures, _mean);
-//#ifdef VERBOSE
-    std::cout << std::endl << "_mean= [";
-    for (ttt it0 = _mean.traverser_begin(); it0!=_mean.traverser_end(); ++it0) {
-        std::cout << "[";
-        for (ttt::next_type it1 = it0.begin(); it1!=it0.end(); ++it1) {
-            std::cout << *it1 << ", ";
-        }
-        std::cout << "]; ";
-    }
-    std::cout << "] " << std::endl;
-//#endif
+    printTrainingMatrices();
 
     // also possible:
     /*
@@ -329,6 +391,7 @@ void cass::pp300::process(const CASSEvent& evt)
                         destMultiArrayRange(_mean),
                         vigra::FindAverage<double>());*/
 
+    if (_saveTraining) saveTrainingMatrices();
     _reTrain = false;
   } //end reTrain
   // use mean and covariance to predict outliers:
