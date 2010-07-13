@@ -45,9 +45,6 @@ namespace cass
     virtual void loadSettings(size_t);
 
   protected:
-    /** Mutex for locking this postprocessor*/
-    QMutex _mutex;
-
     /** the instrument that contains the channel this postprocessor will work on */
     cass::ACQIRIS::Instruments _instrument;
 
