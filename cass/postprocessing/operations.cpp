@@ -695,6 +695,15 @@ void cass::pp62::loadSettings(size_t)
       <<std::endl;
 }
 
+void cass::pp62::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  delete _result;
+  _histList.clear();
+  _result = in.clone();
+  createHistList(2*cass::NbrOfWorkers,true);
+}
+
 void cass::pp62::process(const CASSEvent& evt)
 {
   using namespace std;
