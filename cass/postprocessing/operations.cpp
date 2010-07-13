@@ -635,7 +635,7 @@ void cass::pp61::histogramsChanged(const HistogramBackend* in)
   QWriteLocker lock(&_histLock);
   delete _result;
   _histList.clear();
-  _result = in.clone();
+  _result = in->clone();
   createHistList(2*cass::NbrOfWorkers,true);
 }
 
