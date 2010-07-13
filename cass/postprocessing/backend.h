@@ -125,7 +125,8 @@ namespace cass
      */
     virtual void histogramsChanged(const HistogramBackend* in=0)
     {
-      std::cout<<"PostProcessor backend histogramsChanged" << std::endl;
+      VERBOSEOUT(std::cout<<"PostProcessor backend histogramsChanged"
+                 << std::endl);
     }
 
     /** process command in pp
