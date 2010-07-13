@@ -83,13 +83,13 @@ namespace cass
     /** Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t)
     {
-      VERBOSEOUT(std::cout << "calling backend's load settings"<<std::endl);
+      VERBOSEOUT(std::cout << "PostprocessorBackend::loadSettings()"<<std::endl);
     }
 
     /** Provide default implementation of saveSettings that does nothing */
     virtual void saveSettings(size_t)
     {
-      VERBOSEOUT(std::cout << "calling backend's save settings"<<std::endl);
+      VERBOSEOUT(std::cout << "PostprocessorBackend::saveSettings()"<<std::endl);
     }
 
     /** function that will be called when the postprocessor is about to be deleted */
@@ -125,8 +125,7 @@ namespace cass
      */
     virtual void histogramsChanged(const HistogramBackend* in=0)
     {
-      VERBOSEOUT(std::cout<<"PostProcessor backend histogramsChanged"
-                 << std::endl);
+      VERBOSEOUT(std::cout<<"PostprocessorBackend::histogramsChanged()"<< std::endl);
     }
 
     /** process command in pp
