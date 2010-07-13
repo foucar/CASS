@@ -23,10 +23,10 @@ namespace cass
    *
    * This class handles most of the functionality of a postprocessor. When
    * creating a new postprocessor the user has just the overwrite the process
-   * function. There it will retrieve the result from either other postprocessors
-   * or from the cassevent itselve. All the rest is handled by the base class.
-   * Optionally, if one wants to have user interaction with the class, this can
-   * be implemented by overwriting loadSettings.
+   * function. There it will retrieve the result from either other
+   * postprocessors or from the cassevent itselve. All the rest is handled by
+   * the base class. Optionally, if one wants to have user interaction with the
+   * class, this can be implemented by overwriting loadSettings.
    *
    * @author Lutz Foucar
    * @author Jochen Kuepper
@@ -97,8 +97,8 @@ namespace cass
 
     /** Define all postprocessors keys a postprocessor depends on
      *
-     * If the dependencies are user choosable they must all be set in loadSettings
-     * before it makes sense to call this function.
+     * If the dependencies are user choosable they must all be set in
+     * loadSettings before it makes sense to call this function.
      *
      * This function will be called by PostProcessors::setup() when it creates
      * the container with all activated postprocessors.
@@ -194,8 +194,8 @@ namespace cass
      *
      * @cassttng PostProcessor/\%name\%/{ConditionName} \n
      *           0D Postprocessor name that we check before filling image.
-     *           if this setting is not defined, this postprocessor is unconditional.
-     *           Therefore its always true.
+     *           if this setting is not defined, this postprocessor is
+     *           unconditional. Therefore its always true.
      *
      * @return true when condition is there, false otherwise
      * @param defaultConditionType the type of condition that should be used when
@@ -206,10 +206,10 @@ namespace cass
     /** setup the dependecy.
      *
      * this will look up the dependecy key in cass.ini and tries to get it from
-     * the postprocessors. It will return the pointer to the dependecy postprocessor
-     * when it is there. If it's not in the container it will return 0.
-     * When the depencendy key is not already in the list with all dependcies.
-     * it will be added.
+     * the postprocessors. It will return the pointer to the dependecy
+     * postprocessor when it is there. If it's not in the container it will
+     * return 0. When the depencendy key is not already in the list with all
+     * dependcies, it will be added.
      *
      * @return pointer to the dependency postprocessor
      * @param[in] depVarName the name of the setting that hold the dependcy key
