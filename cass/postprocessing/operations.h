@@ -498,6 +498,9 @@ namespace cass
     /** load the settings */
     virtual void loadSettings(size_t);
 
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
   protected:
     /** alpha for the running average */
     float _alpha;

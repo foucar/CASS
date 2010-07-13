@@ -19,6 +19,7 @@
 
 
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
+
 cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
@@ -627,6 +628,15 @@ void cass::pp61::loadSettings(size_t)
       <<" alpha for the averaging:"<<_alpha
       <<" condition on postprocessor:"<<_condition->key()
       <<std::endl;
+}
+
+void cass::pp61::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  delete _result;
+  _histList.clear();
+  _result = in.clone();
+  createHistList(2*cass::NbrOfWorkers,true);
 }
 
 void cass::pp61::process(const CASSEvent& evt)
