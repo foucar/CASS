@@ -319,6 +319,13 @@ using the custom doxygen tag cassttng.
     /** will be called when program will quit */
     void aboutToQuit();
 
+    /** find all postprocessors that depend on the given one
+     *
+     * @return list of postprocessor key that depend on requested one
+     * @param[in] key key of postprocessor that we find the dependants for
+     */
+    keyList_t find_dependant(const key_t& key);
+
   public slots:
     /** Load active postprocessors and histograms
      *
@@ -355,13 +362,6 @@ using the custom doxygen tag cassttng.
      *               container.
      */
     void setup(keyList_t& active);
-
-    /** find all postprocessors that depend on the given one
-     *
-     * @return list of postprocessor key that depend on requested one
-     * @param[in] key key of postprocessor that we find the dependants for
-     */
-    keyList_t find_dependant(const key_t& key);
 
   protected:
     /** the list of keys.
