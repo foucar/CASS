@@ -62,7 +62,13 @@ void cass::pp110::process(const cass::CASSEvent &evt)
   _result->lock.lockForWrite();
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
+    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),
+                                                     0,
+                                                     waveform.size()*channel.sampleInterval());
+    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+    PostProcessors::keyList_t::iterator it (dependands.begin());
+    for (; it != dependands.end(); ++it)
+      _pp.getPostProcessor(*it).histogramsChanged();
   }
   std::transform(waveform.begin(),
                  waveform.end(),
