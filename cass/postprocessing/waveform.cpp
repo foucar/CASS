@@ -59,14 +59,16 @@ void cass::pp110::process(const cass::CASSEvent &evt)
                              .arg(_channel).toStdString());
   const Channel &channel (instr.channels()[_channel]);
   const waveform_t &waveform (channel.waveform());
-  QMutexLocker lock(&_mutex);
-  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
-    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
   _result->lock.lockForWrite();
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
+  {
+    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),0, waveform.size()*channel.sampleInterval());
+  }
   std::transform(waveform.begin(),
                  waveform.end(),
                  dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
                  cass::Adc2Volts(channel.gain(),channel.offset()));
+  ++_result->nbrOfFills();
   _result->lock.unlock();
 }
 
