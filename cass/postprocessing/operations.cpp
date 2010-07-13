@@ -1,8 +1,8 @@
 // Copyright (C) 2010 Lutz Foucar
 // (C) 2010 Thomas White - Updated to new PP framework
 
-/** @file operations.h file contains definition of postprocessors that will
- *                     operate on histograms of other postprocessors
+/** @file operations.cpp file contains definition of postprocessors that will
+ *                       operate on histograms of other postprocessors
  * @author Lutz Foucar
  */
 
