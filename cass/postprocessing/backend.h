@@ -120,8 +120,10 @@ namespace cass
      *
      * postprocessors can override this virtual function to execute
      * code after the histograms for this postprocessor have been changed.
+     *
+     * @param in pointer to the histogram that has changed
      */
-    virtual void histogramsChanged()
+    virtual void histogramsChanged(HistogramBackend* in=0)
     {
       std::cout<<"PostProcessor backend histogramsChanged" << std::endl;
     }
