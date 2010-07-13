@@ -123,7 +123,7 @@ namespace cass
      *
      * @param in pointer to the histogram that has changed
      */
-    virtual void histogramsChanged(HistogramBackend* in=0)
+    virtual void histogramsChanged(const HistogramBackend* in=0)
     {
       std::cout<<"PostProcessor backend histogramsChanged" << std::endl;
     }
