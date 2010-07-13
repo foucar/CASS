@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/** @file backend.cpp file contains postprocessors baseclass definition
+ *
+ * @author Lutz Foucar
+ */
+
+
 #include <algorithm>
 
 #include "cass_event.h"
