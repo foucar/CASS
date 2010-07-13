@@ -68,7 +68,7 @@ void cass::pp110::process(const cass::CASSEvent &evt)
     PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
     PostProcessors::keyList_t::iterator it (dependands.begin());
     for (; it != dependands.end(); ++it)
-      _pp.getPostProcessor(*it).histogramsChanged(result);
+      _pp.getPostProcessor(*it).histogramsChanged(_result);
   }
   std::transform(waveform.begin(),
                  waveform.end(),
