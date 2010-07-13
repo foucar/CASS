@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/** @file waveform.h file contains acqiris data retrieval postprocessor
+ *                   declaration
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _WAVEFORM_POSTPROCESSOR_H_
 #define _WAVEFORM_POSTPROCESSOR_H_
 
