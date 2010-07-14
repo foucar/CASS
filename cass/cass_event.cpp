@@ -1,4 +1,10 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
+
+/**
+ * @file cass_event.cpp file contains defintion of the CASSEvent
+ *
+ * @author Lutz Foucar
+ */
 
 #include <iostream>
 

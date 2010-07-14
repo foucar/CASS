@@ -1,4 +1,10 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
+
+/**
+ * @file cass_event.h file contains declaration of the CASSEvent
+ *
+ * @author Lutz Foucar
+ */
 
 #ifndef CASSEVENT_H
 #define CASSEVENT_H
