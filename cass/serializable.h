@@ -1,5 +1,11 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file seriablizable.h file contains base class all serializable classes
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _SERIALIZABLE_H_
 #define _SERIALIZABLE_H_
 
@@ -11,9 +17,11 @@ namespace cass
   //forward declaration
   class SerializerBackend;
 
-  /** Serializable
+  /** Serializable.
+   *
    * pure virtual class that all serializable classes should inherit from.
    * This makes sure that all classes that should be serializable
+   *
    * @author Lutz Foucar
    */
   class Serializable
@@ -28,11 +36,13 @@ namespace cass
     virtual ~Serializable(){}
 
     /** pure virtual function that needs to be defined by the derived class.
+     *
      * will serialize an object to the Serializer class
      */
     virtual void serialize(cass::SerializerBackend&)const=0;
 
     /** pure virtual function that needs to be defined by the derived class.
+     *
      * will deserialize an object from the Serializer class
      */
     virtual bool deserialize(cass::SerializerBackend&)=0;
