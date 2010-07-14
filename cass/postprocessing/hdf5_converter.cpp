@@ -357,6 +357,7 @@ void cass::pp1001::loadSettings(size_t)
   if (!setupCondition(false))
     return;
   _write = false;
+  _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
   std::cout <<"PostProcessor "<<_key
