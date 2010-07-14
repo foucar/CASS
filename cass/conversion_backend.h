@@ -1,6 +1,12 @@
 // Copyright (C) 2009 Jochen Kuepper
 // Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file conversion_backend.h file contains base class for all format converters
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef CASS_CONVERSIONBACKEND_H
 #define CASS_CONVERSIONBACKEND_H
 
@@ -11,6 +17,7 @@
 
 namespace Pds
 {
+  //forward declaration
   class Xtc;
 }
 
@@ -28,9 +35,13 @@ namespace cass
   class CASSSHARED_EXPORT ConversionBackend
   {
   public:
-    /** virtual destructor to make clear this is a base class*/
+    /** virtual destructor to make clear this is a base class */
     virtual ~ConversionBackend() {}
-    /** pure virtual operator call this to convert the xtc to the cass event*/
+
+    /** pure virtual operator.
+     *
+     * call this to convert the xtc to the cass event
+     */
     virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
   };
 }//end namespace cass
