@@ -44,16 +44,12 @@ void cass::Analyzer::destroy()
 
 cass::Analyzer::Analyzer()
 {
-  //create the analyzers//
   _analyzer[ccd]          = new CCD::Analysis();
-  _analyzer[Acqiris]      = new ACQIRIS::Analysis();
-  _analyzer[MachineData]  = new MachineData::Analysis();
   _analyzer[pnCCD]        = new pnCCD::Analysis();
 }
 
 cass::Analyzer::~Analyzer()
 {
-  //delete all analyzers
   analyzers_t::iterator it (_analyzer.begin());
   for (; it != _analyzer.end(); ++it )
     delete (it->second);
@@ -61,8 +57,6 @@ cass::Analyzer::~Analyzer()
 
 void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 {
-  //use the analyzers to analyze the event//
-  //iterate through all active analyzers and send the cassevent to them//
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
   for(; it!=_activeAnalyzers.end();++it)
     (*_analyzer[*it])(cassevent);
@@ -74,12 +68,8 @@ void cass::Analyzer::loadSettings(size_t)
   settings.beginGroup("PreAnalyzer");
   if (settings.value("useCommercialCCDAnalyzer",true).toBool())
     _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
-  if (settings.value("useAcqirisAnalyzer",false).toBool())
-    _activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
   if (settings.value("usepnCCDAnalyzer",true).toBool())
     _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
-  if (settings.value("useMachineAnalyzer",false).toBool())
-    _activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
 
   //iterate through all active analyzers and load the settings of them//
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
@@ -89,7 +79,6 @@ void cass::Analyzer::loadSettings(size_t)
 
 void cass::Analyzer::saveSettings()
 {
-  //iterate through all active analyzers and load the settings of them//
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
   for(; it != _activeAnalyzers.end();++it)
     (*_analyzer[*it]).saveSettings();
