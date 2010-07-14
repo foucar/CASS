@@ -1,5 +1,12 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file cass_settings.h file contains specialized class that do the settings
+ *                       for cass
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _CASS_SETTINGS_H_
 #define _CASS_SETTINGS_H_
 
