@@ -1,5 +1,11 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file serializer.h file contains base class for all pre analyzers
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _SERIALIZER_H_
 #define _SERIALIZER_H_
 
@@ -18,10 +24,12 @@ namespace cass
 {
 
   /** A serializer.
+   *
    * base class that will serialize / de serialize
    * Serializable classes to an iostream
    * This is an interface that should not be instantiated
    * (can be made pure virtual once virtual methods are introduced).
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT SerializerBackend
@@ -84,8 +92,10 @@ namespace cass
   };
 
   /** A string serializer.
+   *
    * class that will serialize / de serialize
    * Serializable classes to a stringstream
+   *
    * @author Lutz Foucar
    * @author Stephan Kassemeyer
    */
@@ -93,13 +103,16 @@ namespace cass
   {
   public:
     /** constructor.
+     *
      * will open the stream in binary writing mode
      */
     Serializer()
     {
       _stream = new std::stringstream(std::ios_base::binary|std::ios_base::out);
     }
+
     /** constructor.
+     *
      * will open the provided string for reading in binary mode
      * @param string the string that we want to read from
      */
@@ -107,31 +120,39 @@ namespace cass
     {
       _stream = new std::stringstream(string,std::ios_base::binary|std::ios_base::in);
     }
+
     /** destructor.
+     *
      * deletes stream object
      */
     ~Serializer()
     {
       delete _stream;
     }
+
     /** retrieve a const reference to the string.
+     *
      * @return const string of our stringstream
      */
     const std::string buffer()const  {return dynamic_cast<std::stringstream*>(_stream)->str();}
+
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {};
+    virtual void abstractTest() {}
 #endif
   };
 
   /** A file output serializer.
+   *
    * class that will serialize
    * Serializable classes to a stringstream
+   *
    * @author Stephan Kassemeyer
    */
   class CASSSHARED_EXPORT SerializerWriteFile : public SerializerBackend
   {
   public:
     /** constructor.
+     *
      * will open the stream in binary reading/writing mode
      */
     SerializerWriteFile( const char* filename )
@@ -139,7 +160,9 @@ namespace cass
       _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::out);
       _opened = true;
     }
+
     /** destructor.
+     *
      * closes the file and deletes stream object.
      */
     ~SerializerWriteFile()
@@ -147,27 +170,30 @@ namespace cass
       close();
       delete _stream;
     }
-    /** close file.
-     *
-     */
+
+    /** close file */
     void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
 
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {};
+    virtual void abstractTest() {}
 #endif
+
   protected:
     bool _opened;
   };
 
   /** A file input deserializer.
+   *
    * class that will deserialize
    * Serializable classes from a stringstream
+   *
    * @author Stephan Kassemeyer
    */
   class CASSSHARED_EXPORT SerializerReadFile : public SerializerBackend
   {
   public:
     /** constructor.
+     *
      * will open the stream in binary reading/writing mode
      */
     SerializerReadFile( const char* filename )
@@ -175,7 +201,9 @@ namespace cass
       _stream = new std::fstream(filename, std::ios_base::binary|std::ios_base::in);
       _opened = true;
     }
+
     /** destructor.
+     *
      * closes the file and deletes stream object.
      */
     ~SerializerReadFile()
@@ -183,14 +211,14 @@ namespace cass
       close();
       delete _stream;
     }
-    /** close file.
-     *
-     */
+
+    /** close file */
     void close()  {if (_opened) dynamic_cast<std::fstream*>(_stream)->close();}
 
 #ifdef SERIALIZER_INTERFACE_TEST
-    virtual void abstractTest() {};
+    virtual void abstractTest() {}
 #endif
+
   protected:
     bool _opened;
   };
