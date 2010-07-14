@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Nicola Coppola
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file daemon.cpp file contains definition of unix signals handler
+ *
+ * @author Nicola Coppola
+ */
+
 #include "daemon.h"
 
 #include <iostream>
