@@ -1,4 +1,11 @@
-//Copyright (C) 2010 lmf
+//Copyright (C) 2010 Lutz Foucar
+
+/**
+ * @file ratemeter.cpp file contains definition of class calculating a rate
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <cmath>
 
@@ -28,7 +35,7 @@ double cass::Ratemeter::calculateRate()
   
   //reset the curent counter before adding//
   _counts = 0.;
- //restart the timer and advance the index//
+  //restart the timer and advance the index//
   _time.restart();
  
   //return the calculated rate//
