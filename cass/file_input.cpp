@@ -1,5 +1,11 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file file_input.cpp file contains definition of xtcfile input
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>

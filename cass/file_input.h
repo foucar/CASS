@@ -1,5 +1,11 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file file_input.h file contains declaration of xtcfile input
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _FILEINPUT_H_
 #define _FILEINPUT_H_
 
