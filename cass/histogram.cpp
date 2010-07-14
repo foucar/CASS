@@ -136,7 +136,7 @@ namespace cass
                                                 size_t nbrBins) const
   {
     Histogram1DFloat hist(nbrBins, 0., 360.);
-    const float NbrBins2_min=pow(static_cast<float>(range.first),2);
+//    const float NbrBins2_min=pow(static_cast<float>(range.first),2);
     const float NbrBins2_max=pow(static_cast<float>(range.second),2);
     const float xc(static_cast<float>(center.first)-0.5);
     const float yc(static_cast<float>(center.second)-0.5);
@@ -159,10 +159,10 @@ namespace cass
 //    col_max=std::min(col_max,static_cast<int32_t>(_axis[xAxis].upperLimit()));
 
     //the following loop is quite generous...
-    for(int32_t row=row_min; row<row_max; ++row)
-      for(int32_t col=col_min; col<col_max; ++col)
-      {
-        float iradius2= square(static_cast<float>(row)-yc)+square(static_cast<float>(col)-xc);
+//    for(int32_t row=row_min; row<row_max; ++row)
+//      for(int32_t col=col_min; col<col_max; ++col)
+//      {
+//        float iradius2= square(static_cast<float>(row)-yc)+square(static_cast<float>(col)-xc);
         //only if inside the corona of range.first,range.second add the bin-values
         //boundary included!!
 //      if(iradius2<NbrBins2_max && iradius2>NbrBins2_min)
@@ -184,7 +184,7 @@ namespace cass
 //        //hist.fill( angle );
 //        hist.fill( angle,bin(row,col) );
 //      }
-      }
+//      }
 
     /* the following works only if the 2*pi*maxRadius<360 otherwise is ABSOLUTELY mathematically INCORRECT */
     /* and it is clearly not as general as the previously implemented code */
