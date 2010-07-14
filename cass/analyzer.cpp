@@ -2,7 +2,7 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
 /**
- * @file analyzer.cpp file contains defintion of class handling the pre
+ * @file analyzer.cpp file contains definition of class handling the pre
  *                    analyzers
  *
  * @author Lutz Foucar
