@@ -190,7 +190,7 @@ void cass::FormatConverter::loadSettings(size_t)
   CASSSettings settings;
   settings.sync();
   settings.value("useCommercialCCDConverter",true).toBool()?
-      addConverter(ccd): removeConverter(ccd);
+      addConverter(ccd)         : removeConverter(ccd);
   settings.value("useAcqirisConverter",true).toBool()?
       addConverter(Acqiris)     : removeConverter(Acqiris);
   settings.value("usepnCCDConverter",true).toBool()?

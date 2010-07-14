@@ -2,7 +2,7 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 
 /**
- * @file analyzer.cpp file contains declaration of class handling the pre
+ * @file analyzer.cpp file contains defintion of class handling the pre
  *                    analyzers
  *
  * @author Lutz Foucar
@@ -54,16 +54,17 @@ cass::Analyzer::Analyzer()
 cass::Analyzer::~Analyzer()
 {
   //delete all analyzers
-  for (analyzers_t::iterator it=_analyzer.begin() ; it != _analyzer.end(); ++it )
+  analyzers_t::iterator it (_analyzer.begin());
+  for (; it != _analyzer.end(); ++it )
     delete (it->second);
 }
-
 
 void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 {
   //use the analyzers to analyze the event//
   //iterate through all active analyzers and send the cassevent to them//
-  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
+  active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
+  for(; it!=_activeAnalyzers.end();++it)
     (*_analyzer[*it])(cassevent);
 }
 
@@ -72,21 +73,26 @@ void cass::Analyzer::loadSettings(size_t)
   CASSSettings param;
   param.beginGroup("PreAnalyzer");
   //install the requested analyzers//
-  if(param.value("useCommercialCCDAnalyzer",true).toBool()) _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
-  if(param.value("useAcqirisAnalyzer",false).toBool())      _activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
-  if(param.value("usepnCCDAnalyzer",true).toBool())         _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
-  if(param.value("useMachineAnalyzer",false).toBool())      _activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
-  param.endGroup();
+  param.value("useCommercialCCDAnalyzer",true).toBool()?
+      _activeAnalyzers.insert(ccd)        :_activeAnalyzers.erase(ccd);
+  param.value("useAcqirisAnalyzer",false).toBool()?
+      _activeAnalyzers.insert(Acqiris)    : _activeAnalyzers.erase(Acqiris);
+  param.value("usepnCCDAnalyzer",true).toBool()?
+     _activeAnalyzers.insert(pnCCD)       : _activeAnalyzers.erase(pnCCD);
+  param.value("useMachineAnalyzer",false).toBool()?
+     _activeAnalyzers.insert(MachineData) : _activeAnalyzers.erase(MachineData);
 
   //iterate through all active analyzers and load the settings of them//
-  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
+  active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
+  for(; it != _activeAnalyzers.end();++it)
     (*_analyzer[*it]).loadSettings();
 }
 
 void cass::Analyzer::saveSettings()
 {
   //iterate through all active analyzers and load the settings of them//
-  for(active_analyzers_t::const_iterator it = _activeAnalyzers.begin(); it != _activeAnalyzers.end();++it)
+  active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
+  for(; it != _activeAnalyzers.end();++it)
     (*_analyzer[*it]).saveSettings();
 }
 
