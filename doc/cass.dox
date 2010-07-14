@@ -164,7 +164,9 @@ Lutz Foucar
 @todo find out how one can use xrefitem so that it will list consecutive
       items under one title, just like todo does.
 @todo add gui's to modify the postprocessors settings in cassviewer.
-@todo create an excutable with the revision number to have some fallback
+@todo find out why building in another directory is not possible
+      (make[2]: *** No rule to make target `soapserver.h', needed by
+      `soapCASSsoapService.cpp'.  Stop.)
 */
 
 /**
