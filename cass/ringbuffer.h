@@ -1,4 +1,9 @@
 //Copyright (C) 2008-2010 Lutz Foucar
+/**
+ * @file ringbuffer.h file contains the ringbuffer class
+ *
+ * @author Lutz Foucar
+ */
 
 #ifndef _RINGBUFFER_H
 #define _RINGBUFFER_H
