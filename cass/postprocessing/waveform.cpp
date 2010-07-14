@@ -68,11 +68,10 @@ void cass::pp110::process(const cass::CASSEvent &evt)
   _result->lock.lockForWrite();
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != waveform.size())
   {
-    histogramList_t::iterator hist_iter (_histList.begin());
-    for (;hist_iter != _histList.end(); ++hist_iter)
-      dynamic_cast<Histogram1DFloat*>(hist_iter->second)->resize(waveform.size(),
-                                                                 0,
-                                                                 waveform.size()*channel.sampleInterval());
+    /** @todo investigate why one cannot resize the whole list at this point */
+    dynamic_cast<Histogram1DFloat*>(_result)->resize(waveform.size(),
+                                                               0,
+                                                               waveform.size()*channel.sampleInterval());
     PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
     PostProcessors::keyList_t::iterator it (dependands.begin());
     for (; it != dependands.end(); ++it)
