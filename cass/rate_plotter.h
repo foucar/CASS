@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file rate_plotter.h file contains declaration of class to plot the rate
+ *                      calculated by ratemeters
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _RATE_PLOTTER_H_
 #define _RATE_PLOTTER_H_
 
@@ -16,7 +23,9 @@ namespace cass
   class Ratemeter;
 
   /** Plotting the rate of input and prcessing threads.
+   *
    * class that will plot the rates calculated in the given Ratemeter's
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT RatePlotter : public QObject
@@ -25,6 +34,7 @@ namespace cass
 
   public:
     /** constructor.
+     *
      * @param inputrate the ratemeter of the input thread
      * @param analyzerate the ratemeter of the worker threads
      * @param parent the qt parent of this object

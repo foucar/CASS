@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file rate_plotter.cpp file contains declaration of class to plot the rate
+ *                        calculated by ratemeters
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <stdio.h>
 
