@@ -1,5 +1,13 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file ccd_detector.h file contains defintion of a ccd_detector
+ *
+ * @deprecated use pixel_detector.h instead
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _CCD_DETECTOR_H_
 #define _CCD_DETECTOR_H_
 
