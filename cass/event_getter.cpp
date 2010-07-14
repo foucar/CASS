@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file event_getter.h file contains definition event retriever classes
+ *
+ * @author Lutz Foucar
+ */
+
 #include <string>
 
 #include "event_getter.h"

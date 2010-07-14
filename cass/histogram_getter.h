@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file histogram_getter.h file contains declaration retriever classes
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __HISTOGRAM_GETTER_H__
 #define __HISTOGRAM_GETTER_H__
 
@@ -15,9 +21,9 @@ namespace cass
 {
 
 /** Histogram retrievel parameters.
-
-@author Jochen Küpper
-*/
+ *
+ * @author Jochen Küpper
+ */
 struct HistogramParameter
 {
   explicit HistogramParameter(const PostProcessors::key_t& _key, uint64_t _eventId=0)

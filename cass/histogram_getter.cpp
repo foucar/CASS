@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Jochen Küpper
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file histogram_getter.cpp file contains definition retriever classes
+ *
+ * @author Lutz Foucar
+ */
+
 #include <stdexcept>
 
 #include "histogram.h"
