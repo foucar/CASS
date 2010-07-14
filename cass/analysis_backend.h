@@ -27,7 +27,6 @@ namespace cass
   class CASSSHARED_EXPORT AnalysisBackend
   {
   public:
-
     /** virtual desctructor */
     virtual ~AnalysisBackend()  {}
 
