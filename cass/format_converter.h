@@ -94,9 +94,6 @@ namespace cass
     /** function to remove converters from the list */
     void removeConverter(Converters);
 
-    /** the parameters */
-    ConverterParameter _param;
-
     /** status whether a configure has already been seen */
     bool _configseen;
 
