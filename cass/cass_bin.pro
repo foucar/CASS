@@ -126,7 +126,6 @@ HEADERS            += analysis_backend.h \
                       analyzer.h \
                       cass.h \
                       cass_event.h \
-                      ccd_detector.h \
                       conversion_backend.h \
                       daemon.h \
                       event_getter.h \
