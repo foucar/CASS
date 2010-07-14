@@ -1,4 +1,11 @@
-// Copyright (C) 2009,2010 LMF
+// Copyright (C) 2009,2010 Lutz Foucar
+
+/**
+ * @file sharedmemory_input.cpp file contains definition of class that interfaces
+ *                              the LCLS shared memory
+ *
+ * @author Lutz Foucar
+ */
 
 #include <QtCore/QMutexLocker>
 

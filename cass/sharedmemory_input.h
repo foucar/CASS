@@ -1,5 +1,12 @@
 // Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file sharedmemory_input.h file contains declaration of class that interfaces
+ *                            the LCLS shared memory
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __SHAREDMEMORYINPUT_H__
 #define __SHAREDMEMORYINPUT_H__
 
