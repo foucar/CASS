@@ -1,5 +1,11 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file xtciterator.h file contains iterator to iterate through a xtc datagram
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _XTCITERATOR_H_
 #define _XTCITERATOR_H_
 
@@ -26,6 +32,7 @@ namespace cass
   public:
     /** enum for more convenient code*/
     enum {Stop, Continue};
+
     /** constructor.
      *
      * @param xtc the xtc which contents we iterate over
@@ -43,12 +50,12 @@ namespace cass
       _cassevent(cassevent)
     {}
 
-
     /** @overload
      * function that is called for each xtc found in the xtc
      *
-     * will check whether its an id or another xtc. if its another xtc it will call this
-     * with increased recursion depth, otherwise it will call the format converter for the id.
+     * will check whether its an id or another xtc. if its another xtc it will
+     * call this with increased recursion depth, otherwise it will call the
+     * format converter for the id.
      */
     int process(Pds::Xtc* xtc)
     {
@@ -58,20 +65,27 @@ namespace cass
       //otherwise use the responsible format converter for this xtc//
       else
       {
-        //first check whether datagram is damaged or the xtc id is bigger than we expect//
-        //when it contains an incomplete contribution stop iterating and return that it is not good//
+        //first check whether datagram is damaged or the xtc id is bigger than//
+        //we expect when it contains an incomplete contribution stop iterating//
+        //and return that it is not good//
         uint32_t damage = xtc->damage.value();
         if (xtc->contains.id() >= Pds::TypeId::NumberOf)
         {
-          std::cout << xtc->contains.id() <<" is an unkown xtc id. Skipping Event"<<std::endl;
+          std::cout << xtc->contains.id()
+              <<" is an unkown xtc id. Skipping Event"
+              <<std::endl;
           return Stop;
         }
         else if (damage)
         {
-          std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())<< " is damaged: 0x" <<xtc->damage.value()<<std::dec<<std::endl;
+          std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())
+              << " is damaged: 0x" <<xtc->damage.value()
+              <<std::dec<<std::endl;
           if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
           {
-            std::cout <<std::hex<<"0x"<<xtc->damage.value()<<" is incomplete Contribution. Skipping Event"<<std::dec<<std::endl;
+            std::cout <<std::hex<<"0x"<<xtc->damage.value()
+                <<" is incomplete Contribution. Skipping Event"
+                <<std::dec<<std::endl;
             return Stop;
           }
         }
@@ -81,10 +95,16 @@ namespace cass
       }
       return Continue;
     }
+
   private:
-    unsigned                           _depth;      //!< counts the recursivness of this
-    FormatConverter::usedConverters_t &_converters; //!< reference to the converters
-    CASSEvent                         *_cassevent;  //!< pointer to the cassevent to work on
+    /** counts the recursivness of this */
+    unsigned _depth;
+
+     /** reference to the converters */
+    FormatConverter::usedConverters_t &_converters;
+
+    /** pointer to the cassevent to work on */
+    CASSEvent *_cassevent;
   };
 }//end namespace cass
 
