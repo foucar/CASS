@@ -70,17 +70,16 @@ void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
 
 void cass::Analyzer::loadSettings(size_t)
 {
-  CASSSettings param;
-  param.beginGroup("PreAnalyzer");
-  //install the requested analyzers//
-  param.value("useCommercialCCDAnalyzer",true).toBool()?
-      _activeAnalyzers.insert(ccd)        :_activeAnalyzers.erase(ccd);
-  param.value("useAcqirisAnalyzer",false).toBool()?
-      _activeAnalyzers.insert(Acqiris)    : _activeAnalyzers.erase(Acqiris);
-  param.value("usepnCCDAnalyzer",true).toBool()?
-     _activeAnalyzers.insert(pnCCD)       : _activeAnalyzers.erase(pnCCD);
-  param.value("useMachineAnalyzer",false).toBool()?
-     _activeAnalyzers.insert(MachineData) : _activeAnalyzers.erase(MachineData);
+  CASSSettings settings;
+  settings.beginGroup("PreAnalyzer");
+  if (settings.value("useCommercialCCDAnalyzer",true).toBool())
+    _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
+  if (settings.value("useAcqirisAnalyzer",false).toBool())
+    _activeAnalyzers.insert(Acqiris);     else _activeAnalyzers.erase(Acqiris);
+  if (settings.value("usepnCCDAnalyzer",true).toBool())
+    _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
+  if (settings.value("useMachineAnalyzer",false).toBool())
+    _activeAnalyzers.insert(MachineData); else _activeAnalyzers.erase(MachineData);
 
   //iterate through all active analyzers and load the settings of them//
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
