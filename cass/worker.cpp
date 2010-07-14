@@ -1,6 +1,12 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file worker.cpp file contains definition of class Worker and Workers
+ *
+ * @author Lutz Foucar
+ */
+
 #include <exception>
 #include <QtCore/QMutexLocker>
 
