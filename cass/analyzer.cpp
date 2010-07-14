@@ -12,10 +12,8 @@
 #include <QtCore/QMutexLocker>
 
 #include "analyzer.h"
-#include "acqiris_analysis.h"
 #include "ccd_analysis.h"
 #include "pnccd_analysis.h"
-#include "machine_analysis.h"
 #include "cass_settings.h"
 
 
