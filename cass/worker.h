@@ -3,6 +3,9 @@
 /**
  * @file worker.h file contains declaration of class Worker and Workers
  *
+ * @todo instead of using a singnal to provide a costum command string to the
+ *       postprocessors we need to do it like the histogram getter.
+ *
  * @author Lutz Foucar
  */
 
