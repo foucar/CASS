@@ -1,5 +1,12 @@
 // Copyright (C) 2009 Jochen Küpper
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009, 2010 Lutz Foucar
+
+/**
+ * @file analyzer.cpp file contains declaration of class handling the pre
+ *                    analyzers
+ *
+ * @author Lutz Foucar
+ */
 
 #include <iostream>
 #include <QtCore/QMutexLocker>

@@ -1,5 +1,12 @@
 // Copyright (C) 2009 Jochen Küpper
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009, 2010 Lutz Foucar
+
+/**
+ * @file analyzer.h file contains declaration of class handling the pre
+ *                  analyzers
+ *
+ * @author Lutz Foucar
+ */
 
 #ifndef CASS_ANALYZER_H
 #define CASS_ANALYZER_H
@@ -37,24 +44,30 @@ namespace cass
   public:
     /** list of known individual analyzers*/
     enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
+
     /** creates an instance if it does not exist already*/
     static Analyzer *instance();
+
     /** this destroys the the instance*/
     static void destroy();
+
     /** function to use the analyzers for the different instruments*/
     void processEvent(cass::CASSEvent*);
+
     /** function that one can implement when one wants to do something just before quitting*/
     void aboutToQuit() {};
 
   public slots:
     /** save the settings of the analyzers*/
     void saveSettings();
+
     /** load the settings of the analyzers*/
     void loadSettings(size_t what);
 
   protected:
     /** protected constructor, should only be called through instance*/
     Analyzer();
+
     /** protected destructor, should only be called through destroy*/
     ~Analyzer();
 
@@ -65,10 +78,13 @@ namespace cass
   protected:
     /** map of available analyzers*/
     analyzers_t _analyzer;
+
     /** a set of the active analyzers*/
     active_analyzers_t _activeAnalyzers;
+
     /** pointer to the instance*/
     static Analyzer *_instance;
+
     /** Singleton operation locker in a multi-threaded environment.*/
     static QMutex _mutex;
   };
