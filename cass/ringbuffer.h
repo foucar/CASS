@@ -1,4 +1,5 @@
 //Copyright (C) 2008-2010 Lutz Foucar
+
 /**
  * @file ringbuffer.h file contains the ringbuffer class
  *
@@ -37,16 +38,17 @@ namespace cass
    *
    * @tparam T Element typ
    * @tparam cap Capacity of the ringbuffer
-   * @author Lutz Foucar
+   *
    * @todo find out how one can use std::find to find the right element
    * @todo maybe create a ReadWriteLock for each element to get rid of the mutexes
    * @todo separeate declaration and definition to make class more readable
+   *
+   * @author Lutz Foucar
    */
   template <typename T, size_t cap>
   class RingBuffer
   {
   public:
-
     /** type for references to the elements of the container*/
     typedef T*& reference;
 
@@ -56,14 +58,13 @@ namespace cass
     /** type for pointers to the elements of the container*/
     typedef T* value_t;
 
-
   private:
-
     /** an element of the ringbuffer.
+     *
      * contains the status of the element and a pointer
      * to the actual element.
+     *
      * @author Lutz Foucar
-     * @todo Internationalize variable names
      */
     class Element
     {
@@ -84,19 +85,21 @@ namespace cass
        * @param rhs Element to compare me to.
        */
       bool operator==(const_reference rhs) { return (element == rhs); }
+
       /** the pointer to the element*/
       T   *element;
+
       /** status whether the element has been worked on*/
       bool bearbeitet;
+
       /** status whether the element has been filled*/
       bool gefuellt;
+
       /** status whether the element is workend on right now*/
       bool inBearbeitung;
     };
 
-
   public:
-
     /** type of the container of all elements*/
     typedef std::vector<Element> buffer_t;
 
@@ -129,7 +132,6 @@ namespace cass
     }
 
   private:
-
     /** finds the processable element.
      * will go through the ringbuffer backwards starting at the
      * position where we added the filled element. It will check
@@ -238,9 +240,7 @@ namespace cass
       return true;
     }
 
-
   public:
-
     /** return the next filled but non processed element.
      *
      * This function will return the next filled element, which will
@@ -392,8 +392,8 @@ namespace cass
      * @param[in] timeout Time that we will wait that a new viewableelement is beeing
      *            put into the buffer. It is defaulted to ULONG_MAX
      */
-   void nextToView(reference element, int timeout=ULONG_MAX)
-   {
+    void nextToView(reference element, int timeout=ULONG_MAX)
+    {
       //create a lock//
       QMutexLocker lock(&_mutex);
       while (!findNextViewable())
