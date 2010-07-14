@@ -1,6 +1,12 @@
 // Copyright (C) 2009, 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file cass.h file contains global definitions for project cass
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef CASS_GLOBAL_H
 #define CASS_GLOBAL_H
 
