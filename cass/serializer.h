@@ -1,7 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file serializer.h file contains base class for all pre analyzers
+ * @file serializer.h file contains classes for serializing objects
  *
  * @author Lutz Foucar
  */
