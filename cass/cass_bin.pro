@@ -228,7 +228,7 @@ lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 lclsapps.path       = $$INSTALLBASE/bin
 lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
-bin_copy.path       = ./
+bin_copy.path       = $$INSTALLBASE/bin
 bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE}
 headers.files       = $$HEADERS
 INSTALLS           += target bin_copy lclslibs lclsapps
