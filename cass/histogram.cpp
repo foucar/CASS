@@ -149,13 +149,13 @@ namespace cass
     int32_t row_min(static_cast<int32_t>(yc-NbrBins2_max));
 //    row_min=std::max(row_min,static_cast<int32_t>(_axis[yAxis].lowerLimit()));
     row_min=std::max(row_min,0);
-    int32_t row_max(static_cast<int32_t>(yc+NbrBins2_max));
+//    int32_t row_max(static_cast<int32_t>(yc+NbrBins2_max));
 //    row_max=std::min(row_max,static_cast<int32_t>(_axis[yAxis].upperLimit()));
 
     int32_t col_min(static_cast<int32_t>(xc-NbrBins2_max));
 //    col_min=std::max(col_min,static_cast<int32_t>(_axis[xAxis].lowerLimit()));
     col_min=std::max(col_min,0);
-    int32_t col_max(static_cast<int32_t>(xc+NbrBins2_max));
+//    int32_t col_max(static_cast<int32_t>(xc+NbrBins2_max));
 //    col_max=std::min(col_max,static_cast<int32_t>(_axis[xAxis].upperLimit()));
 
     //the following loop is quite generous...
