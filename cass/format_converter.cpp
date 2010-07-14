@@ -189,10 +189,6 @@ void cass::FormatConverter::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.sync();
-
-  //load the parameters//
-  _param.load();
-  //install the requested converters//
   settings.value("useCommercialCCDConverter",true).toBool()?
       addConverter(ccd): removeConverter(ccd);
   settings.value("useAcqirisConverter",true).toBool()?
