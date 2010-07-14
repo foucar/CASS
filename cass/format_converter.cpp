@@ -1,5 +1,13 @@
 // Copyright (C) 2009 Jochen Küpper
 // Copyright (C) 2009,2010 Lutz Foucar
+
+/**
+ * @file format_converter.cpp file contains definition of the container for all
+ *                           format converters
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 
 #include <iomanip>
@@ -56,32 +64,6 @@ cass::FormatConverter *cass::FormatConverter::instance()
 
 
 
-//load the settings
-void cass::ConverterParameter::load()
-{
-  //sync before loading//
-  sync();
-  _useCCD     = value("useCommercialCCDConverter",true).toBool();
-  _useAcqiris = value("useAcqirisConverter",true).toBool();
-  _useMachine = value("useMachineConverter",true).toBool();
-  _usepnCCD   = value("usepnCCDConverter",true).toBool();
-
-  std::cout << std::boolalpha<<"using Commercial ccd converter "<<_useCCD<<std::endl;
-  std::cout << std::boolalpha<<"using acqiris converter "<<_useAcqiris<<std::endl;
-  std::cout << std::boolalpha<<"using machine converter "<<_useMachine<<std::endl;
-  std::cout << std::boolalpha<<"using Pn ccd converter "<<_usepnCCD<<std::endl;
-}
-//save the settings
-void cass::ConverterParameter::save()
-{
-  setValue("useCommercialCCDConverter",_useCCD);
-  setValue("useAcqirisConverter",_useAcqiris);
-  setValue("useMachineConverter",_useMachine);
-  setValue("usepnCCDConverter",_usepnCCD);
-}
-
-
-
 
 
 
@@ -124,8 +106,6 @@ cass::FormatConverter::FormatConverter()
   _usedConverters[Pds::TypeId::Id_EncoderData]      = _availableConverters[Blank];
   _usedConverters[Pds::TypeId::Id_EncoderConfig]    = _availableConverters[Blank];
 
-
-
   //now load the converters, that the user want to use//
   loadSettings(0);
 }
@@ -139,24 +119,28 @@ cass::FormatConverter::~FormatConverter()
     delete (it->second);
 }
 
-
 void cass::FormatConverter::addConverter(cass::FormatConverter::Converters converter)
 {
+  using namespace std;
   //look which converter should be added//
   switch(converter)
   {
   case ccd:
-    _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[ccd];
+    VERBOSEOUT(cout<<"Use commercial CCD converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_Frame] = _availableConverters[ccd];
     break;
   case Acqiris:
-    _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Acqiris];
-    _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Acqiris];
+    VERBOSEOUT(cout<<"Use acqiris converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_AcqWaveform] = _availableConverters[Acqiris];
+    _usedConverters[Pds::TypeId::Id_AcqConfig]   = _availableConverters[Acqiris];
     break;
   case pnCCD:
-    _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[pnCCD];
-    _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[pnCCD];
+    VERBOSEOUT(cout<<"Use pnCCD converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_pnCCDframe]  = _availableConverters[pnCCD];
+    _usedConverters[Pds::TypeId::Id_pnCCDconfig] = _availableConverters[pnCCD];
     break;
   case MachineData:
+    VERBOSEOUT(cout<<"Use commercial CCD converter"<<endl);
     _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[MachineData];
     _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
     _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
@@ -170,21 +154,26 @@ void cass::FormatConverter::addConverter(cass::FormatConverter::Converters conve
 
 void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters converter)
 {
+  using namespace std;
   //look which converter should be removed//
   switch(converter)
   {
   case ccd:
-    _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[Blank];
+    VERBOSEOUT(cout<<"Don't use commercial CCD converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_Frame] = _availableConverters[Blank];
     break;
   case Acqiris:
-    _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Blank];
+    VERBOSEOUT(cout<<"Don't use acqiris converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_AcqWaveform]  = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_AcqConfig]    = _availableConverters[Blank];
     break;
   case pnCCD:
-    _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[Blank];
+    VERBOSEOUT(cout<<"Don't use pnCCD converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_pnCCDframe]   = _availableConverters[Blank];
+    _usedConverters[Pds::TypeId::Id_pnCCDconfig]  = _availableConverters[Blank];
     break;
   case MachineData:
+    VERBOSEOUT(cout<<"Don't use machinedata converter"<<endl);
     _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[Blank];
     _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
     _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
@@ -198,21 +187,21 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
 
 void cass::FormatConverter::loadSettings(size_t)
 {
+  CASSSettings settings;
+  settings.sync();
+
   //load the parameters//
   _param.load();
   //install the requested converters//
-  _param._useCCD      ? addConverter(ccd)         : removeConverter(ccd);
-  _param._useAcqiris  ? addConverter(Acqiris)     : removeConverter(Acqiris);
-  _param._usepnCCD    ? addConverter(pnCCD)       : removeConverter(pnCCD);
-  _param._useMachine  ? addConverter(MachineData) : removeConverter(MachineData);
+  settings.value("useCommercialCCDConverter",true).toBool()?
+      addConverter(ccd): removeConverter(ccd);
+  settings.value("useAcqirisConverter",true).toBool()?
+      addConverter(Acqiris)     : removeConverter(Acqiris);
+  settings.value("usepnCCDConverter",true).toBool()?
+      addConverter(pnCCD)       : removeConverter(pnCCD);
+  settings.value("useMachineConverter",true).toBool()?
+      addConverter(MachineData) : removeConverter(MachineData);
 }
-
-void cass::FormatConverter::saveSettings()
-{
-  //save the parameters//
-  _param.save();
-}
-
 
 enum {NoGoodData=0,GoodData};
 bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
