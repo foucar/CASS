@@ -68,8 +68,6 @@ void cass::Analyzer::loadSettings(size_t)
     _activeAnalyzers.insert(ccd);         else _activeAnalyzers.erase(ccd);
   if (settings.value("usepnCCDAnalyzer",true).toBool())
     _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
-
-  //iterate through all active analyzers and load the settings of them//
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
   for(; it != _activeAnalyzers.end();++it)
     (*_analyzer[*it]).loadSettings();
