@@ -16,17 +16,15 @@ INCLUDEPATH   += ../cass ../LCLS
 DEPENDPATH    += ../cass
 
 
-SOURCES += machine_analysis.cpp \
-           machine_converter.cpp \
+SOURCES       += machine_converter.cpp \
 
 
-HEADERS += ../cass/analysis_backend.h \
-           ../cass/conversion_backend.h \
-           ../cass/serializer.h \
-           machine_analysis.h \
-           machine_converter.h \
-           cass_machine.h \
-           machine_device.h \
+HEADERS       += ../cass/analysis_backend.h \
+                 ../cass/conversion_backend.h \
+                 ../cass/serializer.h \
+                 machine_converter.h \
+                 cass_machine.h \
+                 machine_device.h \
 
 
 headers.files  = $$HEADERS
