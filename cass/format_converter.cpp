@@ -188,6 +188,7 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
 void cass::FormatConverter::loadSettings(size_t)
 {
   CASSSettings settings;
+  settings.beginGroup("Converter");
   settings.sync();
   settings.value("useCommercialCCDConverter",true).toBool()?
       addConverter(ccd)         : removeConverter(ccd);
