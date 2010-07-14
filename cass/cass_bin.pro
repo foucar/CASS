@@ -142,6 +142,7 @@ HEADERS            += analysis_backend.h \
                       sharedmemory_input.h \
                       soapCASSsoapService.h \
                       soapH.h \
+                      soapserver.h \
                       soapStub.h \
                       tcpserver.h \
                       worker.h \
