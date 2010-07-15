@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file machine_data.h file contains declaration of postprocessors that
+ *                      extract information from the beamline and epics data.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _MACHINE_DATA_H_
 #define _MACHINE_DATA_H_
 

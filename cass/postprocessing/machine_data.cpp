@@ -1,5 +1,12 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file machine_data.cpp file contains definition of postprocessors that
+ *                        extract information from the beamline and epics data.
+ *
+ * @author Lutz Foucar
+ */
+
 #include <QtCore/QString>
 
 #include "machine_data.h"

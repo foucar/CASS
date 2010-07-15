@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file root_converter.h file contains declaration of postprocessor 2000
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _ROOT_CONVERTER_H_
 #define _ROOT_CONVERTER_H_
 

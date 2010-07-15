@@ -1,5 +1,11 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file root_converter.cpp file contains definition of postprocessor 2000
+ *
+ * @author Lutz Foucar
+ */
+
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
