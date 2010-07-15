@@ -1,8 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file acqiris_detector.h file contains declaration of postprocessors that
- *                          extract information of acqiris detectors.
+ * @file acqiris_detectors.cpp file contains definition of postprocessors that
+ *                             extract information of acqiris detectors.
  *
  * @author Lutz Foucar
  */
