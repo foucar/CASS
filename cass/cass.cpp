@@ -1,6 +1,12 @@
 // Copyright (C) 2009,2010 Jochen Küpper
 // Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file cass.cpp file contains the main cass program
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <QtCore/QStringList>
 #include <QtGui/QApplication>
