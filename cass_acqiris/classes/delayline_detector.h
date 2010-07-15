@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file delayline_detector.h file contains the classes that describe a
+ *                            delayline detector.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _DELAYLINE_DETECTOR_H_
 #define _DELAYLINE_DETECTOR_H_
 

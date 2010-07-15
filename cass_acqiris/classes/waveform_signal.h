@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file waveform_signal.h file contains the classes that describe how to
+ *                         analyze the waveform and stores the result.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _SIGNAL_H_
 #define _SIGNAL_H_
 
@@ -17,7 +24,9 @@ namespace cass
   namespace ACQIRIS
   {
     /** Functor returning whether Peak is in Range.
+     *
      * This class is beeing used by std::find_if as Predicate
+     *
      * @author Lutz Foucar
      */
     class PeakInRange
@@ -27,7 +36,9 @@ namespace cass
       PeakInRange(double low, double up)
         :_range(std::make_pair(low,up))
       {}
+
       /** operator used by find_if.
+       *
        * @return peak is smaller than or equal to up AND greater than low
        */
       bool operator()(const Peak &peak)const
@@ -102,6 +113,7 @@ namespace cass
     {
     public:
       /** default constructor.
+       *
        * intializing the variables describing the extraction with nonsense,
        * since they have to be loaded by loadSettings from cass.ini
        */
@@ -121,10 +133,12 @@ namespace cass
 
     public:
       /** loads the parameters.
+       *
        * load the parameters from cass.ini, should only be called by class
        * containing this class
        */
       void loadSettings(CASSSettings *p, const char * signalname);
+
       /** save your parameters to cass.ini, should only be called by parent*/
       void saveParameters(CASSSettings *p, const char * signalname);
 
@@ -134,12 +148,15 @@ namespace cass
 
     public:
       /** setter.
+       *
        * @note we should make sure, that it will not be needed anymore, since the
        *       getter should make sure that all peaks are set using the correct
        *       function
        */
       peaks_t           &peaks()              {return _peaks;}
+
       /** getter.
+       *
        * @note when calling this we should check whether it has alredy been called
        *       for the event if not so, then create the peaks using the requested
        *        waveform analysis
@@ -152,7 +169,7 @@ namespace cass
 
     public:
       //@{
-      /** setter*/
+      /** setter */
       size_t            &channelNbr()         {return _chNbr;}
       double            &trLow()              {return _trLow;}
       double            &trHigh()             {return _trHigh;}
@@ -167,7 +184,7 @@ namespace cass
       WaveformAnalyzers &analyzerType()       {return _analyzerType;}
       //@}
       //@{
-      /** getter*/
+      /** getter */
       size_t             channelNbr()const    {return _chNbr;}
       double             trLow()const         {return _trLow;}
       double             trHigh()const        {return _trHigh;}
@@ -187,34 +204,47 @@ namespace cass
       //set by the user via parameters//
       /** the Instrument that the channel will be in*/
       Instruments _instrument;
+
       /** This Channels Number in the Acqiris Instrument*/
       size_t _chNbr;
+
       /** lower edge of the timerange events can happen in*/
       double _trLow;
+
       /** upper edge of the timerange events can happen in*/
       double _trHigh;
+
       /** lower edge of the timerange good single events can happen in*/
       double _grLow;
+
       /** upper edge of the timerange good single  events can happen in*/
       double _grHigh;
+
       /** the Polarity the Signal has*/
       Polarity _polarity;
+
       /** the Noiselevel for this channel (in adc bytes)*/
       double _threshold;
+
       /** the delay of the cfd*/
       int32_t _delay;
+
       /** the fraction of the cfd*/
       double _fraction;
+
       /** the walk of the cfd*/
       double _walk;
+
       /** type of analysis to analyze this channel*/
       WaveformAnalyzers _analyzerType;
 
       //container for the results of the waveform analysis
       /** container for the peaks of the waveform*/
       peaks_t _peaks;
+
       /** time of the first peak in the "good" range*/
       mutable double _goodHit;
+
       /** flag to tell when we are working on a new event*/
       mutable bool _isNewEvent;
     };
