@@ -1,5 +1,12 @@
 //Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file acqiris_converter.cpp file contains the definition of the converter
+ *                             for the xtc containing acqiris data.
+ *
+ * @author Lutz Foucar
+ */
+
 #include <cassert>
 
 #include "acqiris_converter.h"
