@@ -1,4 +1,12 @@
 //Copyright (C) 2003-2010 Lutz Foucar
+
+/**
+ * @file com.cpp file contains defintion of class that does a center of mass
+ *               analysis of a waveform
+ *
+ * @author Lutz Foucar
+ */
+
 #include <typeinfo>
 
 #include "com.h"

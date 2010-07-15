@@ -1,4 +1,11 @@
-//Copyright (C) Lutz Foucar
+//Copyright (C) 2010 Lutz Foucar
+
+/**
+ * @file results_backend.h file contains base class for all results of the
+ *                         wavefrom analysis
+ *
+ * @author Lutz Foucar
+ */
 
 #ifndef _RESULTS_BACKEND_H_
 #define _RESULTS_BACKEND_H_
@@ -9,9 +16,12 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! @brief Base class of Results
-        used to retrun results of the waveform analysis
-        @author Lutz Foucar*/
+    /** Base class of Results.
+     *
+     * used to retrun results of the waveform analysis
+     *
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT ResultsBackend
     {
     public:

@@ -1,4 +1,12 @@
+/**
+ * @file helperfunctionsforstdc.cpp this file is empty and contains only an
+ *                                  include of the header.
+ *
+ * @author Lutz Foucar
+ */
+
 #include "helperfunctionsforstdc.h"
+
 
 
 //_________________________________gib mir zurueck______________________

@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file tof_analyzer_simple.h file contains the classes that analyzses a tof
+ *                             detectors waveform.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __TOF_ANALYZER_SIMPLE_H_
 #define __TOF_ANALYZER_SIMPLE_H_
 
@@ -14,10 +21,13 @@ namespace cass
   namespace ACQIRIS
   {
     /** Simple Tof Analyzer.
+     *
      * will just take an event and feed it to the right
      * waveform analyzer
+     *
      * @note might not be needed anymore, once the list of peaks
      *       is created by the Signal itself
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT ToFAnalyzerSimple
@@ -31,7 +41,9 @@ namespace cass
       ToFAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
         :DetectorAnalyzerBackend(waveformanalyzer)
       {VERBOSEOUT(std::cout << "adding simple tof detector analyzer"<<std::endl);}
+
       /** analyze the ToF Detector.
+       *
        * @return void
        * @param det The ToF Detector that we want to analyze
        * @param dev The Acqiris Device from the CASSEvent

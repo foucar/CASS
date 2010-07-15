@@ -1,5 +1,13 @@
 //Copyright (C) 2009, 2010 Lutz Foucar
 
+/**
+ * @file delayline_detector_analyzer_simple.h file contains the declaration of
+ *                                            classes that analyzses a delayline
+ *                                            detector.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 #define __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 
@@ -13,16 +21,19 @@ namespace cass
     class DelaylineDetector;
     class AnodeLayer;
 
-    /*! A simple sorter of hits.
-      class that will take an detector get the infos from it
-      and then after creating the list of signals from the waveform uses the timesum
-      to rekonstruct detectorhits from these signals.
-      This is only done for two layers, even though a hex anode might also be used
-      @note after making sure that the waveform signal container will create the list of
-            singals / peaks itselve, we no longer will need the info about the waveform
-            analyzers in the constructor
-      @author Lutz Foucar
-    */
+    /** A simple sorter of hits.
+     *
+     * class that will take an detector get the infos from it
+     * and then after creating the list of signals from the waveform uses the timesum
+     * to rekonstruct detectorhits from these signals.
+     * This is only done for two layers, even though a hex anode might also be used
+     *
+     * @note after making sure that the waveform signal container will create the list of
+     *       singals / peaks itselve, we no longer will need the info about the waveform
+     *       analyzers in the constructor
+     *
+     * @author Lutz Foucar
+     */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
         : public DelaylineDetectorAnalyzerBackend
     {
@@ -33,6 +44,7 @@ namespace cass
       {
         VERBOSEOUT(std::cout << "adding simple delayline detector analyzer"<<std::endl);
       }
+
       /** the function creating the detectorhit list*/
       virtual void operator()(DetectorBackend&,const Device&);
     };

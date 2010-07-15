@@ -1,5 +1,13 @@
 //Copyright (C) 2003-2010 Lutz Foucar
 
+/**
+ * @file delayline_detector_analyzer_simple.cpp file contains the definition of
+ *                                              classes and functions that
+ *                                              analyzses a delayline detector.
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
@@ -11,6 +19,7 @@
 
 
 /** find the boundaries for sorting.
+ *
  * For a given Mcp time there are only a few singal on the wire ends that can
  * come with the Mcp Signal. This function will find the indexs of the list
  * of signals (peaks) which might come together with the mcp signal. This is because
@@ -20,6 +29,7 @@
  * \f$x_1+x_2-2*mcp = ts_x\f$
  * with this knowledge we can calculate the boundries for the anode
  * given the Timesum and the Runtime
+ *
  * @return void
  * @param anodeEnd the wire end that we want too check for indizes
  * @param mcp the Mcp Signal for which to find the right wire end signals
@@ -27,6 +37,7 @@
  * @param rTime The runtime of a Signal over the whole wire of the anode
  * @param[out] min the minimum list index that can belong to the mcp signal
  * @param[out] max the maximum list index that can belong to the mcp signal
+ *
  * @author Lutz Foucar
  */
 void findBoundriesForSorting(const cass::ACQIRIS::Signal &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
@@ -55,11 +66,14 @@ void findBoundriesForSorting(const cass::ACQIRIS::Signal &anodeEnd, const double
 }
 
 /** timesum sorter.
+ *
  * Function that will sort the signals of two layers for timesum. When the timesum
  * is fullfilled then we found a hit.
+ *
  * @return void
  * @param[in,out] d The detector that we are working on
  * @param[in] anode The anodelayers that we should reconstruct the detectorhits from
+ *
  * @author Lutz Foucar
  */
 void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS::AnodeLayer*,cass::ACQIRIS::AnodeLayer*> & anode)

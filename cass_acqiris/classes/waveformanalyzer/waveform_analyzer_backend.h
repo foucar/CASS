@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file waveform_analyzer_backend.h file contains base class for all wavefrom
+ *                                   analyzers
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _WAVEFORM_ANALYZER_BACKEND_H_
 #define _WAVEFORM_ANALYZER_BACKEND_H_
 

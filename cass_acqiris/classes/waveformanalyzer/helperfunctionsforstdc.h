@@ -1,6 +1,13 @@
 #ifndef _HELPERFUNCTIONS_H_
 #define _HELPERFUNCTIONS_H_
 
+/**
+ * @file helperfunctionsforstdc.h file contains functions that help analysing
+ *                                an acqiris waveform
+ *
+ * @author Lutz Foucar
+ */
+
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -12,18 +19,20 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /*! linear Regression
-
-      this function creates a linear regression through a given amount of points
-      getting a line that follows the form: \f$y(x) = m*x + c\f$
-      it will calculate the slope m and the constant c of the line
-      @param[in] nbrPoints the number of points for the regression
-      @param[in] x array of the x-values of the points
-      @param[in] y array of the y-values of the points
-      @param[out] m the slope of the line
-      @param[out] c the constant of the line (y value where it crosses the x-axis)
-      @author Lutz Foucar
-    */
+    /** linear Regression
+     *
+     * this function creates a linear regression through a given amount of points
+     * getting a line that follows the form: \f$y(x) = m*x + c\f$
+     * it will calculate the slope m and the constant c of the line
+     *
+     * @param[in] nbrPoints the number of points for the regression
+     * @param[in] x array of the x-values of the points
+     * @param[in] y array of the y-values of the points
+     * @param[out] m the slope of the line
+     * @param[out] c the constant of the line (y value where it crosses the x-axis)
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         void linearRegression(const size_t nbrPoints, const double x[], const double y[], double &m, double &c)
     {
@@ -42,21 +51,22 @@ namespace cass
       c = ((SumX*SumXY) - (SumY*SumXsq)) / a1;
     }
 
-    /*! A weighted linear Regression
-
-      this function creates a weighted linear regression through a given amount of points
-      where we give a weight to the points that are farther away from the wanted x point
-      We will be getting a line that follows the form: \f$y(x) = m*x + c\f$
-      it will calculate the slope m and the constant c of the line
-      @param[in] nbrPoints the number of points for the regression
-      @param[in] x array of the x-values of the points
-      @param[in] y array of the y-values of the points
-      @param[in] correctX the point where we calculate the distance from
-      @param[out] m the slope of the line
-      @param[out] c the constant of the line (y value where it crosses the x-axis)
-
-    @author Lutz Foucar
-    */
+    /** A weighted linear Regression
+     *
+     * this function creates a weighted linear regression through a given amount of points
+     * where we give a weight to the points that are farther away from the wanted x point
+     * We will be getting a line that follows the form: \f$y(x) = m*x + c\f$
+     * it will calculate the slope m and the constant c of the line
+     *
+     * @param[in] nbrPoints the number of points for the regression
+     * @param[in] x array of the x-values of the points
+     * @param[in] y array of the y-values of the points
+     * @param[in] correctX the point where we calculate the distance from
+     * @param[out] m the slope of the line
+     * @param[out] c the constant of the line (y value where it crosses the x-axis)
+     *
+     * @author Lutz Foucar
+     */
     template<typename T>
         void gewichtetlinearRegression(const size_t nbrPoints, const double x[], const double y[], const double correctX, double &m, double &c)
     {
@@ -79,20 +89,22 @@ namespace cass
 
 
 
-    /*! create Newton Polynomial
-
-      This function creates the coefficients for Newton interpolating Polynomials.
-      Newton Polynomials are created from n Points and have the form
-      \f$p(x) = c_0 + c_1(x-x_0) + c_2(x-x_0)(x-x_1)+...+c_{n-1}(x-x_0)(x-x_1)...(x-x_{n-2})\f$
-      given that you have n Points
-      \f$(x_0,y_0), (x_1,y_1), ..., (x_{n-1},y_{n-1})\f$
-      Here we do it for 4 Points.
-      @param[in] x the x-values of the points
-      @param[in] y the y-values of the points
-      @param[out] coeff the coefficients of the newton polynomial
-      @return void
-     @author Lutz Foucar
-    */
+    /** create Newton Polynomial
+     *
+     * This function creates the coefficients for Newton interpolating Polynomials.
+     * Newton Polynomials are created from n Points and have the form
+     * \f$p(x) = c_0 + c_1(x-x_0) + c_2(x-x_0)(x-x_1)+...+c_{n-1}(x-x_0)(x-x_1)...(x-x_{n-2})\f$
+     * given that you have n Points
+     * \f$(x_0,y_0), (x_1,y_1), ..., (x_{n-1},y_{n-1})\f$
+     * Here we do it for 4 Points.
+     *
+     * @param[in] x the x-values of the points
+     * @param[in] y the y-values of the points
+     * @param[out] coeff the coefficients of the newton polynomial
+     * @return void
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         void createNewtonPolynomial(const double * x, const double * y, double * coeff)
     {
@@ -111,17 +123,19 @@ namespace cass
       coeff[3] = f_x0_x1_x2_x3;
     }
 
-    /*! evaluate Newton Polynomial
-
-      this function evaluates the Newton Polynomial that was created from n Points
-      \f$(x_0,y_0),..., (x_{n-1},y_{n-1}) with coefficients (c_0,...,c_{n-1})\f$
-      using Horner's Rule. This is done for an polynomial with 4 entries
-      @param[in] x array of x values
-      @param[in] coeff array of coefficients
-      @param[in] X
-      @return the newton polynomial
-    @author Lutz Foucar
-    */
+    /** evaluate Newton Polynomial
+     *
+     * this function evaluates the Newton Polynomial that was created from n Points
+     * \f$(x_0,y_0),..., (x_{n-1},y_{n-1}) with coefficients (c_0,...,c_{n-1})\f$
+     * using Horner's Rule. This is done for an polynomial with 4 entries
+     *
+     * @param[in] x array of x values
+     * @param[in] coeff array of coefficients
+     * @param[in] X
+     * @return the newton polynomial
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         double evalNewtonPolynomial(const double * x, const double * coeff, double X)
     {
@@ -133,26 +147,27 @@ namespace cass
       return returnValue;
     }
 
-    /*! Achims Numerical Approximation
-
-      this function should find x value corrosponding to a given y value
-      in a newton polynomial. It does it the following way:
-      -# create a lower and upper boundary point
-      -# create an interating x-value and initialize it with the Start value
-      -# evaluate the y-value at the x-value
-      -# if the y value is bigger than the requested value the start point
-         is defines the new upper or lower boundary depending on the slope.
-      -# the new x-point is defined by the arithmetic mean between the tow
-         boundary points.
-      -# do points 3-5 until the new x-value does not differ more than 0.005
-         from the old one.
-
-      @param[in] x two points describing upper and lower boundaries
-      @param[in] coeff the newton polynomial coefficents
-      @param[in] Y the requested y-values to find the x-value for
-      @param[in] Start the x-value we start the search with
-      @author Lutz Foucar
-    */
+    /** Achims Numerical Approximation
+     *
+     * this function should find x value corrosponding to a given y value
+     * in a newton polynomial. It does it the following way:
+     * -# create a lower and upper boundary point
+     * -# create an interating x-value and initialize it with the Start value
+     * -# evaluate the y-value at the x-value
+     * -# if the y value is bigger than the requested value the start point
+     *    is defines the new upper or lower boundary depending on the slope.
+     * -# the new x-point is defined by the arithmetic mean between the tow
+     *    boundary points.
+     * -# do points 3-5 until the new x-value does not differ more than 0.005
+     *    from the old one.
+     *
+     *@param[in] x two points describing upper and lower boundaries
+     *@param[in] coeff the newton polynomial coefficents
+     *@param[in] Y the requested y-values to find the x-value for
+     *@param[in] Start the x-value we start the search with
+     *
+     *@author Lutz Foucar
+     */
     template <typename T>
         double findXForGivenY(const double * x, const double * coeff, const double Y, const double Start)
     {
@@ -227,13 +242,13 @@ namespace cass
       return ((Up.first + Low.first)*0.5);
     }
 
-    /*! extract full width at half maximum (fwhm)
-
-      @param[in] c the channel that the peak is found in
-      @param[in,out] p the peak that we found
-
-      @author Lutz Foucar
-    */
+    /** extract full width at half maximum (fwhm)
+     *
+     * @param[in] c the channel that the peak is found in
+     * @param[in,out] p the peak that we found
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         void fwhm(const Channel &c, Peak &p)
     {
@@ -323,15 +338,17 @@ namespace cass
     //            sac.AddVoltage(volt,cs.GetChannelSectionNbr());
     //        }
 
-    /*! Center of Mass
-
-      find the center of mass of the peak by calculating also the integral of the
-      peak.
-      @param[in] c the channel the peak was found in
-      @param[in,out] p the peak
-      @param[in] threshold the threshold that we used to identify the peak
-      @author Lutz Foucar
-    */
+    /** Center of Mass
+     *
+     * find the center of mass of the peak by calculating also the integral of the
+     * peak.
+     *
+     * @param[in] c the channel the peak was found in
+     * @param[in,out] p the peak
+     * @param[in] threshold the threshold that we used to identify the peak
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         void CoM(const Channel &c, Peak &p, const int32_t threshold)
     {
@@ -358,14 +375,15 @@ namespace cass
 
 
 
-    /*! find start and stop of pulse
-
-      this function will find the start and the stop of the peak
-      @param[in] c the channel the peak was found in
-      @param[in,out] p the peak
-      @param[in] threshold the threshold that we used to identify the peak
-      @author Lutz Foucar
-    */
+    /** find start and stop of pulse
+     *
+     * this function will find the start and the stop of the peak
+     *
+     * @param[in] c the channel the peak was found in
+     * @param[in,out] p the peak
+     * @param[in] threshold the threshold that we used to identify the peak
+     * @author Lutz Foucar
+     */
     template <typename T>
         void startstop(const Channel &c, Peak &p, const int32_t threshold)
     {
@@ -396,13 +414,15 @@ namespace cass
     }
 
 
-    /*! find Maximum of puls and calcs the height
-
-      this function will find the maximum of the peak and its position
-      @param[in] c the channel the peak was found in
-      @param[in,out] p the peak
-      @author Lutz Foucar
-    */
+    /** find Maximum of puls and calcs the height
+     *
+     * this function will find the maximum of the peak and its position
+     *
+     * @param[in] c the channel the peak was found in
+     * @param[in,out] p the peak
+     *
+     * @author Lutz Foucar
+     */
     template <typename T>
         void maximum(const Channel &c, Peak &p)
     {

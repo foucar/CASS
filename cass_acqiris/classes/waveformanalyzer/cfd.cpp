@@ -1,4 +1,12 @@
 //Copyright (C) 2003-2010 Lutz Foucar
+
+/**
+ * @file cfd.cpp file contains definition of class that does a constant fraction
+ *               descrimination like analysis of a waveform
+ *
+ * @author Lutz Foucar
+ */
+
 #include <typeinfo>
 #include <cmath>
 
