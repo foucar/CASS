@@ -1,5 +1,12 @@
 //Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file acqiris_device.h file contains the declaration of the acqiris part
+ *                        of the CASSEvent
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _ACQIRIS_DEVICE_H_
 #define _ACQIRIS_DEVICE_H_
 
@@ -16,8 +23,10 @@ namespace cass
   namespace ACQIRIS
   {
     /** An Acqiris Instrument.
+     *
      * An Acqiris Instrument represents the actual Acqiris (Multi)-Instrument,
      * which contains a lot of channels
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT Instrument : public cass::Serializable
@@ -34,12 +43,14 @@ namespace cass
     public:
       /** will serialize all channels to Serializer*/
       virtual void serialize(cass::SerializerBackend &)const;
+
       /** will deserialize all channels from the Serializer*/
       virtual bool deserialize(cass::SerializerBackend &);
 
     public:
       /** @returns the channels of this instrument*/
       const channels_t &channels()const {return _channels;}
+
       /** @returns a reference, so that one can edit the channels*/
       channels_t &channels()  {return _channels;}
 

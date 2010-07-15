@@ -1,7 +1,7 @@
 //Copyright (C) 2009,2010 Lutz Foucar
 
 /**
- * @file acqiris_converter.h file contains the declaration of th e converter
+ * @file acqiris_converter.h file contains the declaration of the converter
  *                           for the xtc containing acqiris data.
  *
  * @author Lutz Foucar
