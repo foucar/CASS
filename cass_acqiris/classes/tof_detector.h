@@ -1,8 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file tof_dectector.h file contains the classes that describe a Time Of
- *                       Flight Detector.
+ * @file tof_detector.h file contains the classes that describe a Time Of
+ *                      Flight Detector.
  *
  * @author Lutz Foucar
  */
