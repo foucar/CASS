@@ -1,6 +1,12 @@
 // Copyright (C) 2010 Jochen Küpper
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file histogram.h file contains histogram classes definitions
+ *
+ * @author Lutz Foucar
+ */
+
 #include <algorithm>
 #include <cmath>
 

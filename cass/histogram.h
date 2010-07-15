@@ -1,6 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
+/**
+ * @file histogram.h file contains histogram classes declarations and some
+ *                   definitions
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef HISTOGRAM_H
 #define HISTOGRAM_H
 
@@ -28,9 +35,13 @@
 
 namespace cass
 {
-/** Axis properties for histograms.
+/** Axis properties for histograms
+ *
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
+ *
+ * @todo add an axis name for describing what the axis is.
+ *
  * @author Lutz Foucar
  */
 class CASSSHARED_EXPORT AxisProperty : public Serializable
