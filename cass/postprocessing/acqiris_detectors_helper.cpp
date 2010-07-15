@@ -1,8 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file acqiris_detector_helper.cpp file contains definition of classes that
- *                                   extract information of acqiris detectors.
+ * @file acqiris_detectors_helper.cpp file contains definition of classes that
+ *                                    extract information of acqiris detectors.
  *
  * @author Lutz Foucar
  */
