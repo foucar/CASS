@@ -1,7 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
-/** @file waveform.cpp file contains acqiris data retrieval postprocessor
- *                     definition
+/**
+ * @file waveform.cpp file contains acqiris data retrieval postprocessor
+ *                    definition
  *
  * @author Lutz Foucar
  */
