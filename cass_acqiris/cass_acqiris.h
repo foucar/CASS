@@ -1,6 +1,13 @@
 //Copyright (C) 2009 Jochen Kuepper
 //Copyright (C) 2009,2010 Lutz Foucar
 
+/**
+ * @file cass_acqiris.h file contains the global definitions for the acqiris
+ *                      library
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _ACQIRIS_GLOBAL_H_
 #define _ACQIRIS_GLOBAL_H_
 
