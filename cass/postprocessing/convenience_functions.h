@@ -1,5 +1,13 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file convenience_functions.h file contains declaration of classes and
+ *                               functions that help other postprocessors to do
+ *                               their job.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef __CONVENIENCE_FUNCTIONS_H__
 #define __CONVENIENCE_FUNCTIONS_H__
 
@@ -20,9 +28,11 @@ namespace cass
   public:
     /** initialize the key in the constructor*/
     IsKey(const uint64_t key):_key(key){}
+
     /** compares the first element of the pair to the key*/
     bool operator()(const std::pair<uint64_t,HistogramBackend*>& p)const
     { return (_key == p.first); }
+
   private:
     /** the key that we will compare to in the operator*/
     const uint64_t _key;
@@ -97,22 +107,29 @@ namespace cass
   };
 
   /** binary function for averaging.
+   *
    * this operator is capable of performing a cumulative moving average and
    * a Exponential moving average.
    * @see http://en.wikipedia.org/wiki/Moving_average
+   *
    * @author Lutz Foucar
    */
   class Average : std::binary_function<float,float,float>
   {
   public:
     /** constructor.
+     *
      * initializes the \f$\alpha\f$ value
+     *
      * @param alpha The \f$\alpha\f$ value
      */
     explicit Average(float alpha)
       :_alpha(alpha)
     {}
-    /** the operator calculates the average using the function
+
+    /** operator.
+     *
+     * the operator calculates the average using the function
      * \f$Y_N = Y_{N-1} + \alpha(y-Y_{N-1})\f$
      * where when \f$\alpha\f$ is equal to N it is a cumulative moving average,
      * otherwise it will be a exponential moving average.
@@ -121,6 +138,7 @@ namespace cass
     {
       return Average_Nm1 + _alpha*(currentValue - Average_Nm1);
     }
+
   protected:
     /** \f$\alpha\f$ for the average calculation */
     float _alpha;
@@ -128,21 +146,25 @@ namespace cass
 
 
   /** binary function for averaging.
+   *
    * this operator performs a moving sum
+   *
    * @author Nicola Coppola
    */
   class TimeAverage : std::binary_function<float,float,float>
   {
   public:
     /** constructor.
+     *
      * initializes the nEvents value
+     *
      * @param nEvents The number of Events used up to now
      */
     explicit TimeAverage(float nEvents)
       :_nEvents(nEvents)
     {}
-    /** the operator calculates the average over the last _nEvents
-     */
+
+    /** the operator calculates the average over the last _nEvents */
     float operator()(float currentValue, float Average_Nm1)
     {
       if(_nEvents!=0)
@@ -150,6 +172,7 @@ namespace cass
       else
         return currentValue;
     }
+
   protected:
     /** nEvents for the average calculation */
     float _nEvents;
@@ -157,18 +180,22 @@ namespace cass
 
 
   /** function to set the 1d histogram properties from the ini file.
+   *
    * @param[out] hist pointer to the 1D Histogram whos properties should be updated
    *            (will be deleted and created with new settings)
    * @param[in] key the key of the postprocessor too look up in cass.ini
+   *
    * @author Lutz Foucar
    */
   void set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
 
 
   /** function to set the 2d histogram properties from the ini file.
+   *
    * @param[out] hist pointer to the 2D Histogram whos properties should be updated
    *            (will be deleted and created with new settings)
    * @param[in] key the key of the postprocessor too look up in cass.ini
+   *
    * @author Lutz Foucar
    */
   void set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key);
@@ -247,11 +274,12 @@ namespace cass
       return fmt;
   };
 
-  /*! Helper function to delete duplicates from a std::list
-
-    This keeps the earliest entry in the list and removes all later ones
-    @param l List to remove duplicates from.
-    */
+  /** Helper function to delete duplicates from a std::list
+   *
+   * This keeps the earliest entry in the list and removes all later ones
+   *
+   * @param l List to remove duplicates from.
+   */
   template<typename T>
   inline void unique(std::list<T>& l)
   {

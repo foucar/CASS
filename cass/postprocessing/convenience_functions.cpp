@@ -1,5 +1,12 @@
 // Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file convenience_functions.cpp file contains definition of functions that
+ *                                 help other postprocessors to do their job.
+ *
+ * @author Lutz Foucar
+ */
+
 #include "convenience_functions.h"
 #include "cass_exceptions.h"
 #include "histogram.h"

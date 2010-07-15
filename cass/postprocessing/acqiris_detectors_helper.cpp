@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file acqiris_detector_helper.cpp file contains definition of classes that
+ *                                   extract information of acqiris detectors.
+ *
+ * @author Lutz Foucar
+ */
+
 #include "acqiris_detectors_helper.h"
 
 #include "delayline_detector_analyzer_simple.h"

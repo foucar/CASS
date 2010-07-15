@@ -1,5 +1,12 @@
 //Copyright (C) 2010 Lutz Foucar
 
+/**
+ * @file acqiris_detector.h file contains declaration of postprocessors that
+ *                          extract information of acqiris detectors.
+ *
+ * @author Lutz Foucar
+ */
+
 #ifndef _DELAYLINE_POSTPROCESSOR_H_
 #define _DELAYLINE_POSTPROCESSOR_H_
 
