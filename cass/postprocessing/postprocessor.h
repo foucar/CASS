@@ -33,9 +33,10 @@ namespace cass
 
 /** container and call handler for all registered postprocessors.
 
-All currently registered postprocessors are listed here, specifying their id and a
-short description. The postprocessor classes are named according to their number
-and placed in the file for the most appropriate group according to their content.
+All currently registered postprocessors are listed here, specifying their id and
+a short description. The postprocessor classes are named according to their
+number and placed in the file for the most appropriate group according to their
+content.
 
 @section pplist List of Postprocessors
 The Classes that implement the postprocessor are pointed out in parenthesis. See
