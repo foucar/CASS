@@ -37,14 +37,18 @@
  * - o output filename passed to the postprocessor (offline / online)
  * - q quit after finished with all files (offline)
  * - f optional complete path to the cass.ini to use (offline / online)
+ * - r suppress the rate output
  *
  * @author Lutz Foucar
  */
 int main(int argc, char **argv)
 {
   // construct Qt application object
-  qRegisterMetaType< std::string >("std::string");
   QApplication app(argc, argv,false);
+  // register used types as Qt meta type
+  qRegisterMetaType< std::string >("std::string");
+  qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
+  qRegisterMetaType<size_t>("size_t");
   // set up details for QSettings and Co.
   // (So we can simply use QSettings settings; everywhere else.)
   QCoreApplication::setOrganizationName("CFEL-ASG");
@@ -60,9 +64,6 @@ int main(int argc, char **argv)
   // CASSSettings instead of QSettings
   cass::CASSSettings::setFilename(settings.fileName().toStdString());
 
-  // register size_t as Qt meta type
-  qRegisterMetaType<size_t>("size_t");
-
   //create a container for the partition tag
   int c;
   char partitionTag[128];
@@ -77,9 +78,11 @@ int main(int argc, char **argv)
   int index(0);
   //flag to tell to quit when program has finished executing all files
   bool quitwhendone(false);
+  //flag to suppress the rate output
+  bool suppressrate(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "qp:s:c:i:o:f:")) != -1)
+  while((c = getopt(argc, argv, "rqp:s:c:i:o:f:")) != -1)
   {
     switch (c)
     {
@@ -105,6 +108,9 @@ int main(int argc, char **argv)
       std::cout<<"WARNING: 'quit when done' has no effect in online mode.";
 #endif
       quitwhendone = true;
+      break;
+    case 'r':
+      suppressrate = true;
       break;
     case 'i':
 #ifndef OFFLINE
@@ -133,7 +139,6 @@ int main(int argc, char **argv)
     }
   }
 
-
   //a ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
 
@@ -154,7 +159,10 @@ int main(int argc, char **argv)
   //create a ratemeter object for the worker//
   cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
   //create a rate plotter that will plot the rate of the worker and input//
-  cass::RatePlotter *rateplotter(new cass::RatePlotter(*inputrate,*workerrate,qApp));
+  //only if user has not disabled it//
+  cass::RatePlotter *rateplotter(0);
+  if (!suppressrate)
+    rateplotter = new cass::RatePlotter(*inputrate,*workerrate,qApp);
   //create deamon to capture UNIX signals//
   cass::setup_unix_signal_handlers();
   cass::UnixSignalDaemon *signaldaemon(new cass::UnixSignalDaemon(qApp));
@@ -187,7 +195,6 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
-  qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
   QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 
