@@ -125,7 +125,6 @@ the Class description for information about what parameters are user settable.
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
-@todo updated this section for new layout
 @subsection nec Things that a postprocessor needs to have
 
 Your postprocessor needs to have the following members
