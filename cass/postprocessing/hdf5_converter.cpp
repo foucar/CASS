@@ -91,7 +91,7 @@ namespace cass
     //get copy of value to write
     const int nfill (hist.nbrOfFills());
     //write value
-    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+    H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
              H5P_DEFAULT, &nfill);
     //End access to the dataset and release resources used by it.
     H5Dclose(dataset_id);
