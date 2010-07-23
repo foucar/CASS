@@ -47,7 +47,7 @@ namespace cass
     //get copy of value to write
     const int nbins (axis.nbrBins());
     //write value
-    H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+    H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
              H5P_DEFAULT, &nbins);
     //End access to the dataset and release resources used by it.
     H5Dclose(dataset_id);
