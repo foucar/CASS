@@ -302,6 +302,7 @@ void cass::pp162::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<" it histograms the timesum of layer "<<_layer
       <<" of detector "<<_detector
