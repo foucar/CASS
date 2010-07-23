@@ -539,6 +539,8 @@ void cass::pp166::loadSettings(size_t)
     _third = 'x';
   else if (_first == 't' && _second == 'y')
     _third = 'x';
+  else
+    throw std::runtime_error("pp166::loadSettings(): combination of first and second value does not exist!");
   std::cout <<std::endl<< "PostProcessor "<<_key
       <<": histograms the Property "<<_second
       <<" vs. "<<_first
