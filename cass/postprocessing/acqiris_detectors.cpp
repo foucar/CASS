@@ -409,8 +409,8 @@ void cass::pp164::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _first = settings.value("Layer",'U').toString()[0].toAscii();
-  _second = settings.value("Layer",'V').toString()[0].toAscii();
+  _first = settings.value("FirstLayer",'U').toString()[0].toAscii();
+  _second = settings.value("SecondLayer",'V').toString()[0].toAscii();
   setupGeneral();
   if (!setupCondition())
     return;
