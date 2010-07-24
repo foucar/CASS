@@ -63,7 +63,7 @@ namespace cass
       double timesum() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
 
       /*! returns the position of the first good hit*/
-      double position() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
+      double position() {return _wireend['1'].firstGood() - _wireend['2'].firstGood();}
 
     public:
       /*! setters/getters */
