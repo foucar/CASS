@@ -50,31 +50,36 @@ namespace cass
       /** map of signals that form the wireends of the layer*/
       typedef std::map<char,Signal> wireends_t;
 
-      /*! load values from cass.ini, should only be called by the detector*/
+      /** load values from cass.ini, should only be called by the detector*/
       void loadSettings(CASSSettings *p,const char * layername);
 
-      /*! save values to cass.ini, should only be called by the detector*/
+      /** save values to cass.ini, should only be called by the detector*/
       void saveParameters(CASSSettings *p,const char * layername);
 
-      /*! returns the timesum condition for this anode layer*/
+      /** returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
 
-      /*! returns the timesum of the first good hit of this layer*/
+      /** returns the timesum of the first good hit of this layer*/
       double timesum() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
 
-      /*! returns the position of the first good hit*/
+      /** returns the position of the first good hit*/
       double position() {return _wireend['1'].firstGood() - _wireend['2'].firstGood();}
 
     public:
-      /*! setters/getters */
-      double             tsLow()const   {return _tsLow;}
+      //@{
+      /** setter */
       double            &tsLow()        {return _tsLow;}
-      double             tsHigh()const  {return _tsHigh;}
       double            &tsHigh()       {return _tsHigh;}
-      double             sf()const      {return _sf;}
       double            &sf()           {return _sf;}
-      const wireends_t  &wireend()const {return _wireend;}
       wireends_t        &wireend()      {return _wireend;}
+      //@}
+      //@{
+      /** getter */
+      double             tsLow()const   {return _tsLow;}
+      double             tsHigh()const  {return _tsHigh;}
+      double             sf()const      {return _sf;}
+      const wireends_t  &wireend()const {return _wireend;}
+      //@}
 
     private:
       /*! lower edge of the timesum condition*/
