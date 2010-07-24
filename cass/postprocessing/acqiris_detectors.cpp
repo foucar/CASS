@@ -192,8 +192,8 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _layer = settings.value("Layer",'U').toChar().toAscii();
-  _signal = settings.value("Wireend",'1').toChar().toAscii();
+  _layer = settings.value("Layer",'U').toString()[0].toAscii();
+  _signal = settings.value("Wireend",'1').toString()[0].toAscii();
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
@@ -248,8 +248,8 @@ void cass::pp161::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _layer = settings.value("Layer",'U').toChar().toAscii();
-  _signal = settings.value("Wireend",'1').toChar().toAscii();
+  _layer = settings.value("Layer",'U').toString()[0].toAscii();
+  _signal = settings.value("Wireend",'1').toString()[0].toAscii();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -306,7 +306,7 @@ void cass::pp162::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _layer = settings.value("Layer",'U').toChar().toAscii();
+  _layer = settings.value("Layer",'U').toString()[0].toAscii();
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
@@ -356,7 +356,7 @@ void cass::pp163::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _layer = settings.value("Layer",'U').toChar().toAscii();
+  _layer = settings.value("Layer",'U').toString()[0].toAscii();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -409,8 +409,8 @@ void cass::pp164::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
-  _first = settings.value("Layer",'U').toChar().toAscii();
-  _second = settings.value("Layer",'V').toChar().toAscii();
+  _first = settings.value("Layer",'U').toString()[0].toAscii();
+  _second = settings.value("Layer",'V').toString()[0].toAscii();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -535,8 +535,8 @@ void cass::pp166::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _first = settings.value("XInput",'x').toChar().toAscii();
-  _second = settings.value("YInput",'y').toChar().toAscii();
+  _first = settings.value("XInput",'x').toString()[0].toAscii();
+  _second = settings.value("YInput",'y').toString()[0].toAscii();
   _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
   _condition =
       make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
