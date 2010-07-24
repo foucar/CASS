@@ -702,7 +702,7 @@ void cass::pp62::histogramsChanged(const HistogramBackend* in)
   _histList.clear();
   _result = in->clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  VERBOSEOUT(std::cout<<"Postprocessor '"<<_key<<
+  VERBOSEOUT(std::cout<<"Postprocessor '"<<_key
              <<"': histograms changed => delete existing histo"
              <<" and create new one from input"<<std::endl);
 }
