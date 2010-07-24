@@ -198,6 +198,11 @@ void cass::pp160::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  if (_signal != '1' || _signal != '2')
+    throw std::runtime_error("pp160::loadSettings(): Wireend is not set up correctly");
+  if (_layer != 'U' || _layer != 'V' || _layer != 'W' ||
+      _layer != 'X' || _layer != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
@@ -248,6 +253,11 @@ void cass::pp161::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  if (_signal != '1' || _signal != '2')
+    throw std::runtime_error("pp160::loadSettings(): Wireend is not set up correctly");
+  if (_layer != 'U' || _layer != 'V' || _layer != 'W' ||
+      _layer != 'X' || _layer != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
@@ -301,6 +311,9 @@ void cass::pp162::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  if (_layer != 'U' || _layer != 'V' || _layer != 'W' ||
+      _layer != 'X' || _layer != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   std::cout <<std::endl<< "PostProcessor "<<_key
@@ -347,6 +360,9 @@ void cass::pp163::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  if (_layer != 'U' || _layer != 'V' || _layer != 'W' ||
+      _layer != 'X' || _layer != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
@@ -398,6 +414,12 @@ void cass::pp164::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  if (_first != 'U' || _first != 'V' || _first != 'W' ||
+      _first != 'X' || _first != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): First Layer is not set up correctly");
+  if (_second != 'U' || _second != 'V' || _second != 'W' ||
+      _second != 'X' || _second != 'Y')
+    throw std::runtime_error("pp160::loadSettings(): Second Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
