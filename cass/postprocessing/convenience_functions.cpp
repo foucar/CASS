@@ -28,7 +28,8 @@ void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
              <<std::endl);
   hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                     param.value("XLow",0).toFloat(),
-                                    param.value("XUp",0).toFloat());
+                                    param.value("XUp",0).toFloat(),
+                                    param.value("XTitle","x-axis").toString().toStdString());
 }
 
 void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
@@ -51,5 +52,7 @@ void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
                                     param.value("XUp",0).toFloat(),
                                     param.value("YNbrBins",1).toUInt(),
                                     param.value("YLow",0).toFloat(),
-                                    param.value("YUp",0).toFloat());
+                                    param.value("YUp",0).toFloat(),
+                                    param.value("XTitle","x-axis").toString().toStdString(),
+                                    param.value("YTitle","y-axis").toString().toStdString());
 }

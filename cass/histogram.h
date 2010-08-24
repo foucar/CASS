@@ -40,8 +40,6 @@ namespace cass
  * This describes the properties of the axis of the histogram. And is
  * de / serializable.
  *
- * @todo add an axis name for describing what the axis is.
- *
  * @author Lutz Foucar
  */
 class CASSSHARED_EXPORT AxisProperty : public Serializable
@@ -55,9 +53,12 @@ public:
      * @param lowerLimit The lower end of the axis
      * @param upperLimit The upper end of the axis
      */
-    AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit)
+  AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit, std::string title="")
         : Serializable(1),
-        _size(nbrBins), _low(lowerLimit), _up(upperLimit)
+          _size(nbrBins),
+          _low(lowerLimit),
+          _up(upperLimit),
+          _title(title)
     {}
 
     /** read axis property from serializer.
@@ -74,17 +75,22 @@ public:
     /** Serialize this class.
      * serializes this to the Serializer
      * @param out The Serializer that we will serialize this to
+     * @todo add title to serialization
      */
     void serialize(SerializerBackend& out)const;
 
     /** Deserialize this class.
      * deserializes this from the Serializer
      * @param in The Serializer that we will deserialize this from
+     * @todo add title to serialization
      */
     bool deserialize(SerializerBackend& in);
 
     /** @return size (nuber of bins) of axis */
     size_t size() const {return _size;}
+
+    /** @return title of the axis */
+    const std::string& title()const {return _title;}
 
     /** Convenience function.
      * @deprecated Use size() instead
@@ -114,9 +120,10 @@ public:
     std::vector<size_t> rebinfactors()const;
 
 protected:
-    size_t _size; //!< the number of bins in this axis
-    float _low;   //!< lower end of the axis
-    float _up;    //!< upper end of the axis
+    size_t _size;       //!< the number of bins in this axis
+    float _low;         //!< lower end of the axis
+    float _up;          //!< upper end of the axis
+    std::string _title; //!< the title of the axis
 };
 
 
@@ -418,12 +425,13 @@ public:
     /** constructor.
      * Create a 1d histogram of floats
      * @param nbrXBins, xLow, xUp The properties of the x-axis
+     * @param xtitle The title of the x-axis
      */
-    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp)
+    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp, std::string xtitle="")
         : HistogramFloatBase(1,nbrXBins+2,1)
     {
       //set up the axis
-      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+      _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xtitle));
       _mime = "application/cass1Dhistogram";
     }
 
@@ -525,14 +533,16 @@ public:
      * This is used when constructing a histogram
      * @param nbrXBins, xLow, xUp The properties of the x-axis
      * @param nbrYBins, yLow, yUp The properties of the y-axis
+     * @param xtitle, ytitle The titles of the x and y axis
      */
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
-                     size_t nbrYBins, float yLow, float yUp)
+                     size_t nbrYBins, float yLow, float yUp,
+                     std::string xtitle="",std::string ytitle="")
         : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)  // +8 for under/overflow bits
     {
         //set up the two axis of the 2d hist
-        _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-        _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
+        _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xtitle));
+        _axis.push_back(AxisProperty(nbrYBins,yLow,yUp,ytitle));
         // for time beeing, export 2d histograms as image.
         _mime = "image/";
     }

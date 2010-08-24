@@ -76,6 +76,17 @@ namespace cass
 
     //Terminate access to the data space.
     H5Sclose(dataspace_id);
+
+    //write title//
+    dataspace_id = (H5Screate(H5S_SCALAR));
+    hid_t datatype (H5Tcopy(H5T_C_S1));
+    H5Tset_size(datatype,axis.title().size()+1);
+    dataset_id = (H5Dcreate1(groupid, "Title", datatype,
+                             dataspace_id, H5P_DEFAULT));
+    H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+             axis.title().c_str());
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
   }
 
   void writeHistProperties(const HistogramBackend& hist, hid_t groupid)
