@@ -30,6 +30,13 @@ namespace cass
   {
     /** Parameters of the commercial ccd analysis
      *
+     * @cassttng CCD/{Threshold}\n
+     *           The threshold of the hit finder of the commercial ccd image.
+     *           Default is 0.
+     * @cassttng CCD/{RebinFactor}\n
+     *           How much should the commercial ccd image be rebinned.
+     *           Default is 1 (no rebinning).
+     *
      * @author Lutz Foucar
      * @author Nicola Coppola
      */

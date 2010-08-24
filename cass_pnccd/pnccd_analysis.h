@@ -136,7 +136,8 @@ namespace cass
       cass::ROI::ROIiterator_t _ROIiterator_converter;
     };
 
-    /**
+    /** parameters of the pnccd analysis
+     *
      *  @cassttng
      *  IsDarkFrames\n
      *    True or false, default is false
