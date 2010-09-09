@@ -35,7 +35,14 @@ namespace cass
    * something human readable before. At the end of the analysis, when all files
    * are processed it will output all chosen histograms in a summary.
    *
-   * @todo compress the tables with 1d and 2d data
+   * When ther user has chosen the compress option to compress the 1d and 2d
+   * data, the program will first check whether this option is enabled in the
+   * hdf5 library. If it is not enabled then it will not compress the data.
+   *
+   * @cassttng PostProcessor/\%name\%/{Compress}\n
+   *           tells the converter to compress the 1d and 2d data using a zip
+   *           algorithm. Default is false.
+   *
    * @todo use hyperslab to have data provided also as xbins x ybins matrix
    *
    * @author Lutz Foucar
@@ -61,6 +68,9 @@ namespace cass
 
     /** the filehandle of the hdf5 file */
     int _filehandle;
+
+    /** flag to tell whether to compress the data */
+    bool _compress;
   };
 }
 #endif

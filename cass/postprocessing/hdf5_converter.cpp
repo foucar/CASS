@@ -14,6 +14,7 @@
 #include "hdf5_converter.h"
 #include "histogram.h"
 #include "cass_event.h"
+#include "cass_settings.h"
 
 namespace cass
 {
@@ -135,7 +136,7 @@ namespace cass
     H5Sclose(dataspace_id);
   }
 
-  void write1DHist(const Histogram1DFloat& hist, hid_t groupid)
+  void write1DHist(const Histogram1DFloat& hist, hid_t groupid, bool compress)
   {
     hid_t axisgrouphandle (H5Gcreate1(groupid, "xAxis",0));
     writeAxisProperty(hist.axis()[HistogramBackend::xAxis],axisgrouphandle);
@@ -192,8 +193,20 @@ namespace cass
     }
 
     //Create the dataset.
-    dataset_id = (H5Dcreate1(groupid, "1DHistData",
-                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    if (compress)
+    {
+      // Create dataset creation property list, set the gzip compression filter
+      // and chunck size
+      hsize_t chunk[2] = {40,2};
+      hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+      H5Pset_deflate (dcpl, 9);
+      H5Pset_chunk (dcpl, 2, chunk);
+      dataset_id = (H5Dcreate(groupid, "1DHistData",
+                              H5T_NATIVE_FLOAT, dataspace_id, dcpl));
+    }
+    else
+      dataset_id = (H5Dcreate1(groupid, "1DHistData",
+                               H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
     //write data
     H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
              H5P_DEFAULT, &table[0]);
@@ -203,7 +216,7 @@ namespace cass
     H5Sclose(dataspace_id);
   }
 
-  void write2DHist(const Histogram2DFloat& hist, hid_t groupid)
+  void write2DHist(const Histogram2DFloat& hist, hid_t groupid, bool compress)
   {
     hid_t axisgrouphandle (H5Gcreate1(groupid, "xAxis",0));
     writeAxisProperty(hist.axis()[HistogramBackend::xAxis],axisgrouphandle);
@@ -337,8 +350,20 @@ namespace cass
       }
     }
     //Create the dataset.
-    dataset_id = (H5Dcreate1(groupid, "HistData",
-                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+    if (compress)
+    {
+      // Create dataset creation property list, set the gzip compression filter
+      // and chunck size
+      hsize_t chunk[2] = {40,3};
+      hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+      H5Pset_deflate (dcpl, 9);
+      H5Pset_chunk (dcpl, 2, chunk);
+      dataset_id = (H5Dcreate(groupid, "HistData",
+                              H5T_NATIVE_FLOAT, dataspace_id, dcpl));
+    }
+    else
+      dataset_id = (H5Dcreate1(groupid, "HistData",
+                               H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
     //write data
     H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
              H5P_DEFAULT, &table[0]);
@@ -364,6 +389,20 @@ cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t
 
 void cass::pp1001::loadSettings(size_t)
 {
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _compress = settings.value("Compress",false).toBool();
+  if (_compress)
+  {
+    htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
+    unsigned int filter_info;
+    H5Zget_filter_info(H5Z_FILTER_DEFLATE, &filter_info);
+    if (!compavailable ||
+        !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
+        !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
+      _compress = false;
+  }
   setupGeneral();
   if (!setupCondition(false))
     return;
@@ -373,7 +412,8 @@ void cass::pp1001::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers,true);
   std::cout <<"PostProcessor "<<_key
       <<" will write all chosen histograms to hdf5 "<<_outfilename
-      <<". Condition is"<<_condition->key()
+      <<". Condition is '"<<_condition->key()
+      <<"'. Compress the file :"<<std::boolalpha << _compress
       <<std::endl;
 }
 
@@ -410,12 +450,12 @@ void cass::pp1001::aboutToQuit()
         break;
       case 1:
         VERBOSEOUT(std::cout<< " 1D"<<std::endl);
-        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle);
+        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle,_compress);
         VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 2:
         VERBOSEOUT(std::cout<< " 2D"<<std::endl);
-        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle);
+        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
         VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       }
@@ -462,12 +502,12 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
         break;
       case 1:
         VERBOSEOUT(std::cout<< " 1D"<<std::endl);
-        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle);
+        write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle,_compress);
         VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       case 2:
         VERBOSEOUT(std::cout<< " 2D"<<std::endl);
-        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle);
+        write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
         VERBOSEOUT(std::cout<< "pp1001::process: Done writing '"<<pp.key()<<"'"<<std::endl);
         break;
       }
