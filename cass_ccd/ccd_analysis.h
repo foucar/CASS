@@ -35,9 +35,9 @@ namespace cass
      *           Default is 0.
      * @cassttng CCD/%detectorid%/{RebinFactor}\n
      *           How much should the commercial ccd image be rebinned.
-     *           Default is 1 (no rebinning).
-     *           @note DO NOT USE This parameter unless you are shure what you
-     *                 are doing. It will confuse the display of the raw image.
+     *           Default is 1 (no rebinning).\n
+     *           DO NOT USE This parameter unless you are shure what you are
+     *           doing. It will confuse the display of the raw image.
      *
      * @author Lutz Foucar
      * @author Nicola Coppola
