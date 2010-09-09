@@ -202,7 +202,7 @@ namespace cass
       H5Pset_deflate (dcpl, 9);
       H5Pset_chunk (dcpl, 2, chunk);
       dataset_id = (H5Dcreate(groupid, "1DHistData",
-                              H5T_NATIVE_FLOAT, dataspace_id, dcpl));
+                              H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
     }
     else
       dataset_id = (H5Dcreate1(groupid, "1DHistData",
@@ -359,7 +359,7 @@ namespace cass
       H5Pset_deflate (dcpl, 9);
       H5Pset_chunk (dcpl, 2, chunk);
       dataset_id = (H5Dcreate(groupid, "HistData",
-                              H5T_NATIVE_FLOAT, dataspace_id, dcpl));
+                              H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
     }
     else
       dataset_id = (H5Dcreate1(groupid, "HistData",
