@@ -143,7 +143,9 @@ void cass::pp212::process(const CASSEvent & evt)
         // Check this pixel and its neighbours
         if ( check_pixel(in, x, y, w, h, sum, depth) )
         {
-          _fh << x << " " << y << " " << sum << " " << depth << std::endl;
+          if ( (sum >= _gate.first) && (sum <= _gate.second) ) {
+            _fh << x << " " << y << " " << sum << " " << depth << std::endl;
+          }
         }
 
       }
