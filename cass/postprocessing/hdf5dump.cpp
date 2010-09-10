@@ -93,7 +93,7 @@ void pp1000::add_bl_data(hid_t fh, hid_t sh, const char *field,
    Returns the photon energy in eV.
    It uses Rick K. code at psexport:/reg/neh/home/rkirian/ana2
 */
-double  pp1000::photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
+double pp1000::photonEnergy(MachineData::MachineDataDevice::bldMap_t d)
 {
   if ( d.find("EbeamL3Energy") == d.end() ) {
     std::cout << "Field 'EbeamL3Energy' not found." << std::endl;
