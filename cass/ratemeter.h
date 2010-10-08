@@ -32,7 +32,8 @@ namespace cass
   public:
     /** constuctor
      *
-     * @param averagetime time constant with which the rate will decrease
+     * @param averagetime time in seconds over which you want to average the
+     *        rate. Default is 1 s.
      * @param parent the qt parent of this object
      */
     Ratemeter(const double averagetime=1, QObject *parent=0);
@@ -41,6 +42,9 @@ namespace cass
      *
      * the rate is calculated using the formular found in wiki at
      * @see http://en.wikipedia.org/wiki/Moving_average
+     * It uses the elapsed time since the last time we called calculateRate() and
+     * the current value is the number of counts that we acquired since the last
+     * time.
      */
     double calculateRate();
 

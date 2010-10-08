@@ -25,20 +25,16 @@ cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
 double cass::Ratemeter::calculateRate()
 {
   //how long since the last calculation?//
-  const double time = _time.elapsed();
+  const double elapsedtime = _time.elapsed();
 
-  //use formular found in wiki at
-  //http://en.wikipedia.org/wiki/Moving_average//
-  //in this the running average time is 2s//
-  _rate = (1 - std::exp(-time/_averagetime))*_counts + 
-               std::exp(-time/_averagetime)*_rate;
+  //calc rate//
+  _rate = ((1 - std::exp(-elapsedtime/_averagetime))*_counts) +
+                std::exp(-elapsedtime/_averagetime)*_rate;
   
-  //reset the curent counter before adding//
+  //reset values//
   _counts = 0.;
-  //restart the timer and advance the index//
   _time.restart();
  
-  //return the calculated rate//
   return _rate;
 }
 
