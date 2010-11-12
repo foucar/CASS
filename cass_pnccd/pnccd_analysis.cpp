@@ -72,6 +72,19 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
                                    << "Common Mode Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "Common Mode Correction will NOT be applied for detector "<<idx<<std::endl;
 
+    dp._useCTECorr = value("useCTECorrection",false).toBool();
+    if(dp._useCTECorr) std::cout<< printoutdef 
+                                   << "Charge transfer Correction will be applied for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "Charge transfer Correction will NOT be applied for detector "<<idx<<std::endl;
+
+    dp._useGAINCorr = value("useGAINCorrection",false).toBool();
+    if(dp._useGAINCorr) std::cout<< printoutdef 
+                                   << "GAIN Correction will be applied for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "GAIN Correction will NOT be applied for detector "<<idx<<std::endl;
+
+    dp._gainfilename =
+      value("GAINCalibrationFileName",QString("gaincal_%1.cal").arg(idx)).toString().toStdString();
+
     dp._auto_saveDarkframe = value("autoSaveDarkCals",false).toBool();
     if(dp._auto_saveDarkframe) std::cout<< printoutdef 
                                    << "User Decided to automatically save Darkcal file for detector "<<idx<<std::endl;
@@ -197,6 +210,8 @@ void cass::pnCCD::Parameter::save()
     setValue("CreatePixelList",dp._createPixellist);
     setValue("DoOffsetCorrection",dp._doOffsetCorrection);
     setValue("useCommonMode",dp._useCommonMode);
+    setValue("useCTECorrection",dp._useCTECorr);
+    setValue("useGAINCorrection",dp._useGAINCorr);
     setValue("IntegralOverThres",static_cast<qint64>(dp._thres_for_integral));
     setValue("DarkCalibrationFileName",dp._darkcalfilename.c_str());
     setValue("DarkCalibrationSaveFileName",dp._savedarkcalfilename.c_str());
@@ -350,6 +365,79 @@ void cass::pnCCD::Analysis::loadSettings()
         }
       }
     }
+
+    std::ifstream in_gain(dp._gainfilename.c_str(), std::ios::ate);  //or std::ios::binary|
+
+    std::cout<< printoutdef << "Trying to open file: "<<dp._gainfilename.c_str()<<std::endl;
+    if (in_gain.is_open() && !_param._isDarkframe)
+    {
+      size_t size = in_gain.tellg() / 2 / sizeof(double);
+      // check that the size is reasonable
+      //this is clearly not possible if I have opened the file as ascii
+      size=pnCCD::default_size_sq;
+      if(size%(pnCCD::default_size)==0)
+      {
+        //go to the beginning of the file
+        in_gain.seekg(0,std::ios::beg);
+        //resize the vectors to the right size//
+        dp._gain_ao_CTE.resize(size);
+        //read the parameters stored in the file//
+        in_gain.getline(reinterpret_cast<char*>(&(dp._CTE)),256);
+
+        for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
+          if(dp._useCTECorr) {
+            size_t irow = i/pnCCD::default_size;
+            if(irow<pnCCD::default_size/2) //bottom part of the detector
+              dp._gain_ao_CTE[i]=pow(dp._CTE,irow);
+            else  //top part of the detector
+              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow);
+          }
+          else dp._gain_ao_CTE[i]=1.;
+          double gain_ith=1.;
+          if(dp._useGAINCorr) {
+            //read once per half-column
+            if(i%(pnCCD::default_size/2)==0)
+              in_gain.getline(reinterpret_cast<char*>(&(gain_ith)),256);
+            //do the mathematics to create the gain maps
+            dp._gain_ao_CTE[i]*=gain_ith;
+          }
+        }
+        std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
+      }
+      else
+      {
+        //safe net in case there is no file yet
+        dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
+        std::cout << printoutdef << 
+          "I have been asked to use GAIN file not created for CASS:\n\t "
+                  <<dp._gainfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
+      }
+    }
+    else
+    {
+      std::cout<< printoutdef << "Not able to open file "<<dp._gainfilename.c_str()<<std::endl;
+      if(_param._isDarkframe) std::cout<< printoutdef << "but this is a Darkframe run"<<std::endl;
+      else
+      {
+        std::cout<< printoutdef << "and this is NOT a Darkframe run"<<std::endl;
+        if(!dp._useCTECorr || dp._useGAINCorr)
+        {
+          std::cout<< printoutdef << "I am not going to apply GAIN corrections anyway"<<std::endl;
+          //safe net in case there is no file yet and I do not want to make offset-corrections
+          dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
+          //resetting the gain map
+          dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
+        }
+        else
+        {
+          //I should not get here
+          throw std::runtime_error(
+          QString("I have been asked to GAIN correct the frames, but there is no GAIN file named:\n\t "
+                  ).arg(dp._gainfilename.c_str()).toStdString());
+        }
+      }
+    }
+
     //in case this is a Dark-Run
     if(_param._isDarkframe)
     {
@@ -1099,6 +1187,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       _param.loadDetectorParameter(iDet);*/
     // the problem is that the prev line is not the whole truth...
     loadSettings();
+    //use Charge Transfer Efficiency correction
   }
   _mutex.unlock();
 
@@ -1146,6 +1235,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itGainCTE  = dp._gain_ao_CTE.begin();
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
 
@@ -1163,6 +1253,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itGainCTE,iter[pixelidx+1]-iter[pixelidx]);
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
@@ -1170,6 +1261,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
+          //use Charge Transfer Efficiency correction
+          if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
 
           det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -1184,6 +1278,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           {      
             Pixel this_pixel;
             //itFrame is already offset-subtructed
+            // in order to be correct I should "gain" correct also the noise level
             if( *itFrame> dp._sigmaMultiplier * *itNoise )
             {
               this_pixel.x()=iter[pixelidx]%det.columns();
@@ -1208,7 +1303,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           double common_level=0;
           double Pixel_wo_offset;
           size_t used_pixel=0;
-          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset,++itGainCTE)
           {
             //I consider only the "good" pixels that are not to be masked
             if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
@@ -1238,12 +1333,17 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
+          advance(itGainCTE,-Num_pixel_per_line);
           for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
             // I should mask the ROIs...
             if(mask[this_pix_i]==1) *itFrame = *itFrame - *itOffset - common_level ;
             else *itFrame = 0;
+
+            //use Charge Transfer Efficiency correction
+            if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+
             det.integral() += static_cast<int64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<int64_t>(*itFrame);
@@ -1254,6 +1354,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             {
               Pixel this_pixel;
               //itFrame is already offset-subtructed
+              // in order to be correct I should "gain" correct also the noise level
               if( *itFrame> dp._sigmaMultiplier * *itNoise )
               {
                 this_pixel.x()=(this_pix_i)%det.columns();
@@ -1284,6 +1385,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       cass::PixelDetector::frame_t::iterator itFrame = f.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itOffset = dp._offset.begin();
       cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itNoise  = dp._noise.begin();
+      cass::pnCCD::DetectorParameter::correctionmap_t::const_iterator itGainCTE  = dp._gain_ao_CTE.begin();
       const cass::ROI::ROIiterator_t &iter = dp._ROIiterator;
       cass::ROI::ROIiterator_t::const_iterator itROI = iter.begin();
 
@@ -1296,17 +1398,21 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
       det.maxPixelValue()=0;
       if(!dp._useCommonMode/*I don't use CommonMode*/)
       {
-        for ( ; itROI != iter.end(); ++itROI,++pixelidx)
+        for ( ; itROI != iter.end(); ++itROI,++pixelidx,++itGainCTE)
         {
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+          advance(itGainCTE,iter[pixelidx+1]-iter[pixelidx]);
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
 
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
+
+          //use Charge Transfer Efficiency correction
+          if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
 
           det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -1319,6 +1425,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           {      
             Pixel this_pixel;
             //itFrame is already offset-subtructed
+            // in order to be correct I should "gain" correct also the noise level
             if( *itFrame> dp._sigmaMultiplier * *itNoise + *itOffset )
             {
               this_pixel.x()=iter[pixelidx]%det.columns();
@@ -1342,7 +1449,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           double common_level=0;
           double Pixel_wo_offset;
           size_t used_pixel=0;
-          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset,++itGainCTE)
           {
             //I consider only the "good" pixels that are not to be masked
             if(dp._ROImask[i_line*Num_pixel_per_line+i_pixel]==1) //I could only remove the BAD-pixel
@@ -1368,13 +1475,18 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
-          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          advance(itGainCTE,-Num_pixel_per_line);
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset,++itGainCTE)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
             // I should mask the ROIs...
             if(mask[this_pix_i]==1) *itFrame = *itFrame;// - *itOffset - common_level ;
             else *itFrame = 0;
-            det.integral() += static_cast<int64_t>(*itFrame);
+
+            //use Charge Transfer Efficiency correction
+            if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+
+            det.integral() += static_cast<int64_t>(*itFrame * *itGainCTE);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
               det.integral_overthres() += static_cast<int64_t>(*itFrame);
             //save the value only if it is not ovfl
@@ -1384,6 +1496,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             {
               Pixel this_pixel;
               //itFrame is already offset-subtructed
+              // in order to be correct I should "gain" correct also the noise level
               if( *itFrame> dp._sigmaMultiplier * *itNoise + *itOffset)
               {
                 this_pixel.x()=(this_pix_i)%det.columns();
