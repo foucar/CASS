@@ -395,7 +395,7 @@ void cass::pnCCD::Analysis::loadSettings()
             if(irow<pnCCD::default_size/2) //bottom part of the detector
               dp._gain_ao_CTE[i]=pow(dp._CTE,irow+1);
             else  //top part of the detector
-              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow +1);
+              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow);
           }
           else dp._gain_ao_CTE[i]=1.;
 
@@ -407,8 +407,10 @@ void cass::pnCCD::Analysis::loadSettings()
             //do the mathematics to create the gain maps
             dp._gain_ao_CTE[i]*=gain_ith;
           }
+#ifdef debug_conf
           std::cout << printoutdef << " gain/cte map "
                     << i << " " << dp._CTE << " " << gain_ith << " " << dp._gain_ao_CTE[i] << std::endl;
+#endif
         }
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
       }
