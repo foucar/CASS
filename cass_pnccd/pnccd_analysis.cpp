@@ -385,17 +385,16 @@ void cass::pnCCD::Analysis::loadSettings()
         //declare and set def here so that it is not overwritten within the loop
         double gain_ith=1.;
         //read the parameters stored in the file//
-        //in_gain.getline(reinterpret_cast<char*>(&(dp._CTE)),256);
-        //float cte;
         in_gain>>dp._CTE;
 
-        for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
-          if(dp._useCTECorr) {
+        if(dp._useCTECorr) {
+
+          for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
             size_t irow = i/pnCCD::default_size;
             if(irow<pnCCD::default_size/2) //bottom part of the detector
               dp._gain_ao_CTE[i]=pow(dp._CTE,irow+1);
             else  //top part of the detector
-              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow);
+              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow +1);
 
 #ifdef debug_conf
             if(irow>pnCCD::default_size-2)
@@ -404,15 +403,29 @@ void cass::pnCCD::Analysis::loadSettings()
 #endif
           }
           else dp._gain_ao_CTE[i]=1.;
+        }
 
-          if(dp._useGAINCorr) {
+        if(dp._useGAINCorr) {
+          //bottom detector
+          for(size_t i=0;i< pnCCD::default_size ;i++) {
             //read once per half-column
-            if(i%(pnCCD::default_size/2)==0)
-              in_gain>>gain_ith;
-            //              in_gain.getline(reinterpret_cast<char*>(&(gain_ith)),256);
+            in_gain>>gain_ith;
             //do the mathematics to create the gain maps
-            dp._gain_ao_CTE[i]*=gain_ith;
+            //fill the value in "column wise and not row wise"
+            for (size_t jrow=0;jrow<pnCCD::default_size/2;jrow++)
+              dp._gain_ao_CTE[i+jrow*pnCCD::default_size]*=gain_ith;
           }
+
+          //top detector
+          for(size_t i=pnCCD::default_size-1;i>0 ;i--) {
+            //read once per half-column
+            in_gain>>gain_ith;
+            //do the mathematics to create the gain maps
+            for (size_t jrow=0;jrow<pnCCD::default_size/2;jrow++)
+              dp._gain_ao_CTE[i+jrow*pnCCD::default_size]*=gain_ith;
+          }
+
+        }
 #ifdef debug_conf
           std::cout << printoutdef << " gain/cte map "
                     << i << " " << dp._CTE << " " << gain_ith << " " << dp._gain_ao_CTE[i] << std::endl;
