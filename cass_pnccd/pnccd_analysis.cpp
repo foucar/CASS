@@ -381,8 +381,11 @@ void cass::pnCCD::Analysis::loadSettings()
         in_gain.seekg(0,std::ios::beg);
         //resize the vectors to the right size//
         dp._gain_ao_CTE.resize(size);
+        dp._CTE=1;
         //read the parameters stored in the file//
-        in_gain.getline(reinterpret_cast<char*>(&(dp._CTE)),256);
+        //in_gain.getline(reinterpret_cast<char*>(&(dp._CTE)),256);
+        //float cte;
+        in_gain>>dp._CTE;
 
         for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
           if(dp._useCTECorr) {
@@ -397,7 +400,8 @@ void cass::pnCCD::Analysis::loadSettings()
           if(dp._useGAINCorr) {
             //read once per half-column
             if(i%(pnCCD::default_size/2)==0)
-              in_gain.getline(reinterpret_cast<char*>(&(gain_ith)),256);
+              in_gain>>gain_ith;
+            //              in_gain.getline(reinterpret_cast<char*>(&(gain_ith)),256);
             //do the mathematics to create the gain maps
             dp._gain_ao_CTE[i]*=gain_ith;
           }
