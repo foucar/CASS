@@ -428,7 +428,7 @@ void cass::pnCCD::Analysis::loadSettings()
           }
         }
 #ifdef debug_conf
-        for(size_t i=0;i<pnCCD::default_size_sq;i++) {
+        for(size_t i=0;i<pnCCD::default_size_sq;i++)
           std::cout << printoutdef << " gain/cte map "
                     << i << " " << dp._CTE << " " << gain_ith << " " << dp._gain_ao_CTE[i] << std::endl;
 #endif
