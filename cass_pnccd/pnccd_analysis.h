@@ -123,6 +123,7 @@ namespace cass
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
+      bool            _useCTECorr;        //!< flag to switch Charge transport efficiency
       bool            _auto_saveDarkframe;//!< flag to automatically save darkframe(s) to files as soon as a preper number of frames is reached.
       bool            _mask_BadPixel     ;//!< flag to mask or not bad pixels based on noise levels from darkframe(s)
       int64_t         _thres_for_integral;//!< the thresold for special integral
