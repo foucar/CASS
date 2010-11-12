@@ -393,9 +393,9 @@ void cass::pnCCD::Analysis::loadSettings()
           if(dp._useCTECorr) {
             size_t irow = i/pnCCD::default_size;
             if(irow<pnCCD::default_size/2) //bottom part of the detector
-              dp._gain_ao_CTE[i]=pow(dp._CTE,irow);
+              dp._gain_ao_CTE[i]=pow(dp._CTE,irow+1);
             else  //top part of the detector
-              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow);
+              dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow +1);
           }
           else dp._gain_ao_CTE[i]=1.;
 
