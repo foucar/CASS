@@ -382,6 +382,8 @@ void cass::pnCCD::Analysis::loadSettings()
         //resize the vectors to the right size//
         dp._gain_ao_CTE.resize(size);
         dp._CTE=1;
+        //declare and set def here so that it is not overwritten within the loop
+        double gain_ith=1.;
         //read the parameters stored in the file//
         //in_gain.getline(reinterpret_cast<char*>(&(dp._CTE)),256);
         //float cte;
@@ -396,7 +398,7 @@ void cass::pnCCD::Analysis::loadSettings()
               dp._gain_ao_CTE[i]=pow(dp._CTE,pnCCD::default_size-irow);
           }
           else dp._gain_ao_CTE[i]=1.;
-          double gain_ith=1.;
+
           if(dp._useGAINCorr) {
             //read once per half-column
             if(i%(pnCCD::default_size/2)==0)
