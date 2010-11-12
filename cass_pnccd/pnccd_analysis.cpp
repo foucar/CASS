@@ -405,6 +405,8 @@ void cass::pnCCD::Analysis::loadSettings()
             //do the mathematics to create the gain maps
             dp._gain_ao_CTE[i]*=gain_ith;
           }
+          std::cout << printoutdef << " gain/cte map "
+                    << i << " " << dp._CTE << " " << gain_ith << " " << dp._gain_ao_CTE[i]<<std:endl;
         }
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
       }
