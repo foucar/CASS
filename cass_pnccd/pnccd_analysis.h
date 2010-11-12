@@ -67,6 +67,16 @@ namespace cass
      *            subtracted from all the pixels.\n
      *        By default the value is set to false.
      *  @cassttng
+     *  useCTECorr\n
+     *       True or false,\n
+     *            if true the Charge Correction Efficiency correction will be applied to the pixels.\n
+     *        By default the value is set to false.
+     *  @cassttng
+     *  useGAINCorr\n
+     *       True or false,\n
+     *            if true the Gain correction will be applied to the pixels.\n
+     *        By default the value is set to false.
+     *  @cassttng
      *  UseDarkcalBadPixelInfo\n
      *       True or false, by default UseDarkcalBadPixelInfo==false,\n
      *            useful only if IsDarkFrames==false,\n
@@ -104,6 +114,9 @@ namespace cass
      *       It contains the name of the files where darkframe calibrations will be written into
      *       the values are ANYWAY overwritten by the saveParameter function to avoid
      *       overwriting of previously saved darkframe files.
+     *  @cassttng
+     *  GAINCalibrationFileName\n
+     *       It contains the name of the files where GAIN calibrations will be taken out.\n
      *  @author Nicola Coppola
      *
      */
@@ -121,16 +134,18 @@ namespace cass
       double          _max_noise;         //!< pixels with noise larger _max_noise than will be masked
       double          _sigmaMultiplier;   //!< how big is "above noise"
       double          _adu2eV;            //!< conversion from adu to eV
+      double          _CTE;               //!< single step Charge Transfer Efficiency
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
       bool            _useCTECorr;        //!< flag to switch Charge transport efficiency Correction
-      bool            _useGAINCorr;        //!< flag to switch Gain Correction
+      bool            _useGAINCorr;       //!< flag to switch Gain Correction
       bool            _auto_saveDarkframe;//!< flag to automatically save darkframe(s) to files as soon as a preper number of frames is reached.
       bool            _mask_BadPixel     ;//!< flag to mask or not bad pixels based on noise levels from darkframe(s)
       int64_t         _thres_for_integral;//!< the thresold for special integral
       std::string     _darkcalfilename;   //!< filename of file containing dark & noisemap
       std::string     _savedarkcalfilename;//!< Dark frame calibration save file names for each detector, it is automatically generated//
+      std::string     _gainfilename;       //!< filename of file containing Gain and/or CTE values
       cass::detROI_   _detROI;
 
       cass::ROI::ROImask_t _ROImask;//!< The ROI mask
