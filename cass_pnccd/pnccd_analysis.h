@@ -115,6 +115,7 @@ namespace cass
       size_t          _nbrDarkframes;     //!< the number of frames used to calculate offset/noise map, this is an internal value is not "saved" in the calfiles
       correctionmap_t _offset;            //!< offset map
       correctionmap_t _noise;             //!< noise map
+      correctionmap_t _gain_ao_CTE;       //!< Gain and/or Charge Transfair correction map
 
       uint32_t        _rebinfactor;       //!< the rebinfactor for rebinning
       double          _max_noise;         //!< pixels with noise larger _max_noise than will be masked
@@ -123,7 +124,8 @@ namespace cass
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
-      bool            _useCTECorr;        //!< flag to switch Charge transport efficiency
+      bool            _useCTECorr;        //!< flag to switch Charge transport efficiency Correction
+      bool            _useGAINCorr;        //!< flag to switch Gain Correction
       bool            _auto_saveDarkframe;//!< flag to automatically save darkframe(s) to files as soon as a preper number of frames is reached.
       bool            _mask_BadPixel     ;//!< flag to mask or not bad pixels based on noise levels from darkframe(s)
       int64_t         _thres_for_integral;//!< the thresold for special integral
