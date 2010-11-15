@@ -1284,7 +1284,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+#ifdef OFFLINE
           advance(itGainCTE,iter[pixelidx+1]-iter[pixelidx]);
+#endif
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
@@ -1293,8 +1295,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
+#ifdef OFFLINE
           //use Charge Transfer Efficiency correction
           if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+#endif
 
           det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -1364,7 +1368,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
+#ifdef OFFLINE
           advance(itGainCTE,-Num_pixel_per_line);
+#endif
           for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
@@ -1372,8 +1378,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             if(mask[this_pix_i]==1) *itFrame = *itFrame - *itOffset - common_level ;
             else *itFrame = 0;
 
+#ifdef OFFLINE
             //use Charge Transfer Efficiency correction
             if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+#endif
 
             det.integral() += static_cast<int64_t>(*itFrame);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -1434,7 +1442,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,iter[pixelidx+1]-iter[pixelidx]);
           advance(itOffset,iter[pixelidx+1]-iter[pixelidx]);
           advance(itNoise,iter[pixelidx+1]-iter[pixelidx]);
+#ifdef OFFLINE
           advance(itGainCTE,iter[pixelidx+1]-iter[pixelidx]);
+#endif
 
           // the following work only if I am copying, not if I modify!!
           // If I am modifying the pixel values.. This method leave the masked-pixels unchanged!!
@@ -1442,8 +1452,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           //actually my method was introduced to make such lines as the following one not needed.....
           for(size_t jj=iter[pixelidx]; jj<iter[pixelidx+1]-1; jj++) f[jj] = 0;
 
+#ifdef OFFLINE
           //use Charge Transfer Efficiency correction
           if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+#endif
 
           det.integral() += static_cast<int64_t>(*itFrame);
           if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
@@ -1506,7 +1518,9 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
           advance(itFrame,-Num_pixel_per_line);
           advance(itOffset,-Num_pixel_per_line);
           advance(itNoise,-Num_pixel_per_line);
+#ifdef OFFLINE
           advance(itGainCTE,-Num_pixel_per_line);
+#endif
           for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset,++itGainCTE)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
@@ -1514,8 +1528,10 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
             if(mask[this_pix_i]==1) *itFrame = *itFrame;// - *itOffset - common_level ;
             else *itFrame = 0;
 
+#ifdef OFFLINE
             //use Charge Transfer Efficiency correction
             if(dp._useCTECorr || dp._useGAINCorr) *itFrame = *itFrame * *itGainCTE;
+#endif
 
             det.integral() += static_cast<int64_t>(*itFrame * *itGainCTE);
             if(dp._thres_for_integral && *itFrame > dp._thres_for_integral)
