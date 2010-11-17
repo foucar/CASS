@@ -401,7 +401,7 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug_conf
             if(irow>pnCCD::default_size-2)
               std::cout << printoutdef << " cte map "
-                        << i << " " << iraw << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
+                        << i << " " << irow << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
 #endif
             }
           }
