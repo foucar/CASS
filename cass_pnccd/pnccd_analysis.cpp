@@ -439,7 +439,7 @@ void cass::pnCCD::Analysis::loadSettings()
 #ifdef debug_conf
         for(size_t i=0;i<pnCCD::default_size_sq;i++)
           std::cout << printoutdef << " gain/cte map "
-                    << i << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
+                    << i << " " << i/pnCCD::default_size << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
 #endif
 
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
