@@ -432,8 +432,8 @@ void cass::pnCCD::Analysis::loadSettings()
                       << icol << " " << gain_ith << std::endl;
 #endif
             //do the mathematics to create the gain maps
-            for (size_t jrow=0;jrow<pnCCD::default_size/2;jrow++)
-              dp._gain_ao_CTE[static_cast<size_t>(icol)+jrow*(pnCCD::default_size+pnCCD::default_size/2)]*=gain_ith;
+            for (size_t jrow=pnCCD::default_size/2;jrow<pnCCD::default_size;jrow++)
+              dp._gain_ao_CTE[static_cast<size_t>(icol)+jrow*(pnCCD::default_size)]*=gain_ith;
           }
         }
 #ifdef debug_conf
