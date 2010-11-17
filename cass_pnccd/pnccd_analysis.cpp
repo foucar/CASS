@@ -395,14 +395,15 @@ void cass::pnCCD::Analysis::loadSettings()
             if(irow<pnCCD::default_size/2)
               dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),irow+1);
             //top part of the detector
-            else
-              dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),pnCCD::default_size-irow +1);
+            else {
+              dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),pnCCD::default_size-irow);
 
 #ifdef debug_conf
             if(irow>pnCCD::default_size-2)
-              std::cout << printoutdef << " gain/cte map "
-                        << i << " " << dp._CTE << " " << gain_ith << " " << dp._gain_ao_CTE[i] << std::endl;
+              std::cout << printoutdef << " cte map "
+                        << i << " " << iraw << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
 #endif
+            }
           }
         }
         else dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
