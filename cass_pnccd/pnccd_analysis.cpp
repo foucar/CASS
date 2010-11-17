@@ -446,7 +446,7 @@ void cass::pnCCD::Analysis::loadSettings()
                     << i << " " ;
           for(size_t j=0;j<pnCCD::default_size/2;j++)
             std::cout << j << " " << dp._gain_ao_CTE[i]/dp._gain_ao_CTE[i+j*pnCCD::default_size] << " ";
-          << std::endl;
+          std::cout << std::endl;
         }
 #endif
 
