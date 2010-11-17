@@ -440,6 +440,14 @@ void cass::pnCCD::Analysis::loadSettings()
         for(size_t i=0;i<pnCCD::default_size_sq;i++)
           std::cout << printoutdef << " gain/cte map "
                     << i << " " << i/pnCCD::default_size << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
+        //the next is an extra check...
+        for(size_t i=0;i<2*pnCCD::default_size;i++) {
+          std::cout << printoutdef << " extra gain map check "
+                    << i << " " ;
+          for(size_t j=0;j<pnCCD::default_size/2;j++)
+            std::cout << j << " " << dp._gain_ao_CTE[i]/dp._gain_ao_CTE[i+j*pnCCD::default_size] << " ";
+          << std::endl;
+        }
 #endif
 
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
