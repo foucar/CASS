@@ -444,7 +444,7 @@ void cass::pnCCD::Analysis::loadSettings()
         for(size_t i=0;i<2*pnCCD::default_size;i++) {
           std::cout << printoutdef << " extra gain map check "
                     << i << " " ;
-          for(size_t j=0;j<pnCCD::default_size/2;j++)
+          for(size_t j=0;j<pnCCD::default_size/2-1;j++)
             std::cout << j << " ratio = " << dp._gain_ao_CTE[i]/dp._gain_ao_CTE[i+j*pnCCD::default_size] << " ";
           std::cout << std::endl;
         }
