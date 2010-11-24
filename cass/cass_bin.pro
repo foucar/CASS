@@ -182,7 +182,7 @@ DEPENDPATH         += ./postprocessing
 LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
-                      -L/cfel/common/lib -lgsoap++ -lgsoap
+                      -lgsoap++ -lgsoap
 
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
