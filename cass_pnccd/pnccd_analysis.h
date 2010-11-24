@@ -69,11 +69,13 @@ namespace cass
      *  @cassttng
      *  useCTECorr\n
      *       True or false,\n
+     *            use 'useCTECorrection' as key in ini-file\n
      *            if true the Charge Correction Efficiency correction will be applied to the pixels.\n
      *        By default the value is set to false.
      *  @cassttng
      *  useGAINCorr\n
      *       True or false,\n
+     *            use 'useGAINCorrection' as key in ini-file\n
      *            if true the Gain correction will be applied to the pixels.\n
      *        By default the value is set to false.
      *  @cassttng
