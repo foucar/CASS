@@ -51,6 +51,7 @@ QMAKE_STRIP  =
 
 
 
+
 ## Local Variables:
 ## coding: utf-8
 ## mode: makefile
