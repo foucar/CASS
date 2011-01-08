@@ -235,6 +235,11 @@ namespace cass
    }
 }
 
+Particle::~Particle()
+{
+  delete _isParticleHit;
+}
+
 void Particle::loadSettings(CASSSettings& s)
 {
   delete _isParticleHit;

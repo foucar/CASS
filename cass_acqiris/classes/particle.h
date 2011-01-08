@@ -50,6 +50,12 @@ namespace cass
          _isParticleHit(0)
       {}
 
+      /** destructor
+       *
+       * deletes the functors
+       */
+      ~Particle();
+
       /** load the settings from .ini file
        *
        * @param s the CASSSettings object to read the info from
