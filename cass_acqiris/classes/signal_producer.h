@@ -113,13 +113,7 @@ namespace cass
      *           time range of the channel that "good" signals will appear. This
      *           is used by delayline detectors for displaying the first good
      *           hits and the timesum.
-     * @cassttng .../{Delay}\n
-     *           delay in ns used by the constant fraction method:
-     * @cassttng .../{Fraction}\n
-     *           fraction used by the constant fraction method:
-     * @cassttng .../{Walk}\n
-     *            walk in Volts used by the constant fraction method:
-     *
+      *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT SignalProducer

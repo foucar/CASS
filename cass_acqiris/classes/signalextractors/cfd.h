@@ -19,6 +19,36 @@ namespace cass
 {
   namespace ACQIRIS
   {
+    class Channel;
+
+    /** struct to combine the parameters that the Constant Fraction Extractors need
+     *
+     * @author Lutz Foucar
+     */
+     struct CFDParameters
+     {
+       typedef std::pair<double,double> timerange_t;
+       typedef std::vector<timerange_t> timeranges_t;
+
+       /** the time ranges in which the signals are found */
+       timeranges_t _timeranges;
+
+       /** the polarity that the signals have */
+       Polarity _polarity;
+
+       /** the level above which we think this is a signal (in V) */
+       double _threshold;
+
+       /** the delay of the cfd*/
+       int32_t _delay;
+
+       /** the fraction of the cfd*/
+       double _fraction;
+
+       /** the walk of the cfd* (in V)*/
+       double _walk;
+     };
+
     /** Finds Signals in a waveform.
      *
      * Analyzes a waveform and find signals using a constant fraction algorithm.
@@ -26,11 +56,12 @@ namespace cass
      *
      * This class will work on waveforms of old 8 Bit Acqiris Instruments.
      *
-     * @note we should let this class only identify the Signals and create the
-     *       Signal list. The further analysis of the Signal should be done,
-     *       when the user requests a property.
-     * @note we might be able to not have this a template by using
-     *       waveform_t::value_type..
+     * @cassttng .../{Delay}\n
+     *           delay in ns used by the constant fraction method:
+     * @cassttng .../{Fraction}\n
+     *           fraction used by the constant fraction method:
+     * @cassttng .../{Walk}\n
+     *            walk in Volts used by the constant fraction method:
      *
      * @author Lutz Foucar
      */
@@ -52,6 +83,19 @@ namespace cass
 
       /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
+
+    private:
+      /** parameters for extracting the signals from the channels waveform */
+      CFDParameters _parameters;
+
+      /** the instrument that the channel is in */
+      Instruments _instrument;
+
+      /** the channelnumber of the channel we extracting the signals from */
+      size_t _chNbr;
+
+      /** pointer to the channel we are extracting the signals from */
+      const Channel * _chan;
      };
 
     /** Finds signals in a 16 bit waveform.
@@ -72,6 +116,19 @@ namespace cass
 
       /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
+
+    private:
+      /** parameters for extracting the signals from the channels waveform */
+      CFDParameters _parameters;
+
+      /** the instrument that the channel is in */
+      Instruments _instrument;
+
+      /** the channelnumber of the channel we extracting the signals from */
+      size_t _chNbr;
+
+      /** pointer to the channel we are extracting the signals from */
+      const Channel * _chan;
     };
 
   }//end namespace acqiris
