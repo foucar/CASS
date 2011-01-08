@@ -11,6 +11,7 @@
 #include "tcpclient.h"
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
+//#include "../cass/histogram.h"
 
 using namespace lucassview;
 
