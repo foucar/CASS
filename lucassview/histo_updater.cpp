@@ -16,6 +16,8 @@
 
 #include "tcpclient.h"
 
+using namespace lucassview;
+
 namespace lucassview
 {
   /** create the list of updateable histograms from all available keys
@@ -63,7 +65,6 @@ namespace lucassview
     }
   };
 }
-using namespace lucassview;
 
 HistogramUpdater::HistogramUpdater(const std::string &server, int port)
   :_server(server),
