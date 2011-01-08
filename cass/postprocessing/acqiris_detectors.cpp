@@ -40,7 +40,9 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    HelperAcqirisDetectors::helperinstancesmap_t::key_type loadDelayDet(CASSSettings &s, int ppNbr, const PostProcessors::key_t& key)
+    HelperAcqirisDetectors::helperinstancesmap_t::key_type loadDelayDet(CASSSettings &s,
+                                                                        int ppNbr,
+                                                                        const PostProcessors::key_t& key)
     {
       using namespace std;
       HelperAcqirisDetectors::helperinstancesmap_t::key_type detector
@@ -62,14 +64,50 @@ namespace cass
      * If it is not valid an invalid_argument exception is thrown
      *
      * @return key containing the layer name
-     * @param
+     * @param s CASSSettings object to read the info from
+     * @param detector the name of the detector that contains the layer
+     * @param layerKey key how the layer value is called in the .ini file
+     * @param ppNbr the Postprocessor number of the postprocessor calling this
+     *              function
+     * @param key the key of the postprocessor calling this function
      *
      * @author Lutz Foucar
      */
-    DelaylineDetector::anodelayers_t::key_type loadLayer()
+    DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
+                                                         const HelperAcqirisDetectors::helperinstancesmap_t::key_type &detector,
+                                                         const std::string &layerKey,
+                                                         int ppNbr,
+                                                         const PostProcessors::key_t& key)
     {
-      DelaylineDetector::anodelayers_t::key_type layer;
-
+      using namespace std;
+      HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detector));
+      DelaylineDetector::anodelayers_t::key_type layer
+          (s.value(layerKey.c_str(),"U").toString()[0].toAscii());
+      if (layer != 'U' && layer != 'V' && layer != 'W' &&
+          layer != 'X' && layer != 'Y')
+      {
+        stringstream ss;
+        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': The loaded value of '"<<layerKey<<"' '"<<layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
+        throw invalid_argument(ss.str());
+      }
+      else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
+      {
+        if (layer == 'X' || layer == 'Y')
+        {
+          stringstream ss;
+          ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Detector '"<<detector<<"' is Hex-detector and cannot have Layer '"<<layer<<"'";
+          throw invalid_argument(ss.str());
+        }
+      }
+      else
+      {
+        if (layer == 'U' || layer == 'V' || layer == 'W')
+        {
+          stringstream ss;
+          ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Detector '"<<detector<<"' is Quad-detector and cannot have Layer '"<<layer<<"'";
+          throw invalid_argument(ss.str());
+        }
+      }
       return layer;
     }
 
@@ -79,14 +117,28 @@ namespace cass
      * wireend otherwise throw invalid_argument exception.
      *
      * @return key containing the wireend name
-     * @param
+     * @param s CASSSettings object to read the info from
+     * @param wireendKey key how the wireend value is called in the .ini file
+     * @param ppNbr the Postprocessor number of the postprocessor calling this
+     *              function
+     * @param key the key of the postprocessor calling this function
      *
      * @author Lutz Foucar
      */
-    AnodeLayer::wireends_t::key_type loadWireend()
+    AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
+                                                 const std::string & wireendKey,
+                                                 int ppNbr,
+                                                 const PostProcessors::key_t& key)
     {
-      AnodeLayer::wireends_t::key_type wireend;
-
+      using namespace std;
+      AnodeLayer::wireends_t::key_type wireend
+          (s.value(wireendKey.c_str(),"1").toString()[0].toAscii());
+      if (wireend != '1' && wireend != '2')
+      {
+        stringstream ss;
+        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': The loaded value of '"<<wireendKey<<"' '"<<wireend<<"' does not exist. Can only be '1' or '2'";
+        throw invalid_argument(ss.str());
+      }
       return wireend;
     }
   }
