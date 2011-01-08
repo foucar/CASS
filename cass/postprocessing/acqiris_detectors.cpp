@@ -223,12 +223,15 @@ void cass::pp151::process(const cass::CASSEvent &evt)
   using namespace std;
   TofDetector *det
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+//  cout << " pp151: 1"<<endl;
   SignalProducer::signals_t::const_iterator it (det->mcp().output().begin());
+//  cout << " pp151: 2"<<endl;
   _result->clear();
   _result->lock.lockForWrite();
   for (; it != det->mcp().output().end(); ++it)
     dynamic_cast<Histogram1DFloat*>(_result)->fill((*it)["time"]);
   _result->lock.unlock();
+//  cout << " pp151: 3"<<endl;
 }
 
 
@@ -442,7 +445,7 @@ void cass::pp162::process(const cass::CASSEvent &evt)
   const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
 //  cout << "pp162 7"<<endl;
   const double mcp (det->mcp().firstGood(_range));
-//  cout << "pp162 8"<<endl;
+//  cout << "pp162 mcp '"<<mcp<<"' one '"<<one<<"' two '"<<two<<"'"<<endl;
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill( one + two - 2.*mcp);
   _result->lock.unlock();
