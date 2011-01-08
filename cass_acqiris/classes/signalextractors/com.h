@@ -39,7 +39,7 @@ namespace cass
        /** the polarity that the signals have */
        Polarity _polarity;
 
-       /** the level above which we think this is a signal (in mV) */
+       /** the level above which we think this is a signal (in V) */
        double _threshold;
 
      };
@@ -50,7 +50,26 @@ namespace cass
      * points above the defined threshold. It then does all the further analysis
      * of the identified Signal.
      *
-     * This class will work on waveforms of old 8 Bit Acqiris Instruments.
+     * This class will work on waveforms when a datapoint depth of 8 bit is chosen
+     *
+     * @cassttng .../CenterOfMass/{AcqirisInstrument}\n
+     *           Acqiris Instrument that this channel is in:
+     *           - 2:
+     *           - 4:
+     *           - 5:
+     *           - 8: CAMP
+     * @cassttng .../CenterOfMass/{ChannelNumber} \n
+     *           Channel within the instrument (starts counting from 0)
+     * @cassttng .../CenterOfMass/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
+     *           set of timeranges. One can set more than one range of interest.
+     *           Default is no timerange, which will result in no signal will be
+     *           found.
+     * @cassttng .../CenterOfMass/{Polarity}\n
+     *           the polarity of the signals that we are interested in:
+     *           - 1: Positive Polarity
+     *           - 2: Negative Polarity
+     * @cassttng .../CenterOfMass/{Threshold}\n
+     *           the theshold for the signals in Volts:
      *
      * @note we should let this class only identify the Signals and create the
      *       Signal list. The further analysis of the Signal should be done,

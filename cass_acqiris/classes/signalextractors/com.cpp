@@ -147,6 +147,8 @@ namespace cass
         s.beginGroup("CenterOfMass");
         instrument   = static_cast<Instruments>(s.value("AcqirisInstrument",Camp1).toInt());
         channelNbr   = s.value("ChannelNumber",0).toInt();
+        p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
+        p._threshold = s.value("Threshold",0.05).toDouble();
         int size = s.beginReadArray("Timeranges");
         for (int i = 0; i < size; ++i)
         {
@@ -154,8 +156,6 @@ namespace cass
                                                  s.value("UpperLimit",1000).toDouble()));
         }
         s.endArray();
-        p._polarity     = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
-        p._threshold    = s.value("Threshold",0.05).toDouble();
         s.endGroup();
       }
 

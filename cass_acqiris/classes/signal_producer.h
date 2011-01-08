@@ -100,17 +100,7 @@ namespace cass
      *   - In TofDetectors: AcqirisDetectors/%detectorname%/Signal
      *
      * Then the specific settings for these objects are:
-     * @cassttng .../{AcqirisInstrument}\n
-     *           Acqiris Instrument that this channel is in
-     * @cassttng .../{ChannelNumber} \n
-     *           Channel within the instrument (starts counting from 0)
-     * @cassttng .../{LowerTimeRangeLimit|UpperTimeRangeLimit}\n
-     *           time range of the channel that we are interested in.
-     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}\n
-     *           time range of the channel that "good" signals will appear. This
-     *           is used by delayline detectors for displaying the first good
-     *           hits and the timesum.
-     * @cassttng .../{WaveformAnalysisMethod}\n
+      * @cassttng .../{WaveformAnalysisMethod}\n
      *           the method type that will be used to analyze the waveform.
      *           there are the following options :
      *           - 0:com 8 bit waveform
@@ -118,12 +108,10 @@ namespace cass
      *           - 2:cfd 8 bit waveform
      *           - 3:cfd 16 bit waveform
      *           @see cass::ACQIRIS::CoM, cass::ACQIRIS::CFD
-     * @cassttng .../{Polarity}\n
-     *           the polarity of the signals that we are interested in:
-     *           - 1: Positive Polarity
-     *           - 2: Negative Polarity
-     * @cassttng .../{Threshold}\n
-     *           the theshold for the signals in Volts:
+     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}\n
+     *           time range of the channel that "good" signals will appear. This
+     *           is used by delayline detectors for displaying the first good
+     *           hits and the timesum.
      * @cassttng .../{Delay}\n
      *           delay in ns used by the constant fraction method:
      * @cassttng .../{Fraction}\n
