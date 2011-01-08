@@ -13,23 +13,23 @@ DEFINES += CASS_ACQIRIS_LIBRARY
 INCLUDEPATH += \
     ../cass \
     ./classes \
-    ./classes/waveformanalyzer \
+    ./classes/signalextractors \
     ./classes/detector_analyzer \
     . \
     ../LCLS
 DEPENDPATH += \
     ../cass \
     ./classes \
-    ./classes/waveformanalyzer \
+    ./classes/signalextractors \
     ./classes/detector_analyzer \
     .
 SOURCES += \
     acqiris_converter.cpp \
     acqiris_device.cpp \
     ./classes/signal_producer.cpp \
-    ./classes/waveformanalyzer/signal_extractor.cpp
-    ./classes/waveformanalyzer/cfd.cpp \
-    ./classes/waveformanalyzer/com.cpp \
+    ./classes/signalextractors/signal_extractor.cpp
+    ./classes/signalextractors/cfd.cpp \
+    ./classes/signalextractors/com.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
     ./classes/detector_backend.cpp \
     ./classes/tof_detector.cpp \
@@ -47,10 +47,10 @@ HEADERS += \
     ./classes/delayline_detector.h \
     ./classes/tof_detector.h \
     ./classes/signal_producer.h \
-    ./classes/waveformanalyzer/signal_extractor.h \
-    ./classes/waveformanalyzer/cfd.h \
-    ./classes/waveformanalyzer/com.h \
-    ./classes/waveformanalyzer/helperfunctionsforstdc.h \
+    ./classes/signalextractors/signal_extractor.h \
+    ./classes/signalextractors/cfd.h \
+    ./classes/signalextractors/com.h \
+    ./classes/signalextractors/helperfunctionsforstdc.h \
     ./classes/detector_analyzer/detector_analyzer_backend.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_backend.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
