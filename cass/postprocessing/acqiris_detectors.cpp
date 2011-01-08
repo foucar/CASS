@@ -307,40 +307,8 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,160,_key);
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  _layer = settings.value("Layer","U").toString()[0].toAscii();
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp160::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_layer == 'X' || _layer == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
-    {
-      stringstream ss;
-      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  _signal = settings.value("Wireend","1").toString()[0].toAscii();
-  if (_signal != '1' && _signal != '2')
-  {
-    stringstream ss;
-    ss <<"pp160::loadSettings()'"<<_key<<"': Wireend '"<<_signal<<"' does not exist";
-    throw invalid_argument(ss.str());
-  }
+  _layer = loadLayer(settings,_detector,"Layer",160,_key);
+  _signal = loadWireend(settings,"Wireend",160,_key);
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
@@ -388,48 +356,9 @@ void cass::pp161::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp161::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
-  _layer = settings.value("Layer","U").toString()[0].toAscii();
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp161::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_layer == 'X' || _layer == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp161::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
-    {
-      stringstream ss;
-      ss <<"pp161::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  _signal = settings.value("Wireend","1").toString()[0].toAscii();
-  if (_signal != '1' && _signal != '2')
-  {
-    stringstream ss;
-    ss <<"pp161::loadSettings()'"<<_key<<"': Wireend '"<<_signal<<"' does not exist";
-    throw invalid_argument(ss.str());
-  }
+  _detector = loadDelayDet(settings,161,_key);
+  _layer = loadLayer(settings,_detector,"Layer",161,_key);
+  _signal = loadWireend(settings,"Wireend",161,_key);
   setupGeneral();
   if (!setupCondition())
     return;
@@ -480,41 +409,8 @@ void cass::pp162::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp162::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
-  _layer = settings.value("Layer","U").toString()[0].toAscii();
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp162::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_layer == 'X' || _layer == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
-    {
-      stringstream ss;
-      ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
+  _detector = loadDelayDet(settings,162,_key);
+  _layer = loadLayer(settings,_detector,"Layer",162,_key);
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
   _result = new Histogram0DFloat();
@@ -575,41 +471,8 @@ void cass::pp163::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp163::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
-  _layer = settings.value("Layer","U").toString()[0].toAscii();
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp163::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_layer == 'X' || _layer == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp163::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
-    {
-      stringstream ss;
-      ss <<"pp163::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
+  _detector = loadDelayDet(settings,163,_key);
+  _layer = loadLayer(settings,_detector,"Layer",163,_key);
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
   setupGeneral();
@@ -665,67 +528,9 @@ void cass::pp164::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp164::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
-  _first = settings.value("FirstLayer","U").toString()[0].toAscii();
-  if (_first != 'U' && _first != 'V' && _first != 'W' &&
-      _first != 'X' && _first != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp164::loadSettings()'"<<_key<<"': The first Layer '"<<_first<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_first == 'X' || _first == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp164::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have first Layer '"<<_first<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_first == 'U' || _first == 'V' || _first == 'W')
-    {
-      stringstream ss;
-      ss <<"pp164::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have first Layer '"<<_first<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  _second = settings.value("SecondLayer","V").toString()[0].toAscii();
-  if (_second != 'U' && _second != 'V' && _second != 'W' &&
-      _second != 'X' && _second != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp164::loadSettings()'"<<_key<<"': The second Layer '"<<_second<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw invalid_argument(ss.str());
-  }
-  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
-  {
-    if (_second == 'X' || _second == 'Y')
-    {
-      stringstream ss;
-      ss <<"pp164::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have second Layer '"<<_second<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
-  else
-  {
-    if (_second == 'U' || _second == 'V' || _second == 'W')
-    {
-      stringstream ss;
-      ss <<"pp164::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have second Layer '"<<_second<<"'";
-      throw invalid_argument(ss.str());
-    }
-  }
+  _detector = loadDelayDet(settings,164,_key);
+  _first = loadLayer(settings,_detector,"FirstLayer",164,_key);
+  _second = loadLayer(settings,_detector,"SecondLayer",164,_key);
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
   _tsrange = make_pair(make_pair(settings.value("TimesumFirstLayerLow",20).toDouble(),
@@ -749,7 +554,7 @@ void cass::pp164::loadSettings(size_t)
       <<"' to '"<<_tsrange.first.second
       <<"'. The Timesum range of the second layer goes from '"<<_tsrange.second.first
       <<"' to '"<<_tsrange.second.second
-      <<"'. Condition is "<<_condition->key()<<"'"
+      <<"'. Condition is '"<<_condition->key()<<"'"
       <<std::endl;
 }
 
@@ -808,15 +613,7 @@ void cass::pp165::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp165::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
+  _detector = loadDelayDet(settings,165,_key);
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
@@ -875,15 +672,7 @@ void cass::pp166::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp166::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
+  _detector = loadDelayDet(settings,166,_key);
   _first = settings.value("XInput",'x').toString().toStdString();
   _second = settings.value("YInput",'y').toString().toStdString();
   _third =  settings.value("ConditionInput",'t').toString().toStdString();
@@ -903,7 +692,7 @@ void cass::pp166::loadSettings(size_t)
       <<"'. It puts a condition from '"<<_cond.first
       <<"' to '"<<_cond.second
       <<"' on Property '"<< _third
-      <<"'. Condition is "<<_condition->key()<<"'"
+      <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
 
