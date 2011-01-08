@@ -1,4 +1,4 @@
-//Copyright (C) 2008-2010 Lutz Foucar
+//Copyright (C) 2001-2010 Lutz Foucar
 
 /**
  * @file momenta_calculator.h file contains the classes that calculate the
@@ -6,47 +6,11 @@
  *
  * @author Lutz Foucar
  */
-#ifndef __MyMomentaCalculator_H_
-#define __MyMomentaCalculator_H_
+
+#ifndef __MomentaCalculator_H_
+#define __MomentaCalculator_H_
 
 #include "cass_acqiris.h"
-
-namespace UnitsConvert
-{
-  //@{
-  /** Atomic Units -> SI Units */
-  inline const double au2m()      {return 5.29177210818E-11;}
-  inline const double au2mm()     {return au2m()*1E3;}
-  inline const double au2s()      {return 2.41888432650516E-17;}
-  inline const double au2ns()     {return au2s()*1E9;}
-  inline const double au2mPs()    {return 2.187691263373E6;}
-  inline const double au2mmPns()  {return au2mPs()*1E-6;}
-  inline const double au2kg()     {return 9.10938215E-31;}
-  //@}
-  //@{
-  /** SI Units -> Atomic Units */
-  inline const double mm2au()     {return 1/au2mm();}
-  inline const double ns2au()     {return 1/au2ns();}
-  inline const double mmPns2au()  {return 1/au2mmPns();}
-  inline const double kg2au()     {return 1/au2kg();}
-  //@}
-  /** convert V/cm * C[a.u.]/M[a.u] to mm/ns^2 */
-  inline const double VPcm2mmPns()  {return 0.17588201489603770767263287993687e-1;}
-  /** Atomic mass unit -> SI Unit */
-  inline const double amu2kg()    {return 1.66053878283E-27;}
-  /** Atomic mass unit -> Atomic Units */
-  inline const double amu2au()    {return (amu2kg()*kg2au());}
-  /** Atomic Units ->Atomic mass unit */
-  inline const double au2amu()    {return 1./amu2au();}
-}
-
-//namespace MyMomentaCalculator
-//{
-//	double px(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer&);
-//	double py(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer&);
-//	double pz(double tof_ns, double mass_au, double charge_au, const MySpectrometer&);
-//}
-
 
 namespace cass
 {
@@ -54,29 +18,120 @@ namespace cass
 
   namespace ACQIRIS
   {
-    /** calculate momenta from a detector hit
+    class Particle;
+
+    /** base class for calculating momenta from a detector hit
      *
      * @author Lutz Foucar
      */
     class MomentumCalculator
     {
     public:
+      /** enum for the types of momcalculators */
+      enum MomCalcType{PxPyWBField, PxPyWOBField, PzOneRegion, PzMultipleRegions};
+
       /** calculate the momenta
        *
-       * calculates the momenta of the particle form a given detectorhit.
+       * calculates the momenta of the particle form a given detectorhit. First
+       * correct the position of the detectorhit and the time of flight.
        *
-       * @return the particle hit that contains all momenta
-       * @param dethit the detectorhit to calculate the momenta from
+       * @param[in] dethit the detectorhit to calculate the momenta from
+       * @param[in] particle the particle object that contains the properties of
+       *                     the particle that the momentum needs to be
+       *                     calculated from
+       * @param[out] particlehit the particle hit that contains all momenta
        */
-      particleHit_t operator()(const detectorHit_t &dethit)const;
+      virtual void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const=0;
 
-      /** load the settings of the momentumcalculator
+      /** create instance of requested type
        *
-       * read the informatoin from the .ini file
+       * creates an instance of the requested type
        *
-       * @param s the CASSSettings object to read the information from
+       * @return pointer to the instance of the requested type
+       * @param type the type of momentum calculator requested
        */
-      void loadSettings(CASSSettings& s);
+      static MomentumCalculator* instance(const MomCalcType &type);
+
+    protected:
+      /** correct the position in the detector plane
+       *
+       * @param[in] dethit the detector hit to correct
+       * @param[out] particlehit this is where the correct position goes
+       */
+      void correctDetectorPlane(const detectorHit_t &dethit, particleHit_t& particlehit)const;
+
+      /** correct the time of flight
+       *
+       * @param[in] dethit the detector hit to correct
+       * @param[out] particlehit this is where the correct position goes
+       */
+      void correctTof(const detectorHit_t &dethit, particleHit_t& particlehit)const;
+
+    protected:
+      /** the correction factor of the time of flight */
+      double _t0;
+
+      /** the correction of the position */
+      std::pair<double,double> _pos0;
+
+      /** the correction of the scale */
+      std::pair<double,double> _scalefactors;
+
+      /** the angle to rotate the position */
+      double _angle;
+    };
+
+    /** calculate px,py momenta
+     *
+     * This calcultates the momenta components of the particle in the
+     * detectorplane for a spectrometer without a magnetic field.
+     *
+     * @author Lutz Foucar
+     */
+    class PxPyCalculatorWithoutBField : public MomentumCalculator
+    {
+    public:
+      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+    };
+
+    /** calculate px,py momenta
+     *
+     * This calcultates the momenta components of the particle in the
+     * detectorplane for a spectrometer with a magnetic field.
+     *
+     * @author Lutz Foucar
+     */
+    class PxPyCalculatorWithBField : public MomentumCalculator
+    {
+    public:
+      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+    };
+
+    /** calculate pz momenta
+     *
+     * This calcultates the momenta componetnt of the particle along the time of
+     * flight for a spectrometer with only one region. This can be done
+     * analytical.
+     *
+     * @author Lutz Foucar
+     */
+    class PzCalculatorDirectOneRegion : public MomentumCalculator
+    {
+    public:
+      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+    };
+
+    /** calculate pz momenta
+     *
+     * This calcultates the momenta componetnt of the particle along the time of
+     * flight for a spectrometer with more than one region. We do this iterativly.
+     *
+     * @author Lutz Foucar
+     */
+    class PzCalculatorMulitpleRegions : public MomentumCalculator
+    {
+    public:
+      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
     };
   }
 }
