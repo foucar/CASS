@@ -15,11 +15,11 @@
 
 #include <iostream>
 #include "cass_acqiris.h"
-#include "cass_settings.h"
 
 namespace cass
 {
   class CASSEvent;
+  class CASSSettings;
 
   namespace ACQIRIS
   {
