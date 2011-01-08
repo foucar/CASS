@@ -21,28 +21,31 @@ namespace cass
     class DelaylineDetector;
     class AnodeLayer;
 
-    /** A simple sorter of hits.
+    /** Simple sorter of hits from a Quadanode delayline detector.
      *
-     * class that will take an detector get the infos from it
-     * and then after creating the list of signals from the waveform uses the timesum
-     * to rekonstruct detectorhits from these signals.
-     * This is only done for two layers, even though a hex anode might also be used
+     * Do a simple sorting by checking the timesum for each MCP Signal that was
+     * identified.
      *
-     * @note after making sure that the waveform signal container will create the list of
-     *       singals / peaks itselve, we no longer will need the info about the waveform
-     *       analyzers in the constructor
+     * @note after making sure that the waveform signal container will create
+     *       the list of singals / peaks itselve, we no longer will need the
+     *       info about the waveform analyzers in the constructor.
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
+    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimpleQuad
         : public DelaylineDetectorAnalyzerBackend
     {
     public:
-      /** constuctor outputs what we are*/
-      DelaylineDetectorAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
+      /** constuctor
+       *
+       * outputs what we are
+       *
+       * @param waveformanalyzer the container that contains all waveformanalyzers
+       */
+      DelaylineDetectorAnalyzerSimpleQuad(waveformanalyzers_t* waveformanalyzer)
           :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
       {
-        VERBOSEOUT(std::cout << "adding simple delayline detector analyzer"<<std::endl);
+        VERBOSEOUT(std::cout << "adding simple quad delayline detector analyzer"<<std::endl);
       }
 
       /** the function creating the detectorhit list*/

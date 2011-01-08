@@ -33,7 +33,7 @@ namespace cass
      */
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
-    protected:
+    public:
       /** typedef to make code more readable*/
       typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzers_t;
 
@@ -46,7 +46,11 @@ namespace cass
       /** virtual destructor*/
       virtual ~DetectorAnalyzerBackend() {}
 
-      /** analyze the detector using the data from the device*/
+      /** analyze the detector using the data from the device
+       *
+       * @param detector the Detector whose signals should be analyzed.
+       * @param device the device that recorded the signals of the Detector
+       */
       virtual void operator()(DetectorBackend&,const Device&)=0;
 
     protected:
