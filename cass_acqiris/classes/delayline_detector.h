@@ -145,18 +145,24 @@ namespace cass
       /** destroys the detector analyzer */
       ~DelaylineDetector();
 
-
     public:
       /** load the values from the .ini file
        *
        * this function will load the settings of this detector, which are
        * described in the class description. Next to those it will load the
-       * settings of its SignalProducers (mcp and anodelayers). Please refer to
+       * settings of its SignalProducers (mcp and anodelayers). The anode layers
+       * to load are chosen on the Delaylinetype. Please refer to
        * SignalProducer::loadSettings() for further information.\n
        * Then it will create the requested analyzer by calling
        * DetectorAnalyzerBackend::instance() and load the settings for the
        * analyzer. Please refer to the analyzers loadSettings() member for
-       * further information.
+       * further information.\n
+       * Create the particles map from the subgroups of the "Particle" group in
+       * the .ini file. Therefore retrieve a string list of all subgroup names
+       * under particle. Iterate through this list and create a particle for
+       * entry in the list and call Particle::loadSettings() for it after opening
+       * a group with the name of the particle. After loading the particles
+       * parameters put the particle into the container.
        *
        * @param s the CASSSettings object we retrieve the values from
        */
@@ -192,11 +198,14 @@ namespace cass
       /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;
 
-      /** constainer for all reconstructed detector hits*/
+      /** container for all reconstructed detector hits*/
       detectorHits_t _hits;
 
       /** the analyzer that will sort the signal to hits */
       DetectorAnalyzerBackend * _analyzer;
+
+      /** container for all particles of this detector */
+      particles_t _particles;
 
       /** flag to show whether there is a new event associated whith this */
       bool _newEventAssociated;

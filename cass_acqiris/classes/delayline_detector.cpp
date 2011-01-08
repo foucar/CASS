@@ -7,6 +7,10 @@
  * @author Lutz Foucar
  */
 
+#include <list>
+#include <QtCore/QStringList>
+#include <QtCore/QString>
+
 #include "delayline_detector.h"
 
 #include "cass_settings.h"
@@ -48,6 +52,7 @@ void DelaylineDetector::associate(const CASSEvent & evt)
 
 void DelaylineDetector::loadSettings(CASSSettings &s)
 {
+  using namespace std;
   s.beginGroup(_name.c_str());
   s.beginGroup("MCP");
   _mcp.loadSettings(s);
@@ -83,6 +88,20 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
   _analyzer =
       DetectorAnalyzerBackend::instance(static_cast<DetectorAnalyzerType>(s.value("AnalysisMethod",DelaylineSimple).toInt()));
   _analyzer->loadSettings(s, *this);
+  s.beginGroup("Particles");
+  _particles.clear();
+  QStringList particlesNameList(s.childGroups());
+  QStringList::const_iterator pNamesIt (particlesNameList.begin());
+  for (; pNamesIt != particlesNameList.end();++pNamesIt)
+  {
+    Particle particle;
+    string particleName (pNamesIt->toStdString());
+    s.beginGroup(*pNamesIt);
+    particle.loadSettings(s);
+    s.endGroup();
+    _particles[particleName] = particle;
+  }
+  s.endGroup();
   s.endGroup();
 }
 
