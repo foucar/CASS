@@ -17,14 +17,16 @@
 #include "cass_acqiris.h"
 #include "tof_detector.h"
 #include "signal_producer.h"
-#include "cass_settings.h"
-
-
 
 namespace cass
 {
+  class CASSSettings;
+
   namespace ACQIRIS
   {
+    //forward declarations
+    class DetectorAnalyzerBackend;
+
     /** A anode layer of the delayline detector.
      *
      * class containing the properties of a anode layer of the detector
@@ -51,7 +53,10 @@ namespace cass
       typedef std::map<char,SignalProducer> wireends_t;
 
       /** load values from cass.ini, should only be called by the detector*/
-      void loadSettings(CASSSettings *p,const char * layername);
+      void loadSettings(CASSSettings&);
+
+      /** associate the event with this detector (get the data from this event) */
+      void associate(const CASSEvent&);
 
       /** returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
@@ -112,51 +117,19 @@ namespace cass
        * @param t the time when the particle hit the detector
        */
       DelaylineDetectorHit(double x, double y, double t)
-//          :_x_mm(x), _y_mm(y), _time(t)
       {
         _values['x']=x;
         _values['y']=y;
         _values['t']=t;
       }
 
-      /** default constructor, initalizing every value to 0*/
-      DelaylineDetectorHit()
-//        :_x_mm(0), _y_mm(0), _time(0)
-      {}
-
-    public:
-//      //@{
-//      /** getter.
-//       * use this function to retrieve the properties of a hit.
-//       */
-//      double  x()const  {return _x_mm;}
-//      double  y()const  {return _y_mm;}
-//      double  t()const  {return _time;}
-//      //@}
-//      //@{
-//      /** setter.
-//       * use this function to set the properties of a hit.
-//       * @todo check if we still need to set a detector hits
-//       *       properties after creating it.
-//       */
-//      double &x()       {return _x_mm;}
-//      double &y()       {return _y_mm;}
-//      double &t()       {return _time;}
-      //@}
+      /** default constructor*/
+      DelaylineDetectorHit() {}
 
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}
 
     private:
-//      /*! the x component of the detector in mm*/
-//      double  _x_mm;
-//
-//      /*! the y component of the detector in mm*/
-//      double  _y_mm;
-//
-//      /*! the mcp time of this hit on the detector*/
-//      double  _time;
-
       /** a map containing the three coordiantes of the hit*/
       std::map<char,double> _values;
     };
@@ -214,12 +187,16 @@ namespace cass
        * @param[in] name the name of this detector
        */
       DelaylineDetector(const std::string name)
-        :TofDetector(name)
+        :TofDetector(name), _analyzer(0), _newEventAssociated(false)
       {}
 
     public:
       /** load the values from cass.ini*/
-      virtual void loadSettings(CASSSettings *p);
+      virtual void loadSettings(CASSSettings&);
+
+      /** associate the event with this detector (get the data from this event) */
+      void associate (const CASSEvent&);
+
 
     public:
       /** a vector of detector hits are the detector hits */
@@ -250,11 +227,8 @@ namespace cass
       }
 
     public:
-      /** @return the found detector hits*/
-      const dethits_t     &hits()const            {return _hits;}
-
-      /** @overload hits()const*/
-      dethits_t           &hits()                 {return _hits;}
+      /** return the list of detector hits */
+      dethits_t &hits();
 
     public:
       //@{
@@ -319,86 +293,18 @@ namespace cass
 
       /** constainer for all reconstructed detector hits*/
       dethits_t _hits;
+
+      /** the analyzer that will sort the signal to hits */
+      DetectorAnalyzerBackend * _analyzer;
+
+      /** flag to show whether there is a new event associated whith this */
+      bool _newEventAssociated;
+
     };
 
   }//end namespace remi
 }//end namespace cass
 
-
-
-//----function definition-------
-//-----------Anode Layer--------
-inline
-void cass::ACQIRIS::AnodeLayer::loadSettings(CASSSettings *p,const char * layername)
-{
-  VERBOSEOUT(std::cerr <<"Anode Layer load parameters: loading  for layer \""<<layername<<"\""
-      <<" of detector " << p->group().toStdString()<<std::endl);
-  p->beginGroup(layername);
-  _tsLow  = p->value("LowerTimesumConditionLimit",0.).toDouble();
-  _tsHigh = p->value("UpperTimesumConditionLimit",20000.).toDouble();
-  _sf     = p->value("Scalefactor",0.5).toDouble();
-  _wireend['1'].loadSettings(p,"One");
-  _wireend['2'].loadSettings(p,"Two");
-  p->endGroup();
-  VERBOSEOUT(std::cout <<"Anode Layer load parameters: done loading"<<std::endl);
-}
-
-
-//-----------Detector--------
-inline
-void cass::ACQIRIS::DelaylineDetector::loadSettings(CASSSettings *p)
-{
-  VERBOSEOUT(std::cout<< "Delayline Detector load parameters: loading "<<_name
-      <<"'s parameters. It is a "
-      <<((_delaylinetype==Hex)?"Hex-":"Quad-")<<"Detector"
-      <<std::endl);
-  //load the parameters for this detector//
-  p->beginGroup(_name.c_str());
-  _runtime      = p->value("Runtime",150).toDouble();
-  _mcpRadius    = p->value("McpRadius",44.).toDouble();
-  _angle        = p->value("Angle",0.).toDouble()*3.1415/180.;
-  _mcp.loadSettings(p,"MCP");
-//  analyzerType =
-//      static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
-  VERBOSEOUT(std::cout <<"Delayline Detector load parameters: loaded analyzer type:"<<_analyzerType
-      <<" should be "<<DelaylineSimple
-      <<std::endl);
-  //load parameters depending on which analyzer you use to analyze this detector//
-//  switch(_analyzerType)
-//  {
-//  case DelaylineSimple :
-//    VERBOSEOUT(std::cout << "Delayline Detector load parameters: "
-//        <<"we use Delayline Simple to analyze us"
-//        <<std::endl);
-//    _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
-//    break;
-//  default:
-//    _deadMcp      = p->value("DeadTimeMcp",10.).toDouble();
-//    _deadAnode    = p->value("DeadTimeAnode",10.).toDouble();
-//    _wLayerOffset = p->value("WLayerOffset",0.).toDouble();
-//    break;
-//  }
-  //add and load layers according the the delayline type//
-  switch (_delaylinetype)
-  {
-  case Hex:
-    _anodelayers['U'].loadSettings(p,"ULayer");
-    _anodelayers['V'].loadSettings(p,"VLayer");
-    _anodelayers['W'].loadSettings(p,"WLayer");
-    break;
-  case Quad:
-    _anodelayers['X'].loadSettings(p,"XLayer");
-    _anodelayers['Y'].loadSettings(p,"YLayer");
-    break;
-  default:
-    throw std::invalid_argument("delayline type does not exist");
-    break;
-  }
-  p->endGroup();
-  VERBOSEOUT(std::cout << "Delayline Detector load parameters: done loading "<<_name
-             << "'s parameters"
-             <<std::endl);
-}
 
 #endif
 
