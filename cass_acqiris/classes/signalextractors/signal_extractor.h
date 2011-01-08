@@ -22,30 +22,49 @@ namespace cass
   {
     /** Base class for classes that extract Signals from recorded data
      *
+     * All classes that want to extract signals from the data, should inherit
+     * from this class. This classes operator will be called by the signal
+     * producers, that want to have theier singals extracted from the data.
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT SignalExtractor
     {
     public:
-      /** virtual destructor*/
+      /** virtual destructor */
       virtual ~SignalExtractor(){}
 
-      /** pure virtual function stub for all analyzers extract signals form the
-       * CASSEvent.
+      /** retrieve signals from data
+       *
+       * extract signals form the CASSEvent. Needs to be implemented by the
+       * classes that inerhit from this.
        *
        * @return reference of the input result container
        * @param[in] sig this is the container for the results
        */
       virtual SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig) = 0;
 
-      /** associate the event with this analyzer */
+      /** associate the event with this analyzer
+       *
+       * @param evt the event the singals are extracted from
+       */
       virtual void associate(const CASSEvent& evt)=0;
 
-      /** load the settings of the extractor */
-      virtual void loadSettings(CASSSettings&)=0;
+      /** load the settings of the extractor
+       *
+       * @param s the CASSSettings object to retrieve the information from.
+       */
+      virtual void loadSettings(CASSSettings &s)=0;
 
-      /** creates an instance of the requested extractor type */
-      static SignalExtractor* instance(SignalExtractorType);
+      /** creates an instance of the requested extractor type
+       *
+       * this static member will create an instance of the requested type, which
+       * is a class that inherits from this.
+       *
+       * @return pointer to the instance of the requested type
+       * @param type The type of signal extractor that the user requests
+       */
+      static SignalExtractor* instance(SignalExtractorType type);
     };
   }//end namespace acqiris
 }//end namespace cass
