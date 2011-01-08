@@ -34,7 +34,8 @@ SOURCES += ./acqiris_converter.cpp \
     ./classes/signalextractors/cfd.cpp \
     ./classes/detector_analyzer/detector_analyzer_backend.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
-    ./classes/momenta_calculators/momenta_calculator.cpp
+    ./classes/momenta_calculators/momenta_calculator.cpp \
+    ./classes/momenta_calculators/spectrometer.cpp
 HEADERS += ./acqiris_converter.h \
     ./cass_acqiris.h \
     ./acqiris_device.h \
@@ -57,6 +58,5 @@ HEADERS += ./acqiris_converter.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
     ./classes/momenta_calculators/spectrometer.h \
     ./classes/momenta_calculators/momenta_calculator.h
-
 headers.files = $$HEADERS
 INSTALLS += target
