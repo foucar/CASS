@@ -239,32 +239,24 @@ namespace cass
 Particle::~Particle()
 {
   delete _isParticleHit;
+  delete _calc_detplane;
+  delete _calc_tof;
 }
 
 void Particle::loadSettings(CASSSettings& s)
 {
+  _spectrometer.loadSettings(s);
+  _charge_au = s.value("Charge",1).toDouble();
+  _mass_au = s.value("Mass",1).toDouble();
+  if (!(_mass_au == 1 && s.group()=="H"))
+    _mass_au *= 1836.15;
   delete _isParticleHit;
   IsParticleHit::ConditionType condtype
       (static_cast<IsParticleHit::ConditionType>(s.value("ConditionType",IsParticleHit::tofcond).toInt()));
   _isParticleHit = IsParticleHit::instance(condtype);
   _isParticleHit->loadSettings(s);
-
-//	fCondRad	= pi.GetPosFlag() ? TMath::Max(pi.GetCondWidthX(),pi.GetCondWidthY()) : pi.GetCondRad();
-//	fCondRadX	= pi.GetCondRadX();
-//	fCondRadY	= pi.GetCondRadY();
-//	fCondWidthX	= pi.GetCondWidthX();
-//	fCondWidthY	= pi.GetCondWidthY();
-//	fPosFlag	= pi.GetPosFlag();
-//	fAngle		= pi.GetAngle()*TMath::DegToRad();
-//	fXcor		= pi.GetXcor();
-//	fYcor		= pi.GetYcor();
-//	fSfx		= pi.GetSfx();
-//	fSfy		= pi.GetSfy();
-//	fT0			= pi.GetT0();
-//	fMass_au	= pi.GetMass_amu()*MyUnitsConv::amu2au();
-//	fCharge_au	= pi.GetCharge_au();
-//	fName		= pi.GetName();
-//	fSp			= pi.GetSpectrometer();
+  delete _calc_detplane;
+  delete _calc_tof;
 }
 
 particleHits_t& Particle::hits()
