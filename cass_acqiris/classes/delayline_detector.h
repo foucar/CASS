@@ -72,7 +72,7 @@ namespace cass
        */
       void associate(const CASSEvent &evt);
 
-      /** retrieve the wireends */
+      /** return the wireends */
       wireends_t  &wireends()  {return _wireends;}
 
     private:
