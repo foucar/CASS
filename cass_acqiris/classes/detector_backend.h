@@ -57,6 +57,14 @@ namespace cass
       /** clear the detector data */
       virtual void clear()=0;
 
+      /** create an instance of the requested dectortype
+       *
+       * @return an instance of the the requested detector type.
+       * @param dettype type that the detector should have
+       * @param detname the name of the detector in the .ini file
+       */
+      static DetectorBackend* instance(const DetectorType &dettype, const std::string &detname);
+
     protected:
       /** the name of the detector. used for casssettings group*/
       std::string _name;
