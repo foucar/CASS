@@ -70,7 +70,8 @@ namespace cass
     public:
       bool operator()(const detectorHit_t &dethit) const
       {
-        return  (_tofcond.first < dethit["time"] && dethit["time"] < _tofcond.second);
+        std::cout <<"TofCond(): cond low'"<<_tofcond.first<<"' high '"<<_tofcond.second<<"' time '"<<dethit["t"]<<"'"<<std::endl;
+        return  (_tofcond.first < dethit["t"] && dethit["t"] < _tofcond.second);
       }
 
       void loadSettings(CASSSettings &s)
@@ -106,8 +107,8 @@ namespace cass
     public:
       bool operator()(const detectorHit_t &dethit) const
       {
-        const double &x (dethit["x_mm"]);
-        const double &y (dethit["y_mm"]);
+        const double &x (dethit["x"]);
+        const double &y (dethit["y"]);
         const double rad = sqrt(x*x + y*y);
         return (rad < _maxradius);
       }
@@ -146,8 +147,8 @@ namespace cass
     public:
       bool operator()(const detectorHit_t &dethit) const
       {
-        const double &x (dethit["x_mm"]);
-        const double &y (dethit["y_mm"]);
+        const double &x (dethit["x"]);
+        const double &y (dethit["y"]);
         const bool checkX(_xrange.first < x && x < _xrange.second);
         const bool checkY(_yrange.first < y && y < _yrange.second);
         return (checkX && checkY);
@@ -289,15 +290,19 @@ particleHits_t& Particle::hits()
 {
   if (!_listIsCreated)
   {
+    std::cout << "particleHits::hits(): create list"<<std::endl;
     using namespace std;
     const IsParticleHit &isParticleHit (*_isParticleHit);
     const MomentumCalculator &calcpxpy (*_calc_detplane);
     const MomentumCalculator &calcpz (*_calc_tof);
     _listIsCreated = true;
     detectorHits_t & detectorhits (_detector->hits());
+    std::cout << "particleHits::hits(): #dethits "<<detectorhits.size()<<std::endl;
     detectorHits_t::iterator dethit (detectorhits.begin());
     for (; dethit != detectorhits.end(); ++dethit)
     {
+      std::cout << "particleHits::hits(): check if particle hit "<<std::boolalpha<<isParticleHit(*dethit)<<std::endl;
+
       if (isParticleHit(*dethit))
       {
         particleHit_t hit(_copyandcorrect(*dethit));
