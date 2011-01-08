@@ -68,12 +68,7 @@ namespace cass
       {}
 
       /** copy constructor */
-      SignalProducer(const SignalProducer& rhs)
-        :_goodHit(rhs._goodHit),
-         _signalextractor(rhs._signalextractor),
-         _signals(rhs._signals),
-         _newEventAssociated(rhs._newEventAssociated)
-      {}
+      SignalProducer(const SignalProducer& rhs);
 
       /** destructor
        *
