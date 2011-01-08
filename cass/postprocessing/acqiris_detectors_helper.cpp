@@ -69,25 +69,16 @@ HelperAcqirisDetectors::~HelperAcqirisDetectors()
 
 DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
 {
-  //lock this so that only one helper will retrieve the detector at a time//
   QMutexLocker lock(&_helperMutex);
-  //find the pair containing the detector//
   detectorList_t::iterator it =
     std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
-  //check wether id is not already on the list//
   if(_detectorList.end() == it)
   {
-    //take the last element and get the the detector from it//
     DetectorBackend* det (_detectorList.back().second);
-    //copy the information of our detector to this detector//
     det->associate(evt);
-    //create a new key from the id with the reloaded detector
     detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
-    //put it to the beginning of the list//
     _detectorList.push_front(newPair);
-    //erase the outdated element at the back//
     _detectorList.pop_back();
-    //make the iterator pointing to the just added element of the list//
     it = _detectorList.begin();
   }
   return it->second;

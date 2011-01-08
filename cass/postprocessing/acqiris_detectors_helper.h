@@ -66,8 +66,7 @@ namespace cass
 
       /** retrieve detector for event
        *
-       * after validating that the event for this detector exists, return the
-       * detector from our list
+       * this just calls validate(). See validate() for further information
        *
        * @return pointer to the detector that contains the data related to the
        *         requested event
@@ -84,11 +83,19 @@ namespace cass
        */
       void loadSettings(size_t i=0);
 
-      /** validation of event.
+      /** validate that this event has been associated with the detector.
        *
-       * validate whether we have already seen this event
-       * if not than add a detector, that is copy constructed or
-       * assigned from the detector this instance owns, to the list.
+       * This function will lock, so that it can be consecutivly called by
+       * different threads.\n
+       * Check if the event is already associated with one of the detectors in
+       * the detector list. If so just return the pointer to the detector that
+       * is associated with this event.\n
+       * If not then take the detector of the last element  in the _detectorList
+       * and call its associate() member with this event. Then create a new
+       * element to be put into the _detectorList, where the key of the element
+       * is the id of the event and the value is the pointer to the detector,
+       * that we associated with this event. Put the newly created element in
+       * the beginning of the _detectorList and erase the last element.
        *
        * @return the pointer to this detector
        * @param evt the cass event to validate
