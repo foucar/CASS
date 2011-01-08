@@ -47,7 +47,7 @@ namespace cass
       virtual DetectorBackend& operator= (const DetectorBackend& rhs);
 
       /** operator that will calculate everything from the event for this detector */
-      virtual void operator() (const Device& device) {(*_analyzer)(*this,device);}
+      virtual void operator() (const Device& device) {/*(*_analyzer)(*this,device);*/}
 
       /** load the values from cass.ini */
       virtual void loadSettings(CASSSettings *p);
