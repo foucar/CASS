@@ -42,7 +42,8 @@ namespace cass
        /** the delay of the cfd*/
        int32_t _delay;
 
-       /** the fraction of the cfd*/
+       /** the fraction of the cfd*/file:///home/lutz/sources/diode-git/LCLS/pdsdata/xtc/DetInfo.hh
+
        double _fraction;
 
        /** the walk of the cfd* (in V)*/
@@ -66,10 +67,10 @@ namespace cass
      *
      * @cassttng .../ConstantFraction/{AcqirisInstrument}\n
      *           Acqiris Instrument that this channel is in:
-     *           - 2:
-     *           - 4:
-     *           - 5:
-     *           - 8: CAMP
+     *           - 0: Camp (Acqiris Multiinstrument with 5 Cards (20 Channels))
+     *           - 1: AMO I-ToF
+     *           - 2: AMO Magnetic Bottle
+     *           - 3: AMO Gas Detector
      * @cassttng .../ConstantFraction/{ChannelNumber} \n
      *           Channel within the instrument (starts counting from 0)
      * @cassttng .../ConstantFraction/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
@@ -99,15 +100,30 @@ namespace cass
 
       /** extract signals form the CASSEvent
        *
+       * Calls cfd to extract the Signal from _chan. For details how see cfd.
+       *
        * @return reference of the input result container
        * @param[in] sig this is the container for the results
        */
       SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
 
-      /** associate the event with this analyzer */
+      /** associate the event with this analyzer
+       *
+       * Extracts a pointer the channel for which we are there for from the
+       * event with the help of extractRightChannel.
+       *
+       * @param evt The event from which we get the pointer to the channel.
+       */
       void associate(const CASSEvent& evt);
 
-      /** load the settings of the extractor */
+      /** load the settings of the extractor
+       *
+       * Calls the loadSettings implementation to retrieve all information to be
+       * able extract the signals from _channel. And to be able to extract the
+       * right channel from the events in associate().
+       *
+       * @param s the CASSSettings object to retrieve the information from
+       */
       void loadSettings(CASSSettings&);
 
     private:

@@ -27,6 +27,9 @@ namespace cass
     {
       /** Implematation of Constant Fraction Method
        *
+       * @todo add detailed describtion of how the constant fraction algorithm
+       *       works
+       *
        * @tparam T type of a wavform point
        * @param[in] c the channel that contains the waveform to analyze
        * @param[in] param the user defined parameters for extracting signal in the
@@ -177,6 +180,21 @@ namespace cass
         }
       }
 
+      /** implementation of loading settings for both CFD classes
+       *
+       * this function implements the retrieval of the settings for the CFD
+       * singal extractors. For a description on the settings see decription of
+       * CFD8Bit class.\n
+       * It opens the group "ContantFraction" and retrieves the settings for the
+       * CFD algorithm from the CASSSettings object.
+       *
+       * @param[in] s the CASSSettings object we retrieve the information from
+       * @param[out] p the container for the Constant Fraction Parameters
+       * @param [out] instrument the instrument that contains the channel the
+       *              constant fraction signal extractor should anlyze.
+       * @param [out] channelNbr the channel number of the channel that conatins
+       *              the singals that this extractor should extract.
+       */
       void loadSettings(CASSSettings &s,CFDParameters &p, Instruments &instrument, size_t & channelNbr)
       {
         s.beginGroup("ConstantFraction");
