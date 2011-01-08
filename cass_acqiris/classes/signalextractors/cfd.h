@@ -140,7 +140,7 @@ namespace cass
 
     /** Finds signals in a 16 bit waveform.
      *
-     * Member description is the same as in the 8 Bit verison. @see class CoM8Bit
+     * Member description is the same as in the 8 Bit version. @see class CFD8Bit
      *
      * @author Lutz Foucar
      */
