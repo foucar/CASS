@@ -7,6 +7,7 @@
  */
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 #include "histo_updater.h"
 
@@ -35,6 +36,6 @@ void HistogramUpdater::autoUpdate(double freq)
 
 void HistogramUpdater::updateHistograms()
 {
-
+  std::cout << "do update"<<std::endl;
 }
 
