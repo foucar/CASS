@@ -13,7 +13,6 @@
 
 #include "histo_updater.h"
 
-HistogramUpdater *gHistUpdater(0);
 /** main function
  *
  * @author Lutz Foucar
@@ -24,7 +23,7 @@ int main(int argc, char *argv[])
   TRint theApp("App", &argc, argv);
 	//gROOT->ProcessLine(".L OnlineMacros.c");
   auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("daq-amo-mon02",12321));
-  gHistUpdater = histUp.get();
+  histUp->autoUpdate(3);
   theApp.Run();
 	return 0;
 }
