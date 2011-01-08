@@ -297,18 +297,19 @@ particleHits_t& Particle::hits()
     const MomentumCalculator &calcpz (*_calc_tof);
     _listIsCreated = true;
     detectorHits_t & detectorhits (_detector->hits());
-    std::cout << "particleHits::hits(): #dethits "<<detectorhits.size()<<std::endl;
+//    std::cout << "particleHits::hits(): #dethits "<<detectorhits.size()<<std::endl;
     detectorHits_t::iterator dethit (detectorhits.begin());
     for (; dethit != detectorhits.end(); ++dethit)
     {
-      std::cout << "particleHits::hits(): check if particle hit "<<std::boolalpha<<isParticleHit(*dethit)<<std::endl;
-
+//      std::cout << "particleHits::hits(): check if particle hit "<<std::boolalpha<<isParticleHit(*dethit)<<std::endl;
       if (isParticleHit(*dethit))
       {
         particleHit_t hit(_copyandcorrect(*dethit));
         calcpxpy(*this,hit);
         calcpz(*this,hit);
         kartesian2polar(hit);
+        hit["e_au"] = hit["roh"]*hit["roh"] / (2.*_mass_au);
+        hit["e_eV"] = 27.2*hit["e_au"];
         _particlehits.push_back(hit);
       }
     }
