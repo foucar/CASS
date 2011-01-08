@@ -68,7 +68,7 @@ namespace cass
       }
       const Channel &channel (instrumentChannels[ChannelNumber]);
       const WaveformAnalyzers &analyzertype (signal.analyzerType());
-      (*waveformanalyzers[analyzertype])(channel,signal);
+//      (*waveformanalyzers[analyzertype])(channel,signal);
     }
 
     /** find the boundaries for sorting.
