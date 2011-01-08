@@ -19,8 +19,6 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-//#include "cass_acqiris.h"
-
 namespace cass
 {
   class CASSEvent;
@@ -28,28 +26,6 @@ namespace cass
   namespace ACQIRIS
   {
     class DetectorBackend;
-
-    /** predicate class for find_if.
-     *
-     * this helps finding the right key in the list of pairs
-     * @see HelperAcqirisDetectors::_detectorList
-     *
-     * @author Lutz Foucar
-     */
-    class IsKey
-    {
-    public:
-      /** initialize the key in the constructor*/
-      IsKey(const uint64_t key):_key(key){}
-
-      /** compares the first element of the pair to the key*/
-      bool operator()(const std::pair<uint64_t,DetectorBackend*>& p)const
-      { return (p.first == _key); }
-
-    private:
-      /** the key that we will compare to in the operator*/
-      const uint64_t _key;
-    };
 
     /** Helper for Acqiris related Postprocessors.
      *

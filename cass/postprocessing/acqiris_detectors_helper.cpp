@@ -13,6 +13,7 @@
 #include "cass_event.h"
 #include "detector_backend.h"
 #include "detector_analyzer_backend.h"
+#include "convenience_functions.h"
 
 using namespace cass::ACQIRIS;
 
