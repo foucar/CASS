@@ -37,8 +37,8 @@ namespace cass
       /** virtual destructor*/
       virtual ~DelaylineDetectorAnalyzerBackend() {}
 
-      /** create the list of detector hits */
-      virtual void operator()(DetectorBackend&,const Device&)=0;
+//      /** create the list of detector hits */
+//      virtual void operator()(DetectorBackend&,const Device&)=0;
     };
   }//end namespace acqiris
 }//end namespace cass
