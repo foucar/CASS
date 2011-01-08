@@ -29,11 +29,11 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT WaveformAnalyzerBackend
+    class CASS_ACQIRISSHARED_EXPORT SignalExtractor
     {
     public:
       /** virtual destructor*/
-      virtual ~WaveformAnalyzerBackend(){}
+      virtual ~SignalExtractor(){}
 
       /** pure virtual function stub for all analyzers extract signals form the
        * CASSEvent.
@@ -45,7 +45,12 @@ namespace cass
 
       /** associate the event with this analyzer */
       virtual void associate(const CASSEvent& evt)=0;
+
+      /** creates an instance of the requested analyzer type */
+      static SignalExtractor* instance(SignalExtractorType);
     };
   }//end namespace acqiris
 }//end namespace cass
+
+
 #endif
