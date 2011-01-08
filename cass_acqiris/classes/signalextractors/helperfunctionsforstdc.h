@@ -23,10 +23,29 @@ namespace cass
   {
     /** extracts the requested channel from the data
      *
+     * @note this function is just a template function because the compiler
+     *       will give errors when its a regular function. This can be avoided
+     *       by making this a functor struct or class.
+     *
+     * retrieve the Acqiris device from the CASSEvent. Then check if the device
+     * contains the requested instruemnt. If not throw an invalid_argument
+     * exception.\n
+     * If the requested instruement exists, check if it contains the requested
+     * channelnumber by checking how many channels it has. If it contains the
+     * channel return a pointer to it. If the channel number is bigger than the
+     * number of channels in the instrument, throw an invalid_argument exception.
+     *
+     * @return const pointer to the channel we need to extract
+     * @param evt the CASSEvent wich contains the channel we want to extract
+     * @param instrument the instrument that contains the channel
+     * @param ChannelNumber the channel number of the requested channel
+     *
      * @author Lutz Foucar
      */
     template <typename T>
-    const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t ChannelNumber)
+    const Channel* extactRightChannel(const CASSEvent &evt,
+                                      const Instruments& instrument,
+                                      const size_t& ChannelNumber)
     {
       /** @todo add check to see whether the device is present */
       const Device &device
