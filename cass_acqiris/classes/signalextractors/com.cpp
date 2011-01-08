@@ -15,6 +15,7 @@
 #include "channel.h"
 #include "signal_producer.h"
 
+using namespace cass::ACQIRIS;
 
 //______________________Implementation of simple Version__________________________________________________________
 template <typename T>
@@ -129,13 +130,34 @@ template <typename T>
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CoM8Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+SignalProducer::signals_t& CoM8Bit::operator()(SignalProducer::signals_t& sig);
 {
-  com<char>(c,r);
+//  com<char>(c,r);
 }
+
+void CoM8Bit::loadSettings(CASSSettings &)
+{
+
+}
+
+void CoM8Bit::associate(const CASSEvent &evt)
+{
+
+}
+
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CoM16Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+SignalProducer::signals_t& CoM16Bit::operator()(SignalProducer::signals_t& sig);
 {
-  com<short>(c,r);
+//  com<short>(c,r);
+}
+
+void CoM16Bit::loadSettings(CASSSettings &)
+{
+
+}
+
+void CoM16Bit::associate(const CASSEvent &evt)
+{
+
 }
