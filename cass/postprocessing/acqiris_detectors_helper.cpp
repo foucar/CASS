@@ -17,15 +17,13 @@
 #include "cfd.h"
 #include "cass_settings.h"
 
+using namespace cass::ACQIRIS;
 
 //initialize static members//
-cass::ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t
-    cass::ACQIRIS::HelperAcqirisDetectors::_instances;
-QMutex cass::ACQIRIS::HelperAcqirisDetectors::_mutex;
+HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
+QMutex HelperAcqirisDetectors::_mutex;
 
-cass::ACQIRIS::HelperAcqirisDetectors*
-    cass::ACQIRIS::HelperAcqirisDetectors::instance
-    (cass::ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type dettype)
+HelperAcqirisDetectors* HelperAcqirisDetectors::instance(helperinstancesmap_t::key_type dettype)
 {
   //lock this//
   QMutexLocker lock(&_mutex);
@@ -44,13 +42,12 @@ cass::ACQIRIS::HelperAcqirisDetectors*
 void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
 {
   QMutexLocker lock(&_mutex);
-  std::map<ACQIRIS::Detectors,HelperAcqirisDetectors*>::iterator itdm
-      (_instances.begin());
+  helperinstancesmap_t::iterator itdm(_instances.begin());
   for (;itdm!=_instances.end();++itdm)
     delete itdm->second;
 }
 
-cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Detectors dettype)
+HelperAcqirisDetectors::HelperAcqirisDetectors(helperinstancesmap_t::key_type dettype)
 {
   VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: we are responsible for det type "<<dettype
              <<", which name is ");
@@ -104,7 +101,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   }
 }
 
-cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
+HelperAcqirisDetectors::~HelperAcqirisDetectors()
 {
   for (detectorList_t::iterator it=_detectorList.begin();
        it != _detectorList.end();
@@ -112,7 +109,7 @@ cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
     delete it->second;
 }
 
-void cass::ACQIRIS::HelperAcqirisDetectors::loadSettings(size_t)
+void HelperAcqirisDetectors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): loading parameters of detector "<< _detector->name()<<std::endl);
   CASSSettings par;
