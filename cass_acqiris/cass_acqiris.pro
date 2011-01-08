@@ -10,34 +10,32 @@ target.path = $$INSTALLBASE/lib
 QT -= core \
     gui
 DEFINES += CASS_ACQIRIS_LIBRARY
-INCLUDEPATH += \
-    ../cass \
+INCLUDEPATH += ../cass \
     ./classes \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
     . \
     ../LCLS
-DEPENDPATH += \
-    ../cass \
+DEPENDPATH += ../cass \
     ./classes \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
     .
 SOURCES += \
-    acqiris_converter.cpp \
-    acqiris_device.cpp \
+    ./acqiris_converter.cpp \
+    ./acqiris_device.cpp \
     ./classes/signal_producer.cpp \
+    ./classes/delayline_detector.cpp \
+    ./classes/detector_backend.cpp \
+    ./classes/tof_detector.cpp \
     ./classes/signalextractors/signal_extractor.cpp \
     ./classes/signalextractors/com.cpp \
     ./classes/signalextractors/cfd.cpp \
-    ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
-    ./classes/detector_backend.cpp \
-    ./classes/tof_detector.cpp
-
+    ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp
 HEADERS += \
-    acqiris_converter.h \
-    cass_acqiris.h \
-    acqiris_device.h \
+    ./acqiris_converter.h \
+    ./cass_acqiris.h \
+    ./acqiris_device.h \
     ../cass/analysis_backend.h \
     ../cass/conversion_backend.h \
     ../cass/device_backend.h \
