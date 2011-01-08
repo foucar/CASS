@@ -23,7 +23,13 @@ namespace cass
     /** a region of a spectrometer
      *
      * this class defines a region of a REMI type spectrometer (Spectrometer)
-     * It has a length and a electric field strength
+     * It has a length and a electric field strength.
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Spectrometer/Regions/\%regionindex\%/{Length}}\n
+     *           The length of the spectrometer region in mm. Default is 10.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Spectrometer/Regions/\%regionindex\%/{EField}}\n
+     *           The strength of the electric field in the spectrometer region
+     *           in \f$\frac{V}{cm}\f$. Default is 10.
      *
      * @author Lutz Foucar
      */
@@ -45,7 +51,7 @@ namespace cass
     private:
       /** the length of the spectrometer region in mm */
       double _length;
-      /** the electric field strength inside this region in \frac{V}{cm} */
+      /** the electric field strength inside this region in \f$\frac{V}{cm}\f$ */
       double _efield;
     };
 
@@ -57,6 +63,17 @@ namespace cass
      * pointing and how strong it is. The latter can be measured by the cyclotron
      * period of the electrons and the former by the rotation direction of the
      * electrons.
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Spectrometer/{BFieldIsOn}}\n
+     *           Flag to tell whether a magnetic field is present in the
+     *           spectrometer. Default is false
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Spectrometer/{RotationClockwise}}\n
+     *           Flag to tell in which direction the magentic field is pointing
+     *           This can be told by telling in which way the electrons rotate.
+     *           If they rotate clockwise this should be true. Default is true.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Spectrometer/{CyclotronPeriode}}\n
+     *           The time it takes for an electron to make a complete rotation
+     *           in the magnetic field in ns. Default is 10
      *
      * @author Lutz Foucar
      */
