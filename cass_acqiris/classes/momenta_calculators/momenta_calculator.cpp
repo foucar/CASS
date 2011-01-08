@@ -205,52 +205,62 @@ namespace cass
      * are more than two spectrometer regions through which the particle is
      * flying.
      *
-     * @return the momentum along the time of flight axis in atomic units
-     * @param
+     * We have measured the time of flight of the particle, what we need to find
+     * out is to which initial momentum does this time of flight fit. Since we
+     * have a function that will calculate the time of flight for a given intial
+     * velocity, we can now use this function and vary the intial velocity so long
+     * until the measured time of flight is the same as the calculated time of
+     * flight for a chosen velocity.\n
+     * Our initail guess for the velocity is the velocity the particle would
+     * have, when there is only one spectrometer region. So first calculate the
+     * velocity for when only the first region of the spectrometer would exist.
+     * Then calculate the tof for this velocity and find the next step of the
+     * iteration using Newtons Approximation. This means that we calculate the
+     * slope of the function at the current position. The next iteration is where
+     * the linear function with the slope crosses the right fx0. Do this until
+     * the time of flight is close to the one we measured. Then calculate the
+     * momentum of particle whos velocity gave the right time of flight.
+     *
+     * @return the momentum along the time of flight axis in atomic units only
+     *         the tof_ns parameter is non negative. When it is negative return
+     *         a high number (1e15)
+     * @param tof_ns the time of flight of the hit in ns
+     * @param mass_au the mass of the particle in atomic units
+     * @param charge_au the charge of the particle in atomic units
+     * @param spectrometer the spectrometer through which the particle is flying
      *
      * @author Lutz Foucar
      */
     double getZMomIter(double tof_ns, double mass_au, double charge_au, const Spectrometer &spectrometer)
     {
-      //when a negative time was given return immediatly because there will be no good solution//
-      if (tof_ns < 0) return 1e15;
-
+      //when a negative time was given return because there will be no good
+      //solution
+      if (tof_ns < 0)
+        return 1e15;
       const double eField_Vpcm (spectrometer.GetSpectrometerRegions()[0].EField_Vpcm());
       const double length_mm (spectrometer.GetSpectrometerRegions()[0].Length_mm());
-      //calculate the acceleration from the E-field in the region, charge and mass of the particle//
-      double a = eField_Vpcm * charge_au/mass_au * UnitConvertion::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
-
-      //--iterativly find the right v_mmns to get the right tof_ns--//
-      //--we have a function t(v), but we want the inverse of the function v(t)--//
-      //--since this cannot be done we have to find the right v iterativly--//
-      //--so we have a function f(x) (t(v)) with the function value fx0 (t) at point x0 (v)--//
-      //--we don't know which x0 (v) will give us the fx0 (t) that we want--//
-      //--that means we have to iterate x0 until fx0 is the same that we want--//
-
+      //calculate the acceleration from the E-field in the region, charge and
+      //mass of the particle
+      double a (eField_Vpcm * charge_au/mass_au * UnitConvertion::VPcm2mmPns());
       //begin with a v when there would be only one Region//
-      double x0  = length_mm/tof_ns - 0.5*a*tof_ns;
-      double fx0 = evalFunc(x0,mass_au,charge_au,spectrometer);
-
+      double x0  (length_mm/tof_ns - 0.5*a*tof_ns);
+      double fx0 (evalFunc(x0,mass_au,charge_au,spectrometer));
       //use Newtons Approximation//
       while(abs(fx0 - tof_ns) > 0.01)
       {
-        //we need to find the slope of the function at point x0 therefore we need//
-        //a second point which is close to x0//
-        double x1  = 1.1 * x0;
-        double fx1 = evalFunc(x1,mass_au,charge_au,spectrometer);
-
+        //we need to find the slope of the function at point x0 therefore we need
+        //a second point which is close to x0
+        double x1 (1.1 * x0);
+        double fx1 (evalFunc(x1,mass_au,charge_au,spectrometer));
         //calculate the slope//
-        double m = (fx0-fx1)/(x0-x1);
-
-        //the next starting point is the point where the slopeline crosses the wanted fx0 value//
+        double m ((fx0-fx1)/(x0-x1));
+        //the next starting point is the point where the slopeline crosses the
+        //wanted fx0 value, put damping factor of 0.7 in addition
         x0  = x0 + 0.7*(tof_ns-fx0)/m;
         fx0 = evalFunc(x0,mass_au,charge_au,spectrometer);
       }
-
-      //now calc momentum from the velocity that was found
-      double v_au = x0 * UnitConvertion::mmPns2au();				//convert mm/ns -> a.u.
-      double p_au = v_au * mass_au;		//convert velocity -> momentum
-
+      double v_au (x0 * UnitConvertion::mmPns2au());
+      double p_au (v_au * mass_au);
       return p_au;
     }
 
@@ -439,8 +449,10 @@ void MomentumCalculator::correctDetectorPlane(const detectorHit_t &dethit, parti
   particlehit["y_mm"] = dethit["y"];
   particlehit["xCor_mm"] = particlehit["x_mm"] - _pos0.first;
   particlehit["yCor_mm"] = particlehit["y_mm"] - _pos0.second;
-  particlehit["xCorRot_mm"] = (particlehit["xcor_mm"] * cos(_angle) - particlehit["ycor_mm"] * sin(_angle));
-  particlehit["yCorRot_mm"] = (particlehit["xcor_mm"] * sin(_angle) + particlehit["ycor_mm"] * cos(_angle));
+  particlehit["xCorScal_mm"] = particlehit["xCor_mm"] - _scalefactors.first;
+  particlehit["yCorScal_mm"] = particlehit["yCor_mm"] - _scalefactors.second;
+  particlehit["xCorScalRot_mm"] = (particlehit["xCorScal_mm"] * cos(_angle) - particlehit["yCorScal_mm"] * sin(_angle));
+  particlehit["yCorScalRot_mm"] = (particlehit["xCorScal_mm"] * sin(_angle) + particlehit["yCorScal_mm"] * cos(_angle));
 }
 
 void MomentumCalculator::correctTof(const detectorHit_t &dethit, particleHit_t &particlehit) const
