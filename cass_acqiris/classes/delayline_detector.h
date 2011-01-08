@@ -177,7 +177,15 @@ namespace cass
       /** return the layers */
       anodelayers_t &layers() {return _anodelayers;}
 
-      /** return the list of detector hits */
+      /** return the detector hits
+       *
+       * When a new event was associated with this detector, calling this
+       * function will first create the detector hits from the signals of the
+       * signal producers with the help of the _analyzer. When the _analyzer has
+       * already created this list, then it will be just returned.
+       *
+       * @return the list of detector hits
+       */
       hits_t &hits();
 
     private:
