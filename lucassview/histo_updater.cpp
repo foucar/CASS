@@ -29,8 +29,7 @@ void HistogramUpdater::autoUpdate(double freq)
     _timer->Stop();
   else
   {
-    int milsec (static_cast<int>(1./freq * 1.e3));
-    _timer->Start(milsec);
+    _timer->Start(static_cast<int>(1.e3/freq));
   }
 }
 
