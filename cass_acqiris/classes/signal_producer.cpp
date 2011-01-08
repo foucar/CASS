@@ -3,6 +3,8 @@
 #include "signal_producer.h"
 #include "cass_settings.h"
 
+#include "waveform_analyzer_backend.h"
+
 using namespace cass::ACQIRIS;
 
 void SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
@@ -34,7 +36,15 @@ void SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
 
 SignalProducer::signals_t& SignalProducer::output()
 {
-//  return (_newEventAssociated)? _signalextractor(_signals):_signals;
+  bool newEventAssociated (_newEventAssociated);
+  _newEventAssociated = false;
+//  return (newEventAssociated)? _signalextractor(_signals):_signals;
+}
+
+void SignalProducer::associate(const CASSEvent &evt)
+{
+ _newEventAssociated = true;
+ _signalextractor->associate(evt);
 }
 
 double SignalProducer::firstGood() const

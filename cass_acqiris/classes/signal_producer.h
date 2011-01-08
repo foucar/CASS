@@ -16,7 +16,6 @@
 #include <string>
 
 #include "cass_acqiris.h"
-#include "results_backend.h"
 #include "peak.h"
 
 namespace cass
@@ -24,9 +23,11 @@ namespace cass
   //forward declaration
   class CASSSettings;
 
+  class CASSEvent;
+
   namespace ACQIRIS
   {
-    class SignalExtractor;
+    class WaveformAnalyzerBackend;
 
     /** Functor returning whether Peak is in Range.
      *
@@ -107,7 +108,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT SignalProducer : public ResultsBackend
+    class CASS_ACQIRISSHARED_EXPORT SignalProducer
     {
     public:
       typedef std::vector<std::map<std::string,double> > signals_t;
@@ -139,6 +140,9 @@ namespace cass
        * containing this class
        */
       void loadSettings(CASSSettings *p, const char * signalname);
+
+      /** assciate the event with this signalproducer */
+      void associate(const CASSEvent& evt);
 
     public:
       /** convience for easier readable code, is a vector of Peak*/
@@ -255,10 +259,13 @@ namespace cass
       mutable bool _isNewEvent;
 
       /** the extractor of the produced signals */
-      SignalExtractor * _signalextractor;
+      WaveformAnalyzerBackend * _signalextractor;
 
       /** the signals produces by this producer */
       signals_t _signals;
+
+      /** flag to show whether there is a new event associated whith this signal producer */
+      bool _newEventAssociated;
     };
   }//end namespace acqiris
 }//end namespace cass
