@@ -17,6 +17,7 @@
 #include "cass_acqiris.h"
 #include "tof_detector.h"
 #include "signal_producer.h"
+#include "map.hpp"
 
 namespace cass
 {
@@ -199,8 +200,8 @@ namespace cass
 
 
     public:
-      /** a vector of detector hits are the detector hits */
-      typedef std::vector<DelaylineDetectorHit> dethits_t;
+      typedef Map<std::string,double> hit_t;
+      typedef std::vector<hit_t> hits_t;
 
       /** a map of anodelayers */
       typedef std::map<char,AnodeLayer> anodelayers_t;
@@ -228,7 +229,7 @@ namespace cass
 
     public:
       /** return the list of detector hits */
-      dethits_t &hits();
+      hits_t &hits();
 
     public:
       //@{
@@ -292,7 +293,7 @@ namespace cass
       anodelayers_t _anodelayers;
 
       /** constainer for all reconstructed detector hits*/
-      dethits_t _hits;
+      hits_t _hits;
 
       /** the analyzer that will sort the signal to hits */
       DetectorAnalyzerBackend * _analyzer;

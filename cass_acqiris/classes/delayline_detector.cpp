@@ -93,7 +93,7 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
   //  _angle        = s.value("Angle",0.).toDouble()*3.1415/180.;
 }
 
-DelaylineDetector::dethits_t& DelaylineDetector::hits()
+DelaylineDetector::hits_t& DelaylineDetector::hits()
 {
   bool newEventAssociated (_newEventAssociated);
   _newEventAssociated = false;
