@@ -80,7 +80,7 @@ DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
     //take the last element and get the the detector from it//
     DetectorBackend* det (_detectorList.back().second);
     //copy the information of our detector to this detector//
-    det->associate(&evt);
+    det->associate(evt);
     //create a new key from the id with the reloaded detector
     detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
     //put it to the beginning of the list//
@@ -96,12 +96,12 @@ DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
 void HelperAcqirisDetectors::loadSettings(size_t)
 {
   VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): loading parameters of detector "<< _detector->name()<<std::endl);
-  CASSSettings par;
-  par.beginGroup("AcqirisDetectors");
+  CASSSettings s;
+  s.beginGroup("AcqirisDetectors");
 
   for (detectorList_t::iterator it=_detectorList.begin();
        it != _detectorList.end();
        ++it)
-    it->second->loadSettings(&par);
+    it->second->loadSettings(s);
   VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): done loading for "<< _detector->name()<<std::endl);
 }
