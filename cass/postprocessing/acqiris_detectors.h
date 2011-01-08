@@ -437,7 +437,7 @@ namespace cass
    *             - X: X-Layer
    *             - Y: Y-Layer
    * @cassttng PostProcessor/\%name\%/{SecondLayer}\n
-   *           The anode layer of the second coordinate. Default is V. Options are:
+   *           The anode layer of the second coordinate. Default is U. Options are:
    *           - for HexDetector
    *             - U: U-Layer
    *             - V: V-Layer
@@ -665,6 +665,124 @@ namespace cass
     /** The second detector of the cooincdence*/
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector02;
   };
+
+
+
+
+
+
+
+  /** Particle value.
+   *
+   * retrieve one particle property from a Particle that belong to a detector.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the first detector that we work on. Default is "blubb"
+   * @cassttng PostProcessor/\%name\%/{Particle}\n
+   *           Name of the particle whos properties we want to extract
+   *           Default is "NeP"
+   * @cassttng PostProcessor/\%name\%/{Property}\n
+   *           Name of the particles first property we want to extract
+   *           Default is "px"
+   *
+   * @author Lutz Foucar
+   */
+  class pp250 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp250(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void process(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+
+    /** the particle we are working on */
+    ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
+
+    /** the property of the particle that we want to retrieve */
+    ACQIRIS::particleHit_t::key_type _property;
+  };
+
+
+
+
+
+
+
+
+
+  /** Particle value.
+   *
+   * create 2d hist of two particle properties from a Particle that belong to a
+   * detector.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal and cass::ACQIRIS::Particle
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the detector that the particles belong to.
+   *           Default is "blubb"
+   * @cassttng PostProcessor/\%name\%/{Particle}\n
+   *           Name of the particle whos properties we want to extract
+   *           Default is "NeP"
+   * @cassttng PostProcessor/\%name\%/{FirstProperty}\n
+   *           Name of the particles first property we want to extract
+   *           Default is "px"
+   * @cassttng PostProcessor/\%name\%/{SecondProperty}\n
+   *           Name of the particles second property we want to extract
+   *           Default is "py"
+   *
+   * @author Lutz Foucar
+   */
+  class pp251 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp251(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void process(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+
+    /** the particle we are working on */
+    ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
+
+    /** the first property of the particle that we want to retrieve */
+    ACQIRIS::particleHit_t::key_type _property01;
+
+    /** the second property of the particle that we want to retrieve */
+    ACQIRIS::particleHit_t::key_type _property02;
+  };
+
+
+
+
 
 
 
