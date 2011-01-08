@@ -59,7 +59,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case HexDetector:
     {
       VERBOSEOUT(std::cout <<"HexDetector"<<std::endl);
-      _detector = new DelaylineDetector(Hex,"HexDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex,"HexDetector")));
     }
@@ -67,7 +66,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case QuadDetector:
     {
       VERBOSEOUT(std::cout <<"QuadDetector"<<std::endl);
-      _detector = new DelaylineDetector(Quad,"QuadDetector");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad,"QuadDetector")));
     }
@@ -75,7 +73,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case VMIMcp:
     {
       VERBOSEOUT(std::cout <<"VMIMcp"<<std::endl);
-      _detector = new TofDetector("VMIMcp");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
     }
@@ -83,7 +80,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case FELBeamMonitor:
     {
       VERBOSEOUT(std::cout <<"Beamdump"<<std::endl);
-      _detector = new TofDetector("FELBeamMonitor");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("FELBeamMonitor")));
     }
@@ -91,7 +87,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case YAGPhotodiode:
     {
       VERBOSEOUT(std::cout <<"YAGPhotodiode"<<std::endl);
-      _detector = new TofDetector("YAGPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("YAGPhotodiode")));
     }
@@ -99,7 +94,6 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
   case FsPhotodiode:
     {
       VERBOSEOUT(std::cout <<"FsPhotodiode"<<std::endl);
-      _detector = new TofDetector("FsPhotodiode");
       for (size_t i=0; i<NbrOfWorkers*2;++i)
         _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
     }
@@ -110,13 +104,10 @@ cass::ACQIRIS::HelperAcqirisDetectors::HelperAcqirisDetectors(cass::ACQIRIS::Det
 
 cass::ACQIRIS::HelperAcqirisDetectors::~HelperAcqirisDetectors()
 {
-  //delete the detectorList
   for (detectorList_t::iterator it=_detectorList.begin();
        it != _detectorList.end();
        ++it)
     delete it->second;
-  //delete the detector
-  delete _detector;
 }
 
 void cass::ACQIRIS::HelperAcqirisDetectors::loadSettings(size_t)

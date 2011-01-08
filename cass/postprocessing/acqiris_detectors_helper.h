@@ -141,9 +141,6 @@ namespace cass
        */
       detectorList_t _detectorList;
 
-      /** the detector that is belongs to this instance of the helper*/
-      DetectorBackend *_detector;
-
     private:
       /** prevent people from constructin other than using instance().*/
       HelperAcqirisDetectors() {}
