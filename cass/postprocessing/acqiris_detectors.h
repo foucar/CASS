@@ -857,6 +857,47 @@ namespace cass
 
 
 
+  /** Number of particles found per shot.
+   *
+   * To set up the channel assignment for the requested detector one needs to set
+   * up the detector parameters.
+   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::Signal
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the first detector that we work on. Default is "blubb"
+   * @cassttng PostProcessor/\%name\%/{Particle}\n
+   *           Name of the particle whos properties we want to extract
+   *           Default is "NeP"
+   *
+   * @author Lutz Foucar
+   */
+  class pp252 : public PostprocessorBackend
+  {
+  public:
+    /** Constructor for Number of Signals*/
+    pp252(PostProcessors&, const PostProcessors::key_t&);
+
+    /** Retrieve the number of Signals and histogram it */
+    virtual void process(const CASSEvent&);
+
+    /** load the histogram settings from file*/
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** The detector we are there for*/
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+
+    /** the particle we are working on */
+    ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
+  };
+
+
 
 
 }//end cass

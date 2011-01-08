@@ -312,10 +312,10 @@ void cass::pp160::loadSettings(size_t)
   _detector = loadDelayDet(settings,160,_key);
   _layer = loadLayer(settings,_detector,"Layer",160,_key);
   _signal = loadWireend(settings,"Wireend",160,_key);
-  _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
+  _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   cout <<endl<< "PostProcessor '"<<_key
       <<"' outputs the nbr of signals of layer '"<<_layer
@@ -885,3 +885,48 @@ void cass::pp251::process(const cass::CASSEvent &evt)
   }
   _result->lock.unlock();
 }
+
+
+
+
+//----------------Number of Particles---------------------------------------------
+cass::pp252::pp252(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key)
+
+{
+  loadSettings(0);
+}
+
+void cass::pp252::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = loadDelayDet(settings,252,_key);
+  _particle = settings.value("Particle","NeP").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' outputs how many particles were found for '"<<_particle
+      <<"' of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp252::process(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Particle & particle (det->particles()[_particle]);
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(particle.hits().size());
+  _result->lock.unlock();
+}
+
