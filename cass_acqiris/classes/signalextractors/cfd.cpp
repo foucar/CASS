@@ -18,7 +18,7 @@ using namespace cass::ACQIRIS;
 //________________________________Implematation of Constant Fraction Method______________________________________________________
 //________________this will be a thread that is waiting for Pulses to be added to a queue________________________________________
 template <typename T>
-void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
+void cfd(const Channel& c, const CoMParameters &param, SignalProducer::signals_t& sig)
 {
   using namespace cass::ACQIRIS;
   //make sure that we are the right one for the waveform_t//
