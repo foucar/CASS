@@ -86,9 +86,9 @@ namespace cass
     void getDetPlaneMomenta(double x_mm, double y_mm, double tof_ns, const Particle& particle,
                             double &px_au, double &py_au)
     {
-      const double tgyr_ns (particle.spectrometer().CyclotronPeriod_ns());
+      const double tgyr_ns (particle.spectrometer().cyclotronPeriod_ns());
       const double mass_au (particle.mass_au());
-      const bool rotationClockwise (particle.spectrometer().RotationClockWise());
+      const bool rotationClockwise (particle.spectrometer().rotationClockWise());
       //--convert everything to a.u.--//
       const double tgyr_au (tgyr_ns * UnitConvertion::ns2au());
       const double x_au (x_mm * UnitConvertion::mm2au());
@@ -151,7 +151,7 @@ namespace cass
     double getZMom(double tof_ns, double mass_au, double charge_au, const SpectrometerRegion &sr)
     {
       double a (sr.EField_Vpcm() * charge_au/mass_au * UnitConvertion::VPcm2mmPns());
-      double v (sr.Length_mm()/tof_ns - 0.5*a*tof_ns);
+      double v (sr.length_mm()/tof_ns - 0.5*a*tof_ns);
       double v_au (v * UnitConvertion::mmPns2au());
       double p_au (v_au * mass_au);
       return p_au;
@@ -174,12 +174,12 @@ namespace cass
     {
       double tges=0;
       double v = v0;
-      const SpecRegions &sr (spec.GetSpectrometerRegions());
+      const Spectrometer::regions_t &sr (spec.regions());
       for (size_t nReg=0; nReg<sr.size(); ++nReg)
       {
         //calculate the accereration from the E-field in the region, charge and mass of the particle//
         double a = sr[nReg].EField_Vpcm() * charge_au/mass_au * UnitConvertion::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
-        double s = sr[nReg].Length_mm();											//the length of this region in mm
+        double s = sr[nReg].length_mm();											//the length of this region in mm
 
         //calc how long one particle will fly with the given initial velocity//
         double tt=0;
@@ -238,8 +238,8 @@ namespace cass
       //solution
       if (tof_ns < 0)
         return 1e15;
-      const double eField_Vpcm (spectrometer.GetSpectrometerRegions()[0].EField_Vpcm());
-      const double length_mm (spectrometer.GetSpectrometerRegions()[0].Length_mm());
+      const double eField_Vpcm (spectrometer.regions()[0].EField_Vpcm());
+      const double length_mm (spectrometer.regions()[0].length_mm());
       //calculate the acceleration from the E-field in the region, charge and
       //mass of the particle
       double a (eField_Vpcm * charge_au/mass_au * UnitConvertion::VPcm2mmPns());
@@ -509,7 +509,7 @@ void PxPyCalculatorWithBField::operator ()(const detectorHit_t &dethit, const Pa
 void PzCalculatorDirectOneRegion::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
 {
   correctTof(dethit,particlehit);
-  particlehit["pz"] = getZMom(particlehit["tofCor_ns"], particle.mass_au(), particle.charge_au(), particle.spectrometer().GetSpectrometerRegions()[0]);
+  particlehit["pz"] = getZMom(particlehit["tofCor_ns"], particle.mass_au(), particle.charge_au(), particle.spectrometer().regions()[0]);
 }
 
 void PzCalculatorMulitpleRegions::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
