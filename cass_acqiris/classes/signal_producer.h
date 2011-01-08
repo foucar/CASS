@@ -128,7 +128,7 @@ namespace cass
        * since they have to be loaded by loadSettings from cass.ini
        */
       SignalProducer()
-        :_signalextractor(0)
+        :_signalextractor(0),_newEventAssociated(false)
       {}
 
     public:
