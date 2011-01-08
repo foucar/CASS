@@ -15,7 +15,7 @@
 
 #include "map.hpp"
 #include "delayline_detector.h"
-#include "momenta_calculator.h"
+#include "spectrometer.h"
 
 namespace cass
 {
@@ -24,6 +24,7 @@ namespace cass
   namespace ACQIRIS
   {
     class IsParticleHit;
+    class MomentumCalculator;
 
     /** A Particle
      *
@@ -77,6 +78,15 @@ namespace cass
        */
       void associate(detectorHits_t * dethits);
 
+      /** retrive the spectormeter */
+      const Spectrometer& spectrometer()const {return _spectrometer;}
+
+      //@{
+      /** retrieve the particle properties */
+      double mass_au()const   {return _mass_au;}
+      double charge_au()const {return _charge_au;}
+      //@}
+
     private:
       /** the list of particle hits */
       particleHits_t _particlehits;
@@ -90,8 +100,20 @@ namespace cass
       /** identifer for checking detectorhit is a particle hit */
       IsParticleHit *_isParticleHit;
 
-      /** functor for calculating momenta of a particle hit */
-      MomentumCalculator _momcalc;
+      /** calculate momenta along the detector plane of a particle hit */
+      MomentumCalculator *_calc_detplane;
+
+      /** calculat momenta along the ToF direction of a particle hit */
+      MomentumCalculator *_calc_tof;
+
+      /** the spectrometer of this particle */
+      Spectrometer _spectrometer;
+
+      /** the Mass of this Particle in atomic units */
+      double _mass_au;
+
+      /** the charge of this Particle in atomic units */
+      double _charge_au;
 
 //    public:
 //      //checks//

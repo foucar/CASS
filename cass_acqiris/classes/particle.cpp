@@ -273,13 +273,17 @@ particleHits_t& Particle::hits()
   {
     using namespace std;
     const IsParticleHit &isParticleHit (*_isParticleHit);
+    const MomentumCalculator &calcpxpy (*_calc_detplane);
+    const MomentumCalculator &calcpz (*_calc_tof);
     _listIsCreated = true;
     detectorHits_t::iterator dethit (_detectorhits->begin());
     for (; dethit != _detectorhits->end(); ++dethit)
     {
       if (isParticleHit(*dethit))
       {
-        particleHit_t hit (_momcalc(*dethit));
+        particleHit_t hit;
+        calcpxpy(*dethit,*this,hit);
+        calcpz(*dethit,*this,hit);
         kartesian2polar(hit);
         _particlehits.push_back(hit);
       }
