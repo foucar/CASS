@@ -89,14 +89,14 @@ namespace cass
               signal["startpos"] = startpos;
               signal["stoppos"]  = i-1;
 
-//              //--height stuff--//
-//              maximum<T>(c,p);
-//
-//              //--fwhm stuff--//
-//              fwhm<T>(c,p);
-//
-//              //--center of mass stuff--//
-//              CoM<T>(c,p,static_cast<const int32_t>(threshold));
+              //--height stuff--//
+              maximum<T>(c,signal,param._threshold);
+
+              //--fwhm stuff--//
+              fwhm<T>(c,signal,param._threshold);
+
+              //--center of mass stuff--//
+              CoM<T>(c,signal,param._threshold);
 
               //--Time is the Center of Mass--//
               signal["time"] = signal["com"];
