@@ -187,17 +187,51 @@ void cass::pp160::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
+  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
+      _layer != 'X' && _layer != 'Y')
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
+    throw invalid_argument(ss.str());
+  }
+  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
+  {
+    if (_layer == 'X' || _layer == 'Y')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
+  else
+  {
+    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
   _signal = settings.value("Wireend","1").toString()[0].toAscii();
+  if (_signal != '1' && _signal != '2')
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Wireend '"<<_signal<<"' does not exist";
+    throw invalid_argument(ss.str());
+  }
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_signal != '1' && _signal != '2')
-    throw std::runtime_error("pp160::loadSettings(): Wireend is not set up correctly");
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-    throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
   cout <<endl<< "PostProcessor '"<<_key
@@ -238,29 +272,64 @@ cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp161::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
+  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
+      _layer != 'X' && _layer != 'Y')
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
+    throw invalid_argument(ss.str());
+  }
+  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
+  {
+    if (_layer == 'X' || _layer == 'Y')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
+  else
+  {
+    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
   _signal = settings.value("Wireend","1").toString()[0].toAscii();
+  if (_signal != '1' && _signal != '2')
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Wireend '"<<_signal<<"' does not exist";
+    throw invalid_argument(ss.str());
+  }
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_signal != '1' && _signal != '2')
-    throw std::runtime_error("pp161::loadSettings(): Wireend is not set up correctly");
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-    throw std::runtime_error("pp161::loadSettings(): Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": histograms the FWHM vs the height of layer "<<_layer
-      << " wireend "<<_signal
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout <<endl<< "PostProcessor '"<<_key
+      <<"' histograms the FWHM vs the height from the signals of layer '"<<_layer
+      <<"' wireend '"<<_signal
+      <<"' of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp161::process(const cass::CASSEvent &evt)
