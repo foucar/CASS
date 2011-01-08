@@ -26,7 +26,7 @@ void Spectrometer::loadSettings(CASSSettings &s, const Particle& p)
   s.endArray();
   _BFieldIsOn = s.value("BFieldIsOn",false).toBool();
   _cyclotronPeriod = s.value("CyclotronPeriode",10).toDouble();
-  _cyclotronPeriod *= (p.mass_au() / p.charge_au());
+  _cyclotronPeriod *= (p.mass_au() / abs(p.charge_au()));
   _rotationClockwise = s.value("RotationClockwise",true).toBool();
   s.endGroup();
 }
