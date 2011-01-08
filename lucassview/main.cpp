@@ -1,23 +1,23 @@
-//#include <TRint.h>
-//#include <TROOT.h>
-//#include "../MyClient/MyClient.h"
-//#include "../MySettings/MySettings.h"
+//Copyright (C) 2011 Lutz Foucar
+
+/**
+ * @file main.cpp file the main function of lucassview
+ *
+ * @author Lutz Foucar
+ */
+#include <TRint.h>
+#include <TROOT.h>
 #include <iostream>
 #include <string>
 
-//void initializeSettings(MySettings&);
+/** main function
+ *
+ * @author Lutz Foucar
+ */
 int main(int argc, char *argv[])
 {
-//	TRint theApp("App", &argc, argv);
-	
-  //MySettings set(false);
-  //initializeSettings(set);
-  //MyClient c(set);
-
+  TRint theApp("App", &argc, argv);
 	//gROOT->ProcessLine(".L OnlineMacros.c");
-
-//	theApp.Run();
-
-
+  theApp.Run();
 	return 0;
 }
