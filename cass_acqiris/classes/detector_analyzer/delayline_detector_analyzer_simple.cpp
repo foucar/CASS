@@ -166,69 +166,6 @@ namespace cass
         return std::make_pair(v+w, 1./std::sqrt(3) * (w-v));
       }
     };
-
-    class RotateX
-    {
-    public:
-      RotateX(const double &angle)
-        : _sinangle(sin(angle*3.14/180.)),
-          _cosangle(cos(angle*3.14/180.))
-      {}
-      detectorHit_t & operator()(detectorHit_t & hit)const
-      {
-        hit["x_rot"]	= ( _cosangle*hit["x"] + _sinangle*hit["y"] );
-        return hit;
-      }
-    private:
-      double _sinangle;
-      double _cosangle;
-    };
-    class RotateY
-    {
-    public:
-      RotateY(const double &angle)
-        : _sinangle(sin(angle*3.14/180.)),
-          _cosangle(cos(angle*3.14/180.))
-      {}
-      detectorHit_t& operator()(detectorHit_t & hit)const
-      {
-        hit["y_rot"]	= (-_sinangle*hit["x"] + _cosangle*hit["y"] );
-        return hit;
-      }
-    private:
-      double _sinangle;
-      double _cosangle;
-    };
-
-    class CorrectX
-    {
-    public:
-      CorrectX(const double &cor)
-        :_cor(cor)
-      {}
-      detectorHit_t & operator()(detectorHit_t &hit)const
-      {
-        hit["x_cor"] = hit["x"] - _cor;
-        return hit;
-      }
-    private:
-      double _cor;
-    };
-
-    class CorrectY
-    {
-    public:
-      CorrectY(const double &cor)
-        :_cor(cor)
-      {}
-      detectorHit_t& operator()(detectorHit_t &hit)const
-      {
-        hit["y_cor"] = hit["y"] - _cor;
-        return hit;
-      }
-    private:
-      double _cor;
-    };
   }
 }
 
