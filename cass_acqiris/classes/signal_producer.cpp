@@ -39,12 +39,12 @@ namespace cass
 
 SignalProducer::~SignalProducer()
 {
-  delete _signalextractor;
+//  delete _signalextractor;
 }
 
 void SignalProducer::loadSettings(CASSSettings &s)
 {
-  delete _signalextractor;
+//  delete _signalextractor;
   SignalExtractorType analyzerType
       (static_cast<SignalExtractorType>(s.value("SignalExtractionMethod",com16).toInt()));
   _signalextractor = SignalExtractor::instance(analyzerType);

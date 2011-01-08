@@ -13,22 +13,24 @@
 #include "cfd.h"
 #include "com.h"
 
-cass::ACQIRIS::SignalExtractor* cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
+using namespace cass::ACQIRIS;
+using namespace std;
+auto_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
 {
-  SignalExtractor *sigextr(0);
+  auto_ptr<SignalExtractor> sigextr;
   switch(type)
   {
   case com8:
-    sigextr = new CoM8Bit();
+    sigextr = auto_ptr<SignalExtractor>(new CoM8Bit());
     break;
   case com16:
-    sigextr = new CoM16Bit();
+    sigextr = auto_ptr<SignalExtractor>(new CoM16Bit());
     break;
   case cfd8:
-    sigextr = new CFD8Bit();
+    sigextr = auto_ptr<SignalExtractor>(new CFD8Bit());
     break;
   case cfd16:
-    sigextr = new CFD16Bit();
+    sigextr = auto_ptr<SignalExtractor>(new CFD16Bit());
     break;
   default:
     throw std::invalid_argument("SignalExtractor::instance: no such SignalExtractor type");

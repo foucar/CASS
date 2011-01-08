@@ -67,7 +67,19 @@ namespace cass
         :_signalextractor(0),_newEventAssociated(false)
       {}
 
-      /** destroys the signalextractor */
+      /** copy constructor */
+      SignalProducer(const SignalProducer& rhs)
+        :_goodHit(rhs._goodHit),
+         _signalextractor(rhs._signalextractor),
+         _signals(rhs._signals),
+         _newEventAssociated(rhs._newEventAssociated)
+      {}
+
+      /** destructor
+       *
+       * empty but needs to be here, because of the construction of the
+       * std::auto_ptr.
+       */
       ~SignalProducer();
 
     public:
@@ -125,12 +137,8 @@ namespace cass
       /** time of the first peak in the "good" range*/
       double _goodHit;
 
-      /** the extractor of the produced signals
-       *
-       * @note we cannot use std::auto_ptr to handle this resource, since we then
-       *       cannot put this class in a map anymore.
-       */
-      SignalExtractor *_signalextractor;
+      /** the extractor of the produced signals */
+      mutable std::auto_ptr<SignalExtractor> _signalextractor;
 
       /** the signals produces by this producer */
       signals_t _signals;
