@@ -340,3 +340,16 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //std::cout <<"DelaylineDetectorAnalyzerSimple:"<<d.hits().size()<<std::endl;
   //std::cout << "DelaylineDetectorAnalyzerSimple: leaving"<<std::endl;
 }
+
+void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::DetectorBackend& det,const cass::ACQIRIS::Device& dev)
+{
+//  std::cout <<"ToFAnalyzerSimple: entering"<<std::endl;
+  //do a type conversion to have a delayline detector//
+  TofDetector &d = dynamic_cast<TofDetector&>(det);
+
+  //extract the peaks for the signals of the detector from the channels//
+  //check whether the requested channel does exist//
+  //first retrieve the right Instruments / Channels for the signals
+  Signal & MCP (d.mcp());
+  DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
+}

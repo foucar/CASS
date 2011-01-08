@@ -53,6 +53,36 @@ namespace cass
       std::pair<DelaylineDetector::anodelayers_t::key_type,DelaylineDetector::anodelayers_t::key_type> _usedLayers;
     };
 
+    /** Simple Tof Analyzer.
+     *
+     * will just take an event and feed it to the right waveform analyzer
+     *
+     * @note might not be needed anymore, once the list of peaks
+     *       is created by the Signal itself
+     *
+     * @author Lutz Foucar
+     */
+    class CASS_ACQIRISSHARED_EXPORT ToFAnalyzerSimple
+      : public DetectorAnalyzerBackend
+    {
+    public:
+      /** constructor.
+       * @param[in] waveformanalyzer reference to the waveformanalyzer
+       *            container
+       */
+      ToFAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
+        :DetectorAnalyzerBackend(waveformanalyzer)
+      {VERBOSEOUT(std::cout << "adding simple tof detector analyzer"<<std::endl);}
+
+      /** analyze the ToF Detector.
+       *
+       * @return void
+       * @param det The ToF Detector that we want to analyze
+       * @param dev The Acqiris Device from the CASSEvent
+       */
+      virtual void operator()(DetectorBackend&det,const Device&dev);
+    };
+
   }//end namespace acqiris
 }//end namespace cass
 
