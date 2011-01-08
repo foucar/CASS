@@ -19,7 +19,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
-#include "cass_acqiris.h"
+//#include "cass_acqiris.h"
 
 namespace cass
 {
