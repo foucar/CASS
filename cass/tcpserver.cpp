@@ -174,9 +174,11 @@ int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 /*ev
     static QQueue<std::pair<size_t, std::string> *> queue;
     try {
         // get data
+//      std::cout << "CASSsoapService::getHistogram(): get hist"<<std::endl;
         cass::SoapServer *server(cass::SoapServer::instance());
         std::pair<size_t, std::string> *data(
             new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
+//        std::cout << "CASSsoapService::getHistogram(): got  hist"<<std::endl;
         // MIME type
         std::string mimetype;
         switch(data->first) {
