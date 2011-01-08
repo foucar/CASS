@@ -87,13 +87,7 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
     signals_t &sigs (output());
 //    cout<< "size "<<sigs.size()<<endl;
     signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
-    if (sigIt != sigs.end())
-    {
-//      cout <<"found one"<<endl;
-      _goodHit = (*sigIt)["time"];
-    }
-    else
-      _goodHit=0;
+    _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
   }
   return _goodHit;
 }
