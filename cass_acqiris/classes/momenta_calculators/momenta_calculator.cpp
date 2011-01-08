@@ -432,6 +432,36 @@ namespace cass
 //______________________________________________________________________________
 using namespace cass::ACQIRIS;
 
+void HitCorrector::loadSettings(CASSSettings &s)
+{
+  using namespace std;
+  s.beginGroup("Corrections");
+  _t0 = s.value("T0",0).toDouble();
+  _pos0 = make_pair(s.value("CorrectX",0).toDouble(),
+                    s.value("CorrectY",0).toDouble());
+  _scalefactors = make_pair(s.value("ScaleX",1).toDouble(),
+                            s.value("ScaleY",1).toDouble());
+  _angle = s.value("Angle",0).toDouble();
+  _angle = _angle *Pi()/180.;
+  s.endGroup();
+}
+
+particleHit_t HitCorrector::operator()(const detectorHit_t &dethit) const
+{
+  particleHit_t particlehit;
+  particlehit["x_mm"] = dethit["x"];
+  particlehit["y_mm"] = dethit["y"];
+  particlehit["tof_ns"] = dethit["t"];
+  particlehit["xCor_mm"] = particlehit["x_mm"] - _pos0.first;
+  particlehit["yCor_mm"] = particlehit["y_mm"] - _pos0.second;
+  particlehit["xCorScal_mm"] = particlehit["xCor_mm"] - _scalefactors.first;
+  particlehit["yCorScal_mm"] = particlehit["yCor_mm"] - _scalefactors.second;
+  particlehit["xCorScalRot_mm"] = (particlehit["xCorScal_mm"] * cos(_angle) - particlehit["yCorScal_mm"] * sin(_angle));
+  particlehit["yCorScalRot_mm"] = (particlehit["xCorScal_mm"] * sin(_angle) + particlehit["yCorScal_mm"] * cos(_angle));
+  particlehit["tofCor_ns"] = particlehit["tof_ns"] - _t0;
+  return particlehit;
+}
+
 MomentumCalculator* MomentumCalculator::instance(const MomCalcType &type)
 {
   MomentumCalculator *momcalc(0);
@@ -456,64 +486,30 @@ MomentumCalculator* MomentumCalculator::instance(const MomCalcType &type)
   return momcalc;
 }
 
-void MomentumCalculator::loadSettings(CASSSettings &s)
+particleHit_t&  PxPyCalculatorWithoutBField::operator()(const Particle &particle, particleHit_t& particlehit)const
 {
-  using namespace std;
-  s.beginGroup("Corrections");
-  _t0 = s.value("T0",0).toDouble();
-  _pos0 = make_pair(s.value("CorrectX",0).toDouble(),
-                    s.value("CorrectY",0).toDouble());
-  _scalefactors = make_pair(s.value("ScaleX",1).toDouble(),
-                            s.value("ScaleY",1).toDouble());
-  _angle = s.value("Angle",0).toDouble();
-  _angle = _angle *Pi()/180.;
-  s.endGroup();
-}
-
-void MomentumCalculator::correctDetectorPlane(const detectorHit_t &dethit, particleHit_t &particlehit) const
-{
-  particlehit["x_mm"] = dethit["x"];
-  particlehit["y_mm"] = dethit["y"];
-  particlehit["xCor_mm"] = particlehit["x_mm"] - _pos0.first;
-  particlehit["yCor_mm"] = particlehit["y_mm"] - _pos0.second;
-  particlehit["xCorScal_mm"] = particlehit["xCor_mm"] - _scalefactors.first;
-  particlehit["yCorScal_mm"] = particlehit["yCor_mm"] - _scalefactors.second;
-  particlehit["xCorScalRot_mm"] = (particlehit["xCorScal_mm"] * cos(_angle) - particlehit["yCorScal_mm"] * sin(_angle));
-  particlehit["yCorScalRot_mm"] = (particlehit["xCorScal_mm"] * sin(_angle) + particlehit["yCorScal_mm"] * cos(_angle));
-}
-
-void MomentumCalculator::correctTof(const detectorHit_t &dethit, particleHit_t &particlehit) const
-{
-  particlehit["tof_ns"] = dethit["t"];
-  particlehit["tofCor_ns"] = particlehit["tof_ns"] - _t0;
-}
-
-void PxPyCalculatorWithoutBField::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
-{
-  correctDetectorPlane(dethit,particlehit);
-  correctTof(dethit,particlehit);
   particlehit["px"] = getDetPlaneMomentum(particlehit["xCorRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
   particlehit["py"] = getDetPlaneMomentum(particlehit["yCorRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
+  return particlehit;
 }
 
-void PxPyCalculatorWithBField::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
+particleHit_t&  PxPyCalculatorWithBField::operator()(const Particle &particle, particleHit_t& particlehit)const
 {
-  correctDetectorPlane(dethit,particlehit);
-  correctTof(dethit,particlehit);
   double &px_au (particlehit["px"]);
   double &py_au (particlehit["py"]);
   getDetPlaneMomenta(particlehit["xCorRot_mm"], particlehit["yCorRot_mm"], particlehit["tofCor_ns"], particle,
                      px_au, py_au);
+  return particlehit;
 }
 
-void PzCalculatorDirectOneRegion::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
+particleHit_t&  PzCalculatorDirectOneRegion::operator()(const Particle &particle, particleHit_t& particlehit)const
 {
-  correctTof(dethit,particlehit);
   particlehit["pz"] = getZMom(particlehit["tofCor_ns"], particle.mass_au(), particle.charge_au(), particle.spectrometer().regions()[0]);
+  return particlehit;
 }
 
-void PzCalculatorMulitpleRegions::operator ()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const
+particleHit_t&  PzCalculatorMulitpleRegions::operator()(const Particle &particle, particleHit_t& particlehit)const
 {
-  correctTof(dethit,particlehit);
   particlehit["pz"] =  getZMomIter(particlehit["tofCor_ns"], particle.mass_au(), particle.charge_au(), particle.spectrometer());
+  return particlehit;
 }

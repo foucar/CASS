@@ -246,6 +246,7 @@ Particle::~Particle()
 void Particle::loadSettings(CASSSettings& s)
 {
   _spectrometer.loadSettings(s);
+  _copyandcorrect.loadSettings(s);
   _charge_au = s.value("Charge",1).toDouble();
   _mass_au = s.value("Mass",1).toDouble();
   if (!(_mass_au == 1 && s.group()=="H"))
@@ -281,9 +282,9 @@ particleHits_t& Particle::hits()
     {
       if (isParticleHit(*dethit))
       {
-        particleHit_t hit;
-        calcpxpy(*dethit,*this,hit);
-        calcpz(*dethit,*this,hit);
+        particleHit_t hit(_copyandcorrect(*dethit));
+        calcpxpy(*this,hit);
+        calcpz(*this,hit);
         kartesian2polar(hit);
         _particlehits.push_back(hit);
       }

@@ -20,6 +20,51 @@ namespace cass
   {
     class Particle;
 
+    /** copy and correct detectorhit properties
+     *
+     * copy the position and time value from the detectorhit and then correct
+     * those values.
+     *
+     * @author Lutz Foucar
+     */
+    class HitCorrector
+    {
+    public:
+      /** load the settings
+       *
+       * load the correction factors from the .ini file
+       *
+       * @param s the CASSSettings object to read the information from
+       */
+      void loadSettings(CASSSettings &s);
+
+      /** correct the position in the detector plane
+       *
+       * Create a particlehit.
+       * Then copy the position and the time from the dethit to the particlehit.
+       * Then correct this position, then scale the correted postion and finaly
+       * rotate the corrected scaled positition around the given angle.
+       * Then substract _t0 form the time of the detectorhit
+       *
+       * @param[in] dethit the detector hit to correct
+       * @param[out] particlehit this is where the correct position goes
+       */
+      particleHit_t operator()(const detectorHit_t &dethit)const;
+
+    private:
+      /** the correction factor of the time of flight */
+      double _t0;
+
+      /** the correction of the position */
+      std::pair<double,double> _pos0;
+
+      /** the correction of the scale */
+      std::pair<double,double> _scalefactors;
+
+      /** the angle to rotate the position */
+      double _angle;
+    };
+
     /** base class for calculating momenta from a detector hit
      *
      * @author Lutz Foucar
@@ -41,15 +86,7 @@ namespace cass
        *                     calculated from
        * @param[out] particlehit the particle hit that contains all momenta
        */
-      virtual void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const=0;
-
-      /** load the settings
-       *
-       * load the correction factors from the .ini file
-       *
-       * @param s the CASSSettings object to read the information from
-       */
-      void loadSettings(CASSSettings &s);
+      virtual particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const=0;
 
       /** create instance of requested type
        *
@@ -60,39 +97,6 @@ namespace cass
        */
       static MomentumCalculator* instance(const MomCalcType &type);
 
-    protected:
-      /** correct the position in the detector plane
-       *
-       * First copy the position from the dethit, then correct this position,
-       * then scale the correted postion and finaly rotate the corrected scaled
-       * positition around the given angle.
-       *
-       * @param[in] dethit the detector hit to correct
-       * @param[out] particlehit this is where the correct position goes
-       */
-      void correctDetectorPlane(const detectorHit_t &dethit, particleHit_t& particlehit)const;
-
-      /** correct the time of flight
-       *
-       * after copying the time of the detector hit substract _t0 from it.
-       *
-       * @param[in] dethit the detector hit to correct
-       * @param[out] particlehit this is where the correct position goes
-       */
-      void correctTof(const detectorHit_t &dethit, particleHit_t& particlehit)const;
-
-    protected:
-      /** the correction factor of the time of flight */
-      double _t0;
-
-      /** the correction of the position */
-      std::pair<double,double> _pos0;
-
-      /** the correction of the scale */
-      std::pair<double,double> _scalefactors;
-
-      /** the angle to rotate the position */
-      double _angle;
     };
 
     /** calculate px,py momenta
@@ -105,7 +109,7 @@ namespace cass
     class PxPyCalculatorWithoutBField : public MomentumCalculator
     {
     public:
-      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+      particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
     /** calculate px,py momenta
@@ -118,7 +122,7 @@ namespace cass
     class PxPyCalculatorWithBField : public MomentumCalculator
     {
     public:
-      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+      particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
     /** calculate pz momenta
@@ -132,7 +136,7 @@ namespace cass
     class PzCalculatorDirectOneRegion : public MomentumCalculator
     {
     public:
-      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+      particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
     /** calculate pz momenta
@@ -145,7 +149,7 @@ namespace cass
     class PzCalculatorMulitpleRegions : public MomentumCalculator
     {
     public:
-      void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const;
+      particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
   }
 }

@@ -16,6 +16,7 @@
 #include "map.hpp"
 #include "delayline_detector.h"
 #include "spectrometer.h"
+#include "momenta_calculator.h"
 
 namespace cass
 {
@@ -105,8 +106,11 @@ namespace cass
       /** calculate momenta along the detector plane of a particle hit */
       MomentumCalculator *_calc_detplane;
 
-      /** calculat momenta along the ToF direction of a particle hit */
+      /** calculate momenta along the ToF direction of a particle hit */
       MomentumCalculator *_calc_tof;
+
+      /** copy and correction of the detectorhit */
+      HitCorrector _copyandcorrect;
 
       /** the spectrometer of this particle */
       Spectrometer _spectrometer;
