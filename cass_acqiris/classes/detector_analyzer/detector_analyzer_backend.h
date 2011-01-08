@@ -24,11 +24,6 @@ namespace cass
 
     /** Base class for all detector analyzers.
      *
-     * @note we won't need a base class, since when we calc the values
-     *       of all detectors lazyly they could have their own functions.
-     *       Then one would only have to have a base class once there
-     *       are several ways of analyzing the detector
-     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
