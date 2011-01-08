@@ -842,48 +842,42 @@ cass::pp251::pp251(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp251::loadSettings(size_t)
 {
-//  using namespace cass::ACQIRIS;
-//  using namespace std;
-//  CASSSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(_key.c_str());
-//  _detector = loadDelayDet(settings,166,_key);
-//  _first = settings.value("XInput",'x').toString().toStdString();
-//  _second = settings.value("YInput",'y').toString().toStdString();
-//  _third =  settings.value("ConditionInput",'t').toString().toStdString();
-//  _cond = make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
-//                        settings.value("ConditionHigh",50000.).toFloat()),
-//                    max(settings.value("ConditionLow",-50000.).toFloat(),
-//                        settings.value("ConditionHigh",50000.).toFloat()));
-//  setupGeneral();
-//  if (!setupCondition())
-//    return;
-//  set2DHist(_result,_key);
-//  createHistList(2*cass::NbrOfWorkers);
-//  cout<<endl<< "PostProcessor '"<<_key
-//      <<"' histograms the Property '"<<_second
-//      <<"' vs. '"<<_first
-//      <<"' of the reconstructed detectorhits of detector '"<<_detector
-//      <<"'. It puts a condition from '"<<_cond.first
-//      <<"' to '"<<_cond.second
-//      <<"' on Property '"<< _third
-//      <<"'. Condition is '"<<_condition->key()<<"'"
-//      <<endl;
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = loadDelayDet(settings,251,_key);
+  _particle = settings.value("Particle","NeP").toString().toStdString();
+  _property01 = settings.value("FirstProperty","px").toString().toStdString();
+  _property02 = settings.value("SecondProperty","py").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms the Property '"<<_property02
+      <<"' vs. '"<<_property01
+      <<"' of the particle '"<<_particle
+      <<"' of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp251::process(const cass::CASSEvent &evt)
 {
-//  using namespace cass::ACQIRIS;
-//  using namespace std;
-//  DelaylineDetector *det
-//      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-//  detectorHits_t::iterator it (det->hits().begin());
-//  _result->clear();
-//  _result->lock.lockForWrite();
-//  for (; it != det->hits().end(); ++it)
-//  {
-//    if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
-//      dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_first],(*it)[_second]);
-//  }
-//  _result->lock.unlock();
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Particle & particle (det->particles()[_particle]);
+  particleHits_t::iterator it (particle.hits().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it != particle.hits().end(); ++it)
+  {
+    dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_property01],(*it)[_property02]);
+  }
+  _result->lock.unlock();
 }
