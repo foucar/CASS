@@ -45,10 +45,10 @@ namespace cass
       //@}
       //@{
       /** SI Units -> Atomic Units */
-      inline double mm2au()     {return 1/au2mm();}
-      inline double ns2au()     {return 1/au2ns();}
-      inline double mmPns2au()  {return 1/au2mmPns();}
-      inline double kg2au()     {return 1/au2kg();}
+      inline double mm2au()     {return 1./au2mm();}
+      inline double ns2au()     {return 1./au2ns();}
+      inline double mmPns2au()  {return 1./au2mmPns();}
+      inline double kg2au()     {return 1./au2kg();}
       //@}
       /** convert V/cm * C[a.u.]/M[a.u] to mm/ns^2 */
       inline double VPcm2mmPns()  {return 0.17588201489603770767263287993687e-1;}
