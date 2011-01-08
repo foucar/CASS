@@ -43,8 +43,14 @@ namespace cass
       /** virtual destructor*/
       virtual ~DetectorBackend() {}
 
-      /** pure virtual function that will load the detector parameters from cass.ini*/
-      virtual void loadSettings(CASSSettings&)=0;
+      /** load the settings of the detector
+       *
+       * load the settings from the .ini file. Needs to be implemented by the
+       * the detector that inherits from this.
+       *
+       * @param s reference to the CASSSettings object
+       */
+      virtual void loadSettings(CASSSettings &s)=0;
 
       /** associate the event with this detector (get the data from this event) */
       virtual void associate(const CASSEvent&)=0;
