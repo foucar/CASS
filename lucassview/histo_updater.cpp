@@ -8,11 +8,46 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
+#include <algorithm>
 
 #include "histo_updater.h"
 
 #include "tcpclient.h"
 
+namespace lucassview
+{
+  /** create the list of updateable histograms from all available keys
+   *
+   * @author Lutz Foucar
+   */
+  std::list<std::string> checkList(const std::list<std::string> &allkeys)
+  {
+    using namespace std;
+    list<string> updateList(allkeys);
+    cout << "checkList(): create the list of histograms that need to be updated"<<endl;
+    return updateList;
+  }
+
+  /** create the list of updateable histograms from all available keys
+   *
+   * @author Lutz Foucar
+   */
+  struct updateHist
+  {
+    const TCPClient &_client;
+
+    updateHist(const TCPClient &client)
+      :_client(client)
+    {}
+
+    void operator() (const std::string& key)const
+    {
+      std::cout << "updateHist(): do something to "<<key<<std::endl;
+    }
+  };
+}
 using namespace lucassview;
 
 HistogramUpdater::HistogramUpdater(const std::string &server, int port)
@@ -36,6 +71,19 @@ void HistogramUpdater::autoUpdate(double freq)
 
 void HistogramUpdater::updateHistograms()
 {
-  std::cout << "do update"<<std::endl;
+  using namespace std;
+  try
+  {
+    stringstream serveradress;
+    serveradress << _server << ":" << _port;
+    TCPClient client (serveradress.str());
+    list<string> allkeylist(client());
+    list<string> updatableHistsList(checkList(allkeylist));
+    for_each(updatableHistsList.begin(),updatableHistsList.end(), updateHist(client));
+  }
+  catch (const runtime_error &error)
+  {
+    cout << error.what()<<endl;
+  }
 }
 
