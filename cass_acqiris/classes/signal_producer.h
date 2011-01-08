@@ -64,7 +64,9 @@ namespace cass
     public:
       /** default constructor */
       SignalProducer()
-        :_signalextractor(0),_newEventAssociated(false)
+        :_goodHit(0),
+         _signalextractor(0),
+         _newEventAssociated(false)
       {}
 
       /** copy constructor
