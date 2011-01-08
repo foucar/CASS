@@ -47,57 +47,31 @@ void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
     delete itdm->second;
 }
 
-HelperAcqirisDetectors::HelperAcqirisDetectors(helperinstancesmap_t::key_type dettype)
+HelperAcqirisDetectors::HelperAcqirisDetectors(helperinstancesmap_t::key_type detname)
 {
-  VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: we are responsible for det type "<<dettype
-             <<", which name is ");
-  //create the detector
-  //create the detector list with twice the amount of elements than workers
+  CASSSettings settings;
+  settings.beginGroup(detname.c_str());
+  DetectorType dettype (static_cast<DetectorType>(settings.value("DetectorType",0).toUInt()));
+
+  VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: "
+             << "we are responsible for det "<<detname
+             << ", which name is of type " <<dettype
+             <<std::endl);
   switch(dettype)
   {
-  case HexDetector:
+  case Delayline:
     {
-      VERBOSEOUT(std::cout <<"HexDetector"<<std::endl);
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Hex,"HexDetector")));
+        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(detname)));
     }
     break;
-  case QuadDetector:
+  case ToF:
     {
-      VERBOSEOUT(std::cout <<"QuadDetector"<<std::endl);
       for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(Quad,"QuadDetector")));
+        _detectorList.push_front(std::make_pair(0,new TofDetector(detname)));
     }
     break;
-  case VMIMcp:
-    {
-      VERBOSEOUT(std::cout <<"VMIMcp"<<std::endl);
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("VMIMcp")));
-    }
-    break;
-  case FELBeamMonitor:
-    {
-      VERBOSEOUT(std::cout <<"Beamdump"<<std::endl);
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("FELBeamMonitor")));
-    }
-    break;
-  case YAGPhotodiode:
-    {
-      VERBOSEOUT(std::cout <<"YAGPhotodiode"<<std::endl);
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("YAGPhotodiode")));
-    }
-    break;
-  case FsPhotodiode:
-    {
-      VERBOSEOUT(std::cout <<"FsPhotodiode"<<std::endl);
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector("FsPhotodiode")));
-    }
-    break;
-  default: throw std::invalid_argument("HelperAcqirisDetectors::constructor: no such detector is present");
+  default: throw std::invalid_argument("HelperAcqirisDetectors::constructor: no such detector type is present");
   }
 }
 
@@ -107,6 +81,37 @@ HelperAcqirisDetectors::~HelperAcqirisDetectors()
        it != _detectorList.end();
        ++it)
     delete it->second;
+}
+
+DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
+{
+  //lock this so that only one helper will retrieve the detector at a time//
+  QMutexLocker lock(&_helperMutex);
+  //find the pair containing the detector//
+  detectorList_t::iterator it =
+    std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
+  //check wether id is not already on the list//
+  if(_detectorList.end() == it)
+  {
+    //retrieve a pointer to the acqiris device//
+    Device *dev =
+        dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
+    //take the last element and get the the detector from it//
+    DetectorBackend* det (_detectorList.back().second);
+    //copy the information of our detector to this detector//
+    det->clear();
+    //process the detector using the data in the device
+    (*det)(*dev);
+    //create a new key from the id with the reloaded detector
+    detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
+    //put it to the beginning of the list//
+    _detectorList.push_front(newPair);
+    //erase the outdated element at the back//
+    _detectorList.pop_back();
+    //make the iterator pointing to the just added element of the list//
+    it = _detectorList.begin();
+  }
+  return it->second;
 }
 
 void HelperAcqirisDetectors::loadSettings(size_t)

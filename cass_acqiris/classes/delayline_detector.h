@@ -216,15 +216,8 @@ namespace cass
        * @param[in] type the delayline type is an enum either Hex or Quad
        * @param[in] name the name of this detector
        */
-      DelaylineDetector(DelaylineType type, const std::string name)
-        :TofDetector(name),
-         _runtime(0),
-         _wLayerOffset(100),
-         _mcpRadius(0),
-         _deadMcp(1000),
-         _deadAnode(1000),
-         _layersToUse(UV),
-         _delaylinetype(type)
+      DelaylineDetector(const std::string name)
+        :TofDetector(name)
       {}
 
       /** overwritten assignment operator.

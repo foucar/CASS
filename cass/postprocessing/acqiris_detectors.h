@@ -13,6 +13,8 @@
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/backend.h"
 #include "cass_acqiris.h"
+#include "acqiris_detectors_helper.h"
+
 
 namespace cass
 {
@@ -60,7 +62,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
   };
 
 
@@ -111,7 +113,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
   };
 
 
@@ -161,7 +163,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
   };
 
 
@@ -218,7 +220,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
     char _layer;
@@ -286,7 +288,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
     char _layer;
@@ -347,7 +349,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
     char _layer;
@@ -406,7 +408,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
     char _layer;
@@ -475,7 +477,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The first layer of the detector for the position */
     char _first;
@@ -526,7 +528,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
   };
 
 
@@ -590,7 +592,7 @@ namespace cass
 
   protected:
     /** The detector we are there for*/
-    ACQIRIS::Detectors _detector;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The first value of the detector hit */
     char _first;
@@ -667,10 +669,10 @@ namespace cass
 
   protected:
     /** The first detector of the cooincdence*/
-    ACQIRIS::Detectors _detector01;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector01;
 
     /** The second detector of the cooincdence*/
-    ACQIRIS::Detectors _detector02;
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector02;
   };
 
 

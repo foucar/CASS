@@ -62,6 +62,14 @@ namespace cass
     class HelperAcqirisDetectors
     {
     public:
+      /** typedef describing the instances of the helper */
+      typedef std::map<std::string,HelperAcqirisDetectors*> helperinstancesmap_t;
+
+    protected:
+      /** typedef defining the list of detectors for more readable code*/
+      typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
+
+    public:
       /** static function creating instance of this.
        *
        * create an instance of an helper for the requested detector.
@@ -71,7 +79,7 @@ namespace cass
        *       then there would be a map for each detector.. We need to change this to
        *       let the detectors calculate the requested vaules lazly in the near future
        */
-      static HelperAcqirisDetectors * instance(Detectors);
+      static HelperAcqirisDetectors * instance(helperinstancesmap_t::key_type);
 
       /** destroy the whole helper*/
       static void destroy();
@@ -85,13 +93,6 @@ namespace cass
       /** tell the detector owned by this instance to reload its settings*/
       void loadSettings(size_t=0);
 
-    protected:
-      /** typedef defining the list of detectors for more readable code*/
-      typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
-
-      /** typedef describing the instances of the helper */
-      typedef std::map<Detectors,HelperAcqirisDetectors*> helperinstancesmap_t;
-
       /** validation of event.
        *
        * validate whether we have already seen this event
@@ -101,36 +102,7 @@ namespace cass
        * @return the pointer to this detector
        * @param evt the cass event to validate
        */
-      DetectorBackend * validate(const CASSEvent &evt)
-      {
-        //lock this so that only one helper will retrieve the detector at a time//
-        QMutexLocker lock(&_helperMutex);
-        //find the pair containing the detector//
-        detectorList_t::iterator it =
-          std::find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id()));
-        //check wether id is not already on the list//
-        if(_detectorList.end() == it)
-        {
-          //retrieve a pointer to the acqiris device//
-          Device *dev =
-              dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
-          //take the last element and get the the detector from it//
-          DetectorBackend* det (_detectorList.back().second);
-          //copy the information of our detector to this detector//
-          det->clear();
-          //process the detector using the data in the device
-          (*det)(*dev);
-          //create a new key from the id with the reloaded detector
-          detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
-          //put it to the beginning of the list//
-          _detectorList.push_front(newPair);
-          //erase the outdated element at the back//
-          _detectorList.pop_back();
-          //make the iterator pointing to the just added element of the list//
-          it = _detectorList.begin();
-        }
-        return it->second;
-      }
+      DetectorBackend * validate(const CASSEvent &evt);
 
     protected:
       /** list of pairs of id-detectors.
@@ -150,7 +122,7 @@ namespace cass
        * create our instance of the detector depending on the detector type
        * and the list of detectors.
        */
-      HelperAcqirisDetectors(Detectors);
+      HelperAcqirisDetectors(helperinstancesmap_t::key_type);
 
       /** prevent copy-construction*/
       HelperAcqirisDetectors(const HelperAcqirisDetectors&);
@@ -164,7 +136,6 @@ namespace cass
 
       /** prevent assingment */
       HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
-
 
       /** the helperclass instances.
        *

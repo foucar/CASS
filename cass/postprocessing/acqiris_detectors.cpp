@@ -43,7 +43,7 @@ void cass::pp150::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -89,7 +89,7 @@ void cass::pp151::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -139,7 +139,7 @@ void cass::pp152::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
@@ -191,7 +191,7 @@ void cass::pp160::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _signal = settings.value("Wireend","1").toString()[0].toAscii();
   _result = new Histogram0DFloat();
@@ -247,7 +247,7 @@ void cass::pp161::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _signal = settings.value("Wireend","1").toString()[0].toAscii();
   setupGeneral();
@@ -305,7 +305,7 @@ void cass::pp162::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _result = new Histogram0DFloat();
   setupGeneral();
@@ -355,7 +355,7 @@ void cass::pp163::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   setupGeneral();
   if (!setupCondition())
@@ -408,7 +408,7 @@ void cass::pp164::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _first = settings.value("FirstLayer","U").toString()[0].toAscii();
   _second = settings.value("SecondLayer","V").toString()[0].toAscii();
   setupGeneral();
@@ -481,7 +481,7 @@ void cass::pp165::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
@@ -537,7 +537,7 @@ void cass::pp166::loadSettings(size_t)
   settings.beginGroup(_key.c_str());
   _first = settings.value("XInput",'x').toString()[0].toAscii();
   _second = settings.value("YInput",'y').toString()[0].toAscii();
-  _detector = static_cast<Detectors>(settings.value("Detector",1).toUInt());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
   _condition =
       make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
                     settings.value("ConditionHigh",50000.).toFloat()),
@@ -612,8 +612,8 @@ void cass::pp220::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector01 = static_cast<Detectors>(settings.value("FirstDetector",1).toUInt());
-  _detector02 = static_cast<Detectors>(settings.value("SecondDetector",1).toUInt());
+  _detector01 = settings.value("FirstDetector","blubb").toString().toStdString();
+  _detector02 = settings.value("SecondDetector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
     return;
