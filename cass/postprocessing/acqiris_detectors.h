@@ -14,6 +14,8 @@
 #include "postprocessing/backend.h"
 #include "cass_acqiris.h"
 #include "acqiris_detectors_helper.h"
+#include "signal_producer.h"
+#include "delayline_detector.h"
 
 
 namespace cass
@@ -31,20 +33,13 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 0: InvalidDetector
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
-   *           - 3: VMIMcp
-   *           - 4: FELBeamMonitor
-   *           - 5: YAGPhotodiode
-   *           - 6: FsPhotodiode
+   *           Name of the detector that we work on. Default is "blubb"
    *
    * @author Lutz Foucar
    */
@@ -80,7 +75,7 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
@@ -88,14 +83,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
    *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 0: InvalidDetector
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
-   *           - 3: VMIMcp
-   *           - 4: FELBeamMonitor
-   *           - 5: YAGPhotodiode
-   *           - 6: FsPhotodiode
+   *           Name of the detector that we work on. Default is "blubb"
    *
    * @author Lutz Foucar
    */
@@ -129,8 +117,8 @@ namespace cass
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
-   * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   * @see cass::ACQIRIS::DelaylineDetector or cass::ACQIRIS:::TofDetector and
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
@@ -138,14 +126,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 0: InvalidDetector
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
-   *           - 3: VMIMcp
-   *           - 4: FELBeamMonitor
-   *           - 5: YAGPhotodiode
-   *           - 6: FsPhotodiode
+   *           Name of the detector that we work on. Default is "blubb"
    *
    * @author Lutz Foucar
    */
@@ -181,15 +162,13 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - for HexDetector
@@ -223,10 +202,10 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
-    char _layer;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type  _layer;
 
     /** The Signal of the layer detector we are there for*/
-    char _signal;
+    ACQIRIS::AnodeLayer::wireends_t::key_type _signal;
   };
 
 
@@ -246,8 +225,8 @@ namespace cass
    *
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
-   * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   * @see cass::ACQIRIS::DelaylineDetector and
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
@@ -255,9 +234,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - for HexDetector
@@ -291,10 +268,10 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
-    char _layer;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type  _layer;
 
     /** The Signal of the layer detector we are there for*/
-    char _signal;
+    ACQIRIS::AnodeLayer::wireends_t::key_type _signal;
   };
 
 
@@ -314,24 +291,27 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
-   *           - for HexDetector
+   *           - if detector type is HexDetector
    *             - U: U-Layer
    *             - V: V-Layer
    *             - W: W-Layer
-   *           - for Quad Detector
+   *           - if detector type is Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+   *           The time range in which we will take the first hits on the wireends
+   *           and the mcp signal to calculate the timesum. This should be a
+   *           timerange in which mostly single detectorhits are to be expected.
+   *           Default is 0 | 20000.
    *
    * @author Lutz Foucar
    */
@@ -352,7 +332,10 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
-    char _layer;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type _layer;
+
+    /** the range in which the single events are in */
+    std::pair<double,double> _range;
   };
 
 
@@ -371,26 +354,27 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
-   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
-   *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
-   *           - for HexDetector
+   *           - if detector type is HexDetector
    *             - U: U-Layer
    *             - V: V-Layer
    *             - W: W-Layer
-   *           - for Quad Detector
+   *           - if detector type is Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+   *           The time range in which we will take the first hits on the wireends
+   *           and the mcp signal to calculate the timesum. This should be a
+   *           timerange in which mostly single detectorhits are to be expected.
+   *           Default is 0 | 20000.
    *
    * @author Lutz Foucar
    */
@@ -411,7 +395,10 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The layer of the detector detector we are there for*/
-    char _layer;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type _layer;
+
+    /** the range in which the single events are in */
+    std::pair<double,double> _range;
   };
 
 
@@ -431,7 +418,7 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
@@ -439,9 +426,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{FirstLayer}\n
    *           The anode layer of the first coordinate. Default is U. Options are:
    *           - for HexDetector
@@ -460,6 +445,17 @@ namespace cass
    *           - for Quad Detector
    *             - X: X-Layer
    *             - Y: Y-Layer
+   * @cassttng PostProcessor/\%name\%/{TimesumFirstLayerLow|TimesumFirstLayerHigh}\n
+   *           The Timesumcondition range for the first layer.
+   *           Default is 20 | 200.
+   * @cassttng PostProcessor/\%name\%/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
+   *           The Timesumcondition range for the Second layer.
+   *           Default is 20 | 200.
+   * @cassttng PostProcessor/\%name\%/{TimeRangeLow|TimeRangeHigh}\n
+   *           The time range in which we will take the first hits on the wireends
+   *           and the mcp signal to calculate the timesum. This should be a
+   *           timerange in which mostly single detectorhits are to be expected.
+   *           Default is 0 | 20000.
    *
    * @author Lutz Foucar
    */
@@ -480,10 +476,17 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The first layer of the detector for the position */
-    char _first;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type _first;
 
     /** The second layer of the detector for the position */
-    char _second;
+    ACQIRIS::DelaylineDetector::anodelayers_t::key_type _second;
+
+    /** the range in which the single events are in */
+    std::pair<double,double> _range;
+
+    /** timesum ranges of the layers */
+    std::pair<std::pair<double, double>,
+              std::pair<double, double> > _tsrange;
   };
 
 
@@ -502,15 +505,13 @@ namespace cass
    * To set up the channel assignment for the requested detector one needs to set
    * up the detector parameters.
    * @see cass::ACQIRIS::DelaylineDetector and
-   *      cass::ACQIRIS::Signal
+   *      cass::ACQIRIS::SignalProducer
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    *
    * @author Lutz Foucar
    */
@@ -558,9 +559,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
+   *           Name of the delayline detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{XInput}\n
    *           The value that should be put onto the x-axis of the histogram.
    *           Default is 'x'. Options are:
@@ -573,8 +572,14 @@ namespace cass
    *           - x: x-position of the reconstructed hit
    *           - y: x-position of the reconstructed hit
    *           - t: time of impact of the reconstructed hit
+   * @cassttng PostProcessor/\%name\%/{ConditionInput}\n
+   *           The value that should be checked for the range before filling the
+   *           histogram. Default is 't'. Options are:
+   *           - x: x-position of the reconstructed hit
+   *           - y: x-position of the reconstructed hit
+   *           - t: time of impact of the reconstructed hit
    * @cassttng PostProcessor/\%name\%/{ConditionLow|ConditionHigh}\n
-   *           conditions on third value, the one not chosen with options above.
+   *           the condition range that should be applied to the condition input
    *
    * @author Lutz Foucar
    */
@@ -595,13 +600,13 @@ namespace cass
     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
     /** The first value of the detector hit */
-    char _first;
+    ACQIRIS::SignalProducer::signal_t::key_type _first;
 
     /** The second value of the detector */
-    char _second;
+    ACQIRIS::SignalProducer::signal_t::key_type _second;
 
     /** The third value of the detector, that we will check the condition for*/
-    char _third;
+    ACQIRIS::SignalProducer::signal_t::key_type _third;
 
     /** The condition that we impose on the third component*/
     std::pair<float, float> _condition;
@@ -635,23 +640,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 0: InvalidDetector
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
-   *           - 3: VMIMcp
-   *           - 4: FELBeamMonitor
-   *           - 5: YAGPhotodiode
-   *           - 6: FsPhotodiode
+   *           Name of the first detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{SecondDetector}\n
-   *           The detector that we are responsible for. Default is 1. Options are:
-   *           - 0: InvalidDetector
-   *           - 1: HexDetector
-   *           - 2: QuadDetector
-   *           - 3: VMIMcp
-   *           - 4: FELBeamMonitor
-   *           - 5: YAGPhotodiode
-   *           - 6: FsPhotodiode
+   *           Name of the first detector that we work on. Default is "blubb"
    *
    * @author Lutz Foucar
    */
