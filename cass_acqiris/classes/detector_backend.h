@@ -52,10 +52,16 @@ namespace cass
        */
       virtual void loadSettings(CASSSettings &s)=0;
 
-      /** associate the event with this detector (get the data from this event) */
-      virtual void associate(const CASSEvent&)=0;
+      /** associate the event with this detector
+       *
+       * retrieve all necessary information for this detector from the event.
+       * Needs to be implemented by the detector inheriting from this.
+       *
+       * @param evt The event to take the data from
+       */
+      virtual void associate(const CASSEvent& evt)=0;
 
-      /** the detector name*/
+      /** return the detector name*/
       const std::string name()const {return _name;}
 
       /** create an instance of the requested dectortype
