@@ -19,24 +19,16 @@ cass::ACQIRIS::SignalExtractor* cass::ACQIRIS::SignalExtractor::instance(SignalE
   switch(type)
   {
   case com8:
-    {
-      sigextr = new CoM8Bit();
-    }
+    sigextr = new CoM8Bit();
     break;
   case com16:
-    {
-      sigextr = new CoM16Bit();
-    }
+    sigextr = new CoM16Bit();
     break;
   case cfd8:
-    {
-      sigextr = new CFD8Bit();
-    }
+    sigextr = new CFD8Bit();
     break;
   case cfd16:
-    {
-      sigextr = new CFD16Bit();
-    }
+    sigextr = new CFD16Bit();
     break;
   default:
     throw std::invalid_argument("SignalExtractor::instance: no such SignalExtractor type");
