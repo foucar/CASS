@@ -37,7 +37,7 @@ namespace cass
        * @param[in] name the name of the detector
        */
       DetectorBackend(const std::string name)
-          :_name(name),_analyzer(0)
+          :_name(name)
       {}
 
       /** virtual destructor*/
@@ -63,9 +63,6 @@ namespace cass
     protected:
       /** the name of the detector. used for casssettings group*/
       std::string _name;
-
-      /** pointer to the analyzer that is used for analyzing this detector */
-      DetectorAnalyzerBackend *_analyzer;
 
     private:
       /** default constructor should not be called therefore its privat*/
