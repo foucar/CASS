@@ -17,7 +17,8 @@ SOURCES.cpp = soapCASSsoapProxy.cpp \
   tcpclient.cpp \
   histo_updater_dict.cpp \
   histo_updater.cpp \
-  id_list.cpp
+  id_list.cpp \
+  histogram.cpp
 
 OBJECTS = $(SOURCES.cpp:%.cpp=%.o)
 

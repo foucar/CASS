@@ -12,6 +12,7 @@
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
 #include "id_list.h"
+#include "histogram.h"
 
 using namespace lucassview;
 
@@ -76,24 +77,21 @@ cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)c
       << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
       << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
   std::string mimeType((*attachment).type);
-
+  cass::HistogramBackend* hist(0);
   if(mimeType == "application/cass2Dhistogram")
   {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      cass::Histogram2DFloat* hist = new cass::Histogram2DFloat(serializer);
-//      emit newHistogram(hist);  // slot deletes hist when done.
+      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+      hist = new cass::Histogram2DFloat(serializer);
   }
   else if(mimeType == "application/cass1Dhistogram")
   {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      cass::Histogram1DFloat* hist = new cass::Histogram1DFloat(serializer);
-//      emit newHistogram(hist);  // slot deletes hist when done.
+      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+      hist = new cass::Histogram1DFloat(serializer);
   }
   else if(mimeType == "application/cass0Dhistogram")
   {
-//      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//      cass::Histogram0DFloat* hist = new cass::Histogram0DFloat(serializer);
-//      emit newHistogram(hist);  // slot deletes hist when done.
+      cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+      hist = new cass::Histogram0DFloat(serializer);
   }
   else
   {
@@ -101,4 +99,5 @@ cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)c
     ss << "The mime type '"<<mimeType<<"' is unknown";
     throw runtime_error(ss.str());
   }
+  return hist;
 }
