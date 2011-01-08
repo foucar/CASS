@@ -416,10 +416,10 @@ void cass::pp162::loadSettings(size_t)
   _layer = loadLayer(settings,_detector,"Layer",162,_key);
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
-  _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
+  _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   cout <<endl<< "PostProcessor '"<<_key
       <<"' calculates the timesum of layer '"<<_layer
