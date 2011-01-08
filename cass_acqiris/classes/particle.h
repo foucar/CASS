@@ -46,7 +46,8 @@ namespace cass
        * set the _listIsCreated flag to false
        */
       Particle()
-        :_listIsCreated(false)
+        :_listIsCreated(false),
+         _isParticleHit(0)
       {}
 
       /** load the settings from .ini file

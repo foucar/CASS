@@ -25,6 +25,9 @@ namespace cass
     class IsParticleHit
     {
     public:
+      /** typedef defining the types of available conditions */
+      enum ConditionType {tofcond, radcond, rectcond, tofradcond,tofrectcond};
+
       /** the comparison
        *
        * @return true when dethit fullfilles the condition
@@ -37,6 +40,13 @@ namespace cass
        * @param s the CASSSettings object to read the information from
        */
       virtual void loadSettings(CASSSettings &s)=0;
+
+      /** create an instance of the chosen class
+       *
+       * @return pointer to instance of requested class
+       * @param type the requested class type
+       */
+      static IsParticleHit* instance(const ConditionType& type);
     };
 
     /** a Time of Flight condition
@@ -110,7 +120,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class QuadCond : public IsParticleHit
+    class RectCond : public IsParticleHit
     {
     public:
       bool operator()(const DelaylineDetector::hit_t &dethit) const
@@ -145,6 +155,9 @@ namespace cass
      *
      * this class combines two of the IsParticleHit conditions
      *
+     * @tparam FistCondition class that defines the first condition
+     * @tparam SecondCondition class that defines the second condition
+     *
      * @author Lutz Foucar
      */
     template <class FirstCondition, class SecondCondition>
@@ -172,6 +185,32 @@ namespace cass
       std::pair<IsParticleHit*,IsParticleHit*> _conditions;
     };
 
+    IsParticleHit* IsParticleHit::instance(const ConditionType &type)
+    {
+      IsParticleHit *cond(0);
+      switch(type)
+      {
+      case tofcond:
+        cond = new TofCond;
+        break;
+      case radcond:
+        cond = new RadCond;
+        break;
+      case rectcond:
+        cond = new RectCond;
+        break;
+      case tofrectcond:
+        cond = new CombineConditions<TofCond,RectCond>();
+        break;
+      case tofradcond:
+        cond = new CombineConditions<TofCond,RadCond>();
+        break;
+      default:
+        throw std::invalid_argument("IsParticleHit::instance: No such condition type available");
+      }
+      return cond;
+    }
+
     /** convert kartesian coordinates to polar coordinates
      *
      * will use the kartesian coordinates of the momentum vector of the particle
@@ -198,6 +237,12 @@ namespace cass
 
 void Particle::loadSettings(CASSSettings& s)
 {
+  delete _isParticleHit;
+  IsParticleHit::ConditionType condtype
+      (static_cast<IsParticleHit::ConditionType>(s.value("ConditionType",IsParticleHit::tofcond).toInt()));
+  _isParticleHit = IsParticleHit::instance(condtype);
+  _isParticleHit->loadSettings(s);
+
 //	fCondRad	= pi.GetPosFlag() ? TMath::Max(pi.GetCondWidthX(),pi.GetCondWidthY()) : pi.GetCondRad();
 //	fCondRadX	= pi.GetCondRadX();
 //	fCondRadY	= pi.GetCondRadY();
