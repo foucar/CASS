@@ -261,7 +261,7 @@ void Particle::loadSettings(CASSSettings& s)
   else
     _calc_detplane = MomentumCalculator::instance(MomentumCalculator::PxPyWOBField);
   delete _calc_tof;
-  if (_spectrometer.spectrometerRegions().size() > 1)
+  if (_spectrometer.regions().size() > 1)
     _calc_tof = MomentumCalculator::instance(MomentumCalculator::PzMultipleRegions);
   else
     _calc_tof = MomentumCalculator::instance(MomentumCalculator::PzOneRegion);
