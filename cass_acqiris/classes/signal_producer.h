@@ -165,15 +165,6 @@ namespace cass
       /** the timerange good single events can happen in*/
       std::pair<double,double> _goodrange;
 
-      /** the delay of the cfd*/
-      int32_t _delay;
-
-      /** the fraction of the cfd*/
-      double _fraction;
-
-      /** the walk of the cfd*/
-      double _walk;
-
       /** time of the first peak in the "good" range*/
       mutable double _goodHit;
 
