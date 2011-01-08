@@ -437,6 +437,18 @@ MomentumCalculator* MomentumCalculator::instance(const MomCalcType &type)
   MomentumCalculator *momcalc(0);
   switch (type)
   {
+  case PxPyWBField:
+    momcalc = new PxPyCalculatorWithBField;
+    break;
+  case PxPyWOBField:
+    momcalc = new PxPyCalculatorWithoutBField;
+    break;
+  case PzOneRegion:
+    momcalc = new PzCalculatorDirectOneRegion;
+    break;
+  case PzMultipleRegions:
+    momcalc = new PzCalculatorMulitpleRegions;
+    break;
   default:
     throw std::invalid_argument("MomentumCalculator::instance(): No such momentum calculator type available");
     break;
