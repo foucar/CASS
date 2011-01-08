@@ -762,10 +762,18 @@ void cass::pp166::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp164::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _first = settings.value("XInput",'x').toString()[0].toAscii();
   _second = settings.value("YInput",'y').toString()[0].toAscii();
   _third =  settings.value("ConditionInput",'t').toString()[0].toAscii();
-  _detector = settings.value("Detector","blubb").toString().toStdString();
   _condition =
       make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
                     settings.value("ConditionHigh",50000.).toFloat()),
@@ -776,16 +784,15 @@ void cass::pp166::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": histograms the Property "<<_second
-      <<" vs. "<<_first
-      <<" of the reconstructed detectorhits of detector "<<_detector
-      <<" condition low "<<_condition.first
-      <<" high "<<_condition.second
-      <<" on Property "<< _third
-      <<". Condition is"<<PostprocessorBackend::_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms the Property '"<<_second
+      <<"' vs. '"<<_first
+      <<"' of the reconstructed detectorhits of detector '"<<_detector
+      <<"'. It puts a condition from '"<<_condition.first
+      <<"' to '"<<_condition.second
+      <<"' on Property '"<< _third
+      <<"'. Condition is "<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp166::process(const cass::CASSEvent &evt)
