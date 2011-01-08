@@ -303,7 +303,11 @@ void cass::pp162::loadSettings(size_t)
   _detector = settings.value("Detector","blubb").toString().toStdString();
   HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
   if (dethelp->detectortype() != Delayline)
-    cout <<"pp162::process(): Error detector '"<<_detector<<"' is not a Delaylinedetector"<<endl;
+  {
+    stringstream ss;
+    ss <<"pp162::process(): Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (runtime_error(ss.str()));
+  }
   dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
@@ -314,12 +318,18 @@ void cass::pp162::loadSettings(size_t)
     return;
   if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
       _layer != 'X' && _layer != 'Y')
-    throw std::runtime_error("pp162::loadSettings(): Layer is not set up correctly");
+  {
+    stringstream ss;
+    ss <<"pp162::loadSettings(): Layer '"<<_layer<<"' is not a correct choice";
+    throw std::runtime_error(ss.str());
+  }
   createHistList(2*cass::NbrOfWorkers);
-  cout <<endl<< "PostProcessor "<<_key
-      <<" it histograms the timesum of layer "<<_layer
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
+  cout <<endl<< "PostProcessor '"<<_key
+      <<"' calculates the timesum of layer '"<<_layer
+      <<"' of detector '"<<_detector
+      <<"'. It will use the first signals that appeared in the ToF range from '"<<_range.first
+      <<"' ns to '"<<_range.second
+      <<"' ns. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
 
