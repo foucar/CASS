@@ -43,7 +43,8 @@ namespace cass
       /** load the values from cass.ini */
       virtual void loadSettings(CASSSettings *p);
 
-      virtual void clear()    {}
+      /** clear the detectors values */
+      virtual void clear();
 
       /** save values to cass.ini */
       virtual void saveParameters(CASSSettings *){}

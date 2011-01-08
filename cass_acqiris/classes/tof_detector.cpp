@@ -11,6 +11,11 @@
 
 #include "cass_settings.h"
 
+void cass::ACQIRIS::TofDetector::clear()
+{
+//  _mcp.signals().clear();
+}
+
 void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)
 {
   p->beginGroup(_name.c_str());
