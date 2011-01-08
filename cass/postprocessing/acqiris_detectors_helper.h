@@ -76,6 +76,16 @@ namespace cass
        */
       DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
 
+      /** retrieve detector
+       *
+       * this just retrieves the first detector from the _detectorList. Can be
+       * used for chekcking the properties of the detector.
+       *
+       * @return const pointer to the first detector in _detectorList
+       */
+      const DetectorBackend* detector()const  {return _detectorList.front().second;}
+
+
       /** load the settings of the detectors in the detector list
        *
        * go through the list of detectors and tell each of the detector to load
