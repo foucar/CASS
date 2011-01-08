@@ -49,7 +49,6 @@ namespace cass
     typedef Map<std::string,double> detectorHit_t;
     typedef std::vector<detectorHit_t> detectorHits_t;
     //@}
-
   }
 }
 
