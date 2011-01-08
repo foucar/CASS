@@ -301,6 +301,7 @@ void cass::pp162::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
@@ -312,7 +313,6 @@ void cass::pp162::loadSettings(size_t)
       _layer != 'X' && _layer != 'Y')
     throw std::runtime_error("pp162::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   cout <<endl<< "PostProcessor "<<_key
       <<" it histograms the timesum of layer "<<_layer
       <<" of detector "<<_detector
@@ -322,12 +322,22 @@ void cass::pp162::loadSettings(size_t)
 
 void cass::pp162::process(const cass::CASSEvent &evt)
 {
+  using namespace std;
   using namespace cass::ACQIRIS;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  static int counter;
+//  cout <<counter++<< " pp162"<<endl;
+  DetectorBackend *rawdet
+      (HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  if (rawdet->type() != Delayline)
+    cout <<"pp162::process(): Error detector is not a Delaylinedetector"<<endl;
+  DelaylineDetector *det (dynamic_cast<DelaylineDetector*>(rawdet));
+//  cout << "pp162 1"<<endl;
   const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
+//  cout << "pp162 6"<<endl;
   const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
+//  cout << "pp162 7"<<endl;
   const double mcp (det->mcp().firstGood(_range));
+//  cout << "pp162 8"<<endl;
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill( one + two - 2.*mcp);
   _result->lock.unlock();
