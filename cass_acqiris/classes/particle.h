@@ -41,7 +41,9 @@ namespace cass
        */
       Particle()
         :_listIsCreated(false),
-         _isParticleHit(0)
+         _isParticleHit(0),
+         _calc_detplane(0),
+         _calc_tof(0)
       {}
 
       /** destructor
