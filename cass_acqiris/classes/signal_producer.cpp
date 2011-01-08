@@ -45,7 +45,7 @@ SignalProducer::signals_t& SignalProducer::output()
 {
   bool newEventAssociated (_newEventAssociated);
   _newEventAssociated = false;
-//  return (newEventAssociated)? _signalextractor(_signals):_signals;
+  return (newEventAssociated)? (*_signalextractor)(_signals):_signals;
 }
 
 void SignalProducer::associate(const CASSEvent &evt)
