@@ -29,7 +29,7 @@ namespace cass
     public:
       virtual ~ResultsBackend() {}
 
-      virtual void associate(const CASSEvent& evt) {}
+      virtual void associate(const CASSEvent& evt)=0;
     };
   }//end namespace acqiris
 }//end namespace cass

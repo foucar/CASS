@@ -3,7 +3,9 @@
 #include "signal_producer.h"
 #include "cass_settings.h"
 
-void cass::ACQIRIS::SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
+using namespace cass::ACQIRIS;
+
+void SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
 {
   VERBOSEOUT(std::cerr<<"Signal load parameters:  load signal parameters for signal \""
              <<signalname
@@ -30,7 +32,12 @@ void cass::ACQIRIS::SignalProducer::loadSettings(CASSSettings *p, const char * s
   p->endGroup();
 }
 
-double cass::ACQIRIS::SignalProducer::firstGood() const
+SignalProducer::signals_t& SignalProducer::output()
+{
+//  return (_newEventAssociated)? _signalextractor(_signals):_signals;
+}
+
+double SignalProducer::firstGood() const
 {
   //if this is called for the new event for the first time, then evaluate//
   if(_isNewEvent)

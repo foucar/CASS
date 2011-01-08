@@ -11,6 +11,9 @@
 #define _SIGNAL_H_
 
 #include <algorithm>
+#include <map>
+#include <vector>
+#include <string>
 
 #include "cass_acqiris.h"
 #include "results_backend.h"
@@ -102,17 +105,13 @@ namespace cass
      * @cassttng .../{Walk}\n
      *            walk in Volts used by the constant fraction method:
      *
-     *
-     * @todo rename this class to somehting more meaningful
-     *       In the delayline it represents the wireends of the anodelayers and
-     *       the mcp output.
-     *       In the tof it should just represent the way to extract the singals
-     *       and the signals itselve
-     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT SignalProducer : public ResultsBackend
     {
+    public:
+      typedef std::vector<std::map<std::string,double> > signals_t;
+
     public:
       /** default constructor.
        *
@@ -165,6 +164,14 @@ namespace cass
     public:
       /** return the time of the first peak in the "good" time range*/
       double firstGood() const;
+
+      /** return the signals
+       *
+       * When a new event was associated with this prodcuer, then it will first
+       * extract all signals from the event data otherwise it will just return
+       * the signals
+       */
+      signals_t& output();
 
     public:
       //@{
@@ -249,6 +256,9 @@ namespace cass
 
       /** the extractor of the produced signals */
       SignalExtractor * _signalextractor;
+
+      /** the signals produces by this producer */
+      signals_t _signals;
     };
   }//end namespace acqiris
 }//end namespace cass
