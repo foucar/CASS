@@ -129,7 +129,8 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,std::pair<cass::ACQIRIS::AnodeLayer*,cass::ACQIRIS::AnodeLayer*> & anode)
+    void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,
+                        std::pair<cass::ACQIRIS::AnodeLayer*,cass::ACQIRIS::AnodeLayer*> & anode)
     {
       using namespace cass::ACQIRIS;
       //--calculate the timesum from the given lower and upper boundries for it--//
@@ -235,21 +236,25 @@ namespace cass
 
                 //check wether the timesum is correct//
                 if ( (sumx > tsxLow) && (sumx < tsxHigh) )
+                {
                   if ( (sumy > tsyLow) && (sumy < tsyHigh) )
+                  {
                     //check wether the hit is inside the radius of the MCP//
                     if (radius_mm < radius)
                     {
-                  //rotate x and y with angle
-                  const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
-                  const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
-                  //add a DetektorHit to the Detektor
-                  d.hits().push_back(DelaylineDetectorHit(rot_x_mm,rot_y_mm,mcp));
-                  //remember that this mcp Peak has already been used//
-                  mcpp[iMcp].isUsed()    = true;
-                  f1p[iX1].isUsed() = true;
-                  f2p[iX2].isUsed() = true;
-                  s1p[iY1].isUsed() = true;
-                  s2p[iY2].isUsed() = true;
+                      //rotate x and y with angle
+                      const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
+                      const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
+                      //add a DetektorHit to the Detektor
+                      d.hits().push_back(DelaylineDetectorHit(rot_x_mm,rot_y_mm,mcp));
+                      //remember that this mcp Peak has already been used//
+                      mcpp[iMcp].isUsed()    = true;
+                      f1p[iX1].isUsed() = true;
+                      f2p[iX2].isUsed() = true;
+                      s1p[iY1].isUsed() = true;
+                      s2p[iY2].isUsed() = true;
+                    }
+                  }
                 }
               }
             }
@@ -305,133 +310,20 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimpleQuad::operator()(cass::ACQIRI
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
   //first retrieve the right Instruments / Channels for the signals
-  Signal & MCP = d.mcp();
-  const Instruments &MCPInstr = MCP.instrument();
-  const size_t MCPChanNbr = MCP.channelNbr();
-  const WaveformAnalyzers &MCPAnal= MCP.analyzerType();
-  Device::instruments_t::const_iterator MCPInstrIt = dev.instruments().find(MCPInstr);
-  if (MCPInstrIt == dev.instruments().end())
-  {
-    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-        <<MCPInstr<<" for MCP is not in the datastream"<<std::endl;
-    return;
-  }
-  const Instrument::channels_t &MCPInstrChans = MCPInstrIt->second.channels();
-  const Channel &MCPChan = MCPInstrChans[MCPChanNbr];
-  if ((MCPChanNbr >= MCPInstrChans.size()))
-  {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for mcp \""
-        <<MCPChanNbr<<"\" is not present. We only have \""<<MCPInstrChans.size()<<"\" channels"
-        <<" Detector:"<<d.name()
-        <<" Instrument:"<<MCPInstr
-        <<" Ana type:"<< MCPAnal<<std::endl;
-    return;
-  }
-  (*(*_waveformanalyzer)[MCPAnal])(MCPChan,MCP);
+  Signal & MCP (d.mcp());
+  DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
 
+  Signal &F1 (anode.first->wireend()['1']);
+  DelaylineDetectorAnalyzers::extractSignals(F1,dev,*_waveformanalyzer);
 
-  Signal &F1 = anode.first->wireend()['1'];
-  const Instruments &F1Instr = F1.instrument();
-  const size_t F1ChanNbr = F1.channelNbr();
-  const WaveformAnalyzers &F1Anal= F1.analyzerType();
-  Device::instruments_t::const_iterator F1InstrIt = dev.instruments().find(F1Instr);
-  if (F1InstrIt == dev.instruments().end())
-  {
-    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-        <<F1Instr<<" for First Anode Signal 1"
-        <<" is not in the datastream"<<std::endl;
-    return;
-  }
-  const Instrument::channels_t &F1InstrChans = F1InstrIt->second.channels();
-  const Channel &F1Chan = F1InstrChans[F1ChanNbr];
-
-  Signal &F2 = anode.first->wireend()['2'];
-  const Instruments &F2Instr = F2.instrument();
-  const size_t F2ChanNbr = F2.channelNbr();
-  const WaveformAnalyzers &F2Anal= F2.analyzerType();
-  Device::instruments_t::const_iterator F2InstrIt = dev.instruments().find(F2Instr);
-  if (F2InstrIt == dev.instruments().end())
-  {
-    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-        <<F1Instr<<" for First Anode Signal 2"
-        <<" is not in the datastream"<<std::endl;
-    return;
-  }
-  const Instrument::channels_t &F2InstrChans = F2InstrIt->second.channels();
-  const Channel &F2Chan = F2InstrChans[F2ChanNbr];
-
+  Signal &F2 (anode.first->wireend()['2']);
+  DelaylineDetectorAnalyzers::extractSignals(F2,dev,*_waveformanalyzer);
 
   Signal &S1 = anode.second->wireend()['1'];
-  const Instruments &S1Instr = S1.instrument();
-  const size_t S1ChanNbr = S1.channelNbr();
-  const WaveformAnalyzers &S1Anal= S1.analyzerType();
-  Device::instruments_t::const_iterator S1InstrIt = dev.instruments().find(S1Instr);
-  if (S1InstrIt == dev.instruments().end())
-  {
-    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-        <<F1Instr<<" for Second Anode Signal 1"
-        <<" is not in the datastream"<<std::endl;
-    return;
-  }
-  const Instrument::channels_t &S1InstrChans = S1InstrIt->second.channels();
-  const Channel &S1Chan = S1InstrChans[S1ChanNbr];
+  DelaylineDetectorAnalyzers::extractSignals(S1,dev,*_waveformanalyzer);
 
   Signal &S2 = anode.second->wireend()['2'];
-  const Instruments &S2Instr = S2.instrument();
-  const size_t S2ChanNbr = S2.channelNbr();
-  const WaveformAnalyzers &S2Anal= S2.analyzerType();
-  Device::instruments_t::const_iterator S2InstrIt = dev.instruments().find(S2Instr);
-  if (S2InstrIt == dev.instruments().end())
-  {
-    std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-        <<F1Instr<<" for Second Anode Signal 2"
-        <<" is not in the datastream"<<std::endl;
-    return;
-  }
-  const Instrument::channels_t &S2InstrChans = S2InstrIt->second.channels();
-  const Channel &S2Chan = S2InstrChans[S2ChanNbr];
-
-  //now extract values//
-
-  //check whether the requested channel does exist//
-  if ((F1ChanNbr >= F1InstrChans.size()))
-  {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer one \""
-        <<F1ChanNbr<<"\" is not present. We only have \""<<F1InstrChans.size()<<"\" channels"<<std::endl;
-    return;
-  }
-  //  std::cerr<<"waveformanalyzertyp for first layer one "<<firstLayer->wireend()['1'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['1'].channelNbr()<<std::endl;
-  (*(*_waveformanalyzer)[F1Anal])(F1Chan,F1);
-
-  //check whether the requested channel does exist//
-  if ((F2ChanNbr >= F2InstrChans.size()))
-  {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for first layer two \""
-        <<F2ChanNbr<<"\" is not present. We only have \""<<F2InstrChans.size()<<"\" channels"<<std::endl;
-    return;
-  }
-  //  std::cerr<<"waveformanalyzertyp for first layer two "<<firstLayer->wireend()['2'].analyzerType()<<" chnbr:"<<firstLayer->wireend()['2'].channelNbr()<<std::endl;
-  (*(*_waveformanalyzer)[F2Anal])(F2Chan,F2);
-
-  //check whether the requested channel does exist//
-  if ((S1ChanNbr >= S1InstrChans.size()))
-  {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer one \""
-        <<S1ChanNbr<<"\" is not present. We only have \""<<S1InstrChans.size()<<"\" channels"<<std::endl;
-    return;
-  }
-  //  std::cerr<<"waveformanalyzertyp for second layer one "<<secondLayer->wireend()['1'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['1'].channelNbr()<<std::endl;
-  (*(*_waveformanalyzer)[S1Anal])(S1Chan,S1);
-
-  //check whether the requested channel does exist//
-  if ((S2ChanNbr >= S2InstrChans.size()))
-  {
-    std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel for second layer two \""
-        <<S2ChanNbr<<"\" is not present. We only have \""<<S2InstrChans.size()<<"\" channels"<<std::endl;
-    return;
-  }
-  //  std::cerr<<"waveformanalyzertyp for second layer two "<<secondLayer->wireend()['2'].analyzerType()<<" chnbr:"<<secondLayer->wireend()['2'].channelNbr()<<std::endl;
-  (*(*_waveformanalyzer)[S2Anal])(S2Chan,S2);
+  DelaylineDetectorAnalyzers::extractSignals(S2,dev,*_waveformanalyzer);
 
   ////tell the signals that you have updated it//
   //d.mcp().isNewEvent() = true;
