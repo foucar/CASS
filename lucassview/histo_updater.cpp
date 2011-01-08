@@ -20,6 +20,9 @@ namespace lucassview
 {
   /** create the list of updateable histograms from all available keys
    *
+   * @return list of keys that need to be updated
+   * @param allkeys all available keys on the server
+   *
    * @author Lutz Foucar
    */
   std::list<std::string> checkList(const std::list<std::string> &allkeys)
@@ -36,12 +39,23 @@ namespace lucassview
    */
   struct updateHist
   {
+    /** the client for the server */
     const TCPClient &_client;
 
+    /** constructor
+     *
+     * @param client the client to connecto to the server
+     */
     updateHist(const TCPClient &client)
       :_client(client)
     {}
 
+    /** update the histogram with key
+     *
+     * if the histogram is not yet on the list of histograms, create it first
+     *
+     * @param key The key that the histogram has on the server
+     */
     void operator() (const std::string& key)const
     {
       std::cout << "updateHist(): do something to "<<key<<std::endl;
