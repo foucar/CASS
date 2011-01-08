@@ -149,6 +149,15 @@ namespace cass
 //    {
 //    };
 
+    /** convert kartesian coordinates to polar coordinates
+     *
+     * will use the kartesian coordinates of the momentum vector of the particle
+     * hit and add its polarcoordinates to the hit.
+     *
+     * @param hit the hit to make the transition with
+     *
+     * @author Lutz Foucar
+     */
     void kartesian2polar(Particle::particleHit_t& hit)
     {
       const double & x (hit["px"]);
