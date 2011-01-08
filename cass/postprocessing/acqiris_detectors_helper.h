@@ -118,6 +118,9 @@ namespace cass
        *
        * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n
        *           Type of the detector that this helper should be managing.
+       *           Default is 0 (Delayline). Possible choises are
+       *           - 0: Delayline (DelaylineDetector)
+       *           - 1: Time of Flight Detector (TofDetector)
        *
        * @param detname the name of the detector
        */

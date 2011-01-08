@@ -48,7 +48,7 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
   CASSSettings settings;
   settings.beginGroup("AcqirisDetectors");
   settings.beginGroup(detname.c_str());
-  DetectorType dettype (static_cast<DetectorType>(settings.value("DetectorType",0).toUInt()));
+  DetectorType dettype (static_cast<DetectorType>(settings.value("DetectorType",Delayline).toUInt()));
   settings.endGroup();
   settings.endGroup();
   for (size_t i=0; i<NbrOfWorkers*2;++i)
