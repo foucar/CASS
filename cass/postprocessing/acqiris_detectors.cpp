@@ -214,7 +214,7 @@ void cass::pp160::process(const cass::CASSEvent &evt)
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireend()[_signal].output().size());
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireends()[_signal].output().size());
   _result->lock.unlock();
 }
 
@@ -269,10 +269,10 @@ void cass::pp161::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  SignalProducer::signals_t::const_iterator it (det->layers()[_layer].wireend()[_signal].output().begin());
+  SignalProducer::signals_t::const_iterator it (det->layers()[_layer].wireends()[_signal].output().begin());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != det->layers()[_layer].wireend()[_signal].output().end(); ++it)
+  for (; it != det->layers()[_layer].wireends()[_signal].output().end(); ++it)
     dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)["fwhm"],(*it)["height"]);
   _result->lock.unlock();
 }
@@ -325,8 +325,8 @@ void cass::pp162::process(const cass::CASSEvent &evt)
   using namespace cass::ACQIRIS;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  const double one (det->layers()[_layer].wireend()['1'].firstGood(_range));
-  const double two (det->layers()[_layer].wireend()['2'].firstGood(_range));
+  const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
+  const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
   const double mcp (det->mcp().firstGood(_range));
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill( one + two - 2.*mcp);
@@ -382,8 +382,8 @@ void cass::pp163::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  const double one (det->layers()[_layer].wireend()['1'].firstGood(_range));
-  const double two (det->layers()[_layer].wireend()['2'].firstGood(_range));
+  const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
+  const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
   const double mcp (det->mcp().firstGood(_range));
   const double timesum (one + two - 2.*mcp);
   const double position (one - two);
@@ -451,10 +451,10 @@ void cass::pp164::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  const double f1 (det->layers()[_first].wireend()['1'].firstGood(_range));
-  const double f2 (det->layers()[_first].wireend()['2'].firstGood(_range));
-  const double s1 (det->layers()[_second].wireend()['1'].firstGood(_range));
-  const double s2 (det->layers()[_second].wireend()['2'].firstGood(_range));
+  const double f1 (det->layers()[_first].wireends()['1'].firstGood(_range));
+  const double f2 (det->layers()[_first].wireends()['2'].firstGood(_range));
+  const double s1 (det->layers()[_second].wireends()['1'].firstGood(_range));
+  const double s2 (det->layers()[_second].wireends()['2'].firstGood(_range));
   const double mcp (det->mcp().firstGood(_range));
   const double tsf (f1 + f2 - 2.*mcp);
   const double tss (s1 + s2 - 2.*mcp);

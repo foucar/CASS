@@ -267,31 +267,31 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   switch (lc)
   {
   case (xy):
-    _layerCombination = make_pair(make_pair(&d.layers()['X'].wireend()['1'],
-                                            &d.layers()['X'].wireend()['2']),
-                                  make_pair(&d.layers()['Y'].wireend()['1'],
-                                            &d.layers()['Y'].wireend()['2']));
+    _layerCombination = make_pair(make_pair(&d.layers()['X'].wireends()['1'],
+                                            &d.layers()['X'].wireends()['2']),
+                                  make_pair(&d.layers()['Y'].wireends()['1'],
+                                            &d.layers()['Y'].wireends()['2']));
     _poscalc = auto_ptr<PositionCalculator>(new XYCalc);
     break;
   case (uv):
-    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireend()['1'],
-                                            &d.layers()['U'].wireend()['2']),
-                                  make_pair(&d.layers()['V'].wireend()['1'],
-                                            &d.layers()['V'].wireend()['2']));
+    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
+                                            &d.layers()['U'].wireends()['2']),
+                                  make_pair(&d.layers()['V'].wireends()['1'],
+                                            &d.layers()['V'].wireends()['2']));
     _poscalc = auto_ptr<PositionCalculator>(new UVCalc);
     break;
   case (uw):
-    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireend()['1'],
-                                            &d.layers()['U'].wireend()['2']),
-                                  make_pair(&d.layers()['W'].wireend()['1'],
-                                            &d.layers()['W'].wireend()['2']));
+    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireends()['1'],
+                                            &d.layers()['U'].wireends()['2']),
+                                  make_pair(&d.layers()['W'].wireends()['1'],
+                                            &d.layers()['W'].wireends()['2']));
     _poscalc = auto_ptr<PositionCalculator>(new UWCalc);
     break;
   case (vw):
-    _layerCombination = make_pair(make_pair(&d.layers()['V'].wireend()['1'],
-                                            &d.layers()['V'].wireend()['2']),
-                                  make_pair(&d.layers()['W'].wireend()['1'],
-                                            &d.layers()['W'].wireend()['2']));
+    _layerCombination = make_pair(make_pair(&d.layers()['V'].wireends()['1'],
+                                            &d.layers()['V'].wireends()['2']),
+                                  make_pair(&d.layers()['W'].wireends()['1'],
+                                            &d.layers()['W'].wireends()['2']));
     _poscalc = auto_ptr<PositionCalculator>(new VWCalc);
     break;
   default:

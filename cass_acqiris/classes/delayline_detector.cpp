@@ -16,18 +16,18 @@ using namespace cass::ACQIRIS;
 
 void AnodeLayer::associate(const CASSEvent &evt)
 {
-  wireends_t::iterator it (_wireend.begin());
-  for (; it != _wireend.end(); ++it)
+  wireends_t::iterator it (_wireends.begin());
+  for (; it != _wireends.end(); ++it)
     (*it).second.associate(evt);
 }
 
 void AnodeLayer::loadSettings(CASSSettings &s)
 {
   s.beginGroup("One");
-  _wireend['1'].loadSettings(s);
+  _wireends['1'].loadSettings(s);
   s.endGroup();
   s.beginGroup("Two");
-  _wireend['2'].loadSettings(s);
+  _wireends['2'].loadSettings(s);
   s.endGroup();
 }
 

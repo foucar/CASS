@@ -49,18 +49,35 @@ namespace cass
       /** map of signals that form the wireends of the layer*/
       typedef std::map<char,SignalProducer> wireends_t;
 
-      /** load values from cass.ini, should only be called by the detector*/
-      void loadSettings(CASSSettings&);
+      /** load the values from the .ini file
+       *
+       * Will retrieve the settings for the wireends, which are singal producers.
+       * Opens a group called "One" and retrieves the settings for the first
+       * wireend signal producer and then does the same for the second wireend
+       * by opening a group called "Two". Please refer to
+       * SignalProducer::loadSettings() for further information.
+       *
+       * @param s the CASSSettings object we retrieve the values from
+       */
+      void loadSettings(CASSSettings &s);
 
-      /** associate the event with this anodelayers signal producers */
-      void associate(const CASSEvent&);
+      /** associate the event with this anodelayers signal producers
+       *
+       * associtates the event with this anodelayers wireends, which are singal
+       * producers. It just goes through the _wireends map and calls
+       * loadSettings for each value of the elements. Please refer to
+       * SignalProducer::associate() for further information.
+       *
+       * @param evt The event to associate with this anode layer
+       */
+      void associate(const CASSEvent &evt);
 
-      /** retrieve the wireend */
-      wireends_t        &wireend()      {return _wireend;}
+      /** retrieve the wireends */
+      wireends_t  &wireends()  {return _wireends;}
 
     private:
       /*! the properties of the wireends, they are singals */
-      wireends_t  _wireend;
+      wireends_t  _wireends;
     };
 
 
