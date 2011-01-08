@@ -7,9 +7,9 @@
  * @author Lutz Foucar
  */
 
-#include "waveform_analyzer_backend.h"
+#include "signal_extractor.h"
 
-cass::ACQIRIS::WaveformAnalyzerBackend* cass::ACQIRIS::WaveformAnalyzerBackend::instance(SignalExtractorType)
+cass::ACQIRIS::SignalExtractor* cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType)
 {
 //  return new WaveformAnalyzerBackend;
 }

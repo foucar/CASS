@@ -10,18 +10,21 @@ target.path = $$INSTALLBASE/lib
 QT -= core \
     gui
 DEFINES += CASS_ACQIRIS_LIBRARY
-INCLUDEPATH += ../cass \
+INCLUDEPATH += \
+    ../cass \
     ./classes \
     ./classes/waveformanalyzer \
     ./classes/detector_analyzer \
     . \
     ../LCLS
-DEPENDPATH += ../cass \
+DEPENDPATH += \
+    ../cass \
     ./classes \
     ./classes/waveformanalyzer \
     ./classes/detector_analyzer \
     .
-SOURCES += acqiris_converter.cpp \
+SOURCES += \
+    acqiris_converter.cpp \
     acqiris_device.cpp \
     ./classes/signal_producer.cpp \
     ./classes/waveformanalyzer/signal_extractor.cpp
@@ -30,7 +33,8 @@ SOURCES += acqiris_converter.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
     ./classes/detector_backend.cpp \
     ./classes/tof_detector.cpp \
-HEADERS += acqiris_converter.h \
+HEADERS += \
+    acqiris_converter.h \
     cass_acqiris.h \
     acqiris_device.h \
     ../cass/analysis_backend.h \

@@ -27,7 +27,7 @@ namespace cass
 
   namespace ACQIRIS
   {
-    class WaveformAnalyzerBackend;
+    class SignalExtractor;
 
     /** Functor returning whether Peak is in Range.
      *
@@ -129,7 +129,6 @@ namespace cass
          _delay(0),
          _fraction(5),
          _walk(200),
-         _analyzerType(com8),
          _isNewEvent(true)
       {}
 
@@ -191,7 +190,6 @@ namespace cass
       double            &fraction()           {return _fraction;}
       double            &walk()               {return _walk;}
       Instruments       &instrument()         {return _instrument;}
-      WaveformAnalyzers &analyzerType()       {return _analyzerType;}
       //@}
       //@{
       /** getter */
@@ -206,7 +204,6 @@ namespace cass
       double             fraction()const      {return _fraction;}
       double             walk()const          {return _walk;}
       Instruments        instrument()const    {return _instrument;}
-      WaveformAnalyzers  analyzerType()const  {return _analyzerType;}
       //@}
 
     private:
@@ -245,9 +242,6 @@ namespace cass
       /** the walk of the cfd*/
       double _walk;
 
-      /** type of analysis to analyze this channel*/
-      WaveformAnalyzers _analyzerType;
-
       //container for the results of the waveform analysis
       /** container for the peaks of the waveform*/
       peaks_t _peaks;
@@ -259,7 +253,7 @@ namespace cass
       mutable bool _isNewEvent;
 
       /** the extractor of the produced signals */
-      WaveformAnalyzerBackend * _signalextractor;
+      SignalExtractor * _signalextractor;
 
       /** the signals produces by this producer */
       signals_t _signals;

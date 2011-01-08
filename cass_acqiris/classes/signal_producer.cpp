@@ -3,7 +3,7 @@
 #include "signal_producer.h"
 #include "cass_settings.h"
 
-#include "waveform_analyzer_backend.h"
+#include "signal_extractor.h"
 
 using namespace cass::ACQIRIS;
 
@@ -14,6 +14,11 @@ void SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
              <<"\" of  "<< p->group().toStdString()
              <<std::endl);
   p->beginGroup(signalname);
+  SignalExtractorType analyzerType = static_cast<SignalExtractorType>(p->value("WaveformAnalysisMethod",com16).toInt());
+
+
+
+
   _instrument   = static_cast<Instruments>(p->value("AcqirisInstrument",Camp1).toInt());
   VERBOSEOUT(std::cerr <<"Signal load parameters: Instrument "<<_instrument<<std::endl);
   _chNbr        = p->value("ChannelNumber",0).toInt();
@@ -28,7 +33,6 @@ void SignalProducer::loadSettings(CASSSettings *p, const char * signalname)
   _delay        = p->value("Delay",5).toInt();
   _fraction     = p->value("Fraction",0.6).toDouble();
   _walk         = p->value("Walk",0.).toDouble();
-  _analyzerType = static_cast<WaveformAnalyzers>(p->value("WaveformAnalysisMethod",com16).toInt());
   VERBOSEOUT(std::cerr <<"Signal load parameters: ana type "<<_analyzerType<<" should be "<<com16<<std::endl);
   VERBOSEOUT(std::cerr<<"Signal load parameters: done loading"<<std::endl);
   p->endGroup();
