@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <TH1.h>
 #include <TH2.h>
+#include <TDirectory.h>
 
 #include "histo_updater.h"
 
@@ -24,17 +25,6 @@ using namespace lucassview;
 
 namespace lucassview
 {
-  /** retrieve root histogram
-   *
-   * @param name The name of the root histogram
-   *
-   * @author Lutz Foucar
-   */
-  TH1 * getRootHist(const std::string & name)
-  {
-
-  }
-
   /** create the list of updateable histograms from all available keys
    *
    * @return list of keys that need to be updated
@@ -78,7 +68,7 @@ namespace lucassview
       using namespace cass;
       std::cout << "updateHist(): copy information of "<<key<<std::endl;
       HistogramFloatBase * casshist(dynamic_cast<HistogramFloatBase*>(_client(key)));
-      TH1 * roothist(getRootHist(key));
+      TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObject(key.c_str())));
       switch (casshist->dimension())
       {
       case 2:
