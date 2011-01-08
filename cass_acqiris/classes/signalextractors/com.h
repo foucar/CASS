@@ -52,6 +52,14 @@ namespace cass
      *
      * This class will work on waveforms when a datapoint depth of 8 bit is chosen
      *
+     * User settable parameters via CASS.ini:\n
+     * One can set these parameters for each SignalProducer of the Detectortype.
+     * Therefore the settings will be for the the following signal producers:
+     * - For MCP in Delayline and TofDetectors its :
+     *   - AcqirisDetectors/%detectorname%/MCP
+     * - For Layer Wireends in Delaylinedetectors its:
+     *   - AcqirisDetectors/%detectorname%/%Layername%/%Wireendname%
+     *
      * @cassttng .../CenterOfMass/{AcqirisInstrument}\n
      *           Acqiris Instrument that this channel is in:
      *           - 2:

@@ -30,13 +30,16 @@ namespace cass
 
     /** A anode layer of the delayline detector.
      *
-     * class containing the wireends of an anode layer of the detector
+     * class containing the wireends of an anode layer of the detector.
      *
-     * @cassttng AcqirisDetectors/\%detectorname\%/\%Layername\%/
-     *           {LowerTimesumConditionLimit|UpperTimesumConditionLimit}\n
-     *           the timesum condition range for the layer.
-     * @cassttng AcqirisDetectors/\%detectorname\%/\%Layername\%/{Scalefactor}\n
-     *           scalefactor to convert time => mm:
+     * This class has no user settable parameters. It will only open groups for
+     * its different wireends. The groupname for the first wireend name is "One"
+     * and for the second its "Two".
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%layername%/One\n
+     *           groupname of the first wireend
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%layername%/Two\n
+     *           groupname of the second wireend
      *
      * @author Lutz Foucar
      */
@@ -71,36 +74,36 @@ namespace cass
      *
      * A delayline detector is a tof detector with the ability to also have
      * position information. It can be either a Hex or Quad delayline detector.
-     * It contains all information that is needed in order to sort the signals
-     * in the waveforms to detector hits.
+     * It also contains detector hits. These are extracted by sorting the
+     * signals of the singal producers. To do this each detector has its own
+     * Analysis object. There are various ways to do this analysis, the user has
+     * the option to choose which one he wants to use. Please refer to the
+     * documentation of the different analyzers to find out their user settings.
      *
-     * @cassttng AcqirisDetectors/\%detectorname\%/{Runtime}\n
-     *           maximum time a signal will run over the complete delayline.
-     * @cassttng AcqirisDetectors/\%detectorname\%/{Angle}\n
-     *           Angle in degree by which on can rotate the picture around 0,0.
-     *           Default is 0.
-     * @cassttng AcqirisDetectors/\%detectorname\%/{McpRadius}\n
-     *           Radius of the MCP in mm.
+     * In addition to these parameters it will also opens the groups for the
+     * different layers. The groupnames depend on the Delaylinetype. For a
+     * Quad Anode it will be "XLayer" and "YLayer". For a Hex Anode it will be
+     * "ULayer", "VLayer" and "WLayer". Please refer to AnodeLayer for the
+     * user settable parameters of the anode layers.
+     *
      * @cassttng AcqirisDetectors/\%detectorname\%/{AnalysisMethod}\n
-     *           Method that is used to reconstruct the detector hits, choises are:
-     *           - 0: Simple Analysis
-     * @cassttng AcqirisDetectors/\%detectorname\%/{LayersToUse}\n
-     *           Layers that should be used (when using the simple reconstruction method).
-     *           - if HexAnode:
-     *             - 0: Layers U and V
-     *             - 1: Layers U and W
-     *             - 2: Layers V and W
-     *           - if QuadAnode (only one option available):
-     *             - 0: Layers X and Y
-     * @cassttng AcqirisDetectors/\%detectorname\%/{DeadTimeMcp}\n
-     *           Dead time when detecting MCP Signals (used for future more advanced
-     *           reconstruction methods)
-     * @cassttng AcqirisDetectors/\%detectorname\%/{DeadTimeAnode}\n
-     *           Dead time when detecting anode layer Signals (used for future more
-     *           advanced reconstruction methods)
-     * @cassttng AcqirisDetectors/\%detectorname\%/{WLayerOffset}\n
-     *           The W-Layer offset with respect to layers U and V (used for future more
-     *           advanced Hex-Detector reconstruction methods)
+     *           Method that is used to reconstruct the detector hits. Default
+     *           is 0. Choises are:
+     *           - 0: Simple Analysis (see DelaylineDetectorAnalyzerSimple)
+     * @cassttng AcqirisDetectors/\%detectorname\%/{DelaylineType}\n
+     *           What kind of Delaylinedetector are we. Default is 0
+     *           - 0: Quad Anode
+     *           - 1: Hex Anode
+     * @cassttng AcqirisDetectors/\%detectorname\%/XLayer\n
+     *           groupname of the X Layer, when DelaylineType is Quad
+     * @cassttng AcqirisDetectors/\%detectorname\%/YLayer\n
+     *           groupname of the Y Layer, when DelaylineType is Quad
+     * @cassttng AcqirisDetectors/\%detectorname\%/ULayer\n
+     *           groupname of the U Layer, when DelaylineType is Hex
+     * @cassttng AcqirisDetectors/\%detectorname\%/VLayer\n
+     *           groupname of the V Layer, when DelaylineType is Hex
+     * @cassttng AcqirisDetectors/\%detectorname\%/WLayer\n
+     *           groupname of the W Layer, when DelaylineType is Hex
      *
      * @author Lutz Foucar
      */

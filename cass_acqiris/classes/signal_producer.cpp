@@ -41,11 +41,9 @@ void SignalProducer::loadSettings(CASSSettings &p)
 {
   delete _signalextractor;
   SignalExtractorType analyzerType
-      (static_cast<SignalExtractorType>(p.value("SignalExtactorType",com16).toInt()));
+      (static_cast<SignalExtractorType>(p.value("SignalExtractionMethod",com16).toInt()));
   _signalextractor = SignalExtractor::instance(analyzerType);
   _signalextractor->loadSettings(p);
-//  _grLow        = p->value("LowerGoodTimeRangeLimit",0.).toDouble();
-//  _grHigh       = p->value("UpperGoodTimeRangeLimit",20000.).toDouble();
 }
 
 SignalProducer::signals_t& SignalProducer::output()

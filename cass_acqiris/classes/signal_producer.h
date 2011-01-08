@@ -45,17 +45,13 @@ namespace cass
      * Then the specific settings for these objects are:
      * @cassttng .../{SignalExtractionMethod}\n
      *           the method type that will be used to extract the signals from
-     *           the recorded data. There are the following options :
-     *           - 0:com 8 bit waveform
-     *           - 1:com 16 bit waveform
-     *           - 2:cfd 8 bit waveform
-     *           - 3:cfd 16 bit waveform
-     *           depending on the type of analyzer one has to set up the analyzer
-     *           parameters
-     * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}\n
-     *           time range of the channel that "good" signals will appear. This
-     *           is used by delayline detectors for displaying the first good
-     *           hits and the timesum.
+     *           the recorded data. To see what options need to be set for the
+     *           specific signalextraction methods description.
+     *           There are the following options :
+     *           - 0:com 8 bit waveform (see CoM8Bit)
+     *           - 1:com 16 bit waveform (see CoM8Bit)
+     *           - 2:cfd 8 bit waveform (see CFD8Bit)
+     *           - 3:cfd 16 bit waveform (see CFD8Bit)
      *
      * @author Lutz Foucar
      */
