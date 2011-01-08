@@ -142,8 +142,8 @@ namespace cass
             //add the info//
             signal["time"] = pos*sampleInterval;
             signal["cfd"]  = pos*sampleInterval;
-            if (fsx > fsx_1) signal["polarity"]            = Negative;
-            if (fsx < fsx_1) signal["polarity"]            = Positive;
+            if (fsx > fsx_1) signal["polarity"] = Negative;
+            if (fsx < fsx_1) signal["polarity"] = Positive;
             if (fabs(fsx-fsx_1) < std::sqrt(std::numeric_limits<double>::epsilon())) signal["polarity"] = Bad;
 
             //--start and stop of the puls--//
