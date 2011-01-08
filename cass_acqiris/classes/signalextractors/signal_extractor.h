@@ -22,12 +22,6 @@ namespace cass
   {
     /** Base class for classes that extract Signals from recorded data
      *
-     * waveform analyzers should take a channel, analyze its wavefrom
-     * and put the result of the analysis into the results base class
-     *
-     * @todo rename this to reflect its purpose better (it not only is used for
-     *       waveforms, but also for extracting the right signals from a tdc
-     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT SignalExtractor
@@ -50,7 +44,7 @@ namespace cass
       /** load the settings of the extractor */
       virtual void loadSettings(CASSSettings&)=0;
 
-      /** creates an instance of the requested analyzer type */
+      /** creates an instance of the requested extractor type */
       static SignalExtractor* instance(SignalExtractorType);
     };
   }//end namespace acqiris
