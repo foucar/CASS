@@ -74,8 +74,6 @@ namespace cass
      * @note we should let this class only identify the Signals and create the
      *       Signal list. The further analysis of the Signal should be done,
      *       when the user requests a property.
-     * @note when the above is done we need to rename this to something
-     *       that describes the functors class much better.
      *
      * @author Lutz Foucar
      */
