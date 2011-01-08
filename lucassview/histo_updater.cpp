@@ -12,15 +12,29 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <TH1.h>
+#include <TH2.h>
 
 #include "histo_updater.h"
 
 #include "tcpclient.h"
+#include "histogram.h"
 
 using namespace lucassview;
 
 namespace lucassview
 {
+  /** retrieve root histogram
+   *
+   * @param name The name of the root histogram
+   *
+   * @author Lutz Foucar
+   */
+  TH1 * getRootHist(const std::string & name)
+  {
+
+  }
+
   /** create the list of updateable histograms from all available keys
    *
    * @return list of keys that need to be updated
@@ -61,8 +75,49 @@ namespace lucassview
      */
     void operator() (const std::string& key)const
     {
-      std::cout << "updateHist(): do something to "<<key<<std::endl;
-      cass::HistogramBackend * casshist(_client(key));
+      using namespace cass;
+      std::cout << "updateHist(): copy information of "<<key<<std::endl;
+      HistogramFloatBase * casshist(dynamic_cast<HistogramFloatBase*>(_client(key)));
+      TH1 * roothist(getRootHist(key));
+      switch (casshist->dimension())
+      {
+      case 2:
+        {
+          const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
+          const AxisProperty &yaxis(casshist->axis()[HistogramBackend::yAxis]);
+          if(!roothist)
+            roothist = new TH2F(key.c_str(),key.c_str(),
+                                xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
+                                yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+          for (size_t iY(0); iY<xaxis.nbrBins();++iY)
+            for (size_t iX(0); iX<yaxis.nbrBins();++iX)
+              roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
+          roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[HistogramBackend::LowerLeft]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[HistogramBackend::LowerRight]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperRight]);
+          roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperLeft]);
+          roothist->SetBinContent(roothist->GetBin(1,0),casshist->memory()[HistogramBackend::LowerMiddle]);
+          roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
+          roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
+        }
+        break;
+      case 1:
+        {
+          const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
+          if(!roothist)
+            roothist = new TH1F(key.c_str(),key.c_str(),
+                                xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+          for (size_t iX(0); iX<casshist->axis()[HistogramBackend::xAxis].nbrBins();++iX)
+            roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
+          roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[HistogramBackend::Overflow]);
+        }
+        break;
+      case 0:
+      default:
+        break;
+      }
       std::cout << "updateHist(): done with "<<key<<std::endl;
     }
   };
