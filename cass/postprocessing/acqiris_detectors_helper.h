@@ -52,14 +52,14 @@ namespace cass
     public:
       /** static function creating instance of this.
        *
-       * create an instance of an helper for the requested detector.
-       * if it doesn't exist already. Create the maps with analyzers
+       * return the instance of the helper that is managing the detector. If the
+       * helper is not yet inside the _instances map the helper instance will be
+       * created and put into the _instances map.
        *
-       * @note creating the list of analyzers might be more useful inside the constuctor. But
-       *       then there would be a map for each detector.. We need to change this to
-       *       let the detectors calculate the requested vaules lazly in the near future
+       * @return instance of the helper manaing the detector
+       * @param detector key (name) of the detector to find it in the _instances map
        */
-      static HelperAcqirisDetectors * instance(helperinstancesmap_t::key_type);
+      static HelperAcqirisDetectors * instance(const helperinstancesmap_t::key_type& detector);
 
       /** destroy the whole helper*/
       static void destroy();
@@ -92,9 +92,9 @@ namespace cass
     protected:
       /** list of pairs of id-detectors.
        *
-       * The contents are copy constructed from the detector that this helper instance owns.
-       * Needs to be at least the size of workers that can possibly call this helper simultaniously,
-       * but should be shrinked if it get much bigger than the nbr of workers
+       * @note  Needs to be at least the size of workers that can possibly call
+       *        this helper simultaniously, but should be shrinked if it gets
+       *        much bigger than the number of workers.
        */
       detectorList_t _detectorList;
 
@@ -104,10 +104,18 @@ namespace cass
 
       /** private constructor.
        *
-       * create our instance of the detector depending on the detector type
-       * and the list of detectors.
+       * Creates the list of detectors. The detectors are of the user chosen
+       * type. The type can be chosen by the user via the .cass ini setting
+       * dettype. The instance of the detectors are created
+       * by DetectorBackend::instance() \n
+       * The name of the detector is also the key in the instances map.
+       *
+       * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n
+       *           Type of the detector that this helper should be managing.
+       *
+       * @param detname the name of the detector
        */
-      HelperAcqirisDetectors(helperinstancesmap_t::key_type);
+      HelperAcqirisDetectors(const helperinstancesmap_t::key_type& detname);
 
       /** prevent copy-construction*/
       HelperAcqirisDetectors(const HelperAcqirisDetectors&);

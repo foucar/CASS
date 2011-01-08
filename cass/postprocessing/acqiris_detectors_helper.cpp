@@ -21,20 +21,18 @@ using namespace cass::ACQIRIS;
 HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
 QMutex HelperAcqirisDetectors::_mutex;
 
-HelperAcqirisDetectors* HelperAcqirisDetectors::instance(helperinstancesmap_t::key_type dettype)
+HelperAcqirisDetectors* HelperAcqirisDetectors::instance(const helperinstancesmap_t::key_type& detector)
 {
-  //lock this//
   QMutexLocker lock(&_mutex);
-  //check if an instance of the helper class already exists//
-  //return it, otherwise create one and return it//
-  if (0 == _instances[dettype])
+  if (_instances.find(detector) == _instances.end())
   {
     VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): creating an"
-               <<" instance of the Acqiris Detector Helper for detector type "<<dettype
+               <<" instance of the Acqiris Detector Helper for detector \" "<<detector
+               <<"\""
                <<std::endl);
-    _instances[dettype] = new HelperAcqirisDetectors(dettype);
+    _instances[detector] = new HelperAcqirisDetectors(detector);
   }
-  return _instances[dettype];
+  return _instances[detector];
 }
 
 void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
@@ -45,18 +43,20 @@ void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
     delete itdm->second;
 }
 
-HelperAcqirisDetectors::HelperAcqirisDetectors(helperinstancesmap_t::key_type detname)
+HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_type& detname)
 {
   CASSSettings settings;
+  settings.beginGroup("AcqirisDetectors");
   settings.beginGroup(detname.c_str());
   DetectorType dettype (static_cast<DetectorType>(settings.value("DetectorType",0).toUInt()));
-
+  settings.endGroup();
+  settings.endGroup();
+  for (size_t i=0; i<NbrOfWorkers*2;++i)
+    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(dettype,detname)));
   VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: "
              << "we are responsible for det "<<detname
              << ", which name is of type " <<dettype
              <<std::endl);
-  for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(dettype,detname)));
 }
 
 HelperAcqirisDetectors::~HelperAcqirisDetectors()
