@@ -42,8 +42,6 @@ namespace cass
     enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
     /** all available detectors*/
     enum Detectors{InvalidDetector, HexDetector, QuadDetector, VMIMcp, FELBeamMonitor, YAGPhotodiode, FsPhotodiode};
-    /** the available detector analyzers*/
-    enum DetectorAnalyzers {DelaylineSimple, ToFSimple};
     /** A wavefrom is just an array (vector) of integers,
         this typedef is for more readable code*/
     typedef std::vector<int16_t> waveform_t;
