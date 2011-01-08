@@ -122,7 +122,11 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
 
 detectorHits_t& DelaylineDetector::hits()
 {
+//  std::cout << " DelayDet 1"<<std::endl;
   bool newEventAssociated (_newEventAssociated);
+//  std::cout << " DelayDet 2 "<<std::boolalpha<<_newEventAssociated<<std::endl;
   _newEventAssociated = false;
+//  std::cout << " DelayDet 3 "<<_analyzer.get()<<std::endl;
   return (newEventAssociated)? (*_analyzer)(_hits):_hits;
+//  std::cout << " DelayDet 4"<<std::endl;
 }
