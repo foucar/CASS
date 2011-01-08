@@ -21,8 +21,7 @@ DEPENDPATH += ../cass \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
     .
-SOURCES += \
-    ./acqiris_converter.cpp \
+SOURCES += ./acqiris_converter.cpp \
     ./acqiris_device.cpp \
     ./classes/signal_producer.cpp \
     ./classes/delayline_detector.cpp \
@@ -31,9 +30,9 @@ SOURCES += \
     ./classes/signalextractors/signal_extractor.cpp \
     ./classes/signalextractors/com.cpp \
     ./classes/signalextractors/cfd.cpp \
+    ./classes/detector_analyzer/detector_analyzer_backend.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp
-HEADERS += \
-    ./acqiris_converter.h \
+HEADERS += ./acqiris_converter.h \
     ./cass_acqiris.h \
     ./acqiris_device.h \
     ../cass/analysis_backend.h \
