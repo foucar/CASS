@@ -34,6 +34,8 @@ namespace cass
     enum LayersToUse {UV,UW,VW};
     /** the types of detectors that are available */
     enum DetectorType {Delayline, ToF};
+    /** the available detector analyzers*/
+    enum DetectorAnalyzerTypes{DelaylineSimple};
     /** the types of delayline detectors that are available */
     enum DelaylineType {Quad,Hex};
     /** the waveformanalyzers that are available */
