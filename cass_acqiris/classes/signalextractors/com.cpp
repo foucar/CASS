@@ -77,7 +77,7 @@ namespace cass
             {
             if (risingEdge)            //if we had a rising edge before we know that it was a real peak
             {
-              //--create a new peak--//
+              //--create a new signal--//
               SignalProducer::signal_t signal;
               //std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
               //--set all known settings--//
