@@ -32,7 +32,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimpleQuad
+    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
         : public DelaylineDetectorAnalyzerBackend
     {
     public:
@@ -42,7 +42,7 @@ namespace cass
        *
        * @param waveformanalyzer the container that contains all waveformanalyzers
        */
-      DelaylineDetectorAnalyzerSimpleQuad(waveformanalyzers_t* waveformanalyzer)
+      DelaylineDetectorAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
           :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
       {
         VERBOSEOUT(std::cout << "adding simple quad delayline detector analyzer"<<std::endl);
@@ -50,6 +50,13 @@ namespace cass
 
       /** the function creating the detectorhit list*/
       virtual void operator()(DetectorBackend&,const Device&);
+
+    protected:
+      /** first anode layer */
+      char _first;
+
+      /** second anode layer */
+      char _second;
     };
 
   }//end namespace acqiris
