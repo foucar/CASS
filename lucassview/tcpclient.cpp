@@ -51,9 +51,11 @@ std::list<std::string> TCPClient::operator() ()const
   return returnlist;
 }
 
-cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)const
+std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::operator() (const std::string &histogramkey)const
 {
   using namespace std;
+  using namespace std::tr1;
+  using namespace cass;
   bool ret(false);
   CASSsoapProxy client;
   client.soap_endpoint = _server.c_str();
@@ -76,22 +78,22 @@ cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)c
 //      << " TCPClient: Size=" << (*attachment).size << endl
 //      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
 //      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-  std::string mimeType((*attachment).type);
-  cass::HistogramBackend* hist(0);
+  string mimeType((*attachment).type);
+  shared_ptr<HistogramFloatBase> hist;
   if(mimeType == "application/cass2Dhistogram")
   {
       cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = new cass::Histogram2DFloat(serializer);
+      hist = shared_ptr<HistogramFloatBase>(new Histogram2DFloat(serializer));
   }
   else if(mimeType == "application/cass1Dhistogram")
   {
       cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = new cass::Histogram1DFloat(serializer);
+      hist = shared_ptr<HistogramFloatBase>(new Histogram1DFloat(serializer));
   }
   else if(mimeType == "application/cass0Dhistogram")
   {
       cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-      hist = new cass::Histogram0DFloat(serializer);
+      hist = shared_ptr<HistogramFloatBase>(new Histogram0DFloat(serializer));
   }
   else
   {

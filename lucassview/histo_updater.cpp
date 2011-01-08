@@ -22,6 +22,7 @@
 #include "histogram.h"
 
 using namespace lucassview;
+using namespace std;
 
 namespace lucassview
 {
@@ -32,11 +33,11 @@ namespace lucassview
    *
    * @author Lutz Foucar
    */
-  std::list<std::string> checkList(const std::list<std::string> &allkeys)
+  list<string> checkList(const list<string> &allkeys)
   {
     using namespace std;
     list<string> updateList(allkeys);
-    cout << "checkList(): create the list of histograms that need to be updated"<<endl;
+//    cout << "checkList(): create the list of histograms that need to be updated"<<endl;
     return updateList;
   }
 
@@ -63,86 +64,102 @@ namespace lucassview
      *
      * @param key The key that the histogram has on the server
      */
-    void operator() (const std::string& key)const
+    void operator() (const string& key)const
     {
       using namespace cass;
-      std::cout << "updateHist(): copy information of "<<key<<std::endl;
-      HistogramFloatBase * casshist(dynamic_cast<HistogramFloatBase*>(_client(key)));
-      TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObjectAny(key.c_str())));
-      switch (casshist->dimension())
+      using namespace tr1;
+      try
       {
-      case 2:
+        cout << "updateHist(): copy information of "<<key<<endl;
+        shared_ptr<HistogramFloatBase> casshist(_client(key));
+        TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObjectAny(key.c_str())));
+        switch (casshist->dimension())
         {
-          const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
-          const AxisProperty &yaxis(casshist->axis()[HistogramBackend::yAxis]);
-          if(roothist)
+        case 2:
           {
-            const TAxis & rxaxis (*roothist->GetXaxis());
-            const TAxis & ryaxis (*roothist->GetYaxis());
-            if(xaxis.nbrBins() != rxaxis.GetNbins() &&
-               xaxis.lowerLimit() != rxaxis.GetXmin() &&
-               xaxis.upperLimit() != rxaxis.GetXmax() &&
-               yaxis.nbrBins() != ryaxis.GetNbins() &&
-               yaxis.lowerLimit() != ryaxis.GetXmin() &&
-               yaxis.upperLimit() != ryaxis.GetXmax())
+            const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
+            const AxisProperty &yaxis(casshist->axis()[HistogramBackend::yAxis]);
+            if(roothist)
             {
-              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
-                                yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+              const TAxis & rxaxis (*roothist->GetXaxis());
+              const TAxis & ryaxis (*roothist->GetYaxis());
+              if(xaxis.nbrBins() != rxaxis.GetNbins() ||
+                 xaxis.lowerLimit() != rxaxis.GetXmin() ||
+                 xaxis.upperLimit() != rxaxis.GetXmax() ||
+                 yaxis.nbrBins() != ryaxis.GetNbins() ||
+                 yaxis.lowerLimit() != ryaxis.GetXmin() ||
+                 yaxis.upperLimit() != ryaxis.GetXmax())
+              {
+                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<" "<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<" "<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<" "<<rxaxis.GetXmax()<<" "
+                    <<yaxis.nbrBins()<<" "<<ryaxis.GetNbins()<<" "<<yaxis.lowerLimit()<<" "<<ryaxis.GetXmin()<<" "<<yaxis.upperLimit()<<" "<<ryaxis.GetXmax()<<endl;
+                roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
+                                  yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+              }
             }
-          }
-          else
-          {
-            roothist = new TH2F(key.c_str(),key.c_str(),
-                                xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
-                                yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
-          }
-          for (size_t iY(0); iY<xaxis.nbrBins();++iY)
-            for (size_t iX(0); iX<yaxis.nbrBins();++iX)
-              roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
-          roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[HistogramBackend::LowerLeft]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[HistogramBackend::LowerRight]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperRight]);
-          roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperLeft]);
-          roothist->SetBinContent(roothist->GetBin(1,0),casshist->memory()[HistogramBackend::LowerMiddle]);
-          roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
-          roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
-        }
-        break;
-      case 1:
-        {
-          const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
-          if(roothist)
-          {
-            const TAxis & rxaxis (*roothist->GetXaxis());
-            if(xaxis.nbrBins() != rxaxis.GetNbins() &&
-               xaxis.lowerLimit() != rxaxis.GetXmin() &&
-               xaxis.upperLimit() != rxaxis.GetXmax())
+            else
             {
-              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+              cout << "updateHist(): '"<<key<<"' create roothist with "<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<" "
+                  <<yaxis.nbrBins()<<" "<<yaxis.lowerLimit()<<" "<<yaxis.upperLimit()<<endl;
+              roothist = new TH2F(key.c_str(),key.c_str(),
+                                  xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
+                                  yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
             }
+            for (size_t iY(0); iY<yaxis.nbrBins();++iY)
+              for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+                roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
+            cout<< "cpy over /underflow"<<endl;
+            roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[HistogramBackend::LowerLeft]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[HistogramBackend::LowerRight]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperRight]);
+            roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperLeft]);
+            roothist->SetBinContent(roothist->GetBin(1,0),casshist->memory()[HistogramBackend::LowerMiddle]);
+            roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
+            roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
+            cout<< "done cpy over /underflow"<<endl;
           }
-          else
+          break;
+        case 1:
           {
-            roothist = new TH1F(key.c_str(),key.c_str(),
-                                xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+            const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
+            if(roothist)
+            {
+              const TAxis & rxaxis (*roothist->GetXaxis());
+              if(xaxis.nbrBins() != rxaxis.GetNbins() ||
+                 xaxis.lowerLimit() != rxaxis.GetXmin() ||
+                 xaxis.upperLimit() != rxaxis.GetXmax())
+              {
+                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<" "<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<" "<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<" "<<rxaxis.GetXmax()<<endl;
+                roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+              }
+            }
+            else
+            {
+              cout << "updateHist(): '"<<key<<"' create roothist with "<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<endl;
+              roothist = new TH1F(key.c_str(),key.c_str(),
+                                  xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+            }
+            for (size_t iX(0); iX<casshist->axis()[HistogramBackend::xAxis].nbrBins();++iX)
+              roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
+            roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
+            roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[HistogramBackend::Overflow]);
           }
-          for (size_t iX(0); iX<casshist->axis()[HistogramBackend::xAxis].nbrBins();++iX)
-            roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
-          roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[HistogramBackend::Overflow]);
+          break;
+        case 0:
+        default:
+          break;
         }
-        break;
-      case 0:
-      default:
-        break;
+        cout << "updateHist(): done with "<<key<<endl;
       }
-      std::cout << "updateHist(): done with "<<key<<std::endl;
+      catch (const runtime_error& error)
+      {
+        cout << error.what()<<endl;
+      }
     }
   };
 }
 
-HistogramUpdater::HistogramUpdater(const std::string &server, int port)
+HistogramUpdater::HistogramUpdater(const string &server, int port)
   :_server(server),
    _port(port),
    _timer(new TTimer())
