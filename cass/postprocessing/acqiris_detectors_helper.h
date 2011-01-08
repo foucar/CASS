@@ -162,12 +162,16 @@ namespace cass
       /** prevent assingment */
       HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
 
+      /** typedef describing the instances of the helper */
+      typedef std::map<Detectors,HelperAcqirisDetectors*> helperinstancesmap_t;
+
       /** the helperclass instances.
        *
        * the instances of this class put into map
        * one instance for each available detector
        */
-      static std::map<Detectors,HelperAcqirisDetectors*> _instances;
+//      static std::map<Detectors,HelperAcqirisDetectors*> _instances;
+      static helperinstancesmap_t _instances;
 
       /** Singleton Mutex to lock write operations*/
       static QMutex _mutex;

@@ -19,11 +19,13 @@
 
 
 //initialize static members//
-std::map<cass::ACQIRIS::Detectors,cass::ACQIRIS::HelperAcqirisDetectors*>
+cass::ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t
     cass::ACQIRIS::HelperAcqirisDetectors::_instances;
 QMutex cass::ACQIRIS::HelperAcqirisDetectors::_mutex;
 
-cass::ACQIRIS::HelperAcqirisDetectors* cass::ACQIRIS::HelperAcqirisDetectors::instance(cass::ACQIRIS::Detectors dettype)
+cass::ACQIRIS::HelperAcqirisDetectors*
+    cass::ACQIRIS::HelperAcqirisDetectors::instance
+    (cass::ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type dettype)
 {
   //lock this//
   QMutexLocker lock(&_mutex);
