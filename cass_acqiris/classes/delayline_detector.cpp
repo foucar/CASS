@@ -7,7 +7,6 @@
  * @author Lutz Foucar
  */
 
-#include <list>
 #include <QtCore/QStringList>
 #include <QtCore/QString>
 
