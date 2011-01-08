@@ -7,6 +7,8 @@
  */
 
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 
 #include "id_list.h"
 
@@ -14,30 +16,27 @@
 cass::IdList::IdList(const std::list<std::string>& list)
   : Serializable(1), _list(list), _size(list.size())
 {
-  (std::cerr << "IdList::IdList(): Initial list size = " << _size << std::endl);
+  std::cerr << "IdList::IdList(): Initial list size = " << _size << std::endl;
 }
 
 bool cass::IdList::deserialize(SerializerBackend *in)
 {
+  using namespace std;
   _list.clear();
   //check whether the version fits//
   in->startChecksumGroupForRead();
   uint16_t ver = in->retrieveUint16();
   if(ver != _version)
   {
-    std::cerr<<"IdList::deserialize(): version conflict in IdList: "<<ver<<" "<<_version<<std::endl;
-    return false;
+    stringstream ss;
+    ss <<"IdList::deserialize(): Version conflict is '"<<ver<<"' should be '"<<_version<<"'";
+    throw runtime_error(ss.str());
   }
   _size = in->retrieveSizet();
-  (std::cerr << "IdList::deserialize(): list size " << _size << std::endl);
   if (!in->endChecksumGroupForRead())
-  {
-    (std::cerr<<"IdList::deserialize(): wrong checksum IdList"<<std::endl);
-    return false;
-  }
+    throw runtime_error("IdList::deserialize(): wrong checksum");
   for(size_t ii=0; ii<_size; ++ii)
     _list.push_back(in->retrieveString());
-  (std::cerr << "IdList::deserialize(): list is done " << std::endl);
   return true;
 }
 
