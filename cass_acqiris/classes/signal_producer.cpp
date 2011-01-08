@@ -43,6 +43,7 @@ SignalProducer::SignalProducer(const SignalProducer& rhs)
    _signals(rhs._signals),
    _newEventAssociated(rhs._newEventAssociated)
 {
+//  std::cout << "copy sigprod  "<<_signalextractor.get()<<" "<<std::boolalpha<<_newEventAssociated<<std::endl;
 }
 
 SignalProducer::~SignalProducer()
@@ -68,20 +69,29 @@ SignalProducer::signals_t& SignalProducer::output()
 
 void SignalProducer::associate(const CASSEvent &evt)
 {
+//  std::cout <<"      SigProd 1"<<std::endl;
  _newEventAssociated = true;
+// std::cout <<"      SigProd 2   "<<std::boolalpha<<_newEventAssociated<<std::endl;
  _signals.clear();
+// std::cout <<"      SigProd 3  "<<(_signalextractor.get())<<std::endl;
  _signalextractor->associate(evt);
+// std::cout <<"      SigProd 4"<<std::endl;
 }
 
 double SignalProducer::firstGood(const std::pair<double,double>& range)
 {
   using namespace std;
+//  cout <<boolalpha<< _newEventAssociated << endl;
   if(_newEventAssociated)
   {
-    signals_t sigs (output());
+    signals_t &sigs (output());
+//    cout<< "size "<<sigs.size()<<endl;
     signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
     if (sigIt != sigs.end())
+    {
+//      cout <<"found one"<<endl;
       _goodHit = (*sigIt)["time"];
+    }
     else
       _goodHit=0;
   }
