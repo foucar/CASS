@@ -70,7 +70,7 @@ namespace cass
     public:
       bool operator()(const detectorHit_t &dethit) const
       {
-        std::cout <<"TofCond(): cond low'"<<_tofcond.first<<"' high '"<<_tofcond.second<<"' time '"<<dethit["t"]<<"'"<<std::endl;
+//        std::cout <<"TofCond(): cond low'"<<_tofcond.first<<"' high '"<<_tofcond.second<<"' time '"<<dethit["t"]<<"'"<<std::endl;
         return  (_tofcond.first < dethit["t"] && dethit["t"] < _tofcond.second);
       }
 
@@ -290,7 +290,7 @@ particleHits_t& Particle::hits()
 {
   if (!_listIsCreated)
   {
-    std::cout << "particleHits::hits(): create list"<<std::endl;
+//    std::cout << "particleHits::hits(): create list"<<std::endl;
     using namespace std;
     const IsParticleHit &isParticleHit (*_isParticleHit);
     const MomentumCalculator &calcpxpy (*_calc_detplane);
