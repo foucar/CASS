@@ -14,6 +14,7 @@ INCLUDEPATH += ../cass \
     ./classes \
     ./classes/signalextractors \
     ./classes/detector_analyzer \
+    ./classes/momenta_calculators \
     . \
     ../LCLS
 DEPENDPATH += ../cass \
@@ -55,7 +56,7 @@ HEADERS += ./acqiris_converter.h \
     ./classes/detector_analyzer/detector_analyzer_backend.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
     ./classes/momenta_calculators/spectrometer.h \
-    :/classes/momenta_calculators/momenta_calculator.h
+    ./classes/momenta_calculators/momenta_calculator.h
 
 headers.files = $$HEADERS
 INSTALLS += target
