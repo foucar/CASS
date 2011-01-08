@@ -9,15 +9,22 @@
 #include <TROOT.h>
 #include <iostream>
 #include <string>
+#include <memory>
 
+#include "histo_updater.h"
+
+HistogramUpdater *gHistUpdater;
 /** main function
  *
  * @author Lutz Foucar
  */
 int main(int argc, char *argv[])
 {
+  using namespace std;
   TRint theApp("App", &argc, argv);
 	//gROOT->ProcessLine(".L OnlineMacros.c");
+  auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("daq-amo-mon02",12321));
+  gHistUpdater = histUp.get();
   theApp.Run();
 	return 0;
 }
