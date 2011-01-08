@@ -48,6 +48,9 @@ void DelaylineDetector::associate(const CASSEvent & evt)
   anodelayers_t::iterator it (_anodelayers.begin());
   for (; it != _anodelayers.end(); ++it)
     (*it).second.associate(evt);
+  particles_t::iterator pit (_particles.begin());
+  for (; pit != _particles.end();++pit)
+    (*pit).second.associate(&_hits);
 }
 
 void DelaylineDetector::loadSettings(CASSSettings &s)

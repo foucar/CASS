@@ -174,7 +174,9 @@ namespace cass
        * available. Therefore the _newEventAssociatad is set to true and the
        * _hits container is cleared. Then the Signalproduers of this detector
        * (the mcp and all anodlayers) will be associated with this event. Please
-       * refer to SignalProducer::associate() for further information.
+       * refer to SignalProducer::associate() for further information.\n
+       * Then associate all particles with the detectorhits of this detector by
+       * calling Particle::associate() for each particle in the container.
        *
        * @param evt The event to associate with this detector
        */
