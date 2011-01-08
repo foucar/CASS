@@ -11,6 +11,7 @@
 #define _SIGNAL_H_
 
 #include <algorithm>
+#include <memory>
 #include <map>
 #include <vector>
 #include <string>
@@ -123,7 +124,7 @@ namespace cass
       double _goodHit;
 
       /** the extractor of the produced signals */
-      SignalExtractor * _signalextractor;
+      SignalExtractor *_signalextractor;
 
       /** the signals produces by this producer */
       signals_t _signals;
