@@ -30,7 +30,7 @@ namespace cass
 
     /** A anode layer of the delayline detector.
      *
-     * class containing the properties of a anode layer of the detector
+     * class containing the wireends of an anode layer of the detector
      *
      * @cassttng AcqirisDetectors/\%detectorname\%/\%Layername\%/
      *           {LowerTimesumConditionLimit|UpperTimesumConditionLimit}\n
