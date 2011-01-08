@@ -141,13 +141,36 @@ namespace cass
       std::pair<double,double> _yrange;
     };
 
-//    class TofRadCond : public IsParticleHit
-//    {
-//    };
-//
-//    class TofQuadCond : public IsParticleHit
-//    {
-//    };
+    /** a combination of conditions
+     *
+     * this class combines two of the IsParticleHit conditions
+     *
+     * @author Lutz Foucar
+     */
+    template <class FirstCondition, class SecondCondition>
+    class CombineConditions : public IsParticleHit
+    {
+    public:
+      CombineConditions()
+        :_conditions(std::make_pair(new FirstCondition, new SecondCondition))
+      {}
+
+      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      {
+        IsParticleHit &firstCond (*_conditions.first);
+        IsParticleHit &secondCond (*_conditions.second);
+        return (firstCond(dethit) && secondCond(dethit));
+      }
+
+      void loadSettings(CASSSettings &s)
+      {
+        _conditions.first->loadSettings(s);
+        _conditions.second->loadSettings(s);
+      }
+
+    private:
+      std::pair<IsParticleHit*,IsParticleHit*> _conditions;
+    };
 
     /** convert kartesian coordinates to polar coordinates
      *
@@ -175,8 +198,6 @@ namespace cass
 
 void Particle::loadSettings(CASSSettings& s)
 {
-//	fCondTofFr	= pi.GetCondTofFr();
-//	fCondTofTo	= pi.GetCondTofTo();
 //	fCondRad	= pi.GetPosFlag() ? TMath::Max(pi.GetCondWidthX(),pi.GetCondWidthY()) : pi.GetCondRad();
 //	fCondRadX	= pi.GetCondRadX();
 //	fCondRadY	= pi.GetCondRadY();
