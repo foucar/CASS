@@ -14,7 +14,8 @@ target = ../bin/lucassview
 SOURCES.cpp = soapCASSsoapProxy.cpp \
 	soapC.cpp \
 	main.cpp \
-  tcpclient.cpp
+  tcpclient.cpp \
+  histo_updater.cpp
 
 OBJECTS = $(SOURCES.cpp:%.cpp=%.o)
 
