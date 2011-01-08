@@ -465,23 +465,53 @@ void cass::pp163::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
+  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
+      _layer != 'X' && _layer != 'Y')
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
+    throw invalid_argument(ss.str());
+  }
+  else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
+  {
+    if (_layer == 'X' || _layer == 'Y')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
+  else
+  {
+    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
+    {
+      stringstream ss;
+      ss <<"pp160::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
+      throw invalid_argument(ss.str());
+    }
+  }
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-    throw std::runtime_error("pp163::loadSettings(): Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": histograms the timesum vs Postion on layer "<<_layer
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms the timesum vs Postion on layer '"<<_layer
+      <<"' of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp163::process(const cass::CASSEvent &evt)
