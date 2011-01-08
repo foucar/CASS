@@ -14,6 +14,7 @@
 #include "momenta_calculator.h"
 #include "spectrometer.h"
 #include "particle.h"
+#include "cass_settings.h"
 
 
 //-----------------Constants--------------------------
@@ -441,6 +442,20 @@ MomentumCalculator* MomentumCalculator::instance(const MomCalcType &type)
     break;
   }
   return momcalc;
+}
+
+void MomentumCalculator::loadSettings(CASSSettings &s)
+{
+  using namespace std;
+  s.beginGroup("Corrections");
+  _t0 = s.value("T0",0).toDouble();
+  _pos0 = make_pair(s.value("CorrectX",0).toDouble(),
+                    s.value("CorrectY",0).toDouble());
+  _scalefactors = make_pair(s.value("ScaleX",1).toDouble(),
+                            s.value("ScaleY",1).toDouble());
+  _angle = s.value("Angle",0).toDouble();
+  _angle = _angle *Pi()/180.;
+  s.endGroup();
 }
 
 void MomentumCalculator::correctDetectorPlane(const detectorHit_t &dethit, particleHit_t &particlehit) const

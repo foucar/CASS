@@ -43,6 +43,14 @@ namespace cass
        */
       virtual void operator()(const detectorHit_t &dethit, const Particle &particle, particleHit_t& particlehit)const=0;
 
+      /** load the settings
+       *
+       * load the correction factors from the .ini file
+       *
+       * @param s the CASSSettings object to read the information from
+       */
+      void loadSettings(CASSSettings &s);
+
       /** create instance of requested type
        *
        * creates an instance of the requested type
@@ -55,12 +63,18 @@ namespace cass
     protected:
       /** correct the position in the detector plane
        *
+       * First copy the position from the dethit, then correct this position,
+       * then scale the correted postion and finaly rotate the corrected scaled
+       * positition around the given angle.
+       *
        * @param[in] dethit the detector hit to correct
        * @param[out] particlehit this is where the correct position goes
        */
       void correctDetectorPlane(const detectorHit_t &dethit, particleHit_t& particlehit)const;
 
       /** correct the time of flight
+       *
+       * after copying the time of the detector hit substract _t0 from it.
        *
        * @param[in] dethit the detector hit to correct
        * @param[out] particlehit this is where the correct position goes
