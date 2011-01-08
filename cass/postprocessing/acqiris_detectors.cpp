@@ -301,7 +301,10 @@ void cass::pp162::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+    cout <<"pp162::process(): Error detector '"<<_detector<<"' is not a Delaylinedetector"<<endl;
+  dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
@@ -324,12 +327,10 @@ void cass::pp162::process(const cass::CASSEvent &evt)
 {
   using namespace std;
   using namespace cass::ACQIRIS;
-  static int counter;
+//  static int counter;
 //  cout <<counter++<< " pp162"<<endl;
   DetectorBackend *rawdet
       (HelperAcqirisDetectors::instance(_detector)->detector(evt));
-  if (rawdet->type() != Delayline)
-    cout <<"pp162::process(): Error detector is not a Delaylinedetector"<<endl;
   DelaylineDetector *det (dynamic_cast<DelaylineDetector*>(rawdet));
 //  cout << "pp162 1"<<endl;
   const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
