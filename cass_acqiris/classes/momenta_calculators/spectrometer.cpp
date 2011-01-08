@@ -20,7 +20,8 @@ void Spectrometer::loadSettings(CASSSettings &s, const Particle& p)
 {
   s.beginGroup("Spectrometer");
   int size = s.beginReadArray("Regions");
-  for (int i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i)
+  {
     s.setArrayIndex(i);
     SpectrometerRegion region;
     region.loadSettings(s);
