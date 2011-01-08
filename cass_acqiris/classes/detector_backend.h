@@ -46,7 +46,7 @@ namespace cass
       /** load the settings of the detector
        *
        * load the settings from the .ini file. Needs to be implemented by the
-       * the detector that inherits from this.
+       * detector that inherits from this.
        *
        * @param s reference to the CASSSettings object
        */
