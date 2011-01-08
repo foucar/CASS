@@ -46,11 +46,18 @@ namespace cass
 
       /** associate the event with this analyzer
        *
-       * @param evt the event the singals are extracted from
+       * retrieve all necessary information from the event to be able to later
+       * extract the signals from the data. Needs to be implemented by the class
+       * that implements the extractor method.
+       *
+       * @param evt the event the signals are extracted from
        */
       virtual void associate(const CASSEvent& evt)=0;
 
       /** load the settings of the extractor
+       *
+       * load the settings form the .ini file. Needs to be implementd by the
+       * class that implements the signal extractor.
        *
        * @param s the CASSSettings object to retrieve the information from.
        */
@@ -59,7 +66,8 @@ namespace cass
       /** creates an instance of the requested extractor type
        *
        * this static member will create an instance of the requested type, which
-       * is a class that inherits from this.
+       * is a class that inherits from this. If the requested type is unknown,
+       * an invalid_argument exception will be thrown.
        *
        * @return pointer to the instance of the requested type
        * @param type The type of signal extractor that the user requests
