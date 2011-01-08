@@ -23,8 +23,7 @@
 #include "postprocessing/postprocessor.h"
 #include "postprocessing/hdf5dump.h"
 #include "postprocessing/convenience_functions.h"
-#include "acqiris_detectors_helper.h"
-#include "tof_detector.h"
+#include "acqiris_device.h"
 #include "pdsdata/xtc/Dgram.hh"
 #include "cass_acqiris.h"
 

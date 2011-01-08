@@ -19,7 +19,7 @@
 #include "cass_event.h"
 #include "postprocessor.h"
 #include "acqiris_detectors_helper.h"
-#include "tof_detector.h"
+//#include "tof_detector.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
 
