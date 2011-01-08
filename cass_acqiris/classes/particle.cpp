@@ -109,7 +109,8 @@ namespace cass
       {
         const double &x (dethit["x"]);
         const double &y (dethit["y"]);
-        const double rad = sqrt(x*x + y*y);
+        const double rad = sqrt((x-_center.first)*(x-_center.first) +
+                                (y-_center.second)*(y-_center.second));
         return (rad < _maxradius);
       }
 
