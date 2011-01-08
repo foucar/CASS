@@ -68,7 +68,7 @@ namespace lucassview
       using namespace cass;
       std::cout << "updateHist(): copy information of "<<key<<std::endl;
       HistogramFloatBase * casshist(dynamic_cast<HistogramFloatBase*>(_client(key)));
-      TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObject(key.c_str())));
+      TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObjectAny(key.c_str())));
       switch (casshist->dimension())
       {
       case 2:
