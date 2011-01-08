@@ -70,7 +70,7 @@ namespace lucassview
       using namespace tr1;
       try
       {
-        cout << "updateHist(): copy information of "<<key<<endl;
+//        cout << "updateHist(): copy information of "<<key<<endl;
         shared_ptr<HistogramFloatBase> casshist(_client(key));
         TH1 * roothist(dynamic_cast<TH1*>(gDirectory->FindObjectAny(key.c_str())));
         switch (casshist->dimension())
@@ -90,8 +90,8 @@ namespace lucassview
                  yaxis.lowerLimit() != ryaxis.GetXmin() ||
                  yaxis.upperLimit() != ryaxis.GetXmax())
               {
-                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<" "<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<" "<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<" "<<rxaxis.GetXmax()<<" "
-                    <<yaxis.nbrBins()<<" "<<ryaxis.GetNbins()<<" "<<yaxis.lowerLimit()<<" "<<ryaxis.GetXmin()<<" "<<yaxis.upperLimit()<<" "<<ryaxis.GetXmax()<<endl;
+                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<"<->"<<rxaxis.GetXmax()<<" "
+                    <<yaxis.nbrBins()<<"<->"<<ryaxis.GetNbins()<<" "<<yaxis.lowerLimit()<<"<->"<<ryaxis.GetXmin()<<" "<<yaxis.upperLimit()<<"<->"<<ryaxis.GetXmax()<<endl;
                 roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                                   yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
               }
@@ -107,7 +107,7 @@ namespace lucassview
             for (size_t iY(0); iY<yaxis.nbrBins();++iY)
               for (size_t iX(0); iX<xaxis.nbrBins();++iX)
                 roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
-            cout<< "cpy over /underflow"<<endl;
+//            cout<< "cpy over /underflow"<<endl;
             roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[HistogramBackend::LowerLeft]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[HistogramBackend::LowerRight]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperRight]);
@@ -116,7 +116,7 @@ namespace lucassview
             roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
             roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
-            cout<< "done cpy over /underflow"<<endl;
+//            cout<< "done cpy over /underflow"<<endl;
           }
           break;
         case 1:
@@ -129,7 +129,7 @@ namespace lucassview
                  xaxis.lowerLimit() != rxaxis.GetXmin() ||
                  xaxis.upperLimit() != rxaxis.GetXmax())
               {
-                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<" "<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<" "<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<" "<<rxaxis.GetXmax()<<endl;
+                cout << "updateHist(): '"<<key<<"' resize because axis differs: roothist: "<<xaxis.nbrBins()<<"<->"<<rxaxis.GetNbins()<<" "<<xaxis.lowerLimit()<<"<->"<<rxaxis.GetXmin()<<" "<<xaxis.upperLimit()<<"<->"<<rxaxis.GetXmax()<<endl;
                 roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
               }
             }
@@ -149,7 +149,7 @@ namespace lucassview
         default:
           break;
         }
-        cout << "updateHist(): done with "<<key<<endl;
+//        cout << "updateHist(): done with "<<key<<endl;
       }
       catch (const runtime_error& error)
       {
