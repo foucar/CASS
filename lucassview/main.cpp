@@ -13,7 +13,7 @@
 
 #include "histo_updater.h"
 
-HistogramUpdater *gHistUpdater;
+HistogramUpdater *gHistUpdater(0);
 /** main function
  *
  * @author Lutz Foucar
