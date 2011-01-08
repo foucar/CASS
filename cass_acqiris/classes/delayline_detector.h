@@ -115,7 +115,7 @@ namespace cass
        * @param t the time when the particle hit the detector
        */
       DelaylineDetectorHit(double x, double y, double t)
-          :_x_mm(x), _y_mm(y), _time(t)
+//          :_x_mm(x), _y_mm(y), _time(t)
       {
         _values['x']=x;
         _values['y']=y;
@@ -124,41 +124,41 @@ namespace cass
 
       /** default constructor, initalizing every value to 0*/
       DelaylineDetectorHit()
-        :_x_mm(0), _y_mm(0), _time(0)
+//        :_x_mm(0), _y_mm(0), _time(0)
       {}
 
     public:
-      //@{
-      /** getter.
-       * use this function to retrieve the properties of a hit.
-       */
-      double  x()const  {return _x_mm;}
-      double  y()const  {return _y_mm;}
-      double  t()const  {return _time;}
-      //@}
-      //@{
-      /** setter.
-       * use this function to set the properties of a hit.
-       * @todo check if we still need to set a detector hits
-       *       properties after creating it.
-       */
-      double &x()       {return _x_mm;}
-      double &y()       {return _y_mm;}
-      double &t()       {return _time;}
+//      //@{
+//      /** getter.
+//       * use this function to retrieve the properties of a hit.
+//       */
+//      double  x()const  {return _x_mm;}
+//      double  y()const  {return _y_mm;}
+//      double  t()const  {return _time;}
+//      //@}
+//      //@{
+//      /** setter.
+//       * use this function to set the properties of a hit.
+//       * @todo check if we still need to set a detector hits
+//       *       properties after creating it.
+//       */
+//      double &x()       {return _x_mm;}
+//      double &y()       {return _y_mm;}
+//      double &t()       {return _time;}
       //@}
 
       /** get the values of a hit*/
       std::map<char,double> &values() {return _values;}
 
     private:
-      /*! the x component of the detector in mm*/
-      double  _x_mm;
-
-      /*! the y component of the detector in mm*/
-      double  _y_mm;
-
-      /*! the mcp time of this hit on the detector*/
-      double  _time;
+//      /*! the x component of the detector in mm*/
+//      double  _x_mm;
+//
+//      /*! the y component of the detector in mm*/
+//      double  _y_mm;
+//
+//      /*! the mcp time of this hit on the detector*/
+//      double  _time;
 
       /** a map containing the three coordiantes of the hit*/
       std::map<char,double> _values;
