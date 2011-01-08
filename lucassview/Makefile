@@ -15,6 +15,7 @@ SOURCES.cpp = soapCASSsoapProxy.cpp \
 	soapC.cpp \
 	main.cpp \
   tcpclient.cpp \
+  histo_updater_dict.cpp \
   histo_updater.cpp
 
 OBJECTS = $(SOURCES.cpp:%.cpp=%.o)
@@ -27,9 +28,13 @@ soapCASSsoapProxy.cpp: ../cass/soapserver.h
 
 soapC.cpp: soapCASSsoapProxy.cpp
 
+histo_updater_dict.cpp: histo_updater.h
+	$(ROOTSYS)/bin/rootcint -f histo_updater_dict.cpp -c histo_updater.h histo_updater_linkdef.h;
+
 clean:
 	@echo "cleaning project"
 	@rm -f `find . -name "*.o"`
 	@rm -f `find . -name "*.xml"`
 	@rm -f `find . -name "*soap*"`
 	@rm -f `find . -name "ns.xsd"`
+	@rm -f `find . -name "*_dict*"`
