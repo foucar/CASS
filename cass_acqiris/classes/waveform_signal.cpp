@@ -5,8 +5,10 @@
 
 void cass::ACQIRIS::Signal::loadSettings(CASSSettings *p, const char * signalname)
 {
-  VERBOSEOUT(std::cerr<<"Signal load parameters:  load signal parameters for signal \""<<signalname<<"\""
-      <<" of  "<< p->group().toStdString()<<std::endl);
+  VERBOSEOUT(std::cerr<<"Signal load parameters:  load signal parameters for signal \""
+             <<signalname
+             <<"\" of  "<< p->group().toStdString()
+             <<std::endl);
   p->beginGroup(signalname);
   _instrument   = static_cast<Instruments>(p->value("AcqirisInstrument",Camp1).toInt());
   VERBOSEOUT(std::cerr <<"Signal load parameters: Instrument "<<_instrument<<std::endl);
@@ -39,7 +41,6 @@ double cass::ACQIRIS::Signal::firstGood() const
                      PeakInRange(_grLow,_grHigh));
     //if it is not there retrun 0, otherwise the time of the found peak//
     _goodHit = (it==_peaks.end())? 0. : it->time();
-//    std::cout << _goodHit<<" find first good peak "<<_grLow<<" "<<_grHigh<<std::endl;
 
     _isNewEvent = false;
   }
