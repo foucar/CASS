@@ -30,8 +30,9 @@ namespace cass
        *       present? the list of Singals / Peak should be created by the
        *       class Signal itselve?
        */
-      DelaylineDetectorAnalyzerBackend(waveformanalyzers_t* waveformanalyzer)
-          :DetectorAnalyzerBackend(waveformanalyzer) {}
+      DelaylineDetectorAnalyzerBackend()
+        :DetectorAnalyzerBackend()
+      {}
 
       /** virtual destructor*/
       virtual ~DelaylineDetectorAnalyzerBackend() {}
