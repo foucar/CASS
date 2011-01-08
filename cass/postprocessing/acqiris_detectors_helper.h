@@ -86,8 +86,11 @@ namespace cass
       void loadSettings(size_t=0);
 
     protected:
-      /** typdef defining the list of detectors for more readable code*/
+      /** typedef defining the list of detectors for more readable code*/
       typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
+
+      /** typedef describing the instances of the helper */
+      typedef std::map<Detectors,HelperAcqirisDetectors*> helperinstancesmap_t;
 
       /** validation of event.
        *
@@ -112,7 +115,7 @@ namespace cass
           Device *dev =
               dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
           //take the last element and get the the detector from it//
-          DetectorBackend* det = _detectorList.back().second;
+          DetectorBackend* det (_detectorList.back().second);
           //copy the information of our detector to this detector//
           det->clear();
           //process the detector using the data in the device
@@ -162,8 +165,6 @@ namespace cass
       /** prevent assingment */
       HelperAcqirisDetectors& operator=(const HelperAcqirisDetectors&);
 
-      /** typedef describing the instances of the helper */
-      typedef std::map<Detectors,HelperAcqirisDetectors*> helperinstancesmap_t;
 
       /** the helperclass instances.
        *
