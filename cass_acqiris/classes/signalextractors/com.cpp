@@ -14,6 +14,8 @@
 #include "helperfunctionsforstdc.h"
 #include "channel.h"
 #include "cass_settings.h"
+#include "acqiris_device.h"
+#include "cass_event.h"
 
 using namespace cass::ACQIRIS;
 
@@ -21,7 +23,7 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    namespace CoM
+    namespace CenterOfMass
     {
       //______________________Implementation of simple Version__________________________________________________________
       template <typename T>
@@ -31,15 +33,13 @@ namespace cass
         //  std::cout<<"com"<<sizeof(T)*8<<": entering"<<std::endl;
         //make sure that we are the right one for the waveform_t//
         assert(typeid(waveform_t::value_type) == typeid(T));
-        //get reference to the signal//
-        SignalProducer &s = dynamic_cast<SignalProducer&>(result);
         //extract infos from channel//
-        const waveform_t Data = c.waveform();
-        const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
-        const size_t wLength    = c.waveform().size();
+        const waveform_t &Data (c.waveform());
+        const int32_t vOffset (static_cast<int32_t>(c.offset() / c.gain()));    //mV -> ADC Bytes
+        const size_t wLength (Data.size());
         //extract info how to analyse from signal
-        double thres = s.threshold();
-        const double threshold  = thres / c.gain();    //mV -> ADC Bytes
+        double thres (param._threshold);
+        const double threshold (thres / c.gain());    //mV -> ADC Bytes
         //  std::cout << "com: values of channel "<<c.channelNbr()<<" is "
         //      <<s.threshold()<<" "
         //      <<c.gain()<<" "
@@ -100,9 +100,19 @@ namespace cass
               //        std::cout<<"com: found peak has polarity"<<p.polarity()
               //            <<" should have polarity "<<s.polarity()<<std::endl;
               //--add peak to signal if it fits the conditions--//
-              if(p.polarity() == s.polarity())  //if it has the right polarity
-                if(p.time() > s.trLow() && p.time() < s.trHigh()) //if signal is in the right timerange
-                  s.peaks().push_back(p);
+              if(p.polarity() == param._polarity)  //if it has the right polarity
+              {
+                for (CoMParameters::timeranges_t::const_iterator it (param._timeranges.begin());
+                it != param._timeranges.end();
+                ++it)
+                {
+                  if(p.time() > it->first && p.time() < it->second) //if signal is in the right timerange
+                  {
+                    sig.push_back(p);
+                    break;
+                  }
+                }
+              }
             }
             risingEdge = false;
             firsttime=true;
@@ -141,7 +151,7 @@ namespace cass
         for (int i = 0; i < size; ++i)
         {
           p._timeranges.push_back(std::make_pair(s.value("LowerLimit",0.).toDouble(),
-                                                 s.value("UpperLimit",1000).toDouble())));
+                                                 s.value("UpperLimit",1000).toDouble()));
         }
         s.endArray();
         p._polarity     = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
@@ -149,13 +159,14 @@ namespace cass
         s.endGroup();
       }
 
-      const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t channelNbr)
+      const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t ChannelNumber)
       {
+        const Device &device
+            (*(dynamic_cast<const ACQIRIS::Device*>(evt.devices().find(CASSEvent::Acqiris)->second)));
         ACQIRIS::Device::instruments_t::const_iterator instrumentIt
             (device.instruments().find(instrument));
         if (instrumentIt == device.instruments().end())
-          throw std::invalid_argument("extactRightChannel::the requested Instrument for signal is not in the datastream")
-        const size_t ChannelNumber (signal.channelNbr());
+          throw std::invalid_argument("extactRightChannel::the requested Instrument for signal is not in the datastream");
         const ACQIRIS::Instrument::channels_t &instrumentChannels
             (instrumentIt->second.channels());
         if ((ChannelNumber >= instrumentChannels.size()))
@@ -170,32 +181,32 @@ namespace cass
 //______________________________________________________________________________________________________________________
 SignalProducer::signals_t& CoM8Bit::operator()(SignalProducer::signals_t& sig)
 {
-  com<char>(*_chan, _parameters, sig);
+  CenterOfMass::com<char>(*_chan, _parameters, sig);
 }
 
 void CoM8Bit::loadSettings(CASSSettings &s)
 {
-  CoM::loadSettings(s,_parameters,_instrument,_chNbr);
+  CenterOfMass::loadSettings(s,_parameters,_instrument,_chNbr);
 }
 
 void CoM8Bit::associate(const CASSEvent &evt)
 {
-  _chan = CoM::extactRightChannel(evt,_instrument,_chNbr);
+  _chan = CenterOfMass::extactRightChannel(evt,_instrument,_chNbr);
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
 SignalProducer::signals_t& CoM16Bit::operator()(SignalProducer::signals_t& sig)
 {
-  com<short>(*_chan, _parameters, sig);
+  CenterOfMass::com<short>(*_chan, _parameters, sig);
 }
 
-void CoM16Bit::loadSettings(CASSSettings &)
+void CoM16Bit::loadSettings(CASSSettings &s)
 {
-  CoM::loadSettings(s,_parameters,_instrument,_chNbr);
+  CenterOfMass::loadSettings(s,_parameters,_instrument,_chNbr);
 }
 
 void CoM16Bit::associate(const CASSEvent &evt)
 {
-  _chan = CoM::extactRightChannel(evt,_instrument,_chNbr);
+  _chan = CenterOfMass::extactRightChannel(evt,_instrument,_chNbr);
 }
