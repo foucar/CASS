@@ -125,6 +125,10 @@ namespace cass
         :TofDetector(name), _analyzer(0), _newEventAssociated(false)
       {}
 
+      /** destroys the detector analyzer */
+      ~DelaylineDetector();
+
+
     public:
       /** load the values from the .ini file
        *

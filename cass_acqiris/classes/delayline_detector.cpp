@@ -31,6 +31,11 @@ void AnodeLayer::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
+DelaylineDetector::~DelaylineDetector()
+{
+  delete _analyzer;
+}
+
 void DelaylineDetector::associate(const CASSEvent & evt)
 {
   _newEventAssociated = true;
