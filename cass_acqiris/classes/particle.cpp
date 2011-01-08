@@ -18,32 +18,129 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    class IsParticleHit;
+    /** base class of conditions for finding the right particle
+     *
+     * @author Lutz Foucar
+     */
     class IsParticleHit
     {
     public:
+      /** the comparison
+       *
+       * @return true when dethit fullfilles the condition
+       * @param dethit the detector hit to check for the condition
+       */
       virtual bool operator()(const DelaylineDetector::hit_t &dethit)const=0;
+
+      /** read the parameters of the condition from the .ini file
+       *
+       * @param s the CASSSettings object to read the information from
+       */
+      virtual void loadSettings(CASSSettings &s)=0;
     };
 
+    /** a Time of Flight condition
+     *
+     * checks whether the detectorhit is in a predifined range in the time of
+     * flight
+     *
+     * @author Lutz Foucar
+     */
     class TofCond : public IsParticleHit
     {
     public:
       bool operator()(const DelaylineDetector::hit_t &dethit) const
       {
-        return  (_tofcond.first < dethit["time"] && _tofcond.second < dethit["time"]);
+        return  (_tofcond.first < dethit["time"] && dethit["time"] < _tofcond.second);
       }
+
+      void loadSettings(CASSSettings &s)
+      {
+        using namespace std;
+        s.beginGroup("ToFCondition");
+        _tofcond = make_pair(s.value("Low",0).toDouble(),
+                             s.value("High",20000).toDouble());
+        s.endGroup();
+      }
+
     private:
+      /** the tof range */
       std::pair<double,double> _tofcond;
     };
 
-//    class RadCond : public IsParticleHit
-//    {
-//    };
-//
-//    class QuadCond : public IsParticleHit
-//    {
-//    };
-//
+    /** a radius position condition
+     *
+     * checks whether the postion of the detectorhit on the detector is in a
+     * given radius around a predefined center.
+     *
+     * @author Lutz Foucar
+     */
+    class RadCond : public IsParticleHit
+    {
+    public:
+      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      {
+        const double &x (dethit["x_mm"]);
+        const double &y (dethit["y_mm"]);
+        const double rad = sqrt(x*x + y*y);
+        return (rad < _maxradius);
+      }
+
+      void loadSettings(CASSSettings &s)
+      {
+        using namespace std;
+        s.beginGroup("RadiusCondition");
+        _center = make_pair(s.value("CenterX",0).toDouble(),
+                            s.value("CenterY",0).toDouble());
+        _maxradius = s.value("MaximumRadius",100).toDouble();
+        s.endGroup();
+      }
+
+    private:
+      /** the center of the radius */
+      std::pair<double,double> _center;
+
+      /** the maximum radius of the condtion */
+      double _maxradius;
+    };
+
+    /** a simple position condition
+     *
+     * checks whether the detector hit falls in a simple rectangular condition
+     *
+     * @author Lutz Foucar
+     */
+    class QuadCond : public IsParticleHit
+    {
+    public:
+      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      {
+        const double &x (dethit["x_mm"]);
+        const double &y (dethit["y_mm"]);
+        const bool checkX(_xrange.first < x && x < _xrange.second);
+        const bool checkY(_yrange.first < y && y < _yrange.second);
+        return (checkX && checkY);
+      }
+
+      void loadSettings(CASSSettings &s)
+      {
+        using namespace std;
+        s.beginGroup("SimplePositionCondition");
+        _xrange = make_pair(s.value("XLow",-10).toDouble(),
+                            s.value("XHigh",10).toDouble());
+        _yrange = make_pair(s.value("YLow",-10).toDouble(),
+                            s.value("YHigh",10).toDouble());
+        s.endGroup();
+      }
+
+    private:
+      /** the range in x */
+      std::pair<double,double> _xrange;
+
+      /** the range in y */
+      std::pair<double,double> _yrange;
+    };
+
 //    class TofRadCond : public IsParticleHit
 //    {
 //    };
