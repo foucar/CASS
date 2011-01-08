@@ -62,44 +62,59 @@ namespace cass
       typedef std::vector<signal_t> signals_t;
 
     public:
-      /** default constructor.
-       *
-       * intializing the variables describing the extraction with nonsense,
-       * since they have to be loaded by loadSettings from cass.ini
-       */
+      /** default constructor */
       SignalProducer()
         :_signalextractor(0),_newEventAssociated(false)
       {}
 
     public:
-      /** loads the parameters.
+      /** loads the settings.
        *
-       * load the parameters from cass.ini, should only be called by class
-       * containing this class
+       * will load the the requested SignalExtractor by calling
+       * SignalExtractor::instance(). And then loads its settings. Please refer
+       * the the chosen signal extractors loadSettings memeber for further
+       * information.\n
+       * See class describtion for the type of signalextractor that can be
+       * chosen.
+       *
+       * @param s the CASSSettings object we retrieve the data from
        */
-      void loadSettings(CASSSettings &p);
+      void loadSettings(CASSSettings &s);
 
       /** assciate the event with this signalproducer
        *
        * resets the _newEventAssociated flag to true, clears the _signals vector
-       * and associates the event with the signalextractor.
+       * and associates the event with the signalextractor. See the signal
+       * extractors associate() member function for further information.
        *
        * @param evt the event that we need to associate with the signalextractor
        */
       void associate(const CASSEvent& evt);
 
     public:
-      /** return the time of the first peak in the "good" time range*/
+      /** returns the time of the first peak in the time range
+       *
+       * when the _newEventAssociated flag is true it will look for the first
+       * signal whos time is in the requested time range. If there is no signal
+       * in the requested timerange the value is set to 0.
+       *
+       * @return time of the first singal in the requested timerange
+       * @param range the timerange to search for the signal
+       */
       double firstGood(const std::pair<double,double>& range);
 
       /** return the signals
        *
        * When a new event was associated with this prodcuer, then it will first
        * extract all signals from the event data otherwise it will just return
-       * the signals
+       * the signals. It will extract the events from the data with the help of
+       * the _singalExtractor object that this class owns. This is done by
+       * calling the singalextractos operator().
        *
        * @note the output of a signal producer are the singals. Unfortunately
        *       if we call this function signals it will not compile anymore.
+       *
+       * @return reference to the singals of this singalproducer
        */
       signals_t& output();
 

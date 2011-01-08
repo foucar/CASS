@@ -126,11 +126,32 @@ namespace cass
       {}
 
     public:
-      /** load the values from cass.ini*/
-      virtual void loadSettings(CASSSettings&);
+      /** load the values from the .ini file
+       *
+       * this function will load the settings of this detector, which are
+       * described in the class description. Next to them it will load the
+       * settings of its SignalProducers (mcp and anodelayers). Please refer to
+       * SignalProducer::loadSettings() for further information.\n
+       * Then it will create the requested analyzer by calling
+       * DetectorAnalyzerBackend::instance() and load the settings for the
+       * analyzer. Please refer to the analyzers loadSettings() member for
+       * further information.
+       *
+       * @param s the CASSSettings object we retrieve the values from
+       */
+      virtual void loadSettings(CASSSettings &s);
 
-      /** associate the event with all of this detectors signal producers */
-      void associate (const CASSEvent&);
+      /** associate the event with this detector
+       *
+       * when this is called, it means that a data from a new event will be
+       * available. Therefore the _newEventAssociatad is set to true and the
+       * _hits container is cleared. Then the Signalproduers of this detector
+       * (the mcp and all anodlayers) will be associated with this event. Please
+       * refer to SignalProducer::associate() for further information.
+       *
+       * @param evt The event to associate with this detector
+       */
+      void associate (const CASSEvent& evt);
 
       /** return the layers */
       anodelayers_t &layers() {return _anodelayers;}

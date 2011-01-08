@@ -13,7 +13,7 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /** functor retruning true if signal is in requested range
+    /** functor returning true if signal is in requested range
      *
      * @author Lutz Foucar
      */
@@ -37,13 +37,13 @@ namespace cass
   }
 }
 
-void SignalProducer::loadSettings(CASSSettings &p)
+void SignalProducer::loadSettings(CASSSettings &s)
 {
   delete _signalextractor;
   SignalExtractorType analyzerType
-      (static_cast<SignalExtractorType>(p.value("SignalExtractionMethod",com16).toInt()));
+      (static_cast<SignalExtractorType>(s.value("SignalExtractionMethod",com16).toInt()));
   _signalextractor = SignalExtractor::instance(analyzerType);
-  _signalextractor->loadSettings(p);
+  _signalextractor->loadSettings(s);
 }
 
 SignalProducer::signals_t& SignalProducer::output()
@@ -70,7 +70,9 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
       _goodHit = (*std::find_if(sigs.begin(),sigs.end(), isInTimeRange(range)))["time"];
     }
     catch(const std::range_error&)
-    {}
+    {
+      _goodHit=0;
+    }
   }
   return _goodHit;
 }
