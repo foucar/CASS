@@ -76,7 +76,7 @@ namespace cass
       wireends_t  &wireends()  {return _wireends;}
 
     private:
-      /*! the properties of the wireends, they are singals */
+      /** container for the SignalProducers we call wireends */
       wireends_t  _wireends;
     };
 
