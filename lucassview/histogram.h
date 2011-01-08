@@ -453,7 +453,6 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
-    std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
     stringstream ss;
     ss <<"HistogramFloatBase::deserialize(): Version conflict is '"<<ver<<"' should be '"<<_version<<"'";
     throw runtime_error(ss.str());
