@@ -8,6 +8,7 @@
  */
 
 #include <stdexcept>
+#include <sstream>
 
 #include "signal_extractor.h"
 #include "cfd.h"
@@ -15,25 +16,31 @@
 
 using namespace cass::ACQIRIS;
 using namespace std;
-auto_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
+using namespace std::tr1;
+shared_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtractorType type)
 {
-  auto_ptr<SignalExtractor> sigextr;
+  shared_ptr<SignalExtractor> sigextr;
   switch(type)
   {
   case com8:
-    sigextr = auto_ptr<SignalExtractor>(new CoM8Bit());
+    sigextr = shared_ptr<SignalExtractor>(new CoM8Bit());
     break;
   case com16:
-    sigextr = auto_ptr<SignalExtractor>(new CoM16Bit());
+    sigextr = shared_ptr<SignalExtractor>(new CoM16Bit());
     break;
   case cfd8:
-    sigextr = auto_ptr<SignalExtractor>(new CFD8Bit());
+    sigextr = shared_ptr<SignalExtractor>(new CFD8Bit());
     break;
   case cfd16:
-    sigextr = auto_ptr<SignalExtractor>(new CFD16Bit());
+    sigextr = shared_ptr<SignalExtractor>(new CFD16Bit());
     break;
   default:
-    throw std::invalid_argument("SignalExtractor::instance: no such SignalExtractor type");
+    {
+      stringstream ss;
+      ss<<"SignalExtractor::instance: SignalExtractor type '"<<type<<"'not available";
+      throw invalid_argument(ss.str());
+    }
+    break;
   }
   return sigextr;
 }

@@ -11,7 +11,7 @@
 #define _SIGNAL_H_
 
 #include <algorithm>
-#include <memory>
+#include <tr1/memory>
 #include <map>
 #include <vector>
 #include <string>
@@ -65,22 +65,8 @@ namespace cass
       /** default constructor */
       SignalProducer()
         :_goodHit(0),
-         _signalextractor(0),
          _newEventAssociated(false)
       {}
-
-      /** copy constructor
-       *
-       * needs to be manually written, otherwise program does not compile
-       */
-      SignalProducer(const SignalProducer& rhs);
-
-      /** destructor
-       *
-       * empty but needs to be here, because of the construction of the
-       * std::auto_ptr.
-       */
-      ~SignalProducer();
 
     public:
       /** loads the settings.
@@ -138,7 +124,7 @@ namespace cass
       double _goodHit;
 
       /** the extractor of the produced signals */
-      mutable std::auto_ptr<SignalExtractor> _signalextractor;
+      std::tr1::shared_ptr<SignalExtractor> _signalextractor;
 
       /** the signals produces by this producer */
       signals_t _signals;

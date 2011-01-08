@@ -10,7 +10,7 @@
 #ifndef _SIGNAL_EXTRACTOR_H_
 #define _SIGNAL_EXTRACTOR_H_
 
-#include <memory>
+#include <tr1/memory>
 
 #include "cass_acqiris.h"
 #include "signal_producer.h"
@@ -71,10 +71,10 @@ namespace cass
        * is a class that inherits from this. If the requested type is unknown,
        * an invalid_argument exception will be thrown.
        *
-       * @return auto_ptr to the instance of the requested type
+       * @return shared_ptr to the instance of the requested type
        * @param type The type of signal extractor that the user requests
        */
-      static std::auto_ptr<SignalExtractor> instance(SignalExtractorType type);
+      static std::tr1::shared_ptr<SignalExtractor> instance(SignalExtractorType type);
     };
   }//end namespace acqiris
 }//end namespace cass

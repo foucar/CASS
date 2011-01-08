@@ -31,23 +31,10 @@ namespace cass
       }
 
     private:
-      /** the range*/
+      /** the range */
       std::pair<double,double> _range;
     };
   }
-}
-
-SignalProducer::SignalProducer(const SignalProducer& rhs)
-  :_goodHit(rhs._goodHit),
-   _signalextractor(rhs._signalextractor),
-   _signals(rhs._signals),
-   _newEventAssociated(rhs._newEventAssociated)
-{
-//  std::cout << "copy sigprod  "<<_signalextractor.get()<<" "<<std::boolalpha<<_newEventAssociated<<std::endl;
-}
-
-SignalProducer::~SignalProducer()
-{
 }
 
 void SignalProducer::loadSettings(CASSSettings &s)
