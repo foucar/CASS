@@ -20,7 +20,7 @@ HistogramUpdater::HistogramUpdater(const std::string &server, int port)
    _port(port),
    _timer((new TTimer()))
 {
-  _timer->Connect("Timeout()", "HistogramUpdater",this, "upateHistograms()");
+  _timer->Connect("Timeout()", "HistogramUpdater",this, "updateHistograms()");
 }
 
 void HistogramUpdater::autoUpdate(double freq)
