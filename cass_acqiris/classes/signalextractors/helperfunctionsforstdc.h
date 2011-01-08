@@ -25,6 +25,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
+    template <typename T>
     const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t ChannelNumber)
     {
       /** @todo add check to see whether the device is present */
