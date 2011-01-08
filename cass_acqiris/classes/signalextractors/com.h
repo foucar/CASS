@@ -13,7 +13,7 @@
 #include <iostream>
 #include "cass.h"
 #include "cass_acqiris.h"
-#include "waveform_analyzer_backend.h"
+#include "signal_extractor.h"
 
 namespace cass
 {
@@ -35,20 +35,25 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public WaveformAnalyzerBackend
+    class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public SignalExtractor
     {
     public:
       /** constructor*/
       CoM8Bit()    {VERBOSEOUT(std::cout << "adding 8 bit Center of Mass waveformanalyzer"<<std::endl);}
 
-      /** the actual functor that does all the work.
+      /** extract signals form the CASSEvent
        *
-       * @return void
-       * @param c the channel to work on
-       * @param r the waveform signal that contains the peak list, that will be filley by this
+       * @return reference of the input result container
+       * @param[in] sig this is the container for the results
        */
-      virtual void operator()(const Channel&c, ResultsBackend&r);
-    };
+      virtual SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
+
+      /** associate the event with this analyzer */
+      void associate(const CASSEvent& evt);
+
+      /** load the settings of the extractor */
+      void loadSettings(CASSSettings&);
+     };
 
     /** Finds singals in a 16 bit waveform.
      *
@@ -56,12 +61,18 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT CoM16Bit : public WaveformAnalyzerBackend
+    class CASS_ACQIRISSHARED_EXPORT CoM16Bit : public SignalExtractor
     {
     public:
       CoM16Bit()    {VERBOSEOUT(std::cout << "adding 16 bit Center of Mass waveformanalyzer"<<std::endl);}
 
-      virtual void operator()(const Channel&, ResultsBackend&);
+      SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
+
+      /** associate the event with this analyzer */
+      void associate(const CASSEvent& evt);
+
+      /** load the settings of the extractor */
+      void loadSettings(CASSSettings&);
     };
   }//end namespace acqiris
 }//end namespace cass
