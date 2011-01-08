@@ -820,6 +820,7 @@ void cass::pp250::process(const cass::CASSEvent &evt)
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
   Particle & particle (det->particles()[_particle]);
+//  cout << "pp250 size"<<particle.hits().size()<<endl;
   particleHits_t::iterator it (particle.hits().begin());
   _result->clear();
   _result->lock.lockForWrite();
