@@ -111,6 +111,8 @@ namespace cass
                 std::cout << "error: polarity not found"<<std::endl;
                 signal["polarity"] = Bad;
               }
+//              std::cout << signal["maxpos"]<< " "<<signal["maximum"]<< " "<<Data[signal["maxpos"]]-vOffset<<std::endl;
+
               //        std::cout<<"com: found peak has polarity"<<p.polarity()
               //            <<" should have polarity "<<s.polarity()<<std::endl;
               //--add peak to signal if it fits the conditions--//
