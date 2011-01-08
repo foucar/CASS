@@ -210,6 +210,7 @@ namespace cass
         int size = s.beginReadArray("Timeranges");
         for (int i = 0; i < size; ++i)
         {
+          s.setArrayIndex(i);
           p._timeranges.push_back(std::make_pair(s.value("LowerLimit",0.).toDouble(),
                                                  s.value("UpperLimit",1000).toDouble()));
         }
