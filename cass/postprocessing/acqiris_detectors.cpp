@@ -305,8 +305,8 @@ void cass::pp162::loadSettings(size_t)
   if (dethelp->detectortype() != Delayline)
   {
     stringstream ss;
-    ss <<"pp162::process()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (runtime_error(ss.str()));
+    ss <<"pp162::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
   }
   dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
@@ -315,7 +315,7 @@ void cass::pp162::loadSettings(size_t)
   {
     stringstream ss;
     ss <<"pp162::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-    throw runtime_error(ss.str());
+    throw invalid_argument(ss.str());
   }
   else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
   {
@@ -323,7 +323,7 @@ void cass::pp162::loadSettings(size_t)
     {
       stringstream ss;
       ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
-      throw runtime_error(ss.str());
+      throw invalid_argument(ss.str());
     }
   }
   else
@@ -332,7 +332,7 @@ void cass::pp162::loadSettings(size_t)
     {
       stringstream ss;
       ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
-      throw runtime_error(ss.str());
+      throw invalid_argument(ss.str());
     }
   }
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
@@ -535,31 +535,45 @@ cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp165::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp165::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": outputs the number of reconstructed hits"
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' outputs the number of reconstructed hits of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp165::process(const cass::CASSEvent &evt)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
+//  static int counter;
+//  cout << counter++ <<" pp165 1"<<endl;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+//  cout << "pp165 2"<<endl;
   _result->lock.lockForWrite();
+//  cout << "pp165 3"<<endl;
   dynamic_cast<Histogram0DFloat*>(_result)->fill(det->hits().size());
+//  cout << "pp165 4"<<endl;
   _result->lock.unlock();
+//  cout << "pp165 5"<<endl;
 }
 
 
