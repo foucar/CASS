@@ -215,7 +215,7 @@ void CFD8Bit::loadSettings(CASSSettings &s)
 
 void CFD8Bit::associate(const CASSEvent &evt)
 {
-  _chan = extactRightChannel(evt,_instrument,_chNbr);
+  _chan = extactRightChannel<char>(evt,_instrument,_chNbr);
 }
 
 //########################## 16 Bit Version ###########################################################################
@@ -233,5 +233,5 @@ void CFD16Bit::loadSettings(CASSSettings &s)
 
 void CFD16Bit::associate(const CASSEvent &evt)
 {
-  _chan = extactRightChannel(evt,_instrument,_chNbr);
+  _chan = extactRightChannel<short>(evt,_instrument,_chNbr);
 }
