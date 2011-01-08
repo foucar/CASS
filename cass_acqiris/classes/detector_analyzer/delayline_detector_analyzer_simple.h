@@ -65,7 +65,7 @@ namespace cass
        */
       DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits);
 
-      /** function that will load the detector parameters from cass.ini
+      /** load the detector analyzers settings from .ini file
        *
        * retrieve all necessary information to be able to sort the signals of
        * the detector to detector hits. Also retrieve the signal producers of
