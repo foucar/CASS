@@ -100,6 +100,7 @@ namespace cass
               //        std::cout<<"com: found peak has polarity"<<p.polarity()
               //            <<" should have polarity "<<s.polarity()<<std::endl;
               //--add peak to signal if it fits the conditions--//
+              /** @todo make sure that is works right, since we get back a double */
               if(signal["polarity"] == param._polarity)  //if it has the right polarity
               {
                 for (CoMParameters::timeranges_t::const_iterator it (param._timeranges.begin());
@@ -159,21 +160,7 @@ namespace cass
         s.endGroup();
       }
 
-      const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t ChannelNumber)
-      {
-        const Device &device
-            (*(dynamic_cast<const ACQIRIS::Device*>(evt.devices().find(CASSEvent::Acqiris)->second)));
-        ACQIRIS::Device::instruments_t::const_iterator instrumentIt
-            (device.instruments().find(instrument));
-        if (instrumentIt == device.instruments().end())
-          throw std::invalid_argument("extactRightChannel::the requested Instrument for signal is not in the datastream");
-        const ACQIRIS::Instrument::channels_t &instrumentChannels
-            (instrumentIt->second.channels());
-        if ((ChannelNumber >= instrumentChannels.size()))
-          throw std::invalid_argument("DelaylineDetectorAnalyzerSimple: the requested channel is not present.");
-        return &(instrumentChannels[ChannelNumber]);
-      }
-    }
+   }
   }
 }
 
@@ -192,7 +179,7 @@ void CoM8Bit::loadSettings(CASSSettings &s)
 
 void CoM8Bit::associate(const CASSEvent &evt)
 {
-  _chan = CenterOfMass::extactRightChannel(evt,_instrument,_chNbr);
+  _chan = extactRightChannel(evt,_instrument,_chNbr);
 }
 
 //########################## 16 Bit Version ###########################################################################
@@ -210,5 +197,5 @@ void CoM16Bit::loadSettings(CASSSettings &s)
 
 void CoM16Bit::associate(const CASSEvent &evt)
 {
-  _chan = CenterOfMass::extactRightChannel(evt,_instrument,_chNbr);
+  _chan = extactRightChannel(evt,_instrument,_chNbr);
 }

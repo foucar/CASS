@@ -13,12 +13,33 @@
 #include <cstdlib>
 
 #include "channel.h"
-#include "peak.h"
+#include "cass_event.h"
+#include "acqiris_device.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
+    /** extracts the requested channel from the data
+     *
+     * @author Lutz Foucar
+     */
+    const Channel* extactRightChannel(const CASSEvent &evt, Instruments instrument, size_t ChannelNumber)
+    {
+      /** @todo add check to see whether the device is present */
+      const Device &device
+          (*(dynamic_cast<const ACQIRIS::Device*>(evt.devices().find(CASSEvent::Acqiris)->second)));
+      ACQIRIS::Device::instruments_t::const_iterator instrumentIt
+          (device.instruments().find(instrument));
+      if (instrumentIt == device.instruments().end())
+        throw std::invalid_argument("extactRightChannel::the requested Instrument for signal is not in the datastream");
+      const ACQIRIS::Instrument::channels_t &instrumentChannels
+          (instrumentIt->second.channels());
+      if ((ChannelNumber >= instrumentChannels.size()))
+        throw std::invalid_argument("DelaylineDetectorAnalyzerSimple: the requested channel is not present.");
+      return &(instrumentChannels[ChannelNumber]);
+    }
+
     /** linear Regression
      *
      * this function creates a linear regression through a given amount of points
