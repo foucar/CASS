@@ -25,6 +25,19 @@ namespace cass
      * copy the position and time value from the detectorhit and then correct
      * those values.
      *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Corrections/{T0}\n
+     *           Time in ns that should be substracted from the recorded time
+     *           of the detectorhit. Default is 0.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Corrections/{CorrectX|CorrectY}\n
+     *           Position in mm that should be substracted from the x and y
+     *           position of the detectorhit. Default is 0|0.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Corrections/{ScaleX|ScaleY}\n
+     *           Factor by which the corrected position should be multiplied, to
+     *           get a right sized image. Default is 1|1.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/Corrections/{Angle}\n
+     *           Angle in degree around which the corrected and scaled position
+     *           should be roated. Default is 0.
+     *
      * @author Lutz Foucar
      */
     class HitCorrector
