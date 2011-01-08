@@ -63,6 +63,7 @@ namespace lucassview
     {
       std::cout << "updateHist(): do something to "<<key<<std::endl;
       cass::HistogramBackend * casshist(_client(key));
+      std::cout << "updateHist(): done with "<<key<<std::endl;
     }
   };
 }
