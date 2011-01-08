@@ -212,6 +212,7 @@ namespace cass
     {
     public:
       /** constructor.
+       *
        * @param[in] type the delayline type is an enum either Hex or Quad
        * @param[in] name the name of this detector
        */
@@ -224,12 +225,14 @@ namespace cass
          _deadAnode(1000),
          _layersToUse(UV),
          _delaylinetype(type)
-      {_analyzerType =DelaylineSimple;}
+      {}
 
       /** overwritten assignment operator.
+       *
        * this will overwrite the virtual assignment operator of the detectorbackend.
        * we need to do this to be able to easily copy the info of this detector in
        * the acqiris helper @see cass::HelperAcqirisDetectors::validate
+       *
        * @return a reference to this
        * @param rhs the right hand side of the operator
        */
@@ -390,26 +393,26 @@ void cass::ACQIRIS::DelaylineDetector::loadSettings(CASSSettings *p)
   _mcpRadius    = p->value("McpRadius",44.).toDouble();
   _angle        = p->value("Angle",0.).toDouble()*3.1415/180.;
   _mcp.loadSettings(p,"MCP");
-  _analyzerType =
-      static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
+//  analyzerType =
+//      static_cast<DetectorAnalyzers>(p->value("AnalysisMethod",DelaylineSimple).toInt());
   VERBOSEOUT(std::cout <<"Delayline Detector load parameters: loaded analyzer type:"<<_analyzerType
       <<" should be "<<DelaylineSimple
       <<std::endl);
   //load parameters depending on which analyzer you use to analyze this detector//
-  switch(_analyzerType)
-  {
-  case DelaylineSimple :
-    VERBOSEOUT(std::cout << "Delayline Detector load parameters: "
-        <<"we use Delayline Simple to analyze us"
-        <<std::endl);
-    _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
-    break;
-  default:
-    _deadMcp      = p->value("DeadTimeMcp",10.).toDouble();
-    _deadAnode    = p->value("DeadTimeAnode",10.).toDouble();
-    _wLayerOffset = p->value("WLayerOffset",0.).toDouble();
-    break;
-  }
+//  switch(_analyzerType)
+//  {
+//  case DelaylineSimple :
+//    VERBOSEOUT(std::cout << "Delayline Detector load parameters: "
+//        <<"we use Delayline Simple to analyze us"
+//        <<std::endl);
+//    _layersToUse  = static_cast<LayersToUse>(p->value("LayersToUse",UV).toInt());
+//    break;
+//  default:
+//    _deadMcp      = p->value("DeadTimeMcp",10.).toDouble();
+//    _deadAnode    = p->value("DeadTimeAnode",10.).toDouble();
+//    _wLayerOffset = p->value("WLayerOffset",0.).toDouble();
+//    break;
+//  }
   //add and load layers according the the delayline type//
   switch (_delaylinetype)
   {
@@ -432,43 +435,43 @@ void cass::ACQIRIS::DelaylineDetector::loadSettings(CASSSettings *p)
              <<std::endl);
 }
 inline
-void cass::ACQIRIS::DelaylineDetector::saveParameters(CASSSettings *p)
+void cass::ACQIRIS::DelaylineDetector::saveParameters(CASSSettings */*p*/)
 {
-  p->beginGroup(_name.c_str());
-  //save the parameters//
-  p->setValue("Name",_name.c_str());
-  p->setValue("Runtime",_runtime);
-  p->setValue("McpRadius",_mcpRadius);
-  _mcp.saveParameters(p,"MCP");
-  //save according to the method//
-  p->setValue("AnalysisMethod",static_cast<int>(_analyzerType));
-  switch(_analyzerType)
-  {
-  case DelaylineSimple :
-    p->setValue("LayersToUse",static_cast<int>(_layersToUse));
-    break;
-  default:
-    p->setValue("DeadTimeMcp",_deadMcp);
-    p->setValue("DeadTimeAnode",_deadAnode);
-    p->setValue("WLayerOffset",_wLayerOffset);
-    break;
-  }
-  //save according to the delayline type//
-  switch (_delaylinetype)
-  {
-  case Hex:
-    _anodelayers['U'].saveParameters(p,"ULayer");
-    _anodelayers['V'].saveParameters(p,"VLayer");
-    _anodelayers['W'].saveParameters(p,"WLayer");
-    break;
-  case Quad:
-    _anodelayers['X'].saveParameters(p,"XLayer");
-    _anodelayers['Y'].saveParameters(p,"YLayer");
-    break;
-  default:
-    break;
-  }
-  p->endGroup();
+//  p->beginGroup(_name.c_str());
+//  //save the parameters//
+//  p->setValue("Name",_name.c_str());
+//  p->setValue("Runtime",_runtime);
+//  p->setValue("McpRadius",_mcpRadius);
+//  _mcp.saveParameters(p,"MCP");
+//  //save according to the method//
+//  p->setValue("AnalysisMethod",static_cast<int>(_analyzerType));
+//  switch(_analyzerType)
+//  {
+//  case DelaylineSimple :
+//    p->setValue("LayersToUse",static_cast<int>(_layersToUse));
+//    break;
+//  default:
+//    p->setValue("DeadTimeMcp",_deadMcp);
+//    p->setValue("DeadTimeAnode",_deadAnode);
+//    p->setValue("WLayerOffset",_wLayerOffset);
+//    break;
+//  }
+//  //save according to the delayline type//
+//  switch (_delaylinetype)
+//  {
+//  case Hex:
+//    _anodelayers['U'].saveParameters(p,"ULayer");
+//    _anodelayers['V'].saveParameters(p,"VLayer");
+//    _anodelayers['W'].saveParameters(p,"WLayer");
+//    break;
+//  case Quad:
+//    _anodelayers['X'].saveParameters(p,"XLayer");
+//    _anodelayers['Y'].saveParameters(p,"YLayer");
+//    break;
+//  default:
+//    break;
+//  }
+//  p->endGroup();
 }
 
 inline
@@ -493,7 +496,7 @@ cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(con
     //tof detectors stuff//
     _mcp            = rhs._mcp;
     //backend's stuff//
-    _analyzerType   = rhs._analyzerType;
+//    _analyzerType   = rhs._analyzerType;
     _name           = rhs._name;
   }
   return *this;

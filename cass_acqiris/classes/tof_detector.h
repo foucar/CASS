@@ -34,7 +34,7 @@ namespace cass
        */
       TofDetector(const std::string name)
         :DetectorBackend(name)
-      {_analyzerType = ToFSimple;}
+      {}
 
       /** virtual destructor*/
       virtual ~TofDetector() {}
@@ -45,6 +45,9 @@ namespace cass
        * the Helper function of Acqiris. @see cass::HelperAcqirisDetectors::validate
        */
       virtual DetectorBackend& operator= (const DetectorBackend& rhs);
+
+      /** operator that will calculate everything from the event for this detector */
+      virtual void operator() (const Device& device) {(*_analyzer)(*this,device);}
 
       /** load the values from cass.ini */
       virtual void loadSettings(CASSSettings *p);
@@ -85,7 +88,6 @@ cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::TofDetector::operator= (const cas
     //to the signal that belongs to this//
     _mcp          = dynamic_cast<const TofDetector&>(rhs)._mcp;
     //backend's stuff//
-    _analyzerType = dynamic_cast<const TofDetector&>(rhs)._analyzerType;
     _name         = dynamic_cast<const TofDetector&>(rhs)._name;
 
   }
