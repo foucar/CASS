@@ -39,23 +39,23 @@ namespace cass
        /** the level above which we think this is a signal (in V) */
        double _threshold;
 
-       /** the delay of the cfd*/
+       /** the delay of the cfd */
        int32_t _delay;
 
-       /** the fraction of the cfd*/file:///home/lutz/sources/diode-git/LCLS/pdsdata/xtc/DetInfo.hh
-
+       /** the fraction of the cfd */
        double _fraction;
 
-       /** the walk of the cfd* (in V)*/
+       /** the walk of the cfd (in V) */
        double _walk;
      };
+
 
     /** Finds Signals in a waveform.
      *
      * Analyzes a waveform and find signals using a constant fraction algorithm.
      * It then does all the further analysis of the identified Signal.
      *
-     * This class will work on waveforms of old 8 Bit Acqiris Instruments.
+     * This class will work on waveforms with a depth of 8 Bits.
      *
      * User settable parameters via CASS.ini:\n
      * One can set these parameters for each SignalProducer of the Detectortype.
@@ -95,9 +95,6 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT CFD8Bit : public SignalExtractor
     {
     public:
-      /** constructor*/
-      CFD8Bit()    {VERBOSEOUT(std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
-
       /** extract signals form the CASSEvent
        *
        * Calls cfd to extract the Signal from _chan. For details how see cfd.
@@ -140,37 +137,25 @@ namespace cass
       const Channel * _chan;
      };
 
+
     /** Finds signals in a 16 bit waveform.
      *
-     * @see class CoM8Bit
+     * Member description is the same as in the 8 Bit verison. @see class CoM8Bit
      *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public SignalExtractor
     {
     public:
-      CFD16Bit()    {VERBOSEOUT(std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
-
       SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
-
-      /** associate the event with this analyzer */
       void associate(const CASSEvent& evt);
-
-      /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
 
     private:
-      /** parameters for extracting the signals from the channels waveform */
       CFDParameters _parameters;
-
-      /** the instrument that the channel is in */
-      Instruments _instrument;
-
-      /** the channelnumber of the channel we extracting the signals from */
-      size_t _chNbr;
-
-      /** pointer to the channel we are extracting the signals from */
-      const Channel * _chan;
+      Instruments   _instrument;
+      size_t        _chNbr;
+      const Channel*_chan;
     };
 
   }//end namespace acqiris
