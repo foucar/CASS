@@ -315,8 +315,18 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   using namespace std;
   enum LayerComb{xy,uv,uw,vw};
 
+  DelaylineType delaylinetype
+      (static_cast<DelaylineType>(s.value("DelaylineType",Hex).toInt()));
+
   s.beginGroup("Simple");
   LayerComb lc (static_cast<LayerComb>(s.value("LayersToUse",xy).toInt()));
+  if (lc == xy)
+    if (delaylinetype == Hex)
+      cout << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers xy for Hex-Detector"<<endl;
+  if (delaylinetype == Quad)
+    if (lc == uv || lc == uw || lc == vw)
+      cout << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers uv, uw or vw for Quad-Detector"<<endl;
+
   switch (lc)
   {
   case (xy):
