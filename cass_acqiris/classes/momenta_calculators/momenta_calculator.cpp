@@ -183,7 +183,7 @@ namespace cass
 
         //calc how long one particle will fly with the given initial velocity//
         double tt=0;
-        if (abs(a) > 1e-8)		//if there is an accerlartion
+        if (std::abs(a) > 1e-8)		//if there is an accerlartion
           tt = (-v + sqrt(v*v + 2.*a*s))/a;
         else					//if there is no accerlaration (eg drift)
           tt = s/v;
@@ -247,7 +247,7 @@ namespace cass
       double x0  (length_mm/tof_ns - 0.5*a*tof_ns);
       double fx0 (evalFunc(x0,mass_au,charge_au,spectrometer));
       //use Newtons Approximation//
-      while(abs(fx0 - tof_ns) > 0.01)
+      while(std::abs(fx0 - tof_ns) > 0.01)
       {
         //we need to find the slope of the function at point x0 therefore we need
         //a second point which is close to x0

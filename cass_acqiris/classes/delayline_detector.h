@@ -18,6 +18,7 @@
 #include "tof_detector.h"
 #include "signal_producer.h"
 #include "map.hpp"
+#include "particle.h"
 
 namespace cass
 {
@@ -129,6 +130,7 @@ namespace cass
     public:
       /** a map of anodelayers */
       typedef std::map<char,AnodeLayer> anodelayers_t;
+      typedef std::map<std::string,Particle> particles_t;
 
     public:
       /** constructor.

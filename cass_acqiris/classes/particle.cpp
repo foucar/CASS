@@ -8,6 +8,7 @@
  */
 
 #include <cmath>
+#include <stdexcept>
 
 #include "particle.h"
 #include "momenta_calculator.h"
