@@ -19,9 +19,15 @@ using namespace cass::ACQIRIS;
 
 void AnodeLayer::associate(const CASSEvent &evt)
 {
+//  std::cout <<"    AnodeLay 1"<<std::endl;
   wireends_t::iterator it (_wireends.begin());
+//  std::cout <<"    AnodeLay 2"<<std::endl;
   for (; it != _wireends.end(); ++it)
+  {
+//    std::cout <<"    AnodeLay 3  "<<it->first<<std::endl;
     (*it).second.associate(evt);
+  }
+//  std::cout <<"    AnodeLay 4"<<std::endl;
 }
 
 void AnodeLayer::loadSettings(CASSSettings &s)
@@ -40,26 +46,37 @@ DelaylineDetector::~DelaylineDetector()
 
 void DelaylineDetector::associate(const CASSEvent & evt)
 {
+//  std::cout << "   DelayDet 1"<<std::endl;
   _newEventAssociated = true;
+//  std::cout << "   DelayDet 2"<<std::endl;
   _hits.clear();
+//  std::cout << "   DelayDet 3"<<std::endl;
   _mcp.associate(evt);
+//  std::cout << "   DelayDet 4"<<std::endl;
   anodelayers_t::iterator it (_anodelayers.begin());
+//  std::cout << "   DelayDet 5"<<std::endl;
   for (; it != _anodelayers.end(); ++it)
+  {
+//    std::cout << "   DelayDet 6 "<<it->first<<std::endl;
     (*it).second.associate(evt);
+  }
+//  std::cout << "   DelayDet 7"<<std::endl;
   particles_t::iterator pit (_particles.begin());
+//  std::cout << "   DelayDet 8"<<std::endl;
   for (; pit != _particles.end();++pit)
     (*pit).second.associate(this);
+//  std::cout << "   DelayDet 9"<<std::endl;
 }
 
 void DelaylineDetector::loadSettings(CASSSettings &s)
 {
   using namespace std;
   s.beginGroup(_name.c_str());
+  DelaylineType delaylinetype
+      (static_cast<DelaylineType>(s.value("DelaylineType",Hex).toInt()));
   s.beginGroup("MCP");
   _mcp.loadSettings(s);
   s.endGroup();
-  DelaylineType delaylinetype
-      (static_cast<DelaylineType>(s.value("DelaylineType",Quad).toInt()));
   switch (delaylinetype)
   {
   case Hex:
