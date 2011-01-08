@@ -11,6 +11,9 @@
 #define __COM_H__
 
 #include <iostream>
+#include <utility>
+#include <vector>
+
 #include "cass.h"
 #include "cass_acqiris.h"
 #include "signal_extractor.h"
@@ -19,6 +22,28 @@ namespace cass
 {
   namespace ACQIRIS
   {
+    class Channel;
+
+    /** struct to combine the parameters that the Center of Mass Extractors need
+     *
+     * @author Lutz Foucar
+     */
+     struct CoMParameters
+     {
+       typedef std::pair<double,double> timerange_t;
+       typedef std::vector<timerange_t> timeranges_t;
+
+       /** the time ranges in which the signals are found */
+       timeranges_t _timeranges;
+
+       /** the polarity that the signals have */
+       Polarity _polarity;
+
+       /** the level above which we think this is a signal (in mV) */
+       double _threshold;
+
+     };
+
     /** Finds Signals in a waveform.
      *
      * Analyzes a waveform and find signals when they have three consecutive
@@ -53,6 +78,19 @@ namespace cass
 
       /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
+
+    private:
+      /** parameters for extracting the signals from the channels waveform */
+      CoMParameters _parameters;
+
+      /** the instrument that the channel is in */
+      Instruments _instrument;
+
+      /** the channelnumber of the channel we extracting the signals from */
+      size_t _chNbr;
+
+      /** pointer to the channel we are extracting the signals from */
+      const Channel * _chan;
      };
 
     /** Finds singals in a 16 bit waveform.
@@ -73,6 +111,19 @@ namespace cass
 
       /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
+
+    private:
+      /** parameters for extracting the signals from the channels waveform */
+      CoMParameters _parameters;
+
+      /** the instrument that the channel is in */
+      Instruments _instrument;
+
+      /** the channelnumber of the channel we extracting the signals from */
+      size_t _chNbr;
+
+      /** pointer to the channel we are extracting the signals from */
+      const Channel * _chan;
     };
   }//end namespace acqiris
 }//end namespace cass
