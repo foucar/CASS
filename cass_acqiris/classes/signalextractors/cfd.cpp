@@ -14,7 +14,7 @@
 #include "helperfunctionsforstdc.h"
 #include "signal_producer.h"
 
-
+using namespace cass::ACQIRIS;
 //________________________________Implematation of Constant Fraction Method______________________________________________________
 //________________this will be a thread that is waiting for Pulses to be added to a queue________________________________________
 template <typename T>
@@ -152,14 +152,34 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
 
 //########################## 8 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CFD8Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+SignalProducer::signals_t& CFD8Bit::operator()(SignalProducer::signals_t& sig);
 {
-  cfd<char>(c,r);
+//  cfd<char>(c,r);
+}
+
+void CFD8Bit::loadSettings(CASSSettings &)
+{
+
+}
+
+void CFD8Bit::associate(const CASSEvent &evt)
+{
+
 }
 
 //########################## 16 Bit Version ###########################################################################
 //______________________________________________________________________________________________________________________
-void cass::ACQIRIS::CFD16Bit::operator()(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& r)
+SignalProducer::signals_t& CFD16Bit::operator()(SignalProducer::signals_t& sig);
 {
-  cfd<short>(c,r);
+//  cfd<short>(c,r);
+}
+
+void CFD16Bit::loadSettings(CASSSettings &)
+{
+
+}
+
+void CFD16Bit::associate(const CASSEvent &evt)
+{
+
 }

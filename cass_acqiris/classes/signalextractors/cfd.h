@@ -45,7 +45,7 @@ namespace cass
        * @return reference of the input result container
        * @param[in] sig this is the container for the results
        */
-      virtual SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
+      SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
 
       /** associate the event with this analyzer */
       void associate(const CASSEvent& evt);
