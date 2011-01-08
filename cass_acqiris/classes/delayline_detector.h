@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <memory>
 
 #include "cass_acqiris.h"
 #include "tof_detector.h"
@@ -142,7 +143,11 @@ namespace cass
         :TofDetector(name), _analyzer(0), _newEventAssociated(false)
       {}
 
-      /** destroys the detector analyzer */
+      /** destructor
+       *
+       * is empty, but needs to be here because of the creation of the auto_ptr
+       * destructor.
+       */
       ~DelaylineDetector();
 
     public:
@@ -207,7 +212,7 @@ namespace cass
       detectorHits_t _hits;
 
       /** the analyzer that will sort the signal to hits */
-      DetectorAnalyzerBackend * _analyzer;
+      std::auto_ptr<DetectorAnalyzerBackend> _analyzer;
 
       /** container for all particles of this detector */
       particles_t _particles;

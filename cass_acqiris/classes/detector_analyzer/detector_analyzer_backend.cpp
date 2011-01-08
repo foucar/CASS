@@ -12,13 +12,13 @@
 
 using namespace cass::ACQIRIS;
 
-DetectorAnalyzerBackend* DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
+std::auto_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
 {
-  DetectorAnalyzerBackend* detanal(0);
+  std::auto_ptr<DetectorAnalyzerBackend> detanal;
   switch(type)
   {
   case DelaylineSimple:
-    detanal = new DelaylineDetectorAnalyzerSimple();
+    detanal = std::auto_ptr<DetectorAnalyzerBackend>(new DelaylineDetectorAnalyzerSimple());
     break;
   default:
     throw std::invalid_argument("DetectorAnalyzerBackend::instance(): the requested type is unknown");

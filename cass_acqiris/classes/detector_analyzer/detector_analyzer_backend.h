@@ -10,6 +10,7 @@
 #ifndef _DETECTOR_ANALYZER_BACKEND_H_
 #define _DETECTOR_ANALYZER_BACKEND_H_
 
+#include <memory>
 
 #include "cass_acqiris.h"
 #include "delayline_detector.h"
@@ -65,7 +66,7 @@ namespace cass
        * @return pointer to the instance of the requested type
        * @param type the requested analyzer type
        */
-      static DetectorAnalyzerBackend* instance(const DetectorAnalyzerType& type);
+      static std::auto_ptr<DetectorAnalyzerBackend> instance(const DetectorAnalyzerType& type);
     };
   }
 }//end namespace cass

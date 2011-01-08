@@ -37,7 +37,7 @@ void AnodeLayer::loadSettings(CASSSettings &s)
 
 DelaylineDetector::~DelaylineDetector()
 {
-  delete _analyzer;
+//  delete _analyzer;
 }
 
 void DelaylineDetector::associate(const CASSEvent & evt)
@@ -87,7 +87,7 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
     throw std::invalid_argument("delayline type does not exist");
     break;
   }
-  delete _analyzer;
+//  delete _analyzer;
   _analyzer =
       DetectorAnalyzerBackend::instance(static_cast<DetectorAnalyzerType>(s.value("AnalysisMethod",DelaylineSimple).toInt()));
   _analyzer->loadSettings(s, *this);
