@@ -829,6 +829,7 @@ cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp220::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -841,12 +842,11 @@ void cass::pp220::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
   HelperAcqirisDetectors::instance(_detector02)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": create a PIPICO Histogram"
-      <<" of detectors "<<_detector01
-      <<" and "<<_detector02
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' create a PIPICO Histogram of detectors '"<<_detector01
+      <<"' and '"<<_detector02
+      <<"'. Condition is "<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp220::process(const cass::CASSEvent &evt)
