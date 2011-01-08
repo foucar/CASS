@@ -140,10 +140,10 @@ namespace cass
         int size = s.beginReadArray("Timeranges");
         for (int i = 0; i < size; ++i)
         {
-          timerange_t tr (std::make_pair(s.value("LowerLimit",0.).toDouble(),
-                                         s.value("UpperLimit",1000)));
-          p._timeranges.push_back(tr);
+          p._timeranges.push_back(std::make_pair(s.value("LowerLimit",0.).toDouble(),
+                                                 s.value("UpperLimit",1000).toDouble())));
         }
+        s.endArray();
         p._polarity     = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
         p._threshold    = s.value("Threshold",0.05).toDouble();
         s.endGroup();
