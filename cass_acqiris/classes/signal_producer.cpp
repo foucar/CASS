@@ -75,18 +75,15 @@ void SignalProducer::associate(const CASSEvent &evt)
 
 double SignalProducer::firstGood(const std::pair<double,double>& range)
 {
+  using namespace std;
   if(_newEventAssociated)
   {
-    try
-    {
-      signals_t sigs (output());
-      _goodHit = (*std::find_if(sigs.begin(),sigs.end(), isInTimeRange(range)))["time"];
-    }
-#warning this relies on that when accessing a thing from end() iterator an exception is thrown. Needs checking
-    catch(const std::range_error&)
-    {
+    signals_t sigs (output());
+    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
+    if (sigIt != sigs.end())
+      _goodHit = (*sigIt)["time"];
+    else
       _goodHit=0;
-    }
   }
   return _goodHit;
 }
