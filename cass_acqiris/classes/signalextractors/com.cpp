@@ -111,18 +111,20 @@ namespace cass
                 std::cout << "error: polarity not found"<<std::endl;
                 signal["polarity"] = Bad;
               }
-//              std::cout << signal["maxpos"]<< " "<<signal["maximum"]<< " "<<Data[signal["maxpos"]]-vOffset<<std::endl;
+//              std::cout << signal["maxpos"]<< " "<<signal["maximum"]<< " "<<Data[signal["maxpos"]]-vOffset<<" "<<param._polarity<<" "<<signal["polarity"]<<" "<<(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))<<std::endl;
 
-              //        std::cout<<"com: found peak has polarity"<<p.polarity()
-              //            <<" should have polarity "<<s.polarity()<<std::endl;
-              //--add peak to signal if it fits the conditions--//
+//              std::cout<<"com: found peak has polarity"<<p.polarity()
+//                  <<" should have polarity "<<s.polarity()<<std::endl;
+							//--add peak to signal if it fits the conditions--//
               /** @todo make sure that is works right, since we get back a double */
               if(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))  //if it has the right polarity
               {
+//                std::cout << param._timeranges.size()<<std::endl;
                 for (CoMParameters::timeranges_t::const_iterator it (param._timeranges.begin());
                 it != param._timeranges.end();
                 ++it)
                 {
+//                  std::cout << "Com: check whether signal is in time range from '"<<it->first<<"' to '"<<it->second<<"' time '"<<signal["time"]<<"'"<<std::endl;
                   if(signal["time"] > it->first && signal["time"] < it->second) //if signal is in the right timerange
                   {
                     sig.push_back(signal);
@@ -183,9 +185,12 @@ namespace cass
         channelNbr   = s.value("ChannelNumber",0).toInt();
         p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
         p._threshold = s.value("Threshold",0.05).toDouble();
-        int size = s.beginReadArray("Timeranges");
+//        std::cout <<" COM::loadSettings()"<<s.group().toStdString()<<": Threshold '"<< p._threshold <<"'"<<std::endl;
+				int size = s.beginReadArray("Timeranges");
+//        std::cout <<" COM::loadSettings(): Timeranges size '"<< size<<"'"<<std::endl;
         for (int i = 0; i < size; ++i)
-        {
+				{
+          s.setArrayIndex(i);
           p._timeranges.push_back(std::make_pair(s.value("LowerLimit",0.).toDouble(),
                                                  s.value("UpperLimit",1000).toDouble()));
         }
