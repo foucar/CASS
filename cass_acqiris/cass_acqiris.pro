@@ -35,6 +35,7 @@ SOURCES += ./acqiris_converter.cpp \
 HEADERS += ./acqiris_converter.h \
     ./cass_acqiris.h \
     ./acqiris_device.h \
+    ./map.hpp \
     ../cass/analysis_backend.h \
     ../cass/conversion_backend.h \
     ../cass/device_backend.h \
