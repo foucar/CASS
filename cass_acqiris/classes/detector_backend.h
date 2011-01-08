@@ -57,9 +57,8 @@ namespace cass
       /** the detector name*/
       const std::string name()const {return _name;}
 
-    protected:
-      /** which analyzer should be used*/
-      DetectorAnalyzers _analyzerType;
+      /** clear the detector data */
+      virtual void clear()=0;
 
       /** the name of the detector. used for casssettings group*/
       std::string _name;
