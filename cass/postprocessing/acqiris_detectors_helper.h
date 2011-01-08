@@ -75,8 +75,14 @@ namespace cass
        */
       DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
 
-      /** tell the detector owned by this instance to reload its settings*/
-      void loadSettings(size_t=0);
+      /** load the settings of the detectors in the detector list
+       *
+       * go through the list of detectors and tell each of the detector to load
+       * its settings.
+       *
+       * @param i unused parameter
+       */
+      void loadSettings(size_t i=0);
 
       /** validation of event.
        *
