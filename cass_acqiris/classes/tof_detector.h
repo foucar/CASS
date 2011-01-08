@@ -21,7 +21,7 @@ namespace cass
   {
     /** A Time of Flight Detector.
      *
-     * for user settable settings @see Signal
+     * for user settable settings see Signal
      *
      * @author Lutz Foucar
      */
@@ -38,13 +38,6 @@ namespace cass
 
       /** virtual destructor*/
       virtual ~TofDetector() {}
-
-      /** overwrite the DetectorBackend assignment operator.
-       *
-       * this is needed to provide easy copying of this members in
-       * the Helper function of Acqiris. @see cass::HelperAcqirisDetectors::validate
-       */
-      virtual DetectorBackend& operator= (const DetectorBackend& rhs);
 
       /** operator that will calculate everything from the event for this detector */
       virtual void operator() (const Device& device) {/*(*_analyzer)(*this,device);*/}
@@ -76,23 +69,6 @@ void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)
   p->beginGroup(_name.c_str());
   _mcp.loadSettings(p,"Signal");
   p->endGroup();
-}
-
-inline
-cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::TofDetector::operator= (const cass::ACQIRIS::DetectorBackend& rhs)
-{
-  //if we are not self assigning//
-  if (&rhs != this)
-  {
-    //copy the signal from the right hand side
-    //to the signal that belongs to this//
-    _mcp          = dynamic_cast<const TofDetector&>(rhs)._mcp;
-    //backend's stuff//
-    _name         = dynamic_cast<const TofDetector&>(rhs)._name;
-
-  }
-  //return a reference to this//
-  return *this;
 }
 
 #endif

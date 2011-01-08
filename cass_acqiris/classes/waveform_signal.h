@@ -139,9 +139,6 @@ namespace cass
        */
       void loadSettings(CASSSettings *p, const char * signalname);
 
-      /** save your parameters to cass.ini, should only be called by parent*/
-      void saveParameters(CASSSettings *p, const char * signalname);
-
     public:
       /** convience for easier readable code, is a vector of Peak*/
       typedef std::vector<Peak> peaks_t;

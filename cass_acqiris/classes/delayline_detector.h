@@ -53,9 +53,6 @@ namespace cass
       /** load values from cass.ini, should only be called by the detector*/
       void loadSettings(CASSSettings *p,const char * layername);
 
-      /** save values to cass.ini, should only be called by the detector*/
-      void saveParameters(CASSSettings *p,const char * layername);
-
       /** returns the timesum condition for this anode layer*/
       double ts()const      {return 0.5*(_tsLow+_tsHigh);}
 
@@ -220,23 +217,9 @@ namespace cass
         :TofDetector(name)
       {}
 
-      /** overwritten assignment operator.
-       *
-       * this will overwrite the virtual assignment operator of the detectorbackend.
-       * we need to do this to be able to easily copy the info of this detector in
-       * the acqiris helper @see cass::HelperAcqirisDetectors::validate
-       *
-       * @return a reference to this
-       * @param rhs the right hand side of the operator
-       */
-      DetectorBackend& operator= (const DetectorBackend& rhs);
-
     public:
       /** load the values from cass.ini*/
       virtual void loadSettings(CASSSettings *p);
-
-      /** save values to cass.ini */
-      virtual void saveParameters(CASSSettings *p);
 
     public:
       /** a vector of detector hits are the detector hits */
@@ -359,17 +342,6 @@ void cass::ACQIRIS::AnodeLayer::loadSettings(CASSSettings *p,const char * layern
   p->endGroup();
   VERBOSEOUT(std::cout <<"Anode Layer load parameters: done loading"<<std::endl);
 }
-inline
-void cass::ACQIRIS::AnodeLayer::saveParameters(CASSSettings *p,const char * layername)
-{
-  p->beginGroup(layername);
-  p->setValue("LowerTimesumConditionLimit",_tsLow);
-  p->setValue("UpperTimesumConditionLimit",_tsHigh);
-  p->setValue("Scalefactor",_sf);
-  _wireend['1'].saveParameters(p,"One");
-  _wireend['2'].saveParameters(p,"Two");
-  p->endGroup();
-}
 
 
 //-----------Detector--------
@@ -426,73 +398,6 @@ void cass::ACQIRIS::DelaylineDetector::loadSettings(CASSSettings *p)
   VERBOSEOUT(std::cout << "Delayline Detector load parameters: done loading "<<_name
              << "'s parameters"
              <<std::endl);
-}
-inline
-void cass::ACQIRIS::DelaylineDetector::saveParameters(CASSSettings */*p*/)
-{
-//  p->beginGroup(_name.c_str());
-//  //save the parameters//
-//  p->setValue("Name",_name.c_str());
-//  p->setValue("Runtime",_runtime);
-//  p->setValue("McpRadius",_mcpRadius);
-//  _mcp.saveParameters(p,"MCP");
-//  //save according to the method//
-//  p->setValue("AnalysisMethod",static_cast<int>(_analyzerType));
-//  switch(_analyzerType)
-//  {
-//  case DelaylineSimple :
-//    p->setValue("LayersToUse",static_cast<int>(_layersToUse));
-//    break;
-//  default:
-//    p->setValue("DeadTimeMcp",_deadMcp);
-//    p->setValue("DeadTimeAnode",_deadAnode);
-//    p->setValue("WLayerOffset",_wLayerOffset);
-//    break;
-//  }
-//  //save according to the delayline type//
-//  switch (_delaylinetype)
-//  {
-//  case Hex:
-//    _anodelayers['U'].saveParameters(p,"ULayer");
-//    _anodelayers['V'].saveParameters(p,"VLayer");
-//    _anodelayers['W'].saveParameters(p,"WLayer");
-//    break;
-//  case Quad:
-//    _anodelayers['X'].saveParameters(p,"XLayer");
-//    _anodelayers['Y'].saveParameters(p,"YLayer");
-//    break;
-//  default:
-//    break;
-//  }
-//  p->endGroup();
-}
-
-inline
-cass::ACQIRIS::DetectorBackend& cass::ACQIRIS::DelaylineDetector::operator =(const cass::ACQIRIS::DetectorBackend& righthandside)
-{
-  //if we are not self assigning//
-  if (this != &righthandside)
-  {
-//    std::cout << "copy is using delayline's copying"<<std::endl;
-    //for easier writing get the right reference of the right hand side//
-    const DelaylineDetector &rhs = dynamic_cast<const DelaylineDetector&>(righthandside);
-    //copy all members from the right hand side to us//
-    _runtime        = rhs._runtime;
-    _wLayerOffset   = rhs._wLayerOffset;
-    _mcpRadius      = rhs._mcpRadius;
-    _deadMcp        = rhs._deadMcp;
-    _deadAnode      = rhs._deadAnode;
-    _layersToUse    = rhs._layersToUse;
-    _delaylinetype  = rhs._delaylinetype;
-    _anodelayers    = rhs._anodelayers;
-    _hits           = rhs._hits;
-    //tof detectors stuff//
-    _mcp            = rhs._mcp;
-    //backend's stuff//
-//    _analyzerType   = rhs._analyzerType;
-    _name           = rhs._name;
-  }
-  return *this;
 }
 
 #endif

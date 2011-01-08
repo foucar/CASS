@@ -28,24 +28,6 @@ void cass::ACQIRIS::Signal::loadSettings(CASSSettings *p, const char * signalnam
   p->endGroup();
 }
 
-void cass::ACQIRIS::Signal::saveParameters(CASSSettings */*p*/, const char * /*signalname*/)
-{
-//  p->beginGroup(signalname);
-//  p->setValue("AcqirisInstrument",static_cast<int>(_instrument));
-//  p->setValue("ChannelNumber",static_cast<int>(_chNbr));
-//  p->setValue("LowerTimeRangeLimit",_trLow);
-//  p->setValue("UpperTimeRangeLimit",_trHigh);
-//  p->setValue("LowerGoodTimeRangeLimit",_grLow);
-//  p->setValue("UpperGoodTimeRangeLimit",_grHigh);
-//  p->setValue("Polarity",static_cast<int>(_polarity));
-//  p->setValue("Threshold",_threshold);
-//  p->setValue("Delay",_delay);
-//  p->setValue("Fraction",_fraction);
-//  p->setValue("Walk",_walk);
-//  p->setValue("WaveformAnalysisMethod",static_cast<int>(_analyzerType));
-//  p->endGroup();
-}
-
 double cass::ACQIRIS::Signal::firstGood() const
 {
   //if this is called for the new event for the first time, then evaluate//

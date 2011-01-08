@@ -48,9 +48,6 @@ namespace cass
       /** operator that will calculate everything from the event for this detector */
       virtual void operator() (const Device& device)=0;
 
-      /** pure virtual assignment operator.*/
-      virtual DetectorBackend& operator= (const DetectorBackend&)=0;
-
       /** the detector name*/
       const std::string name()const {return _name;}
 

@@ -64,9 +64,14 @@ namespace cass
       /** destroy the whole helper*/
       static void destroy();
 
-      /** retrieve detector for event.
-       * after validating that the event for this detector exists,
-       * return the detector from our list
+      /** retrieve detector for event
+       *
+       * after validating that the event for this detector exists, return the
+       * detector from our list
+       *
+       * @return pointer to the detector that contains the data related to the
+       *         requested event
+       * @param evt the event whos data we need to relate to the detector.
        */
       DetectorBackend * detector(const CASSEvent& evt)  {return validate(evt);}
 
