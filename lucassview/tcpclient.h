@@ -5,6 +5,8 @@
  *
  * @author Lutz Foucar
  */
+#ifndef _TCPCLIENT_H
+#define _TCPCLIENT_H
 
 #include <string>
 #include <list>
@@ -44,3 +46,4 @@ namespace lucassview
     std::string _server;
   };
 }
+#endif
