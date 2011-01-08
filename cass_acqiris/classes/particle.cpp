@@ -55,6 +55,10 @@ namespace cass
      * checks whether the detectorhit is in a predifined range in the time of
      * flight
      *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/ToFCondition/{Low|High}\n
+     *           The range to check whether the detectorhit is in.
+     *           Default is 0|20000.
+     *
      * @author Lutz Foucar
      */
     class TofCond : public IsParticleHit
@@ -83,6 +87,13 @@ namespace cass
      *
      * checks whether the postion of the detectorhit on the detector is in a
      * given radius around a predefined center.
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/RadiusCondition/{CenterX|CenterY}\n
+     *           The position of the center of the radius to check for in mm
+     *           Default is 0|0.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/RadiusCondition/{MaximumRadius}\n
+     *           The maximum radius the position is checked for in mm. Default
+     *           is 100.
      *
      * @author Lutz Foucar
      */
@@ -118,6 +129,11 @@ namespace cass
     /** a simple position condition
      *
      * checks whether the detector hit falls in a simple rectangular condition
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/SimplePositionCondition/{XLow|XHigh}\n
+     *           The range in the x-axis to check in mm. Default is -10|10.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/SimplePositionCondition/{YLow|YHigh}\n
+     *           The range in the y-axis to check in mm. Default is -10|10.
      *
      * @author Lutz Foucar
      */
@@ -155,6 +171,8 @@ namespace cass
     /** a combination of conditions
      *
      * this class combines two of the IsParticleHit conditions
+     *
+     * @cassttng see TofCond, RadCond and RectCond for possible settings
      *
      * @tparam FistCondition class that defines the first condition
      * @tparam SecondCondition class that defines the second condition
