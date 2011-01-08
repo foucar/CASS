@@ -140,7 +140,13 @@ namespace cass
        */
       void loadSettings(CASSSettings &p, const char * signalname);
 
-      /** assciate the event with this signalproducer */
+      /** assciate the event with this signalproducer
+       *
+       * resets the _newEventAssociated flag to true, clears the _signals vector
+       * and associates the event with the signalextractor.
+       *
+       * @param evt the event that we need to associate with the signalextractor
+       */
       void associate(const CASSEvent& evt);
 
     public:
