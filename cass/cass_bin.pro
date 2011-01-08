@@ -171,7 +171,7 @@ INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \
                       ../cass_acqiris/classes \
                       ../cass_acqiris/classes/detector_analyzer \
-                      ../cass_acqiris/classes/waveformanalyzer \
+                      ../cass_acqiris/classes/signalextractors \
                       ../cass_ccd \
                       ../cass_pnccd \
                       ../cass_machinedata \
