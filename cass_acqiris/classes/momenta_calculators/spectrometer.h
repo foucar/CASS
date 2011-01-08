@@ -76,7 +76,7 @@ namespace cass
       /** retrieve magnetic field parameter */
       double cyclotronPeriod_ns()const  {return _cyclotronPeriod;}
       bool BFieldIsOn()const            {return _BFieldIsOn;}
-      bool rotationClockWise()const     {return _roationClockwise;}
+      bool rotationClockWise()const     {return _rotationClockwise;}
       //@}
 
       /** retrieve the regions of the spectrometer */
@@ -96,7 +96,7 @@ namespace cass
        *
        * this is done by saying wether electrons turn clock or counterclockwise
        */
-      bool _roationClockwise;
+      bool _rotationClockwise;
     };
   }
 }
