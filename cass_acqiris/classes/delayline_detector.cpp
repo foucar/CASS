@@ -97,12 +97,10 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
   QStringList::const_iterator pNamesIt (particlesNameList.begin());
   for (; pNamesIt != particlesNameList.end();++pNamesIt)
   {
-    Particle particle;
-    string particleName (pNamesIt->toStdString());
     s.beginGroup(*pNamesIt);
-    particle.loadSettings(s);
+    string particleName (pNamesIt->toStdString());
+    _particles[particleName].loadSettings(s);
     s.endGroup();
-    _particles[particleName] = particle;
   }
   s.endGroup();
   s.endGroup();
