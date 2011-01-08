@@ -263,10 +263,10 @@ Particle::~Particle()
 
 void Particle::loadSettings(CASSSettings& s)
 {
-  _spectrometer.loadSettings(s);
-  _copyandcorrect.loadSettings(s);
   _charge_au = s.value("Charge",1).toDouble();
   _mass_au = s.value("Mass",1).toDouble();
+  _spectrometer.loadSettings(s,*this);
+  _copyandcorrect.loadSettings(s);
   if (!(_mass_au == 1 && _charge_au == -1))
     _mass_au *= 1836.15;
   delete _isParticleHit;

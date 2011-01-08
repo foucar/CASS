@@ -8,11 +8,12 @@
  */
 
 #include "spectrometer.h"
+#include "particle.h"
 #include "cass_settings.h"
 
 using namespace cass::ACQIRIS;
 
-void Spectrometer::loadSettings(CASSSettings &s)
+void Spectrometer::loadSettings(CASSSettings &s, const Particle& p)
 {
   s.beginGroup("Spectrometer");
   int size = s.beginReadArray("Regions");
@@ -25,6 +26,7 @@ void Spectrometer::loadSettings(CASSSettings &s)
   s.endArray();
   _BFieldIsOn = s.value("BFieldIsOn",false).toBool();
   _cyclotronPeriod = s.value("CyclotronPeriode",10).toDouble();
+  _cyclotronPeriod *= (p.mass_au() / p.charge_au());
   _rotationClockwise = s.value("RotationClockwise",true).toBool();
   s.endGroup();
 }

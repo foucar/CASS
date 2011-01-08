@@ -20,6 +20,8 @@ namespace cass
 
   namespace ACQIRIS
   {
+    class Particle;
+
     /** a region of a spectrometer
      *
      * this class defines a region of a REMI type spectrometer (Spectrometer)
@@ -85,9 +87,16 @@ namespace cass
 
       /** load the settings from .ini file
        *
+       * load all spectrometer regions from file before loading our own members.
+       * We need to convert the cyclotron period that is given by the user in
+       * electron periods to the period that this particle has. Therefore we
+       * need to multiply the period by the ratio of mass to charge of the
+       * particle.
+       *
        * @param s the CASSSettings object to read the information from
+       * @param particle the particle that this spectrometer belongs to
        */
-      void loadSettings(CASSSettings &s);
+      void loadSettings(CASSSettings &s, const Particle& particle);
 
       //@{
       /** retrieve magnetic field parameter */
