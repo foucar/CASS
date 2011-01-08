@@ -12,7 +12,7 @@
 
 #include "cfd.h"
 #include "helperfunctionsforstdc.h"
-#include "waveform_signal.h"
+#include "signal_producer.h"
 
 
 //________________________________Implematation of Constant Fraction Method______________________________________________________
@@ -25,7 +25,7 @@ void cfd(const cass::ACQIRIS::Channel& c, cass::ACQIRIS::ResultsBackend& result)
   assert(typeid(waveform_t::value_type) == typeid(T));
 
   //get reference to the signal//
-  Signal &s = dynamic_cast<Signal&>(result);
+  SignalProducer &s = dynamic_cast<SignalProducer&>(result);
   //now extract information from the Channel
   const double sampleInterval = c.sampleInterval()*1e9;    //convert the s to ns
   const double horpos     = c.horpos()*1.e9;

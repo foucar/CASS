@@ -109,7 +109,7 @@ void cass::pp151::process(const cass::CASSEvent &evt)
   using namespace std;
   TofDetector *det
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
+  SignalProducer::peaks_t::const_iterator it (det->mcp().peaks().begin());
   _result->clear();
   _result->lock.lockForWrite();
   for (; it != det->mcp().peaks().end(); ++it)
@@ -159,7 +159,7 @@ void cass::pp152::process(const cass::CASSEvent &evt)
   using namespace std;
   TofDetector *det
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  Signal::peaks_t::const_iterator it (det->mcp().peaks().begin());
+  SignalProducer::peaks_t::const_iterator it (det->mcp().peaks().begin());
   _result->clear();
   _result->lock.lockForWrite();
   for (;it != det->mcp().peaks().end(); ++it)
@@ -275,7 +275,7 @@ void cass::pp161::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  Signal::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
+  SignalProducer::peaks_t::const_iterator it (det->layers()[_layer].wireend()[_signal].peaks().begin());
   _result->clear();
   _result->lock.lockForWrite();
   for (; it != det->layers()[_layer].wireend()[_signal].peaks().end(); ++it)
@@ -637,14 +637,14 @@ void cass::pp220::process(const cass::CASSEvent &evt)
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt)));
   TofDetector *det02
       (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt)));
-  Signal::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
+  SignalProducer::peaks_t::const_iterator it01(det01->mcp().peaks().begin());
   _result->clear();
   _result->lock.lockForWrite();
   for (; it01 != det01->mcp().peaks().end();++it01)
   {
     //if both detectors are the same, then the second iterator should start
     //i+1, otherwise we will just draw all hits vs. all hits
-    Signal::peaks_t::const_iterator it02((_detector01==_detector02) ?
+    SignalProducer::peaks_t::const_iterator it02((_detector01==_detector02) ?
                                          it01+1 :
                                          det02->mcp().peaks().begin());
     for (; it02 != det02->mcp().peaks().end(); ++it02)

@@ -13,7 +13,7 @@
 
 #include "helperfunctionsforstdc.h"
 #include "channel.h"
-#include "waveform_signal.h"
+#include "signal_producer.h"
 
 
 //______________________Implementation of simple Version__________________________________________________________
@@ -25,7 +25,7 @@ template <typename T>
   //make sure that we are the right one for the waveform_t//
   assert(typeid(waveform_t::value_type) == typeid(T));
   //get reference to the signal//
-  Signal &s = dynamic_cast<Signal&>(result);
+  SignalProducer &s = dynamic_cast<SignalProducer&>(result);
   //extract infos from channel//
   const waveform_t Data = c.waveform();
   const int32_t vOffset   = static_cast<int32_t>(c.offset() / c.gain());    //mV -> ADC Bytes
