@@ -204,6 +204,9 @@ namespace cass
       /** retrieve the particle container */
       particles_t& particles()  {return _particles;}
 
+      /** retrieve the detector type */
+      DetectorType type() {return Delayline;}
+
     private:
       /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;

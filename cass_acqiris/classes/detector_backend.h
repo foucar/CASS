@@ -74,6 +74,9 @@ namespace cass
        */
       static DetectorBackend* instance(const DetectorType &dettype, const std::string &detname);
 
+      /** retrieve what kind of detector this is */
+      virtual DetectorType type()=0;
+
     protected:
       /** the name of the detector. used for casssettings group*/
       std::string _name;

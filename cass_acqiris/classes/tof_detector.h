@@ -63,6 +63,9 @@ namespace cass
       /** retrieve the mcp */
       SignalProducer &mcp() {return _mcp;}
 
+      /** retrieve the detector type */
+      DetectorType type() {return ToF;}
+
     protected:
       /** the mcp of the detector */
       SignalProducer _mcp;
