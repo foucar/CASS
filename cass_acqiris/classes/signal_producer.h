@@ -29,38 +29,6 @@ namespace cass
   {
     class SignalExtractor;
 
-    /** Functor returning whether Peak is in Range.
-     *
-     * This class is beeing used by std::find_if as Predicate
-     *
-     * @author Lutz Foucar
-     */
-    class PeakInRange
-    {
-    public:
-      /** constructor intializing the range*/
-      PeakInRange(double low, double up)
-        :_range(std::make_pair(low,up))
-      {}
-
-      /** operator used by find_if.
-       *
-       * @return peak is smaller than or equal to up AND greater than low
-       */
-      bool operator()(const Peak &peak)const
-      {
-        return (peak >_range.first && peak <= _range.second);
-      }
-
-    private:
-      /** the range*/
-      std::pair<double,double> _range;
-    };
-
-
-
-
-
     /** A Signal Producer.
      *
      * This class describes all signal producing elements of a detector. It
@@ -88,7 +56,7 @@ namespace cass
      *           time range of the channel that "good" signals will appear. This
      *           is used by delayline detectors for displaying the first good
      *           hits and the timesum.
-      *
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT SignalProducer
@@ -126,22 +94,22 @@ namespace cass
 
     public:
       /** return the time of the first peak in the "good" time range*/
-      double firstGood() const;
+      double firstGood(const std::pair<double,double>& range);
 
       /** return the signals
        *
        * When a new event was associated with this prodcuer, then it will first
        * extract all signals from the event data otherwise it will just return
        * the signals
+       *
+       * @note the output of a signal producer are the singals. Unfortunately
+       *       if we call this function signals it will not compile anymore.
        */
       signals_t& output();
 
     private:
-      /** the timerange good single events can happen in*/
-      std::pair<double,double> _goodrange;
-
       /** time of the first peak in the "good" range*/
-      mutable double _goodHit;
+      double _goodHit;
 
       /** the extractor of the produced signals */
       SignalExtractor * _signalextractor;

@@ -1,11 +1,41 @@
 //Copyright (C) 2010 Lutz Foucar
 
+#include <stdexcept>
+
 #include "signal_producer.h"
 #include "cass_settings.h"
 
 #include "signal_extractor.h"
 
 using namespace cass::ACQIRIS;
+
+namespace cass
+{
+  namespace ACQIRIS
+  {
+    /** functor retruning true if signal is in requested range
+     *
+     * @author Lutz Foucar
+     */
+    class isInTimeRange : std::unary_function<SignalProducer::signal_t,bool>
+    {
+    public:
+      /** constructor intializing the range*/
+      isInTimeRange(const std::pair<double,double>& range)
+        :_range(range)
+      {}
+
+      bool operator()(const SignalProducer::signal_t &sig)const
+      {
+        return (sig["time"] >_range.first && sig["time"] <= _range.second);
+      }
+
+    private:
+      /** the range*/
+      std::pair<double,double> _range;
+    };
+  }
+}
 
 void SignalProducer::loadSettings(CASSSettings &p)
 {
@@ -32,19 +62,17 @@ void SignalProducer::associate(const CASSEvent &evt)
  _signalextractor->associate(evt);
 }
 
-double SignalProducer::firstGood() const
+double SignalProducer::firstGood(const std::pair<double,double>& range)
 {
-//  //if this is called for the new event for the first time, then evaluate//
-//  if(_isNewEvent)
-//  {
-//    //find first occurence of peak that is in the given timerange//
-//    peaks_t::const_iterator it =
-//        std::find_if(_peaks.begin(),_peaks.end(),
-//                     PeakInRange(_grLow,_grHigh));
-//    //if it is not there retrun 0, otherwise the time of the found peak//
-//    _goodHit = (it==_peaks.end())? 0. : it->time();
-//
-//    _isNewEvent = false;
-//  }
+  if(_newEventAssociated)
+  {
+    try
+    {
+      signals_t sigs (output());
+      _goodHit = (*std::find_if(sigs.begin(),sigs.end(), isInTimeRange(range)))["time"];
+    }
+    catch(const std::range_error&)
+    {}
+  }
   return _goodHit;
 }
