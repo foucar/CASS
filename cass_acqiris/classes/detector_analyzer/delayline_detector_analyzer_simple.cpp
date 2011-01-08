@@ -263,7 +263,7 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   enum LayerComb{xy,uv,uw,vw};
 
   s.beginGroup("Simple");
-  LayerComb lc (static_cast<LayerComb>(s.value("LayerCombination",xy).toInt()));
+  LayerComb lc (static_cast<LayerComb>(s.value("LayersToUse",xy).toInt()));
   switch (lc)
   {
   case (xy):
@@ -297,13 +297,13 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   default:
     throw std::invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: No such layercombination available");
   }
-  _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow").toDouble(),
-                                 s.value("TimesumFirstLayerHigh").toDouble()),
-                       make_pair(s.value("TimesumSecondLayerLow").toDouble(),
-                                 s.value("TimesumSecondLayerHigh").toDouble()));
+  _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow",0).toDouble(),
+                                 s.value("TimesumFirstLayerHigh",200).toDouble()),
+                       make_pair(s.value("TimesumSecondLayerLow",0).toDouble(),
+                                 s.value("TimesumSecondLayerHigh",200).toDouble()));
   _ts = make_pair(0.5*(_tsrange.first.first + _tsrange.first.second),
                   0.5*(_tsrange.second.first + _tsrange.second.second));
   _runtime = s.value("Runtime",150).toDouble();
-  _mcpRadius = s.value("McpRadius",44.).toDouble();
+  _mcpRadius = s.value("McpRadius",300).toDouble();
   s.endGroup();
 }
