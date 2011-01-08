@@ -29,9 +29,6 @@ namespace cass
   {
     /** the Polarity of a Signal in the waveform (Peak)*/
     enum Polarity {Bad,Positive,Negative};
-    /** the layercombination choice for evaluating the detector hits
-    this is used by the simple delayline detektor hit sorter*/
-    enum LayersToUse {UV,UW,VW};
     /** the types of detectors that are available */
     enum DetectorType {Delayline, ToF};
     /** the available detector analyzers*/
