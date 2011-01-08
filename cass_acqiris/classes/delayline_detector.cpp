@@ -29,11 +29,6 @@ void AnodeLayer::loadSettings(CASSSettings &s)
   s.beginGroup("Two");
   _wireend['2'].loadSettings(s);
   s.endGroup();
-
-
-  //  _tsLow  = p->value("LowerTimesumConditionLimit",0.).toDouble();
-  //  _tsHigh = p->value("UpperTimesumConditionLimit",20000.).toDouble();
-  //  _sf     = p->value("Scalefactor",0.5).toDouble();
 }
 
 void DelaylineDetector::associate(const CASSEvent & evt)
@@ -82,14 +77,8 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
   delete _analyzer;
   _analyzer =
       DetectorAnalyzerBackend::instance(static_cast<DetectorAnalyzerType>(s.value("AnalysisMethod",DelaylineSimple).toInt()));
-  _analyzer->loadSettings(s);
+  _analyzer->loadSettings(s, *this);
   s.endGroup();
-
-
-
-  //  _runtime      = s.value("Runtime",150).toDouble();
-  //  _mcpRadius    = s.value("McpRadius",44.).toDouble();
-  //  _angle        = s.value("Angle",0.).toDouble()*3.1415/180.;
 }
 
 DelaylineDetector::hits_t& DelaylineDetector::hits()

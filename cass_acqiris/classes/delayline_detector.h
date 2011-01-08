@@ -43,13 +43,6 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT AnodeLayer
     {
     public:
-      /** default constructor*/
-      AnodeLayer()
-        :_tsLow(0.),
-         _tsHigh(0.),
-         _sf(1.)
-      {}
-
       /** map of signals that form the wireends of the layer*/
       typedef std::map<char,SignalProducer> wireends_t;
 
@@ -59,80 +52,12 @@ namespace cass
       /** associate the event with this anodelayers signal producers */
       void associate(const CASSEvent&);
 
-      /** returns the timesum condition for this anode layer*/
-      double ts()const      {return 0.5*(_tsLow+_tsHigh);}
-
-      /** returns the timesum of the first good hit of this layer*/
-      double timesum() {return _wireend['1'].firstGood() + _wireend['2'].firstGood();}
-
-      /** returns the position of the first good hit*/
-      double position(){return _wireend['1'].firstGood() - _wireend['2'].firstGood();}
-
-    public:
-      //@{
-      /** setter */
-      double            &tsLow()        {return _tsLow;}
-      double            &tsHigh()       {return _tsHigh;}
-      double            &sf()           {return _sf;}
+      /** retrieve the wireend */
       wireends_t        &wireend()      {return _wireend;}
-      //@}
-      //@{
-      /** getter */
-      double             tsLow()const   {return _tsLow;}
-      double             tsHigh()const  {return _tsHigh;}
-      double             sf()const      {return _sf;}
-      const wireends_t  &wireend()const {return _wireend;}
-      //@}
 
     private:
-      /*! lower edge of the timesum condition*/
-      double  _tsLow;
-      /*! upper edge of the timesum condition*/
-      double  _tsHigh;
-      /*! scalefactor which converts ns -> mm */
-      double  _sf;
       /*! the properties of the wireends, they are singals */
       wireends_t  _wireend;
-    };
-
-
-
-
-
-
-    /** a hit on the delayline detector.
-     *
-     * class containing the properties of a Hit on the delayline detector. A
-     * hit on a Delaylinedetector consists of  x, y and t values. Where x and
-     * y are the position on the detector and t is the time the particle hit
-     * the detector. All these values are stored in a map and can be extracted
-     * using the appropriate name ('x','y','t').
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorHit
-    {
-    public:
-      /** constructor.
-       * @param x,y the position on the detector where the particle hit the detector
-       * @param t the time when the particle hit the detector
-       */
-      DelaylineDetectorHit(double x, double y, double t)
-      {
-        _values['x']=x;
-        _values['y']=y;
-        _values['t']=t;
-      }
-
-      /** default constructor*/
-      DelaylineDetectorHit() {}
-
-      /** get the values of a hit*/
-      std::map<char,double> &values() {return _values;}
-
-    private:
-      /** a map containing the three coordiantes of the hit*/
-      std::map<char,double> _values;
     };
 
 
@@ -182,6 +107,12 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetector : public TofDetector
     {
     public:
+      /** a map of anodelayers */
+      typedef std::map<char,AnodeLayer> anodelayers_t;
+      typedef Map<std::string,double> hit_t;
+      typedef std::vector<hit_t> hits_t;
+
+    public:
       /** constructor.
        *
        * @param[in] type the delayline type is an enum either Hex or Quad
@@ -198,98 +129,14 @@ namespace cass
       /** associate the event with all of this detectors signal producers */
       void associate (const CASSEvent&);
 
+      /** return the layers */
+      anodelayers_t &layers() {return _anodelayers;}
 
-    public:
-      typedef Map<std::string,double> hit_t;
-      typedef std::vector<hit_t> hits_t;
-
-      /** a map of anodelayers */
-      typedef std::map<char,AnodeLayer> anodelayers_t;
-
-    public:
-      /** @returns the timesum of the first good hit for a given layer*/
-      double timesum(char layer)
-      {
-//        std::cout<< "del calc "<<layer<<" tsum: "<< _mcp.firstGood()<<std::endl;
-        return _anodelayers[layer].timesum() - 2.* _mcp.firstGood();
-      }
-
-      /** @returns whether the first "good" hit fullfilles the timesum condition*/
-      bool timesumcondtion(char layer)
-      {
-        return (_anodelayers[layer].tsLow() < timesum(layer) && 
-                timesum(layer) < _anodelayers[layer].tsHigh());
-      }
-
-      /** @returns the position of the first good hit for a given layer*/
-      double position(char layer) 
-      {
-        return _anodelayers[layer].position();
-      }
-
-    public:
       /** return the list of detector hits */
       hits_t &hits();
 
-    public:
-      //@{
-      /** setter */
-      std::string   &name()           {return _name;}
-      double        &angle()          {return _angle;}
-      double        &runtime()        {return _runtime;}
-      double        &wLayerOffset()   {return _wLayerOffset;}
-      double        &mcpRadius()      {return _mcpRadius;}
-      double        &deadTimeAnode()  {return _deadAnode;}
-      double        &deadTimeMCP()    {return _deadMcp;}
-      anodelayers_t &layers()         {return _anodelayers;}
-      SignalProducer&mcp()            {return _mcp;}
-      DelaylineType &delaylineType()  {return _delaylinetype;}
-      LayersToUse   &layersToUse()    {return _layersToUse;}
-      //@}
-      //@{
-      /** getter */
-      const std::string   &name()const            {return _name;}
-      double               angle()const           {return _angle;}
-      double               runtime()const         {return _runtime;}
-      double               wLayerOffset()const    {return _wLayerOffset;}
-      double               mcpRadius()const       {return _mcpRadius;}
-      double               deadTimeAnode()const   {return _deadAnode;}
-      double               deadTimeMCP()const     {return _deadMcp;}
-      const anodelayers_t &layers()const          {return _anodelayers;}
-      const SignalProducer&mcp()const             {return _mcp;}
-      DelaylineType        delaylineType()const   {return _delaylinetype;}
-      LayersToUse          layersToUse()const     {return _layersToUse;}
-      //@}
-
     private:
-      /** the runtime of a signal over the anode */
-      double _runtime;
-
-      /** the angle around which the x and y of detector will be rotated */
-      double _angle;
-
-      /** the offset of w-layer towards u and v-layer, only used for hex detectors*/
-      double _wLayerOffset;
-
-      /** the radius of the MCP in mm*/
-      double _mcpRadius;
-
-      /** the Deadtime between to Signals on the MCP*/
-      double _deadMcp;
-
-      /** the deadtime between to Signals on the Layers */
-      double _deadAnode;
-
-      /** layer combination.
-       * enum telling which Layers should be used to calculate the position when
-       * using simple sorting
-       */
-      LayersToUse _layersToUse;
-
-      /** type of the delayline (hex or quad)*/
-      DelaylineType _delaylinetype;
-
-      /** properties of layers*/
+      /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;
 
       /** constainer for all reconstructed detector hits*/
