@@ -51,6 +51,7 @@ Particle::particleHits_t Particle::hits()
   using namespace std;
   if (!_listIsCreated)
   {
+    _listIsCreated = true;
     DelaylineDetector::hits_t::iterator dethit (_detectorhits->begin());
     while(dethit != _detectorhits->end())
     {
