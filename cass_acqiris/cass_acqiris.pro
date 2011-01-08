@@ -23,6 +23,7 @@ DEPENDPATH += ../cass \
     .
 SOURCES += ./acqiris_converter.cpp \
     ./acqiris_device.cpp \
+    ./classes/particle.cpp \
     ./classes/signal_producer.cpp \
     ./classes/delayline_detector.cpp \
     ./classes/detector_backend.cpp \
@@ -40,6 +41,7 @@ HEADERS += ./acqiris_converter.h \
     ../cass/conversion_backend.h \
     ../cass/device_backend.h \
     ../cass/serializer.h \
+    ./classes/particle.h \
     ./classes/channel.h \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \
@@ -50,6 +52,7 @@ HEADERS += ./acqiris_converter.h \
     ./classes/signalextractors/com.h \
     ./classes/signalextractors/helperfunctionsforstdc.h \
     ./classes/detector_analyzer/detector_analyzer_backend.h \
-    ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
+    ./classes/detector_analyzer/delayline_detector_analyzer_simple.h
+
 headers.files = $$HEADERS
 INSTALLS += target
