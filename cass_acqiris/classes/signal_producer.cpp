@@ -48,12 +48,10 @@ SignalProducer::SignalProducer(const SignalProducer& rhs)
 
 SignalProducer::~SignalProducer()
 {
-//  delete _signalextractor;
 }
 
 void SignalProducer::loadSettings(CASSSettings &s)
 {
-//  delete _signalextractor;
   SignalExtractorType analyzerType
       (static_cast<SignalExtractorType>(s.value("SignalExtractionMethod",com16).toInt()));
   _signalextractor = SignalExtractor::instance(analyzerType);
