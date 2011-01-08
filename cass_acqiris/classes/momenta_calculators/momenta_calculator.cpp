@@ -1,10 +1,10 @@
-#include <TMath.h>
+//#include <TMath.h>
 #include <cmath>
 #include <iostream>
 
-#include "MyMomentaCalculator.h"
-#include "../MyParticle/MySpectrometer/MySpectrometer.h"
-#include "../MyParticle/MySpectrometer/MySpectrometerRegion.h"
+//#include "MyMomentaCalculator.h"
+//#include "../MyParticle/MySpectrometer/MySpectrometer.h"
+//#include "../MyParticle/MySpectrometer/MySpectrometerRegion.h"
 
 //#define SWAP(a,b) do { double tmp = b ; b = a ; a = tmp ; } while(0) //needed for solve_cubic()
 
@@ -20,55 +20,55 @@
 
 //###########################Momentum in Detektor Plane############################
 //_____________________________________with magnetic field____________________________________________
-void getXYMomenta(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp,
-				  double &px_au, double &py_au)
-{
-	//--the given tgyr is for electrons--//
-	double tgyr_ns = sp.CyclotronPeriod_ns();
-	//--if we have recoils, calc the cyclotron frequence for the given m/q--//
-	if (mass_au > 1.)
-		tgyr_ns = tgyr_ns * mass_au / charge_au;
-
-	//--convert everything to a.u.--//
-	double tgyr_au = tgyr_ns * MyUnitsConv::ns2au();
-	double x_au = x_mm * MyUnitsConv::mm2au();
-	double y_au = y_mm * MyUnitsConv::mm2au();
-
-
-	//--calculate the total momentum in Detektor Plane--//
-	double wt_total = (2.*TMath::Pi()*tof_ns) / (tgyr_ns);
-	double wt = std::fmod(wt_total,2.*TMath::Pi());	//if we already have more than 1 turn, take wt modulo 2*Pi
-	double p_total = ( sqrt(x_au*x_au + y_au*y_au) * mass_au * TMath::Pi() ) / ( sin(0.5*wt) * tgyr_au );
-
-	//--now we have to find out where the initial direction of emmision--//
-	//--this means we need to find the angle between the x-axis and the--//
-	//--emission angle phi.	The angle depends wether the cyclotron	   --//
-	//--motion is ccw or cw, meaning the B-Field ist pointing into the --//
-	//--detektor-plane or out of the detektor plane respectivly.	   --//
-
-	//--theta is the angle between x-axis and position on the detektor--//
-	//--the function atan2 will give values between [-PI..PI] but we need [0..2*PI]--//
-	double theta = ( TMath::ATan2(y_mm,x_mm)<0 ) ? TMath::ATan2(y_mm,x_mm)+ 2.*TMath::Pi() : TMath::ATan2(y_mm,x_mm);
-	
-	//--if the cyc motion is ccw phi is theta - wt/2 if it cw its theta + wt/2--//
-	double phi   = (sp.RotationClockWise())? theta + 0.5*wt : theta - 0.5*wt;
-
-	//--calculate the x and y momenta knowing the initial direction of the total momentum--//
-	px_au = p_total * TMath::Cos(phi);
-	py_au = p_total * TMath::Sin(phi);
-}
-
-//_____________________________without magnetic field_________________________________________________
-double getXMom(double x_mm, double tof_ns, double mass_au)
-{
-	return ((x_mm * mass_au) / tof_ns ) * MyUnitsConv::mmPns2au();
-}
-
-double getYMom(double y_mm, double tof_ns, double mass_au)
-{
-	return ((y_mm * mass_au) / tof_ns ) * MyUnitsConv::mmPns2au();
-}
-//#################################################################################
+//void getXYMomenta(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp,
+//				  double &px_au, double &py_au)
+//{
+//	//--the given tgyr is for electrons--//
+//	double tgyr_ns = sp.CyclotronPeriod_ns();
+//	//--if we have recoils, calc the cyclotron frequence for the given m/q--//
+//	if (mass_au > 1.)
+//		tgyr_ns = tgyr_ns * mass_au / charge_au;
+//
+//	//--convert everything to a.u.--//
+//	double tgyr_au = tgyr_ns * MyUnitsConv::ns2au();
+//	double x_au = x_mm * MyUnitsConv::mm2au();
+//	double y_au = y_mm * MyUnitsConv::mm2au();
+//
+//
+//	//--calculate the total momentum in Detektor Plane--//
+//	double wt_total = (2.*TMath::Pi()*tof_ns) / (tgyr_ns);
+//	double wt = std::fmod(wt_total,2.*TMath::Pi());	//if we already have more than 1 turn, take wt modulo 2*Pi
+//	double p_total = ( sqrt(x_au*x_au + y_au*y_au) * mass_au * TMath::Pi() ) / ( sin(0.5*wt) * tgyr_au );
+//
+//	//--now we have to find out where the initial direction of emmision--//
+//	//--this means we need to find the angle between the x-axis and the--//
+//	//--emission angle phi.	The angle depends wether the cyclotron	   --//
+//	//--motion is ccw or cw, meaning the B-Field ist pointing into the --//
+//	//--detektor-plane or out of the detektor plane respectivly.	   --//
+//
+//	//--theta is the angle between x-axis and position on the detektor--//
+//	//--the function atan2 will give values between [-PI..PI] but we need [0..2*PI]--//
+//	double theta = ( TMath::ATan2(y_mm,x_mm)<0 ) ? TMath::ATan2(y_mm,x_mm)+ 2.*TMath::Pi() : TMath::ATan2(y_mm,x_mm);
+//
+//	//--if the cyc motion is ccw phi is theta - wt/2 if it cw its theta + wt/2--//
+//	double phi   = (sp.RotationClockWise())? theta + 0.5*wt : theta - 0.5*wt;
+//
+//	//--calculate the x and y momenta knowing the initial direction of the total momentum--//
+//	px_au = p_total * TMath::Cos(phi);
+//	py_au = p_total * TMath::Sin(phi);
+//}
+//
+////_____________________________without magnetic field_________________________________________________
+//double getXMom(double x_mm, double tof_ns, double mass_au)
+//{
+//	return ((x_mm * mass_au) / tof_ns ) * MyUnitsConv::mmPns2au();
+//}
+//
+//double getYMom(double y_mm, double tof_ns, double mass_au)
+//{
+//	return ((y_mm * mass_au) / tof_ns ) * MyUnitsConv::mmPns2au();
+//}
+////#################################################################################
 
 
 
@@ -77,90 +77,90 @@ double getYMom(double y_mm, double tof_ns, double mass_au)
 
 //#############################Momentum along tof####################################################
 //_____________________________direct calculation_________________________________________________
-double getZMom(double tof_ns, double mass_au, double charge_au, const SpecRegions &sr)
-{
-	//calculate the acceleration from the E-field in the region, charge and mass of the particle//
-	double a = sr[0].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in the Region in mm/ns^2
-	double v = sr[0].Length_mm()/tof_ns - 0.5*a*tof_ns;							//the velocity in mm/ns
-	
-	double v_au = v * MyUnitsConv::mmPns2au();			//convert mm/ns to a.u.
-	double p_au = v_au * mass_au;	//convert velocity to momentum
-
-	return p_au;
-}
-
-//_____________________________helper function for endless SpectrometerRegions___________________________
-double evalFunc(double v0, double mass_au, double charge_au, const SpecRegions &sr)
-{
-	double tges=0;
-	double v = v0;
-	for (size_t nReg=0; nReg<sr.size(); ++nReg)
-	{
-		//calculate the accereration from the E-field in the region, charge and mass of the particle//
-		double a = sr[nReg].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
-		double s = sr[nReg].Length_mm();											//the length of this region in mm
-		
-		//calc how long one particle will fly with the given initial velocity//
-		double tt=0;
-		if (TMath::Abs(a) > 1e-8)		//if there is an accerlartion
-			tt = (-v + sqrt(v*v + 2.*a*s))/a;
-		else					//if there is no accerlaration (eg drift)
-			tt = s/v;
-
-		//during its time in this Region the particle gained velocity if it wasn't a drift (a=0)
-		//add this additional velocity to its initial velocity
-		v += a*tt;
-
-		//add the time that the particle stayed in this region to the total time
-		tges += tt;
-	}
-
-	//return the total time
-	return tges;
-}
+//double getZMom(double tof_ns, double mass_au, double charge_au, const SpecRegions &sr)
+//{
+//	//calculate the acceleration from the E-field in the region, charge and mass of the particle//
+//	double a = sr[0].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in the Region in mm/ns^2
+//	double v = sr[0].Length_mm()/tof_ns - 0.5*a*tof_ns;							//the velocity in mm/ns
+//
+//	double v_au = v * MyUnitsConv::mmPns2au();			//convert mm/ns to a.u.
+//	double p_au = v_au * mass_au;	//convert velocity to momentum
+//
+//	return p_au;
+//}
+//
+////_____________________________helper function for endless SpectrometerRegions___________________________
+//double evalFunc(double v0, double mass_au, double charge_au, const SpecRegions &sr)
+//{
+//	double tges=0;
+//	double v = v0;
+//	for (size_t nReg=0; nReg<sr.size(); ++nReg)
+//	{
+//		//calculate the accereration from the E-field in the region, charge and mass of the particle//
+//		double a = sr[nReg].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
+//		double s = sr[nReg].Length_mm();											//the length of this region in mm
+//
+//		//calc how long one particle will fly with the given initial velocity//
+//		double tt=0;
+//		if (TMath::Abs(a) > 1e-8)		//if there is an accerlartion
+//			tt = (-v + sqrt(v*v + 2.*a*s))/a;
+//		else					//if there is no accerlaration (eg drift)
+//			tt = s/v;
+//
+//		//during its time in this Region the particle gained velocity if it wasn't a drift (a=0)
+//		//add this additional velocity to its initial velocity
+//		v += a*tt;
+//
+//		//add the time that the particle stayed in this region to the total time
+//		tges += tt;
+//	}
+//
+//	//return the total time
+//	return tges;
+//}
 
 //_____________________________find it iterativly_________________________________________________
-double getZMomIter(double tof_ns, double mass_au, double charge_au, const SpecRegions &sr)
-{
-	//when a negative time was given return immediatly because there will be no good solution//
-	if (tof_ns < 0) return 1e15;
-
-	//calculate the acceleration from the E-field in the region, charge and mass of the particle//
-	double a = sr[0].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
-
-	//--iterativly find the right v_mmns to get the right tof_ns--//
-	//--we have a function t(v), but we want the inverse of the function v(t)--//
-	//--since this cannot be done we have to find the right v iterativly--//
-	//--so we have a function f(x) (t(v)) with the function value fx0 (t) at point x0 (v)--//
-	//--we don't know which x0 (v) will give us the fx0 (t) that we want--//
-	//--that means we have to iterate x0 until fx0 is the same that we want--//
-
-	//begin with a v when there would be only one Region//
-	double x0  = sr[0].Length_mm()/tof_ns - 0.5*a*tof_ns;
-	double fx0 = evalFunc(x0,mass_au,charge_au,sr);
-
-	//use Newtons Approximation//
-	while(TMath::Abs(fx0 - tof_ns) > 0.01)
-	{
-		//we need to find the slope of the function at point x0 therefore we need//
-		//a second point which is close to x0//
-		double x1  = 1.1 * x0;
-		double fx1 = evalFunc(x1,mass_au,charge_au,sr);
-
-		//calculate the slope//
-		double m = (fx0-fx1)/(x0-x1);
-
-		//the next starting point is the point where the slopeline crosses the wanted fx0 value//
-		x0  = x0 + 0.7*(tof_ns-fx0)/m;
-		fx0 = evalFunc(x0,mass_au,charge_au,sr);
-	}
-
-	//now calc momentum from the velocity that was found
-	double v_au = x0 * MyUnitsConv::mmPns2au();				//convert mm/ns -> a.u.
-	double p_au = v_au * mass_au;		//convert velocity -> momentum
-
-	return p_au;
-}
+//double getZMomIter(double tof_ns, double mass_au, double charge_au, const SpecRegions &sr)
+//{
+//	//when a negative time was given return immediatly because there will be no good solution//
+//	if (tof_ns < 0) return 1e15;
+//
+//	//calculate the acceleration from the E-field in the region, charge and mass of the particle//
+//	double a = sr[0].EField_Vpcm() * charge_au/mass_au * MyUnitsConv::VPcm2mmPns();	//the acceleration in Region 1 in mm/ns^2
+//
+//	//--iterativly find the right v_mmns to get the right tof_ns--//
+//	//--we have a function t(v), but we want the inverse of the function v(t)--//
+//	//--since this cannot be done we have to find the right v iterativly--//
+//	//--so we have a function f(x) (t(v)) with the function value fx0 (t) at point x0 (v)--//
+//	//--we don't know which x0 (v) will give us the fx0 (t) that we want--//
+//	//--that means we have to iterate x0 until fx0 is the same that we want--//
+//
+//	//begin with a v when there would be only one Region//
+//	double x0  = sr[0].Length_mm()/tof_ns - 0.5*a*tof_ns;
+//	double fx0 = evalFunc(x0,mass_au,charge_au,sr);
+//
+//	//use Newtons Approximation//
+//	while(TMath::Abs(fx0 - tof_ns) > 0.01)
+//	{
+//		//we need to find the slope of the function at point x0 therefore we need//
+//		//a second point which is close to x0//
+//		double x1  = 1.1 * x0;
+//		double fx1 = evalFunc(x1,mass_au,charge_au,sr);
+//
+//		//calculate the slope//
+//		double m = (fx0-fx1)/(x0-x1);
+//
+//		//the next starting point is the point where the slopeline crosses the wanted fx0 value//
+//		x0  = x0 + 0.7*(tof_ns-fx0)/m;
+//		fx0 = evalFunc(x0,mass_au,charge_au,sr);
+//	}
+//
+//	//now calc momentum from the velocity that was found
+//	double v_au = x0 * MyUnitsConv::mmPns2au();				//convert mm/ns -> a.u.
+//	double p_au = v_au * mass_au;		//convert velocity -> momentum
+//
+//	return p_au;
+//}
 //#################################################################################
 
 
@@ -342,45 +342,45 @@ double getZMomIter(double tof_ns, double mass_au, double charge_au, const SpecRe
 
 
 //_________________________________________________________________________________
-double MyMomentaCalculator::px(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
-{
-	//--there are two possibilities, with Magnetic Field or without--//
-	double px_au=0;
-	double py_au=0;
-	if (sp.MagneticFieldIsOn())	//we have a magnetic field (more complex)
-		getXYMomenta(x_mm, y_mm, tof_ns, mass_au, charge_au, sp, px_au, py_au);
-	else						//this is when we don't have a magnetic field
-		px_au = getXMom(x_mm,tof_ns,mass_au);
-
-	return px_au;
-}
-
-//_________________________________________________________________________________
-double MyMomentaCalculator::py(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
-{
-	//--there are two possibilities, with Magnetic Field or without--//
-	double px_au=0;
-	double py_au=0;
-	if (sp.MagneticFieldIsOn())	//we have a magnetic field (more complex)
-		getXYMomenta(x_mm, y_mm, tof_ns, mass_au, charge_au, sp, px_au, py_au);
-	else						//this is when we don't have a magnetic field
-		py_au = getYMom(y_mm,tof_ns,mass_au);
-
-	return py_au;
-}
-
-//_________________________________________________________________________________
-double MyMomentaCalculator::pz(double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
-{
-	if (sp.GetSpectrometerRegions().size() > 1)		//if there are many regions
-		return getZMomIter(tof_ns, mass_au, charge_au, sp.GetSpectrometerRegions());
-	else if (sp.GetSpectrometerRegions().size() == 1)	//if there is only one region
-		return getZMom(tof_ns, mass_au, charge_au, sp.GetSpectrometerRegions());
-	else
-	{
-		std::cout<< "No Spectrometer Region has been set. Please set it, otherwise one cannot calculate the momentum"<<std::endl;
-		exit(1);
-		return 0;
-	}
-}
+//double MyMomentaCalculator::px(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
+//{
+//	//--there are two possibilities, with Magnetic Field or without--//
+//	double px_au=0;
+//	double py_au=0;
+//	if (sp.MagneticFieldIsOn())	//we have a magnetic field (more complex)
+//		getXYMomenta(x_mm, y_mm, tof_ns, mass_au, charge_au, sp, px_au, py_au);
+//	else						//this is when we don't have a magnetic field
+//		px_au = getXMom(x_mm,tof_ns,mass_au);
+//
+//	return px_au;
+//}
+//
+////_________________________________________________________________________________
+//double MyMomentaCalculator::py(double x_mm, double y_mm, double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
+//{
+//	//--there are two possibilities, with Magnetic Field or without--//
+//	double px_au=0;
+//	double py_au=0;
+//	if (sp.MagneticFieldIsOn())	//we have a magnetic field (more complex)
+//		getXYMomenta(x_mm, y_mm, tof_ns, mass_au, charge_au, sp, px_au, py_au);
+//	else						//this is when we don't have a magnetic field
+//		py_au = getYMom(y_mm,tof_ns,mass_au);
+//
+//	return py_au;
+//}
+//
+////_________________________________________________________________________________
+//double MyMomentaCalculator::pz(double tof_ns, double mass_au, double charge_au, const MySpectrometer& sp)
+//{
+//	if (sp.GetSpectrometerRegions().size() > 1)		//if there are many regions
+//		return getZMomIter(tof_ns, mass_au, charge_au, sp.GetSpectrometerRegions());
+//	else if (sp.GetSpectrometerRegions().size() == 1)	//if there is only one region
+//		return getZMom(tof_ns, mass_au, charge_au, sp.GetSpectrometerRegions());
+//	else
+//	{
+//		std::cout<< "No Spectrometer Region has been set. Please set it, otherwise one cannot calculate the momentum"<<std::endl;
+//		exit(1);
+//		return 0;
+//	}
+//}
 
