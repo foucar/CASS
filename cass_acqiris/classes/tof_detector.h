@@ -11,7 +11,7 @@
 #define _TOF_DETECTOR_H_
 
 #include "detector_backend.h"
-#include "waveform_signal.h"
+#include "signal_producer.h"
 
 namespace cass
 {

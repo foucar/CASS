@@ -1,6 +1,6 @@
 //Copyright (C) 2010 Lutz Foucar
 
-#include "waveform_signal.h"
+#include "signal_producer.h"
 #include "cass_settings.h"
 
 void cass::ACQIRIS::Signal::loadSettings(CASSSettings *p, const char * signalname)

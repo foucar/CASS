@@ -16,7 +16,7 @@
 
 #include "cass_acqiris.h"
 #include "tof_detector.h"
-#include "waveform_signal.h"
+#include "signal_producer.h"
 #include "cass_settings.h"
 
 

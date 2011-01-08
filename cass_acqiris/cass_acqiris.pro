@@ -23,12 +23,13 @@ DEPENDPATH += ../cass \
     .
 SOURCES += acqiris_converter.cpp \
     acqiris_device.cpp \
-    ./classes/waveform_signal.cpp \
+    ./classes/signal_producer.cpp \
     ./classes/waveformanalyzer/cfd.cpp \
     ./classes/waveformanalyzer/com.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
-    classes/detector_backend.cpp \
-    classes/tof_detector.cpp
+    ./classes/detector_backend.cpp \
+    ./classes/tof_detector.cpp
+
 HEADERS += acqiris_converter.h \
     cass_acqiris.h \
     acqiris_device.h \
@@ -41,7 +42,7 @@ HEADERS += acqiris_converter.h \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \
     ./classes/tof_detector.h \
-    ./classes/waveform_signal.h \
+    ./classes/signal_producer.h \
     ./classes/waveformanalyzer/waveform_analyzer_backend.h \
     ./classes/waveformanalyzer/results_backend.h \
     ./classes/waveformanalyzer/cfd.h \
