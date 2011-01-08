@@ -134,11 +134,11 @@ namespace cass
      * spectrometer region.
      *
      * calculates the acceleration from the E-field in the region, charge and
-     * mass of the particle. The result will be in \frac{mm^2}{ns}. With this one
-     * can calculate the velocity of the particle after it has reached the
-     * detector in \frac{mm}{ns}. After converting \frac{mm}{ns} to atomic units
-     * one simply has to multiply the velocity with the mass in atomic units to
-     * get momentum in atomic units.
+     * mass of the particle. The result will be in \f$\frac{mm^2}{ns}\f$. With
+     * this one can calculate the velocity of the particle after it has reached
+     * the detector in \f$\frac{mm}{ns}\f$. After converting \f$\frac{mm}{ns}\f$
+     * to atomic units one simply has to multiply the velocity with the mass in
+     * atomic units to get momentum in atomic units.
      *
      * @return the momentum along the time of flight axis in atomic units
      * @param tof_ns the time of flight of the hit in ns
