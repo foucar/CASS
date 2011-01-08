@@ -16,6 +16,7 @@
 #include "delayline_detector.h"
 
 using namespace cass::ACQIRIS;
+using namespace std;
 
 namespace cass
 {
@@ -49,7 +50,7 @@ namespace cass
        * @return pointer to instance of requested class
        * @param type the requested class type
        */
-      static IsParticleHit* instance(const ConditionType& type);
+      static auto_ptr<IsParticleHit> instance(const ConditionType& type);
     };
 
     /** a Time of Flight condition
@@ -206,25 +207,25 @@ namespace cass
       std::pair<IsParticleHit*,IsParticleHit*> _conditions;
     };
 
-    IsParticleHit* IsParticleHit::instance(const ConditionType &type)
+    auto_ptr<IsParticleHit> IsParticleHit::instance(const ConditionType &type)
     {
-      IsParticleHit *cond(0);
+      auto_ptr<IsParticleHit>cond;
       switch(type)
       {
       case tofcond:
-        cond = new TofCond;
+        cond = auto_ptr<IsParticleHit>(new TofCond);
         break;
       case radcond:
-        cond = new RadCond;
+        cond = auto_ptr<IsParticleHit>(new RadCond);
         break;
       case rectcond:
-        cond = new RectCond;
+        cond = auto_ptr<IsParticleHit>(new RectCond);
         break;
       case tofrectcond:
-        cond = new CombineConditions<TofCond,RectCond>();
+        cond = auto_ptr<IsParticleHit>(new CombineConditions<TofCond,RectCond>());
         break;
       case tofradcond:
-        cond = new CombineConditions<TofCond,RadCond>();
+        cond = auto_ptr<IsParticleHit>(new CombineConditions<TofCond,RadCond>());
         break;
       default:
         throw std::invalid_argument("IsParticleHit::instance: No such condition type available");
@@ -256,11 +257,24 @@ namespace cass
    }
 }
 
+Particle::Particle(const Particle &rhs)
+  :_particlehits(rhs._particlehits),
+   _detector(rhs._detector),
+   _listIsCreated(rhs._listIsCreated),
+   _isParticleHit(rhs._isParticleHit),
+   _calc_detplane(rhs._calc_detplane),
+   _calc_tof(rhs._calc_tof),
+   _copyandcorrect(rhs._copyandcorrect),
+   _spectrometer(rhs._spectrometer),
+   _mass_au(rhs._mass_au),
+   _charge_au(rhs._charge_au)
+{}
+
 Particle::~Particle()
 {
-  delete _isParticleHit;
-  delete _calc_detplane;
-  delete _calc_tof;
+//  delete _isParticleHit;
+//  delete _calc_detplane;
+//  delete _calc_tof;
 }
 
 void Particle::loadSettings(CASSSettings& s)
@@ -271,17 +285,17 @@ void Particle::loadSettings(CASSSettings& s)
   _copyandcorrect.loadSettings(s);
   if (!(_mass_au == 1 && _charge_au == -1))
     _mass_au *= 1836.15;
-  delete _isParticleHit;
+//  delete _isParticleHit;
   IsParticleHit::ConditionType condtype
       (static_cast<IsParticleHit::ConditionType>(s.value("ConditionType",IsParticleHit::tofcond).toInt()));
   _isParticleHit = IsParticleHit::instance(condtype);
   _isParticleHit->loadSettings(s);
-  delete _calc_detplane;
+//  delete _calc_detplane;
   if (_spectrometer.BFieldIsOn())
     _calc_detplane = MomentumCalculator::instance(MomentumCalculator::PxPyWBField);
   else
     _calc_detplane = MomentumCalculator::instance(MomentumCalculator::PxPyWOBField);
-  delete _calc_tof;
+//  delete _calc_tof;
   if (_spectrometer.regions().size() > 1)
     _calc_tof = MomentumCalculator::instance(MomentumCalculator::PzMultipleRegions);
   else

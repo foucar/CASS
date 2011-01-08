@@ -10,6 +10,8 @@
 #ifndef __MomentaCalculator_H_
 #define __MomentaCalculator_H_
 
+#include <memory>
+
 #include "cass_acqiris.h"
 
 namespace cass
@@ -108,7 +110,7 @@ namespace cass
        * @return pointer to the instance of the requested type
        * @param type the type of momentum calculator requested
        */
-      static MomentumCalculator* instance(const MomCalcType &type);
+      static std::auto_ptr<MomentumCalculator> instance(const MomCalcType &type);
 
     };
 

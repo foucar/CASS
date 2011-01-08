@@ -11,6 +11,7 @@
 #define __MyParticle_H__
 
 #include <vector>
+#include <memory>
 #include <string>
 
 #include "map.hpp"
@@ -66,6 +67,12 @@ namespace cass
          _calc_detplane(0),
          _calc_tof(0)
       {}
+
+      /** copy constructor
+       *
+       * needs to be manually implemented otherwise the compiler will give errors
+       */
+      Particle(const Particle& rhs);
 
       /** destructor
        *
@@ -129,13 +136,13 @@ namespace cass
       bool _listIsCreated;
 
       /** identifer for checking detectorhit is a particle hit */
-      IsParticleHit *_isParticleHit;
+      mutable std::auto_ptr<IsParticleHit> _isParticleHit;
 
       /** calculate momenta along the detector plane of a particle hit */
-      MomentumCalculator *_calc_detplane;
+      mutable std::auto_ptr<MomentumCalculator> _calc_detplane;
 
       /** calculate momenta along the ToF direction of a particle hit */
-      MomentumCalculator *_calc_tof;
+      mutable std::auto_ptr<MomentumCalculator> _calc_tof;
 
       /** copy and correction of the detectorhit */
       HitCorrector _copyandcorrect;

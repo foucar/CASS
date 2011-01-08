@@ -462,22 +462,23 @@ particleHit_t HitCorrector::operator()(const detectorHit_t &dethit) const
   return particlehit;
 }
 
-MomentumCalculator* MomentumCalculator::instance(const MomCalcType &type)
+std::auto_ptr<MomentumCalculator>  MomentumCalculator::instance(const MomCalcType &type)
 {
-  MomentumCalculator *momcalc(0);
+  using namespace std;
+  auto_ptr<MomentumCalculator> momcalc;
   switch (type)
   {
   case PxPyWBField:
-    momcalc = new PxPyCalculatorWithBField;
+    momcalc = auto_ptr<MomentumCalculator>(new PxPyCalculatorWithBField);
     break;
   case PxPyWOBField:
-    momcalc = new PxPyCalculatorWithoutBField;
+    momcalc = auto_ptr<MomentumCalculator>(new PxPyCalculatorWithoutBField);
     break;
   case PzOneRegion:
-    momcalc = new PzCalculatorDirectOneRegion;
+    momcalc = auto_ptr<MomentumCalculator>(new PzCalculatorDirectOneRegion);
     break;
   case PzMultipleRegions:
-    momcalc = new PzCalculatorMulitpleRegions;
+    momcalc = auto_ptr<MomentumCalculator>(new PzCalculatorMulitpleRegions);
     break;
   default:
     throw std::invalid_argument("MomentumCalculator::instance(): No such momentum calculator type available");
