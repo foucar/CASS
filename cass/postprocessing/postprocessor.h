@@ -114,7 +114,8 @@ the Class description for information about what parameters are user settable.
 00230: Photon energy of Shot
 00231: Wavelength of photons
 00250: Property of particle
-00521: 2d hist with two properties of particle
+00251: 2d hist with two properties of particle
+00252: Number of found particle hits per shot
 
 00300: single particle detection
 00301: median over last values
@@ -276,6 +277,7 @@ using the custom doxygen tag cassttng.
 
       ParticleValue = 250,
       ParticleValues = 251,
+      NbrParticles = 252,
 
 
       SingleParticleDetection=300,
