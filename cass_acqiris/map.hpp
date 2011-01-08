@@ -34,6 +34,12 @@ namespace cass
     /** access members of the map container as done in the std::map */
     value_type& operator[](const key_type& key){return _map[key];}
 
+    /** access members of the map container as done in the std::map */
+    value_type operator[](const key_type& key)const
+    {
+      return _map.find(key)->second;
+    }
+
   private:
     /** the container */
     std::map<key_type,value_type> _map;
