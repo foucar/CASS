@@ -35,7 +35,7 @@ namespace cass
      * @param device the device that contains the waveforms
      * @param wavefromanalyzers the container for all wavefromanalyzers
      */
-    void extractSignals(ACQIRIS::Signal& signal,
+    void extractSignals(ACQIRIS::SignalProducer& signal,
                         const ACQIRIS::Device& device,
                         ACQIRIS::DetectorAnalyzerBackend::waveformanalyzers_t& waveformanalyzers)
     {
@@ -93,7 +93,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    void findBoundriesForSorting(const cass::ACQIRIS::Signal &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
+    void findBoundriesForSorting(const cass::ACQIRIS::SignalProducer &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
     {
       //set min and max to 0//
       min = -2;
@@ -136,10 +136,10 @@ namespace cass
       //--calculate the timesum from the given lower and upper boundries for it--//
       AnodeLayer &f         = *(anode.first);
       AnodeLayer &s         = *(anode.second);
-      Signal &f1            = f.wireend()['1'];
-      Signal &f2            = f.wireend()['2'];
-      Signal &s1            = s.wireend()['1'];
-      Signal &s2            = s.wireend()['2'];
+      SignalProducer &f1    = f.wireend()['1'];
+      SignalProducer &f2    = f.wireend()['2'];
+      SignalProducer &s1    = s.wireend()['1'];
+      SignalProducer &s2    = s.wireend()['2'];
       const double tsx      = f.ts();
       const double tsy      = s.ts();
       const double runttime	= d.runtime();
@@ -148,11 +148,11 @@ namespace cass
       const double tsyLow		= s.tsLow();
       const double tsyHigh	= s.tsHigh();
       const double radius		= d.mcpRadius();
-      Signal::peaks_t &mcpp = d.mcp().peaks();
-      Signal::peaks_t &f1p  = f1.peaks();
-      Signal::peaks_t &f2p  = f2.peaks();
-      Signal::peaks_t &s1p  = s1.peaks();
-      Signal::peaks_t &s2p  = s2.peaks();
+      SignalProducer::peaks_t &mcpp = d.mcp().peaks();
+      SignalProducer::peaks_t &f1p  = f1.peaks();
+      SignalProducer::peaks_t &f2p  = f2.peaks();
+      SignalProducer::peaks_t &s1p  = s1.peaks();
+      SignalProducer::peaks_t &s2p  = s2.peaks();
       const double angle    = d.angle();
 
       //  std::cout <<"mcp: "<<mcpp.size() <<" ";
@@ -312,19 +312,19 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
   //first retrieve the right Instruments / Channels for the signals
-  Signal & MCP (d.mcp());
+  SignalProducer & MCP (d.mcp());
   DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
 
-  Signal &F1 (anode.first->wireend()['1']);
+  SignalProducer &F1 (anode.first->wireend()['1']);
   DelaylineDetectorAnalyzers::extractSignals(F1,dev,*_waveformanalyzer);
 
-  Signal &F2 (anode.first->wireend()['2']);
+  SignalProducer &F2 (anode.first->wireend()['2']);
   DelaylineDetectorAnalyzers::extractSignals(F2,dev,*_waveformanalyzer);
 
-  Signal &S1 = anode.second->wireend()['1'];
+  SignalProducer &S1 = anode.second->wireend()['1'];
   DelaylineDetectorAnalyzers::extractSignals(S1,dev,*_waveformanalyzer);
 
-  Signal &S2 = anode.second->wireend()['2'];
+  SignalProducer &S2 = anode.second->wireend()['2'];
   DelaylineDetectorAnalyzers::extractSignals(S2,dev,*_waveformanalyzer);
 
   ////tell the signals that you have updated it//
@@ -350,6 +350,6 @@ void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::DetectorBacken
   //extract the peaks for the signals of the detector from the channels//
   //check whether the requested channel does exist//
   //first retrieve the right Instruments / Channels for the signals
-  Signal & MCP (d.mcp());
+  SignalProducer & MCP (d.mcp());
   DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
 }

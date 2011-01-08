@@ -48,7 +48,7 @@ namespace cass
       {}
 
       /** map of signals that form the wireends of the layer*/
-      typedef std::map<char,Signal> wireends_t;
+      typedef std::map<char,SignalProducer> wireends_t;
 
       /** load values from cass.ini, should only be called by the detector*/
       void loadSettings(CASSSettings *p,const char * layername);
@@ -267,7 +267,7 @@ namespace cass
       double        &deadTimeAnode()  {return _deadAnode;}
       double        &deadTimeMCP()    {return _deadMcp;}
       anodelayers_t &layers()         {return _anodelayers;}
-      Signal        &mcp()            {return _mcp;}
+      SignalProducer&mcp()            {return _mcp;}
       DelaylineType &delaylineType()  {return _delaylinetype;}
       LayersToUse   &layersToUse()    {return _layersToUse;}
       //@}
@@ -281,7 +281,7 @@ namespace cass
       double               deadTimeAnode()const   {return _deadAnode;}
       double               deadTimeMCP()const     {return _deadMcp;}
       const anodelayers_t &layers()const          {return _anodelayers;}
-      const Signal        &mcp()const             {return _mcp;}
+      const SignalProducer&mcp()const             {return _mcp;}
       DelaylineType        delaylineType()const   {return _delaylinetype;}
       LayersToUse          layersToUse()const     {return _layersToUse;}
       //@}

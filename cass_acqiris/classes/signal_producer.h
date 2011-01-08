@@ -23,6 +23,8 @@ namespace cass
 
   namespace ACQIRIS
   {
+    class SignalExtractor;
+
     /** Functor returning whether Peak is in Range.
      *
      * This class is beeing used by std::find_if as Predicate
@@ -55,11 +57,11 @@ namespace cass
 
 
 
-    /** Signal extraction definition.
+    /** A Signal Producer.
      *
-     * Class containing information about how to extract the signals of a waveform.
-     * It contains a vector of extracted signals (called peaks for now). One Signal
-     * is called Peak.
+     * This class describes all signal producing elements of a detector. It
+     * contains an extractor for the produced signals from the event and a list
+     * of the signals it produced.
      *
      * User settable parameters via CASS.ini
      * - general access to these parameters depends on the detector type:
@@ -109,7 +111,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT Signal : public ResultsBackend
+    class CASS_ACQIRISSHARED_EXPORT SignalProducer : public ResultsBackend
     {
     public:
       /** default constructor.
@@ -117,7 +119,7 @@ namespace cass
        * intializing the variables describing the extraction with nonsense,
        * since they have to be loaded by loadSettings from cass.ini
        */
-      Signal()
+      SignalProducer()
         :_instrument(Camp1),
          _chNbr(99),
          _trLow(0),
@@ -244,6 +246,9 @@ namespace cass
 
       /** flag to tell when we are working on a new event*/
       mutable bool _isNewEvent;
+
+      /** the extractor of the produced signals */
+      SignalExtractor * _signalextractor;
     };
   }//end namespace acqiris
 }//end namespace cass

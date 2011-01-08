@@ -50,14 +50,14 @@ namespace cass
       virtual void saveParameters(CASSSettings *){}
 
       /** getter for the signal*/
-      const Signal        &mcp()const {return _mcp;}
+      const SignalProducer &mcp()const {return _mcp;}
 
       /** setter for the singal*/
-      Signal              &mcp() {return _mcp;}
+      SignalProducer &mcp() {return _mcp;}
 
     protected:
       /** the properties of the mcp of the tofdetector*/
-      Signal _mcp;
+      SignalProducer _mcp;
     };
   }
 }
