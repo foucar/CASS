@@ -23,6 +23,74 @@
 #include "cass_settings.h"
 
 
+namespace cass
+{
+  namespace ACQIRIS
+  {
+    /** load detector from file
+     *
+     * after loading check whether it is a delayline detector, if not throw
+     * invalid_argument exception.
+     *
+     * @return key containing detector name
+     * @param s CASSSettings object to read the info from
+     * @param ppNbr the Postprocessor number of the postprocessor calling this
+     *              function
+     * @param key the key of the postprocessor calling this function
+     *
+     * @author Lutz Foucar
+     */
+    HelperAcqirisDetectors::helperinstancesmap_t::key_type loadDelayDet(CASSSettings &s, int ppNbr, const PostProcessors::key_t& key)
+    {
+      using namespace std;
+      HelperAcqirisDetectors::helperinstancesmap_t::key_type detector
+          (s.value("Detector","blubb").toString().toStdString());
+      HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detector));
+      if (dethelp->detectortype() != Delayline)
+      {
+        stringstream ss;
+        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error detector '"<<detector<<"' is not a Delaylinedetector.";
+        throw (invalid_argument(ss.str()));
+      }
+      dethelp->loadSettings();
+      return detector;
+    }
+
+    /** load layer from file
+     *
+     * load the requested layer from .ini file and checks whether it is valid.
+     * If it is not valid an invalid_argument exception is thrown
+     *
+     * @return key containing the layer name
+     * @param
+     *
+     * @author Lutz Foucar
+     */
+    DelaylineDetector::anodelayers_t::key_type loadLayer()
+    {
+      DelaylineDetector::anodelayers_t::key_type layer;
+
+      return layer;
+    }
+
+    /** load wireend from file
+     *
+     * load the requested wireend from .ini file. Check whether it is a valid
+     * wireend otherwise throw invalid_argument exception.
+     *
+     * @return key containing the wireend name
+     * @param
+     *
+     * @author Lutz Foucar
+     */
+    AnodeLayer::wireends_t::key_type loadWireend()
+    {
+      AnodeLayer::wireends_t::key_type wireend;
+
+      return wireend;
+    }
+  }
+}
 
 //----------------Nbr of Peaks MCP---------------------------------------------
 cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
@@ -186,15 +254,8 @@ void cass::pp160::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _detector = settings.value("Detector","blubb").toString().toStdString();
+  _detector = loadDelayDet(settings,160,_key);
   HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
-  if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp160::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
-  dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
   if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
       _layer != 'X' && _layer != 'Y')
@@ -237,7 +298,7 @@ void cass::pp160::loadSettings(size_t)
       <<"' outputs the nbr of signals of layer '"<<_layer
       <<"' wireend '"<<_signal
       <<"' of detector '"<<_detector
-      <<"'. Condition is "<<_condition->key()<<"'"
+      <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
 
