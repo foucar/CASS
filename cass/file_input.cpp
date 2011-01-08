@@ -102,16 +102,17 @@ void cass::FileInput::run()
   std::vector<std::string> filelist;
 
   //open the file with the filenames in it
-  VERBOSEOUT(std::cout <<"FileInput::run(): try to open filelist \""<<_filelistname
-             <<"\""
+  VERBOSEOUT(std::cout <<"FileInput::run(): try to open filelist '"
+             <<_filelistname
+             <<"'"
              <<std::endl);
   std::ifstream filelistfile;
   filelistfile.open(_filelistname.c_str());
   //put the names into a list of things that we want to process
   if (filelistfile.is_open())
   {
-    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname
-               <<"\" is open"
+    VERBOSEOUT(std::cout <<"FileInput::run(): filelist '"<<_filelistname
+               <<"' is open"
                <<std::endl);
     //go through whole file
     while (!filelistfile.eof())
@@ -124,19 +125,28 @@ void cass::FileInput::run()
       {
         line.resize(line.length()-1);
       }
+      /* remove line feed */
+      if(line[line.length()-1] == '\r')
+      {
+        line.resize(line.length()-1);
+      }
       /* dont read newlines */
       if(line.empty() || line[0] == '\n')
       {
         continue;
       }
       filelist.push_back(line);
-      VERBOSEOUT(std::cout <<"FileInput::run(): file \""<<line<<"\" added to processing list"<<std::endl);
+      VERBOSEOUT(std::cout <<"FileInput::run(): adding '"
+                 <<line.c_str()
+                 <<"' to list"
+                 <<std::endl);
     }
   }
   else
   {
-    VERBOSEOUT(std::cout <<"FileInput::run(): filelist \""<<_filelistname
-               <<"\" could not be opened"<<std::endl);
+    VERBOSEOUT(std::cout <<"FileInput::run(): filelist '"<<_filelistname
+               <<"' could not be opened"
+               <<std::endl);
   }
 
   //make a pointer to a buffer
@@ -149,13 +159,20 @@ void cass::FileInput::run()
     //quit if requested//
     if (_quit) break;
 
+    VERBOSEOUT(std::cout<< "FileInput::run(): trying to open '"
+               <<filelistiterator->c_str()
+               <<"'"
+               <<std::endl);
     //open the file
     std::ifstream xtcfile
         (filelistiterator->c_str(), std::ios::binary | std::ios::in);
     //if there was such a file then we want to load it
     if (xtcfile.is_open())
     {
-      std::cout <<"FileInput::run(): processing file \""<<filelistiterator->c_str()<<"\""<<std::endl;
+      std::cout <<"FileInput::run(): processing file '"
+          <<filelistiterator->c_str()
+          <<"'"
+          <<std::endl;
       //read until we are finished with the file
       while(!xtcfile.eof() && !_quit)
       {
@@ -201,8 +218,8 @@ void cass::FileInput::run()
       xtcfile.close();
     }
     else
-      std::cout <<"FileInput::run(): file \""<<filelistiterator->c_str()
-          <<"\" could not be opened"
+      std::cout <<"FileInput::run(): could not open '"<<filelistiterator->c_str()
+          <<"'"
           <<std::endl;
   }
   std::cout << "Finished with all files." << std::endl;
