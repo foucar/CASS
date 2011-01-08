@@ -11,6 +11,7 @@
 #define __MomentaCalculator_H_
 
 #include <memory>
+#include <tr1/memory>
 
 #include "cass_acqiris.h"
 
@@ -110,8 +111,7 @@ namespace cass
        * @return pointer to the instance of the requested type
        * @param type the type of momentum calculator requested
        */
-      static std::auto_ptr<MomentumCalculator> instance(const MomCalcType &type);
-
+      static std::tr1::shared_ptr<MomentumCalculator> instance(const MomCalcType &type);
     };
 
     /** calculate px,py momenta

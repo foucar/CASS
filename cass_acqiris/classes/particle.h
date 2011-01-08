@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <memory>
+#include <tr1/memory>
 #include <string>
 
 #include "map.hpp"
@@ -62,23 +63,8 @@ namespace cass
        * set the _listIsCreated flag to false
        */
       Particle()
-        :_listIsCreated(false),
-         _isParticleHit(0),
-         _calc_detplane(0),
-         _calc_tof(0)
+        :_listIsCreated(false)
       {}
-
-      /** copy constructor
-       *
-       * needs to be manually implemented otherwise the compiler will give errors
-       */
-      Particle(const Particle& rhs);
-
-      /** destructor
-       *
-       * deletes the functors
-       */
-      ~Particle();
 
       /** load the settings from .ini file
        *
@@ -136,13 +122,13 @@ namespace cass
       bool _listIsCreated;
 
       /** identifer for checking detectorhit is a particle hit */
-      mutable std::auto_ptr<IsParticleHit> _isParticleHit;
+      std::tr1::shared_ptr<IsParticleHit> _isParticleHit;
 
       /** calculate momenta along the detector plane of a particle hit */
-      mutable std::auto_ptr<MomentumCalculator> _calc_detplane;
+      std::tr1::shared_ptr<MomentumCalculator> _calc_detplane;
 
       /** calculate momenta along the ToF direction of a particle hit */
-      mutable std::auto_ptr<MomentumCalculator> _calc_tof;
+      std::tr1::shared_ptr<MomentumCalculator> _calc_tof;
 
       /** copy and correction of the detectorhit */
       HitCorrector _copyandcorrect;

@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
 #include "momenta_calculator.h"
 #include "spectrometer.h"
@@ -462,26 +463,31 @@ particleHit_t HitCorrector::operator()(const detectorHit_t &dethit) const
   return particlehit;
 }
 
-std::auto_ptr<MomentumCalculator>  MomentumCalculator::instance(const MomCalcType &type)
+std::tr1::shared_ptr<MomentumCalculator>  MomentumCalculator::instance(const MomCalcType &type)
 {
+  using namespace std::tr1;
   using namespace std;
-  auto_ptr<MomentumCalculator> momcalc;
+  shared_ptr<MomentumCalculator> momcalc;
   switch (type)
   {
   case PxPyWBField:
-    momcalc = auto_ptr<MomentumCalculator>(new PxPyCalculatorWithBField);
+    momcalc = shared_ptr<MomentumCalculator>(new PxPyCalculatorWithBField);
     break;
   case PxPyWOBField:
-    momcalc = auto_ptr<MomentumCalculator>(new PxPyCalculatorWithoutBField);
+    momcalc = shared_ptr<MomentumCalculator>(new PxPyCalculatorWithoutBField);
     break;
   case PzOneRegion:
-    momcalc = auto_ptr<MomentumCalculator>(new PzCalculatorDirectOneRegion);
+    momcalc = shared_ptr<MomentumCalculator>(new PzCalculatorDirectOneRegion);
     break;
   case PzMultipleRegions:
-    momcalc = auto_ptr<MomentumCalculator>(new PzCalculatorMulitpleRegions);
+    momcalc = shared_ptr<MomentumCalculator>(new PzCalculatorMulitpleRegions);
     break;
   default:
-    throw std::invalid_argument("MomentumCalculator::instance(): No such momentum calculator type available");
+    {
+      std::stringstream ss;
+      ss <<"MomentumCalculator::instance(): Momentum calculator type '"<<type<<"' not available";
+      throw invalid_argument(ss.str());
+    }
     break;
   }
   return momcalc;
