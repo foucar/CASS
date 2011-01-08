@@ -290,8 +290,6 @@ detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits
                 if (radius < _mcpRadius)
                 {
                   detectorHit_t hit;
-//                  const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
-//                  const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
                   hit["x"] = pos.first;
                   hit["y"] = pos.second;
                   hit["t"] = (*iMcp)["time"];
