@@ -46,7 +46,7 @@ void Particle::loadSettings(CASSSettings& s)
 //	fSp			= pi.GetSpectrometer();
 }
 
-Particle::particleHits_t Particle::hits()
+Particle::particleHits_t& Particle::hits()
 {
   using namespace std;
   if (!_listIsCreated)

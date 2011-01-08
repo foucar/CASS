@@ -65,7 +65,7 @@ namespace cass
        *
        * @return the list of particle hits
        */
-      particleHits_t hits();
+      particleHits_t& hits();
 
       /** tell which are the detector hits to search through
        *
