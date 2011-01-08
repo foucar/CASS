@@ -136,7 +136,6 @@ namespace cass
     public:
       /** constructor.
        *
-       * @param[in] type the delayline type is an enum either Hex or Quad
        * @param[in] name the name of this detector
        */
       DelaylineDetector(const std::string name)
