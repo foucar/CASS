@@ -767,18 +767,17 @@ void cass::pp166::loadSettings(size_t)
   if (dethelp->detectortype() != Delayline)
   {
     stringstream ss;
-    ss <<"pp164::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    ss <<"pp166::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
     throw (invalid_argument(ss.str()));
   }
   dethelp->loadSettings();
-  _first = settings.value("XInput",'x').toString()[0].toAscii();
-  _second = settings.value("YInput",'y').toString()[0].toAscii();
-  _third =  settings.value("ConditionInput",'t').toString()[0].toAscii();
-  _condition =
-      make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
-                    settings.value("ConditionHigh",50000.).toFloat()),
-                max(settings.value("ConditionLow",-50000.).toFloat(),
-                    settings.value("ConditionHigh",50000.).toFloat()));
+  _first = settings.value("XInput",'x').toString().toStdString();
+  _second = settings.value("YInput",'y').toString().toStdString();
+  _third =  settings.value("ConditionInput",'t').toString().toStdString();
+  _cond = make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
+                        settings.value("ConditionHigh",50000.).toFloat()),
+                    max(settings.value("ConditionLow",-50000.).toFloat(),
+                        settings.value("ConditionHigh",50000.).toFloat()));
   setupGeneral();
   if (!setupCondition())
     return;
@@ -788,8 +787,8 @@ void cass::pp166::loadSettings(size_t)
       <<"' histograms the Property '"<<_second
       <<"' vs. '"<<_first
       <<"' of the reconstructed detectorhits of detector '"<<_detector
-      <<"'. It puts a condition from '"<<_condition.first
-      <<"' to '"<<_condition.second
+      <<"'. It puts a condition from '"<<_cond.first
+      <<"' to '"<<_cond.second
       <<"' on Property '"<< _third
       <<"'. Condition is "<<_condition->key()<<"'"
       <<endl;
@@ -806,7 +805,7 @@ void cass::pp166::process(const cass::CASSEvent &evt)
   _result->lock.lockForWrite();
   for (; it != det->hits().end(); ++it)
   {
-    if (_condition.first < (*it)[_third] && (*it)[_third] < _condition.second)
+    if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
       dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_first],(*it)[_second]);
   }
   _result->lock.unlock();

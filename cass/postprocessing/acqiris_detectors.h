@@ -609,7 +609,7 @@ namespace cass
     ACQIRIS::SignalProducer::signal_t::key_type _third;
 
     /** The condition that we impose on the third component*/
-    std::pair<float, float> _condition;
+    std::pair<float, float> _cond;
   };
 
 
