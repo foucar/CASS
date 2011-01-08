@@ -171,6 +171,7 @@ namespace cass
               {
                 if(signal["time"] > it->first && signal["time"] < it->second) //if signal is in the right timerange
                 {
+                  signal["isUsed"] = false;
                   sig.push_back(signal);
                   break;
                 }

@@ -127,6 +127,7 @@ namespace cass
 //                  std::cout << "Com: check whether signal is in time range from '"<<it->first<<"' to '"<<it->second<<"' time '"<<signal["time"]<<"'"<<std::endl;
                   if(signal["time"] > it->first && signal["time"] < it->second) //if signal is in the right timerange
                   {
+                    signal["isUsed"] = false;
                     sig.push_back(signal);
                     break;
                   }
