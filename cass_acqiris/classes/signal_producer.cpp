@@ -14,6 +14,7 @@ void SignalProducer::loadSettings(CASSSettings &p, const char * signalname)
              <<"\" of  "<< p->group().toStdString()
              <<std::endl);
   p.beginGroup(signalname);
+  delete _signalextractor;
   SignalExtractorType analyzerType
       (static_cast<SignalExtractorType>(p.value("SignalExtactorType",com16).toInt()));
   _signalextractor = SignalExtractor::instance(analyzerType);
