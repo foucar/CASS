@@ -62,10 +62,10 @@ namespace cass
      *
      * @cassttng .../CenterOfMass/{AcqirisInstrument}\n
      *           Acqiris Instrument that this channel is in:
-     *           - 2:
-     *           - 4:
-     *           - 5:
-     *           - 8: CAMP
+     *           - 0: Camp (Acqiris Multiinstrument with 5 Cards (20 Channels))
+     *           - 1: AMO I-ToF
+     *           - 2: AMO Magnetic Bottle
+     *           - 3: AMO Gas Detector
      * @cassttng .../CenterOfMass/{ChannelNumber} \n
      *           Channel within the instrument (starts counting from 0)
      * @cassttng .../CenterOfMass/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
@@ -88,10 +88,9 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT CoM8Bit : public SignalExtractor
     {
     public:
-      /** constructor*/
-      CoM8Bit()    {VERBOSEOUT(std::cout << "adding 8 bit Center of Mass waveformanalyzer"<<std::endl);}
-
       /** extract signals form the CASSEvent
+       *
+       * Calls com to extract the Signal from _chan. For details how see com.
        *
        * @return reference of the input result container
        * @param[in] sig this is the container for the results
@@ -118,37 +117,24 @@ namespace cass
       const Channel * _chan;
      };
 
-    /** Finds singals in a 16 bit waveform.
+    /** Finds signals in a 16 bit waveform.
      *
-     * @see class CoM8Bit
+     * Member description is the same as in the 8 Bit version. @see class CoM8Bit
      *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT CoM16Bit : public SignalExtractor
     {
     public:
-      CoM16Bit()    {VERBOSEOUT(std::cout << "adding 16 bit Center of Mass waveformanalyzer"<<std::endl);}
-
       SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
-
-      /** associate the event with this analyzer */
       void associate(const CASSEvent& evt);
-
-      /** load the settings of the extractor */
       void loadSettings(CASSSettings&);
 
     private:
-      /** parameters for extracting the signals from the channels waveform */
-      CoMParameters _parameters;
-
-      /** the instrument that the channel is in */
-      Instruments _instrument;
-
-      /** the channelnumber of the channel we extracting the signals from */
-      size_t _chNbr;
-
-      /** pointer to the channel we are extracting the signals from */
-      const Channel * _chan;
+      CoMParameters  _parameters;
+      Instruments    _instrument;
+      size_t         _chNbr;
+      const Channel *_chan;
     };
   }//end namespace acqiris
 }//end namespace cass

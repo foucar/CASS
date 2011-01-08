@@ -28,6 +28,10 @@ namespace cass
     {
       /** Implementation of Center of Mass
        *
+       * @todo add detailed description of what we do here
+       * @todo maybe just find the rising slope and let all other things be done
+       *       by helper functions. (starting with findstartstop)
+       *
        * @tparam T type of a wavform point
        * @param[in] c the channel that contains the waveform to analyze
        * @param[in] param the user defined parameters for extracting signal in the
@@ -153,6 +157,23 @@ namespace cass
 
       }
 
+      /** implementation of loading settings for both Center of Mass classes
+       *
+       * this function implements the retrieval of the settings for the CoM
+       * signal extractors. For a description on the settings see decription of
+       * CoM8Bit class.\n
+       * It opens the group "CenterOfMass" and retrieves the settings for the
+       * Center of Mass algorithm from the CASSSettings object.
+       *
+       * @param[in] s the CASSSettings object we retrieve the information from
+       * @param[out] p the container for the Center of Mass Parameters
+       * @param [out] instrument the instrument that contains the channel the
+       *              constant fraction signal extractor should anlyze.
+       * @param [out] channelNbr the channel number of the channel that conatins
+       *              the singals that this extractor should extract.
+       *
+       * @author Lutz Foucar
+       */
       void loadSettings(CASSSettings &s,CoMParameters &p, Instruments &instrument, size_t & channelNbr)
       {
         s.beginGroup("CenterOfMass");
