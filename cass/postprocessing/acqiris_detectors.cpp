@@ -233,7 +233,6 @@ void cass::pp160::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   cout <<endl<< "PostProcessor '"<<_key
       <<"' outputs the nbr of signals of layer '"<<_layer
       <<"' wireend '"<<_signal
@@ -323,7 +322,6 @@ void cass::pp161::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   cout <<endl<< "PostProcessor '"<<_key
       <<"' histograms the FWHM vs the height from the signals of layer '"<<_layer
       <<"' wireend '"<<_signal
@@ -506,7 +504,6 @@ void cass::pp163::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  HelperAcqirisDetectors::instance(_detector)->loadSettings();
   cout<<endl<< "PostProcessor '"<<_key
       <<"' histograms the timesum vs Postion on layer '"<<_layer
       <<"' of detector '"<<_detector
@@ -556,6 +553,14 @@ void cass::pp164::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = settings.value("Detector","blubb").toString().toStdString();
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(_detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp160::loadSettings()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
   _first = settings.value("FirstLayer","U").toString()[0].toAscii();
   _second = settings.value("SecondLayer","V").toString()[0].toAscii();
   _tsrange = make_pair(make_pair(settings.value("TimesumFirstLayerLow",20).toDouble(),
@@ -565,12 +570,6 @@ void cass::pp164::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_first != 'U' && _first != 'V' && _first != 'W' &&
-      _first != 'X' && _first != 'Y')
-    throw std::runtime_error("pp164::loadSettings(): First Layer is not set up correctly");
-  if (_second != 'U' && _second != 'V' && _second != 'W' &&
-      _second != 'X' && _second != 'Y')
-    throw std::runtime_error("pp164::loadSettings(): Second Layer is not set up correctly");
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
