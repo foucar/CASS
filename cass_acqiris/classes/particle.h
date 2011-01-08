@@ -29,7 +29,27 @@ namespace cass
 
     /** A Particle
      *
-     * class describing a particle
+     * class describing a particle. It contains the properties of a particle,
+     * classes that can calculate the momentum of the particle. Therefore it
+     * also contains the spectrometer through which the particle flys and a
+     * class that can correct the values from the detectorhit. To find out which
+     * of the provided detectorhits are a particle hit of this particle it owns
+     * a comparator class.
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{Charge}\n
+     *           The charge of the particle in atomic units. Default is 1.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{Mass}\n
+     *           The Mass of the particle in atomic mass units. When one wants
+     *           to define a electron the charge has to be -1 and the Mass 1.
+     *           Default is 1.
+     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{ConditionType}\n
+     *           The type of condition that we use to identify a particle hit
+     *           from a detectorhit. Default is 0. Possible choises are:
+     *           - 0: condition on time of flight
+     *           - 1: condition on a radius with choseable center of the position
+     *           - 2: condition on a rectangle of the position
+     *           - 3: combination of condition 0 and 1
+     *           - 4: combination of condition 0 and 2
      *
      * @author Lutz Foucar
      */
@@ -54,6 +74,14 @@ namespace cass
       ~Particle();
 
       /** load the settings from .ini file
+       *
+       * First load the spectrometers settings, then the hitcorrector settings.
+       * Then load our properties. Then create the comaprison object that the
+       * user has chosen and load its settings. After that depending on the
+       * spectrometer type load the momentum calculation objects.
+       * The mass is always converted from atomic mass units to atomic units.
+       * Only if the mass is 1 and the charge is -1 (this is true for an electron)
+       * the conversion will be omited.
        *
        * @param s the CASSSettings object to read the info from
        */
