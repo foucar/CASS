@@ -5,6 +5,7 @@
  *
  * @author Lutz Foucar
  */
+
 #include <cmath>
 #include <limits>
 #include <iostream>

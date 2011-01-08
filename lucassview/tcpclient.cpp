@@ -11,7 +11,7 @@
 #include "tcpclient.h"
 #include "soapCASSsoapProxy.h"
 #include "CASSsoap.nsmap"
-//#include "../cass/histogram.h"
+#include "id_list.h"
 
 using namespace lucassview;
 
@@ -44,9 +44,10 @@ std::list<std::string> TCPClient::operator() ()const
       << " TCPClient: Size=" << (*attachment).size << endl
       << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
       << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
-//  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
-//  cass::IdList list(serializer);
-//  return list.getList();
+  cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
+  cass::IdList list(serializer);
+  std::list<std::string> returnlist (list.getList());
+  return returnlist;
 }
 
 cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)const
