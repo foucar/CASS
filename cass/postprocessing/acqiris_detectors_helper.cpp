@@ -97,7 +97,7 @@ void HelperAcqirisDetectors::loadSettings(size_t)
     it->second->loadSettings(s);
   VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings():"
              <<" done loading for "
-             << _detector->name()
+             <<_detector->name()
              <<std::endl);
   s.endGroup();
 }

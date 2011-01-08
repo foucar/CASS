@@ -133,7 +133,7 @@ namespace cass
       /** load the values from the .ini file
        *
        * this function will load the settings of this detector, which are
-       * described in the class description. Next to them it will load the
+       * described in the class description. Next to those it will load the
        * settings of its SignalProducers (mcp and anodelayers). Please refer to
        * SignalProducer::loadSettings() for further information.\n
        * Then it will create the requested analyzer by calling
