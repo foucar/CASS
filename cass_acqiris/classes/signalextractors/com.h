@@ -97,10 +97,23 @@ namespace cass
        */
       SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
 
-      /** associate the event with this analyzer */
+      /** associate the event with this analyzer
+       *
+       * Extracts a pointer the channel for which we are there for from the
+       * event with the help of extractRightChannel.
+       *
+       * @param evt The event from which we get the pointer to the channel.
+       */
       void associate(const CASSEvent& evt);
 
-      /** load the settings of the extractor */
+      /** load the settings of the extractor
+       *
+       * Calls the loadSettings implementation to retrieve all information to be
+       * able extract the signals from _channel. And to be able to extract the
+       * right channel from the events in associate().
+       *
+       * @param s the CASSSettings object to retrieve the information from
+       */
       void loadSettings(CASSSettings&);
 
     private:
