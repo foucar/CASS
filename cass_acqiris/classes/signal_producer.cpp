@@ -82,6 +82,9 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
       signals_t sigs (output());
       _goodHit = (*std::find_if(sigs.begin(),sigs.end(), isInTimeRange(range)))["time"];
     }
+    /** @warning this relies on that when accessing a thing from end() iterator
+     *           an exception is thrown. Needs checking
+     */
     catch(const std::range_error&)
     {
       _goodHit=0;
