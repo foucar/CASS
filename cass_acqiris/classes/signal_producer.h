@@ -67,7 +67,10 @@ namespace cass
         :_signalextractor(0),_newEventAssociated(false)
       {}
 
-      /** copy constructor */
+      /** copy constructor
+       *
+       * needs to be manually written, otherwise program does not compile
+       */
       SignalProducer(const SignalProducer& rhs);
 
       /** destructor
