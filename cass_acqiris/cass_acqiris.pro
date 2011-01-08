@@ -41,7 +41,6 @@ HEADERS += ./acqiris_converter.h \
     ../cass/device_backend.h \
     ../cass/serializer.h \
     ./classes/channel.h \
-    ./classes/peak.h \
     ./classes/detector_backend.h \
     ./classes/delayline_detector.h \
     ./classes/tof_detector.h \
@@ -51,8 +50,6 @@ HEADERS += ./acqiris_converter.h \
     ./classes/signalextractors/com.h \
     ./classes/signalextractors/helperfunctionsforstdc.h \
     ./classes/detector_analyzer/detector_analyzer_backend.h \
-    ./classes/detector_analyzer/delayline_detector_analyzer_backend.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
-    ./classes/detector_analyzer/tof_analyzer_simple.h
 headers.files = $$HEADERS
 INSTALLS += target
