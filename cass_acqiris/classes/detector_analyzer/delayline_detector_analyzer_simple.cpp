@@ -303,6 +303,8 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
                                  s.value("TimesumSecondLayerHigh",200).toDouble()));
   _ts = make_pair(0.5*(_tsrange.first.first + _tsrange.first.second),
                   0.5*(_tsrange.second.first + _tsrange.second.second));
+  _sf = make_pair(s.value("ScalefactorFirstLayer",0.4).toDouble(),
+                  s.value("ScalefactorSecondLayer",0.4).toDouble());
   _runtime = s.value("Runtime",150).toDouble();
   _mcpRadius = s.value("McpRadius",300).toDouble();
   s.endGroup();

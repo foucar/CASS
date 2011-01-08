@@ -46,6 +46,9 @@ namespace cass
      * @cassttng .../Simple/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
      *           the timesum condition range for the second layer.
      *           Default is 0 | 200
+     * @cassttng .../Simple/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
+     *           the scalefactors that convert ns to mm for the two layers.
+     *           Default is 0.4 | 0.4
      *
      * @author Lutz Foucar
      */
@@ -90,6 +93,9 @@ namespace cass
 
       /** timesums of the layers */
       std::pair<double,double> _ts;
+
+      /** the scalefactor for the two layers (convert ns -> mm) */
+      std::pair<double,double> _sf;
 
       /** maximum runtime over the layers */
       double _runtime;
