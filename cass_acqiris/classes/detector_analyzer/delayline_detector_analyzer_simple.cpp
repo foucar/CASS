@@ -321,11 +321,23 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   s.beginGroup("Simple");
   LayerComb lc (static_cast<LayerComb>(s.value("LayersToUse",xy).toInt()));
   if (lc == xy)
+  {
     if (delaylinetype == Hex)
-      cout << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers xy for Hex-Detector"<<endl;
+    {
+      stringstream ss;
+      ss << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers xy for Hex-Detector";
+      throw invalid_argument(ss.str());
+    }
+  }
   if (delaylinetype == Quad)
+  {
     if (lc == uv || lc == uw || lc == vw)
-      cout << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers uv, uw or vw for Quad-Detector"<<endl;
+    {
+      stringstream ss;
+      ss << "DelaylineDetectorAnalyzerSimple::loadSettings: Error using layers uv, uw or vw for Quad-Detector";
+      throw invalid_argument(ss.str());
+    }
+  }
 
   switch (lc)
   {
@@ -358,8 +370,14 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
     _poscalc = auto_ptr<PositionCalculator>(new VWCalc);
     break;
   default:
-    throw std::invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: No such layercombination available");
+    {
+      stringstream ss;
+      ss <<"DelaylineDetectorAnalyzerSimple::loadSettings: Layercombination '"<<lc<<"' not available";
+      throw invalid_argument(ss.str());
+    }
+      break;
   }
+  _mcp = &d.mcp();
   _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow",0).toDouble(),
                                  s.value("TimesumFirstLayerHigh",200).toDouble()),
                        make_pair(s.value("TimesumSecondLayerLow",0).toDouble(),

@@ -58,7 +58,9 @@ namespace cass
     public:
       /** constuctor */
       DelaylineDetectorAnalyzerSimple()
-          :DetectorAnalyzerBackend(), _poscalc(0)
+          :DetectorAnalyzerBackend(),
+           _mcp(0),
+           _poscalc(0)
       {}
 
       /** the function creating the detectorhit list
