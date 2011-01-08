@@ -22,7 +22,6 @@ namespace cass
 {
   //forward declaration
   class CASSSettings;
-
   class CASSEvent;
 
   namespace ACQIRIS
@@ -138,7 +137,7 @@ namespace cass
        * load the parameters from cass.ini, should only be called by class
        * containing this class
        */
-      void loadSettings(CASSSettings &p, const char * signalname);
+      void loadSettings(CASSSettings &p);
 
       /** assciate the event with this signalproducer
        *
