@@ -15,6 +15,7 @@
 #include "channel.h"
 #include "cass_event.h"
 #include "acqiris_device.h"
+#include "signal_producer.h"
 
 namespace cass
 {
@@ -267,24 +268,26 @@ namespace cass
      *
      * @param[in] c the channel that the peak is found in
      * @param[in,out] p the peak that we found
+     * @param thresh unused
      *
      * @author Lutz Foucar
      */
     template <typename T>
-        void fwhm(const Channel &c, Peak &p)
+        void fwhm(const Channel &c, SignalProducer::signal_t &s, const double& /*thresh*/)
     {
-      //get information from the channel//
-      const int32_t vOff   = static_cast<int32_t>(c.offset() / c.gain());        //mV -> adc bytes
-      const waveform_t Data  = c.waveform();
-      const size_t wLength = c.waveform().size();
+      const waveform_t Data (c.waveform());
+      const double vGain (c.gain());
+      const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));        //mV -> adc bytes
+      const size_t wLength (c.waveform().size());
+      const int maxpos (s["maxpos"]+0.1);
 
       //--get peak fwhm--//
       size_t fwhm_l        = 0;
       size_t fwhm_r        = 0;
-      const double HalfMax = 0.5*p.maximum();
+      const double HalfMax = 0.5*s["maximum"];
 
       //--go from middle to left until 0.5*height find first point that is above 0.5 height--//
-      for (int i=p.maxpos(); i>=0; --i)
+      for (int i(maxpos); i>=0; --i)
       {
         if (abs(Data[i]-vOff) < HalfMax)
         {
@@ -294,7 +297,7 @@ namespace cass
       }
 
       //--go from middle to right until 0.5*height (find last point that is still above 0.5 Height--//
-      for (size_t i=p.maxpos(); i<wLength;++i)
+      for (size_t i(maxpos); i<wLength;++i)
       {
         if (abs(Data[i]-vOff) < HalfMax)
         {
@@ -332,32 +335,32 @@ namespace cass
       const double fwhm_L = (HalfMax-cLeft)/mLeft;
       const double fwhm_R = (HalfMax-cRight)/mRight;
 
-      const double fwhm = fwhm_R-fwhm_L;
       //--set all found parameters--//
-      p.fwhm()  = fwhm;
-      p.width() = p.stoppos() - p.startpos();
+      s["fwhm"] = fwhm_R-fwhm_L;
+      /** @todo make the below an own function*/
+      s["width"] = s["stoppos"] - s["startpos"];
     }
 
 
-    //        //_________________extract the voltage of a channel______________________________________________________________________________________________________________
-    //        template <typename T>
-    //        void extractVoltage(const MyOriginalChannel &oc, const MyPuls &p, const MyChannelSection &cs, MySignalAnalyzedChannel &sac)
-    //        {
-    //            double volt           = 0;
-    //            int count             = 0;
-    //            const double gain     = oc.GetVertGain();
-    //            const double offset   = oc.GetOffset();
-    //            const T *d            = static_cast<const T*>(oc.GetDataPointerForPuls(p));
-    //
-    //            for (int j=10;j<p.GetLength()-10;++j)
-    //            {
-    //                volt += (d[j]*gain)-offset;
-    //                ++count;
-    //            }
-    //            volt /= count;
-    //
-    //            sac.AddVoltage(volt,cs.GetChannelSectionNbr());
-    //        }
+//        //_________________extract the voltage of a channel______________________________________________________________________________________________________________
+//        template <typename T>
+//        void extractVoltage(const MyOriginalChannel &oc, const MyPuls &p, const MyChannelSection &cs, MySignalAnalyzedChannel &sac)
+//        {
+//            double volt           = 0;
+//            int count             = 0;
+//            const double gain     = oc.GetVertGain();
+//            const double offset   = oc.GetOffset();
+//            const T *d            = static_cast<const T*>(oc.GetDataPointerForPuls(p));
+//
+//            for (int j=10;j<p.GetLength()-10;++j)
+//            {
+//                volt += (d[j]*gain)-offset;
+//                ++count;
+//            }
+//            volt /= count;
+//
+//            sac.AddVoltage(volt,cs.GetChannelSectionNbr());
+//        }
 
     /** Center of Mass
      *
@@ -366,57 +369,60 @@ namespace cass
      *
      * @param[in] c the channel the peak was found in
      * @param[in,out] p the peak
-     * @param[in] threshold the threshold that we used to identify the peak
+     * @param[in] thresh the threshold that we used to identify the signal in V
      *
      * @author Lutz Foucar
      */
     template <typename T>
-        void CoM(const Channel &c, Peak &p, const int32_t threshold)
+        void CoM(const Channel &c, SignalProducer::signal_t &s, const double& thresh)
     {
       //get informations from the event and the channel//
-      const waveform_t Data  = c.waveform();
-      const int32_t vOff          = static_cast<int32_t>(c.offset() / c.gain());
-      const double horpos         = c.horpos()*1.e9;          //s -> ns
-      const double sampleInterval = c.sampleInterval()*1e9;   //s -> ns
+      const waveform_t Data (c.waveform());
+      const double vGain (c.gain());
+      const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));
+      const double horpos (c.horpos()*1.e9);          //s -> ns
+      const double sampleInterval (c.sampleInterval()*1e9);   //s -> ns
+      const int32_t threshold (thresh/vGain);
 
       //--this function goes through the puls from start to stop and finds the center of mass--//
-      double integral = 0;
-      double wichtung = 0;
-      const size_t start = p.startpos();
-      const size_t stop  = p.stoppos();
+      double &integral (s["integral"]);
+      double wichtung (0);
+      const size_t start (s["startpos"]+0.1);
+      const size_t stop (s["stoppos"]+0.1);
 
       for (size_t i = start; i<=stop;++i)
       {
         integral +=  (abs(Data[i]-vOff)-threshold);            //calc integral
         wichtung += ((abs(Data[i]-vOff)-threshold)*i);        //calc weight
       }
-      p.integral()    = integral;
-      p.com()         = (wichtung/integral + horpos)*sampleInterval;
+      s["com"] = (wichtung/integral + horpos)*sampleInterval;
     }
 
 
 
     /** find start and stop of pulse
      *
-     * this function will find the start and the stop of the peak
+     * this function will find the start and the stop of the signal
      *
-     * @param[in] c the channel the peak was found in
-     * @param[in,out] p the peak
-     * @param[in] threshold the threshold that we used to identify the peak
+     * @param[in] c the channel the signal was found in
+     * @param[in,out] s the signal
+     * @param[in] thresh the threshold that we used to identify the signal in V
      * @author Lutz Foucar
      */
     template <typename T>
-        void startstop(const Channel &c, Peak &p, const int32_t threshold)
+        void startstop(const Channel &c, SignalProducer::signal_t &s, const double& thresh)
     {
-      const waveform_t Data = c.waveform();
-      const int32_t vOff      = static_cast<int32_t>(c.offset()/c.gain());
-      const int32_t wLength   = c.waveform().size();
-      const double sampInt    = c.sampleInterval()*1e9;
-      const double horpos     = c.horpos()*1e9;
+      const waveform_t Data (c.waveform());
+      const double vGain (c.gain());
+      const int32_t vOff (static_cast<int32_t>(c.offset()/vGain));
+      const int32_t wLength (c.waveform().size());
+      const double sampInt (c.sampleInterval()*1e9);
+      const double horpos (c.horpos()*1e9);
+      const int32_t threshold (thresh/vGain);
+
 
       //calculate the center of peak is in the waveform coodinates//
-      const int32_t center        = static_cast<int32_t>(p.time()/sampInt - horpos);
-
+      const int32_t center (static_cast<int32_t>(s["time"]/sampInt - horpos));
 
       //go left from center until either i == 0, or the datapoint is inside the noise
       //or we go from the previous one (i+1) to the actual one (i) through the baseline
@@ -424,14 +430,14 @@ namespace cass
       for (i = center; i>=0; --i)
         if ((abs(Data[i]-vOff) < threshold) || (((Data[i]-vOff) * (Data[i+1]-vOff)) < 0) )
           break;
-      p.startpos() = i;
+      s["startpos"] = i;
 
       //go right form center until either i < pulslength, or the datapoint is inside the noise
       //or we go from the previous one (i-1) to the actual one (i) through the baseline
       for (i = center; i< wLength; ++i)
         if ((abs(Data[i]-vOff) < threshold) || (((Data[i]-vOff) * (Data[i-1]-vOff)) < 0) )
           break;
-      p.stoppos() = i;
+      s["stoppos"] = i;
     }
 
 
@@ -441,21 +447,24 @@ namespace cass
      *
      * @param[in] c the channel the peak was found in
      * @param[in,out] p the peak
+     * @param thresh unused
      *
      * @author Lutz Foucar
      */
     template <typename T>
-        void maximum(const Channel &c, Peak &p)
+        void maximum(const Channel &c, SignalProducer::signal_t &s, const double& /*thresh*/)
     {
-      const waveform_t Data = c.waveform();
-      const double vGain   = c.gain();
-      const int32_t vOff   = static_cast<int32_t>(c.offset()/vGain);
-      const size_t start   = p.startpos();
-      const size_t stop    = p.stoppos();
-      int32_t maximum      = 0;
-      int maxpos           = 0;
+      const waveform_t Data (c.waveform());
+      const double vGain (c.gain());
+      const int32_t vOff (static_cast<int32_t>(c.offset()/vGain));
 
-      for (size_t i = start; i<=stop;++i)
+      const size_t start (s["startpos"]+0.1);
+      const size_t stop (s["stoppos"]+0.1);
+      double& maximum (s["maximum"]);
+      double& maxpos (s["maxpos"]);
+
+      maximum = 0;
+      for (size_t i(start); i<=stop;++i)
       {
         if (abs(Data[i]-vOff) > maximum)
         {
@@ -463,9 +472,8 @@ namespace cass
           maxpos  = i;
         }
       }
-      p.maxpos()  = maxpos;
-      p.maximum() = maximum;
-      p.height()  = static_cast<double>(maximum) * vGain;        //this will set the height in mV
+      /** @todo make the below an own function */
+      s["height"]  = maximum * vGain;        //this will set the height in mV
     }
 
 

@@ -8,6 +8,7 @@
  */
 
 #include <typeinfo>
+#include <limits>
 
 #include "com.h"
 
@@ -110,7 +111,7 @@ namespace cass
               //            <<" should have polarity "<<s.polarity()<<std::endl;
               //--add peak to signal if it fits the conditions--//
               /** @todo make sure that is works right, since we get back a double */
-              if(signal["polarity"] == param._polarity)  //if it has the right polarity
+              if(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))  //if it has the right polarity
               {
                 for (CoMParameters::timeranges_t::const_iterator it (param._timeranges.begin());
                 it != param._timeranges.end();

@@ -9,6 +9,7 @@
 
 #include <typeinfo>
 #include <cmath>
+#include <limits>
 
 #include "cfd.h"
 
@@ -143,23 +144,23 @@ namespace cass
             signal["cfd"]  = pos*sampleInterval;
             if (fsx > fsx_1) signal["polarity"]            = Negative;
             if (fsx < fsx_1) signal["polarity"]            = Positive;
-            if (fabs(fsx-fsx_1) < 1e-8) signal["polarity"] = Bad;
+            if (fabs(fsx-fsx_1) < std::sqrt(std::numeric_limits<double>::epsilon())) signal["polarity"] = Bad;
 
-//            //--start and stop of the puls--//
-//            startstop<T>(c,p,static_cast<const int32_t>(threshold));
-//
-//            //--height of peak--//
-//            maximum<T>(c,p);
-//
-//            //--width & fwhm of peak--//
-//            fwhm<T>(c,p);
-//
-//            //--the com and integral--//
-//            CoM<T>(c,p,static_cast<const int32_t>(threshold));
+            //--start and stop of the puls--//
+            startstop<T>(c,signal,param._threshold);
+
+            //--height of peak--//
+            maximum<T>(c,signal,param._threshold);
+
+            //--width & fwhm of peak--//
+            fwhm<T>(c,signal,param._threshold);
+
+            //--the com and integral--//
+            CoM<T>(c,signal,param._threshold);
 
             //--add peak to signal if it fits the conditions--//
             /** @todo make sure that is works right, since we get back a double */
-            if(signal["polarity"] == param._polarity)  //if it has the right polarity
+            if(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))  //if it has the right polarity
             {
               for (CFDParameters::timeranges_t::const_iterator it (param._timeranges.begin());
               it != param._timeranges.end();
