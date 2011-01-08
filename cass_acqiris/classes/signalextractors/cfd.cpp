@@ -194,6 +194,8 @@ namespace cass
        *              constant fraction signal extractor should anlyze.
        * @param [out] channelNbr the channel number of the channel that conatins
        *              the singals that this extractor should extract.
+       *
+       * @author Lutz Foucar
        */
       void loadSettings(CASSSettings &s,CFDParameters &p, Instruments &instrument, size_t & channelNbr)
       {
