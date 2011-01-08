@@ -59,6 +59,7 @@ namespace lucassview
     void operator() (const std::string& key)const
     {
       std::cout << "updateHist(): do something to "<<key<<std::endl;
+      cass::HistogramBackend * casshist(_client(key));
     }
   };
 }
