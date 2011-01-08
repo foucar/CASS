@@ -44,7 +44,7 @@ namespace cass
       virtual ~DetectorBackend() {}
 
       /** pure virtual function that will load the detector parameters from cass.ini*/
-      virtual void loadSettings(CASSSettings*)=0;
+      virtual void loadSettings(CASSSettings&)=0;
 
       /** associate the event with this detector (get the data from this event) */
       virtual void associate(const CASSEvent&)=0;

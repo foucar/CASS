@@ -16,9 +16,9 @@ void cass::ACQIRIS::TofDetector::associate(const CASSEvent &evt)
   _mcp.associate(evt);
 }
 
-void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)
+void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings &p)
 {
-  p->beginGroup(_name.c_str());
-  _mcp.loadSettings(p,"Signal");
-  p->endGroup();
+  p.beginGroup(_name.c_str());
+  _mcp.loadSettings(p,"MCP");
+  p.endGroup();
 }

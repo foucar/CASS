@@ -41,10 +41,7 @@ namespace cass
       virtual void associate (const CASSEvent&);
 
       /** load the values from cass.ini */
-      virtual void loadSettings(CASSSettings *p);
-
-      /** save values to cass.ini */
-      virtual void saveParameters(CASSSettings *){}
+      virtual void loadSettings(CASSSettings&);
 
       /** getter for the signal*/
       const SignalProducer &mcp()const {return _mcp;}
