@@ -256,7 +256,15 @@ void Particle::loadSettings(CASSSettings& s)
   _isParticleHit = IsParticleHit::instance(condtype);
   _isParticleHit->loadSettings(s);
   delete _calc_detplane;
+  if (_spectrometer.BFieldIsOn())
+    _calc_detplane = MomentumCalculator::instance(PxPyWBField);
+  else
+    _calc_detplane = MomentumCalculator::instance(PxPyWOBField);
   delete _calc_tof;
+  if (_spectrometer.spectrometerRegions().size() > 1)
+    _calc_tof = MomentumCalculator::instance(PzMultipleRegions);
+  else
+    _calc_tof = MomentumCalculator::instance(PzOneRegion);
 }
 
 particleHits_t& Particle::hits()
