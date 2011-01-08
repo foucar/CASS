@@ -7,21 +7,28 @@
  * @author Lutz Foucar
  */
 
+#include <sstream>
+
 #include "detector_analyzer_backend.h"
 #include "delayline_detector_analyzer_simple.h"
 
 using namespace cass::ACQIRIS;
-
-std::auto_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
+using namespace std;
+using namespace std::tr1;
+shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const DetectorAnalyzerType& type)
 {
-  std::auto_ptr<DetectorAnalyzerBackend> detanal;
+  shared_ptr<DetectorAnalyzerBackend> detanal;
   switch(type)
   {
   case DelaylineSimple:
-    detanal = std::auto_ptr<DetectorAnalyzerBackend>(new DelaylineDetectorAnalyzerSimple());
+    detanal = shared_ptr<DetectorAnalyzerBackend>(new DelaylineDetectorAnalyzerSimple());
     break;
   default:
-    throw std::invalid_argument("DetectorAnalyzerBackend::instance(): the requested type is unknown");
+    {
+      stringstream ss;
+      ss <<"DetectorAnalyzerBackend::instance(): the requested type '"<<type<<"' is unknown";
+      throw std::invalid_argument(ss.str());
+    }
     break;
   }
   return detanal;

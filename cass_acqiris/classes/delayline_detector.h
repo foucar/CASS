@@ -139,15 +139,9 @@ namespace cass
        * @param[in] name the name of this detector
        */
       DelaylineDetector(const std::string name)
-        :TofDetector(name), _analyzer(0), _newEventAssociated(false)
+        :TofDetector(name),
+         _newEventAssociated(false)
       {}
-
-      /** destructor
-       *
-       * is empty, but needs to be here because of the creation of the auto_ptr
-       * destructor.
-       */
-      ~DelaylineDetector();
 
     public:
       /** load the values from the .ini file
@@ -220,7 +214,7 @@ namespace cass
       detectorHits_t _hits;
 
       /** the analyzer that will sort the signal to hits */
-      std::auto_ptr<DetectorAnalyzerBackend> _analyzer;
+      std::tr1::shared_ptr<DetectorAnalyzerBackend> _analyzer;
 
       /** container for all particles of this detector */
       particles_t _particles;

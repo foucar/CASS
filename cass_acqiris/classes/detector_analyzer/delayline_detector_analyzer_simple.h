@@ -59,8 +59,7 @@ namespace cass
       /** constuctor */
       DelaylineDetectorAnalyzerSimple()
           :DetectorAnalyzerBackend(),
-           _mcp(0),
-           _poscalc(0)
+           _mcp(0)
       {}
 
       /** the function creating the detectorhit list
@@ -106,7 +105,7 @@ namespace cass
       double _mcpRadius;
 
       /** the calculator to calc the position for the correlated wireend signals */
-      std::auto_ptr<PositionCalculator> _poscalc;
+      std::tr1::shared_ptr<PositionCalculator> _poscalc;
     };
 
 

@@ -66,7 +66,7 @@ namespace cass
        * @return pointer to the instance of the requested type
        * @param type the requested analyzer type
        */
-      static std::auto_ptr<DetectorAnalyzerBackend> instance(const DetectorAnalyzerType& type);
+      static std::tr1::shared_ptr<DetectorAnalyzerBackend> instance(const DetectorAnalyzerType& type);
     };
   }
 }//end namespace cass

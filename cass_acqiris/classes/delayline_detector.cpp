@@ -40,10 +40,6 @@ void AnodeLayer::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-DelaylineDetector::~DelaylineDetector()
-{
-}
-
 void DelaylineDetector::associate(const CASSEvent & evt)
 {
 //  std::cout << "   DelayDet 1"<<std::endl;
