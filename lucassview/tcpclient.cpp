@@ -13,11 +13,15 @@
 using namespace lucassview;
 
 TCPClient::TCPClient(const std::string &server)
+  :_server(server)
+{}
+
+std::list<std::string> TCPClient::operator() ()const
 {
 
 }
 
-std::list<std::string> TCPClient::operator() ()const
+cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)const
 {
   bool ret;
   CASSsoapProxy cass;
@@ -34,9 +38,5 @@ std::list<std::string> TCPClient::operator() ()const
   //	}
 
   soap_multipart::iterator attachment = cass.dime.begin();
-}
-
-cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)const
-{
 
 }

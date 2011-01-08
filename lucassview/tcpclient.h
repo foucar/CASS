@@ -38,5 +38,9 @@ namespace lucassview
      * @param histogramkey the key of the requested histogram
      */
     cass::HistogramBackend *operator() (const std::string &histogramkey)const;
+
+  private:
+    /** the server to connect to */
+    std::string _server;
   };
 }
