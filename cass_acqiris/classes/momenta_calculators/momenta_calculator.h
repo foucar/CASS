@@ -9,7 +9,7 @@
 #ifndef __MyMomentaCalculator_H_
 #define __MyMomentaCalculator_H_
 
-//#include "particle.h"
+#include "cass_acqiris.h"
 
 namespace UnitsConvert
 {
