@@ -9,13 +9,10 @@
 
 #include "acqiris_detectors_helper.h"
 
-#include "delayline_detector_analyzer_simple.h"
-#include "delayline_detector.h"
-#include "tof_analyzer_simple.h"
-#include "tof_detector.h"
-#include "com.h"
-#include "cfd.h"
 #include "cass_settings.h"
+#include "cass_event.h"
+#include "detector_backend.h"
+#include "detector_analyzer_backend.h"
 
 using namespace cass::ACQIRIS;
 
@@ -57,22 +54,8 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(helperinstancesmap_t::key_type de
              << "we are responsible for det "<<detname
              << ", which name is of type " <<dettype
              <<std::endl);
-  switch(dettype)
-  {
-  case Delayline:
-    {
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new DelaylineDetector(detname)));
-    }
-    break;
-  case ToF:
-    {
-      for (size_t i=0; i<NbrOfWorkers*2;++i)
-        _detectorList.push_front(std::make_pair(0,new TofDetector(detname)));
-    }
-    break;
-  default: throw std::invalid_argument("HelperAcqirisDetectors::constructor: no such detector type is present");
-  }
+  for (size_t i=0; i<NbrOfWorkers*2;++i)
+    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(dettype,detname)));
 }
 
 HelperAcqirisDetectors::~HelperAcqirisDetectors()

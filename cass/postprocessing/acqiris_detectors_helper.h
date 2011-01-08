@@ -13,18 +13,22 @@
 #include <stdint.h>
 #include <utility>
 #include <algorithm>
+#include <list>
+#include <string>
+#include <map>
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
 #include "cass_acqiris.h"
-#include "detector_backend.h"
-#include "cass_event.h"
-#include "detector_analyzer_backend.h"
 
 namespace cass
 {
+  class CASSEvent;
+
   namespace ACQIRIS
   {
+    class DetectorBackend;
+
     /** predicate class for find_if.
      *
      * this helps finding the right key in the list of pairs
