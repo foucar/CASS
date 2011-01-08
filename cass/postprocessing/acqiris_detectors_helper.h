@@ -89,9 +89,6 @@ namespace cass
       /** typdef defining the list of detectors for more readable code*/
       typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
 
-      /** typdef defining the list of waveformanalyzers*/
-      typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
-
       /** validation of event.
        *
        * validate whether we have already seen this event
