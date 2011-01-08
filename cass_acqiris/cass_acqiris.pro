@@ -27,7 +27,8 @@ SOURCES += acqiris_converter.cpp \
     ./classes/waveformanalyzer/cfd.cpp \
     ./classes/waveformanalyzer/com.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
-    classes/detector_backend.cpp
+    classes/detector_backend.cpp \
+    classes/tof_detector.cpp
 HEADERS += acqiris_converter.h \
     cass_acqiris.h \
     acqiris_device.h \

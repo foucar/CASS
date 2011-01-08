@@ -1,8 +1,8 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file tof_detector.h file contains the classes that describe a Time Of
- *                      Flight Detector.
+ * @file tof_detector.h file contains the declaration of the class that
+ *                      describes a Time Of Flight Detector.
  *
  * @author Lutz Foucar
  */
@@ -10,10 +10,8 @@
 #ifndef _TOF_DETECTOR_H_
 #define _TOF_DETECTOR_H_
 
-#include "cass_acqiris.h"
 #include "detector_backend.h"
 #include "waveform_signal.h"
-#include "cass_settings.h"
 
 namespace cass
 {
@@ -63,12 +61,5 @@ namespace cass
   }
 }
 
-inline
-void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)
-{
-  p->beginGroup(_name.c_str());
-  _mcp.loadSettings(p,"Signal");
-  p->endGroup();
-}
 
 #endif
