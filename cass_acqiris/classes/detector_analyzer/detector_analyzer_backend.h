@@ -45,7 +45,7 @@ namespace cass
        * @return reference to the container containing the found hits
        * @param[out] hits the container where the found hits will go
        */
-      virtual DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits)=0;
+      virtual detectorHits_t& operator()(detectorHits_t &hits)=0;
 
       /** load the settings of the analyzer
        *

@@ -66,7 +66,7 @@ namespace cass
        * @return reference to the hit container
        * @param hits the hitcontainer
        */
-      DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits);
+      detectorHits_t& operator()(detectorHits_t &hits);
 
       /** load the detector analyzers settings from .ini file
        *

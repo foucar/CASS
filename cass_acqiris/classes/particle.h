@@ -15,6 +15,7 @@
 
 #include "map.hpp"
 #include "delayline_detector.h"
+#include "momenta_calculator.h"
 
 namespace cass
 {
@@ -23,7 +24,6 @@ namespace cass
   namespace ACQIRIS
   {
     class IsParticleHit;
-    class MomentumCalculator;
 
     /** A Particle
      *
@@ -33,13 +33,6 @@ namespace cass
      */
     class Particle
     {
-    public:
-      //@{
-      /** typdef for better readable code */
-      typedef Map<std::string,double> particleHit_t;
-      typedef std::vector<particleHit_t> particleHits_t;
-      //@}
-
     public:
       /** constructor
        *
@@ -82,14 +75,14 @@ namespace cass
        *
        * @param pointer to the list of detectorhits
        */
-      void associate(DelaylineDetector::hits_t * dethits);
+      void associate(detectorHits_t * dethits);
 
     private:
       /** the list of particle hits */
       particleHits_t _particlehits;
 
       /** pointer to the list of detectorhits */
-      DelaylineDetector::hits_t *_detectorhits;
+      detectorHits_t *_detectorhits;
 
       /** flag to tell whether we already created the list of particle hits */
       bool _listIsCreated;
@@ -97,15 +90,8 @@ namespace cass
       /** identifer for checking detectorhit is a particle hit */
       IsParticleHit *_isParticleHit;
 
-      /** functor for calculating x momentum of particle hit */
-      MomentumCalculator *_calc_px;
-
-      /** functor for calculating y momentum of particle hit */
-      MomentumCalculator *_calc_py;
-
-      /** functor for calculating z momentum of particle hit */
-      MomentumCalculator *_calc_pz;
-
+      /** functor for calculating momenta of a particle hit */
+      MomentumCalculator _momcalc;
 
 //    public:
 //      //checks//

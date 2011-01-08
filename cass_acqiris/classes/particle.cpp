@@ -10,6 +10,7 @@
 #include <cmath>
 
 #include "particle.h"
+#include "momenta_calculator.h"
 #include "cass_settings.h"
 
 using namespace cass::ACQIRIS;
@@ -33,7 +34,7 @@ namespace cass
        * @return true when dethit fullfilles the condition
        * @param dethit the detector hit to check for the condition
        */
-      virtual bool operator()(const DelaylineDetector::hit_t &dethit)const=0;
+      virtual bool operator()(const detectorHit_t &dethit)const=0;
 
       /** read the parameters of the condition from the .ini file
        *
@@ -59,7 +60,7 @@ namespace cass
     class TofCond : public IsParticleHit
     {
     public:
-      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      bool operator()(const detectorHit_t &dethit) const
       {
         return  (_tofcond.first < dethit["time"] && dethit["time"] < _tofcond.second);
       }
@@ -88,7 +89,7 @@ namespace cass
     class RadCond : public IsParticleHit
     {
     public:
-      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      bool operator()(const detectorHit_t &dethit) const
       {
         const double &x (dethit["x_mm"]);
         const double &y (dethit["y_mm"]);
@@ -123,7 +124,7 @@ namespace cass
     class RectCond : public IsParticleHit
     {
     public:
-      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      bool operator()(const detectorHit_t &dethit) const
       {
         const double &x (dethit["x_mm"]);
         const double &y (dethit["y_mm"]);
@@ -168,7 +169,7 @@ namespace cass
         :_conditions(std::make_pair(new FirstCondition, new SecondCondition))
       {}
 
-      bool operator()(const DelaylineDetector::hit_t &dethit) const
+      bool operator()(const detectorHit_t &dethit) const
       {
         IsParticleHit &firstCond (*_conditions.first);
         IsParticleHit &secondCond (*_conditions.second);
@@ -220,7 +221,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    void kartesian2polar(Particle::particleHit_t& hit)
+    void kartesian2polar(particleHit_t& hit)
     {
       const double & x (hit["px"]);
       const double & y (hit["py"]);
@@ -266,25 +267,19 @@ void Particle::loadSettings(CASSSettings& s)
 //	fSp			= pi.GetSpectrometer();
 }
 
-Particle::particleHits_t& Particle::hits()
+particleHits_t& Particle::hits()
 {
   if (!_listIsCreated)
   {
     using namespace std;
     const IsParticleHit &isParticleHit (*_isParticleHit);
-    const MomentumCalculator &calc_px (*_calc_px);
-    const MomentumCalculator &calc_py (*_calc_py);
-    const MomentumCalculator &calc_pz (*_calc_pz);
     _listIsCreated = true;
-    DelaylineDetector::hits_t::iterator dethit (_detectorhits->begin());
+    detectorHits_t::iterator dethit (_detectorhits->begin());
     for (; dethit != _detectorhits->end(); ++dethit)
     {
       if (isParticleHit(*dethit))
       {
-        particleHit_t hit;
-//        hit["px"] = calc_px(*dethit);
-//        hit["py"] = calc_py(*dethit);
-//        hit["pz"] = calc_pz(*dethit);
+        particleHit_t hit (_momcalc(*dethit));
         kartesian2polar(hit);
         _particlehits.push_back(hit);
       }
@@ -293,7 +288,7 @@ Particle::particleHits_t& Particle::hits()
   return _particlehits;
 }
 
-void Particle::associate(DelaylineDetector::hits_t *dethits)
+void Particle::associate(detectorHits_t *dethits)
 {
   _listIsCreated = false;
   _particlehits.clear();

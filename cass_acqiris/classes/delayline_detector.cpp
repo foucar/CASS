@@ -86,7 +86,7 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-DelaylineDetector::hits_t& DelaylineDetector::hits()
+detectorHits_t& DelaylineDetector::hits()
 {
   bool newEventAssociated (_newEventAssociated);
   _newEventAssociated = false;

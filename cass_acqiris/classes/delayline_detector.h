@@ -129,8 +129,6 @@ namespace cass
     public:
       /** a map of anodelayers */
       typedef std::map<char,AnodeLayer> anodelayers_t;
-      typedef Map<std::string,double> hit_t;
-      typedef std::vector<hit_t> hits_t;
 
     public:
       /** constructor.
@@ -186,14 +184,14 @@ namespace cass
        *
        * @return the list of detector hits
        */
-      hits_t &hits();
+      detectorHits_t &hits();
 
     private:
       /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;
 
       /** constainer for all reconstructed detector hits*/
-      hits_t _hits;
+      detectorHits_t _hits;
 
       /** the analyzer that will sort the signal to hits */
       DetectorAnalyzerBackend * _analyzer;

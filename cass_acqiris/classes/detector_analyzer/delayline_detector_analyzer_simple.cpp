@@ -174,7 +174,7 @@ namespace cass
         : _sinangle(sin(angle*3.14/180.)),
           _cosangle(cos(angle*3.14/180.))
       {}
-      DelaylineDetector::hit_t & operator()(DelaylineDetector::hit_t & hit)const
+      detectorHit_t & operator()(detectorHit_t & hit)const
       {
         hit["x_rot"]	= ( _cosangle*hit["x"] + _sinangle*hit["y"] );
         return hit;
@@ -190,7 +190,7 @@ namespace cass
         : _sinangle(sin(angle*3.14/180.)),
           _cosangle(cos(angle*3.14/180.))
       {}
-      DelaylineDetector::hit_t & operator()(DelaylineDetector::hit_t & hit)const
+      detectorHit_t& operator()(detectorHit_t & hit)const
       {
         hit["y_rot"]	= (-_sinangle*hit["x"] + _cosangle*hit["y"] );
         return hit;
@@ -206,7 +206,7 @@ namespace cass
       CorrectX(const double &cor)
         :_cor(cor)
       {}
-      DelaylineDetector::hit_t & operator()(DelaylineDetector::hit_t & hit)const
+      detectorHit_t & operator()(detectorHit_t &hit)const
       {
         hit["x_cor"] = hit["x"] - _cor;
         return hit;
@@ -221,7 +221,7 @@ namespace cass
       CorrectY(const double &cor)
         :_cor(cor)
       {}
-      DelaylineDetector::hit_t & operator()(DelaylineDetector::hit_t & hit)const
+      detectorHit_t& operator()(detectorHit_t &hit)const
       {
         hit["y_cor"] = hit["y"] - _cor;
         return hit;
@@ -232,7 +232,7 @@ namespace cass
   }
 }
 
-DelaylineDetector::hits_t& DelaylineDetectorAnalyzerSimple::operator()(DelaylineDetector::hits_t &hits)
+detectorHits_t& DelaylineDetectorAnalyzerSimple::operator()(detectorHits_t &hits)
 {
   using namespace std;
   using namespace cass::ACQIRIS;
@@ -289,7 +289,7 @@ DelaylineDetector::hits_t& DelaylineDetectorAnalyzerSimple::operator()(Delayline
               {
                 if (radius < _mcpRadius)
                 {
-                  DelaylineDetector::hit_t hit;
+                  detectorHit_t hit;
 //                  const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
 //                  const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
                   hit["x"] = pos.first;

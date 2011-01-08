@@ -16,6 +16,8 @@
 #include <vector>
 #include <functional>
 #include <stdint.h>
+#include <string>
+#include "map.hpp"
 
 #if defined(CASS_ACQIRIS_LIBRARY)
 #  define CASS_ACQIRISSHARED_EXPORT Q_DECL_EXPORT
@@ -39,9 +41,15 @@ namespace cass
     enum SignalExtractorType {com8,com16,cfd8,cfd16};
     /** all available instruments at the site*/
     enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
-    /** A wavefrom is just an array (vector) of integers,
-        this typedef is for more readable code*/
+    //@{
+    /** typdef for better readable code */
     typedef std::vector<int16_t> waveform_t;
+    typedef Map<std::string,double> particleHit_t;
+    typedef std::vector<particleHit_t> particleHits_t;
+    typedef Map<std::string,double> detectorHit_t;
+    typedef std::vector<detectorHit_t> detectorHits_t;
+    //@}
+
   }
 }
 
