@@ -5,6 +5,8 @@
  *
  * @author Lutz Foucar
  */
+#include <cmath>
+#include <limits>
 
 #include "histo_updater.h"
 
@@ -20,12 +22,20 @@ HistogramUpdater::HistogramUpdater(const std::string &server, int port)
   _timer->Connect("Timeout()", "HistogramUpdater",this, "upateHistograms()");
 }
 
+void HistogramUpdater::autoUpdate(double freq)
+{
+  using namespace std;
+  if(freq < sqrt(numeric_limits<double>::epsilon()))
+    _timer->Stop();
+  else
+  {
+    int milsec (static_cast<int>(1./freq * 1.e3));
+    _timer->Start(milsec);
+  }
+}
+
 void HistogramUpdater::updateHistograms()
 {
 
 }
 
-void HistogramUpdater::autoUpdate(double freq)
-{
-
-}
