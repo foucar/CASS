@@ -13,7 +13,7 @@
 #include <iostream>
 #include "cass_acqiris.h"
 #include "cass.h"
-#include "waveform_analyzer_backend.h"
+#include "signal_extractor.h"
 
 namespace cass
 {
@@ -34,20 +34,25 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT CFD8Bit : public WaveformAnalyzerBackend
+    class CASS_ACQIRISSHARED_EXPORT CFD8Bit : public SignalExtractor
     {
     public:
       /** constructor*/
       CFD8Bit()    {VERBOSEOUT(std::cout << "adding 8 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
 
-      /** analzye the waveform of the channel.
+      /** extract signals form the CASSEvent
        *
-       * @return void
-       * @param c The channel that we need to analyze
-       * @param r The found peaks go to the result
+       * @return reference of the input result container
+       * @param[in] sig this is the container for the results
        */
-      virtual void operator()(const Channel&c, ResultsBackend&r);
-    };
+      virtual SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
+
+      /** associate the event with this analyzer */
+      void associate(const CASSEvent& evt);
+
+      /** load the settings of the extractor */
+      void loadSettings(CASSSettings&);
+     };
 
     /** Finds signals in a 16 bit waveform.
      *
@@ -55,12 +60,18 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public WaveformAnalyzerBackend
+    class CASS_ACQIRISSHARED_EXPORT CFD16Bit : public SignalExtractor
     {
     public:
       CFD16Bit()    {VERBOSEOUT(std::cout << "adding 16 bit Constant Fraction Discriminator waveformanalyzer"<<std::endl);}
 
-      virtual void operator()(const Channel&, ResultsBackend&);
+      SignalProducer::signals_t& operator()(SignalProducer::signals_t& sig);
+
+      /** associate the event with this analyzer */
+      void associate(const CASSEvent& evt);
+
+      /** load the settings of the extractor */
+      void loadSettings(CASSSettings&);
     };
 
   }//end namespace acqiris
