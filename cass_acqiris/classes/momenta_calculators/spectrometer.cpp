@@ -7,3 +7,17 @@
  * @author Lutz Foucar
  */
 
+#include "spectrometer.h"
+#include "cass_settings.h"
+
+using namespace cass::ACQIRIS;
+
+void Spectrometer::loadSettings(CASSSettings &s)
+{
+
+}
+
+void SpectrometerRegion::loadSettings(CASSSettings &s)
+{
+
+}
