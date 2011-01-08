@@ -26,29 +26,46 @@ namespace cass
 
     /** Base class for all detector analyzers.
      *
+     * @todo rename this class, since its just the base class for all (sorters?).
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
     public:
-      /** constructor needs to know what waveform analyzers are available*/
-      DetectorAnalyzerBackend()  {}
-
-      /** virtual destructor*/
+      /** virtual destructor */
       virtual ~DetectorAnalyzerBackend() {}
 
-      /** combine all the signals from the detector to hits on the detector
+      /** retrieve detector hits from signals
+       *
+       * check the combination of signals to whether they belong together, since
+       * the orign from the same detectorhit. Needs to be implemented by the
+       * detectorhit finder (sorters?)
        *
        * @return reference to the container containing the found hits
        * @param[out] hits the container where the found hits will go
        */
       virtual DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits)=0;
 
-      /** pure virtual function that will load the detector parameters from cass.ini*/
+      /** load the settings of the analyzer
+       *
+       * load the settings from the .ini file. Needs to be implemented by the
+       * detector that inherits from this.
+       *
+       * @param s reference to the CASSSettings object
+       * @param d the detector object that we the analyzer belongs to
+       */
       virtual void loadSettings(CASSSettings&, DelaylineDetector&)=0;
 
-      /** create an instance of the right analyzer type */
-      static DetectorAnalyzerBackend* instance(const DetectorAnalyzerType);
+      /** create an instance of the right analyzer type
+       *
+       * this static member will create a instance of the requested type. If the
+       * requested type is unknown an invalid_argument exception will be thrown.
+       *
+       * @return pointer to the instance of the requested type
+       * @param type the requested analyzer type
+       */
+      static DetectorAnalyzerBackend* instance(const DetectorAnalyzerType& type);
     };
   }
 }//end namespace cass
