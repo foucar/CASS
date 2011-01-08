@@ -56,12 +56,30 @@ namespace cass
      *
      * This class will work on waveforms of old 8 Bit Acqiris Instruments.
      *
-     * @cassttng .../{Delay}\n
+     * @cassttng .../ConstantFraction/{AcqirisInstrument}\n
+     *           Acqiris Instrument that this channel is in:
+     *           - 2:
+     *           - 4:
+     *           - 5:
+     *           - 8: CAMP
+     * @cassttng .../ConstantFraction/{ChannelNumber} \n
+     *           Channel within the instrument (starts counting from 0)
+     * @cassttng .../ConstantFraction/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
+     *           set of timeranges. One can set more than one range of interest.
+     *           Default is no timerange, which will result in no signal will be
+     *           found.
+     * @cassttng .../ConstantFraction/{Polarity}\n
+     *           the polarity of the signals that we are interested in:
+     *           - 1: Positive Polarity
+     *           - 2: Negative Polarity
+     * @cassttng .../ConstantFraction/{Threshold}\n
+     *           the theshold for the signals in Volts:
+     * @cassttng .../ConstantFraction/{Delay}\n
      *           delay in ns used by the constant fraction method:
-     * @cassttng .../{Fraction}\n
+     * @cassttng .../ConstantFraction/{Fraction}\n
      *           fraction used by the constant fraction method:
-     * @cassttng .../{Walk}\n
-     *            walk in Volts used by the constant fraction method:
+     * @cassttng .../ConstantFraction/{Walk}\n
+     *           walk of the Constant Fraction Discriminator in Volts
      *
      * @author Lutz Foucar
      */
