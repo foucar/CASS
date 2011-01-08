@@ -69,46 +69,46 @@ namespace cass
             if (risingEdge)            //if we had a rising edge before we know that it was a real peak
             {
               //--create a new peak--//
-              Peak p;
+              SignalProducer::signal_t signal;
               //std::cout << "usedflag at start "<<p.isUsed()<<std::endl;
               //--set all known settings--//
-              p.startpos() = startpos;
-              p.stoppos()  = i-1;
+              signal["startpos"] = startpos;
+              signal["stoppos"]  = i-1;
 
-              //--height stuff--//
-              maximum<T>(c,p);
-
-              //--fwhm stuff--//
-              fwhm<T>(c,p);
-
-              //--center of mass stuff--//
-              CoM<T>(c,p,static_cast<const int32_t>(threshold));
+//              //--height stuff--//
+//              maximum<T>(c,p);
+//
+//              //--fwhm stuff--//
+//              fwhm<T>(c,p);
+//
+//              //--center of mass stuff--//
+//              CoM<T>(c,p,static_cast<const int32_t>(threshold));
 
               //--Time is the Center of Mass--//
-              p.time()= p.com();
+              signal["time"] = signal["com"];
 
               //--check the polarity--//
-              if (Data[p.maxpos()]-vOffset == p.maximum())       //positive
-                p.polarity() = Positive;
-              else if (Data[p.maxpos()]-vOffset == -p.maximum()) //negative
-                p.polarity() = Negative;
+              if (Data[signal["maxpos"]]-vOffset == signal["maximum"])       //positive
+                signal["polarity"] = Positive;
+              else if (Data[signal["maxpos"]]-vOffset == -signal["maximum"]) //negative
+                signal["polarity"] = Negative;
               else
               {
                 std::cout << "error: polarity not found"<<std::endl;
-                p.polarity() = Bad;
+                signal["polarity"] = Bad;
               }
               //        std::cout<<"com: found peak has polarity"<<p.polarity()
               //            <<" should have polarity "<<s.polarity()<<std::endl;
               //--add peak to signal if it fits the conditions--//
-              if(p.polarity() == param._polarity)  //if it has the right polarity
+              if(signal["polarity"] == param._polarity)  //if it has the right polarity
               {
                 for (CoMParameters::timeranges_t::const_iterator it (param._timeranges.begin());
                 it != param._timeranges.end();
                 ++it)
                 {
-                  if(p.time() > it->first && p.time() < it->second) //if signal is in the right timerange
+                  if(signal["time"] > it->first && signal["time"] < it->second) //if signal is in the right timerange
                   {
-                    sig.push_back(p);
+                    sig.push_back(signal);
                     break;
                   }
                 }
@@ -182,6 +182,7 @@ namespace cass
 SignalProducer::signals_t& CoM8Bit::operator()(SignalProducer::signals_t& sig)
 {
   CenterOfMass::com<char>(*_chan, _parameters, sig);
+  return sig;
 }
 
 void CoM8Bit::loadSettings(CASSSettings &s)
@@ -199,6 +200,7 @@ void CoM8Bit::associate(const CASSEvent &evt)
 SignalProducer::signals_t& CoM16Bit::operator()(SignalProducer::signals_t& sig)
 {
   CenterOfMass::com<short>(*_chan, _parameters, sig);
+  return sig;
 }
 
 void CoM16Bit::loadSettings(CASSSettings &s)
