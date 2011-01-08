@@ -1,14 +1,14 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file waveform_analyzer_backend.h file contains base class for all wavefrom
- *                                   analyzers
+ * @file signal_extractor.h file file contains base class for all classes that
+ *                            extract signals from the recorded data
  *
  * @author Lutz Foucar
  */
 
-#ifndef _WAVEFORM_ANALYZER_BACKEND_H_
-#define _WAVEFORM_ANALYZER_BACKEND_H_
+#ifndef _SIGNAL_EXTRACTOR_H_
+#define _SIGNAL_EXTRACTOR_H_
 
 #include "cass_acqiris.h"
 #include "signal_producer.h"
@@ -19,7 +19,7 @@ namespace cass
 
   namespace ACQIRIS
   {
-    /** Base class for Wavefrom analyzers
+    /** Base class for classes that extract Signals from recorded data
      *
      * waveform analyzers should take a channel, analyze its wavefrom
      * and put the result of the analysis into the results base class
