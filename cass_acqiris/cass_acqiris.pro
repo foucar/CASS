@@ -27,12 +27,13 @@ SOURCES += \
     acqiris_converter.cpp \
     acqiris_device.cpp \
     ./classes/signal_producer.cpp \
-    ./classes/signalextractors/signal_extractor.cpp
-    ./classes/signalextractors/cfd.cpp \
+    ./classes/signalextractors/signal_extractor.cpp \
     ./classes/signalextractors/com.cpp \
+    ./classes/signalextractors/cfd.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
     ./classes/detector_backend.cpp \
-    ./classes/tof_detector.cpp \
+    ./classes/tof_detector.cpp
+
 HEADERS += \
     acqiris_converter.h \
     cass_acqiris.h \
