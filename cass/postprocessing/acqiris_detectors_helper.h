@@ -89,9 +89,6 @@ namespace cass
       /** typdef defining the list of detectors for more readable code*/
       typedef std::list<std::pair<uint64_t, DetectorBackend*> > detectorList_t;
 
-      /** typdef defining the list of detectoranalyzers*/
-      typedef std::map<DetectorAnalyzers, DetectorAnalyzerBackend*> detectoranalyzer_t;
-
       /** typdef defining the list of waveformanalyzers*/
       typedef std::map<WaveformAnalyzers, WaveformAnalyzerBackend*> waveformanalyzer_t;
 
@@ -120,9 +117,9 @@ namespace cass
           //take the last element and get the the detector from it//
           DetectorBackend* det = _detectorList.back().second;
           //copy the information of our detector to this detector//
-          *det = *_detector;
-          //process the detector using the detectors analyzers in a global container
-          (*_detectoranalyzer[det->analyzerType()])(*det, *dev);
+          det->clear();
+          //process the detector using the data in the device
+          (*det)(*dev);
           //create a new key from the id with the reloaded detector
           detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
           //put it to the beginning of the list//
@@ -177,12 +174,6 @@ namespace cass
        * one instance for each available detector
        */
       static std::map<Detectors,HelperAcqirisDetectors*> _instances;
-
-      /** global list of analyzers for waveforms */
-      static waveformanalyzer_t _waveformanalyzer;
-
-      /** global list of analyzers for detectors */
-      static detectoranalyzer_t _detectoranalyzer;
 
       /** Singleton Mutex to lock write operations*/
       static QMutex _mutex;
