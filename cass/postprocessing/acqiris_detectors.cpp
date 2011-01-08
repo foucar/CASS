@@ -585,7 +585,7 @@ void cass::pp166::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  DelaylineDetector::hits_t::iterator it (det->hits().begin());
+  detectorHits_t::iterator it (det->hits().begin());
   _result->clear();
   _result->lock.lockForWrite();
   for (; it != det->hits().end(); ++it)
