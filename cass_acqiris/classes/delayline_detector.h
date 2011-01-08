@@ -196,6 +196,9 @@ namespace cass
        */
       detectorHits_t &hits();
 
+      /** retrieve the particle container */
+      particles_t& particles()  {return _particles;}
+
     private:
       /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;

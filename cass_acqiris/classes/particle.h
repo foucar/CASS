@@ -26,6 +26,7 @@ namespace cass
   {
     class IsParticleHit;
     class MomentumCalculator;
+    class DelaylineDetector;
 
     /** A Particle
      *
@@ -105,9 +106,9 @@ namespace cass
        * particle hits, this resets the _listIsCreated flag and clears the
        * _particlehits container.
        *
-       * @param pointer to the list of detectorhits
+       * @param detector pointer to the detector containing this particle
        */
-      void associate(detectorHits_t * dethits);
+      void associate(DelaylineDetector * detector);
 
       /** retrive the spectormeter */
       const Spectrometer& spectrometer()const {return _spectrometer;}
@@ -122,8 +123,8 @@ namespace cass
       /** the list of particle hits */
       particleHits_t _particlehits;
 
-      /** pointer to the list of detectorhits */
-      detectorHits_t *_detectorhits;
+      /** pointer to the delayline detector that conatins this particle */
+      DelaylineDetector *_detector;
 
       /** flag to tell whether we already created the list of particle hits */
       bool _listIsCreated;

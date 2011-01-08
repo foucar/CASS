@@ -13,6 +13,7 @@
 #include "particle.h"
 #include "momenta_calculator.h"
 #include "cass_settings.h"
+#include "delayline_detector.h"
 
 using namespace cass::ACQIRIS;
 
@@ -296,8 +297,9 @@ particleHits_t& Particle::hits()
     const MomentumCalculator &calcpxpy (*_calc_detplane);
     const MomentumCalculator &calcpz (*_calc_tof);
     _listIsCreated = true;
-    detectorHits_t::iterator dethit (_detectorhits->begin());
-    for (; dethit != _detectorhits->end(); ++dethit)
+    detectorHits_t & detectorhits (_detector->hits());
+    detectorHits_t::iterator dethit (detectorhits.begin());
+    for (; dethit != detectorhits.end(); ++dethit)
     {
       if (isParticleHit(*dethit))
       {
@@ -312,9 +314,9 @@ particleHits_t& Particle::hits()
   return _particlehits;
 }
 
-void Particle::associate(detectorHits_t *dethits)
+void Particle::associate(DelaylineDetector * detector)
 {
   _listIsCreated = false;
   _particlehits.clear();
-  _detectorhits = dethits;
+  _detector = detector;
 }

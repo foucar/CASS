@@ -50,7 +50,7 @@ void DelaylineDetector::associate(const CASSEvent & evt)
     (*it).second.associate(evt);
   particles_t::iterator pit (_particles.begin());
   for (; pit != _particles.end();++pit)
-    (*pit).second.associate(&_hits);
+    (*pit).second.associate(this);
 }
 
 void DelaylineDetector::loadSettings(CASSSettings &s)
