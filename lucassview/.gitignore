@@ -1,0 +1,11 @@
+/*.nsmap
+/*.wsdl
+/*.xml
+/*.xsd
+/*.o
+/soapC.cpp
+/soapCASSsoapProxy.cpp
+/soapCASSsoapProxy.h
+/soapH.h
+/soapStub.h
+/*dict*

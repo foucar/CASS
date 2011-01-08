@@ -5,3 +5,5 @@
 /cass_Database
 /cass.ini
 /build*
+/bin
+/lib

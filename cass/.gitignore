@@ -1,6 +1,6 @@
 /*.dylib
 /moc_*.cpp
-/Makefile
+/Makefile*
 /cass.app
 /cass
 /obj
