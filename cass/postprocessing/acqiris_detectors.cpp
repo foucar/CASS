@@ -34,6 +34,7 @@ cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp150::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -44,11 +45,10 @@ void cass::pp150::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": retrieves the nbr of mcp signals"
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout <<endl<< "PostProcessor '"<<_key
+      <<"' retrieves the nbr of mcp signals of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp150::process(const cass::CASSEvent &evt)
