@@ -11,6 +11,8 @@
 #ifndef __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 #define __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 
+#include <memory>
+
 #include "delayline_detector_analyzer_backend.h"
 #include "delayline_detector.h"
 
@@ -18,70 +20,68 @@ namespace cass
 {
   namespace ACQIRIS
   {
+    class SignalProducer;
+    class PositionCalculator;
+
     /** Simple sorter of hits from a Quadanode delayline detector.
      *
      * Do a simple sorting by checking the timesum for each MCP Signal that was
-     * identified.
-     *
-     * @note after making sure that the waveform signal container will create
-     *       the list of singals / peaks itselve, we no longer will need the
-     *       info about the waveform analyzers in the constructor.
+     * identified. This is done for only one pair of anode layers.
      *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT DelaylineDetectorAnalyzerSimple
-        : public DelaylineDetectorAnalyzerBackend
+        : public DetectorAnalyzerBackend
     {
     public:
-      /** constuctor
+      /** constuctor */
+      DelaylineDetectorAnalyzerSimple()
+          :DetectorAnalyzerBackend(), _poscalc(0)
+      {}
+
+      /** the function creating the detectorhit list
        *
-       * outputs what we are
-       *
-       * @param waveformanalyzer the container that contains all waveformanalyzers
+       * @return reference to the hit container
+       * @param hits the hitcontainer
        */
-      DelaylineDetectorAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
-          :DelaylineDetectorAnalyzerBackend(waveformanalyzer)
-      {
-        VERBOSEOUT(std::cout << "adding simple quad delayline detector analyzer"<<std::endl);
-      }
+      DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits);
 
-      /** the function creating the detectorhit list*/
-      virtual void operator()(DetectorBackend&,const Device&);
+      /** function that will load the detector parameters from cass.ini
+       *
+       * retrieve all necessary information to be able to sort the signals of
+       * the detector to detector hits. Also retrieve the signal producers of
+       * the layers whos signals we should sort.
+       *
+       * @param s the CASSSetting object
+       * @param d the detector object that we are belonging to
+       */
+      void loadSettings(CASSSettings &s, DelaylineDetector &d);
 
-    protected:
-      /** first anode layer */
-      std::pair<DelaylineDetector::anodelayers_t::key_type,DelaylineDetector::anodelayers_t::key_type> _usedLayers;
+    private:
+      /** the mcp */
+      SignalProducer *_mcp;
+
+      /** the layer combination */
+      std::pair<std::pair<SignalProducer *,SignalProducer *> ,
+                std::pair<SignalProducer *,SignalProducer *> > _layerCombination;
+
+      /** timesum ranges of the layers */
+      std::pair<std::pair<double, double>,
+                std::pair<double, double> > _tsrange;
+
+      /** timesums of the layers */
+      std::pair<double,double> _ts;
+
+      /** maximum runtime over the layers */
+      double _runtime;
+
+      /** maximum radius that det hits are allowed to be in, in ns */
+      double _mcpRadius;
+
+      /** the calculator to calc the position for the correlated wireend signals */
+      std::auto_ptr<PositionCalculator> _poscalc;
     };
 
-    /** Simple Tof Analyzer.
-     *
-     * will just take an event and feed it to the right waveform analyzer
-     *
-     * @note might not be needed anymore, once the list of peaks
-     *       is created by the Signal itself
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT ToFAnalyzerSimple
-      : public DetectorAnalyzerBackend
-    {
-    public:
-      /** constructor.
-       * @param[in] waveformanalyzer reference to the waveformanalyzer
-       *            container
-       */
-      ToFAnalyzerSimple(waveformanalyzers_t* waveformanalyzer)
-        :DetectorAnalyzerBackend(waveformanalyzer)
-      {VERBOSEOUT(std::cout << "adding simple tof detector analyzer"<<std::endl);}
-
-      /** analyze the ToF Detector.
-       *
-       * @return void
-       * @param det The ToF Detector that we want to analyze
-       * @param dev The Acqiris Device from the CASSEvent
-       */
-      virtual void operator()(DetectorBackend&det,const Device&dev);
-    };
 
   }//end namespace acqiris
 }//end namespace cass

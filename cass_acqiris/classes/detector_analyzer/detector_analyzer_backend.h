@@ -10,9 +10,9 @@
 #ifndef _DETECTOR_ANALYZER_BACKEND_H_
 #define _DETECTOR_ANALYZER_BACKEND_H_
 
-#include <map>
+
 #include "cass_acqiris.h"
-#include "acqiris_device.h"
+#include "delayline_detector.h"
 
 namespace cass
 {
@@ -32,24 +32,20 @@ namespace cass
     {
     public:
       /** constructor needs to know what waveform analyzers are available*/
-      DetectorAnalyzerBackend()
-      {}
+      DetectorAnalyzerBackend()  {}
 
       /** virtual destructor*/
       virtual ~DetectorAnalyzerBackend() {}
 
-      /** analyze the detector using the data from the device
+      /** combine all the signals from the detector to hits on the detector
        *
-       * @param detector the Detector whose signals should be analyzed.
-       * @param device the device that recorded the signals of the Detector
+       * @return reference to the container containing the found hits
+       * @param[out] hits the container where the found hits will go
        */
-      virtual void operator()(DetectorBackend&,const Device&)=0;
+      virtual DelaylineDetector::hits_t& operator()(DelaylineDetector::hits_t &hits)=0;
 
       /** pure virtual function that will load the detector parameters from cass.ini*/
-      virtual void loadSettings(CASSSettings&)=0;
-
-      /** associate the event with this detector (get the data from this event) */
-      virtual void associate(const CASSEvent&)=0;
+      virtual void loadSettings(CASSSettings&, DelaylineDetector&)=0;
 
       /** create an instance of the right analyzer type */
       static DetectorAnalyzerBackend* instance(const DetectorAnalyzerType);

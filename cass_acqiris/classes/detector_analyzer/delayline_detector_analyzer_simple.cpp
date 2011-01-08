@@ -9,202 +9,243 @@
  */
 
 #include <iostream>
+#include <limits>
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
 
 #include "delayline_detector_analyzer_simple.h"
 #include "delayline_detector.h"
 #include "channel.h"
+#include "signal_producer.h"
+#include "cass_settings.h"
 
+using namespace cass::ACQIRIS;
 namespace cass
 {
-  namespace DelaylineDetectorAnalyzers
+  namespace ACQIRIS
   {
+    //@{
+    /** typedefs for shorter code */
+    typedef SignalProducer::signal_t signal_t;
+    typedef SignalProducer::signals_t signals_t;
+    typedef signals_t::iterator sigIt_t;
+    typedef std::pair<sigIt_t,sigIt_t> range_t;
+    //@}
 
-    /** find the boundaries for sorting.
+    /** check whether anode end wire signal is correleated to mcp signal
      *
-     * For a given Mcp time there are only a few singal on the wire ends that can
-     * come with the Mcp Signal. This function will find the indexs of the list
-     * of signals (peaks) which might come together with the mcp signal. This is because
-     * we know two things (ie. for the x-layer):
+     * see getSignalRange() for details
+     *
+     * @author Lutz Foucar
+     */
+    struct isInRange : std::unary_function<signal_t,bool>
+    {
+      /** constructor
+       *
+       * @param mcp the time of the mcp signal
+       * @param timesum the timesum of the anode layer
+       * @param runtime the time it takes a signal to run across the whole anode
+       */
+      isInRange(double mcp, double timesum, double maxruntime)
+        :_mcp(mcp),_timesum(timesum),_maxruntime(maxruntime)
+      {}
+
+      /** check correlation
+       *
+       * check whether signal can be correlated with the mcp signal time
+       *
+       * @return true when signal can be correlated
+       * @param sig the signal which needs to be checked for correlation
+       */
+      bool operator()(const signal_t &sig) const
+      {
+        return fabs(2.*sig["time"] - 2.*_mcp - _timesum) <= _maxruntime;
+      }
+
+    private:
+      double _mcp;        //!< the time of the mcp signal
+      double _timesum;    //!< the timesum of the anode layer
+      double _maxruntime; //!< the time it takes the signal to run across the anode
+    };
+
+    /** return range of possible anode wire signal candidates
+     *
+     * For a given Mcp time there are only a few signal on the wire ends that
+     * can come with the Mcp Signal. This function will find the indexs of the
+     * list of signals which might come together with the mcp signal.
+     * This is because we know two things (ie. for the x-layer):
      * \f$|x_1-x_2|<rTime_x\f$
      * and
      * \f$x_1+x_2-2*mcp = ts_x\f$
-     * with this knowledge we can calculate the boundries for the anode
-     * given the Timesum and the Runtime
+     * with this knowledge we can calculate the boundries for the anode given
+     * the Timesum and the Runtime.
      *
-     * @return void
-     * @param anodeEnd the wire end that we want too check for indizes
+     * @return pair of iterator that define the range
+     * @param sigs the vector of signals of the anode wire end
      * @param mcp the Mcp Signal for which to find the right wire end signals
      * @param ts The timesum of the Anode
      * @param rTime The runtime of a Signal over the whole wire of the anode
-     * @param[out] min the minimum list index that can belong to the mcp signal
-     * @param[out] max the maximum list index that can belong to the mcp signal
      *
      * @author Lutz Foucar
      */
-    void findBoundriesForSorting(const cass::ACQIRIS::SignalProducer &anodeEnd, const double mcp, const double ts, const double rTime, int &min, int &max)
+    std::pair<sigIt_t,sigIt_t>  getSignalRange(signals_t &sigs, const double mcp, const double ts, const double rTime)
     {
-      //set min and max to 0//
-      min = -2;
-      max = -1;
+      using namespace std;
 
-      //--find useful boundries where to search for good timesums--//
-      for (size_t i=0;i<anodeEnd.peaks().size();++i)
-      {
-        //check wether the current anode value will fall into the boundries
-        if ( fabs(2.*anodeEnd.peaks()[i].time() - 2.*mcp - ts) <= rTime )
-        {
-          //if the min value is not set, set it now
-          if(min == -2) min = i;
-          //set the max value (the last time this will be set is if we are still inside the boundries
-          max = i;
-        }
-        //if the min value has been set it means that we are now outside the boundries => quit here
-        else if (min != -2)
-          break;
-      }
-
-      if (min == -2) min = 0;
+      sigIt_t begin (find_if(sigs.begin(),sigs.end(),isInRange(mcp,ts,rTime)));
+      sigIt_t end (find_if(begin, sigs.end(),not1(isInRange(mcp,ts,rTime))));
+      return (make_pair(begin,end));
     }
 
-    /** timesum sorter.
-     *
-     * Function that will sort the signals of two layers for timesum. When the timesum
-     * is fullfilled then we found a hit.
-     *
-     * @return void
-     * @param[in,out] d The detector that we are working on
-     * @param[in] anode The anodelayers that we should reconstruct the detectorhits from
+    /** position calculator base class
      *
      * @author Lutz Foucar
      */
-    void sortForTimesum(cass::ACQIRIS::DelaylineDetector &d,
-                        std::pair<cass::ACQIRIS::AnodeLayer*,cass::ACQIRIS::AnodeLayer*> & anode)
+    class PositionCalculator
     {
-      using namespace cass::ACQIRIS;
-      //--calculate the timesum from the given lower and upper boundries for it--//
-      AnodeLayer &f         = *(anode.first);
-      AnodeLayer &s         = *(anode.second);
-      SignalProducer &f1    = f.wireend()['1'];
-      SignalProducer &f2    = f.wireend()['2'];
-      SignalProducer &s1    = s.wireend()['1'];
-      SignalProducer &s2    = s.wireend()['2'];
-      const double tsx      = f.ts();
-      const double tsy      = s.ts();
-      const double runttime	= d.runtime();
-      const double tsxLow		= f.tsLow();
-      const double tsxHigh	= f.tsHigh();
-      const double tsyLow		= s.tsLow();
-      const double tsyHigh	= s.tsHigh();
-      const double radius		= d.mcpRadius();
-      SignalProducer::peaks_t &mcpp = d.mcp().peaks();
-      SignalProducer::peaks_t &f1p  = f1.peaks();
-      SignalProducer::peaks_t &f2p  = f2.peaks();
-      SignalProducer::peaks_t &s1p  = s1.peaks();
-      SignalProducer::peaks_t &s2p  = s2.peaks();
-      const double angle    = d.angle();
+    public:
+      virtual ~PositionCalculator() {}
+      virtual std::pair<double,double> operator()(const std::pair<double, double>&,
+                                                  const std::pair<double, double>&)=0;
+    };
 
-      //  std::cout <<"mcp: "<<mcpp.size() <<" ";
-      //  std::cout <<"f1: "<<f1.peaks().size() <<" ";
-      //  std::cout <<"f2: "<<f2.peaks().size() <<" ";
-      //  std::cout <<"s1: "<<s1.peaks().size() <<" ";
-      //  std::cout <<"s2: "<<s2.peaks().size() <<std::endl;
-
-      for (size_t iMcp=0;iMcp<mcpp.size();++iMcp)
+    /** position calculator for quad anode
+     *
+     * @author Lutz Foucar
+     */
+    class XYCalc : public PositionCalculator
+    {
+    public:
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& x,
+                                                  const std::pair<double, double>& y)
       {
-        //    std::cout << mcpp[iMcp]->isUsed()<<std::endl;
-        if (mcpp[iMcp].isUsed()) continue;
-        //--find the right indizes, only look in the right timerange--//
-        const double mcp = mcpp[iMcp].time();
-        int iX1min,iX1max,iX2min,iX2max,iY1min,iY1max,iY2min,iY2max;
-        findBoundriesForSorting(f1,mcp,tsx,runttime,iX1min,iX1max);
-        findBoundriesForSorting(f2,mcp,tsx,runttime,iX2min,iX2max);
-        findBoundriesForSorting(s1,mcp,tsy,runttime,iY1min,iY1max);
-        findBoundriesForSorting(s2,mcp,tsy,runttime,iY2min,iY2max);
+        const double X(x.first - x.second);
+        const double Y(y.first - y.second);
+        return std::make_pair(X,Y);
+      }
+    };
 
-        //    std::cout <<iMcp <<" ";
-        //    std::cout <<" x1low:"<<iX1min <<" x1high:"<<iX1max;
-        //    std::cout <<" x2low:"<<iX2min <<" x2high:"<<iX2max;
-        //    std::cout <<" y1low:"<<iY1min <<" y1high:"<<iY1max;
-        //    std::cout <<" y2low:"<<iY2min <<" y2high:"<<iY2max;
-        //    std::cout <<std::endl;
+    /** position calculator for hex anodes u and v layer
+     *
+     * @author Lutz Foucar
+     */
+    class UVCalc : public PositionCalculator
+    {
+    public:
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& u,
+                                                  const std::pair<double, double>& v)
+      {
+        const double U(u.first - u.second);
+        const double V(v.first - v.second);
+        return std::make_pair(U, 1./std::sqrt(3) * (U-2.*V));
+      }
+    };
 
-        //go through all possible combinations//
-        for (int iX1=iX1min;iX1<=iX1max;++iX1)
+    /** position calculator for hex anodes u and w layer
+     *
+     * @author Lutz Foucar
+     */
+    class UWCalc : public PositionCalculator
+    {
+    public:
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& u,
+                                                  const std::pair<double, double>& w)
+      {
+        const double U(u.first - u.second);
+        const double W(w.first - w.second);
+        return std::make_pair(U, 1./std::sqrt(3) * (2.*W-U));
+      }
+    };
+
+    /** position calculator for hex anodes u and v layer
+     *
+     * @author Lutz Foucar
+     */
+    class VWCalc : public PositionCalculator
+    {
+    public:
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& v,
+                                                  const std::pair<double, double>& w)
+      {
+        const double V(v.first - v.second);
+        const double W(w.first - w.second);
+        return std::make_pair(V+W, 1./std::sqrt(3) * (W-V));
+      }
+    };
+  }
+}
+
+DelaylineDetector::hits_t& DelaylineDetectorAnalyzerSimple::operator()(DelaylineDetector::hits_t &hits)
+{
+  using namespace std;
+  using namespace cass::ACQIRIS;
+  typedef SignalProducer::signal_t signal_t;
+  typedef SignalProducer::signals_t signals_t;
+  typedef signals_t::iterator sigIt_t;
+  typedef std::pair<sigIt_t,sigIt_t> range_t;
+
+  SignalProducer::signals_t &mcpsignals (_mcp->output());
+  SignalProducer::signals_t &f1signals (_layerCombination.first.first->output());
+  SignalProducer::signals_t &f2signals (_layerCombination.first.second->output());
+  SignalProducer::signals_t &s1signals (_layerCombination.second.first->output());
+  SignalProducer::signals_t &s2signals (_layerCombination.second.second->output());
+
+  for (sigIt_t iMcp (mcpsignals.begin());iMcp != mcpsignals.end() ;++iMcp)
+  {
+    if ((*iMcp)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+    const double mcp ((*iMcp)["time"]);
+    range_t f1range(getSignalRange(f1signals,mcp,_ts.first,_runtime));
+    range_t f2range(getSignalRange(f2signals,mcp,_ts.first,_runtime));
+    range_t s1range(getSignalRange(s1signals,mcp,_ts.second,_runtime));
+    range_t s2range(getSignalRange(s2signals,mcp,_ts.second,_runtime));
+    for (sigIt_t iF1 (f1range.first);iF1!=f1range.second;++iF1)
+    {
+      if ((*iF1)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+      for (sigIt_t iF2 (f2range.first);iF2!=f2range.second;++iF2)
+      {
+        if ((*iF2)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+        for (sigIt_t iS1 (s1range.first);iS1!=s1range.second;++iS1)
         {
-          if (f1p[iX1].isUsed()) continue;
-          for (int iX2=iX2min;iX2<=iX2max;++iX2)
+          if ((*iS1)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+          for (sigIt_t iS2 (s2range.first);iS2!=s2range.second;++iS2)
           {
-            if (f2p[iX2].isUsed()) continue;
-            for (int iY1=iY1min;iY1<=iY1max;++iY1)
+            if ((*iS2)["isUsed"] > sqrt(numeric_limits<signal_t::value_type>::epsilon())) continue;
+
+            const double mcp ((*iMcp)["time"]);
+
+            const double f1 ((*iF1)["time"]);
+            const double f2 ((*iF2)["time"]);
+            const double s1 ((*iS1)["time"]);
+            const double s2 ((*iS2)["time"]);
+            const double sumf (f1+f2 - 2.* mcp);
+            const double sums (s1+s2 - 2.* mcp);
+
+            const pair<double,double> pos ((*_poscalc)(make_pair(f1,f2),
+                                                       make_pair(s1,s2)));
+
+            const double radius (sqrt(pos.first*pos.first + pos.second*pos.second));
+
+            if ( (sumf > _tsrange.first.first) && (sumf < _tsrange.first.second) )
             {
-              if (s1p[iY1].isUsed()) continue;
-              for (int iY2=iY2min;iY2<=iY2max;++iY2)
+              if ( (sums > _tsrange.second.first) && (sums < _tsrange.second.second) )
               {
-                if (s2p[iY2].isUsed()) continue;
-
-                //std::cout <<"checking timesum condition for combination "<< iX1<<","<< iX2<<","<< iY1<<","<< iY2<<","<< iMcp<<","<<std::endl;
-                //calc the timesum//
-                const double x1 = f1p[iX1].time();
-                const double x2 = f2p[iX2].time();
-                const double y1 = s1p[iY1].time();
-                const double y2 = s2p[iY2].time();
-                const double sumx = x1+x2 - 2.* mcp;
-                const double sumy = y1+y2 - 2.* mcp;
-
-                //calc pos and radius//
-                const double xlay_mm = (x1-x2) * f.sf();
-                const double ylay_mm = (y1-y2) * s.sf();
-                double x_mm=xlay_mm;
-                double y_mm=ylay_mm;
-                if (d.delaylineType() == Hex)
+                if (radius < _mcpRadius)
                 {
-                  switch (d.layersToUse())
-                  {
-                  case(UV):
-                    {
-                      y_mm = 1/std::sqrt(3.) * (xlay_mm - 2.*ylay_mm);
-                      break;
-                    }
-                  case(UW):
-                    {
-                      y_mm = 1/std::sqrt(3.) * (2.*ylay_mm - xlay_mm);
-                      break;
-                    }
-                  case(VW):
-                    {
-                      x_mm = xlay_mm+ylay_mm;
-                      y_mm = 1/std::sqrt(3.) * (ylay_mm - xlay_mm);
-                      break;
-                    }
-                  default: break;
-                  }
-                }
-
-                const double radius_mm = sqrt(x_mm*x_mm + y_mm*y_mm);
-
-                //check wether the timesum is correct//
-                if ( (sumx > tsxLow) && (sumx < tsxHigh) )
-                {
-                  if ( (sumy > tsyLow) && (sumy < tsyHigh) )
-                  {
-                    //check wether the hit is inside the radius of the MCP//
-                    if (radius_mm < radius)
-                    {
-                      //rotate x and y with angle
-                      const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
-                      const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
-                      //add a DetektorHit to the Detektor
-                      d.hits().push_back(DelaylineDetectorHit(rot_x_mm,rot_y_mm,mcp));
-                      //remember that this mcp Peak has already been used//
-                      mcpp[iMcp].isUsed()    = true;
-                      f1p[iX1].isUsed() = true;
-                      f2p[iX2].isUsed() = true;
-                      s1p[iY1].isUsed() = true;
-                      s2p[iY2].isUsed() = true;
-                    }
-                  }
+                  DelaylineDetector::hit_t hit;
+//                  const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
+//                  const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
+                  hit["x_ns"] = pos.first;
+                  hit["y_ns"] = pos.second;
+                  hit["x"] = pos.first;
+                  hit["y"] = pos.second;
+                  hit["t"] = (*iMcp)["time"];
+                  hits.push_back(hit);
+                  (*iMcp)["isUsed"] = true;
+                  (*iF1)["isUsed"] = true;
+                  (*iF2)["isUsed"] = true;
+                  (*iS1)["isUsed"] = true;
+                  (*iS2)["isUsed"] = true;
                 }
               }
             }
@@ -213,93 +254,56 @@ namespace cass
       }
     }
   }
+  return hits;
 }
 
-
-//****************************************The Class Implementation*******************************************************
-//___________________________________________________________________________________________________________________________________________________________
-void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::DetectorBackend& detector, const Device& dev)
+void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDetector &d)
 {
-  //std::cout << "DelaylineDetectorAnalyzerSimple: entering"<<std::endl;
-  //do a type conversion to have a delayline detector//
-  DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
-  //check what layer the user wants to use for calculating the pos//
-  std::pair<AnodeLayer*,AnodeLayer*> anode
-      (std::make_pair(&d.layers()[_usedLayers.first],&d.layers()[_usedLayers.second]));
+  using namespace std;
+  enum LayerComb{xy,uv,uw,vw};
 
-//  switch (d.delaylineType())
-//  {
-//  case Hex :
-//    {
-//      switch (d.layersToUse())
-//      {
-//      case(UV):
-//        //std::cout <<"hex det using uv layers"<<std::endl;
-//        anode = std::make_pair(&d.layers()['U'],&d.layers()['V']);
-//        break;
-//      case(UW):
-//        //std::cout <<"hex det using uw layers"<<std::endl;
-//        anode = std::make_pair(&d.layers()['U'],&d.layers()['W']);
-//        break;
-//      case(VW):
-//        ///std::cout <<"hex det using vw layers"<<std::endl;
-//        anode = std::make_pair(&d.layers()['V'],&d.layers()['W']);
-//      default:
-//        throw std::invalid_argument("the chosen layer combination does not exist");
-//        return;
-//        break;
-//      }
-//    }
-//    break;
-//  case Quad:
-//    //std::cout <<"quad det using xy layers"<<std::endl;
-//    anode = std::make_pair(&d.layers()['X'],&d.layers()['Y']);
-//    break;
-//  default:
-//    throw std::invalid_argument("chosen delaylinetype doesn't exist");
-//  }
-
-  //extract the peaks for the signals of the detector from the channels//
-  //check whether the requested channel does exist//
-  //first retrieve the right Instruments / Channels for the signals
-  SignalProducer & MCP (d.mcp());
-  DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
-
-  SignalProducer &F1 (anode.first->wireend()['1']);
-  DelaylineDetectorAnalyzers::extractSignals(F1,dev,*_waveformanalyzer);
-
-  SignalProducer &F2 (anode.first->wireend()['2']);
-  DelaylineDetectorAnalyzers::extractSignals(F2,dev,*_waveformanalyzer);
-
-  SignalProducer &S1 = anode.second->wireend()['1'];
-  DelaylineDetectorAnalyzers::extractSignals(S1,dev,*_waveformanalyzer);
-
-  SignalProducer &S2 = anode.second->wireend()['2'];
-  DelaylineDetectorAnalyzers::extractSignals(S2,dev,*_waveformanalyzer);
-
-  ////tell the signals that you have updated it//
-  //d.mcp().isNewEvent() = true;
-  //firstLayer->one().isNewEvent() = true;
-  //firstLayer->two().isNewEvent() = true;
-  //secondLayer->one().isNewEvent() = true;
-  //secondLayer->two().isNewEvent() = true;
-
-  //now sort these peaks for the layers timesum//
-  //  std::cout << "sort for timesum"<<std::endl;
-  DelaylineDetectorAnalyzers::sortForTimesum(d,anode);
-  //std::cout <<"DelaylineDetectorAnalyzerSimple:"<<d.hits().size()<<std::endl;
-  //std::cout << "DelaylineDetectorAnalyzerSimple: leaving"<<std::endl;
-}
-
-void cass::ACQIRIS::ToFAnalyzerSimple::operator ()(cass::ACQIRIS::DetectorBackend& det,const cass::ACQIRIS::Device& dev)
-{
-//  std::cout <<"ToFAnalyzerSimple: entering"<<std::endl;
-  //do a type conversion to have a delayline detector//
-  TofDetector &d = dynamic_cast<TofDetector&>(det);
-
-  //extract the peaks for the signals of the detector from the channels//
-  //check whether the requested channel does exist//
-  //first retrieve the right Instruments / Channels for the signals
-  SignalProducer & MCP (d.mcp());
-  DelaylineDetectorAnalyzers::extractSignals(MCP,dev,*_waveformanalyzer);
+  s.beginGroup("Simple");
+  LayerComb lc (static_cast<LayerComb>(s.value("LayerCombination",xy).toInt()));
+  switch (lc)
+  {
+  case (xy):
+    _layerCombination = make_pair(make_pair(&d.layers()['X'].wireend()['1'],
+                                            &d.layers()['X'].wireend()['2']),
+                                  make_pair(&d.layers()['Y'].wireend()['1'],
+                                            &d.layers()['Y'].wireend()['2']));
+    _poscalc = auto_ptr<PositionCalculator>(new XYCalc);
+    break;
+  case (uv):
+    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireend()['1'],
+                                            &d.layers()['U'].wireend()['2']),
+                                  make_pair(&d.layers()['V'].wireend()['1'],
+                                            &d.layers()['V'].wireend()['2']));
+    _poscalc = auto_ptr<PositionCalculator>(new UVCalc);
+    break;
+  case (uw):
+    _layerCombination = make_pair(make_pair(&d.layers()['U'].wireend()['1'],
+                                            &d.layers()['U'].wireend()['2']),
+                                  make_pair(&d.layers()['W'].wireend()['1'],
+                                            &d.layers()['W'].wireend()['2']));
+    _poscalc = auto_ptr<PositionCalculator>(new UWCalc);
+    break;
+  case (vw):
+    _layerCombination = make_pair(make_pair(&d.layers()['V'].wireend()['1'],
+                                            &d.layers()['V'].wireend()['2']),
+                                  make_pair(&d.layers()['W'].wireend()['1'],
+                                            &d.layers()['W'].wireend()['2']));
+    _poscalc = auto_ptr<PositionCalculator>(new VWCalc);
+    break;
+  default:
+    throw std::invalid_argument("DelaylineDetectorAnalyzerSimple::loadSettings: No such layercombination available");
+  }
+  _tsrange = make_pair(make_pair(s.value("TimesumFirstLayerLow").toDouble(),
+                                 s.value("TimesumFirstLayerHigh").toDouble()),
+                       make_pair(s.value("TimesumSecondLayerLow").toDouble(),
+                                 s.value("TimesumSecondLayerHigh").toDouble()));
+  _ts = make_pair(0.5*(_tsrange.first.first + _tsrange.first.second),
+                  0.5*(_tsrange.second.first + _tsrange.second.second));
+  _runtime = s.value("Runtime",150).toDouble();
+  _mcpRadius = s.value("McpRadius",44.).toDouble();
+  s.endGroup();
 }
