@@ -15,61 +15,11 @@
 #include "delayline_detector_analyzer_simple.h"
 #include "delayline_detector.h"
 #include "channel.h"
-#include "waveform_analyzer_backend.h"
 
 namespace cass
 {
   namespace DelaylineDetectorAnalyzers
   {
-    /** extract the signals of a wavefrom
-     *
-     * will extract all signals of the indicated wavefrom. The describtion which
-     * wavefrom to analyze and how to analyze it is described in signal. We need
-     * to know in which instrument and channel within the instrument the
-     * waveform that contains the detector signals is. Also we need to know how
-     * the wavefrom should be analyzed. After extracting this information it
-     * checks whether the requested instrument is present in the datastream and
-     * also whether the requested channel within this instrument exists.
-     *
-     * @param signal describtion where the to be analyzed waveform is
-     * @param device the device that contains the waveforms
-     * @param wavefromanalyzers the container for all wavefromanalyzers
-     */
-    void extractSignals(ACQIRIS::SignalProducer& signal,
-                        const ACQIRIS::Device& device,
-                        ACQIRIS::DetectorAnalyzerBackend::waveformanalyzers_t& waveformanalyzers)
-    {
-      using namespace ACQIRIS;
-      const Instruments &instrument (signal.instrument());
-      ACQIRIS::Device::instruments_t::const_iterator instrumentIt
-          (device.instruments().find(instrument));
-      if (instrumentIt == device.instruments().end())
-      {
-        /** @todo instead of making an output to the console throw an error,
-         *        which should be treated right
-         */
-        std::cerr<< "DelaylineDetectorSimple::the requested Instrument "
-            <<instrument<<" for signal is not in the datastream"<<std::endl;
-        return;
-      }
-      const size_t ChannelNumber (signal.channelNbr());
-      const Instrument::channels_t &instrumentChannels (instrumentIt->second.channels());
-      if ((ChannelNumber >= instrumentChannels.size()))
-      {
-        /** @todo instead of making an output to the console throw an error,
-         *        which should be treated right
-         */
-        std::cerr << "DelaylineDetectorAnalyzerSimple: the requested channel \""
-            <<ChannelNumber<<"\" is not present. We only have \""
-            <<instrumentChannels.size()<<"\" channels."
-            <<" Instrument:"<<instrument
-            <<std::endl;
-        return;
-      }
-      const Channel &channel (instrumentChannels[ChannelNumber]);
-      const WaveformAnalyzers &analyzertype (signal.analyzerType());
-//      (*waveformanalyzers[analyzertype])(channel,signal);
-    }
 
     /** find the boundaries for sorting.
      *
