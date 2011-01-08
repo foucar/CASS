@@ -32,7 +32,7 @@ namespace cass
      *           maximum time a signal will run over the complete delayline.
      *           Default is 150.
      * @cassttng .../Simple/{McpRadius}\n
-     *           Radius of the MCP in ns. Default is 300
+     *           Radius of the MCP in mm. Default is 88
      * @cassttng .../Simple/{LayersToUse}\n
      *           Layers that should be used for sorting. Default is 0. Possible
      *           choises are:

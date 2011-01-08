@@ -89,7 +89,7 @@ namespace cass
      *
      * @author Lutz Foucar
      */
-    std::pair<sigIt_t,sigIt_t>  getSignalRange(signals_t &sigs, const double mcp, const double ts, const double rTime)
+    std::pair<sigIt_t,sigIt_t> getSignalRange(signals_t &sigs, const double mcp, const double ts, const double rTime)
     {
       using namespace std;
 
@@ -106,8 +106,7 @@ namespace cass
     {
     public:
       virtual ~PositionCalculator() {}
-      virtual std::pair<double,double> operator()(const std::pair<double, double>&,
-                                                  const std::pair<double, double>&)=0;
+      virtual std::pair<double,double> operator()(const std::pair<double, double>&)=0;
     };
 
     /** position calculator for quad anode
@@ -117,12 +116,9 @@ namespace cass
     class XYCalc : public PositionCalculator
     {
     public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& x,
-                                                  const std::pair<double, double>& y)
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
       {
-        const double X(x.first - x.second);
-        const double Y(y.first - y.second);
-        return std::make_pair(X,Y);
+        return layer;
       }
     };
 
@@ -133,12 +129,11 @@ namespace cass
     class UVCalc : public PositionCalculator
     {
     public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& u,
-                                                  const std::pair<double, double>& v)
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
       {
-        const double U(u.first - u.second);
-        const double V(v.first - v.second);
-        return std::make_pair(U, 1./std::sqrt(3) * (U-2.*V));
+        const double u(layer.first);
+        const double v(layer.second);
+        return std::make_pair(u, 1./std::sqrt(3) * (u-2.*v));
       }
     };
 
@@ -149,12 +144,11 @@ namespace cass
     class UWCalc : public PositionCalculator
     {
     public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& u,
-                                                  const std::pair<double, double>& w)
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
       {
-        const double U(u.first - u.second);
-        const double W(w.first - w.second);
-        return std::make_pair(U, 1./std::sqrt(3) * (2.*W-U));
+        const double u(layer.first);
+        const double w(layer.second);
+        return std::make_pair(u, 1./std::sqrt(3) * (2.*w-u));
       }
     };
 
@@ -165,12 +159,11 @@ namespace cass
     class VWCalc : public PositionCalculator
     {
     public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& v,
-                                                  const std::pair<double, double>& w)
+      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
       {
-        const double V(v.first - v.second);
-        const double W(w.first - w.second);
-        return std::make_pair(V+W, 1./std::sqrt(3) * (W-V));
+        const double v(layer.first);
+        const double w(layer.second);
+        return std::make_pair(v+w, 1./std::sqrt(3) * (w-v));
       }
     };
   }
@@ -220,9 +213,10 @@ DelaylineDetector::hits_t& DelaylineDetectorAnalyzerSimple::operator()(Delayline
             const double s2 ((*iS2)["time"]);
             const double sumf (f1+f2 - 2.* mcp);
             const double sums (s1+s2 - 2.* mcp);
+            const double f((f1-f2) * _sf.first);
+            const double s((s1-s2) * _sf.second);
 
-            const pair<double,double> pos ((*_poscalc)(make_pair(f1,f2),
-                                                       make_pair(s1,s2)));
+            const pair<double,double> pos ((*_poscalc)(make_pair(f,s)));
 
             const double radius (sqrt(pos.first*pos.first + pos.second*pos.second));
 
@@ -235,8 +229,6 @@ DelaylineDetector::hits_t& DelaylineDetectorAnalyzerSimple::operator()(Delayline
                   DelaylineDetector::hit_t hit;
 //                  const double rot_x_mm (x_mm * std::cos(angle) - y_mm * std::sin(angle));
 //                  const double rot_y_mm (x_mm * std::sin(angle) + y_mm * std::cos(angle));
-                  hit["x_ns"] = pos.first;
-                  hit["y_ns"] = pos.second;
                   hit["x"] = pos.first;
                   hit["y"] = pos.second;
                   hit["t"] = (*iMcp)["time"];
@@ -306,6 +298,6 @@ void DelaylineDetectorAnalyzerSimple::loadSettings(CASSSettings& s, DelaylineDet
   _sf = make_pair(s.value("ScalefactorFirstLayer",0.4).toDouble(),
                   s.value("ScalefactorSecondLayer",0.4).toDouble());
   _runtime = s.value("Runtime",150).toDouble();
-  _mcpRadius = s.value("McpRadius",300).toDouble();
+  _mcpRadius = s.value("McpRadius",88).toDouble();
   s.endGroup();
 }
