@@ -40,11 +40,11 @@ std::list<std::string> TCPClient::operator() ()const
     ss << "There is no attachmend in the received soap data";
     throw runtime_error(ss.str());
   }
-  cout << "TCPClient: DIME attachment:" << endl
-      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
-      << " TCPClient: Size=" << (*attachment).size << endl
-      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
+//  cout << "TCPClient: DIME attachment:" << endl
+//      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
+//      << " TCPClient: Size=" << (*attachment).size << endl
+//      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+//      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   cass::IdList list(serializer);
   std::list<std::string> returnlist (list.getList());
@@ -58,7 +58,7 @@ cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)c
   CASSsoapProxy client;
   client.soap_endpoint = _server.c_str();
   client.getHistogram(histogramkey,0,&ret);
-  if(! ret)
+  if(!ret)
   {
     stringstream ss;
     ss << "Did not get Histogram with key '"<<histogramkey<<"'";
@@ -71,11 +71,11 @@ cass::HistogramBackend *TCPClient::operator() (const std::string &histogramkey)c
     ss << "There is no attachmend in the received soap data";
     throw runtime_error(ss.str());
   }
-  cout << "TCPClient: DIME attachment:" << endl
-      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
-      << " TCPClient: Size=" << (*attachment).size << endl
-      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
-      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
+//  cout << "TCPClient: DIME attachment:" << endl
+//      << " TCPClient: Memory=" << (void*)(*attachment).ptr << endl
+//      << " TCPClient: Size=" << (*attachment).size << endl
+//      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
+//      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
   std::string mimeType((*attachment).type);
   cass::HistogramBackend* hist(0);
   if(mimeType == "application/cass2Dhistogram")
