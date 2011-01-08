@@ -12,15 +12,12 @@
 #define __DELAYLINE_DETECTOR_ANALYZER_SIMPLE_H_
 
 #include "delayline_detector_analyzer_backend.h"
+#include "delayline_detector.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
-    //forward declarations//
-    class DelaylineDetector;
-    class AnodeLayer;
-
     /** Simple sorter of hits from a Quadanode delayline detector.
      *
      * Do a simple sorting by checking the timesum for each MCP Signal that was
@@ -53,10 +50,7 @@ namespace cass
 
     protected:
       /** first anode layer */
-      char _first;
-
-      /** second anode layer */
-      char _second;
+      std::pair<DelaylineDetector::anodelayers_t::key_type,DelaylineDetector::anodelayers_t::key_type> _usedLayers;
     };
 
   }//end namespace acqiris

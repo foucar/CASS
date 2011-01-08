@@ -275,7 +275,7 @@ void cass::ACQIRIS::DelaylineDetectorAnalyzerSimple::operator()(cass::ACQIRIS::D
   DelaylineDetector &d = dynamic_cast<DelaylineDetector&>(detector);
   //check what layer the user wants to use for calculating the pos//
   std::pair<AnodeLayer*,AnodeLayer*> anode
-      (std::make_pair(&d.layers()[_first],&d.layers()[_second]));
+      (std::make_pair(&d.layers()[_usedLayers.first],&d.layers()[_usedLayers.second]));
 
 //  switch (d.delaylineType())
 //  {
