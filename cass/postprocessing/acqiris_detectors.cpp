@@ -199,8 +199,8 @@ void cass::pp160::loadSettings(size_t)
     throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": histograms the nbr of signals in"
+  std::cout <<std::endl<< "PostProcessor \""<<_key
+      <<"\": histograms the nbr of signals in"
       <<" detector "<<_detector
       <<" layer "<<_layer
       <<" wireend "<<_signal

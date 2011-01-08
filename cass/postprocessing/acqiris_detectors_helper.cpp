@@ -95,12 +95,18 @@ DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
 
 void HelperAcqirisDetectors::loadSettings(size_t)
 {
-  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): loading parameters of detector "<< _detector->name()<<std::endl);
+  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings():"
+             << " loading parameters of detector "
+             << _detector->name()
+             <<std::endl);
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
   detectorList_t::iterator it(_detectorList.begin());
   for (;it != _detectorList.end();++it)
     it->second->loadSettings(s);
-  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings(): done loading for "<< _detector->name()<<std::endl);
+  VERBOSEOUT(std::cout << "HelperAcqirisDetectors::loadSettings():"
+             <<" done loading for "
+             << _detector->name()
+             <<std::endl);
   s.endGroup();
 }
