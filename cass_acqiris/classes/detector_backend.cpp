@@ -27,7 +27,7 @@ DetectorBackend *DetectorBackend::instance(const DetectorType &dettype, const st
       det = new TofDetector(detname);
     }
     break;
-  default: throw std::invalid_argument("HelperAcqirisDetectors::constructor: no such detector type is present");
+  default: throw std::invalid_argument("DetectorBackend::instance: no such detector type is present");
   }
   return det;
 }
