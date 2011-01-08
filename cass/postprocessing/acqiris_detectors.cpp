@@ -321,7 +321,7 @@ void cass::pp162::loadSettings(size_t)
   {
     stringstream ss;
     ss <<"pp162::loadSettings(): Layer '"<<_layer<<"' is not a correct choice";
-    throw std::runtime_error(ss.str());
+    throw runtime_error(ss.str());
   }
   createHistList(2*cass::NbrOfWorkers);
   cout <<endl<< "PostProcessor '"<<_key
