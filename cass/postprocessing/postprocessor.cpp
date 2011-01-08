@@ -530,6 +530,12 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case TestImage:
     processor = new pp240(*this,key);
     break;
+  case ParticleValue:
+    processor = new pp250(*this,key);
+    break;
+  case ParticleValues:
+    processor = new pp251(*this,key);
+    break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
     processor = new pp300(*this,key);
