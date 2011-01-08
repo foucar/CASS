@@ -182,6 +182,7 @@ cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp160::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -199,13 +200,12 @@ void cass::pp160::loadSettings(size_t)
     throw std::runtime_error("pp160::loadSettings(): Layer is not set up correctly");
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor \""<<_key
-      <<"\": histograms the nbr of signals in"
-      <<" detector "<<_detector
-      <<" layer "<<_layer
-      <<" wireend "<<_signal
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout <<endl<< "PostProcessor '"<<_key
+      <<"' outputs the nbr of signals of layer '"<<_layer
+      <<"' wireend '"<<_signal
+      <<"' of detector '"<<_detector
+      <<"'. Condition is "<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp160::process(const cass::CASSEvent &evt)
