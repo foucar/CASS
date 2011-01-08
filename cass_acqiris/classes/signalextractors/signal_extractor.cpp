@@ -7,6 +7,8 @@
  * @author Lutz Foucar
  */
 
+#include <stdexcept>
+
 #include "signal_extractor.h"
 #include "cfd.h"
 #include "com.h"
