@@ -85,10 +85,27 @@ namespace lucassview
         {
           const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
           const AxisProperty &yaxis(casshist->axis()[HistogramBackend::yAxis]);
-          if(!roothist)
+          if(roothist)
+          {
+            const TAxis & rxaxis (*roothist->GetXaxis());
+            const TAxis & ryaxis (*roothist->GetYaxis());
+            if(xaxis.nbrBins() != rxaxis.GetNbins() &&
+               xaxis.lowerLimit() != rxaxis.GetXmin() &&
+               xaxis.upperLimit() != rxaxis.GetXmax() &&
+               yaxis.nbrBins() != ryaxis.GetNbins() &&
+               yaxis.lowerLimit() != ryaxis.GetXmin() &&
+               yaxis.upperLimit() != ryaxis.GetXmax())
+            {
+              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
+                                yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+            }
+          }
+          else
+          {
             roothist = new TH2F(key.c_str(),key.c_str(),
                                 xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                                 yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+          }
           for (size_t iY(0); iY<xaxis.nbrBins();++iY)
             for (size_t iX(0); iX<yaxis.nbrBins();++iX)
               roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
@@ -105,9 +122,21 @@ namespace lucassview
       case 1:
         {
           const AxisProperty &xaxis(casshist->axis()[HistogramBackend::xAxis]);
-          if(!roothist)
+          if(roothist)
+          {
+            const TAxis & rxaxis (*roothist->GetXaxis());
+            if(xaxis.nbrBins() != rxaxis.GetNbins() &&
+               xaxis.lowerLimit() != rxaxis.GetXmin() &&
+               xaxis.upperLimit() != rxaxis.GetXmax())
+            {
+              roothist->SetBins(xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+            }
+          }
+          else
+          {
             roothist = new TH1F(key.c_str(),key.c_str(),
                                 xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+          }
           for (size_t iX(0); iX<casshist->axis()[HistogramBackend::xAxis].nbrBins();++iX)
             roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
           roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
