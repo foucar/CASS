@@ -207,6 +207,12 @@ namespace cass
       /** retrieve the detector type */
       DetectorType type() {return Delayline;}
 
+      /** retrieve the anode type property
+       *
+       * detector is hex when it has a U-Layer
+       */
+      bool isHex()const {return (_anodelayers.find('U') != _anodelayers.end());}
+
     private:
       /** delayline detector has anode wire layers */
       anodelayers_t _anodelayers;
