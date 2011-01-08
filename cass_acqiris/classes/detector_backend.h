@@ -54,6 +54,8 @@ namespace cass
 
       /** create an instance of the requested dectortype
        *
+       * if the requested detector type is not known an exception will be thrown
+       *
        * @return an instance of the the requested detector type.
        * @param dettype type that the detector should have
        * @param detname the name of the detector in the .ini file
