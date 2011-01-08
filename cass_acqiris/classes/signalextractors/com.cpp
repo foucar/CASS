@@ -25,7 +25,16 @@ namespace cass
   {
     namespace CenterOfMass
     {
-      //______________________Implementation of simple Version__________________________________________________________
+      /** Implementation of Center of Mass
+       *
+       * @tparam T type of a wavform point
+       * @param[in] c the channel that contains the waveform to analyze
+       * @param[in] param the user defined parameters for extracting signal in the
+       *        waveform
+       * @param[out] sig the container with all the found signals
+       *
+       * @author Lutz Foucar
+       */
       template <typename T>
           void com(const Channel& c, const CoMParameters &param, SignalProducer::signals_t& sig)
       {
