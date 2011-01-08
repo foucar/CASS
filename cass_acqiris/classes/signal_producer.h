@@ -17,7 +17,6 @@
 #include <string>
 
 #include "cass_acqiris.h"
-#include "peak.h"
 #include "map.hpp"
 
 namespace cass
