@@ -1,6 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 #include <stdexcept>
+#include <iostream>
 
 #include "signal_producer.h"
 #include "cass_settings.h"
@@ -41,6 +42,7 @@ void SignalProducer::loadSettings(CASSSettings &s)
 {
   SignalExtractorType analyzerType
       (static_cast<SignalExtractorType>(s.value("SignalExtractionMethod",com16).toInt()));
+// 	std::cout << s.group().toStdString()<< " signextractmethod "<<analyzerType<<std::endl;
   _signalextractor = SignalExtractor::instance(analyzerType);
   _signalextractor->loadSettings(s);
 }
@@ -49,30 +51,36 @@ SignalProducer::signals_t& SignalProducer::output()
 {
   bool newEventAssociated (_newEventAssociated);
   _newEventAssociated = false;
+//  std::cout << newEventAssociated<<std::endl;
   return (newEventAssociated)? (*_signalextractor)(_signals):_signals;
 }
 
 void SignalProducer::associate(const CASSEvent &evt)
 {
 //  std::cout <<"      SigProd 1"<<std::endl;
- _newEventAssociated = true;
-// std::cout <<"      SigProd 2   "<<std::boolalpha<<_newEventAssociated<<std::endl;
- _signals.clear();
-// std::cout <<"      SigProd 3  "<<(_signalextractor.get())<<std::endl;
- _signalextractor->associate(evt);
-// std::cout <<"      SigProd 4"<<std::endl;
+  _newEventAssociated = true;
+  _goodHitExtracted = false;
+//  std::cout <<"      SigProd 2   "<<std::boolalpha<<_newEventAssociated<<std::endl;
+  _signals.clear();
+  _goodHit = 0;
+//  std::cout <<"      SigProd 3  "<<(_signalextractor.get())<<std::endl;
+  _signalextractor->associate(evt);
+//  std::cout <<"      SigProd 4"<<std::endl;
 }
 
 double SignalProducer::firstGood(const std::pair<double,double>& range)
 {
   using namespace std;
-//  cout <<boolalpha<< _newEventAssociated << endl;
-  if(_newEventAssociated)
+//	cout <<"Sigproducer::firstGood(): "<<boolalpha<< _goodHitExtracted << endl;
+	if(!_goodHitExtracted)
   {
+    _goodHitExtracted = true;
     signals_t &sigs (output());
-//    cout<< "size "<<sigs.size()<<endl;
+//    cout<< "SigProducer::firstGood(): size "<<sigs.size()<< " range '"<<range.first<<"' to '"<<range.second<<"'"<<endl;
     signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
+//    cout << "SigProducer::firstGood(): found a signal "<<boolalpha<<(sigIt != sigs.end())<<endl;
     _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
+//    cout << "SigProducer::firstGood(): time: "<<_goodHit<<endl;
   }
   return _goodHit;
 }

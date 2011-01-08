@@ -65,7 +65,8 @@ namespace cass
       /** default constructor */
       SignalProducer()
         :_goodHit(0),
-         _newEventAssociated(false)
+         _newEventAssociated(false),
+         _goodHitExtracted(false)
       {}
 
     public:
@@ -131,6 +132,9 @@ namespace cass
 
       /** flag to show whether there is a new event associated whith this signal producer */
       bool _newEventAssociated;
+
+      /** flag to show whether the first good hit has been extracted */
+      bool _goodHitExtracted;
     };
   }//end namespace acqiris
 }//end namespace cass
