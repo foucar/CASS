@@ -249,7 +249,7 @@ void Particle::loadSettings(CASSSettings& s)
   _copyandcorrect.loadSettings(s);
   _charge_au = s.value("Charge",1).toDouble();
   _mass_au = s.value("Mass",1).toDouble();
-  if (!(_mass_au == 1 && s.group()=="H"))
+  if (!(_mass_au == 1 && _charge_au == -1))
     _mass_au *= 1836.15;
   delete _isParticleHit;
   IsParticleHit::ConditionType condtype
