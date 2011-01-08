@@ -684,6 +684,8 @@ namespace cass
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the first detector that we work on. Default is "blubb"
    * @cassttng PostProcessor/\%name\%/{Particle}\n
@@ -726,7 +728,7 @@ namespace cass
 
 
 
-  /** Particle value.
+  /** Particle values.
    *
    * create 2d hist of two particle properties from a Particle that belong to a
    * detector.
@@ -739,6 +741,8 @@ namespace cass
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+   *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the detector that the particles belong to.
    *           Default is "blubb"

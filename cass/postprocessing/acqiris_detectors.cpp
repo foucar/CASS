@@ -614,10 +614,10 @@ void cass::pp165::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,165,_key);
-  _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
+  _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   cout<<endl<< "PostProcessor '"<<_key
       <<"' outputs the number of reconstructed hits of detector '"<<_detector
@@ -773,4 +773,117 @@ void cass::pp220::process(const cass::CASSEvent &evt)
       dynamic_cast<Histogram2DFloat*>(_result)->fill((*it01)["time"],(*it02)["time"]);
   }
   _result->lock.unlock();
+}
+
+
+
+
+
+//----------------Particle Value----------------------------------------------
+cass::pp250::pp250(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key)
+
+{
+  loadSettings(0);
+}
+
+void cass::pp250::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = loadDelayDet(settings,250,_key);
+  _particle = settings.value("Particle","NeP").toString().toStdString();
+  _property = settings.value("Property","px").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms the Property '"<<_property
+      <<"' of the particle '"<<_particle
+      <<"' of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp250::process(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  DelaylineDetector *det
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  Particle & particle (det->particles()[_particle]);
+  particleHits_t::iterator it (particle.hits().begin());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it != particle.hits().end(); ++it)
+  {
+    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it)[_property]);
+  }
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+//----------------Particle Values----------------------------------------------
+cass::pp251::pp251(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key)
+
+{
+  loadSettings(0);
+}
+
+void cass::pp251::loadSettings(size_t)
+{
+//  using namespace cass::ACQIRIS;
+//  using namespace std;
+//  CASSSettings settings;
+//  settings.beginGroup("PostProcessor");
+//  settings.beginGroup(_key.c_str());
+//  _detector = loadDelayDet(settings,166,_key);
+//  _first = settings.value("XInput",'x').toString().toStdString();
+//  _second = settings.value("YInput",'y').toString().toStdString();
+//  _third =  settings.value("ConditionInput",'t').toString().toStdString();
+//  _cond = make_pair(min(settings.value("ConditionLow",-50000.).toFloat(),
+//                        settings.value("ConditionHigh",50000.).toFloat()),
+//                    max(settings.value("ConditionLow",-50000.).toFloat(),
+//                        settings.value("ConditionHigh",50000.).toFloat()));
+//  setupGeneral();
+//  if (!setupCondition())
+//    return;
+//  set2DHist(_result,_key);
+//  createHistList(2*cass::NbrOfWorkers);
+//  cout<<endl<< "PostProcessor '"<<_key
+//      <<"' histograms the Property '"<<_second
+//      <<"' vs. '"<<_first
+//      <<"' of the reconstructed detectorhits of detector '"<<_detector
+//      <<"'. It puts a condition from '"<<_cond.first
+//      <<"' to '"<<_cond.second
+//      <<"' on Property '"<< _third
+//      <<"'. Condition is '"<<_condition->key()<<"'"
+//      <<endl;
+}
+
+void cass::pp251::process(const cass::CASSEvent &evt)
+{
+//  using namespace cass::ACQIRIS;
+//  using namespace std;
+//  DelaylineDetector *det
+//      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+//  detectorHits_t::iterator it (det->hits().begin());
+//  _result->clear();
+//  _result->lock.lockForWrite();
+//  for (; it != det->hits().end(); ++it)
+//  {
+//    if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
+//      dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_first],(*it)[_second]);
+//  }
+//  _result->lock.unlock();
 }
