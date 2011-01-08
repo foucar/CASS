@@ -126,6 +126,7 @@ namespace cass
      */
     double getDetPlaneMomentum(double axis_mm, double tof_ns, double mass_au)
     {
+//      std::cout << "getDetPlaneMomentum(): axis_mm '"<<axis_mm<<"' tof '"<<tof_ns<<"' mass '"<<mass_au<<"'"<<std::endl;
       return ((axis_mm * mass_au) / tof_ns ) * UnitConvertion::mmPns2au();
     }
 
@@ -495,8 +496,8 @@ std::tr1::shared_ptr<MomentumCalculator>  MomentumCalculator::instance(const Mom
 
 particleHit_t&  PxPyCalculatorWithoutBField::operator()(const Particle &particle, particleHit_t& particlehit)const
 {
-  particlehit["px"] = getDetPlaneMomentum(particlehit["xCorRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
-  particlehit["py"] = getDetPlaneMomentum(particlehit["yCorRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
+  particlehit["px"] = getDetPlaneMomentum(particlehit["xCorScalRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
+  particlehit["py"] = getDetPlaneMomentum(particlehit["yCorScalRot_mm"],particlehit["tofCor_ns"],particle.mass_au());
   return particlehit;
 }
 
@@ -504,7 +505,7 @@ particleHit_t&  PxPyCalculatorWithBField::operator()(const Particle &particle, p
 {
   double &px_au (particlehit["px"]);
   double &py_au (particlehit["py"]);
-  getDetPlaneMomenta(particlehit["xCorRot_mm"], particlehit["yCorRot_mm"], particlehit["tofCor_ns"], particle,
+  getDetPlaneMomenta(particlehit["xCorScalRot_mm"], particlehit["yCorScalRot_mm"], particlehit["tofCor_ns"], particle,
                      px_au, py_au);
   return particlehit;
 }
