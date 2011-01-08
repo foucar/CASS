@@ -120,16 +120,7 @@ namespace cass
        * since they have to be loaded by loadSettings from cass.ini
        */
       SignalProducer()
-        :_instrument(Camp1),
-         _chNbr(99),
-         _trLow(0),
-         _trHigh(0),
-         _polarity(Bad),
-         _threshold(5000),
-         _delay(0),
-         _fraction(5),
-         _walk(200),
-         _isNewEvent(true)
+        :_signalextractor(0)
       {}
 
     public:
@@ -138,7 +129,7 @@ namespace cass
        * load the parameters from cass.ini, should only be called by class
        * containing this class
        */
-      void loadSettings(CASSSettings *p, const char * signalname);
+      void loadSettings(CASSSettings &p, const char * signalname);
 
       /** assciate the event with this signalproducer */
       void associate(const CASSEvent& evt);
