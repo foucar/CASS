@@ -37,14 +37,11 @@ namespace cass
       /** virtual destructor*/
       virtual ~TofDetector() {}
 
-      /** operator that will calculate everything from the event for this detector */
-      virtual void operator() (const Device& device) {/*(*_analyzer)(*this,device);*/}
+      /** associate the event with this detector (get the data from this event) */
+      virtual void associate (const CASSEvent&);
 
       /** load the values from cass.ini */
       virtual void loadSettings(CASSSettings *p);
-
-      /** clear the detectors values */
-      virtual void clear();
 
       /** save values to cass.ini */
       virtual void saveParameters(CASSSettings *){}

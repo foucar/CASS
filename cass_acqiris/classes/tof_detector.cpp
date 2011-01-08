@@ -11,9 +11,9 @@
 
 #include "cass_settings.h"
 
-void cass::ACQIRIS::TofDetector::clear()
+void cass::ACQIRIS::TofDetector::associate(const CASSEvent &evt)
 {
-//  _mcp.signals().clear();
+  _mcp.associate(evt);
 }
 
 void cass::ACQIRIS::TofDetector::loadSettings(CASSSettings *p)

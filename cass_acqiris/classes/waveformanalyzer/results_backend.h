@@ -14,11 +14,13 @@
 
 namespace cass
 {
+  class CASSEvent;
+
   namespace ACQIRIS
   {
     /** Base class of Results.
      *
-     * used to retrun results of the waveform analysis
+     * used to retrun results of the event analysis
      *
      * @author Lutz Foucar
      */
@@ -26,6 +28,8 @@ namespace cass
     {
     public:
       virtual ~ResultsBackend() {}
+
+      virtual void associate(const CASSEvent& evt) {}
     };
   }//end namespace acqiris
 }//end namespace cass

@@ -77,15 +77,10 @@ DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
   //check wether id is not already on the list//
   if(_detectorList.end() == it)
   {
-    //retrieve a pointer to the acqiris device//
-    Device *dev =
-        dynamic_cast<Device*>(evt.devices().find(cass::CASSEvent::Acqiris)->second);
     //take the last element and get the the detector from it//
     DetectorBackend* det (_detectorList.back().second);
     //copy the information of our detector to this detector//
-    det->clear();
-    //process the detector using the data in the device
-    (*det)(*dev);
+    det->associate(&evt);
     //create a new key from the id with the reloaded detector
     detectorList_t::value_type newPair = std::make_pair(evt.id(),det);
     //put it to the beginning of the list//

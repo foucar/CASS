@@ -19,10 +19,11 @@
 
 namespace cass
 {
+  class CASSEvent;
+
   namespace ACQIRIS
   {
     class DetectorAnalyzerBackend;
-    class Device;
 
     /** Base class for all Detectors attached to an Acqiris Instrument.
      *
@@ -45,14 +46,11 @@ namespace cass
       /** pure virtual function that will load the detector parameters from cass.ini*/
       virtual void loadSettings(CASSSettings*)=0;
 
-      /** operator that will calculate everything from the event for this detector */
-      virtual void operator() (const Device& device)=0;
+      /** associate the event with this detector (get the data from this event) */
+      virtual void associate(const CASSEvent&)=0;
 
       /** the detector name*/
       const std::string name()const {return _name;}
-
-      /** clear the detector data */
-      virtual void clear()=0;
 
       /** create an instance of the requested dectortype
        *
