@@ -693,7 +693,30 @@ namespace cass
    *           Default is "NeP"
    * @cassttng PostProcessor/\%name\%/{Property}\n
    *           Name of the particles first property we want to extract
-   *           Default is "px"
+   *           Default is "px".
+   *           Available Properties are:
+   *           - raw and corrected detectorhit values
+   *             - x_mm (raw value of detectorhit)
+   *             - y_mm (raw value of detectorhit)
+   *             - tof_ns (raw value of detectorhit)
+   *             - xCor_mm (corrected position)
+   *             - yCor_mm (corrected position)
+   *             - xCorScal_mm (corrected and scaled position)
+   *             - yCorScal_mm (corrected and scaled position)
+   *             - xCorScalRot_mm (corrected, scaled and rotated position)
+   *             - yCorScalRot_mm (corrected, scaled and rotated position)
+   *             - tofCor_ns (corrected time of flight)
+   *           - kartesian coordinates representation of momenta
+   *             - px
+   *             - py
+   *             - pz
+   *           - polar coordinate representation of momenta
+   *             - roh
+   *             - theta
+   *             - phi
+   *           - Energy
+   *             - e_au
+   *             - e_eV
    *
    * @author Lutz Foucar
    */
@@ -751,10 +774,56 @@ namespace cass
    *           Default is "NeP"
    * @cassttng PostProcessor/\%name\%/{FirstProperty}\n
    *           Name of the particles first property we want to extract
-   *           Default is "px"
+   *           Default is "px".
+   *           Available Properties are:
+   *           - raw and corrected detectorhit values
+   *             - x_mm (raw value of detectorhit)
+   *             - y_mm (raw value of detectorhit)
+   *             - tof_ns (raw value of detectorhit)
+   *             - xCor_mm (corrected position)
+   *             - yCor_mm (corrected position)
+   *             - xCorScal_mm (corrected and scaled position)
+   *             - yCorScal_mm (corrected and scaled position)
+   *             - xCorScalRot_mm (corrected, scaled and rotated position)
+   *             - yCorScalRot_mm (corrected, scaled and rotated position)
+   *             - tofCor_ns (corrected time of flight)
+   *           - kartesian coordinates representation of momenta
+   *             - px
+   *             - py
+   *             - pz
+   *           - polar coordinate representation of momenta
+   *             - roh
+   *             - theta
+   *             - phi
+   *           - Energy
+   *             - e_au
+   *             - e_eV
    * @cassttng PostProcessor/\%name\%/{SecondProperty}\n
    *           Name of the particles second property we want to extract
    *           Default is "py"
+   *           Available Properties are:
+   *           - raw and corrected detectorhit values
+   *             - x_mm (raw value of detectorhit)
+   *             - y_mm (raw value of detectorhit)
+   *             - tof_ns (raw value of detectorhit)
+   *             - xCor_mm (corrected position)
+   *             - yCor_mm (corrected position)
+   *             - xCorScal_mm (corrected and scaled position)
+   *             - yCorScal_mm (corrected and scaled position)
+   *             - xCorScalRot_mm (corrected, scaled and rotated position)
+   *             - yCorScalRot_mm (corrected, scaled and rotated position)
+   *             - tofCor_ns (corrected time of flight)
+   *           - kartesian coordinates representation of momenta
+   *             - px
+   *             - py
+   *             - pz
+   *           - polar coordinate representation of momenta
+   *             - roh
+   *             - theta
+   *             - phi
+   *           - Energy
+   *             - e_au
+   *             - e_eV
    *
    * @author Lutz Foucar
    */
