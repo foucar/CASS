@@ -305,24 +305,42 @@ void cass::pp162::loadSettings(size_t)
   if (dethelp->detectortype() != Delayline)
   {
     stringstream ss;
-    ss <<"pp162::process(): Error detector '"<<_detector<<"' is not a Delaylinedetector.";
+    ss <<"pp162::process()'"<<_key<<"': Error detector '"<<_detector<<"' is not a Delaylinedetector.";
     throw (runtime_error(ss.str()));
   }
   dethelp->loadSettings();
   _layer = settings.value("Layer","U").toString()[0].toAscii();
+  if (dynamic_cast<const DelaylineDetector*>(dethelp->detector())->isHex())
+  {
+    if (_layer == 'X' || _layer == 'Y')
+    {
+      stringstream ss;
+      ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Hex-detector and cannot have Layer '"<<_layer<<"'";
+      throw runtime_error(ss.str());
+    }
+  }
+  else
+  {
+    if (_layer == 'U' || _layer == 'V' || _layer == 'W')
+    {
+      stringstream ss;
+      ss <<"pp162::loadSettings()'"<<_key<<"': Detector '"<<_detector<<"' is Quad-detector and cannot have Layer '"<<_layer<<"'";
+      throw runtime_error(ss.str());
+    }
+  }
+  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
+      _layer != 'X' && _layer != 'Y')
+  {
+    stringstream ss;
+    ss <<"pp162::loadSettings()'"<<_key<<"': Layer '"<<_layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
+    throw runtime_error(ss.str());
+  }
   _range = make_pair(settings.value("TimeRangeLow",0).toDouble(),
                      settings.value("TimeRangeHigh",20000).toDouble());
   _result = new Histogram0DFloat();
   setupGeneral();
   if (!setupCondition())
     return;
-  if (_layer != 'U' && _layer != 'V' && _layer != 'W' &&
-      _layer != 'X' && _layer != 'Y')
-  {
-    stringstream ss;
-    ss <<"pp162::loadSettings(): Layer '"<<_layer<<"' is not a correct choice";
-    throw runtime_error(ss.str());
-  }
   createHistList(2*cass::NbrOfWorkers);
   cout <<endl<< "PostProcessor '"<<_key
       <<"' calculates the timesum of layer '"<<_layer
