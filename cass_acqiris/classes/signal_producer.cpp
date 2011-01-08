@@ -57,17 +57,17 @@ void SignalProducer::associate(const CASSEvent &evt)
 
 double SignalProducer::firstGood() const
 {
-  //if this is called for the new event for the first time, then evaluate//
-  if(_isNewEvent)
-  {
-    //find first occurence of peak that is in the given timerange//
-    peaks_t::const_iterator it =
-        std::find_if(_peaks.begin(),_peaks.end(),
-                     PeakInRange(_grLow,_grHigh));
-    //if it is not there retrun 0, otherwise the time of the found peak//
-    _goodHit = (it==_peaks.end())? 0. : it->time();
-
-    _isNewEvent = false;
-  }
+//  //if this is called for the new event for the first time, then evaluate//
+//  if(_isNewEvent)
+//  {
+//    //find first occurence of peak that is in the given timerange//
+//    peaks_t::const_iterator it =
+//        std::find_if(_peaks.begin(),_peaks.end(),
+//                     PeakInRange(_grLow,_grHigh));
+//    //if it is not there retrun 0, otherwise the time of the found peak//
+//    _goodHit = (it==_peaks.end())? 0. : it->time();
+//
+//    _isNewEvent = false;
+//  }
   return _goodHit;
 }

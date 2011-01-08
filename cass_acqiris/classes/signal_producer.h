@@ -97,17 +97,18 @@ namespace cass
      *   - In Delaylinedetectors its for
      *      - MCP: AcqirisDetectors/%detectorname%/MCP
      *      - Layers Wireends: AcqirisDetectors/%detectorname%/%Layername%/%Wireendname%
-     *   - In TofDetectors: AcqirisDetectors/%detectorname%/Signal
+     *   - In TofDetectors: AcqirisDetectors/%detectorname%/MCP
      *
      * Then the specific settings for these objects are:
-      * @cassttng .../{WaveformAnalysisMethod}\n
-     *           the method type that will be used to analyze the waveform.
-     *           there are the following options :
+      * @cassttng .../{SignalExtractionMethod}\n
+     *           the method type that will be used to extract the signals from
+     *           the recorded data. There are the following options :
      *           - 0:com 8 bit waveform
      *           - 1:com 16 bit waveform
      *           - 2:cfd 8 bit waveform
      *           - 3:cfd 16 bit waveform
-     *           @see cass::ACQIRIS::CoM, cass::ACQIRIS::CFD
+     *           depending on the type of analyzer one has to set up the analyzer
+     *           parameters
      * @cassttng .../{LowerGoodTimeRangeLimit|UpperGoodTimeRangeLimit}\n
      *           time range of the channel that "good" signals will appear. This
      *           is used by delayline detectors for displaying the first good
@@ -149,27 +150,6 @@ namespace cass
       void associate(const CASSEvent& evt);
 
     public:
-      /** convience for easier readable code, is a vector of Peak*/
-      typedef std::vector<Peak> peaks_t;
-
-    public:
-      /** setter.
-       *
-       * @note we should make sure, that it will not be needed anymore, since the
-       *       getter should make sure that all peaks are set using the correct
-       *       function
-       */
-      peaks_t           &peaks()              {return _peaks;}
-
-      /** getter.
-       *
-       * @note when calling this we should check whether it has alredy been called
-       *       for the event if not so, then create the peaks using the requested
-       *        waveform analysis
-       */
-      const peaks_t     &peaks()const         {return _peaks;}
-
-    public:
       /** return the time of the first peak in the "good" time range*/
       double firstGood() const;
 
@@ -181,62 +161,9 @@ namespace cass
        */
       signals_t& output();
 
-    public:
-      //@{
-      /** setter */
-      size_t            &channelNbr()         {return _chNbr;}
-      double            &trLow()              {return _trLow;}
-      double            &trHigh()             {return _trHigh;}
-      double            &grLow()              {return _grLow;}
-      double            &grHigh()             {return _grHigh;}
-      Polarity          &polarity()           {return _polarity;}
-      double            &threshold()          {return _threshold;}
-      int32_t           &delay()              {return _delay;}
-      double            &fraction()           {return _fraction;}
-      double            &walk()               {return _walk;}
-      Instruments       &instrument()         {return _instrument;}
-      //@}
-      //@{
-      /** getter */
-      size_t             channelNbr()const    {return _chNbr;}
-      double             trLow()const         {return _trLow;}
-      double             trHigh()const        {return _trHigh;}
-      double             grLow()const         {return _grLow;}
-      double             grHigh()const        {return _grHigh;}
-      Polarity           polarity()const      {return _polarity;}
-      double             threshold()const     {return _threshold;}
-      int32_t            delay()const         {return _delay;}
-      double             fraction()const      {return _fraction;}
-      double             walk()const          {return _walk;}
-      Instruments        instrument()const    {return _instrument;}
-      //@}
-
     private:
-      //things important to know how to analyze the waveform//
-      //set by the user via parameters//
-      /** the Instrument that the channel will be in*/
-      Instruments _instrument;
-
-      /** This Channels Number in the Acqiris Instrument*/
-      size_t _chNbr;
-
-      /** lower edge of the timerange events can happen in*/
-      double _trLow;
-
-      /** upper edge of the timerange events can happen in*/
-      double _trHigh;
-
-      /** lower edge of the timerange good single events can happen in*/
-      double _grLow;
-
-      /** upper edge of the timerange good single  events can happen in*/
-      double _grHigh;
-
-      /** the Polarity the Signal has*/
-      Polarity _polarity;
-
-      /** the Noiselevel for this channel (in adc bytes)*/
-      double _threshold;
+      /** the timerange good single events can happen in*/
+      std::pair<double,double> _goodrange;
 
       /** the delay of the cfd*/
       int32_t _delay;
@@ -247,15 +174,8 @@ namespace cass
       /** the walk of the cfd*/
       double _walk;
 
-      //container for the results of the waveform analysis
-      /** container for the peaks of the waveform*/
-      peaks_t _peaks;
-
       /** time of the first peak in the "good" range*/
       mutable double _goodHit;
-
-      /** flag to tell when we are working on a new event*/
-      mutable bool _isNewEvent;
 
       /** the extractor of the produced signals */
       SignalExtractor * _signalextractor;
