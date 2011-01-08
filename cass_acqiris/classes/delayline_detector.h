@@ -56,7 +56,7 @@ namespace cass
       /** load values from cass.ini, should only be called by the detector*/
       void loadSettings(CASSSettings&);
 
-      /** associate the event with this detector (get the data from this event) */
+      /** associate the event with this anodelayers signal producers */
       void associate(const CASSEvent&);
 
       /** returns the timesum condition for this anode layer*/
@@ -195,7 +195,7 @@ namespace cass
       /** load the values from cass.ini*/
       virtual void loadSettings(CASSSettings&);
 
-      /** associate the event with this detector (get the data from this event) */
+      /** associate the event with all of this detectors signal producers */
       void associate (const CASSEvent&);
 
 
