@@ -6,8 +6,11 @@
  * @author Lutz Foucar
  */
 
-#include <string>
+#ifndef _HISTOUPDATER_H_
+#define _HISTOUPDATER_H_
+
 #include <memory>
+#include <string>
 
 #include <TTimer.h>
 
@@ -58,3 +61,4 @@ private:
   /** the timer for auto update */
   std::auto_ptr<TTimer> _timer;
 };
+#endif
