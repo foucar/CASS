@@ -57,6 +57,31 @@ namespace cass
       std::pair<double,double> _range;
     };
 
+    /** std::map with more functions
+     *
+     * @todo make operator [] also a const version that will throw error when
+     *       key is not present
+     * @todo add a map <key, functionsbaseclass*> with functions that should be
+     *       called when the requested key is not present. The function might
+     *       have : value_type operator()(data source,this) as to be callable
+     *       function operator
+     * @author Lutz Foucar
+     */
+    template <typename Key, typename T>
+    class Map
+    {
+    public:
+      typedef Key key_type;
+      typedef T value_type;
+
+    public:
+      /** access members of the map container as done in the std::map */
+      value_type& operator[](const key_type& key){return _map[key];}
+
+    private:
+      /** the container */
+      std::map<key_type,value_type> _map;
+    };
 
 
 
@@ -111,7 +136,8 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT SignalProducer
     {
     public:
-      typedef std::vector<std::map<std::string,double> > signals_t;
+      typedef Map<std::string,double> signal_t;
+      typedef std::vector<signal_t> signals_t;
 
     public:
       /** default constructor.
