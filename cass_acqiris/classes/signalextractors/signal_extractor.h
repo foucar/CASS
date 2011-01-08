@@ -2,7 +2,7 @@
 
 /**
  * @file signal_extractor.h file file contains base class for all classes that
- *                            extract signals from the recorded data
+ *                          extract signals from the recorded data
  *
  * @author Lutz Foucar
  */
@@ -16,6 +16,7 @@
 namespace cass
 {
   class CASSEvent;
+  class CASSSettings;
 
   namespace ACQIRIS
   {
@@ -45,6 +46,9 @@ namespace cass
 
       /** associate the event with this analyzer */
       virtual void associate(const CASSEvent& evt)=0;
+
+      /** load the settings of the extractor */
+      virtual void loadSettings(CASSSettings&)=0;
 
       /** creates an instance of the requested analyzer type */
       static SignalExtractor* instance(SignalExtractorType);
