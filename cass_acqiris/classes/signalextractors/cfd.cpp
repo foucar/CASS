@@ -183,7 +183,7 @@ namespace cass
       /** implementation of loading settings for both CFD classes
        *
        * this function implements the retrieval of the settings for the CFD
-       * singal extractors. For a description on the settings see decription of
+       * signal extractors. For a description on the settings see decription of
        * CFD8Bit class.\n
        * It opens the group "ContantFraction" and retrieves the settings for the
        * CFD algorithm from the CASSSettings object.
