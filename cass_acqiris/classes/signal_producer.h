@@ -68,6 +68,9 @@ namespace cass
         :_signalextractor(0),_newEventAssociated(false)
       {}
 
+      /** destroys the signalextractor */
+      ~SignalProducer();
+
     public:
       /** loads the settings.
        *
@@ -123,7 +126,11 @@ namespace cass
       /** time of the first peak in the "good" range*/
       double _goodHit;
 
-      /** the extractor of the produced signals */
+      /** the extractor of the produced signals
+       *
+       * @note we cannot use std::auto_ptr to handle this resource, since we then
+       *       cannot put this class in a map anymore.
+       */
       SignalExtractor *_signalextractor;
 
       /** the signals produces by this producer */

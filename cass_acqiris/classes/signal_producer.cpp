@@ -37,12 +37,17 @@ namespace cass
   }
 }
 
+SignalProducer::~SignalProducer()
+{
+  delete _signalextractor;
+}
+
 void SignalProducer::loadSettings(CASSSettings &s)
 {
+  delete _signalextractor;
   SignalExtractorType analyzerType
       (static_cast<SignalExtractorType>(s.value("SignalExtractionMethod",com16).toInt()));
-  /** @todo use auto_ptr here, need to find out how uppassing is done */
-  _signalextractor = (SignalExtractor::instance(analyzerType));
+  _signalextractor = SignalExtractor::instance(analyzerType);
   _signalextractor->loadSettings(s);
 }
 
