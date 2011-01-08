@@ -16,11 +16,13 @@
 
 namespace cass
 {
+  class CASSEvent;
+  class CASSSettings;
+
   namespace ACQIRIS
   {
     //forward declarations//
     class DetectorBackend;
-    class WaveformAnalyzerBackend;
 
     /** Base class for all detector analyzers.
      *
@@ -43,7 +45,14 @@ namespace cass
        */
       virtual void operator()(DetectorBackend&,const Device&)=0;
 
-    protected:
+      /** pure virtual function that will load the detector parameters from cass.ini*/
+      virtual void loadSettings(CASSSettings&)=0;
+
+      /** associate the event with this detector (get the data from this event) */
+      virtual void associate(const CASSEvent&)=0;
+
+      /** create an instance of the right analyzer type */
+      static DetectorAnalyzerBackend* instance(const DetectorAnalyzerType);
     };
   }
 }//end namespace cass
