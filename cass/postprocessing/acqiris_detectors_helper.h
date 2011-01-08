@@ -19,6 +19,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
 
+#include "cass_acqiris.h"
+
 namespace cass
 {
   class CASSEvent;
@@ -102,6 +104,9 @@ namespace cass
        */
       DetectorBackend * validate(const CASSEvent &evt);
 
+      /** retrieve the detector type that the helper is there for */
+      DetectorType detectortype() {return _dettype;}
+
     protected:
       /** list of pairs of id-detectors.
        *
@@ -158,6 +163,9 @@ namespace cass
 
       /** Mutex for each helper*/
       QMutex _helperMutex;
+
+      /** the type of detector that the individual helper is there for */
+      DetectorType _dettype;
     };
   }
 }

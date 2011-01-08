@@ -48,14 +48,14 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
   CASSSettings settings;
   settings.beginGroup("AcqirisDetectors");
   settings.beginGroup(detname.c_str());
-  DetectorType dettype (static_cast<DetectorType>(settings.value("DetectorType",ToF).toUInt()));
+  _dettype = (static_cast<DetectorType>(settings.value("DetectorType",ToF).toUInt()));
   settings.endGroup();
   settings.endGroup();
   for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(dettype,detname)));
+    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(_dettype,detname)));
   VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: "
              << "we are responsible for det '"<<detname
-             << "', which name is of type " <<dettype
+             << "', which is of type " <<_dettype
              <<std::endl);
 }
 
