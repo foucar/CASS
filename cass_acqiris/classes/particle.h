@@ -37,13 +37,13 @@ namespace cass
      * of the provided detectorhits are a particle hit of this particle it owns
      * a comparator class.
      *
-     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{Charge}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Particles/\%particlename%/{Charge}\n
      *           The charge of the particle in atomic units. Default is 1.
      * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{Mass}\n
      *           The Mass of the particle in atomic mass units. When one wants
      *           to define a electron the charge has to be -1 and the Mass 1.
      *           Default is 1.
-     * @cassttng AcqirisDetectors/\%detectorname\%/\%particlename%/{ConditionType}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Particles/\%particlename%/{ConditionType}\n
      *           The type of condition that we use to identify a particle hit
      *           from a detectorhit. Default is 0. Possible choises are:
      *           - 0: condition on time of flight
