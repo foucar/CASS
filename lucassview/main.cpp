@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
   using namespace std;
   TRint theApp("App", &argc, argv);
 	//gROOT->ProcessLine(".L OnlineMacros.c");
-//  auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("daq-amo-mon02",12321));
-  auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("localhost",12324));
-  histUp->autoUpdate(3);
+  auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("daq-amo-mon02",12321));
+//  auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("localhost",12324));
+  histUp->autoUpdate(1);
   theApp.Run();
 	return 0;
 }
