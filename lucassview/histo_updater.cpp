@@ -117,8 +117,7 @@ namespace lucassview
             roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
             roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
-            roothist->SetEntries(casshist->nbrOfFills());
-
+//            roothist->SetEntries(casshist->nbrOfFills());
 //            cout<< "done cpy over /underflow"<<endl;
           }
           break;
