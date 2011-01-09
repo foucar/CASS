@@ -30,6 +30,9 @@ namespace cass
     class IsParticleHit
     {
     public:
+      /** virtual destructor since this is a base class */
+      virtual ~IsParticleHit() {}
+
       /** typedef defining the types of available conditions */
       enum ConditionType {tofcond, radcond, rectcond, tofradcond,tofrectcond};
 
@@ -68,6 +71,7 @@ namespace cass
     class TofCond : public IsParticleHit
     {
     public:
+      virtual ~TofCond() {}
       bool operator()(const detectorHit_t &dethit) const
       {
 //        std::cout <<"TofCond(): cond low'"<<_tofcond.first<<"' high '"<<_tofcond.second<<"' time '"<<dethit["t"]<<"'"<<std::endl;
@@ -105,6 +109,7 @@ namespace cass
     class RadCond : public IsParticleHit
     {
     public:
+      virtual ~RadCond() {}
       bool operator()(const detectorHit_t &dethit) const
       {
         const double &x (dethit["x"]);
@@ -146,6 +151,7 @@ namespace cass
     class RectCond : public IsParticleHit
     {
     public:
+      virtual ~RectCond() {}
       bool operator()(const detectorHit_t &dethit) const
       {
         const double &x (dethit["x"]);
@@ -192,6 +198,8 @@ namespace cass
       CombineConditions()
         :_conditions(std::make_pair(new FirstCondition, new SecondCondition))
       {}
+
+      virtual ~CombineConditions() {}
 
       bool operator()(const detectorHit_t &dethit) const
       {

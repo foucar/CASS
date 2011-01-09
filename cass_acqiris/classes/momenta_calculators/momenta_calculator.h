@@ -88,6 +88,9 @@ namespace cass
     class MomentumCalculator
     {
     public:
+      /** virtual destructor since this is a base class */
+      virtual ~MomentumCalculator() {}
+
       /** enum for the types of momcalculators */
       enum MomCalcType{PxPyWBField, PxPyWOBField, PzOneRegion, PzMultipleRegions};
 
@@ -124,6 +127,7 @@ namespace cass
     class PxPyCalculatorWithoutBField : public MomentumCalculator
     {
     public:
+      virtual ~PxPyCalculatorWithoutBField() {}
       particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
@@ -137,6 +141,7 @@ namespace cass
     class PxPyCalculatorWithBField : public MomentumCalculator
     {
     public:
+      virtual ~PxPyCalculatorWithBField() {}
       particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
@@ -151,6 +156,7 @@ namespace cass
     class PzCalculatorDirectOneRegion : public MomentumCalculator
     {
     public:
+      virtual ~PzCalculatorDirectOneRegion() {}
       particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
 
@@ -164,6 +170,7 @@ namespace cass
     class PzCalculatorMulitpleRegions : public MomentumCalculator
     {
     public:
+      virtual ~PzCalculatorMulitpleRegions() {}
       particleHit_t& operator()(const Particle &particle, particleHit_t& particlehit)const;
     };
   }
