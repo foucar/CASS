@@ -689,9 +689,9 @@ void cass::pp62::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  std::cout<<"Postprocessor "<<_key
-      <<": sums up histograms from PostProcessor "<< _pHist->key()
-      <<" condition on postprocessor:"<<_condition->key()
+  cout<<endl<<"Postprocessor "<<_key
+      <<"' sums up histograms from PostProcessor '"<< _pHist->key()
+      <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
       <<std::endl;
 }
 
