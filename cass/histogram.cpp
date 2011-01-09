@@ -35,7 +35,7 @@ namespace cass
   {
     _memory.clear();
     _axis.clear();
-    _memory.resize(nbrXBins+2);
+    _memory.resize(nbrXBins+2,0);
     _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
   }
 
@@ -44,7 +44,7 @@ namespace cass
   {
     _memory.clear();
     _axis.clear();
-    _memory.resize(nbrXBins*nbrYBins+8);
+    _memory.resize(nbrXBins*nbrYBins+8,0);
     _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
     _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
   }
