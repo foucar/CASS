@@ -561,8 +561,10 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
 #endif
   default:
-    throw std::invalid_argument(QString("PostProcessors::create(): Postprocessor ID=%1 not available")
-                                .arg(ppid).toStdString());
+    throw std::invalid_argument(QString("PostProcessors::create(): Postprocessor '%1' with ID=%2 not available")
+                                .arg(ppid)
+                                .arg(key.c_str())
+                                .toStdString());
   }
   return processor;
 }
