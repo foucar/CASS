@@ -103,6 +103,7 @@ namespace lucassview
               roothist = new TH2F(key.c_str(),key.c_str(),
                                   xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                                   yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+              roothist->SetOption("colz");
             }
             for (size_t iY(0); iY<yaxis.nbrBins();++iY)
               for (size_t iX(0); iX<xaxis.nbrBins();++iX)
@@ -116,6 +117,8 @@ namespace lucassview
             roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
             roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
+            roothist->SetEntries(casshist->nbrOfFills());
+
 //            cout<< "done cpy over /underflow"<<endl;
           }
           break;
@@ -143,6 +146,8 @@ namespace lucassview
               roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
             roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[HistogramBackend::Overflow]);
+            roothist->SetEntries(casshist->nbrOfFills());
+//            cout <<key<<" underflow '"<< casshist->memory()[HistogramBackend::Underflow] <<"' overflow '"<< casshist->memory()[HistogramBackend::Overflow] <<"'"<<endl;
           }
           break;
         case 0:
