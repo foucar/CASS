@@ -116,7 +116,6 @@ namespace cass
 //              std::cout<<"com: found peak has polarity"<<p.polarity()
 //                  <<" should have polarity "<<s.polarity()<<std::endl;
 							//--add peak to signal if it fits the conditions--//
-              /** @todo make sure that is works right, since we get back a double */
               if(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))  //if it has the right polarity
               {
 //                std::cout << param._timeranges.size()<<std::endl;
