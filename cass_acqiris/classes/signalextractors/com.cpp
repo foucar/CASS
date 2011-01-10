@@ -102,16 +102,16 @@ namespace cass
               signal["time"] = signal["com"];
 
               //--check the polarity--//
-              if (Data[signal["maxpos"]]-vOffset == signal["maximum"])       //positive
+              if (Data[static_cast<int>(signal["maxpos"]+0.1)]-vOffset == signal["maximum"])       //positive
                 signal["polarity"] = Positive;
-              else if (Data[signal["maxpos"]]-vOffset == -signal["maximum"]) //negative
+              else if (Data[static_cast<int>(signal["maxpos"]+0.1)]-vOffset == -signal["maximum"]) //negative
                 signal["polarity"] = Negative;
               else
               {
                 std::cout << "error: polarity not found"<<std::endl;
                 signal["polarity"] = Bad;
               }
-//              std::cout << signal["maxpos"]<< " "<<signal["maximum"]<< " "<<Data[signal["maxpos"]]-vOffset<<" "<<param._polarity<<" "<<signal["polarity"]<<" "<<(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))<<std::endl;
+//              std::cout << static_cast<int>(signal["maxpos"]+0.1)<< " "<<signal["maximum"]<< " "<<Data[static_cast<int>(signal["maxpos"]+0.1)]-vOffset<<" "<<param._polarity<<" "<<signal["polarity"]<<" "<<(fabs(signal["polarity"]-param._polarity) < std::sqrt(std::numeric_limits<double>::epsilon()))<<std::endl;
 
 //              std::cout<<"com: found peak has polarity"<<p.polarity()
 //                  <<" should have polarity "<<s.polarity()<<std::endl;

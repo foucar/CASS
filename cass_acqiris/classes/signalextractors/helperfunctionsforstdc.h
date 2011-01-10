@@ -310,7 +310,7 @@ namespace cass
       const double vGain (c.gain());
       const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));        //mV -> adc bytes
       const size_t wLength (c.waveform().size());
-      const int maxpos (s["maxpos"]+0.1);
+      const int maxpos (static_cast<int>(s["maxpos"]+0.1));
 
       //--get peak fwhm--//
       size_t fwhm_l        = 0;
@@ -413,13 +413,13 @@ namespace cass
       const int32_t vOff (static_cast<int32_t>(c.offset() / vGain));
       const double horpos (c.horpos()*1.e9);          //s -> ns
       const double sampleInterval (c.sampleInterval()*1e9);   //s -> ns
-      const int32_t threshold (thresh/vGain);
+      const int32_t threshold (static_cast<int32_t>(thresh/vGain));
 
       //--this function goes through the puls from start to stop and finds the center of mass--//
       double &integral (s["integral"]);
       double wichtung (0);
-      const size_t start (s["startpos"]+0.1);
-      const size_t stop (s["stoppos"]+0.1);
+      const size_t start (static_cast<size_t>(s["startpos"]+0.1));
+      const size_t stop (static_cast<size_t>(s["stoppos"]+0.1));
 
       for (size_t i = start; i<=stop;++i)
       {
@@ -449,11 +449,11 @@ namespace cass
       const int32_t wLength (c.waveform().size());
       const double sampInt (c.sampleInterval()*1e9);
       const double horpos (c.horpos()*1e9);
-      const int32_t threshold (thresh/vGain);
+      const int32_t threshold (static_cast<int32_t>(thresh/vGain));
 
 
       //calculate the center of peak is in the waveform coodinates//
-      const int32_t center (static_cast<int32_t>(s["time"]/sampInt - horpos));
+      const int32_t center (static_cast<int32_t>((s["time"]/sampInt - horpos)+0.1));
 
       //go left from center until either i == 0, or the datapoint is inside the noise
       //or we go from the previous one (i+1) to the actual one (i) through the baseline
@@ -489,8 +489,8 @@ namespace cass
       const double vGain (c.gain());
       const int32_t vOff (static_cast<int32_t>(c.offset()/vGain));
 
-      const size_t start (s["startpos"]+0.1);
-      const size_t stop (s["stoppos"]+0.1);
+      const size_t start (static_cast<size_t>(s["startpos"]+0.1));
+      const size_t stop (static_cast<size_t>(s["stoppos"]+0.1));
       double& maximum (s["maximum"]);
       double& maxpos (s["maxpos"]);
 
