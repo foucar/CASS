@@ -9,6 +9,10 @@ LDFLAGS+= $(CFLAGS) -lm
 LDFLAGS+= -L$(ROOTSYS)/lib -lCore -lCint -lRIO -lRint -lNet -lHist -lMathCore -lMatrix
 LDFLAGS+= -L/usr/lib64 -lrt -ldl -lstdc++
 LDFLAGS+= -lgsoap++ -lgsoap
+INSTALL_PROGRAM = install -m 755 -p
+CHK_DIR_EXISTS= test -d
+MKDIR         = mkdir -p
+installDir = /reg/g/cass
 target = ../bin/lucassview
 
 SOURCES.cpp = soapCASSsoapProxy.cpp \
@@ -40,3 +44,8 @@ clean:
 	@rm -f `find . -name "*soap*"`
 	@rm -f `find . -name "ns.xsd"`
 	@rm -f `find . -name "*_dict*"`
+
+install:
+	@echo "installing lucassview to $(installDir)"
+	@$(CHK_DIR_EXISTS) "$(installDir)/bin" || $(MKDIR) "$(installDir)/bin"
+	@$(INSTALL_PROGRAM) "$(target)" "$(installDir)/bin"
