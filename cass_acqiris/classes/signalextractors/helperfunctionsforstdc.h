@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <sstream>
 
 #include "channel.h"
 #include "cass_event.h"
@@ -47,17 +48,27 @@ namespace cass
                                       const Instruments& instrument,
                                       const size_t& ChannelNumber)
     {
-      /** @todo add check to see whether the device is present */
+      using namespace std;
       const Device &device
           (*(dynamic_cast<const ACQIRIS::Device*>(evt.devices().find(CASSEvent::Acqiris)->second)));
       ACQIRIS::Device::instruments_t::const_iterator instrumentIt
           (device.instruments().find(instrument));
       if (instrumentIt == device.instruments().end())
-        throw std::invalid_argument("extactRightChannel::the requested Instrument for signal is not in the datastream");
+      {
+        stringstream ss;
+        ss << "extactRightChannel(): The requested Instrument '"<<instrument
+            <<"' is not in the datastream";
+        throw invalid_argument(ss.str());
+      }
       const ACQIRIS::Instrument::channels_t &instrumentChannels
           (instrumentIt->second.channels());
       if ((ChannelNumber >= instrumentChannels.size()))
-        throw std::invalid_argument("DelaylineDetectorAnalyzerSimple: the requested channel is not present.");
+      {
+        stringstream ss;
+        ss<< "extactRightChannel(): The requested channel '"<<ChannelNumber
+            <<"' does not exist in Instrument '"<<instrument<<"'";
+        throw std::invalid_argument(ss.str());
+      }
       return &(instrumentChannels[ChannelNumber]);
     }
 
