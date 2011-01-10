@@ -75,14 +75,12 @@ public:
     /** Serialize this class.
      * serializes this to the Serializer
      * @param out The Serializer that we will serialize this to
-     * @todo add title to serialization
      */
     void serialize(SerializerBackend& out)const;
 
     /** Deserialize this class.
      * deserializes this from the Serializer
      * @param in The Serializer that we will deserialize this from
-     * @todo add title to serialization
      */
     bool deserialize(SerializerBackend& in);
 
