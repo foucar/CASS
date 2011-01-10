@@ -48,7 +48,7 @@ namespace cass
      * @param upperLimit The upper end of the axis
      */
     AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit, std::string title="")
-      : Serializable(1),
+      : Serializable(2),
        _size(nbrBins),
        _low(lowerLimit),
        _up(upperLimit),
@@ -63,7 +63,7 @@ namespace cass
      * @param[in] in The Serializer that we read the histogram from
      */
     AxisProperty(SerializerBackend &in)
-      :Serializable(1)
+      :Serializable(2)
     {
       deserialize(in);
     }
@@ -246,10 +246,9 @@ namespace cass
      *
      * @param dim The dimension of the histogram
      * @param memory_size size of the memory, used for special cases
-     * @param ver the serialization version
      */
-    HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
-      :HistogramBackend(dim,ver),
+    HistogramFloatBase(size_t dim, size_t memory_size)
+      :HistogramBackend(dim,2),
       _memory(memory_size, 0.)
     {}
 
@@ -261,7 +260,7 @@ namespace cass
      * @param[in] in The Serializer that we read the histogram from
      */
     HistogramFloatBase(SerializerBackend& in)
-      : HistogramBackend(0,1)
+      : HistogramBackend(0,2)
     {
       deserialize(in);
     }
@@ -308,14 +307,14 @@ namespace cass
   public:
     /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
-      : HistogramFloatBase(0, 1, 1)
+      : HistogramFloatBase(0, 1)
     {
       _mime = "application/cass0Dhistogram";
     }
 
     /** Create a 0d histogram with bool value */
     explicit Histogram0DFloat(bool state)
-      : HistogramFloatBase(0, 1, 1)
+      : HistogramFloatBase(0, 1)
     {
       _mime = "application/cass0Dhistogram";
       _memory[0] = state;
@@ -350,7 +349,7 @@ namespace cass
      * @param xtitle The title of the x-axis
      */
     Histogram1DFloat(size_t nbrXBins, float xLow, float xUp, std::string xtitle="")
-      : HistogramFloatBase(1,nbrXBins+2,1)
+      : HistogramFloatBase(1,nbrXBins+2)
     {
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xtitle));
       _mime = "application/cass1Dhistogram";
@@ -414,6 +413,7 @@ inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
   out.addSizet(_size);
   out.addFloat(_low);
   out.addFloat(_up);
+  out.addString(_title);
 }
 
 inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
@@ -430,12 +430,14 @@ inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
   _size     = in.retrieveSizet();
   _low      = in.retrieveFloat();
   _up       = in.retrieveFloat();
+  _title    = in.retrieveString();
   return true;
 }
 
 inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
   out.addUint16(_version);
+  out.addSizet(_nbrOfFills);
   out.addSizet(_dimension);
   for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
@@ -457,6 +459,7 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
     ss <<"HistogramFloatBase::deserialize(): Version conflict is '"<<ver<<"' should be '"<<_version<<"'";
     throw runtime_error(ss.str());
   }
+  _nbrOfFills = in.retrieveSizet();
   _dimension = in.retrieveSizet();
   for (size_t i=0; i<_dimension;++i)
     _axis.push_back(AxisProperty(in));

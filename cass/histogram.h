@@ -54,7 +54,7 @@ public:
      * @param upperLimit The upper end of the axis
      */
   AxisProperty(size_t nbrBins, float lowerLimit, float upperLimit, std::string title="")
-        : Serializable(1),
+        : Serializable(2),
           _size(nbrBins),
           _low(lowerLimit),
           _up(upperLimit),
@@ -67,7 +67,7 @@ public:
      * @param[in] in The Serializer that we read the histogram from
      */
     AxisProperty(SerializerBackend &in)
-        :Serializable(1)
+        :Serializable(2)
     {
         deserialize(in);
     }
@@ -275,10 +275,9 @@ public:
     /** constructor.
      * @param dim The dimension of the histogram
      * @param memory_size size of the memory, used for special cases
-     * @param ver the serialization version
      */
-    HistogramFloatBase(size_t dim, size_t memory_size, uint16_t ver)
-        :HistogramBackend(dim,ver),
+    HistogramFloatBase(size_t dim, size_t memory_size)
+        :HistogramBackend(dim,2),
         _memory(memory_size, 0.)
     {}
 
@@ -288,7 +287,7 @@ public:
      * @param[in] in The Serializer that we read the histogram from
      */
     HistogramFloatBase(SerializerBackend& in)
-        : HistogramBackend(0,1)
+        : HistogramBackend(0,2)
     {
         deserialize(in);
     }
@@ -299,7 +298,7 @@ public:
      */
     virtual HistogramBackend* clone()const
     {
-      return new HistogramFloatBase(dimension(),memory().size(),ver());
+      return new HistogramFloatBase(dimension(),memory().size());
     }
 
     /** typedef describing the type of the values stored in memory*/
@@ -337,7 +336,7 @@ public:
     virtual void clear()
     {
       QWriteLocker wlock(&lock);
-      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram \""<<_key<<"\""<<std::endl);
+      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram '"<<_key<<"'"<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
     }
@@ -366,12 +365,12 @@ class CASSSHARED_EXPORT Histogram0DFloat : public HistogramFloatBase
 public:
     /** Create a 0d histogram of a single float */
     explicit Histogram0DFloat()
-        : HistogramFloatBase(0, 1, 1)
+        : HistogramFloatBase(0, 1)
     {_mime = "application/cass0Dhistogram";}
 
     /** Create a 0d histogram with bool value */
     explicit Histogram0DFloat(bool state)
-        : HistogramFloatBase(0, 1, 1)
+        : HistogramFloatBase(0, 1)
     {
       _mime = "application/cass0Dhistogram";
       _memory[0] = state;
@@ -428,7 +427,7 @@ public:
      * @param xtitle The title of the x-axis
      */
     Histogram1DFloat(size_t nbrXBins, float xLow, float xUp, std::string xtitle="")
-        : HistogramFloatBase(1,nbrXBins+2,1)
+        : HistogramFloatBase(1,nbrXBins+2)
     {
       //set up the axis
       _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xtitle));
@@ -538,7 +537,7 @@ public:
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                      size_t nbrYBins, float yLow, float yUp,
                      std::string xtitle="",std::string ytitle="")
-        : HistogramFloatBase(2,nbrXBins*nbrYBins+8,1)  // +8 for under/overflow bits
+        : HistogramFloatBase(2,nbrXBins*nbrYBins+8)  // +8 for under/overflow bits
     {
         //set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xtitle));
@@ -556,7 +555,7 @@ public:
      * @param rows, cols Number of bins per row and column.
      */
     Histogram2DFloat(size_t rows, size_t cols)
-        : HistogramFloatBase(2,rows * cols + 8,1) // +8 for under/overflow bits
+        : HistogramFloatBase(2,rows * cols + 8) // +8 for under/overflow bits
     {
         // set up the two axis of the 2d hist
         _axis.push_back(AxisProperty(rows, 0., float(rows-1.)));
@@ -697,6 +696,7 @@ inline void cass::AxisProperty::serialize(cass::SerializerBackend &out)const
   out.addSizet(_size);
   out.addFloat(_low);
   out.addFloat(_up);
+  out.addString(_title);
 }
 
 
@@ -714,6 +714,7 @@ inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
   _size     = in.retrieveSizet();
   _low      = in.retrieveFloat();
   _up       = in.retrieveFloat();
+  _title    = in.retrieveString();
   return true;
 }
 
@@ -741,9 +742,11 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)con
   lock.lockForRead();
   //the version//
   out.addUint16(_version);
+  //the number of fills//
+  out.addSizet(_nbrOfFills);
   //the dimension//
   out.addSizet(_dimension);
-  //the axis properties//
+    //the axis properties//
   for (axis_t::const_iterator it=_axis.begin(); it !=_axis.end();++it)
     it->serialize(out);
   //size of the memory//
@@ -768,6 +771,8 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
     return false;
   }
   lock.lockForWrite();
+  //the number of fills//
+  _nbrOfFills = in.retrieveSizet();
   //the dimension//
   _dimension = in.retrieveSizet();
   //initialize axis for all dimensions//
