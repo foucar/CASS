@@ -186,18 +186,11 @@ Lutz Foucar
 
 @date 2009-2010
 
-@todo make detector evaluation lazy by having the getters calc all values.
-@todo right now we cannot define a postprocessors dependency on the
-      converter that it needs. We need to include this dependency.
-      Maybe using cass.ini?
 @todo next to the cass executable create a cass library so that the viewer
       can use the histogram part for it.
 @todo find out how one can use xrefitem so that it will list consecutive
       items under one title, just like todo does.
 @todo add gui's to modify the postprocessors settings in cassviewer.
-@todo find out why building in another directory is not possible
-      (make[2]: *** No rule to make target `soapserver.h', needed by
-      `soapCASSsoapService.cpp'.  Stop.)
 */
 
 /**
