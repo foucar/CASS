@@ -80,6 +80,37 @@ One is also able to tell the program which cass.ini it should use via a command
 line parameter.
 @see @ref clpar for all program parameters
 
+Typically the shared memory interface that provides the data for CASS in online
+mode runs on "daq-amo-mon02". So in order to run online one needs to ssh to
+this computer and run cass. A typical startup looks like this:
+
+./cass -p 0_1_cass_AMO -c 0 -f "inifilename"
+
+@subsection viewer The Viewers
+To look at the histograms that are created and filled by CASS one has two
+options.
+ -# @ref jocassview
+ -# @ref lucassview
+
+@subsubsection jocassview Jocassview
+This viewer is based on QWT. A library for scientific widgets that are based on
+QT. To start this viewer on the SLAC computers one has to tell where to find
+the QWT library by first putting it to the LD_LIBRARY_PATH variable. IE.\n
+
+export LD_LIBRARY_PATH=/reg/g/cass/lib
+./jocassview
+
+@subsubsection lucassview Lucassview
+This viewer is based on ROOT which was developed by CERN people and is a C++
+library for all kinds of things. To start this viewer on the SLAC computers one
+has to set PATH and LD_LIBRARY_PATH to point to the binary and the library path
+of the root installation. IE.\n
+
+export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug
+export PATH=$ROOTSYS/bin:$PATH
+export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+./lucassview
+
 
 @subsection testing Testing CASS in offline mode (DAQ simulation)
 For testing CASS you can create the shared memory using xtcmonserver located
