@@ -104,11 +104,15 @@ namespace lucassview
                                   xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                                   yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
               roothist->SetOption("colz");
+              roothist->SetXTitle(xaxis.title().c_str());
+              roothist->GetXaxis()->CenterTitle(true);
+              roothist->SetYTitle(yaxis.title().c_str());
+              roothist->GetYaxis()->CenterTitle(true);
+              roothist->GetYaxis()->SetTitleOffset(1.5);
             }
             for (size_t iY(0); iY<yaxis.nbrBins();++iY)
               for (size_t iX(0); iX<xaxis.nbrBins();++iX)
                 roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
-//            cout<< "cpy over /underflow"<<endl;
             roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[HistogramBackend::LowerLeft]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist->memory()[HistogramBackend::LowerRight]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperRight]);
@@ -117,8 +121,7 @@ namespace lucassview
             roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist->memory()[HistogramBackend::UpperMiddle]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist->memory()[HistogramBackend::Right]);
             roothist->SetBinContent(roothist->GetBin(0,1),casshist->memory()[HistogramBackend::Left]);
-//            roothist->SetEntries(casshist->nbrOfFills());
-//            cout<< "done cpy over /underflow"<<endl;
+            roothist->SetEntries(casshist->nbrOfFills());
           }
           break;
         case 1:
@@ -145,6 +148,8 @@ namespace lucassview
               roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
             roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
             roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist->memory()[HistogramBackend::Overflow]);
+            roothist->SetXTitle(xaxis.title().c_str());
+            roothist->GetXaxis()->CenterTitle(true);
             roothist->SetEntries(casshist->nbrOfFills());
 //            cout <<key<<" underflow '"<< casshist->memory()[HistogramBackend::Underflow] <<"' overflow '"<< casshist->memory()[HistogramBackend::Overflow] <<"'"<<endl;
           }
