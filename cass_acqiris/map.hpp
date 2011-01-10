@@ -10,17 +10,18 @@
 #define MAP_HPP
 
 #include <map>
+#include <stdexcept>
+#include <sstream>
 
 namespace cass
 {
-  /** std::map with more functions
+  /** std::map with optional more functions
    *
-   * @todo make operator [] also a const version that will throw error when
-   *       key is not present
-   * @todo add a map <key, functionsbaseclass*> with functions that should be
+   * @note add a map <key, functionsbaseclass*> with functions that should be
    *       called when the requested key is not present. The function might
    *       have : value_type operator()(data source,this) as to be callable
    *       function operator
+   *
    * @author Lutz Foucar
    */
   template <typename Key, typename T>
@@ -37,7 +38,16 @@ namespace cass
     /** access members of the map container as done in the std::map */
     value_type operator[](const key_type& key)const
     {
-      return _map.find(key)->second;
+//      using namespace std;
+//      map<key_type, value_type>::const_iterator valueIt(_map.find(key));
+//      if (_map.end() == valueIt)
+//      {
+//        stringstream ss;
+//        ss << "Map::operator[] const: There is no key called '"<<key<<"' in container";
+//        throw runtime_error(ss.str());
+//      }
+//      return valueIt->second;
+      return (_map.find(key)->second);
     }
 
   private:
