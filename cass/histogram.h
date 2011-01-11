@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010-2011 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
 
 /**
@@ -424,7 +424,7 @@ public:
      * @param nbrXBins, xLow, xUp The properties of the x-axis
      * @param xtitle The title of the x-axis
      */
-    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp, std::string xtitle="")
+    Histogram1DFloat(size_t nbrXBins, float xLow, float xUp, std::string xtitle="X")
         : HistogramFloatBase(1,nbrXBins+2)
     {
       //set up the axis
@@ -449,7 +449,8 @@ public:
     {
       return new Histogram1DFloat(_axis[xAxis].nbrBins(),
                                   _axis[xAxis].lowerLimit(),
-                                  _axis[xAxis].upperLimit());
+                                  _axis[xAxis].upperLimit(),
+                                  _axis[xAxis].title());
     }
 
     /** resize histogram.
@@ -534,7 +535,7 @@ public:
      */
     Histogram2DFloat(size_t nbrXBins, float xLow, float xUp,
                      size_t nbrYBins, float yLow, float yUp,
-                     std::string xtitle="",std::string ytitle="")
+                     std::string xtitle="X",std::string ytitle="Y")
         : HistogramFloatBase(2,nbrXBins*nbrYBins+8)  // +8 for under/overflow bits
     {
         //set up the two axis of the 2d hist
@@ -582,7 +583,9 @@ public:
                                   _axis[xAxis].upperLimit(),
                                   _axis[yAxis].nbrBins(),
                                   _axis[yAxis].lowerLimit(),
-                                  _axis[yAxis].upperLimit());
+                                  _axis[yAxis].upperLimit(),
+                                  _axis[xAxis].title(),
+                                  _axis[yAxis].title());
     }
 
 

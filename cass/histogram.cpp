@@ -33,25 +33,30 @@ namespace cass
 
   void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
   {
+    using namespace std;
     _memory.clear();
+    string xaxisTitle (_axis[HistogramBackend::xAxis].title());
     _axis.clear();
     _memory.resize(nbrXBins+2,0);
-    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
+    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xaxisTitle));
   }
 
   void Histogram2DFloat::resize(size_t nbrXBins, float xLow, float xUp,
                                 size_t nbrYBins, float yLow, float yUp)
   {
+    using namespace std;
     _memory.clear();
+    string xaxisTitle (_axis[HistogramBackend::xAxis].title());
+    string yaxisTitle (_axis[HistogramBackend::yAxis].title());
     _axis.clear();
     _memory.resize(nbrXBins*nbrYBins+8,0);
-    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp));
-    _axis.push_back(AxisProperty(nbrYBins,yLow,yUp));
+    _axis.push_back(AxisProperty(nbrXBins,xLow,xUp,xaxisTitle));
+    _axis.push_back(AxisProperty(nbrYBins,yLow,yUp,yaxisTitle));
   }
 
   Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const
   {
-    Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit());
+    Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit(), _axis[axis].title());
     size_t columns(_axis[1].size()), rows(_axis[0].size());
     switch(axis)
     {
