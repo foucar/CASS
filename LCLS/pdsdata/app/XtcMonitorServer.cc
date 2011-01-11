@@ -2,6 +2,7 @@
 
 #include "pdsdata/xtc/Dgram.hh"
 
+#include <unistd.h>
 #ifdef _POSIX_MESSAGE_PASSING
 #include <mqueue.h>
 #endif
