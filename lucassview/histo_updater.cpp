@@ -240,7 +240,8 @@ namespace lucassview
 HistogramUpdater::HistogramUpdater(const string &server, int port)
   :_server(server),
    _port(port),
-   _timer(new TTimer())
+	 _timer(new TTimer()),
+	 _updateCanv(false)
 {
   _timer->Connect("Timeout()", "HistogramUpdater",this, "updateHistograms()");
 }
@@ -267,7 +268,8 @@ void HistogramUpdater::updateHistograms()
     list<string> allkeylist(client());
     list<string> updatableHistsList(checkList(allkeylist));
     for_each(updatableHistsList.begin(),updatableHistsList.end(), updateHist(client));
-    updateCanvases();
+		if (_updateCanv)
+			updateCanvases();
   }
   catch (const runtime_error &error)
   {
