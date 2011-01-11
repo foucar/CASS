@@ -33,7 +33,8 @@ public:
    * create a tcpclient object and use it to retrieve the list of available
    * histograms. Use checkList() to filter out the ones that need to be updated.
    * Now go through the list of to update histograms and call updateHist() for
-   * each one of them.
+   * each one of them. After that update all Pads in the Canvases using
+   * updateCanvases().
    */
   void updateHistograms();
 

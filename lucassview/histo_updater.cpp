@@ -12,9 +12,15 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+
+#include <TObject.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TDirectory.h>
+#include <TROOT.h>
+#include <TList.h>
+#include <TPad.h>
+#include <TCanvas.h>
 
 #include "histo_updater.h"
 
@@ -26,7 +32,34 @@ using namespace std;
 
 namespace lucassview
 {
+  /**  update all pads in canvases
+   *
+   * iterate through all canvases and pads and tell them to update
+   *
+   * @author Lutz Foucar
+   */
+  void updateCanvases()
+  {
+    TIter next(gROOT->GetListOfCanvases());
+    TObject * canv(0);
+    while ((canv = next()))
+    {
+      TIter next2(static_cast<TCanvas*>(canv)->GetListOfPrimitives());
+      TObject * pad(0);
+      while ((pad = next2()))
+      {
+        static_cast<TPad*>(pad)->Modified();
+        static_cast<TPad*>(pad)->Update();
+      }
+    }
+  }
+
   /** create the list of updateable histograms from all available keys
+   *
+   * First add all cass histograms that are not present as root histograms.
+   * Then go through all canvases and add the histograms that are shown in them
+   * and add them to the list returned. For this one must go through all
+   * canvases and the pads within the canvases. The pads contain the histograms.
    *
    * @return list of keys that need to be updated
    * @param allkeys all available keys on the server
@@ -36,8 +69,29 @@ namespace lucassview
   list<string> checkList(const list<string> &allkeys)
   {
     using namespace std;
-    list<string> updateList(allkeys);
-//    cout << "checkList(): create the list of histograms that need to be updated"<<endl;
+    list<string> updateList;
+    for (list<string>::const_iterator it(allkeys.begin()); it!=allkeys.end(); ++ it)
+      if (!gDirectory->FindObjectAny((*it).c_str()))
+        updateList.push_back((*it));
+    TIter next(gROOT->GetListOfCanvases());
+    TObject * canv(0);
+    while ((canv = next()))
+    {
+//      std::cout << "Canv: "<< canv->GetName() <<endl;
+      TIter next2(static_cast<TCanvas*>(canv)->GetListOfPrimitives());
+      TObject * pad(0);
+      while ((pad = next2()))
+      {
+//        std::cout << " Pad: "<< pad->GetName() <<endl;
+        TIter next3(static_cast<TPad*>(pad)->GetListOfPrimitives());
+        TObject * hist(0);
+        while ((hist = next3()))
+        {
+          if (hist->InheritsFrom("TH1"))
+            updateList.push_back(hist->GetName());
+        }
+      }
+    }
     return updateList;
   }
 
@@ -213,6 +267,7 @@ void HistogramUpdater::updateHistograms()
     list<string> allkeylist(client());
     list<string> updatableHistsList(checkList(allkeylist));
     for_each(updatableHistsList.begin(),updatableHistsList.end(), updateHist(client));
+    updateCanvases();
   }
   catch (const runtime_error &error)
   {
