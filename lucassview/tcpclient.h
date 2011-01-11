@@ -43,18 +43,18 @@ namespace lucassview
      */
     std::tr1::shared_ptr<cass::HistogramFloatBase> operator() (const std::string &histogramkey)const;
 
-		/** reload .ini file */
-		void reloadIni() const;
+    /** reload .ini file */
+    void reloadIni() const;
 
-		/** retrieve the transferred bytes */
-		size_t receivedBytes()const {return _transferredBytes;}
+    /** retrieve the transferred bytes */
+    size_t receivedBytes()const {return _transferredBytes;}
 
   private:
     /** the server to connect to */
     std::string _server;
 
-		/** the amount of bytes transferred */
-		mutable size_t _transferredBytes;
+    /** the amount of bytes transferred */
+    mutable size_t _transferredBytes;
   };
 }
 #endif
