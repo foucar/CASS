@@ -106,10 +106,10 @@ library for all kinds of things. To start this viewer on the SLAC computers one
 has to set PATH and LD_LIBRARY_PATH to point to the binary and the library path
 of the root installation. IE.\n
 
-export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug
-export PATH=$ROOTSYS/bin:$PATH
-export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
-./lucassview
+export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug\n
+export PATH=$ROOTSYS/bin:$PATH\n
+export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH\n
+./lucassview\n
 
 
 @subsection testing Testing CASS in offline mode (DAQ simulation)
