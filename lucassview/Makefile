@@ -2,7 +2,7 @@ CPPFLAGS = $(o)
 
 #CC = icc
 LD = g++
-CPPFLAGS += -g -g -pipe
+CPPFLAGS += -g -pipe -O3
 CPPFLAGS += -I$(ROOTSYS)/include
 CFLAGS += $(CPPFLAGS)
 LDFLAGS+= $(CFLAGS) -lm 
