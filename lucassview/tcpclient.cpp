@@ -17,7 +17,8 @@
 using namespace lucassview;
 
 TCPClient::TCPClient(const std::string &server)
-  :_server(server)
+	:_server(server),
+	 _transferredBytes(0)
 {}
 
 void TCPClient::reloadIni() const
@@ -56,6 +57,7 @@ std::list<std::string> TCPClient::operator() ()const
 //      << " TCPClient: Size=" << (*attachment).size << endl
 //      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
 //      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
+	_transferredBytes += (*attachment).size;
   cass::Serializer serializer( std::string((char *)(*attachment).ptr, (*attachment).size) );
   cass::IdList list(serializer);
   std::list<std::string> returnlist (list.getList());
@@ -89,6 +91,7 @@ std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::operator() (const std:
 //      << " TCPClient: Size=" << (*attachment).size << endl
 //      << " TCPClient: Type=" << ((*attachment).type?(*attachment).type:"null") << endl
 //      << " TCPClient: ID=" << ((*attachment).id?(*attachment).id:"null") << endl;
+	_transferredBytes += (*attachment).size;
   string mimeType((*attachment).type);
   shared_ptr<HistogramFloatBase> hist;
   if(mimeType == "application/cass2Dhistogram")
