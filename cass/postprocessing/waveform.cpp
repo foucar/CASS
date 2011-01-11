@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010-2011 Lutz Foucar
 
 /**
  * @file waveform.cpp file contains acqiris data retrieval postprocessor
@@ -31,6 +31,7 @@ cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &
 void cass::pp110::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -39,13 +40,13 @@ void cass::pp110::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _result = new Histogram1DFloat(1,0,1);
+  _result = new Histogram1DFloat(1,0,1,"Time [s]");
   createHistList(2*cass::NbrOfWorkers);
-  std::cout <<"PostProcessor "<<_key
-      <<" is showing channel "<<_channel
-      <<" of acqiris "<<_instrument
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<< endl <<"PostProcessor '"<<_key
+      <<"' is showing channel '"<<_channel
+      <<"' of acqiris '"<<_instrument
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp110::process(const cass::CASSEvent &evt)
@@ -82,8 +83,6 @@ void cass::pp110::process(const cass::CASSEvent &evt)
                  waveform.end(),
                  dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
                  cass::Adc2Volts(channel.gain(),channel.offset()));
-  ++_result->nbrOfFills();
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
 }
-
-
