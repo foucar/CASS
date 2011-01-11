@@ -78,4 +78,8 @@ private:
 	/** flag whether after updating the histogram the canvas should also update */
 	bool _updateCanv;
 };
+
+/** global acces variable for updater */
+R__EXTERN HistogramUpdater *gHistUpdater;
+
 #endif
