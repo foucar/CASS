@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010-2011 Lutz Foucar
 // (C) 2010 Thomas White - Updated to new PP framework
 
 /** @file operations.cpp file contains definition of postprocessors that will
@@ -28,6 +28,7 @@ cass::pp4::pp4(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp4::loadSettings(size_t)
 {
+  using namespace std;
   setupGeneral();
   // Get input
   _one = setupDependency("HistName");
@@ -38,10 +39,10 @@ void cass::pp4::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
 
-  std::cout << "PostProcessor " << _key
-      << ": will apply NOT to PostProcessor " << _one->key()
-      <<". Condition is "<<_condition->key()
-      << std::endl;
+  cout<<endl<< "PostProcessor '" << _key
+      <<"' will apply NOT to PostProcessor '" << _one->key()
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp4::process(const CASSEvent& evt)
@@ -78,14 +79,15 @@ cass::pp9::pp9(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp9::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
 
   // Get the range
-  _range = std::make_pair(settings.value("LowerLimit",0).toFloat(),
-                          settings.value("UpperLimit",0).toFloat());
+  _range = make_pair(settings.value("LowerLimit",0).toFloat(),
+                     settings.value("UpperLimit",0).toFloat());
   setupGeneral();
 
   // Get the input
@@ -97,12 +99,12 @@ void cass::pp9::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
 
-  std::cout << "PostProcessor " << _key
-      << ": will check whether hist in PostProcessor " << _one->key()
-      << " is between " << _range.first
-      << " and " << _range.second
-      <<". Condition is "<<_condition->key()
-      << std::endl;
+  cout<<endl << "PostProcessor '" << _key
+      <<"' will check whether hist in PostProcessor '" << _one->key()
+      <<"' is between '" << _range.first
+      <<"' and '" << _range.second
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp9::process(const CASSEvent &evt)
@@ -146,6 +148,7 @@ cass::pp40::pp40(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp40::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
 
   settings.beginGroup("PostProcessor");
@@ -162,11 +165,11 @@ void cass::pp40::loadSettings(size_t)
   _result = _one->getHist(0).clone();
   createHistList(2*cass::NbrOfWorkers);
 
-  std::cout << "PostProcessor " << _key
-      << ": will threshold Histogram in PostProcessor " << _one->key()
-      << " above " << _threshold
-      <<". Condition is "<<_condition->key()
-      << std::endl;
+  cout<<endl << "PostProcessor '" << _key
+      <<"' will threshold Histogram in PostProcessor '" << _one->key()
+      <<"' above '" << _threshold
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp40::process(const CASSEvent &evt)
@@ -239,14 +242,14 @@ void cass::pp50::loadSettings(size_t)
     break;
   }
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor "<<_key
-      <<" will project histogram of PostProcessor "<<_pHist->key()
-      <<" from "<<_range.first
-      <<" to "<<_range.second
-      <<" on axis "<<_axis
-      <<boolalpha<<" normalize "<<_normalize
-      <<". Condition is "<<_condition->key()
-      <<std::endl;
+  cout<<endl << "PostProcessor '"<<_key
+      <<"' will project histogram of PostProcessor '"<<_pHist->key()
+      <<"' from '"<<_range.first
+      <<"' to '"<<_range.second
+      <<"' on axis '"<<_axis
+      <<boolalpha<<"' normalize '"<<_normalize
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp50::process(const CASSEvent& evt)
@@ -300,12 +303,12 @@ void cass::pp51::loadSettings(size_t)
   _area.second = min(_area.second,one.axis()[HistogramBackend::xAxis].upperLimit());
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor "<<_key
-      <<": will create integral of 1d histogram in PostProcessor "<<_pHist->key()
-      <<" from "<<_area.first
-      <<" to "<<_area.second
-      <<". Condition is "<<_condition->key()
-      <<std::endl;
+  cout<<endl << "PostProcessor '"<<_key
+      <<"' will create integral of 1d histogram in PostProcessor '"<<_pHist->key()
+      <<"' from '"<<_area.first
+      <<"' to '"<<_area.second
+      <<"'. Condition is '"<<_condition->key()
+      <<endl;
 }
 
 void cass::pp51::process(const CASSEvent& evt)
@@ -571,10 +574,10 @@ void cass::pp60::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers,true);
-  std::cout<<"Postprocessor "<<_key
-      <<": histograms values from PostProcessor "<< _pHist->key()
-      <<" condition on PostProcessor "<<_condition->key()
-      <<std::endl;
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' histograms values from PostProcessor '"<< _pHist->key()
+      <<"'. Condition on PostProcessor '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp60::process(const CASSEvent& evt)
@@ -623,11 +626,11 @@ void cass::pp61::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  std::cout<<"Postprocessor "<<_key
-      <<": averages histograms from PostProcessor "<< _pHist->key()
-      <<" alpha for the averaging:"<<_alpha
-      <<" condition on postprocessor:"<<_condition->key()
-      <<std::endl;
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' averages histograms from PostProcessor "<< _pHist->key()
+      <<"' alpha for the averaging '"<<_alpha
+      <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp61::histogramsChanged(const HistogramBackend* in)
@@ -689,7 +692,7 @@ void cass::pp62::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor "<<_key
+  cout<<endl<<"Postprocessor '"<<_key
       <<"' sums up histograms from PostProcessor '"<< _pHist->key()
       <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
       <<std::endl;
@@ -757,15 +760,15 @@ void cass::pp63::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  std::cout << "PostProcessor "<<_key
-      <<" will calculate the time average of histogram of PostProcessor_"<<_pHist->key()
-      <<" from now "<<settings.value("MinTime",0).toUInt()
-      <<" to "<<settings.value("MaxTime",300).toUInt()
-      <<" seconds   "<<_timerange.first
-      <<" ; "<<_timerange.second
-      <<" each bin is equivalent to up to "<< _nbrSamples
-      <<" measurements,"
-      <<" condition on postprocessor:"<<_condition->key()
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' will calculate the time average of histogram of PostProcessor '"<<_pHist->key()
+      <<"' from now '"<<settings.value("MinTime",0).toUInt()
+      <<"' to '"<<settings.value("MaxTime",300).toUInt()
+      <<"' seconds '"<<_timerange.first
+      <<"' ; '"<<_timerange.second
+      <<"' each bin is equivalent to up to '"<< _nbrSamples
+      <<"' measurements,"
+      <<" condition on postprocessor '"<<_condition->key()<<"'"
       <<std::endl;
 }
 

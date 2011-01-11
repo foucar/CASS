@@ -1,4 +1,4 @@
-// Copyright (C) 2010 Lutz Foucar
+// Copyright (C) 2010-2011 Lutz Foucar
 
 /**
  * @file convenience_functions.cpp file contains definition of functions that
@@ -25,6 +25,7 @@ void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
              <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
              <<" XLow:"<<param.value("XLow",0).toFloat()
              <<" XUp:"<<param.value("XUp",0).toFloat()
+             <<" XTitle:"<<param.value("XTitle","x-axis").toString().toStdString()
              <<std::endl);
   hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                                     param.value("XLow",0).toFloat(),
@@ -43,9 +44,11 @@ void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
              <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
              <<" XLow:"<<param.value("XLow",0).toFloat()
              <<" XUp:"<<param.value("XUp",0).toFloat()
+             <<" XTitle:"<<param.value("XTitle","x-axis").toString().toStdString()
              <<" YNbrBins:"<<param.value("YNbrBins",1).toUInt()
              <<" YLow:"<<param.value("YLow",0).toFloat()
              <<" YUp:"<<param.value("YUp",0).toFloat()
+             <<" YTitle:"<<param.value("YTitle","y-axis").toString().toStdString()
              <<std::endl);
   hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                                     param.value("XLow",0).toFloat(),
