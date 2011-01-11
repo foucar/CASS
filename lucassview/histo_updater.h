@@ -27,7 +27,14 @@ public:
    */
   HistogramUpdater(const std::string &server, int port);
 
-  /** update the shown histograms */
+  /** update the shown histograms
+   *
+   * create the server address from the _server and _port members. With this
+   * create a tcpclient object and use it to retrieve the list of available
+   * histograms. Use checkList() to filter out the ones that need to be updated.
+   * Now go through the list of to update histograms and call updateHist() for
+   * each one of them.
+   */
   void updateHistograms();
 
   /** set the server
@@ -47,7 +54,7 @@ public:
    * start autoupdate with requested frequency. If frequency is 0 stop
    * autoupdate.
    *
-   * @param freq The frequency in Hz
+   * @param freq The frequency with which the histogram should be updated in Hz
    */
   void autoUpdate(double freq);
 

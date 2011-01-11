@@ -60,7 +60,22 @@ namespace lucassview
 
     /** update the histogram with key
      *
-     * if the histogram is not yet on the list of histograms, create it first
+     * retrieve the cass histogram for key. Then try to get the root histogram
+     * that has the name "key". Find out what dimension the cass histogram has.
+     * Depending on that one treats the histograms differently. In case of the
+     * 2D histogram one checks whether the root histogram already exists (the
+     * returned pointer is non Zero). If it does exist, check whether the axis
+     * properties are the same. When they differ then set the root axis
+     * properties to be the same as the properties that the cass histogram has.
+     * When the root histogram does not exist, create it from the cass histogram
+     * properties.\n
+     * Now copy the histogram contents from the cass histogram to the root
+     * histogram. After that copy the over and underflow quadrants and the
+     * number of fills to the root histogram.
+     *
+     * In case the histogram is a 1D histogram make the same procedure as you
+     * did with the 2D histogram, just only for the x-axis. When then histogram
+     * is a 0D histogram or has a different dimension ignore it.
      *
      * @param key The key that the histogram has on the server
      */
@@ -98,8 +113,8 @@ namespace lucassview
             }
             else
             {
-              cout << "updateHist(): '"<<key<<"' create roothist with "<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<" "
-                  <<yaxis.nbrBins()<<" "<<yaxis.lowerLimit()<<" "<<yaxis.upperLimit()<<endl;
+              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title()<<") '"<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<"' "
+                  "Y("<<yaxis.title()<<") '"<<yaxis.nbrBins()<<" "<<yaxis.lowerLimit()<<" "<<yaxis.upperLimit()<<"'"<<endl;
               roothist = new TH2F(key.c_str(),key.c_str(),
                                   xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                                   yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
@@ -140,7 +155,7 @@ namespace lucassview
             }
             else
             {
-              cout << "updateHist(): '"<<key<<"' create roothist with "<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<endl;
+              cout << "updateHist(): '"<<key<<"' create roothist with X("<<xaxis.title()<<") '"<<xaxis.nbrBins()<<" "<<xaxis.lowerLimit()<<" "<<xaxis.upperLimit()<<"'"<<endl;
               roothist = new TH1F(key.c_str(),key.c_str(),
                                   xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
             }
