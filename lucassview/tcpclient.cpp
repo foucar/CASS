@@ -20,6 +20,17 @@ TCPClient::TCPClient(const std::string &server)
   :_server(server)
 {}
 
+void TCPClient::reloadIni() const
+{
+	using namespace std;
+	bool ret(false);
+	CASSsoapProxy client;
+	client.soap_endpoint = _server.c_str();
+	client.writeini(0, &ret);
+	if(!ret)
+		throw runtime_error("TCPClient::reloadIni(): Could not communicate writeini command");
+}
+
 std::list<std::string> TCPClient::operator() ()const
 {
   using namespace std;
