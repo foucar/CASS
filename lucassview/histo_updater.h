@@ -59,11 +59,11 @@ public:
    */
   void autoUpdate(double freq);
 
-	/** set the updateCanvas flag
-	 *
-	 * @param update the flag status
-	 */
-	void alsoUpdateCanvas(bool update) {_updateCanv = update;}
+  /** set the updateCanvas flag
+   *
+   * @param update the flag status
+   */
+  void alsoUpdateCanvas(bool update) {_updateCanv = update;}
 
 private:
   /** the server */
@@ -75,8 +75,8 @@ private:
   /** the timer for auto update */
   std::auto_ptr<TTimer> _timer;
 
-	/** flag whether after updating the histogram the canvas should also update */
-	bool _updateCanv;
+  /** flag whether after updating the histogram the canvas should also update */
+  bool _updateCanv;
 };
 
 /** global acces variable for updater */
