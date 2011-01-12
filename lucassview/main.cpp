@@ -16,6 +16,10 @@
 
 /** main function
  *
+ * create an instance of the ROOT interpreter and the Histogramupdater. Assign
+ * the global variable the the HistogramUpdater instance. Then run the startup
+ * script before letting the ROOT eventloop take over.
+ *
  * @author Lutz Foucar
  */
 int main(int argc, char *argv[])
