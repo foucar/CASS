@@ -343,5 +343,17 @@ void HistogramUpdater::writeRootFile(const std::string& name)
   }
 }
 
-
-
+void HistogramUpdater::reloadIni()
+{
+  try
+  {
+    stringstream serveradress;
+    serveradress << _server << ":" << _port;
+    TCPClient client (serveradress.str());
+    client.reloadIni();
+  }
+  catch (const runtime_error &error)
+  {
+    cout << "HistogramUpdater::reloadIni(): "<<error.what()<<endl;
+  }
+}

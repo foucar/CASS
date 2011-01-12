@@ -74,6 +74,9 @@ public:
    */
   void writeRootFile(const std::string& name);
 
+  /** tell the server reload the .ini parameters */
+  void reloadIni();
+
 private:
   /** the server */
   std::string _server;
