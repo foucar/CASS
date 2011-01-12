@@ -317,10 +317,10 @@ HistogramUpdater::HistogramUpdater(const string &server, int port)
    _timer(new TTimer()),
    _updateCanv(false)
 {
-  _timer->Connect("Timeout()", "HistogramUpdater",this, "updateHistograms()");
+  _timer->Connect("Timeout()", "HistogramUpdater",this, "syncHistograms()");
 }
 
-void HistogramUpdater::autoUpdate(double freq)
+void HistogramUpdater::autoSync(double freq)
 {
   if(freq < sqrt(numeric_limits<double>::epsilon()))
     _timer->Stop();
@@ -330,7 +330,7 @@ void HistogramUpdater::autoUpdate(double freq)
   }
 }
 
-void HistogramUpdater::updateHistograms()
+void HistogramUpdater::syncHistograms()
 {
   try
   {

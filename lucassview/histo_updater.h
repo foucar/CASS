@@ -36,7 +36,7 @@ public:
    * each one of them. After that update all Pads in the Canvases using
    * updateCanvases().
    */
-  void updateHistograms();
+  void syncHistograms();
 
   /** set the server
    *
@@ -57,7 +57,7 @@ public:
    *
    * @param freq The frequency with which the histogram should be updated in Hz
    */
-  void autoUpdate(double freq);
+  void autoSync(double freq);
 
   /** set the updateCanvas flag
    *
