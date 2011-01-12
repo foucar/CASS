@@ -20,7 +20,7 @@ gSOAP (version 2.7.x and above):
  installed to (ie. /usr/local)
 
 
-QWT (version 5.2.x and above):
+QWT (version 5.2.x and above, but not 6.x or newer):
  To obtain qwt do the following:
    svn co https://qwt.svn.sourceforge.net/svnroot/qwt/branches/qwt-5.2
  to compile and install the libs to the following:
