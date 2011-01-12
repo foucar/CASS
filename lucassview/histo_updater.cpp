@@ -158,8 +158,8 @@ namespace lucassview
   bool operator== (const cass::AxisProperty &ca, const TAxis &ra)
   {
     return (ca.nbrBins() == ra.GetNbins() &&
-            ca.lowerLimit() == ra.GetXmin() &&
-            ca.upperLimit() == ra.GetXmax() &&
+            fabs(ca.lowerLimit() - ra.GetXmin()) <  sqrt(numeric_limits<double>::epsilon()) &&
+            fabs(ca.upperLimit() - ra.GetXmax()) <  sqrt(numeric_limits<double>::epsilon()) &&
             ca.title() == ra.GetTitle());
   }
 
