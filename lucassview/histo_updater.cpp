@@ -144,6 +144,37 @@ namespace lucassview
     }
   };
 
+  /** comapre axis for equalitiy
+   *
+   * check whether the cass histogram axis and the root histogram axis are the
+   * same. Test for number of bins, low and high ends and the title of the axis.
+   *
+   * @return true when both axis are the same
+   * @param ca the axis of the cass histogram
+   * @param ra the axis of the root histogram
+   *
+   * @author Lutz Foucar
+   */
+  bool operator== (const cass::AxisProperty &ca, const TAxis &ra)
+  {
+    return (ca.nbrBins() == ra.GetNbins() &&
+            ca.lowerLimit() == ra.GetXmin() &&
+            ca.upperLimit() == ra.GetXmax());
+  }
+
+  /** comapre axis for inequality
+   *
+   * @return the inverse of opertator==
+   * @param ca the axis of the cass histogram
+   * @param ra the axis of the root histogram
+   *
+   * @author Lutz Foucar
+   */
+  bool operator!= (const cass::AxisProperty &ca, const TAxis &ra)
+  {
+    return !(ca==ra);
+  }
+
   /** create the list of updateable histograms from all available keys
    *
    * @author Lutz Foucar
