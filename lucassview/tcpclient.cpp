@@ -42,7 +42,7 @@ std::list<std::string> TCPClient::operator() ()const
   if( (retcode != SOAP_OK) || !ret)
   {
     stringstream ss;
-    ss << "Could not retrieve the List of Histograms on '"<<_server<<"'";
+    ss << "TCPClient(): Could not retrieve the List of Histograms on '"<<_server<<"'";
     throw runtime_error(ss.str());
   }
   soap_multipart::iterator attachment (client.dime.begin());
@@ -76,14 +76,14 @@ std::tr1::shared_ptr<cass::HistogramFloatBase> TCPClient::operator() (const std:
   if(!ret)
   {
     stringstream ss;
-    ss << "Did not get Histogram with key '"<<histogramkey<<"'";
+    ss << "TCPClient(): Did not get Histogram with key '"<<histogramkey<<"'";
     throw runtime_error(ss.str());
   }
   soap_multipart::iterator attachment(client.dime.begin());
   if(client.dime.end() == attachment)
   {
     stringstream ss;
-    ss << "There is no attachmend in the received soap data";
+    ss << "TCPClient(key): There is no attachmend in the received soap data";
     throw runtime_error(ss.str());
   }
 //  cout << "TCPClient: DIME attachment:" << endl
