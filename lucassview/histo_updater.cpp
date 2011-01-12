@@ -233,7 +233,7 @@ namespace lucassview
       }
       catch (const runtime_error& error)
       {
-        cout << error.what()<<endl;
+        cout << "updateHist(): "<< error.what()<<endl;
       }
     }
   };
@@ -275,8 +275,22 @@ void HistogramUpdater::updateHistograms()
   }
   catch (const runtime_error &error)
   {
-    cout << error.what()<<endl;
+    cout << "HistogramUpdater::updateHistograms(): "<<error.what()<<endl;
   }
 }
+
+void HistogramUpdater::writeRootFile(const std::string& name)
+{
+  using namespace std;
+  try
+  {
+
+  }
+  catch (const runtime_error &error)
+  {
+    cout << "HistogramUpdater::writeRootFile(): "<<error.what()<<endl;
+  }
+}
+
 
 

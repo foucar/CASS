@@ -65,6 +65,15 @@ public:
    */
   void alsoUpdateCanvas(bool update) {_updateCanv = update;}
 
+  /** write all histograms to a root file
+   *
+   * first update all available histograms, then go through the list of root
+   * histograms and write them to file
+   *
+   * @param name the name of the root file
+   */
+  void writeRootFile(const std::string& name);
+
 private:
   /** the server */
   std::string _server;
