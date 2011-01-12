@@ -27,7 +27,7 @@ void TCPClient::reloadIni() const
   bool ret(false);
   CASSsoapProxy client;
   client.soap_endpoint = _server.c_str();
-  client.writeini(0, &ret);
+  client.readini(0, &ret);
   if(!ret)
     throw runtime_error("TCPClient::reloadIni(): Could not communicate writeini command");
 }
