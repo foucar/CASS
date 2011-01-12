@@ -92,6 +92,6 @@ private:
 };
 
 /** global acces variable for updater */
-R__EXTERN HistogramUpdater *gHistUpdater;
+R__EXTERN HistogramUpdater *gCASSClient;
 
 #endif

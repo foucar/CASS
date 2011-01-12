@@ -5,6 +5,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class HistogramUpdater+;
-#pragma link C++ global gHistUpdater;
+#pragma link C++ global gCASSClient;
 
 #endif

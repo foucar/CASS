@@ -32,7 +32,7 @@
 using namespace lucassview;
 using namespace std;
 
-HistogramUpdater *gHistUpdater(0);
+HistogramUpdater *gCASSClient(0);
 
 namespace lucassview
 {

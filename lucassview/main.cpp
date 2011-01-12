@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   using namespace std;
   TRint theApp("App", &argc, argv);
   auto_ptr<HistogramUpdater> histUp(new HistogramUpdater("daq-amo-mon02",12321));
-  gHistUpdater = histUp.get();
+  gCASSClient = histUp.get();
   gROOT->ProcessLine(".x lucassStartup.C");
   theApp.Run();
   return 0;
