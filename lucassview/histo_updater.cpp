@@ -21,6 +21,8 @@
 #include <TList.h>
 #include <TPad.h>
 #include <TCanvas.h>
+#include <TCollection.h>
+#include <TFile.h>
 
 #include "histo_updater.h"
 
@@ -96,6 +98,37 @@ namespace lucassview
     }
     return updateList;
   }
+
+  /** write the object to file
+   *
+   * @author Lutz Foucar
+   */
+  struct writeObject
+  {
+    /** the file to write the object to */
+    TFile * _file;
+
+    /** constructor
+     *
+     * set the file
+     *
+     * @param file the file to write the histograms to
+     */
+    writeObject(const std::string & filename)
+    {
+    }
+
+    /** the operator
+     *
+     * check if the object is a histogram, if so write it to the file
+     *
+     * @param obj The object that potentially gets written to file
+     */
+    void operator()(TObject *obj)
+    {
+
+    }
+  };
 
   /** create the list of updateable histograms from all available keys
    *
@@ -284,7 +317,13 @@ void HistogramUpdater::writeRootFile(const std::string& name)
   using namespace std;
   try
   {
-
+    stringstream serveradress;
+    serveradress << _server << ":" << _port;
+    TCPClient client (serveradress.str());
+    list<string> allkeylist(client());
+    for_each(allkeylist.begin(),allkeylist.end(), updateHist(client));
+    TIter it(gDirectory->GetList());
+    for_each(it.Begin(),TIter::End(),writeObject(name));
   }
   catch (const runtime_error &error)
   {
