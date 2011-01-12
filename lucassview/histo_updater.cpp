@@ -72,7 +72,6 @@ namespace lucassview
    */
   list<string> checkList(const list<string> &allkeys)
   {
-    using namespace std;
     list<string> updateList;
     for (list<string>::const_iterator it(allkeys.begin()); it!=allkeys.end(); ++ it)
       if (!gDirectory->FindObjectAny((*it).c_str()))
@@ -115,7 +114,17 @@ namespace lucassview
      * @param file the file to write the histograms to
      */
     writeObject(const std::string & filename)
+      :_file(TFile::Open(filename.c_str(),"RECREATE"))
+    {}
+
+    /** destructor
+     *
+     * saves and closes the file
+     */
+    ~writeObject()
     {
+      _file->SaveSelf();
+      _file->Close();
     }
 
     /** the operator
@@ -126,7 +135,12 @@ namespace lucassview
      */
     void operator()(TObject *obj)
     {
-
+      if (obj->InheritsFrom("TH1"))
+      {
+        cout<<"writeObject(): writing '"<< obj->GetName()<<"' to '"<<_file->GetName()<<"'"<<endl;
+        _file->cd();
+        obj->Write(0,TObject::kOverwrite);
+      }
     }
   };
 
@@ -283,7 +297,6 @@ HistogramUpdater::HistogramUpdater(const string &server, int port)
 
 void HistogramUpdater::autoUpdate(double freq)
 {
-  using namespace std;
   if(freq < sqrt(numeric_limits<double>::epsilon()))
     _timer->Stop();
   else
@@ -294,7 +307,6 @@ void HistogramUpdater::autoUpdate(double freq)
 
 void HistogramUpdater::updateHistograms()
 {
-  using namespace std;
   try
   {
     stringstream serveradress;
@@ -314,7 +326,6 @@ void HistogramUpdater::updateHistograms()
 
 void HistogramUpdater::writeRootFile(const std::string& name)
 {
-  using namespace std;
   try
   {
     stringstream serveradress;
@@ -324,6 +335,7 @@ void HistogramUpdater::writeRootFile(const std::string& name)
     for_each(allkeylist.begin(),allkeylist.end(), updateHist(client));
     TIter it(gDirectory->GetList());
     for_each(it.Begin(),TIter::End(),writeObject(name));
+    gROOT->cd();
   }
   catch (const runtime_error &error)
   {
