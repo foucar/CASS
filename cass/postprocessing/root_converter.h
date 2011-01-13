@@ -11,6 +11,10 @@
 
 #include <string>
 
+#ifdef CERNROOT
+#include <TFile.h>
+#endif
+
 #include "postprocessor.h"
 
 namespace cass
@@ -38,12 +42,20 @@ namespace cass
     /** only a stub does nothing, but needs to be there because its pure virtual in base class */
     virtual void process()(const CASSEvent&){}
 
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
     /** dump all histogram to a root file just before quitting */
     virtual void aboutToQuit();
 
   protected:
     /** the root filename where we store the data in */
     std::string _rootfilename;
+
+    /** the root file */
+#ifdef CERNROOT
+    TFile * _rootfile;
+#endif
   };
 }
 

@@ -6,29 +6,58 @@
  * @author Lutz Foucar
  */
 
+#include <sstream>
+#include <vector>
+#include <stdexcept>
+
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
 
-#include <vector>
 
 #include "root_converter.h"
 #include "histogram.h"
 
-cass::pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string rootfilename)
-    : PostprocessorBackend(pp, key),_rootfilename(rootfilename)
-{}
+using namespace cass;
+using namespace cass::ROOT;
 
-void cass::pp2000::aboutToQuit()
+namespace cass
 {
-  //create a root file//
-  rootfile = TFile::Open(_rootfileame.c_str(),"RECREATE");
+  /** namespace for ROOT related functions */
+  namespace ROOT
+  {
+
+  }
+}
+
+pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
+    : PostprocessorBackend(pp, key),
+     _rootfile(TFile::Open(filename.c_str(),"RECREATE"))
+{
   if (!rootfile)
   {
-    std::cerr <<_rootfilename<< " could not be opened, please delete the file!"<<std::endl;
+    stringstream ss;
+    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened, please delete the file!";
+    throw invalid_argument(ss.str());
   }
+  loadSettings(0);
+}
+
+pp2000::~pp2000()
+{
+  _rootfile->SaveSelf();
+  _rootfile->Close();
+}
+
+void pp2000::loadSettings(size_t)
+{
+
+}
+
+void pp2000::aboutToQuit()
+{
   VERBOSEOUT(std::cout << "Histograms will be written to: "<<_rootfilename<<std::endl);
   //create a temporary storage for pointer so that we can delete them later on//
   std::vector<TH1*> tobedeleted;
