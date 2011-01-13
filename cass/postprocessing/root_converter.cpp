@@ -191,6 +191,8 @@ void pp2000::aboutToQuit()
 
 void pp2000::process(const cass::CASSEvent &evt)
 {
+  /** make sure that only one process is writing to root file */
+  _result->lock.lockForWrite();
   /** create directory from eventId and cd into it */
   _rootfile->cd("/");
   string dirname(ROOT::eventIdToDirectoryName(evt.id()));
@@ -207,11 +209,15 @@ void pp2000::process(const cass::CASSEvent &evt)
       /** if so write it to the root file */
       const HistogramBackend &cassbackend(pp(evt));
       const HistogramFloatBase &casshist(dynamic_cast<const HistogramFloatBase&>(cassbackend));
+      casshist.lock.lockForRead();
       ROOT::copyHistToRootFile(casshist);
+      casshist.lock.unlock();
     }
   }
   /** go back to original directory and save file */
   _rootfile->cd("/");
   _rootfile->SaveSelf();
+  /** unlock this */
+  _result->lock.unlock();
 }
 
