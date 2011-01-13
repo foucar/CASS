@@ -178,6 +178,7 @@ void pp2000::aboutToQuit()
       copyHistToRootFile(casshist);
     }
   }
+  /** go back to original directory and save file */
   _rootfile->cd("/");
   _rootfile->SaveSelf();
 }
@@ -202,6 +203,7 @@ void pp2000::process(const cass::CASSEvent &evt)
       copyHistToRootFile(casshist);
     }
   }
+  /** go back to original directory and save file */
   _rootfile->cd("/");
   _rootfile->SaveSelf();
 }
