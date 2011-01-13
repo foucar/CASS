@@ -84,7 +84,7 @@ namespace cass
           /** create root histogram from cass histogram properties */
           const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
           const AxisProperty &yaxis(casshist.axis()[HistogramBackend::yAxis]);
-          roothist = new TH2F(casshist.key.c_str(),casshist.key.c_str(),
+          roothist = new TH2F(casshist.key().c_str(),casshist.key().c_str(),
                               xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
                               yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
           /** make sure that the histogram is drawn in color and with color bar */
