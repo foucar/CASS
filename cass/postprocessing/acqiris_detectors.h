@@ -1,4 +1,4 @@
-//Copyright (C) 2010 Lutz Foucar
+//Copyright (C) 2010-2011 Lutz Foucar
 
 /**
  * @file acqiris_detectors.h file contains declaration of postprocessors that

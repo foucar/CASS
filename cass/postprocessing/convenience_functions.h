@@ -17,6 +17,8 @@
 
 namespace cass
 {
+  class CASSSettings;
+
   namespace ACQIRIS
   {
     class DetectorBackend;
@@ -43,6 +45,22 @@ namespace cass
       const uint64_t _key;
     };
 
+    /** load detector from file
+     *
+     * after loading check whether it is a delayline detector, if not throw
+     * invalid_argument exception.
+     *
+     * @return key containing detector name
+     * @param s CASSSettings object to read the info from
+     * @param ppNbr the Postprocessor number of the postprocessor calling this
+     *              function
+     * @param key the key of the postprocessor calling this function
+     *
+     * @author Lutz Foucar
+     */
+    std::string loadDelayDet(CASSSettings &s,
+                             int ppNbr,
+                             const PostProcessors::key_t& key);
   }
 
   /** predicate class for find_if.

@@ -8,13 +8,16 @@
  */
 
 #include "convenience_functions.h"
+
 #include "cass_exceptions.h"
 #include "histogram.h"
 #include "cass_settings.h"
+#include "acqiris_detectors_helper.h"
 
 using namespace cass;
+using namespace cass::ACQIRIS;
 
-void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
+void cass::set1DHist(HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   CASSSettings param;
@@ -33,7 +36,7 @@ void cass::set1DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
                                     param.value("XTitle","x-axis").toString().toStdString());
 }
 
-void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
+void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
 {
   //open the settings//
   CASSSettings param;
@@ -59,3 +62,22 @@ void cass::set2DHist(cass::HistogramBackend*& hist, PostProcessors::key_t key)
                                     param.value("XTitle","x-axis").toString().toStdString(),
                                     param.value("YTitle","y-axis").toString().toStdString());
 }
+
+std::string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
+                                        int ppNbr,
+                                        const PostProcessors::key_t& key)
+{
+  using namespace std;
+  string detector
+      (s.value("Detector","blubb").toString().toStdString());
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detector));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error detector '"<<detector<<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
+  return detector;
+}
+

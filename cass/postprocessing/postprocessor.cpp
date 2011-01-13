@@ -27,6 +27,7 @@
 #include "operation_templates.hpp"
 #include "cass_settings.h"
 #include "hdf5_converter.h"
+#include "coltrims_analysis.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -606,6 +607,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     processor = new pp2000(*this,key,_outputfilename);
     break;
 #endif
+  case ElectronEnergy:
+     processor = new pp5000(*this,key);
+     break;
   default:
     throw invalid_argument(QString("PostProcessors::create(): Postprocessor '%1' has unknown ID=%2")
                            .arg(ppid)

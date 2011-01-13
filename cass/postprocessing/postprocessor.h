@@ -127,6 +127,9 @@ the Class description for information about what parameters are user settable.
 01001: Put selected Histograms to HDF5-File
 02000: Dump all 1d and 2d cass histograms to root file
 
+---Coltrims Analysis--
+05000: Electron Energy from Recoil momenta
+
 @endverbatim
 
 @section add_pp Howto add custom postprocessors
@@ -287,6 +290,8 @@ using the custom doxygen tag cassttng.
       PnccdHDF5=1000,
       HDF5Converter=1001,
       ROOTDump=2000,
+
+      ElectronEnergy=5000,
 
       InvalidPP
     };

@@ -120,6 +120,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/postprocessor.cpp \
                       ./postprocessing/id_list.cpp \
                       ./postprocessing/rankfilter.cpp \
+                      ./postprocessing/coltrims_analysis.cpp \
                       tcpserver.cpp \
 
 HEADERS            += analysis_backend.h \
@@ -166,6 +167,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/root_converter.h \
                       ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
+                      ./postprocessing/coltrims_analysis.h \
 
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \

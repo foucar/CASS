@@ -27,37 +27,6 @@ namespace cass
 {
   namespace ACQIRIS
   {
-    /** load detector from file
-     *
-     * after loading check whether it is a delayline detector, if not throw
-     * invalid_argument exception.
-     *
-     * @return key containing detector name
-     * @param s CASSSettings object to read the info from
-     * @param ppNbr the Postprocessor number of the postprocessor calling this
-     *              function
-     * @param key the key of the postprocessor calling this function
-     *
-     * @author Lutz Foucar
-     */
-    HelperAcqirisDetectors::helperinstancesmap_t::key_type loadDelayDet(CASSSettings &s,
-                                                                        int ppNbr,
-                                                                        const PostProcessors::key_t& key)
-    {
-      using namespace std;
-      HelperAcqirisDetectors::helperinstancesmap_t::key_type detector
-          (s.value("Detector","blubb").toString().toStdString());
-      HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detector));
-      if (dethelp->detectortype() != Delayline)
-      {
-        stringstream ss;
-        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error detector '"<<detector<<"' is not a Delaylinedetector.";
-        throw (invalid_argument(ss.str()));
-      }
-      dethelp->loadSettings();
-      return detector;
-    }
-
     /** load layer from file
      *
      * load the requested layer from .ini file and checks whether it is valid.
