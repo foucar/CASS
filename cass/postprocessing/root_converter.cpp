@@ -10,15 +10,16 @@
 #include <vector>
 #include <stdexcept>
 
+#include <TObject.h>
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TH3.h>
 
 
 #include "root_converter.h"
 #include "histogram.h"
+#include "cass_settings.h"
 
 using namespace cass;
 using namespace cass::ROOT;
@@ -53,70 +54,103 @@ pp2000::~pp2000()
 
 void pp2000::loadSettings(size_t)
 {
-
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  setupGeneral();
+  if (!setupCondition(false))
+    return;
+  _write = false;
+  _hide = true;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  std::cout <<"PostProcessor '"<<_key
+      <<"' will write all cass histograms with the write flag set "
+      <<"to rootfile '"<<_outfilename
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<std::endl;
 }
 
 void pp2000::aboutToQuit()
 {
-  VERBOSEOUT(std::cout << "Histograms will be written to: "<<_rootfilename<<std::endl);
-  //create a temporary storage for pointer so that we can delete them later on//
-  std::vector<TH1*> tobedeleted;
+  VERBOSEOUT(std::cout << "pp2000::aboutToQuit() ("<<key<<"): Histograms will be written to: "<<_rootfilename<<std::endl);
+  //create the summary directory//
+  _rootfile->cd("/");
+  _rootfile->mkdir("Summary")->cd();
   //retrieve all active histograms and create according root histogram from them//
   const PostProcessors::postprocessors_t& container(_pp.postprocessors());
-  PostProcessors::postprocessors_t::const_iterator it (container.begin());
+  PostProcessors::postprocessors_t::const_iterator it(container.begin());
   for (;it != container.end(); ++it)
   {
-    //get our hist//
-    HistogramFloatBase *h(it->second->getHist());
-    //create hist pointer//
-    TH1 * roothist(0);
-    //create the histogram according to the dimension of our histogram//
-    //fill them with the contents of our histogram//
-    switch (h->dimension())
+    PostprocessorBackend &pp(*(it->second));
+    if (pp.write())
     {
-    case 0:
-      VERBOSEOUT(std::cout<<"pp2000:destructor: Can't store a 0D Histogram"<<std::endl);
-      break;
-    case 1:
-      roothist = new TH1F(h->axis()[HistogramBackend::xAxis].nbrBins(),
-                          h->axis()[HistogramBackend::xAxis].lowerLimit(),
-                          h->axis()[HistogramBackend::xAxis].upperLimit());
-      float * rootmemory(dynamic_cast<TH1F*>(roothist->GetArray()));
-      std::copy(h->memory().begin(), h->memory().end()-2, rootmemory+1);
-      roothist->SetEntries(h->nbrOfFills());
-      break;
-    case 2:
-      roothist = new TH2F(h->axis()[HistogramBackend::xAxis].nbrBins(),
-                          h->axis()[HistogramBackend::xAxis].lowerLimit(),
-                          h->axis()[HistogramBackend::xAxis].upperLimit(),
-                          h->axis()[HistogramBackend::yAxis].nbrBins(),
-                          h->axis()[HistogramBackend::yAxis].lowerLimit(),
-                          h->axis()[HistogramBackend::yAxis].upperLimit());
-      float * rootmemory(dynamic_cast<TH1F*>(roothist->GetArray()));
-      //because of the stupid memory layout of roothistos we need to copy row by row//
-      const size_t nxbins (h->axis()[HistogramBackend::xAxis].nbrBins());
-      const size_t nybins (h->axis()[HistogramBackend::yAxis].nbrBins());
-      for (size_t row=0; row<nybins; ++row)
-        std::copy(h->memory().begin()+row*nxbins,
-                  h->memory().begin()+row*nxbins+nxbins,
-                  rootmemory+row*(nxbins+2)+1);
-      roothist->SetEntries(h->nbrOfFills());
-      break;
-    default:
-      VERBOSEOUT(std::cout<<"pp2000:destructor: Unknown Histogram dimension:"<<h->dimension()<<std::endl);
+      const HistogramFloatBase &casshist(pp.getHist(0));
+      TH1 *roothist(0);
+      switch (casshist.dimension())
+      {
+      case 0:
+        VERBOSEOUT(std::cout<<"pp2000:destructor: Can't store a 0D Histogram"<<std::endl);
+        break;
+      case 1:
+        {
+          /** create root histogram from cass histogram properties */
+          const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
+          roothist = new TH1F(casshist.key().c_str(),casshist.key().c_str(),
+                              xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
+          /** copy number of fills (how many shots have been accumulated) */
+          roothist->SetEntries(casshist.nbrOfFills());
+          /** set up axis */
+          roothist->GetXaxis()->CenterTitle(true);
+          roothist->SetXTitle(xaxis.title().c_str());
+          /** copy over / underflow */
+          roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[HistogramBackend::Underflow]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[HistogramBackend::Overflow]);
+          /** copy histogram contents */
+          for (size_t iX(0); iX<xaxis().nbrBins();++iX)
+            roothist->SetBinContent(roothist->GetBin(iX+1),casshist.memory()[iX]);
+        }
+        break;
+      case 2:
+        {
+          /** create root histogram from cass histogram properties */
+          const TAxis &rxaxis(*roothist->GetXaxis());
+          const TAxis &ryaxis(*roothist->GetYaxis());
+          roothist = new TH2F(casshist.key.c_str(),casshist.key.c_str(),
+                              xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit(),
+                              yaxis.nbrBins(), yaxis.lowerLimit(), yaxis.upperLimit());
+          /** make sure that the histogram is drawn in color and with color bar */
+          roothist->SetOption("colz");
+          /** set up axis */
+          roothist->SetXTitle(xaxis.title().c_str());
+          roothist->GetXaxis()->CenterTitle(true);
+          roothist->SetYTitle(yaxis.title().c_str());
+          roothist->GetYaxis()->CenterTitle(true);
+          roothist->GetYaxis()->SetTitleOffset(1.5);
+          /** copy over / underflow */
+          roothist->SetBinContent(roothist->GetBin(0,0),casshist.memory()[HistogramBackend::LowerLeft]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist.memory()[HistogramBackend::LowerRight]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperRight]);
+          roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperLeft]);
+          roothist->SetBinContent(roothist->GetBin(1,0),casshist.memory()[HistogramBackend::LowerMiddle]);
+          roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperMiddle]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist.memory()[HistogramBackend::Right]);
+          roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[HistogramBackend::Left]);
+          /** copy number of fills (how many shots have been accumulated) */
+          roothist->SetEntries(casshist->nbrOfFills());
+          /** copy histogram contents */
+          for (size_t iY(0); iY<yaxis.nbrBins();++iY)
+            for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+              roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
+        }
+        break;
+      default:
+        VERBOSEOUT(std::cout<<"pp2000:destructor: Unknown Histogram dimension:"<<h->dimension()<<std::endl);
+      }
+      /** write the histogram to root file */
+      roothist->Write(0,TObject::kOverwrite);
     }
-    //write the histogram to root file//
-    roothist->Write(0,TObject::kOverwrite);
-    //put pointer to list for deletion later//
-    tobedeleted.push_back(roothist);
   }
-  //delete all histograms on list//
-  for (std::vector<TH1*>::iterator it(tobedeleted.begin()); it != tobedeleted.end(); ++it)
-    delete (*it);
-  //close rootfile (will automaticly delete it)
-  rootfile->Close();
-
-  _pp.histograms_release();
 }
 
 
