@@ -7,6 +7,7 @@
  */
 
 #include <sstream>
+#include <string>
 #include <vector>
 #include <stdexcept>
 
@@ -16,6 +17,7 @@
 #include <TH1.h>
 #include <TH2.h>
 
+#include <QtCore/QDateTime>
 
 #include "root_converter.h"
 #include "histogram.h"
@@ -29,63 +31,27 @@ namespace cass
   /** namespace for ROOT related functions */
   namespace ROOT
   {
-
-  }
-}
-
-pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
-    : PostprocessorBackend(pp, key),
-     _rootfile(TFile::Open(filename.c_str(),"RECREATE"))
-{
-  if (!rootfile)
-  {
-    stringstream ss;
-    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened! Maybe deleting the file helps.";
-    throw invalid_argument(ss.str());
-  }
-  loadSettings(0);
-}
-
-pp2000::~pp2000()
-{
-  _rootfile->SaveSelf();
-  _rootfile->Close();
-}
-
-void pp2000::loadSettings(size_t)
-{
-  CASSSettings settings;
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
-  setupGeneral();
-  if (!setupCondition(false))
-    return;
-  _write = false;
-  _hide = true;
-  _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers,true);
-  std::cout <<"PostProcessor '"<<_key
-      <<"' will write all cass histograms with the write flag set "
-      <<"to rootfile '"<<_outfilename
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<std::endl;
-}
-
-void pp2000::aboutToQuit()
-{
-  VERBOSEOUT(std::cout << "pp2000::aboutToQuit() ("<<key<<"): Histograms will be written to: "<<_rootfilename<<std::endl);
-  //create the summary directory//
-  _rootfile->cd("/");
-  _rootfile->mkdir("Summary")->cd();
-  //retrieve all active histograms and create according root histogram from them//
-  const PostProcessors::postprocessors_t& container(_pp.postprocessors());
-  PostProcessors::postprocessors_t::const_iterator it(container.begin());
-  for (;it != container.end(); ++it)
-  {
-    PostprocessorBackend &pp(*(it->second));
-    if (pp.write())
+    string eventIdToDirectoryName(uint64_t eventid)
     {
-      const HistogramFloatBase &casshist(pp.getHist(0));
+      uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
+      uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
+      stringstream name;
+      QDateTime time;
+      time.setTime_t(timet);
+      name << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+      VERBOSEOUT(cout<<"eventIdToDirectoryName(): name: "<<name.str()
+                 <<endl);
+      return groupname.str();
+    }
+
+    /** function that will copy a histogram to file
+     *
+     * @param casshist the cass histogram that should be written to file
+     *
+     * @author Lutz Foucar
+     */
+    void copyHistToRootFile(const HistogramFloatBase &casshist)
+    {
       TH1 *roothist(0);
       switch (casshist.dimension())
       {
@@ -145,7 +111,7 @@ void pp2000::aboutToQuit()
         }
         break;
       default:
-        VERBOSEOUT(std::cout<<"pp2000:destructor: Unknown Histogram dimension:"<<h->dimension()<<std::endl);
+        break;
       }
       /** write the histogram to root file */
       roothist->Write(0,TObject::kOverwrite);
@@ -153,4 +119,88 @@ void pp2000::aboutToQuit()
   }
 }
 
+pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
+    : PostprocessorBackend(pp, key),
+     _rootfile(TFile::Open(filename.c_str(),"RECREATE"))
+{
+  if (!rootfile)
+  {
+    stringstream ss;
+    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened! Maybe deleting the file helps.";
+    throw invalid_argument(ss.str());
+  }
+  loadSettings(0);
+}
+
+pp2000::~pp2000()
+{
+  _rootfile->SaveSelf();
+  _rootfile->Close();
+}
+
+void pp2000::loadSettings(size_t)
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  setupGeneral();
+  if (!setupCondition(false))
+    return;
+  _write = false;
+  _hide = true;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  std::cout <<"PostProcessor '"<<_key
+      <<"' will write all cass histograms with the write flag set "
+      <<"to rootfile '"<<_outfilename
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<std::endl;
+}
+
+void pp2000::aboutToQuit()
+{
+  VERBOSEOUT(std::cout << "pp2000::aboutToQuit() ("<<key<<"): Histograms will be written to: "<<_rootfilename<<std::endl);
+  /** create the summary directory and cd into it */
+  _rootfile->cd("/");
+  _rootfile->mkdir("Summary")->cd();
+  /** retrieve postprocessor container */
+  const PostProcessors::postprocessors_t& container(_pp.postprocessors());
+  /** go through all contents of the container */
+  PostProcessors::postprocessors_t::const_iterator it(container.begin());
+  for (;it != container.end(); ++it)
+  {
+    /** check if histograms of postprocessor should be written */
+    PostprocessorBackend &pp(*(it->second));
+    if (pp.write())
+    {
+      /** if so write it to the root file */
+      const HistogramFloatBase &casshist(pp.getHist(0));
+      copyHistToRootFile(casshist);
+    }
+  }
+  _rootfile->cd("/");
+}
+
+void pp2000::process(const cass::CASSEvent &evt)
+{
+  /** create directory from eventId and cd into it */
+  _rootfile->cd("/");
+  string dirname(eventIdToDirectoryName(evt.id()));
+  _rootfile->mkdir(dirname.c_str())->cd();
+  /** retrieve postprocessor container */
+  PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
+  /** go through all contents of the container */
+  PostProcessors::postprocessors_t::iterator it (ppc.begin());
+  for (;it != ppc.end(); ++it)
+  {
+    PostprocessorBackend &pp (*(it->second));
+    if (pp.write())
+    {
+      /** if so write it to the root file */
+      const HistogramFloatBase &casshist(pp.getHist(0));
+      copyHistToRootFile(casshist);
+    }
+  }
+  _rootfile->cd("/");
+}
 
