@@ -110,7 +110,12 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   using namespace std;
   QWriteLocker lock(&_histLock);
   if (!_result)
-    throw runtime_error("HistogramBackend::createHistList: result histogram is not initalized");
+  {
+    stringstream ss;
+    ss <<"HistogramBackend::createHistList: result histogram of postprocessor '"<<_key
+       <<"' is not initalized";
+    throw runtime_error(ss.str());
+  }
   if (isaccumulate)
   {
     if (!_histList.empty())
