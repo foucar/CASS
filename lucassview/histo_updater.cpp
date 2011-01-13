@@ -287,7 +287,7 @@ namespace lucassview
               roothist->SetXTitle(xaxis.title().c_str());
             }
             /** copy histogram contents */
-            for (size_t iX(0); iX<casshist->axis()[HistogramBackend::xAxis].nbrBins();++iX)
+            for (size_t iX(0); iX<xaxis.nbrBins();++iX)
               roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
             /** copy over / underflow */
             roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[HistogramBackend::Underflow]);
