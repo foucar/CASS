@@ -11,11 +11,9 @@
 
 #include <string>
 
-#ifdef CERNROOT
-#include <TFile.h>
-#endif
+#include "postprocessing/backend.h"
 
-#include "postprocessor.h"
+class TFile;
 
 namespace cass
 {
@@ -24,12 +22,6 @@ namespace cass
    * will convert all histograms defined in cass to root histograms and write
    * them to a root file. Filename can be chosen with the -o parameter at
    * program start.
-   *
-   * @note make conditional. When a condition is true dump all histograms
-   *       to a folder that has the name of the event id. When program stops
-   *       dump all histograms to a folder called run summary.
-   * @note the condition for this should be always false
-   * @todo implement this
    *
    * @author Lutz Foucar
    */
@@ -40,7 +32,7 @@ namespace cass
     pp2000(PostProcessors&, const PostProcessors::key_t&, std::string rootfilename);
 
     /** only a stub does nothing, but needs to be there because its pure virtual in base class */
-    virtual void process()(const CASSEvent&){}
+    virtual void process(const CASSEvent&);
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
@@ -53,9 +45,7 @@ namespace cass
     std::string _rootfilename;
 
     /** the root file */
-#ifdef CERNROOT
     TFile * _rootfile;
-#endif
   };
 }
 
