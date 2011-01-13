@@ -302,8 +302,7 @@ namespace lucassview
             if(!roothist)
             {
               cout << "updateHist(): '"<<key<<"' create roothist with for 0D histogram"<<endl;
-              roothist = new TH1F(key.c_str(),key.c_str(),
-                                  1,0,1);
+              roothist = new TH1F(key.c_str(),key.c_str(),1,0,1);
             }
             roothist->SetBinContent(1,casshist->memory()[0]);
             roothist->SetEntries(casshist->nbrOfFills());
