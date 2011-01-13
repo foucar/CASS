@@ -179,6 +179,7 @@ void pp2000::aboutToQuit()
     }
   }
   _rootfile->cd("/");
+  _rootfile->SaveSelf();
 }
 
 void pp2000::process(const cass::CASSEvent &evt)
@@ -202,5 +203,6 @@ void pp2000::process(const cass::CASSEvent &evt)
     }
   }
   _rootfile->cd("/");
+  _rootfile->SaveSelf();
 }
 
