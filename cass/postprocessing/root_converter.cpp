@@ -39,7 +39,7 @@ pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
   if (!rootfile)
   {
     stringstream ss;
-    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened, please delete the file!";
+    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened! Maybe deleting the file helps.";
     throw invalid_argument(ss.str());
   }
   loadSettings(0);
