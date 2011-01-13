@@ -58,7 +58,12 @@ namespace cass
       switch (casshist.dimension())
       {
       case 0:
-        VERBOSEOUT(std::cout<<"pp2000:destructor: Can't store a 0D Histogram"<<std::endl);
+        {
+          roothist = new TH1F(casshist.key().c_str(),casshist.key().c_str(),
+                              1,0,1);
+          roothist->SetBinContent(1,casshist.memory()[0]);
+          roothist->SetEntries(casshist.nbrOfFills());
+        }
         break;
       case 1:
         {
