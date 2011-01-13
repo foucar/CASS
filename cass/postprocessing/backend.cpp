@@ -123,17 +123,16 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
       delete it->second;
   }
   _histList.clear();
-  _histList.push_front (make_pair(0, _result));
+  _histList.push_front(make_pair(0, _result));
   for (size_t i=1; i<size;++i)
   {
     if (isaccumulate)
-      _histList.push_front (make_pair(0, _result));
+      _histList.push_front(make_pair(0, _result));
     else
-      _histList.push_front (make_pair(0, _result->clone()));
+      _histList.push_front(make_pair(0, _result->clone()));
   }
-  for (histogramList_t::iterator it (_histList.begin());
-  it != _histList.end();
-       ++it)
+  histogramList_t::iterator it (_histList.begin());
+  for (;it != _histList.end();++it)
     it->second->key() = _key;
 }
 
