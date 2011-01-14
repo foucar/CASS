@@ -612,8 +612,8 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
      break;
   default:
     throw invalid_argument(QString("PostProcessors::create(): Postprocessor '%1' has unknown ID=%2")
-                           .arg(ppid)
                            .arg(key.c_str())
+                           .arg(ppid)
                            .toStdString());
   }
   return processor;
