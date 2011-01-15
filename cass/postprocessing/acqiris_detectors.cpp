@@ -719,7 +719,7 @@ void cass::pp220::loadSettings(size_t)
   cout<<endl<< "PostProcessor '"<<_key
       <<"' create a PIPICO Histogram of detectors '"<<_detector01
       <<"' and '"<<_detector02
-      <<"'. Condition is "<<_condition->key()<<"'"
+      <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
 
