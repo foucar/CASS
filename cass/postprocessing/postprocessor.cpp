@@ -610,6 +610,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case ElectronEnergy:
      processor = new pp5000(*this,key);
      break;
+  case TrippleCoincidence:
+     processor = new pp5001(*this,key);
+     break;
   default:
     throw invalid_argument(QString("PostProcessors::create(): Postprocessor '%1' has unknown ID=%2")
                            .arg(key.c_str())

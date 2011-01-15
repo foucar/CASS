@@ -75,3 +75,59 @@ void pp5000::process(const CASSEvent &evt)
   _result->lock.unlock();
 }
 
+
+
+//----------------PIPIPICO-------------------------------------------------------
+pp5001::pp5001(PostProcessors &pp, const PostProcessors::key_t &key)
+  :cass::PostprocessorBackend(pp,key)
+{
+  loadSettings(0);
+}
+
+void pp5001::loadSettings(size_t)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _detector = settings.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  HelperAcqirisDetectors::instance(_detector)->loadSettings();
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' create a tripple coincidence Histogram of particles of '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void pp5001::process(const cass::CASSEvent &evt)
+{
+  using namespace cass::ACQIRIS;
+  using namespace std;
+  TofDetector *det01
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  SignalProducer::signals_t::const_iterator it01(det01->mcp().output().begin());
+  SignalProducer::signals_t::const_iterator end(det01->mcp().output().end());
+  _result->clear();
+  _result->lock.lockForWrite();
+  for (; it01 != end;++it01)
+  {
+    SignalProducer::signals_t::const_iterator it02(it01+1);
+    for (; it02 != end; ++it02)
+    {
+
+      SignalProducer::signals_t::const_iterator it03(it02+1);
+      for (; it03 != end; ++it03)
+      {
+        dynamic_cast<Histogram2DFloat*>(_result)->fill((*it01)["time"]+(*it02)["time"],(*it03)["time"]);
+      }
+    }
+  }
+  _result->lock.unlock();
+}
+
+

@@ -129,6 +129,7 @@ the Class description for information about what parameters are user settable.
 
 ---Coltrims Analysis--
 05000: Electron Energy from Recoil momenta
+05001: Tripple Coincidence Spectra from same detector
 
 @endverbatim
 
@@ -292,6 +293,7 @@ using the custom doxygen tag cassttng.
       ROOTDump=2000,
 
       ElectronEnergy=5000,
+      TrippleCoincidence=5001,
 
       InvalidPP
     };

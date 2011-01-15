@@ -69,5 +69,43 @@ namespace cass
       ACQIRIS::DelaylineDetector::particles_t::key_type _particle;
     };
 
+
+
+   /** Tripple coincidence spectra.
+    *
+    * This postprocessor will create Tripple Photo-Ion Coincidence Spectra.
+    *
+    * To set up the channel assignment for the requested detector one needs to set
+    * up the detector parameters.
+    * @see cass::ACQIRIS::TofDetector or cass::ACQIRIS::DelaylineDetector and
+    *      cass::ACQIRIS::Signal
+    *
+    * @see PostprocessorBackend for a list of all commonly available cass.ini
+    *      settings.
+    *
+    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
+    *           properties of the 2d histogram
+    * @cassttng PostProcessor/\%name\%/{Detector}\n
+    *           Name of the first detector that we work on. Default is "blubb"
+    *
+    * @author Lutz Foucar
+    */
+   class pp5001 : public PostprocessorBackend
+   {
+   public:
+     /** Constructor for Number of Signals*/
+     pp5001(PostProcessors&, const PostProcessors::key_t&);
+
+     /** Retrieve the number of Signals and histogram it */
+     virtual void process(const CASSEvent&);
+
+     /** load the histogram settings from file*/
+     virtual void loadSettings(size_t);
+
+   protected:
+     /** The first detector of the cooincdence*/
+     ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
+   };
+
 }
 #endif
