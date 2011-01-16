@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 #include <TObject.h>
 #include <TFile.h>
@@ -77,8 +78,9 @@ namespace cass
           roothist->GetXaxis()->CenterTitle(true);
           roothist->SetXTitle(xaxis.title().c_str());
           /** copy over / underflow */
-          roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[HistogramBackend::Underflow]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[HistogramBackend::Overflow]);
+          size_t OverUnderFlowStart (xaxis.nbrBins());
+          roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Overflow]);
           /** copy histogram contents */
           for (size_t iX(0); iX<xaxis.nbrBins();++iX)
             roothist->SetBinContent(roothist->GetBin(iX+1),casshist.memory()[iX]);
@@ -101,14 +103,15 @@ namespace cass
           roothist->GetYaxis()->CenterTitle(true);
           roothist->GetYaxis()->SetTitleOffset(1.5);
           /** copy over / underflow */
-          roothist->SetBinContent(roothist->GetBin(0,0),casshist.memory()[HistogramBackend::LowerLeft]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist.memory()[HistogramBackend::LowerRight]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperRight]);
-          roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperLeft]);
-          roothist->SetBinContent(roothist->GetBin(1,0),casshist.memory()[HistogramBackend::LowerMiddle]);
-          roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist.memory()[HistogramBackend::UpperMiddle]);
-          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist.memory()[HistogramBackend::Right]);
-          roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[HistogramBackend::Left]);
+          size_t OverUnderFlowStart (xaxis.nbrBins()*yaxis.nbrBins());
+          roothist->SetBinContent(roothist->GetBin(0,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerLeft]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerRight]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperRight]);
+          roothist->SetBinContent(roothist->GetBin(0,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperLeft]);
+          roothist->SetBinContent(roothist->GetBin(1,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerMiddle]);
+          roothist->SetBinContent(roothist->GetBin(1,yaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::UpperMiddle]);
+          roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Right]);
+          roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Left]);
           /** copy number of fills (how many shots have been accumulated) */
           roothist->SetEntries(casshist.nbrOfFills());
           /** copy histogram contents */
@@ -160,7 +163,7 @@ void pp2000::loadSettings(size_t)
 
 void pp2000::aboutToQuit()
 {
-  VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<key
+  VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<_key
              <<"): Histograms will be written to: "
              <<_rootfilename
              <<endl);
