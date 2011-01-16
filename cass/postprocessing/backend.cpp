@@ -176,8 +176,19 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  PostProcessors::key_t dependkey;
-  dependkey = settings.value(depVarName,"").toString().toStdString();
+  PostProcessors::key_t dependkey
+      (settings.value(depVarName,"").toString().toStdString());
+  if (dependkey == _key)
+  {
+    stringstream ss;
+    ss << "PostprocessorBackend::setupDependency(): Error: '"<<_key
+        <<"' looks for a dependency '"<<dependkey
+        <<"'. One cannot let a postprocessor depend on itself."
+        <<" Note that qsettings is not case sensitive, so on must provide"
+        <<" names that differ not only in upper / lower case.";
+    throw invalid_argument(ss.str());
+
+  }
   VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): '"<<_key
              <<"' will search for key in '"<<depVarName
              <<"' which is '"<<dependkey
