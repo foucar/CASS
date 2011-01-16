@@ -32,7 +32,26 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
-   *           The name of the beamline data variable you are interested in
+   *           The name of the beamline data variable you are interested in.
+   *           Default is "". Available values are:
+   *           - FEE Gas Detector values
+   *             - f_11_ENRC
+   *             - f_12_ENRC
+   *             - f_21_ENRC
+   *             - f_22_ENRC
+   *           - E-Beam values
+   *             - EbeamCharge
+   *             - EbeamL3Energy
+   *             - EbeamLTUAngX
+   *             - EbeamLTUAngY
+   *             - EbeamLTUPosX
+   *             - EbeamLTUPosY
+   *             - EbeamPkCurrBC2
+   *           - Phase Cavity values
+   *             - Charge1
+   *             - Charge2
+   *             - FitTime1
+   *             - FitTime2
    *
    * @author Lutz Foucar
    */
@@ -66,6 +85,8 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{VariableName}
    *           The name of the epics data variable you are interested in.
+   *           Default is "". Please aks your PI which EPICS variables have been
+   *           put into the datastream for archiving.
    *
    * @author Lutz Foucar
    */
