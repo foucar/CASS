@@ -62,9 +62,9 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     }
     else
     {
-      process(evt);
       _histList.push_front(newPair);
       it = _histList.begin();
+      process(evt);
     }
   }
   return *(it->second);
@@ -73,9 +73,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
 {
   using namespace std;
-//  std::cout << "PostprocessorBackend::getHist: 1"<<std::endl;
   QWriteLocker lock(&_histLock);
-//  std::cout << "PostprocessorBackend::getHist: 2"<<std::endl;
   //if eventId is 0 then just return the latest event//
   if (0 == eventid)
     return *(_histList.front().second);
@@ -87,7 +85,6 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
       throw InvalidHistogramError(eventid);
     return *(it->second);
   }
-//  std::cout << "PostprocessorBackend::getHist: 3"<<std::endl;
 }
 
 void PostprocessorBackend::clearHistograms()
