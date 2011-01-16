@@ -334,7 +334,7 @@ public:
     virtual void clear()
     {
       QWriteLocker wlock(&lock);
-      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram '"<<_key<<"'"<<std::endl);
+//      VERBOSEOUT(std::cout<<"HistogramFloatBase:clear(): clearing histogram '"<<_key<<"'"<<std::endl);
       std::fill(_memory.begin(),_memory.end(),0);
       _nbrOfFills = 0;
     }
@@ -740,7 +740,7 @@ inline size_t AxisProperty::bin(float pos) const
 //-----------------Base class-----------------------
 inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)const
 {
-  lock.lockForRead();
+  QReadLocker rlock(&lock);
   //the version//
   out.addUint16(_version);
   //the number of fills//
@@ -757,7 +757,6 @@ inline void cass::HistogramFloatBase::serialize(cass::SerializerBackend &out)con
   for (storage_t::const_iterator it=_memory.begin(); it!=_memory.end();++it)
     out.addFloat(*it);
   out.addString(_key);
-  lock.unlock();
 }
 
 
@@ -771,7 +770,7 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
     std::cerr<<"version conflict in histogram: "<<ver<<" "<<_version<<std::endl;
     return false;
   }
-  lock.lockForWrite();
+  QWriteLocker wlock(&lock);
   //the number of fills//
   _nbrOfFills = in.retrieveSizet();
   //the dimension//
@@ -785,7 +784,6 @@ inline bool cass::HistogramFloatBase::deserialize(cass::SerializerBackend &in)
   for (storage_t::iterator it=_memory.begin(); it!=_memory.end();++it)
     *it = in.retrieveFloat();
   _key = in.retrieveString();
-  lock.unlock();
   return true;
 }
 
