@@ -341,6 +341,13 @@ using the custom doxygen tag cassttng.
      */
     keyList_t find_dependant(const key_t& key);
 
+    /** a read write lock
+     *
+     * read write for making sure that reload is not called when someone
+     * wants retrieve a list or retrieve a postprocessor.
+     */
+    QReadWriteLock lock;
+
   public slots:
     /** Load active postprocessors and histograms
      *

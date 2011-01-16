@@ -46,7 +46,7 @@ cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
 #ifdef VERBOSE
   static int n(0), create(0);
 #endif
-  VERBOSEOUT(std::cerr<<"PostProcessors::instance -- call "<<++n<<std::endl);
+//  VERBOSEOUT(std::cerr<<"PostProcessors::instance -- call "<<++n<<std::endl);
   QMutexLocker locker(&_mutex);
   if(0 == _instance)
   {
@@ -116,6 +116,7 @@ void cass::PostProcessors::aboutToQuit()
 
 void cass::PostProcessors::loadSettings(size_t)
 {
+  QWriteLocker locker(&lock);
   using namespace std;
   VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
   CASSSettings settings;
