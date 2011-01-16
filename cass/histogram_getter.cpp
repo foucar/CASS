@@ -18,11 +18,10 @@ using namespace cass;
 
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
+  QReadLocker(&_postprocessors->lock);
   PostprocessorBackend &pp
       (_postprocessors->getPostProcessor(hp.key));
-//  std::cout << "HistogramGetter(): get hist"<<std::endl;
   const HistogramBackend &hist (pp.getHist(hp.eventId));
-//  std::cout << "HistogramGetter(): got hist"<<std::endl;
   Serializer serializer;
   size_t dim(hist.dimension());
   hist.serialize(serializer);

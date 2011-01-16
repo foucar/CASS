@@ -1,6 +1,8 @@
 // Copyright (C) 2010 Jochen Küpper
 
 #include <stdexcept>
+
+#include <QtCore/QReadLocker>
 #include <QtCore/QBuffer>
 #include <QtCore/QByteArray>
 #include <QtCore/QQueue>
@@ -111,6 +113,7 @@ int CASSsoapService::getPostprocessorIds(bool *success)
     static QQueue< std::string* > queue;
     int result;
     cass::PostProcessors *pp(cass::PostProcessors::instance(""));
+    QReadLocker lock(&pp->lock);
     cass::IdList* idlist(pp->getIdList());
     cass::Serializer* ser(new cass::Serializer);
     idlist->serialize(*ser);
@@ -170,15 +173,13 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
 
 int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 /*eventId*/, bool *success)
 {
-    VERBOSEOUT(std::cerr << "CASSsoapService::getHistogram" << std::endl);
+//    VERBOSEOUT(std::cerr << "CASSsoapService::getHistogram" << std::endl);
     static QQueue<std::pair<size_t, std::string> *> queue;
     try {
         // get data
-//      std::cout << "CASSsoapService::getHistogram(): get hist"<<std::endl;
         cass::SoapServer *server(cass::SoapServer::instance());
         std::pair<size_t, std::string> *data(
             new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
-//        std::cout << "CASSsoapService::getHistogram(): got  hist"<<std::endl;
         // MIME type
         std::string mimetype;
         switch(data->first) {
