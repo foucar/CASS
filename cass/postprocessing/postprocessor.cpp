@@ -33,7 +33,9 @@
 #include "hitrate.h"
 #endif
 
-
+#ifdef CERNROOT
+#include "root_converter.h"
+#endif
 
 
 // ============define static members (do not touch)==============
