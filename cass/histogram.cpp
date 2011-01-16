@@ -34,6 +34,7 @@ namespace cass
   void Histogram1DFloat::resize(size_t nbrXBins, float xLow, float xUp)
   {
     using namespace std;
+    QWriteLocker wlock(&lock);
     _memory.clear();
     string xaxisTitle (_axis[HistogramBackend::xAxis].title());
     _axis.clear();
