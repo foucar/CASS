@@ -27,10 +27,6 @@ namespace cass
    *
    * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
    *           Should pre analysis run: default true
-   * @cassttng PreAnalyzer/{useAcqirisAnalyzer}\n
-   *           Should pre analysis run: default false
-   * @cassttng PreAnalyzer/{useMachineAnalyzer}\n
-   *           Should pre analysis run: default false
    * @cassttng PreAnalyzer/{usepnCCDAnalyzer}\n
    *           Should pre analysis run: default true
    *
