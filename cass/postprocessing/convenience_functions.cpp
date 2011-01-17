@@ -98,5 +98,6 @@ std::string cass::ACQIRIS::loadParticle(CASSSettings &s,
         <<"' is not defined for detector '"<<detector<<"'";
     throw invalid_argument(ss.str());
   }
+  return particle;
 }
 
