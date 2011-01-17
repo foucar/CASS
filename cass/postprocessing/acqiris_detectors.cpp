@@ -767,7 +767,7 @@ void cass::pp250::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,250,_key);
-  _particle = settings.value("Particle","NeP").toString().toStdString();
+  _particle = loadParticle(settings,_detector,250,_key);
   _property = settings.value("Property","px").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
@@ -788,7 +788,7 @@ void cass::pp250::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  Particle & particle (det->particles()[_particle]);
+  Particle &particle(det->particles()[_particle]);
 //  cout << "pp250 size"<<particle.hits().size()<<endl;
   particleHits_t::iterator it (particle.hits().begin());
   _result->clear();
@@ -821,7 +821,7 @@ void cass::pp251::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,251,_key);
-  _particle = settings.value("Particle","NeP").toString().toStdString();
+  _particle = loadParticle(settings,_detector,250,_key);
   _property01 = settings.value("FirstProperty","px").toString().toStdString();
   _property02 = settings.value("SecondProperty","py").toString().toStdString();
   setupGeneral();
@@ -844,7 +844,7 @@ void cass::pp251::process(const cass::CASSEvent &evt)
   using namespace std;
   DelaylineDetector *det
       (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
-  Particle & particle (det->particles()[_particle]);
+  Particle & particle(det->particles()[_particle]);
   particleHits_t::iterator it (particle.hits().begin());
   _result->clear();
   _result->lock.lockForWrite();
@@ -874,7 +874,7 @@ void cass::pp252::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,252,_key);
-  _particle = settings.value("Particle","NeP").toString().toStdString();
+  _particle = loadParticle(settings,_detector,250,_key);
   setupGeneral();
   if (!setupCondition())
     return;

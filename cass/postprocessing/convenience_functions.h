@@ -61,6 +61,25 @@ namespace cass
     std::string loadDelayDet(CASSSettings &s,
                              int ppNbr,
                              const PostProcessors::key_t& key);
+
+    /** load particle for a specific detector
+     *
+     * after loading check whether it is a delayline detector, if not throw
+     * invalid_argument exception.
+     *
+     * @return key containing detector name
+     * @param s CASSSettings object to read the info from
+     * @param detector the name of the detector that contains the layer
+     * @param ppNbr the Postprocessor number of the postprocessor calling this
+     *              function
+     * @param key the key of the postprocessor calling this function
+     *
+     * @author Lutz Foucar
+     */
+    std::string loadParticle(CASSSettings &s,
+                             const std::string &detector,
+                             int ppNbr,
+                             const PostProcessors::key_t& key);
   }
 
   /** predicate class for find_if.

@@ -197,8 +197,11 @@ namespace cass
       /** retrieve the particle container */
       particles_t& particles()  {return _particles;}
 
+      /** retrieve the particle container without changing it */
+      const particles_t& particles()const {return _particles;}
+
       /** retrieve the detector type */
-      DetectorType type() {return Delayline;}
+      DetectorType type()const {return Delayline;}
 
       /** retrieve the anode type property
        *

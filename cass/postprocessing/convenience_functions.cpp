@@ -13,6 +13,7 @@
 #include "histogram.h"
 #include "cass_settings.h"
 #include "acqiris_detectors_helper.h"
+#include "delayline_detector.h"
 
 using namespace cass;
 using namespace cass::ACQIRIS;
@@ -79,5 +80,23 @@ std::string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
   }
   dethelp->loadSettings();
   return detector;
+}
+
+std::string cass::ACQIRIS::loadParticle(CASSSettings &s,
+                                        const std::string &detector,
+                                        int ppNbr,
+                                        const PostProcessors::key_t& key)
+{
+  using namespace std;
+  string particle (s.value("Particle","NeP").toString().toStdString());
+  const DelaylineDetector *det
+      (dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(detector)->detector()));
+  if (det->particles().end() == det->particles().find(particle))
+  {
+    stringstream ss;
+    ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error Particle '"<<particle
+        <<"' is not defined for detector '"<<detector<<"'";
+    throw invalid_argument(ss.str());
+  }
 }
 
