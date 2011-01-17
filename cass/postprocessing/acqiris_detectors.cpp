@@ -821,7 +821,7 @@ void cass::pp251::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,251,_key);
-  _particle = loadParticle(settings,_detector,250,_key);
+  _particle = loadParticle(settings,_detector,251,_key);
   _property01 = settings.value("FirstProperty","px").toString().toStdString();
   _property02 = settings.value("SecondProperty","py").toString().toStdString();
   setupGeneral();
@@ -874,7 +874,7 @@ void cass::pp252::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,252,_key);
-  _particle = loadParticle(settings,_detector,250,_key);
+  _particle = loadParticle(settings,_detector,252,_key);
   setupGeneral();
   if (!setupCondition())
     return;

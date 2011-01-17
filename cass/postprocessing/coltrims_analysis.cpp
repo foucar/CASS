@@ -42,7 +42,7 @@ void pp5000::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   _detector = loadDelayDet(settings,5000,_key);
-  _particle = loadParticle(settings,_detector,250,_key);
+  _particle = loadParticle(settings,_detector,5000,_key);
   setupGeneral();
   if (!setupCondition())
     return;
