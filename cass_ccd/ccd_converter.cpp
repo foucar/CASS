@@ -21,18 +21,26 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   using namespace std;
   //Get the the detector's device id //
   const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-  const size_t detectorId = info.devId();
+  const size_t detectorId = info.detId();
+//  std::cout << "CCDConverter::XTCData: DetectorID:"<<info.detId()
+//      <<" DeviceId:"<< info.devId()
+//      <<" Detector:"<<info.detector()
+//      <<" Device:"<< info.device()
+//      <<std::endl;
   //retrieve a reference to the frame contained int the xtc//
   const Pds::Camera::FrameV1 &frame =
     *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //if necessary resize the detector container//
-//  std::cout << "CCDConverter::XTCData: DetectorID:"<<detectorId<<std::endl;
   if (detectorId >= dev->detectors()->size())
     dev->detectors()->resize(detectorId+1);
   //retrieve a reference to the commercial ccd detector//
   cass::PixelDetector& det = (*dev->detectors())[detectorId];
+//  std::cout << dev->detectors()->size()
+//      <<" "<<frame.width()
+//      <<" "<<frame.height()
+//      <<std::endl;
 
   //copy the values status values from the frame to the detector//
   det.columns()          = frame.width();
