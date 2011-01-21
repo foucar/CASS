@@ -142,8 +142,13 @@ namespace cass
     /** load the histogram settings from CASS.ini*/
     virtual void loadSettings(size_t);
 
+    /** adjust the parameters when the incomming histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend *in);
+
   protected:
     std::pair<float, float> _center; //!< Image center
+    float _minRadiusUser;            //!< User requested minimum radius
+    float _maxRadiusUser;            //!< User requested maximum radius
     float _minRadius;                //!< Minimum radius for analysis
     float _maxRadius;                //!< Maximum radius for analysis
     float _symAngle;                 //!< Symmetry angle
