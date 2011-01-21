@@ -33,6 +33,7 @@ cass::pp100::pp100(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp100::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -58,13 +59,13 @@ void cass::pp100::loadSettings(size_t)
     return;
   _result = new Histogram2DFloat(cols,rows);
   createHistList(2*cass::NbrOfWorkers);
-  std::cout<<"Postprocessor "<<_key
-      <<": will display ccd image of detector "<<_detector
-      <<" in device "<<_device
-      <<". The image has "<<rows
-      <<" rows and "<<cols
-      <<" columns. It will use condition "<<_condition->key()
-      <<std::endl;
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' will display ccd image of detector '"<<_detector
+      <<"' in device '"<<_device
+      <<"'. The image has '"<<rows
+      <<"' rows and '"<<cols
+      <<"' columns. It will use condition '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp100::process(const cass::CASSEvent& evt)
@@ -78,8 +79,10 @@ void cass::pp100::process(const cass::CASSEvent& evt)
                              .arg(_device).toStdString());
 
   //get frame and fill image//
-  const PixelDetector::frame_t& frame
-      ((*(evt.devices().find(_device)->second)->detectors())[_detector].frame());
+  const PixelDetector &det ((*(evt.devices().find(_device)->second)->detectors())[_detector]);
+  const PixelDetector::frame_t& frame (det.frame());
+//      ((*(evt.devices().find(_device)->second)->detectors())[_detector].frame());
+//  std::cout << frame.size()<<" "<<dynamic_cast<Histogram2DFloat*>(_result)->memory().size()<<std::endl;
   /*
       // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
       if(frame.size()!=_image->shape().first *_image->shape().second)
@@ -99,10 +102,23 @@ void cass::pp100::process(const cass::CASSEvent& evt)
         <<std::endl;
   */
   _result->lock.lockForWrite();
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det.columns() ||
+      _result->axis()[HistogramBackend::yAxis].nbrBins() != det.rows())
+  {
+    for (histogramList_t::iterator it(_histList.begin()); it != _histList.end(); ++it)
+    {
+      dynamic_cast<Histogram2DFloat*>(it->second)->resize(det.columns(),0,det.columns()-1,
+                                                          det.rows(),0,det.rows()-1);
+    }
+    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+    PostProcessors::keyList_t::iterator it (dependands.begin());
+    for (; it != dependands.end(); ++it)
+      _pp.getPostProcessor(*it).histogramsChanged(_result);
+  }
   copy(frame.begin(),
        frame.end(),
        dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
-  ++_result->nbrOfFills();
+  _result->nbrOfFills() = 1;
   _result->lock.unlock();
 }
 
