@@ -9,18 +9,21 @@
  */
 
 #include <iostream>
-
 #include <iomanip>
 #include <fstream>
+
 #include <QtCore/QMutexLocker>
-#include "cass_event.h"
+
+#include "pdsdata/xtc/Dgram.hh"
+
 #include "format_converter.h"
+
+#include "cass_event.h"
 #include "acqiris_converter.h"
 #include "ccd_converter.h"
 #include "machine_converter.h"
 #include "pnccd_converter.h"
 #include "xtciterator.h"
-#include "pdsdata/xtc/Dgram.hh"
 
 
 //create a black converter for all ids that we are not interested in//
