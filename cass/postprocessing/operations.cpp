@@ -890,11 +890,11 @@ void cass::pp64::loadSettings(size_t)
   _result = new Histogram1DFloat(_size, 0, _size-1);
   createHistList(2*cass::NbrOfWorkers,true);
 
-  std::cout << "PostProcessor " << _key
-      << ": will make a history of 0d histogram in pp "<< _one->key()
-            << ", condition on postprocessor:" << _condition->key()
-            << ", size of history: " << _size
-            << std::endl;
+  cout<<endl<< "PostProcessor '" << _key
+      <<"' will make a history of 0d histogram in pp '"<< _one->key()
+      <<", size of history '" << _size
+      <<"' Condition on postprocessor '" << _condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp64::process(const cass::CASSEvent &evt)
