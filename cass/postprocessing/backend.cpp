@@ -212,10 +212,19 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   PostprocessorBackend *dependpp(0);
   try
   {
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): try to find '"<<dependkey
+               <<"' in the list of postprocessors"
+               <<endl);
     dependpp = &(_pp.getPostProcessor(dependkey));
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): found '"<<dependkey
+               <<"' in the list of postprocessors"
+               <<endl);
   }
   catch (InvalidPostProcessorError&)
   {
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): did not find '"<<dependkey
+               <<"' in the list of postprocessors"
+               <<endl);
     return 0;
   }
   return dependpp;
