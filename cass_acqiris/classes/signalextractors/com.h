@@ -62,10 +62,10 @@ namespace cass
      *
      * @cassttng .../CenterOfMass/{AcqirisInstrument}\n
      *           Acqiris Instrument that this channel is in:
-     *           - 0: Camp (Acqiris Multiinstrument with 5 Cards (20 Channels))
-     *           - 1: AMO I-ToF
-     *           - 2: AMO Magnetic Bottle
-     *           - 3: AMO Gas Detector
+     *           - 8: Camp (Acqiris Multiinstrument with 5 Cards (20 Channels))
+     *           - 4: AMO I-ToF
+     *           - 5: AMO Magnetic Bottle
+     *           - 2: AMO Gas Detector
      * @cassttng .../CenterOfMass/{ChannelNumber} \n
      *           Channel within the instrument (starts counting from 0)
      * @cassttng .../CenterOfMass/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
