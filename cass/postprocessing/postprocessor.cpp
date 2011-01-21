@@ -196,15 +196,85 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
 {
   using namespace std;
   //go through all pp and retrieve their dependencies//
-  //make a list of all key that have a dependency on the requested key
+  //make a list of all key that have a dependency on the requested key//
+  //iteratively go through and find all depends depandats
   keyList_t dependandList;
-  postprocessors_t::iterator iter = _postprocessors.begin();
-  for(;iter != _postprocessors.end(); ++iter)
+  dependandList.push_front(key);
+  postprocessors_t::const_iterator iter = _postprocessors.begin();
+  while(iter != _postprocessors.end())
   {
+    bool update(false);
     keyList_t dependencyList(iter->second->dependencies());
-    if (find(dependencyList.begin(),dependencyList.end(),key) != dependencyList.end())
-      dependandList.push_front(iter->first);
+    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+    {
+#ifdef VERBOSE
+      cout<<"PostProcessors::find_dependant: check if '"<<*it
+          <<"' is on dependency list of '"<<iter->first<<"'"
+          <<endl;
+#endif
+      if (find(dependencyList.begin(),dependencyList.end(),*it) != dependencyList.end())
+      {
+#ifdef VERBOSE
+      cout<<"PostProcessors::find_dependant: '"<<*it
+          <<"' is on dependency list of '"<<iter->first
+          <<"' Now check whether '"<<iter->first
+          <<"' is already on the dependand list."
+          <<endl;
+#endif
+        if(find(dependandList.begin(),dependandList.end(),iter->first) == dependandList.end())
+        {
+#ifdef VERBOSE
+          cout<<"PostProcessors::find_dependant: '"<<iter->first
+              <<"' is not dependant list. Put it there and start over."
+              <<endl;
+#endif
+          dependandList.push_front(iter->first);
+          update=true;
+        }
+#ifdef VERBOSE
+        else
+        {
+          cout<<"PostProcessors::find_dependant: '"<<iter->first
+              <<"' is on dependant list. Nothing to do."
+              <<endl;
+        }
+#endif
+      }
+#ifdef VERBOSE
+      else
+      {
+        cout<<"PostProcessors::find_dependant: '"<<*it
+            <<"' is not on dependency list of '"<<iter->first<<"'"
+            <<endl;
+      }
+#endif
+    }
+    if (update)
+    {
+#ifdef VERBOSE
+      cout<<"PostProcessors::find_dependant: The dependant list was modified, starting over"
+          <<endl;
+#endif
+      iter = _postprocessors.begin();
+      continue;
+    }
+    ++iter;
   }
+#ifdef VERBOSE
+    cout<<"PostProcessors::find_dependant: now the following keys are on the dependand list: ";
+    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+      cout<<*it<<", ";
+    cout<<" of '"<<key
+        <<"'. Now remove the initial key '"<<key<<"'"<<endl;
+#endif
+  dependandList.remove(key);
+#ifdef VERBOSE
+    cout<<"PostProcessors::find_dependant: Here is the final dependant list of '"<<key
+        <<"': ";
+    for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
+      cout<<*it<<", ";
+    cout<<endl;
+#endif
   return dependandList;
 }
 
