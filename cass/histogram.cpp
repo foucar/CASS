@@ -46,6 +46,7 @@ namespace cass
                                 size_t nbrYBins, float yLow, float yUp)
   {
     using namespace std;
+    QWriteLocker wlock(&lock);
     _memory.clear();
     string xaxisTitle (_axis[HistogramBackend::xAxis].title());
     string yaxisTitle (_axis[HistogramBackend::yAxis].title());
