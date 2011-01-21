@@ -13,8 +13,13 @@ namespace cass
 {
   namespace CCD
   {
+    /** @note the below is true only for data recorded in June 2010 */
     const size_t opal_default_size(1000);
     const size_t opal_default_size_sq(1000*1000);
+    /** @note the below is true for everything after June 2010 run, according to Matt Weaver */
+//    const size_t opal_default_size(1024);
+//    const size_t opal_default_size_sq(1024*1024);
+
     const size_t pulnix_default_height(480);
     const size_t pulnix_default_width(640);
     const size_t pulnix_default_size_sq(640*480);
