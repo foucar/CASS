@@ -627,7 +627,7 @@ void cass::pp61::loadSettings(size_t)
   _result = one.clone();
   createHistList(2*cass::NbrOfWorkers,true);
   cout<<endl<<"Postprocessor '"<<_key
-      <<"' averages histograms from PostProcessor "<< _pHist->key()
+      <<"' averages histograms from PostProcessor '"<< _pHist->key()
       <<"' alpha for the averaging '"<<_alpha
       <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
       <<endl;
