@@ -12,12 +12,15 @@
 #define CASS_FORMATCONVERTER_H
 
 #include <map>
+
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
+
+#include "pdsdata/xtc/TypeId.hh"
+
 #include "cass.h"
 #include "conversion_backend.h"
 #include "cass_settings.h"
-#include "pdsdata/xtc/TypeId.hh"
 
 namespace cass
 {
