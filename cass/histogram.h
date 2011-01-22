@@ -19,6 +19,7 @@
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <sstream>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -724,9 +725,19 @@ inline bool cass::AxisProperty::deserialize(cass::SerializerBackend &in)
 inline size_t AxisProperty::bin(float pos) const
 {
     if(pos < _low)
-        throw std::out_of_range("Requested position to low");
+    {
+        std::stringstream ss;
+        ss<<"AxisProperty::bin(): Requested position '"<<pos
+            <<"' to low the lowest can be '"<<_low<<"'";
+        throw std::out_of_range(ss.str());
+    }
     else if(pos > _up)
-        throw std::out_of_range("Requested position to high");
+    {
+        std::stringstream ss;
+        ss<<"AxisProperty::bin(): Requested position '"<<pos
+            <<"' to high the highest can be '"<<_up<<"'";
+        throw std::out_of_range(ss.str());
+    }
     size_t index(static_cast<size_t>(_size * ((pos - _low) / (_up - _low))));
     if(size() == index)
         // be forgiving and compensate for rounding errors
