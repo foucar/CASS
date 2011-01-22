@@ -19,6 +19,7 @@
 #include <TDirectory.h>
 #include <TROOT.h>
 #include <TList.h>
+#include <TSeqCollection.h>
 #include <TPad.h>
 #include <TCanvas.h>
 #include <TCollection.h>
@@ -36,24 +37,96 @@ HistogramUpdater *gCASSClient(0);
 
 namespace lucassview
 {
-  /**  update all pads in canvases
+  /** update the contents of the canvases
    *
-   * iterate through all canvases and pads and tell them to update
+   * recursively iterate through lists if object is a pad, update it and
+   * iterate through its primitives.
+   *
+   * @param list the list of TObjects to iterate through
    *
    * @author Lutz Foucar
    */
-  void updateCanvases()
+  void updateCanvases(TSeqCollection* list)
   {
-    TIter next(gROOT->GetListOfCanvases());
-    TObject * canv(0);
-    while ((canv = next()))
+    TIter next(list);
+    TObject *obj(0);
+    while ((obj = next()))
     {
-      TIter next2(static_cast<TCanvas*>(canv)->GetListOfPrimitives());
-      TObject * pad(0);
-      while ((pad = next2()))
+//      cout << "Obj: "<< obj->GetName() <<" " << obj->InheritsFrom("TPad")<<endl;
+      if (obj->InheritsFrom("TPad"))
       {
-        static_cast<TPad*>(pad)->Modified();
-        static_cast<TPad*>(pad)->Update();
+        static_cast<TPad*>(obj)->Modified();
+        static_cast<TPad*>(obj)->Update();
+        updateCanvases(static_cast<TPad*>(obj)->GetListOfPrimitives());
+      }
+    }
+  }
+
+  /** delete all root histograms that are not on the list
+   *
+   * go through the list of objects in memory and erase it if it not on the list
+   * @author Lutz Foucar
+   */
+  struct deleteObsoleteHistogram
+  {
+    /** constructor
+     *
+     * @param allkeys all available keys on the server
+     */
+    deleteObsoleteHistogram(const list<string> &allkeys)
+      :_allkeys(allkeys)
+    {}
+
+    /** the operator
+     *
+     * if the object is a TH1 and its name is not on the allkeys list, check if
+     * the title is the same as the name of the object. If so it is most likely
+     * a cass histogram, that is not on the list anymore, so delete it.
+     *
+     * @param obj The object that potentially will be deleted
+     */
+    void operator()(TObject *obj)
+    {
+      if (obj->InheritsFrom("TH1"))
+      {
+        if (find(_allkeys.begin(),_allkeys.end(),obj->GetName()) == _allkeys.end())
+        {
+          if (string(obj->GetName()) == string(obj->GetTitle()))
+          {
+            cout<<"deleteObsoleteHistogram(): delete '"<< obj->GetName()<<"' it is not on the casshistogram list"<<endl;
+            obj->Delete();
+          }
+        }
+      }
+    }
+
+    /** the list with all cass histogram keys */
+    const list<string> &_allkeys;
+  };
+
+  /** iteratively go through canvas list and find histgrams
+   *
+   * when a histogram is found add it to the updateList, if it is another pad,
+   * iterate through its primatives
+   *
+   * @param list The list of TObjects to iterate through
+   * @param updateList The list containg the names of the found histgrams
+   *
+   * @author Lutz Foucar
+   */
+  void iterateListAndAddDisplayedHistograms(TSeqCollection* list, list<string>& updateList)
+  {
+    TIter next(list);
+    TObject *obj(0);
+    while ((obj = next()))
+    {
+//      cout << "Obj: "<< obj->GetName() <<" " << obj->InheritsFrom("TPad")<<endl;
+      if (obj->InheritsFrom("TPad"))
+        iterateListAndAddDisplayedHistograms(static_cast<TCanvas*>(obj)->GetListOfPrimitives(),
+                                             updateList);
+      else if(obj->InheritsFrom("TH1"))
+      {
+        updateList.push_back(obj->GetName());
       }
     }
   }
@@ -76,25 +149,26 @@ namespace lucassview
     for (list<string>::const_iterator it(allkeys.begin()); it!=allkeys.end(); ++ it)
       if (!gDirectory->FindObjectAny((*it).c_str()))
         updateList.push_back((*it));
-    TIter next(gROOT->GetListOfCanvases());
-    TObject * canv(0);
-    while ((canv = next()))
-    {
-//      std::cout << "Canv: "<< canv->GetName() <<endl;
-      TIter next2(static_cast<TCanvas*>(canv)->GetListOfPrimitives());
-      TObject * pad(0);
-      while ((pad = next2()))
-      {
-//        std::cout << " Pad: "<< pad->GetName() <<endl;
-        TIter next3(static_cast<TPad*>(pad)->GetListOfPrimitives());
-        TObject * hist(0);
-        while ((hist = next3()))
-        {
-          if (hist->InheritsFrom("TH1"))
-            updateList.push_back(hist->GetName());
-        }
-      }
-    }
+    iterateListAndAddDisplayedHistograms(gROOT->GetListOfCanvases(),updateList);
+//    TIter next(gROOT->GetListOfCanvases());
+//    TObject * canv(0);
+//    while ((canv = next()))
+//    {
+//      cout << "Canv: "<< canv->GetName() <<" " << canv->InheritsFrom("TPad")<<endl;
+//      TIter next2(static_cast<TCanvas*>(canv)->GetListOfPrimitives());
+//      TObject * pad(0);
+//      while ((pad = next2()))
+//      {
+//        cout << " Pad: "<< pad->GetName()<<" " << pad->InheritsFrom("TPad") <<endl;
+//        TIter next3(static_cast<TPad*>(pad)->GetListOfPrimitives());
+//        TObject * hist(0);
+//        while ((hist = next3()))
+//        {
+//          if (hist->InheritsFrom("TH1"))
+//            updateList.push_back(hist->GetName());
+//        }
+//      }
+//    }
     return updateList;
   }
 
@@ -352,8 +426,10 @@ void HistogramUpdater::syncHistograms()
     list<string> allkeylist(client());
     list<string> updatableHistsList(checkList(allkeylist));
     for_each(updatableHistsList.begin(),updatableHistsList.end(), updateHist(client));
+    TIter it(gDirectory->GetList());
+    for_each(it.Begin(),TIter::End(),deleteObsoleteHistogram(allkeylist));
     if (_updateCanv)
-      updateCanvases();
+      updateCanvases(gROOT->GetListOfCanvases());
   }
   catch (const runtime_error &error)
   {
