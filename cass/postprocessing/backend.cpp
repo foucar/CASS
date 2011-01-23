@@ -52,19 +52,28 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   if(_histList.end() == it)
   {
     _result = _histList.back().second;
-    histogramList_t::value_type newPair (std::make_pair(evt.id(),_result));
-    _histList.pop_back();
+    /**
+     * The calls that either process this event or request the condtion from
+     * another postprocessor might alter the hist list (ie. if the either one
+     * will resize and then call histogramsChanged). Also the _result pointer
+     * might have changed, so create the pair with the pointer and the id only
+     * after the call and modify the list
+     */
     if (_condition && !(*_condition)(evt).isTrue())
     {
+      _histList.pop_back();
+      histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       it = _histList.begin();
       ++it;
       it =_histList.insert(it,newPair);
     }
     else
     {
+      process(evt);
+      _histList.pop_back();
+      histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       _histList.push_front(newPair);
       it = _histList.begin();
-      process(evt);
     }
   }
   return *(it->second);
@@ -120,20 +129,20 @@ void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
   }
   else
   {
-    histogramList_t::iterator it (_histList.begin());
+    histogramList_t::iterator it(_histList.begin());
     for (;it != _histList.end();++it)
       delete it->second;
   }
   _histList.clear();
-  _histList.push_front(make_pair(0, _result));
   for (size_t i=1; i<size;++i)
   {
     if (isaccumulate)
-      _histList.push_front(make_pair(0, _result));
+      _histList.push_back(make_pair(0,_result));
     else
-      _histList.push_front(make_pair(0, _result->clone()));
+      _histList.push_back(make_pair(0,_result->clone()));
   }
-  histogramList_t::iterator it (_histList.begin());
+  _histList.push_back(make_pair(0, _result));
+  histogramList_t::iterator it(_histList.begin());
   for (;it != _histList.end();++it)
     it->second->key() = _key;
 }
@@ -197,9 +206,16 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
     VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-               <<"' is not on dependency list => add it"
+               <<"' is not on dependency list => add it."
                <<endl);
     _dependencies.push_back(dependkey);
+    /** @todo somehow we need to make sure that the loadSettings for the dependencies
+     *        are called before we finish the load settings for this pp, so that when
+     *        we need information from the dependency we will get the most recent one.
+     *        Unfortunately just returning 0 here will result in segfault. Need
+     *        to investigate.
+     */
+//    return 0;
   }
 #ifdef VERBOSE
   else
