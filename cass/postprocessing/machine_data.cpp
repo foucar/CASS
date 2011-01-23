@@ -98,6 +98,10 @@ void cass::pp130::process(const CASSEvent& evt)
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t epics(mdev->EpicsData());
   _result->lock.lockForWrite();
+//  std::cout <<std::boolalpha<<"pp130::process:'"<<_varname
+//      <<"' is "<<(epics.find(_varname) == epics.end()?"not":"")
+//      <<" available in Epics Data so value is "<<(epics.find(_varname) == epics.end()? 0:epics.find(_varname)->second)
+//      <<std::endl;
   *dynamic_cast<Histogram0DFloat*>(_result) = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
   _result->lock.unlock();
 }

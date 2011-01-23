@@ -95,14 +95,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
             std::stringstream entryname;
             entryname << ctrl.sPvName << "[" << i << "]";
             _store.EpicsData()[entryname.str()] = 0.;
-            //std::cout << "add "<<entryname.str() << " to machinedatamap"<<std::endl;
+            std::cout << "MachineData::Converter: '"<<entryname.str() << "' is available in Epics Data"<<std::endl;
           }
         }
         //otherwise we just add the name to the map and initialze it with 0//
         else
         {
           _store.EpicsData()[ctrl.sPvName] = 0.;
-          //std::cout << "add "<<ctrl.sPvName << " to machinedatamap"<<std::endl;
+          std::cout << "MachineData::Converter: '"<<ctrl.sPvName <<"' is available in Epics Data"<<std::endl;
         }
       }
       //time is the actual data, that will be send down the xtc with 1 Hz
