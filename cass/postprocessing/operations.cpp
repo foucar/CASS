@@ -1091,6 +1091,11 @@ void cass::pp66::histogramsChanged(const HistogramBackend* in)
     return;
   //the previous _result pointer is on the histlist and will be deleted
   //with the call to createHistList
+  /** @todo right now we just resize our histogram depending on the histogram
+   *        that cause the call to this function. How do we do this correctly?
+   *        Either we make it such, that we do not accept two different histograms
+   *        or the whole notifying must be done differently.
+   */
   _result = new Histogram2DFloat(in->axis()[HistogramBackend::xAxis].nbrBins(),
                                  in->axis()[HistogramBackend::xAxis].lowerLimit(),
                                  in->axis()[HistogramBackend::xAxis].upperLimit(),
