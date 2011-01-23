@@ -11,6 +11,7 @@
 #define _OPERATION_TEMPLATES_H_
 
 #include <typeinfo>
+#include <sstream>
 
 #include "cass_settings.h"
 #include "backend.h"
@@ -51,6 +52,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
+      using namespace std;
       CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
@@ -61,12 +63,12 @@ namespace cass
       if (!_one || !ret) return;
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout<< "PostProcessor "<<_key
-          <<": will compare hist in PostProcessor "<<_one->key()
-          <<" to constant "<<_value
-          <<" using "<< typeid(op).name()
-          <<". Condition is "<<_condition->key()
-          << std::endl;
+      cout<<endl<< "PostProcessor '"<<_key
+          <<"' will compare hist in PostProcessor '"<<_one->key()
+          <<"' to constant '"<<_value
+          <<"' using '"<< typeid(op).name()
+          <<"'. Condition is '"<<_condition->key()<<"'"
+          << endl;
     }
 
     /** process event */
@@ -133,22 +135,31 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
+      using namespace std;
       setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
       if ( !(_one && _two && ret) ) return;
-      if (_one->getHist(0).dimension() != 0 ||
-          _two->getHist(0).dimension() != 0)
-        throw std::runtime_error("PP type 5: Either HistOne or HistTwo is not a 0D Hist");
+      const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
+      const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
+      if (one.dimension() != two.dimension())
+      {
+        stringstream ss;
+        ss << "pp5::loadSettings(): HistOne '"<<one.key()
+            <<"' with dimension '"<< one.dimension()
+            <<"' differs from HistTwo '"<<two.key()
+            <<"' with has dimension '"<< two.dimension();
+        throw invalid_argument(ss.str());
+      }
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout << "PostProcessor " << _key
-          << ": will boolean compare PostProcessor " << _one->key()
-          << " to PostProcessor " << _two->key()
-          <<" using "<< typeid(op).name()
-          <<". Condition is "<<_condition->key()
-          << std::endl;
+      cout<<endl<< "PostProcessor '" << _key
+          <<"' will boolean compare PostProcessor '" << _one->key()
+          <<"' to PostProcessor '" << _two->key()
+          <<"' using '"<< typeid(op).name()
+          <<"'. Condition is '"<<_condition->key()<<"'"
+          <<endl;
     }
 
     /** process event */
@@ -215,22 +226,31 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
+      using namespace std;
       setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
       bool ret (setupCondition());
       if ( !(_one && _two && ret) ) return;
-      if (_one->getHist(0).dimension() != _two->getHist(0).dimension())
-        throw std::runtime_error("PP type 7: HistOne is not the same type "
-                                 " as HistTwo, or they have not the same size.");
+      const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
+      const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
+      if (one.dimension() != two.dimension())
+      {
+        stringstream ss;
+        ss << "pp7::loadSettings(): HistOne '"<<one.key()
+            <<"' with dimension '"<< one.dimension()
+            <<"' differs from HistTwo '"<<two.key()
+            <<"' with has dimension '"<< two.dimension();
+        throw invalid_argument(ss.str());
+      }
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout << "PostProcessor " << _key
-          << ": compares Histogram in PostProcessor " << _one->key()
-          << " to Histogram in PostProcessor " << _two->key()
-          <<" using "<< typeid(op).name()
-          <<". Condition is "<<_condition->key()
-          << std::endl;
+      cout<<endl<< "PostProcessor '" << _key
+          <<"' compares Histogram in PostProcessor '" << _one->key()
+          <<"' to Histogram in PostProcessor '" << _two->key()
+          <<"' using '"<< typeid(op).name()
+          <<"' Condition is '"<<_condition->key()<<"'"
+          <<endl;
     }
 
     /** process event */
@@ -305,6 +325,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
+      using namespace std;
       setupGeneral();
       _one = setupDependency("HistOne");
       _two = setupDependency("HistTwo");
@@ -315,21 +336,56 @@ namespace cass
       if (one.dimension() != two.dimension() ||
           one.memory().size() !=
           two.memory().size())
-        throw std::runtime_error("PP type 20: HistOne is not the same type "
-                                 " as HistTwo, or they have not the same size.");
+      {
+        stringstream ss;
+        ss << "pp20::loadSettings(): HistOne '"<<one.key()
+            <<"' with dimension '"<< one.dimension()
+            <<"' and memory size '"<<one.memory().size()
+            <<"' differs from HistTwo '"<<two.key()
+            <<"' with has dimension '"<< two.dimension()
+            <<"' and memory size '"<<two.memory().size();
+        throw invalid_argument(ss.str());
+      }
       _result = one.clone();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout << "PostProcessor " << _key
-          << ": operation "<< typeid(op).name()
-          << " on Histogram in PostProcessor " << _one->key()
-          << " with Histogram in PostProcessor " << _two->key()
-          <<". Condition is "<<_condition->key()
-          << std::endl;
+      cout<<endl << "PostProcessor '"<<_key
+          <<"' operation '"<< typeid(op).name()
+          <<"' on Histogram in PostProcessor '" << _one->key()
+          <<"' which has a memory size of '"<< one.memory().size()
+          <<"' with Histogram in PostProcessor '" << _two->key()
+          <<"' which has a memory size of '"<< two.memory().size()
+          <<"'. Condition is '"<<_condition->key()<<"'"
+          << endl;
+    }
+
+    virtual void histogramsChanged(const HistogramBackend* in)
+    {
+      using namespace std;
+      QWriteLocker lock(&_histLock);
+      //return when there is no incomming histogram
+      if(!in)
+        return;
+      //return when the incomming histogram is not a direct dependant
+      if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+        return;
+      //the previous _result pointer is on the histlist and will be deleted
+      //with the call to createHistList
+      _result = in->clone();
+      createHistList(2*cass::NbrOfWorkers);
+      //notify all pp that depend on us that our histograms have changed
+      PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+      PostProcessors::keyList_t::iterator it (dependands.begin());
+      for (; it != dependands.end(); ++it)
+        _pp.getPostProcessor(*it).histogramsChanged(_result);
+      VERBOSEOUT(cout<<"Postprocessor '"<<_key
+                 <<"': histograms changed => delete existing histo"
+                 <<" and create new one from input"<<endl);
     }
 
     /** process event */
     virtual void process(const CASSEvent& evt)
     {
+      using namespace std;
       const HistogramFloatBase &one
           (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
       const HistogramFloatBase &two
@@ -341,6 +397,7 @@ namespace cass
                 two.memory().begin(),
                 (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
                 op);
+      ++_result->nbrOfFills();
       _result->lock.unlock();
       one.lock.unlock();
       two.lock.unlock();
@@ -390,6 +447,7 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t)
     {
+      using namespace std;
       CASSSettings settings;
       settings.beginGroup("PostProcessor");
       settings.beginGroup(_key.c_str());
@@ -401,12 +459,36 @@ namespace cass
       const HistogramBackend &one(_one->getHist(0));
       _result = one.clone();
       createHistList(2*cass::NbrOfWorkers);
-      std::cout << "PostProcessor " << _key
-          << ": operation "<< typeid(op).name()
-          << " on Histogram in PostProcessor " << _one->key()
-          << " with " << _value
-          <<". Condition is "<<_condition->key()
-          << std::endl;
+      cout<<endl << "PostProcessor '" << _key
+          <<"' operation "<< typeid(op).name()
+          <<"' on Histogram in PostProcessor '" << _one->key()
+          <<"' with '" << _value
+          <<"'. Condition is "<<_condition->key()<<"'"
+          << endl;
+    }
+
+    virtual void histogramsChanged(const HistogramBackend* in)
+    {
+      using namespace std;
+      QWriteLocker lock(&_histLock);
+      //return when there is no incomming histogram
+      if(!in)
+        return;
+      //return when the incomming histogram is not a direct dependant
+      if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+        return;
+      //the previous _result pointer is on the histlist and will be deleted
+      //with the call to createHistList
+      _result = in->clone();
+      createHistList(2*cass::NbrOfWorkers);
+      //notify all pp that depend on us that our histograms have changed
+      PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+      PostProcessors::keyList_t::iterator it (dependands.begin());
+      for (; it != dependands.end(); ++it)
+        _pp.getPostProcessor(*it).histogramsChanged(_result);
+      VERBOSEOUT(cout<<"Postprocessor '"<<_key
+                 <<"': histograms changed => delete existing histo"
+                 <<" and create new one from input"<<endl);
     }
 
     /** process event */
