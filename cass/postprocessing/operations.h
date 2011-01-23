@@ -149,6 +149,9 @@ namespace cass
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
 
+    /** change own histograms when one of the ones we depend on has changed histograms */
+    virtual void histogramsChanged(const HistogramBackend*);
+
   protected:
     /** pp containing input histogram */
     PostprocessorBackend *_one;
@@ -692,6 +695,49 @@ namespace cass
 
 
 
+
+
+  /** 1D to 2D histogramming.
+   *
+   * histograms two 1d histograms into one 2D Histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           Postprocessor names containing the 1D histograms to histogram.
+   *
+   * @author Lutz Foucar
+   */
+  class pp66 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp66(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+  protected:
+    /** pp containing first 0D histogram to work on */
+    PostprocessorBackend *_one;
+
+    /** pp containing second 0D histogram to work on */
+    PostprocessorBackend *_two;
+  };
+
+
+
+
+
+
+
   /** Subset Histogram
    *
    * Will copy a subset of another histogram and return it in a new histogram.
@@ -714,6 +760,9 @@ namespace cass
     /** process event */
     virtual void process(const CASSEvent&);
 
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
@@ -721,11 +770,14 @@ namespace cass
     /** pp containing input histogram */
     PostprocessorBackend *_pHist;
 
-    /** nbr of bins in y (1 for 1D Hist) */
-    size_t _nyBins;
+    /** offset of first bin in input in Histogram coordinates */
+    size_t _inputOffset;
 
-    /** xlow of input in Histogram coordinates */
-    size_t _inputXLow;
+    /** the user requested x-axis limits */
+    std::pair<float,float> _userXRange;
+
+    /** the user requested x-axis limits */
+    std::pair<float,float> _userYRange;
   };
 
 

@@ -55,6 +55,7 @@ void cass::pp4::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = !one.isTrue();
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -124,6 +125,7 @@ void cass::pp9::process(const CASSEvent &evt)
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) =
       _range.first < value &&  value < _range.second;
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
 }
 
@@ -172,6 +174,30 @@ void cass::pp40::loadSettings(size_t)
       <<endl;
 }
 
+void cass::pp40::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
+  _result = in->clone();
+  createHistList(2*cass::NbrOfWorkers);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  VERBOSEOUT(cout<<"Postprocessor '"<<_key
+             <<"': histograms changed => delete existing histo"
+             <<" and create new one from input"<<endl);
+}
+
 void cass::pp40::process(const CASSEvent &evt)
 {
   // Get the input
@@ -184,6 +210,7 @@ void cass::pp40::process(const CASSEvent &evt)
   std::transform(one.memory().begin(), one.memory().end(),
                  (dynamic_cast<HistogramFloatBase *>(_result))->memory().begin(),
                  bind2nd(threshold(), _threshold));
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -260,6 +287,7 @@ void cass::pp50::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -319,6 +347,7 @@ void cass::pp51::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = one.integral(_area);
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -387,6 +416,7 @@ void cass::pp52::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram1DFloat*>(_result) = one.radial_project(_center,_radius);
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -470,6 +500,7 @@ void cass::pp53::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram1DFloat*>(_result) = one.radar_plot(_center,_range, _nbrBins);
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -544,6 +575,7 @@ void cass::pp54::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram2DFloat*>(_result) = one.convert2RPhi(_center,_radius, _nbrBins);
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -588,6 +620,7 @@ void cass::pp60::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue());
+  ++_result->nbrOfFills();
   _result->lock.unlock();
   one.lock.unlock();
 }
@@ -635,11 +668,26 @@ void cass::pp61::loadSettings(size_t)
 
 void cass::pp61::histogramsChanged(const HistogramBackend* in)
 {
+  using namespace std;
   QWriteLocker lock(&_histLock);
-  delete _result;
-  _histList.clear();
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
   _result = in->clone();
   createHistList(2*cass::NbrOfWorkers,true);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  VERBOSEOUT(cout<<"Postprocessor '"<<_key
+             <<"': histograms changed => delete existing histo"
+             <<" and create new one from input"<<endl);
 }
 
 void cass::pp61::process(const CASSEvent& evt)
@@ -695,19 +743,31 @@ void cass::pp62::loadSettings(size_t)
   cout<<endl<<"Postprocessor '"<<_key
       <<"' sums up histograms from PostProcessor '"<< _pHist->key()
       <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
-      <<std::endl;
+      <<endl;
 }
 
 void cass::pp62::histogramsChanged(const HistogramBackend* in)
 {
+  using namespace std;
   QWriteLocker lock(&_histLock);
-  delete _result;
-  _histList.clear();
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
   _result = in->clone();
   createHistList(2*cass::NbrOfWorkers,true);
-  VERBOSEOUT(std::cout<<"Postprocessor '"<<_key
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  VERBOSEOUT(cout<<"Postprocessor '"<<_key
              <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<std::endl);
+             <<" and create new one from input"<<endl);
 }
 
 void cass::pp62::process(const CASSEvent& evt)
@@ -887,7 +947,7 @@ void cass::pp64::loadSettings(size_t)
   setupGeneral();
   _size = settings.value("Size", 10000).toUInt();
 
-  _result = new Histogram1DFloat(_size, 0, _size-1);
+  _result = new Histogram1DFloat(_size, 0, _size-1,"Shots");
   createHistList(2*cass::NbrOfWorkers,true);
 
   cout<<endl<< "PostProcessor '" << _key
@@ -904,9 +964,7 @@ void cass::pp64::process(const cass::CASSEvent &evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   ++_result->nbrOfFills();
-
   HistogramFloatBase::storage_t &mem((dynamic_cast<Histogram1DFloat *>(_result))->memory());
-
   std::rotate(mem.begin(), mem.begin()+1, mem.end());
   mem[_size-1] = one.getValue();
   _result->lock.unlock();
@@ -959,6 +1017,119 @@ void cass::pp65::process(const CASSEvent& evt)
   two.lock.lockForRead();
   _result->lock.lockForWrite();
   dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue(),two.getValue());
+  ++_result->nbrOfFills();
+  _result->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 66 histograms 2 1D values to 2D histogram ***
+
+cass::pp66::pp66(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp66::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _one = setupDependency("HistOne");
+  _two = setupDependency("HistTwo");
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) )
+    return;
+  const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
+  const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
+  if (one.dimension() != 1 || two.dimension() != 1)
+  {
+    stringstream ss;
+    ss << "pp66::loadSettings(): HistOne '"<<one.key()
+        <<"' with dimension '"<< one.dimension()
+        <<"' or HistTwo '"<<two.key()
+        <<"' has dimension '"<< two.dimension()
+        <<"' does not have dimension 1";
+    throw runtime_error(ss.str());
+  }
+  _result = new Histogram2DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
+                                 one.axis()[HistogramBackend::xAxis].lowerLimit(),
+                                 one.axis()[HistogramBackend::xAxis].upperLimit(),
+                                 two.axis()[HistogramBackend::xAxis].nbrBins(),
+                                 two.axis()[HistogramBackend::xAxis].lowerLimit(),
+                                 two.axis()[HistogramBackend::xAxis].upperLimit(),
+                                 one.axis()[HistogramBackend::xAxis].title(),
+                                 two.axis()[HistogramBackend::xAxis].title());
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' creates a two dim histogram from PostProcessor '"<< _one->key()
+      <<"' and '"<< _two->key()
+      <<". condition on PostProcessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp66::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
+  _result = new Histogram2DFloat(in->axis()[HistogramBackend::xAxis].nbrBins(),
+                                 in->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                 in->axis()[HistogramBackend::xAxis].upperLimit(),
+                                 in->axis()[HistogramBackend::xAxis].nbrBins(),
+                                 in->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                 in->axis()[HistogramBackend::xAxis].upperLimit(),
+                                 in->axis()[HistogramBackend::xAxis].title(),
+                                 in->axis()[HistogramBackend::xAxis].title());
+  createHistList(2*cass::NbrOfWorkers);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  VERBOSEOUT(cout<<"Postprocessor '"<<_key
+             <<"': histograms changed => delete existing histo"
+             <<" and create new one from input"<<endl);
+}
+
+void cass::pp66::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram1DFloat &one
+      (dynamic_cast<const Histogram1DFloat&>((*_one)(evt)));
+  const Histogram1DFloat &two
+      (dynamic_cast<const Histogram1DFloat&>((*_two)(evt)));
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t &memory(dynamic_cast<Histogram2DFloat*>(_result)->memory());
+  const size_t oneNBins(one.axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t twoNBins(two.axis()[HistogramBackend::xAxis].nbrBins());
+//  cout <<"one "<< oneNBins<<" "<<one.memory().size()<<endl;
+//  cout <<"two "<< twoNBins<<" "<<two.memory().size()<<endl;
+//  cout <<"result "<< memory.size()<<endl;
+  for (size_t j(0); j < twoNBins; ++j)
+    for (size_t i(0); i < oneNBins; ++i)
+      memory[i*oneNBins+j] = one.memory()[i]*two.memory()[j];
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   two.lock.unlock();
   one.lock.unlock();
@@ -1000,38 +1171,99 @@ void cass::pp70::loadSettings(size_t)
       (dynamic_cast<const HistogramFloatBase&>(_pHist->getHist(0)));
   if (0 == one.dimension())
     throw runtime_error("pp70::loadSettings(): Unknown dimension of incomming histogram");
-  const AxisProperty &xaxis (one.axis()[HistogramBackend::xAxis]);
-  const size_t binXLow(xaxis.bin(settings.value("XLow",0).toFloat()));
-  const size_t binXUp (xaxis.bin(settings.value("XUp",1).toFloat()));
-  const size_t nXBins (binXUp-binXLow);
-  const float xLow (xaxis.position(binXLow));
+  _userXRange = make_pair(settings.value("XLow",0).toFloat(),
+                          settings.value("XUp",1).toFloat());
+  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
+  _inputOffset=(xaxis.bin(_userXRange.first));
+  const size_t binXUp (xaxis.bin(_userXRange.second));
+  const size_t nXBins (binXUp-_inputOffset);
+  const float xLow (xaxis.position(_inputOffset));
   const float xUp (xaxis.position(binXUp));
-  cout << "PostProcessor "<<_key
-      <<": returns a subset of histogram in pp '" << _pHist->key()
-      <<"'. Subset is xLow:"<<xLow
-      <<", xUp:"<<xUp;
+  cout<<endl<<"PostProcessor '"<<_key
+      <<"' returns a subset of histogram in pp '" << _pHist->key()
+      <<"' which has dimension '"<<one.dimension()
+      <<"'. Subset is xLow:"<<xLow<<"("<<_inputOffset<<")"
+      <<", xUp:"<<xUp<<"("<<binXUp<<")"
+      <<", xNbrBins:"<<nXBins;
   if (1 == one.dimension())
   {
-    _nyBins = 1;
     _result = new Histogram1DFloat(nXBins,xLow,xUp);
   }
   else if (2 == one.dimension())
   {
+    _userYRange = make_pair(settings.value("YLow",0).toFloat(),
+                            settings.value("YUp",1).toFloat());
     const AxisProperty &yaxis (one.axis()[HistogramBackend::yAxis]);
-    const size_t binYLow(yaxis.bin(settings.value("YLow",0).toFloat()));
-    const size_t binYUp (yaxis.bin(settings.value("YUp",1).toFloat()));
-    _nyBins = (binYUp - binYLow);
+    const size_t binYLow(yaxis.bin(_userYRange.first));
+    const size_t binYUp (yaxis.bin(_userYRange.second));
+    const size_t nYBins = (binYUp - binYLow);
     const float yLow (yaxis.position(binYLow));
     const float yUp (yaxis.position(binYUp));
+    _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow + 0.1);
     _result = new Histogram2DFloat(nXBins,xLow,xUp,
-                                   _nyBins,yLow,yUp);
-    cout <<", yLow:"<<yLow
-        <<", yUp:"<<yUp;
+                                   nYBins,yLow,yUp);
+    cout<<", yLow:"<<yLow<<"("<<binYLow<<")"
+        <<", yUp:"<<yUp<<"("<<binYLow<<")"
+        <<", yNbrBins:"<<nXBins
+        <<", linearized offset is now:"<<_inputOffset;
   }
-  cout <<". Condition on postprocessor:'"<<_condition->key()<<"'"
+  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
       <<endl;
   createHistList(2*cass::NbrOfWorkers);
 }
+
+void cass::pp70::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  const AxisProperty &xaxis(in->axis()[HistogramBackend::xAxis]);
+  _inputOffset=(xaxis.bin(_userXRange.first));
+  const size_t binXUp (xaxis.bin(_userXRange.second));
+  const size_t nXBins (binXUp-_inputOffset);
+  const float xLow (xaxis.position(_inputOffset));
+  const float xUp (xaxis.position(binXUp));
+  cout<<endl<<"PostProcessor '"<<_key
+      <<"' histogramsChanged: returns a subset of histogram in pp '" << _pHist->key()
+      <<"' which has dimension '"<<in->dimension()
+      <<"'. Subset is xLow:"<<xLow<<"("<<_inputOffset<<")"
+      <<", xUp:"<<xUp<<"("<<binXUp<<")"
+      <<", xNbrBins:"<<nXBins;
+  if (1 == in->dimension())
+  {
+    _result = new Histogram1DFloat(nXBins,xLow,xUp);
+  }
+  else if (2 == in->dimension())
+  {
+    const AxisProperty &yaxis (in->axis()[HistogramBackend::yAxis]);
+    const size_t binYLow(yaxis.bin(_userYRange.first));
+    const size_t binYUp (yaxis.bin(_userYRange.second));
+    const size_t nYBins = (binYUp - binYLow);
+    _inputOffset = static_cast<size_t>(binYLow*xaxis.nbrBins()+xLow +0.1);
+    const float yLow (yaxis.position(binYLow));
+    const float yUp (yaxis.position(binYUp));
+    _result = new Histogram2DFloat(nXBins,xLow,xUp,
+                                   nYBins,yLow,yUp);
+    cout<<", yLow:"<<yLow<<"("<<binYLow<<")"
+        <<", yUp:"<<yUp<<"("<<binYLow<<")"
+        <<", yNbrBins:"<<nXBins
+        <<", linearized offset is now:"<<_inputOffset;
+  }
+  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+  createHistList(2*cass::NbrOfWorkers);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+}
+
 
 void cass::pp70::process(const cass::CASSEvent& evt)
 {
@@ -1042,18 +1274,22 @@ void cass::pp70::process(const cass::CASSEvent& evt)
   _result->lock.lockForWrite();
   const HistogramFloatBase::storage_t &imem (input.memory());
   HistogramFloatBase::storage_t::const_iterator iit
-      (imem.begin()+_inputXLow);
+      (imem.begin()+_inputOffset);
   HistogramFloatBase::storage_t &rmem
       (dynamic_cast<HistogramFloatBase*>(_result)->memory());
   HistogramFloatBase::storage_t::iterator rit(rmem.begin());
   const size_t &resultNbrXBins (_result->axis()[HistogramBackend::xAxis].nbrBins());
+  const size_t resultNbrYBins = (_result->dimension() == 2) ?
+                                _result->axis()[HistogramBackend::yAxis].nbrBins() :
+                                1;
   const size_t &inputNbrXBins (input.axis()[HistogramBackend::xAxis].nbrBins());
-  for (size_t yBins=0;yBins < _nyBins; ++yBins)
+  for (size_t yBins=0;yBins < resultNbrYBins; ++yBins)
   {
     copy(iit,iit+resultNbrXBins,rit);
     advance(iit,inputNbrXBins);
     advance(rit,resultNbrXBins);
   }
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   input.lock.unlock();
 }
@@ -1096,6 +1332,7 @@ void cass::pp80::process(const cass::CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill( one.nbrOfFills() );
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
 }

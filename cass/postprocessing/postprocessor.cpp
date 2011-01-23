@@ -578,6 +578,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case ZeroDto2DHistogramming:
     processor = new pp65(*this, key);
     break;
+  case OneDto2DHistogramming:
+    processor = new pp66(*this, key);
+    break;
   case SubsetHistogram:
     processor = new pp70(*this, key);
     break;
