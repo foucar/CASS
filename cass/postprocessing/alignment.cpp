@@ -596,12 +596,12 @@ namespace cass
     if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
       return;
     setupParameters(*in);
-    cout<<"pp201::histogramsChanged(): hist has changed. The new settings for '"<<_key
-        <<"' are: "
-        <<"' Min radius is '"<<_radiusRange.first
-        <<"' Max radius is '"<<_radiusRange.second
-        <<"' This results in Number of radial Points '"<<_nbrRadialPoints<<"'"
-        <<endl;
+    VERBOSEOUT(cout <<"pp201::histogramsChanged(): hist has changed. The new settings for '"<<_key
+                    <<"' are: "
+                    <<"' Min radius is '"<<_radiusRange.first
+                    <<"' Max radius is '"<<_radiusRange.second
+                    <<"' This results in Number of radial Points '"<<_nbrRadialPoints<<"'"
+                    <<endl);
   }
 
   void pp201::setupParameters(const HistogramBackend &hist)
@@ -631,7 +631,8 @@ namespace cass
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
       {
         const float radius(jr+_radiusRange.first);
-        const float angle(M_PI * float(jth) / 180.f);
+        const float angle_deg(jth*360/_nbrAngularPoints);
+        const float angle(angle_deg * M_PI/ 180.f);
         const float x(_center.first  + radius*sin(angle));
         const float y(_center.second + radius*cos(angle));
         const size_t x1(static_cast<size_t>(x));
@@ -647,6 +648,130 @@ namespace cass
                                        f12*(x2 - x )*(y  - y1)+
                                        f22*(x  - x1)*(y  - y1);
         histmemory[jth] += interpolateValue;
+      }
+    }
+    _result->nbrOfFills()=1;
+    _result->lock.unlock();
+    image.lock.unlock();
+  }
+
+
+
+
+
+  // *** postprocessor 202 transform 2d kartisian hist to polar coordinates ***
+
+  cass::pp202::pp202(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+  {
+    loadSettings(0);
+  }
+
+  void cass::pp202::loadSettings(size_t)
+  {
+    using namespace std;
+    CASSSettings settings;
+    settings.beginGroup("PostProcessor");
+    settings.beginGroup(_key.c_str());
+    _center = make_pair(settings.value("ImageXCenter", 500).toUInt(),
+                        settings.value("ImageYCenter", 500).toUInt());
+    _nbrAngularPoints = settings.value("NbrAngularPoints",360.).toUInt();
+    _nbrRadialPoints  = settings.value("NbrRadialPoints",500.).toUInt();
+    setupGeneral();
+    _image = setupDependency("HistName");
+    bool ret (setupCondition());
+    if (!(ret && _image))
+      return;
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>(_image->getHist(0)));
+    setupParameters(one);
+    createHistList(2*cass::NbrOfWorkers);
+    cout<<endl << "PostProcessor '"<<_key
+        <<"' will transform  '"<<_image->key()
+        <<"' to polar coordinates."
+        <<". Center x:"<<_center.first
+        <<" y:"<<_center.second
+        <<". Maximum radius is "<<_maxRadius
+        <<". Number of Points on the phi '"<<_nbrAngularPoints
+        <<". Number of Points on the radius '"<<_nbrRadialPoints
+        <<"'. Condition is '"<<_condition->key()<<"'"
+        <<endl;
+  }
+
+  void pp202::histogramsChanged(const HistogramBackend *in)
+  {
+    using namespace std;
+    //return when there is no incomming histogram
+    if(!in)
+      return;
+    //return when the incomming histogram is not a direct dependant
+    if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+      return;
+    setupParameters(*in);
+    //notify all pp that depend on us that our histograms have changed
+    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+    PostProcessors::keyList_t::iterator it (dependands.begin());
+    for (; it != dependands.end(); ++it)
+      _pp.getPostProcessor(*it).histogramsChanged(_result);
+    VERBOSEOUT(cout <<"pp202::histogramsChanged(): hist has changed. '"<<_key
+                    <<"' maxradius is '"<<_maxRadius<<"'"
+                    <<endl);
+  }
+
+  void pp202::setupParameters(const HistogramBackend &hist)
+  {
+    using namespace std;
+    if (hist.dimension() != 2)
+    {
+      stringstream ss;
+      ss <<"pp202::setupParameters()'"<<_key<<"': Error the histogram we depend on '"<<hist.key()
+          <<"' is not a 2D Histogram.";
+      throw invalid_argument(ss.str());
+    }
+    const size_t imagewidth (hist.axis()[HistogramBackend::xAxis].nbrBins());
+    const size_t imageheight (hist.axis()[HistogramBackend::yAxis].nbrBins());
+    const size_t dist_center_x_right(imagewidth - _center.first);
+    const size_t dist_center_y_top(imageheight - _center.second);
+    const size_t min_dist_x (min(dist_center_x_right, _center.first));
+    const size_t min_dist_y (min(dist_center_y_top, _center.second));
+    _maxRadius = min(min_dist_x, min_dist_y);
+    _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
+                                   _nbrRadialPoints,0., _maxRadius,
+                                   "#phi","r");
+  }
+
+  void pp202::process(const CASSEvent& evt)
+  {
+    using namespace std;
+    const Histogram2DFloat &image
+        (dynamic_cast<const Histogram2DFloat&>((*_image)(evt)));
+    image.lock.lockForRead();
+    _result->lock.lockForWrite();
+    const HistogramFloatBase::storage_t &imagememory(image.memory());
+    const size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
+    Histogram2DFloat &resulthist(*dynamic_cast<Histogram2DFloat*>(_result));
+    for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
+    {
+      for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
+      {
+        const float radius(jr*_maxRadius/_nbrRadialPoints);
+        const float angle_deg(jth*360/_nbrAngularPoints);
+        const float angle(angle_deg * M_PI/ 180.f);
+        const float x(_center.first  + radius*sin(angle));
+        const float y(_center.second + radius*cos(angle));
+        const size_t x1(static_cast<size_t>(x));
+        const size_t x2(x1 + 1);
+        const size_t y1(static_cast<size_t>(y));
+        const size_t y2(y1 + 1);
+        const float f11 (imagememory[y1 * width + x1]);
+        const float f21 (imagememory[y1 * width + x2]);
+        const float f12 (imagememory[y2 * width + x1]);
+        const float f22 (imagememory[y2 * width + x2]);
+        const float interpolateValue = f11*(x2 - x )*(y2 - y )+
+                                       f21*(x   -x1)*(y2 - y )+
+                                       f12*(x2 - x )*(y  - y1)+
+                                       f22*(x  - x1)*(y  - y1);
+        resulthist.fill(angle_deg,radius,interpolateValue);
       }
     }
     _result->nbrOfFills()=1;

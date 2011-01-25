@@ -654,6 +654,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case RealAngularDistribution:
     processor = new pp201(*this,key);
     break;
+  case RealPolarTransformation:
+    processor = new pp202(*this,key);
+    break;
   case AdvancedPhotonFinderDump:
     processor = new pp212(*this,key);
     break;

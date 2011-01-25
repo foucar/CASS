@@ -171,14 +171,14 @@ namespace cass
    * the pixel in the image that the r,phi values corrospond to. It will do a
    * 2D interpolation to be able to weight the content of the pixel correctly.
    * The weighing factor is determined from the distance that the transformed
-   * kartesian coordinates have from the neighboring pixels.
+   * kartesian coordinates have from the neighboring pixels. 0 deg is up.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
    * @cassttng PostProcessor/\%name%/{HistName}\n
-   *           The name of the PostProcessor that contains the image to calculate
-   *           \f$\cos^2\theta\f$  from. Default is 104.
+   *           The name of the PostProcessor that contains the image that
+   *           the angluar distribution should be retrieved from.
    * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
    *           values for the center of the image. Default is 500,500
    * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
@@ -222,6 +222,79 @@ namespace cass
 
     /** the rane of radia used */
     std::pair<float,float> _radiusRange;
+
+    /** the number of angular points that we include in the distribution */
+    size_t _nbrAngularPoints;
+
+    /** the number of radial, determinded by the _radiusRange */
+    size_t _nbrRadialPoints;
+
+    /** pp containing image that we will the angular distribution from */
+    PostprocessorBackend* _image;
+  };
+
+
+
+
+
+  /** transform kartesian to poloar coordinates
+   *
+   * This postprocessor transforms the kartesian coordinates of an image to its
+   * polar representation. It transforms the phi, r to kartesian coordinates to
+   * find the pixel in the image that the r,phi values corrospond to. It will
+   * do a 2D interpolation to be able to weight the content of the pixel
+   * correctly. The weighing factor is determined from the distance that the
+   * transformed kartesian coordinates have from the neighboring pixels. 0 deg
+   * is up.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name%/{HistName}\n
+   *           The name of the PostProcessor that contains the image that
+   *           the angluar distribution should be retrieved from.
+   * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
+   *           values for the center of the image. Default is 500,500
+   * @cassttng PostProcessor/\%name%/{NbrAngularPoints}\n
+   *           The number of Bins along the phi axis in the resulting histogram.
+   *           Default is 360.
+   * @cassttng PostProcessor/\%name%/{NbrRadialPoints}\n
+   *           The number of Bins along the r axis in the resulting histogram.
+   *           Default is 500.
+   *
+   * @author Per Johnsson
+   * @author Marc Vrakking
+   * @author Lutz Foucar
+   */
+  class pp202 : public PostprocessorBackend
+  {
+  public:
+    /** Construct postprocessor for Gaussian height of image */
+    pp202(PostProcessors&, const PostProcessors::key_t&);
+
+    /** calculate \f$\cos^2\theta\f$ of averaged image */
+    virtual void process(const CASSEvent&);
+
+    /** load the histogram settings from CASS.ini*/
+    virtual void loadSettings(size_t);
+
+    /** adjust the parameters when the incomming histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend *in);
+
+  protected:
+    /** set up the paramters
+     *
+     * sets up the parameters that depend on the histogram we depend on
+     *
+     * @param hist the histogram, whos information we use to set up the parameters
+     */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** center of the image */
+    std::pair<size_t, size_t> _center;
+
+    /** the maximal radius possible */
+    float _maxRadius;
 
     /** the number of angular points that we include in the distribution */
     size_t _nbrAngularPoints;
