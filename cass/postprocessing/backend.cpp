@@ -206,7 +206,8 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
   if (_dependencies.end() == find(_dependencies.begin(),_dependencies.end(),dependkey))
   {
     VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
-               <<"' is not on dependency list => add it."
+               <<"' is not on dependency list add it. This also means that we have been"
+               <<" called for the first time."
                <<endl);
     _dependencies.push_back(dependkey);
     /** @todo somehow we need to make sure that the loadSettings for the dependencies
@@ -215,7 +216,32 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
      *        Unfortunately just returning 0 here will result in segfault. Need
      *        to investigate.
      */
-//    return 0;
+    VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): Check whether dependency key '"<<dependkey
+               <<"' does appear after our key '"<<_key
+               <<"' on the active list of postprocessors."
+               <<endl);
+    const PostProcessors::keyList_t &activeList(_pp.activeList());
+    PostProcessors::keyList_t::const_iterator myIt(find(activeList.begin(),activeList.end(),_key));
+    if(find(myIt,activeList.end(),dependkey) != activeList.end())
+    {
+      VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
+                 <<"' does appear after '"<<_key
+                 <<"' in the active list. This means its loadSettings has not been called yet"
+                 <<" so we need to make sure that we exit our loadSettings before continueing"
+                 <<" to load parameters by returning 0 at this point."
+                 <<endl);
+//      return 0;
+    }
+#ifdef VERBOSE
+    else
+    {
+      VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): dependency key '"<<dependkey
+                 <<"' does appear before '"<<_key
+                 <<"' in the active list. So its loadSettings has been called before ours."
+                 <<" This means that everything is fine."
+                 <<endl);
+    }
+#endif
   }
 #ifdef VERBOSE
   else
