@@ -626,6 +626,7 @@ namespace cass
     const HistogramFloatBase::storage_t &imagememory(image.memory());
     size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
     HistogramFloatBase::storage_t &histmemory(dynamic_cast<Histogram1DFloat*>(_result)->memory());
+    histmemory.clear();
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
@@ -749,7 +750,9 @@ namespace cass
     _result->lock.lockForWrite();
     const HistogramFloatBase::storage_t &imagememory(image.memory());
     const size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
-    Histogram2DFloat &resulthist(*dynamic_cast<Histogram2DFloat*>(_result));
+    HistogramFloatBase::storage_t &resulthistmemory
+        (dynamic_cast<Histogram2DFloat*>(_result)->memory());
+    resulthistmemory.clear();
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
@@ -771,7 +774,7 @@ namespace cass
                                        f21*(x   -x1)*(y2 - y )+
                                        f12*(x2 - x )*(y  - y1)+
                                        f22*(x  - x1)*(y  - y1);
-        resulthist.fill(angle_deg,radius,interpolateValue);
+        resulthistmemory[jr*_nbrAngularPoints + jth] += interpolateValue;
       }
     }
     _result->nbrOfFills()=1;
