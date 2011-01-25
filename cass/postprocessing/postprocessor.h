@@ -110,6 +110,7 @@ the Class description for information about what parameters are user settable.
 
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
+00201: Angular distribution from a 2D Histogram
 00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
@@ -273,6 +274,7 @@ using the custom doxygen tag cassttng.
       DelaylineAllReconstuctedHits=166,
 
       Cos2Theta=200,
+      RealAngularDistribution=201,
 
       AdvancedPhotonFinderDump=212,
 
@@ -343,6 +345,9 @@ using the custom doxygen tag cassttng.
      */
     keyList_t find_dependant(const key_t& key);
 
+    /** retrieve the list of active postprocessors */
+    const keyList_t &activeList() {return _active;}
+
     /** a read write lock
      *
      * read write for making sure that reload is not called when someone
@@ -398,6 +403,9 @@ using the custom doxygen tag cassttng.
 
     /** filename of the output file */
     std::string _outputfilename;
+
+    /** list of active keys */
+    keyList_t _active;
 
   private:
     /** Private constructor of singleton

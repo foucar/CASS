@@ -545,6 +545,116 @@ namespace cass
     _result->lock.unlock();
   }
 
+
+  // *** postprocessors 201 projects 2d hist to the radius for a selected center ***
+
+  cass::pp201::pp201(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+  {
+    loadSettings(0);
+  }
+
+  void cass::pp201::loadSettings(size_t)
+  {
+    using namespace std;
+    CASSSettings settings;
+    settings.beginGroup("PostProcessor");
+    settings.beginGroup(_key.c_str());
+    _center = make_pair(settings.value("ImageXCenter", 500).toFloat(),
+                            settings.value("ImageYCenter", 500).toFloat());
+    _radiusRangeUser = make_pair(settings.value("MinIncludedRadius",10).toFloat(),
+                                 settings.value("MaxIncludedRadius",0).toFloat());
+    _nbrAngularPoints = settings.value("NbrAngularPoints",360.).toUInt();
+    setupGeneral();
+    _image = setupDependency("HistName");
+    bool ret (setupCondition());
+    if (!(ret && _image))
+      return;
+    const Histogram2DFloat &one
+        (dynamic_cast<const Histogram2DFloat&>(_image->getHist(0)));
+    setupParameters(one);
+    _result = new Histogram1DFloat(_nbrAngularPoints, 0., 360.);
+    createHistList(2*cass::NbrOfWorkers);
+    cout<<endl << "PostProcessor '"<<_key
+        <<"' will calculate the angular distribution of '"<<_image->key()
+        <<"' from radia '"<<_radiusRange.first
+        <<"' to '"<<_radiusRange.second
+        <<"' with center x:"<<_center.first
+        <<" y:"<<_center.second
+        <<". Number of Points on the axis '"<<_nbrAngularPoints
+        <<"'. Condition is '"<<_condition->key()<<"'"
+        <<endl;
+  }
+
+  void pp201::histogramsChanged(const HistogramBackend *in)
+  {
+    using namespace std;
+    //return when there is no incomming histogram
+    if(!in)
+      return;
+    //return when the incomming histogram is not a direct dependant
+    if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+      return;
+    setupParameters(*in);
+    cout<<"pp201::histogramsChanged(): hist has changed. The new settings for '"<<_key
+        <<"' are: "
+        <<"' Min radius is '"<<_radiusRange.first
+        <<"' Max radius is '"<<_radiusRange.second
+        <<"' This results in Number of radial Points '"<<_nbrRadialPoints<<"'"
+        <<endl;
+  }
+
+  void pp201::setupParameters(const HistogramBackend &hist)
+  {
+    using namespace std;
+    size_t imagewidth (hist.axis()[HistogramBackend::xAxis].nbrBins());
+    _radiusRange = _radiusRangeUser;
+    _radiusRange.second = min(min(_radiusRange.second, _center.first  + 0.5f), imagewidth - _center.first - 0.5f);
+    _radiusRange.second = min(min(_radiusRange.second, _center.second + 0.5f), imagewidth - _center.second - 0.5f);
+    _radiusRange.first = max(0.1f, min(_radiusRange.second - 1.0f , _radiusRangeUser.first));
+    // Set number of points on grid
+    _nbrRadialPoints = size_t(floor(_radiusRange.second - _radiusRange.first));
+  }
+
+  void pp201::process(const CASSEvent& evt)
+  {
+    using namespace std;
+    const Histogram2DFloat &image
+        (dynamic_cast<const Histogram2DFloat&>((*_image)(evt)));
+    image.lock.lockForRead();
+    _result->lock.lockForWrite();
+    const HistogramFloatBase::storage_t &imagememory(image.memory());
+    size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
+    HistogramFloatBase::storage_t &histmemory(dynamic_cast<Histogram1DFloat*>(_result)->memory());
+    for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
+    {
+      for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
+      {
+        const float radius(jr+_radiusRange.first);
+        const float angle(M_PI * float(jth) / 180.f);
+        const float x(_center.first  + radius*sin(angle));
+        const float y(_center.second + radius*cos(angle));
+        const size_t x1(static_cast<size_t>(x));
+        const size_t x2(x1 + 1);
+        const size_t y1(static_cast<size_t>(y));
+        const size_t y2(y1 + 1);
+        const float f11 (imagememory[y1 * width + x1]);
+        const float f21 (imagememory[y1 * width + x2]);
+        const float f12 (imagememory[y2 * width + x1]);
+        const float f22 (imagememory[y2 * width + x2]);
+        const float interpolateValue = f11*(x2 - x )*(y2 - y )+
+                                       f21*(x   -x1)*(y2 - y )+
+                                       f12*(x2 - x )*(y  - y1)+
+                                       f22*(x  - x1)*(y  - y1);
+        histmemory[jth] += interpolateValue;
+      }
+    }
+    _result->nbrOfFills()=1;
+    _result->lock.unlock();
+    image.lock.unlock();
+  }
+
+
 } // end namespace cass
 
 

@@ -37,6 +37,7 @@
 #include "root_converter.h"
 #endif
 
+//#define DEBUG_FIND_DEPENDANT
 
 // ============define static members (do not touch)==============
 cass::PostProcessors *cass::PostProcessors::_instance(0);
@@ -132,20 +133,21 @@ void cass::PostProcessors::loadSettings(size_t)
   }
   cout << endl;
 #endif
-  keyList_t active(list.size());
-  transform(list.begin(), list.end(), active.begin(), QStringToStdString);
-  cout <<"   Number of unique postprocessor activations: "<<active.size()
+  _active.clear();
+  _active.resize(list.size());
+  transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
+  cout <<"   Number of unique postprocessor activations: "<<_active.size()
       << endl;
   //add a default true and false pp to container//
-  active.push_back("DefaultTrueHist");
+  _active.push_back("DefaultTrueHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
     _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
-  active.push_back("DefaultFalseHist");
+  _active.push_back("DefaultFalseHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
     _postprocessors["DefaultFalseHist"] = new pp10(*this, "DefaultFalseHist",false);
-  setup(active);
+  setup(_active);
   cout <<"   Active postprocessor(s): "<<endl;
-  for(keyList_t::iterator iter = active.begin(); iter != active.end(); ++iter)
+  for(keyList_t::iterator iter (_active.begin()); iter != _active.end(); ++iter)
     cout << *iter << " "<<endl;
   cout<<endl;
 }
@@ -207,14 +209,14 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
     keyList_t dependencyList(iter->second->dependencies());
     for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
     {
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
       cout<<"PostProcessors::find_dependant: check if '"<<*it
           <<"' is on dependency list of '"<<iter->first<<"'"
           <<endl;
 #endif
       if (find(dependencyList.begin(),dependencyList.end(),*it) != dependencyList.end())
       {
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
       cout<<"PostProcessors::find_dependant: '"<<*it
           <<"' is on dependency list of '"<<iter->first
           <<"' Now check whether '"<<iter->first
@@ -223,7 +225,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
 #endif
         if(find(dependandList.begin(),dependandList.end(),iter->first) == dependandList.end())
         {
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
           cout<<"PostProcessors::find_dependant: '"<<iter->first
               <<"' is not dependant list. Put it there and start over."
               <<endl;
@@ -231,7 +233,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
           dependandList.push_front(iter->first);
           update=true;
         }
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
         else
         {
           cout<<"PostProcessors::find_dependant: '"<<iter->first
@@ -240,7 +242,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
         }
 #endif
       }
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
       else
       {
         cout<<"PostProcessors::find_dependant: '"<<*it
@@ -251,7 +253,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
     }
     if (update)
     {
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
       cout<<"PostProcessors::find_dependant: The dependant list was modified, starting over"
           <<endl;
 #endif
@@ -260,7 +262,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
     }
     ++iter;
   }
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
     cout<<"PostProcessors::find_dependant: now the following keys are on the dependand list: ";
     for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
       cout<<*it<<", ";
@@ -268,7 +270,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
         <<"'. Now remove the initial key '"<<key<<"'"<<endl;
 #endif
   dependandList.remove(key);
-#ifdef VERBOSE
+#ifdef DEBUG_FIND_DEPENDANT
     cout<<"PostProcessors::find_dependant: Here is the final dependant list of '"<<key
         <<"': ";
     for (keyList_t::const_iterator it(dependandList.begin()); it!=dependandList.end();++it)
@@ -313,6 +315,11 @@ void cass::PostProcessors::setup(keyList_t &active)
   keyList_t::iterator iter(active.begin());
   while(iter != active.end())
   {
+#ifdef VERBOSE
+    cout <<"Postprocessor::setup(): Entries in the active list in the order we call them:"<<endl;
+    for (keyList_t::const_iterator actIt(active.begin()) ; actIt != active.end(); ++actIt)
+      cout<<*actIt<<endl;
+#endif
     VERBOSEOUT(cout << "Postprocessor::setup(): Checking if '" << *iter
                     << "' is in the PP container." << endl);
     if(_postprocessors.end() == _postprocessors.find(*iter))
@@ -643,6 +650,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case Cos2Theta:
     processor = new pp200(*this,key);
+    break;
+  case RealAngularDistribution:
+    processor = new pp201(*this,key);
     break;
   case AdvancedPhotonFinderDump:
     processor = new pp212(*this,key);

@@ -161,6 +161,78 @@ namespace cass
     PostprocessorBackend*   _image;
   };
 
+
+
+
+  /** angular distribution of a requested image.
+   *
+   * this postprocessor will iterate through the requested radius set and
+   * all angles. Then it transforms the phi,r to kartesian coordinates to find
+   * the pixel in the image that the r,phi values corrospond to. It will do a
+   * 2D interpolation to be able to weight the content of the pixel correctly.
+   * The weighing factor is determined from the distance that the transformed
+   * kartesian coordinates have from the neighboring pixels.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name%/{HistName}\n
+   *           The name of the PostProcessor that contains the image to calculate
+   *           \f$\cos^2\theta\f$  from. Default is 104.
+   * @cassttng PostProcessor/\%name%/{ImageXCenter|ImageYCenter}\n
+   *           values for the center of the image. Default is 500,500
+   * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
+   *           values for the interesting radius range. Default is 10,0
+   * @cassttng PostProcessor/\%name%/{NbrAngularPoints}\n
+   *           The number of Bins in the resulting histogram
+   *
+   * @author Per Johnsson
+   * @author Marc Vrakking
+   * @author Lutz Foucar
+   */
+  class pp201 : public PostprocessorBackend
+  {
+  public:
+    /** Construct postprocessor for Gaussian height of image */
+    pp201(PostProcessors&, const PostProcessors::key_t&);
+
+    /** calculate \f$\cos^2\theta\f$ of averaged image */
+    virtual void process(const CASSEvent&);
+
+    /** load the histogram settings from CASS.ini*/
+    virtual void loadSettings(size_t);
+
+    /** adjust the parameters when the incomming histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend *in);
+
+  protected:
+    /** set up the paramters
+     *
+     * sets up the parameters that depend on the histogram we depend on
+     *
+     * @param hist the histogram, whos information we use to set up the parameters
+     */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** center of the image */
+    std::pair<float, float> _center;
+
+    /** the range of radia the user requested */
+    std::pair<float,float> _radiusRangeUser;
+
+    /** the rane of radia used */
+    std::pair<float,float> _radiusRange;
+
+    /** the number of angular points that we include in the distribution */
+    size_t _nbrAngularPoints;
+
+    /** the number of radial, determinded by the _radiusRange */
+    size_t _nbrRadialPoints;
+
+    /** pp containing image that we will the angular distribution from */
+    PostprocessorBackend* _image;
+  };
+
 }
 
 #endif
