@@ -728,14 +728,14 @@ inline size_t AxisProperty::bin(float pos) const
     {
         std::stringstream ss;
         ss<<"AxisProperty::bin(): Requested position '"<<pos
-            <<"' to low the lowest can be '"<<_low<<"'";
+            <<"' to low, the lowest can be '"<<_low<<"'";
         throw std::out_of_range(ss.str());
     }
     else if(pos > _up)
     {
         std::stringstream ss;
         ss<<"AxisProperty::bin(): Requested position '"<<pos
-            <<"' to high the highest can be '"<<_up<<"'";
+            <<"' to high, the highest can be '"<<_up<<"'";
         throw std::out_of_range(ss.str());
     }
     size_t index(static_cast<size_t>(_size * ((pos - _low) / (_up - _low))));
