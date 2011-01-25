@@ -1087,7 +1087,9 @@ void cass::pp66::histogramsChanged(const HistogramBackend* in)
   if(!in)
     return;
   //return when the incomming histogram is not a direct dependant
-  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+  PostProcessors::keyList_t::const_iterator itDep
+      (find(_dependencies.begin(),_dependencies.end(),in->key()));
+  if (_dependencies.end() == itDep)
     return;
   //the previous _result pointer is on the histlist and will be deleted
   //with the call to createHistList
@@ -1096,14 +1098,41 @@ void cass::pp66::histogramsChanged(const HistogramBackend* in)
    *        Either we make it such, that we do not accept two different histograms
    *        or the whole notifying must be done differently.
    */
-  _result = new Histogram2DFloat(in->axis()[HistogramBackend::xAxis].nbrBins(),
-                                 in->axis()[HistogramBackend::xAxis].lowerLimit(),
-                                 in->axis()[HistogramBackend::xAxis].upperLimit(),
-                                 in->axis()[HistogramBackend::xAxis].nbrBins(),
-                                 in->axis()[HistogramBackend::xAxis].lowerLimit(),
-                                 in->axis()[HistogramBackend::xAxis].upperLimit(),
-                                 in->axis()[HistogramBackend::xAxis].title(),
-                                 in->axis()[HistogramBackend::xAxis].title());
+  const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
+  const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
+  if ((*itDep) == one.key())
+  {
+    QReadLocker lock(&two.lock);
+    _result = new Histogram2DFloat(in->axis()[HistogramBackend::xAxis].nbrBins(),
+                                   in->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   in->axis()[HistogramBackend::xAxis].upperLimit(),
+                                   two.axis()[HistogramBackend::xAxis].nbrBins(),
+                                   two.axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   two.axis()[HistogramBackend::xAxis].upperLimit(),
+                                   in->axis()[HistogramBackend::xAxis].title(),
+                                   two.axis()[HistogramBackend::xAxis].title());
+  }
+  else if ((*itDep) == two.key())
+  {
+    QReadLocker lock(&one.lock);
+    _result = new Histogram2DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
+                                   one.axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   one.axis()[HistogramBackend::xAxis].upperLimit(),
+                                   in->axis()[HistogramBackend::xAxis].nbrBins(),
+                                   in->axis()[HistogramBackend::xAxis].lowerLimit(),
+                                   in->axis()[HistogramBackend::xAxis].upperLimit(),
+                                   one.axis()[HistogramBackend::xAxis].title(),
+                                   in->axis()[HistogramBackend::xAxis].title());
+  }
+  else
+  {
+    stringstream ss;
+    ss<<"pp66::histogramsChanged()'"<<_key
+        <<"': Error'"<<*itDep
+        <<"' is neither hist one '"<<one.key()
+        <<"' nor hist two '"<<two.key()<<"'";
+    throw logic_error(ss.str());
+  }
   createHistList(2*cass::NbrOfWorkers);
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
