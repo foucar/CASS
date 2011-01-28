@@ -630,7 +630,7 @@ namespace cass
     const HistogramFloatBase::storage_t &imagememory(image.memory());
     size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
     HistogramFloatBase::storage_t &histmemory(dynamic_cast<Histogram1DFloat*>(_result)->memory());
-    histmemory.clear();
+    image.clear();
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
@@ -760,7 +760,7 @@ namespace cass
     const size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
     HistogramFloatBase::storage_t &resulthistmemory
         (dynamic_cast<Histogram2DFloat*>(_result)->memory());
-    fill(resulthistmemory.begin(),resulthistmemory.end(),0.f);
+    image.clear();
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
