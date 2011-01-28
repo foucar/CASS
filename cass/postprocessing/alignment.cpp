@@ -748,8 +748,7 @@ namespace cass
 //                                   _nbrRadialPoints,0., _maxRadius,
 //                                   "#phi","r");
     _result = new Histogram2DFloat(360, 0., 360.,
-                                   500,0., _maxRadius,
-                                   "#phi","r");
+                                   500,0., _maxRadius);
   }
 
   void pp202::process(const CASSEvent& evt)
