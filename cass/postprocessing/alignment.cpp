@@ -744,11 +744,9 @@ namespace cass
     const size_t min_dist_x (min(dist_center_x_right, _center.first));
     const size_t min_dist_y (min(dist_center_y_top, _center.second));
     _maxRadius = min(min_dist_x, min_dist_y);
-//    _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
-//                                   _nbrRadialPoints,0., _maxRadius,
-//                                   "#phi","r");
-    _result = new Histogram2DFloat(360, 0., 360.,
-                                   500,0., _maxRadius);
+    _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
+                                   _nbrRadialPoints,0., _maxRadius,
+                                   "#phi","r");
   }
 
   void pp202::process(const CASSEvent& evt)
@@ -762,7 +760,7 @@ namespace cass
     const size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
     HistogramFloatBase::storage_t &resulthistmemory
         (dynamic_cast<Histogram2DFloat*>(_result)->memory());
-    resulthistmemory.clear();
+    fill(resulthistmemory.begin(),resulthistmemory.end(),0.f);
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
