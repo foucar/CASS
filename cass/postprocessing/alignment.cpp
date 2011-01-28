@@ -629,8 +629,9 @@ namespace cass
     _result->lock.lockForWrite();
     const HistogramFloatBase::storage_t &imagememory(image.memory());
     size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
-    HistogramFloatBase::storage_t &histmemory(dynamic_cast<Histogram1DFloat*>(_result)->memory());
-    image.clear();
+    dynamic_cast<Histogram1DFloat*>(_result)->clear();
+    HistogramFloatBase::storage_t &histmemory
+        (dynamic_cast<Histogram1DFloat*>(_result)->memory());
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
@@ -758,9 +759,9 @@ namespace cass
     _result->lock.lockForWrite();
     const HistogramFloatBase::storage_t &imagememory(image.memory());
     const size_t width(image.axis()[HistogramBackend::xAxis].nbrBins());
+    dynamic_cast<Histogram2DFloat*>(_result)->clear();
     HistogramFloatBase::storage_t &resulthistmemory
         (dynamic_cast<Histogram2DFloat*>(_result)->memory());
-    image.clear();
     for(size_t jr = 0; jr<_nbrRadialPoints ; jr++)
     {
       for(size_t jth = 0; jth<_nbrAngularPoints; jth++)
