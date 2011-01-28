@@ -744,8 +744,11 @@ namespace cass
     const size_t min_dist_x (min(dist_center_x_right, _center.first));
     const size_t min_dist_y (min(dist_center_y_top, _center.second));
     _maxRadius = min(min_dist_x, min_dist_y);
-    _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
-                                   _nbrRadialPoints,0., _maxRadius,
+//    _result = new Histogram2DFloat(_nbrAngularPoints, 0., 360.,
+//                                   _nbrRadialPoints,0., _maxRadius,
+//                                   "#phi","r");
+    _result = new Histogram2DFloat(360, 0., 360.,
+                                   500,0., _maxRadius,
                                    "#phi","r");
   }
 
