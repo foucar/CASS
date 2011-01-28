@@ -214,8 +214,11 @@ namespace cass
      */
     void setupParameters(const HistogramBackend &hist);
 
-    /** center of the image */
-    std::pair<float, float> _center;
+    /** center of the image in user coordinates */
+    std::pair<float, float> _userCenter;
+
+    /** center of the image in histogram coordinates */
+    std::pair<size_t, size_t> _center;
 
     /** the range of radia the user requested */
     std::pair<float,float> _radiusRangeUser;
@@ -290,7 +293,10 @@ namespace cass
      */
     void setupParameters(const HistogramBackend &hist);
 
-    /** center of the image */
+    /** center of the image in user coordinates */
+    std::pair<float, float> _userCenter;
+
+    /** center of the image in histogram coordinates */
     std::pair<size_t, size_t> _center;
 
     /** the maximal radius possible */

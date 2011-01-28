@@ -560,7 +560,7 @@ namespace cass
     CASSSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup(_key.c_str());
-    _center = make_pair(settings.value("ImageXCenter", 500).toFloat(),
+    _userCenter = make_pair(settings.value("ImageXCenter", 500).toFloat(),
                             settings.value("ImageYCenter", 500).toFloat());
     _radiusRangeUser = make_pair(settings.value("MinIncludedRadius",10).toFloat(),
                                  settings.value("MaxIncludedRadius",0).toFloat());
@@ -607,7 +607,11 @@ namespace cass
   void pp201::setupParameters(const HistogramBackend &hist)
   {
     using namespace std;
-    size_t imagewidth (hist.axis()[HistogramBackend::xAxis].nbrBins());
+    const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+    const AxisProperty &yaxis(hist.axis()[HistogramBackend::yAxis]);
+    size_t imagewidth (xaxis.nbrBins());
+    _center = make_pair(xaxis.bin(_userCenter.first),
+                        yaxis.bin(_userCenter.second));
     _radiusRange = _radiusRangeUser;
     _radiusRange.second = min(min(_radiusRange.second, _center.first  + 0.5f), imagewidth - _center.first - 0.5f);
     _radiusRange.second = min(min(_radiusRange.second, _center.second + 0.5f), imagewidth - _center.second - 0.5f);
@@ -674,8 +678,8 @@ namespace cass
     CASSSettings settings;
     settings.beginGroup("PostProcessor");
     settings.beginGroup(_key.c_str());
-    _center = make_pair(settings.value("ImageXCenter", 500).toUInt(),
-                        settings.value("ImageYCenter", 500).toUInt());
+    _userCenter = make_pair(settings.value("ImageXCenter", 500).toFloat(),
+                            settings.value("ImageYCenter", 500).toFloat());
     _nbrAngularPoints = settings.value("NbrAngularPoints",360.).toUInt();
     _nbrRadialPoints  = settings.value("NbrRadialPoints",500.).toUInt();
     setupGeneral();
@@ -729,8 +733,12 @@ namespace cass
           <<"' is not a 2D Histogram.";
       throw invalid_argument(ss.str());
     }
-    const size_t imagewidth (hist.axis()[HistogramBackend::xAxis].nbrBins());
-    const size_t imageheight (hist.axis()[HistogramBackend::yAxis].nbrBins());
+    const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+    const AxisProperty &yaxis(hist.axis()[HistogramBackend::yAxis]);
+    _center = make_pair(xaxis.bin(_userCenter.first),
+                        yaxis.bin(_userCenter.second));
+    const size_t imagewidth (xaxis.nbrBins());
+    const size_t imageheight (yaxis.nbrBins());
     const size_t dist_center_x_right(imagewidth - _center.first);
     const size_t dist_center_y_top(imageheight - _center.second);
     const size_t min_dist_x (min(dist_center_x_right, _center.first));
