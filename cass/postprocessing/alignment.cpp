@@ -696,9 +696,9 @@ namespace cass
         <<"' to polar coordinates."
         <<". Center x:"<<_center.first
         <<" y:"<<_center.second
-        <<". Maximum radius is "<<_maxRadius
-        <<". Number of Points on the phi '"<<_nbrAngularPoints
-        <<". Number of Points on the radius '"<<_nbrRadialPoints
+        <<". Maximum radius is '"<<_maxRadius
+        <<"'. Number of Points on the phi '"<<_nbrAngularPoints
+        <<"'. Number of Points on the radius '"<<_nbrRadialPoints
         <<"'. Condition is '"<<_condition->key()<<"'"
         <<endl;
   }
