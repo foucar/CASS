@@ -10,6 +10,9 @@
 
 @section toc Table of Contents
 -# @ref getting
+  -# @ref download
+  -# @ref compiling
+    # @ref compileinglucassview
 -# @ref using
   -# @ref online
   -# @ref offline
@@ -18,6 +21,7 @@
     -# @ref lucassview
   -# @ref inifilesetup
     -# @ref pplist
+    -# @ref CASSParameters
   -# @ref getting_help
 -# @ref developer
 -# @ref examples
