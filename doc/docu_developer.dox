@@ -12,11 +12,23 @@ new data and elements whos contents should be analyzed.
 
 
 @section input Input part of CASS
+Both inputs will do the follwing tasks after they retrieved the data from LCLS:
+- get fillable (empty) cass::CASSEvent element from cass::RingBuffer
+- convert LCLS data to cass::CASSEvent data and fill the later with the data
+- put cass::CASSEvent back into cass::Ringbuffer
+
+To convert the data the cass::FormatConverter singleton is used. This will
+iterate through the LCLS datagram and call the right cass::ConversionBackend
+object that will convert the xtc data to cass::CASSEvent data. The user can
+select what part of the data he wants to have converted by setting up which
+converters he wants to use. Please refer to the documentation of
+cass::FormatConverter and the converters for details.
+
 @section offline_input Offline input of CASS
 The input part that will read the data from file in offline mode is handled by
 the class cass::FileInput. This just parses the input file containing the file
 names to analyze, put them into string list and then goes through that list.
-For each file it will retrieve an event and convert the data to cass:CASSEvent
+For each file it will retrieve an event and convert the data to cass::CASSEvent
 object. The later was retrieved from the cass::RingBuffer and then later put back
 into it.
 
@@ -27,9 +39,9 @@ The class that does that is cass::SharedMemoryInput. It derives from the
 Pds::XtcMonitorClient class provided by LCLS. This class will do all the
 communication between the shared memory and CASS. Once it retrieved new data
 (in LCLS speach this is called datagram) it will call the overwritten
-cass::SharedMemoryInput::run() member. Here the datagram will be converted to
-a cass::CASSEvent which is retrieved from the cass::RingBuffer before. After that
-it is put back into the cass::RingBuffer.
+cass::SharedMemoryInput::processDgram() member. Here the datagram will be
+converted to a cass::CASSEvent which is retrieved from the cass::RingBuffer
+before. After that it is put back into the cass::RingBuffer.
 
 
 
@@ -39,7 +51,7 @@ threads should be present by modifying the cass::NbrOfWorkers variable. Each
 analysis thread is a cass::Worker object, which are handled by the cass::Workers
 object. Each one of the cass::Worker objects will do the following until it is
 told to quit:
-- retrieve an analysable (non empty) cass::CASSEvent element from cass::Ringbuffer
+- retrieve an analysable (non empty) cass::CASSEvent element from cass::RingBuffer
 - pre analyze the cass::CASSEvent element using the cass::Analyzer singleton
 - post analyze the cass::CASSEvent element using the cass::PostProcessors
   singleton.
