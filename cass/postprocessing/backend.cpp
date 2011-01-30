@@ -230,7 +230,7 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
                  <<" so we need to make sure that we exit our loadSettings before continueing"
                  <<" to load parameters by returning 0 at this point."
                  <<endl);
-//      return 0;
+      return 0;
     }
 #ifdef VERBOSE
     else
