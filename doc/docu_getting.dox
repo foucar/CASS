@@ -1,41 +1,61 @@
 /**
+@page getting Getting And Installing CASS
+
 @section getting  Get and install CASS
 In this section we will describe how to download and compile cass.
 
 @subsection download Download resource
-You can access cass via svn from the following repository location:\n
-https://www.mpi-hd.mpg.de/repos/lutz/diode \n
-The current version is located in\n
-/trunk\n
-The places where the releases are located is:\n
+You can access cass via svn from the following repository location:
+@verbatim
+https://www.mpi-hd.mpg.de/repos/lutz/diode
+@endverbatim
+The current version is located in
+@verbatim
+/trunk
+@endverbatim
+The places where the releases are located is:
+@verbatim
 /tags
-an "anonymous" readonly checkout is provided with:\n
-username: asg\n
-password: cass\n
+@endverbatim
+an "anonymous" readonly checkout is provided with:
+@verbatim
+username: asg
+password: cass
+@endverbatim
 (please contact Lutz Foucar for write access)
 
 @subsection compiling Compiling CASS
 See the @ref cassinstall file for the prerequeries. Once you checked out
 the version you want to compile you need to do the following steps:
-- cd into the directory that contains the checkout
-- copy cass_defaultconfig.pri to cass_myconfig.pri
+@verbatim
+cd into the directory that contains the checkout
+copy cass_defaultconfig.pri to cass_myconfig.pri
+@endverbatim
 Now modify the the cass_myconfig.pri file to include what you need and
 whether you want to use the offline or online version of CASS. Once you
 are done with this type:
-- qmake
+@verbatim
+qmake
+@endverbatim
 if you want to install the binaries later on in a directory other than
 "/installs" you need to type
-- qmake INSTALLBASE=path/to/desired/location
+@verbatim
+qmake INSTALLBASE=path/to/desired/location
+@endverbatim
 Once you did this you can type
-- make
+@verbatim
+make
+@endverbatim
 After it is done with compiling you have the choice to either leave the
 binary in the ./bin folder and start CASS from there or you might want to
 install it into the lockation that you requested with the optional INSTALLBASE
-paramter by typing
-- make install
+parameter by typing
+@verbatim
+make install
+@endverbatim
 Now CASS is ready to run. Please see the @ref using section of the documentation
 to see how to configure and run CASS. Parameters for the program start can be
-found here @ref clpar.
+found here: @ref clpar.
 
 
 
@@ -46,14 +66,21 @@ To be able to compile the lucassviewer you need to set up the prerequeries for
 ROOT (see here @ref cassinstall for details how to set the prerequieris up).
 Once you made sure that you can run ROOT. you need to go into the lucassview
 directory there you just type
-- make
+@verbatim
+make
+@endverbatim
 The lucassview binary will show up in the same folder as cass. Unfortunately
 when typing
-- make install
-will result in trying to install the binary in the default folder \n
-"/reg/g/cass/bin"\n
+@verbatim
+make install
+@endverbatim
+will result in trying to install the binary in the default folder
+@verbatim
+"/reg/g/cass/bin"
+@endverbatim
 If you want to change this, you need to modify the "Makefile" in the lucassview
 folder and set your desired path there.
+
 */
 
 

@@ -1,4 +1,6 @@
 /**
+@page using Using CASS
+
 @section using Using CASS
 CASS is capable of running online and get the data from the LCLS datastream and
 offline when it gets the data from the xtc files written by the LCLS DAQ.
@@ -19,19 +21,19 @@ When starting the online CASS program you need to tell it where to find the
 shared memory that has been preset by the DAQ people. (One can list the files
 in /dev/shm to see which shared memroy tags have been set up). The shared
 memory tag will told to the program with the
-- p partition tag for accessing the shared memory
+- p partition tag for accessing the shared memory\n
 parameter. If more than one person is running on the same machine trying to get
 the data from the online stream it is possible to assing an id to each one with
 the
-- c client id for shared memory access
+- c client id for shared memory access\n
 parameter.
 With the
-- s TCP port of the soap server
+- s TCP port of the soap server\n
 parameter you tell the program on which port the cass histograms are provided to
 the viewers. See @ref viewers for details on how to use this parameter in the
 viewer.
 The
-- f optional complete path to the cass.ini to use
+- f optional complete path to the cass.ini to use\n
 parameter lets you choose which .ini file to use. Please see @ref inifilesetup
 for details of the contents of the .ini file. If this paramter is not set CASS
 will defaultly load CASS.ini that resides in the UserScope path. On Unix or Mac
@@ -50,13 +52,13 @@ loads cass with the paramters described in the example above is called
 The offline version of CASS will process the xtc file that were recorded by the
 LCLS DAQ. Please put all files that you want to process into a txt file. Then
 provide the name of the text file to CASS with the
-- i filename containing filesnames of xtcfiles to process
+- i filename containing filesnames of xtcfiles to process\n
 parameter.\n
 Usually CASS will not quit after it has finishes processing all the files. It
 will keep all histograms in memory to be accessable via the viewers. If you would
 like CASS to quit after it has processed all provided files you have to pass the
-- q quit after finished with all files
-paramter to CASS at the program start.\n
+- q quit after finished with all files\n
+parameter to CASS at the program start.\n
 Sometimes you don't want to have all the rate output, ie. when you run
 the program in a batched way on a cluster. You can suppress the output with the
 - r suppress the rate output
@@ -65,12 +67,12 @@ Some of the available postprocessors output the data to file. This is done in
 different ways. You can check theier description if you want to know how. For
 most of them you need to compile cass with the proper options. In order to tell
 the program to which filename to output the files the
-- o output filename passed to the postprocessor
+- o output filename passed to the postprocessor\n
 parameter is available.
 
 
 
-@subsection viewer The Viewers
+@subsection viewers The Viewers
 To look at the histograms that are created and filled by CASS one has two
 options.@ref jocassview and @ref lucassview. Both viewers need to be told on
 which server CASS is running and on which port it will listen for requests.
@@ -98,7 +100,7 @@ export PATH=$ROOTSYS/bin:$PATH\n
 export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH\n
 ./lucassview\n
 
-@subsection inifilesetup
+@subsection inifilesetup How to set up the .ini file
 CASS is designed in such a way that it has a lot of "lego" pieces that one can
 put together such that it is process the data as you want it. These "lego"
 pieces are called "PostProcessors". In order to understand the concept behind
@@ -130,12 +132,12 @@ parameters it takes. In this reference you will also find all available
 parameters that one can give in the .ini file. There are some examples given in
 @ref examples as a starting point for your .ini file.
 
-@subsubsection acqirisparamters The special Acqiris Detector Parameters
+@subsubsection acqirisdetectors The special Acqiris Detector Parameters
 If you want to use the PostProcessors that deal with the AcqirisDetectors you
 need to set up the AcqirisDetectors first. Basically there are two types of
 Acqiris Detectors:
 - Time of Flight detectors (ToF)
-- Delayline detectors (DLD)
+- Delayline detectors (DLD)\n
 where the Delayline detectors are just specialized Time of Flight detectors. So
 everything that a Time of Flight detector can do, also a Delayline detector will
 do, but more. Basically the concept behind these detectors is that a ToF detector
