@@ -124,11 +124,10 @@ the Class description for information about what parameters are user settable.
 00301: median over last values
 00240: Test Image
 
-
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
-02000: Dump all 1d and 2d cass histograms to root file
+02000: Dump all selected 0d, 1d and 2d cass histograms to root file
 
 ---Coltrims Analysis--
 05000: Electron Energy from Recoil momenta
