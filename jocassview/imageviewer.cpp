@@ -464,12 +464,20 @@ void ImageViewer::on_auto_save_data_triggered()
   for(int ii=_attachId->currentText().length(); ii<3; ii++)
     fillZeros+=QString("0");
   QString fileName = QDir::currentPath() + "/" + fillZeros + _attachId->currentText() + "_" + QDateTime::currentDateTime().toString();
-  if(_dock->widget() == _imageWidget)
-    saveImage(fileName + QString(".png"));
-  else if(_dock->widget() == _spectrogramWidget)
+  if(_dock->widget() == _imageWidget) {
     save2dAscii(fileName + QString(".dat"));
-  else if(_dock->widget() == _plotWidget1D)
+    saveImage(fileName + QString(".png"));
+    saveHistogram(fileName + QString(".hst"));
+  }
+  else if(_dock->widget() == _spectrogramWidget) {
+    save2dAscii(fileName + QString(".dat"));
+    saveImage(fileName + QString(".png"));
+    saveHistogram(fileName + QString(".hst"));
+  }
+  else if(_dock->widget() == _plotWidget1D) {
     save1dAscii(fileName + QString(".dat"));
+    saveHistogram(fileName + QString(".hst"));
+  }
 }
 
 
