@@ -100,28 +100,28 @@ processor:
 @section newpp How to add a new PostProcessor
 A new PostProcessor needs to inherits from cass::PostprocessorBackend. The most
 important function that need to be overwritten are
-cass::PostProcessorBackend::loadSettings() and
-cass::PostProcessorBackend::process().
-In cass::PostProcessorBackend::loadSettings() you need to setup the
+cass::PostprocessorBackend::loadSettings() and
+cass::PostprocessorBackend::process().
+In cass::PostprocessorBackend::loadSettings() you need to setup the
 dependencies you are relying on if there are any, the general available parameters
 and most imporantly the resulting histogram. With
-cass::PostProcessorBackend::setupCondition() you set up that the PostProcessor
+cass::PostprocessorBackend::setupCondition() you set up that the PostProcessor
 is conditionable. This needs to be called in each load settings overwritten member.
-cass::PostProcessorBackend::setupGeneral() will setup all the parameters that are
+cass::PostprocessorBackend::setupGeneral() will setup all the parameters that are
 available for PostProcessors. Optionally you can use the function member
-cass::PostProcessorBackend::setupDependency() to set up the dependencies you
-rely on. After initializing the cass::PostProcessorBackend::_result member you
-can use the member function cass::PostProcessorBackend::createHistList() to
-create the histogram list of the PostProcessor.
+cass::PostprocessorBackend::setupDependency() to set up the dependencies you
+rely on. After initializing the cass::PostprocessorBackend::_result member you
+can use the member function cass::PostprocessorBackend::createHistList() to
+create the histogram list of the post processor.
 
 If your histogram relays on the a histogram of an dependcy, you might have to
-overwrite cass::PostProcessorBackend::histogramsChanged() and assign a new
-histogram with the new parameters to cass::PostProcessorBackend::_result. Calling
-cass::PostProcessorBackend::createHistList() after that will make sure that the
+overwrite cass::PostprocessorBackend::histogramsChanged() and assign a new
+histogram with the new parameters to cass::PostprocessorBackend::_result. Calling
+cass::PostprocessorBackend::createHistList() after that will make sure that the
 old histogramlist is deleted properly before creating the new one. Make sure that
 when you have altered your histogram to tell your dependands about this. You can
 use cass::Postprocessors::find_dependant() to find all post processors that
-depend on you. Then call the cass::PostProcessorBackend::histogramsChanged()
+depend on you. Then call the cass::PostprocessorBackend::histogramsChanged()
 member of all the post processors that depend on you. Here is some example code
 that does that for you
 @code
@@ -137,7 +137,7 @@ on it make sure that you lock the histogram for write access using its
 cass::HistogramBackend::lock. When you access histograms of your dependencies
 you need to lock them for read access using theier cass::HistogramBackend::lock.
 Access to the histograms of you dependencies should be done by calling the
-dependencies cass::PostProcesssorBackend::operator() member for that event.
+dependencies cass::PostprocessorBackend::operator() member for that event.
 This will then return the resulting histogram for this event as described above.
 
 When you are done coding your postprocessor you need to make it available to
