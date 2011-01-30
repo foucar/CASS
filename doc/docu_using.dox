@@ -1,0 +1,94 @@
+/**
+@section using Using CASS
+CASS is capable of running online and get the data from the LCLS datastream and
+offline when it gets the data from the xtc files written by the LCLS DAQ.
+Depending on the settings during compiletime one can compile CASS for either
+online or offline mode. Please see @ref compiling for details.\n
+A complete list of all parameters can be found here @ref clpar. Some of the
+parameters are only working with the online version some of them only with the
+offline version of CASS.
+
+
+@subsection online Online
+Running cass online envolves that you use the shared memory acess to the data
+provided by LCLS. This access is only available on selected dedicated computers.
+For the AMO-Hutch this is "daq-amo-mon01" ... "daq-amo-mon04". Please ask the
+LCLS DAQ person on which machine you will have access to the the online data
+stream.\n
+When starting the online CASS program you need to tell it where to find the
+shared memory that has been preset by the DAQ people. (One can list the files
+in /dev/shm to see which shared memroy tags have been set up). The shared
+memory tag will told to the program with the
+- p partition tag for accessing the shared memory
+parameter. If more than one person is running on the same machine trying to get
+the data from the online stream it is possible to assing an id to each one with
+the
+- c client id for shared memory access
+parameter.
+With the
+- s TCP port of the soap server
+parameter you tell the program on which port the cass histograms are provided to
+the viewers. See @ref viewers for details on how to use this parameter in the
+viewer.
+The
+- f optional complete path to the cass.ini to use
+parameter lets you choose which .ini file to use. Please see @ref inifilesetup
+for details of the contents of the .ini file. If this paramter is not set CASS
+will defaultly load CASS.ini that resides in the UserScope path. On Unix or Mac
+OS X this is $HOME/.config or $HOME/Settings.ßn
+A typical program start command looks like this:\
+"./cass -p 0_1_cass_AMO -c 0 -f "inifilename""\n
+For your convenience the most recent cass binary is located in\n
+"/reg/g/cass/bin/"\n
+In this location you will also find the convenience startup scripts. The one that
+loads cass with the paramters described in the example above is called
+"/reg/g/cass/bin/startCASS.sh"
+
+
+
+@subsection offline Offline
+The offline version of CASS will process the xtc file that were recorded by the
+LCLS DAQ. Please put all files that you want to process into a txt file. Then
+provide the name of the text file to CASS with the
+- i filename containing filesnames of xtcfiles to process
+parameter.\n
+Usually CASS will not quit after it has finishes processing all the files. It
+will keep all histograms in memory to be accessable via the viewers. If you would
+like CASS to quit after it has processed all provided files you have to pass the
+- q quit after finished with all files
+paramter to CASS at the program start.\n
+Sometimes you don't want to have all the rate output, ie. when you run
+the program in a batched way on a cluster. You can suppress the output with the
+- r suppress the rate output
+parameter.
+
+
+
+@subsection viewer The Viewers
+To look at the histograms that are created and filled by CASS one has two
+options.@ref jocassview and @ref lucassview. Both viewers need to be told on
+which server CASS is running and on which port it will listen for requests.
+
+
+
+@subsubsection jocassview Jocassview
+This viewer is based on QWT. A library for scientific widgets that are based on
+QT. To start this viewer on the SLAC computers one has to tell where to find
+the QWT library by first putting it to the LD_LIBRARY_PATH variable. IE.\n
+
+export LD_LIBRARY_PATH=/reg/g/cass/lib
+./jocassview
+
+
+
+@subsubsection lucassview Lucassview
+This viewer is based on ROOT which was developed by CERN people and is a C++
+library for all kinds of things. To start this viewer on the SLAC computers one
+has to set PATH and LD_LIBRARY_PATH to point to the binary and the library path
+of the root installation. IE.\n
+
+export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug\n
+export PATH=$ROOTSYS/bin:$PATH\n
+export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH\n
+./lucassview\n
+*/
