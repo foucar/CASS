@@ -1,0 +1,19 @@
+/**
+\page examples Examples
+@example hdf5dump.ini
+This example shows you how to setup the Chapman crew HDF5 File Dumper.
+@example photodiode-photonhits.ini
+This example shows you how to setup a condition and use it to gate the pnccd
+Detector for yag on / off.
+@example singleParticleDetection.ini
+This example shows you how to use Stephans Hit finder and make a condition on
+it. Then use this condition to create a running average and substract the
+running average from the image that contains a hit. The result is then threholded
+to set all pixels below a certain value to 0.
+@example threshold-average.ini
+Example CASS.ini for calculating the running average of thresholded frames.\n
+@example hexanode.ini
+This example shows how to get the hex-anode data.  \n
+@example quadanode.ini
+This example shows how to get the quad-anode data.  \n
+*/

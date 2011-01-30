@@ -9,3 +9,9 @@ publication. The suggested reference is:\n
 
 "CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2011."
 */
+
+/**
+\page casslicense License
+@include "License"
+@include "License.GPLv3"
+*/

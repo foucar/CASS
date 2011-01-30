@@ -60,7 +60,13 @@ paramter to CASS at the program start.\n
 Sometimes you don't want to have all the rate output, ie. when you run
 the program in a batched way on a cluster. You can suppress the output with the
 - r suppress the rate output
-parameter.
+parameter.\n
+Some of the available postprocessors output the data to file. This is done in
+different ways. You can check theier description if you want to know how. For
+most of them you need to compile cass with the proper options. In order to tell
+the program to which filename to output the files the
+- o output filename passed to the postprocessor
+parameter is available.
 
 
 
@@ -92,3 +98,14 @@ export PATH=$ROOTSYS/bin:$PATH\n
 export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH\n
 ./lucassview\n
 */
+
+
+
+
+@subsection getting_help Getting Help
+If you need further assistence please subscripe yourself to the cass-mailinglist.\n
+https://www.asg.mpg.de/mailman/listinfo/cass\n
+Where people should share theier experience and user are helping other users
+to solve their problems.
+
+

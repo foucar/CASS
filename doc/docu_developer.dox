@@ -1,0 +1,23 @@
+@section desc Brief description about program flow
+There are two types of threads running. They are both accessing a shared entity
+the ringbuffer. The producer thread is the shared memory input. The are several
+worker threads that will work on the created cassevents. Here is a short
+describtion of what the two thread types will do:
+-# Shared Memory Thread (single thread)
+  -# get lcls data
+  -# takes out a cassevent from ringbuffer
+  -# converter converts lcls -> cassevent
+  -# puts it back to ringbuffer
+-# Worker Thread (optional multiple threads)
+  -# takes cassevent out of ringbuffer
+  -# puts it to
+   -# analyzer
+     -# puts it to the preanalyzers of different devices
+   -# postanalyzers
+     -# list of userdefined analyzers that extract info from cassevent and
+        put results it in histograms.
+  -# puts worked on cassevent back to ringbuffer to be filled again
+
+- Program control is done via a tcpip interface
+- Accesss histograms created by postprocessors via tcpip interface
+- Parameters are loaded using qt's qsettings. @see @ref run

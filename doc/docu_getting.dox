@@ -1,0 +1,21 @@
+@section download Getting CASS
+You can access cass via svn from the following Repository:\n
+https://www.mpi-hd.mpg.de/repos/lutz/diode \n
+The version we are working with right now is to be found in\n
+/trunk\n
+an "anonymous" readonly access for checking out can be done using\n
+username: asg\n
+password: cass\n
+(please contact Lutz Foucar for write access)
+
+
+@section inst Installing CASS
+See the @ref cassinstall file as the primary installation documentation.
+
+
+
+/**
+\page cassinstall INSTALL
+@include "INSTALL"
+*/
+
