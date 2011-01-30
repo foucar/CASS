@@ -153,8 +153,20 @@ the user. To do this you need to complete the following steps:
 
 
 @section newcon How to add a new Converter
-converter class inerhit from cass::ConversionBackend.
-in constructor needs to setup ids it works on
-add it to converter::instance
-modify description in cass::FormatConverter header.
+Your converter has to inherit from cass::ConversionBackend and it should be a
+singleton. This means that it should have a static member function called
+instance that will return a cass::ConversionBackend::converterPtr_t object that
+contains the singleton pointer.\n
+In the constructor of the class you need to fill the
+cass::ConversionBackend::_pdsTypeList with the type id's from the LCLS that you
+want the converter to react on.\n
+You need to overwrite cass::ConversionBackend::operator() with the code that
+extract the data you are interested in from the datagram and put it into the
+cass::CASSEvent.\n
+Once you have set up your converter, you need to modify
+cass::ConversionBackend::instance() and add an else if statment that returns your
+converter. Please document in cass::format_converter.h which string will return
+the singleton of your converter.
+
+
 */
