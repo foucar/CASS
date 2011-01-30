@@ -24,4 +24,9 @@ describtion of what the two thread types will do:
 - Program control is done via a tcpip interface
 - Accesss histograms created by postprocessors via tcpip interface
 - Parameters are loaded using qt's qsettings. @see @ref run
+
+
+@subsection newpp How to add a new PostProcessor
+@subsection newcon How to add a new Converter
+
 */
