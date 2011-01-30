@@ -37,13 +37,22 @@ namespace Pds {
        XppSb4Pim     = 19,
        XppGon        = 20,
        XppLas        = 21,
-        XppEndstation = 22,
-        AmoEndstation = 23,
-        CxiEndstation = 24,
-        XcsEndstation = 25,
-        MecEndstation = 26,
-        NumDetector   = 27
-      };
+       XppEndstation = 22,
+       AmoEndstation = 23,
+       CxiEndstation = 24,
+       XcsEndstation = 25,
+       MecEndstation = 26,
+       CxiDg1        = 27,
+       CxiDg2        = 28,
+       CxiDg3        = 29,
+       CxiDg4        = 30,
+       CxiKb1        = 31,
+       CxiDs1        = 32,
+       CxiDs2        = 33,
+       CxiDsu        = 34,
+       CxiSc1        = 35,
+       NumDetector   = 36
+    };
 
       enum Device {
         NoDevice  = 0,
