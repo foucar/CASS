@@ -9,11 +9,11 @@ namespace Pds {
 
 class XtcFileIterator {
 public:
-  XtcFileIterator(FILE* file, size_t maxDgramSize);
+  XtcFileIterator(int fd, size_t maxDgramSize);
   ~XtcFileIterator();
   Dgram* next();
 private:
-  FILE*    _file;
+  int      _fd;
   size_t   _maxDgramSize;
   char*    _buf;
 };

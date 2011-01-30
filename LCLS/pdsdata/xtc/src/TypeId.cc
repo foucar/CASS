@@ -39,7 +39,20 @@ const char* TypeId::name(Type type)
     "FrameFccdConfig",
     "FccdConfig",  
     "IpimbData",
-    "IpimbConfig",
+    "IpimbConfig","EncoderData",
+    "EncoderConfig",
+    "EvrIOConfig",
+    "PrincetonInfo",
+    "CspadElement",
+    "CspadConfig",
+    "IpmFexConfig",
+    "IpmFex",
+    "DiodeFexConfig",
+    "DiodeFex",
+    "PimImageConfig",
+    "SharedIpimb",
+//    "SequencerConfig",
+    "AcqTDCData"
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

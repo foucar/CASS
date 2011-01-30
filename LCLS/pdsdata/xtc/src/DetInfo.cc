@@ -25,18 +25,14 @@ uint32_t          DetInfo::devId()    const {return _phy&0xff;}
 const char* DetInfo::name(Detector det){
   static const char* _detNames[] = {
     "NoDetector",
-    "amoIMS",
-    "amoGD",
-    "amoETOF",
-    "amoITOF",
-    "amoMBES",
-    "amoVMI",
-    "amoBPS",
-    "Camp",
-    "epicsArch",    
-    "BldEb",
-    "SxrBeamline",
-    "SxrEndstation"};
+    "AmoIMS", "AmoGD", "AmoETOF", "AmoITOF", "AmoMBES", "AmoVMI", "AmoBPS", "Camp",
+    "EpicsArch", "BldEb",
+    "SxrBeamline", "SxrEndstation",
+    "XppSb1Ipm", "XppSb1Pim", "XppMonPim", "XppSb2Ipm", "XppSb3Ipm", "XppSb3Pim", "XppSb4Pim", "XppGon", "XppLas", "XppEndstation",
+    "AmoEndstation",
+    "CxiEndstation",
+    "XcsEndstation",
+    "MecEndstation"};
   return (det < NumDetector ? _detNames[det] : "-Invalid-");
 }
 
@@ -51,6 +47,9 @@ const char* DetInfo::name(Device dev) {
     "Princeton",
     "Fccd",
     "Ipimb",
+    "Encoder",
+    "Cspad",
+    "AcqTDC"
   };
   return (dev < NumDevice ? _devNames[dev] : "-Invalid-");
 }

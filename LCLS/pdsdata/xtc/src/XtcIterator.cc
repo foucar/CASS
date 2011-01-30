@@ -47,6 +47,11 @@ int XtcIterator::iterate(Xtc* root)
   int error(NoError);
   while(remaining > 0)
   {
+    if (xtc->extent == 0)
+    {
+      error = Error;
+      break;
+    }
     if(!process(xtc))
     {
       error = Error;

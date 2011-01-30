@@ -38,6 +38,18 @@ namespace Pds {
       Id_IpimbConfig,
       Id_EncoderData,
       Id_EncoderConfig,
+      Id_EvrIOConfig,
+      Id_PrincetonInfo,
+      Id_CspadElement,
+      Id_CspadConfig,
+      Id_IpmFexConfig,  // LUSI Diagnostics
+      Id_IpmFex,
+      Id_DiodeFexConfig,
+      Id_DiodeFex,
+      Id_PimImageConfig,
+      Id_SharedIpimb,
+      //      Id_SequencerConfig,
+      Id_AcqTdcData,
       NumberOf};
 
     TypeId() {}
