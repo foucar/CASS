@@ -1,17 +1,31 @@
 /**
 @page using Using CASS
 
-@section using Using CASS
+
 CASS is capable of running online and get the data from the LCLS datastream and
 offline when it gets the data from the xtc files written by the LCLS DAQ.
 Depending on the settings during compiletime one can compile CASS for either
 online or offline mode. Please see @ref compiling for details.\n
 A complete list of all parameters can be found here @ref clpar. Some of the
 parameters are only working with the online version some of them only with the
-offline version of CASS.
+offline version of CASS. To quit CASS in either online or offline mode one can
+use either
+@verbatim
+crtl + \
+@endverbatim
+or
+@verbatim
+crtl + q
+@endverbatim
+Killing the program with
+@verbatim
+crtl + c
+@endverbatim
+has various implications. Please refer to the following sections for details.
 
 
-@subsection online Online
+
+@section online Online
 Running cass online envolves that you use the shared memory acess to the data
 provided by LCLS. This access is only available on selected dedicated computers.
 For the AMO-Hutch these are
@@ -21,15 +35,15 @@ daq-amo-mon01
 .
 daq-amo-mon04
 @endverbatim
-Please ask the LCLS DAQ person on which machine you will have access to the
+Please ask the LCLS DAQ people on which machine you will have access to the
 online data stream.\n
 
-When starting the online CASS program you need to tell it where to find the
+When starting the online CASS program you need to determine where to find the
 shared memory that has been preset by the DAQ people. (One can list the files in
 @verbatim
 /dev/shm
 @endverbatim
-to see which shared memroy tags have been set up). The shared memory tag can
+to see which shared memory tags have been set up). The shared memory tag can
 be passed to the program with the
 @verbatim
 -p <partition tag>
@@ -75,8 +89,27 @@ that loads cass with the parameters described in the example above is called
 @endverbatim
 You can pass this script the .ini file that you want to load for the experiment.
 
+To end the program you should use either
+@verbatim
+crtl + \
+@endverbatim
+or
+@verbatim
+crtl + q
+@endverbatim
+Killing the program with
+@verbatim
+crtl + c
+@endverbatim
+will result in shared_memory buffers being eaten up. This means that you can
+only do this a few times until all communication buffers are eaten up and you
+don't get any data anymore. The only thing that allows CASS to get data from the
+datastream again is to restart the DAQ.
 
-@subsection offline Offline
+
+
+
+@section offline Offline
 The offline version of CASS will process the xtc file that were recorded by the
 LCLS DAQ. Please put all files that you want to process into a txt file. Then
 provide the name of the text file to CASS with the
@@ -104,18 +137,35 @@ the program to which filename to output the files the
 @verbatim
 -o <output filename>
 @endverbatim
-parameter to set the filename.
+parameter to set the filename.\n
+If you want to quit the program before the file has been fully analyzed but
+still want to have everything that has been processed so far to be written to
+the file you can quit the program with either
+@verbatim
+crtl + \
+@endverbatim
+or
+@verbatim
+crtl + q
+@endverbatim
+Using
+@verbatim
+crtl + c
+@endverbatim
+will result in immidiate stop of the program without the data beeing written to
+file.
 
 
 
-@subsection viewers The Viewers
+
+
+@section viewers The Viewers
 To look at the histograms that are created and filled by CASS one has two
 options.@ref jocassview and @ref lucassview. Both viewers need to be told on
 which server CASS is running and on which port it will listen for requests.
 
 
-
-@subsubsection jocassview Jocassview
+@section jocassview Jocassview
 This viewer is based on QWT. A library for scientific widgets that are based on
 QT. To start this viewer on the SLAC computers one has to tell where to find
 the QWT library by first putting it to the LD_LIBRARY_PATH variable. ie.
@@ -130,7 +180,7 @@ automaticaly. It is located in the cass directory. Here is how to start it:
 @endverbatim
 
 
-@subsubsection lucassview Lucassview
+@section lucassview Lucassview
 This viewer is based on ROOT which was developed by CERN people and is a C++
 library for all kinds of things. Please visit http://root.cern.ch for details.
 To start this viewer on the SLAC computers one has to set PATH and
@@ -164,7 +214,7 @@ found here:
 
 
 
-@subsection inifilesetup How to set up the .ini file
+@section inifilesetup How to set up the .ini file
 CASS is designed in such a way that it has a lot of "lego" pieces that one can
 put together such that it is process the data as you want it. These "lego"
 pieces are called "PostProcessors". In order to understand the concept behind
@@ -177,15 +227,15 @@ for each event do
 - preprocess parts of the data (PreAnalyzer)
 - postprocess the data using the PostProcessors
 
-So the ini file exist of basically three parts:\n
+So the ini file exist of basically three parts:
 
 The Converter part tells CASS what kind of data you are actually interested in.
 To see what options are available please refer to @ref converter.
 
-The PreAnalyzer part will preprocess the only the pnCCD and the ccd data. Please
+The PreAnalyzer part will preprocess only the pnCCD and the ccd data. Please
 refer to @ref preanalyzer for details how to tell which pre analyzers should be
-active. The parameters you can set for the different pre analyzers can be found
-in the description of cass::pnCCD::DetectorParameter and cass::pnCCD::Parameter
+used by CASS. The parameters you can set for the different pre analyzers can be
+found in the description of cass::pnCCD::DetectorParameter and cass::pnCCD::Parameter
 for the pnCCD pre analysis. For the commercial ccd pre analysis the paramters
 can be found in the description of cass::CCD::Parameter.\n
 
@@ -196,37 +246,38 @@ parameters it takes. In this reference you will also find all available
 parameters that one can give in the .ini file. There are some examples given in
 @ref examples as a starting point for your .ini file.
 
-@subsubsection acqirisdetectors The special Acqiris Detector Parameters
+@section acqirisdetectors The special Acqiris Detector Parameters
 If you want to use the PostProcessors that deal with the AcqirisDetectors you
 need to set up the AcqirisDetectors first. Basically there are two types of
 Acqiris Detectors:
 - Time of Flight detectors (ToF)
-- Delayline detectors (DLD)\n
+- Delayline detectors (DLD)
 
 where the Delayline detectors are just specialized Time of Flight detectors. So
 everything that a Time of Flight detector can do, also a Delayline detector will
 do, but more. Basically the concept behind these detectors is that a ToF detector
-has a SignalProducer which is called MCP. The SignalProducer contains a
-SingalExtractor that knows where to find the signals in the data and how to
-extract them from there. The parameter "SignalExtractionMethod" lets you choose
-what kind of SignalExtractor should be used to extract the signals from the
-data. Please refer to the specific SignalExtrator that you choose to use for the
-parameters that available for it.
+has a cass::ACQIRIS::SignalProducer which is called MCP. The SignalProducer
+contains a SingalExtractor object that knows where to find the signals in the
+data and how toextract them from there. The parameter @c SignalExtractionMethod
+lets you choose what kind of SignalExtractor should be used to extract the
+signals from the data. Please refer to the specific SignalExtrator that you
+choose to use for the parameters that available for it.
 
-Next to an MCP SignalProducer the DLD has also Anodelayers which contain wireends
-which themselves are again SignalProducers. So one can set up how to extract the
-produces signals from the wireends SignalProducers as described for the MCP
-SignalProducer. To be able to convert or resort the Signals produces by the MCP
+Next to an MCP SignalProducer the DLD has also cass::ACQIRIS::AnodeLayer which
+contain wireends which themselves are again cass::ACQIRIS::SignalProducer. So
+one can set up how to extract the produced signals from the wireends as
+described for the MCP SignalProducer.\n
+To be able to convert or resort the Signals produced by the MCP
 and the wireends of a DLD to actual hits on the detector the DLD also contains
 a DetectorAnalyzer object. There are several ways to sort the signals into
 detectorhits. You can choose which one of these methods you want to use with the
-"AnalysisMethod" parameter. Please refer to the description of the specific
+@c AnalysisMethod parameter. Please refer to the description of the specific
 DetectorAnalyzer to see what parameters are available.
 
 Once you have set up the DLD to identify hits on it you can tell it what
 kind of Particle these hits belong to. Therefore one can setup a list of particles
 that were detected by the DLD. There are several ways of idenfiying which hit
-belongs to which particle. You can choose which one to use the "ConditionType"
+belongs to which particle. You can choose which one to use the @c ConditionType
 parameter of the particle to define which method to use. For the other parameters
 available for a particle please refer to the documentation of
 cass::ACQIRIS::Particle. In order to calculate the momenta and energy of the
@@ -235,18 +286,14 @@ need to set up this object for each particle individually. Based on the paramter
 you provide the particle will decide which method it will use to calculate the
 momentum. In this the raw values of the detectorhit are taken and corrected
 using a cass::ACQIRIS::HitCorrector object. Please refer to the documentation
-of the HitCorrector object to see which parameters are available.
-
-How to set up one of these detectors you can find in the class
-documentation of cass::ACQIRIS::DelaylineDetector, cass::ACQIRIS::AnodeLayer and
-cass::ACQIRIS::SignalProducer.
+of cass::ACQIRIS::HitCorrector to see which parameters are available.
 
 
 
-@subsection getting_help Getting Help
+@section getting_help Getting Help
 If you need further assistence please subscripe yourself to the cass-mailinglist.\n
 https://www.asg.mpg.de/mailman/listinfo/cass\n
-Where people should share theier experience and user are helping other users
-to solve their problems.
+Where people should share theier experience and users and developers are helping
+other users to solve their problems.
 */
 

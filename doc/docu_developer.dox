@@ -1,7 +1,6 @@
 /**
-@page desc Developer information
+@page developer Developer information
 
-@section developer Brief description about program flow
 There are two types of threads running. They are both accessing a shared entity
 the ringbuffer. The producer thread is the shared memory input. The are several
 worker threads that will work on the created cassevents. Here is a short

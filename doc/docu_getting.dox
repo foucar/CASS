@@ -1,10 +1,9 @@
 /**
 @page getting Getting And Installing CASS
 
-@section getting  Get and install CASS
 In this section we will describe how to download and compile cass.
 
-@subsection download Download resource
+@section download Download resource
 You can access cass via svn from the following repository location:
 @verbatim
 https://www.mpi-hd.mpg.de/repos/lutz/diode
@@ -24,7 +23,7 @@ password: cass
 @endverbatim
 (please contact Lutz Foucar for write access)
 
-@subsection compiling Compiling CASS
+@section compiling Compiling CASS
 See the @ref cassinstall file for the prerequeries. Once you checked out
 the version you want to compile you need to do the following steps:
 @verbatim
@@ -59,7 +58,7 @@ found here: @ref clpar.
 
 
 
-@subsubsection compileinglucassview Compiling LuCassView
+@section compileinglucassview Compiling LuCassView
 If you want to use the lucassviewer which is based on root (please see here
 @ref lucassview for details) you need to compile this separatly.\
 To be able to compile the lucassviewer you need to set up the prerequeries for

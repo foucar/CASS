@@ -1,10 +1,3 @@
-/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************/
-
-/*
-  This file contains NO source code, just some documentation for doxygen to
-  parse.
-*/
-
 /**
 @mainpage CASS (CFEL ASG Software Suite)
 
@@ -28,9 +21,19 @@
 -# @ref developer
   -# @ref newpp
   -# @ref newcon
--# @ref licence
 -# @ref cred
+-# @ref licence
 
+@section licence License
+CASS is delveloped under the terms of the GNU General Public
+License, version 3 as of 29 June 2007. See @ref casslicense for details.
+
+If you use this software for publishable work, please cite and
+acknowledge the authors and the CASS collaboration in your
+publication. The suggested reference is:
+@verbatim
+CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2011.
+@endverbatim
 
 @date 2009-2011
 
@@ -38,4 +41,3 @@
       can use the histogram part for it.
 @todo add gui's to modify the postprocessors settings in cassviewer.
 */
-
