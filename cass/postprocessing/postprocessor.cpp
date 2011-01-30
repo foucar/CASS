@@ -47,7 +47,7 @@ QMutex cass::PostProcessors::_mutex;
 cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
 {
 #ifdef VERBOSE
-  static int n(0), create(0);
+  static int /*n(0),*/ create(0);
 #endif
 //  VERBOSEOUT(std::cerr<<"PostProcessors::instance -- call "<<++n<<std::endl);
   QMutexLocker locker(&_mutex);
