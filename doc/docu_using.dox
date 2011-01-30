@@ -14,61 +14,97 @@ offline version of CASS.
 @subsection online Online
 Running cass online envolves that you use the shared memory acess to the data
 provided by LCLS. This access is only available on selected dedicated computers.
-For the AMO-Hutch this is "daq-amo-mon01" ... "daq-amo-mon04". Please ask the
-LCLS DAQ person on which machine you will have access to the the online data
-stream.\n
+For the AMO-Hutch these are
+@verbatim
+daq-amo-mon01
+.
+.
+daq-amo-mon04
+@endverbatim
+Please ask the LCLS DAQ person on which machine you will have access to the
+online data stream.\n
+
 When starting the online CASS program you need to tell it where to find the
-shared memory that has been preset by the DAQ people. (One can list the files
-in /dev/shm to see which shared memroy tags have been set up). The shared
-memory tag will told to the program with the
-- p partition tag for accessing the shared memory\n
+shared memory that has been preset by the DAQ people. (One can list the files in
+@verbatim
+/dev/shm
+@endverbatim
+to see which shared memroy tags have been set up). The shared memory tag can
+be passed to the program with the
+@verbatim
+-p <partition tag>
+@endverbatim
 parameter. If more than one person is running on the same machine trying to get
 the data from the online stream it is possible to assing an id to each one with
 the
-- c client id for shared memory access\n
+@verbatim
+-c <client id>
+@endverbatim
 parameter.
 With the
-- s TCP port of the soap server\n
+@verbatim
+-s <server port>
+@endverbatim
 parameter you tell the program on which port the cass histograms are provided to
 the viewers. See @ref viewers for details on how to use this parameter in the
 viewer.
 The
-- f optional complete path to the cass.ini to use\n
+@verbatim
+-f <path/to/.inifile>
+@endverbatim
 parameter lets you choose which .ini file to use. Please see @ref inifilesetup
 for details of the contents of the .ini file. If this paramter is not set CASS
 will defaultly load CASS.ini that resides in the UserScope path. On Unix or Mac
-OS X this is $HOME/.config or $HOME/Settings.ßn
-A typical program start command looks like this:\
-"./cass -p 0_1_cass_AMO -c 0 -f "inifilename""\n
-For your convenience the most recent cass binary is located in\n
-"/reg/g/cass/bin/"\n
-In this location you will also find the convenience startup scripts. The one that
-loads cass with the paramters described in the example above is called
-"/reg/g/cass/bin/startCASS.sh"
-
+OS X this is $HOME/.config or $HOME/Settings ie.
+@verbatim
+~/.config/CFEL-ASG/CASS.ini
+@endverbatim
+A typical program start command looks like this:
+@verbatim
+./cass -p 0_1_cass_AMO -c 0 -f "inifilename"
+@endverbatim
+For your convenience the most recent cass binary compiled by an expert is
+located here
+@verbatim
+/reg/g/cass/bin/cass
+@endverbatim
+In this location you will also find some convenience startup scripts. The one
+that loads cass with the parameters described in the example above is called
+@verbatim
+/reg/g/cass/bin/startCASS.sh </path/to/.inifile>
+@endverbatim
+You can pass this script the .ini file that you want to load for the experiment.
 
 
 @subsection offline Offline
 The offline version of CASS will process the xtc file that were recorded by the
 LCLS DAQ. Please put all files that you want to process into a txt file. Then
 provide the name of the text file to CASS with the
-- i filename containing filesnames of xtcfiles to process\n
+@verbatim
+-i <filename containing filenames of xtcfiles to process>
+@endverbatim
 parameter.\n
 Usually CASS will not quit after it has finishes processing all the files. It
 will keep all histograms in memory to be accessable via the viewers. If you would
 like CASS to quit after it has processed all provided files you have to pass the
-- q quit after finished with all files\n
+@verbatim
+-q
+@endverbatim
 parameter to CASS at the program start.\n
 Sometimes you don't want to have all the rate output, ie. when you run
-the program in a batched way on a cluster. You can suppress the output with the
-- r suppress the rate output
-parameter.\n
+the program in a batched way on a cluster. You can suppress the output with
+@verbatim
+-r
+@endverbatim
 Some of the available postprocessors output the data to file. This is done in
 different ways. You can check theier description if you want to know how. For
-most of them you need to compile cass with the proper options. In order to tell
+most of them you need to compile cass with the proper options. Refer to
+@ref compiling for more details. Some of them will use the
 the program to which filename to output the files the
-- o output filename passed to the postprocessor\n
-parameter is available.
+@verbatim
+-o <output filename>
+@endverbatim
+parameter to set the filename.
 
 
 
@@ -82,23 +118,51 @@ which server CASS is running and on which port it will listen for requests.
 @subsubsection jocassview Jocassview
 This viewer is based on QWT. A library for scientific widgets that are based on
 QT. To start this viewer on the SLAC computers one has to tell where to find
-the QWT library by first putting it to the LD_LIBRARY_PATH variable. IE.\n
-
+the QWT library by first putting it to the LD_LIBRARY_PATH variable. ie.
+@verbatim
 export LD_LIBRARY_PATH=/reg/g/cass/lib
 ./jocassview
-
+@endverbatim
+One can also use the convenience startup skript that will set the commands above
+automaticaly. It is located in the cass directory. Here is how to start it:
+@verbatim
+/reg/g/cass/bin/startJocassview.sh
+@endverbatim
 
 
 @subsubsection lucassview Lucassview
 This viewer is based on ROOT which was developed by CERN people and is a C++
-library for all kinds of things. To start this viewer on the SLAC computers one
-has to set PATH and LD_LIBRARY_PATH to point to the binary and the library path
-of the root installation. IE.\n
+library for all kinds of things. Please visit http://root.cern.ch for details.
+To start this viewer on the SLAC computers one has to set PATH and
+LD_LIBRARY_PATH to point to the binary and the library path
+of the root installation. ie
+@verbatim
+export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug
+export PATH=$ROOTSYS/bin:$PATH
+export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+./lucassview
+@endverbatim
+To ease the this task there is a convenience skript available that will set
+the environmental variables and start the lucassviewer
+@verbatim
+/reg/g/cass/bin/startLucassview.sh
+@endverbatim
+In order to run properly one has to provide a startup script to lucassview'er
+which is called lucassStartup.C. In one can set the appropriate server and
+port and tell it to update automatically. All options in the script can also
+be typed in the root console manually. A template is located here:
+@verbatim
+/reg/g/cass/macros/lucassStartup.C
+@endverbatim
+or in the lucassview folder of the repository you have downloaded.\n
+In order to increase the usablity of root there are a collection of macros
+available, which need to be loaded to root. This collection of macros can be
+found here:
+@verbatim
+/reg/g/cass/macros/MoritzLutzAchimTill.C
+@endverbatim
 
-export ROOTSYS=/reg/common/package/root/5.24.00-x86_64-nodebug\n
-export PATH=$ROOTSYS/bin:$PATH\n
-export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH\n
-./lucassview\n
+
 
 @subsection inifilesetup How to set up the .ini file
 CASS is designed in such a way that it has a lot of "lego" pieces that one can
@@ -138,6 +202,7 @@ need to set up the AcqirisDetectors first. Basically there are two types of
 Acqiris Detectors:
 - Time of Flight detectors (ToF)
 - Delayline detectors (DLD)\n
+
 where the Delayline detectors are just specialized Time of Flight detectors. So
 everything that a Time of Flight detector can do, also a Delayline detector will
 do, but more. Basically the concept behind these detectors is that a ToF detector
