@@ -136,9 +136,20 @@ If you modify the contents of your histogram by filling or doing other operation
 on it make sure that you lock the histogram for write access using its
 cass::HistogramBackend::lock. When you access histograms of your dependencies
 you need to lock them for read access using theier cass::HistogramBackend::lock.
+Access to the histograms of you dependencies should be done by calling the
+dependencies cass::PostProcesssorBackend::operator() member for that event.
+This will then return the resulting histogram for this event as described above.
 
+When you are done coding your postprocessor you need to make it available to
+the user. To do this you need to complete the following steps:
+- in cass/postprocessing/postprocessor.h add the number and a short description
+  in the desciption part.
+- in cass/postprocessing/postprocessor.h add an entry with your id in the
+  cass::PostProcessors::id_t enum.
+- in cass/postprocessing/postprocessor.cpp add your id in the
+  cass::PostProcessors::create() member to the switch statement. Just use the
+  other entries as example.
 
-add entrie in postprocessors header and class in list of create()
 
 
 @section newcon How to add a new Converter
