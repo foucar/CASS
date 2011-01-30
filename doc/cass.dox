@@ -20,11 +20,12 @@
     -# @ref jocassview
     -# @ref lucassview
   -# @ref inifilesetup
+    -# @ref acqirisdetectors
     -# @ref pplist
     -# @ref CASSParameters
+    -# @ref examples
   -# @ref getting_help
 -# @ref developer
--# @ref examples
 -# @ref licence
 -# @ref cred
 
