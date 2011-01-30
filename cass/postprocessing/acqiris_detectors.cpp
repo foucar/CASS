@@ -113,6 +113,8 @@ namespace cass
   }
 }
 
+
+
 //----------------Nbr of Peaks MCP---------------------------------------------
 cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
   :cass::PostprocessorBackend(pp,key)
@@ -134,7 +136,7 @@ void cass::pp150::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  cout <<endl<< "PostProcessor '"<<_key
+  cout<<endl<< "PostProcessor '"<<_key
       <<"' retrieves the nbr of mcp signals of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
@@ -169,6 +171,7 @@ cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp151::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -179,11 +182,11 @@ void cass::pp151::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": it histograms times of the found mcp signals"
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms times of the found mcp signals"
+      <<" of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp151::process(const cass::CASSEvent &evt)
@@ -222,6 +225,7 @@ cass::pp152::pp152(PostProcessors &pp, const PostProcessors::key_t &key)
 void cass::pp152::loadSettings(size_t)
 {
   using namespace cass::ACQIRIS;
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -232,11 +236,11 @@ void cass::pp152::loadSettings(size_t)
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": histograms the FWHM vs the height of the found mcp signals"
-      <<" of detector "<<_detector
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' histograms the FWHM vs the height of the found mcp signals"
+      <<" of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp152::process(const cass::CASSEvent &evt)
@@ -286,7 +290,7 @@ void cass::pp160::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout <<endl<< "PostProcessor '"<<_key
+  cout<<endl<< "PostProcessor '"<<_key
       <<"' outputs the nbr of signals of layer '"<<_layer
       <<"' wireend '"<<_signal
       <<"' of detector '"<<_detector
@@ -336,7 +340,7 @@ void cass::pp161::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout <<endl<< "PostProcessor '"<<_key
+  cout<<endl<< "PostProcessor '"<<_key
       <<"' histograms the FWHM vs the height from the signals of layer '"<<_layer
       <<"' wireend '"<<_signal
       <<"' of detector '"<<_detector
@@ -390,7 +394,7 @@ void cass::pp162::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout <<endl<< "PostProcessor '"<<_key
+  cout<<endl<< "PostProcessor '"<<_key
       <<"' calculates the timesum of layer '"<<_layer
       <<"' of detector '"<<_detector
       <<"'. It will use the first signals that appeared in the ToF range from '"<<_range.first
@@ -514,7 +518,7 @@ void cass::pp164::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout <<endl<< "PostProcessor '"<<_key
+  cout<<endl<< "PostProcessor '"<<_key
       <<"' creates a detector picture of the first Hit on the detector created"
       <<" from  Layers '"<<_first
       <<"' and '"<<_second
@@ -898,4 +902,3 @@ void cass::pp252::process(const cass::CASSEvent &evt)
   dynamic_cast<Histogram0DFloat*>(_result)->fill(particle.hits().size());
   _result->lock.unlock();
 }
-
