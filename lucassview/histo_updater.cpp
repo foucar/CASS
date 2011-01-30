@@ -12,6 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <list>
 
 #include <TObject.h>
 #include <TH1.h>
@@ -114,7 +115,7 @@ namespace lucassview
    *
    * @author Lutz Foucar
    */
-  void iterateListAndAddDisplayedHistograms(TSeqCollection* list, list<string>& updateList)
+  void iterateListAndAddDisplayedHistograms(TSeqCollection* list, std::list<string>& updateList)
   {
     TIter next(list);
     TObject *obj(0);
