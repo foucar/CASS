@@ -1,3 +1,4 @@
+/**
 @section cred Credits
 @par Authors:
 
@@ -24,6 +25,7 @@ Lutz Foucar
 - CASS design, infrastructure development
 
 @see @ref authors file in distribution for details
+*/
 
 /**
 \page authors Authors

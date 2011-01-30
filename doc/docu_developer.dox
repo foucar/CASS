@@ -1,3 +1,4 @@
+/**
 @section desc Brief description about program flow
 There are two types of threads running. They are both accessing a shared entity
 the ringbuffer. The producer thread is the shared memory input. The are several
@@ -21,3 +22,4 @@ describtion of what the two thread types will do:
 - Program control is done via a tcpip interface
 - Accesss histograms created by postprocessors via tcpip interface
 - Parameters are loaded using qt's qsettings. @see @ref run
+*/
