@@ -15,7 +15,7 @@ new data and elements whos contents should be analyzed.
 Both inputs will do the follwing tasks after they retrieved the data from LCLS:
 - get fillable (empty) cass::CASSEvent element from cass::RingBuffer
 - convert LCLS data to cass::CASSEvent data and fill the later with the data
-- put cass::CASSEvent back into cass::Ringbuffer
+- put cass::CASSEvent back into cass::RingBuffer
 
 To convert the data the cass::FormatConverter singleton is used. This will
 iterate through the LCLS datagram and call the right cass::ConversionBackend
@@ -71,26 +71,26 @@ retrieve an requested histogram from the available postprocessors.
 
 
 
-@section pplayout Post processorssing
-Each post postprocessor has a list of pointers to histograms that it has
+@section pplayout The post processors
+Each post post processor has a list of pointers to histograms that it has
 processed yet. This is there ensure that it will not evaluate the same event
 over and over again. When it has already processed one event it will return the
 resulting histogram associated with this event.\n
 Some of the post processors do not have a separate result for each event,
 ie. the summing up and averaging post processors. These contain a list of
-histograms but each one points to the same resource.\
-To make sure that in the cass::PostProcessorBackend::process() function one will
+histograms but each one points to the same resource.\n
+To make sure that in the cass::PostprocessorBackend::process() function one will
 always use the right histograms there is an pointer that will always point to
-the right histogram called cass::PostProcessorBackend::_result.
+the right histogram called cass::PostprocessorBackend::_result.
 
-The following happens in each post processor when cass::Postprocessors::process()
-will call the cass::PostProcessorsBackend::operator() member of each post
+The following happens in each post processor when cass::PostProcessors::process()
+will call the cass::PostprocessorBackend::operator()() member of each post
 processor:
-- search in cass::PostProcessorBackend::_histList whether there is a an entry
+- search in cass::PostprocessorBackend::_histList whether there is a an entry
   that has the eventid as first part of the pair.
 - when it is so then just return the second part of the pair.
 - if it not so, check whether there is an condition and if so evalate it. If
-  it turns out to be true call cass::PostProcessorBackend::process() for this
+  it turns out to be true call cass::PostprocessorBackend::process() for this
   event. And then return the pointer to the histogram that contains the result
   of the process.
 
@@ -120,7 +120,7 @@ histogram with the new parameters to cass::PostprocessorBackend::_result. Callin
 cass::PostprocessorBackend::createHistList() after that will make sure that the
 old histogramlist is deleted properly before creating the new one. Make sure that
 when you have altered your histogram to tell your dependands about this. You can
-use cass::Postprocessors::find_dependant() to find all post processors that
+use cass::PostProcessors::find_dependant() to find all post processors that
 depend on you. Then call the cass::PostprocessorBackend::histogramsChanged()
 member of all the post processors that depend on you. Here is some example code
 that does that for you
@@ -137,7 +137,7 @@ on it make sure that you lock the histogram for write access using its
 cass::HistogramBackend::lock. When you access histograms of your dependencies
 you need to lock them for read access using theier cass::HistogramBackend::lock.
 Access to the histograms of you dependencies should be done by calling the
-dependencies cass::PostprocessorBackend::operator() member for that event.
+dependencies cass::PostprocessorBackend::operator()() member for that event.
 This will then return the resulting histogram for this event as described above.
 
 When you are done coding your postprocessor you need to make it available to
@@ -160,12 +160,12 @@ contains the singleton pointer.\n
 In the constructor of the class you need to fill the
 cass::ConversionBackend::_pdsTypeList with the type id's from the LCLS that you
 want the converter to react on.\n
-You need to overwrite cass::ConversionBackend::operator() with the code that
+You need to overwrite cass::ConversionBackend::operator()() with the code that
 extract the data you are interested in from the datagram and put it into the
 cass::CASSEvent.\n
 Once you have set up your converter, you need to modify
 cass::ConversionBackend::instance() and add an else if statment that returns your
-converter. Please document in cass::format_converter.h which string will return
+converter. Please document in cass/format_converter.h which string will return
 the singleton of your converter.
 
 
