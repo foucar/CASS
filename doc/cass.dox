@@ -19,8 +19,14 @@
     -# @ref examples
   -# @ref getting_help
 -# @ref developer
-  -# @ref newpp
-  -# @ref newcon
+  -# @ref input
+    -# @ref offline_input
+    -# @ref online_input
+  -# @ref analysis
+  -# @ref communication
+  -# @ref addnew
+    -# @ref newpp
+    -# @ref newcon
 -# @ref cred
 -# @ref licence
 
