@@ -167,6 +167,4 @@ Once you have set up your converter, you need to modify
 cass::ConversionBackend::instance() and add an else if statment that returns your
 converter. Please document in cass/format_converter.h which string will return
 the singleton of your converter.
-
-
 */
