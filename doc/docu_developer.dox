@@ -8,11 +8,11 @@ analyze part consists of more threads. The linkage between the input threads
 and the analysis thread is done by cass::RingBuffer. This is a buffer that
 contains the amount of cass::CASSEvent elements that can be chosen by setting
 cass::RingBufferSize. It allows to retrieve elements that should be filled with
-new data and elements whos contents should be analyzed.
+new data and elements whose contents should be analyzed.
 
 
 @section input Input part of CASS
-Both inputs will do the follwing tasks after they retrieved the data from LCLS:
+Both inputs will do the following tasks after they retrieved the data from LCLS:
 - get fillable (empty) cass::CASSEvent element from cass::RingBuffer
 - convert LCLS data to cass::CASSEvent data and fill the later with the data
 - put cass::CASSEvent back into cass::RingBuffer
@@ -35,10 +35,10 @@ into it.
 
 @section online_input Online input of CASS
 In the online mode the input part will read the data from the LCLS shared memory.
-The class that does that is cass::SharedMemoryInput. It derives from the
+The corrosponding class is cass::SharedMemoryInput. It derives from the
 Pds::XtcMonitorClient class provided by LCLS. This class will do all the
 communication between the shared memory and CASS. Once it retrieved new data
-(in LCLS speach this is called datagram) it will call the overwritten
+(in LCLS terms this is called datagram) it will call the overwritten
 cass::SharedMemoryInput::processDgram() member. Here the datagram will be
 converted to a cass::CASSEvent which is retrieved from the cass::RingBuffer
 before. After that it is put back into the cass::RingBuffer.
@@ -46,12 +46,12 @@ before. After that it is put back into the cass::RingBuffer.
 
 
 @section analysis Analysis part of CASS
-The analysis part is done by multiple threads. One can say how many analysis
-threads should be present by modifying the cass::NbrOfWorkers variable. Each
+The analysis part is done by multiple threads. One can set the number of analysis
+threads by modifying the cass::NbrOfWorkers variable. Each
 analysis thread is a cass::Worker object, which are handled by the cass::Workers
 object. Each one of the cass::Worker objects will do the following until it is
 told to quit:
-- retrieve an analysable (non empty) cass::CASSEvent element from cass::RingBuffer
+- retrieve an analyzable (non empty) cass::CASSEvent element from cass::RingBuffer
 - pre analyze the cass::CASSEvent element using the cass::Analyzer singleton
 - post analyze the cass::CASSEvent element using the cass::PostProcessors
   singleton.
@@ -59,25 +59,25 @@ told to quit:
 
 The cass::Analyzer singleton will pass the cass event to all user selected pre
 analyzers to pre process the data. The cass::PostProcessor will pass the event
-to all user defined postprocessors the be postprocessed. For further details on
+to all user defined postprocessors to be postprocessed. For further details on
 how to select what postprocessors should run please see section @ref inifilesetup.
-Further details about the analyzers can be found in the documentation of
-cass::Analyzer and the analyzers it handles.
+A list of analyzers can be found in cass::Analyzer in which you can also find
+links to specific documentation of each analyzer.
 
 @section communication Communicating with CASS
 CASS is using SOAP to communicate with the viewers. The class that handles these
 communication is cass::SoapServer. It uses a cass::HistogramGetter object to
-retrieve an requested histogram from the available postprocessors.
+retrieve a requested histogram from the available postprocessors.
 
 
 
 @section pplayout The post processors
 Each post post processor has a list of pointers to histograms that it has
-processed yet. This is there ensure that it will not evaluate the same event
+processed yet. This is to ensure that it will not evaluate the same event
 over and over again. When it has already processed one event it will return the
 resulting histogram associated with this event.\n
 Some of the post processors do not have a separate result for each event,
-ie. the summing up and averaging post processors. These contain a list of
+i.e. the summing up and averaging post processors. These contain a list of
 histograms but each one points to the same resource.\n
 To make sure that in the cass::PostprocessorBackend::process() function one will
 always use the right histograms there is an pointer that will always point to
@@ -87,10 +87,10 @@ The following happens in each post processor when cass::PostProcessors::process(
 will call the cass::PostprocessorBackend::operator()() member of each post
 processor:
 - search in cass::PostprocessorBackend::_histList whether there is a an entry
-  that has the eventid as first part of the pair.
-- when it is so then just return the second part of the pair.
-- if it not so, check whether there is an condition and if so evalate it. If
-  it turns out to be true call cass::PostprocessorBackend::process() for this
+  that has the cass::CASSEvent::_id as first part of the pair.
+- if so then just return the second part of the pair.
+- if not, check whether there is an condition and in in this case evalate it. If
+  the conditioin returns true call cass::PostprocessorBackend::process() for this
   event. And then return the pointer to the histogram that contains the result
   of the process.
 
@@ -98,29 +98,29 @@ processor:
 @section addnew Adding new functionality to CASS
 
 @section newpp How to add a new PostProcessor
-A new PostProcessor needs to inherits from cass::PostprocessorBackend. The most
+A new PostProcessor needs to inherit from cass::PostprocessorBackend. The most
 important function that need to be overwritten are
 cass::PostprocessorBackend::loadSettings() and
 cass::PostprocessorBackend::process().
 In cass::PostprocessorBackend::loadSettings() you need to setup the
 dependencies you are relying on if there are any, the general available parameters
-and most imporantly the resulting histogram. With
-cass::PostprocessorBackend::setupCondition() you set up that the PostProcessor
-is conditionable. This needs to be called in each load settings overwritten member.
+and most importantly the resulting histogram. With
+cass::PostprocessorBackend::setupCondition() you set up that the post processor
+is conditionable. This needs to be called in each overwritten member cass::PostprocessorBackend::loadSettings ().
 cass::PostprocessorBackend::setupGeneral() will setup all the parameters that are
-available for PostProcessors. Optionally you can use the function member
+available for post processors. Optionally you can use the function member
 cass::PostprocessorBackend::setupDependency() to set up the dependencies you
 rely on. After initializing the cass::PostprocessorBackend::_result member you
 can use the member function cass::PostprocessorBackend::createHistList() to
 create the histogram list of the post processor.
 
-If your histogram relays on the a histogram of an dependcy, you might have to
+If your histogram relays on a histogram of an dependency, you might have to
 overwrite cass::PostprocessorBackend::histogramsChanged() and assign a new
 histogram with the new parameters to cass::PostprocessorBackend::_result. Calling
 cass::PostprocessorBackend::createHistList() after that will make sure that the
 old histogramlist is deleted properly before creating the new one. Make sure that
-when you have altered your histogram to tell your dependands about this. You can
-use cass::PostProcessors::find_dependant() to find all post processors that
+when you have altered your histogram to inform all dependance about the change. You
+can use cass::PostProcessors::find_dependant() to find all post processors that
 depend on you. Then call the cass::PostprocessorBackend::histogramsChanged()
 member of all the post processors that depend on you. Here is some example code
 that does that for you
@@ -135,15 +135,15 @@ for (; it != dependands.end(); ++it)
 If you modify the contents of your histogram by filling or doing other operations
 on it make sure that you lock the histogram for write access using its
 cass::HistogramBackend::lock. When you access histograms of your dependencies
-you need to lock them for read access using theier cass::HistogramBackend::lock.
-Access to the histograms of you dependencies should be done by calling the
+you need to lock them for read access using their cass::HistogramBackend::lock.
+Access to the histograms of your dependencies should be done by calling the
 dependencies cass::PostprocessorBackend::operator()() member for that event.
 This will then return the resulting histogram for this event as described above.
 
 When you are done coding your postprocessor you need to make it available to
 the user. To do this you need to complete the following steps:
 - in cass/postprocessing/postprocessor.h add the number and a short description
-  in the desciption part.
+  in the description part.
 - in cass/postprocessing/postprocessor.h add an entry with your id in the
   cass::PostProcessors::id_t enum.
 - in cass/postprocessing/postprocessor.cpp add your id in the
@@ -161,10 +161,9 @@ In the constructor of the class you need to fill the
 cass::ConversionBackend::_pdsTypeList with the type id's from the LCLS that you
 want the converter to react on.\n
 You need to overwrite cass::ConversionBackend::operator()() with the code that
-extract the data you are interested in from the datagram and put it into the
-cass::CASSEvent.\n
+extracts the desired data from the datagram and put it into the cass::CASSEvent.\n
 Once you have set up your converter, you need to modify
-cass::ConversionBackend::instance() and add an else if statment that returns your
+cass::ConversionBackend::instance() and add an @c else-if-statment that returns
 converter. Please document in cass/format_converter.h which string will return
-the singleton of your converter.
+your the singleton of your converter.
 */
