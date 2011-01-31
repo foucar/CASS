@@ -16,6 +16,9 @@
 #include "delayline_detector_analyzer_backend.h"
 #include "delayline_detector.h"
 
+
+class sort_class;
+
 namespace cass
 {
   namespace ACQIRIS
@@ -31,10 +34,11 @@ namespace cass
       : public DetectorAnalyzerBackend
     {
     public:
-      /** constructor */
-      HexSorter()
-        :DetectorAnalyzerBackend()
-      {}
+      /** constructor
+       *
+       * creates and intitializes the achims routine
+       */
+      HexSorter();
 
       /** the function creating the detectorhit list
        *
@@ -57,6 +61,9 @@ namespace cass
     private:
       /** container for tdc like arrays mapped to the corrosponding signalproducer */
       std::vector<std::pair<SignalProducer*,std::vector<double> > > _signals;
+
+      /** the instance of Achims routine */
+      std::tr1::shared_ptr<sort_class> _achims_sorter;
     };
 
 //    class MyDetektorHitSorterAchimHex : public MyDetektorHitSorterHex, public MyDetektorHitSorterAchim

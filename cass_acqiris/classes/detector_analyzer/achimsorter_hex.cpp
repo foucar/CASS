@@ -12,6 +12,8 @@
 
 #include "achimsorter_hex.h"
 
+#include "libResort64c/resort64c.h"
+
 using namespace cass::ACQIRIS;
 using namespace std;
 
@@ -42,9 +44,19 @@ namespace cass
     }
   }
 }
+
+HexSorter::HexSorter()
+  :DetectorAnalyzerBackend(),
+   _achims_sorter(new sort_class())
+{
+
+}
+
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
 {
   for_each(_signals.begin(),_signals.end(),AchimHex::extactTimes);
+//  if (!_signals[0].second.empty())
+//    achims_sorter->tdc[achims_sorter->Cu1]  = &u1d[0];
   return hits;
 }
 
