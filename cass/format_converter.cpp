@@ -36,12 +36,6 @@ namespace cass
    */
   struct activate
   {
-    /** reference to the container with all available converters */
-    const FormatConverter::availableConverters_t &_availableConverters;
-
-    /** reference to the container with the used converters */
-    FormatConverter::usedConverters_t &_usedConverters;
-
     /** constructor
      *
      * @param availConv reference to the available converters container
@@ -77,6 +71,12 @@ namespace cass
       for (;idIt != pdsTypeList.end();++idIt)
         _usedConverters[(*idIt)] = converter;
     }
+
+    /** reference to the container with all available converters */
+    const FormatConverter::availableConverters_t &_availableConverters;
+
+    /** reference to the container with the used converters */
+    FormatConverter::usedConverters_t &_usedConverters;
   };
 }
 
