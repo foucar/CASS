@@ -86,6 +86,12 @@ void Channel::serialize(cass::SerializerBackend &out)const
 {
   //the version//
   out.addUint16(_version);
+  //the number of hits//
+  const size_t nHits = _hits.size();
+  out.addSizet(nHits);
+  //the waveform itselve//
+  for (hits_t::const_iterator it(_hits.begin()); it!=_hits.end(); ++it)
+    out.addDouble(*it);
 }
 
 bool Channel::deserialize(cass::SerializerBackend &in)
@@ -97,6 +103,12 @@ bool Channel::deserialize(cass::SerializerBackend &in)
     std::cerr<<"ACQIRISTDC::Channel::deserialize():version conflict in tdc channel: "<<ver<<" "<<_version<<std::endl;
     return false;
   }
+  //read the length of the waveform//
+  size_t nHits = in.retrieveSizet();
+  //make sure the waveform is long enough//
+  _hits.resize(nHits);
+  for (hits_t::iterator it(_hits.begin()); it!=_hits.end(); ++it)
+    *it = in.retrieveDouble();
   return true;
 }
 
