@@ -38,30 +38,16 @@ namespace cass
      * - For Layer Wireends in Delaylinedetectors its:
      *   - AcqirisDetectors/%detectorname%/%Layername%/%Wireendname%
      *
-     * @cassttng .../ConstantFraction/{AcqirisInstrument}\n
+     * @cassttng .../TDCExtraction/{TDCInstrument}\n
      *           Acqiris Instrument that this channel is in:
-     *           - 0: Camp (Acqiris Multiinstrument with 5 Cards (20 Channels))
-     *           - 1: AMO I-ToF
-     *           - 2: AMO Magnetic Bottle
-     *           - 3: AMO Gas Detector
-     * @cassttng .../ConstantFraction/{ChannelNumber} \n
-     *           Channel within the instrument (starts counting from 0)
-     * @cassttng .../ConstantFraction/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
+     *           - 0: TDC in SXR-Hutch
+     * @cassttng .../TDCExtraction/{ChannelNumber} \n
+     *           Channel within the instrument (starts counting from 0). Default
+     *           is 0.
+     * @cassttng .../TDCExtraction/Timeranges/(0,1,...)/{LowerLimit|UpperLimit}\n
      *           set of timeranges. One can set more than one range of interest.
      *           Default is no timerange, which will result in no signal will be
      *           found.
-     * @cassttng .../ConstantFraction/{Polarity}\n
-     *           the polarity of the signals that we are interested in:
-     *           - 1: Positive Polarity
-     *           - 2: Negative Polarity
-     * @cassttng .../ConstantFraction/{Threshold}\n
-     *           the theshold for the signals in Volts:
-     * @cassttng .../ConstantFraction/{Delay}\n
-     *           delay in ns used by the constant fraction method:
-     * @cassttng .../ConstantFraction/{Fraction}\n
-     *           fraction used by the constant fraction method:
-     * @cassttng .../ConstantFraction/{Walk}\n
-     *           walk of the Constant Fraction Discriminator in Volts
      *
      * @author Lutz Foucar
      */
@@ -97,6 +83,12 @@ namespace cass
     private:
       /** the ranges in which the real signals are in */
       std::vector<std::pair<double,double> > _timeranges;
+
+      /** the instrument id */
+      TDCInstruments _instrument;
+
+      /** the channel number */
+      size_t _channelNumber;
 
       /** pointer to the channel we are extracting the signals from */
       const Channel *_chan;
