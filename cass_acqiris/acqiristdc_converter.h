@@ -10,13 +10,9 @@
 #ifndef _ACQIRISTDC_CONVERTER_H
 #define _ACQIRISTDC_CONVERTER_H
 
-#include <iostream>
-#include <map>
-
 #include "cass_acqiris.h"
 #include "conversion_backend.h"
 #include "acqiris_device.h"
-
 
 namespace cass
 {
