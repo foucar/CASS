@@ -1,5 +1,5 @@
 //Copyright (C) 2009 Jochen Kuepper
-//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
  * @file cass_acqiris.h file contains the global definitions for the acqiris
@@ -11,12 +11,14 @@
 #ifndef _ACQIRIS_GLOBAL_H_
 #define _ACQIRIS_GLOBAL_H_
 
-
-#include <QtCore/qglobal.h>
 #include <vector>
-#include <functional>
 #include <stdint.h>
 #include <string>
+
+#include <QtCore/qglobal.h>
+
+#include "pdsdata/xtc/DetInfo.hh"
+
 #include "map.hpp"
 
 #if defined(CASS_ACQIRIS_LIBRARY)
@@ -40,7 +42,12 @@ namespace cass
     /** the waveformanalyzers that are available */
     enum SignalExtractorType {com8,com16,cfd8,cfd16,tdcextractor};
     /** all available instruments at the site*/
-    enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
+    enum Instruments{
+      Camp1 = Pds::DetInfo::Camp,
+      Camp2 = Pds::DetInfo::AmoITof,
+      Camp3 = Pds::DetInfo::AmoMbes,
+      Camp4 = Pds::DetInfo::AmoGasdet
+    };
    //@{
     /** typdef for better readable code */
     typedef std::vector<int16_t> waveform_t;
@@ -54,7 +61,9 @@ namespace cass
   namespace ACQIRISTDC
   {
     /** all available tdc instruments at the site*/
-    enum TDCInstruments{SXRTdc=12};
+    enum TDCInstruments{
+      SXRTdc = Pds::DetInfo::SxrEndstation
+    };
   }
 
 }
