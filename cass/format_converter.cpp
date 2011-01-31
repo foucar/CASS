@@ -1,5 +1,5 @@
 // Copyright (C) 2009 Jochen Küpper
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009,2010, 2011 Lutz Foucar
 
 /**
  * @file format_converter.cpp file contains definition of the container for all
@@ -20,6 +20,7 @@
 
 #include "cass_event.h"
 #include "acqiris_converter.h"
+#include "acqiristdc_converter.h"
 #include "ccd_converter.h"
 #include "machine_converter.h"
 #include "pnccd_converter.h"
@@ -76,6 +77,7 @@ cass::FormatConverter::FormatConverter()
 {
   // create all the necessary individual format converters
   _availableConverters[Acqiris]     = new ACQIRIS::Converter();
+  _availableConverters[AcqirisTDC]  = new ACQIRISTDC::Converter();
   _availableConverters[ccd]         = new CCD::Converter();
   _availableConverters[pnCCD]       = new pnCCD::Converter();
   _availableConverters[MachineData] = new MachineData::Converter();
@@ -126,6 +128,10 @@ void cass::FormatConverter::addConverter(cass::FormatConverter::Converters conve
     _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
     _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[MachineData];
     break;
+  case AcqirisTDC:
+    VERBOSEOUT(cout<<"Use acqiris converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_AcqTdcData] = _availableConverters[AcqirisTDC];
+    break;
   default:
     break;
   }
@@ -159,6 +165,11 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
     _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
     _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
     break;
+  case AcqirisTDC:
+    VERBOSEOUT(cout<<"Don't use acqiris tdc converter"<<endl);
+    _usedConverters[Pds::TypeId::Id_AcqTdcData] = _availableConverters[Blank];
+
+    break;
   default:
     break;
   }
@@ -173,6 +184,8 @@ void cass::FormatConverter::loadSettings(size_t)
       addConverter(ccd)         : removeConverter(ccd);
   settings.value("useAcqirisConverter",true).toBool()?
       addConverter(Acqiris)     : removeConverter(Acqiris);
+  settings.value("useAcqirisTDCConverter",true).toBool()?
+      addConverter(AcqirisTDC)     : removeConverter(AcqirisTDC);
   settings.value("usepnCCDConverter",true).toBool()?
       addConverter(pnCCD)       : removeConverter(pnCCD);
   settings.value("useMachineConverter",true).toBool()?

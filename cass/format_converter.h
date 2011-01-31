@@ -52,7 +52,7 @@ namespace cass
 
   public:
     /** list of known individual format converters */
-    enum Converters {pnCCD, Acqiris, ccd, MachineData, Blank};
+    enum Converters {pnCCD, Acqiris, ccd, MachineData, Blank, AcqirisTDC};
 
     /** Destroy the single FormatConverter instance */
     static void destroy();
