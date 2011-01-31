@@ -10,6 +10,7 @@
 
 #include "cass_event.h"
 #include "acqiris_device.h"
+#include "acqiristdc_device.h"
 #include "ccd_device.h"
 #include "pnccd_device.h"
 #include "machine_device.h"
@@ -23,6 +24,7 @@ cass::CASSEvent::CASSEvent()
   _devices[CCD]         = new cass::CCD::CCDDevice();
   _devices[MachineData] = new cass::MachineData::MachineDataDevice();
   _devices[Acqiris]     = new cass::ACQIRIS::Device();
+  _devices[AcqirisTDC]  = new cass::ACQIRISTDC::Device();
   _devices[pnCCD]       = new cass::pnCCD::pnCCDDevice();
 }
 

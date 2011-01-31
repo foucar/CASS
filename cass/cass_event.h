@@ -38,7 +38,7 @@ namespace cass
 
   public:
     /** known devices */
-    enum Device{pnCCD, Acqiris, CCD, MachineData};
+    enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC};
 
     /** mapping from device type to handler instance */
     typedef std::map<Device, DeviceBackend*> devices_t;
@@ -76,7 +76,7 @@ namespace cass
     /** buffer for the datagram that contains all LCLS information */
     char _datagrambuffer[cass::DatagramBufferSize];
 
-    /** filename of XTC file which this event came from (if offline */
+    /** filename of XTC file which this event came from (if offline) */
     const char * _filename;
   };
 }//end namespace
