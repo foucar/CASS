@@ -1,5 +1,5 @@
 // Copyright (C) 2009 Jochen Küpper
-// Copyright (C) 2009,2010, 2011 Lutz Foucar
+// Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
  * @file format_converter.cpp file contains definition of the container for all
