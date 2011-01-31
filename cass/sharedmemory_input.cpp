@@ -91,7 +91,7 @@ void cass::SharedMemoryInput::run()
   VERBOSEOUT(std::cout << "starting shared memory in put with partition Tag: \""
       <<_partitionTag <<"\""
       << " and Client Index "<< _index<<std::endl);
-  Pds::XtcMonitorClient::run(_partitionTag,_index,2);
+  Pds::XtcMonitorClient::run(_partitionTag,_index,_index,2);
   VERBOSEOUT(std::cout << "shared memory input is closing down"<<std::endl);
 }
 
