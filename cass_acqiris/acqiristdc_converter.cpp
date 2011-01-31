@@ -78,28 +78,28 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       const Pds::Acqiris::TdcDataV1 *data
           (reinterpret_cast<const Pds::Acqiris::TdcDataV1*>(xtc->payload()));
       //  Data is terminated with an AuxIOMarker (Memory bank switch)
-       while(!(data->source() == Pds::Acqiris::TdcDataV1::AuxIO &&
-               static_cast<const Pds::Acqiris::TdcDataV1::Marker*>(data)->type() <
-               Pds::Acqiris::TdcDataV1::Marker::AuxIOMarker))
+      while(!(data->source() == Pds::Acqiris::TdcDataV1::AuxIO &&
+              static_cast<const Pds::Acqiris::TdcDataV1::Marker*>(data)->type() <
+              Pds::Acqiris::TdcDataV1::Marker::AuxIOMarker))
       {
-         switch(data->source())
-         {
-         case Pds::Acqiris::TdcDataV1::Comm:
-           break;
-         case Pds::Acqiris::TdcDataV1::AuxIO:
-           break;
-         default:
-           {
-             const Pds::Acqiris::TdcDataV1::Channel& c
-                 (*static_cast<const Pds::Acqiris::TdcDataV1::Channel*>(data));
-             if (!c.overflow())
-               //get data of the right channel and convert s to ns */
-               channels[data->source()-1].hits().push_back(c.time()*1e9);
-             break;
-           }
-         }
-         data++;
-       }
+        switch(data->source())
+        {
+        case Pds::Acqiris::TdcDataV1::Comm:
+          break;
+        case Pds::Acqiris::TdcDataV1::AuxIO:
+          break;
+        default:
+          {
+            const Pds::Acqiris::TdcDataV1::Channel& c
+                (*static_cast<const Pds::Acqiris::TdcDataV1::Channel*>(data));
+            if (!c.overflow())
+              //get data of the right channel and convert s to ns */
+              channels[data->source()-1].hits().push_back(c.time()*1e9);
+            break;
+          }
+        }
+        data++;
+      }
     }
     break;
 
