@@ -70,8 +70,9 @@ HexSorter::HexSorter()
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
 {
   for_each(_signals.begin(),_signals.end(),AchimHex::extactTimes);
-//  if (!_signals[0].second.empty())
-//    achims_sorter->tdc[achims_sorter->Cu1]  = &u1d[0];
+  for (size_t i(0); i<7;++i)
+    if (!_signals[i].second.empty())
+      _achims_sorter->tdc[i]  = &_signals[i].second.front();
   return hits;
 }
 
