@@ -168,7 +168,6 @@ void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters co
   case AcqirisTDC:
     VERBOSEOUT(cout<<"Don't use acqiris tdc converter"<<endl);
     _usedConverters[Pds::TypeId::Id_AcqTdcData] = _availableConverters[Blank];
-
     break;
   default:
     break;
