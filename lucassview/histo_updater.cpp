@@ -1,7 +1,7 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file histoupdater.cpp file contains the classes that update histograms
+ * @file histou_pdater.cpp file contains the classes that update histograms
  *
  * @author Lutz Foucar
  */
