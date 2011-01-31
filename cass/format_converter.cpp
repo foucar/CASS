@@ -101,7 +101,7 @@ void cass::FormatConverter::loadSettings(size_t)
 
   CASSSettings s;
   s.beginGroup("Converter");
-  QStringList usedConvertersList(s.value("Used","").toStringList());
+  QStringList usedConvertersList(s.value("Used").toStringList());
   for_each(usedConvertersList.begin(), usedConvertersList.end(), activate(_usedConverters));
 }
 
