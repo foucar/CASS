@@ -31,6 +31,9 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Channel : public cass::Serializable
     {
     public:
+      /** typedef showing the */
+      typedef std::vector<double> hits_t;
+
       /** constructor that will set the serialize version*/
       Channel():Serializable(1)  {}
 
@@ -40,6 +43,16 @@ namespace cass
 
       /** deserialize this channel from the serializer*/
       bool deserialize(cass::SerializerBackend&);
+
+      /** getter */
+      const hits_t &hits()const {return _hits;}
+
+      /** setter */
+      hits_t &hits() {return _hits;}
+
+    private:
+      /** the hits of the channel */
+      hits_t _hits;
     };
 
     /** An Acqiris TDC Instrument.
