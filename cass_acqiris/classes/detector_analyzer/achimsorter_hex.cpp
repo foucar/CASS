@@ -35,8 +35,9 @@ namespace cass
        */
       void extactTimes(pair<SignalProducer*,vector<double> > & thePair)
       {
-        SignalProducer::signals_t &sigs(thePair.first->output());
         vector<double> &tdcarray(thePair.second);
+        tdcarray.clear();
+        SignalProducer::signals_t &sigs(thePair.first->output());
         SignalProducer::signals_t::const_iterator sigsIt(sigs.begin());
         for (;sigsIt !=sigs.end(); ++sigsIt)
           tdcarray.push_back((*sigsIt)["time"]);
@@ -71,8 +72,11 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
 {
   for_each(_signals.begin(),_signals.end(),AchimHex::extactTimes);
   for (size_t i(0); i<7;++i)
+  {
     if (!_signals[i].second.empty())
       _achims_sorter->tdc[i]  = &_signals[i].second.front();
+    _count[i] = _signals[i].second.size();
+  }
   return hits;
 }
 
