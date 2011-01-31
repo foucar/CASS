@@ -71,20 +71,14 @@ namespace cass
 
 
 // ===============define static members====================
-cass::FormatConverter *cass::FormatConverter::_instance(0);
+std::tr1::shared_ptr<cass::FormatConverter> cass::FormatConverter::_instance;
 QMutex cass::FormatConverter::_mutex;
 
-void cass::FormatConverter::destroy()
+std::tr1::shared_ptr<cass::FormatConverter> cass::FormatConverter::instance()
 {
   QMutexLocker locker(&_mutex);
-  delete _instance;
-  _instance = 0;
-}
-cass::FormatConverter *cass::FormatConverter::instance()
-{
-  QMutexLocker locker(&_mutex);
-  if(0 == _instance)
-    _instance = new FormatConverter();
+  if(!_instance)
+    _instance = std::tr1::shared_ptr<FormatConverter>(new FormatConverter());
   return _instance;
 }
 //==========================================================
@@ -96,10 +90,6 @@ cass::FormatConverter::FormatConverter()
 {
   //now load the converters, that the user want to use//
   loadSettings(0);
-}
-
-cass::FormatConverter::~FormatConverter()
-{
 }
 
 void cass::FormatConverter::loadSettings(size_t)
@@ -116,7 +106,7 @@ void cass::FormatConverter::loadSettings(size_t)
 }
 
 enum {NoGoodData=0,GoodData};
-bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
+bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
 {
   //intialize the return value//
   // the return value reflects the whether the datagram was a L1Transition(an event)

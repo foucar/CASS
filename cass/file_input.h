@@ -104,10 +104,11 @@ namespace cass
     /** name of the file containing all files that we need to process */
     std::string _filelistname;
 
-    /** a pointer to the format converter.
+    /** a reference to the format converter functor
+     *
      * The converter will convert the incomming data to our CASSEvent
      */
-    FormatConverter *_converter;
+    FormatConverter &_convert;
 
     /** a mutex for suspending the thread*/
     QMutex _pauseMutex;

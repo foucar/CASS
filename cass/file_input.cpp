@@ -26,7 +26,7 @@ cass::FileInput::FileInput(std::string filelistname,
                              _quit(false),
                              _quitWhenDone(quitWhenDone),
                              _filelistname(filelistname),
-                             _converter(cass::FormatConverter::instance()),
+                             _convert(*cass::FormatConverter::instance()),
                              _pause(false),
                              _paused(false),
                              _rewind(false)
@@ -36,7 +36,6 @@ cass::FileInput::FileInput(std::string filelistname,
 
 cass::FileInput::~FileInput()
 {
-  _converter->destroy();
   VERBOSEOUT(std::cout<< "input is closed" <<std::endl);
 }
 
@@ -49,7 +48,7 @@ void cass::FileInput::loadSettings(size_t what)
   //load settings//
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
-  _converter->loadSettings(what);
+  _convert.loadSettings(what);
   CASSSettings settings;
   _rewind = settings.value("Rewind",false).toBool();
   //resume yourselve//
@@ -208,7 +207,7 @@ void cass::FileInput::run()
             (*reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer()));
         xtcfile.read(cassevent->datagrambuffer(),sizeof(dg));
         xtcfile.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-        const bool isGood (_converter->processDatagram(cassevent));
+        const bool isGood (_convert(cassevent));
         cassevent->setFilename(filelistiterator->c_str());
         //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);

@@ -25,7 +25,7 @@ cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
                                              _partitionTag(partitionTag),
                                              _index(index),
                                              _quit(false),
-                                             _converter(cass::FormatConverter::instance()),
+                                             _convert(*cass::FormatConverter::instance()),
                                              _pause(false),
                                              _paused(false)
 {
@@ -34,8 +34,6 @@ cass::SharedMemoryInput::SharedMemoryInput(char * partitionTag,
 cass::SharedMemoryInput::~SharedMemoryInput()
 {
   VERBOSEOUT(std::cout<<"deleting shared memory input"<<std::endl);
-  _converter->destroy();
-  VERBOSEOUT(std::cout<<"shared memory input is deleted"<<std::endl);
 }
 
 
@@ -48,7 +46,7 @@ void cass::SharedMemoryInput::loadSettings(size_t what)
   //load settings//
   VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
-  _converter->loadSettings(what);
+  _convert.loadSettings(what);
   //resume yourselve//
   VERBOSEOUT(std::cout << "Shared Memory Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<std::endl);
@@ -158,7 +156,7 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
 
   //now convert the datagram to a cassevent//
-  const bool isGood = _converter->processDatagram(cassevent);
+  const bool isGood = _convert(cassevent);
 
   //tell the buffer that we are done, but also let it know whether it is a good event//
   _ringbuffer.doneFilling(cassevent,isGood);

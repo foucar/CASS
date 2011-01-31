@@ -51,11 +51,8 @@ namespace cass
     Q_OBJECT;
 
   public:
-    /** Destroy the single FormatConverter instance */
-    static void destroy();
-
     /** Return a pointer to the single FormatConverter instance */
-    static FormatConverter *instance();
+    static std::tr1::shared_ptr<FormatConverter> instance();
 
     /** function to process a datagram and turn it into a cassevent.
      *
@@ -65,7 +62,7 @@ namespace cass
      * @return returns true if the datagram was a L1Accept (an event) transition
      * @param evt pointer to the CASSEvent which also contains the datagram
      */
-    bool processDatagram(cass::CASSEvent*evt);
+    bool operator()(cass::CASSEvent*evt);
 
     /** function to load  the settings for the format converter */
     void loadSettings(size_t what);
@@ -76,9 +73,6 @@ namespace cass
   protected:
     /** constructor is made protected, should only be called through instance*/
     FormatConverter();
-
-    /** destructor is made protected, should only be called through destroy*/
-    ~FormatConverter();
 
   public:
     /** typdef describing the map of used converters for easier readable code */
@@ -96,7 +90,7 @@ namespace cass
     usedConverters_t _usedConverters;
 
     /** pointer to the single instance */
-    static FormatConverter *_instance;
+    static std::tr1::shared_ptr<FormatConverter> _instance;
 
     /** Singleton operation locker in a multi-threaded environment.*/
     static QMutex _mutex;

@@ -115,10 +115,11 @@ namespace cass
     /** a flag to tell the thread wther the user wants to quit, is set by @see end()*/
     bool _quit;
 
-    /** a pointer to the format converter.
+    /** a reference to the format converter functor
+     *
      * The converter will convert the incomming data to our CASSEvent
      */
-    FormatConverter *_converter;
+    FormatConverter &_convert;
 
     /** a mutex for suspending the thread*/
     QMutex _pauseMutex;
