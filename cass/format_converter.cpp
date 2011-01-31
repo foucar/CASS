@@ -102,6 +102,22 @@ void cass::FormatConverter::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
+
+  //this part is used to make it backward compatible (not all converters are
+  //available with this)//
+  if (s.value("useCommercialCCDConverter",false).toBool())
+    if (!usedConvertersList.contains("CCD"))
+      usedConvertersList << "CCD";
+  if (s.value("useAcqirisConverter",false).toBool())
+    if (!usedConvertersList.contains("Acqiris"))
+      usedConvertersList << "Acqiris";
+  if (s.value("usepnCCDConverter",false).toBool())
+    if (!usedConvertersList.contains("pnCCD"))
+      usedConvertersList << "pnCCD";
+  if (s.value("useMachineConverter",false).toBool())
+    if (!usedConvertersList.contains("Machine"))
+      usedConvertersList << "Machine";
+
   for_each(usedConvertersList.begin(), usedConvertersList.end(), activate(_usedConverters));
 }
 
