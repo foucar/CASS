@@ -34,15 +34,20 @@ namespace cass
    * as a singleton. It contains all available Format Converters and calls
    * all requested ones.
    *
-   *@section converter Paramters for the converter
+   * @section converter List of possible converters
    * @cassttng Converter/{Used}\n
    *           comma separated list of Converters that should be active. Default
    *           is "". Possible values are:
    *           - Machine: access to Machine Data (Beamline and Epics data)
+   *             (see cass::MachineData::Converter)
    *           - Acqiris: access to Acqiris Digitizer data
+   *             (see cass::ACQIRIS::Converter)
    *           - AcqirisTDC: access to Acqiris TDC data
+   *             (see cass::ACQIRISTDC::Converter)
    *           - CCD: access to Opal camera data
+   *             (see cass::CCD::Converter)
    *           - pnCCD: access to pnCCD data
+   *             (see cass::pnCCD::Converter)
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
