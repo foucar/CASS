@@ -13,6 +13,7 @@
 #include "signal_extractor.h"
 #include "cfd.h"
 #include "com.h"
+#include "tdc_extractor.h"
 
 using namespace cass::ACQIRIS;
 using namespace std;
@@ -33,6 +34,9 @@ shared_ptr<SignalExtractor> cass::ACQIRIS::SignalExtractor::instance(SignalExtra
     break;
   case cfd16:
     sigextr = shared_ptr<SignalExtractor>(new CFD16Bit());
+    break;
+  case tdcextractor:
+    sigextr = shared_ptr<SignalExtractor>(new ACQIRISTDC::TDCExtractor());
     break;
   default:
     {

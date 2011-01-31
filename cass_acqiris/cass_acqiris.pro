@@ -34,6 +34,7 @@ SOURCES += ./acqiris_converter.cpp \
     ./classes/signalextractors/signal_extractor.cpp \
     ./classes/signalextractors/com.cpp \
     ./classes/signalextractors/cfd.cpp \
+    ./classes/signalextractors/tdc_extractor.cpp \
     ./classes/detector_analyzer/detector_analyzer_backend.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
     ./classes/momenta_calculators/momenta_calculator.cpp \
@@ -57,6 +58,7 @@ HEADERS += ./acqiris_converter.h \
     ./classes/signalextractors/signal_extractor.h \
     ./classes/signalextractors/cfd.h \
     ./classes/signalextractors/com.h \
+    ./classes/signalextractors/tdc_extractor.h \
     ./classes/signalextractors/helperfunctionsforstdc.h \
     ./classes/detector_analyzer/detector_analyzer_backend.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \

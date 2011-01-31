@@ -38,7 +38,7 @@ namespace cass
     /** the types of delayline detectors that are available */
     enum DelaylineType {Quad,Hex};
     /** the waveformanalyzers that are available */
-    enum SignalExtractorType {com8,com16,cfd8,cfd16};
+    enum SignalExtractorType {com8,com16,cfd8,cfd16,tdcextractor};
     /** all available instruments at the site*/
     enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
    //@{
