@@ -82,32 +82,8 @@ cass::FormatConverter::FormatConverter()
   _availableConverters[Blank]       = new BlankConverter();
 
   // now initialze all xtc ids with blank converters to be on the save side//
-  _usedConverters[Pds::TypeId::Any]                 = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_Xtc]              = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_Frame]            = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_AcqWaveform]      = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_AcqConfig]        = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_TwoDGaussian]     = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_Opal1kConfig]     = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_FrameFexConfig]   = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_EvrConfig]        = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_TM6740Config]     = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_ControlConfig]    = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_pnCCDframe]       = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_pnCCDconfig]      = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_PrincetonFrame]   = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_PrincetonConfig]  = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_FrameFccdConfig]  = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_FccdConfig]       = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_IpimbData]        = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_IpimbConfig]      = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_EncoderData]      = _availableConverters[Blank];
-  _usedConverters[Pds::TypeId::Id_EncoderConfig]    = _availableConverters[Blank];
+  for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
+    _usedConverters[static_cast<Pds::TypeId::Type>(i)] = _availableConverters[Blank];
 
   //now load the converters, that the user want to use//
   loadSettings(0);
