@@ -63,8 +63,15 @@ namespace cass
     void operator()(const QString& type)
     {
       string convertertype(type.toStdString());
-      ConversionBackend::converterPtr_t converter =
-          _availableConverters.find(convertertype)->second;
+      FormatConverter::availableConverters_t::const_iterator converterIt
+          (_availableConverters.find(convertertype));
+      if (_availableConverters.end() == converterIt)
+      {
+        stringstream ss;
+        ss <<"activate(): Converter type '"<<convertertype<<"' is unknown";
+        throw invalid_argument(ss.str());
+      }
+      const ConversionBackend::converterPtr_t converter = converterIt->second;
       const ConversionBackend::pdstypelist_t &pdsTypeList(converter->pdsTypeList());
       ConversionBackend::pdstypelist_t::const_iterator idIt(pdsTypeList.begin());
       for (;idIt != pdsTypeList.end();++idIt)
