@@ -72,6 +72,9 @@ namespace cass
       /** a vector of Channels */
       typedef std::vector<Channel> channels_t;
 
+      /** there is a fixed size of channels in this instrument */
+      enum {NbrChannels=6};
+
     public:
       /** will serialize all channels to Serializer*/
       void serialize(cass::SerializerBackend &)const;
