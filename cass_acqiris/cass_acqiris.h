@@ -41,7 +41,7 @@ namespace cass
     enum SignalExtractorType {com8,com16,cfd8,cfd16};
     /** all available instruments at the site*/
     enum Instruments{Camp1=8,Camp2=4,Camp3=5,Camp4=2};
-    //@{
+   //@{
     /** typdef for better readable code */
     typedef std::vector<int16_t> waveform_t;
     typedef Map<std::string,double> particleHit_t;
@@ -50,6 +50,13 @@ namespace cass
     typedef std::vector<detectorHit_t> detectorHits_t;
     //@}
   }
+
+  namespace ACQIRISTDC
+  {
+    /** all available tdc instruments at the site*/
+    enum TDCInstruments{test};
+  }
+
 }
 
 #endif // CASS_ACQIRIS_GLOBAL_H

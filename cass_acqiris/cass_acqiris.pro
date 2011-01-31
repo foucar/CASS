@@ -24,6 +24,8 @@ DEPENDPATH += ../cass \
     .
 SOURCES += ./acqiris_converter.cpp \
     ./acqiris_device.cpp \
+    ./acqiristdc_converter.cpp \
+    ./acqiristdc_device.cpp \
     ./classes/particle.cpp \
     ./classes/signal_producer.cpp \
     ./classes/delayline_detector.cpp \
@@ -39,6 +41,8 @@ SOURCES += ./acqiris_converter.cpp \
 HEADERS += ./acqiris_converter.h \
     ./cass_acqiris.h \
     ./acqiris_device.h \
+    ./acqiristdc_converter.h \
+    ./acqiristdc_device.h \
     ./map.hpp \
     ../cass/analysis_backend.h \
     ../cass/conversion_backend.h \
