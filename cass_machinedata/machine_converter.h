@@ -4,6 +4,9 @@
 #define MACHINEDATACONVERTER_H
 
 #include <map>
+
+#include <QtCore/QMutex>
+
 #include "cass_machine.h"
 #include "conversion_backend.h"
 #include "machine_device.h"
@@ -27,13 +30,10 @@ namespace cass
     class CASS_MACHINEDATASHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-      /** constructor
-       *
-       * sets up the pds types that it is responsible for
-       */
-      Converter();
+      /** create singleton if doesnt exist already */
+      static ConversionBackend::converterPtr_t instance();
 
-      /** called for appropriate xtc part.
+       /** called for appropriate xtc part.
        *
        * @param xtc the xtc that contains evr, epics, beamlinedata info
        * @param evt pointer to the event that we will write the data to.
@@ -45,6 +45,24 @@ namespace cass
       typedef std::map<int,std::string> indexMap_t;
 
     private:
+      /** constructor
+       *
+       * sets up the pds types that it is responsible for
+       */
+      Converter();
+
+      /** prevent copy construction */
+      Converter(const Converter&);
+
+      /** prevent assignment */
+      Converter& operator=(const Converter&);
+
+      /** the singleton container */
+      static ConversionBackend::converterPtr_t _instance;
+
+      /** singleton locker for mutithreaded requests */
+      static QMutex _mutex;
+
       /** map to convert epics indexes to strings */
       indexMap_t _index2name;
 

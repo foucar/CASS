@@ -13,6 +13,23 @@
 
 
 using namespace cass::MachineData;
+using namespace std;
+
+// =================define static members =================
+cass::ConversionBackend::converterPtr_t Converter::_instance;
+QMutex Converter::_mutex;
+
+cass::ConversionBackend::converterPtr_t Converter::instance()
+{
+  QMutexLocker locker(&_mutex);
+  if(!_instance)
+  {
+    _instance = ConversionBackend::converterPtr_t(new Converter());
+  }
+  return _instance;
+}
+// ========================================================
+
 
 //Use the code copied from matt weaver to extract the value from the epicsheader
 #define CASETOVAL(timetype,valtype) case timetype: {			\

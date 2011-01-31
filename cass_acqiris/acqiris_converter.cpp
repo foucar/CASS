@@ -19,6 +19,22 @@
 #include "pdsdata/xtc/Src.hh"
 
 using namespace cass::ACQIRIS;
+using namespace std;
+
+// =================define static members =================
+cass::ConversionBackend::converterPtr_t Converter::_instance;
+QMutex Converter::_mutex;
+
+cass::ConversionBackend::converterPtr_t Converter::instance()
+{
+  QMutexLocker locker(&_mutex);
+  if(!_instance)
+  {
+    _instance = ConversionBackend::converterPtr_t(new Converter());
+  }
+  return _instance;
+}
+// ========================================================
 
 Converter::Converter()
 {

@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <QtCore/QMutex>
+
 #include "conversion_backend.h"
 
 #include "acqiris_converter.h"
@@ -23,51 +25,77 @@ using namespace cass;
 
 namespace cass
 {
-  /** Converter that does nothing
-   *
-   * This converter is a blank that does nothing. It will be used for converting
-   * xtc id's that we either don't care about or the user has disabled in .ini
-   *
-   * @author Lutz Foucar
-   */
-  class CASSSHARED_EXPORT BlankConverter : public ConversionBackend
+  namespace Blank
   {
-  public:
-    /** do nothing */
-    void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
-  };
-
-  namespace formatconverters
-  {
-    /** the names of converters */
-    static const char* names[] =
+    /** Converter that does nothing
+     *
+     * This converter is a blank that does nothing. It will be used for converting
+     * xtc id's that we either don't care about or the user has disabled in .ini
+     *
+     * @author Lutz Foucar
+     */
+    class CASSSHARED_EXPORT Converter : public ConversionBackend
     {
-      "Machine",
-      "Acqiris",
-      "AcqirisTDC",
-      "CCD",
-      "pnCCD",
-      "Blank"
+    public:
+      /** create singleton if doesnt exist already */
+      static ConversionBackend::converterPtr_t instance();
+
+      /** do nothing */
+      void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
+
+    private:
+      /** constructor
+       *
+       * sets up the pds type ids that it is responsible for
+       */
+      Converter() {}
+
+      /** prevent copy construction */
+      Converter(const Converter&);
+
+      /** prevent assignment */
+      Converter& operator=(const Converter&);
+
+      /** the singleton container */
+      static ConversionBackend::converterPtr_t _instance;
+
+      /** singleton locker for mutithreaded requests */
+      static QMutex _mutex;
     };
   }
 }
-list<string>  ConversionBackend::availableConverters(formatconverters::names,&formatconverters::names[4]);
+
+// =================define static members =================
+ConversionBackend::converterPtr_t Blank::Converter::_instance;
+QMutex Blank::Converter::_mutex;
+
+ConversionBackend::converterPtr_t Blank::Converter::instance()
+{
+  QMutexLocker locker(&_mutex);
+  if(!_instance)
+  {
+    _instance = ConversionBackend::converterPtr_t(new Converter);
+  }
+  return _instance;
+}
+// ========================================================
+
 
 ConversionBackend::converterPtr_t ConversionBackend::instance(const std::string &type)
 {
   shared_ptr<ConversionBackend> converter;
   if("Acqiris" == type)
-    converter = shared_ptr<ConversionBackend>(new ACQIRIS::Converter());
+    converter = ACQIRIS::Converter::instance();
   else if("AcqirisTDC" == type)
-    converter = shared_ptr<ConversionBackend>(new ACQIRISTDC::Converter());
+    converter = ACQIRISTDC::Converter::instance();
   else if("CCD" == type)
-    converter = shared_ptr<ConversionBackend>(new CCD::Converter());
+    converter = CCD::Converter::instance();
   else if("pnCCD" == type)
-    converter = shared_ptr<ConversionBackend>(new pnCCD::Converter());
+    converter = pnCCD::Converter::instance();
   else if("Machine" == type)
-    converter = shared_ptr<ConversionBackend>(new MachineData::Converter());
+    converter = MachineData::Converter::instance();
   else if("Blank" == type)
-    converter = shared_ptr<ConversionBackend>(new BlankConverter());
+    converter = Blank::Converter::instance();
   else
   {
     stringstream ss;

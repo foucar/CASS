@@ -41,10 +41,8 @@ namespace cass
      * @param availConv reference to the available converters container
      * @param usedConv reference to the used converters container
      */
-    activate(const FormatConverter::availableConverters_t &availConv,
-             FormatConverter::usedConverters_t &usedConv)
-      :_availableConverters(availConv),
-       _usedConverters(usedConv)
+    activate(FormatConverter::usedConverters_t &usedConv)
+      :_usedConverters(usedConv)
     {}
 
     /** the operator
@@ -57,23 +55,13 @@ namespace cass
     void operator()(const QString& type)
     {
       const string convertertype(type.toStdString());
-      FormatConverter::availableConverters_t::const_iterator converterIt
-          (_availableConverters.find(convertertype));
-      if (_availableConverters.end() == converterIt)
-      {
-        stringstream ss;
-        ss <<"activate(): Converter type '"<<convertertype<<"' is unknown";
-        throw invalid_argument(ss.str());
-      }
-      const ConversionBackend::converterPtr_t converter = converterIt->second;
+      const ConversionBackend::converterPtr_t converter =
+          ConversionBackend::instance(convertertype);
       const ConversionBackend::pdstypelist_t &pdsTypeList(converter->pdsTypeList());
       ConversionBackend::pdstypelist_t::const_iterator idIt(pdsTypeList.begin());
       for (;idIt != pdsTypeList.end();++idIt)
         _usedConverters[(*idIt)] = converter;
     }
-
-    /** reference to the container with all available converters */
-    const FormatConverter::availableConverters_t &_availableConverters;
 
     /** reference to the container with the used converters */
     FormatConverter::usedConverters_t &_usedConverters;
@@ -106,11 +94,6 @@ cass::FormatConverter *cass::FormatConverter::instance()
 cass::FormatConverter::FormatConverter()
   :_configseen(false)
 {
-  // create all the necessary individual format converters
-  list<string>::const_iterator it(ConversionBackend::availableConverters.begin());
-  for (;it!=ConversionBackend::availableConverters.end();++it)
-    _availableConverters[*it] = ConversionBackend::instance(*it);
-
   //now load the converters, that the user want to use//
   loadSettings(0);
 }
@@ -123,14 +106,13 @@ void cass::FormatConverter::loadSettings(size_t)
 {
   // initialze all xtc ids with blank converters to be on the save side//
   for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
-    _usedConverters[static_cast<Pds::TypeId::Type>(i)] = _availableConverters["Blank"];
+    _usedConverters[static_cast<Pds::TypeId::Type>(i)] =
+        ConversionBackend::instance("Blank");
 
   CASSSettings s;
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used","").toStringList());
-  for_each(usedConvertersList.begin(),
-           usedConvertersList.end(),
-           activate(_availableConverters,_usedConverters));
+  for_each(usedConvertersList.begin(), usedConvertersList.end(), activate(_usedConverters));
 }
 
 enum {NoGoodData=0,GoodData};

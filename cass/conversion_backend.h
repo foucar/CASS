@@ -60,9 +60,6 @@ namespace cass
     /** return the list of pds type ids the converter is responsible for */
     const pdstypelist_t &pdsTypeList()const {return _pdsTypeList;}
 
-    /** the names of the available converters */
-    static std::list<std::string> availableConverters;
-
     /** return the requested converter type
      *
      * @return shared pointer to the requested converter

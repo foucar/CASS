@@ -3,9 +3,12 @@
 #ifndef PNCCDCONVERTER_H
 #define PNCCDCONVERTER_H
 
+#include <vector>
+
+#include <QtCore/QMutex>
+
 #include "cass_pnccd.h"
 #include "conversion_backend.h"
-#include <vector>
 
 namespace Pds
 {
@@ -28,16 +31,31 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
+      /** create singleton if doesnt exist already */
+      static ConversionBackend::converterPtr_t instance();
+
+      /** operator to convert the LCLS Data to CASSEvent*/
+      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+
+    private:
       /** constructor
        *
        * set up the pds type ids that it is responsible for
        */
       Converter();
 
-      /** operator to convert the LCLS Data to CASSEvent*/
-      void operator()(const Pds::Xtc*, cass::CASSEvent*);
+      /** prevent copy construction */
+      Converter(const Converter&);
 
-    private:
+      /** prevent assignment */
+      Converter& operator=(const Converter&);
+
+      /** the singleton container */
+      static ConversionBackend::converterPtr_t _instance;
+
+      /** singleton locker for mutithreaded requests */
+      static QMutex _mutex;
+
       /** store for the pnccd configuration.
        *
        * Will store the version and the configuration itself in a pair

@@ -81,18 +81,12 @@ namespace cass
     ~FormatConverter();
 
   public:
-    /** typedef describing the map of available converters for easier readable code*/
-    typedef std::map<std::string, ConversionBackend::converterPtr_t> availableConverters_t;
-
     /** typdef describing the map of used converters for easier readable code */
     typedef std::map<Pds::TypeId::Type, ConversionBackend::converterPtr_t> usedConverters_t;
 
   protected:
     /** status whether a configure has already been seen */
     bool _configseen;
-
-    /** Available format converters */
-    availableConverters_t _availableConverters;
 
     /** map that contains all type id's of all known xtc in a transition.
      *
