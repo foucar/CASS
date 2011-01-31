@@ -77,6 +77,19 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
       _achims_sorter->tdc[i]  = &_signals[i].second.front();
     _count[i] = _signals[i].second.size();
   }
+  /** @todo shift and correct the tdc arrays before sorting them */
+  int32_t nbrOfRecHits = _achims_sorter->sort();
+  //copy the reconstructed hits to our dethits//
+  for (int i(0);i<nbrOfRecHits;++i)
+  {
+    detectorHit_t hit;
+    hit["x"] = _achims_sorter->output_hit_array[i]->x;
+    hit["y"] = _achims_sorter->output_hit_array[i]->y;
+    hit["t"] = _achims_sorter->output_hit_array[i]->time;
+    hit["method"] = _achims_sorter->output_hit_array[i]->method;
+    hits.push_back(hit);
+  }
+
   return hits;
 }
 
@@ -215,69 +228,11 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
 //
 //
 //
-////___________________________________________________________________________________________________________________________________________________________
-//void MyDetektorHitSorterAchimHex::CreateTDCArrays()
-//{
-//	//assign vectors to tdc array//
-//	if (u1d.size())fAs->tdc[fAs->Cu1]  = &u1d[0];
-//	if (u2d.size())fAs->tdc[fAs->Cu2]  = &u2d[0];
-//	if (v1d.size())fAs->tdc[fAs->Cv1]  = &v1d[0];
-//	if (v2d.size())fAs->tdc[fAs->Cv2]  = &v2d[0];
-//	if (w1d.size())fAs->tdc[fAs->Cw1]  = &w1d[0];
-//	if (w2d.size())fAs->tdc[fAs->Cw2]  = &w2d[0];
-//	if (mcpd.size())fAs->tdc[fAs->Cmcp] = &mcpd[0];
-//
-//	//fill the counter array//
-//	fCnt[fAs->Cu1] = u1vec.size();
-//	fCnt[fAs->Cu2] = u2vec.size();
-//	fCnt[fAs->Cv1] = v1vec.size();
-//	fCnt[fAs->Cv2] = v2vec.size();
-//	fCnt[fAs->Cw1] = w1vec.size();
-//	fCnt[fAs->Cw2] = w2vec.size();
-//	fCnt[fAs->Cmcp] = mcpvec.size();
-//}
 //
 //
 //
 //
 //
-////___________________________________________________________________________________________________________________________________________________________
-//void MyDetektorHitSorterAchimHex::CreateDetHits(MyDetektor &d, MyHistos &rm)
-//{
-//	for (int i=0;i<fNRecHits;++i)
-//	{
-//		//add a hit to the detektor//
-//		MyDetektorHit &hit = d.AddHit();
-//
-//		//set infos from achims routine//
-//		hit.SetXmm(fAs->output_hit_array[i]->x);
-//		hit.SetYmm(fAs->output_hit_array[i]->y);
-//		hit.SetTime(fAs->output_hit_array[i]->time);
-//		hit.SetRekMeth(fAs->output_hit_array[i]->method);
-//
-//		//set which peaks have been used//
-//		if (fAs->output_hit_array[i]->iCu1 != -1) hit.SetU1Nbr(u1vec[fAs->output_hit_array[i]->iCu1]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCu2 != -1) hit.SetU2Nbr(u2vec[fAs->output_hit_array[i]->iCu2]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCv1 != -1) hit.SetV1Nbr(v1vec[fAs->output_hit_array[i]->iCv1]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCv2 != -1) hit.SetV2Nbr(v2vec[fAs->output_hit_array[i]->iCv2]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCw1 != -1) hit.SetW1Nbr(w1vec[fAs->output_hit_array[i]->iCw1]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCw2 != -1) hit.SetW2Nbr(w2vec[fAs->output_hit_array[i]->iCw2]->GetPeakNbr());
-//		if (fAs->output_hit_array[i]->iCmcp!= -1) hit.SetMcpNbr(mcpvec[fAs->output_hit_array[i]->iCmcp]->GetPeakNbr());
-//
-//		//fill the output histograms//
-//		rm.fill1d(fHiOff+kUsedMethod,fAs->output_hit_array[i]->method);
-//
-//		rm.fill1d(fHiOff+kTime,fAs->output_hit_array[i]->time);
-//		rm.fill2d(fHiOff+kPosXVsTime,fAs->output_hit_array[i]->time,fAs->output_hit_array[i]->x);
-//		rm.fill2d(fHiOff+kPosYVsTime,fAs->output_hit_array[i]->time,fAs->output_hit_array[i]->y);
-//
-//		rm.fill2d(fHiOff+kDetAll,fAs->output_hit_array[i]->x,fAs->output_hit_array[i]->y);
-//		if(fAs->output_hit_array[i]->method < 15)
-//			rm.fill2d(fHiOff+kDetNonRisky,fAs->output_hit_array[i]->x,fAs->output_hit_array[i]->y);
-//		if(fAs->output_hit_array[i]->method >= 15)
-//			rm.fill2d(fHiOff+kDetRisky,fAs->output_hit_array[i]->x,fAs->output_hit_array[i]->y);
-//	}
-//}
 //
 //
 //
