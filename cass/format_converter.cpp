@@ -56,7 +56,7 @@ namespace cass
      */
     void operator()(const QString& type)
     {
-      string convertertype(type.toStdString());
+      const string convertertype(type.toStdString());
       FormatConverter::availableConverters_t::const_iterator converterIt
           (_availableConverters.find(convertertype));
       if (_availableConverters.end() == converterIt)
