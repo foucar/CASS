@@ -34,6 +34,7 @@ namespace cass
    * as a singleton. It contains all available Format Converters and calls
    * all requested ones.
    *
+   *@section converter Paramters for the converter
    * @cassttng Converter/{Used}\n
    *           comma separated list of Converters that should be active. Default
    *           is "". Possible values are:
