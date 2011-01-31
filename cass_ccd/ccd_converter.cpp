@@ -57,7 +57,8 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   transform(det.frame().begin(),det.frame().end(),
             det.frame().begin(),
             bind2nd(minus<float>(),static_cast<float>(frame.offset())));
-  /** @todo substracting and copying should be done in one step not in two */
+  /* in the below how do I make sure that the casting from uint16 to float is done correctly */
+  // copy frame data to cass event, substract the offset from each pixel//
 //  transform(framedata,framedata + framesize,
 //            det.frame().begin(),
 //            bind2nd(minus<float>(),static_cast<float>(frame.offset())));
