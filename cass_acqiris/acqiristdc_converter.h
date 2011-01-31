@@ -32,6 +32,12 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
+      /** constructor
+       *
+       * sets up the pds type ids that it is responsible for
+       */
+      Converter();
+
       /** takes the xtc and copies the data to cassevent */
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
     };

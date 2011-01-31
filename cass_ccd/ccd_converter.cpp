@@ -1,4 +1,4 @@
-//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2009,2010, 2011 Lutz Foucar
 
 #include "ccd_converter.h"
 
@@ -14,7 +14,12 @@
 #include "ccd_device.h"
 #include "pixel_detector.h"
 
+using namespace cass::CCD;
 
+Converter::Converter()
+{
+  _pdsTypeList.push_back(Pds::TypeId::Id_Frame);
+}
 
 void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {

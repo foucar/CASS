@@ -10,38 +10,66 @@
 
 #include <iostream>
 #include <iomanip>
-#include <fstream>
+#include <algorithm>
+//#include <fstream>
 
 #include <QtCore/QMutexLocker>
-
-#include "pdsdata/xtc/Dgram.hh"
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include "format_converter.h"
 
 #include "cass_event.h"
-#include "acqiris_converter.h"
-#include "acqiristdc_converter.h"
-#include "ccd_converter.h"
-#include "machine_converter.h"
-#include "pnccd_converter.h"
+#include "machine_device.h"
 #include "xtciterator.h"
+#include "pdsdata/xtc/Dgram.hh"
 
+using namespace std;
 
-//create a black converter for all ids that we are not interested in//
 namespace cass
 {
-  /** Converter that does nothing
+  /** functor to activate a certain converter
    *
-   * This converter is a blank that does nothing. It will be used for converting
-   * xtc id's that we either don't care about or the user has disabled in .ini
+   * puts the converter in the used converter list for the right pds ids.
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT BlankConverter : public ConversionBackend
+  struct activate
   {
-  public:
-    /** do nothing */
-    void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
+    /** reference to the container with all available converters */
+    const FormatConverter::availableConverters_t &_availableConverters;
+
+    /** reference to the container with the used converters */
+    FormatConverter::usedConverters_t &_usedConverters;
+
+    /** constructor
+     *
+     * @param availConv reference to the available converters container
+     * @param usedConv reference to the used converters container
+     */
+    activate(const FormatConverter::availableConverters_t &availConv,
+             FormatConverter::usedConverters_t &usedConv)
+      :_availableConverters(availConv),
+       _usedConverters(usedConv)
+    {}
+
+    /** the operator
+     *
+     * retrieves the list of pds ids that the converter type is responsible for
+     * then adds the converter to used converters container for all retrieved ids
+     *
+     * @param qtype the type of converter that should be activated
+     */
+    void operator()(const QString& type)
+    {
+      string convertertype(type.toStdString());
+      ConversionBackend::converterPtr_t converter =
+          _availableConverters.find(convertertype)->second;
+      const ConversionBackend::pdstypelist_t &pdsTypeList(converter->pdsTypeList());
+      ConversionBackend::pdstypelist_t::const_iterator idIt(pdsTypeList.begin());
+      for (;idIt != pdsTypeList.end();++idIt)
+        _usedConverters[(*idIt)] = converter;
+    }
   };
 }
 
@@ -68,24 +96,13 @@ cass::FormatConverter *cass::FormatConverter::instance()
 
 
 
-
-
-
-
 cass::FormatConverter::FormatConverter()
   :_configseen(false)
 {
   // create all the necessary individual format converters
-  _availableConverters[Acqiris]     = new ACQIRIS::Converter();
-  _availableConverters[AcqirisTDC]  = new ACQIRISTDC::Converter();
-  _availableConverters[ccd]         = new CCD::Converter();
-  _availableConverters[pnCCD]       = new pnCCD::Converter();
-  _availableConverters[MachineData] = new MachineData::Converter();
-  _availableConverters[Blank]       = new BlankConverter();
-
-  // now initialze all xtc ids with blank converters to be on the save side//
-  for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
-    _usedConverters[static_cast<Pds::TypeId::Type>(i)] = _availableConverters[Blank];
+  list<string>::const_iterator it(ConversionBackend::availableConverters.begin());
+  for (;it!=ConversionBackend::availableConverters.end();++it)
+    _availableConverters[*it] = ConversionBackend::instance(*it);
 
   //now load the converters, that the user want to use//
   loadSettings(0);
@@ -93,102 +110,20 @@ cass::FormatConverter::FormatConverter()
 
 cass::FormatConverter::~FormatConverter()
 {
-  // destruct all the individual format converters
-  for (availableConverters_t::iterator it=_availableConverters.begin();
-       it!=_availableConverters.end();
-       ++it)
-    delete (it->second);
-}
-
-void cass::FormatConverter::addConverter(cass::FormatConverter::Converters converter)
-{
-  using namespace std;
-  //look which converter should be added//
-  switch(converter)
-  {
-  case ccd:
-    VERBOSEOUT(cout<<"Use commercial CCD converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_Frame] = _availableConverters[ccd];
-    break;
-  case Acqiris:
-    VERBOSEOUT(cout<<"Use acqiris converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_AcqWaveform] = _availableConverters[Acqiris];
-    _usedConverters[Pds::TypeId::Id_AcqConfig]   = _availableConverters[Acqiris];
-    break;
-  case pnCCD:
-    VERBOSEOUT(cout<<"Use pnCCD converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_pnCCDframe]  = _availableConverters[pnCCD];
-    _usedConverters[Pds::TypeId::Id_pnCCDconfig] = _availableConverters[pnCCD];
-    break;
-  case MachineData:
-    VERBOSEOUT(cout<<"Use commercial CCD converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[MachineData];
-    _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[MachineData];
-    _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[MachineData];
-    _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[MachineData];
-    _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[MachineData];
-    break;
-  case AcqirisTDC:
-    VERBOSEOUT(cout<<"Use acqiris converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_AcqTdcData] = _availableConverters[AcqirisTDC];
-    break;
-  default:
-    break;
-  }
-}
-
-void cass::FormatConverter::removeConverter(cass::FormatConverter::Converters converter)
-{
-  using namespace std;
-  //look which converter should be removed//
-  switch(converter)
-  {
-  case ccd:
-    VERBOSEOUT(cout<<"Don't use commercial CCD converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_Frame] = _availableConverters[Blank];
-    break;
-  case Acqiris:
-    VERBOSEOUT(cout<<"Don't use acqiris converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_AcqWaveform]  = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_AcqConfig]    = _availableConverters[Blank];
-    break;
-  case pnCCD:
-    VERBOSEOUT(cout<<"Don't use pnCCD converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_pnCCDframe]   = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_pnCCDconfig]  = _availableConverters[Blank];
-    break;
-  case MachineData:
-    VERBOSEOUT(cout<<"Don't use machinedata converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_Epics]            = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_FEEGasDetEnergy]  = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_EBeam]            = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_PhaseCavity]      = _availableConverters[Blank];
-    _usedConverters[Pds::TypeId::Id_EvrData]          = _availableConverters[Blank];
-    break;
-  case AcqirisTDC:
-    VERBOSEOUT(cout<<"Don't use acqiris tdc converter"<<endl);
-    _usedConverters[Pds::TypeId::Id_AcqTdcData] = _availableConverters[Blank];
-    break;
-  default:
-    break;
-  }
 }
 
 void cass::FormatConverter::loadSettings(size_t)
 {
-  CASSSettings settings;
-  settings.beginGroup("Converter");
-  settings.sync();
-  settings.value("useCommercialCCDConverter",true).toBool()?
-      addConverter(ccd)         : removeConverter(ccd);
-  settings.value("useAcqirisConverter",true).toBool()?
-      addConverter(Acqiris)     : removeConverter(Acqiris);
-  settings.value("useAcqirisTDCConverter",true).toBool()?
-      addConverter(AcqirisTDC)     : removeConverter(AcqirisTDC);
-  settings.value("usepnCCDConverter",true).toBool()?
-      addConverter(pnCCD)       : removeConverter(pnCCD);
-  settings.value("useMachineConverter",true).toBool()?
-      addConverter(MachineData) : removeConverter(MachineData);
+  // initialze all xtc ids with blank converters to be on the save side//
+  for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
+    _usedConverters[static_cast<Pds::TypeId::Type>(i)] = _availableConverters["Blank"];
+
+  CASSSettings s;
+  s.beginGroup("Converter");
+  QStringList usedConvertersList(s.value("Used","").toStringList());
+  for_each(usedConvertersList.begin(),
+           usedConvertersList.end(),
+           activate(_availableConverters,_usedConverters));
 }
 
 enum {NoGoodData=0,GoodData};
@@ -199,6 +134,7 @@ bool cass::FormatConverter::processDatagram(cass::CASSEvent *cassevent)
   bool retval(NoGoodData);
   //get the datagram from the cassevent//
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
+
 /*
   std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
   std::cout << "0x"<< std::hex<< datagram->xtc.sizeofPayload()<<std::dec<<"  ";

@@ -95,6 +95,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       analyzer.cpp \
                       cass.cpp \
                       cass_event.cpp \
+                      conversion_backend.cpp \
                       daemon.cpp \
                       event_getter.cpp \
                       file_input.cpp \

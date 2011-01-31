@@ -1,4 +1,4 @@
-//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
  * @file acqiris_converter.h file contains the declaration of the converter
@@ -32,6 +32,12 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
+      /** constructor
+       *
+       * sets up the pds type ids it is responsible for
+       */
+      Converter();
+
       /** takes the xtc and copies the data to cassevent */
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
 

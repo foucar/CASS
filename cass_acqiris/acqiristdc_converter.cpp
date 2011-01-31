@@ -21,6 +21,11 @@
 using namespace cass::ACQIRISTDC;
 using namespace std;
 
+Converter::Converter()
+{
+  _pdsTypeList.push_back(Pds::TypeId::Id_AcqTdcData);
+}
+
 void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
 {
 //  //check whether xtc is a configuration or a event//

@@ -1,5 +1,5 @@
 // Copyright (C) 2009 Jochen Kuepper
-// Copyright (C) 2009,2010 Lutz Foucar
+// Copyright (C) 2009,2010, 2011 Lutz Foucar
 
 /**
  * @file conversion_backend.h file contains base class for all format converters
@@ -10,10 +10,13 @@
 #ifndef CASS_CONVERSIONBACKEND_H
 #define CASS_CONVERSIONBACKEND_H
 
-#include "cass.h"
+#include <list>
+#include <string>
 #include <stdint.h>
-#include <vector>
-#include <algorithm>
+#include <tr1/memory>
+
+#include "cass.h"
+#include "pdsdata/xtc/TypeId.hh"
 
 namespace Pds
 {
@@ -35,14 +38,41 @@ namespace cass
   class CASSSHARED_EXPORT ConversionBackend
   {
   public:
+    /** typedef */
+    typedef std::tr1::shared_ptr<ConversionBackend> converterPtr_t;
+
+    /** typedef */
+    typedef std::list<Pds::TypeId::Type> pdstypelist_t;
+
+  public:
     /** virtual destructor to make clear this is a base class */
     virtual ~ConversionBackend() {}
 
     /** pure virtual operator.
      *
      * call this to convert the xtc to the cass event
+     *
+     * @param xtc the xtc that contains the data to convert
+     * @param evt the event where the converted data should be stored
      */
-    virtual void operator()(const Pds::Xtc*, cass::CASSEvent*) = 0;
+    virtual void operator()(const Pds::Xtc *xtc, cass::CASSEvent *evt) = 0;
+
+    /** return the list of pds type ids the converter is responsible for */
+    const pdstypelist_t &pdsTypeList()const {return _pdsTypeList;}
+
+    /** the names of the available converters */
+    static std::list<std::string> availableConverters;
+
+    /** return the requested converter type
+     *
+     * @return shared pointer to the requested converter
+     * @@param type the type of the requested converter
+     */
+    static converterPtr_t instance(const std::string& type);
+
+  protected:
+    /** the list of pds types that the converter is responsible for */
+    pdstypelist_t _pdsTypeList;
   };
 }//end namespace cass
 

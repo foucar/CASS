@@ -12,6 +12,7 @@
 #include "machine_device.h"
 
 
+using namespace cass::MachineData;
 
 //Use the code copied from matt weaver to extract the value from the epicsheader
 #define CASETOVAL(timetype,valtype) case timetype: {			\
@@ -21,6 +22,14 @@
   it++->second = *value++;\
   break; }
 
+Converter::Converter()
+{
+  _pdsTypeList.push_back(Pds::TypeId::Id_Epics);
+  _pdsTypeList.push_back(Pds::TypeId::Id_FEEGasDetEnergy);
+  _pdsTypeList.push_back(Pds::TypeId::Id_EBeam);
+  _pdsTypeList.push_back(Pds::TypeId::Id_PhaseCavity);
+  _pdsTypeList.push_back(Pds::TypeId::Id_EvrData);
+}
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {

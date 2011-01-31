@@ -34,14 +34,14 @@ namespace cass
    * as a singleton. It contains all available Format Converters and calls
    * all requested ones.
    *
-   * @cassttng Converter/{useCommercialCCDConverter}\n
-   *           converter should be running: default true
-   * @cassttng Converter/{useAcqirisConverter}\n
-   *           converter should be running: default true
-   * @cassttng Converter/{useMachineConverter}\n
-   *           converter should be running: default true
-   * @cassttng Converter/{usepnCCDConverter}\n
-   *           converter should be running: default true
+   * @cassttng Converter/{Used}\n
+   *           comma separated list of Converters that should be active. Default
+   *           is "". Possible values are:
+   *           - Machine: access to Machine Data (Beamline and Epics data)
+   *           - Acqiris: access to Acqiris Digitizer data
+   *           - AcqirisTDC: access to Acqiris TDC data
+   *           - CCD: access to Opal camera data
+   *           - pnCCD: access to pnCCD data
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
@@ -51,9 +51,6 @@ namespace cass
     Q_OBJECT;
 
   public:
-    /** list of known individual format converters */
-    enum Converters {pnCCD, Acqiris, ccd, MachineData, Blank, AcqirisTDC};
-
     /** Destroy the single FormatConverter instance */
     static void destroy();
 
@@ -84,19 +81,13 @@ namespace cass
     ~FormatConverter();
 
   public:
-    /** typdef describing the map of available converters for easier readable code*/
-    typedef std::map<Converters, ConversionBackend *> availableConverters_t;
+    /** typedef describing the map of available converters for easier readable code*/
+    typedef std::map<std::string, ConversionBackend::converterPtr_t> availableConverters_t;
 
     /** typdef describing the map of used converters for easier readable code */
-    typedef std::map<Pds::TypeId::Type, ConversionBackend *> usedConverters_t;
+    typedef std::map<Pds::TypeId::Type, ConversionBackend::converterPtr_t> usedConverters_t;
 
   protected:
-    /** functions to add converters from the list */
-    void addConverter(Converters);
-
-    /** function to remove converters from the list */
-    void removeConverter(Converters);
-
     /** status whether a configure has already been seen */
     bool _configseen;
 

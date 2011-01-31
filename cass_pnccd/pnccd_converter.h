@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 #ifndef PNCCDCONVERTER_H
 #define PNCCDCONVERTER_H
@@ -21,7 +21,6 @@ namespace cass
 
   namespace pnCCD
   {
-
     /** Converter for pnCCD Data.
      *
      * @author Lutz Foucar
@@ -29,12 +28,19 @@ namespace cass
     class CASS_PNCCDSHARED_EXPORT Converter : public cass::ConversionBackend
     {
     public:
-//      Converter() {}
+      /** constructor
+       *
+       * set up the pds type ids that it is responsible for
+       */
+      Converter();
+
       /** operator to convert the LCLS Data to CASSEvent*/
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
+
     private:
-      /** store for the pnccd configuration. Will store the version and the
-       * configuration itself in a pair
+      /** store for the pnccd configuration.
+       *
+       * Will store the version and the configuration itself in a pair
        */
       std::vector<std::pair<uint32_t, Pds::PNCCD::ConfigV2*> > _pnccdConfig;
     };

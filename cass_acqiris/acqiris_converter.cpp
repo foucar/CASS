@@ -1,4 +1,4 @@
-//Copyright (C) 2009, 2010 Lutz Foucar
+//Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
  * @file acqiris_converter.cpp file contains the definition of the converter
@@ -18,6 +18,13 @@
 #include "pdsdata/acqiris/DataDescV1.hh"
 #include "pdsdata/xtc/Src.hh"
 
+using namespace cass::ACQIRIS;
+
+Converter::Converter()
+{
+  _pdsTypeList.push_back(Pds::TypeId::Id_AcqConfig);
+  _pdsTypeList.push_back(Pds::TypeId::Id_AcqWaveform);
+}
 
 void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
 {
