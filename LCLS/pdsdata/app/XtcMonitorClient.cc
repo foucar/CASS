@@ -49,6 +49,7 @@ static void _flushQueue(mqd_t q)
   XtcMonitorMsg m;
   unsigned priority;
   struct mq_attr mymq_attr;
+  mymq_attr.mq_curmsgs=0;
   do {
     mq_getattr(q, &mymq_attr);
     if (mymq_attr.mq_curmsgs)
