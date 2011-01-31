@@ -1,7 +1,7 @@
 //Copyright (C) 2010 Lutz Foucar
 
 /**
- * @file waveform_signal.h file contains the classes that describe how to
+ * @file signal_producer.h file contains the classes that describe how to
  *                         analyze the waveform and stores the result.
  *
  * @author Lutz Foucar
