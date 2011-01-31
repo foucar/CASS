@@ -28,8 +28,10 @@ namespace cass
    *@section preanalyzer Parameters for the pre analyzers
    * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
    *           Should pre analysis run: default true
+   *           (see cass::CCD::Parameter)
    * @cassttng PreAnalyzer/{usepnCCDAnalyzer}\n
    *           Should pre analysis run: default true
+   *           (see cass::pnCCD::Parameter)
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar
