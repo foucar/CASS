@@ -40,6 +40,7 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
   case (Pds::TypeId::Id_AcqTdcConfig) :
     {
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      assert(static_cast<int>(info.detector()) == static_cast<int>(SXRTdc));
       cass::CASSEvent::devices_t::iterator devIt
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
@@ -48,21 +49,6 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
           (dev->instruments()[static_cast<TDCInstruments>(info.detector())]);
       Instrument::channels_t &channels(instr.channels());
       channels.resize(Instrument::NbrChannels);
-//      unsigned version = xtc->contains.version();
-//      switch (version)
-//      {
-//        //if it is the right configuration then initialize the storedevent with the configuration//
-//      case 1:
-//        {
-//          //get the config//
-//          const Pds::Acqiris::ConfigV1 &config =
-//              *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
-//        }
-//        break;
-//      default:
-//        std::cout <<"Unsupported acqiris tdc configuration version "<<version<<std::endl;
-//        break;
-//      }
     }
     break;
 
@@ -75,9 +61,19 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
+      Device::instruments_t::iterator instrIt
+          (dev->instruments().find(static_cast<TDCInstruments>(info.detector())));
+      if (dev->instruments().end() == instrIt)
+      {
+        stringstream ss;
+        ss<<"ACQIRISTDC::Converter(): The AcqirisTDC in the CASSEvent does"
+            <<" not contain the instrument '"<<Pds::DetInfo::name(info)<<"'";
+        throw runtime_error(ss.str());
+      }
       Instrument &instr
           (dev->instruments()[static_cast<TDCInstruments>(info.detector())]);
       Instrument::channels_t &channels(instr.channels());
+      assert(6 == channels.size());
       //extract the data from the xtc//
       const Pds::Acqiris::TdcDataV1 *data
           (reinterpret_cast<const Pds::Acqiris::TdcDataV1*>(xtc->payload()));

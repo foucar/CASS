@@ -54,7 +54,7 @@ namespace cass
   namespace ACQIRISTDC
   {
     /** all available tdc instruments at the site*/
-    enum TDCInstruments{test};
+    enum TDCInstruments{SXRTdc=12};
   }
 
 }
