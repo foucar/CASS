@@ -12,11 +12,11 @@
 
 #include <list>
 #include <string>
-#include <stdint.h>
 #include <tr1/memory>
 
-#include "cass.h"
 #include "pdsdata/xtc/TypeId.hh"
+
+#include "cass.h"
 
 namespace Pds
 {
