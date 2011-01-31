@@ -47,7 +47,8 @@ namespace cass
 
 HexSorter::HexSorter()
   :DetectorAnalyzerBackend(),
-   _achims_sorter(new sort_class())
+   _achims_sorter(new sort_class()),
+   _count(7)
 {
   _achims_sorter->Cmcp = 0;
   _achims_sorter->Cu1  = 1;
@@ -56,61 +57,14 @@ HexSorter::HexSorter()
   _achims_sorter->Cv2  = 4;
   _achims_sorter->Cw1  = 5;
   _achims_sorter->Cw2  = 6;
-
-  //	fAs->TDC_resolution_ns					= 0.1;
-//	fAs->tdc_array_row_length				= 1000;
-//	fAs->dont_overwrite_original_data		= true;
-//	fAs->count								= &fCnt[0];
-//	fAs->use_sum_correction					= static_cast<bool>(di.GetNbrSumUCorrPoints);
-//	fAs->use_pos_correction					= false;
-//	//this is needed to tell achims routine that we care for our own arrays//
-//	fAs->tdc[fAs->Cu1]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cu2]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cv1]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cv2]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cw1]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cw2]						= (double*)(0x1);
-//	fAs->tdc[fAs->Cmcp]						= (double*)(0x1);
-//
-//	//set the variables that we get from the detektor//
-//	fAs->uncorrected_time_sum_half_width_u	= di.GetTsuWidth();
-//	fAs->uncorrected_time_sum_half_width_v	= di.GetTsvWidth();
-//	fAs->uncorrected_time_sum_half_width_w	= di.GetTswWidth();
-//	fAs->fu									= di.GetSfU();
-//	fAs->fv									= di.GetSfV();
-//	fAs->fw									= di.GetSfW();
-//	fAs->max_runtime						= di.GetRunTime();
-//	fAs->dead_time_anode					= di.GetDeadTimeAnode();
-//	fAs->dead_time_mcp						= di.GetDeadTimeMCP();
-//	fAs->MCP_radius							= di.GetMCPRadius();
-//	fAs->use_HEX							= di.IsHexAnode();
-//	fAs->use_MCP							= di.UseMCP();
-//
-//	//set the sum walk correction points, Achims Routine will internaly find out how many we gave it//
-//	for (int i=0;i<di.GetNbrSumUCorrPoints();++i)
-//		fAs->sum_corrector_U->set_point(di.GetUCorrPos(i),di.GetUCorrCorr(i));
-//
-//	for (int i=0;i<di.GetNbrSumVCorrPoints();++i)
-//		fAs->sum_corrector_V->set_point(di.GetVCorrPos(i),di.GetVCorrCorr(i));
-//
-//	for (int i=0;i<di.GetNbrSumWCorrPoints();++i)
-//		fAs->sum_corrector_W->set_point(di.GetWCorrPos(i),di.GetWCorrCorr(i));
-//
-//	//init() must be called only once
-//	int error_code = fAs->init();
-//	if (error_code != 0)
-//	{
-//		char error_text[500];
-//		fAs->get_error_text(error_code,500,error_text);
-//		std::cout << "Achims Sorter: "<<error_text<<std::endl;
-//		exit(1);
-//	}
-//	else
-//	{
-//		fAlreadyInitialized=true;
-//		fSwc = sum_walk_calibration_class::new_sum_walk_calibration_class(fAs,49);
-//		fSfc = new scalefactors_calibration_class(true,fAs->max_runtime*0.78,fAs->fu,fAs->fv,fAs->fw);
-//	}
+  _achims_sorter->count = &_count.front();
+  _achims_sorter->TDC_resolution_ns = 0.1;
+  _achims_sorter->tdc_array_row_length = 1000;
+  _achims_sorter->dont_overwrite_original_data = true;
+  _achims_sorter->use_pos_correction = false;
+  //this is needed to tell achims routine that we care for our own arrays//
+  for (size_t i=0;i<7;++i)
+    _achims_sorter->tdc[i] = (double*)(0x1);
 }
 
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
@@ -138,6 +92,47 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _signals.push_back(make_pair(&d.layers()['V'].wireends()['2'],vector<double>()));
   _signals.push_back(make_pair(&d.layers()['W'].wireends()['1'],vector<double>()));
   _signals.push_back(make_pair(&d.layers()['W'].wireends()['2'],vector<double>()));
+
+  //	fAs->use_sum_correction					= static_cast<bool>(di.GetNbrSumUCorrPoints);
+  //	//set the variables that we get from the detektor//
+  //	fAs->uncorrected_time_sum_half_width_u	= di.GetTsuWidth();
+  //	fAs->uncorrected_time_sum_half_width_v	= di.GetTsvWidth();
+  //	fAs->uncorrected_time_sum_half_width_w	= di.GetTswWidth();
+  //	fAs->fu									= di.GetSfU();
+  //	fAs->fv									= di.GetSfV();
+  //	fAs->fw									= di.GetSfW();
+  //	fAs->max_runtime						= di.GetRunTime();
+  //	fAs->dead_time_anode					= di.GetDeadTimeAnode();
+  //	fAs->dead_time_mcp						= di.GetDeadTimeMCP();
+  //	fAs->MCP_radius							= di.GetMCPRadius();
+  //	fAs->use_HEX							= di.IsHexAnode();
+  //	fAs->use_MCP							= di.UseMCP();
+  //	//set the sum walk correction points, Achims Routine will internaly find out how many we gave it//
+  //	for (int i=0;i<di.GetNbrSumUCorrPoints();++i)
+  //		fAs->sum_corrector_U->set_point(di.GetUCorrPos(i),di.GetUCorrCorr(i));
+  //
+  //	for (int i=0;i<di.GetNbrSumVCorrPoints();++i)
+  //		fAs->sum_corrector_V->set_point(di.GetVCorrPos(i),di.GetVCorrCorr(i));
+  //
+  //	for (int i=0;i<di.GetNbrSumWCorrPoints();++i)
+  //		fAs->sum_corrector_W->set_point(di.GetWCorrPos(i),di.GetWCorrCorr(i));
+  //
+  //	//init() must be called only once
+  //	int error_code = fAs->init();
+  //	if (error_code != 0)
+  //	{
+  //		char error_text[500];
+  //		fAs->get_error_text(error_code,500,error_text);
+  //		std::cout << "Achims Sorter: "<<error_text<<std::endl;
+  //		exit(1);
+  //	}
+  //	else
+  //	{
+  //		fAlreadyInitialized=true;
+  //		fSwc = sum_walk_calibration_class::new_sum_walk_calibration_class(fAs,49);
+  //		fSfc = new scalefactors_calibration_class(true,fAs->max_runtime*0.78,fAs->fu,fAs->fv,fAs->fw);
+  //	}
+
 }
 
 

@@ -12,6 +12,7 @@
 #include <tr1/memory>
 #include <vector>
 #include <utility>
+#include <stdint.h>
 
 #include "delayline_detector_analyzer_backend.h"
 #include "delayline_detector.h"
@@ -64,6 +65,13 @@ namespace cass
 
       /** the instance of Achims routine */
       std::tr1::shared_ptr<sort_class> _achims_sorter;
+
+      /** counter array for achims routine
+       *
+       * this is used so that the routine knows how many singals are in each
+       * array
+       */
+      std::vector<int32_t> _count;
     };
 
 //    class MyDetektorHitSorterAchimHex : public MyDetektorHitSorterHex, public MyDetektorHitSorterAchim
