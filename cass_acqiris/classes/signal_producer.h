@@ -52,6 +52,7 @@ namespace cass
      *           - 1:com 16 bit waveform (see CoM8Bit)
      *           - 2:cfd 8 bit waveform (see CFD8Bit)
      *           - 3:cfd 16 bit waveform (see CFD8Bit)
+     *           - 4:tdc data extractor (see ACQIRISTDC::TDCExtractor)
      *
      * @author Lutz Foucar
      */
