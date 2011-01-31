@@ -18,7 +18,7 @@ namespace Pds {
     //  common values of ev_index produce a set of clients competing for events
     //
     int run(const char * partitionTag, int tr_index=0);
-    int run(const char * partitionTag, int tr_index, int ev_index);
+    int run(const char * partitionTag, int tr_index, int ev_index, int timeout_sec=30*60);
     virtual int processDgram(Dgram*);
   };
 }

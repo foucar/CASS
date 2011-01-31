@@ -93,7 +93,7 @@ void cass::SharedMemoryInput::run()
   VERBOSEOUT(std::cout << "starting shared memory in put with partition Tag: \""
       <<_partitionTag <<"\""
       << " and Client Index "<< _index<<std::endl);
-  Pds::XtcMonitorClient::run(_partitionTag,_index);
+  Pds::XtcMonitorClient::run(_partitionTag,_index,2);
   VERBOSEOUT(std::cout << "shared memory input is closing down"<<std::endl);
 }
 
@@ -105,14 +105,14 @@ void cass::SharedMemoryInput::end()
   //wait until we have finished, but only for 2 seconds//
   //if we were not finished by that time the we want to terminate//
   //ourselves//
-  VERBOSEOUT(std::cout << "wait for 2 s that shared memory shuts down"<<std::endl);
-  if(!wait(2000))
+  VERBOSEOUT(std::cout << "wait for 5 s that shared memory shuts down"<<std::endl);
+  if(!wait(5000))
   {
     VERBOSEOUT(std::cout << "time has elapsed. So we probably lost connection to"
         <<"the shared memory. Therefore we will terminate the thread"<<std::endl);
     terminate();
   }
-  VERBOSEOUT(std::cout << "Ok. Shared Memory input thread has shut down within 2 s"<<std::endl);
+  VERBOSEOUT(std::cout << "Ok. Shared Memory input thread has shut down within 5 s"<<std::endl);
 }
 
 int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
@@ -133,6 +133,10 @@ int cass::SharedMemoryInput::processDgram(Pds::Dgram* datagram)
     //unlock the mutex, such that others can work again//
     _pauseMutex.unlock();
   }
+
+  //check if it just timed out, if so return
+  if(!datagram)
+    return _quit;
 
   //make a pointer to a element in the ringbuffer//
   cass::CASSEvent *cassevent(0);

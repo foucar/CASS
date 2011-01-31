@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#include <errno.h>
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -118,15 +119,22 @@ namespace Pds {
 using namespace Pds;
 
 int XtcMonitorClient::processDgram(Dgram* dg) {
-  printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x\n",TransitionId::name(dg->seq.service()),
-      dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload());
+  if (dg)
+  {
+    printf("%s transition: time 0x%x/0x%x, payloadSize 0x%x\n",TransitionId::name(dg->seq.service()),
+           dg->seq.stamp().fiducials(),dg->seq.stamp().ticks(),dg->xtc.sizeofPayload());
+  }
+  else
+  {
+    printf("timeout occurred");
+  }
   return 0;
 }
 
 int XtcMonitorClient::run(const char * tag, int tr_index) 
 { return run(tag, tr_index, tr_index); }
 
-int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index) {
+int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index, int timeout_sec) {
   int error = 0;
   char* qname             = new char[128];
 
@@ -185,9 +193,26 @@ int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index) {
   do {
     XtcMonitorMsg myMsg;
     unsigned priority;
-    if (mq_receive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0) {
-      perror("mq_receive buffer");
-      return ++error;
+    struct timespec tm;
+    clock_gettime(CLOCK_REALTIME, &tm);
+    tm.tv_sec += timeout_sec;
+//    if (mq_receive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0)
+    if (mq_timedreceive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority,&tm) < 0)
+    {
+      //check if timeout has occured
+      if (errno == ETIMEDOUT)
+      {
+        //tell the inherited thing by sending 0 and continue
+        if (!processDgram(0))
+          break;
+        else
+          continue;
+      }
+      else
+      {
+        perror("mq_receive buffer");
+        return ++error;
+      }
     } 
     else {
       if (!init) {
