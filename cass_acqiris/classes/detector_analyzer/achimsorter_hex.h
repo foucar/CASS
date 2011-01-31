@@ -10,6 +10,8 @@
 #define _ACHIMSORTER_HEX_H_
 
 #include <tr1/memory>
+#include <vector>
+#include <utility>
 
 #include "delayline_detector_analyzer_backend.h"
 #include "delayline_detector.h"
@@ -51,6 +53,10 @@ namespace cass
        * @param d the detector object that we are belonging to
        */
       void loadSettings(CASSSettings &s, DelaylineDetector &d);
+
+    private:
+      /** container for tdc like arrays mapped to the corrosponding signalproducer */
+      std::vector<std::pair<SignalProducer*,std::vector<double> > > _signals;
     };
 
 //    class MyDetektorHitSorterAchimHex : public MyDetektorHitSorterHex, public MyDetektorHitSorterAchim

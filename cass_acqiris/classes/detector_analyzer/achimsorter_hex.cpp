@@ -6,18 +6,65 @@
  * @author Lutz Foucar
  */
 
+#include <stdexcept>
+#include <sstream>
+#include <algorithm>
+
 #include "achimsorter_hex.h"
 
 using namespace cass::ACQIRIS;
+using namespace std;
 
+namespace cass
+{
+  namespace ACQIRIS
+  {
+    namespace AchimHex
+    {
+      /** extract times from signal producer
+       *
+       * extract the time values from the signal producer and puts it into
+       * the corrosponding tdc like array
+       *
+       * @param _signal container for tdc like array mapped to the corrosponding
+       *                signalproducer.
+       *
+       * @author Lutz Foucar
+       */
+      void extactTimes(pair<SignalProducer*,vector<double> > & thePair)
+      {
+        SignalProducer::signals_t &sigs(thePair.first->output());
+        vector<double> &tdcarray(thePair.second);
+        SignalProducer::signals_t::const_iterator sigsIt(sigs.begin());
+        for (;sigsIt !=sigs.end(); ++sigsIt)
+          tdcarray.push_back((*sigsIt)["time"]);
+      }
+    }
+  }
+}
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
 {
+  for_each(_signals.begin(),_signals.end(),AchimHex::extactTimes);
   return hits;
 }
 
 void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
 {
-
+  if(!d.isHex())
+  {
+    stringstream ss;
+    ss << "HexSorter::loadSettings: Error The Hex-Sorter cannot work on '"<<d.name()
+        << "' which is a Quad Detector.";
+    throw invalid_argument(ss.str());
+  }
+  _signals.clear();
+  _signals.push_back(make_pair(&d.mcp(),vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['U'].wireends()['1'],vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['U'].wireends()['2'],vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['V'].wireends()['1'],vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['V'].wireends()['2'],vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['W'].wireends()['1'],vector<double>()));
+  _signals.push_back(make_pair(&d.layers()['W'].wireends()['2'],vector<double>()));
 }
 
 
