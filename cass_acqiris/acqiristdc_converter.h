@@ -1,14 +1,14 @@
-//Copyright (C) 2009,2010 Lutz Foucar
+//Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file acqiris_converter.h file contains the declaration of the converter
- *                           for the xtc containing acqiris data.
+ * @file acqiristdc_converter.h file contains the declaration of the converter
+ *                              for the xtc containing acqiris tdc data.
  *
  * @author Lutz Foucar
  */
 
-#ifndef _ACQIRIS_CONVERTER_H
-#define _ACQIRIS_CONVERTER_H
+#ifndef _ACQIRISTDC_CONVERTER_H
+#define _ACQIRISTDC_CONVERTER_H
 
 #include <iostream>
 #include <map>
@@ -20,12 +20,12 @@
 
 namespace cass
 {
-  namespace ACQIRIS
+  namespace ACQIRISTDC
   {
     /** Acqiris Converter
      *
-     * this class takes a xtc of type Id_AcqWaveform or Id_AcqConfig and
-     * extracts the acqiris channels for all instruments
+     * this class takes a xtc of type Id_AcqTDC and extracts the acqiris tdc
+     * channels for all instruments
      *
      * @author Lutz Foucar
      */
@@ -34,14 +34,6 @@ namespace cass
     public:
       /** takes the xtc and copies the data to cassevent */
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
-
-    private:
-      /** Number of Channels for a device
-       *
-       * the number of channels for the device is only send with a configure
-       * transition we store them in a map for each instrument
-       */
-      std::map<Instruments,size_t> _numberOfChannels;
     };
   }//end namespace acqiris
 }//end namespace cass
