@@ -66,6 +66,17 @@ HexSorter::HexSorter()
   //this is needed to tell achims routine that we care for our own arrays//
   for (size_t i=0;i<7;++i)
     _achims_sorter->tdc[i] = (double*)(0x1);
+
+  _tsum_calibrator =
+      tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_achims_sorter.get(),49));
+  _scalefactor_calibrator =
+      scalefactorcalibratorPtr_t(new scalefactors_calibration_class(true,
+                                                                    _achims_sorter->max_runtime*0.78,
+                                                                    0,
+                                                                    _achims_sorter->fu,
+                                                                    _achims_sorter->fv,
+                                                                    _achims_sorter->fw));
+
 }
 
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
@@ -78,7 +89,12 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
       _achims_sorter->tdc[i]  = &_signals[i].second.front();
     _count[i] = _signals[i].second.size();
   }
-  /** @todo shift and correct the tdc arrays before sorting them */
+  // shift all time sums to zero
+  _achims_sorter->shift_sums(-1,_timesums[0],_timesums[1],_timesums[2]);
+  // shift layer w so that all center lines of the layers meet in one point
+  _achims_sorter->shift_layer_w(+1,_wLayerOffset);
+  // shift all layers so that the position picture is centered around X=zero,Y=zero
+  _achims_sorter->shift_position_origin(-1,_center.first,_center.second);
   int32_t nbrOfRecHits = _achims_sorter->sort();
   //copy the reconstructed hits to our dethits//
   for (int i(0);i<nbrOfRecHits;++i)

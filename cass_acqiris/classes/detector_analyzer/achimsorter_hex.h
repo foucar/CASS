@@ -19,6 +19,8 @@
 
 
 class sort_class;
+class sum_walk_calibration_class;
+class scalefactors_calibration_class;
 
 namespace cass
 {
@@ -59,6 +61,9 @@ namespace cass
        */
       void loadSettings(CASSSettings &s, DelaylineDetector &d);
 
+      /** typedefs */
+      typedef std::tr1::shared_ptr<sum_walk_calibration_class> tsumcalibratorPtr_t;
+      typedef std::tr1::shared_ptr<scalefactors_calibration_class> scalefactorcalibratorPtr_t;
     private:
       /** container for tdc like arrays mapped to the corrosponding signalproducer */
       std::vector<std::pair<SignalProducer*,std::vector<double> > > _signals;
@@ -72,6 +77,30 @@ namespace cass
        * array
        */
       std::vector<int32_t> _count;
+
+      /** the timesums */
+      std::vector<double> _timesums;
+
+      /** the center of the detector */
+      std::pair<double,double> _center;
+
+      /** the w-layer offset */
+      double _wLayerOffset;
+
+      /** the time sum calibrator
+       *
+       * this will take the timesum and after a while it knows how to correct
+       * the timesum to be a straight line
+       */
+      tsumcalibratorPtr_t _tsum_calibrator;
+
+      /** pointer to scalfactor calibrator
+       *
+       * this is a class that will help finding the scalefactor and the
+       * w-Layer offset of the Hex-Anode.
+       */
+      scalefactorcalibratorPtr_t _scalefactor_calibrator;
+
     };
 
 //    class MyDetektorHitSorterAchimHex : public MyDetektorHitSorterHex, public MyDetektorHitSorterAchim
