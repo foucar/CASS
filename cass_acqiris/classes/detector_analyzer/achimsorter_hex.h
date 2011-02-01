@@ -31,6 +31,8 @@ namespace cass
      * this class will use achims resort routine to calculate the detectorhits
      * from the signals on the wireends and the mcp.
      *
+     * @todo add a function that will write all the settings to a file.
+     *
      * @author Lutz Foucar
      */
     class CASS_ACQIRISSHARED_EXPORT HexSorter

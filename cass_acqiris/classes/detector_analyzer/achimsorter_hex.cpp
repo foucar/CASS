@@ -67,6 +67,9 @@ HexSorter::HexSorter()
   for (size_t i=0;i<7;++i)
     _achims_sorter->tdc[i] = (double*)(0x1);
 
+  /** @todo the below needs to be intialized at the right position. assuming that
+   *        the variables it uses have been intialized correctly
+   */
   _tsum_calibrator =
       tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_achims_sorter.get(),49));
   _scalefactor_calibrator =
@@ -127,6 +130,8 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _signals.push_back(make_pair(&d.layers()['V'].wireends()['2'],vector<double>()));
   _signals.push_back(make_pair(&d.layers()['W'].wireends()['1'],vector<double>()));
   _signals.push_back(make_pair(&d.layers()['W'].wireends()['2'],vector<double>()));
+
+  /** @todo add the loading of the settings, make sure they are documented. */
 
   //	fAs->use_sum_correction					= static_cast<bool>(di.GetNbrSumUCorrPoints);
   //	//set the variables that we get from the detektor//
