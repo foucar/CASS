@@ -193,6 +193,8 @@ LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                       -lgsoap++ -lgsoap
+LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c
+
 
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {

@@ -12,7 +12,7 @@
 
 #include "achimsorter_hex.h"
 
-#include "libResort64c/resort64c.h"
+#include "resorter/resort64c.h"
 
 using namespace cass::ACQIRIS;
 using namespace std;
@@ -71,6 +71,7 @@ HexSorter::HexSorter()
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
 {
   for_each(_signals.begin(),_signals.end(),AchimHex::extactTimes);
+  //assign the tdc arrays and copy the number of found signals
   for (size_t i(0); i<7;++i)
   {
     if (!_signals[i].second.empty())
