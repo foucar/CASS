@@ -71,7 +71,7 @@ namespace cass
       std::vector<std::pair<SignalProducer*,std::vector<double> > > _signals;
 
       /** the instance of Achims routine */
-      std::tr1::shared_ptr<sort_class> _achims_sorter;
+      std::tr1::shared_ptr<sort_class> _sorter;
 
       /** counter array for achims routine
        *

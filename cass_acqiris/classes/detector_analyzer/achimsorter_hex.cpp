@@ -48,37 +48,37 @@ namespace cass
 
 HexSorter::HexSorter()
   :DetectorAnalyzerBackend(),
-   _achims_sorter(new sort_class()),
+   _sorter(new sort_class()),
    _count(7)
 {
-  _achims_sorter->Cmcp = 0;
-  _achims_sorter->Cu1  = 1;
-  _achims_sorter->Cu2  = 2;
-  _achims_sorter->Cv1  = 3;
-  _achims_sorter->Cv2  = 4;
-  _achims_sorter->Cw1  = 5;
-  _achims_sorter->Cw2  = 6;
-  _achims_sorter->count = &_count.front();
-  _achims_sorter->TDC_resolution_ns = 0.1;
-  _achims_sorter->tdc_array_row_length = 1000;
-  _achims_sorter->dont_overwrite_original_data = true;
-  _achims_sorter->use_pos_correction = false;
+  _sorter->Cmcp = 0;
+  _sorter->Cu1  = 1;
+  _sorter->Cu2  = 2;
+  _sorter->Cv1  = 3;
+  _sorter->Cv2  = 4;
+  _sorter->Cw1  = 5;
+  _sorter->Cw2  = 6;
+  _sorter->count = &_count.front();
+  _sorter->TDC_resolution_ns = 0.1;
+  _sorter->tdc_array_row_length = 1000;
+  _sorter->dont_overwrite_original_data = true;
+  _sorter->use_pos_correction = false;
   //this is needed to tell achims routine that we care for our own arrays//
   for (size_t i=0;i<7;++i)
-    _achims_sorter->tdc[i] = (double*)(0x1);
+    _sorter->tdc[i] = (double*)(0x1);
 
   /** @todo the below needs to be intialized at the right position. assuming that
    *        the variables it uses have been intialized correctly
    */
   _tsum_calibrator =
-      tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_achims_sorter.get(),49));
+      tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_sorter.get(),49));
   _scalefactor_calibrator =
       scalefactorcalibratorPtr_t(new scalefactors_calibration_class(true,
-                                                                    _achims_sorter->max_runtime*0.78,
+                                                                    _sorter->max_runtime*0.78,
                                                                     0,
-                                                                    _achims_sorter->fu,
-                                                                    _achims_sorter->fv,
-                                                                    _achims_sorter->fw));
+                                                                    _sorter->fu,
+                                                                    _sorter->fv,
+                                                                    _sorter->fw));
 
 }
 
@@ -89,24 +89,24 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
   for (size_t i(0); i<7;++i)
   {
     if (!_signals[i].second.empty())
-      _achims_sorter->tdc[i]  = &_signals[i].second.front();
+      _sorter->tdc[i]  = &_signals[i].second.front();
     _count[i] = _signals[i].second.size();
   }
   // shift all time sums to zero
-  _achims_sorter->shift_sums(-1,_timesums[0],_timesums[1],_timesums[2]);
+  _sorter->shift_sums(-1,_timesums[0],_timesums[1],_timesums[2]);
   // shift layer w so that all center lines of the layers meet in one point
-  _achims_sorter->shift_layer_w(+1,_wLayerOffset);
+  _sorter->shift_layer_w(+1,_wLayerOffset);
   // shift all layers so that the position picture is centered around X=zero,Y=zero
-  _achims_sorter->shift_position_origin(-1,_center.first,_center.second);
-  int32_t nbrOfRecHits = _achims_sorter->sort();
+  _sorter->shift_position_origin(-1,_center.first,_center.second);
+  int32_t nbrOfRecHits = _sorter->sort();
   //copy the reconstructed hits to our dethits//
   for (int i(0);i<nbrOfRecHits;++i)
   {
     detectorHit_t hit;
-    hit["x"] = _achims_sorter->output_hit_array[i]->x;
-    hit["y"] = _achims_sorter->output_hit_array[i]->y;
-    hit["t"] = _achims_sorter->output_hit_array[i]->time;
-    hit["method"] = _achims_sorter->output_hit_array[i]->method;
+    hit["x"] = _sorter->output_hit_array[i]->x;
+    hit["y"] = _sorter->output_hit_array[i]->y;
+    hit["t"] = _sorter->output_hit_array[i]->time;
+    hit["method"] = _sorter->output_hit_array[i]->method;
     hits.push_back(hit);
   }
 
