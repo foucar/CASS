@@ -38,6 +38,7 @@ SOURCES += ./acqiris_converter.cpp \
     ./classes/detector_analyzer/detector_analyzer_backend.cpp \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.cpp \
     ./classes/detector_analyzer/delayline_non_sorting.cpp\
+    ./classes/detector_analyzer/achimcalibrator_hex.cpp \
     ./classes/momenta_calculators/momenta_calculator.cpp \
     ./classes/momenta_calculators/spectrometer.cpp
 HEADERS += ./acqiris_converter.h \
