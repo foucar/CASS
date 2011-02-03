@@ -66,20 +66,6 @@ HexSorter::HexSorter()
   //this is needed to tell achims routine that we care for our own arrays//
   for (size_t i=0;i<7;++i)
     _sorter->tdc[i] = (double*)(0x1);
-
-  /** @todo the below needs to be intialized at the right position. assuming that
-   *        the variables it uses have been intialized correctly
-   */
-  _tsum_calibrator =
-      tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_sorter.get(),49));
-  _scalefactor_calibrator =
-      scalefactorcalibratorPtr_t(new scalefactors_calibration_class(true,
-                                                                    _sorter->max_runtime*0.78,
-                                                                    0,
-                                                                    _sorter->fu,
-                                                                    _sorter->fv,
-                                                                    _sorter->fw));
-
 }
 
 detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
