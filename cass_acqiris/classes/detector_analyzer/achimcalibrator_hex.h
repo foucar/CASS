@@ -76,9 +76,6 @@ namespace cass
       /** singleton mutex */
       static QMutex _mutex;
 
-      /** the instance of Achims routine */
-      std::tr1::shared_ptr<sort_class> _sorter;
-
       /** the time sum calibrator
        *
        * this will take the timesum and after a while it knows how to correct

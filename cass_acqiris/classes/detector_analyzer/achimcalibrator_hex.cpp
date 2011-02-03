@@ -31,9 +31,11 @@ HexCalibrator::shared_pointer HexCalibrator::instance()
 // ========================================================
 
 
+/** @todo make sure that the given standart parameters are ok */
 HexCalibrator::HexCalibrator()
   :DetectorAnalyzerBackend(),
-   _sorter(new sort_class())
+   _tsum_calibrator(new sum_walk_calibration_class(49,true,150,0.1)),
+   _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1))
 {
 //  /** @todo the below needs to be intialized at the right position. assuming that
 //   *        the variables it uses have been intialized correctly
@@ -51,6 +53,32 @@ HexCalibrator::HexCalibrator()
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
 {
+  //	const double tsU = d.GetTsu();
+  //	const double tsV = d.GetTsv();
+  //	const double tsW = d.GetTsw();
+  //
+  //	const double u1 = (u1d.size())?u1d[0]:0;
+  //	const double u2 = (u2d.size())?u2d[0]:0;
+  //	const double v1 = (v1d.size())?v1d[0]:0;
+  //	const double v2 = (v2d.size())?v2d[0]:0;
+  //	const double w1 = (w1d.size())?w1d[0]:0;
+  //	const double w2 = (w2d.size())?w2d[0]:0;
+  //	const double mcp = (mcpd.size())?mcpd[0]:0;
+  //
+  //	const double u_ns = u1-u2;
+  //	const double v_ns = v1-v2;
+  //	const double w_ns = w1-w2;
+  //
+  //	const bool csu = (TMath::Abs( u1+u2-2.*mcp) < 10) && u1d.size() && u2d.size() && mcpd.size();
+  //	const bool csv = (TMath::Abs( v1+v2-2.*mcp) < 10) && v1d.size() && v2d.size() && mcpd.size();
+  //	const bool csw = (TMath::Abs( w1+w2-2.*mcp) < 10) && w1d.size() && w2d.size() && mcpd.size();
+  //
+  //	if (csu && csv && csw)
+  //	{
+  //		fSfc->feed_calibration_data(u_ns,v_ns,w_ns,w_ns-d.GetWOffset());
+  //		rm.fill2d(fHiOff+kNonLinearityMap, fSfc->binx,fSfc->biny, fSfc->detector_map_fill);
+  //	}
+  //	fSwc->fill_sum_histograms();
   return hits;
 }
 
