@@ -13,6 +13,7 @@
 #include "achimsorter_hex.h"
 
 #include "resorter/resort64c.h"
+#include "cass_settings.h"
 
 using namespace cass::ACQIRIS;
 using namespace std;
@@ -31,7 +32,8 @@ namespace cass
        * @param _signal container for tdc like array mapped to the corrosponding
        *                signalproducer.
        *
-       * @author Lutz Foucar
+       * @author Lutz Foucar  CASSSettings s;
+
        */
       void extactTimes(pair<SignalProducer*,vector<double> > & thePair)
       {
@@ -63,6 +65,9 @@ HexSorter::HexSorter()
   _sorter->tdc_array_row_length = 1000;
   _sorter->dont_overwrite_original_data = true;
   _sorter->use_pos_correction = false;
+  _sorter->common_start_mode = true;
+  _sorter->use_HEX = true;
+
   //this is needed to tell achims routine that we care for our own arrays//
   for (size_t i=0;i<7;++i)
     _sorter->tdc[i] = (double*)(0x1);
@@ -79,11 +84,11 @@ detectorHits_t& HexSorter::operator()(detectorHits_t &hits)
     _count[i] = _signals[i].second.size();
   }
   // shift all time sums to zero
-  _sorter->shift_sums(-1,_timesums[0],_timesums[1],_timesums[2]);
+  _sorter->shift_sums(+1,_timesums[0],_timesums[1],_timesums[2]);
   // shift layer w so that all center lines of the layers meet in one point
   _sorter->shift_layer_w(+1,_wLayerOffset);
   // shift all layers so that the position picture is centered around X=zero,Y=zero
-  _sorter->shift_position_origin(-1,_center.first,_center.second);
+  _sorter->shift_position_origin(+1,_center.first,_center.second);
   int32_t nbrOfRecHits = _sorter->sort();
   //copy the reconstructed hits to our dethits//
   for (int i(0);i<nbrOfRecHits;++i)
@@ -119,46 +124,68 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
 
   /** @todo add the loading of the settings, make sure they are documented. */
 
-  //	fAs->use_sum_correction					= static_cast<bool>(di.GetNbrSumUCorrPoints);
-  //	//set the variables that we get from the detektor//
-  //	fAs->uncorrected_time_sum_half_width_u	= di.GetTsuWidth();
-  //	fAs->uncorrected_time_sum_half_width_v	= di.GetTsvWidth();
-  //	fAs->uncorrected_time_sum_half_width_w	= di.GetTswWidth();
-  //	fAs->fu									= di.GetSfU();
-  //	fAs->fv									= di.GetSfV();
-  //	fAs->fw									= di.GetSfW();
-  //	fAs->max_runtime						= di.GetRunTime();
-  //	fAs->dead_time_anode					= di.GetDeadTimeAnode();
-  //	fAs->dead_time_mcp						= di.GetDeadTimeMCP();
-  //	fAs->MCP_radius							= di.GetMCPRadius();
-  //	fAs->use_HEX							= di.IsHexAnode();
-  //	fAs->use_MCP							= di.UseMCP();
-  //	//set the sum walk correction points, Achims Routine will internaly find out how many we gave it//
-  //	for (int i=0;i<di.GetNbrSumUCorrPoints();++i)
-  //		fAs->sum_corrector_U->set_point(di.GetUCorrPos(i),di.GetUCorrCorr(i));
-  //
-  //	for (int i=0;i<di.GetNbrSumVCorrPoints();++i)
-  //		fAs->sum_corrector_V->set_point(di.GetVCorrPos(i),di.GetVCorrCorr(i));
-  //
-  //	for (int i=0;i<di.GetNbrSumWCorrPoints();++i)
-  //		fAs->sum_corrector_W->set_point(di.GetWCorrPos(i),di.GetWCorrCorr(i));
-  //
-  //	//init() must be called only once
-  //	int error_code = fAs->init();
-  //	if (error_code != 0)
-  //	{
-  //		char error_text[500];
-  //		fAs->get_error_text(error_code,500,error_text);
-  //		std::cout << "Achims Sorter: "<<error_text<<std::endl;
-  //		exit(1);
-  //	}
-  //	else
-  //	{
-  //		fAlreadyInitialized=true;
-  //		fSwc = sum_walk_calibration_class::new_sum_walk_calibration_class(fAs,49);
-  //		fSfc = new scalefactors_calibration_class(true,fAs->max_runtime*0.78,fAs->fu,fAs->fv,fAs->fw);
-  //	}
+  s.beginGroup("HexSorting");
+  _sorter->uncorrected_time_sum_half_width_u = s.value("TimeSumUWidth",0).toDouble();
+  _sorter->uncorrected_time_sum_half_width_v = s.value("TimeSumVWidth",0).toDouble();
+  _sorter->uncorrected_time_sum_half_width_w = s.value("TimeSumWWidth",0).toDouble();
+  _sorter->max_runtime = s.value("MaxRuntime",130).toDouble();
+  _sorter->dead_time_anode = s.value("DeadTimeAnode",20).toDouble();
+  _sorter->dead_time_mcp = s.value("DeadTimeMCP",20).toDouble();
+  _sorter->MCP_radius = s.value("MCPRadius",130).toDouble();
+  _sorter->use_MCP = s.value("UseMCP",true).toBool();
+  _sorter->fu = s.value("ScalefactorU",true).toDouble();
 
+  //the following settings can be retrieved from the calibration file
+  string settingsfilename (s.value("SettingsFilename").toString().toStdString());
+  QSettings hexsettings(QString::fromStdString(settingsfilename),QSettings::defaultFormat());
+  hexsettings.beginGroup(s.group());
+  _sorter->fv = hexsettings.value("ScalefactorV",true).toDouble();
+  _sorter->fw = hexsettings.value("ScalefactorW",true).toDouble();
+  int size = hexsettings.beginReadArray("SumUCorrectionPoints");
+  _sorter->use_sum_correction = static_cast<bool>(size);
+  for (int i = 0; i< size; ++i)
+  {
+    hexsettings.setArrayIndex(i);
+    _sorter->
+        signal_corrector->
+        sum_corrector_U->
+        set_point(hexsettings.value("Position").toDouble(),
+                  hexsettings.value("Correction").toDouble());
+  }
+  hexsettings.endArray();
+  size = hexsettings.beginReadArray("SumVCorrectionPoints");
+  for (int i = 0; i < size; ++i)
+  {
+    hexsettings.setArrayIndex(i);
+    _sorter->
+        signal_corrector->
+        sum_corrector_V->
+        set_point(hexsettings.value("Position").toDouble(),
+                  hexsettings.value("Correction").toDouble());
+  }
+  hexsettings.endArray();
+  size = hexsettings.beginReadArray("SumWCorrectionPoints");
+  for (int i = 0; i < size; ++i)
+  {
+    hexsettings.setArrayIndex(i);
+    _sorter->
+        signal_corrector->
+        sum_corrector_W->
+        set_point(hexsettings.value("Position").toDouble(),
+                  hexsettings.value("Correction").toDouble());
+  }
+  hexsettings.endArray();
+
+  int error_code = _sorter->init_after_setting_parameters();
+  if (error_code != 0)
+  {
+    char error_text[500];
+    _sorter->get_error_text(error_code,500,error_text);
+    stringstream ss;
+    ss <<"HexSorter::loadSettings: Error '"<<error_code
+        <<"' while trying to initialize the sorter: '"<< error_text<<"'";
+    throw invalid_argument(ss.str());
+  }
 }
 
 
