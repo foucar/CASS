@@ -62,7 +62,17 @@ namespace cass
       void loadSettings(CASSSettings &s, DelaylineDetector &d);
 
     private:
-      /** container for tdc like arrays mapped to the corrosponding signalproducer */
+      /** container for tdc like arrays mapped to the corrosponding signalproducer
+       *
+       * the order in the vector is as follows:
+       * - 0: mcp
+       * - 1: u1
+       * - 2: u2
+       * - 3: v1
+       * - 4: v2
+       * - 5: w1
+       * - 6: w2
+       */
       std::vector<std::pair<SignalProducer*,std::vector<double> > > _signals;
 
       /** the instance of Achims routine */
@@ -70,12 +80,18 @@ namespace cass
 
       /** counter array for achims routine
        *
-       * this is used so that the routine knows how many singals are in each
+       * this is used so that the routine knows how many signals are in each
        * array
        */
       std::vector<int32_t> _count;
 
-      /** the timesums */
+      /** the timesums
+       *
+       * the timesums in this containers are layed out as follows:
+       * - 0: u layer
+       * - 1: v layer
+       * - 2: w layer
+       */
       std::vector<double> _timesums;
 
       /** the center of the detector */
