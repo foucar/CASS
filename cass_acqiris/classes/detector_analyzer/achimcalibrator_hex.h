@@ -13,6 +13,7 @@
 #include <tr1/memory>
 
 #include <QtCore/QMutex>
+#include <QtCore/QString>
 
 #include "delayline_detector_analyzer_backend.h"
 #include "delayline_detector.h"
@@ -47,6 +48,15 @@ namespace cass
        * this won't extract the detector hits but rather just fill the
        * calibrators with the values that they expect.
        *
+       * In order to fill the scalefactor calibrator with only points that are
+       * meaningful we check first the time sum for the hit we want to include.
+       *
+       * After we filled we check whether we can already output the calibration
+       * data. We have enough when either we are told so or when the ratio is
+       * better than what the user set as limit. If so, create the a QSettings
+       * object that handles the ini file that will contain the calibration data.
+       * Extract the name of the .ini file from the settings for this calibrator.
+       *
        * @return reference to the hit container
        * @param hits the hitcontainer
        */
@@ -55,7 +65,8 @@ namespace cass
       /** load the detector analyzers settings from .ini file
        *
        * retrieve all necessary information to be able to calibrate the timesum
-       * and the scalefactors
+       * and the scalefactors. Next to this remember the the groupname of the
+       * settings object, so that we later can use it to extract information
        *
        * @param s the CASSSetting object
        * @param d the detector object that we are belonging to
@@ -90,6 +101,40 @@ namespace cass
        */
       std::tr1::shared_ptr<scalefactors_calibration_class>  _scalefactor_calibrator;
 
+      /** the timesums and their width
+       *
+       * the order is as follows (first is always timesum and second
+       * the timesumwidth):
+       * - 0: u layer
+       * - 1: v layer
+       * - 2: w layer
+       */
+      std::vector<std::pair<double,double> > _timesums;
+
+      /** the w-layer offset */
+      double _wLayerOffset;
+
+      /** the signal producers of the hex detector in a vector
+       *
+       * the order is as follows:
+       * - 0: mcp
+       * - 1: u1
+       * - 2: u2
+       * - 3: v1
+       * - 4: v2
+       * - 5: w1
+       * - 6: w2
+       */
+      std::vector<SignalProducer*> _sigprod;
+
+      /** the ratio to check whether the calibration can be started */
+      double _ratio;
+
+      /** the group name of the cass settings for this calibrator */
+      QString _groupname;
+
+      /** the .ini filename for the sorting information */
+      std::string _calibrationFilename;
     };
 
   }

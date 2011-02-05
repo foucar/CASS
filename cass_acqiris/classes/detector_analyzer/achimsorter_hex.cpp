@@ -51,7 +51,8 @@ namespace cass
 HexSorter::HexSorter()
   :DetectorAnalyzerBackend(),
    _sorter(new sort_class()),
-   _count(7)
+   _count(7,0),
+   _timesums(3,0)
 {
   _sorter->Cmcp = 0;
   _sorter->Cu1  = 1;
@@ -110,10 +111,10 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   {
     stringstream ss;
     ss << "HexSorter::loadSettings: Error The Hex-Sorter cannot work on '"<<d.name()
-        << "' which is a Quad Detector.";
+        << "' which is not a Hex Detector.";
     throw invalid_argument(ss.str());
   }
-  _signals.resize(7);
+  _signals.clear();
   _signals.push_back(make_pair(&d.mcp(),vector<double>()));
   _signals.push_back(make_pair(&d.layers()['U'].wireends()['1'],vector<double>()));
   _signals.push_back(make_pair(&d.layers()['U'].wireends()['2'],vector<double>()));
@@ -128,6 +129,10 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _sorter->uncorrected_time_sum_half_width_u = s.value("TimeSumUWidth",0).toDouble();
   _sorter->uncorrected_time_sum_half_width_v = s.value("TimeSumVWidth",0).toDouble();
   _sorter->uncorrected_time_sum_half_width_w = s.value("TimeSumWWidth",0).toDouble();
+  _timesums[0] = s.value("TimeSumU",100).toDouble();
+  _timesums[1] = s.value("TimeSumV",100).toDouble();
+  _timesums[2] = s.value("TimeSumW",100).toDouble();
+  _wLayerOffset = s.value("WLayerOffset",0).toDouble();
   _sorter->max_runtime = s.value("MaxRuntime",130).toDouble();
   _sorter->dead_time_anode = s.value("DeadTimeAnode",20).toDouble();
   _sorter->dead_time_mcp = s.value("DeadTimeMCP",20).toDouble();
@@ -137,7 +142,9 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
 
   //the following settings can be retrieved from the calibration file
   string settingsfilename (s.value("SettingsFilename").toString().toStdString());
-  QSettings hexsettings(QString::fromStdString(settingsfilename),QSettings::defaultFormat());
+  QSettings hexsettings(QString::fromStdString(settingsfilename),
+                        QSettings::defaultFormat());
+  /** @todo check whether one can set the goup this way */
   hexsettings.beginGroup(s.group());
   _sorter->fv = hexsettings.value("ScalefactorV",true).toDouble();
   _sorter->fw = hexsettings.value("ScalefactorW",true).toDouble();
