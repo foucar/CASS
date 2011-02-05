@@ -178,7 +178,6 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
   }
   /** @note How does the timesum calibrator know where the data is? */
   _tsum_calibrator->fill_sum_histograms();
-
   if (_scalefactor_calibrator->map_is_full_enough() ||
       _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
   {
@@ -200,6 +199,14 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
         << "' which is not a Hex Detector.";
     throw invalid_argument(ss.str());
   }
+  _sigprod.clear();
+  _sigprod.push_back(&d.mcp());
+  _sigprod.push_back(&d.layers()['U'].wireends()['1']);
+  _sigprod.push_back(&d.layers()['U'].wireends()['2']);
+  _sigprod.push_back(&d.layers()['V'].wireends()['1']);
+  _sigprod.push_back(&d.layers()['V'].wireends()['2']);
+  _sigprod.push_back(&d.layers()['W'].wireends()['1']);
+  _sigprod.push_back(&d.layers()['W'].wireends()['2']);
   s.beginGroup("HexSorting");
   _groupname = s.group();
   _timesums[0] = make_pair(s.value("TimeSumU",100).toDouble(),
