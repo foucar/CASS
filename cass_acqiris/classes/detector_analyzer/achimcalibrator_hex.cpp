@@ -158,11 +158,16 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
   const double v2 (_sigprod[4]->firstGood());
   const double w1 (_sigprod[5]->firstGood());
   const double w2 (_sigprod[6]->firstGood());
-
+  /** @note does this have to be shifted, so that the calibrators can work with
+   *        it? If so, how can they be shifted. do we need a sorter_class object
+   *        just for this purpose?
+   */
   const double u_ns (u1-u2);
   const double v_ns (v1-v2);
   const double w_ns (w1-w2);
-
+  /** @note when the values are shifted the below is wrong, because the timesum
+   *        will peak around 0.
+   */
   const bool csu ((abs(u1+u2-2.*mcp-_timesums[0].first) < _timesums[0].second));
   const bool csv ((abs(v1+v2-2.*mcp-_timesums[1].first) < _timesums[1].second));
   const bool csw ((abs(w1+w2-2.*mcp-_timesums[2].first) < _timesums[2].second));
@@ -171,6 +176,7 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
   {
     _scalefactor_calibrator->feed_calibration_data(u_ns,v_ns,w_ns,w_ns-_wLayerOffset);
   }
+  /** @note How does the timesum calibrator know where the data is? */
   _tsum_calibrator->fill_sum_histograms();
 
   if (_scalefactor_calibrator->map_is_full_enough() ||
