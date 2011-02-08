@@ -41,21 +41,15 @@ namespace cass
        */
       void writeProfileData(QSettings &s, profile_class& profile)
       {
-//        tsum_calibrator->generate_sum_walk_profiles();
-//        if (tsum_calibrator->sumu_profile)
+        const int size (profile.number_of_columns);
+        for (int i = 0; i < size; ++i)
         {
-          s.beginWriteArray("SumUCorrectionPoints");
-          const int size (profile.number_of_columns);
-          for (int i = 0; i < size; ++i)
-          {
-            s.setArrayIndex(i);
-            const double pos
-                (profile.get_bin_center_x(static_cast<double>(i)));
-            const double cor (profile.get_y(i));
-            s.setValue("Position",pos );
-            s.setValue("Correction",cor );
-          }
-          s.endArray();
+          s.setArrayIndex(i);
+          const double pos
+              (profile.get_bin_center_x(static_cast<double>(i)));
+          const double cor (profile.get_y(i));
+          s.setValue("Position",pos );
+          s.setValue("Correction",cor );
         }
       }
 
@@ -108,6 +102,84 @@ namespace cass
         s.setValue("ScalefactorW",scalefactor_calibrator->best_fw);
         s.setValue("WLayerOffset",scalefactor_calibrator->best_w_offset);
       }
+
+      /** shift the values so that the timesum peaks around 0
+       *
+       * @param
+       *
+       * @author Achim Czasch
+       * @author Lutz Foucar
+       */
+      void shift_sum(vector<double> &values, const vector<pair<double,double> > &sums)
+      {
+//        dpOSumu *= direction*0.5;
+//        dpOSumv *= direction*0.5;
+//        for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + dpOSumu;
+//        for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] + dpOSumu;
+//        for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + dpOSumv;
+//        for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] + dpOSumv;
+//        if (this->use_HEX) {
+//            dpOSumw *= direction*0.5;
+//            for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + dpOSumw;
+//            for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] + dpOSumw;
+//        }
+      }
+
+      /** shift the position
+       *
+       * when the image is not centered around 0 one can use this function to
+       * shift it to 0
+       *
+       * @param
+       *
+       * @author Achim Czasch
+       * @author Lutz Foucar
+       */
+      void shift_pos(vector<double> &layer, const pair<double,double> &center)
+      {
+//        __int32 i;
+//        double offs_u,offs_v,offs_w;
+//
+//        if (this->use_HEX) {
+//            offs_u = 0.50*(dpCOx_pos)                  /this->fu;
+//            offs_v = 0.25*(dpCOx_pos - dpCOy_pos*SQRT3)/this->fv;
+//            offs_w = 0.25*(dpCOx_pos + dpCOy_pos*SQRT3)/this->fw;
+//
+//            for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + direction*offs_u;
+//            for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] - direction*offs_u;
+//            for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + direction*offs_v;
+//            for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] - direction*offs_v;
+//            for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + direction*offs_w;
+//            for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] - direction*offs_w;
+//        } else {
+//            offs_u = 0.5 * dpCOx_pos / this->fu;
+//            offs_v = 0.5 * dpCOy_pos / this->fv;
+//
+//            for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + direction*offs_u;
+//            for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] - direction*offs_u;
+//            for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + direction*offs_v;
+//            for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] - direction*offs_v;
+//        }
+      }
+
+      /** shift the w-layer
+       *
+       * use this function to align the w-layer to the u and v layer.
+       *
+       * @param
+       *
+       * @author Achim Czasch
+       * @author Lutz Foucar
+       */
+      void shift_wLayer(double &w1, double &w2, const double w_offset)
+      {
+//        __int32 i;
+//         if (this->use_HEX) {
+//             w_offset *= direction*0.5;
+//             for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + w_offset;
+//             for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] - w_offset;
+//         }
+      }
     }
   }
 }
@@ -131,6 +203,9 @@ HexCalibrator::shared_pointer HexCalibrator::instance()
 HexCalibrator::HexCalibrator()
   :DetectorAnalyzerBackend(),
    _tsum_calibrator(new sum_walk_calibration_class(49,true,150,0.1)),
+   /** @note can one put these parameters here and later set them with the right
+    *        information?
+    */
    _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1)),
    _timesums(3,make_pair(0,0))
 
@@ -151,33 +226,35 @@ HexCalibrator::HexCalibrator()
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
 {
-  const double mcp (_sigprod[0]->firstGood());
-  const double u1 (_sigprod[1]->firstGood());
-  const double u2 (_sigprod[2]->firstGood());
-  const double v1 (_sigprod[3]->firstGood());
-  const double v2 (_sigprod[4]->firstGood());
-  const double w1 (_sigprod[5]->firstGood());
-  const double w2 (_sigprod[6]->firstGood());
-  /** @note does this have to be shifted, so that the calibrators can work with
-   *        it? If so, how can they be shifted. do we need a sorter_class object
-   *        just for this purpose?
-   */
-  const double u_ns (u1-u2);
-  const double v_ns (v1-v2);
-  const double w_ns (w1-w2);
-  /** @note when the values are shifted the below is wrong, because the timesum
-   *        will peak around 0.
-   */
-  const bool csu ((abs(u1+u2-2.*mcp-_timesums[0].first) < _timesums[0].second));
-  const bool csv ((abs(v1+v2-2.*mcp-_timesums[1].first) < _timesums[1].second));
-  const bool csw ((abs(w1+w2-2.*mcp-_timesums[2].first) < _timesums[2].second));
+  vector<double> values;
+  vector<SignalProducer*>::iterator it(_sigprod.begin());
+  for (; it != _sigprod.end(); ++it)
+    values.push_back((*it)->firstGood());
+  vector<double> layer(3);
+  for (size_t i(0); i < 3 ; ++i)
+    layer[i] = values[i*2+1] - values[i*2+2];
+  vector<bool> layerChecksum(3);
+  for (size_t i(0); i < 3 ; ++i)
+    layerChecksum[i] =
+        abs(values[i*2+1]+values[i*2+2]-2.*values[mcp]) < _timesums[i].second;
 
-  if (csu && csv && csw)
-  {
-    _scalefactor_calibrator->feed_calibration_data(u_ns,v_ns,w_ns,w_ns-_wLayerOffset);
-  }
-  /** @note How does the timesum calibrator know where the data is? */
-  _tsum_calibrator->fill_sum_histograms();
+  AchimCalibrator::shift_sum(values,_timesums);
+  AchimCalibrator::shift_pos(layer,_center);
+  AchimCalibrator::shift_wLayer(values[w1],values[w2],_wLayerOffset);
+
+  if (layerChecksum[u] && layerChecksum[u] && layerChecksum[u])
+    _scalefactor_calibrator->feed_calibration_data(layer[u],
+                                                   layer[v],
+                                                   layer[w],
+                                                   layer[w]-_wLayerOffset);
+  _tsum_calibrator->fill_sum_histograms(values[u1],
+                                        values[u2],
+                                        values[v1],
+                                        values[v2],
+                                        values[w1],
+                                        values[w2],
+                                        values[mcp]);
+
   if (_scalefactor_calibrator->map_is_full_enough() ||
       _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
   {

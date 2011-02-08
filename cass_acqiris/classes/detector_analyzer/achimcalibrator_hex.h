@@ -11,6 +11,8 @@
 #define _ACHIMCALIBRATOR_HEX_H_
 
 #include <tr1/memory>
+#include <vector>
+#include <utility>
 
 #include <QtCore/QMutex>
 #include <QtCore/QString>
@@ -39,6 +41,10 @@ namespace cass
     public:
       /** typedef of this instance */
       typedef std::tr1::shared_ptr<HexCalibrator> shared_pointer;
+
+      /** enum for accessing the vectors */
+      enum {mcp, u1, u2, v1, v2, w1, w2};
+      enum {u, v, w};
 
       /** return our singleton instance */
       static shared_pointer instance();
@@ -135,6 +141,9 @@ namespace cass
 
       /** the .ini filename for the sorting information */
       std::string _calibrationFilename;
+
+      /** the center of the image */
+      std::pair<double,double> _center;
     };
 
   }
