@@ -292,6 +292,8 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
                            s.value("TimeSumVWidth",0).toDouble());
   _timesums[2] = make_pair(s.value("TimeSumW",100).toDouble(),
                            s.value("TimeSumWWidth",0).toDouble());
+  _center = make_pair(s.value("CenterX",0).toDouble(),
+                      s.value("CenterY",0).toDouble());
   _calibrationFilename = s.value("SettingsFilename").toString().toStdString();
   QSettings hexsettings(QString::fromStdString(_calibrationFilename),
                         QSettings::defaultFormat());

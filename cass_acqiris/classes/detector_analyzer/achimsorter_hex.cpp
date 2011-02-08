@@ -139,6 +139,9 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _sorter->MCP_radius = s.value("MCPRadius",130).toDouble();
   _sorter->use_MCP = s.value("UseMCP",true).toBool();
   _sorter->fu = s.value("ScalefactorU",true).toDouble();
+  _center = make_pair(s.value("CenterX",0).toDouble(),
+                      s.value("CenterY",0).toDouble());
+
 
   //the following settings can be retrieved from the calibration file
   string settingsfilename (s.value("SettingsFilename").toString().toStdString());
