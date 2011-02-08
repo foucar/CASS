@@ -105,24 +105,23 @@ namespace cass
 
       /** shift the values so that the timesum peaks around 0
        *
-       * @param
+       * @param values The values that need to be shifted
+       * @param sums The sums that they need to be shifted by
        *
        * @author Achim Czasch
        * @author Lutz Foucar
        */
       void shift_sum(vector<double> &values, const vector<pair<double,double> > &sums)
       {
-//        dpOSumu *= direction*0.5;
-//        dpOSumv *= direction*0.5;
-//        for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + dpOSumu;
-//        for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] + dpOSumu;
-//        for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + dpOSumv;
-//        for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] + dpOSumv;
-//        if (this->use_HEX) {
-//            dpOSumw *= direction*0.5;
-//            for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + dpOSumw;
-//            for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] + dpOSumw;
-//        }
+        const double dpOSumu = sums[HexCalibrator::u].first * 0.5;
+        const double dpOSumv = sums[HexCalibrator::v].first * 0.5;
+        const double dpOSumw = sums[HexCalibrator::w].first * 0.5;
+        values[HexCalibrator::u1] += dpOSumu;
+        values[HexCalibrator::u2] += dpOSumu;
+        values[HexCalibrator::v1] += dpOSumv;
+        values[HexCalibrator::v2] += dpOSumv;
+        values[HexCalibrator::w1] += dpOSumw;
+        values[HexCalibrator::w2] += dpOSumw;
       }
 
       /** shift the position
@@ -208,21 +207,7 @@ HexCalibrator::HexCalibrator()
     */
    _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1)),
    _timesums(3,make_pair(0,0))
-
-{
-//  /** @todo the below needs to be intialized at the right position. assuming that
-//   *        the variables it uses have been intialized correctly
-//   */
-//  _tsum_calibrator =
-//      tsumcalibratorPtr_t(sum_walk_calibration_class::new_sum_walk_calibration_class(_sorter.get(),49));
-//  _scalefactor_calibrator =
-//      scalefactorcalibratorPtr_t(new scalefactors_calibration_class(true,
-//                                                                    _sorter->max_runtime*0.78,
-//                                                                    0,
-//                                                                    _sorter->fu,
-//                                                                    _sorter->fv,
-//                                                                    _sorter->fw));
-}
+{}
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
 {
