@@ -108,7 +108,7 @@ namespace cass
        * this is a class that will help finding the scalefactor and the
        * w-Layer offset of the Hex-Anode.
        */
-      std::tr1::shared_ptr<scalefactors_calibration_class>  _scalefactor_calibrator;
+      std::tr1::shared_ptr<scalefactors_calibration_class> _scalefactor_calibrator;
 
       /** the timesums and their width
        *

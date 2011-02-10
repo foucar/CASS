@@ -200,7 +200,8 @@ HexCalibrator::HexCalibrator()
     *        information?
     */
    _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1)),
-   _timesums(3,make_pair(0,0))
+   _timesums(3,make_pair(0,0)),
+   _sigprod(7)
 {}
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
@@ -255,21 +256,21 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
         << "' which is not a Hex Detector.";
     throw invalid_argument(ss.str());
   }
-  _sigprod.clear();
-  _sigprod.push_back(&d.mcp());
-  _sigprod.push_back(&d.layers()['U'].wireends()['1']);
-  _sigprod.push_back(&d.layers()['U'].wireends()['2']);
-  _sigprod.push_back(&d.layers()['V'].wireends()['1']);
-  _sigprod.push_back(&d.layers()['V'].wireends()['2']);
-  _sigprod.push_back(&d.layers()['W'].wireends()['1']);
-  _sigprod.push_back(&d.layers()['W'].wireends()['2']);
+  assert(_sigprod.size() == 7);
+  _sigprod[mcp] = &d.mcp();
+  _sigprod[u1] = &d.layers()['U'].wireends()['1'];
+  _sigprod[u2] = &d.layers()['U'].wireends()['2'];
+  _sigprod[v1] = &d.layers()['V'].wireends()['1'];
+  _sigprod[v2] = &d.layers()['V'].wireends()['2'];
+  _sigprod[w1] = &d.layers()['W'].wireends()['1'];
+  _sigprod[w2] = &d.layers()['W'].wireends()['2'];
   s.beginGroup("HexSorting");
   _groupname = s.group();
-  _timesums[0] = make_pair(s.value("TimeSumU",100).toDouble(),
+  _timesums[u] = make_pair(s.value("TimeSumU",100).toDouble(),
                            s.value("TimeSumUWidth",0).toDouble());
-  _timesums[1] = make_pair(s.value("TimeSumV",100).toDouble(),
+  _timesums[v] = make_pair(s.value("TimeSumV",100).toDouble(),
                            s.value("TimeSumVWidth",0).toDouble());
-  _timesums[2] = make_pair(s.value("TimeSumW",100).toDouble(),
+  _timesums[w] = make_pair(s.value("TimeSumW",100).toDouble(),
                            s.value("TimeSumWWidth",0).toDouble());
   _center = make_pair(s.value("CenterX",0).toDouble(),
                       s.value("CenterY",0).toDouble());
