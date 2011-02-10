@@ -136,29 +136,18 @@ namespace cass
        */
       void shift_pos(vector<double> &layer, const pair<double,double> &center)
       {
-//        __int32 i;
-//        double offs_u,offs_v,offs_w;
-//
-//        if (this->use_HEX) {
-//            offs_u = 0.50*(dpCOx_pos)                  /this->fu;
-//            offs_v = 0.25*(dpCOx_pos - dpCOy_pos*SQRT3)/this->fv;
-//            offs_w = 0.25*(dpCOx_pos + dpCOy_pos*SQRT3)/this->fw;
-//
-//            for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + direction*offs_u;
-//            for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] - direction*offs_u;
-//            for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + direction*offs_v;
-//            for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] - direction*offs_v;
-//            for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + direction*offs_w;
-//            for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] - direction*offs_w;
-//        } else {
-//            offs_u = 0.5 * dpCOx_pos / this->fu;
-//            offs_v = 0.5 * dpCOy_pos / this->fv;
-//
-//            for (i = 0;i < count[Cu1];++i) tdc[_Cu1][i] = tdc[_Cu1][i] + direction*offs_u;
-//            for (i = 0;i < count[Cu2];++i) tdc[_Cu2][i] = tdc[_Cu2][i] - direction*offs_u;
-//            for (i = 0;i < count[Cv1];++i) tdc[_Cv1][i] = tdc[_Cv1][i] + direction*offs_v;
-//            for (i = 0;i < count[Cv2];++i) tdc[_Cv2][i] = tdc[_Cv2][i] - direction*offs_v;
-//        }
+        int direction(1);
+        /** @note the center needs to be in ns */
+        const double offs_u (0.50*center.first);
+        const double offs_v (0.25*(center.first - center.second *sqrt(3)));
+        const double offs_w (0.25*(center.first + center.second *sqrt(3)));
+
+        layer[HexCalibrator::u1] += direction*offs_u;
+        layer[HexCalibrator::u1] -= direction*offs_u;
+        layer[HexCalibrator::v2] += direction*offs_v;
+        layer[HexCalibrator::v2] -= direction*offs_v;
+        layer[HexCalibrator::w1] += direction*offs_w;
+        layer[HexCalibrator::w2] -= direction*offs_w;
       }
 
       /** shift the w-layer
