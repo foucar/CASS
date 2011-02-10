@@ -196,7 +196,7 @@ HexCalibrator::shared_pointer HexCalibrator::instance(const std::string &detecto
 // ========================================================
 
 
-/** @todo make sure that the given standart parameters are ok */
+
 HexCalibrator::HexCalibrator()
   :DetectorAnalyzerBackend(),
    _timesums(3,make_pair(0,0)),
@@ -206,23 +206,30 @@ HexCalibrator::HexCalibrator()
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
 {
-  vector<double> values;
-  vector<SignalProducer*>::iterator it(_sigprod.begin());
-  for (; it != _sigprod.end(); ++it)
-    values.push_back((*it)->firstGood());
+  vector<double> values(7);
+  values[mcp] = _sigprod[mcp]->firstGood();
+  values[u1] = _sigprod[u1]->firstGood();
+  values[u2] = _sigprod[u2]->firstGood();
+  values[v1] = _sigprod[v1]->firstGood();
+  values[v2] = _sigprod[v2]->firstGood();
+  values[w1] = _sigprod[w1]->firstGood();
+  values[w2] = _sigprod[w2]->firstGood();
+
   vector<double> layer(3);
-  for (size_t i(0); i < 3 ; ++i)
-    layer[i] = values[i*2+1] - values[i*2+2];
+  layer[u] = values[u1] - values[u2];
+  layer[v] = values[v1] - values[v2];
+  layer[w] = values[w1] - values[w2];
+
   vector<bool> layerChecksum(3);
-  for (size_t i(0); i < 3 ; ++i)
-    layerChecksum[i] =
-        abs(values[i*2+1]+values[i*2+2]-2.*values[mcp]) < _timesums[i].second;
+  layerChecksum[u] = abs(values[u1]+values[u2]-2.*values[mcp]) < _timesums[u].second;
+  layerChecksum[v] = abs(values[v1]+values[v2]-2.*values[mcp]) < _timesums[v].second;
+  layerChecksum[w] = abs(values[w1]+values[w2]-2.*values[mcp]) < _timesums[w].second;
 
   AchimCalibrator::shift_sum(values,_timesums);
   AchimCalibrator::shift_pos(layer,_center,_scalefactors);
   AchimCalibrator::shift_wLayer(values[w1],values[w2],_wLayerOffset);
 
-  if (layerChecksum[u] && layerChecksum[u] && layerChecksum[u])
+  if (layerChecksum[u] && layerChecksum[v] && layerChecksum[w])
     _scalefactor_calibrator->feed_calibration_data(layer[u],
                                                    layer[v],
                                                    layer[w],
@@ -234,7 +241,9 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
                                         values[w1],
                                         values[w2],
                                         values[mcp]);
-
+  /** write the parameters when we are told that we can or our set threshold is
+   *  reached.
+   */
   if (_scalefactor_calibrator->map_is_full_enough() ||
       _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
   {
@@ -243,6 +252,7 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
     /** @todo check whether one can set the goup this way */
     hexsettings.beginGroup(_groupname);
     AchimCalibrator::writeCalibData(hexsettings,_tsum_calibrator,_scalefactor_calibrator);
+    hexsettings.endGroup();
   }
   return hits;
 }
