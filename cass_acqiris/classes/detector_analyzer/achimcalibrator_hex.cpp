@@ -114,9 +114,10 @@ namespace cass
        */
       void shift_sum(vector<double> &values, const vector<pair<double,double> > &sums)
       {
-        const double dpOSumu = sums[HexCalibrator::u].first * 0.5;
-        const double dpOSumv = sums[HexCalibrator::v].first * 0.5;
-        const double dpOSumw = sums[HexCalibrator::w].first * 0.5;
+        int direction(1);
+        const double dpOSumu = direction*sums[HexCalibrator::u].first * 0.5;
+        const double dpOSumv = direction*sums[HexCalibrator::v].first * 0.5;
+        const double dpOSumw = direction*sums[HexCalibrator::w].first * 0.5;
         values[HexCalibrator::u1] += dpOSumu;
         values[HexCalibrator::u2] += dpOSumu;
         values[HexCalibrator::v1] += dpOSumv;
@@ -170,7 +171,8 @@ namespace cass
        */
       void shift_wLayer(double &w1, double &w2, const double w_offset)
       {
-        const double w_offset_shift = w_offset * 0.5;
+        int direction(1);
+        const double w_offset_shift = direction * w_offset * 0.5;
         w1 += w_offset_shift;
         w2 -= w_offset_shift;
       }
