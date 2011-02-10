@@ -198,11 +198,6 @@ HexCalibrator::shared_pointer HexCalibrator::instance(const std::string &detecto
 /** @todo make sure that the given standart parameters are ok */
 HexCalibrator::HexCalibrator()
   :DetectorAnalyzerBackend(),
-   _tsum_calibrator(new sum_walk_calibration_class(49,true,150,0.1)),
-   /** @note can one put these parameters here and later set them with the right
-    *        information?
-    */
-   _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1)),
    _timesums(3,make_pair(0,0)),
    _sigprod(7),
    _scalefactors(2,1)
@@ -289,4 +284,14 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _scalefactors[v] = hexsettings.value("ScalefactorV",1).toDouble();
   _scalefactors[w] = hexsettings.value("ScalefactorW",1).toDouble();
   s.endGroup();
+  _tsum_calibrator =
+      shared_ptr<sum_walk_calibration_class>(new sum_walk_calibration_class(49,true,_maxRuntime,0.1));
+  _scalefactor_calibrator =
+      shared_ptr<scalefactors_calibration_class>(new scalefactors_calibration_class(true,
+                                                                                    _maxRuntime,
+                                                                                    _maxRuntime*0.78,
+                                                                                    _scalefactors[u],
+                                                                                    _scalefactors[v],
+                                                                                    _scalefactors[w]));
+
 }
