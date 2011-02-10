@@ -129,7 +129,10 @@ namespace cass
        * when the image is not centered around 0 one can use this function to
        * shift it to 0
        *
-       * @param
+       * @note the center needs to be in ns
+       *
+       * @param layer The vector containing all the layers signals
+       * @param center The center of the image in ns
        *
        * @author Achim Czasch
        * @author Lutz Foucar
@@ -137,7 +140,6 @@ namespace cass
       void shift_pos(vector<double> &layer, const pair<double,double> &center)
       {
         int direction(1);
-        /** @note the center needs to be in ns */
         const double offs_u (0.50*center.first);
         const double offs_v (0.25*(center.first - center.second *sqrt(3)));
         const double offs_w (0.25*(center.first + center.second *sqrt(3)));
@@ -154,7 +156,10 @@ namespace cass
        *
        * use this function to align the w-layer to the u and v layer.
        *
-       * @param
+       * @param w1 The first signal on the w-layer
+       * @param w2 The second signal on the w-layer
+       * @param w_offset The offset of the w-layer with respect to the u and v
+       *                 layers
        *
        * @author Achim Czasch
        * @author Lutz Foucar
