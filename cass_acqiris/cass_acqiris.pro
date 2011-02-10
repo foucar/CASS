@@ -67,6 +67,7 @@ HEADERS += ./acqiris_converter.h \
     ./classes/detector_analyzer/delayline_detector_analyzer_simple.h \
     ./classes/detector_analyzer/delayline_non_sorting.h \
     ./classes/detector_analyzer/poscalculator.hpp\
+    ./classes/detector_analyzer/poscalculator.hpp\
     ./classes/momenta_calculators/spectrometer.h \
     ./classes/momenta_calculators/momenta_calculator.h
 headers.files = $$HEADERS
