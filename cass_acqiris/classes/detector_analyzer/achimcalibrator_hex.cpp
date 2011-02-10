@@ -8,6 +8,7 @@
  */
 
 #include <cmath>
+#include <cassert>
 
 #include "achimcalibrator_hex.h"
 
@@ -265,6 +266,7 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _sigprod[w2] = &d.layers()['W'].wireends()['2'];
   s.beginGroup("HexSorting");
   _groupname = s.group();
+  assert(_timesums.size() == 3);
   _timesums[u] = make_pair(s.value("TimeSumU",100).toDouble(),
                            s.value("TimeSumUWidth",0).toDouble());
   _timesums[v] = make_pair(s.value("TimeSumV",100).toDouble(),
@@ -273,6 +275,7 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
                            s.value("TimeSumWWidth",0).toDouble());
   _center = make_pair(s.value("CenterX",0).toDouble(),
                       s.value("CenterY",0).toDouble());
+  assert(_scalefactors.size() == 3);
   _scalefactors[u] = s.value("ScalefactorU",1).toDouble();
   _maxRuntime = s.value("MaxRuntime",130).toDouble();
   _calibrationFilename = s.value("SettingsFilename").toString().toStdString();
