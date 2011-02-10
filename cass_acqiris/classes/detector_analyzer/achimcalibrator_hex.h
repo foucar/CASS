@@ -46,8 +46,11 @@ namespace cass
       enum {mcp, u1, u2, v1, v2, w1, w2};
       enum {u, v, w};
 
-      /** return our singleton instance */
-      static shared_pointer instance();
+      /** return our singleton instance
+       *
+       * @param detectorname the name of the detector that the calibrator is for
+       */
+      static shared_pointer instance(const std::string &detectorname);
 
       /** the operator
        *
@@ -88,7 +91,7 @@ namespace cass
       HexCalibrator();
 
       /** an instance of this */
-      static shared_pointer _instance;
+      static std::map<std::string,shared_pointer> _instances;
 
       /** singleton mutex */
       static QMutex _mutex;

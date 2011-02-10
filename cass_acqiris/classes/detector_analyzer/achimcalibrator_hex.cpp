@@ -183,17 +183,20 @@ namespace cass
   }
 }
 // =================define static members =================
-HexCalibrator::shared_pointer HexCalibrator::_instance;
+map<string,HexCalibrator::shared_pointer> HexCalibrator::_instances;
 QMutex HexCalibrator::_mutex;
 
-HexCalibrator::shared_pointer HexCalibrator::instance()
+HexCalibrator::shared_pointer HexCalibrator::instance(const std::string &detectorname)
 {
   QMutexLocker locker(&_mutex);
-  if(!_instance)
+  map<string,HexCalibrator::shared_pointer>::iterator it
+      (_instances.find(detectorname));
+  if(it == _instances.end())
   {
-    _instance = shared_pointer(new HexCalibrator());
+    _instances[detectorname] = shared_pointer(new HexCalibrator());
+    it = _instances.find(detectorname);
   }
-  return _instance;
+  return it->second;
 }
 // ========================================================
 
