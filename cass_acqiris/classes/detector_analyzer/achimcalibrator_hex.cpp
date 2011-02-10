@@ -129,20 +129,23 @@ namespace cass
        * when the image is not centered around 0 one can use this function to
        * shift it to 0
        *
-       * @note the center needs to be in ns
-       *
        * @param layer The vector containing all the layers signals
-       * @param center The center of the image in ns
+       * @param center The center of the image in mm
+       * @param scalefactors The scalefactors for the layers
        *
        * @author Achim Czasch
        * @author Lutz Foucar
        */
-      void shift_pos(vector<double> &layer, const pair<double,double> &center)
+      void shift_pos(vector<double> &layer,
+                     const pair<double,double> &center,
+                     const vector<double> &scalefactors)
       {
         int direction(1);
-        const double offs_u (0.50*center.first);
-        const double offs_v (0.25*(center.first - center.second *sqrt(3)));
-        const double offs_w (0.25*(center.first + center.second *sqrt(3)));
+        const double offs_u (0.50*center.first/scalefactors[HexCalibrator::u]);
+        const double offs_v
+            (0.25*(center.first - center.second *sqrt(3))/scalefactors[HexCalibrator::v]);
+        const double offs_w
+            (0.25*(center.first + center.second *sqrt(3))/scalefactors[HexCalibrator::w]);
 
         layer[HexCalibrator::u1] += direction*offs_u;
         layer[HexCalibrator::u1] -= direction*offs_u;
@@ -201,7 +204,8 @@ HexCalibrator::HexCalibrator()
     */
    _scalefactor_calibrator(new scalefactors_calibration_class(true,150,0,1,1,1)),
    _timesums(3,make_pair(0,0)),
-   _sigprod(7)
+   _sigprod(7),
+   _scalefactors(2,1)
 {}
 
 detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
@@ -219,7 +223,7 @@ detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
         abs(values[i*2+1]+values[i*2+2]-2.*values[mcp]) < _timesums[i].second;
 
   AchimCalibrator::shift_sum(values,_timesums);
-  AchimCalibrator::shift_pos(layer,_center);
+  AchimCalibrator::shift_pos(layer,_center,_scalefactors);
   AchimCalibrator::shift_wLayer(values[w1],values[w2],_wLayerOffset);
 
   if (layerChecksum[u] && layerChecksum[u] && layerChecksum[u])
@@ -274,11 +278,15 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
                            s.value("TimeSumWWidth",0).toDouble());
   _center = make_pair(s.value("CenterX",0).toDouble(),
                       s.value("CenterY",0).toDouble());
+  _scalefactors[u] = s.value("ScalefactorU",1).toDouble();
+  _maxRuntime = s.value("MaxRuntime",130).toDouble();
   _calibrationFilename = s.value("SettingsFilename").toString().toStdString();
   QSettings hexsettings(QString::fromStdString(_calibrationFilename),
                         QSettings::defaultFormat());
   /** @todo make sure the below works */
   hexsettings.beginGroup(_groupname);
   _wLayerOffset = hexsettings.value("WLayerOffset",0).toDouble();
+  _scalefactors[v] = hexsettings.value("ScalefactorV",1).toDouble();
+  _scalefactors[w] = hexsettings.value("ScalefactorW",1).toDouble();
   s.endGroup();
 }

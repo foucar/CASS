@@ -147,6 +147,12 @@ namespace cass
 
       /** the center of the image */
       std::pair<double,double> _center;
+
+      /** the scalefactors */
+      std::vector<double> _scalefactors;
+
+      /** the maximum runtime */
+      double _maxRuntime;
     };
 
   }
