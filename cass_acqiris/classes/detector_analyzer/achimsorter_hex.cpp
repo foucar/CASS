@@ -138,7 +138,7 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
   _sorter->dead_time_mcp = s.value("DeadTimeMCP",20).toDouble();
   _sorter->MCP_radius = s.value("MCPRadius",130).toDouble();
   _sorter->use_MCP = s.value("UseMCP",true).toBool();
-  _sorter->fu = s.value("ScalefactorU",true).toDouble();
+  _sorter->fu = s.value("ScalefactorU",1).toDouble();
   _center = make_pair(s.value("CenterX",0).toDouble(),
                       s.value("CenterY",0).toDouble());
 
@@ -149,8 +149,8 @@ void HexSorter::loadSettings(CASSSettings& s, DelaylineDetector &d)
                         QSettings::defaultFormat());
   /** @todo check whether one can set the goup this way */
   hexsettings.beginGroup(s.group());
-  _sorter->fv = hexsettings.value("ScalefactorV",true).toDouble();
-  _sorter->fw = hexsettings.value("ScalefactorW",true).toDouble();
+  _sorter->fv = hexsettings.value("ScalefactorV",1).toDouble();
+  _sorter->fw = hexsettings.value("ScalefactorW",1).toDouble();
   int size = hexsettings.beginReadArray("SumUCorrectionPoints");
   _sorter->use_sum_correction = static_cast<bool>(size);
   for (int i = 0; i< size; ++i)
