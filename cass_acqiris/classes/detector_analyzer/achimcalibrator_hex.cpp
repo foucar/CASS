@@ -172,12 +172,9 @@ namespace cass
        */
       void shift_wLayer(double &w1, double &w2, const double w_offset)
       {
-//        __int32 i;
-//         if (this->use_HEX) {
-//             w_offset *= direction*0.5;
-//             for (i = 0;i < count[Cw1];++i) tdc[_Cw1][i] = tdc[_Cw1][i] + w_offset;
-//             for (i = 0;i < count[Cw2];++i) tdc[_Cw2][i] = tdc[_Cw2][i] - w_offset;
-//         }
+        const double w_offset_shift = w_offset * 0.5;
+        w1 += w_offset_shift;
+        w2 -= w_offset_shift;
       }
     }
   }
