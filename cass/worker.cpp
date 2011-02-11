@@ -321,11 +321,12 @@ void cass::Workers::end()
   //tell all workers that they should quit//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
-  //wait until we run has really finished, when they didn't within 1/2 second
-  //terminate them
+  //resume the threads when they have been suspended//
   for (size_t i=0;i<_workers.size();++i)
-    if (!_workers[i]->wait(500))
-      _workers[i]->terminate();
+    _workers[i]->resume();
+  //wait until we run has really finished//
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->wait();
   //tell one worker that we are about to quit//
   _workers[0]->aboutToQuit();
   //emit that all workers are finished//
