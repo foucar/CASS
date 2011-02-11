@@ -114,6 +114,8 @@ void cass::Worker::run()
       //unlock the mutex, such that others can work again//
       _pauseMutex.unlock();
       VERBOSEOUT(std::cout<<"Worker::"<<this<<": run(): I am now running again"<<std::endl);
+      //start over again//
+      continue;
     }
 
     //reset the cassevent//
