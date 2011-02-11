@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <stdexcept>
 
 #include "file_input.h"
 #include "pdsdata/xtc/Dgram.hh"
@@ -17,19 +19,22 @@
 #include "format_converter.h"
 #include "cass_settings.h"
 
-cass::FileInput::FileInput(std::string filelistname,
-                           cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
-                           bool quitWhenDone,
-                           QObject *parent)
-                             :QThread(parent),
-                             _ringbuffer(ringbuffer),
-                             _quit(false),
-                             _quitWhenDone(quitWhenDone),
-                             _filelistname(filelistname),
-                             _convert(*cass::FormatConverter::instance()),
-                             _pause(false),
-                             _paused(false),
-                             _rewind(false)
+using namespace std;
+using namespace cass;
+
+FileInput::FileInput(string filelistname,
+                     RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                     bool quitWhenDone,
+                     QObject *parent)
+  :QThread(parent),
+  _ringbuffer(ringbuffer),
+  _quit(false),
+  _quitWhenDone(quitWhenDone),
+  _filelistname(filelistname),
+  _convert(*FormatConverter::instance()),
+  _pause(false),
+  _paused(false),
+  _rewind(false)
 {
   VERBOSEOUT(std::cout<< "FileInput::FileInput: constructed" <<std::endl);
 }
@@ -66,6 +71,23 @@ void cass::FileInput::suspend()
   waitUntilSuspended();
 }
 
+void FileInput::pausePoint()
+{
+  if (_pause)
+  {
+    /** lock the mutex to prevent that more than one thread is calling pause */
+    QMutexLocker locker(&_pauseMutex);
+    /** set the status flag to paused */
+    _paused=true;
+    /** tell the wait until paused condtion that we are now pausing */
+    _waitUntilpausedCondition.wakeOne();
+    /** wait until the condition is called again */
+    _pauseCondition.wait(&_pauseMutex);
+    /** reset the paused status flag */
+    _paused=false;
+  }
+}
+
 void cass::FileInput::resume()
 {
   //if the thread has not been paused return here//
@@ -76,6 +98,7 @@ void cass::FileInput::resume()
   //tell run to resume via the waitcondition//
   _pauseCondition.wakeOne();
 }
+
 
 void cass::FileInput::waitUntilSuspended()
 {
@@ -95,137 +118,99 @@ void cass::FileInput::end()
   _quit=true;
 }
 
+vector<string> FileInput::tokenize(std::ifstream &file)
+{
+  vector<string> lines;
+  while (!file.eof())
+  {
+    string line;
+    getline(file,line);
+    /* remove newline */
+    if(line[line.length()-1] == '\n')
+    {
+      line.resize(line.length()-1);
+    }
+    /* remove line feed */
+    if(line[line.length()-1] == '\r')
+    {
+      line.resize(line.length()-1);
+    }
+    /* dont read newlines */
+    if(line.empty() || line[0] == '\n')
+    {
+      continue;
+    }
+    lines.push_back(line);
+    VERBOSEOUT(cout <<"FileInput::tokenize(): adding '"
+               <<line.c_str()
+               <<"' to list"
+               <<endl);
+  }
+  return lines;
+}
+
 void cass::FileInput::run()
 {
-  //create a list where all files that should be processed are in
-  std::vector<std::string> filelist;
-
   //open the file with the filenames in it
-  VERBOSEOUT(std::cout <<"FileInput::run(): try to open filelist '"
-             <<_filelistname
-             <<"'"
-             <<std::endl);
-  std::ifstream filelistfile;
-  filelistfile.open(_filelistname.c_str());
-  //put the names into a list of things that we want to process
-  if (filelistfile.is_open())
+  VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
+             <<_filelistname<<"'"
+             <<endl);
+  ifstream filelistfile(_filelistname.c_str());
+  if (!filelistfile.is_open())
   {
-    VERBOSEOUT(std::cout <<"FileInput::run(): filelist '"<<_filelistname
-               <<"' is open"
-               <<std::endl);
-    //go through whole file
-    while (!filelistfile.eof())
-    {
-      //read a line and put it into the file list
-      std::string line;
-      getline(filelistfile,line);
-      /* remove newline */
-      if(line[line.length()-1] == '\n')
-      {
-        line.resize(line.length()-1);
-      }
-      /* remove line feed */
-      if(line[line.length()-1] == '\r')
-      {
-        line.resize(line.length()-1);
-      }
-      /* dont read newlines */
-      if(line.empty() || line[0] == '\n')
-      {
-        continue;
-      }
-      filelist.push_back(line);
-      VERBOSEOUT(std::cout <<"FileInput::run(): adding '"
-                 <<line.c_str()
-                 <<"' to list"
-                 <<std::endl);
-    }
+    stringstream ss;
+    ss <<"FileInput::run(): filelist '"<<_filelistname
+               <<"' could not be opened";
+    throw invalid_argument(ss.str());
   }
-  else
-  {
-    VERBOSEOUT(std::cout <<"FileInput::run(): filelist '"<<_filelistname
-               <<"' could not be opened"
-               <<std::endl);
-  }
-
-  //make a pointer to a buffer
-  cass::CASSEvent *cassevent(0);
+  vector<string> filelist(tokenize(filelistfile));
   //go through all files in the list
-  for (std::vector<std::string>::const_iterator filelistiterator = filelist.begin();
-       filelistiterator != filelist.end();
-       ++filelistiterator)
+  vector<string>::const_iterator filelistIt(filelist.begin());
+  while (filelistIt != filelist.end())
   {
-    //quit if requested//
-    if (_quit) break;
-
-    VERBOSEOUT(std::cout<< "FileInput::run(): trying to open '"
-               <<filelistiterator->c_str()
-               <<"'"
-               <<std::endl);
-    //open the file
-    std::ifstream xtcfile
-        (filelistiterator->c_str(), std::ios::binary | std::ios::in);
+    if (_quit)
+      break;
+    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<*filelistIt<<"'"<<endl);
+    ifstream file(filelistIt->c_str(), std::ios::binary | std::ios::in);
     //if there was such a file then we want to load it
-    if (xtcfile.is_open())
+    if (file.is_open())
     {
-      std::cout <<"FileInput::run(): processing file '"
-          <<filelistiterator->c_str()
-          <<"'"
-          <<std::endl;
-      //read until we are finished with the file
-      while(!xtcfile.eof() && !_quit)
+      cout <<"FileInput::run(): processing file '"<<*filelistIt<<"'"<<endl;
+      while(!file.eof() && !_quit)
       {
-        //pause execution if suspend has been called//
-        if (_pause)
+        pausePoint();
+        /** rewind if requested */
+        if (_rewind)
         {
-          //lock the mutex to prevent that more than one thread is calling pause//
-          _pauseMutex.lock();
-          //set the status flag to paused//
-          _paused=true;
-          //tell the wait until paused condtion that we are now pausing//
-          _waitUntilpausedCondition.wakeOne();
-          //wait until the condition is called again
-          _pauseCondition.wait(&_pauseMutex);
-          //set the status flag//
-          _paused=false;
-          //unlock the mutex, such that others can work again//
-          _pauseMutex.unlock();
-          //rewind if requested//
-          if (_rewind)
-          {
-            _rewind = false;
-            filelistiterator = filelist.begin();
-            break;
-          }
+          /** reset the rewind flag if requested */
+          _rewind = false;
+          filelistIt = filelist.begin();
+          break;
         }
-        //reset the cassevent pointer//
-        cassevent=0;
-        //retrieve a new element from the ringbuffer
+        /** retrieve a new element from the ringbuffer */
+        CASSEvent *cassevent(0);
         _ringbuffer.nextToFill(cassevent);
-        //read the datagram from the file in the ringbuffer
+        /** fill the cassevent object with the contents from the file */
         Pds::Dgram& dg
             (*reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer()));
-        xtcfile.read(cassevent->datagrambuffer(),sizeof(dg));
-        xtcfile.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+        file.read(cassevent->datagrambuffer(),sizeof(dg));
+        file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
         const bool isGood (_convert(cassevent));
-        cassevent->setFilename(filelistiterator->c_str());
+        cassevent->setFilename(filelistIt->c_str());
         //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);
         emit newEventAdded();
       }
-      //done reading.. close file
-      xtcfile.close();
+      file.close();
     }
     else
-      std::cout <<"FileInput::run(): could not open '"<<filelistiterator->c_str()
-          <<"'"
-          <<std::endl;
+      cout <<"FileInput::run(): could not open '"<<*filelistIt<<"'"<<endl;
   }
-  std::cout << "Finished with all files." << std::endl;
+  cout << "FileInput::run(): Finished with all files." <<endl;
   if(!_quitWhenDone)
     while(!_quit)
       this->sleep(1);
-  std::cout << "closing the input"<<std::endl;
+  cout << "FileInput::run(): closing the input"<<endl;
 }
 
 

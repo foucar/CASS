@@ -89,6 +89,23 @@ namespace cass
      */
     void waitUntilSuspended();
 
+    /** call this at the point you want to pause
+     *
+     * when told to pause, this will actually pause and only resume when resume
+     * is called.
+     */
+    void pausePoint();
+
+    /** tokenize the file containing the files that we want to process
+     *
+     * will return a list containing all non empty lines of the file. Before
+     * returning the list strip the 'new line' and 'line feed' from the line.
+     *
+     * @return stringlist containing all non empty lines of the file
+     * @param file the filestream to tokenize
+     */
+    std::vector<std::string> tokenize(std::ifstream &file);
+
   private:
     /** reference to the ringbuffer */
     cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
