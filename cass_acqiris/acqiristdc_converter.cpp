@@ -79,6 +79,14 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
       Instrument &instr(dev->instruments()[info.devId()]);
+//      if (xtc->sizeofPayload()/4 > 2)
+//      {
+//        uint32_t* word ((uint32_t*) xtc->payload());
+//        cout << "start"<<endl;
+//        for (int i(0); i < xtc->sizeofPayload()/4 ; ++i)
+//          cout << hex<< word[i] <<dec<<endl;
+//        cout << "stop"<<endl;
+//      }
 //      Device::instruments_t::iterator instrIt
 //          (dev->instruments().find(info.devId()));
 //      if (dev->instruments().end() == instrIt)
@@ -92,6 +100,8 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       Instrument::channels_t &channels(instr.channels());
       channels.resize(Instrument::NbrChannels);
       assert(6 == channels.size());
+      for (Instrument::channels_t::iterator it(channels.begin()); it != channels.end(); ++it)
+        it->hits().clear();
       //extract the data from the xtc//
       const Pds::Acqiris::TdcDataV1 *data
           (reinterpret_cast<const Pds::Acqiris::TdcDataV1*>(xtc->payload()));
@@ -111,8 +121,10 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
             const Pds::Acqiris::TdcDataV1::Channel& c
                 (*static_cast<const Pds::Acqiris::TdcDataV1::Channel*>(data));
             if (!c.overflow())
+            {
               //get data of the right channel and convert s to ns */
               channels[data->source()-1].hits().push_back(c.time()*1e9);
+            }
             break;
           }
         }

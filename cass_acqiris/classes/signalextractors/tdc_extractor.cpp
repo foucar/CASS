@@ -55,7 +55,7 @@ void ACQIRISTDC::TDCExtractor::loadSettings(CASSSettings &s)
   {
     s.setArrayIndex(i);
     _timeranges.push_back(std::make_pair(s.value("LowerLimit",0.).toDouble(),
-                                           s.value("UpperLimit",1000).toDouble()));
+                                         s.value("UpperLimit",1000).toDouble()));
   }
   s.endArray();
   s.endGroup();
