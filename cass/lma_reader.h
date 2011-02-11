@@ -43,6 +43,13 @@ namespace cass
 
     /** load the settings of the reader */
     void loadSettings();
+
+    /** when a new file is opened set the flag */
+    void newFile() {_newFile=true;}
+
+  private:
+    /** flag to tell whether there is a new file */
+    bool _newFile;
   };
 }
 #endif

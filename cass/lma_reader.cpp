@@ -15,6 +15,7 @@ using namespace cass;
 using namespace std;
 
 LmaReader::LmaReader()
+  :_newFile(true)
 {}
 
 void LmaReader::loadSettings()

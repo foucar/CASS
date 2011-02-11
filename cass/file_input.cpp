@@ -175,6 +175,7 @@ void cass::FileInput::run()
     if (file.is_open())
     {
       cout <<"FileInput::run(): processing file '"<<*filelistIt<<"'"<<endl;
+      _read->newFile();
       while(!file.eof() && !_quit)
       {
         pausePoint();

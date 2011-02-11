@@ -49,6 +49,12 @@ namespace cass
     /** load the settings of the reader */
     virtual void loadSettings()=0;
 
+    /** tell that new file is read
+     *
+     * this is called everytime a new file is opened for reading
+     */
+    virtual void newFile()=0;
+
   protected:
     /** only inheritants can create this */
     FileReader() {}

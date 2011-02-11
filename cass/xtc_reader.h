@@ -44,6 +44,12 @@ namespace cass
     /** load the settings of the reader */
     void loadSettings();
 
+    /** this tells when a new file is opened.
+     *
+     * ignore this message
+     */
+    void newFile(){}
+
   private:
     /** a reference to the format converter functor */
     FormatConverter &_convert;
