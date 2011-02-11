@@ -25,7 +25,7 @@
 #include "cass_settings.h"
 
 
-
+using namespace std;
 
 /** The main program.
  *
@@ -141,7 +141,8 @@ int main(int argc, char **argv)
 
   //a ringbuffer for the cassevents//
   cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
-
+  //create workers//
+  cass::Workers *workers(new cass::Workers(ringbuffer, outputfilename, qApp));
 #ifndef OFFLINE
   // create shared memory input object //
   cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
@@ -152,8 +153,6 @@ int main(int argc, char **argv)
   cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
 #endif
 
-  //create workers//
-  cass::Workers *workers(new cass::Workers(ringbuffer, outputfilename, qApp));
   //create a ratemeter object for the input//
   cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
   //create a ratemeter object for the worker//
@@ -182,15 +181,10 @@ int main(int argc, char **argv)
   QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
   QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
 
-  //start input and worker threads
-  workers->start();
-  input->start();
-
   // TCP/SOAP server
   cass::EventGetter get_event(ringbuffer);
   cass::HistogramGetter get_histogram;
   cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
-  server->start();
   QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
   QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
@@ -198,21 +192,56 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
   QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 
-  //start Qt event loop
-  int retval(app.exec());
+  int retval(0);
+  try
+  {
+    //start input and worker threads
+    workers->start();
+    input->start();
+    server->start();
 
-  //clean up
-  server->destroy();
-  delete rateplotter;
-  delete workerrate;
-  delete inputrate;
-  delete workers;
-  delete input;
+    //start Qt event loop
+    retval = app.exec();
 
-  // one last sync of settings file
-  settings.sync();
+    //clean up
+    server->destroy();
+    delete rateplotter;
+    delete workerrate;
+    delete inputrate;
+    delete workers;
+    delete input;
 
-  //finish
+    // one last sync of settings file
+    settings.sync();
+
+    //finish
+    return retval;
+  }
+  catch (const invalid_argument &error)
+  {
+    cout << "User input is wrong: "<<error.what() <<endl;
+    throw;
+  }
+  catch (const runtime_error &error)
+  {
+    cout << "Runtime error: "<<error.what() <<endl;
+    throw;
+  }
+  catch (...)
+  {
+    //stop threads//
+    input->end();
+    input->wait();
+    workers->end();
+
+    //clean up
+    server->destroy();
+    delete rateplotter;
+    delete workerrate;
+    delete inputrate;
+    delete workers;
+    delete input;
+  }
   return retval;
 }
 
