@@ -10,16 +10,32 @@
 #ifndef _DELAYLINENONSORTING_H_
 #define _DELAYLINENONSORTING_H_
 
+#include <utility>
+#include <tr1/memory>
+
 #include "detector_analyzer_backend.h"
 
 namespace cass
 {
   namespace ACQIRIS
   {
+    class PositionCalculator;
+
     /** Simple detectorhit creator
      *
      * this class will just go through the anodewire signals and create
      * positions without any checks
+     *
+     * @cassttng .../NonSorting/{LayersToUse}\n
+     *           Layers that should be used for sorting. Default is 0. Possible
+     *           choises are:
+     *           - 0: Layers X and Y (Quad Anode)
+     *           - 1: Layers U and V (Hex Anode)
+     *           - 2: Layers U and W (Hex Anode)
+     *           - 3: Layers V and W (Hex Anode)
+     * @cassttng .../Simple/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
+     *           the scalefactors that convert ns to mm for the two layers.
+     *           Default is 0.4 | 0.4
      *
      * @author Lutz Foucar
      */
@@ -48,6 +64,17 @@ namespace cass
        * @param d the detector object that we the analyzer belongs to
        */
       void loadSettings(CASSSettings&, DelaylineDetector&);
+
+    private:
+      /** the layer combination */
+      std::pair<std::pair<SignalProducer *,SignalProducer *> ,
+                std::pair<SignalProducer *,SignalProducer *> > _layerCombination;
+
+      /** the calculator to calc the position for the correlated wireend signals */
+      std::tr1::shared_ptr<PositionCalculator> _poscalc;
+
+      /** the scalefactor for the two layers (convert ns -> mm) */
+      std::pair<double,double> _sf;
 
     };
   }
