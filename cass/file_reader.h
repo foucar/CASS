@@ -27,6 +27,9 @@ namespace cass
     /** typedef the shared pointer of this */
     typedef std::tr1::shared_ptr<FileReader> shared_pointer;
 
+    /** virtual destructor */
+    virtual ~FileReader() {}
+
     /** create an instance of the requested type
      *
      * @return a shared pointer to the requested type
