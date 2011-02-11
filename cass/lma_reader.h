@@ -14,6 +14,7 @@
 #include <string>
 
 #include "file_reader.h"
+#include "acqiris_device.h"
 
 namespace cass
 {
@@ -50,6 +51,12 @@ namespace cass
   private:
     /** flag to tell whether there is a new file */
     bool _newFile;
+
+    /** acqiris device where we store the file header information */
+    ACQIRIS::Instrument _instrument;
+
+    /** bitmask describing which channels are active in the instrument */
+    uint32_t _usedChannelBitmask;
   };
 }
 #endif

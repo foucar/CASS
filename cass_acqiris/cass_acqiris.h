@@ -46,7 +46,8 @@ namespace cass
       Camp1 = Pds::DetInfo::Camp,
       Camp2 = Pds::DetInfo::AmoITof,
       Camp3 = Pds::DetInfo::AmoMbes,
-      Camp4 = Pds::DetInfo::AmoGasdet
+      Camp4 = Pds::DetInfo::AmoGasdet,
+      Standalone = 1
     };
    //@{
     /** typdef for better readable code */
