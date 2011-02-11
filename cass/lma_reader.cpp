@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file lma_reader.cpp contains the class to read xtc files
+ * @file lma_reader.cpp contains the class to read lma files
  *
  * @author Lutz Foucar
  */
@@ -9,6 +9,7 @@
 #include "lma_reader.h"
 
 #include "cass_event.h"
+#include "acqiris_device.h"
 #include "cass_settings.h"
 
 using namespace cass;
@@ -24,6 +25,5 @@ void LmaReader::loadSettings()
 
 bool LmaReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  bool retval(false);
-  return retval;
+  return true;
 }
