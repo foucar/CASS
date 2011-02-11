@@ -1,4 +1,4 @@
-// Copyright (C) 2009, 2010 Lutz Foucar
+// Copyright (C) 2009 - 2011 Lutz Foucar
 
 /**
  * @file file_input.h file contains declaration of xtcfile input
