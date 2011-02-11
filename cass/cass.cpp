@@ -229,6 +229,7 @@ int main(int argc, char **argv)
   }
   catch (...)
   {
+    cout<<"main(): something bad happend, quitting the program."<<endl;
     //stop threads//
     input->end();
     input->wait();
