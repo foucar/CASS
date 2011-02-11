@@ -35,6 +35,7 @@ FileInput::FileInput(string filelistname,
   _rewind(false)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
+  loadSettings(0);
 }
 
 cass::FileInput::~FileInput()
@@ -45,12 +46,15 @@ cass::FileInput::~FileInput()
 void cass::FileInput::loadSettings(size_t /*what*/)
 {
   /** pause the thread */
-  VERBOSEOUT(cout << "File Input: Load Settings: suspend before laoding settings"
-      <<endl);
-  suspend();
+  VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
+             <<" before laoding settings"
+             <<endl);
+  if(isRunning())
+    suspend();
   VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<endl);
   CASSSettings s;
+  s.beginGroup("FileInput");
   /** load the rewind info */
   _rewind = s.value("Rewind",false).toBool();
   /** load the right reader */
