@@ -81,7 +81,7 @@ void ACQIRISTDC::TDCExtractor::associate(const CASSEvent &evt)
     stringstream ss;
     ss<< "TDCExtractor::associate(): The requested channel '"<<_channelNumber
         <<"' does not exist in Instrument '"<<_instrument<<"'";
-    throw std::invalid_argument(ss.str());
+    throw invalid_argument(ss.str());
   }
   _chan = &(tdcChannels[_channelNumber]);
 }
