@@ -53,6 +53,9 @@ namespace cass
      *           - 2:cfd 8 bit waveform (see CFD8Bit)
      *           - 3:cfd 16 bit waveform (see CFD8Bit)
      *           - 4:tdc data extractor (see ACQIRISTDC::TDCExtractor)
+     * @cassttng .../{GoodRangeLow|GoodRangeHigh}\n
+     *           The lower an upper boundaries of the range where good single
+     *           hits appear in. Default is 0.
      *
      * @author Lutz Foucar
      */
@@ -106,6 +109,17 @@ namespace cass
        */
       double firstGood(const std::pair<double,double>& range);
 
+      /** returns the time of the first peak in the time range
+       *
+       * when the _newEventAssociated flag is true it will look for the first
+       * signal whos time is in the requested time range. If there is no signal
+       * in the requested timerange the value is set to 0. It will use the range
+       * that is set inside.
+       *
+       * @param range the timerange to search for the signal
+       */
+      double firstGood();
+
       /** return the signals
        *
        * When a new event was associated with this prodcuer, then it will first
@@ -136,6 +150,9 @@ namespace cass
 
       /** flag to show whether the first good hit has been extracted */
       bool _goodHitExtracted;
+
+      /** the range in which the good hits will appear */
+      std::pair<double, double> _range;
     };
   }//end namespace acqiris
 }//end namespace cass

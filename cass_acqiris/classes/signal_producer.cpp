@@ -15,6 +15,7 @@
 #include "signal_extractor.h"
 
 using namespace cass::ACQIRIS;
+using namespace std;
 
 namespace cass
 {
@@ -51,6 +52,8 @@ void SignalProducer::loadSettings(CASSSettings &s)
 // 	std::cout << s.group().toStdString()<< " signextractmethod "<<analyzerType<<std::endl;
   _signalextractor = SignalExtractor::instance(analyzerType);
   _signalextractor->loadSettings(s);
+  _range = make_pair(s.value("GoodRangeLow",0).toDouble(),
+                     s.value("GoodRangeHigh",0).toDouble());
 }
 
 SignalProducer::signals_t& SignalProducer::output()
@@ -83,7 +86,24 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
     _goodHitExtracted = true;
     signals_t &sigs (output());
 //    cout<< "SigProducer::firstGood(): size "<<sigs.size()<< " range '"<<range.first<<"' to '"<<range.second<<"'"<<endl;
-    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
+    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(_range)));
+//    cout << "SigProducer::firstGood(): found a signal "<<boolalpha<<(sigIt != sigs.end())<<endl;
+    _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
+//    cout << "SigProducer::firstGood(): time: "<<_goodHit<<endl;
+  }
+  return _goodHit;
+}
+
+double SignalProducer::firstGood()
+{
+  using namespace std;
+//	cout <<"Sigproducer::firstGood(): "<<boolalpha<< _goodHitExtracted << endl;
+	if(!_goodHitExtracted)
+  {
+    _goodHitExtracted = true;
+    signals_t &sigs (output());
+//    cout<< "SigProducer::firstGood(): size "<<sigs.size()<< " range '"<<range.first<<"' to '"<<range.second<<"'"<<endl;
+    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(_range)));
 //    cout << "SigProducer::firstGood(): found a signal "<<boolalpha<<(sigIt != sigs.end())<<endl;
     _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
 //    cout << "SigProducer::firstGood(): time: "<<_goodHit<<endl;
