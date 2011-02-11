@@ -19,6 +19,7 @@
 #include "channel.h"
 #include "signal_producer.h"
 #include "cass_settings.h"
+#include "poscalculator.hpp"
 
 using namespace cass::ACQIRIS;
 namespace cass
@@ -98,74 +99,6 @@ namespace cass
       return (make_pair(begin,end));
     }
 
-    /** position calculator base class
-     *
-     * @author Lutz Foucar
-     */
-    class PositionCalculator
-    {
-    public:
-      virtual ~PositionCalculator() {}
-      virtual std::pair<double,double> operator()(const std::pair<double, double>&)=0;
-    };
-
-    /** position calculator for quad anode
-     *
-     * @author Lutz Foucar
-     */
-    class XYCalc : public PositionCalculator
-    {
-    public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
-      {
-        return layer;
-      }
-    };
-
-    /** position calculator for hex anodes u and v layer
-     *
-     * @author Lutz Foucar
-     */
-    class UVCalc : public PositionCalculator
-    {
-    public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
-      {
-        const double u(layer.first);
-        const double v(layer.second);
-        return std::make_pair(u, 1./std::sqrt(3) * (u-2.*v));
-      }
-    };
-
-    /** position calculator for hex anodes u and w layer
-     *
-     * @author Lutz Foucar
-     */
-    class UWCalc : public PositionCalculator
-    {
-    public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
-      {
-        const double u(layer.first);
-        const double w(layer.second);
-        return std::make_pair(u, 1./std::sqrt(3) * (2.*w-u));
-      }
-    };
-
-    /** position calculator for hex anodes u and v layer
-     *
-     * @author Lutz Foucar
-     */
-    class VWCalc : public PositionCalculator
-    {
-    public:
-      virtual std::pair<double,double> operator()(const std::pair<double, double>& layer)
-      {
-        const double v(layer.first);
-        const double w(layer.second);
-        return std::make_pair(v+w, 1./std::sqrt(3) * (w-v));
-      }
-    };
   }
 }
 
