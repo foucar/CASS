@@ -58,15 +58,6 @@ namespace cass
     typedef std::vector<detectorHit_t> detectorHits_t;
     //@}
   }
-
-  namespace ACQIRISTDC
-  {
-    /** all available tdc instruments at the site*/
-    enum TDCInstruments{
-      SXRTdc = Pds::DetInfo::SxrEndstation
-    };
-  }
-
 }
 
 #endif // CASS_ACQIRIS_GLOBAL_H

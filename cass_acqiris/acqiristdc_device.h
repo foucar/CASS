@@ -111,7 +111,7 @@ namespace cass
 
     public:
       /** a map of all instruments available */
-      typedef std::map<TDCInstruments, Instrument> instruments_t;
+      typedef std::map<uint32_t, Instrument> instruments_t;
 
     public:
       /** instrument setter */

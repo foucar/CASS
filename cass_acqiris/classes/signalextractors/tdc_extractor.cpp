@@ -48,8 +48,8 @@ ACQIRIS::SignalProducer::signals_t& ACQIRISTDC::TDCExtractor::operator()(ACQIRIS
 void ACQIRISTDC::TDCExtractor::loadSettings(CASSSettings &s)
 {
   s.beginGroup("TDCExtraction");
-  _instrument   = static_cast<TDCInstruments>(s.value("TDCInstrument").toInt());
-  _channelNumber= s.value("ChannelNumber",0).toInt();
+  _instrument   = s.value("TDCInstrument").toUInt();
+  _channelNumber= s.value("ChannelNumber",0).toUInt();
   int size = s.beginReadArray("Timeranges");
   for (int i = 0; i < size; ++i)
   {

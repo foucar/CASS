@@ -85,7 +85,7 @@ namespace cass
       std::vector<std::pair<double,double> > _timeranges;
 
       /** the instrument id */
-      TDCInstruments _instrument;
+      uint32_t _instrument;
 
       /** the channel number */
       size_t _channelNumber;

@@ -62,7 +62,7 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
       Instrument &instr
-          (dev->instruments()[static_cast<TDCInstruments>(info.detector())]);
+          (dev->instruments()[info.devId()]);
       Instrument::channels_t &channels(instr.channels());
       channels.resize(Instrument::NbrChannels);
     }
@@ -78,7 +78,7 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
       Device::instruments_t::iterator instrIt
-          (dev->instruments().find(static_cast<TDCInstruments>(info.detector())));
+          (dev->instruments().find(info.devId()));
       if (dev->instruments().end() == instrIt)
       {
         stringstream ss;
@@ -86,8 +86,7 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
             <<" not contain the instrument '"<<Pds::DetInfo::name(info)<<"'";
         throw runtime_error(ss.str());
       }
-      Instrument &instr
-          (dev->instruments()[static_cast<TDCInstruments>(info.detector())]);
+      Instrument &instr(instrIt->second);
       Instrument::channels_t &channels(instr.channels());
       assert(6 == channels.size());
       //extract the data from the xtc//
