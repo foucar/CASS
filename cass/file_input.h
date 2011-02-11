@@ -25,15 +25,12 @@ namespace cass
   /** File Input for cass
    *
    * This class will be used in offline modus. I will take an string that
-   * contains a filename. In the file has to be a list with files, that one
-   * wants to analyze. The filenames name  can be passed to the program with
-   * the -i parameter.
+   * contains a filename. In the file that the filename points to has to be a
+   * list with files, that one wants to analyze.
+   * The filename name must be passed to the program with the -i parameter.
    *
-   * For each file in the filelist it will iterate through the datagrams and
-   * does the same thing that the shared memory input does with the datagrams:
-   * - call the user selected converters
-   * - if the iteration through the datagram was sucessfull put into the
-   *   ringbuffer marked to be analyzed.
+   * For each file in the filelist it will open the file, and call the readers
+   * to extract the data from the file.
    *
    * @cassttng FileInput/{Rewind}\n
    *           Tells the program to start over running over all files when true.
@@ -52,7 +49,7 @@ namespace cass
   public:
     /** constructor */
     FileInput(std::string filelistname,
-              cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&,
+              RingBuffer<CASSEvent,RingBufferSize>&,
               bool quitwhendone,
               QObject *parent=0);
 
@@ -62,33 +59,37 @@ namespace cass
     /** function with the main loop */
     void run();
 
-    /** suspends the thread.
-     * Suspends the thread after it has executed the event we are working on
-     * right now. Will return only when the thread has really suspenden by calling
-     * @see waitUntilSuspended() internally.
+    /** suspends the thread
+     *
+     * blocks until the thread has suspended
      */
     void suspend();
 
-    /** resumes the thread, when it was suspended. Otherwise it just retruns*/
+    /** resumes the thread */
     void resume();
 
   public slots:
-    /** slot to quit the input */
+    /** tell the thread to quit */
     void end();
 
-    /** load the parameters used for this thread*/
+    /** load the parameters used for this thread
+     *
+     * @param what unused parameter
+     */
     void loadSettings(size_t what);
 
   signals:
-    /** signal to indicate that we are done processing an event.
-     * this is used for by the ratemeter to evaluate how fast we get events.
+    /** signal emitted when done with one event
+     *
+     * To indicate that we are done processing an event this signal is emitted.
+     * This is used for by the ratemeter to evaluate how fast we get events.
      */
     void newEventAdded();
 
   protected:
-    /** function that will wait until we really suspended.
-     * will be called by suspend, so that it returns only when thread has really
-     * suspended.
+    /** helper function for suspending
+     *
+     * this function call will block until the thread is suspended.
      */
     void waitUntilSuspended();
 
@@ -111,39 +112,36 @@ namespace cass
 
   private:
     /** reference to the ringbuffer */
-    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
 
     /** flag to quit the input */
     bool _quit;
 
-    /** user settable flag.
-     * to tell whether program should close when all files are processed
-     */
+    /** flag to tell the thread to quit when its done with all files */
     bool _quitWhenDone;
 
     /** name of the file containing all files that we need to process */
     std::string _filelistname;
 
-
-    /** a referene to the actual reader */
+    /** shared pointer to the actual reader */
     FileReader::shared_pointer _read;
 
-    /** a mutex for suspending the thread*/
+    /** mutex for suspending the thread */
     QMutex _pauseMutex;
 
-    /** a condition that we will wait on until we are not suspended anymore*/
+    /** condition to signal that we need to resume */
     QWaitCondition _pauseCondition;
 
-    /** flag telling whether we shouodl suspend ourselves*/
+    /** flag to tell to pause this thread */
     bool _pause;
 
-    /** flag telling whether we are already suspended*/
+    /** flag telling whether thread is suspended */
     bool _paused;
 
-    /** flag to start over with the files when requested by user */
+    /** flag to start over with the files */
     bool _rewind;
 
-    /** condition that will wait until the thread is rally suspended*/
+    /** condition to signal that the thread is suspended */
     QWaitCondition _waitUntilpausedCondition;
   };
 

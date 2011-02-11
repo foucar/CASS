@@ -44,19 +44,20 @@ cass::FileInput::~FileInput()
 
 void cass::FileInput::loadSettings(size_t /*what*/)
 {
-  //pause yourselve//
+  /** pause the thread */
   VERBOSEOUT(cout << "File Input: Load Settings: suspend before laoding settings"
       <<endl);
   suspend();
-  //load settings//
   VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<endl);
-//  _convert.loadSettings(what);
   CASSSettings s;
+  /** load the rewind info */
   _rewind = s.value("Rewind",false).toBool();
+  /** load the right reader */
   _read = FileReader::instance(s.value("FileType","xtc").toString().toStdString());
+  /** and load its settings */
   _read->loadSettings();
-  //resume yourselve//
+  /** then resume the thread */
   VERBOSEOUT(cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<endl);
   resume();
@@ -65,8 +66,9 @@ void cass::FileInput::loadSettings(size_t /*what*/)
 
 void cass::FileInput::suspend()
 {
+  /** set the pause flag */
   _pause=true;
-  //wait until you are paused//
+  /** then wait until the thread suspended with the help of waitUntilSuspended */
   waitUntilSuspended();
 }
 
@@ -89,22 +91,22 @@ void FileInput::pausePoint()
 
 void cass::FileInput::resume()
 {
-  //if the thread has not been paused return here//
+  /** check if the thread has not been paused if so  return immidiately */
   if(!_pause)
     return;
-  //reset the pause flag;
+  /** reset the pause flag */
   _pause=false;
-  //tell run to resume via the waitcondition//
+  /** and tell run to resume by waking the one waiting on the _pauseCondition */
   _pauseCondition.wakeOne();
 }
 
 
 void cass::FileInput::waitUntilSuspended()
 {
-  //if it is already paused then retrun imidiatly//
+  /** check if it is already paused, if so  retrun imidiatly */
   if(_paused)
     return;
-  //otherwise wait until the conditions has been called//
+  /** otherwise wait until the _waitUntilpausedCondition is waked by the pausePoint */
   QMutex mutex;
   QMutexLocker lock(&mutex);
   _waitUntilpausedCondition.wait(&mutex);
@@ -150,7 +152,6 @@ vector<string> FileInput::tokenize(std::ifstream &file)
 
 void cass::FileInput::run()
 {
-  //open the file with the filenames in it
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
              <<_filelistname<<"'"
              <<endl);
@@ -158,8 +159,7 @@ void cass::FileInput::run()
   if (!filelistfile.is_open())
   {
     stringstream ss;
-    ss <<"FileInput::run(): filelist '"<<_filelistname
-               <<"' could not be opened";
+    ss <<"FileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
     throw invalid_argument(ss.str());
   }
   vector<string> filelist(tokenize(filelistfile));
@@ -193,7 +193,6 @@ void cass::FileInput::run()
         /** fill the cassevent object with the contents from the file */
         const bool isGood((*_read)(file,*cassevent));
         cassevent->setFilename(filelistIt->c_str());
-        //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);
         emit newEventAdded();
       }
