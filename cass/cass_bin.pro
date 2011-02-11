@@ -101,6 +101,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       file_input.cpp \
                       file_reader.cpp \
                       xtc_reader.cpp \
+                      lma_reader.cpp \
                       format_converter.cpp \
                       histogram.cpp \
                       histogram_getter.cpp \
@@ -136,6 +137,7 @@ HEADERS            += analysis_backend.h \
                       file_input.h \
                       file_reader.h \
                       xtc_reader.h \
+                      lma_reader.h \
                       format_converter.h \
                       histogram.h \
                       histogram_getter.h \

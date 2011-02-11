@@ -12,6 +12,7 @@
 #include "file_reader.h"
 
 #include "xtc_reader.h"
+#include "lma_reader.h"
 
 using namespace cass;
 using namespace std;
@@ -22,6 +23,8 @@ FileReader::shared_pointer FileReader::instance(const string &type)
   shared_pointer ptr;
   if (type == "xtc")
     ptr = shared_pointer(new XtcReader());
+  else if (type == "lma")
+    ptr = shared_pointer(new LmaReader());
   else
   {
     stringstream ss;
