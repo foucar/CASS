@@ -86,7 +86,7 @@ double SignalProducer::firstGood(const std::pair<double,double>& range)
     _goodHitExtracted = true;
     signals_t &sigs (output());
 //    cout<< "SigProducer::firstGood(): size "<<sigs.size()<< " range '"<<range.first<<"' to '"<<range.second<<"'"<<endl;
-    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(_range)));
+    signals_t::iterator sigIt(find_if(sigs.begin(),sigs.end(), isInTimeRange(range)));
 //    cout << "SigProducer::firstGood(): found a signal "<<boolalpha<<(sigIt != sigs.end())<<endl;
     _goodHit = (sigIt != sigs.end())? (*sigIt)["time"] : 0;
 //    cout << "SigProducer::firstGood(): time: "<<_goodHit<<endl;
