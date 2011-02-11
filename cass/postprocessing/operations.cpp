@@ -977,7 +977,7 @@ void cass::pp64::process(const cass::CASSEvent &evt)
 
 
 
-// *** postprocessor 65 histograms 2 0D values to 1D histogram ***
+// *** postprocessor 65 histograms 2 0D values to 2D histogram ***
 
 cass::pp65::pp65(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
@@ -1075,7 +1075,7 @@ void cass::pp66::loadSettings(size_t)
   cout<<endl<<"Postprocessor '"<<_key
       <<"' creates a two dim histogram from PostProcessor '"<< _one->key()
       <<"' and '"<< _two->key()
-      <<". condition on PostProcessor '"<<_condition->key()<<"'"
+      <<"'. condition on PostProcessor '"<<_condition->key()<<"'"
       <<endl;
 }
 
@@ -1164,6 +1164,67 @@ void cass::pp66::process(const CASSEvent& evt)
     for (size_t i(0); i < oneNBins; ++i)
       memory[i*oneNBins+j] = one.memory()[i]*two.memory()[j];
   _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// *** postprocessor 67 histograms 2 0D values to 1D histogram ***
+
+cass::pp67::pp67(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp67::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _one = setupDependency("HistOne");
+  _two = setupDependency("HistTwo");
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) )
+    return;
+  if (_one->getHist(0).dimension() != 0 ||
+      _two->getHist(0).dimension() != 0)
+    throw std::runtime_error("PP type 67: Either HistOne or HistTwo is not a 0D Hist");
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers,true);
+  std::cout<<"Postprocessor '"<<_key
+      <<"' makes a 1D Histogram where '"<< _one->key()
+      <<"' defines the x bin to fill and '"<< _two->key()
+      <<"' defines the weight of how much to fill the x bin"
+      <<". Condition on PostProcessor '"<<_condition->key()<<"'"
+      <<std::endl;
+}
+
+void cass::pp67::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram0DFloat &one
+      (dynamic_cast<const Histogram0DFloat&>((*_one)(evt)));
+  const Histogram0DFloat &two
+      (dynamic_cast<const Histogram0DFloat&>((*_two)(evt)));
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  _result->lock.lockForWrite();
+  _result->clear();
+  dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue(),two.getValue());
   _result->lock.unlock();
   two.lock.unlock();
   one.lock.unlock();

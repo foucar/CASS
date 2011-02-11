@@ -696,7 +696,6 @@ namespace cass
 
 
 
-
   /** 1D to 2D histogramming.
    *
    * histograms two 1d histograms into one 2D Histogram
@@ -733,6 +732,45 @@ namespace cass
   };
 
 
+
+
+
+
+
+  /** 0D to 1D histogramming.
+   *
+   * histograms two 0d values into one 1D Histogram where the first Histogram
+   * defines the x axis bin and the second is the weight.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the resulting 1d histogram
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           Postprocessor names containing the 0D values to histogram.
+   *
+   * @author Lutz Foucar
+   */
+  class pp67 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp67(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing first 0D histogram to work on */
+    PostprocessorBackend *_one;
+
+    /** pp containing second 0D histogram to work on */
+    PostprocessorBackend *_two;
+  };
 
 
 

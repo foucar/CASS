@@ -80,6 +80,7 @@ the Class description for information about what parameters are user settable.
 00064: 0d into 1d (append on right end, shifting old values to the left)
 00065: Histogram two 0D values to a 2D histogram
 00066: Histogram two 1D traces to a 2D histogram
+00067: Histogram two 0D values to a 1D histogram, with first=x, second=weight
 
 00070: Subset a Histogram
 
@@ -246,6 +247,7 @@ using the custom doxygen tag cassttng.
       running1Dfrom0D=64,
       ZeroDto2DHistogramming=65,
       OneDto2DHistogramming=66,
+      ZeroDto1DHistogramming=67,
 
       SubsetHistogram=70,
 
