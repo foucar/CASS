@@ -31,7 +31,7 @@ namespace cass
     {
     public:
       /** create singleton if doesnt exist already */
-      static ConversionBackend::converterPtr_t instance();
+      static ConversionBackend::shared_pointer instance();
 
       /** takes the xtc and copies the data to cassevent */
       void operator()(const Pds::Xtc*, cass::CASSEvent*);
@@ -50,7 +50,7 @@ namespace cass
       Converter& operator=(const Converter&);
 
       /** the singleton container */
-      static ConversionBackend::converterPtr_t _instance;
+      static ConversionBackend::shared_pointer _instance;
 
       /** singleton locker for mutithreaded requests */
       static QMutex _mutex;

@@ -55,7 +55,7 @@ namespace cass
     void operator()(const QString& type)
     {
       const string convertertype(type.toStdString());
-      const ConversionBackend::converterPtr_t converter =
+      const ConversionBackend::shared_pointer converter =
           ConversionBackend::instance(convertertype);
       const ConversionBackend::pdstypelist_t &pdsTypeList(converter->pdsTypeList());
       ConversionBackend::pdstypelist_t::const_iterator idIt(pdsTypeList.begin());

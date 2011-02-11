@@ -16,15 +16,15 @@ using namespace cass::MachineData;
 using namespace std;
 
 // =================define static members =================
-cass::ConversionBackend::converterPtr_t Converter::_instance;
+cass::ConversionBackend::shared_pointer Converter::_instance;
 QMutex Converter::_mutex;
 
-cass::ConversionBackend::converterPtr_t Converter::instance()
+cass::ConversionBackend::shared_pointer Converter::instance()
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
   {
-    _instance = ConversionBackend::converterPtr_t(new Converter());
+    _instance = ConversionBackend::shared_pointer(new Converter());
   }
   return _instance;
 }

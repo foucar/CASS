@@ -38,7 +38,7 @@ namespace cass
     {
     public:
       /** create singleton if doesnt exist already */
-      static ConversionBackend::converterPtr_t instance();
+      static ConversionBackend::shared_pointer instance();
 
       /** do nothing */
       void operator()(const Pds::Xtc*, cass::CASSEvent*) {}
@@ -57,7 +57,7 @@ namespace cass
       Converter& operator=(const Converter&);
 
       /** the singleton container */
-      static ConversionBackend::converterPtr_t _instance;
+      static ConversionBackend::shared_pointer _instance;
 
       /** singleton locker for mutithreaded requests */
       static QMutex _mutex;
@@ -66,22 +66,22 @@ namespace cass
 }
 
 // =================define static members =================
-ConversionBackend::converterPtr_t Blank::Converter::_instance;
+ConversionBackend::shared_pointer Blank::Converter::_instance;
 QMutex Blank::Converter::_mutex;
 
-ConversionBackend::converterPtr_t Blank::Converter::instance()
+ConversionBackend::shared_pointer Blank::Converter::instance()
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
   {
-    _instance = ConversionBackend::converterPtr_t(new Converter);
+    _instance = ConversionBackend::shared_pointer(new Converter);
   }
   return _instance;
 }
 // ========================================================
 
 
-ConversionBackend::converterPtr_t ConversionBackend::instance(const std::string &type)
+ConversionBackend::shared_pointer ConversionBackend::instance(const std::string &type)
 {
   shared_ptr<ConversionBackend> converter;
   if("Acqiris" == type)

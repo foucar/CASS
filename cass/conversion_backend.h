@@ -39,7 +39,7 @@ namespace cass
   {
   public:
     /** typedef */
-    typedef std::tr1::shared_ptr<ConversionBackend> converterPtr_t;
+    typedef std::tr1::shared_ptr<ConversionBackend> shared_pointer;
 
     /** typedef */
     typedef std::list<Pds::TypeId::Type> pdstypelist_t;
@@ -65,7 +65,7 @@ namespace cass
      * @return shared pointer to the requested converter
      * @@param type the type of the requested converter
      */
-    static converterPtr_t instance(const std::string& type);
+    static shared_pointer instance(const std::string& type);
 
   protected:
     /** the list of pds types that the converter is responsible for */

@@ -82,7 +82,7 @@ namespace cass
 
   public:
     /** typdef describing the map of used converters for easier readable code */
-    typedef std::map<Pds::TypeId::Type, ConversionBackend::converterPtr_t> usedConverters_t;
+    typedef std::map<Pds::TypeId::Type, ConversionBackend::shared_pointer> usedConverters_t;
 
   protected:
     /** status whether a configure has already been seen */
