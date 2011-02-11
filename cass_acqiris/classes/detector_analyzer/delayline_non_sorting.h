@@ -33,7 +33,7 @@ namespace cass
      *           - 1: Layers U and V (Hex Anode)
      *           - 2: Layers U and W (Hex Anode)
      *           - 3: Layers V and W (Hex Anode)
-     * @cassttng .../Simple/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
+     * @cassttng .../NonSorting/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
      *           the scalefactors that convert ns to mm for the two layers.
      *           Default is 0.4 | 0.4
      *
