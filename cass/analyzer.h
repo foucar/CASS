@@ -25,7 +25,7 @@ namespace cass
 
   /** Container and call handler for all Pre Analyzers.
    *
-   *@section preanalyzer Parameters for the pre analyzers
+   * @section preanalyzer Parameters for the pre analyzers
    * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
    *           Should pre analysis run: default true
    *           (see cass::CCD::Parameter)
