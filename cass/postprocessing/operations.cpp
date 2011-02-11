@@ -1016,7 +1016,7 @@ void cass::pp65::process(const CASSEvent& evt)
   one.lock.lockForRead();
   two.lock.lockForRead();
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram1DFloat*>(_result)->fill(one.getValue(),two.getValue());
+  dynamic_cast<Histogram2DFloat*>(_result)->fill(one.getValue(),two.getValue());
   ++_result->nbrOfFills();
   _result->lock.unlock();
   two.lock.unlock();
