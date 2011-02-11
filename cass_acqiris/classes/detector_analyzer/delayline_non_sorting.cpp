@@ -12,6 +12,7 @@
 
 #include "poscalculator.hpp"
 #include "cass_settings.h"
+#include "signal_producer.h"
 
 using namespace std;
 using namespace cass::ACQIRIS;
@@ -23,6 +24,63 @@ DelaylineNonSorting::DelaylineNonSorting()
 
 detectorHits_t& DelaylineNonSorting::operator()(detectorHits_t &hits)
 {
+  typedef SignalProducer::signals_t signals_t;
+  typedef signals_t::iterator sigIt_t;
+
+  /** extract the signal arrays from the signal producers */
+  signals_t &f1signals (_layerCombination.first.first->output());
+  signals_t &f2signals (_layerCombination.first.second->output());
+  signals_t &s1signals (_layerCombination.second.first->output());
+  signals_t &s2signals (_layerCombination.second.second->output());
+
+  /** extract the iterators from the arrays */
+  sigIt_t iF1(f1signals.begin());
+  sigIt_t iF2 (f2signals.begin());
+  sigIt_t iS1 (s1signals.begin());
+  sigIt_t iS2 (s2signals.begin());
+
+  /** find out which array is the shortest and assign the iterators of that
+   *  array to the loop variables */
+  size_t minsize(f1signals.size());
+  sigIt_t sigIt(f1signals.begin());
+  sigIt_t end(f1signals.end());
+  if (minsize > f2signals.size())
+  {
+    minsize = f2signals.size();
+    sigIt = f2signals.begin();
+    end = f2signals.end();
+  }
+  if (minsize > s1signals.size())
+  {
+    minsize = s1signals.size();
+    sigIt = s1signals.begin();
+    end = s1signals.end();
+  }
+  if (minsize > s2signals.size())
+  {
+    minsize = s2signals.size();
+    sigIt = s2signals.begin();
+    end = s2signals.end();
+  }
+
+  /** go linear through all hits and create detectorhits for each entry in the
+   *  array
+   */
+  for (; sigIt != end; ++sigIt, ++iF1, ++iF2, ++iS1, ++iS2)
+  {
+    detectorHit_t hit;
+    const double f1 ((*iF1)["time"]);
+    const double f2 ((*iF2)["time"]);
+    const double s1 ((*iS1)["time"]);
+    const double s2 ((*iS2)["time"]);
+    const double f ((f1-f2) * _sf.first);
+    const double s ((s1-s2) * _sf.second);
+    const pair<double,double> pos ((*_poscalc)(make_pair(f,s)));
+    hit["x"] = pos.first;
+    hit["y"] = pos.second;
+    hit["t"] = 0;
+    hits.push_back(hit);
+  }
   return hits;
 }
 
