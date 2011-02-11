@@ -38,6 +38,11 @@ namespace cass
    * @cassttng FileInput/{Rewind}\n
    *           Tells the program to start over running over all files when true.
    *           Default is false.
+   * @cassttng FileInput/{FileType}\n
+   *           What kind of files do you want to analyze. Default value is "xtc"
+   *           Possible values are:
+   *           - xtc: reads xtc files recorded at slac see XtcReader
+   *           - lma: reads lma files recorded by AGAT. see LmaReader
    *
    * @author Lutz Foucar
    */

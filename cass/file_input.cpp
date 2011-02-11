@@ -34,34 +34,33 @@ FileInput::FileInput(string filelistname,
   _paused(false),
   _rewind(false)
 {
-  VERBOSEOUT(std::cout<< "FileInput::FileInput: constructed" <<std::endl);
+  VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
 }
 
 cass::FileInput::~FileInput()
 {
-  VERBOSEOUT(std::cout<< "input is closed" <<std::endl);
+  VERBOSEOUT(cout<< "input is closed" <<endl);
 }
 
 void cass::FileInput::loadSettings(size_t /*what*/)
 {
   //pause yourselve//
-  VERBOSEOUT(std::cout << "File Input: Load Settings: suspend before laoding settings"
-      <<std::endl);
+  VERBOSEOUT(cout << "File Input: Load Settings: suspend before laoding settings"
+      <<endl);
   suspend();
   //load settings//
-  VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
-      <<std::endl);
+  VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
+      <<endl);
 //  _convert.loadSettings(what);
   CASSSettings s;
   _rewind = s.value("Rewind",false).toBool();
   _read = FileReader::instance(s.value("FileType","xtc").toString().toStdString());
   _read->loadSettings();
   //resume yourselve//
-  VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
-      <<std::endl);
+  VERBOSEOUT(cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
+      <<endl);
   resume();
-  VERBOSEOUT(std::cout << "File Input: Load Settings: thread is resumed"
-      <<std::endl);
+  VERBOSEOUT(cout << "File Input: Load Settings: thread is resumed"<<endl);
 }
 
 void cass::FileInput::suspend()
