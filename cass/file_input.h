@@ -18,12 +18,10 @@
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
+#include "file_reader.h"
 
 namespace cass
 {
-  //forward declaration//
-  class FormatConverter;
-
   /** File Input for cass
    *
    * This class will be used in offline modus. I will take an string that
@@ -121,11 +119,9 @@ namespace cass
     /** name of the file containing all files that we need to process */
     std::string _filelistname;
 
-    /** a reference to the format converter functor
-     *
-     * The converter will convert the incomming data to our CASSEvent
-     */
-    FormatConverter &_convert;
+
+    /** a referene to the actual reader */
+    FileReader::shared_pointer _read;
 
     /** a mutex for suspending the thread*/
     QMutex _pauseMutex;

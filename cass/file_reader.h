@@ -42,9 +42,12 @@ namespace cass
      * @return true when the workers should work on the filled cassevent,
      *         false if not.
      * @param file the file that contains the data to be put into the cassevent
-     * @parma event the CASSEvent where the data will be put into
+     * @param event the CASSEvent where the data will be put into
      */
     virtual bool operator()(std::ifstream &file, CASSEvent& event)=0;
+
+    /** load the settings of the reader */
+    virtual void loadSettings()=0;
 
   protected:
     /** only inheritants can create this */

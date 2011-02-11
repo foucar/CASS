@@ -14,9 +14,8 @@
 #include <stdexcept>
 
 #include "file_input.h"
-#include "pdsdata/xtc/Dgram.hh"
+
 #include "cass_event.h"
-#include "format_converter.h"
 #include "cass_settings.h"
 
 using namespace std;
@@ -31,7 +30,6 @@ FileInput::FileInput(string filelistname,
   _quit(false),
   _quitWhenDone(quitWhenDone),
   _filelistname(filelistname),
-  _convert(*FormatConverter::instance()),
   _pause(false),
   _paused(false),
   _rewind(false)
@@ -44,7 +42,7 @@ cass::FileInput::~FileInput()
   VERBOSEOUT(std::cout<< "input is closed" <<std::endl);
 }
 
-void cass::FileInput::loadSettings(size_t what)
+void cass::FileInput::loadSettings(size_t /*what*/)
 {
   //pause yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspend before laoding settings"
@@ -53,9 +51,11 @@ void cass::FileInput::loadSettings(size_t what)
   //load settings//
   VERBOSEOUT(std::cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<std::endl);
-  _convert.loadSettings(what);
-  CASSSettings settings;
-  _rewind = settings.value("Rewind",false).toBool();
+//  _convert.loadSettings(what);
+  CASSSettings s;
+  _rewind = s.value("Rewind",false).toBool();
+  _read = FileReader::instance(s.value("FileType","xtc").toString().toStdString());
+  _read->loadSettings();
   //resume yourselve//
   VERBOSEOUT(std::cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<std::endl);
@@ -182,7 +182,7 @@ void cass::FileInput::run()
         /** rewind if requested */
         if (_rewind)
         {
-          /** reset the rewind flag if requested */
+          /** reset the rewind flag */
           _rewind = false;
           filelistIt = filelist.begin();
           break;
@@ -191,11 +191,7 @@ void cass::FileInput::run()
         CASSEvent *cassevent(0);
         _ringbuffer.nextToFill(cassevent);
         /** fill the cassevent object with the contents from the file */
-        Pds::Dgram& dg
-            (*reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer()));
-        file.read(cassevent->datagrambuffer(),sizeof(dg));
-        file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-        const bool isGood (_convert(cassevent));
+        const bool isGood((*_read)(file,*cassevent));
         cassevent->setFilename(filelistIt->c_str());
         //tell the buffer that we are done
         _ringbuffer.doneFilling(cassevent, isGood);
