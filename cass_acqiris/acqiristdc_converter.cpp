@@ -61,15 +61,16 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
-      Instrument &instr
-          (dev->instruments()[info.devId()]);
+      Instrument &instr(dev->instruments()[info.devId()]);
       Instrument::channels_t &channels(instr.channels());
       channels.resize(Instrument::NbrChannels);
+      cout << "ACQIRISTDC::Converter: found '"<<Pds::DetInfo::name(info)
+          <<"' configuration in datastream."
+          <<endl;
     }
     break;
 
-
-    //if it is a event then extract all information from the event//
+  //if it is a event then extract all information from the event//
   case (Pds::TypeId::Id_AcqTdcData):
     {
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
@@ -77,17 +78,19 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
       Device *dev (dynamic_cast<Device*>(devIt->second));
-      Device::instruments_t::iterator instrIt
-          (dev->instruments().find(info.devId()));
-      if (dev->instruments().end() == instrIt)
-      {
-        stringstream ss;
-        ss<<"ACQIRISTDC::Converter(): The AcqirisTDC in the CASSEvent does"
-            <<" not contain the instrument '"<<Pds::DetInfo::name(info)<<"'";
-        throw runtime_error(ss.str());
-      }
-      Instrument &instr(instrIt->second);
+      Instrument &instr(dev->instruments()[info.devId()]);
+//      Device::instruments_t::iterator instrIt
+//          (dev->instruments().find(info.devId()));
+//      if (dev->instruments().end() == instrIt)
+//      {
+//        stringstream ss;
+//        ss<<"ACQIRISTDC::Converter(): The AcqirisTDC in the CASSEvent does"
+//            <<" not contain the instrument '"<<Pds::DetInfo::name(info)<<"'";
+//        throw runtime_error(ss.str());
+//      }
+//      Instrument &instr(instrIt->second);
       Instrument::channels_t &channels(instr.channels());
+      channels.resize(Instrument::NbrChannels);
       assert(6 == channels.size());
       //extract the data from the xtc//
       const Pds::Acqiris::TdcDataV1 *data
