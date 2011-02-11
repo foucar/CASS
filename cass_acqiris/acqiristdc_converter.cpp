@@ -56,7 +56,7 @@ void Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt)
   case (Pds::TypeId::Id_AcqTdcConfig) :
     {
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-      assert(static_cast<int>(info.detector()) == static_cast<int>(SXRTdc));
+//      assert(static_cast<int>(info.detector()) == static_cast<int>(SXRTdc));
       cass::CASSEvent::devices_t::iterator devIt
           (evt->devices().find(cass::CASSEvent::AcqirisTDC));
       assert(evt->devices().end() != devIt);
