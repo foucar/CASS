@@ -316,13 +316,16 @@ void cass::Workers::start()
 
 void cass::Workers::end()
 {
+  QMutexLocker locker(&_mutex);
   VERBOSEOUT(std::cout << "got signal to close the workers"<<std::endl);
   //tell all workers that they should quit//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
-  //wait until we run has really finished
+  //wait until we run has really finished, when they didn't within 1/2 second
+  //terminate them
   for (size_t i=0;i<_workers.size();++i)
-  _workers[i]->wait();
+    if (!_workers[i]->wait(500))
+      _workers[i]->terminate();
   //tell one worker that we are about to quit//
   _workers[0]->aboutToQuit();
   //emit that all workers are finished//
