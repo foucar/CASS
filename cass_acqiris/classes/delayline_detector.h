@@ -109,6 +109,7 @@ namespace cass
      *           Method that is used to reconstruct the detector hits. Default
      *           is 0. Choises are:
      *           - 0: Simple Analysis (see DelaylineDetectorAnalyzerSimple)
+     *           - 1: Achims Routine for Hex anodes (see AchimsRoutine)
      * @cassttng AcqirisDetectors/\%detectorname\%/{DelaylineType}\n
      *           What kind of Delaylinedetector are we. Default is 0
      *           - 0: Quad Anode
