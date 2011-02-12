@@ -27,6 +27,9 @@ shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const Dete
   case NonSorting:
       detanal = shared_pointer(new DelaylineNonSorting());
       break;
+  case AchimsRoutine:
+      detanal = shared_ptr<DetectorAnalyzerBackend>(new HexSorter());
+      break;
   default:
     {
       stringstream ss;
