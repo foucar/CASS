@@ -26,6 +26,7 @@ shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const Dete
     break;
   case NonSorting:
       detanal = shared_pointer(new DelaylineNonSorting());
+      break;
   default:
     {
       stringstream ss;
