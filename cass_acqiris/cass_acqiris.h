@@ -36,7 +36,7 @@ namespace cass
     /** the types of detectors that are available */
     enum DetectorType {Delayline, ToF};
     /** the available detector analyzers*/
-    enum DetectorAnalyzerType{DelaylineSimple};
+    enum DetectorAnalyzerType{DelaylineSimple,AchimsRoutine};
     /** the types of delayline detectors that are available */
     enum DelaylineType {Quad,Hex};
     /** the waveformanalyzers that are available */
