@@ -10,7 +10,7 @@
 #ifndef _DETECTOR_ANALYZER_BACKEND_H_
 #define _DETECTOR_ANALYZER_BACKEND_H_
 
-#include <memory>
+#include <tr1/memory>
 
 #include "cass_acqiris.h"
 #include "delayline_detector.h"
@@ -34,6 +34,9 @@ namespace cass
     class CASS_ACQIRISSHARED_EXPORT DetectorAnalyzerBackend
     {
     public:
+      /** typedef this as a shared pointer */
+      typedef std::tr1::shared_ptr<DetectorAnalyzerBackend> shared_pointer;
+
       /** virtual destructor */
       virtual ~DetectorAnalyzerBackend() {}
 
@@ -66,7 +69,7 @@ namespace cass
        * @return pointer to the instance of the requested type
        * @param type the requested analyzer type
        */
-      static std::tr1::shared_ptr<DetectorAnalyzerBackend> instance(const DetectorAnalyzerType& type);
+      static shared_pointer instance(const DetectorAnalyzerType& type);
     };
   }
 }//end namespace cass

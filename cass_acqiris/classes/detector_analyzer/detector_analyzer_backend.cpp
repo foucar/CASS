@@ -11,6 +11,7 @@
 
 #include "detector_analyzer_backend.h"
 #include "delayline_detector_analyzer_simple.h"
+#include "delayline_non_sorting.h"
 
 using namespace cass::ACQIRIS;
 using namespace std;
@@ -21,8 +22,10 @@ shared_ptr<DetectorAnalyzerBackend> DetectorAnalyzerBackend::instance(const Dete
   switch(type)
   {
   case DelaylineSimple:
-    detanal = shared_ptr<DetectorAnalyzerBackend>(new DelaylineDetectorAnalyzerSimple());
+    detanal = shared_pointer(new DelaylineDetectorAnalyzerSimple());
     break;
+  case NonSorting:
+      detanal = shared_pointer(new DelaylineNonSorting());
   default:
     {
       stringstream ss;
