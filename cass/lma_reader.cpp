@@ -142,6 +142,7 @@ void LmaReader::loadSettings()
 
 bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
 {
+  /** if it is a new file read the file header first */
   if (_newFile)
   {
     _newFile = false;
@@ -203,13 +204,15 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
     }
   }
 
-
-
+  /** extract the right device from the cassevent */
   Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
+  /** extract the right instrument from the acqiris device */
   Instrument &instr(dev->instruments()[Standalone]);
+  /** copy the header information to the instrument */
   instr = _instrument;
   Instrument::channels_t &channels(instr.channels());
 
+  /** read the acqiris data from the file */
   evt.id() = (lmareader::retrieve<int32_t>(file));
   double horpos(lmareader::retrieve<double>(file));
 
@@ -220,10 +223,15 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
     waveform_t &waveform(chan.waveform());
     if (_usedChannelBitmask & (0x1<<i))
     {
+      /** since we zero substracted the wavefrom in the lma file, we need to
+       *  create the right wavefrom again. This is done by going through the
+       *  wavefrom sinpplets called pulses and put them at the right position in
+       *  the wavefrom of the channel.
+       */
       int16_t nbrPulses(lmareader::retrieve<int16_t>(file));
       for (int16_t i(0); i < nbrPulses; ++i)
       {
-        //--read the puls properties from archive--//
+        /** read the puls properties from file */
         int32_t wavefromOffset(lmareader::retrieve<int32_t>(file));
         int32_t pulslength(lmareader::retrieve<int32_t>(file));
         size_t dataSize(pulslength * 2);
