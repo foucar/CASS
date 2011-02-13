@@ -45,7 +45,7 @@ cass::FileInput::~FileInput()
 
 void cass::FileInput::loadSettings(size_t /*what*/)
 {
-  /** pause the thread */
+  /** pause the thread if it is running */
   VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
              <<" before laoding settings"
              <<endl);
