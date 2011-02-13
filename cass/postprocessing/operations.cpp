@@ -1263,7 +1263,7 @@ void cass::pp68::loadSettings(size_t)
     return;
   if (_one->getHist(0).dimension() != 1 ||
       _two->getHist(0).dimension() != 0)
-    throw std::runtime_error("PP type 67: Either HistOne is not a 1d histo or"
+    throw std::runtime_error("PP type 68: Either HistOne is not a 1d histo or"
                              " HistTwo is not a 0D Hist");
   setup(dynamic_cast<const Histogram1DFloat&>(_one->getHist(0)));
   cout<<endl<<"Postprocessor '"<<_key
