@@ -86,6 +86,7 @@ the Class description for information about what parameters are user settable.
 00070: Subset a Histogram
 
 00080: nbrOfFills of given histogram
+00081: maximum bin of 1D histogram
 
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
@@ -254,6 +255,7 @@ using the custom doxygen tag cassttng.
       SubsetHistogram=70,
 
       nbrOfFills=80,
+      maximumBin=81,
 
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,

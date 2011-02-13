@@ -907,6 +907,45 @@ namespace cass
 
 
 
+
+
+
+
+
+
+
+
+  /** return the bin with the highest value of an 1D histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp81 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp81(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
+
+
 }
 
 #endif

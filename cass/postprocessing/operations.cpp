@@ -1553,6 +1553,60 @@ void cass::pp80::process(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 81 returns the highest bin of a 1D Histogram ***
+
+cass::pp81::pp81(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp81::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  if (_pHist->getHist(0).dimension() != 1)
+    throw runtime_error("PP type 81: HistName does not contain a 1D histogram.");
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the maximum bin in '" << _pHist->key()
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp81::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram1DFloat& one
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t::const_iterator maxElementIt
+      (max_element(one.memory().begin(), one.memory().end()-2));
+  size_t bin(distance(one.memory().begin(),maxElementIt));
+  dynamic_cast<Histogram0DFloat*>(_result)->
+      fill(one.axis()[HistogramBackend::xAxis].position(bin));
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
