@@ -776,6 +776,56 @@ namespace cass
 
 
 
+
+  /** 0D and 1D to 2D histogramming.
+   *
+   * histograms a 0d and 1D Histogram to a 2d Histogram where the first 1d
+   * Histogram defines the x axis and the second 0d histogram gives the y axis.
+   * One only has to define the y axis since the x axis will be taken from the
+   * 1d histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{YNbrBins|YLow|YUp}\n
+   *           properties of the y axis of the resulting 2d histogram
+   * @cassttng PostProcessor/\%name\%/{HistOne}\n
+   *           postprocessr containing the 1d histogram.
+   * @cassttng PostProcessor/\%name\%/{HistTwo} \n
+   *           Postprocessor containing the 0D values for the y axis
+   *
+   * @author Lutz Foucar
+   */
+  class pp68 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp68(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+    /** set up the histogram */
+    void setup(const Histogram1DFloat &one);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing first 0D histogram to work on */
+    PostprocessorBackend *_one;
+
+    /** pp containing second 0D histogram to work on */
+    PostprocessorBackend *_two;
+  };
+
+
+
+
+
   /** Subset Histogram
    *
    * Will copy a subset of another histogram and return it in a new histogram.
