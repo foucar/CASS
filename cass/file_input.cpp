@@ -173,12 +173,13 @@ void cass::FileInput::run()
   {
     if (_quit)
       break;
-    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<*filelistIt<<"'"<<endl);
-    ifstream file(filelistIt->c_str(), std::ios::binary | std::ios::in);
+    string filename(*filelistIt++);
+    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
+    ifstream file(filename.c_str(), std::ios::binary | std::ios::in);
     //if there was such a file then we want to load it
     if (file.is_open())
     {
-      cout <<"FileInput::run(): processing file '"<<*filelistIt<<"'"<<endl;
+      cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
       _read->newFile();
       while(!file.eof() && !_quit)
       {
@@ -203,8 +204,7 @@ void cass::FileInput::run()
       file.close();
     }
     else
-      cout <<"FileInput::run(): could not open '"<<*filelistIt<<"'"<<endl;
-    ++filelistIt;
+      cout <<"FileInput::run(): could not open '"<<filename<<"'"<<endl;
   }
   cout << "FileInput::run(): Finished with all files." <<endl;
   if(!_quitWhenDone)
