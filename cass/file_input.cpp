@@ -204,6 +204,7 @@ void cass::FileInput::run()
     }
     else
       cout <<"FileInput::run(): could not open '"<<*filelistIt<<"'"<<endl;
+    ++filelistIt;
   }
   cout << "FileInput::run(): Finished with all files." <<endl;
   if(!_quitWhenDone)
