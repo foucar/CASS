@@ -17,7 +17,9 @@
 #include <QtCore/QMutex>
 #include <QtCore/QString>
 
-#include "delayline_detector_analyzer_backend.h"
+#include "postprocessor.h"
+#include "backend.h"
+#include "acqiris_detectors_helper.h"
 #include "delayline_detector.h"
 
 class sum_walk_calibration_class;
@@ -26,135 +28,104 @@ class sort_class;
 
 namespace cass
 {
-  namespace ACQIRIS
-  {
-    /** Achims resort routine calibrator
+  /** Achims resort routine calibrator
      *
      * this class will use achims resort routine capabilties to calibrate
      * the timesum shift and the scalefactors
      *
      * @author Lutz Foucar
      */
-    class CASS_ACQIRISSHARED_EXPORT HexCalibrator
-      : public DetectorAnalyzerBackend
-    {
-    public:
-      /** typedef of this instance */
-      typedef std::tr1::shared_ptr<HexCalibrator> shared_pointer;
+  class HexCalibrator
+    : public PostprocessorBackend
+  {
+  public:
+    /** enum for accessing the vectors */
+    enum {mcp, u1, u2, v1, v2, w1, w2};
+    enum {u, v, w};
 
-      /** enum for accessing the vectors */
-      enum {mcp, u1, u2, v1, v2, w1, w2};
-      enum {u, v, w};
+    /** constructor */
+    HexCalibrator(PostProcessors&, const PostProcessors::key_t&);
 
-      /** return our singleton instance
-       *
-       * @param detectorname the name of the detector that the calibrator is for
-       */
-      static shared_pointer instance(const std::string &detectorname);
+    /** create the calibration
+     *
+     * this won't extract the detector hits but rather just fill the
+     * calibrators with the values that they expect.
+     *
+     * In order to fill the scalefactor calibrator with only points that are
+     * meaningful we check first the time sum for the hit we want to include.
+     *
+     * After we filled we check whether we can already output the calibration
+     * data. We have enough when either we are told so or when the ratio is
+     * better than what the user set as limit. If so, create the a QSettings
+     * object that handles the ini file that will contain the calibration data.
+     * Extract the name of the .ini file from the settings for this calibrator.
+     *
+     * @param evt the event to work on
+     */
+    void process(const CASSEvent& evt);
 
-      /** the operator
-       *
-       * this won't extract the detector hits but rather just fill the
-       * calibrators with the values that they expect.
-       *
-       * In order to fill the scalefactor calibrator with only points that are
-       * meaningful we check first the time sum for the hit we want to include.
-       *
-       * After we filled we check whether we can already output the calibration
-       * data. We have enough when either we are told so or when the ratio is
-       * better than what the user set as limit. If so, create the a QSettings
-       * object that handles the ini file that will contain the calibration data.
-       * Extract the name of the .ini file from the settings for this calibrator.
-       *
-       * @return reference to the hit container
-       * @param hits the hitcontainer
-       */
-      detectorHits_t& operator()(detectorHits_t &hits);
+    /** load the detector analyzers settings from .ini file
+     *
+     * retrieve all necessary information to be able to calibrate the timesum
+     * and the scalefactors. Next to this remember the the groupname of the
+     * settings object, so that we later can use it to extract information
+     */
+    void loadSettings(size_t);
 
-      /** load the detector analyzers settings from .ini file
-       *
-       * retrieve all necessary information to be able to calibrate the timesum
-       * and the scalefactors. Next to this remember the the groupname of the
-       * settings object, so that we later can use it to extract information
-       *
-       * @param s the CASSSetting object
-       * @param d the detector object that we are belonging to
-       */
-      void loadSettings(CASSSettings &s, DelaylineDetector &d);
+  private:
+    /** the time sum calibrator
+     *
+     * this will take the timesum and after a while it knows how to correct
+     * the timesum to be a straight line
+     */
+    std::tr1::shared_ptr<sum_walk_calibration_class> _tsum_calibrator;
 
-    private:
-      /** constructor
-       *
-       * private because this should be a singleton
-       * creates and intitializes the achims routine
-       */
-      HexCalibrator();
+    /** pointer to scalfactor calibrator
+     *
+     * this is a class that will help finding the scalefactor and the
+     * w-Layer offset of the Hex-Anode.
+     */
+    std::tr1::shared_ptr<scalefactors_calibration_class> _scalefactor_calibrator;
 
-      /** an instance of this */
-      static std::map<std::string,shared_pointer> _instances;
+    /** the timesums and their width
+     *
+     * the order is as follows (first is always timesum and second
+     * the timesumwidth):
+     * - 0: u layer
+     * - 1: v layer
+     * - 2: w layer
+     */
+    std::vector<std::pair<double,double> > _timesums;
 
-      /** singleton mutex */
-      static QMutex _mutex;
+    /** the w-layer offset */
+    double _wLayerOffset;
 
-      /** the time sum calibrator
-       *
-       * this will take the timesum and after a while it knows how to correct
-       * the timesum to be a straight line
-       */
-      std::tr1::shared_ptr<sum_walk_calibration_class> _tsum_calibrator;
+    /** the ratio to check whether the calibration can be started */
+    double _ratio;
 
-      /** pointer to scalfactor calibrator
-       *
-       * this is a class that will help finding the scalefactor and the
-       * w-Layer offset of the Hex-Anode.
-       */
-      std::tr1::shared_ptr<scalefactors_calibration_class> _scalefactor_calibrator;
+    /** the group name of the cass settings for this calibrator */
+    QString _groupname;
 
-      /** the timesums and their width
-       *
-       * the order is as follows (first is always timesum and second
-       * the timesumwidth):
-       * - 0: u layer
-       * - 1: v layer
-       * - 2: w layer
-       */
-      std::vector<std::pair<double,double> > _timesums;
+    /** the .ini filename for the sorting information */
+    std::string _calibrationFilename;
 
-      /** the w-layer offset */
-      double _wLayerOffset;
+    /** the center of the image */
+    std::pair<double,double> _center;
 
-      /** the signal producers of the hex detector in a vector
-       *
-       * the order is as follows:
-       * - 0: mcp
-       * - 1: u1
-       * - 2: u2
-       * - 3: v1
-       * - 4: v2
-       * - 5: w1
-       * - 6: w2
-       */
-      std::vector<SignalProducer*> _sigprod;
+    /** the scalefactors
+     *
+     * the order in the array is given by the enums
+     */
+    std::vector<double> _scalefactors;
 
-      /** the ratio to check whether the calibration can be started */
-      double _ratio;
+    /** the maximum runtime */
+    double _maxRuntime;
 
-      /** the group name of the cass settings for this calibrator */
-      QString _groupname;
+    /** The detector we are there for*/
+    ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type _detector;
 
-      /** the .ini filename for the sorting information */
-      std::string _calibrationFilename;
-
-      /** the center of the image */
-      std::pair<double,double> _center;
-
-      /** the scalefactors */
-      std::vector<double> _scalefactors;
-
-      /** the maximum runtime */
-      double _maxRuntime;
-    };
-
-  }
+    /** flag to tell wether the calibration has been written already */
+    bool _calibwritten;
+  };
 }
 #endif

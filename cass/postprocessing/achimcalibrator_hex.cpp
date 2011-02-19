@@ -14,7 +14,10 @@
 
 #include "resorter/resort64c.h"
 #include "cass_settings.h"
+#include "histogram.h"
+#include "convenience_functions.h"
 
+using namespace cass;
 using namespace cass::ACQIRIS;
 using namespace std;
 using namespace std::tr1;
@@ -179,88 +182,28 @@ namespace cass
     }
   }
 }
-// =================define static members =================
-map<string,HexCalibrator::shared_pointer> HexCalibrator::_instances;
-QMutex HexCalibrator::_mutex;
-
-HexCalibrator::shared_pointer HexCalibrator::instance(const std::string &detectorname)
-{
-  QMutexLocker locker(&_mutex);
-  map<string,HexCalibrator::shared_pointer>::iterator it
-      (_instances.find(detectorname));
-  if(it == _instances.end())
-  {
-    _instances[detectorname] = shared_pointer(new HexCalibrator());
-    it = _instances.find(detectorname);
-  }
-  return it->second;
-}
-// ========================================================
 
 
-
-HexCalibrator::HexCalibrator()
-  :DetectorAnalyzerBackend(),
+HexCalibrator::HexCalibrator(PostProcessors &pp, const PostProcessors::key_t &key)
+  :PostprocessorBackend(pp,key),
    _timesums(3,make_pair(0,0)),
-   _sigprod(7),
    _scalefactors(2,1)
-{}
-
-detectorHits_t& HexCalibrator::operator()(detectorHits_t &hits)
 {
-  vector<double> values(7);
-  values[mcp] = _sigprod[mcp]->firstGood();
-  values[u1] = _sigprod[u1]->firstGood();
-  values[u2] = _sigprod[u2]->firstGood();
-  values[v1] = _sigprod[v1]->firstGood();
-  values[v2] = _sigprod[v2]->firstGood();
-  values[w1] = _sigprod[w1]->firstGood();
-  values[w2] = _sigprod[w2]->firstGood();
-
-  vector<double> layer(3);
-  layer[u] = values[u1] - values[u2];
-  layer[v] = values[v1] - values[v2];
-  layer[w] = values[w1] - values[w2];
-
-  vector<bool> layerChecksum(3);
-  layerChecksum[u] = abs(values[u1]+values[u2]-2.*values[mcp]) < _timesums[u].second;
-  layerChecksum[v] = abs(values[v1]+values[v2]-2.*values[mcp]) < _timesums[v].second;
-  layerChecksum[w] = abs(values[w1]+values[w2]-2.*values[mcp]) < _timesums[w].second;
-
-  AchimCalibrator::shift_sum(values,_timesums);
-  AchimCalibrator::shift_pos(layer,_center,_scalefactors);
-  AchimCalibrator::shift_wLayer(values[w1],values[w2],_wLayerOffset);
-
-  if (layerChecksum[u] && layerChecksum[v] && layerChecksum[w])
-    _scalefactor_calibrator->feed_calibration_data(layer[u],
-                                                   layer[v],
-                                                   layer[w],
-                                                   layer[w]-_wLayerOffset);
-  _tsum_calibrator->fill_sum_histograms(values[u1],
-                                        values[u2],
-                                        values[v1],
-                                        values[v2],
-                                        values[w1],
-                                        values[w2],
-                                        values[mcp]);
-  /** write the parameters when we are told that we can or our set threshold is
-   *  reached.
-   */
-  if (_scalefactor_calibrator->map_is_full_enough() ||
-      _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
-  {
-    QSettings hexsettings(QString::fromStdString(_calibrationFilename),
-                          QSettings::defaultFormat());
-    /** @todo check whether one can set the goup this way */
-    hexsettings.beginGroup(_groupname);
-    AchimCalibrator::writeCalibData(hexsettings,_tsum_calibrator,_scalefactor_calibrator);
-    hexsettings.endGroup();
-  }
-  return hits;
+  loadSettings(0);
 }
 
-void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
+void HexCalibrator::loadSettings(size_t)
 {
+  _calibwritten = false;
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  _detector = loadDelayDet(settings,161,_key);
+  const DelaylineDetector &d
+      (*dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector()));
   if(!d.isHex())
   {
     stringstream ss;
@@ -268,14 +211,9 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
         << "' which is not a Hex Detector.";
     throw invalid_argument(ss.str());
   }
-  assert(_sigprod.size() == 7);
-  _sigprod[mcp] = &d.mcp();
-  _sigprod[u1] = &d.layers()['U'].wireends()['1'];
-  _sigprod[u2] = &d.layers()['U'].wireends()['2'];
-  _sigprod[v1] = &d.layers()['V'].wireends()['1'];
-  _sigprod[v2] = &d.layers()['V'].wireends()['2'];
-  _sigprod[w1] = &d.layers()['W'].wireends()['1'];
-  _sigprod[w2] = &d.layers()['W'].wireends()['2'];
+  CASSSettings s;
+  s.beginGroup("AcqirisDetectors");
+  s.beginGroup(QString::fromStdString(_detector));
   s.beginGroup("HexSorting");
   _groupname = s.group();
   assert(_timesums.size() == 3);
@@ -308,5 +246,72 @@ void HexCalibrator::loadSettings(CASSSettings& s, DelaylineDetector &d)
                                                                                     _scalefactors[u],
                                                                                     _scalefactors[v],
                                                                                     _scalefactors[w]));
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' calibrates the hex detector '"<< _detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<std::endl;
 
 }
+
+void HexCalibrator::process(const CASSEvent &evt)
+{
+  DelaylineDetector &d
+      (*dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+  _result->lock.lockForWrite();
+  vector<double> values(7);
+  values[mcp] = d.mcp().firstGood();
+  values[u1] = d.layers()['U'].wireends()['1'].firstGood();
+  values[u2] = d.layers()['U'].wireends()['2'].firstGood();
+  values[v1] = d.layers()['V'].wireends()['1'].firstGood();
+  values[v2] = d.layers()['V'].wireends()['2'].firstGood();
+  values[w1] = d.layers()['W'].wireends()['1'].firstGood();
+  values[w2] = d.layers()['W'].wireends()['2'].firstGood();
+
+  vector<double> layer(3);
+  layer[u] = values[u1] - values[u2];
+  layer[v] = values[v1] - values[v2];
+  layer[w] = values[w1] - values[w2];
+
+  vector<bool> layerChecksum(3);
+  layerChecksum[u] = abs(values[u1]+values[u2]-2.*values[mcp]) < _timesums[u].second;
+  layerChecksum[v] = abs(values[v1]+values[v2]-2.*values[mcp]) < _timesums[v].second;
+  layerChecksum[w] = abs(values[w1]+values[w2]-2.*values[mcp]) < _timesums[w].second;
+
+  AchimCalibrator::shift_sum(values,_timesums);
+  AchimCalibrator::shift_pos(layer,_center,_scalefactors);
+  AchimCalibrator::shift_wLayer(values[w1],values[w2],_wLayerOffset);
+
+  if (layerChecksum[u] && layerChecksum[v] && layerChecksum[w])
+    _scalefactor_calibrator->feed_calibration_data(layer[u],
+                                                   layer[v],
+                                                   layer[w],
+                                                   layer[w]-_wLayerOffset);
+  _tsum_calibrator->fill_sum_histograms(values[u1],
+                                        values[u2],
+                                        values[v1],
+                                        values[v2],
+                                        values[w1],
+                                        values[w2],
+                                        values[mcp]);
+  /** write the parameters when we are told that we can or our set threshold is
+   *  reached.but only if it has not been written yet
+   */
+  if (!_calibwritten)
+  {
+    if (_scalefactor_calibrator->map_is_full_enough() ||
+        _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
+    {
+      _calibwritten = true;
+      QSettings hexsettings(QString::fromStdString(_calibrationFilename),
+                            QSettings::defaultFormat());
+      /** @todo check whether one can set the goup this way */
+      hexsettings.beginGroup(_groupname);
+      AchimCalibrator::writeCalibData(hexsettings,_tsum_calibrator,_scalefactor_calibrator);
+      hexsettings.endGroup();
+    }
+  }
+  _result->lock.unlock();
+}
+
