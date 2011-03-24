@@ -17,6 +17,7 @@ namespace cass
 {
   //forward declaration
   class CoalescingBase;
+  class CASSSettings;
 
   /** PixelDetector Manager
    *
@@ -41,6 +42,12 @@ namespace cass
 
     /** retrieve the coalesced pixel list */
     const PixelDetector::pixelList_t& coalescedPixels();
+
+    /** load the settings of this
+     *
+     * @param s the CASSSettings object to read the information from
+     */
+    void loadSettings(CASSSettings &s);
 
   private:
     /** pointer to the pixel detector we manage */

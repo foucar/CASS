@@ -9,6 +9,7 @@
 #include "pixel_detector_container.h"
 
 #include "coalescing_base.h"
+#include "cass_settings.h"
 
 using namespace cass;
 
@@ -27,4 +28,9 @@ void PixelDetectorContainer::associate(PixelDetector *in)
 {
   _pixeldetector = in;
   _coalescedCreated = false;
+}
+
+void PixelDetectorContainer::loadSettings(CASSSettings &s)
+{
+
 }
