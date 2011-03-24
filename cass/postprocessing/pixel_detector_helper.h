@@ -43,7 +43,7 @@ namespace cass
     typedef std::map<std::string,shared_pointer> instancesmap_t;
 
     typedef std::tr1::shared_ptr<PixelDetectorContainer> PixDetContainer_sptr;
-  protected:
+
     /** typedef defining the list of detectors for more readable code*/
     typedef std::list<std::pair<uint64_t, PixDetContainer_sptr> > detectorList_t;
 

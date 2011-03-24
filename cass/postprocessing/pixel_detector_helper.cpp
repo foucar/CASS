@@ -12,9 +12,21 @@
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "pixel_detector_container.h"
-#include "convenience_functions.h"
 
 using namespace cass;
+using namespace std;
+
+namespace cass
+{
+  struct IsID
+  {
+    IsID(const uint64_t id):_id(id){}
+    bool operator()(const HelperPixelDetectors::detectorList_t::value_type &element)const
+    { return (_id == element.first); }
+    const uint64_t _id;
+  };
+}
+
 
 //initialize static members//
 HelperPixelDetectors::instancesmap_t HelperPixelDetectors::_instances;
@@ -53,28 +65,27 @@ HelperPixelDetectors::HelperPixelDetectors(const instancesmap_t::key_type& detna
 
 HelperPixelDetectors::PixDetContainer_sptr HelperPixelDetectors::detector(const CASSEvent &evt)
 {
-//  using namespace std;
-//  QMutexLocker lock(&_helperMutex);
-//  detectorList_t::iterator it
-//    (find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id())));
-////  cout << " DetHelp 1"<<endl;
-//  if(_detectorList.end() == it)
-//  {
-////    cout << " DetHelp 2"<<endl;
-//    DetectorBackend* det (_detectorList.back().second);
-////    cout << " DetHelp 3  "<<det<<endl;
-//    det->associate(evt);
-////    cout << " DetHelp 4"<<endl;
-//    detectorList_t::value_type newPair(make_pair(evt.id(),det));
-////    cout << " DetHelp 5"<<endl;
-//    _detectorList.push_front(newPair);
-////    cout << " DetHelp 6"<<endl;
-//    _detectorList.pop_back();
-//    it = _detectorList.begin();
-////    cout << " DetHelp 7"<<endl;
-//  }
-////  cout << " DetHelp 8 "<<it->second<<endl;
-//  return it->second;
+  QMutexLocker lock(&_helperMutex);
+  detectorList_t::iterator it
+    (find_if(_detectorList.begin(), _detectorList.end(), IsID(evt.id())));
+//  cout << " DetHelp 1"<<endl;
+  if(_detectorList.end() == it)
+  {
+//    cout << " DetHelp 2"<<endl;
+    HelperPixelDetectors::PixDetContainer_sptr det(_detectorList.back().second);
+//    cout << " DetHelp 3  "<<det<<endl;
+    det->associate(evt);
+//    cout << " DetHelp 4"<<endl;
+    detectorList_t::value_type newPair(make_pair(evt.id(),det));
+//    cout << " DetHelp 5"<<endl;
+    _detectorList.push_front(newPair);
+//    cout << " DetHelp 6"<<endl;
+    _detectorList.pop_back();
+    it = _detectorList.begin();
+//    cout << " DetHelp 7"<<endl;
+  }
+//  cout << " DetHelp 8 "<<it->second<<endl;
+  return it->second;
 }
 
 void HelperPixelDetectors::loadSettings(size_t)
