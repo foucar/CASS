@@ -120,6 +120,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/acqiris_detectors.cpp \
                       ./postprocessing/machine_data.cpp \
                       ./postprocessing/ccd.cpp \
+                      ./postprocessing/pixel_detector_helper.cpp \
                       ./postprocessing/alignment.cpp \
                       ./postprocessing/imaging.cpp \
                       ./postprocessing/operations.cpp \
@@ -172,6 +173,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/alignment.h \
                       ./postprocessing/backend.h \
                       ./postprocessing/ccd.h \
+                      ./postprocessing/pixel_detector_helper.h \
                       ./postprocessing/imaging.h \
                       ./postprocessing/waveform.h \
                       ./postprocessing/machine_data.h \
