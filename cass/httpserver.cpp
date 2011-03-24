@@ -27,8 +27,10 @@ void req_overviewPage::createResponseBuffer()
   cass::PostProcessors::keyList_t list = idlist->getList();
   _responseBuffer = "";
   _responseBuffer += "<html><body>\n";
+  _responseBuffer += "List of active and published postprocessors:\n";
   for (cass::PostProcessors::keyList_t::const_iterator it=list.begin(); it!=list.end(); ++it)
-    _responseBuffer += *it + "\n";
+    _responseBuffer += "<li><a href=\"" + std::string(ADDR_HIST2DPage) + *it + ".html\">" + *it + "</a></li>\n";
+  _responseBuffer += "end of list.\n";
   _responseBuffer += "<html><body>\n";
 }
 // serve functions:
