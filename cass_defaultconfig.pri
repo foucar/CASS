@@ -29,7 +29,7 @@ CONFIG      += staticlib
 CONFIG      += offline
 
 # Uncomment the following line to enable a http Server:
-CONFIG      += httpserver
+#CONFIG      += httpServer
 
 # Uncomment the following line to enable pp1000 (HDF5 output)
 CONFIG      += hdf5
