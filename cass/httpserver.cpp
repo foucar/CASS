@@ -47,7 +47,12 @@ int handle_request(void *cls, struct MHD_Connection *connection, const char *add
 }
 requestType* parseAddress(const char* address, MHD_Connection* connection)
 {
-  int begin = 0; // offset of address substring
+  int begin = strlen(address); // offset of address substring
+  // look for lowest level in address:
+  while (begin>0) {
+    if (address[begin-1]=='/') break;
+    --begin;
+  }
   if (!strncmp(address+begin, ADDR_HIST2DImage, strlen(ADDR_HIST2DImage))) return new req_histogram2DImage(connection, address+begin+strlen(ADDR_HIST2DImage));
   if (!strncmp(address+begin, ADDR_HIST2DPage, strlen(ADDR_HIST2DPage))) return new req_histogram2DPage(connection, address+begin+strlen(ADDR_HIST2DPage));
   return new req_overviewPage(connection, address+begin);
