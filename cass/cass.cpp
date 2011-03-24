@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 
 #ifdef HTTPSERVER
   // http server
-  httpServer http_server;
+  httpServer http_server(get_histogram);
 #endif
 
   int retval(0);
