@@ -23,24 +23,16 @@ QMutex HelperPixelDetectors::_mutex;
 
 HelperPixelDetectors::shared_pointer HelperPixelDetectors::instance(const instancesmap_t::key_type& detector)
 {
-//  QMutexLocker lock(&_mutex);
-//  if (_instances.find(detector) == _instances.end())
-//  {
-//    VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): creating an"
-//               <<" instance of the Acqiris Detector Helper for detector '"<<detector
-//               <<"'"
-//               <<std::endl);
-//    _instances[detector] = new HelperPixelDetectors(detector);
-//  }
-//  return _instances[detector];
-}
-
-void HelperPixelDetectors::destroy()
-{
-//  QMutexLocker lock(&_mutex);
-//  helperinstancesmap_t::iterator itdm(_instances.begin());
-//  for (;itdm!=_instances.end();++itdm)
-//    delete itdm->second;
+  QMutexLocker lock(&_mutex);
+  if (_instances.find(detector) == _instances.end())
+  {
+    VERBOSEOUT(std::cout << "HelperPixelDetectors::instance(): creating an"
+               <<" instance of the Pixel Detector Helper for detector '"<<detector
+               <<"'"
+               <<std::endl);
+    _instances[detector] = HelperPixelDetectors::shared_pointer(new HelperPixelDetectors(detector));
+  }
+  return _instances[detector];
 }
 
 HelperPixelDetectors::HelperPixelDetectors(const instancesmap_t::key_type& detname)

@@ -59,9 +59,6 @@ namespace cass
        */
     static shared_pointer instance(const instancesmap_t::key_type& detector);
 
-    /** destroy the whole helper*/
-    static void destroy();
-
     /** retrieve detector for event
      *
      * This function will lock, so that it can be consecutivly called by
