@@ -194,6 +194,14 @@ LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd
                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                       -lgsoap++ -lgsoap
 
+# Extra stuff for http Server
+httpServer {
+    LIBS           += -lmicrohttpd
+    SOURCES        += ./httpserver.cpp
+    HEADERS        += ./httpserver.h
+    DEFINES        += HTTPSERVER
+}
+
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
     INCLUDEPATH    += $$(HDF5DIR)/include

@@ -21,6 +21,9 @@
 #include "ringbuffer.h"
 #include "sharedmemory_input.h"
 #include "tcpserver.h"
+#ifdef HTTPSERVER
+#include "httpserver.h"
+#endif
 #include "worker.h"
 #include "cass_settings.h"
 
@@ -192,6 +195,11 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
   QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 
+#ifdef HTTPSERVER
+  // http server
+  httpServer http_server;
+#endif
+
   int retval(0);
   try
   {
@@ -199,6 +207,9 @@ int main(int argc, char **argv)
     workers->start();
     input->start();
     server->start();
+#ifdef HTTPSERVER
+    http_server.start();
+#endif
 
     //start Qt event loop
     retval = app.exec();
@@ -237,6 +248,9 @@ int main(int argc, char **argv)
 
     //clean up
     server->destroy();
+#ifdef HTTPSERVER
+    http_server.stop();
+#endif
     delete rateplotter;
     delete workerrate;
     delete inputrate;

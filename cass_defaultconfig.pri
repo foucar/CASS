@@ -28,6 +28,9 @@ CONFIG      += staticlib
 # Uncomment this if you want to read files instead of connecting to shared LCLS memory
 CONFIG      += offline
 
+# Uncomment the following line to enable a http Server:
+CONFIG      += httpserver
+
 # Uncomment the following line to enable pp1000 (HDF5 output)
 CONFIG      += hdf5
 
