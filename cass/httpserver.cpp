@@ -49,6 +49,7 @@ requestType* parseAddress(const char* address, MHD_Connection* connection)
 {
   int begin = 0; // offset of address substring
   if (!strncmp(address+begin, ADDR_HIST2DImage, strlen(ADDR_HIST2DImage))) return new req_histogram2DImage(connection, address+begin+strlen(ADDR_HIST2DImage));
-  if (!strncmp(address+begin, ADDR_HIST2DPage, strlen(ADDR_HIST2DPage))) return new req_histogram2DImage(connection, address+begin+strlen(ADDR_HIST2DPage));
+  if (!strncmp(address+begin, ADDR_HIST2DPage, strlen(ADDR_HIST2DPage))) return new req_histogram2DPage(connection, address+begin+strlen(ADDR_HIST2DPage));
+  return new req_overviewPage(connection, address+begin);
 }
 
