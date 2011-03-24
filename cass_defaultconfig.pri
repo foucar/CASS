@@ -32,7 +32,7 @@ CONFIG      += offline
 #CONFIG      += httpServer
 
 # Uncomment the following line to enable pp1000 (HDF5 output)
-CONFIG      += hdf5
+#CONFIG      += hdf5
 
 # Uncomment this if you want to compile and use the single-particle hit detection postprocessors
 #CONFIG      += singleparticle_hit
