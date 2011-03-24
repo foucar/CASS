@@ -25,7 +25,7 @@
 namespace cass
 {
 
-/** Histogram retrievel parameters.
+/** Histogram retrieval parameters.
  *
  * @author Jochen Küpper
  */
@@ -41,7 +41,7 @@ struct HistogramParameter
 
 
 
-/** retrive a histogram from the histogram container
+/** retrieve a histogram from the histogram container
  *
  * @author Lutz Foucar
  * @author Jochen Küpper
