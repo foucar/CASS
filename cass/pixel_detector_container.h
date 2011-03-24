@@ -32,10 +32,10 @@ namespace cass
   public:
     /** associate the container with a Pixel Detector
      *
-     * @param in Pointer to the PixelDetector that this container is responsible
-     *           for.
+     * @param in Pointer to the CASSEvent that contains the PixelDetector that
+     *           this container is responsible for.
      */
-    void associate(PixelDetector *in);
+    void associate(const CASSEvent &in);
 
     /** retrieve reference to the managed pixeldetector */
     PixelDetector & pixelDetector() {return *_pixeldetector;}

@@ -24,9 +24,9 @@ const PixelDetector::pixelList_t & PixelDetectorContainer::coalescedPixels()
   return _coalescedpixels;
 }
 
-void PixelDetectorContainer::associate(PixelDetector *in)
+void PixelDetectorContainer::associate(const CASSEvent &in)
 {
-  _pixeldetector = in;
+//  _pixeldetector = in;
   _coalescedCreated = false;
 }
 
