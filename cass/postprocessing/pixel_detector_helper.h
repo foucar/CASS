@@ -42,9 +42,10 @@ namespace cass
     /** typedef describing the instances of the helper */
     typedef std::map<std::string,shared_pointer> instancesmap_t;
 
+    typedef std::tr1::shared_ptr<PixelDetectorContainer> PixDetContainer_sptr;
   protected:
     /** typedef defining the list of detectors for more readable code*/
-    typedef std::list<std::pair<uint64_t, PixelDetectorContainer*> > detectorList_t;
+    typedef std::list<std::pair<uint64_t, PixDetContainer_sptr> > detectorList_t;
 
   public:
     /** static function creating instance of this.
@@ -79,7 +80,7 @@ namespace cass
      *         requested event
      * @param evt the event whos data we need to relate to the detector.
      */
-    PixelDetectorContainer * detector(const CASSEvent& evt);
+     PixDetContainer_sptr detector(const CASSEvent& evt);
 
     /** load the settings of the detectors in the detector list
      *

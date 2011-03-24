@@ -60,7 +60,7 @@ HelperPixelDetectors::HelperPixelDetectors(const instancesmap_t::key_type& detna
 }
 
 
-PixelDetectorContainer * HelperPixelDetectors::detector(const CASSEvent &evt)
+HelperPixelDetectors::PixDetContainer_sptr HelperPixelDetectors::detector(const CASSEvent &evt)
 {
 //  using namespace std;
 //  QMutexLocker lock(&_helperMutex);
