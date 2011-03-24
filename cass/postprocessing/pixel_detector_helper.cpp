@@ -11,8 +11,7 @@
 
 #include "cass_settings.h"
 #include "cass_event.h"
-#include "detector_backend.h"
-#include "detector_analyzer_backend.h"
+#include "pixel_detector_container.h"
 #include "convenience_functions.h"
 
 using namespace cass;
@@ -80,10 +79,10 @@ HelperPixelDetectors::PixDetContainer_sptr HelperPixelDetectors::detector(const 
 
 void HelperPixelDetectors::loadSettings(size_t)
 {
-//  CASSSettings s;
-//  s.beginGroup("AcqirisDetectors");
-//  detectorList_t::iterator it(_detectorList.begin());
-//  for (;it != _detectorList.end();++it)
-//    it->second->loadSettings(s);
-//  s.endGroup();
+  CASSSettings s;
+  s.beginGroup("PixelDetectors");
+  detectorList_t::iterator it(_detectorList.begin());
+  for (;it != _detectorList.end();++it)
+    it->second->loadSettings(s);
+  s.endGroup();
 }
