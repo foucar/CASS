@@ -15,7 +15,7 @@ class requestType
     }
     void sendResponse() {  // public interface function: wrap response in http and send it.
       createResponseBuffer();
-      _response = MHD_create_response_from_buffer(_responseBuffer.size(), (void*) _responseBuffer.c_str(), MHD_RESPMEM_PERSISTENT);
+      _response = MHD_create_response_from_buffer(_responseBuffer.size(), (void*) _responseBuffer.c_str(), MHD_RESPMEM_MUST_COPY);  // TODO: need something more clever than just copying to keep data around... maybe a queue like in soap server.
       /*int ret = */MHD_queue_response(_connection, MHD_HTTP_OK, _response);
       //MHD_destroy_response(_response);   // TODO: segfault!?
     }
