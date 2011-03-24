@@ -197,9 +197,11 @@ LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd
 # Extra stuff for http Server
 httpServer {
     LIBS           += -lmicrohttpd
+    LIBS           += -ljpeg
     SOURCES        += ./httpserver.cpp
     HEADERS        += ./httpserver.h
     DEFINES        += HTTPSERVER
+    DEFINES        += JPEG_CONVERSION
 }
 
 # Extra stuff if compiling pp1000,pp1001

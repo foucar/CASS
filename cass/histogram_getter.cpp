@@ -38,6 +38,18 @@ void HistogramGetter::clear(const HistogramParameter& hp) const
 }
 
 
+#ifdef JPEG_CONVERSION
+std::vector<JOCTET>* HistogramGetter::jpegImage(const HistogramParameter& hp) const
+{
+  QReadLocker(&_postprocessors->lock);
+  PostprocessorBackend &pp
+      (_postprocessors->getPostProcessor(hp.key));
+  const HistogramBackend &hist (pp.getHist(hp.eventId));
+  return hist.jpegImage();
+}
+#endif //JPEG_CONVERSION
+
+
 // Local Variables:
 // coding: utf-8
 // mode: C++
