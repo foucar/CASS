@@ -1,4 +1,5 @@
-# Copyright (C) 2010 Lutz Foucar
+# Copyright (C) 2010, 2011 Lutz Foucar
+# Copyright (C) 2011 Stephan Kassemeyer
 
 # if no file named cass_myconfig.pri exists, this file
 # will be read by all .pro files, so it contains all commonly used
@@ -28,17 +29,17 @@ CONFIG      += staticlib
 # Uncomment this if you want to read files instead of connecting to shared LCLS memory
 CONFIG      += offline
 
-# Uncomment the following line to enable a http Server:
-#CONFIG      += httpServer
-
 # Uncomment the following line to enable pp1000 (HDF5 output)
-#CONFIG      += hdf5
+CONFIG      += hdf5
 
 # Uncomment this if you want to compile and use the single-particle hit detection postprocessors
 #CONFIG      += singleparticle_hit
 
 # Uncomment the following line to enable ROOT Conversion of cass histograms
 #CONFIG      += cernroot
+
+# Uncomment the following line to enable a http Server:
+#CONFIG      += httpServer
 
 # Uncomment the following line and set the path to your QWT header files,
 # if they are not found directly under /usr/include.
