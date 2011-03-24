@@ -48,18 +48,11 @@ HelperPixelDetectors::shared_pointer HelperPixelDetectors::instance(const instan
 
 HelperPixelDetectors::HelperPixelDetectors(const instancesmap_t::key_type& detname)
 {
-//  CASSSettings settings;
-//  settings.beginGroup("AcqirisDetectors");
-//  settings.beginGroup(detname.c_str());
-//  _dettype = (static_cast<DetectorType>(settings.value("DetectorType",ToF).toUInt()));
-//  settings.endGroup();
-//  settings.endGroup();
-//  for (size_t i=0; i<NbrOfWorkers*2;++i)
-//    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(_dettype,detname)));
-//  VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: "
-//             << "we are responsible for det '"<<detname
-//             << "', which is of type " <<_dettype
-//             <<std::endl);
+  for (size_t i=0; i<NbrOfWorkers*2;++i)
+    _detectorList.push_front(make_pair(0,new PixelDetectorContainer(detname)));
+  VERBOSEOUT(std::cout << "HelperPixelDetectors::constructor: "
+             << "we are responsible for pixel det '"<<detname <<"'"
+             <<std::endl);
 }
 
 
