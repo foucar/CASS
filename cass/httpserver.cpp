@@ -16,7 +16,7 @@ void req_histogram2DPage::createResponseBuffer()
   _responseBuffer = "";
   _responseBuffer += "<html><body>\n";
   _responseBuffer += "image to be inserted here...\n";
-  _responseBuffer += "<html><body>\n";
+  _responseBuffer += "</body></html>\n";
 }
 
 void req_overviewPage::createResponseBuffer()
@@ -31,7 +31,7 @@ void req_overviewPage::createResponseBuffer()
   for (cass::PostProcessors::keyList_t::const_iterator it=list.begin(); it!=list.end(); ++it)
     _responseBuffer += "<li><a href=\"" + std::string(ADDR_HIST2DPage) + *it + ".html\">" + *it + "</a></li>\n";
   _responseBuffer += "end of list.\n";
-  _responseBuffer += "<html><body>\n";
+  _responseBuffer += "</body></html>\n";
 }
 // serve functions:
 // handle_request is called from server thread. It passes a MHD_Connection
