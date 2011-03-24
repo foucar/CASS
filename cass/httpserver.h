@@ -17,7 +17,7 @@ class requestType
       createResponseBuffer();
       _response = MHD_create_response_from_buffer(_responseBuffer.size(), (void*) _responseBuffer.c_str(), MHD_RESPMEM_PERSISTENT);
       /*int ret = */MHD_queue_response(_connection, MHD_HTTP_OK, _response);
-      MHD_destroy_response(_response);
+      //MHD_destroy_response(_response);   // TODO: segfault!?
     }
   protected:
     virtual void createResponseBuffer() = 0;   // virtual function, has to provide (i.e. fill into _responseBuffer) the data that is about to be send.
