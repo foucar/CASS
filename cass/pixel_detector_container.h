@@ -30,6 +30,15 @@ namespace cass
   class PixelDetectorContainer
   {
   public:
+    /** constructor
+     *
+     * @param name the name of this container
+     */
+    PixelDetectorContainer(const std::string &name)
+      : _coalescedCreated(false),
+        _name(name)
+    {}
+
     /** associate the container with a Pixel Detector
      *
      * @param in Pointer to the CASSEvent that contains the PixelDetector that
@@ -65,6 +74,9 @@ namespace cass
 
     /** functor that will do the coalescing */
     std::tr1::shared_ptr<CoalescingBase> _coalesce;
+
+    /** the name of this container */
+    std::string _name;
   };
 }
 #endif
