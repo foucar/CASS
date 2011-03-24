@@ -13,6 +13,9 @@
 #include "histogram_getter.h"
 #include "serializer.h"
 #include "backend.h"
+#ifdef JPEG_CONVERSION
+#include <sys/time.h>
+#endif //JPEG_CONVERSION
 
 using namespace cass;
 
@@ -39,13 +42,25 @@ void HistogramGetter::clear(const HistogramParameter& hp) const
 
 
 #ifdef JPEG_CONVERSION
-std::vector<JOCTET>* HistogramGetter::jpegImage(const HistogramParameter& hp) const
+std::vector<JOCTET>* HistogramGetter::jpegImage(const HistogramParameter& hp)
 {
-  QReadLocker(&_postprocessors->lock);
-  PostprocessorBackend &pp
-      (_postprocessors->getPostProcessor(hp.key));
-  const HistogramBackend &hist (pp.getHist(hp.eventId));
-  return hist.jpegImage();
+  #define jpeg_cache_time 3 // seconds
+  timeval thetime_struct;
+  gettimeofday(&thetime_struct, 0);
+  double thetime = thetime_struct.tv_sec + double(thetime_struct.tv_usec/1000000.0);
+  bool cacheexists = (jpeg_cache.find(hp.key)!=jpeg_cache.end()); 
+  if ( !cacheexists || (thetime-jpeg_cache_times[hp.key]>=jpeg_cache_time) ) {
+    std::cout << "TTTTTTTTT: " << thetime << " " << jpeg_cache_times[hp.key] << " " << hp.key <<  thetime-jpeg_cache_times[hp.key] << std::endl;
+    QReadLocker(&_postprocessors->lock);
+    PostprocessorBackend &pp
+        (_postprocessors->getPostProcessor(hp.key));
+    const HistogramBackend &hist (pp.getHist(hp.eventId));
+    if (cacheexists)
+      delete jpeg_cache[hp.key];
+    jpeg_cache[hp.key] = hist.jpegImage();
+    jpeg_cache_times[hp.key] = thetime;
+  }
+  return jpeg_cache[hp.key];
 }
 #endif //JPEG_CONVERSION
 

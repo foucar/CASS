@@ -75,11 +75,11 @@ class req_overviewPage: public requestType
 class httpServer
 {
   public:
-    httpServer(const cass::HistogramGetter& histogram_getter):_histogram_getter(histogram_getter) {}
+    httpServer(cass::HistogramGetter& histogram_getter):_histogram_getter(histogram_getter) {}
     void start() { _daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, HTTP_PORT, NULL, NULL,
                                             &httpServer::handle_request_callback, (void*)this, MHD_OPTION_END); }
     void stop() { MHD_stop_daemon(_daemon); }
-    const cass::HistogramGetter& histogram_getter() {return _histogram_getter;}
+    cass::HistogramGetter& histogram_getter() {return _histogram_getter;}
     // serve functions:
     // handle_request is called from server thread. It passes a MHD_Connection
     // and address to the serve functions, lets parseAddress create
@@ -94,6 +94,6 @@ class httpServer
 
   private:
     struct MHD_Daemon *_daemon;
-    const cass::HistogramGetter& _histogram_getter;
+    cass::HistogramGetter& _histogram_getter;
 };
 

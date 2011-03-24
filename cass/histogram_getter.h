@@ -73,12 +73,17 @@ public:
 
 #ifdef JPEG_CONVERSION
     /** Create a jpeg compressed image from the histogram */
-    std::vector<JOCTET>*  jpegImage(const HistogramParameter&) const;
+    std::vector<JOCTET>*  jpegImage(const HistogramParameter&);
 #endif //JPEG_CONVERSION
 
 protected:
     /** pointer to the postprocessors class. will be retrieved using singleton */
     PostProcessors *_postprocessors;
+
+#ifdef JPEG_CONVERSION
+    std::map<PostProcessors::key_t, std::vector<JOCTET>*> jpeg_cache;
+    std::map<PostProcessors::key_t, double> jpeg_cache_times;
+#endif //JPEG_CONVERSION
 
 };
 
