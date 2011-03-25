@@ -12,6 +12,7 @@
 #include "cass_settings.h"
 
 using namespace cass;
+using namespace std;
 
 const PixelDetector::pixelList_t & PixelDetectorContainer::coalescedPixels()
 {
@@ -32,5 +33,10 @@ void PixelDetectorContainer::associate(const CASSEvent &in)
 
 void PixelDetectorContainer::loadSettings(CASSSettings &s)
 {
-
+  s.beginGroup(QString::fromStdString(_name));
+  _device = s.value("Device",0).toUInt();
+  _detector = s.value("Detector",0).toUInt();
+  string type(s.value("CoalescingFunctionType","simple").toString().toStdString());
+  _coalesce = CoalescingBase::instance(type);
+  s.endGroup();
 }

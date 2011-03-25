@@ -18,8 +18,9 @@ namespace cass
   //forward declaration
   class CoalescingBase;
   class CASSSettings;
+  class CASSEvent;
 
-  /** PixelDetector Manager
+  /** PixelDetector Wrapper
    *
    * This class contains a pointer to a pixel detector and extents the a regular
    * pixel detector by a coalesced pixel list. The coalesced pixel list will
@@ -77,6 +78,12 @@ namespace cass
 
     /** the name of this container */
     std::string _name;
+
+    /** CCD detector that contains the requested image */
+    size_t _detector;
+
+    /** device the ccd image comes from */
+    int32_t _device;
   };
 }
 #endif
