@@ -111,6 +111,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       pixel_detector.cpp \
                       pixel_detector_container.cpp \
                       coalescing_base.cpp \
+                      coalesce_simple.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
                       ./postprocessing/convenience_functions.cpp \
@@ -159,6 +160,7 @@ HEADERS            += analysis_backend.h \
                       pixel_detector.h \
                       pixel_detector_container.h \
                       coalescing_base.h \
+                      coalesce_simple.h \
                       xtciterator.h \
                       cass_exceptions.h \
                       cass_settings.h \

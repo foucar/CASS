@@ -11,6 +11,8 @@
 
 #include "coalescing_base.h"
 
+#include "coalesce_simple.h"
+
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
@@ -18,11 +20,11 @@ using namespace std::tr1;
 CoalescingBase::shared_pointer CoalescingBase::instance(const string &type)
 {
   shared_pointer ptr;
-//  if (type == "xtc")
-//    ptr = shared_pointer(new XtcReader());
+  if (type == "simple")
+    ptr = shared_pointer(new SimpleCoalesce());
 //  else if (type == "lma")
 //    ptr = shared_pointer(new LmaReader());
-//  else
+  else
   {
     stringstream ss;
     ss << "CoalescingBase::instance: Coalescing function type '"<< type

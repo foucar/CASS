@@ -5,6 +5,7 @@
  *
  * @author Lutz Foucar
  */
+
 #ifndef _COALESCINGBASE_H_
 #define _COALESCINGBASE_H_
 
@@ -38,10 +39,11 @@ namespace cass
      *
      * take the input pixel list and coalesce it
      *
+     * @return reference to the coalesced pixel list
      * @param pixellist the list of non coalesced pixels
      * @param coalescedpixles the list where the coalesced pixels go in
      */
-    virtual PixelDetector::pixelList_t operator() (const PixelDetector::pixelList_t &pixellist,
+    virtual PixelDetector::pixelList_t& operator() (const PixelDetector::pixelList_t &pixellist,
                                                    PixelDetector::pixelList_t &coalescedpixels)=0;
 
     /** load the settings of the functor */
