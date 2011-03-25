@@ -48,7 +48,7 @@ namespace cass
     void associate(const CASSEvent &evt);
 
     /** retrieve reference to the managed pixeldetector */
-    const PixelDetector & pixelDetector() {return *_pixeldetector;}
+    const PixelDetector &pixelDetector() {return *_pixeldetector;}
 
     /** retrieve the coalesced pixel list */
     const PixelDetector::pixelList_t& coalescedPixels();
