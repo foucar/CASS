@@ -42,13 +42,13 @@ namespace cass
 
     /** associate the container with a Pixel Detector
      *
-     * @param in Pointer to the CASSEvent that contains the PixelDetector that
-     *           this container is responsible for.
+     * @param evt Pointer to the CASSEvent that contains the PixelDetector that
+     *            this container is responsible for.
      */
-    void associate(const CASSEvent &in);
+    void associate(const CASSEvent &evt);
 
     /** retrieve reference to the managed pixeldetector */
-    PixelDetector & pixelDetector() {return *_pixeldetector;}
+    const PixelDetector & pixelDetector() {return *_pixeldetector;}
 
     /** retrieve the coalesced pixel list */
     const PixelDetector::pixelList_t& coalescedPixels();
@@ -61,7 +61,7 @@ namespace cass
 
   private:
     /** pointer to the pixel detector we manage */
-    PixelDetector *_pixeldetector;
+    const PixelDetector *_pixeldetector;
 
     /** coaleced pixellist
      *
