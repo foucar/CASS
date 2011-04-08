@@ -19,9 +19,9 @@
 #include "cass_event.h"
 #include "postprocessor.h"
 #include "acqiris_detectors_helper.h"
-//#include "tof_detector.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "pixel_detector_container.h"
 
 // *** postprocessor 100 -- single images from a CCD ***
 
@@ -329,6 +329,56 @@ void cass::pp141::process(const CASSEvent& evt)
   _result->lock.lockForWrite();
   for (; it != pixellist.end();++it)
     dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
+
+cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp142::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  _detector = settings.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set2DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  HelperPixelDetectors::instance(_detector)->loadSettings();
+  cout<<"Postprocessor '"<<_key
+      <<"' will display ccd image of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp142::process(const CASSEvent& evt)
+{
+  HelperPixelDetectors::PixDetContainer_sptr det
+      (HelperPixelDetectors::instance(_detector)->detector(const_cast<CASSEvent&>(evt)));
+  PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
+  _result->lock.lockForWrite();
+  _result->clear();
+  for (; it != det->coalescedPixels().end(); ++it)
+  {
+    if (_range.first < it->z() && it->z() < _range.second)
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+  }
   _result->lock.unlock();
 }
 
