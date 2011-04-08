@@ -18,6 +18,12 @@ using namespace std;
 
 namespace cass
 {
+  namespace Direction
+  {
+    /** enum for easier code */
+    enum direction{origin, north, east, south, west};
+  }
+
   /** check if pixel is neighbour
    *
    * @author Lutz Foucar
@@ -53,51 +59,64 @@ namespace cass
    * @author Lutz Foucar
    */
   void findNeighbours(Pixel& pixel,
+                      Direction::direction direction,
                       PixelDetector::pixelList_t &pixellist,
                       PixelDetector::pixelList_t &coalescedpixellist)
   {
     pixel.isUsed() = true;
     coalescedpixellist.push_back(pixel);
     /** check for left neighbour */
-    if (pixel.x() != 0)
+    if (direction != Direction::east)
     {
-      pair<uint16_t,uint16_t> left(make_pair(pixel.x()-1,pixel.y()));
-      PixelDetector::pixelList_t::iterator neighbourPixelIt = (find_if(pixellist.begin(),
-                                                                    pixellist.end(),
-                                                                    isNeighbour(left)));
-      if (neighbourPixelIt != pixellist.end())
-        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
+      if (pixel.x() != 0)
+      {
+        pair<uint16_t,uint16_t> left(make_pair(pixel.x()-1,pixel.y()));
+        PixelDetector::pixelList_t::iterator neighbourPixelIt = (find_if(pixellist.begin(),
+                                                                         pixellist.end(),
+                                                                         isNeighbour(left)));
+        if (neighbourPixelIt != pixellist.end())
+          findNeighbours(*neighbourPixelIt, Direction::west, pixellist, coalescedpixellist);
+      }
     }
-//    /** check for right neighbour */
-//    if (pixel.x() < 1023)
-//    {
-//      pair<uint16_t,uint16_t> right(make_pair(pixel.x()+1,pixel.y()));
-//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-//                                                                    pixellist.end(),
-//                                                                    isNeighbour(right)));
-//      if (neighbourPixelIt != pixellist.end())
-//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
-//    }
-//    /** check for top neighbour */
-//    if (pixel.y() < 1023)
-//    {
-//      pair<uint16_t,uint16_t> top(make_pair(pixel.x(),pixel.y()+1));
-//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-//                                                                    pixellist.end(),
-//                                                                    isNeighbour(top)));
-//      if (neighbourPixelIt != pixellist.end())
-//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
-//    }
-//    /** check for bottom neighbour */
-//    if (pixel.y() != 0)
-//    {
-//      pair<uint16_t,uint16_t> bottom(make_pair(pixel.x(),pixel.y()-1));
-//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-//                                                                    pixellist.end(),
-//                                                                    isNeighbour(bottom)));
-//      if (neighbourPixelIt != pixellist.end())
-//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
-//    }
+    /** check for right neighbour */
+    if (direction != Direction::west)
+    {
+      if (pixel.x() < 1023)
+      {
+        pair<uint16_t,uint16_t> right(make_pair(pixel.x()+1,pixel.y()));
+        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+                                                                      pixellist.end(),
+                                                                      isNeighbour(right)));
+        if (neighbourPixelIt != pixellist.end())
+          findNeighbours(*neighbourPixelIt, Direction::east, pixellist, coalescedpixellist);
+      }
+    }
+    /** check for top neighbour */
+    if (direction != Direction::south)
+    {
+      if (pixel.y() < 1023)
+      {
+        pair<uint16_t,uint16_t> top(make_pair(pixel.x(),pixel.y()+1));
+        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+                                                                      pixellist.end(),
+                                                                      isNeighbour(top)));
+        if (neighbourPixelIt != pixellist.end())
+          findNeighbours(*neighbourPixelIt, Direction::north, pixellist, coalescedpixellist);
+      }
+    }
+    /** check for bottom neighbour */
+    if (direction != Direction::north)
+    {
+      if (pixel.y() != 0)
+      {
+        pair<uint16_t,uint16_t> bottom(make_pair(pixel.x(),pixel.y()-1));
+        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+                                                                      pixellist.end(),
+                                                                      isNeighbour(bottom)));
+        if (neighbourPixelIt != pixellist.end())
+          findNeighbours(*neighbourPixelIt, Direction::south, pixellist, coalescedpixellist);
+      }
+    }
   }
 
   /** coalesce one pixel from the list
@@ -127,7 +146,7 @@ PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetector::pixelList
     if (!pixel->isUsed())
     {
       PixelDetector::pixelList_t coalescedpixellist;
-      findNeighbours(*pixel, pixellist, coalescedpixellist);
+      findNeighbours(*pixel, Direction::origin, pixellist, coalescedpixellist);
       Pixel coalescedpixel(coalesce(coalescedpixellist));
       coalescedpixels.push_back(coalescedpixel);
     }
