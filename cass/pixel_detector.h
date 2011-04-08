@@ -40,18 +40,21 @@ namespace cass
     uint16_t &x()       {return _x;}
     uint16_t &y()       {return _y;}
     pixel_t  &z()       {return _z;}
+    bool     &isUsed()  {return _used;}
     //@}
     //@{
     /** getter */
     uint16_t  x()const  {return _x;}
     uint16_t  y()const  {return _y;}
     pixel_t   z()const  {return _z;}
+    bool      isUsed()const {return _used;}
     //@}
 
   private:
     uint16_t _x;  //!< x coordinate of the pixel
     uint16_t _y;  //!< y coordinate of the pixel
     pixel_t  _z;  //!< the pixel value
+    bool     _used; //!< flag used in coalescing
   };
 
 
