@@ -64,6 +64,8 @@ namespace cass
                       PixelDetector::pixelList_t &pixellist,
                       PixelDetector::pixelList_t &coalescedpixellist)
   {
+    if (depth > 5)
+      return;
     pixel.isUsed() = true;
     coalescedpixellist.push_back(pixel);
     /** check for left neighbour */
