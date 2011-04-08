@@ -45,7 +45,7 @@ namespace cass
      * @param evt Pointer to the CASSEvent that contains the PixelDetector that
      *            this container is responsible for.
      */
-    void associate(const CASSEvent &evt);
+    void associate(CASSEvent &evt);
 
     /** retrieve reference to the managed pixeldetector */
     const PixelDetector &pixelDetector() {return *_pixeldetector;}
@@ -61,7 +61,7 @@ namespace cass
 
   private:
     /** pointer to the pixel detector we manage */
-    const PixelDetector *_pixeldetector;
+    PixelDetector *_pixeldetector;
 
     /** coaleced pixellist
      *

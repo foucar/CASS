@@ -77,7 +77,7 @@ namespace cass
      *         requested event
      * @param evt the event whos data we need to relate to the detector.
      */
-     PixDetContainer_sptr detector(const CASSEvent& evt);
+     PixDetContainer_sptr detector(CASSEvent& evt);
 
     /** load the settings of the detectors in the detector list
      *
