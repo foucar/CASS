@@ -126,6 +126,9 @@ namespace cass
   Pixel coalesce(const PixelDetector::pixelList_t &pixellist)
   {
     Pixel pixel;
+    PixelDetector::pixelList_t::const_iterator it(pixellist.begin());
+    for (; it != pixellist.end(); ++it)
+      pixel.z() += it->z();
     return pixel;
   }
 }
