@@ -7,6 +7,8 @@
  * @author Lutz Foucar
  */
 
+#include <algorithm>
+
 #include "coalesce_simple.h"
 
 #include "cass_settings.h"
@@ -50,9 +52,52 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  void findNeighbours(const Pixel& pixel, PixelDetector::pixelList_t &coalescedpixellist)
+  void findNeighbours(Pixel& pixel,
+                      PixelDetector::pixelList_t &pixellist,
+                      PixelDetector::pixelList_t &coalescedpixellist)
   {
-    pair<uint16_t,uint16_t> pixelCoordinate(make_pair(pixel.x(),pixel.y()));
+    pixel.isUsed() = true;
+    coalescedpixellist.push_back(pixel);
+    /** check for left neighbour */
+    if (pixel.x() != 0)
+    {
+      pair<uint16_t,uint16_t> left(make_pair(pixel.x()-1,pixel.y()));
+      PixelDetector::pixelList_t::iterator neighbourPixelIt = (find_if(pixellist.begin(),
+                                                                    pixellist.end(),
+                                                                    isNeighbour(left)));
+      if (neighbourPixelIt != pixellist.end())
+        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
+    }
+//    /** check for right neighbour */
+//    if (pixel.x() < 1023)
+//    {
+//      pair<uint16_t,uint16_t> right(make_pair(pixel.x()+1,pixel.y()));
+//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+//                                                                    pixellist.end(),
+//                                                                    isNeighbour(right)));
+//      if (neighbourPixelIt != pixellist.end())
+//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
+//    }
+//    /** check for top neighbour */
+//    if (pixel.y() < 1023)
+//    {
+//      pair<uint16_t,uint16_t> top(make_pair(pixel.x(),pixel.y()+1));
+//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+//                                                                    pixellist.end(),
+//                                                                    isNeighbour(top)));
+//      if (neighbourPixelIt != pixellist.end())
+//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
+//    }
+//    /** check for bottom neighbour */
+//    if (pixel.y() != 0)
+//    {
+//      pair<uint16_t,uint16_t> bottom(make_pair(pixel.x(),pixel.y()-1));
+//      PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
+//                                                                    pixellist.end(),
+//                                                                    isNeighbour(bottom)));
+//      if (neighbourPixelIt != pixellist.end())
+//        findNeighbours(*neighbourPixelIt, pixellist, coalescedpixellist);
+//    }
   }
 
   /** coalesce one pixel from the list
@@ -73,16 +118,16 @@ void SimpleCoalesce::loadSettings()
 {
 }
 
-PixelDetector::pixelList_t& SimpleCoalesce::operator() (const PixelDetector::pixelList_t &pixellist,
+PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetector::pixelList_t &pixellist,
                                                         PixelDetector::pixelList_t &coalescedpixels)
 {
-  PixelDetector::pixelList_t::const_iterator pixel(pixellist.begin());
+  PixelDetector::pixelList_t::iterator pixel(pixellist.begin());
   for(; pixel != pixellist.end();++ pixel)
   {
     if (!pixel->isUsed())
     {
       PixelDetector::pixelList_t coalescedpixellist;
-      findNeighbours(*pixel,coalescedpixellist);
+      findNeighbours(*pixel, pixellist, coalescedpixellist);
       Pixel coalescedpixel(coalesce(coalescedpixellist));
       coalescedpixels.push_back(coalescedpixel);
     }

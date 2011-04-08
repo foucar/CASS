@@ -34,7 +34,7 @@ namespace cass
      * @param pixellist the list of non coalesced pixels
      * @param coalescedpixles the list where the coalesced pixels go in
      */
-    PixelDetector::pixelList_t& operator() (const PixelDetector::pixelList_t &pixellist,
+    PixelDetector::pixelList_t& operator() (PixelDetector::pixelList_t &pixellist,
                                             PixelDetector::pixelList_t &coalescedpixels);
 
     /** load the settings of the coalescing function */

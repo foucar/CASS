@@ -43,8 +43,8 @@ namespace cass
      * @param pixellist the list of non coalesced pixels
      * @param coalescedpixles the list where the coalesced pixels go in
      */
-    virtual PixelDetector::pixelList_t& operator() (const PixelDetector::pixelList_t &pixellist,
-                                                   PixelDetector::pixelList_t &coalescedpixels)=0;
+    virtual PixelDetector::pixelList_t& operator() (PixelDetector::pixelList_t &pixellist,
+                                                    PixelDetector::pixelList_t &coalescedpixels)=0;
 
     /** load the settings of the functor */
     virtual void loadSettings()=0;
