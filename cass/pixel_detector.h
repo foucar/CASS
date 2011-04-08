@@ -27,10 +27,12 @@ namespace cass
   public:
     /** constructor. Sets the pixel information*/
     Pixel(uint16_t X, uint16_t Y, pixel_t Z)
-      :_x(X),_y(Y),_z(Z)
+      :_x(X),_y(Y),_z(Z),_used(false)
     {}
     /** default constructor.*/
-    Pixel()       {}
+    Pixel()
+      :_x(0),_y(0),_z(0),_used(false)
+    {}
     /** default destructor. */
     ~Pixel()      {}
 
