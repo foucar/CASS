@@ -58,7 +58,8 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  void findNeighbours(Pixel& pixel,
+  void findNeighbours(uint16_t depth,
+                      Pixel& pixel,
                       Direction::direction direction,
                       PixelDetector::pixelList_t &pixellist,
                       PixelDetector::pixelList_t &coalescedpixellist)
@@ -75,7 +76,7 @@ namespace cass
                                                                          pixellist.end(),
                                                                          isNeighbour(left)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(*neighbourPixelIt, Direction::west, pixellist, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::west, pixellist, coalescedpixellist);
       }
     }
     /** check for right neighbour */
@@ -88,7 +89,7 @@ namespace cass
                                                                       pixellist.end(),
                                                                       isNeighbour(right)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(*neighbourPixelIt, Direction::east, pixellist, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::east, pixellist, coalescedpixellist);
       }
     }
     /** check for top neighbour */
@@ -101,7 +102,7 @@ namespace cass
                                                                       pixellist.end(),
                                                                       isNeighbour(top)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(*neighbourPixelIt, Direction::north, pixellist, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::north, pixellist, coalescedpixellist);
       }
     }
     /** check for bottom neighbour */
@@ -114,7 +115,7 @@ namespace cass
                                                                       pixellist.end(),
                                                                       isNeighbour(bottom)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(*neighbourPixelIt, Direction::south, pixellist, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::south, pixellist, coalescedpixellist);
       }
     }
   }
@@ -149,7 +150,7 @@ PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetector::pixelList
     if (!pixel->isUsed())
     {
       PixelDetector::pixelList_t coalescedpixellist;
-      findNeighbours(*pixel, Direction::origin, pixellist, coalescedpixellist);
+      findNeighbours(0,*pixel, Direction::origin, pixellist, coalescedpixellist);
       Pixel coalescedpixel(coalesce(coalescedpixellist));
       coalescedpixels.push_back(coalescedpixel);
     }
