@@ -38,7 +38,15 @@ namespace cass
       throw std::runtime_error("DeviceBackend::detectors(): device has no detectors");
       return 0;
     }
-  };
+    /** detector getter.
+     * Must be implemented by commercial and pnccd devices
+     */
+    virtual detectors_t *detectors()
+    {
+      throw std::runtime_error("DeviceBackend::detectors(): device has no detectors");
+      return 0;
+    }
+   };
 }//end namespace cass
 
 #endif
