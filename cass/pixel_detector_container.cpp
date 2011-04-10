@@ -31,7 +31,7 @@ const PixelDetector::pixelList_t & PixelDetectorContainer::coalescedPixels()
   return _coalescedpixels;
 }
 
-void PixelDetectorContainer::associate(CASSEvent &evt)
+void PixelDetectorContainer::associate(const CASSEvent &evt)
 {
   CASSEvent::Device device (static_cast<CASSEvent::Device>(_device));
   if (evt.devices().find(device) == evt.devices().end())
@@ -49,7 +49,7 @@ void PixelDetectorContainer::associate(CASSEvent &evt)
         <<"' of the Event";
     throw invalid_argument(ss.str());
   }
-  _pixeldetector = &(*(evt.devices()[device]->detectors()))[_detector];
+  _pixeldetector = &(*(evt.devices().find(device)->second->detectors()))[_detector];
   _pixelslist = _pixeldetector->pixellist();
   _coalescedCreated = false;
 }
