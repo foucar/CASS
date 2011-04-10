@@ -59,6 +59,9 @@ namespace cass
      */
     void loadSettings(CASSSettings &s);
 
+    /** retrieve the pixellist */
+    PixelDetector::pixelList_t& pixellist() {return _pixelslist;}
+
   private:
     /** pointer to the pixel detector we manage */
     const PixelDetector *_pixeldetector;
