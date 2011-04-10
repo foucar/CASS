@@ -25,7 +25,7 @@ const PixelDetector::pixelList_t & PixelDetectorContainer::coalescedPixels()
   if (!_coalescedCreated)
   {
     CoalescingBase & coalesce (*_coalesce);
-    coalesce(_pixeldetector->pixellist(), _coalescedpixels);
+    coalesce(_pixelslist, _coalescedpixels);
     _coalescedCreated = true;
   }
   return _coalescedpixels;
