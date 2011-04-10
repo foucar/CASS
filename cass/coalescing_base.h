@@ -15,6 +15,9 @@
 
 namespace cass
 {
+  //forward declaration//
+  class CASSSettings;
+
   /** base class for all coalescing functors
    *
    * @author Lutz Foucar
@@ -46,8 +49,11 @@ namespace cass
     virtual PixelDetector::pixelList_t& operator() (PixelDetector::pixelList_t &pixellist,
                                                     PixelDetector::pixelList_t &coalescedpixels)=0;
 
-    /** load the settings of the functor */
-    virtual void loadSettings()=0;
+    /** load the settings of this
+     *
+     * @param s the CASSSettings object to read the information from
+     */
+    virtual void loadSettings(CASSSettings &s)=0;
   };
 }
 #endif

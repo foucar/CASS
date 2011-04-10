@@ -37,8 +37,11 @@ namespace cass
     PixelDetector::pixelList_t& operator() (PixelDetector::pixelList_t &pixellist,
                                             PixelDetector::pixelList_t &coalescedpixels);
 
-    /** load the settings of the coalescing function */
-    void loadSettings();
+    /** load the settings of this
+     *
+     * @param s the CASSSettings object to read the information from
+     */
+    void loadSettings(CASSSettings &s);
   };
 }
 #endif

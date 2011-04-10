@@ -60,5 +60,6 @@ void PixelDetectorContainer::loadSettings(CASSSettings &s)
   _detector = s.value("Detector",0).toUInt();
   string type(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(type);
+  _coalesce->loadSettings(s);
   s.endGroup();
 }

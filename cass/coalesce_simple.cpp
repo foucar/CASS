@@ -139,7 +139,7 @@ namespace cass
 SimpleCoalesce::SimpleCoalesce()
 {}
 
-void SimpleCoalesce::loadSettings()
+void SimpleCoalesce::loadSettings(CASSSettings &s)
 {
 }
 
