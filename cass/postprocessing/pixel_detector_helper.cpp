@@ -18,11 +18,30 @@ using namespace std;
 
 namespace cass
 {
+  /** check wether the id is in the list
+   *
+   * checks whether the id ,which is the first part of the pair, is the id that
+   * we are looking for
+   *
+   * @author Lutz Foucar
+   */
   struct IsID
   {
+    /** constructor
+     *
+     * @param id the id to check for
+     */
     IsID(const uint64_t id):_id(id){}
+
+    /** the operator
+     *
+     * @return true when id is the same as in the pair
+     * @param element reference to one pair in the list
+     */
     bool operator()(const HelperPixelDetectors::detectorList_t::value_type &element)const
     { return (_id == element.first); }
+
+    /** the id */
     const uint64_t _id;
   };
 }
