@@ -340,6 +340,51 @@ void cass::pp141::process(const CASSEvent& evt)
 
 
 
+// *** A Postprocessor that will display the coalesced photonhits spectrum ***
+
+cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp142::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  _detector = settings.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers);
+  HelperPixelDetectors::instance(_detector)->loadSettings();
+  cout<<"Postprocessor '"<<_key
+      <<"' will display ccd image of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp142::process(const CASSEvent& evt)
+{
+  HelperPixelDetectors::PixDetContainer_sptr det
+      (HelperPixelDetectors::instance(_detector)->detector(const_cast<CASSEvent&>(evt)));
+  PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
+  _result->lock.lockForWrite();
+  _result->clear();
+  for (; it != det->coalescedPixels().end(); ++it)
+  {
+    if (_range.first < it->z() && it->z() < _range.second)
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+  }
+  _result->lock.unlock();
+}
+
+
+
+
 // *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
 
 cass::pp143::pp143(PostProcessors& pp, const cass::PostProcessors::key_t &key)

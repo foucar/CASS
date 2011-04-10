@@ -270,6 +270,44 @@ namespace cass
 
 
 
+  /** Spectrum of coalesced PhotonHits of CCD's.
+   *
+   * This postprocessor will fill a 1D histogram with the z values in detected
+   * Photonhits. Photonhits will be detected in the according pre analyzer.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
+   *           properties of the 1D histogram:
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the Detector that one is interested in. Default "blubb"
+   *
+   * @author Lutz Foucar
+   */
+  class pp142 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp142(PostProcessors&, const PostProcessors::key_t&);
+
+    /** copy pixels from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** detector to work on */
+    HelperPixelDetectors::instancesmap_t::key_type _detector;
+
+    /** gate on the z */
+    std::pair<float,float> _range;
+  };
+
+
+
+
   /** coalesced PhotonHits of CCD's.
    *
    * This postprocessor will fill a 2D histogram with the detected Photonhits.
