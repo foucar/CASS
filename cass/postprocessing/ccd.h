@@ -320,14 +320,11 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp|YNbrBins|YLow|YUp}\n
    *           properties of the 2d histogram
-   * @cassttng PostProcessor/\%name\%/{Device}\n
-   *           The device that contains the ccd image.Default is 0. Options are:
-   *           - 0: pnCCD
-   *           - 2: Commercial CCD
    * @cassttng PostProcessor/\%name\%/{Detector}\n
-   *           The detector that contains the ccd image. Default is 0. Options are:
-   *           - 0: Front pnCCD / Commercial CCD
-   *           - 1: Rear pnCCD
+   *           Name of the Detector that one is interested in. Default "blubb"
+   * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit}\n
+   *           The range of the z value of the pixel. Only when the pixel is in
+   *           this range the pixel will be drawn. Default is 0.0|0.0
    *
    * @author Lutz Foucar
    */
