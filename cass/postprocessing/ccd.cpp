@@ -362,7 +362,7 @@ void cass::pp142::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   HelperPixelDetectors::instance(_detector)->loadSettings();
   cout<<"Postprocessor '"<<_key
-      <<"' will display ccd image of detector '"<<_detector
+      <<"' will display the spectrum of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
@@ -376,8 +376,7 @@ void cass::pp142::process(const CASSEvent& evt)
   _result->clear();
   for (; it != det->coalescedPixels().end(); ++it)
   {
-    if (_range.first < it->z() && it->z() < _range.second)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+      dynamic_cast<Histogram1DFloat*>(_result)->fill(it->z());
   }
   _result->lock.unlock();
 }
