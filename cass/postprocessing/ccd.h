@@ -293,11 +293,11 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp142 : public PostprocessorBackend
+  class pp143 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp142(PostProcessors&, const PostProcessors::key_t&);
+    pp143(PostProcessors&, const PostProcessors::key_t&);
 
     /** copy pixels from CASS event to histogram storage */
     virtual void process(const CASSEvent&);

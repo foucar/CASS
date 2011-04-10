@@ -342,13 +342,13 @@ void cass::pp141::process(const CASSEvent& evt)
 
 // *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
 
-cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+cass::pp143::pp143(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-void cass::pp142::loadSettings(size_t)
+void cass::pp143::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
@@ -367,7 +367,7 @@ void cass::pp142::loadSettings(size_t)
       <<endl;
 }
 
-void cass::pp142::process(const CASSEvent& evt)
+void cass::pp143::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
       (HelperPixelDetectors::instance(_detector)->detector(const_cast<CASSEvent&>(evt)));
