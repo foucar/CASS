@@ -63,6 +63,12 @@ namespace cass
     /** pointer to the pixel detector we manage */
     PixelDetector *_pixeldetector;
 
+    /** pixellist
+     *
+     * this is a copy of cass::PixelDetector::_pixelslist
+     */
+    PixelDetector::pixelList_t _pixelslist;
+
     /** coaleced pixellist
      *
      * the coaleced pixellist contains the pixel after the split pixels have

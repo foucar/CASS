@@ -50,6 +50,7 @@ void PixelDetectorContainer::associate(CASSEvent &evt)
     throw invalid_argument(ss.str());
   }
   _pixeldetector = &(*(evt.devices()[device]->detectors()))[_detector];
+  _pixelslist = _pixeldetector->pixellist();
   _coalescedCreated = false;
 }
 
