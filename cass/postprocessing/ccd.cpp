@@ -370,7 +370,7 @@ void cass::pp142::loadSettings(size_t)
 void cass::pp142::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(const_cast<CASSEvent&>(evt)));
+      (HelperPixelDetectors::instance(_detector)->detector(evt));
   PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
   _result->lock.lockForWrite();
   _result->clear();
@@ -418,7 +418,7 @@ void cass::pp143::loadSettings(size_t)
 void cass::pp143::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(const_cast<CASSEvent&>(evt)));
+      (HelperPixelDetectors::instance(_detector)->detector(evt));
   PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
   _result->lock.lockForWrite();
   _result->clear();
