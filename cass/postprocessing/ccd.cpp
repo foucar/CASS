@@ -404,9 +404,13 @@ void cass::pp143::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
+  _range = make_pair(settings.value("LowerLimit",0.).toFloat(),
+                     settings.value("UpperLimit",0.).toFloat());
   HelperPixelDetectors::instance(_detector)->loadSettings();
   cout<<"Postprocessor '"<<_key
       <<"' will display ccd image of detector '"<<_detector
+      <<"' only when the spectral component is between '"<<_range.first
+      <<"' and '"<<_range.second
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
@@ -421,7 +425,7 @@ void cass::pp143::process(const CASSEvent& evt)
   for (; it != det->coalescedPixels().end(); ++it)
   {
     if (_range.first < it->z() && it->z() < _range.second)
-      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y());
+      dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y(),it->z());
   }
   _result->lock.unlock();
 }
