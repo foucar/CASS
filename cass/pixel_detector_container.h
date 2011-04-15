@@ -20,6 +20,43 @@ namespace cass
   class CASSSettings;
   class CASSEvent;
 
+  /** Advanced Pixel definition
+   *
+   * This class defines an advanced pixel in a pixel detector.
+   *
+   * @author Lutz Foucar
+   */
+  class AdvancedPixel
+  {
+  public:
+    /** default constructor.*/
+    AdvancedPixel()
+      :_x(0),_y(0),_z(0),_used(false)
+    {}
+
+  public:
+    //@{
+    /** setter */
+    float    &x()       {return _x;}
+    float    &y()       {return _y;}
+    pixel_t  &z()       {return _z;}
+    bool     &isUsed()  {return _used;}
+    //@}
+    //@{
+    /** getter */
+    float     x()const      {return _x;}
+    float     y()const      {return _y;}
+    pixel_t   z()const      {return _z;}
+    bool      isUsed()const {return _used;}
+    //@}
+
+  private:
+    float    _x;    //!< x coordinate of the pixel
+    float    _y;    //!< y coordinate of the pixel
+    pixel_t  _z;    //!< the pixel value
+    bool     _used; //!< flag used in coalescing
+  };
+
   /** PixelDetector Wrapper
    *
    * This class contains a pointer to a pixel detector and extents the a regular
