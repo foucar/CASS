@@ -126,7 +126,7 @@ namespace cass
     }
   }
 
-  /** coalesce one pixel from the list
+  /** coalesce to one pixel from the list
    *
    * @author Lutz Foucar
    */
