@@ -134,8 +134,15 @@ namespace cass
   {
     Pixel pixel(pixellist.front());
     PixelDetector::pixelList_t::const_iterator it(pixellist.begin()+1);
+    float weightX(pixel.x()*pixel.z()),weightY(pixel.y()*pixel.z());
     for (; it != pixellist.end(); ++it)
+    {
+      weightX += (it->z()*it->x());
+      weightY += (it->z()*it->y());
       pixel.z() += it->z();
+    }
+    pixel.x() = weightX / pixel.z();
+    pixel.y() = weightY / pixel.z();
     return pixel;
   }
 }
