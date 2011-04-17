@@ -145,6 +145,16 @@ namespace cass
     pixel.y() = weightY / pixel.z();
     return pixel;
   }
+
+  /** check whether list of pixel should be coalesced
+   *
+   * @author Lutz Foucar
+   */
+  bool shouldCoalescePixel(const PixelDetector::pixelList_t &coalescedpixels,
+                           PixelDetectorContainer &det)
+  {
+
+  }
 }
 
 SimpleCoalesce::SimpleCoalesce()
@@ -165,8 +175,11 @@ PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetectorContainer &
     {
       PixelDetector::pixelList_t coalescedpixellist;
       findNeighbours(0,*pixel, Direction::origin, det, coalescedpixellist);
-      Pixel coalescedpixel(coalesce(coalescedpixellist));
-      coalescedpixels.push_back(coalescedpixel);
+      if (shouldCoalescePixel(coalescedpixellist,det))
+      {
+        Pixel coalescedpixel(coalesce(coalescedpixellist));
+        coalescedpixels.push_back(coalescedpixel);
+      }
     }
   }
   return (coalescedpixels);
