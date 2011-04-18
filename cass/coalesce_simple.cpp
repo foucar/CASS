@@ -102,7 +102,7 @@ namespace cass
     splitpixelslist.push_back(pixel);
 
     pixelslist_t &pixellist(det.pixellist());
-    /** check for left neighbour */
+    /** check for neighbour to the west */
     if (direction != Direction::east)
     {
       if (pixel.x() != 0)
@@ -114,7 +114,7 @@ namespace cass
           findNeighbours(depth+1,*neighbourPixelIt, Direction::west, det, splitpixelslist);
       }
     }
-    /** check for right neighbour */
+    /** check for neighbour to the east */
     if (direction != Direction::west)
     {
       if (pixel.x() < det.pixelDetector().columns()-1)
@@ -126,7 +126,7 @@ namespace cass
           findNeighbours(depth+1,*neighbourPixelIt, Direction::east, det, splitpixelslist);
       }
     }
-    /** check for top neighbour */
+    /** check for neighbour to the north */
     if (direction != Direction::south)
     {
       if (pixel.y() < det.pixelDetector().rows()-1)
@@ -138,7 +138,7 @@ namespace cass
           findNeighbours(depth+1,*neighbourPixelIt, Direction::north, det, splitpixelslist);
       }
     }
-    /** check for bottom neighbour */
+    /** check for neighbour to the south*/
     if (direction != Direction::north)
     {
       if (pixel.y() != 0)
