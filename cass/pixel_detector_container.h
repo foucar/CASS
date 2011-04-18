@@ -68,6 +68,8 @@ namespace cass
   class PixelDetectorContainer
   {
   public:
+    /** define the list of coalesced pixels */
+    typedef std::vector<AdvancedPixel> coalescedpixelslist_t;
     /** constructor
      *
      * @param name the name of this container
@@ -88,7 +90,7 @@ namespace cass
     const PixelDetector &pixelDetector() {return *_pixeldetector;}
 
     /** retrieve the coalesced pixel list */
-    const PixelDetector::pixelList_t& coalescedPixels();
+    const coalescedpixelslist_t& coalescedPixels();
 
     /** load the settings of this
      *
@@ -117,7 +119,7 @@ namespace cass
      * the coaleced pixellist contains the pixel after the split pixels have
      * been reunited again.
      */
-    PixelDetector::pixelList_t  _coalescedpixels;
+    coalescedpixelslist_t _coalescedpixels;
 
     /** flag whehter coaleced pixel list has been created already */
     bool _coalescedCreated;

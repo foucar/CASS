@@ -11,7 +11,7 @@
 
 #include <tr1/memory>
 
-#include "pixel_detector.h"
+#include "pixel_detector_container.h"
 
 namespace cass
 {
@@ -28,6 +28,9 @@ namespace cass
   public:
     /** typedef the shared pointer of this */
     typedef std::tr1::shared_ptr<CoalescingBase> shared_pointer;
+
+    /** redefine the coalesced pixels list for shorter code */
+    typedef PixelDetectorContainer::coalescedpixelslist_t coalescedpixelslist_t;
 
     /** virtual destructor */
     virtual ~CoalescingBase() {}
@@ -47,8 +50,8 @@ namespace cass
      * @param det the detector that contains the relevant pixellist
      * @param coalescedpixles the list where the coalesced pixels go in
      */
-    virtual PixelDetector::pixelList_t& operator() (PixelDetectorContainer &det,
-                                                    PixelDetector::pixelList_t &coalescedpixels)=0;
+    virtual coalescedpixelslist_t& operator() (PixelDetectorContainer &det,
+                                               coalescedpixelslist_t &coalescedpixels)=0;
 
     /** load the settings of this
      *

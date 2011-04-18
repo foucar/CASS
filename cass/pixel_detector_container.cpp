@@ -20,7 +20,7 @@
 using namespace cass;
 using namespace std;
 
-const PixelDetector::pixelList_t & PixelDetectorContainer::coalescedPixels()
+const PixelDetectorContainer::coalescedpixelslist_t& PixelDetectorContainer::coalescedPixels()
 {
   if (!_coalescedCreated)
   {

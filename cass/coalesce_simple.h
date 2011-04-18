@@ -34,8 +34,8 @@ namespace cass
      * @param det the detector that contains the relevant pixellist
      * @param coalescedpixles the list where the coalesced pixels go in
      */
-    PixelDetector::pixelList_t& operator() (PixelDetectorContainer &det,
-                                            PixelDetector::pixelList_t &coalescedpixels);
+    coalescedpixelslist_t& operator() (PixelDetectorContainer &det,
+                                       coalescedpixelslist_t &coalescedpixels);
 
     /** load the settings of this
      *
