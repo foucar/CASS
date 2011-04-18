@@ -29,6 +29,11 @@ namespace cass
 
   /** check if pixel is neighbour
    *
+   * predicate struct for find if. Will return true when a pixel is a neighbour.
+   * It will check whether the position of the pixel is identical to the
+   * coordinate that was given to this predicate in the constructor. The pixel
+   * also is not allowed to be used before as a neighbour of another pixel.
+   *
    * @author Lutz Foucar
    */
   struct isNeighbour
@@ -59,85 +64,117 @@ namespace cass
 
   /** find all neighbours of a pixel
    *
+   * This function is meant to be called recursively only to a depth of 5. First
+   * it will add the pixel that is passed to this function to the split pixel
+   * list and is marked as used. Then it will try to find another pixel in the
+   * pixellist of the  frame, that is a neighbour of that pixel. It will search
+   * whether there is  a pixel above, underneath, left or right from the pixel
+   * and call this function for this pixel recursively and increases the depth
+   * by one. As parameter it will also tell the callee where the orignal pixel
+   * was, so that when checking for neightbours we can omit the directions we
+   * came from.
+   *
+   * This idea was inspired by Tom White.
+   *
+   * @param depth The recursive depth of calling this function
+   * @param pixel The pixel whos neighbours we are searching for
+   * @param direction The direction that we came from
+   * @param det Reference to the detector container containing the frame and
+   *            pixellist that we are now trying to find the split pixels in.
+   * @param splitpixellist Reference to the list of pixels that have neighbours
+   *                       The event that this all these pixels belong to has
+   *                       been split among the pxixels in this list.
+   *
    * @author Lutz Foucar
    */
   void findNeighbours(uint16_t depth,
                       Pixel& pixel,
                       Direction::direction direction,
                       PixelDetectorContainer &det,
-                      PixelDetector::pixelList_t &coalescedpixellist)
+                      PixelDetector::pixelList_t &splitpixelslist)
   {
+    typedef PixelDetector::pixelList_t pixelslist_t;
+    typedef pair<uint16_t,uint16_t> position_t;
+
     if (depth > 5)
       return;
     pixel.isUsed() = true;
-    coalescedpixellist.push_back(pixel);
-    PixelDetector::pixelList_t &pixellist(det.pixellist());
-    const pair<uint16_t,uint16_t> xRange(make_pair(0,det.pixelDetector().rows()-1));
-    const pair<uint16_t,uint16_t> yRange(make_pair(0,det.pixelDetector().columns()-1));
+    splitpixelslist.push_back(pixel);
+
+    pixelslist_t &pixellist(det.pixellist());
     /** check for left neighbour */
     if (direction != Direction::east)
     {
-      if (pixel.x() > xRange.first)
+      if (pixel.x() != 0)
       {
-        pair<uint16_t,uint16_t> left(make_pair(pixel.x()-1,pixel.y()));
-        PixelDetector::pixelList_t::iterator neighbourPixelIt = (find_if(pixellist.begin(),
-                                                                         pixellist.end(),
-                                                                         isNeighbour(left)));
+        position_t left(make_pair(pixel.x()-1,pixel.y()));
+        pixelslist_t::iterator neighbourPixelIt
+            (find_if(pixellist.begin(), pixellist.end(), isNeighbour(left)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::west, det, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::west, det, splitpixelslist);
       }
     }
     /** check for right neighbour */
     if (direction != Direction::west)
     {
-      if (pixel.x() < xRange.second)
+      if (pixel.x() < det.pixelDetector().columns()-1)
       {
-        pair<uint16_t,uint16_t> right(make_pair(pixel.x()+1,pixel.y()));
-        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-                                                                      pixellist.end(),
-                                                                      isNeighbour(right)));
+        position_t right(make_pair(pixel.x()+1,pixel.y()));
+        pixelslist_t::iterator neighbourPixelIt
+            (find_if(pixellist.begin(), pixellist.end(), isNeighbour(right)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::east, det, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::east, det, splitpixelslist);
       }
     }
     /** check for top neighbour */
     if (direction != Direction::south)
     {
-      if (pixel.y() < yRange.second)
+      if (pixel.y() < det.pixelDetector().rows()-1)
       {
-        pair<uint16_t,uint16_t> top(make_pair(pixel.x(),pixel.y()+1));
-        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-                                                                      pixellist.end(),
-                                                                      isNeighbour(top)));
+        position_t top(make_pair(pixel.x(),pixel.y()+1));
+        pixelslist_t::iterator neighbourPixelIt
+            (find_if(pixellist.begin(), pixellist.end(), isNeighbour(top)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::north, det, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::north, det, splitpixelslist);
       }
     }
     /** check for bottom neighbour */
     if (direction != Direction::north)
     {
-      if (pixel.y() > yRange.first)
+      if (pixel.y() != 0)
       {
-        pair<uint16_t,uint16_t> bottom(make_pair(pixel.x(),pixel.y()-1));
-        PixelDetector::pixelList_t::iterator neighbourPixelIt(find_if(pixellist.begin(),
-                                                                      pixellist.end(),
-                                                                      isNeighbour(bottom)));
+        position_t bottom(make_pair(pixel.x(),pixel.y()-1));
+        pixelslist_t::iterator neighbourPixelIt
+            (find_if(pixellist.begin(), pixellist.end(), isNeighbour(bottom)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::south, det, coalescedpixellist);
+          findNeighbours(depth+1,*neighbourPixelIt, Direction::south, det, splitpixelslist);
       }
     }
   }
 
-  /** coalesce to one pixel from the list
+  /** coalesce the pixels
+   *
+   * Coalesce the pixels in the pixel list to an hit on the detector. The value
+   * (Z) of the pixels will be added. The position of the hit is defined by
+   * the center of mass of the pixel group. Also remember how many pixels
+   * contributed to the hit.
+   *
+   * @return the hit, which is the coalesced pixels
+   * @param splitpixelslist The list of pixels that belong to one hit on the
+   *                        detector.
    *
    * @author Lutz Foucar
    */
-  Pixel coalesce(const PixelDetector::pixelList_t &pixellist)
+  AdvancedPixel coalesce(const PixelDetector::pixelList_t &splitpixelslist)
   {
-    Pixel pixel(pixellist.front());
-    PixelDetector::pixelList_t::const_iterator it(pixellist.begin()+1);
-    float weightX(pixel.x()*pixel.z()),weightY(pixel.y()*pixel.z());
-    for (; it != pixellist.end(); ++it)
+    AdvancedPixel pixel;
+    pixel.x() = splitpixelslist.front().x();
+    pixel.y() = splitpixelslist.front().y();
+    pixel.z() = splitpixelslist.front().z();
+    float weightX(pixel.x()*pixel.z());
+    float weightY(pixel.y()*pixel.z());
+    PixelDetector::pixelList_t::const_iterator it(splitpixelslist.begin()+1);
+    for (; it != splitpixelslist.end(); ++it)
     {
       weightX += (it->z()*it->x());
       weightY += (it->z()*it->y());
@@ -152,17 +189,17 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  bool shouldCoalescePixel(const PixelDetector::pixelList_t &coalescedpixels,
+  bool shouldCoalescePixel(const PixelDetector::pixelList_t &splitpixelslist,
                            PixelDetectorContainer &det)
   {
-    PixelDetector::pixelList_t::const_iterator it(coalescedpixels.begin());
+    PixelDetector::pixelList_t::const_iterator pixel(splitpixelslist.begin());
     float mipThreshold(det.mipThreshold());
-    for (; it != coalescedpixels.end(); ++it)
+    for (; pixel != splitpixelslist.end(); ++pixel)
     {
-      if (it->z() > mipThreshold)
+      if (pixel->z() > mipThreshold)
         return false;
       const size_t framewidth(det.pixelDetector().columns());
-      size_t idx(it->y()*framewidth + it->x());
+      size_t idx(pixel->y()*framewidth + pixel->x());
       const PixelDetector::frame_t &frame(det.pixelDetector().frame());
       if (frame[idx-framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper left
           frame[idx-framewidth]   > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper middle
@@ -185,8 +222,8 @@ void SimpleCoalesce::loadSettings(CASSSettings &s)
 {
 }
 
-PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
-                                                        PixelDetector::pixelList_t &coalescedpixels)
+SimpleCoalesce::coalescedpixelslist_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
+                                                                   SimpleCoalesce::coalescedpixelslist_t &coalescedpixels)
 {
   PixelDetector::pixelList_t &pixellist(det.pixellist());
   PixelDetector::pixelList_t::iterator pixel(pixellist.begin());
@@ -194,14 +231,14 @@ PixelDetector::pixelList_t& SimpleCoalesce::operator() (PixelDetectorContainer &
   {
     if (!pixel->isUsed())
     {
-      PixelDetector::pixelList_t coalescedpixellist;
-      findNeighbours(0,*pixel, Direction::origin, det, coalescedpixellist);
-      if (shouldCoalescePixel(coalescedpixellist,det))
+      PixelDetector::pixelList_t splitpixellist;
+      findNeighbours(0,*pixel, Direction::origin, det, splitpixellist);
+      if (shouldCoalescePixel(splitpixellist,det))
       {
-        Pixel coalescedpixel(coalesce(coalescedpixellist));
+        AdvancedPixel coalescedpixel(coalesce(splitpixellist));
         coalescedpixels.push_back(coalescedpixel);
       }
     }
   }
-  return (coalescedpixels);
+  return coalescedpixels;
 }
