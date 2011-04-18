@@ -187,6 +187,19 @@ namespace cass
 
   /** check whether list of pixel should be coalesced
    *
+   * Checks whether the pixels in the list are a massiv ionizing particle (MIP)
+   * candidate. This means whether the value (z) of that pixel is above a user
+   * set threshold. If this is true then the list should not be coalesced.
+   * Then check whether one of the neighbouring pixels in the raw frame is 0.
+   * This means that it has been marked as bad by either the darkframe
+   * calibration or by the user.
+   *
+   * @return true when the pixels in the list should be coalesced
+   * @param splitpixelslist The list of pixels that belong to one hit on the
+   *                        detector.
+   * @param det The detector container that contains the information about this
+   *            detector.
+   *
    * @author Lutz Foucar
    */
   bool shouldCoalescePixel(const PixelDetector::pixelList_t &splitpixelslist,
