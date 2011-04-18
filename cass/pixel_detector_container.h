@@ -99,6 +99,9 @@ namespace cass
     /** retrieve the pixellist */
     PixelDetector::pixelList_t& pixellist() {return _pixelslist;}
 
+    /** retrieve the MIP threshold */
+    float mipThreshold()const   {return _mipThreshold;}
+
   private:
     /** pointer to the pixel detector we manage */
     const PixelDetector *_pixeldetector;
@@ -130,6 +133,9 @@ namespace cass
 
     /** device the ccd image comes from */
     int32_t _device;
+
+    /** the threshold above which a pixel is identified as MIP signature */
+    float _mipThreshold;
   };
 }
 #endif

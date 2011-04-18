@@ -8,6 +8,8 @@
  */
 
 #include <algorithm>
+#include <limits>
+#include <cmath>
 
 #include "coalesce_simple.h"
 
@@ -153,7 +155,26 @@ namespace cass
   bool shouldCoalescePixel(const PixelDetector::pixelList_t &coalescedpixels,
                            PixelDetectorContainer &det)
   {
-
+    PixelDetector::pixelList_t::const_iterator it(coalescedpixels.begin());
+    float mipThreshold(det.mipThreshold());
+    for (; it != coalescedpixels.end(); ++it)
+    {
+      if (it->z() > mipThreshold)
+        return false;
+      const size_t framewidth(det.pixelDetector().columns());
+      size_t idx(it->y()*framewidth + it->x());
+      const PixelDetector::frame_t &frame(det.pixelDetector().frame());
+      if (frame[idx-framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper left
+          frame[idx-framewidth]   > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper middle
+          frame[idx-framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper right
+          frame[idx-1]            > sqrt(numeric_limits<pixel_t>::epsilon()) || //left
+          frame[idx+1]            > sqrt(numeric_limits<pixel_t>::epsilon()) || //right
+          frame[idx+framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //lower left
+          frame[idx+framewidth]   > sqrt(numeric_limits<pixel_t>::epsilon()) || //lower middle
+          frame[idx+framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon()))   //lower right
+        return false;
+    }
+    return true;
   }
 }
 
