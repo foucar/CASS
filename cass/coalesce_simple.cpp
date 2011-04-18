@@ -165,24 +165,24 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  AdvancedPixel coalesce(const PixelDetector::pixelList_t &splitpixelslist)
+  PixelDetectorHit coalesce(const PixelDetector::pixelList_t &splitpixelslist)
   {
-    AdvancedPixel pixel;
-    pixel.x() = splitpixelslist.front().x();
-    pixel.y() = splitpixelslist.front().y();
-    pixel.z() = splitpixelslist.front().z();
-    float weightX(pixel.x()*pixel.z());
-    float weightY(pixel.y()*pixel.z());
-    PixelDetector::pixelList_t::const_iterator it(splitpixelslist.begin()+1);
-    for (; it != splitpixelslist.end(); ++it)
+    PixelDetectorHit hit;
+    hit.x() = splitpixelslist.front().x();
+    hit.y() = splitpixelslist.front().y();
+    hit.z() = splitpixelslist.front().z();
+    float weightX(hit.x()*hit.z());
+    float weightY(hit.y()*hit.z());
+    PixelDetector::pixelList_t::const_iterator pixel(splitpixelslist.begin()+1);
+    for (; pixel != splitpixelslist.end(); ++pixel)
     {
-      weightX += (it->z()*it->x());
-      weightY += (it->z()*it->y());
-      pixel.z() += it->z();
+      weightX += (pixel->z()*pixel->x());
+      weightY += (pixel->z()*pixel->y());
+      hit.z() += pixel->z();
     }
-    pixel.x() = weightX / pixel.z();
-    pixel.y() = weightY / pixel.z();
-    return pixel;
+    hit.x() = weightX / hit.z();
+    hit.y() = weightY / hit.z();
+    return hit;
   }
 
   /** check whether list of pixel should be coalesced
@@ -235,8 +235,8 @@ void SimpleCoalesce::loadSettings(CASSSettings &s)
 {
 }
 
-SimpleCoalesce::coalescedpixelslist_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
-                                                                   SimpleCoalesce::coalescedpixelslist_t &coalescedpixels)
+SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
+                                                       SimpleCoalesce::hitlist_t &hits)
 {
   PixelDetector::pixelList_t &pixellist(det.pixellist());
   PixelDetector::pixelList_t::iterator pixel(pixellist.begin());
@@ -248,10 +248,10 @@ SimpleCoalesce::coalescedpixelslist_t& SimpleCoalesce::operator() (PixelDetector
       findNeighbours(0,*pixel, Direction::origin, det, splitpixellist);
       if (shouldCoalescePixel(splitpixellist,det))
       {
-        AdvancedPixel coalescedpixel(coalesce(splitpixellist));
-        coalescedpixels.push_back(coalescedpixel);
+        PixelDetectorHit hit(coalesce(splitpixellist));
+        hits.push_back(hit);
       }
     }
   }
-  return coalescedpixels;
+  return hits;
 }

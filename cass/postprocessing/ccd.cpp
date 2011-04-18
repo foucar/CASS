@@ -371,10 +371,10 @@ void cass::pp142::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
       (HelperPixelDetectors::instance(_detector)->detector(evt));
-  PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
+  PixelDetectorContainer::hitlist_t::const_iterator it(det->hits().begin());
   _result->lock.lockForWrite();
   _result->clear();
-  for (; it != det->coalescedPixels().end(); ++it)
+  for (; it != det->hits().end(); ++it)
   {
       dynamic_cast<Histogram1DFloat*>(_result)->fill(it->z());
   }
@@ -419,10 +419,10 @@ void cass::pp143::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
       (HelperPixelDetectors::instance(_detector)->detector(evt));
-  PixelDetector::pixelList_t::const_iterator it(det->coalescedPixels().begin());
+  PixelDetectorContainer::hitlist_t::const_iterator it(det->hits().begin());
   _result->lock.lockForWrite();
   _result->clear();
-  for (; it != det->coalescedPixels().end(); ++it)
+  for (; it != det->hits().end(); ++it)
   {
     if (_range.first < it->z() && it->z() < _range.second)
       dynamic_cast<Histogram2DFloat*>(_result)->fill(it->x(),it->y(),it->z());

@@ -20,41 +20,41 @@ namespace cass
   class CASSSettings;
   class CASSEvent;
 
-  /** Advanced Pixel definition
+  /** A Hit on a pixel detector.
    *
-   * This class defines an advanced pixel in a pixel detector.
+   * This class defines a hit on a pixel detector.
    *
    * @author Lutz Foucar
    */
-  class AdvancedPixel
+  class PixelDetectorHit
   {
   public:
     /** default constructor.*/
-    AdvancedPixel()
-      :_x(0),_y(0),_z(0),_used(false)
+    PixelDetectorHit()
+      :_x(0),_y(0),_z(0),_nbrPixels(0)
     {}
 
   public:
     //@{
     /** setter */
-    float    &x()       {return _x;}
-    float    &y()       {return _y;}
-    pixel_t  &z()       {return _z;}
-    bool     &isUsed()  {return _used;}
+    float    &x()         {return _x;}
+    float    &y()         {return _y;}
+    pixel_t  &z()         {return _z;}
+    size_t   &nbrPixels() {return _nbrPixels;}
     //@}
     //@{
     /** getter */
-    float     x()const      {return _x;}
-    float     y()const      {return _y;}
-    pixel_t   z()const      {return _z;}
-    bool      isUsed()const {return _used;}
+    float     x()const          {return _x;}
+    float     y()const          {return _y;}
+    pixel_t   z()const          {return _z;}
+    size_t    nbrPixels()const  {return _nbrPixels;}
     //@}
 
   private:
-    float    _x;    //!< x coordinate of the pixel
-    float    _y;    //!< y coordinate of the pixel
-    pixel_t  _z;    //!< the pixel value
-    bool     _used; //!< flag used in coalescing
+    float    _x;          //!< x coordinate of the pixel
+    float    _y;          //!< y coordinate of the pixel
+    pixel_t  _z;          //!< the pixel value
+    size_t   _nbrPixels;  //!< how many pixels in the frame belong to this hit.
   };
 
   /** PixelDetector Wrapper
@@ -69,13 +69,13 @@ namespace cass
   {
   public:
     /** define the list of coalesced pixels */
-    typedef std::vector<AdvancedPixel> coalescedpixelslist_t;
+    typedef std::vector<PixelDetectorHit> hitlist_t;
     /** constructor
      *
      * @param name the name of this container
      */
     PixelDetectorContainer(const std::string &name)
-      : _coalescedCreated(false),
+      : _hitListCreated(false),
         _name(name)
     {}
 
@@ -90,7 +90,7 @@ namespace cass
     const PixelDetector &pixelDetector() {return *_pixeldetector;}
 
     /** retrieve the coalesced pixel list */
-    const coalescedpixelslist_t& coalescedPixels();
+    const hitlist_t& hits();
 
     /** load the settings of this
      *
@@ -114,15 +114,14 @@ namespace cass
      */
     PixelDetector::pixelList_t _pixelslist;
 
-    /** coaleced pixellist
+    /** hits on the detector
      *
-     * the coaleced pixellist contains the pixel after the split pixels have
-     * been reunited again.
+     * a hit on the detector can be split among several pixels.
      */
-    coalescedpixelslist_t _coalescedpixels;
+    hitlist_t _hits;
 
-    /** flag whehter coaleced pixel list has been created already */
-    bool _coalescedCreated;
+    /** flag whehter hit list has been created already */
+    bool _hitListCreated;
 
     /** functor that will do the coalescing */
     std::tr1::shared_ptr<CoalescingBase> _coalesce;

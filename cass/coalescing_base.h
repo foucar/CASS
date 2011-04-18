@@ -30,7 +30,7 @@ namespace cass
     typedef std::tr1::shared_ptr<CoalescingBase> shared_pointer;
 
     /** redefine the coalesced pixels list for shorter code */
-    typedef PixelDetectorContainer::coalescedpixelslist_t coalescedpixelslist_t;
+    typedef PixelDetectorContainer::hitlist_t hitlist_t;
 
     /** virtual destructor */
     virtual ~CoalescingBase() {}
@@ -44,14 +44,14 @@ namespace cass
 
     /** coalesce the pixels
      *
-     * take the input pixel list and coalesce it
+     * take the input pixel list and coalesce it to hits on the detector.
      *
      * @return reference to the coalesced pixel list
      * @param det the detector that contains the relevant pixellist
-     * @param coalescedpixles the list where the coalesced pixels go in
+     * @param hits The list where the pixels that were coalesced to hits go in
      */
-    virtual coalescedpixelslist_t& operator() (PixelDetectorContainer &det,
-                                               coalescedpixelslist_t &coalescedpixels)=0;
+    virtual hitlist_t& operator() (PixelDetectorContainer &det,
+                                   hitlist_t &hits)=0;
 
     /** load the settings of this
      *

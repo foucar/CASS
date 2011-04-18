@@ -20,15 +20,15 @@
 using namespace cass;
 using namespace std;
 
-const PixelDetectorContainer::coalescedpixelslist_t& PixelDetectorContainer::coalescedPixels()
+const PixelDetectorContainer::hitlist_t& PixelDetectorContainer::hits()
 {
-  if (!_coalescedCreated)
+  if (!_hitListCreated)
   {
     CoalescingBase & coalesce (*_coalesce);
-    coalesce(*this, _coalescedpixels);
-    _coalescedCreated = true;
+    coalesce(*this, _hits);
+    _hitListCreated = true;
   }
-  return _coalescedpixels;
+  return _hits;
 }
 
 void PixelDetectorContainer::associate(const CASSEvent &evt)
@@ -51,7 +51,8 @@ void PixelDetectorContainer::associate(const CASSEvent &evt)
   }
   _pixeldetector = &(*(evt.devices().find(device)->second->detectors()))[_detector];
   _pixelslist = _pixeldetector->pixellist();
-  _coalescedCreated = false;
+  _hits.clear();
+  _hitListCreated = false;
 }
 
 void PixelDetectorContainer::loadSettings(CASSSettings &s)
