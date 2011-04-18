@@ -212,17 +212,37 @@ namespace cass
       if (pixel->z() > mipThreshold)
         return false;
       const size_t framewidth(det.pixelDetector().columns());
+      const size_t frameheight(det.pixelDetector().rows());
       size_t idx(pixel->y()*framewidth + pixel->x());
       const PixelDetector::frame_t &frame(det.pixelDetector().frame());
-      if (frame[idx-framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper left
-          frame[idx-framewidth]   > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper middle
-          frame[idx-framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //upper right
-          frame[idx-1]            > sqrt(numeric_limits<pixel_t>::epsilon()) || //left
-          frame[idx+1]            > sqrt(numeric_limits<pixel_t>::epsilon()) || //right
-          frame[idx+framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon()) || //lower left
-          frame[idx+framewidth]   > sqrt(numeric_limits<pixel_t>::epsilon()) || //lower middle
-          frame[idx+framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon()))   //lower right
-        return false;
+      if (pixel->y() != 0)
+      {
+        if (frame[idx-framewidth] > sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
+          return false;
+        if (pixel->x() != 0)
+          if (frame[idx-framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
+            return false;
+        if (pixel->x() < framewidth-1)
+          if (frame[idx-framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
+            return false;
+      }
+      if (pixel->x() != 0)
+        if (frame[idx-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //left
+          return false;
+      if (pixel->x() < framewidth-1)
+        if (frame[idx+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //right
+          return false;
+      if (pixel->y() < frameheight-1)
+      {
+        if (frame[idx+framewidth] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
+          return false;
+        if (pixel->x() != 0)
+          if (frame[idx+framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
+            return false;
+        if (pixel->x() < framewidth-1)
+          if (frame[idx+framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
+            return false;
+      }
     }
     return true;
   }
@@ -231,7 +251,7 @@ namespace cass
 SimpleCoalesce::SimpleCoalesce()
 {}
 
-void SimpleCoalesce::loadSettings(CASSSettings &s)
+void SimpleCoalesce::loadSettings(CASSSettings &/*s*/)
 {
 }
 
