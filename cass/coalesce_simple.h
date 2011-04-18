@@ -16,10 +16,7 @@ namespace cass
 {
   /** simple coalescing of pixels
    *
-   * use a simple recursive algorithm to find pixels that are neighbours. See
-   * cass::findNeighbours(). After a check whether the pixels should be
-   * coalesced, see cass::shouldCoalescePixel(), coalesce the pixels to hits,
-   * see cass::coalesce()
+   * take the input pixel list and coalesce it to hits on the detector.
    *
    * @author Lutz Foucar
    */
@@ -31,11 +28,14 @@ namespace cass
 
     /** coalesce the pixels
      *
-     * take the input pixel list and coalesce it to hits on the detector.
+     * use a simple recursive algorithm to find pixels that are neighbours. See
+     * cass::findNeighbours(). After a check whether the pixels should be
+     * coalesced, see cass::shouldCoalescePixel(), coalesce the pixels to hits,
+     * see cass::coalesce()
      *
-     * @return reference to the coalesced pixel list
+     * @return reference to the list of hits
      * @param det the detector that contains the relevant pixellist
-     * @param hits the list where the coalesced pixels go in
+     * @param hits The list where the pixels that were coalesced to hits go in
      */
     hitlist_t& operator() (PixelDetectorContainer &det,
                            hitlist_t &hits);
