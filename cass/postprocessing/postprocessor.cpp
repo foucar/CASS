@@ -627,6 +627,12 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case CCDPhotonHitsImage:
     processor = new pp141(*this,key);
     break;
+  case CCDCoalescedPhotonHitsSpectrum:
+    processor = new pp142(*this,key);
+    break;
+  case CCDCoalescedPhotonHitsImage:
+    processor = new pp143(*this,key);
+    break;
   case TofDetNbrSignals:
     processor = new pp150(*this, key);
     break;
