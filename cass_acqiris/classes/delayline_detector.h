@@ -39,9 +39,11 @@ namespace cass
      * and for the second its "Two".
      *
      * @cassttng AcqirisDetectors/\%detectorname\%/\%layername%/One\n
-     *           groupname of the first wireend
+     *           groupname of the first wireend.
+     *           See cass::ACQIRIS::SignalProducer
      * @cassttng AcqirisDetectors/\%detectorname\%/\%layername%/Two\n
      *           groupname of the second wireend
+     *           See cass::ACQIRIS::SignalProducer
      *
      * @author Lutz Foucar
      */
@@ -108,25 +110,33 @@ namespace cass
      * @cassttng AcqirisDetectors/\%detectorname\%/{AnalysisMethod}\n
      *           Method that is used to reconstruct the detector hits. Default
      *           is 0. Choises are:
-     *           - 0: Simple Analysis (see DelaylineDetectorAnalyzerSimple)
-     *           - 1: Achims Routine for Hex anodes (see HexSorter)
-     *           - 2: Achims Calibrator for Achims Routine for Hex anodes
-     *                (see HexCalibrator)
-     *           - 3: Simple non sorting (see DelaylineNonSorting)
+     *           - 0: Simple Analysis:
+     *                (see cass::ACQIRIS::DelaylineDetectorAnalyzerSimple)
+     *           - 1: Achims Routine for Hex anodes: See cass::ACQIRIS::HexSorter)
+     *           - 2: Achims Calibrator for Achims Routine for Hex anodes:
+     *                See cass::ACQIRIS::HexCalibrator
+     *           - 3: Simple non sorting: See cass::ACQIRIS::DelaylineNonSorting)
      * @cassttng AcqirisDetectors/\%detectorname\%/{DelaylineType}\n
      *           What kind of Delaylinedetector are we. Default is 0
      *           - 0: Quad Anode
      *           - 1: Hex Anode
+     * @cassttng AcqirisDetectors/\%detectorname\%/MCP\n
+     *           Name of the MCP Signal. See cass::ACQIRIS::SignalProducer
      * @cassttng AcqirisDetectors/\%detectorname\%/XLayer\n
      *           groupname of the X Layer, when DelaylineType is Quad
+     *           see cass::ACQIRIS::AnodeLayer
      * @cassttng AcqirisDetectors/\%detectorname\%/YLayer\n
      *           groupname of the Y Layer, when DelaylineType is Quad
+     *           see cass::ACQIRIS::AnodeLayer
      * @cassttng AcqirisDetectors/\%detectorname\%/ULayer\n
      *           groupname of the U Layer, when DelaylineType is Hex
+     *           see cass::ACQIRIS::AnodeLayer
      * @cassttng AcqirisDetectors/\%detectorname\%/VLayer\n
      *           groupname of the V Layer, when DelaylineType is Hex
+     *           see cass::ACQIRIS::AnodeLayer
      * @cassttng AcqirisDetectors/\%detectorname\%/WLayer\n
      *           groupname of the W Layer, when DelaylineType is Hex
+     *           see cass::ACQIRIS::AnodeLayer
      *
      * @author Lutz Foucar
      */

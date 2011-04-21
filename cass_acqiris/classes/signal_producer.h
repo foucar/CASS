@@ -48,11 +48,11 @@ namespace cass
      *           the recorded data. To see what options need to be set for the
      *           specific signalextraction methods description.
      *           There are the following options :
-     *           - 0:com 8 bit waveform (see CoM8Bit)
-     *           - 1:com 16 bit waveform (see CoM8Bit)
-     *           - 2:cfd 8 bit waveform (see CFD8Bit)
-     *           - 3:cfd 16 bit waveform (see CFD8Bit)
-     *           - 4:tdc data extractor (see ACQIRISTDC::TDCExtractor)
+     *           - 0:com 8 bit waveform (see cass::ACQIRIS::CoM8Bit)
+     *           - 1:com 16 bit waveform (see cass::ACQIRIS::CoM8Bit)
+     *           - 2:cfd 8 bit waveform (see cass::ACQIRIS::CFD8Bit)
+     *           - 3:cfd 16 bit waveform (see cass::ACQIRIS::CFD8Bit)
+     *           - 4:tdc data extractor (see cass::ACQIRISTDC::TDCExtractor)
      * @cassttng .../{GoodRangeLow|GoodRangeHigh}\n
      *           The lower an upper boundaries of the range where good single
      *           hits appear in. Default is 0.
