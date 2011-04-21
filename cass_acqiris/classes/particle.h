@@ -44,14 +44,26 @@ namespace cass
      *           The Mass of the particle in atomic mass units. When one wants
      *           to define a electron the charge has to be -1 and the Mass 1.
      *           Default is 1.
+     * @cassttng AcqirisDetectors/\%detectorname\%/Particles/\%particlename%/{Spectrometer}\n
+     *           The Spectrometer that the Particles fly through.
+     *           See cass::ACQIRIS::Spectrometer
+     * @cassttng AcqirisDetectors/\%detectorname\%/Particles/\%particlename%/{Corrections}\n
+     *           The corrections that one has to do to the raw values of a hit
+     *           in order to convert the hit values to momentum.
+     *           See cass::ACQIRIS::HitCorrector
      * @cassttng AcqirisDetectors/\%detectorname\%/Particles/\%particlename%/{ConditionType}\n
      *           The type of condition that we use to identify a particle hit
      *           from a detectorhit. Default is 0. Possible choises are:
-     *           - 0: condition on time of flight
-     *           - 1: condition on a radius with choseable center of the position
-     *           - 2: condition on a rectangle of the position
-     *           - 3: combination of condition 0 and 1
-     *           - 4: combination of condition 0 and 2
+     *           - 0: condition on time of flight:
+     *                See cass::ACQIRIS::TofCond
+     *           - 1: condition on a radius with choseable center of the position:
+     *                See cass::ACQIRIS::RadCond
+     *           - 2: condition on a rectangle of the position:
+     *                See cass::ACQIRIS::RectCond
+     *           - 3: combination of condition 0 and 1:
+     *                See cass::ACQIRIS::TofCond and cass::ACQIRIS::RadCond
+     *           - 4: combination of condition 0 and 2:
+     *                See cass::ACQIRIS::TofCond and cass::ACQIRIS::RadCond
      *
      * @author Lutz Foucar
      */

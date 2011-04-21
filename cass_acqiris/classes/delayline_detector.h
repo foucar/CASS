@@ -137,6 +137,9 @@ namespace cass
      * @cassttng AcqirisDetectors/\%detectorname\%/WLayer\n
      *           groupname of the W Layer, when DelaylineType is Hex
      *           see cass::ACQIRIS::AnodeLayer
+     * @cassttng AcqirisDetectors/\%detectorname\%/Particles\n
+     *           groupname of the user definable Particles.
+     *           see cass::ACQIRIS::Particle
      *
      * @author Lutz Foucar
      */
