@@ -340,7 +340,11 @@ void cass::pp141::process(const CASSEvent& evt)
 
 
 
-// *** A Postprocessor that will display the coalesced photonhits spectrum ***
+
+
+
+
+// *** A Postprocessor retrieve the number of the photonhits of ccd detectors ***
 
 cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
@@ -348,7 +352,59 @@ cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   loadSettings(0);
 }
 
+
 void cass::pp142::loadSettings(size_t)
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
+  _detector = settings.value("Detector",0).toUInt();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  std::cout<<"Postprocessor "<<_key<<":"
+      <<" will retrieve the number of photon hits of detector '"<<_detector
+      <<"' in device '"<<_device
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<std::endl;
+}
+
+void cass::pp142::process(const CASSEvent& evt)
+{
+  if (evt.devices().find(_device)->second->detectors()->size() <= _detector)
+    throw std::runtime_error(QString("PostProcessor_%1: Detector %2 does not exist in Device %3")
+                             .arg(_key.c_str())
+                             .arg(_detector)
+                             .arg(_device).toStdString());
+  const PixelDetector::pixelList_t& pixellist
+      ((*(evt.devices().find(_device)->second)->detectors())[_detector].pixellist());
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(pixellist.size());
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will display the coalesced photonhits spectrum ***
+
+cass::pp143::pp143(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp143::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
@@ -367,7 +423,7 @@ void cass::pp142::loadSettings(size_t)
       <<endl;
 }
 
-void cass::pp142::process(const CASSEvent& evt)
+void cass::pp143::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
       (HelperPixelDetectors::instance(_detector)->detector(evt));
@@ -384,15 +440,22 @@ void cass::pp142::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+
 // *** A Postprocessor that will display the coalesced photonhits of ccd detectors ***
 
-cass::pp143::pp143(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+cass::pp144::pp144(PostProcessors& pp, const cass::PostProcessors::key_t &key)
     : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
 }
 
-void cass::pp143::loadSettings(size_t)
+void cass::pp144::loadSettings(size_t)
 {
   using namespace std;
   CASSSettings settings;
@@ -415,7 +478,7 @@ void cass::pp143::loadSettings(size_t)
       <<endl;
 }
 
-void cass::pp143::process(const CASSEvent& evt)
+void cass::pp144::process(const CASSEvent& evt)
 {
   HelperPixelDetectors::PixDetContainer_sptr det
       (HelperPixelDetectors::instance(_detector)->detector(evt));
@@ -430,6 +493,51 @@ void cass::pp143::process(const CASSEvent& evt)
   _result->lock.unlock();
 }
 
+
+
+
+
+
+
+
+
+
+// *** A Postprocessor that will retrieve the number of coalesced hits ***
+
+cass::pp145::pp145(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp145::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  _detector = settings.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  HelperPixelDetectors::instance(_detector)->loadSettings();
+  cout<<"Postprocessor '"<<_key
+      <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp145::process(const CASSEvent& evt)
+{
+  HelperPixelDetectors::PixDetContainer_sptr det
+      (HelperPixelDetectors::instance(_detector)->detector(evt));
+  const PixelDetectorContainer::hitlist_t& hits(det->hits());
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(hits.size());
+  _result->lock.unlock();
+}
 
 
 

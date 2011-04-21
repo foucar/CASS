@@ -267,6 +267,51 @@ namespace cass
 
 
 
+  /** Number of PhotonHits of CCD's.
+   *
+   * This postprocessor retrieve how many photonhits have been detected in a
+   * ccd frame. For the Parameters for detecting Photonhits, please see
+   * (PNCCD::Analyzer or CCD::Analyzer)
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   *
+   * @author Lutz Foucar
+   */
+  class pp142 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp142(PostProcessors&, const PostProcessors::key_t&);
+
+    /** copy pixels from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** device the ccd image comes from*/
+    cass::CASSEvent::Device _device;
+
+    /** detector to work on */
+    size_t _detector;
+  };
+
+
+
+
+
+
 
 
 
@@ -285,11 +330,11 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp142 : public PostprocessorBackend
+  class pp143 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp142(PostProcessors&, const PostProcessors::key_t&);
+    pp143(PostProcessors&, const PostProcessors::key_t&);
 
     /** copy pixels from CASS event to histogram storage */
     virtual void process(const CASSEvent&);
@@ -300,9 +345,6 @@ namespace cass
   protected:
     /** detector to work on */
     HelperPixelDetectors::instancesmap_t::key_type _detector;
-
-    /** gate on the z */
-    std::pair<float,float> _range;
   };
 
 
@@ -328,11 +370,11 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class pp143 : public PostprocessorBackend
+  class pp144 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp143(PostProcessors&, const PostProcessors::key_t&);
+    pp144(PostProcessors&, const PostProcessors::key_t&);
 
     /** copy pixels from CASS event to histogram storage */
     virtual void process(const CASSEvent&);
@@ -346,6 +388,39 @@ namespace cass
 
     /** gate on the z */
     std::pair<float,float> _range;
+  };
+
+
+
+
+  /** Number of coalesced PhotonHits of CCD's.
+   *
+   * This postprocessor retrieve how many coalesced photonhits have been
+   * detected in a ccd frame.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the Detector that one is interested in. Default "blubb"
+   *
+   * @author Lutz Foucar
+   */
+  class pp145 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp145(PostProcessors&, const PostProcessors::key_t&);
+
+    /** copy pixels from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** detector to work on */
+    HelperPixelDetectors::instancesmap_t::key_type _detector;
   };
 
 }

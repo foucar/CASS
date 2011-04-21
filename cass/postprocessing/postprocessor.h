@@ -98,9 +98,11 @@ the Class description for information about what parameters are user settable.
 
 00140: Photonhits Spectrum
 00141: Photonhits Image
+00142: Nbr of Photonhits
 
 00142: Coalesced Pixels Photonhits Spectrum
 00143: Coalesced Pixels Photonhits image
+00145: Nbr of Coalesced Pixels Photonhits
 
 00150: TofDetector number of signals in MCP waveform
 00151: TofDetector all signals
@@ -269,9 +271,11 @@ using the custom doxygen tag cassttng.
 
       CCDPhotonHitsSpectrum=140,
       CCDPhotonHitsImage=141,
+      NbrOfCCDPhotonHits=142,
 
-      CCDCoalescedPhotonHitsSpectrum=142,
-      CCDCoalescedPhotonHitsImage=143,
+      CCDCoalescedPhotonHitsSpectrum=143,
+      CCDCoalescedPhotonHitsImage=144,
+      NbrOfCCDCoalescedPhotonHits=145,
 
       TofDetNbrSignals=150,
       TofDetAllSignals=151,
