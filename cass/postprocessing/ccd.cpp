@@ -149,11 +149,11 @@ void cass::pp101::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": retrieves the Integral over the whole "<<_detector
-      <<" detector"
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' retrieves the Integral over the whole '"<<_detector
+      <<"'' detector"
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp101::process(const cass::CASSEvent &evt)
@@ -201,10 +201,10 @@ void cass::pp102::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  std::cout <<std::endl<< "PostProcessor "<<_key
-      <<": retrieves the Integral over the whole "<<_detector
-      <<" detector calculated using pixels over threshold."
-      <<". Condition is"<<_condition->key()
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' retrieves the Integral over the whole '"<<_detector
+      <<"' detector calculated using pixels over threshold."
+      <<"Condition is '"<<_condition->key()<<"'"
       <<std::endl;
 }
 
@@ -243,6 +243,7 @@ cass::pp140::pp140(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp140::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -254,12 +255,12 @@ void cass::pp140::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  std::cout<<"Postprocessor "<<_key<<":"
-      <<" will display ccd spectrum of detector "<<_detector
-      <<" in device "<<_device
-      <<". Pixelvalues will be converter by factor "<<_adu2eV
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' will display ccd spectrum of detector '"<<_detector
+      <<"' in device '"<<_device
+      <<"'. Pixelvalues will be converter by factor '"<<_adu2eV
+      <<"'. Condition is "<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp140::process(const CASSEvent& evt)
@@ -297,6 +298,7 @@ cass::pp141::pp141(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp141::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -307,11 +309,11 @@ void cass::pp141::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  std::cout<<"Postprocessor "<<_key<<":"
-      <<" will display ccd image of detector "<<_detector
-      <<" in device "<<_device
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' will display ccd image of detector '"<<_detector
+      <<"' in device '"<<_device
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void cass::pp141::process(const CASSEvent& evt)
@@ -366,8 +368,8 @@ void cass::pp142::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<<"Postprocessor "<<_key<<":"
-      <<" will retrieve the number of photon hits of detector '"<<_detector
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' will retrieve the number of photon hits of detector '"<<_detector
       <<"' in device '"<<_device
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
