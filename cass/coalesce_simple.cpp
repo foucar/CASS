@@ -284,7 +284,7 @@ SimpleCoalesce::SimpleCoalesce()
 void SimpleCoalesce::loadSettings(CASSSettings &s)
 {
   s.beginGroup("SimpleCoalescing");
-  _maxPixelListSize = s.value("MaxPixelListSize",1000).toUInt();
+  _maxPixelListSize = s.value("MaxPixelListSize",10000).toUInt();
   _maxRecursionDepth = s.value("MaxRecursionDepth",7).toUInt();
   s.endGroup();
 }

@@ -18,6 +18,14 @@ namespace cass
    *
    * take the input pixel list and coalesce it to hits on the detector.
    *
+   * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MaxPixelListSize}\n
+   *           Maximum size of the incomming pixel list that will be still
+   *           treated by this functor. Default is 10000
+   * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MaxRecursionDepth}\n
+   *           The maximum recursion depth whith which the recursive search for
+   *           neighbouring pixels will be done. For details see
+   *           cass::findNeighbours(). Default is 7
+   *
    * @author Lutz Foucar
    */
   class SimpleCoalesce : public CoalescingBase
