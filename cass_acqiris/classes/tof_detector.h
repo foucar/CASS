@@ -45,7 +45,7 @@ namespace cass
        *
        * Since all the data in just enclosed in the mcp, this function will just
        * call the mcp associate member. Please refer to
-       * SingalProducer::associate() for further details.
+       * SignalProducer::associate() for further details.
        *
        * @param evt the event to whos data we associated to this detector
        */
