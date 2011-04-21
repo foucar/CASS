@@ -200,16 +200,18 @@ namespace cass
    * @return true when the pixels in the list should be coalesced
    * @param splitpixelslist The list of pixels that belong to one hit on the
    *                        detector.
+   * @param mipThreshold The threshold above which a pixel is identified as MIP
+   *                     signature
    * @param det The detector container that contains the information about this
    *            detector.
    *
    * @author Lutz Foucar
    */
   bool shouldCoalescePixel(const PixelDetector::pixelList_t &splitpixelslist,
+                           const float mipThreshold,
                            PixelDetectorContainer &det)
   {
     PixelDetector::pixelList_t::const_iterator pixel(splitpixelslist.begin());
-    float mipThreshold(det.mipThreshold());
     for (; pixel != splitpixelslist.end(); ++pixel)
     {
       if (pixel->z() > mipThreshold)
@@ -286,6 +288,7 @@ void SimpleCoalesce::loadSettings(CASSSettings &s)
   s.beginGroup("SimpleCoalescing");
   _maxPixelListSize = s.value("MaxPixelListSize",10000).toUInt();
   _maxRecursionDepth = s.value("MaxRecursionDepth",7).toUInt();
+  _mipThreshold = s.value("MipThreshold",1e6).toFloat();
   s.endGroup();
 }
 
@@ -305,7 +308,7 @@ SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &d
     {
       PixelDetector::pixelList_t splitpixellist;
       findNeighbours(0,_maxRecursionDepth,*pixel, Direction::origin, det, splitpixellist);
-      if (shouldCoalescePixel(splitpixellist,det))
+      if (shouldCoalescePixel(splitpixellist,_mipThreshold,det))
       {
         PixelDetectorHit hit(coalesce(splitpixellist));
         hits.push_back(hit);

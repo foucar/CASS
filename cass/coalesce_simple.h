@@ -21,6 +21,9 @@ namespace cass
    * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MaxPixelListSize}\n
    *           Maximum size of the incomming pixel list that will be still
    *           treated by this functor. Default is 10000
+   * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MipThreshold}\n
+   *           The threhold in ADU above which a pixel is regarded as part of
+   *           a Ionizing Particle. Default is 1e6
    * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MaxRecursionDepth}\n
    *           The maximum recursion depth whith which the recursive search for
    *           neighbouring pixels will be done. For details see
@@ -60,6 +63,9 @@ namespace cass
 
     /** how many times is the recursion be allowe to call itselve */
     uint16_t _maxRecursionDepth;
+
+    /** the threshold above which a pixel is identified as MIP signature */
+    float _mipThreshold;
   };
 }
 #endif

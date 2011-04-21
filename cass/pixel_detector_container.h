@@ -63,6 +63,19 @@ namespace cass
    * pixel detector by a coalesced pixel list. The coalesced pixel list will
    * be created with the help of the _coalesce functor
    *
+   * @cassttng PixelDetectors/\%name\%/{Device}\n
+   *           The device that contains the ccd image.Default is 0. Options are:
+   *           - 0: pnCCD
+   *           - 2: Commercial CCD
+   * @cassttng PixelDetectors/\%name\%/{Detector}\n
+   *           The detector that contains the ccd image. Default is 0. Options are:
+   *           - 0: Front pnCCD / Commercial CCD
+   *           - 1: Rear pnCCD
+   * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
+   *           Functor to coalesce the pixels into hits. Default is "simple". Options are:
+   *           - "simple": simple coalescing with basic checks.
+   *                       See cass::SimpleCoalesce.
+   *
    * @author Lutz Foucar
    */
   class PixelDetectorContainer
@@ -101,9 +114,6 @@ namespace cass
     /** retrieve the pixellist */
     PixelDetector::pixelList_t& pixellist() {return _pixelslist;}
 
-    /** retrieve the MIP threshold */
-    float mipThreshold()const   {return _mipThreshold;}
-
   private:
     /** pointer to the pixel detector we manage */
     const PixelDetector *_pixeldetector;
@@ -134,9 +144,6 @@ namespace cass
 
     /** device the ccd image comes from */
     int32_t _device;
-
-    /** the threshold above which a pixel is identified as MIP signature */
-    float _mipThreshold;
   };
 }
 #endif

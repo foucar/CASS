@@ -31,6 +31,14 @@ namespace cass
 
   /** Helper for PixelDetector related Postprocessors.
    *
+   * This class will look whether a pixelcontainer with the name does already
+   * exist. If not it will create it and put it in list so that one event is
+   * always associated with one pixeldetector container.
+   *
+   * @cassttng PixelDetectors/{Name}\n
+   *           Name of the Pixeldetector. See cass::PixelDetectorContainer for
+   *           more information.
+   *
    * @author Lutz Foucar
    */
   class HelperPixelDetectors
@@ -108,12 +116,6 @@ namespace cass
      * dettype. The instance of the detectors are created
      * by DetectorBackend::instance() \n
      * The name of the detector is also the key in the instances map.
-     *
-     * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n
-     *           Type of the detector that this helper should be managing.
-     *           Default is 1 (TofDetector). Possible choises are
-     *           - 0: Delayline (DelaylineDetector)
-     *           - 1: Time of Flight Detector (TofDetector)
      *
      * @param detname the name of the detector
      */

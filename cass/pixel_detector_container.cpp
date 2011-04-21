@@ -60,7 +60,6 @@ void PixelDetectorContainer::loadSettings(CASSSettings &s)
   s.beginGroup(QString::fromStdString(_name));
   _device = s.value("Device",0).toUInt();
   _detector = s.value("Detector",0).toUInt();
-  _mipThreshold = s.value("MipThreshold",0).toFloat();
   string type(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(type);
   _coalesce->loadSettings(s);
