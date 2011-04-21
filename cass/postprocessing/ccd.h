@@ -327,6 +327,8 @@ namespace cass
    *           properties of the 1D histogram:
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the Detector that one is interested in. Default "blubb"
+   *           See cass::HelperPixelDetectors for infos how to set up that
+   *           detector.
    *
    * @author Lutz Foucar
    */
@@ -364,6 +366,8 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the Detector that one is interested in. Default "blubb"
+   *           See cass::HelperPixelDetectors for infos how to set up that
+   *           detector.
    * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit}\n
    *           The range of the z value of the pixel. Only when the pixel is in
    *           this range the pixel will be drawn. Default is 0.0|0.0
@@ -403,6 +407,8 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the Detector that one is interested in. Default "blubb"
+   *           See cass::HelperPixelDetectors for infos how to set up that
+   *           detector.
    *
    * @author Lutz Foucar
    */
