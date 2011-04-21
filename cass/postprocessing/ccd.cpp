@@ -414,8 +414,8 @@ void cass::pp143::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
-  _splitLevelRange = make_pair(settings.value("SplitLevelUpperLimit",0).toUInt(),
-                               settings.value("SplitLevelLowerLimit",2).toUInt());
+  _splitLevelRange = make_pair(settings.value("SplitLevelLowerLimit",0).toUInt(),
+                               settings.value("SplitLevelUpperLimit",2).toUInt());
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperPixelDetectors::instance(_detector)->loadSettings();
@@ -474,8 +474,8 @@ void cass::pp144::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   _range = make_pair(settings.value("SpectralLowerLimit",0.).toFloat(),
                      settings.value("SpectralUpperLimit",0.).toFloat());
-  _splitLevelRange = make_pair(settings.value("SplitLevelUpperLimit",0).toUInt(),
-                               settings.value("SplitLevelLowerLimit",2).toUInt());
+  _splitLevelRange = make_pair(settings.value("SplitLevelLowerLimit",0).toUInt(),
+                               settings.value("SplitLevelUpperLimit",2).toUInt());
   HelperPixelDetectors::instance(_detector)->loadSettings();
   cout<<"Postprocessor '"<<_key
       <<"' will display ccd image of detector '"<<_detector
