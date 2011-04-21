@@ -164,8 +164,8 @@ void pp2000::loadSettings(size_t)
 void pp2000::aboutToQuit()
 {
   VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<_key
-             <<"): Histograms will be written to: "
-             <<_rootfilename
+             <<"): Histograms will be written to: '"
+             <<_rootfilename <<"'"
              <<endl);
   /** create the summary directory and cd into it */
   _rootfile->cd("/");
