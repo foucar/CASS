@@ -329,6 +329,12 @@ namespace cass
    *           Name of the Detector that one is interested in. Default "blubb"
    *           See cass::HelperPixelDetectors for infos how to set up that
    *           detector.
+   * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
+   *           The range of the Splitlevel of the photon hit. Splitlevel tells
+   *           how many pixels contributed to the photonhit. Both limits are
+   *           exclusive. IE: to only see a splitlevel of 1 (single pixel
+   *           contributed to the photon hit) lower limit needs to be 0 and
+   *           upper limit needs to be 2. Default is 0|2
    *
    * @author Lutz Foucar
    */
@@ -347,6 +353,9 @@ namespace cass
   protected:
     /** detector to work on */
     HelperPixelDetectors::instancesmap_t::key_type _detector;
+
+    /** gate on split level */
+    std::pair<size_t, size_t> _splitLevelRange;
   };
 
 
@@ -368,9 +377,15 @@ namespace cass
    *           Name of the Detector that one is interested in. Default "blubb"
    *           See cass::HelperPixelDetectors for infos how to set up that
    *           detector.
-   * @cassttng PostProcessor/\%name\%/{UpperLimit|LowerLimit}\n
+   * @cassttng PostProcessor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
    *           The range of the z value of the pixel. Only when the pixel is in
    *           this range the pixel will be drawn. Default is 0.0|0.0
+   * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
+   *           The range of the Splitlevel of the photon hit. Splitlevel tells
+   *           how many pixels contributed to the photonhit. Both limits are
+   *           exclusive. IE: to only see a splitlevel of 1 (single pixel
+   *           contributed to the photon hit) lower limit needs to be 0 and
+   *           upper limit needs to be 2. Default is 0|2
    *
    * @author Lutz Foucar
    */
@@ -392,6 +407,9 @@ namespace cass
 
     /** gate on the z */
     std::pair<float,float> _range;
+
+    /** gate on split level */
+    std::pair<size_t, size_t> _splitLevelRange;
   };
 
 
@@ -417,6 +435,43 @@ namespace cass
   public:
     /** constructor */
     pp145(PostProcessors&, const PostProcessors::key_t&);
+
+    /** copy pixels from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** set the histogram size */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** detector to work on */
+    HelperPixelDetectors::instancesmap_t::key_type _detector;
+  };
+
+
+
+
+  /** split level of the  PhotonHits of CCD's.
+   *
+   * This postprocessor creates a 1d histogram displaying what the split level
+   * of the photonhit was (how many pixels contributed to the photonhit)
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{Detector}\n
+   *           Name of the Detector that one is interested in. Default "blubb"
+   *           See cass::HelperPixelDetectors for infos how to set up that
+   *           detector.
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
+   *           properties of the 1D histogram:
+   *
+   * @author Lutz Foucar
+   */
+  class pp146 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp146(PostProcessors&, const PostProcessors::key_t&);
 
     /** copy pixels from CASS event to histogram storage */
     virtual void process(const CASSEvent&);
