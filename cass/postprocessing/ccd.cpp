@@ -355,6 +355,7 @@ cass::pp142::pp142(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp142::loadSettings(size_t)
 {
+  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -365,11 +366,11 @@ void cass::pp142::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout<<"Postprocessor "<<_key<<":"
+  cout<<endl<<"Postprocessor "<<_key<<":"
       <<" will retrieve the number of photon hits of detector '"<<_detector
       <<"' in device '"<<_device
       <<"'. Condition is '"<<_condition->key()<<"'"
-      <<std::endl;
+      <<endl;
 }
 
 void cass::pp142::process(const CASSEvent& evt)
@@ -419,7 +420,7 @@ void cass::pp143::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperPixelDetectors::instance(_detector)->loadSettings();
-  cout<<"Postprocessor '"<<_key
+  cout<<endl<<"Postprocessor '"<<_key
       <<"' will display the spectrum of detector '"<<_detector
       <<"' only when the the split level is between '"<<_splitLevelRange.first
       <<"' and '"<<_splitLevelRange.second
@@ -477,7 +478,7 @@ void cass::pp144::loadSettings(size_t)
   _splitLevelRange = make_pair(settings.value("SplitLevelLowerLimit",0).toUInt(),
                                settings.value("SplitLevelUpperLimit",2).toUInt());
   HelperPixelDetectors::instance(_detector)->loadSettings();
-  cout<<"Postprocessor '"<<_key
+  cout<<endl<<"Postprocessor '"<<_key
       <<"' will display ccd image of detector '"<<_detector
       <<"' only when the spectral component is between '"<<_range.first
       <<"' and '"<<_range.second
@@ -533,7 +534,7 @@ void cass::pp145::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   HelperPixelDetectors::instance(_detector)->loadSettings();
-  cout<<"Postprocessor '"<<_key
+  cout<<endl<<"Postprocessor '"<<_key
       <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
@@ -577,7 +578,7 @@ void cass::pp146::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperPixelDetectors::instance(_detector)->loadSettings();
-  cout<<"Postprocessor '"<<_key
+  cout<<endl<<"Postprocessor '"<<_key
       <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
