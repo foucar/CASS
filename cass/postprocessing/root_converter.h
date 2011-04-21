@@ -42,7 +42,7 @@ namespace cass
 
   protected:
     /** the root filename where we store the data in */
-    std::string _rootfilename;
+//    std::string _rootfilename;
 
     /** the root file */
     TFile * _rootfile;

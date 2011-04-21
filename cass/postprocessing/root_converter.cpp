@@ -136,7 +136,7 @@ pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
   if (!_rootfile)
   {
     stringstream ss;
-    ss <<"pp2000 ("<<key<<"): "<<_rootfilename<< " could not be opened! Maybe deleting the file helps.";
+    ss <<"pp2000 ("<<key<<"): '"<<filename<< "' could not be opened! Maybe deleting the file helps.";
     throw invalid_argument(ss.str());
   }
   loadSettings(0);
@@ -165,7 +165,7 @@ void pp2000::aboutToQuit()
 {
   VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<_key
              <<"): Histograms will be written to: '"
-             <<_rootfilename <<"'"
+             <<_rootfile->GetName()<<"'"
              <<endl);
   /** create the summary directory and cd into it */
   _rootfile->cd("/");
