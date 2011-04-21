@@ -45,6 +45,13 @@ namespace cass
      * @param s the CASSSettings object to read the information from
      */
     void loadSettings(CASSSettings &s);
+
+  private:
+    /** the maximmum size of the incomming pixel list that we will still work on */
+    size_t _maxPixelListSize;
+
+    /** how many times is the recursion be allowe to call itselve */
+    uint16_t _maxRecursionDepth;
   };
 }
 #endif

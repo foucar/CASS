@@ -77,6 +77,7 @@ namespace cass
    * This idea was inspired by Tom White.
    *
    * @param depth The recursive depth of calling this function
+   * @param maxDepth The maximum allowed recursive depth of calling this function
    * @param pixel The pixel whos neighbours we are searching for
    * @param direction The direction that we came from
    * @param det Reference to the detector container containing the frame and
@@ -88,6 +89,7 @@ namespace cass
    * @author Lutz Foucar
    */
   void findNeighbours(uint16_t depth,
+                      const uint16_t maxDepth,
                       Pixel& pixel,
                       Direction::direction direction,
                       PixelDetectorContainer &det,
@@ -96,7 +98,7 @@ namespace cass
     typedef PixelDetector::pixelList_t pixelslist_t;
     typedef pair<uint16_t,uint16_t> position_t;
 
-    if (depth > 5)
+    if (depth > maxDepth)
       return;
     pixel.isUsed() = true;
     splitpixelslist.push_back(pixel);
@@ -111,7 +113,7 @@ namespace cass
         pixelslist_t::iterator neighbourPixelIt
             (find_if(pixellist.begin(), pixellist.end(), isNeighbour(left)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::west, det, splitpixelslist);
+          findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::west, det, splitpixelslist);
       }
     }
     /** check for neighbour to the east */
@@ -123,7 +125,7 @@ namespace cass
         pixelslist_t::iterator neighbourPixelIt
             (find_if(pixellist.begin(), pixellist.end(), isNeighbour(right)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::east, det, splitpixelslist);
+          findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::east, det, splitpixelslist);
       }
     }
     /** check for neighbour to the north */
@@ -135,7 +137,7 @@ namespace cass
         pixelslist_t::iterator neighbourPixelIt
             (find_if(pixellist.begin(), pixellist.end(), isNeighbour(top)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::north, det, splitpixelslist);
+          findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::north, det, splitpixelslist);
       }
     }
     /** check for neighbour to the south*/
@@ -147,7 +149,7 @@ namespace cass
         pixelslist_t::iterator neighbourPixelIt
             (find_if(pixellist.begin(), pixellist.end(), isNeighbour(bottom)));
         if (neighbourPixelIt != pixellist.end())
-          findNeighbours(depth+1,*neighbourPixelIt, Direction::south, det, splitpixelslist);
+          findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::south, det, splitpixelslist);
       }
     }
   }
@@ -182,6 +184,7 @@ namespace cass
     }
     hit.x() = weightX / hit.z();
     hit.y() = weightY / hit.z();
+    hit.nbrPixels() = splitpixelslist.size();
     return hit;
   }
 
@@ -210,38 +213,65 @@ namespace cass
     for (; pixel != splitpixelslist.end(); ++pixel)
     {
       if (pixel->z() > mipThreshold)
+      {
+//        cout <<" mpiThreshold reached: " <<pixel->z()<<endl;
         return false;
+      }
       const size_t framewidth(det.pixelDetector().columns());
       const size_t frameheight(det.pixelDetector().rows());
       size_t idx(pixel->y()*framewidth + pixel->x());
       const PixelDetector::frame_t &frame(det.pixelDetector().frame());
       if (pixel->y() != 0)
       {
-        if (frame[idx-framewidth] > sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
+        if (abs(frame[idx-framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
+        {
+//          cout << "lower middle is " << frame[idx-framewidth]<<endl;
           return false;
+        }
         if (pixel->x() != 0)
-          if (frame[idx-framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
+          if (abs(frame[idx-framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
+          {
+//            cout << "lower left is " << frame[idx-framewidth-1]<<endl;
             return false;
+          }
         if (pixel->x() < framewidth-1)
-          if (frame[idx-framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
+          if (abs(frame[idx-framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
+          {
+//            cout << "lower right is " << frame[idx-framewidth+1]<<endl;
             return false;
+          }
       }
       if (pixel->x() != 0)
-        if (frame[idx-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //left
+        if (abs(frame[idx-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //left
+        {
+//          cout << "left is " << frame[idx-1]<<endl;
           return false;
+        }
       if (pixel->x() < framewidth-1)
-        if (frame[idx+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //right
+        if (abs(frame[idx+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //right
+        {
+//          cout << "right is " << frame[idx+1]<<endl;
           return false;
+        }
       if (pixel->y() < frameheight-1)
       {
-        if (frame[idx+framewidth] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
+        if (abs(frame[idx+framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
+        {
+//          cout << "upper middle is " << frame[idx+framewidth]<<endl;
           return false;
+        }
         if (pixel->x() != 0)
-          if (frame[idx+framewidth-1] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
+          if (abs(frame[idx+framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
+          {
+//            cout << "upper left is " << frame[idx+framewidth-1]<<endl;
             return false;
+          }
         if (pixel->x() < framewidth-1)
-          if (frame[idx+framewidth+1] > sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
+          if (abs(frame[idx+framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
+          {
+//            cout << "uppper right is " << frame[idx+framewidth+1]<<endl;
             return false;
+          }
       }
     }
     return true;
@@ -251,8 +281,12 @@ namespace cass
 SimpleCoalesce::SimpleCoalesce()
 {}
 
-void SimpleCoalesce::loadSettings(CASSSettings &/*s*/)
+void SimpleCoalesce::loadSettings(CASSSettings &s)
 {
+  s.beginGroup("SimpleCoalescing");
+  _maxPixelListSize = s.value("MaxPixelListSize",1000).toUInt();
+  _maxRecursionDepth = s.value("MaxRecursionDepth",7).toUInt();
+  s.endGroup();
 }
 
 SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
@@ -260,12 +294,17 @@ SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &d
 {
   PixelDetector::pixelList_t &pixellist(det.pixellist());
   PixelDetector::pixelList_t::iterator pixel(pixellist.begin());
+  if (pixellist.size() > _maxPixelListSize)
+  {
+//    cout << pixellist.size() <<" "<< hits.size()<<endl;
+    return hits;
+  }
   for(; pixel != pixellist.end();++ pixel)
   {
     if (!pixel->isUsed())
     {
       PixelDetector::pixelList_t splitpixellist;
-      findNeighbours(0,*pixel, Direction::origin, det, splitpixellist);
+      findNeighbours(0,_maxRecursionDepth,*pixel, Direction::origin, det, splitpixellist);
       if (shouldCoalescePixel(splitpixellist,det))
       {
         PixelDetectorHit hit(coalesce(splitpixellist));
@@ -273,5 +312,6 @@ SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &d
       }
     }
   }
+//  cout <<pixellist.size()<<" "<< hits.size()<<endl;
   return hits;
 }
