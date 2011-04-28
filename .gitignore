@@ -1,6 +1,6 @@
 /cass_myconfig.pri
 *~
-/*.user
+/*.user*
 /Makefile
 /cass_Database
 /cass.ini
