@@ -379,11 +379,12 @@ void cass::PostProcessors::setup(keyList_t &active)
                           << endl);
         }
 #endif
-        VERBOSEOUT(cout << "Postprocessor::setup(): Add dependency '" << *d
+        VERBOSEOUT(cout << "Postprocessor::setup(): Insert dependency '" << *d
                         << "' of '"<<*iter
-                        << "' to the front of active list."
+                        << "' just before '"<<*iter
+                        << "' in the active list."
                         << endl);
-        active.push_front(*d);
+        active.insert(iter,*d);
         update = true;
       }
       else
@@ -398,10 +399,11 @@ void cass::PostProcessors::setup(keyList_t &active)
           //solves case 5
           VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
                           << "' of '" << *iter
-                          << "' did not appear in the active list, so add it "
-                          << "to front of list"
+                          << "' did not appear in the active list,"
+                          << " so insert it just before '"<<*iter
+                          << "' in the active list"
                           << endl);
-          active.push_front(*d);
+          active.insert(iter,*d);
           update = true;
         }
         else
@@ -421,10 +423,11 @@ void cass::PostProcessors::setup(keyList_t &active)
           {
             VERBOSEOUT(cout << "Postprocessor::setup(): Dependency PP '" << *d
                             << "' appears after '"<<*iter
-                            << "' in active list, so move it to front of list."
+                            << "' in active list, so move it just before '"<<*iter
+                            << "' in the active list."
                             << endl);
             active.remove(*d);
-            active.push_front(*d);
+            active.insert(iter,*d);
             update = true;
           }
         }
@@ -433,9 +436,11 @@ void cass::PostProcessors::setup(keyList_t &active)
     if(update)
     {
       VERBOSEOUT(cout<< "Postprocessor::setup(): The active list has been "
-                     << "modified so start over again."
+                     << "modified. Move the iterator back the amount of "
+                     << "dependencies that were added in the previous step and"
+                     << "start again."
                      << endl);
-      iter = active.begin();
+      advance(iter,-deps.size());
       continue;
     }
     ++iter;
