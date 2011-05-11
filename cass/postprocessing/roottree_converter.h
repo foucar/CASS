@@ -27,6 +27,10 @@ namespace cass
    * will write detectorhits of user specified delayline detectors to a root
    * tree.
    *
+   * @cassttng PostProcessor/\%name\%/{Detectors}\n
+   *           comma separated list of Delaylinedetectors who's hits should be
+   *           added to the tree.
+   *
    * @author Lutz Foucar
    */
   class pp2001 : public PostprocessorBackend
