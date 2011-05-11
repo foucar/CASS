@@ -238,10 +238,17 @@ singleparticle_hit {
 
 cernroot {
     INCLUDEPATH    += $$(ROOTSYS)/include
-    LIBS           += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
+    LIBS           += -L$$(ROOTSYS)/lib -lCore -lCint -lHist -lRIO -lMathCore -lMatrix -lTree -lThread -lNet
     SOURCES        += ./postprocessing/root_converter.cpp
-    SOURCES        += ./postprocessing/roottree_converter.cpp
     DEFINES        += CERNROOT
+    SOURCES	       *= ./postprocessing/tree_structure_dict.cpp
+    SOURCES        += ./postprocessing/roottree_converter.cpp
+    rootcint.target       = ./postprocessing/tree_structure_dict.cpp
+    rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c ./postprocessing/tree_structure.h ./postprocessing/tree_structure_linkdef.h
+    rootcint.depends      = ./postprocessing/tree_structure.h
+    rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for tree_structure.h "
+    QMAKE_EXTRA_UNIX_TARGETS += rootcintecho rootcint
+    QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
 }
 
 CONFIG(offline) {

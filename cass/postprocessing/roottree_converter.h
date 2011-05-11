@@ -56,6 +56,9 @@ namespace cass
 
     /** structure that should be written to tree */
     std::map<std::string, std::vector<std::map<std::string,double> > > _treestructure;
+
+    /** pointer to the above structure (needed by the tree) */
+    std::map<std::string, std::vector<std::map<std::string,double> > > *_treestructure_ptr;
   };
 }
 

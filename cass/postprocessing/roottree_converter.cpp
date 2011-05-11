@@ -73,7 +73,9 @@ detectorkey_t qstring2detector(const QString & qstr)
 
 pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
-     _rootfile(TFile::Open(filename.c_str(),"RECREATE"))
+     _rootfile(TFile::Open(filename.c_str(),"RECREATE")),
+     _tree(new TTree("DLDData","Data from the Delayline Detectors")),
+     _treestructure_ptr(&_treestructure)
 {
   if (!_rootfile)
   {
@@ -81,6 +83,7 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
     ss <<"pp2001 ("<<key<<"): '"<<filename<< "' could not be opened! Maybe deleting the file helps.";
     throw invalid_argument(ss.str());
   }
+  _tree->Branch("DLDetectors","map<string,vector<map<string,double> > >",&_treestructure_ptr);
   loadSettings(0);
 }
 
@@ -111,8 +114,10 @@ void pp2001::loadSettings(size_t)
 
 void pp2001::aboutToQuit()
 {
+  _tree->Write();
   _rootfile->SaveSelf();
   _rootfile->Close();
+  delete _tree;
 }
 
 void pp2001::process(const cass::CASSEvent &evt)
