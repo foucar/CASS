@@ -28,6 +28,8 @@
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "convenience_functions.h"
+#include "delayline_detector.h"
+#include "tree_structure.h"
 
 
 using namespace cass;
@@ -109,64 +111,33 @@ void pp2001::loadSettings(size_t)
 
 void pp2001::aboutToQuit()
 {
-//  VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<_key
-//             <<"): Histograms will be written to: '"
-//             <<_rootfile->GetName()<<"'"
-//             <<endl);
-//  /** create the summary directory and cd into it */
-//  _rootfile->cd("/");
-//  _rootfile->mkdir("Summary")->cd();
-//  /** retrieve postprocessor container */
-//  const PostProcessors::postprocessors_t& container(_pp.postprocessors());
-//  /** go through all contents of the container */
-//  PostProcessors::postprocessors_t::const_iterator it(container.begin());
-//  for (;it != container.end(); ++it)
-//  {
-//    /** check if histograms of postprocessor should be written */
-//    PostprocessorBackend &pp(*(it->second));
-//    if (pp.write())
-//    {
-//      /** if so write it to the root file */
-//      const HistogramBackend &cassbackend(pp.getHist(0));
-//      const HistogramFloatBase &casshist(dynamic_cast<const HistogramFloatBase&>(cassbackend));
-//      ROOT::copyHistToRootFile(casshist);
-//    }
-//  }
-//  /** go back to original directory and save file */
-//  _rootfile->cd("/");
-//  _rootfile->SaveSelf();
-//  _rootfile->Close();
+  _rootfile->SaveSelf();
+  _rootfile->Close();
 }
 
 void pp2001::process(const cass::CASSEvent &evt)
 {
-//  /** make sure that only one process is writing to root file */
-//  _result->lock.lockForWrite();
-//  /** create directory from eventId and cd into it */
-//  _rootfile->cd("/");
-//  string dirname(ROOT::eventIdToDirectoryName(evt.id()));
-//  _rootfile->mkdir(dirname.c_str())->cd();
-//  /** retrieve postprocessor container */
-//  PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
-//  /** go through all contents of the container */
-//  PostProcessors::postprocessors_t::iterator it (ppc.begin());
-//  for (;it != ppc.end(); ++it)
-//  {
-//    PostprocessorBackend &pp (*(it->second));
-//    if (pp.write())
-//    {
-//      /** if so write it to the root file */
-//      const HistogramBackend &cassbackend(pp(evt));
-//      const HistogramFloatBase &casshist(dynamic_cast<const HistogramFloatBase&>(cassbackend));
-//      casshist.lock.lockForRead();
-//      ROOT::copyHistToRootFile(casshist);
-//      casshist.lock.unlock();
-//    }
-//  }
-//  /** go back to original directory and save file */
-//  _rootfile->cd("/");
-//  _rootfile->SaveSelf();
-//  /** unlock this */
-//  _result->lock.unlock();
+  _result->lock.lockForWrite();
+  dlddetectors_t::const_iterator detector(_detectors.begin());
+  for (;detector != _detectors.end(); ++detector)
+  {
+    DetectorBackend *rawdet
+        (HelperAcqirisDetectors::instance(*detector)->detector(evt));
+    DelaylineDetector &det (*dynamic_cast<DelaylineDetector*>(rawdet));
+
+    treedetector_t &treedet = _treestructure[*detector];
+    treedet.clear();
+    detectorHits_t::iterator hit(det.hits().begin());
+    for (; hit != det.hits().end(); ++hit)
+    {
+      treehit_t treehit;
+      treehit["x"] = (*hit)["x"];
+      treehit["y"] = (*hit)["y"];
+      treehit["t"] = (*hit)["t"];
+      treedet.push_back(treehit);
+    }
+  }
+  _tree->Fill();
+  _result->lock.unlock();
 }
 

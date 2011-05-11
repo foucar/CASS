@@ -182,6 +182,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/machine_data.h \
                       ./postprocessing/root_converter.h \
                       ./postprocessing/roottree_converter.h \
+                      ./postprocessing/tree_structure.h \
                       ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
                       ./postprocessing/coltrims_analysis.h \

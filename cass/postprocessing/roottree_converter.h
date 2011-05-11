@@ -11,6 +11,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 
 #include "postprocessing/backend.h"
 #include "acqiris_detectors_helper.h"
@@ -50,8 +51,11 @@ namespace cass
     /** the root tree to fill */
     TTree * _tree;
 
-    /** set of detectors who's hits should be filled into the tree */
+    /** list of detectors who's hits should be filled into the tree */
     std::list<ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type> _detectors;
+
+    /** structure that should be written to tree */
+    std::map<std::string, std::vector<std::map<std::string,double> > > _treestructure;
   };
 }
 
