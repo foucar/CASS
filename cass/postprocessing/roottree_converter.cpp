@@ -93,7 +93,7 @@ void pp2001::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
   setupGeneral();
-  if (!setupCondition(false))
+  if (!setupCondition())
     return;
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
@@ -117,7 +117,7 @@ void pp2001::aboutToQuit()
   _tree->Write();
   _rootfile->SaveSelf();
   _rootfile->Close();
-  delete _tree;
+//  delete _tree;
 }
 
 void pp2001::process(const cass::CASSEvent &evt)
