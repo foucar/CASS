@@ -10,8 +10,11 @@
 #define _ROOTTREE_CONVERTER_H_
 
 #include <string>
+#include <list>
 
 #include "postprocessing/backend.h"
+#include "acqiris_detectors_helper.h"
+
 
 class TTree;
 class TFile;
@@ -46,6 +49,9 @@ namespace cass
 
     /** the root tree to fill */
     TTree * _tree;
+
+    /** set of detectors who's hits should be filled into the tree */
+    std::list<ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type> _detectors;
   };
 }
 

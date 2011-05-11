@@ -20,16 +20,40 @@
 #include <TH2.h>
 
 #include <QtCore/QDateTime>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include "roottree_converter.h"
 #include "histogram.h"
 #include "cass_settings.h"
 #include "cass_event.h"
+#include "convenience_functions.h"
 
 
 using namespace cass;
 using namespace std;
+using namespace ACQIRIS;
 
+namespace cass
+{
+typedef HelperAcqirisDetectors::helperinstancesmap_t::key_type detectorkey_t;
+typedef list<detectorkey_t> dlddetectors_t;
+
+detectorkey_t qstring2detector(const QString & qstr)
+{
+  detectorkey_t dld(qstr.toStdString());
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(dld));
+  if (dethelp->detectortype() != Delayline)
+  {
+    stringstream ss;
+    ss <<"pp2001::loadSettings(): Error detector '"<<dld
+       <<"' is not a Delaylinedetector.";
+    throw (invalid_argument(ss.str()));
+  }
+  dethelp->loadSettings();
+  return dld;
+}
+}
 
 pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
@@ -46,21 +70,27 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
 
 void pp2001::loadSettings(size_t)
 {
-//  CASSSettings settings;
-//  settings.beginGroup("PostProcessor");
-//  settings.beginGroup(_key.c_str());
-//  setupGeneral();
-//  if (!setupCondition(false))
-//    return;
-//  _write = false;
-//  _hide = true;
-//  _result = new Histogram0DFloat();
-//  createHistList(2*cass::NbrOfWorkers,true);
-//  cout<<endl<<"PostProcessor '"<<_key
-//      <<"' will write all cass histograms with the write flag set "
-//      <<"to rootfile '"<<_rootfile->GetName()
-//      <<"'. Condition is '"<<_condition->key()<<"'"
-//      <<endl;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  setupGeneral();
+  if (!setupCondition(false))
+    return;
+  QStringList detectors(settings.value("Detectors").toStringList());
+  _detectors.resize(detectors.size());
+  transform(detectors.begin(),detectors.end(),_detectors.begin(),qstring2detector);
+  _write = false;
+  _hide = true;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  cout<<endl<<"PostProcessor '"<<_key
+      <<"' will write the hits of detectors: ";
+  dlddetectors_t::const_iterator detectorsIt(_detectors.begin());
+  for (;detectorsIt!=_detectors.end();++detectorsIt)
+    cout <<"'"<<(*detectorsIt)<<"', ";
+  cout<<" to rootfile '"<<_rootfile->GetName()
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
 }
 
 void pp2001::aboutToQuit()
