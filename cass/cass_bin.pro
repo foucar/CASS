@@ -181,6 +181,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/waveform.h \
                       ./postprocessing/machine_data.h \
                       ./postprocessing/root_converter.h \
+                      ./postprocessing/roottree_converter.h \
                       ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
                       ./postprocessing/coltrims_analysis.h \
@@ -238,6 +239,7 @@ cernroot {
     INCLUDEPATH    += $$(ROOTSYS)/include
     LIBS           += -L$$(ROOTSYS)/lib -lHist -lRIO -lCore -lMathCore -lMatrix -lCint
     SOURCES        += ./postprocessing/root_converter.cpp
+    SOURCES        += ./postprocessing/roottree_converter.cpp
     DEFINES        += CERNROOT
 }
 
