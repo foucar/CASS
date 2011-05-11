@@ -15,6 +15,7 @@
 
 #include "postprocessing/backend.h"
 #include "acqiris_detectors_helper.h"
+#include "tree_structure.h"
 
 
 class TTree;
@@ -59,10 +60,10 @@ namespace cass
     std::list<ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type> _detectors;
 
     /** structure that should be written to tree */
-    std::map<std::string, std::vector<std::map<std::string,double> > > _treestructure;
+    treestructure_t _treestructure;
 
     /** pointer to the above structure (needed by the tree) */
-    std::map<std::string, std::vector<std::map<std::string,double> > > *_treestructure_ptr;
+    treestructure_t *_treestructure_ptr;
   };
 }
 
