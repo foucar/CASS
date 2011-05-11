@@ -36,9 +36,23 @@ using namespace ACQIRIS;
 
 namespace cass
 {
+/** typedef for easier code */
 typedef HelperAcqirisDetectors::helperinstancesmap_t::key_type detectorkey_t;
+
+/** typedef for easier code */
 typedef list<detectorkey_t> dlddetectors_t;
 
+/** convert a qstring to the key in the list of detectors
+ *
+ * will convert the requested delayline detector described in the qstring to the
+ * delayline detector key. Before returning the key, check whether the requested
+ * detector is realy a delayline detector.
+ *
+ * @return the key to the requested detector
+ * @param qstr the QString to convert to the key
+ *
+ * @author Lutz Foucar
+ */
 detectorkey_t qstring2detector(const QString & qstr)
 {
   detectorkey_t dld(qstr.toStdString());
