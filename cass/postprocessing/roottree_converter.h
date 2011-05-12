@@ -16,6 +16,7 @@
 #include "postprocessing/backend.h"
 #include "acqiris_detectors_helper.h"
 #include "tree_structure.h"
+#include "delayline_detector.h"
 
 
 class TTree;
@@ -58,6 +59,10 @@ namespace cass
 
     /** list of detectors who's hits should be filled into the tree */
     std::list<ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type> _detectors;
+
+    /** list of particles whos hits should be added to the tree */
+    std::list<std::pair<ACQIRIS::DelaylineDetector::particles_t::key_type,
+                        ACQIRIS::HelperAcqirisDetectors::helperinstancesmap_t::key_type> > _particles;
 
     /** structure that should be written to tree */
     treestructure_t _treestructure;

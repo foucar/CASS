@@ -44,6 +44,27 @@ typedef HelperAcqirisDetectors::helperinstancesmap_t::key_type detectorkey_t;
 /** typedef for easier code */
 typedef list<detectorkey_t> dlddetectors_t;
 
+/** typedef for easier code */
+typedef pair<DelaylineDetector::particles_t::key_type,
+             HelperAcqirisDetectors::helperinstancesmap_t::key_type> particleskey_t;
+
+/** typedef for easier code */
+typedef list<particleskey_t> particleslist_t;
+
+/** load the settings of all acqiris detectors defined in .ini file
+ *
+ * @author Lutz Foucar
+ */
+void loadAllDets()
+{
+  CASSSettings s;
+  s.beginGroup("AcqirisDetectors");
+  QStringList detectorNamesList(s.childGroups());
+  QStringList::const_iterator detName(detectorNamesList.begin());
+  for (; detName != detectorNamesList.end(); ++detName)
+    HelperAcqirisDetectors::instance(detName->toStdString())->loadSettings();
+}
+
 /** check whether the key points to a delayline detector
  *
  * @return true when key points to a delayline detector
@@ -78,8 +99,47 @@ detectorkey_t qstring2detector(const QString & qstr)
        <<"' is not a Delaylinedetector.";
     throw (invalid_argument(ss.str()));
   }
-  HelperAcqirisDetectors::instance(dld)->loadSettings();
   return dld;
+}
+
+/** convert qstring to the particle key pair
+ *
+ * first try to find the detector that the particle belongs to. If found which
+ * detector the particle belongs to then add this as second part of the returned
+ * key.
+ *
+ * @return the key pair containing the particle name and the key to the detector
+ *         that the particle belongs to
+ * @param qstr the QString of the particle that is requested
+ *
+ * @author Lutz Foucar
+ */
+particleskey_t qstring2particle(const QString & qstr)
+{
+  particleskey_t particlekey(make_pair(qstr.toStdString(),""));
+  const HelperAcqirisDetectors::helperinstancesmap_t & knownDetectors(HelperAcqirisDetectors::instances());
+  HelperAcqirisDetectors::helperinstancesmap_t::const_iterator det(knownDetectors.begin());
+  for (;det != knownDetectors.end(); ++det)
+  {
+    if (isDLD(det->first))
+    {
+      HelperAcqirisDetectors &dethelp(*HelperAcqirisDetectors::instance(det->first));
+      const DetectorBackend &detback(*(dethelp.detector()));
+      const DelaylineDetector &dld(dynamic_cast<const DelaylineDetector&>(detback));
+      const DelaylineDetector::particles_t &particles(dld.particles());
+      DelaylineDetector::particles_t::const_iterator particle(particles.find(particlekey.first));
+      if (particle != particles.end())
+      {
+        particlekey.second = det->first;
+        return particlekey;
+      }
+    }
+  }
+  stringstream ss;
+  ss <<"pp2001::loadSettings(): Error particle '"<<particlekey.first
+     <<"' is not part of any Delaylinedetector.";
+  throw (invalid_argument(ss.str()));
+  return particlekey;
 }
 
 /** copy map values to map
@@ -91,8 +151,8 @@ detectorkey_t qstring2detector(const QString & qstr)
  *
  * @author Lutz Foucar
  */
-void copyMapValues(detectorHit_t::iterator first,
-                   detectorHit_t::const_iterator last,
+void copyMapValues(map<string,double>::iterator first,
+                   map<string,double>::const_iterator last,
                    treehit_t& dest)
 {
   while(first != last)
@@ -126,10 +186,16 @@ void pp2001::loadSettings(size_t)
   setupGeneral();
   if (!setupCondition())
     return;
+  loadAllDets();
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
   transform(detectors.begin(),detectors.end(),_detectors.begin(),qstring2detector);
-  _tree->Branch("DLDetectors","map<string,vector<map<string,double> > >",&_treestructure_ptr);
+  QStringList particles(settings.value("Particles").toStringList());
+  _particles.resize(particles.size());
+  transform(particles.begin(),particles.end(),_particles.begin(),qstring2particle);
+  if (_tree->FindBranch("DLDetectorData") == 0)
+    if (!_detectors.empty() || !_particles.empty())
+      _tree->Branch("DLDetectorData","map<string,vector<map<string,double> > >",&_treestructure_ptr);
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
@@ -139,6 +205,10 @@ void pp2001::loadSettings(size_t)
   dlddetectors_t::const_iterator detectorsIt(_detectors.begin());
   for (;detectorsIt!=_detectors.end();++detectorsIt)
     cout <<"'"<<(*detectorsIt)<<"', ";
+  cout<<" and particles: ";
+  particleslist_t::const_iterator particle(_particles.begin());
+  for (;particle != _particles.end();++particle)
+    cout <<"'"<<particle->first<<"("<<particle->second<<")', ";
   cout<<" to rootfile '"<<_rootfile->GetName()
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
@@ -161,7 +231,7 @@ void pp2001::process(const cass::CASSEvent &evt)
         (HelperAcqirisDetectors::instance(*detector)->detector(evt));
     DelaylineDetector &det (*dynamic_cast<DelaylineDetector*>(rawdet));
 
-    treedetector_t &treedet = _treestructure[*detector];
+    treedetector_t &treedet(_treestructure[*detector]);
     treedet.clear();
     detectorHits_t::iterator hit(det.hits().begin());
     for (; hit != det.hits().end(); ++hit)
@@ -170,6 +240,25 @@ void pp2001::process(const cass::CASSEvent &evt)
       detectorHit_t &hitvalues(*hit);
       copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
       treedet.push_back(treehit);
+    }
+  }
+  particleslist_t::const_iterator particle(_particles.begin());
+  for (;particle != _particles.end();++particle)
+  {
+    DetectorBackend *rawdet
+        (HelperAcqirisDetectors::instance(particle->second)->detector(evt));
+    DelaylineDetector &det(*dynamic_cast<DelaylineDetector*>(rawdet));
+
+    treedetector_t &treeparticle(_treestructure[particle->first]);
+    treeparticle.clear();
+    particleHits_t & hits(det.particles()[particle->first].hits());
+    particleHits_t::iterator hit(hits.begin());
+    for (; hit != hits.end(); ++hit)
+    {
+      treehit_t treehit;
+      particleHit_t &hitvalues(*hit);
+      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
+      treeparticle.push_back(treehit);
     }
   }
   _tree->Fill();
