@@ -44,11 +44,24 @@ typedef HelperAcqirisDetectors::helperinstancesmap_t::key_type detectorkey_t;
 /** typedef for easier code */
 typedef list<detectorkey_t> dlddetectors_t;
 
+/** check whether the key points to a delayline detector
+ *
+ * @return true when key points to a delayline detector
+ * @param detkey key for the possible delayline detector
+ *
+ * @author Lutz Foucar
+ */
+bool isDLD(const detectorkey_t &detkey)
+{
+  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detkey));
+  return (dethelp->detectortype() == Delayline);
+}
+
 /** convert a qstring to the key in the list of detectors
  *
  * will convert the requested delayline detector described in the qstring to the
  * delayline detector key. Before returning the key, check whether the requested
- * detector is realy a delayline detector.
+ * detector is realy a delayline detector. Then load the settings of the detector
  *
  * @return the key to the requested detector
  * @param qstr the QString to convert to the key
@@ -58,23 +71,42 @@ typedef list<detectorkey_t> dlddetectors_t;
 detectorkey_t qstring2detector(const QString & qstr)
 {
   detectorkey_t dld(qstr.toStdString());
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(dld));
-  if (dethelp->detectortype() != Delayline)
+  if (!isDLD(dld))
   {
     stringstream ss;
     ss <<"pp2001::loadSettings(): Error detector '"<<dld
        <<"' is not a Delaylinedetector.";
     throw (invalid_argument(ss.str()));
   }
-  dethelp->loadSettings();
+  HelperAcqirisDetectors::instance(dld)->loadSettings();
   return dld;
+}
+
+/** copy map values to map
+ *
+ * will copy each key pair to the map of the tree structure.
+ *
+ * @param first iterator to the first element to copy
+ * @param last const iterator to one past the last element to copy
+ *
+ * @author Lutz Foucar
+ */
+void copyMapValues(detectorHit_t::iterator first,
+                   detectorHit_t::const_iterator last,
+                   treehit_t& dest)
+{
+  while(first != last)
+  {
+    dest[(*first).first] = (*first).second;
+    ++first;
+  }
 }
 }
 
 pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
      _rootfile(TFile::Open(filename.c_str(),"RECREATE")),
-     _tree(new TTree("DLDData","Data from the Delayline Detectors")),
+     _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
      _treestructure_ptr(&_treestructure)
 {
   if (!_rootfile)
@@ -83,7 +115,6 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
     ss <<"pp2001 ("<<key<<"): '"<<filename<< "' could not be opened! Maybe deleting the file helps.";
     throw invalid_argument(ss.str());
   }
-  _tree->Branch("DLDetectors","map<string,vector<map<string,double> > >",&_treestructure_ptr);
   loadSettings(0);
 }
 
@@ -98,6 +129,7 @@ void pp2001::loadSettings(size_t)
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
   transform(detectors.begin(),detectors.end(),_detectors.begin(),qstring2detector);
+  _tree->Branch("DLDetectors","map<string,vector<map<string,double> > >",&_treestructure_ptr);
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
@@ -117,7 +149,6 @@ void pp2001::aboutToQuit()
   _tree->Write();
   _rootfile->SaveSelf();
   _rootfile->Close();
-//  delete _tree;
 }
 
 void pp2001::process(const cass::CASSEvent &evt)
@@ -136,9 +167,8 @@ void pp2001::process(const cass::CASSEvent &evt)
     for (; hit != det.hits().end(); ++hit)
     {
       treehit_t treehit;
-      treehit["x"] = (*hit)["x"];
-      treehit["y"] = (*hit)["y"];
-      treehit["t"] = (*hit)["t"];
+      detectorHit_t &hitvalues(*hit);
+      copyMapValues(hitvalues.begin(),hitvalues.end(),treehit);
       treedet.push_back(treehit);
     }
   }
