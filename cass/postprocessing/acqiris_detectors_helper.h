@@ -68,6 +68,9 @@ namespace cass
        */
       static HelperAcqirisDetectors * instance(const helperinstancesmap_t::key_type& detector);
 
+      /** return all known instances fo this */
+      static const helperinstancesmap_t& instances();
+
       /** destroy the whole helper*/
       static void destroy();
 
