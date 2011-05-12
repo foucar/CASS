@@ -63,7 +63,6 @@ namespace cass
     /** retrieve const iterator to end of map */
     const_iterator end()const {return _map.end();}
 
-
   private:
     /** the container */
     std::map<key_type,value_type> _map;
