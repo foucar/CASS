@@ -196,6 +196,9 @@ void pp2001::loadSettings(size_t)
   if (_tree->FindBranch("DLDetectorData") == 0)
     if (!_detectors.empty() || !_particles.empty())
       _tree->Branch("DLDetectorData","map<string,vector<map<string,double> > >",&_treestructure_ptr);
+  if (_tree->FindBranch("EvendId") == 0)
+    _tree->Branch("EvendId",_eventid,"id/l");
+
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
@@ -224,6 +227,7 @@ void pp2001::aboutToQuit()
 void pp2001::process(const cass::CASSEvent &evt)
 {
   _result->lock.lockForWrite();
+  _eventid = evt.id();
   dlddetectors_t::const_iterator detector(_detectors.begin());
   for (;detector != _detectors.end(); ++detector)
   {

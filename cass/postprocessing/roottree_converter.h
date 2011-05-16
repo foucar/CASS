@@ -69,6 +69,9 @@ namespace cass
 
     /** pointer to the above structure (needed by the tree) */
     treestructure_t *_treestructure_ptr;
+
+    /** copy of the event id */
+    uint64_t _eventid;
   };
 }
 
