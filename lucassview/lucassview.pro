@@ -13,6 +13,7 @@ CONFIG              -= gui
 QMAKE_CLEAN        += lucassview
 VERSION             = 0.0.1
 
+#soap creation
 SOAPFiles.target    = soapCASSsoapProxy.cpp
 SOAPFiles.commands  = @soapcpp2 -C -i $$PWD/../cass/soapserver.h
 SOAPFiles.files    += soapCASSsoapProxy.cpp soapCASSsoapProxy.h soapC.cpp soapH.h soapStub.h \
@@ -30,15 +31,14 @@ SOAPFiles2.depends  = soapCASSsoapProxy.cpp
 
 QMAKE_CLEAN        += $$SOAPFiles.files
 
-
 QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
-
+# dictionary creation
 rootcint.target       = histo_updater_dict.cpp
 rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c histo_updater.h histo_updater_linkdef.h
 rootcint.depends      = histo_updater.h
 rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for histo_updater.h "
-QMAKE_EXTRA_UNIX_TARGETS += rootcintecho rootcint
+QMAKE_EXTRA_TARGETS  += rootcintecho rootcint
 QMAKE_CLEAN          +=  histo_updater_dict.cpp histo_updater_dict.h
 
 
