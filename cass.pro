@@ -16,6 +16,11 @@ JoCASSView{
 SUBDIRS       += jocassview
 }
 
+LuCASSView{
+SUBDIRS       += lucassview
+}
+
+
 
 
 

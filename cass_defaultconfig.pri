@@ -44,6 +44,9 @@ CONFIG      += offline
 # Uncomment the following to also build the JoCASSViewer
 CONFIG       += JoCASSView
 
+# Uncomment the following to also build the LuCASSViewer
+#CONFIG       += LuCASSView
+
 # Uncomment the following line and set the path to your QWT header files,
 # if they are not found directly under /usr/include.
 #QWTINCDIR=/usr/include/qwt
