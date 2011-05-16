@@ -1,5 +1,7 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
-# Copyright (C) 2009, 2010 Lutz Foucar
+# Copyright (C) 2009, 2010, 2011 Lutz Foucar
+
+include( cass_config.pri )
 
 TEMPLATE       = subdirs
 CONFIG        += ordered
@@ -8,8 +10,11 @@ SUBDIRS        = \
                  cass_ccd \
                  cass_pnccd \
                  cass_machinedata \
-                 cass \
-                 jocassview
+                 cass
+
+JoCASSView{
+SUBDIRS       += jocassview
+}
 
 
 

@@ -41,6 +41,9 @@ CONFIG      += offline
 # Uncomment the following line to enable a http Server:
 #CONFIG      += httpServer
 
+# Uncomment the following to also build the JoCASSViewer
+CONFIG       += JoCASSView
+
 # Uncomment the following line and set the path to your QWT header files,
 # if they are not found directly under /usr/include.
 #QWTINCDIR=/usr/include/qwt
