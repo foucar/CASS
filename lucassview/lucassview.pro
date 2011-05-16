@@ -50,7 +50,6 @@ SOURCES       += soapCASSsoapProxy.cpp \
                  histo_updater_dict.cpp \
                  main.cpp \
                  tcpclient.cpp \
-                 histo_updater_dict.cpp \
                  histo_updater.cpp \
                  id_list.cpp \
                  histogram.cpp
