@@ -30,11 +30,13 @@
 #include "convenience_functions.h"
 #include "delayline_detector.h"
 #include "tree_structure.h"
+#include "machine_device.h"
 
 
 using namespace cass;
 using namespace std;
 using namespace ACQIRIS;
+using namespace MachineData;
 
 namespace cass
 {
@@ -151,7 +153,7 @@ particleskey_t qstring2particle(const QString & qstr)
  *
  * @author Lutz Foucar
  */
-void copyMapValues(map<string,double>::iterator first,
+void copyMapValues(map<string,double>::const_iterator first,
                    map<string,double>::const_iterator last,
                    treehit_t& dest)
 {
@@ -198,7 +200,10 @@ void pp2001::loadSettings(size_t)
     if (!_detectors.empty() || !_particles.empty())
       _tree->Branch("DLDetectorData","map<string,vector<map<string,double> > >",&_treestructure_ptr);
   if (_tree->FindBranch("EvendId") == 0)
-    _tree->Branch("EvendId",_eventid,"id/l");
+    _tree->Branch("EvendId",&_eventid,"id/l");
+  if (settings.value("MachineData",false).toBool())
+    if (_tree->FindBranch("MachineData") == 0)
+    _tree->Branch("MachineData","map<string,double>",&_machinestructure_ptr);
 
   _write = false;
   _hide = true;
@@ -266,6 +271,11 @@ void pp2001::process(const cass::CASSEvent &evt)
       treeparticle.push_back(treehit);
     }
   }
+  const MachineDataDevice &machinedata
+      (*dynamic_cast<const MachineDataDevice*>(evt.devices().find(cass::CASSEvent::MachineData)->second));
+  copyMapValues(machinedata.BeamlineData().begin(), machinedata.BeamlineData().end(), _machinestructure);
+  copyMapValues(machinedata.EpicsData().begin(), machinedata.EpicsData().end(), _machinestructure);
+//  copyMapValues(machinedata.EvrData().first(), machinedata.EvrData().end(), _machinestructure);
   _tree->Fill();
   _result->lock.unlock();
 }

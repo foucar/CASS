@@ -32,6 +32,14 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Detectors}\n
    *           comma separated list of Delaylinedetectors who's hits should be
    *           added to the tree.
+   * @cassttng PostProcessor/\%name\%/{Particles}\n
+   *           comma separated list of Particles who's hits should be
+   *           added to the tree. The corrosponding detector does not need to be
+   *           added above since this postprocessor will find out what detector
+   *           a particle belongs to automatically.
+   * @cassttng PostProcessor/\%name\%/{MachineData}\n
+   *           Flag whether to add the Beamline and Epics data to the tree.
+   *           Default is false.
    *
    * @author Lutz Foucar
    */
