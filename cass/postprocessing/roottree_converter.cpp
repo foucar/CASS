@@ -167,7 +167,8 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
     : PostprocessorBackend(pp, key),
      _rootfile(TFile::Open(filename.c_str(),"RECREATE")),
      _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
-     _treestructure_ptr(&_treestructure)
+     _treestructure_ptr(&_treestructure),
+     _machinestructure_ptr(&_machinestructure)
 {
   if (!_rootfile)
   {

@@ -72,6 +72,12 @@ namespace cass
 
     /** copy of the event id */
     uint64_t _eventid;
+
+    /** machine data structure */
+    machinestructure_t _machinestructure;
+
+    /** pointer to the machine structure defined above */
+    machinestructure_t *_machinestructure_ptr;
   };
 }
 
