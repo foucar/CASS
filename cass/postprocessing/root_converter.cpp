@@ -24,6 +24,7 @@
 #include "histogram.h"
 #include "cass_settings.h"
 #include "cass_event.h"
+#include "rootfile_helper.h"
 
 
 using namespace cass;
@@ -131,7 +132,7 @@ namespace cass
 
 pp2000::pp2000(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
-     _rootfile(TFile::Open(filename.c_str(),"RECREATE"))
+     _rootfile(ROOTFileHelper::create(filename))
 {
   if (!_rootfile)
   {

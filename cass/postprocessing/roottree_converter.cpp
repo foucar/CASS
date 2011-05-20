@@ -31,6 +31,7 @@
 #include "delayline_detector.h"
 #include "tree_structure.h"
 #include "machine_device.h"
+#include "rootfile_helper.h"
 
 
 using namespace cass;
@@ -167,7 +168,7 @@ void copyMapValues(map<string,double>::const_iterator first,
 
 pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
-     _rootfile(TFile::Open(filename.c_str(),"RECREATE")),
+     _rootfile(ROOTFileHelper::create(filename)),
      _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
      _treestructure_ptr(&_treestructure),
      _machinestructure_ptr(&_machinestructure)
