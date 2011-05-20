@@ -21,16 +21,17 @@ using namespace std;
 namespace cass
 {
 template<class T>
-struct map_data_compare : public binary_function<typename T::value_type,
-                                                 typename T::mapped_type,
-                                                 bool>
+struct map_data_compare :
+    public binary_function<typename T::value_type,
+                           typename T::mapped_type,
+                           bool>
 {
 public:
-    bool operator() (typename T::value_type &pair,
-                     typename T::mapped_type i) const
-    {
-        return pair.second == i;
-    }
+  bool operator() (typename T::value_type &pair,
+                   typename T::mapped_type i) const
+  {
+    return pair.second == i;
+  }
 };
 }
 
@@ -56,7 +57,7 @@ void ROOTFileHelper::close(TFile *rootfile)
   if (iFile != _rootfiles.end())
   {
     rootfile->SaveSelf();
-    rootfile->Close();
-    iFile.second = 0;
+//    rootfile->Close();
+    iFile->second = 0;
   }
 }

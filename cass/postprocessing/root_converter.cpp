@@ -189,8 +189,7 @@ void pp2000::aboutToQuit()
   }
   /** go back to original directory and save file */
   _rootfile->cd("/");
-  _rootfile->SaveSelf();
-  _rootfile->Close();
+  ROOTFileHelper::close(_rootfile);
 }
 
 void pp2000::process(const cass::CASSEvent &evt)

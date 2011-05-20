@@ -227,8 +227,7 @@ void pp2001::loadSettings(size_t)
 void pp2001::aboutToQuit()
 {
   _tree->Write();
-  _rootfile->SaveSelf();
-  _rootfile->Close();
+  ROOTFileHelper::close(_rootfile);
 }
 
 void pp2001::process(const cass::CASSEvent &evt)
