@@ -66,3 +66,4 @@ INCLUDEPATH   += $$(ROOTSYS)/include
 LIBS          += -L$$(ROOTSYS)/lib -lCore -lCint -lRIO -lRint -lNet -lHist -lMathCore -lMatrix
 LIBS          += -lgsoap++ -lgsoap
 
+INSTALLS      += target
