@@ -73,18 +73,18 @@ namespace cass
           const AxisProperty &xaxis(casshist.axis()[HistogramBackend::xAxis]);
           roothist = new TH1F(casshist.key().c_str(),casshist.key().c_str(),
                               xaxis.nbrBins(), xaxis.lowerLimit(), xaxis.upperLimit());
-          /** copy number of fills (how many shots have been accumulated) */
-          roothist->SetEntries(casshist.nbrOfFills());
           /** set up axis */
           roothist->GetXaxis()->CenterTitle(true);
           roothist->SetXTitle(xaxis.title().c_str());
+          /** copy histogram contents */
+          for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+            roothist->SetBinContent(roothist->GetBin(iX+1),casshist.memory()[iX]);
           /** copy over / underflow */
           size_t OverUnderFlowStart (xaxis.nbrBins());
           roothist->SetBinContent(roothist->GetBin(0),casshist.memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
           roothist->SetBinContent(roothist->GetBin(xaxis.nbrBins()+1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Overflow]);
-          /** copy histogram contents */
-          for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-            roothist->SetBinContent(roothist->GetBin(iX+1),casshist.memory()[iX]);
+          /** copy number of fills (how many shots have been accumulated) */
+          roothist->SetEntries(casshist.nbrOfFills());
         }
         break;
       case 2:
@@ -103,6 +103,10 @@ namespace cass
           roothist->SetYTitle(yaxis.title().c_str());
           roothist->GetYaxis()->CenterTitle(true);
           roothist->GetYaxis()->SetTitleOffset(1.5);
+          /** copy histogram contents */
+          for (size_t iY(0); iY<yaxis.nbrBins();++iY)
+            for (size_t iX(0); iX<xaxis.nbrBins();++iX)
+              roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist.memory()[iX + iY*xaxis.nbrBins()]);
           /** copy over / underflow */
           size_t OverUnderFlowStart (xaxis.nbrBins()*yaxis.nbrBins());
           roothist->SetBinContent(roothist->GetBin(0,0),casshist.memory()[OverUnderFlowStart+HistogramBackend::LowerLeft]);
@@ -115,10 +119,6 @@ namespace cass
           roothist->SetBinContent(roothist->GetBin(0,1),casshist.memory()[OverUnderFlowStart+HistogramBackend::Left]);
           /** copy number of fills (how many shots have been accumulated) */
           roothist->SetEntries(casshist.nbrOfFills());
-          /** copy histogram contents */
-          for (size_t iY(0); iY<yaxis.nbrBins();++iY)
-            for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-              roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist.memory()[iX + iY*xaxis.nbrBins()]);
         }
         break;
       default:
