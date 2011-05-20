@@ -31,6 +31,9 @@ namespace cass
     /** make default constructor private */
     ROOTFileHelper() {}
 
+    /** easier code */
+    typedef std::map<std::string,TFile *> rootfiles_t;
+
   public:
     /** create and return an instance of the rootfile
      *
@@ -47,9 +50,16 @@ namespace cass
     static TFile* create(const std::string& rootfilename,
                          const std::string& options = "RECREATE");
 
+    /** close root file
+     *
+     * @param rootfile pointer to the root file instance. pointer should be the
+     *                 same as the one returned in create()
+     */
+    static void close(TFile* rootfile);
+
   private:
     /** container for all the root files */
-    static std::map<std::string,TFile *> _rootfiles;
+    static rootfiles_t _rootfiles;
 
     /** Singleton Mutex to lock write operations*/
     static QMutex _mutex;
