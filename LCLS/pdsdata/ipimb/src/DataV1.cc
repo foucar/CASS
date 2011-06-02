@@ -41,6 +41,22 @@ uint16_t DataV1::channel3() const {
   return _channel3;
 }
 
+float DataV1::channel0Volts() const {
+  return IPIMB_COUNTS_TO_VOLTS(_channel0);
+}
+
+float DataV1::channel1Volts() const {
+  return IPIMB_COUNTS_TO_VOLTS(_channel1);
+}
+
+float DataV1::channel2Volts() const {
+  return IPIMB_COUNTS_TO_VOLTS(_channel2);
+}
+
+float DataV1::channel3Volts() const {
+  return IPIMB_COUNTS_TO_VOLTS(_channel3);
+}
+
 uint16_t DataV1::checksum() const {
   return _checksum;
 }
