@@ -47,6 +47,7 @@ namespace cass
       Camp2 = Pds::DetInfo::AmoITof,
       Camp3 = Pds::DetInfo::AmoMbes,
       Camp4 = Pds::DetInfo::AmoGasdet,
+      XPP   = Pds::DetInfo::XppEndstation,
       Standalone = 1
     };
    //@{
