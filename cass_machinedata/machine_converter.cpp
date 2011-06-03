@@ -7,6 +7,7 @@
 #include "pdsdata/bld/bldData.hh"
 #include "pdsdata/epics/EpicsPvData.hh"
 #include "pdsdata/evr/DataV3.hh"
+#include "pdsdata/ipimb/DataV1.hh"
 
 #include "cass_event.h"
 #include "machine_device.h"
@@ -46,6 +47,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_EBeam);
   _pdsTypeList.push_back(Pds::TypeId::Id_PhaseCavity);
   _pdsTypeList.push_back(Pds::TypeId::Id_EvrData);
+  _pdsTypeList.push_back(Pds::TypeId::Id_IpimbData);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
@@ -187,6 +189,16 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
           //if so then set the flag that the code happend to true//
           md->EvrData()[eventcode-EVREventCodeOffset]=true;
       }
+    }
+  break;
+  case(Pds::TypeId::Id_IpimbData):
+    {
+      const Pds::Ipimb::DataV1& ipimbData =
+          *reinterpret_cast<const Pds::Ipimb::DataV1*>(xtc->payload());
+      md->BeamlineData()["Channel0"] = ipimbData.channel0Volts();
+      md->BeamlineData()["Channel1"] = ipimbData.channel1Volts();
+      md->BeamlineData()["Channel2"] = ipimbData.channel2Volts();
+      md->BeamlineData()["Channel3"] = ipimbData.channel3Volts();
     }
   break;
 
