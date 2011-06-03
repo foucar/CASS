@@ -16,4 +16,6 @@ Example CASS.ini for calculating the running average of thresholded frames.\n
 This example shows how to get the hex-anode data.  \n
 @example quadanode.ini
 This example shows how to get the quad-anode data.  \n
+@example pnCCDSpectrum.ini
+This example shows how to get the pnCCD spectrum data.  \n
 */
