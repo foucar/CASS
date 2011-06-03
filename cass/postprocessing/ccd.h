@@ -37,8 +37,9 @@ namespace cass
    *           - 2: Commercial CCD
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           The detector that contains the ccd image. Default is 0. Options are:
-   *           - 0: Front pnCCD / Commercial CCD
-   *           - 1: Rear pnCCD
+   *           - 0: Front pnCCD / First Commercial CCD
+   *           - 1: Rear pnCCD / Second Commercial CCD
+   *           - 2: Third Commercial CCD
    *
    * @author Jochen Kuepper
    * @author Lutz Foucar

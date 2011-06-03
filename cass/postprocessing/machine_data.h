@@ -52,6 +52,11 @@ namespace cass
    *             - Charge2
    *             - FitTime1
    *             - FitTime2
+   *           - Ipimb values
+   *             - Channel0
+   *             - Channel1
+   *             - Channel2
+   *             - Channel3
    *
    * @author Lutz Foucar
    */

@@ -34,6 +34,7 @@ namespace cass
    *           - 4: AMO ITof Acqiris
    *           - 2: AMO GD Acqiris
    *           - 5: AMO Mbes Acqiris
+   *           - 22: XPP Acqiris
    * @cassttng PostProcessor/\%name\%/{ChannelNbr} \n
    *           The channel number of the acqiris instrument. Default is 0.
    *
