@@ -45,8 +45,8 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   const size_t detectorId = info.detId();
 //  cout<<"CCDConverter::XTCData: DetectorID:"<<info.detId()
 //      <<" DeviceId:"<< info.devId()
-//      <<" Detector:"<<info.detector()
-//      <<" Device:"<< info.device()
+//      <<" Detector:"<<info.detector()<<"("<<Pds::DetInfo::name(info.detector())<<")"
+//      <<" Device:"<< info.device()<<"("<<Pds::DetInfo::name(info.device())<<")"
 //      <<endl;
   //retrieve a reference to the frame contained int the xtc//
   const Pds::Camera::FrameV1 &frame =
