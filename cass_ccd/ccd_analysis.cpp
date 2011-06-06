@@ -10,7 +10,7 @@
 #include "ccd_device.h"
 
 
-void cass::CCD::Parameter::load()
+void cass::CCD::Parameter::load(size_t idx)
 {
   char printoutdef[40];
   sprintf(printoutdef,"Commercial CCD load ");
@@ -20,10 +20,10 @@ void cass::CCD::Parameter::load()
   QString s;
   //I may have in the future more than 1 "commercial CCD"
   //I should do like it for pnCCD (passing a index to load/save
-  size_t idx=0;
   _This_is_a_dark_run = value("This_is_a_dark_run",0).toBool();
   beginGroup(s.setNum(static_cast<uint32_t>(idx)));
-    _threshold    = value("Threshold",0).toUInt();
+  if (_threshold.size() <= idx) _threshold.resize(idx+1);
+    _threshold[idx]    = value("Threshold",0).toUInt();
     _rebinfactor  = value("RebinFactor",1).toUInt();
     _detROI._ROI.clear();
 
@@ -59,30 +59,30 @@ void cass::CCD::Parameter::load()
 
 void cass::CCD::Parameter::save()
 {
-  QString s;
-  size_t idx=0;
-  setValue("This_is_a_dark_run",_This_is_a_dark_run);
-  beginGroup(s.setNum(static_cast<uint32_t>(idx)));
-    setValue("Threshold",_threshold);
-    setValue("RebinFactor",_rebinfactor);
+//  QString s;
+//  size_t idx=0;
+//  setValue("This_is_a_dark_run",_This_is_a_dark_run);
+//  beginGroup(s.setNum(static_cast<uint32_t>(idx)));
+//    setValue("Threshold",_threshold);
+//    setValue("RebinFactor",_rebinfactor);
 
-    setValue("ROIsize",static_cast<uint32_t>(_detROI._ROI.size()));
-    beginGroup("ROIs");
-    for (size_t iROI=0; iROI< _detROI._ROI.size(); ++iROI)
-    {
-        beginGroup(s.setNum(static_cast<int>(iROI)));
-        setValue("ROIShapeName",_detROI._ROI[iROI].name.c_str());
-        setValue("XSize",_detROI._ROI[iROI].xsize);
-        setValue("YSize",_detROI._ROI[iROI].ysize);
-        setValue("XCentre",_detROI._ROI[iROI].xcentre);
-        setValue("YCentre",_detROI._ROI[iROI].ycentre);
-        // the orientation is used only in the case of a triangular shape
-        setValue("orientation",_detROI._ROI[iROI].orientation);
-        endGroup();
-    }
-    endGroup();
+//    setValue("ROIsize",static_cast<uint32_t>(_detROI._ROI.size()));
+//    beginGroup("ROIs");
+//    for (size_t iROI=0; iROI< _detROI._ROI.size(); ++iROI)
+//    {
+//        beginGroup(s.setNum(static_cast<int>(iROI)));
+//        setValue("ROIShapeName",_detROI._ROI[iROI].name.c_str());
+//        setValue("XSize",_detROI._ROI[iROI].xsize);
+//        setValue("YSize",_detROI._ROI[iROI].ysize);
+//        setValue("XCentre",_detROI._ROI[iROI].xcentre);
+//        setValue("YCentre",_detROI._ROI[iROI].ycentre);
+//        // the orientation is used only in the case of a triangular shape
+//        setValue("orientation",_detROI._ROI[iROI].orientation);
+//        endGroup();
+//    }
+//    endGroup();
 
-  endGroup();
+//  endGroup();
 }
 
 
@@ -571,7 +571,9 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
   //retrieve a pointer to the ccd device we are working on//
   cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
   //go through all detectors and do your stuff//
+
   detectors_t::iterator detIt (dev->detectors()->begin());
+  size_t DetIdx(0);
   for (; detIt != dev->detectors()->end(); ++detIt)
   {
     //retrieve a reference to the ccd detector from the iterator//
@@ -607,10 +609,15 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       //calc integral//
       integral += pixel;
 
+      if (_param._threshold.size() <= DetIdx)
+        _param.load(DetIdx);
+      float threshold(_param._threshold[DetIdx]);
+      ++DetIdx;
+
       //check whether pixel is above threshold//
       //then check whether pixel is a local maximum//
       //if so add it to the pixel list//
-      if (pixel > _param._threshold)
+      if (pixel > threshold)
         //check wether point is not at an edge
         if (ycoordinate > 0 &&
             ycoordinate < frameheight-1 &&

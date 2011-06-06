@@ -50,14 +50,14 @@ namespace cass
       /** constructor closes group "CCD" */
       ~Parameter()    {endGroup();}
       /** load the parameters from cass.ini*/
-      void load();
+      void load(size_t idx=0);
       /** save the parameters to cass.ini*/
       void save();
       // I (Nicola) will have to introduce something on this line
       //void loadDetectorParameter(size_t DetectorIndex);
 
     public:
-      uint16_t   _threshold;                 //!< the threshold above which pixels are identified
+      std::vector<pixel_t> _threshold;       //!< the threshold above which pixels are identified
       uint32_t   _rebinfactor;               //!< the rebinning factor by which the image gets rebinned
       bool       _This_is_a_dark_run;        //!< flag to set the dark/not-dark run condition
       cass::detROI_ _detROI;
