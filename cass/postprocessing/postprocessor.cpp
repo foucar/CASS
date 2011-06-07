@@ -438,10 +438,10 @@ void cass::PostProcessors::setup(keyList_t &active)
     {
       VERBOSEOUT(cout<< "Postprocessor::setup(): The active list has been "
                      << "modified. Move the iterator back the amount of "
-                     << "dependencies that were added in the previous step and"
+                     << "dependencies that were added in the previous step and "
                      << "start again."
                      << endl);
-      advance(iter,-deps.size());
+      advance(iter,negate<int>()(deps.size()));
       continue;
     }
     ++iter;
