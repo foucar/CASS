@@ -695,7 +695,7 @@ namespace cass
     cout<<endl << "PostProcessor '"<<_key
         <<"' will transform  '"<<_image->key()
         <<"' to polar coordinates."
-        <<". Center x:"<<_center.first
+        <<" Center x:"<<_center.first
         <<" y:"<<_center.second
         <<". Maximum radius is '"<<_maxRadius
         <<"'. Number of Points on the phi '"<<_nbrAngularPoints
@@ -714,6 +714,7 @@ namespace cass
     if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
       return;
     setupParameters(*in);
+    createHistList(2*cass::NbrOfWorkers);
     //notify all pp that depend on us that our histograms have changed
     PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
     PostProcessors::keyList_t::iterator it (dependands.begin());
