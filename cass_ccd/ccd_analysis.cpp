@@ -579,6 +579,13 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
     //retrieve a reference to the ccd detector from the iterator//
     cass::PixelDetector& det(*detIt);
 
+//    std::cout <<dev->detectors()->size()<<" "<< DetIdx<<" "<<_param._threshold.size()<<std::endl;
+
+    if (_param._threshold.size() <= DetIdx)
+      _param.load(DetIdx);
+    float threshold(_param._threshold[DetIdx]);
+    ++DetIdx;
+
     //clear the pixel list//
     det.pixellist().clear();
 
@@ -587,7 +594,7 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
     float integral                              = 0;
     uint16_t framewidth                         = det.columns();
     uint16_t frameheight                        = det.rows();
-    cass::PixelDetector::frame_t& frame      = det.frame();
+    cass::PixelDetector::frame_t& frame         = det.frame();
     //if(frame.size()!=CCD_default_size_sq) 
 
     //go through all pixels of the frame//
@@ -608,11 +615,6 @@ void cass::CCD::Analysis::operator()(cass::CASSEvent *cassevent)
       }
       //calc integral//
       integral += pixel;
-
-      if (_param._threshold.size() <= DetIdx)
-        _param.load(DetIdx);
-      float threshold(_param._threshold[DetIdx]);
-      ++DetIdx;
 
       //check whether pixel is above threshold//
       //then check whether pixel is a local maximum//
