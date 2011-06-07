@@ -88,15 +88,15 @@ namespace Pds {
 	  Dgram* dg = (Dgram*) (_shm + (myMsg.sizeOfBuffers() * i));
 	  if (_client.processDgram(dg))
 	    return false;
-	  if (oq!=NULL)
-	    while (mq_timedsend(oq[ioq], (const char *)&myMsg, sizeof(myMsg), priority, &_tmo)) {
+    if (oq!=NULL)
+      while (mq_timedsend(oq[ioq], (const char *)&myMsg, sizeof(myMsg), priority, &_tmo)) {
 //	      fprintf(stderr,"mq_send error to client %d\n", ioq+1);
-	      if (oq[++ioq]==-1) {
-		char qname[128];
-		XtcMonitorMsg::eventOutputQueue(_tag, ioq, qname);
-		oq[ioq] = _openQueue(qname, O_WRONLY, PERMS_OUT);
-	      }
-	    }
+        if (oq[++ioq]==-1) {
+    char qname[128];
+    XtcMonitorMsg::eventOutputQueue(_tag, ioq, qname);
+    oq[ioq] = _openQueue(qname, O_WRONLY, PERMS_OUT);
+        }
+      }
 	}
 	else {
 	  fprintf(stderr, "ILLEGAL BUFFER INDEX %d\n", i);
