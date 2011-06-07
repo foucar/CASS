@@ -197,17 +197,24 @@ int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index, int time
     struct timespec tm;
     clock_gettime(CLOCK_REALTIME, &tm);
     tm.tv_sec += timeout_sec;
-//    if (mq_receive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0)
+    //    if (mq_receive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority) < 0)
     if (mq_timedreceive(myInputTrQueue, (char*)&myMsg, sizeof(myMsg), &priority,&tm) < 0)
     {
       //check if timeout has occured
       if (errno == ETIMEDOUT)
       {
+        perror("mq_receive timedout");
         //tell the inherited thing by sending 0 and continue
         if (!processDgram(0))
+        {
+          printf("client wants to stop the program");
           break;
+        }
         else
+        {
+          printf("client wants to keep going");
           continue;
+        }
       }
       else
       {
@@ -224,9 +231,9 @@ int XtcMonitorClient::run(const char * tag, int tr_index, int ev_index, int time
         if (remainder)
           sizeOfShm += pageSize - remainder;
 
-	XtcMonitorMsg::sharedMemoryName(tag, qname);
+        XtcMonitorMsg::sharedMemoryName(tag, qname);
         printf("Opening shared memory %s of size 0x%x (0x%x * 0x%x)\n",
-            qname,sizeOfShm,myMsg.numberOfBuffers(),myMsg.sizeOfBuffers());
+               qname,sizeOfShm,myMsg.numberOfBuffers(),myMsg.sizeOfBuffers());
 
         int shm = shm_open(qname, OFLAGS, PERMS_IN);
         if (shm < 0) perror("shm_open");
