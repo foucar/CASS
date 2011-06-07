@@ -59,8 +59,10 @@ void cass::CCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cass
   //retrieve a reference to the commercial ccd detector//
   cass::PixelDetector& det = (*dev->detectors())[detectorId];
 //  cout<< dev->detectors()->size()
+//      <<" "<<detectorId()
 //      <<" "<<frame.width()
 //      <<" "<<frame.height()
+//      <<" "<<frame.offset()
 //      <<endl;
 
   //copy the values status values from the frame to the detector//
