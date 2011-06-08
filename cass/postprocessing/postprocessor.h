@@ -100,8 +100,8 @@ the Class description for information about what parameters are user settable.
 00141: Photonhits Image
 00142: Nbr of Photonhits
 
-00142: Coalesced Pixels Photonhits Spectrum
-00143: Coalesced Pixels Photonhits image
+00143: Coalesced Pixels Photonhits Spectrum
+00144: Coalesced Pixels Photonhits image
 00145: Nbr of Coalesced Pixels Photonhits
 00146: Split level of Coalesced Pixels Photonhits
 
