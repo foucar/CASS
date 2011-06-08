@@ -5,6 +5,12 @@
 CASS_ROOT            = ..
 include( $${CASS_ROOT}/cass_config.pri )
 
+CONFIG(offline) {
+  TARGET           = cass_offline
+} else {
+  TARGET           = cass_online
+}
+
 TARGET               = cass
 TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
