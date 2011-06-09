@@ -350,43 +350,43 @@ namespace cass
     using namespace std;
     CASSSettings settings;
     settings.beginGroup("PostProcessor");
-    settings.beginGroup(_key.c_str());
-    _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();
+    settings.beginGroup(QString::fromStdString(_key));
+//    _drawCircle = settings.value("DrawInnerOuterRadius",false).toBool();
     setupGeneral();
     _image = setupDependency("HistName");
     bool ret = setupCondition();
     if (!(_image && ret))
       return;
-    _result = new Histogram0DFloat();
-    createHistList(2*cass::NbrOfWorkers);
     const HistogramBackend &hist (_image->getHist(0));
     // Width of image - we assum the images are square
     _imageWidth = hist.axis()[HistogramBackend::xAxis].size();
     // center of the image -- this is the center of the angluar distribution of the signal
-    _center = std::make_pair(settings.value("ImageXCenter", 500).toFloat(),
-                             settings.value("ImageYCenter", 500).toFloat());
+    _userCenter = make_pair(settings.value("ImageXCenter", 500).toFloat(),
+                            settings.value("ImageYCenter", 500).toFloat());
     // symmetry angle is the angle of in-plane rotation of the image with respect to its vertical axis
-    _symAngle = settings.value("SymmetryAngle", 0).toFloat();
+    _symAngle = settings.value("SymmetryAngle", 0).toFloat() * M_PI / 180.;
     // Set the minimum radius within range - must be within image
-    _maxRadiusUser = settings.value("MaxIncludedRadius",10).toFloat();
-    _minRadiusUser = settings.value("MinIncludedRadius",0).toFloat();
-    _maxRadius = _maxRadiusUser;
-    _maxRadius = min(min(_maxRadius, _center.first  + 0.5f), _imageWidth - _center.first - 0.5f);
-    _maxRadius = min(min(_maxRadius, _center.second + 0.5f), _imageWidth - _center.second - 0.5f);
-    _minRadius = max(0.1f, min(_maxRadius - 1.0f , _minRadiusUser));
-    // Set number of points on grid
-    _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
-    _nbrAngularPoints = 360;
+    _radiusRangeUser = make_pair(min(settings.value("MaxIncludedRadius",10).toFloat(),
+                                     settings.value("MinIncludedRadius",0).toFloat()),
+                                 max(settings.value("MaxIncludedRadius",10).toFloat(),
+                                     settings.value("MinIncludedRadius",0).toFloat()));
+    setupParameters(hist);
+    _result = new Histogram0DFloat();
+    createHistList(2*cass::NbrOfWorkers);
+//    _maxRadius = _maxRadiusUser;
+//    _maxRadius = min(min(_maxRadius, _center.first  + 0.5f), _imageWidth - _center.first - 0.5f);
+//    _maxRadius = min(min(_maxRadius, _center.second + 0.5f), _imageWidth - _center.second - 0.5f);
+//    _minRadius = max(0.1f, min(_maxRadius - 1.0f , _minRadiusUser));
+//    // Set number of points on grid
+//    _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
     cout<<endl<< "PostProcessor '"<<_key
         <<"' calculates cos2theta of image from PostProcessor '"<<_image->key()
         <<"' Center is x'"<<_center.first
         <<"' y'"<<_center.second
-        <<"' Symmetry angle is '"<<_symAngle
-        <<"' Min radius the user requested is '"<<_minRadiusUser
-        <<"' Max radius the user requested is '"<<_maxRadiusUser
-        <<"' Therefore Min radius is '"<<_minRadius
-        <<"' Max radius is '"<<_maxRadius
-        <<"' where the image width is '"<<_imageWidth
+        <<"' Symmetry angle in radiants is '"<<_symAngle
+        <<"' Min radius the user requested is '"<<_radiusRangeUser.first
+        <<"' Max radius the user requested is '"<<_radiusRangeUser.second
+        <<"' Image width is '"<<_imageWidth
         <<"' This results in Number of radial Points '"<<_nbrRadialPoints
         <<"'. Condition is '"<<_condition->key()<<"'"
         <<endl;
@@ -395,20 +395,66 @@ namespace cass
   void pp200::histogramsChanged(const HistogramBackend *in)
   {
     using namespace std;
-    _imageWidth = in->axis()[HistogramBackend::xAxis].size();
-    _maxRadius = _maxRadiusUser;
-    _maxRadius = min(min(_maxRadius, _center.first  + 0.5f), _imageWidth - _center.first - 0.5f);
-    _maxRadius = min(min(_maxRadius, _center.second + 0.5f), _imageWidth - _center.second - 0.5f);
-    _minRadius = max(0.1f, min(_maxRadius - 1.0f , _minRadiusUser));
-    // Set number of points on grid
-    _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
+//    _imageWidth = in->axis()[HistogramBackend::xAxis].size();
+//    _maxRadius = _maxRadiusUser;
+//    _maxRadius = min(min(_maxRadius, _center.first  + 0.5f), _imageWidth - _center.first - 0.5f);
+//    _maxRadius = min(min(_maxRadius, _center.second + 0.5f), _imageWidth - _center.second - 0.5f);
+//    _minRadius = max(0.1f, min(_maxRadius - 1.0f , _minRadiusUser));
+//    // Set number of points on grid
+//    _nbrRadialPoints = size_t(floor(_maxRadius-_minRadius));
+    setupParameters(*in);
     cout<<"pp200::histogramsChanged(): hist has changed. The new settings for '"<<_key
         <<"' are: "
-        <<"' Min radius is '"<<_minRadius
-        <<"' Max radius is '"<<_maxRadius
-        <<"' where the image width is '"<<_imageWidth
+        <<"' Image width is '"<<_imageWidth
         <<"' This results in Number of radial Points '"<<_nbrRadialPoints<<"'"
         <<endl;
+  }
+
+  void pp200::setupParameters(const HistogramBackend &hist)
+  {
+    using namespace std;
+    if (hist.dimension() != 2)
+    {
+      stringstream ss;
+      ss <<"pp200::setupParameters()'"<<_key<<"': Error the histogram we depend on '"<<hist.key()
+          <<"' is not a 2D Histogram.";
+      throw invalid_argument(ss.str());
+    }
+    const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+    const AxisProperty &yaxis(hist.axis()[HistogramBackend::yAxis]);
+    _center = make_pair(xaxis.bin(_userCenter.first),
+                        yaxis.bin(_userCenter.second));
+    const size_t imagewidth (xaxis.nbrBins());
+    const size_t imageheight (yaxis.nbrBins());
+    const size_t dist_center_x_right (imagewidth - _center.first);
+    const size_t dist_center_y_top (imageheight - _center.second);
+    const size_t min_dist_x (min(dist_center_x_right, _center.first));
+    const size_t min_dist_y (min(dist_center_y_top, _center.second));
+    const size_t max_allowed_radius (min(min_dist_x, min_dist_y));
+    const size_t user_maxradius_hist_coord (xaxis.bin(_radiusRangeUser.second)- xaxis.bin(0));
+    const size_t maxRadius (min(max_allowed_radius, user_maxradius_hist_coord));
+    const size_t user_minradius_hist_coord (xaxis.bin(_radiusRangeUser.first)- xaxis.bin(0));
+    const size_t minRadius (max(size_t(1) , user_minradius_hist_coord));
+
+    _radiusRange = make_pair(minRadius , maxRadius);
+    _imageWidth = imagewidth;
+    _nbrRadialPoints = maxRadius - minRadius;
+    _nbrAngularPoints = 360;
+
+//    cout<<endl<<endl
+//        << " imagewidth: "<<imagewidth
+//        << " imageheight: "<<imageheight
+//        << " dist_center_x_right: "<<dist_center_x_right
+//        << " dist_center_y_top: "<<dist_center_y_top
+//        << " min_dist_x: "<<min_dist_x
+//        << " min_dist_y: "<<min_dist_y
+//        << " max_allowed_radius: "<<max_allowed_radius
+//        << " user_maxradius_hist_coord: "<<user_maxradius_hist_coord
+//        << " maxRadius: "<<maxRadius
+//        << " user_minradius_hist_coord: "<<user_minradius_hist_coord
+//        << " minRadius: "<<minRadius
+//        << " _nbrRadialPoints: "<<_nbrRadialPoints
+//        <<endl<<endl;
   }
 
   void pp200::process(const CASSEvent& evt)
@@ -419,15 +465,14 @@ namespace cass
     image.lock.lockForRead();
     const HistogramFloatBase::storage_t &imageMemory(image.memory());
     float nom(0), denom(0), maxval(0);
-    float symangle(_symAngle/180*M_PI);
     for(size_t jr = 0; jr<_nbrRadialPoints; jr++)
     {
       for(size_t jth = 1; jth<_nbrAngularPoints; jth++)
       {
-        const float radius(_minRadius + jr);
+        const float radius(_radiusRange.first + jr);
         const float angle(2.*M_PI * float(jth) / float(_nbrAngularPoints));
-        size_t col(size_t(_center.first  + radius*sin(angle + symangle)));
-        size_t row(size_t(_center.second + radius*cos(angle + symangle)));
+        size_t col(size_t(_center.first  + radius*sin(angle + _symAngle)));
+        size_t row(size_t(_center.second + radius*cos(angle + _symAngle)));
         float val = imageMemory[col + row * _imageWidth];
         denom += val * square(radius);
         nom   += val * square(cos(angle)) * square(radius);

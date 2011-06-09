@@ -124,8 +124,6 @@ namespace cass
    *           value for the symmetry angle. Default is 0.
    * @cassttng PostProcessor/\%name%/{MaxIncludedRadius|MinIncludedRadius}\n
    *           values for the interesting radius range. Default is 0,0
-   * @cassttng PostProcessor/\%name%/{DrawInnerOuterRadius}\n
-   *           draw the inner and out include radius. default is false
    *
    * @author Per Johnsson
    * @author Lutz Foucar
@@ -146,19 +144,40 @@ namespace cass
     virtual void histogramsChanged(const HistogramBackend *in);
 
   protected:
-    std::pair<float, float> _center; //!< Image center
-    float _minRadiusUser;            //!< User requested minimum radius
-    float _maxRadiusUser;            //!< User requested maximum radius
-    float _minRadius;                //!< Minimum radius for analysis
-    float _maxRadius;                //!< Maximum radius for analysis
-    float _symAngle;                 //!< Symmetry angle
-    size_t _imageWidth;              //!< Image width
-    size_t _nbrRadialPoints;         //!< Number of radial points
-    size_t _nbrAngularPoints;        //!< Number of angular points
-    bool _drawCircle;                //!< flag to tell whether to draw the inner and outer circle
+    /** set up the paramters
+     *
+     * sets up the parameters that depend on the histogram we depend on
+     *
+     * @param hist the histogram, whos information we use to set up the parameters
+     */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** center of the image in user coordinates */
+    std::pair<float, float> _userCenter;
+
+    /** center of the image in histogram coordinates */
+    std::pair<size_t, size_t> _center;
+
+    /** the range of radia the user requested */
+    std::pair<float,float> _radiusRangeUser;
+
+    /** the range of radia used */
+    std::pair<float,float> _radiusRange;
+
+    /** symmetry angle for calculation */
+    float _symAngle;
+
+    /** the width of the image */
+    size_t _imageWidth;
+
+    /** the number of angular points that we include in the distribution */
+    size_t _nbrAngularPoints;
+
+    /** the number of radial, determinded by the _radiusRange */
+    size_t _nbrRadialPoints;
 
     /** pp containing image that we will calculate the \f$\cos^2\theta\f$ from */
-    PostprocessorBackend*   _image;
+    PostprocessorBackend *_image;
   };
 
 
