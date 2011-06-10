@@ -836,6 +836,12 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           name of postprocessor that contains the histogram you want a
    *           subset from. Default is "".
+   * @cassttng PostProcessor/\%name\%/{XLow|Xup} \n
+   *           For 1d and 2d histogram the lower and upper range on the x-axis that one wants
+   *           to include in the subset histogram. Default is 0|1
+   * @cassttng PostProcessor/\%name\%/{YLow|Yup} \n
+   *           In case you want to subset a 2d histogram these are the lower and upper range
+   *           on the y-axis that one wants to include in the subset histogram. Default is 0|1
    *
    * @author Lutz Foucar
    */
