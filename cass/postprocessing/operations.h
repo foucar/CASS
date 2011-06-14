@@ -200,9 +200,18 @@ namespace cass
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
   protected:
+    /** setup the parameters for finding the full width at half maximum */
+    void setupParameters(const HistogramBackend &hist);
+
     /** pp containing the 2d hist we want to project */
     PostprocessorBackend *_pHist;
+
+    /** range we want to project */
+    std::pair<float,float> _userRange;
 
     /** range we want to project */
     std::pair<float,float> _range;
@@ -211,7 +220,10 @@ namespace cass
     bool _normalize;
 
     /** axis we want to project on */
-    size_t _axis;
+    HistogramBackend::Axis _axis;
+
+    /** axis we want to put the range on */
+    HistogramBackend::Axis _otherAxis;
   };
 
 

@@ -240,46 +240,69 @@ void cass::pp50::loadSettings(size_t)
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
-  _range = make_pair(settings.value("LowerBound",-1e6).toFloat(),
-                     settings.value("UpperBound", 1e6).toFloat());
-  _axis = settings.value("Axis",HistogramBackend::xAxis).toUInt();
+  _userRange = make_pair(settings.value("LowerBound",-1e6).toFloat(),
+                         settings.value("UpperBound", 1e6).toFloat());
+  _axis = static_cast<HistogramBackend::Axis>(settings.value("Axis",HistogramBackend::xAxis).toUInt());
   _normalize = settings.value("Normalize",false).toBool();
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(ret && _pHist))
     return;
-  const Histogram2DFloat &one
-      (dynamic_cast<const Histogram2DFloat&>(_pHist->getHist(0)));
   switch (_axis)
   {
   case (HistogramBackend::xAxis):
-    _range.first  = max(_range.first, one.axis()[HistogramBackend::yAxis].lowerLimit());
-    _range.second = min(_range.second,one.axis()[HistogramBackend::yAxis].upperLimit());
-    _result = new Histogram1DFloat(one.axis()[HistogramBackend::xAxis].nbrBins(),
-                                   one.axis()[HistogramBackend::xAxis].lowerLimit(),
-                                   one.axis()[HistogramBackend::xAxis].upperLimit());
+    _otherAxis = HistogramBackend::yAxis;
     break;
   case (HistogramBackend::yAxis):
-    _range.first  = max(_range.first, one.axis()[HistogramBackend::xAxis].lowerLimit());
-    _range.second = min(_range.second,one.axis()[HistogramBackend::xAxis].upperLimit());
-    _result = new Histogram1DFloat(one.axis()[HistogramBackend::yAxis].nbrBins(),
-                                   one.axis()[HistogramBackend::yAxis].lowerLimit(),
-                                   one.axis()[HistogramBackend::yAxis].upperLimit());
+    _otherAxis = HistogramBackend::xAxis;
+    break;
+  default:
+    stringstream ss;
+    ss << "pp50::loadSettings(): requested _axis '"<<_axis<<"' does not exist.";
+    throw invalid_argument(ss.str());
     break;
   }
-  createHistList(2*cass::NbrOfWorkers);
+  setupParameters(_pHist->getHist(0));
   cout<<endl << "PostProcessor '"<<_key
       <<"' will project histogram of PostProcessor '"<<_pHist->key()
       <<"' from '"<<_range.first
       <<"' to '"<<_range.second
       <<"' on axis '"<<_axis
-      <<"' which goes from '"<<one.axis()[HistogramBackend::yAxis].lowerLimit()
-      <<"' to '"<<one.axis()[HistogramBackend::yAxis].upperLimit()
-      <<"' with '"<<one.axis()[HistogramBackend::yAxis].nbrBins()
-      <<boolalpha<<"' bins. Normalize '"<<_normalize
+      <<boolalpha<<"'. Normalize '"<<_normalize
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
+}
+
+void cass::pp50::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  setupParameters(*in);
+}
+
+void cass::pp50::setupParameters(const HistogramBackend &hist)
+{
+  using namespace std;
+  if (hist.dimension() != 2)
+  {
+    stringstream ss;
+    ss <<"pp50::setupParameters()'"<<_key<<"': Error the histogram we depend on '"<<hist.key()
+        <<"' is not a 2D Histogram.";
+    throw invalid_argument(ss.str());
+  }
+  const AxisProperty &projAxis(hist.axis()[_axis]);
+  const AxisProperty &otherAxis(hist.axis()[_otherAxis]);
+  _range = make_pair(max(_userRange.first, otherAxis.lowerLimit()),
+                     min(_range.second, otherAxis.upperLimit()));
+  _result = new Histogram1DFloat(projAxis.nbrBins(), projAxis.lowerLimit(), projAxis.upperLimit());
+  createHistList(2*cass::NbrOfWorkers);
 }
 
 void cass::pp50::process(const CASSEvent& evt)
@@ -289,7 +312,7 @@ void cass::pp50::process(const CASSEvent& evt)
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   one.lock.lockForRead();
   _result->lock.lockForWrite();
-  *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,static_cast<HistogramBackend::Axis>(_axis));
+  *dynamic_cast<Histogram1DFloat*>(_result) = one.project(_range,_axis);
   _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
