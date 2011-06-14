@@ -274,7 +274,10 @@ void cass::pp50::loadSettings(size_t)
       <<"' from '"<<_range.first
       <<"' to '"<<_range.second
       <<"' on axis '"<<_axis
-      <<boolalpha<<"' normalize '"<<_normalize
+      <<"' which goes from '"<<one.axis()[HistogramBackend::yAxis].lowerLimit()
+      <<"' to '"<<one.axis()[HistogramBackend::yAxis].upperLimit()
+      <<"' with '"<<one.axis()[HistogramBackend::yAxis].nbrBins()
+      <<boolalpha<<"' bins. Normalize '"<<_normalize
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
 }
@@ -1591,6 +1594,108 @@ void cass::pp81::process(const cass::CASSEvent& evt)
   size_t bin(distance(one.memory().begin(),maxElementIt));
   dynamic_cast<Histogram0DFloat*>(_result)->
       fill(one.axis()[HistogramBackend::xAxis].position(bin));
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ***  pp 85 return full width at half maximum in given range of 1D histgoram ***
+
+cass::pp85::pp85(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp85::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _userXRange = make_pair(settings.value("XLow",0).toFloat(),
+                          settings.value("XUp",1).toFloat());
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the full width at half maximum in '" << _pHist->key()
+      <<"' for the xlow '"<< _userXRange.first
+      <<"' and xup '"<< _userXRange.second
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp85::setupParameters(const HistogramBackend &hist)
+{
+  using namespace std;
+  if (hist.dimension() != 1)
+  {
+    stringstream ss;
+    ss <<"pp85::setupParameters()'"<<_key<<"': Error the histogram we depend on '"<<hist.key()
+        <<"' is not a 1D Histogram.";
+    throw invalid_argument(ss.str());
+  }
+  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  _xRange = make_pair(xaxis.bin(_userXRange.first),
+                      xaxis.bin(_userXRange.second));
+}
+
+void cass::pp85::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram1DFloat& one
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t::const_iterator xRangeBegin
+      (one.memory().begin()+_xRange.first);
+  HistogramFloatBase::storage_t::const_iterator xRangeEnd
+      (one.memory().begin()+_xRange.second);
+  HistogramFloatBase::storage_t::const_iterator maxElementIt
+      (max_element(xRangeBegin, xRangeEnd));
+  const float halfMax(*maxElementIt);
+  HistogramFloatBase::storage_t::const_iterator leftSide;
+  HistogramFloatBase::storage_t::const_iterator rightSide;
+  bool firsttime(true);
+  for(HistogramFloatBase::storage_t::const_iterator iVal(xRangeBegin); iVal != xRangeEnd; ++iVal)
+  {
+    if (*iVal > halfMax)
+    {
+      if (firsttime)
+      {
+        firsttime = false;
+        leftSide = iVal;
+      }
+      rightSide = iVal;
+    }
+  }
+  const float lowerdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide,rightSide)));
+  const float upperdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide-1,rightSide+1)));
+  const float fwhm((upperdist+lowerdist)/2);
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(fwhm);
   _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();

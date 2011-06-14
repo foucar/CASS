@@ -609,6 +609,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case maximumBin:
     processor = new pp81(*this, key);
     break;
+  case fwhmPeak:
+    processor = new pp85(*this, key);
+    break;
   case SingleCcdImage:
     processor = new pp100(*this, key);
     break;

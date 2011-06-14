@@ -88,6 +88,8 @@ the Class description for information about what parameters are user settable.
 00080: nbrOfFills of given histogram
 00081: maximum bin of 1D histogram
 
+00085: full width at half maximum for a peak in given range
+
 ---Data retrieval (Histogram contain only last shot)--
 00100: CCD image
 00101: CCD image Integral
@@ -263,6 +265,8 @@ using the custom doxygen tag cassttng.
 
       nbrOfFills=80,
       maximumBin=81,
+
+      fwhmPeak=85,
 
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,

@@ -952,6 +952,56 @@ namespace cass
 
 
 
+
+
+
+
+
+
+
+  /** return full width at half maximum in given range of 1D histgoram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+   *           Lower and upper limit of the range that we look for the width at half maximum.
+   *           Default is 0|1.
+   *
+   * @author Lutz Foucar
+   */
+  class pp85 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp85(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** setup the parameters for finding the full width at half maximum */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** the user requested x-axis limits */
+    std::pair<float,float> _userXRange;
+
+    /** the requested x-axis limits in histogram coordinates */
+    std::pair<size_t,size_t> _xRange;
+  };
+
+
+
+
+
 }
 
 #endif
