@@ -59,7 +59,7 @@ namespace cass
   Histogram1DFloat Histogram2DFloat::project(std::pair<float,float> range, Histogram2DFloat::Axis axis) const
   {
     Histogram1DFloat hist(_axis[axis].size(), _axis[axis].lowerLimit(), _axis[axis].upperLimit(), _axis[axis].title());
-    size_t columns(_axis[1].size()), rows(_axis[0].size());
+    size_t columns(_axis[0].size()), rows(_axis[1].size());
     switch(axis)
     {
     case xAxis: // reduce along rows (integrate rows)
