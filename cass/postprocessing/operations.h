@@ -984,6 +984,9 @@ namespace cass
     /** load the settings of the pp */
     virtual void loadSettings(size_t);
 
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
   protected:
     /** setup the parameters for finding the full width at half maximum */
     void setupParameters(const HistogramBackend &hist);

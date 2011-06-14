@@ -1648,6 +1648,19 @@ void cass::pp85::loadSettings(size_t)
       <<endl;
 }
 
+void cass::pp85::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  setupParameters(*in);
+}
+
 void cass::pp85::setupParameters(const HistogramBackend &hist)
 {
   using namespace std;
