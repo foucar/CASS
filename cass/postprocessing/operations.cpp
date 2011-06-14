@@ -1661,6 +1661,7 @@ void cass::pp85::loadSettings(size_t)
     return;
   _userXRange = make_pair(settings.value("XLow",0).toFloat(),
                           settings.value("XUp",1).toFloat());
+  setupParameters(_pHist->getHist(0));
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   cout<<endl<< "PostProcessor '"<<_key
@@ -1712,7 +1713,9 @@ void cass::pp85::process(const cass::CASSEvent& evt)
       (one.memory().begin()+_xRange.second);
   HistogramFloatBase::storage_t::const_iterator maxElementIt
       (max_element(xRangeBegin, xRangeEnd));
-  const float halfMax(*maxElementIt);
+  HistogramFloatBase::storage_t::const_iterator minElementIt
+      (min_element(xRangeBegin, xRangeEnd));
+  const float halfMax((*maxElementIt+*minElementIt) * 0.5 );
   HistogramFloatBase::storage_t::const_iterator leftSide;
   HistogramFloatBase::storage_t::const_iterator rightSide;
   bool firsttime(true);
@@ -1730,7 +1733,20 @@ void cass::pp85::process(const cass::CASSEvent& evt)
   }
   const float lowerdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide,rightSide)));
   const float upperdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide-1,rightSide+1)));
-  const float fwhm((upperdist+lowerdist)/2);
+  const float fwhm((upperdist+lowerdist)*0.5);
+//  cout<< _xRange.first<<" "
+//      << _xRange.second<<" "
+//      << *maxElementIt<<" "
+//      << distance(one.memory().begin(),maxElementIt)<<" "
+//      << *minElementIt<<" "
+//      << distance(one.memory().begin(),minElementIt)<<" "
+//      << halfMax<<" "
+//      << distance(leftSide,one.memory().begin())<<" "
+//      << distance(one.memory().begin(),rightSide)<<" "
+//      << lowerdist<<" "
+//      << upperdist<<" "
+//      << fwhm<<" "
+//      <<endl;
   dynamic_cast<Histogram0DFloat*>(_result)->fill(fwhm);
   _result->nbrOfFills()=1;
   _result->lock.unlock();
