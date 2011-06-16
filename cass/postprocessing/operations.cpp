@@ -1718,35 +1718,21 @@ void cass::pp85::process(const cass::CASSEvent& evt)
   const float halfMax((*maxElementIt+*minElementIt) * 0.5 );
   HistogramFloatBase::storage_t::const_iterator leftSide;
   HistogramFloatBase::storage_t::const_iterator rightSide;
-  bool firsttime(true);
-  for(HistogramFloatBase::storage_t::const_iterator iVal(xRangeBegin); iVal != xRangeEnd; ++iVal)
+  for(HistogramFloatBase::storage_t::const_iterator iVal(maxElementIt);
+      (iVal != xRangeBegin) && (*iVal > halfMax);
+      --iVal)
   {
-    if (*iVal > halfMax)
-    {
-      if (firsttime)
-      {
-        firsttime = false;
-        leftSide = iVal;
-      }
-      rightSide = iVal;
-    }
+    leftSide = iVal;
+  }
+  for(HistogramFloatBase::storage_t::const_iterator iVal(maxElementIt);
+      (iVal != xRangeEnd) && (*iVal > halfMax);
+      ++iVal)
+  {
+    rightSide = iVal;
   }
   const float lowerdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide,rightSide)));
   const float upperdist (one.axis()[HistogramBackend::xAxis].hist2user(distance(leftSide-1,rightSide+1)));
   const float fwhm((upperdist+lowerdist)*0.5);
-//  cout<< _xRange.first<<" "
-//      << _xRange.second<<" "
-//      << *maxElementIt<<" "
-//      << distance(one.memory().begin(),maxElementIt)<<" "
-//      << *minElementIt<<" "
-//      << distance(one.memory().begin(),minElementIt)<<" "
-//      << halfMax<<" "
-//      << distance(leftSide,one.memory().begin())<<" "
-//      << distance(one.memory().begin(),rightSide)<<" "
-//      << lowerdist<<" "
-//      << upperdist<<" "
-//      << fwhm<<" "
-//      <<endl;
   dynamic_cast<Histogram0DFloat*>(_result)->fill(fwhm);
   _result->nbrOfFills()=1;
   _result->lock.unlock();
