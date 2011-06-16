@@ -1666,8 +1666,8 @@ void cass::pp85::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   cout<<endl<< "PostProcessor '"<<_key
       <<"' returns the full width at half maximum in '" << _pHist->key()
-      <<"' for the xlow '"<< _userXRange.first
-      <<"' and xup '"<< _userXRange.second
+      <<"' of the range from xlow '"<< _userXRange.first
+      <<"' to xup '"<< _userXRange.second
       <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
       <<endl;
 }
