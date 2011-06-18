@@ -300,7 +300,7 @@ void cass::pp50::setupParameters(const HistogramBackend &hist)
   const AxisProperty &projAxis(hist.axis()[_axis]);
   const AxisProperty &otherAxis(hist.axis()[_otherAxis]);
   _range = make_pair(max(_userRange.first, otherAxis.lowerLimit()),
-                     min(_range.second, otherAxis.upperLimit()));
+                     min(_userRange.second, otherAxis.upperLimit()));
   _result = new Histogram1DFloat(projAxis.nbrBins(), projAxis.lowerLimit(), projAxis.upperLimit());
   createHistList(2*cass::NbrOfWorkers);
 }
