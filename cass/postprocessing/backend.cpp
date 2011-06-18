@@ -59,8 +59,11 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
      * might have changed, so create the pair with the pointer and the id only
      * after the call and modify the list
      */
+//    if(_condition)
+//      cout <<evt.id()<<" '"<<_key << "' calling condition '"<<_condition->key()<<"'"<<endl;
     if (_condition && !(*_condition)(evt).isTrue())
     {
+//      cout <<evt.id()<<" '"<<_key << "' condition '"<<_condition->key()<<"' was false "<<endl;
       _histList.pop_back();
       histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       it = _histList.begin();
@@ -69,13 +72,19 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     }
     else
     {
+//      if(_condition)
+//        cout <<evt.id()<<" '"<<_key << "' condition '"<<_condition->key()<<"' was true "<<endl;
+//      else
+//        cout <<evt.id()<<" '"<<_key << "' has no condition"<<endl;
       process(evt);
+//      cout <<evt.id()<<" '"<< _key<< "' return from process"<<endl;
       _histList.pop_back();
       histogramList_t::value_type newPair(std::make_pair(evt.id(),_result));
       _histList.push_front(newPair);
       it = _histList.begin();
     }
   }
+//  cout <<evt.id()<<" '"<< _key<< "' return from operator"<<endl;
   return *(it->second);
 }
 

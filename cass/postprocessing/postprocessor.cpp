@@ -94,6 +94,7 @@ cass::PostProcessors::PostProcessors(std::string outputfilename)
 
 void cass::PostProcessors::process(const CASSEvent& event)
 {
+  using namespace std;
   /**
    * @todo catch when postprocessor throws an exeption and delete the
    *       postprocessor from the active list.
@@ -104,10 +105,12 @@ void cass::PostProcessors::process(const CASSEvent& event)
    *       - this needs to be done in a locked way since more than one thread
    *         do this
    */
-  for(postprocessors_t::iterator iter(_postprocessors.begin());
-      iter != _postprocessors.end();
-      ++iter)
+  postprocessors_t::iterator iter(_postprocessors.begin());
+  for(;iter != _postprocessors.end(); ++iter)
+  {
+//    cout <<event.id()<<" running '" << iter->first<<"'"<<endl;
     (*(iter->second))(event);
+  }
 }
 
 void cass::PostProcessors::aboutToQuit()
