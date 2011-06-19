@@ -59,6 +59,52 @@ void cass::pp120::process(const CASSEvent& evt)
 
 
 
+// *** postprocessors 121 checks event code ***
+
+cass::pp121::pp121(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp121::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+  _eventcode = settings.value("EventCode",0).toUInt();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<< "PostProcessor '"<<_key
+      <<"' will check whether event code '"<<_eventcode
+      <<"' is present in the event"
+      <<". Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp121::process(const CASSEvent& evt)
+{
+  using namespace cass::MachineData;
+  const MachineDataDevice *mdev
+      (dynamic_cast<const MachineDataDevice *>
+       (evt.devices().find(CASSEvent::MachineData)->second));
+  const MachineDataDevice::evrStatus_t &evr(mdev->EvrData());
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = _eventcode < evr.size()  ? 0 : evr[_eventcode];
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
 
 
 

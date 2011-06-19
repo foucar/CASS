@@ -180,14 +180,21 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       //how many events have happened between the last event and now//
       const uint32_t nbrFifoEvents = evrData.numFifoEvents();
       //go through all events and extract the eventcode from them//
+//      std::cout <<std::endl<< nbrFifoEvents<<std::endl;
       for (size_t i=0;i<nbrFifoEvents;++i)
       {
         const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
         uint32_t eventcode = fifoEvent.EventCode;
+        if (md->EvrData().size() < eventcode )
+          md->EvrData().resize(eventcode);
+//        std::cout << i <<" "
+//            << eventcode <<" "
+//            <<md->EvrData().size()<<" "
+//            <<std::endl;
         //check wether the event code is of interest for us (is in our assigned range)//
-        if (EVREventCodeOffset<= eventcode && eventcode < EVREventCodeOffset+8)
+//        if (EVREventCodeOffset<= eventcode && eventcode < EVREventCodeOffset+8)
           //if so then set the flag that the code happend to true//
-          md->EvrData()[eventcode-EVREventCodeOffset]=true;
+        md->EvrData()[eventcode]=true;
       }
     }
   break;

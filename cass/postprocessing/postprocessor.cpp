@@ -630,6 +630,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case BlData:
     processor = new pp120(*this,key);
     break;
+  case EvrCode:
+    processor = new pp121(*this,key);
+    break;
   case EpicsData:
     processor = new pp130(*this,key);
     break;

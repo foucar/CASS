@@ -96,6 +96,7 @@ the Class description for information about what parameters are user settable.
 00102: CCD image Integral using pixel(s) over user defined Threshold
 00110: Acqiris Waveform
 00120: Beamline data
+00121: Eventcode check
 00130: Epics data
 
 00140: Photonhits Spectrum
@@ -272,6 +273,7 @@ using the custom doxygen tag cassttng.
       SingleCcdImageIntegralOverThres=102,
       AcqirisWaveform=110,
       BlData=120,
+      EvrCode=121,
       EpicsData=130,
 
       CCDPhotonHitsSpectrum=140,

@@ -81,6 +81,47 @@ namespace cass
 
 
 
+
+
+  /** check whether event contains eventcode
+   *
+   * This postprocessor will check whether an eventcode is present in the event.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{EventCode}
+   *           The EventCode to check for. Default is 0
+   *
+   * @author Lutz Foucar
+   */
+  class pp121 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp121(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy data from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings from cass.ini */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** name of the variable in the beamline data */
+   size_t _eventcode;
+  };
+
+
+
+
+
+
+
+
+
+
+
   /** retrieval of Epics data.
    *
    * This postprocessor will retrieve the requested epics data from the cass-event.
