@@ -219,12 +219,6 @@ PostprocessorBackend* PostprocessorBackend::setupDependency(const char * depVarN
                <<" called for the first time."
                <<endl);
     _dependencies.push_back(dependkey);
-    /** @todo somehow we need to make sure that the loadSettings for the dependencies
-     *        are called before we finish the load settings for this pp, so that when
-     *        we need information from the dependency we will get the most recent one.
-     *        Unfortunately just returning 0 here will result in segfault. Need
-     *        to investigate.
-     */
     VERBOSEOUT(cout <<"PostprocessorBackend::setupDependency(): Check whether dependency key '"<<dependkey
                <<"' does appear after our key '"<<_key
                <<"' on the active list of postprocessors."
