@@ -126,7 +126,6 @@ the Class description for information about what parameters are user settable.
 00212: Advanced photon finder - Dump events to file
 00220: PIPICO Spectrum
 00230: Photon energy of Shot
-00231: Wavelength of photons
 00250: Property of particle
 00251: 2d hist with two properties of particle
 00252: Number of found particle hits per shot
@@ -305,7 +304,6 @@ using the custom doxygen tag cassttng.
       PIPICO=220,
 
       PhotonEnergy=230,
-      PhotonWavelength=231,
 
       ParticleValue = 250,
       ParticleValues = 251,

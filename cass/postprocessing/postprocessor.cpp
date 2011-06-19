@@ -699,6 +699,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case PIPICO:
     processor = new pp220(*this,key);
     break;
+  case PhotonEnergy:
+    processor = new pp230(*this,key);
+    break;
   case TestImage:
     processor = new pp240(*this,key);
     break;
