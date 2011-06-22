@@ -56,7 +56,7 @@ the Class description for information about what parameters are user settable.
 00010: Constant true (pp10)
 00011: Constant false (pp10)
 
-00020: Subtract first histogram by second histogram (pp20)
+00020: Subtract second histogram form first histogram (pp20)
 00021: Add first histogram to second histogram (pp20)
 00022: Divide first histogram by second histogram (pp20)
 00023: Multiply first histogram with second histogram (pp20)
