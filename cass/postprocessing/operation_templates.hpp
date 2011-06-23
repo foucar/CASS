@@ -519,5 +519,140 @@ namespace cass
 
 
 
+
+
+
+
+  /** Operation histograms.with constant from 0D histogram
+   *
+   * templated operation histogram with constant from 0D Histogram. The
+   * operation will be performed bin by bin.
+   *
+   * The second histograms needs to be a 0D Histogram
+   *
+   * The resulting histogram will be created using the size and dimension of
+   * the first histogram.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistOne} \n
+   *           the postprocessor names that contain the histogram. That the
+   *           operation should be done with. Needs to be implemented, because
+   *           default is "", which is invalid.
+   * @cassttng PostProcessor/\%name\%/{HistZeroD} \n
+   *           the postprocessor names that contain the constant that should be
+   *           operate on the histogram. Needs to be implemented, because
+   *           default is "", which is invalid.
+   *
+   * @tparam Operator operator that will work on the data
+   * @author Lutz Foucar
+   */
+  template <class Operator>
+  class pp30 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp30(PostProcessors& pp, const PostProcessors::key_t& key, const Operator& x)
+      : PostprocessorBackend(pp, key), op (x)
+    {
+      loadSettings(0);
+    }
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t)
+    {
+      using namespace std;
+      setupGeneral();
+      _one = setupDependency("HistOne");
+      _constHist = setupDependency("HistZeroD");
+      bool ret (setupCondition());
+      if ( !(_one && _constHist && ret) ) return;
+      const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
+      const HistogramFloatBase &constHist(dynamic_cast<const HistogramFloatBase&>(_constHist->getHist(0)));
+      if (constHist.dimension() != 0 )
+      {
+        stringstream ss;
+        ss << "pp30::loadSettings(): HistZeroD '"<<one.key()
+            <<"' is not a 0D histogram";
+        throw invalid_argument(ss.str());
+      }
+      _result = one.clone();
+      createHistList(2*cass::NbrOfWorkers);
+      cout<<endl << "PostProcessor '"<<_key
+          <<"' operation '"<< typeid(op).name()
+          <<"' on Histogram in PostProcessor '" << _one->key()
+          <<"' which has a memory size of '"<< one.memory().size()
+          <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
+          <<"'. Condition is '"<<_condition->key()<<"'"
+          << endl;
+    }
+
+    virtual void histogramsChanged(const HistogramBackend* in)
+    {
+      using namespace std;
+      QWriteLocker lock(&_histLock);
+      //return when there is no incomming histogram
+      if(!in)
+        return;
+      //return when the incomming histogram is not a direct dependant
+      if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+        return;
+      //return when the incomming histogam is the 0D histogram that contains
+      //the constant for the operation
+      if (in->key() == _constHist->key())
+        return;
+      //the previous _result pointer is on the histlist and will be deleted
+      //with the call to createHistList
+      _result = in->clone();
+      createHistList(2*cass::NbrOfWorkers);
+      //notify all pp that depend on us that our histograms have changed
+      PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+      PostProcessors::keyList_t::iterator it (dependands.begin());
+      for (; it != dependands.end(); ++it)
+        _pp.getPostProcessor(*it).histogramsChanged(_result);
+      VERBOSEOUT(cout<<"Postprocessor '"<<_key
+                 <<"': histograms changed => delete existing histo"
+                 <<" and create new one from input"<<endl);
+    }
+
+    /** process event */
+    virtual void process(const CASSEvent& evt)
+    {
+      using namespace std;
+      const HistogramFloatBase &one
+          (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
+      const Histogram0DFloat &constHist
+          (dynamic_cast<const Histogram0DFloat&>((*_constHist)(evt)));
+      one.lock.lockForRead();
+      constHist.lock.lockForRead();
+      _result->lock.lockForWrite();
+      const float value(constHist.getValue());
+      transform(one.memory().begin(), one.memory().end(),
+                dynamic_cast<HistogramFloatBase *>(_result)->memory().begin(),
+                bind2nd(op,value));
+      _result->nbrOfFills() =1;
+      _result->lock.unlock();
+      constHist.lock.unlock();
+      one.lock.unlock();
+    }
+
+  protected:
+    /** pp containing first histogram */
+    PostprocessorBackend *_one;
+
+    /** pp containing second histogram */
+    PostprocessorBackend *_constHist;
+
+    /** the operation done with the data */
+    Operator op;
+  };
+
+
+
+
+
+
+
 }//end namespace
 #endif
