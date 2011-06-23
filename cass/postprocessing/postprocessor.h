@@ -65,6 +65,11 @@ the Class description for information about what parameters are user settable.
 00026: Multiply histogram with constant (pp23)
 00027: Divide histogram constant constant (pp23)
 
+00030: Subtract Constant from histogram, Constant is taken from 0D histogram (pp30)
+00031: Add Constant to histogram, Constant is taken from 0D histogram  (pp30)
+00032: Multiply histogram with constant, Constant is taken from 0D histogram  (pp30)
+00033: Divide histogram by constant, Constant is taken from 0D histogram  (pp30)
+
 00040: Threshold histogram
 
 00050: Project 2D histogram onto a axis
@@ -242,6 +247,11 @@ using the custom doxygen tag cassttng.
       AddConstant=25,
       MultiplyConstant=26,
       DivideConstant=27,
+
+      Subtract0DConstant=30,
+      Add0DConstant=31,
+      Multiply0DConstant=32,
+      Divide0DConstant=33,
 
       Threshold=40,
 

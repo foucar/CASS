@@ -558,6 +558,18 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case DivideConstant:
     processor = new pp23<divides<float> >(*this, key, divides<float>());
     break;
+  case Subtract0DConstant:
+    processor = new pp30<minus<float> >(*this, key, minus<float>());
+    break;
+  case Add0DConstant:
+    processor = new pp30<plus<float> >(*this, key, plus<float>());
+    break;
+  case Multiply0DConstant:
+    processor = new pp30<multiplies<float> >(*this, key, multiplies<float>());
+    break;
+  case Divide0DConstant:
+    processor = new pp30<divides<float> >(*this, key, divides<float>());
+    break;
   case Threshold:
     processor = new pp40(*this, key);
     break;
