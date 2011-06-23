@@ -56,7 +56,8 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
       assert(static_cast<int>(info.detector()) == static_cast<int>(Camp1) ||
              static_cast<int>(info.detector()) == static_cast<int>(Camp2) ||
              static_cast<int>(info.detector()) == static_cast<int>(Camp3) ||
-             static_cast<int>(info.detector()) == static_cast<int>(Camp4));
+             static_cast<int>(info.detector()) == static_cast<int>(Camp4) ||
+             static_cast<int>(info.detector()) == static_cast<int>(XPP));
       //retrieve a reference to the nbr of Channels for this instrument//
       size_t &nbrChannels = _numberOfChannels[static_cast<Instruments>(info.detector())];
       //make sure the number is smaller than 20, which is the maximum nbr of channels//
