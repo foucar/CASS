@@ -53,10 +53,10 @@ namespace cass
    *             - FitTime1
    *             - FitTime2
    *           - Ipimb values
-   *             - Channel0
-   *             - Channel1
-   *             - Channel2
-   *             - Channel3
+   *             - %DetectorName%_Channel0
+   *             - %DetectorName%_Channel1
+   *             - %DetectorName%_Channel2
+   *             - %DetectorName%_Channel3
    *
    * @author Lutz Foucar
    */
