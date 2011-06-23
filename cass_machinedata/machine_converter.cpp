@@ -8,10 +8,10 @@
 #include "pdsdata/epics/EpicsPvData.hh"
 #include "pdsdata/evr/DataV3.hh"
 #include "pdsdata/ipimb/DataV1.hh"
+#include "pdsdata/xtc/DetInfo.hh"
 
 #include "cass_event.h"
 #include "machine_device.h"
-
 
 using namespace cass::MachineData;
 using namespace std;
@@ -200,12 +200,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   break;
   case(Pds::TypeId::Id_IpimbData):
     {
+      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      string detector(Pds::DetInfo::name(info.detector()));
       const Pds::Ipimb::DataV1& ipimbData =
           *reinterpret_cast<const Pds::Ipimb::DataV1*>(xtc->payload());
-      md->BeamlineData()["Channel0"] = ipimbData.channel0Volts();
-      md->BeamlineData()["Channel1"] = ipimbData.channel1Volts();
-      md->BeamlineData()["Channel2"] = ipimbData.channel2Volts();
-      md->BeamlineData()["Channel3"] = ipimbData.channel3Volts();
+      md->BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
+      md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
+      md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
+      md->BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
     }
   break;
 
