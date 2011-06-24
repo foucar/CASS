@@ -43,11 +43,11 @@ namespace cass
     enum SignalExtractorType {com8,com16,cfd8,cfd16,tdcextractor};
     /** all available instruments at the site*/
     enum Instruments{
-      Camp1 = Pds::DetInfo::Camp,
-      Camp2 = Pds::DetInfo::AmoITof,
-      Camp3 = Pds::DetInfo::AmoMbes,
-      Camp4 = Pds::DetInfo::AmoGasdet,
-      XPP   = Pds::DetInfo::XppEndstation,
+      Camp1  = Pds::DetInfo::Camp,
+      Camp2  = Pds::DetInfo::AmoITof,
+      Camp3  = Pds::DetInfo::AmoMbes,
+      Camp4  = Pds::DetInfo::AmoGasdet,
+      XPP    = Pds::DetInfo::XppLas,
       Standalone = 1
     };
    //@{
