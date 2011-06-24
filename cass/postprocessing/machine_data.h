@@ -57,6 +57,14 @@ namespace cass
    *             - %DetectorName%_Channel1
    *             - %DetectorName%_Channel2
    *             - %DetectorName%_Channel3
+   *           - IpmFex values
+   *             - %DetectorName%_CorrectChannel0
+   *             - %DetectorName%_CorrectChannel1
+   *             - %DetectorName%_CorrectChannel2
+   *             - %DetectorName%_CorrectChannel3
+   *             - %DetectorName%_sum
+   *             - %DetectorName%_xPos
+   *             - %DetectorName%_yPos
    *
    * @author Lutz Foucar
    */
