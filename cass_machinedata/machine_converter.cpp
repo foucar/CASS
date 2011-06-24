@@ -9,6 +9,9 @@
 #include "pdsdata/evr/DataV3.hh"
 #include "pdsdata/ipimb/DataV1.hh"
 #include "pdsdata/xtc/DetInfo.hh"
+#include "pdsdata/lusi/IpmFexV1.hh"
+#include "pdsdata/lusi/IpmFexV1.hh"
+#include "pdsdata/lusi/IpmFexConfigV2.hh"
 
 #include "cass_event.h"
 #include "machine_device.h"
@@ -48,6 +51,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_PhaseCavity);
   _pdsTypeList.push_back(Pds::TypeId::Id_EvrData);
   _pdsTypeList.push_back(Pds::TypeId::Id_IpimbData);
+  _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
@@ -208,6 +212,25 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
       md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
       md->BeamlineData()[detector + "_Channel3"] = ipimbData.channel3Volts();
+    }
+  break;
+
+
+  case(Pds::TypeId::Id_IpmFex):
+    {
+      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
+      string detector(Pds::DetInfo::name(info.detector()));
+      const Pds::Lusi::IpmFexV1& ipmfex =
+          *reinterpret_cast<const Pds::Lusi::IpmFexV1*>(xtc->payload());
+      for(size_t i=0; i<Pds::Lusi::IpmFexConfigV2::NCHANNELS; i++)
+      {
+        stringstream ss;
+        ss << detector << "_CorrectChannel" << i;
+        md->BeamlineData()[ss.str()] = ipmfex.channel[i];
+      }
+      md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
+      md->BeamlineData()[detector + "_xPos"] = ipmfex.xpos;
+      md->BeamlineData()[detector + "_yPos"] = ipmfex.ypos;
     }
   break;
 
