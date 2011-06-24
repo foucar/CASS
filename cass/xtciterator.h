@@ -90,8 +90,12 @@ namespace cass
           }
         }
         else
+        {
+//          std::cout<<"XtcIterator::process(): found:"
+//              << Pds::TypeId::name(xtc->contains.id())<<std::endl;
           //use the converter that is good for this xtc type//
           (*_converters[xtc->contains.id()])(xtc,_cassevent);
+        }
       }
       return Continue;
     }

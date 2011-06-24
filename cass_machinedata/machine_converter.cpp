@@ -226,6 +226,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       {
         stringstream ss;
         ss << detector << "_CorrectChannel" << i;
+//        cout << ss.str()<<endl;
         md->BeamlineData()[ss.str()] = ipmfex.channel[i];
       }
       md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
