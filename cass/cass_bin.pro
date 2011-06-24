@@ -11,7 +11,7 @@ CONFIG(offline) {
   TARGET           = cass_online
 }
 
-TARGET               = cass
+#TARGET               = cass
 TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
 target.path          = $$INSTALLBASE/bin
@@ -32,7 +32,8 @@ PRE_TARGETDEPS     += $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
-                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
 
 lclsacq.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a
 lclsacq.commands    = @cd $$PWD/../LCLS && make x86_64-linux-static-opt
@@ -74,7 +75,10 @@ lclspul.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclsxtc.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 lclsxtc.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a
 
-QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr lclsipm lclsopal lclspnccd lclsprinc lclspul lclsxtc
+lclslusi.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
+lclslusi.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
+
+QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr lclsipm lclsopal lclspnccd lclsprinc lclspul lclsxtc lclslusi
 
 
 # create SOAP sources and descriptions
@@ -195,7 +199,6 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/coltrims_analysis.h \
                       ./postprocessing/achimcalibrator_hex.h \
 
-
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \
                       ../cass_acqiris/classes \
@@ -211,7 +214,7 @@ DEPENDPATH         += ./postprocessing
 
 LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata -lipimbdata\
+                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata -lipimbdata -llusidata\
                       -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
