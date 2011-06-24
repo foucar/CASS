@@ -7,9 +7,8 @@
 #include "pdsdata/bld/bldData.hh"
 #include "pdsdata/epics/EpicsPvData.hh"
 #include "pdsdata/evr/DataV3.hh"
-#include "pdsdata/ipimb/DataV1.hh"
+#include "pdsdata/ipimb/DataV2.hh"
 #include "pdsdata/xtc/DetInfo.hh"
-#include "pdsdata/lusi/IpmFexV1.hh"
 #include "pdsdata/lusi/IpmFexV1.hh"
 #include "pdsdata/lusi/IpmFexConfigV2.hh"
 
@@ -206,8 +205,8 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     {
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       string detector(Pds::DetInfo::name(info.detector()));
-      const Pds::Ipimb::DataV1& ipimbData =
-          *reinterpret_cast<const Pds::Ipimb::DataV1*>(xtc->payload());
+      const Pds::Ipimb::DataV2& ipimbData =
+          *reinterpret_cast<const Pds::Ipimb::DataV2*>(xtc->payload());
       md->BeamlineData()[detector + "_Channel0"] = ipimbData.channel0Volts();
       md->BeamlineData()[detector + "_Channel1"] = ipimbData.channel1Volts();
       md->BeamlineData()[detector + "_Channel2"] = ipimbData.channel2Volts();
