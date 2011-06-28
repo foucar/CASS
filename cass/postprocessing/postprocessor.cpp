@@ -35,6 +35,7 @@
 
 #ifdef CERNROOT
 #include "root_converter.h"
+#include "roottree_converter.h"
 #endif
 
 //#define DEBUG_FIND_DEPENDANT
@@ -723,6 +724,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 #ifdef CERNROOT
   case ROOTDump:
     processor = new pp2000(*this,key,_outputfilename);
+    break;
+  case ROOTTreeDump:
+    processor = new pp2001(*this,key,_outputfilename);
     break;
 #endif
   case ElectronEnergy:

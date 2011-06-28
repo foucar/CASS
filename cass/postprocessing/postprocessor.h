@@ -137,6 +137,7 @@ the Class description for information about what parameters are user settable.
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
 02000: Dump all selected 0d, 1d and 2d cass histograms to root file
+02001: Write Hits of selected Delayline Detectors to ROOT Tree
 
 ---Coltrims Analysis--
 05000: Electron Energy from Recoil momenta
@@ -314,6 +315,7 @@ using the custom doxygen tag cassttng.
       PnccdHDF5=1000,
       HDF5Converter=1001,
       ROOTDump=2000,
+      ROOTTreeDump=2001,
 
       ElectronEnergy=5000,
       TrippleCoincidence=5001,

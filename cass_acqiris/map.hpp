@@ -30,6 +30,8 @@ namespace cass
   public:
     typedef Key key_type;
     typedef T value_type;
+    typedef typename std::map<key_type,value_type>::iterator iterator;
+    typedef typename std::map<key_type,value_type>::const_iterator const_iterator;
 
   public:
     /** access members of the map container as done in the std::map */
@@ -39,7 +41,7 @@ namespace cass
     value_type operator[](const key_type& key)const
     {
 //      using namespace std;
-//      map<key_type, value_type>::const_iterator valueIt(_map.find(key));
+//      const_iterator valueIt(_map.find(key));
 //      if (_map.end() == valueIt)
 //      {
 //        stringstream ss;
@@ -49,6 +51,18 @@ namespace cass
 //      return valueIt->second;
       return (_map.find(key)->second);
     }
+
+    /** retrieve iterator to beginning of map */
+    iterator begin()   {return _map.begin();}
+
+    /** retrieve const iterator to beginning of map */
+    const_iterator begin()const {return _map.begin();}
+
+    /** retrieve iterator to end of map */
+    iterator end() {return _map.end();}
+
+    /** retrieve const iterator to end of map */
+    const_iterator end()const {return _map.end();}
 
   private:
     /** the container */

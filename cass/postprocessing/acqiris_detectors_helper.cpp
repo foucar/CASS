@@ -35,6 +35,12 @@ HelperAcqirisDetectors* HelperAcqirisDetectors::instance(const helperinstancesma
   return _instances[detector];
 }
 
+const HelperAcqirisDetectors::helperinstancesmap_t& HelperAcqirisDetectors::instances()
+{
+  QMutexLocker lock(&_mutex);
+  return _instances;
+}
+
 void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
 {
   QMutexLocker lock(&_mutex);
