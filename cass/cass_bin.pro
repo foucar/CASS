@@ -129,6 +129,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/id_list.cpp \
                       ./postprocessing/rankfilter.cpp \
                       ./postprocessing/coltrims_analysis.cpp \
+                      ./postprocessing/achimcalibrator_hex.cpp \
                       tcpserver.cpp \
 
 HEADERS            += analysis_backend.h \
@@ -183,6 +184,8 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/hdf5dump.h \
                       ./postprocessing/hdf5_converter.h \
                       ./postprocessing/coltrims_analysis.h \
+                      ./postprocessing/achimcalibrator_hex.h \
+
 
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \
@@ -201,6 +204,8 @@ LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
                       -lgsoap++ -lgsoap
+LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
+
 
 # Extra stuff for http Server
 httpServer {
