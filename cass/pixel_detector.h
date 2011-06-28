@@ -27,10 +27,12 @@ namespace cass
   public:
     /** constructor. Sets the pixel information*/
     Pixel(uint16_t X, uint16_t Y, pixel_t Z)
-      :_x(X),_y(Y),_z(Z)
+      :_x(X),_y(Y),_z(Z),_used(false)
     {}
     /** default constructor.*/
-    Pixel()       {}
+    Pixel()
+      :_x(0),_y(0),_z(0),_used(false)
+    {}
     /** default destructor. */
     ~Pixel()      {}
 
@@ -40,18 +42,21 @@ namespace cass
     uint16_t &x()       {return _x;}
     uint16_t &y()       {return _y;}
     pixel_t  &z()       {return _z;}
+    bool     &isUsed()  {return _used;}
     //@}
     //@{
     /** getter */
     uint16_t  x()const  {return _x;}
     uint16_t  y()const  {return _y;}
     pixel_t   z()const  {return _z;}
+    bool      isUsed()const {return _used;}
     //@}
 
   private:
     uint16_t _x;  //!< x coordinate of the pixel
     uint16_t _y;  //!< y coordinate of the pixel
     pixel_t  _z;  //!< the pixel value
+    bool     _used; //!< flag used in coalescing
   };
 
 

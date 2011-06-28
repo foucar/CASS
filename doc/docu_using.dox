@@ -9,13 +9,9 @@ online or offline mode. Please see @ref compiling for details.\n
 A complete list of all parameters can be found here @ref clpar. Some of the
 parameters are only working with the online version some of them only with the
 offline version of CASS. To quit CASS in either online or offline mode one can
-use either
+use
 @verbatim
 crtl + \
-@endverbatim
-or
-@verbatim
-crtl + q
 @endverbatim
 Killing the program with
 @verbatim
@@ -89,13 +85,9 @@ that loads cass with the parameters described in the example above is called
 @endverbatim
 where the .ini determines on which settings and parameter cass is run.
 
-To end the program you should use either
+To end the program you should use
 @verbatim
 crtl + \
-@endverbatim
-or
-@verbatim
-crtl + q
 @endverbatim
 Killing the program with
 @verbatim
@@ -140,13 +132,9 @@ following parameter when executing cass:
 \n
 If you want to quit the program before the file has been fully analyzed but
 still want to dump everything that has been processed so far to
-the file you can quit the program with either
+the file you can quit the program with
 @verbatim
 crtl + \
-@endverbatim
-or
-@verbatim
-crtl + q
 @endverbatim
 Using
 @verbatim

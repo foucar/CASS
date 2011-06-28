@@ -23,7 +23,10 @@ namespace cass
      * that are recorded, the mcp. The SignalProducer (_mcp) does know how to
      * extract the singals from the recoreded data. The function can be set up
      * in the signal producers CASSSettings settings. Please refer to
-     * SingalProducer class describtion for further details.
+     * SignalProducer class describtion for further details.
+     *
+     * @cassttng AcqirisDetectors/\%detectorname\%/MCP\n
+     *           Name of the MCP Signal. See cass::ACQIRIS::SignalProducer
      *
      * @author Lutz Foucar
      */
@@ -45,7 +48,7 @@ namespace cass
        *
        * Since all the data in just enclosed in the mcp, this function will just
        * call the mcp associate member. Please refer to
-       * SingalProducer::associate() for further details.
+       * SignalProducer::associate() for further details.
        *
        * @param evt the event to whos data we associated to this detector
        */

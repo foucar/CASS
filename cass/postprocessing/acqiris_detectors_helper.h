@@ -35,6 +35,12 @@ namespace cass
      * a Acqiris Instrument. It is implemented as a singleton such that every postprocessor
      * can call it without knowing about it.
      *
+     * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n
+     *           Type of the detector that this helper should be managing.
+     *           Default is 1 (TofDetector). Possible choises are
+     *           - 0: Delayline: see cass::ACQIRIS::DelaylineDetector
+     *           - 1: Time of Flight Detector: see cass::ACQIRIS::TofDetector
+     *
      * @todo make sure that the detectors are protected from beeing written
      *       while they are read from
      *
@@ -136,12 +142,6 @@ namespace cass
        * dettype. The instance of the detectors are created
        * by DetectorBackend::instance() \n
        * The name of the detector is also the key in the instances map.
-       *
-       * @cassttng AcqirisDetectors/\%name\%/{DetectorType}\n
-       *           Type of the detector that this helper should be managing.
-       *           Default is 1 (TofDetector). Possible choises are
-       *           - 0: Delayline (DelaylineDetector)
-       *           - 1: Time of Flight Detector (TofDetector)
        *
        * @param detname the name of the detector
        */

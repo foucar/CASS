@@ -1,5 +1,6 @@
 // Copyright (C) 2010 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2011 Stephan Kassemeyer
 
 /**
  * @file histogram_getter.h file contains declaration retriever classes
@@ -17,10 +18,14 @@
 #include "cass.h"
 #include "postprocessor.h"
 
+#ifdef JPEG_CONVERSION
+#include <jpeglib.h>
+#endif //JPEG_CONVERSION
+
 namespace cass
 {
 
-/** Histogram retrievel parameters.
+/** Histogram retrieval parameters.
  *
  * @author Jochen Küpper
  */
@@ -36,10 +41,11 @@ struct HistogramParameter
 
 
 
-/** retrive a histogram from the histogram container
+/** retrieve a histogram from the histogram container
  *
  * @author Lutz Foucar
  * @author Jochen Küpper
+ * @author Stephan Kassemeyer
  */
 class CASSSHARED_EXPORT HistogramGetter
 {
@@ -65,11 +71,22 @@ public:
     /** Create an QImage from the histogram */
     QImage qimage(const HistogramParameter&) const;
 
+#ifdef JPEG_CONVERSION
+    /** Create a jpeg compressed image from the histogram */
+    std::vector<JOCTET>*  jpegImage(const HistogramParameter&);
+#endif //JPEG_CONVERSION
+
 protected:
     /** pointer to the postprocessors class. will be retrieved using singleton */
     PostProcessors *_postprocessors;
 
+#ifdef JPEG_CONVERSION
+    std::map<PostProcessors::key_t, std::vector<JOCTET>*> jpeg_cache;
+    std::map<PostProcessors::key_t, double> jpeg_cache_times;
+#endif //JPEG_CONVERSION
+
 };
+
 
 } //end namespace cass
 

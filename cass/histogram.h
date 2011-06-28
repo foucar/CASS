@@ -1,5 +1,6 @@
 // Copyright (C) 2010-2011 Lutz Foucar
 // Copyright (C) 2010 Jochen Küpper
+// Copyright (C) 2011 Stephan kassemeyer
 
 /**
  * @file histogram.h file contains histogram classes declarations and some
@@ -27,6 +28,9 @@
 #include <QtCore/QWaitCondition>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
+#ifdef JPEG_CONVERSION
+#include <jpeglib.h>
+#endif //JPEG_CONVERSION
 
 #include <stdint.h>
 
@@ -245,6 +249,14 @@ public:
      * histogram (appropriately for reading and writing).
      */
     mutable QReadWriteLock lock;
+
+#ifdef JPEG_CONVERSION
+    /** render histogram into jpeg image
+     * @author Stephan Kassemeyer
+     *
+     */
+     virtual std::vector<JOCTET>* jpegImage() const {return new std::vector<JOCTET>;}  // TODO: turn into pure virtual function without implementation in base class?
+#endif //JPEG_CONVERSION
 
 protected:
     /** dimension of the histogram */
@@ -485,9 +497,15 @@ public:
     /** Return histogram bin that contains x */
     value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
 
+    /** Return histogram bin that contains x */
+    const value_t& operator()(float x) const { return _memory[_axis[0].bin(x)]; };
 
     /** Return histogram bin */
     value_t& bin(size_t bin) { return _memory[bin]; };
+
+    /** Return histogram bin */
+    const value_t& bin(size_t bin) const { return _memory[bin]; };
+
 
     /** center of histogram */
     float center() const
@@ -514,6 +532,12 @@ public:
                              _memory.begin()+_axis[0].bin(std::max(area.first,area.second)),
                              0.f);
     }
+#ifdef JPEG_CONVERSION
+    /** render 1d histogram into jpeg image
+     *  @author Stephan kassemeyer
+     */
+    std::vector<JOCTET>* jpegImage() const;
+#endif //JPEG_CONVERSION
 };
 
 
@@ -680,6 +704,13 @@ public:
      * @return QImage of this histogram
      */
     QImage qimage();
+
+#ifdef JPEG_CONVERSION
+    /** render 2d histogram into jpeg image
+     *  @author Stephan kassemeyer
+     */
+    std::vector<JOCTET>* jpegImage() const;
+#endif //JPEG_CONVERSION
 };
 
 

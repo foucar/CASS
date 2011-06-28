@@ -40,6 +40,9 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    *
    * @author Lutz Foucar
    */
@@ -84,6 +87,9 @@ namespace cass
    *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    *
    * @author Lutz Foucar
    */
@@ -127,6 +133,9 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    *
    * @author Lutz Foucar
    */
@@ -169,6 +178,9 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - for HexDetector
@@ -235,6 +247,9 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - for HexDetector
@@ -298,6 +313,9 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - if detector type is HexDetector
@@ -361,6 +379,9 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Layer}\n
    *           The anode layer. Default is U. Options are:
    *           - if detector type is HexDetector
@@ -427,6 +448,9 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{FirstLayer}\n
    *           The anode layer of the first coordinate. Default is U. Options are:
    *           - for HexDetector
@@ -512,6 +536,9 @@ namespace cass
    *
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    *
    * @author Lutz Foucar
    */
@@ -560,6 +587,9 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the delayline detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{XInput}\n
    *           The value that should be put onto the x-axis of the histogram.
    *           Default is 'x'. Options are:
@@ -641,8 +671,14 @@ namespace cass
    *           properties of the 2d histogram
    * @cassttng PostProcessor/\%name\%/{FirstDetector}\n
    *           Name of the first detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{SecondDetector}\n
    *           Name of the first detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    *
    * @author Lutz Foucar
    */
@@ -769,6 +805,9 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the detector that the particles belong to.
    *           Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Particle}\n
    *           Name of the particle whos properties we want to extract
    *           Default is "NeP"
@@ -871,6 +910,9 @@ namespace cass
    *           properties of the 1d histogram
    * @cassttng PostProcessor/\%name\%/{Detector}\n
    *           Name of the first detector that we work on. Default is "blubb"
+   *           See cass::ACQIRIS::HelperAcqirisDetectors as starting point for
+   *           more information on how to set up the different types of Acqiris
+   *           type detectors.
    * @cassttng PostProcessor/\%name\%/{Particle}\n
    *           Name of the particle whos properties we want to extract
    *           Default is "NeP"

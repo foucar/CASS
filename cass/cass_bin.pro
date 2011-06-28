@@ -109,6 +109,9 @@ SOURCES            += soapCASSsoapService.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
+                      pixel_detector_container.cpp \
+                      coalescing_base.cpp \
+                      coalesce_simple.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
                       ./postprocessing/convenience_functions.cpp \
@@ -118,6 +121,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/acqiris_detectors.cpp \
                       ./postprocessing/machine_data.cpp \
                       ./postprocessing/ccd.cpp \
+                      ./postprocessing/pixel_detector_helper.cpp \
                       ./postprocessing/alignment.cpp \
                       ./postprocessing/imaging.cpp \
                       ./postprocessing/operations.cpp \
@@ -155,6 +159,9 @@ HEADERS            += analysis_backend.h \
                       tcpserver.h \
                       worker.h \
                       pixel_detector.h \
+                      pixel_detector_container.h \
+                      coalescing_base.h \
+                      coalesce_simple.h \
                       xtciterator.h \
                       cass_exceptions.h \
                       cass_settings.h \
@@ -169,6 +176,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/alignment.h \
                       ./postprocessing/backend.h \
                       ./postprocessing/ccd.h \
+                      ./postprocessing/pixel_detector_helper.h \
                       ./postprocessing/imaging.h \
                       ./postprocessing/waveform.h \
                       ./postprocessing/machine_data.h \
@@ -198,6 +206,16 @@ LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd
                       -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
+
+# Extra stuff for http Server
+httpServer {
+    LIBS           += -lmicrohttpd
+    LIBS           += -ljpeg
+    SOURCES        += ./httpserver.cpp
+    HEADERS        += ./httpserver.h
+    DEFINES        += HTTPSERVER
+    DEFINES        += JPEG_CONVERSION
+}
 
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
