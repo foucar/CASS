@@ -7,7 +7,7 @@ In this section we will describe how to download and compile cass.
 @subsection tarball Downloading a tar-ball
 You can download a recent tarball version of CASS from the following location
 @verbatim
-http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads/cass.tar.gz
+http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads/cass.latest.tar.gz
 @endverbatim
 Later one can also download earlier versions of cass that were done in different
 tags.
