@@ -24,10 +24,10 @@ public key.
 The recent working version is contained in the 'master' branch.
 
 @section compiling Compiling CASS
-See the @ref cassinstall file for the prerequeries. Once you checked out
+See the @ref cassinstall file for the prerequeries. Once you cloned / downloaded
 the version you want to compile you need to do the following steps:
 @verbatim
-cd into the directory that contains the checkout
+cd into the directory that contains cass
 copy cass_defaultconfig.pri to cass_myconfig.pri
 @endverbatim
 Now modify the the cass_myconfig.pri file to include what you need and
