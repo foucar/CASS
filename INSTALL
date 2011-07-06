@@ -55,7 +55,7 @@ VIGRA (version 1.7.0 and above) (for single_particle detection):
    cp -r include/. /usr/local/include/.
  where the above /usr/local is just an example on where to install the headers
 
-ROOT (version 5.26 and above):
+ROOT (version 5.28.00c and above):
  Download root sources from here
    http://root.cern.ch/drupal/content/downloading-root
  to compile and install
