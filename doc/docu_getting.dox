@@ -13,7 +13,7 @@ Later one can also download earlier versions of cass that were done in different
 tags.
 
 @subsection developer Getting a version controlled copy
-CASS is now being developed using the distributed version controll system 'git'.
+CASS is now being developed using the distributed version control system 'git'.
 One can clone a copy from the server using the following command
 @verbatim
 git clone ssh://gitasg@lfs3.mpi-hd.mpg.de:diode
