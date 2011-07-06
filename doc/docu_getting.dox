@@ -4,24 +4,24 @@
 In this section we will describe how to download and compile cass.
 
 @section download Download resource
-You can access cass via svn from the following repository location:
+@subsection tarball Downloading a tar-ball
+You can download a recent tarball version of CASS from the following location
 @verbatim
-https://www.mpi-hd.mpg.de/repos/lutz/diode
+http://www.mpi-hd.mpg.de/personalhomes/gitasg/Downloads/cass.tar.gz
 @endverbatim
-The current version is located in
+Later one can also download earlier versions of cass that were done in different
+tags.
+
+@subsection developer Getting a version controlled copy
+CASS is now being developed using the distributed version controll system 'git'.
+One can clone a copy from the server using the following command
 @verbatim
-/trunk
+git clone ssh://gitasg@lfs3.mpi-hd.mpg.de:diode
 @endverbatim
-The places where the releases are located is:
-@verbatim
-/tags
-@endverbatim
-an "anonymous" readonly checkout is provided with:
-@verbatim
-username: asg
-password: cass
-@endverbatim
-(please contact Lutz Foucar for write access)
+This requires that you have set up a ssh key pair and sent Lutz Foucar your
+public key.
+
+The recent working version is contained in the 'master' branch.
 
 @section compiling Compiling CASS
 See the @ref cassinstall file for the prerequeries. Once you checked out
