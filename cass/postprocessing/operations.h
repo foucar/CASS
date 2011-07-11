@@ -539,7 +539,7 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           Postprocessor name containing the histogram that we average.
+   *           Postprocessor name containing the histogram that we sum up.
    *
    * @author Lutz Foucar
    */
