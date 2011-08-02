@@ -75,8 +75,10 @@ int main(int argc, char **argv)
   std::string filelistname("filesToProcess.txt");
   // filename of the output filename
   std::string outputfilename("output.ext");
+#ifdef SOAPSERVER
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
+#endif
   //the sharememory client index
   int index(0);
   //flag to tell to quit when program has finished executing all files
@@ -97,7 +99,9 @@ int main(int argc, char **argv)
       strcpy(partitionTag, optarg);
       break;
     case 's':
+#ifdef SOAPSERVER
       soap_port = strtol(optarg, 0, 0);
+#endif
       break;
     case 'c':
 #ifdef OFFLINE
@@ -185,6 +189,7 @@ int main(int argc, char **argv)
   QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
 
   // TCP/SOAP server
+#ifdef SOAPSERVER
   cass::EventGetter get_event(ringbuffer);
   cass::HistogramGetter get_histogram;
   cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
@@ -194,6 +199,7 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
   QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
+#endif
 
 #ifdef HTTPSERVER
   // http server
@@ -206,7 +212,9 @@ int main(int argc, char **argv)
     //start input and worker threads
     workers->start();
     input->start();
+#ifdef SOAPSERVER
     server->start();
+#endif
 #ifdef HTTPSERVER
     http_server.start();
 #endif
@@ -215,7 +223,9 @@ int main(int argc, char **argv)
     retval = app.exec();
 
     //clean up
+#ifdef SOAPSERVER
     server->destroy();
+#endif
     delete rateplotter;
     delete workerrate;
     delete inputrate;
@@ -247,7 +257,9 @@ int main(int argc, char **argv)
     workers->end();
 
     //clean up
+#ifdef SOAPSERVER
     server->destroy();
+#endif
 #ifdef HTTPSERVER
     http_server.stop();
 #endif

@@ -229,6 +229,16 @@ httpServer {
     DEFINES        += JPEG_CONVERSION
 }
 
+CONFIG(noSoapServer) {
+    contains(CONFIG, offline) {
+        message("SOAP server is disabled.") 
+    } else {
+        error("CASS online implies a running SOAP server.   Disable CONFIG+=noSoapServer.")
+    }
+} else {
+    DEFINES        += SOAPSERVER
+}
+
 # Extra stuff if compiling pp1000,pp1001
 hdf5 {
     INCLUDEPATH    += $$(HDF5DIR)/include

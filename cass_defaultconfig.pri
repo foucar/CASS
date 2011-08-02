@@ -26,6 +26,9 @@ CONFIG      += silent
 CONFIG      += static
 CONFIG      += staticlib
 
+# Unomment if you intent to run CASS in the LFS batch queue
+#CONFIG      += noSoapServer
+
 # Uncomment this if you want to read files instead of connecting to shared LCLS memory
 CONFIG      += offline
 
