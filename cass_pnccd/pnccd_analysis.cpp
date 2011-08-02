@@ -1630,6 +1630,8 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
  * 1024 -> 2047
  *    0 -> 1023
  *
+ * @author Mirko Scholz
+ *
  */
 bool cass::pnCCD::Analysis::readGainCTE(DetectorParameter &dp)
 {
@@ -1660,6 +1662,7 @@ bool cass::pnCCD::Analysis::readGainCTE(DetectorParameter &dp)
     std::cout<<" "<<i<<" "<<gain[i]<<" "<<cte[i]<<" "<<std::endl;
 #endif
   }
+  in_gain.close()
 
   double imin = 100, imax = 0;
   for (size_t i = 0; i < dp._gain_ao_CTE.size(); i++) 
