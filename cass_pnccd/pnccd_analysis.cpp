@@ -1387,7 +1387,7 @@ void cass::pnCCD::Analysis::operator()(cass::CASSEvent* cassevent)
 #ifdef OFFLINE
           advance(itGainCTE,-Num_pixel_per_line);
 #endif
-          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset)
+          for(size_t i_pixel=0;i_pixel<Num_pixel_per_line;++i_pixel,++itFrame,++itNoise,++itOffset,++itGainCTE)
           {
             const size_t this_pix_i= i_pixel+i_line*Num_pixel_per_line;
             // I should mask the ROIs...
