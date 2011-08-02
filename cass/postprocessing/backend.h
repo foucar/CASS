@@ -149,6 +149,9 @@ namespace cass
     /** retrieve the write flag of this postprocessor */
     bool write()const {return _write;}
 
+    /** retrieve the write summary flag of this postprocessor */
+    bool write_summary()const {return _write_summary;}
+
     /** retrieve the comment of this postprocessor */
     const std::string& comment()const {return _comment;}
 
@@ -189,6 +192,10 @@ namespace cass
      * @cassttng PostProcessor/\%name\%/{Write} \n
      *           Flag that will tell a dumper to write this postprocessor into
      *           the file. Default is true
+     * @cassttng PostProcessor/\%name\%/{WriteSummary} \n
+     *           Flag that will tell a dumper to write this postprocessor into
+     *           the summary. Useful for histograms that are only interesting
+     *           per run. Default is true
      * @cassttng PostProcessor/\%name\%/{Comment} \n
      *           A comment with a short description of what this postprocessor
      *           is doing. Will be added to the file, when its written.
@@ -233,6 +240,9 @@ namespace cass
 
     /** flag to tell whether to write this pp into file */
     bool _write;
+
+    /** flag to tell whether to write this pp into summary */
+    bool _write_summary;
 
     /** optional comment that one can add to a postprocessor.
      * Will be used when writing this pp to file.

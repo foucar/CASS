@@ -23,6 +23,7 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
   :_key(key),
    _hide(false),
    _write(true),
+   _write_summary(true),
    _result(0),
    _condition(0),
    _pp(pp),
@@ -163,6 +164,7 @@ void PostprocessorBackend::setupGeneral()
   settings.beginGroup(_key.c_str());
   _hide = settings.value("Hide",false).toBool();
   _write = settings.value("Write",true).toBool();
+  _write_summary = settings.value("WriteSummary",true).toBool();
   _comment = settings.value("Comment","").toString().toStdString();
 }
 

@@ -425,7 +425,7 @@ void cass::pp1001::aboutToQuit()
   for (;it != ppc.end(); ++it)
   {
     PostprocessorBackend &pp (*(it->second));
-    if (pp.write())
+    if (pp.write_summary())
     {
       hid_t ppgrouphandle (H5Gcreate1(grouphandle, pp.key().c_str(),0));
       const HistogramBackend &hist (pp.getHist(0));
