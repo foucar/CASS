@@ -6,6 +6,10 @@
 CASS_ROOT = ..
 include( $${CASS_ROOT}/cass_config.pri )
 
+CONFIG(offline) {
+    DEFINES        += OFFLINE
+}
+
 TARGET         = cass_pnccd
 TEMPLATE       = lib
 DESTDIR        = $${CASS_ROOT}/lib
