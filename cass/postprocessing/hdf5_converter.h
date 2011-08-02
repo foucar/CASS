@@ -71,6 +71,13 @@ namespace cass
 
     /** flag to tell whether to compress the data */
     bool _compress;
+
+    /** default behaviour */
+    bool _events_root_is_filehandle;
+
+    QReadWriteLock _calibGroupLock;
+
+    hid_t getGroupNameForCalibCycle(const cass::CASSEvent &);
   };
 }
 #endif

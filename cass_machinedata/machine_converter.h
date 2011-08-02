@@ -72,6 +72,8 @@ namespace cass
        *       epics values
        */
       MachineDataDevice _store;
+      double _pvControl;
+      std::string _pvControlName;
     };
   }//end namespace MachineData
 }//end namespace cass

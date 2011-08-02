@@ -66,6 +66,9 @@ namespace cass
     const char      *filename()const  {return _filename;}
     //@}
 
+  public:
+    std::string pvControl;
+
   private:
     /** id of the cassevent */
     uint64_t _id;

@@ -11,6 +11,8 @@
 #include "pdsdata/xtc/DetInfo.hh"
 #include "pdsdata/lusi/IpmFexV1.hh"
 #include "pdsdata/lusi/IpmFexConfigV2.hh"
+#include "pdsdata/control/ConfigV1.hh"
+#include "pdsdata/control/PVControl.hh"
 
 #include "cass_event.h"
 #include "machine_device.h"
@@ -51,6 +53,7 @@ Converter::Converter()
   _pdsTypeList.push_back(Pds::TypeId::Id_EvrData);
   _pdsTypeList.push_back(Pds::TypeId::Id_IpimbData);
   _pdsTypeList.push_back(Pds::TypeId::Id_IpmFex);
+  _pdsTypeList.push_back(Pds::TypeId::Id_ControlConfig);
 }
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
@@ -234,10 +237,25 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
   break;
 
+  case(Pds::TypeId::Id_ControlConfig):
+  {
+      const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload()); 
+      if (config.npvControls()>1) throw std::runtime_error("implement more than one control PV");
+      for (unsigned int i = 0; i < config.npvControls(); i++) 
+      {
+        const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
+        _pvControl = pvControlCur.value();
+        _pvControlName = pvControlCur.name();
+      }
+  }
+  break;
+
   default: break;
   }
   //copy the epics values in the storedevent to the machineevent
-  if (cassevent)
+  if (cassevent) {
     md->EpicsData() = _store.EpicsData();
+    md->BeamlineData()[_pvControlName] = _pvControl;
+  }
 
 }

@@ -57,6 +57,8 @@ namespace cass
     Q_OBJECT;
 
   public:
+    static const unsigned int pvNumMax = 2;
+
     /** Return a pointer to the single FormatConverter instance */
     static std::tr1::shared_ptr<FormatConverter> instance();
 
@@ -100,6 +102,11 @@ namespace cass
 
     /** Singleton operation locker in a multi-threaded environment.*/
     static QMutex _mutex;
+  private:
+    unsigned int _pvNum;
+    double _pvControlValue[pvNumMax];
+    std::string _pvControlName[pvNumMax];
+    std::stringstream *_pvSS;
   };
 
 }//end namespace cass

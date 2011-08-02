@@ -11,6 +11,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <sstream>
 //#include <fstream>
 
 #include <QtCore/QMutexLocker>
@@ -23,6 +24,7 @@
 #include "machine_device.h"
 #include "xtciterator.h"
 #include "pdsdata/xtc/Dgram.hh"
+#include "calibcycle.h"
 
 using namespace std;
 
@@ -86,7 +88,7 @@ std::tr1::shared_ptr<cass::FormatConverter> cass::FormatConverter::instance()
 
 
 cass::FormatConverter::FormatConverter()
-  :_configseen(false)
+  :_configseen(false), _pvSS(NULL)
 {
   //now load the converters, that the user want to use//
   loadSettings(0);
@@ -142,7 +144,8 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
   //if datagram is configuration or an event (L1Accept) then we will iterate through it//
   //otherwise we ignore the datagram//
   if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
-      (datagram->seq.service() == Pds::TransitionId::L1Accept))
+      (datagram->seq.service() == Pds::TransitionId::L1Accept) ||
+      (datagram->seq.service() == Pds::TransitionId::BeginCalibCycle))
   {
     //when it is a configuration transition then set the flag accordingly//
     if (datagram->seq.service() == Pds::TransitionId::Configure)
@@ -155,11 +158,27 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
       bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
       //put the id into the cassevent
       cassevent->id() = bunchId;
+      cassevent->pvControl = _pvSS->str();
+
       //when the datagram was an event we need to tell the caller//
       retval = GoodData;
       //clear the beamline data//
       dynamic_cast<MachineData::MachineDataDevice*>
           (cassevent->devices()[CASSEvent::MachineData])->clear();
+    }
+    else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle) 
+    {
+      std::cout << "BeginCalibCycle " ;
+      CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
+      retval = iter.iterate() && retval;
+      if (_pvSS) delete _pvSS;
+      _pvSS = new stringstream;
+      for (unsigned int i=0; i < _pvNum; i++) 
+      {
+        *_pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
+        if (!(i+1 == _pvNum)) *_pvSS << ",";
+      }
+      std::cout << _pvSS->str() << endl;
     }
 
     //iterate through the datagram and find the wanted information//

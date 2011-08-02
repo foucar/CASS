@@ -18,7 +18,7 @@
 
 namespace cass
 {
-  hid_t createGroupNameFromEventId(uint64_t eventid, hid_t filehandler)
+  hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
   {
     uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
     uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
@@ -32,7 +32,7 @@ namespace cass
     groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
     VERBOSEOUT(std::cout<<"createGroupNameFromEventId(): creating group: "<<groupname.str()
                <<std::endl);
-    return H5Gcreate1(filehandler, groupname.str().c_str(),0);
+    return H5Gcreate1(calibcycle, groupname.str().c_str(),0);
   }
 
   void writeAxisProperty(const AxisProperty& axis, hid_t groupid)
@@ -382,7 +382,8 @@ namespace cass
 cass::pp1001::pp1001(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key, const std::string& outfilename)
   :cass::PostprocessorBackend(pp,key),
    _outfilename(outfilename),
-   _filehandle(H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT))
+   _filehandle(H5Fcreate(_outfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT)),
+   _events_root_is_filehandle(false)
 {
   loadSettings(0);
 }
@@ -469,9 +470,37 @@ void cass::pp1001::aboutToQuit()
   H5Fclose(_filehandle);
 }
 
+hid_t cass::pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
+{
+  if (evt.pvControl.empty()) 
+  {
+    _events_root_is_filehandle = true;
+    VERBOSEOUT(std::cout<<"cass::pp1001::getGroupNameForCalibCycle(): default to root"<<std::endl);
+    return _filehandle;
+  }
+  else 
+  {
+    QWriteLocker locker(&_calibGroupLock);
+    htri_t result = H5Lexists(_filehandle, evt.pvControl.c_str(), 0);
+    if (result == TRUE)
+    {
+      VERBOSEOUT(std::cout<<"cass::pp1001::getGroupNameForCalibCycle(): open "<<evt.pvControl<<std::endl);
+      return H5Gopen1(_filehandle, evt.pvControl.c_str());
+    }
+    else if (result == FALSE)
+    {
+      VERBOSEOUT(std::cout<<"cass::pp1001::getGroupNameForCalibCycle(): create "<<evt.pvControl<<std::endl);
+      return H5Gcreate1(_filehandle, evt.pvControl.c_str(), 0);
+    }
+    else 
+      throw std::runtime_error("should not happen");
+  }
+}
+
 void cass::pp1001::process(const cass::CASSEvent &evt)
 {
-  hid_t eventgrouphandle (createGroupNameFromEventId(evt.id(),_filehandle));
+  hid_t calibcyclehandle (getGroupNameForCalibCycle(evt)); 
+  hid_t eventgrouphandle (createGroupNameFromEventId(evt.id(), calibcyclehandle));
   PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
   PostProcessors::postprocessors_t::iterator it (ppc.begin());
   for (;it != ppc.end(); ++it)
@@ -515,4 +544,5 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
     }
   }
   H5Gclose(eventgrouphandle);
+  if (!_events_root_is_filehandle) H5Gclose(calibcyclehandle);
 }

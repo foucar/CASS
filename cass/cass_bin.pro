@@ -124,6 +124,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       coalesce_simple.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
+                      calibcycle.cpp \
                       ./postprocessing/convenience_functions.cpp \
                       ./postprocessing/backend.cpp \
                       ./postprocessing/waveform.cpp \
@@ -175,6 +176,7 @@ HEADERS            += analysis_backend.h \
                       xtciterator.h \
                       cass_exceptions.h \
                       cass_settings.h \
+                      calibcycle.h \
                       ./postprocessing/convenience_functions.h \
                       ./postprocessing/postprocessor.h \
                       ./postprocessing/id_list.h \
@@ -214,7 +216,7 @@ DEPENDPATH         += ./postprocessing
 
 LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata -lipimbdata -llusidata\
+                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata\
                       -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
