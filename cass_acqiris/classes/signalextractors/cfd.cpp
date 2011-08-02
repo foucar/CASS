@@ -204,7 +204,7 @@ namespace cass
         instrument   = static_cast<Instruments>(s.value("AcqirisInstrument",Camp1).toInt());
         channelNbr   = s.value("ChannelNumber",0).toInt();
         p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
-        p._threshold = s.value("Threshold",0.05).toDouble();
+        p._threshold = fabs(s.value("Threshold",0.05).toDouble());
         p._delay     = s.value("Delay",5).toInt();
         p._fraction  = s.value("Fraction",0.6).toDouble();
         p._walk      = s.value("Walk",0.).toDouble();

@@ -184,7 +184,7 @@ namespace cass
         instrument   = static_cast<Instruments>(s.value("AcqirisInstrument",Camp1).toInt());
         channelNbr   = s.value("ChannelNumber",0).toInt();
         p._polarity  = static_cast<Polarity>(s.value("Polarity",Negative).toInt());
-        p._threshold = s.value("Threshold",0.05).toDouble();
+        p._threshold = fabs(s.value("Threshold",0.05).toDouble());
 //        std::cout <<" COM::loadSettings()"<<s.group().toStdString()<<": Threshold '"<< p._threshold <<"'"<<std::endl;
 				int size = s.beginReadArray("Timeranges");
 //        std::cout <<" COM::loadSettings(): Timeranges size '"<< size<<"'"<<std::endl;
