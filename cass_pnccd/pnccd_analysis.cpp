@@ -368,97 +368,9 @@ void cass::pnCCD::Analysis::loadSettings()
     std::ifstream in_gain(dp._gainfilename.c_str(), std::ios::ate);  //or std::ios::binary|
 
     std::cout<< printoutdef << "Trying to open file: "<<dp._gainfilename.c_str()<<std::endl;
-    if (in_gain.is_open() && !_param._isDarkframe)
+    if (!_param._isDarkframe && readGainCTE(dp))
     {
-      size_t size = in_gain.tellg() / 2 / sizeof(double);
-      // check that the size is reasonable
-      //this is clearly not possible if I have opened the file as ascii
-      size=pnCCD::default_size_sq;
-      if(size%(pnCCD::default_size)==0)
-      {
-        //go to the beginning of the file
-        in_gain.seekg(0,std::ios::beg);
-        //resize the vectors to the right size//
-        dp._gain_ao_CTE.resize(size);
-        dp._CTE=1;
-        //declare and set def here so that it is not overwritten within the loop
-        double gain_ith=1.;
-        //read the parameters stored in the file//
-        in_gain>>dp._CTE;
-
-        if(dp._useCTECorr) {
-
-          for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
-            size_t irow = i/pnCCD::default_size;
-            //bottom part of the detector
-            if(irow<pnCCD::default_size/2)
-              dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),irow+1);
-            //top part of the detector
-            else {
-              dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),pnCCD::default_size-irow);
-
-#ifdef debug_conf
-            if(irow>pnCCD::default_size-2)
-              std::cout << printoutdef << " cte map "
-                        << i << " " << irow << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
-#endif
-            }
-          }
-        }
-        else dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
-
-        if(dp._useGAINCorr) {
-          //bottom detector
-          for(size_t icol=0;icol< pnCCD::default_size ;icol++) {
-            //read once per half-column
-            in_gain>>gain_ith;
-#ifdef debug_conf
-            std::cout << printoutdef << " i-th gain "
-                      << icol << " " << gain_ith << std::endl;
-#endif
-            //do the mathematics to create the gain maps
-            //fill the value in "column wise and not row wise"
-            for (size_t jrow=0;jrow<pnCCD::default_size/2;jrow++)
-              dp._gain_ao_CTE[icol+jrow*pnCCD::default_size]*=gain_ith;
-          }
-
-          //top detector
-          for(int icol=pnCCD::default_size-1;icol>=0 ;icol--) {
-            //read once per half-column
-            in_gain>>gain_ith;
-#ifdef debug_conf
-            std::cout << printoutdef << " i-th gain "
-                      << icol << " " << gain_ith << std::endl;
-#endif
-            //do the mathematics to create the gain maps
-            for (size_t jrow=pnCCD::default_size/2;jrow<pnCCD::default_size;jrow++)
-              dp._gain_ao_CTE[static_cast<size_t>(icol)+jrow*(pnCCD::default_size)]*=gain_ith;
-          }
-        }
-#ifdef debug_conf
-        for(size_t i=0;i<pnCCD::default_size_sq;i++)
-          std::cout << printoutdef << " gain/cte map "
-                    << i << " " << i/pnCCD::default_size << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
-        //the next is an extra check...
-        for(size_t i=0;i<2*pnCCD::default_size;i++) {
-          std::cout << printoutdef << " extra gain map check "
-                    << i << " " ;
-          for(size_t j=0;j<pnCCD::default_size/2-1;j++)
-            std::cout << j << " ratio = " << dp._gain_ao_CTE[i]/dp._gain_ao_CTE[i+j*pnCCD::default_size] << " ";
-          std::cout << std::endl;
-        }
-#endif
-
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
-      }
-      else
-      {
-        //safe net in case there is no file yet
-        dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
-        std::cout << printoutdef << 
-          "I have been asked to use GAIN file not created for CASS:\n\t "
-                  <<dp._gainfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
-      }
     }
     else
     {
@@ -1684,3 +1596,112 @@ void cass::pnCCD::Analysis::rebin(cass::pnCCD::pnCCDDevice &dev,size_t iDet)
   std::copy(_tmp.begin(), _tmp.end(), f.begin());
 
 }
+
+/*
+ * read in HLL gain/CTE correction format 
+ * 
+ * the first four lines look like the following
+ *
+ * HE File containing gain and CTE values
+ * VERSION 3
+ * HE       #Column   Gain    CTE0
+ * GC          0          1   0.999977
+ * [...]
+ *
+ * column is related to the way the ccd is read out.  The ccd
+ * consists of four segments
+ *
+ * BC
+ * AD
+ *
+ * that are placed ABCD for the HLL file format with the
+ * following numbers
+ *
+ * 1023 <- 512    1535 <- 1024
+ * 
+ *    0 -> 512    1536 -> 2048
+ *
+ * The segments are read out bottom up for AD and 
+ * top down for BC (actually shifted to the corresponding edge).
+ *
+ * The memory representation is continuously
+ *
+ *  ...
+ * 1024 -> 2047
+ *    0 -> 1023
+ *
+ */
+bool cass::pnCCD::Analysis::readGainCTE(DetectorParameter &dp)
+{
+  std::ifstream in_gain(dp._gainfilename.c_str());
+  if (!in_gain.is_open()) return false;
+  char line[80];
+  in_gain.getline(line, 80);
+  if (strncmp(line, "HE File", 7)) throw std::runtime_error("Wrong file format: " + std::string(line));
+  in_gain.getline(line, 80);
+  if (strncmp(line, "VERSION 3", 9)) throw std::runtime_error("Wrong file format: " + std::string(line));
+  in_gain.getline(line, 80);
+  if (strncmp(line, "HE       #Column   Gain    CTE0", 31)) throw std::runtime_error("Wrong file format, 3");
+  //resize the vectors to the right size//
+  dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
+  std::vector<double> gain(2*pnCCD::default_size, 1.0);
+  std::vector<double> cte(2*pnCCD::default_size, 1.0);
+  
+  for (unsigned int i = 0; i < 2*pnCCD::default_size; i++) 
+  {
+    char g, c;
+    unsigned int col;
+    double gaini, ctei;
+    in_gain>>g>>c>>col>>gaini>>ctei;
+    if (dp._useGAINCorr) gain[col] = gaini;
+    if (dp._useCTECorr) cte[col] = ctei;
+    if ((g!='G')||(c!='C')) throw std::runtime_error("Wrong file format, expected GC");
+#if debug_conf
+    std::cout<<" "<<i<<" "<<gain[i]<<" "<<cte[i]<<" "<<std::endl;
+#endif
+  }
+
+  double imin = 100, imax = 0;
+  for (size_t i = 0; i < dp._gain_ao_CTE.size(); i++) 
+  {
+    size_t irow = i/pnCCD::default_size;
+    size_t icol = i - irow*pnCCD::default_size;
+    
+    if (irow < pnCCD::default_size/2) // bottom
+    {
+      if (icol < pnCCD::default_size/2) 
+      {
+        dp._gain_ao_CTE[i] = gain[icol] / pow(cte[icol], irow+1);
+      } 
+      else 
+      {
+        dp._gain_ao_CTE[i] = gain[1024+icol] / pow(cte[1024+icol], irow+1);
+      }
+    }
+    else // top
+    {
+      if (icol < pnCCD::default_size/2) 
+      {
+        dp._gain_ao_CTE[i] = gain[1023-icol] / pow(cte[1023-icol], pnCCD::default_size-irow);
+      } 
+      else 
+      {
+        dp._gain_ao_CTE[i] = gain[2047-icol] / pow(cte[2047-icol], pnCCD::default_size-irow);
+      }
+    }
+
+    if (dp._gain_ao_CTE[i] < imin) imin = dp._gain_ao_CTE[i];
+    else if (dp._gain_ao_CTE[i] > imax) imax = dp._gain_ao_CTE[i];
+#ifdef debug_conf
+    fprintf(cmap, "%6.4f ", static_cast<double>(dp._gain_ao_CTE[i]));
+    if ((i%pnCCD::default_size) == pnCCD::default_size - 1) fputc('\n', cmap);
+#endif
+  }
+#ifdef debug_conf
+  fclose(cmap);
+  std::cout<<"pnCCD written gain/cte map into pnCCD_correction.map"<<std::endl;
+#endif
+  std::cout<<"pnCCD gain/cte correction min "<<imin<<" max "<<imax<<std::endl;
+  return true;
+}
+

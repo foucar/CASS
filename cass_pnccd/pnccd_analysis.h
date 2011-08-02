@@ -136,7 +136,6 @@ namespace cass
       double          _max_noise;         //!< pixels with noise larger _max_noise than will be masked
       double          _sigmaMultiplier;   //!< how big is "above noise"
       double          _adu2eV;            //!< conversion from adu to eV
-      double          _CTE;               //!< single step Charge Transfer Efficiency
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
@@ -238,6 +237,7 @@ namespace cass
     private:
       void createOffsetAndNoiseMap(cass::pnCCD::pnCCDDevice&);
       void rebin(cass::pnCCD::pnCCDDevice&,size_t DetectorIndex);
+      bool readGainCTE(DetectorParameter &dp);
 
     private:
       QReadWriteLock              _RWlock;//!< a mutex to lock write operations but allow read
