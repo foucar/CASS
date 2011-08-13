@@ -42,6 +42,7 @@ namespace cass
    */
   class CASSSHARED_EXPORT MultiFileInput : public lmf::PausableThread
   {
+    Q_OBJECT
   public:
     /** constructor
      *
@@ -91,8 +92,14 @@ namespace cass
     /** flag to tell the thread to quit when its done with all files */
     bool _quitWhenDone;
 
-    /** name of the file containing all files that we need to process */
+    /** the name of the file that contains the list of file to process */
     std::string _filelistname;
+
+    /** flag that tells the input to rewind to the beginning of the eventlist */
+    bool _rewind;
+
+    /** the number of files with differnt kind of data */
+    uint32_t _nbrOfDifferentFiles;
   };
 
 }//end namespace cass

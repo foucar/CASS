@@ -14,7 +14,9 @@
 #include <iterator>
 #include <list>
 #include <vector>
+#include <map>
 #include <QtCore/qglobal.h>
+#include <stdint.h>
 
 
 #if defined(CASS_LIBRARY)
@@ -50,6 +52,8 @@ inline T square(const T& val) { return val * val; };
 
 namespace cass
 {
+  /** forwared declaration of a pointer that points to a specific location in a file */
+  class filepointer{};
   /** global variable to set the ring buffer size */
   const size_t RingBufferSize=32;
   /** global variable to set the number of worker threads */
@@ -64,6 +68,10 @@ namespace cass
   typedef std::vector<PixelDetector> detectors_t;
   /** known/supported Qt image formats */
   enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
+  /** map file extrension to the filepointer */
+  typedef std::map<std::string,filepointer> filetypes_t;
+  /** the list of events contained  in a file */
+  typedef std::map<uint64_t, filetypes_t> eventlist_t;
 }
 
 

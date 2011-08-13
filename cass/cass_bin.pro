@@ -110,6 +110,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       event_getter.cpp \
                       file_input.cpp \
                       file_reader.cpp \
+                      file_parser.cpp \
                       xtc_reader.cpp \
                       lma_reader.cpp \
                       multifile_input.cpp \
@@ -155,6 +156,7 @@ HEADERS            += analysis_backend.h \
                       daemon.h \
                       event_getter.h \
                       file_input.h \
+                      file_parser.h \
                       file_reader.h \
                       xtc_reader.h \
                       lma_reader.h \

@@ -17,6 +17,7 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
+#include "file_parser.h"
 
 using namespace std;
 using namespace cass;
@@ -71,26 +72,6 @@ vector<string> tokenize(std::ifstream &file)
   return lines;
 }
 
-/** retrieve the extension of a filename
- *
- * find the last occurence of '.' after which hopefully the extension comes
- *
- * @return string containing the extension
- * @param string containing the filename
- *
- * @author Lutz Foucar
- */
-string extension(const string &filename)
-{
-  if(filename.find_last_of(".") != std::string::npos)
-    return filename.substr(filename.find_last_of(".")+1);
-  else
-  {
-    stringstream ss;
-    ss <<"extension: the filename '"<<filename<<"' does not have a file extension.";
-    throw invalid_argument(ss.str());
-  }
-}
 }
 
 MultiFileInput::MultiFileInput(const string& filelistname,
@@ -101,7 +82,9 @@ MultiFileInput::MultiFileInput(const string& filelistname,
     _ringbuffer(ringbuffer),
     _quit(false),
     _quitWhenDone(quitWhenDone),
-    _filelistname(filelistname)
+    _filelistname(filelistname),
+    _rewind(false),
+    _nbrOfDifferentFiles(4)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
   loadSettings(0);
@@ -146,6 +129,9 @@ void MultiFileInput::end()
 
 void MultiFileInput::run()
 {
+  /** open the file containing the files to process, convert the contents to a
+   *  vector of filenames.
+   */
   VERBOSEOUT(cout<<"MultiFileInput::run(): try to open filelist '"
              <<_filelistname<<"'"<<endl);
   ifstream filelistfile(_filelistname.c_str());
@@ -156,50 +142,75 @@ void MultiFileInput::run()
     throw invalid_argument(ss.str());
   }
   vector<string> filelist(tokenize(filelistfile));
-  //go through all files in the list
+
+  /** create the resource and a lock for it that contains the pointers to the
+   *  places in the files where one finds the data that corresponds to a given
+   *  eventID.
+   */
+  eventlist_t eventlist;
+  QReadWriteLock lock;
+
+  /** iterate through the vector of filenames and for each filename create a
+   * file parser that will parse this file. Then put the fileparser in the
+   * container.
+   */
+  vector<FileParser::shared_pointer> parsercontainer;
   vector<string>::const_iterator filelistIt(filelist.begin());
   while (filelistIt != filelist.end())
   {
     if (_quit)
       break;
+
     string filename(*filelistIt++);
-    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
-    ifstream file(filename.c_str(), std::ios::binary | std::ios::in);
-    //if there was such a file then we want to load it
-    if (file.is_open())
-    {
-//      cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
-//      _read->newFile();
-//      while(!file.eof() && !_quit)
-//      {
-//        pausePoint();
-//        /** rewind if requested */
-//        if (_rewind)
-//        {
-//          /** reset the rewind flag */
-//          _rewind = false;
-//          filelistIt = filelist.begin();
-//          break;
-//        }
-//        /** retrieve a new element from the ringbuffer */
-//        CASSEvent *cassevent(0);
-//        _ringbuffer.nextToFill(cassevent);
-//        /** fill the cassevent object with the contents from the file */
-//        const bool isGood((*_read)(file,*cassevent));
-//        cassevent->setFilename(filelistIt->c_str());
-//        _ringbuffer.doneFilling(cassevent, isGood);
-//        emit newEventAdded();
-//      }
-//      file.close();
-    }
-    else
-      cout <<"FileInput::run(): could not open '"<<filename<<"'"<<endl;
+    FileParser::shared_pointer fileparser(FileParser::instance(filename,eventlist,lock));
+    fileparser->start();
+    parsercontainer.push_back(fileparser);
   }
-//  cout << "FileInput::run(): Finished with all files." <<endl;
-//  if(!_quitWhenDone)
-//    while(!_quit)
-//      this->sleep(1);
-//  cout << "FileInput::run(): closing the input"<<endl;
+
+  /** wait until all files are parsed */
+  vector<FileParser::shared_pointer>::iterator fileparseIt(parsercontainer.begin());
+  for (;fileparseIt!=parsercontainer.end();++fileparseIt)
+    (*fileparseIt)->wait();
+
+  /** Then iteratoe through the eventlist, read the contents of each file and
+   *  put it intothe cassvent. For each entry in the eventlist, check whether
+   *  all requested infos are present.
+   *  If the data for this eventid is complete, retrieve a CASSEvent from the
+   *  ringbuffer and use the file readers to retrieve the data from the file
+   *  and convert them into the CASSEvent.
+   */
+  eventlist_t::iterator eventlistIt(eventlist.begin());
+  while (eventlistIt != eventlist.end())
+  {
+    pausePoint();
+    if (_rewind)
+    {
+      eventlistIt = eventlist.begin();
+      continue;
+    }
+
+    uint64_t eventId(eventlistIt->first);
+    filetypes_t &filetypes(eventlistIt->second);
+
+    if (filetypes.size() != _nbrOfDifferentFiles)
+      continue;
+
+    CASSEvent *cassevent(0);
+    _ringbuffer.nextToFill(cassevent);
+    cassevent->id() = eventId;
+    cassevent->setFilename(filelistIt->c_str());
+    /** @todo read the data for this event id from the file pointers and put the
+     *        data into the CASSEvent
+     */
+    _ringbuffer.doneFilling(cassevent, true);
+    emit newEventAdded();
+  }
+
+  cout << "MultiFileInput::run(): Finished with all files." <<endl;
+  if(!_quitWhenDone)
+    while(!_quit)
+      this->sleep(1);
+  cout << "MultiFileInput::run(): closing the input"<<endl;
 }
 
 
