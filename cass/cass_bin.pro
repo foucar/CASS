@@ -112,6 +112,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       file_reader.cpp \
                       xtc_reader.cpp \
                       lma_reader.cpp \
+                      multifile_input.cpp \
                       format_converter.cpp \
                       histogram.cpp \
                       histogram_getter.cpp \
@@ -156,6 +157,7 @@ HEADERS            += analysis_backend.h \
                       file_reader.h \
                       xtc_reader.h \
                       lma_reader.h \
+                      multifile_input.h \
                       format_converter.h \
                       histogram.h \
                       histogram_getter.h \
@@ -280,6 +282,10 @@ cernroot {
 
 CONFIG(offline) {
     DEFINES        += OFFLINE RINGBUFFER_BLOCKING
+}
+
+CONFIG(multifileread) {
+    DEFINES        += MULTIFILE
 }
 
 lclslibs.path       = $$INSTALLBASE/lib

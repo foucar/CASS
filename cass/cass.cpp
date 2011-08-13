@@ -159,8 +159,12 @@ int main(int argc, char **argv)
                                                              index,
                                                              ringbuffer));
 #else
+#ifdef MULTIFILE
+
+#else
   // create file input object
   cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
+#endif
 #endif
 
   //create a ratemeter object for the input//
