@@ -76,7 +76,7 @@ MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                bool quitWhenDone,
                                QObject *parent)
-  :QThread(parent),
+  :PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
     _quit(false),
     _quitWhenDone(quitWhenDone),
@@ -118,36 +118,35 @@ void MultiFileInput::loadSettings(size_t /*what*/)
 
 void MultiFileInput::end()
 {
-  VERBOSEOUT(cout << "MultiFileInput::end(): got signal" <<endl);
+  VERBOSEOUT(cout << "MultiFileInput::end(): received end signal" <<endl);
   _quit=true;
 }
 
 
 void MultiFileInput::run()
 {
-//  VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
-//             <<_filelistname<<"'"
-//             <<endl);
-//  ifstream filelistfile(_filelistname.c_str());
-//  if (!filelistfile.is_open())
-//  {
-//    stringstream ss;
-//    ss <<"FileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
-//    throw invalid_argument(ss.str());
-//  }
-//  vector<string> filelist(tokenize(filelistfile));
-//  //go through all files in the list
-//  vector<string>::const_iterator filelistIt(filelist.begin());
-//  while (filelistIt != filelist.end())
-//  {
-//    if (_quit)
-//      break;
-//    string filename(*filelistIt++);
-//    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
-//    ifstream file(filename.c_str(), std::ios::binary | std::ios::in);
-//    //if there was such a file then we want to load it
-//    if (file.is_open())
-//    {
+  VERBOSEOUT(cout<<"MultiFileInput::run(): try to open filelist '"
+             <<_filelistname<<"'"<<endl);
+  ifstream filelistfile(_filelistname.c_str());
+  if (!filelistfile.is_open())
+  {
+    stringstream ss;
+    ss <<"FileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
+    throw invalid_argument(ss.str());
+  }
+  vector<string> filelist(tokenize(filelistfile));
+  //go through all files in the list
+  vector<string>::const_iterator filelistIt(filelist.begin());
+  while (filelistIt != filelist.end())
+  {
+    if (_quit)
+      break;
+    string filename(*filelistIt++);
+    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
+    ifstream file(filename.c_str(), std::ios::binary | std::ios::in);
+    //if there was such a file then we want to load it
+    if (file.is_open())
+    {
 //      cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
 //      _read->newFile();
 //      while(!file.eof() && !_quit)
@@ -171,10 +170,10 @@ void MultiFileInput::run()
 //        emit newEventAdded();
 //      }
 //      file.close();
-//    }
-//    else
-//      cout <<"FileInput::run(): could not open '"<<filename<<"'"<<endl;
-//  }
+    }
+    else
+      cout <<"FileInput::run(): could not open '"<<filename<<"'"<<endl;
+  }
 //  cout << "FileInput::run(): Finished with all files." <<endl;
 //  if(!_quitWhenDone)
 //    while(!_quit)

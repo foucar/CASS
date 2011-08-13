@@ -10,11 +10,9 @@
 #ifndef _MULTIFILEINPUT_H_
 #define _MULTIFILEINPUT_H_
 
-#include <QtCore/QObject>
-#include <QThread>
-#include <QMutex>
-
 #include <string>
+
+#include "pausablethread.h"
 
 #include "cass.h"
 #include "ringbuffer.h"
@@ -40,13 +38,10 @@ namespace cass
    * in the different files. The data is then converted to a CASSEvent and put
    * into the RingBuffer
    *
-   * @todo create a class that is a pausable thread and inherit from it.
-   *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT MultiFileInput : public QThread
+  class CASSSHARED_EXPORT MultiFileInput : public lmf::PausableThread
   {
-    Q_OBJECT;
   public:
     /** constructor
      *
