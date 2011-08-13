@@ -70,6 +70,27 @@ vector<string> tokenize(std::ifstream &file)
   }
   return lines;
 }
+
+/** retrieve the extension of a filename
+ *
+ * find the last occurence of '.' after which hopefully the extension comes
+ *
+ * @return string containing the extension
+ * @param string containing the filename
+ *
+ * @author Lutz Foucar
+ */
+string extension(const string &filename)
+{
+  if(filename.find_last_of(".") != std::string::npos)
+    return filename.substr(filename.find_last_of(".")+1);
+  else
+  {
+    stringstream ss;
+    ss <<"extension: the filename '"<<filename<<"' does not have a file extension.";
+    throw invalid_argument(ss.str());
+  }
+}
 }
 
 MultiFileInput::MultiFileInput(const string& filelistname,
