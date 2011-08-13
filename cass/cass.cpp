@@ -15,6 +15,7 @@
 #include "analyzer.h"
 #include "daemon.h"
 #include "file_input.h"
+#include "multifile_input.h"
 #include "format_converter.h"
 #include "ratemeter.h"
 #include "rate_plotter.h"
@@ -160,7 +161,7 @@ int main(int argc, char **argv)
                                                              ringbuffer));
 #else
 #ifdef MULTIFILE
-
+  cass::MultiFileInput *input(new cass::MultiFileInput(filelistname,ringbuffer,quitwhendone));
 #else
   // create file input object
   cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
