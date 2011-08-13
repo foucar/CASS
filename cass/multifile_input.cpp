@@ -58,7 +58,7 @@ vector<string> tokenize(std::ifstream &file)
       continue;
     }
     /* don't read lines containing ';' or '#' */
-    if(1 /** @todo find out how to see whether there is a ',' or '#' in the line */)
+    if(line.find(';') != string::npos || line.find('#') != string::npos)
     {
       continue;
     }
