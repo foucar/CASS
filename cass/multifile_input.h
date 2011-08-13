@@ -40,6 +40,8 @@ namespace cass
    * in the different files. The data is then converted to a CASSEvent and put
    * into the RingBuffer
    *
+   * @todo create a class that is a pausable thread and inherit from it.
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT MultiFileInput : public QThread
