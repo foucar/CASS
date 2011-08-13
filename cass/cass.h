@@ -15,6 +15,8 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <fstream>
+#include <tr1/memory>
 #include <QtCore/qglobal.h>
 #include <stdint.h>
 
@@ -47,13 +49,30 @@
  * @author Jochen Kuepper
  */
 template<typename T>
-inline T square(const T& val) { return val * val; };
+inline T square(const T& val) { return val * val; }
 
 
 namespace cass
 {
-  /** forwared declaration of a pointer that points to a specific location in a file */
-  class filepointer{};
+  /** A resource that will point at a specific location within a file */
+  struct filepointer
+  {
+    /** defining a shared poitner to the stream */
+    typedef std::tr1::shared_ptr<std::ifstream> filestream_t;
+
+    /** the position with the file */
+    int _pos;
+
+    /** the stream to the file */
+    filestream_t _filestream;
+
+    /** return a stream to the right position within the file */
+    filestream_t operator()()
+    {
+      _filestream->seekg(_pos);
+      return _filestream;
+    }
+  };
   /** global variable to set the ring buffer size */
   const size_t RingBufferSize=32;
   /** global variable to set the number of worker threads */
