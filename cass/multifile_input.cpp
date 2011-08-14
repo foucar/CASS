@@ -203,8 +203,10 @@ void MultiFileInput::run()
     filetypes_t::iterator filetypesIt(filetypes.begin());
     for (;filetypesIt != filetypes.end();++filetypesIt)
     {
-      FileReader &reader(*(_filereaders[filetypesIt->first]));
-      ifstream &filestream(filetypesIt->second.getStream());
+      const string ext(filetypesIt->first);
+      FilePointer &filepointer(filetypesIt->second);
+      FileReader &reader(*(_filereaders[ext]));
+      ifstream &filestream(filepointer.getStream());
       isGood = reader(filestream,*cassevent) && isGood;
     }
     _ringbuffer.doneFilling(cassevent, isGood);
