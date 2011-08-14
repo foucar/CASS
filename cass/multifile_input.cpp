@@ -192,6 +192,11 @@ void MultiFileInput::run()
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
 
+    /** @todo instead of uint we make a map here that we can fill with
+     *        filereaders for the requested extension, created in the
+     *        loadSettings part. Then we can compare the size of the map to
+     *        the size of the filetypes.
+     */
     if (filetypes.size() != _nbrOfDifferentFiles)
       continue;
 
