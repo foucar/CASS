@@ -55,7 +55,7 @@ inline T square(const T& val) { return val * val; }
 namespace cass
 {
   /** A resource that will point at a specific location within a file */
-  struct filepointer
+  struct FilePointer
   {
     /** defining a shared poitner to the stream */
     typedef std::tr1::shared_ptr<std::ifstream> filestream_t;
@@ -67,10 +67,10 @@ namespace cass
     filestream_t _filestream;
 
     /** return a stream to the right position within the file */
-    filestream_t operator()()
+    std::ifstream& getStream()
     {
       _filestream->seekg(_pos);
-      return _filestream;
+      return *_filestream.get();
     }
   };
   /** global variable to set the ring buffer size */
@@ -88,9 +88,9 @@ namespace cass
   /** known/supported Qt image formats */
   enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
   /** map file extrension to the filepointer */
-  typedef std::map<std::string,filepointer> filetypes_t;
+  typedef std::map<std::string,FilePointer> filetypes_t;
   /** the list of events contained  in a file */
-  typedef std::map<uint64_t, filetypes_t> eventlist_t;
+  typedef std::map<uint64_t, filetypes_t> eventmap_t;
 }
 
 
