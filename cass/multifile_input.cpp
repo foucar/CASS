@@ -147,7 +147,7 @@ void MultiFileInput::run()
    *  places in the files where one finds the data that corresponds to a given
    *  eventID.
    */
-  eventlist_t eventlist;
+  eventmap_t eventmap;
   QReadWriteLock lock;
 
   /** iterate through the vector of filenames and for each filename create a
@@ -162,7 +162,7 @@ void MultiFileInput::run()
       break;
 
     string filename(*filelistIt++);
-    FileParser::shared_pointer fileparser(FileParser::instance(filename,eventlist,lock));
+    FileParser::shared_pointer fileparser(FileParser::instance(filename,eventmap,lock));
     fileparser->start();
     parsercontainer.push_back(fileparser);
   }
@@ -172,25 +172,25 @@ void MultiFileInput::run()
   for (;fileparseIt!=parsercontainer.end();++fileparseIt)
     (*fileparseIt)->wait();
 
-  /** Then iteratoe through the eventlist, read the contents of each file and
+  /** Then iterator through the eventlist, read the contents of each file and
    *  put it intothe cassvent. For each entry in the eventlist, check whether
    *  all requested infos are present.
    *  If the data for this eventid is complete, retrieve a CASSEvent from the
    *  ringbuffer and use the file readers to retrieve the data from the file
    *  and convert them into the CASSEvent.
    */
-  eventlist_t::iterator eventlistIt(eventlist.begin());
-  while (eventlistIt != eventlist.end())
+  eventmap_t::iterator eventmapIt(eventmap.begin());
+  while (eventmapIt != eventmap.end())
   {
     pausePoint();
     if (_rewind)
     {
-      eventlistIt = eventlist.begin();
+      eventmapIt = eventmap.begin();
       continue;
     }
 
-    uint64_t eventId(eventlistIt->first);
-    filetypes_t &filetypes(eventlistIt->second);
+    uint64_t eventId(eventmapIt->first);
+    filetypes_t &filetypes(eventmapIt->second);
 
     if (filetypes.size() != _nbrOfDifferentFiles)
       continue;
