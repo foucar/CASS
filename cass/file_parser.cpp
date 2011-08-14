@@ -13,6 +13,7 @@
 
 using namespace cass;
 using namespace std;
+using namespace std::tr1;
 
 namespace cass
 {
@@ -41,19 +42,23 @@ string extension(const string &filename)
 }
 }
 
-FileParser::FileParser(eventlist_t &eventlist,
+FileParser::FileParser(const std::string &filename,
+                       eventmap_t &eventmap,
                        QReadWriteLock &lock)
   :QThread(),
-    _eventlist(eventlist),
+    _eventmap(eventmap),
     _lock(lock)
-{}
+{
+  _filepointer._filestream =
+      FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
+}
 
 FileParser::~FileParser()
 {
 }
 
 FileParser::shared_pointer FileParser::instance(const std::string &filename,
-                                                eventlist_t &eventlist,
+                                                eventmap_t &eventmap,
                                                 QReadWriteLock &lock)
 {
   shared_pointer ptr;

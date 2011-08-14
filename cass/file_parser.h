@@ -31,10 +31,12 @@ namespace cass
   public:
     /** constructor
      *
-     * @param eventlist reference to the eventlist map
+     * @param filename the file to parse
+     * @param eventmap reference to the map of events
      * @param lock reference to the protector of the eventlist map
      */
-    FileParser(eventlist_t &eventlist,
+    FileParser(const std::string &filename,
+               eventmap_t &eventmap,
                QReadWriteLock &lock);
 
     /** typedef the shared pointer of this */
@@ -51,22 +53,22 @@ namespace cass
      *
      * @return a shared pointer to the requested type
      * @param filename the file to parse
-     * @param eventlist reference to the eventlist map
+     * @param eventmap reference to the map of events
      * @param lock reference to the protector of the eventlist map
      */
     static shared_pointer instance(const std::string &filename,
-                                   eventlist_t &eventlist,
+                                   eventmap_t &eventmap,
                                    QReadWriteLock &lock);
 
   protected:
     /** reference to the map containing the beginnings of the event */
-    eventlist_t &_eventlist;
+    eventmap_t &_eventmap;
 
     /** Lock that protects the map */
     QReadWriteLock &_lock;
 
-    /** file stream to the file to parse */
-    std::ifstream _file;
+    /** the file pointer */
+    FilePointer _filepointer;
   };
 }
 #endif
