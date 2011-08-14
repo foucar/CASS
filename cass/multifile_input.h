@@ -17,6 +17,7 @@
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
+#include "file_reader.h"
 
 namespace cass
 {
@@ -99,7 +100,7 @@ namespace cass
     bool _rewind;
 
     /** the number of files with differnt kind of data */
-    uint32_t _nbrOfDifferentFiles;
+    std::map<std::string,FileReader::shared_pointer> _filereaders;
   };
 
 }//end namespace cass

@@ -83,8 +83,7 @@ MultiFileInput::MultiFileInput(const string& filelistname,
     _quit(false),
     _quitWhenDone(quitWhenDone),
     _filelistname(filelistname),
-    _rewind(false),
-    _nbrOfDifferentFiles(4)
+    _rewind(false)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
   loadSettings(0);
@@ -97,6 +96,8 @@ MultiFileInput::~MultiFileInput()
 
 void MultiFileInput::loadSettings(size_t /*what*/)
 {
+  /** @todo set up the map of file readers that the user requests.
+   */
 //  /** pause the thread if it is running */
 //  VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
 //             <<" before laoding settings"
@@ -191,23 +192,22 @@ void MultiFileInput::run()
 
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
-
-    /** @todo instead of uint we make a map here that we can fill with
-     *        filereaders for the requested extension, created in the
-     *        loadSettings part. Then we can compare the size of the map to
-     *        the size of the filetypes.
-     */
-    if (filetypes.size() != _nbrOfDifferentFiles)
+    if (filetypes.size() != _filereaders.size())
       continue;
 
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
     cassevent->id() = eventId;
     cassevent->setFilename(filelistIt->c_str());
-    /** @todo read the data for this event id from the file pointers and put the
-     *        data into the CASSEvent
-     */
-    _ringbuffer.doneFilling(cassevent, true);
+    bool isGood(true);
+    filetypes_t::iterator filetypesIt(filetypes.begin());
+    for (;filetypesIt != filetypes.end();++filetypesIt)
+    {
+      FileReader &reader(*(_filereaders[filetypesIt->first]));
+      ifstream &filestream(filetypesIt->second.getStream());
+      isGood = reader(filestream,*cassevent) && isGood;
+    }
+    _ringbuffer.doneFilling(cassevent, isGood);
     emit newEventAdded();
   }
 
