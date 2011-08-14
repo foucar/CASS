@@ -96,29 +96,23 @@ MultiFileInput::~MultiFileInput()
 
 void MultiFileInput::loadSettings(size_t /*what*/)
 {
+  /** pause the thread if it is running */
+  VERBOSEOUT(cout << "MultiFileInput:loadSettings: suspend"<<endl);
+  pause(true);
+  VERBOSEOUT(cout << "MultiFileInput:loadSettings: suspended."<<endl);
+  /** load the settings */
+  CASSSettings s;
+  s.beginGroup("MultiFileInput");
+  _rewind = s.value("Rewind",false).toBool();
   /** @todo set up the map of file readers that the user requests.
    */
-//  /** pause the thread if it is running */
-//  VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
-//             <<" before laoding settings"
-//             <<endl);
-//  if(isRunning())
-//    suspend();
-//  VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
-//      <<endl);
-//  CASSSettings s;
-//  s.beginGroup("FileInput");
-//  /** load the rewind info */
-//  _rewind = s.value("Rewind",false).toBool();
 //  /** load the right reader */
 //  _read = FileReader::instance(s.value("FileType","xtc").toString().toStdString());
 //  /** and load its settings */
 //  _read->loadSettings();
-//  /** then resume the thread */
-//  VERBOSEOUT(cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
-//      <<endl);
-//  resume();
-//  VERBOSEOUT(cout << "File Input: Load Settings: thread is resumed"<<endl);
+  VERBOSEOUT(cout << "MultiFileInput:loadSettings: Resuming Thread"<<endl);
+  resume();
+  VERBOSEOUT(cout << "MultiFileInput:loadSettings: resumed"<<endl);
 }
 
 void MultiFileInput::end()
