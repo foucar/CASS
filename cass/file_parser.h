@@ -61,6 +61,16 @@ namespace cass
                                    QReadWriteLock &lock);
 
   protected:
+    /** put current file position in the eventmap
+     *
+     * save the current position of the filestream in the filepointer and put
+     * a copy of the file pointer in the eventmap.
+     *
+     * @param eventId the event id that should be associated with this position
+     */
+    void savePos(uint64_t eventId);
+
+  protected:
     /** reference to the map containing the beginnings of the event */
     eventmap_t &_eventmap;
 
@@ -69,6 +79,9 @@ namespace cass
 
     /** the file pointer */
     FilePointer _filepointer;
+
+    /** the extension of the filename */
+    std::string _ext;
   };
 }
 #endif

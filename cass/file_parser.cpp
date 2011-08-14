@@ -47,7 +47,8 @@ FileParser::FileParser(const std::string &filename,
                        QReadWriteLock &lock)
   :QThread(),
     _eventmap(eventmap),
-    _lock(lock)
+    _lock(lock),
+    _ext(extension(filename))
 {
   _filepointer._filestream =
       FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
@@ -74,4 +75,11 @@ FileParser::shared_pointer FileParser::instance(const std::string &filename,
     throw invalid_argument(ss.str());
   }
   return ptr;
+}
+
+void FileParser::savePos(uint64_t eventId)
+{
+  _filepointer._pos = _filepointer._filestream->tellg();
+  QWriteLocker lock(&_lock);
+  _eventmap[eventId][_ext] = _filepointer;
 }
