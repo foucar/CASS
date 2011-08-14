@@ -39,6 +39,18 @@ namespace cass
    * in the different files. The data is then converted to a CASSEvent and put
    * into the RingBuffer
    *
+   * @cassttng MultiFileInput/{Rewind}\n
+   *           Tells the program to start over running over all files when true.
+   *           Default is false.
+   * @cassttng MultiFileInput/{FileTypes}\n
+   *           Comma separated list ist of File Types that are contained in the
+   *           "filestoprocess.txt" file. Needs to match exactly the number of
+   *           different files types that are present in the
+   *           "filestoprocess.txt" file
+   *           Possible values are:
+   *           - xtc: reads xtc files recorded at slac see XtcReader
+   *           - lma: reads lma files recorded by AGAT. see LmaReader
+   *
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT MultiFileInput : public lmf::PausableThread
@@ -70,6 +82,9 @@ namespace cass
     void end();
 
     /** load the parameters used for this thread
+     *
+     * pauses the thread then loads the settings of the MulitFileInput. Then
+     * loads the settings of all requested FileReaders. Then resumes the thread.
      *
      * @param what unused parameter
      */
