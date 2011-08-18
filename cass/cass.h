@@ -90,6 +90,24 @@ T retrieve(std::ifstream &file)
   file.read(reinterpret_cast<char*>(&var),sizeof(T));
   return var;
 }
+
+/** retrieve a variable from a file stream without extracting it
+ *
+ * leaves the file stream at the same position it was before
+ *
+ * @return the variable
+ * @tparam the type of the variable to retrieve
+ * @param file The file stream to retrieve the vairable from
+ */
+template <typename T>
+T peek(std::ifstream &file)
+{
+  T var;
+  std::streampos currentpos(file.tellg());
+  file.read(reinterpret_cast<char*>(&var),sizeof(T));
+  file.seekg(currentpos);
+  return var;
+}
 }//end namespace FileStreaming
 
 /** global variable to set the ring buffer size */
