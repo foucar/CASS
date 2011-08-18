@@ -10,9 +10,8 @@
 #ifndef _RAWSSSREADER_H_
 #define _RAWSSSREADER_H_
 
-#include <tr1/memory>
 #include <fstream>
-#include <string>
+#include <stdint.h>
 
 #include "file_reader.h"
 
@@ -46,7 +45,23 @@ namespace cass
      *
      * ignore this message
      */
-    void newFile(){}
+    void newFile() {_newFile=true;}
+
+  private:
+    /** flag to tell whether there is a new file */
+    bool _newFile;
+
+    /** height of images */
+    uint32_t _height;
+
+    /** width of images */
+    uint32_t _width;
+
+    /** Number of images in this file */
+    uint32_t _nimages;
+
+    /** counter to see how many images have been read from file */
+    uint32_t _imagecounter;
   };
 }
 #endif
