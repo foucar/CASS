@@ -166,6 +166,7 @@ HEADERS            += analysis_backend.h \
                       xtc_reader.h \
                       raw_sss_reader.h \
                       frms6_reader.h \
+                      lma_file_header.h \
                       lma_reader.h \
                       lma_parser.h \
                       raw_sss_parser.h \
