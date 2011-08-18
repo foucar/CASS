@@ -21,116 +21,100 @@ using namespace std;
 
 namespace cass
 {
-  namespace lmareader
-  {
-    /** retrieve a variable from a file stream
-     *
-     * @return the variable
-     * @tparam the type of the variable to retrieve
-     * @param file The file stream to retrieve the vairable from
-     */
-    template <typename T>
-    T retrieve(ifstream &file)
-    {
-      T var;
-      file.read(reinterpret_cast<char*>(&var),sizeof(T));
-      return var;
-    }
-  }
-  namespace lmaFile
-  {
+namespace lmaFile
+{
 #pragma pack(2)
-    /** the general file header
-     *
-     * @author Lutz Foucar
-     */
-    struct GeneralHeader
-    {
-      /** size of the Header in bytes */
-      int32_t headersize;
+/** the general file header
+ *
+ * @author Lutz Foucar
+ */
+struct GeneralHeader
+{
+  /** size of the Header in bytes */
+  int32_t headersize;
 
-      /** nbr of channels in the instrument */
-      int16_t nbrChannels;
+  /** nbr of channels in the instrument */
+  int16_t nbrChannels;
 
-      /** the size of the entries in the waveform in bits */
-      int16_t nbrBits;
+  /** the size of the entries in the waveform in bits */
+  int16_t nbrBits;
 
-      /** the sampling interval (the time between two datapoints in s */
-      double samplingInterval;
+  /** the sampling interval (the time between two datapoints in s */
+  double samplingInterval;
 
-      /** number of samples in the waveform */
-      int32_t nbrSamples;
+  /** number of samples in the waveform */
+  int32_t nbrSamples;
 
-      /** time between trigger and first sample */
-      double delayTime;
+  /** time between trigger and first sample */
+  double delayTime;
 
-      /** the triggering channel */
-      int16_t triggerChannel;
+  /** the triggering channel */
+  int16_t triggerChannel;
 
-      /** triggering level of the trigger in V */
-      double triggerLevel;
+  /** triggering level of the trigger in V */
+  double triggerLevel;
 
-      /** on which slope the instruments triggers on */
-      int16_t triggerSlope;
+  /** on which slope the instruments triggers on */
+  int16_t triggerSlope;
 
-      /** bitmask describing which channels are recorded */
-      int32_t usedChannelBitmask;
+  /** bitmask describing which channels are recorded */
+  int32_t usedChannelBitmask;
 
-      /** bitmask describing which channels are combined */
-      int32_t channelCombinationBitmask;
+  /** bitmask describing which channels are combined */
+  int32_t channelCombinationBitmask;
 
-      /** how many converters are being used per channel */
-      int16_t nbrConvertersPerChan;
-    };
+  /** how many converters are being used per channel */
+  int16_t nbrConvertersPerChan;
+};
 
-    /** the header of an recorded channel
-     *
-     * @author Lutz Foucar
-     */
-    struct ChannelHeader
-    {
-      /** the full scale of the channel in mV */
-      int16_t fullscale_mV;
+/** the header of an recorded channel
+ *
+ * @author Lutz Foucar
+ */
+struct ChannelHeader
+{
+  /** the full scale of the channel in mV */
+  int16_t fullscale_mV;
 
-      /** the offset of the channel in mV */
-      int16_t offset_mV;
+  /** the offset of the channel in mV */
+  int16_t offset_mV;
 
-      /** the vertical Gain (conversion factor to convert the bits to mV) */
-      double gain_mVperLSB;
+  /** the vertical Gain (conversion factor to convert the bits to mV) */
+  double gain_mVperLSB;
 
-      /** baseline that was used for zero substraction in digitizer units */
-      int16_t baseline;
+  /** baseline that was used for zero substraction in digitizer units */
+  int16_t baseline;
 
-      /** noiselevel for zero substraction in digitizer units
-       *
-       * the zero substaction will check whether a value of the recorded waveform
-       * is outside the noiselevel. Mathematically:
-       * \f \left| value_Du - baseline \right| > noiselevel \f
-       */
-      int16_t noiseLevel;
+  /** noiselevel for zero substraction in digitizer units
+   *
+   * the zero substaction will check whether a value of the recorded waveform
+   * is outside the noiselevel. Mathematically:
+   * \f \left| value_Du - baseline \right| > noiselevel \f
+   */
+  int16_t noiseLevel;
 
-      /** stepsize in sample interval units
-       *
-       * after finding a waveform value thats outside the noiselevel this is the
-       * amount of values skipped before checking whether the wavefrom is in the
-       * noiselevel again.
-       */
-      int32_t stepsize;
+  /** stepsize in sample interval units
+   *
+   * after finding a waveform value thats outside the noiselevel this is the
+   * amount of values skipped before checking whether the wavefrom is in the
+   * noiselevel again.
+   */
+  int32_t stepsize;
 
-      /** backsize of the zerosubstraction in sample interval units
-       *
-       * how many steps we should go back after a value is outside the noiselevel
-       * to start recording the wavefrom values
-       *
-       * puls of waveform outside noise := puls;
-       * waveform index first value outside noise := puls[i]
-       * puls.begin = puls[i-backsize]
-       */
-      int32_t backsize;
-    };
-  }
+  /** backsize of the zerosubstraction in sample interval units
+   *
+   * how many steps we should go back after a value is outside the noiselevel
+   * to start recording the wavefrom values
+   *
+   * puls of waveform outside noise := puls;
+   * waveform index first value outside noise := puls[i]
+   * puls.begin = puls[i-backsize]
+   */
+  int32_t backsize;
+};
+} //end namespace lmafile
 #pragma pack()
-  }
+} //end namespace cass
 
 LmaReader::LmaReader()
   :_newFile(true)
@@ -150,24 +134,24 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
     file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
     const lmaFile::GeneralHeader &header
         (*reinterpret_cast<lmaFile::GeneralHeader*>(&headerarray.front()));
-//    size_t headersizebytes(lmareader::retrieve<int32_t>(file));
-//    int16_t nbrChannels(lmareader::retrieve<int16_t>(file));
-//    int16_t nbrBits(lmareader::retrieve<int16_t>(file));
-//    double sampInter(lmareader::retrieve<double>(file));
-//    int32_t nbrSamples(lmareader::retrieve<int32_t>(file));
-//    double delayTime(lmareader::retrieve<double>(file));
-//    int16_t triggerChannel(lmareader::retrieve<int16_t>(file));
-//    double triggerLevel(lmareader::retrieve<double>(file));
-//    int16_t triggerSlope(lmareader::retrieve<int16_t>(file));
-//    _usedChannelBitmask = static_cast<uint32_t>(lmareader::retrieve<int32_t>(file));
-//    int32_t channelCombinationBitmask(lmareader::retrieve<int32_t>(file));
-//    int16_t nbrConvertersPerChan(lmareader::retrieve<int16_t>(file));
+    //    size_t headersizebytes(FileStreaming::retrieve<int32_t>(file));
+    //    int16_t nbrChannels(FileStreaming::retrieve<int16_t>(file));
+    //    int16_t nbrBits(FileStreaming::retrieve<int16_t>(file));
+    //    double sampInter(FileStreaming::retrieve<double>(file));
+    //    int32_t nbrSamples(FileStreaming::retrieve<int32_t>(file));
+    //    double delayTime(FileStreaming::retrieve<double>(file));
+    //    int16_t triggerChannel(FileStreaming::retrieve<int16_t>(file));
+    //    double triggerLevel(FileStreaming::retrieve<double>(file));
+    //    int16_t triggerSlope(FileStreaming::retrieve<int16_t>(file));
+    //    _usedChannelBitmask = static_cast<uint32_t>(FileStreaming::retrieve<int32_t>(file));
+    //    int32_t channelCombinationBitmask(FileStreaming::retrieve<int32_t>(file));
+    //    int16_t nbrConvertersPerChan(FileStreaming::retrieve<int16_t>(file));
 
     if (header.nbrBits != 16)
     {
       stringstream ss;
       ss<<"LmaReader(): The lma file seems to contain 8-bit wavefroms '"<<header.nbrBits
-          <<"'. Currently this is not supported.";
+       <<"'. Currently this is not supported.";
       throw runtime_error(ss.str());
     }
     _instrument.channels().resize(header.nbrChannels);
@@ -187,14 +171,14 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
         const lmaFile::ChannelHeader &chanheader
             (*reinterpret_cast<lmaFile::ChannelHeader*>(&chanheaderarray.front()));
 
-//        int16_t fullscale_mV(lmareader::retrieve<int16_t>(file));
-//        int16_t offset_mV(lmareader::retrieve<int16_t>(file));
-//        //the vertical Gain (conversion factor to convert the bits to mV)
-//        double gain_mVperLSB(lmareader::retrieve<double>(file));
-//        int16_t baseline(lmareader::retrieve<int16_t>(file));
-//        int16_t noiseLevel(lmareader::retrieve<int16_t>(file));
-//        int32_t stepsize(lmareader::retrieve<int32_t>(file));
-//        int32_t backsize(lmareader::retrieve<int32_t>(file));
+        //        int16_t fullscale_mV(FileStreaming::retrieve<int16_t>(file));
+        //        int16_t offset_mV(FileStreaming::retrieve<int16_t>(file));
+        //        //the vertical Gain (conversion factor to convert the bits to mV)
+        //        double gain_mVperLSB(FileStreaming::retrieve<double>(file));
+        //        int16_t baseline(FileStreaming::retrieve<int16_t>(file));
+        //        int16_t noiseLevel(FileStreaming::retrieve<int16_t>(file));
+        //        int32_t stepsize(FileStreaming::retrieve<int32_t>(file));
+        //        int32_t backsize(FileStreaming::retrieve<int32_t>(file));
 
         chan.offset() = chanheader.offset_mV*1e-3;
         chan.gain() = chanheader.gain_mVperLSB*1e-3;
@@ -213,8 +197,8 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
   Instrument::channels_t &channels(instr.channels());
 
   /** read the acqiris data from the file */
-  evt.id() = (lmareader::retrieve<int32_t>(file));
-  double horpos(lmareader::retrieve<double>(file));
+  evt.id() = (FileStreaming::retrieve<int32_t>(file));
+  double horpos(FileStreaming::retrieve<double>(file));
 
   for (size_t i=0; i<channels.size();++i)
   {
@@ -228,12 +212,12 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
        *  wavefrom sinpplets called pulses and put them at the right position in
        *  the wavefrom of the channel.
        */
-      int16_t nbrPulses(lmareader::retrieve<int16_t>(file));
+      int16_t nbrPulses(FileStreaming::retrieve<int16_t>(file));
       for (int16_t i(0); i < nbrPulses; ++i)
       {
         /** read the puls properties from file */
-        int32_t wavefromOffset(lmareader::retrieve<int32_t>(file));
-        int32_t pulslength(lmareader::retrieve<int32_t>(file));
+        int32_t wavefromOffset(FileStreaming::retrieve<int32_t>(file));
+        int32_t pulslength(FileStreaming::retrieve<int32_t>(file));
         size_t dataSize(pulslength * 2);
         file.read(reinterpret_cast<char*>(&(*(waveform.begin()+wavefromOffset))),
                   dataSize);
