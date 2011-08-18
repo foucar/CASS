@@ -116,6 +116,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       frms6_reader.cpp \
                       lma_reader.cpp \
                       lma_parser.cpp \
+                      raw_sss_parser.cpp \
                       multifile_input.cpp \
                       pausablethread.cpp \
                       format_converter.cpp \
@@ -166,6 +167,7 @@ HEADERS            += analysis_backend.h \
                       frms6_reader.h \
                       lma_reader.h \
                       lma_parser.h \
+                      raw_sss_parser.h \
                       multifile_input.h \
                       pausablethread.h \
                       format_converter.h \
