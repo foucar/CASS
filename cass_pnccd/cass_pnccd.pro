@@ -1,7 +1,7 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
 # Copyright (C) 2009 Nils Kimmel
 # Copyright (C) 2009 Nicola Coppola
-# Copyright (C) 2009, 2010 Lutz Foucar
+# Copyright (C) 2009, 2010 ,2011 Lutz Foucar
 
 CASS_ROOT = ..
 include( $${CASS_ROOT}/cass_config.pri )
@@ -23,6 +23,7 @@ DEPENDPATH    += ../cass
 
 SOURCES       += pnccd_analysis.cpp \
                  pnccd_converter.cpp \
+                 pnccd_analysis_new.cpp
 
 HEADERS       += ../cass/analysis_backend.h \
                  ../cass/cass_settings.h \
@@ -31,6 +32,7 @@ HEADERS       += ../cass/analysis_backend.h \
                  ../cass/serializer.h \
                  ../cass/pixel_detector.h \
                  pnccd_analysis.h \
+                 pnccd_analysis_new.h \
                  pnccd_converter.h \
                  cass_pnccd.h \
                  pnccd_device.h \
