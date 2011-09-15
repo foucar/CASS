@@ -119,6 +119,10 @@ namespace cass
      *  @cassttng
      *  GAINCalibrationFileName\n
      *       It contains the name of the files where GAIN calibrations will be taken out.\n
+     *  @cassttng
+     *  useHLLFormatGainCTEReader\n
+     *       Use Mirkos Parser for the CTE Gain File from HLL. Default is false
+     *       which case Nicolas Parser will be used.\n
      *  @author Nicola Coppola
      *
      */
@@ -136,6 +140,7 @@ namespace cass
       double          _max_noise;         //!< pixels with noise larger _max_noise than will be masked
       double          _sigmaMultiplier;   //!< how big is "above noise"
       double          _adu2eV;            //!< conversion from adu to eV
+      double          _CTE;               //!< single step Charge Transfer Efficiency
       bool            _createPixellist;   //!< flag to switch pixellist on / off
       bool            _doOffsetCorrection;//!< flag to switch offsetcorrection on / off
       bool            _useCommonMode;     //!< flag to switch a common mode subtraction scheme
@@ -153,6 +158,9 @@ namespace cass
       cass::ROI::ROImask_t _ROImask_converter;
       cass::ROI::ROIiterator_t _ROIiterator;//!< The ROI iterators
       cass::ROI::ROIiterator_t _ROIiterator_converter;
+
+      /** use Mirkos HLL Format reader */
+      bool _useHLLFormatGainCTEReader;
     };
 
     /** parameters of the pnccd analysis

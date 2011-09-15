@@ -1,3 +1,4 @@
+// Copyright (C) 2011 Mirko Scholz
 // Copyright (C) 2009 Jochen Küpper
 // Copyright (C) 2009 Nils Kimmel
 // Copyright (C) 2009, 2010 Lutz Foucar
@@ -80,6 +81,11 @@ void cass::pnCCD::Parameter::loadDetectorParameter(size_t idx)
     if(dp._useGAINCorr) std::cout<< printoutdef 
                                    << "GAIN Correction will be applied for detector "<<idx<<std::endl;
     else std::cout<< printoutdef << "GAIN Correction will NOT be applied for detector "<<idx<<std::endl;
+
+    dp._useHLLFormatGainCTEReader = value("useHLLFormatGainCTEReader",false).toBool();
+    if(dp._useHLLFormatGainCTEReader) std::cout<< printoutdef
+                                   << "Mirkos parser for the gain files will be used for detector "<<idx<<std::endl;
+    else std::cout<< printoutdef << "Nicolas parser for the gain files will be used for detector "<<idx<<std::endl;
 
     dp._gainfilename =
       value("GAINCalibrationFileName",QString("gaincal_%1.cal").arg(idx)).toString().toStdString();
@@ -365,38 +371,133 @@ void cass::pnCCD::Analysis::loadSettings()
       }
     }
 
-    std::ifstream in_gain(dp._gainfilename.c_str(), std::ios::ate);  //or std::ios::binary|
-
-    std::cout<< printoutdef << "Trying to open file: "<<dp._gainfilename.c_str()<<std::endl;
-    if (!_param._isDarkframe && readGainCTE(dp))
+    if (dp._useHLLFormatGainCTEReader)
     {
+      if (!_param._isDarkframe && readGainCTE(dp))
         std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
     }
     else
     {
-      std::cout<< printoutdef << "Not able to open file "<<dp._gainfilename.c_str()<<std::endl;
-      if(_param._isDarkframe) std::cout<< printoutdef << "but this is a Darkframe run"<<std::endl;
-      else
+      std::ifstream in_gain(dp._gainfilename.c_str(), std::ios::ate);  //or std::ios::binary|
+
+      std::cout<< printoutdef << "Trying to open file: "<<dp._gainfilename.c_str()<<std::endl;
+      if (in_gain.is_open() && !_param._isDarkframe)
       {
-        std::cout<< printoutdef << "and this is NOT a Darkframe run"<<std::endl;
-        if(!dp._useCTECorr || dp._useGAINCorr)
+        size_t size = in_gain.tellg() / 2 / sizeof(double);
+        // check that the size is reasonable
+        //this is clearly not possible if I have opened the file as ascii
+        size=pnCCD::default_size_sq;
+        if(size%(pnCCD::default_size)==0)
         {
-          std::cout<< printoutdef << "I am not going to apply GAIN corrections anyway"<<std::endl;
-          //safe net in case there is no file yet and I do not want to make offset-corrections
-          dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
-          //resetting the gain map
-          dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
+          //go to the beginning of the file
+          in_gain.seekg(0,std::ios::beg);
+          //resize the vectors to the right size//
+          dp._gain_ao_CTE.resize(size);
+          dp._CTE=1;
+          //declare and set def here so that it is not overwritten within the loop
+          double gain_ith=1.;
+          //read the parameters stored in the file//
+          in_gain>>dp._CTE;
+
+          if(dp._useCTECorr) {
+
+            for(size_t i=0;i<dp._gain_ao_CTE.size();i++) {
+              size_t irow = i/pnCCD::default_size;
+              //bottom part of the detector
+              if(irow<pnCCD::default_size/2)
+                dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),irow+1);
+              //top part of the detector
+              else {
+                dp._gain_ao_CTE[i]=pow(static_cast<double>(dp._CTE),pnCCD::default_size-irow);
+
+#ifdef debug_conf
+                if(irow>pnCCD::default_size-2)
+                  std::cout << printoutdef << " cte map "
+                            << i << " " << irow << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
+#endif
+              }
+            }
+          }
+          else dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
+
+          if(dp._useGAINCorr) {
+            //bottom detector
+            for(size_t icol=0;icol< pnCCD::default_size ;icol++) {
+              //read once per half-column
+              in_gain>>gain_ith;
+#ifdef debug_conf
+              std::cout << printoutdef << " i-th gain "
+                        << icol << " " << gain_ith << std::endl;
+#endif
+              //do the mathematics to create the gain maps
+              //fill the value in "column wise and not row wise"
+              for (size_t jrow=0;jrow<pnCCD::default_size/2;jrow++)
+                dp._gain_ao_CTE[icol+jrow*pnCCD::default_size]*=gain_ith;
+            }
+
+            //top detector
+            for(int icol=pnCCD::default_size-1;icol>=0 ;icol--) {
+              //read once per half-column
+              in_gain>>gain_ith;
+#ifdef debug_conf
+              std::cout << printoutdef << " i-th gain "
+                        << icol << " " << gain_ith << std::endl;
+#endif
+              //do the mathematics to create the gain maps
+              for (size_t jrow=pnCCD::default_size/2;jrow<pnCCD::default_size;jrow++)
+                dp._gain_ao_CTE[static_cast<size_t>(icol)+jrow*(pnCCD::default_size)]*=gain_ith;
+            }
+          }
+#ifdef debug_conf
+          for(size_t i=0;i<pnCCD::default_size_sq;i++)
+            std::cout << printoutdef << " gain/cte map "
+                      << i << " " << i/pnCCD::default_size << " " << dp._CTE << " " << dp._gain_ao_CTE[i] << std::endl;
+          //the next is an extra check...
+          for(size_t i=0;i<2*pnCCD::default_size;i++) {
+            std::cout << printoutdef << " extra gain map check "
+                      << i << " " ;
+            for(size_t j=0;j<pnCCD::default_size/2-1;j++)
+              std::cout << j << " ratio = " << dp._gain_ao_CTE[i]/dp._gain_ao_CTE[i+j*pnCCD::default_size] << " ";
+            std::cout << std::endl;
+          }
+#endif
+
+          std::cout<< printoutdef << "GAIN maps loaded for det# "<<iDet <<std::endl;
         }
         else
         {
-          //I should not get here
-          throw std::runtime_error(
-          QString("I have been asked to GAIN correct the frames, but there is no GAIN file named:\n\t "
-                  ).arg(dp._gainfilename.c_str()).toStdString());
+          //safe net in case there is no file yet
+          dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
+          std::cout << printoutdef <<
+                       "I have been asked to use GAIN file not created for CASS:\n\t "
+                    <<dp._gainfilename.c_str() << "\n\t\t I am refusing to use it"<< std::endl;
+        }
+      }
+      else
+      {
+        std::cout<< printoutdef << "Not able to open file "<<dp._gainfilename.c_str()<<std::endl;
+        if(_param._isDarkframe) std::cout<< printoutdef << "but this is a Darkframe run"<<std::endl;
+        else
+        {
+          std::cout<< printoutdef << "and this is NOT a Darkframe run"<<std::endl;
+          if(!dp._useCTECorr || dp._useGAINCorr)
+          {
+            std::cout<< printoutdef << "I am not going to apply GAIN corrections anyway"<<std::endl;
+            //safe net in case there is no file yet and I do not want to make offset-corrections
+            dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
+            //resetting the gain map
+            dp._gain_ao_CTE.assign(dp._gain_ao_CTE.size(),1.);
+          }
+          else
+          {
+            //I should not get here
+            throw std::runtime_error(
+                  QString("I have been asked to GAIN correct the frames, but there is no GAIN file named:\n\t "
+                          ).arg(dp._gainfilename.c_str()).toStdString());
+          }
         }
       }
     }
-
     //in case this is a Dark-Run
     if(_param._isDarkframe)
     {
