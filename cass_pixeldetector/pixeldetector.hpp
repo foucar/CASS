@@ -14,11 +14,9 @@
 #include <iostream>
 #include <vector>
 #include <stdint.h>
-#include "cass.h"
 #include "serializer.h"
-#include "analysis_backend.h"
-#include "cass_settings.h"
 #include "serializable.h"
+#include "device_backend.h"
 
 namespace cass
 {
@@ -205,6 +203,15 @@ private:
 
   /** filename of the file containing the timing info of the sequenzer  (pnCCD specific)*/
   std::string _timingFilename;
+};
+
+/** the device containing pixel detector data
+ *
+ * @author Lutz Foucar
+ */
+class Device :public cass::DeviceBackend
+{
+
 };
 
 }
