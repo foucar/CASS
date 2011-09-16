@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file pixel_detector_new.h file more advanced pixeldetectors
+ * @file advanced_pixeldetector.h file more advanced pixeldetectors
  *
  * @author Lutz Foucar
  */
@@ -9,17 +9,17 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "pixel_detector_new.h"
+#include "advanced_pixeldetector.h"
 
 #include "coalescing_base.h"
 #include "cass_settings.h"
 #include "cass_event.h"
-#include "pixeldetector_device.h"
 
 using namespace cass;
+using namespace pixeldetector;
 using namespace std;
 
-const PixelDetectorContainer::hitlist_t& PixelDetectorContainer::hits()
+const AdvancedDetector::hits_t& AdvancedDetector::hits()
 {
   if (!_hitListCreated)
   {
@@ -30,7 +30,7 @@ const PixelDetectorContainer::hitlist_t& PixelDetectorContainer::hits()
   return _hits;
 }
 
-void PixelDetectorContainer::associate(const CASSEvent &evt)
+void AdvancedDetector::associate(const CASSEvent &evt)
 {
   CASSEvent::Device device (static_cast<CASSEvent::Device>(_device));
   if (evt.devices().find(device) == evt.devices().end())
@@ -54,7 +54,7 @@ void PixelDetectorContainer::associate(const CASSEvent &evt)
   _hitListCreated = false;
 }
 
-void PixelDetectorContainer::loadSettings(CASSSettings &s)
+void AdvancedDetector::loadSettings(CASSSettings &s)
 {
   s.beginGroup(QString::fromStdString(_name));
   _device = s.value("Device",0).toUInt();

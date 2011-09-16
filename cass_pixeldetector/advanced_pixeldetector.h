@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file pixel_detector_new.h advanced pixeldetectors
+ * @file advanced_pixeldetector.h advanced pixeldetectors
  *
  * @author Lutz Foucar
  */
@@ -11,15 +11,21 @@
 
 #include <tr1/memory>
 
+#include "pixeldetector.hpp"
+
 namespace cass
 {
-  //forward declaration
-  class CoalescingBase;
-  class CASSSettings;
-  class CASSEvent;
+namespace pixeldetector
+{
+//forward declaration
+class CoalescingBase;
+class CASSSettings;
+class CASSEvent;
+class FrameAnalyzerBase;
+class FrameExtractorBase;
 
 
-  /** An Advanced Pixel Detector
+/** An Advanced Pixel Detector
    *
    * This class describes a pixel detector which has all the opertors to analyse
    * and extract the additional information internally.
@@ -39,72 +45,84 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class AdvancedPixelDetector
-  {
-  public:
-    /** define the list of coalesced pixels */
-    typedef std::vector<PixelDetectorHit> hitlist_t;
-    /** constructor
-     *
-     * @param name the name of this container
-     */
-    AdvancedPixelDetector(const std::string &name)
-      : _hitListCreated(false),
-        _name(name)
-    {}
+class AdvancedDetector
+{
+public:
+  /** define the list of coalesced pixels */
+  typedef std::vector<Hit> hits_t;
 
-    /** associate the container with a Pixel Detector
-     *
-     * @param evt Pointer to the CASSEvent that contains the PixelDetector that
-     *            this container is responsible for.
-     */
-    void associate(const CASSEvent &evt);
+  typedef std::vector<Pixel> pixels_t;
 
-    /** retrieve reference to the managed pixeldetector */
-    const PixelDetector &pixelDetector() {return *_pixeldetector;}
+  /** constructor
+   *
+   * @param name the name of this detector
+   */
+  AdvancedDetector(const std::string &name)
+    : _frameExtracted(false),
+      _pixellistCreated(false),
+      _hitListCreated(false),
+      _name(name)
+  {}
 
-    /** retrieve the coalesced pixel list */
-    const hitlist_t& hits();
+  /** associate the detector with a simple Pixel Detector within a CASSEvent
+   *
+   * @param evt Pointer to the CASSEvent that contains the PixelDetector that
+   *            this container is responsible for.
+   */
+  void associate(const CASSEvent &evt);
 
-    /** load the settings of this
-     *
-     * @param s the CASSSettings object to read the information from
-     */
-    void loadSettings(CASSSettings &s);
+  /** load the settings of this
+   *
+   * @param s the CASSSettings object to read the information from
+   */
+  void loadSettings(CASSSettings &s);
 
-    /** retrieve the pixellist */
-    PixelDetector::pixelList_t& pixellist() {return _pixelslist;}
+  /** retrieve the frame */
+  const Detector::frame_t& frame();
 
-  private:
-    /** pointer to the pixel detector we manage */
-    const PixelDetector *_pixeldetector;
+  /** retrieve the pixellist */
+  const pixels_t& pixellist();
 
-    /** pixellist
-     *
-     * this is a copy of cass::PixelDetector::_pixelslist
-     */
-    PixelDetector::pixelList_t _pixelslist;
+  /** retrieve the hits */
+  const hits_t& hits();
 
-    /** hits on the detector
-     *
-     * a hit on the detector can be split among several pixels.
-     */
-    hitlist_t _hits;
 
-    /** flag whehter hit list has been created already */
-    bool _hitListCreated;
 
-    /** functor that will do the coalescing */
-    std::tr1::shared_ptr<CoalescingBase> _coalesce;
+private:
+  /** the frame of the detector */
+  Detector::frame_t _frame;
 
-    /** the name of this container */
-    std::string _name;
+  /** flag to tell whether the frame has been extracted already */
+  bool _frameExtracted;
 
-    /** CCD detector that contains the requested image */
-    size_t _detector;
+  /** functor to extract the frame from the CASSEvent */
+  std::tr1::shared_ptr<FrameExtractorBase> _extract;
 
-    /** device the ccd image comes from */
-    int32_t _device;
-  };
+  /** the list of pixels */
+  pixels_t _pixels;
+
+  /** flag to tell whether the pixel list has been created */
+  bool _pixellistCreated;
+
+  /** functor to extract the pixel list */
+  std::tr1::shared_ptr<FrameAnalyzerBase> _analyze;
+
+  /** hits on the detector */
+  hits_t _hits;
+
+  /** flag whether hit list has been created already */
+  bool _hitListCreated;
+
+  /** functor that will do the coalescing */
+  std::tr1::shared_ptr<CoalescingBase> _coalesce;
+
+  /** the name of this detector */
+  std::string _name;
+
+  /** device that contains the right pixel detector */
+  int32_t _device;
+};
+
+}
 }
 #endif
