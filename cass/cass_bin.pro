@@ -188,10 +188,6 @@ HEADERS            += analysis_backend.h \
                       soapStub.h \
                       tcpserver.h \
                       worker.h \
-                      pixel_detector.h \
-                      pixel_detector_container.h \
-                      coalescing_base.h \
-                      coalesce_simple.h \
                       xtciterator.h \
                       cass_exceptions.h \
                       cass_settings.h \
@@ -231,11 +227,12 @@ INCLUDEPATH        += postprocessing \
                       ../cass_ccd \
                       ../cass_pnccd \
                       ../cass_machinedata \
+                      ../cass_pixeldetector \
                       $$PWD/../LCLS
 
 DEPENDPATH         += ./postprocessing
 
-LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata \
+LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata -lcass_pixeldetector\
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
                       -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata\
                       -lgsoap++ -lgsoap

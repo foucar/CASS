@@ -17,19 +17,19 @@ DEPENDPATH    += ../cass
 SOURCES       += \
                  coalesce_simple.cpp \
                  coalescing_base.cpp \
-                 pixel_detector_new.cpp \
-                 pixel_detector.cpp
+                 pixeldetector_mask.cpp \
+                 advanced_pixeldetector.cpp
 
 HEADERS       += \
                  ../cass/cass_settings.h \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
-                 pixel_detector.h \
                  coalesce_simple.h \
                  coalescing_base.h \
-                 pixel_detector_new.h \
-                 pixel_detector.h
+                 pixeldetector_mask.h \
+                 pixeldetector.hpp \
+                 advanced_pixeldetector.h
 
 headers.files  = $$HEADERS
 target.path    = $$INSTALLBASE/lib

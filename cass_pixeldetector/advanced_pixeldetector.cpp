@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file pixel_detector_container.h file container for pixeldetectors
+ * @file pixel_detector_new.h file more advanced pixeldetectors
  *
  * @author Lutz Foucar
  */
@@ -9,13 +9,12 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "pixel_detector_container.h"
+#include "pixel_detector_new.h"
 
 #include "coalescing_base.h"
 #include "cass_settings.h"
 #include "cass_event.h"
-#include "ccd_device.h"
-#include "pnccd_device.h"
+#include "pixeldetector_device.h"
 
 using namespace cass;
 using namespace std;

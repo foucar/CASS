@@ -11,13 +11,11 @@
 
 #include <tr1/memory>
 
-#include "pixel_detector_container.h"
 
 namespace cass
 {
   //forward declaration//
   class CASSSettings;
-  class PixelDetectorContainer;
 
   /** base class for all coalescing functors
    *
@@ -30,7 +28,7 @@ namespace cass
     typedef std::tr1::shared_ptr<CoalescingBase> shared_pointer;
 
     /** redefine the coalesced pixels list for shorter code */
-    typedef PixelDetectorContainer::hitlist_t hitlist_t;
+    typedef  hitlist_t;
 
     /** virtual destructor */
     virtual ~CoalescingBase() {}

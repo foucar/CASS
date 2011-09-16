@@ -1,17 +1,15 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file pixel_detector_container.h file container for pixeldetectors
+ * @file pixel_detector_new.h advanced pixeldetectors
  *
  * @author Lutz Foucar
  */
 
-#ifndef _PIXELDETECTORCONTAINER_H_
-#define _PIXELDETECTORCONTAINER_H_
+#ifndef _PIXELDETECTORNEW_H_
+#define _PIXELDETECTORNEW_H_
 
 #include <tr1/memory>
-
-#include "pixel_detector.h"
 
 namespace cass
 {
@@ -20,48 +18,11 @@ namespace cass
   class CASSSettings;
   class CASSEvent;
 
-  /** A Hit on a pixel detector.
-   *
-   * This class defines a hit on a pixel detector.
-   *
-   * @author Lutz Foucar
-   */
-  class PixelDetectorHit
-  {
-  public:
-    /** default constructor.*/
-    PixelDetectorHit()
-      :_x(0),_y(0),_z(0),_nbrPixels(0)
-    {}
 
-  public:
-    //@{
-    /** setter */
-    float    &x()         {return _x;}
-    float    &y()         {return _y;}
-    pixel_t  &z()         {return _z;}
-    size_t   &nbrPixels() {return _nbrPixels;}
-    //@}
-    //@{
-    /** getter */
-    float     x()const          {return _x;}
-    float     y()const          {return _y;}
-    pixel_t   z()const          {return _z;}
-    size_t    nbrPixels()const  {return _nbrPixels;}
-    //@}
-
-  private:
-    float    _x;          //!< x coordinate of the pixel
-    float    _y;          //!< y coordinate of the pixel
-    pixel_t  _z;          //!< the pixel value
-    size_t   _nbrPixels;  //!< how many pixels in the frame belong to this hit.
-  };
-
-  /** PixelDetector Wrapper
+  /** An Advanced Pixel Detector
    *
-   * This class contains a pointer to a pixel detector and extents the a regular
-   * pixel detector by a coalesced pixel list. The coalesced pixel list will
-   * be created with the help of the _coalesce functor
+   * This class describes a pixel detector which has all the opertors to analyse
+   * and extract the additional information internally.
    *
    * @cassttng PixelDetectors/\%name\%/{Device}\n
    *           The device that contains the ccd image.Default is 0. Options are:
@@ -78,7 +39,7 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class PixelDetectorContainer
+  class AdvancedPixelDetector
   {
   public:
     /** define the list of coalesced pixels */
@@ -87,7 +48,7 @@ namespace cass
      *
      * @param name the name of this container
      */
-    PixelDetectorContainer(const std::string &name)
+    AdvancedPixelDetector(const std::string &name)
       : _hitListCreated(false),
         _name(name)
     {}

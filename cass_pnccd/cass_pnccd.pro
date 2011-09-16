@@ -23,14 +23,13 @@ DEPENDPATH    += ../cass
 
 SOURCES       += pnccd_analysis.cpp \
                  pnccd_converter.cpp \
-                 pnccd_analysis_new.cpp
 
 HEADERS       += ../cass/analysis_backend.h \
                  ../cass/cass_settings.h \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
-                 ../cass/pixel_detector.h \
+                 ../cass_pixel_detector/pixel_detector.h \
                  pnccd_analysis.h \
                  pnccd_analysis_new.h \
                  pnccd_converter.h \
