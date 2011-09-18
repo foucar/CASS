@@ -15,9 +15,9 @@ INCLUDEPATH   += ../cass ../LCLS
 DEPENDPATH    += ../cass
 
 SOURCES       += \
-                 coalesce_simple.cpp \
-                 coalescing_base.cpp \
-                 pixeldetector_mask.cpp \
+#                 coalesce_simple.cpp \
+#                 coalescing_base.cpp \
+#                 pixeldetector_mask.cpp \
                  advanced_pixeldetector.cpp
 
 HEADERS       += \
