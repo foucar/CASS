@@ -12,6 +12,7 @@
 #include <tr1/memory>
 
 #include "pixeldetector.hpp"
+#include "cass_pixeldetector.h"
 
 namespace cass
 {
