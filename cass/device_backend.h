@@ -15,6 +15,7 @@ namespace cass
    * All devices need to be serializable, therefore this class
    * inerhits from serializable.
    *
+   * @todo make deserialization errors not propagate with bool but with exceptions
    * @author Lutz Foucar
    */
   class CASSSHARED_EXPORT DeviceBackend : public cass::Serializable
