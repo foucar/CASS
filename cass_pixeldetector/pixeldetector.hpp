@@ -29,9 +29,8 @@ namespace pixeldetector
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT Pixel
+struct Pixel
 {
-public:
   /** constructor
      *
      * @param X the x coordinate of the pixel
@@ -47,23 +46,6 @@ public:
     :_x(0),_y(0),_z(0),_used(false)
   {}
 
-public:
-  //@{
-  /** setter */
-  uint16_t &x()       {return _x;}
-  uint16_t &y()       {return _y;}
-  pixel_t  &z()       {return _z;}
-  uint32_t     &isUsed()  {return _used;}
-  //@}
-  //@{
-  /** getter */
-  uint16_t  x()const  {return _x;}
-  uint16_t  y()const  {return _y;}
-  pixel_t   z()const  {return _z;}
-  uint32_t      isUsed()const {return _used;}
-  //@}
-
-private:
   /** x coordinate of the pixel */
   uint16_t _x;
 
@@ -84,31 +66,13 @@ private:
  *
  * @author Lutz Foucar
  */
-class Hit
+struct Hit
 {
-public:
   /** default constructor.*/
   Hit()
     :_x(0),_y(0),_z(0),_nbrPixels(0)
   {}
 
-public:
-  //@{
-  /** setter */
-  float    &x()         {return _x;}
-  float    &y()         {return _y;}
-  pixel_t  &z()         {return _z;}
-  size_t   &nbrPixels() {return _nbrPixels;}
-  //@}
-  //@{
-  /** getter */
-  float     x()const          {return _x;}
-  float     y()const          {return _y;}
-  pixel_t   z()const          {return _z;}
-  size_t    nbrPixels()const  {return _nbrPixels;}
-  //@}
-
-private:
   /** the x coordinate of hit */
   float _x;
 
