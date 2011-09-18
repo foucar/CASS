@@ -197,10 +197,10 @@ public:
 
 public:
   /** instrument setter*/
-  detectors_t &detectors() {return &_detectors;}
+  detectors_t &dets() {return _detectors;}
 
   /** instrument getter*/
-  const detectors_t &detectors()const {return &_detectors;}
+  const detectors_t &dets()const {return _detectors;}
 
   /** serialize the data to the Serializer
    *
