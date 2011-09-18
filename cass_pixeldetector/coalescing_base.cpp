@@ -14,6 +14,7 @@
 #include "coalesce_simple.h"
 
 using namespace cass;
+using namespace pixeldetector;
 using namespace std;
 using namespace std::tr1;
 
