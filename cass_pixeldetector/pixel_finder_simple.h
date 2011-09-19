@@ -15,6 +15,16 @@ namespace cass
 {
 namespace pixeldetector
 {
+/** simple algorithm to find pixels of interest
+ *
+ * the algorithm is taken from Per Johnsons code and is just put into a functor.
+ *
+ * @cassttng PixelDetectors/\%name\%/SimpleFinder/{Threshold}\n
+ *           The threshold above which the pixels have to be. Default is 0.
+ *
+ * @author Per Johnson
+ * @author Lutz Foucar
+ */
 class PixelFinderSimple : public PixelFinderBase
 {
 public:
@@ -24,7 +34,11 @@ public:
   /** find the pixels
    *
    * take the input frame and search it for pixels which are put into the
-   * list of pixels.
+   * list of pixels.\n
+   * Go through the whole frame and check wether a pixel is above the
+   * threshold. If so then check whether the sourrounding pixels all have
+   * a smaller value. If this is the case and the pixel is not at the edge of
+   * the frame add the pixel to the list of pixels
    *
    * @return reference to the coalesced pixel list
    * @param frame the frame containing the pixels of interest
@@ -38,6 +52,9 @@ public:
    */
   void loadSettings(CASSSettings &s);
 
+private:
+  /** the threshold above which the pixels have to be */
+  pixel_t _threshold;
 };
 }//end namespace pixeldetector
 }//end namespace cass
