@@ -35,9 +35,9 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
   return _instances[detector];
 }
 
-CommonData::CommonData(const instancesmap_t::key_type& detname)
+CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
 {}
 
-void CommonData::loadSettings(CASSSettings &s)
+void CommonData::loadSettings(CASSSettings &/*s*/)
 {
 }
