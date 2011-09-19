@@ -23,7 +23,7 @@ class CASSEvent;
 namespace pixeldetector
 {
 //forward declaration
-struct CommonData;
+class CommonData;
 class FrameProcessorBase;
 class PixelExtractorBase;
 class CoalescingBase;
