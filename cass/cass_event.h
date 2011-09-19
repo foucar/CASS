@@ -38,7 +38,7 @@ namespace cass
 
   public:
     /** known devices */
-    enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC};
+    enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC,PixelDetectors};
 
     /** mapping from device type to handler instance */
     typedef std::map<Device, DeviceBackend*> devices_t;
