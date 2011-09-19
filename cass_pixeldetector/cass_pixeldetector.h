@@ -35,25 +35,25 @@ struct Pixel
      * @param Z the value of the pixel
      */
   Pixel(uint16_t X, uint16_t Y, pixel_t Z)
-    :_x(X),_y(Y),_z(Z),_used(false)
+    :x(X),y(Y),z(Z),used(false)
   {}
 
   /** default constructor.*/
   Pixel()
-    :_x(0),_y(0),_z(0),_used(false)
+    :x(0),y(0),z(0),used(0)
   {}
 
   /** x coordinate of the pixel */
-  uint16_t _x;
+  uint16_t x;
 
   /** x coordinate of the pixel */
-  uint16_t _y;  //!< y coordinate of the pixel
+  uint16_t y;  //!< y coordinate of the pixel
 
   /** x coordinate of the pixel */
-  pixel_t _z;  //!< the pixel value
+  pixel_t z;  //!< the pixel value
 
   /** value to mark pixel any analysis of the pixels */
-  uint32_t _used;
+  uint32_t used;
 };
 
 /** A Hit on a pixel detector.
@@ -67,20 +67,20 @@ struct Hit
 {
   /** default constructor.*/
   Hit()
-    :_x(0),_y(0),_z(0),_nbrPixels(0)
+    :x(0),y(0),z(0),nbrPixels(0)
   {}
 
   /** the x coordinate of hit */
-  float _x;
+  float x;
 
   /** the x coordinate of hit */
-  float _y;
+  float y;
 
   /** the value of the hit */
-  uint64_t _z;
+  uint64_t z;
 
   /** number of pixels that this hit consists of */
-  size_t   _nbrPixels;
+  size_t nbrPixels;
 };
 
 }//end namespace pixeldetector
