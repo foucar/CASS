@@ -47,42 +47,42 @@ struct Frame
 };
 
 /** An Advanced Pixel Detector
-   *
-   * This class describes a pixel detector which has all the opertors to analyse
-   * and extract the additional information internally.
-   *
-   * @cassttng PixelDetectors/\%name\%/{Detector}\n
-   *           The detector that contains the ccd image. Default is 0. Options are:
-   *           - 0: Front pnCCD
-   *           - 1: Rear pnCCD
-   *           - 2: 1st commercial CCD
-   *           - 3: 2nd commercial CCD
-   *           - 4: 3rd commercial CCD
-   * @cassttng PixelDetectors/\%name\%/{FrameProcessorType}\n
-   *           Functor for processing the frame. Default is "none". Options are:
-   *           - "none": No processing is done to the frame, just the raw frame
-   *                     will be returned
-   *           - "hll": The type of processing that the semiconductor lab applies
-   *                    to their frame data. see cass::pixeldetector::HLLProcessor
-   * @cassttng PixelDetectors/\%name\%/{PixelFinderType}\n
-   *           Functor for finding pixels of interest in the frame. The pixels
-   *           will be found after the frame processor has processed the frame.
-   *           Default is "aboveNoise". Options are:
-   *           - "aboveNoise": uses the noise map
-   *                           (see cass::pixeldetector::CommonData) to check
-   *                           whether a pixel is of interest. See
-   *                           cass::pixeldetector::AboveNoiseFinder
-   *           - "simple": checks whether a pixel value is higher than the
-   *                       pixelvalues of the neighbours.
-   *                       See cass::pixeldetector::PixelFinderSimple
-   * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
-   *           Functor to coalesce the pixels into hits. Default is "simple".
-   *           Options are:
-   *           - "simple": simple coalescing with basic checks.
-   *                       See cass::pixeldetector::SimpleCoalesce.
-   *
-   * @author Lutz Foucar
-   */
+ *
+ * This class describes a pixel detector which has all the opertors to analyse
+ * and extract the additional information internally.
+ *
+ * @cassttng PixelDetectors/\%name\%/{Detector}\n
+ *           The detector that contains the ccd image. Default is 0. Options are:
+ *           - 0: Front pnCCD
+ *           - 1: Rear pnCCD
+ *           - 2: 1st commercial CCD
+ *           - 3: 2nd commercial CCD
+ *           - 4: 3rd commercial CCD
+ * @cassttng PixelDetectors/\%name\%/{FrameProcessorType}\n
+ *           Functor for processing the frame. Default is "none". Options are:
+ *           - "none": No processing is done to the frame, just the raw frame
+ *                     will be returned
+ *           - "hll": The type of processing that the semiconductor lab applies
+ *                    to their frame data. see cass::pixeldetector::HLLProcessor
+ * @cassttng PixelDetectors/\%name\%/{PixelFinderType}\n
+ *           Functor for finding pixels of interest in the frame. The pixels
+ *           will be found after the frame processor has processed the frame.
+ *           Default is "aboveNoise". Options are:
+ *           - "aboveNoise": uses the noise map
+ *                           (see cass::pixeldetector::CommonData) to check
+ *                           whether a pixel is of interest. See
+ *                           cass::pixeldetector::AboveNoiseFinder
+ *           - "simple": checks whether a pixel value is higher than the
+ *                       pixelvalues of the neighbours.
+ *                       See cass::pixeldetector::PixelFinderSimple
+ * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
+ *           Functor to coalesce the pixels into hits. Default is "simple".
+ *           Options are:
+ *           - "simple": simple coalescing with basic checks.
+ *                       See cass::pixeldetector::SimpleCoalesce.
+ *
+ * @author Lutz Foucar
+ */
 class AdvancedDetector
 {
 public:
