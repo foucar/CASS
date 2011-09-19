@@ -43,7 +43,7 @@ struct Frame
   uint16_t rows;
 
   /** the frame data */
-  Detector::frame_t data;
+  frame_t data;
 };
 
 /** An Advanced Pixel Detector
@@ -102,7 +102,7 @@ public:
   const Frame& frame();
 
   /** retrieve the pixellist */
-  const pixels_t& pixellist();
+  const pixels_t& pixels();
 
   /** retrieve the hits */
   const hits_t& hits();

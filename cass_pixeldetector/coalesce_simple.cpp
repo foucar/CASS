@@ -219,7 +219,7 @@ bool shouldCoalescePixel(const CoalescingBase::pixels_t &splitpixelslist,
   CoalescingBase::pixels_t::const_iterator pixel(splitpixelslist.begin());
   const size_t framewidth(frame.columns);
   const size_t frameheight(frame.rows);
-  const Detector::frame_t &data(frame.data);
+  const frame_t &data(frame.data);
   for (; pixel != splitpixelslist.end(); ++pixel)
   {
     if (pixel->z > mipThreshold)
