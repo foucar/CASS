@@ -24,6 +24,8 @@ const Frame& AdvancedDetector::frame()
   if(!_frameExtracted)
   {
     /** @todo correct frame here */
+    FrameProcessorBase &process(*_process);
+    process(_frame);
     _frameExtracted = true;
   }
   return _frame;
@@ -34,6 +36,10 @@ const AdvancedDetector::pixels_t& AdvancedDetector::pixels()
   if(!_pixellistCreated)
   {
     /** @todo create pixel list here */
+    PixelExtractorBase &extract(*_extract);
+    //make sure the frame is processed
+    frame();
+    extract(_frame,_pixels);
     _pixellistCreated = true;
   }
   return _pixels;
@@ -71,7 +77,9 @@ void AdvancedDetector::associate(const CASSEvent &evt)
     throw invalid_argument(ss.str());
   }
   const Detector &det(dev.dets().find(_detector)->second);
-  /** @todo copy info from cassevent to this container */
+  _frame.columns = det.columns();
+  _frame.rows = det.rows();
+  _frame.data = det.frame();
   _frameExtracted = false;
   _pixels.clear();
   _pixellistCreated = false;

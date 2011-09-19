@@ -24,9 +24,9 @@ namespace pixeldetector
 {
 //forward declaration
 struct CommonData;
+class FrameProcessorBase;
+class PixelExtractorBase;
 class CoalescingBase;
-class FrameAnalyzerBase;
-class FrameExtractorBase;
 
 /** A Frame of an advance Pixel Detector
  *
@@ -51,14 +51,13 @@ struct Frame
    * This class describes a pixel detector which has all the opertors to analyse
    * and extract the additional information internally.
    *
-   * @cassttng PixelDetectors/\%name\%/{Device}\n
-   *           The device that contains the ccd image.Default is 0. Options are:
-   *           - 0: pnCCD
-   *           - 2: Commercial CCD
    * @cassttng PixelDetectors/\%name\%/{Detector}\n
    *           The detector that contains the ccd image. Default is 0. Options are:
-   *           - 0: Front pnCCD / Commercial CCD
+   *           - 0: Front pnCCD
    *           - 1: Rear pnCCD
+   *           - 2: 1st commercial CCD
+   *           - 3: 2nd commercial CCD
+   *           - 4: 3rd commercial CCD
    * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
    *           Functor to coalesce the pixels into hits. Default is "simple". Options are:
    *           - "simple": simple coalescing with basic checks.
@@ -120,7 +119,7 @@ private:
   bool _frameExtracted;
 
   /** functor to extract the frame from the CASSEvent */
-  std::tr1::shared_ptr<FrameExtractorBase> _extract;
+  std::tr1::shared_ptr<FrameProcessorBase> _process;
 
   /** the list of pixels */
   pixels_t _pixels;
@@ -129,7 +128,7 @@ private:
   bool _pixellistCreated;
 
   /** functor to extract the pixel list */
-  std::tr1::shared_ptr<FrameAnalyzerBase> _analyze;
+  std::tr1::shared_ptr<PixelExtractorBase> _extract;
 
   /** hits on the detector */
   hits_t _hits;
