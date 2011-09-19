@@ -58,10 +58,28 @@ struct Frame
    *           - 2: 1st commercial CCD
    *           - 3: 2nd commercial CCD
    *           - 4: 3rd commercial CCD
+   * @cassttng PixelDetectors/\%name\%/{FrameProcessorType}\n
+   *           Functor for processing the frame. Default is "none". Options are:
+   *           - "none": No processing is done to the frame, just the raw frame
+   *                     will be returned
+   *           - "hll": The type of processing that the semiconductor lab applies
+   *                    to their frame data. see cass::pixeldetector::HLLProcess
+   * @cassttng PixelDetectors/\%name\%/{PixelFinderType}\n
+   *           Functor for finding pixels of interest in the frame. The pixels
+   *           will be found after the frame processor has processed the frame.
+   *           Default is "aboveNoise". Options are:
+   *           - "aboveNoise": uses the noise map
+   *                           (see cass::pixeldetector::CommonData) to check
+   *                           whether a pixel is of interest. See
+   *                           cass::pixeldetector::AboveNoise
+   *           - "pixfind": checks whether a pixel value is higher than the
+   *                        pixelvalues of the neighbours.
+   *                        See cass::pixeldetector::PixelFind
    * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
-   *           Functor to coalesce the pixels into hits. Default is "simple". Options are:
+   *           Functor to coalesce the pixels into hits. Default is "simple".
+   *           Options are:
    *           - "simple": simple coalescing with basic checks.
-   *                       See cass::SimpleCoalesce.
+   *                       See cass::pixeldetector::SimpleCoalesce.
    *
    * @author Lutz Foucar
    */
@@ -77,12 +95,7 @@ public:
    *
    * @param name the name of this detector
    */
-  AdvancedDetector(const std::string &name)
-    : _frameExtracted(false),
-      _pixellistCreated(false),
-      _hitListCreated(false),
-      _name(name)
-  {}
+  AdvancedDetector(const std::string &name);
 
   /** associate the detector with a simple Pixel Detector within a CASSEvent
    *

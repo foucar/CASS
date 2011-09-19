@@ -19,6 +19,15 @@ using namespace cass;
 using namespace pixeldetector;
 using namespace std;
 
+
+AdvancedDetector::AdvancedDetector(const std::string &name)
+  : _common(CommonData::instance(name)),
+    _frameExtracted(false),
+    _pixellistCreated(false),
+    _hitListCreated(false),
+    _name(name)
+{}
+
 const Frame& AdvancedDetector::frame()
 {
   if(!_frameExtracted)
@@ -89,8 +98,15 @@ void AdvancedDetector::loadSettings(CASSSettings &s)
 {
   s.beginGroup(QString::fromStdString(_name));
   _detector = s.value("Detector",0).toUInt();
-  string type(s.value("CoalescingFunctionType","simple").toString().toStdString());
-  _coalesce = CoalescingBase::instance(type);
+  string frameprocesstype(s.value("FrameProcessorType","none").toString().toStdString());
+  _process = FrameProcessorBase::instance(frameprocesstype);
+  _process->loadSettings(s);
+  string pixfindtype(s.value("PixelFinderType","simple").toString().toStdString());
+  _extract = PixelExtractorBase::instance(pixfindtype);
+  _extract->loadSettings(s);
+  string coalescetype(s.value("CoalescingFunctionType","simple").toString().toStdString());
+  _coalesce = CoalescingBase::instance(coalescetype);
   _coalesce->loadSettings(s);
+  _common->loadSettings(s);
   s.endGroup();
 }
