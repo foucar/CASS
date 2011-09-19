@@ -163,7 +163,7 @@ private:
 }//end namespace pixeldetectors
 }//end namespace cass
 
-
+inline
 void cass::pixeldetector::Detector::serialize(cass::SerializerBackend &out)const
 {
   //the version//
@@ -175,6 +175,7 @@ void cass::pixeldetector::Detector::serialize(cass::SerializerBackend &out)const
     out.addFloat(*it);
 }
 
+inline
 bool cass::pixeldetector::Detector::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
@@ -195,6 +196,7 @@ bool cass::pixeldetector::Detector::deserialize(cass::SerializerBackend &in)
   return true;
 }
 
+inline
 void cass::pixeldetector::Device::serialize(cass::SerializerBackend &out) const
 {
   //the version
@@ -210,6 +212,7 @@ void cass::pixeldetector::Device::serialize(cass::SerializerBackend &out) const
   }
 }
 
+inline
 bool cass::pixeldetector::Device::deserialize(cass::SerializerBackend &in)
 {
   //check whether the version fits//
