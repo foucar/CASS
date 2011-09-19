@@ -20,6 +20,7 @@ SOURCES       += \
                  hll_frame_processor.cpp \
                  pixel_finder_base.cpp \
                  above_noise_finder.cpp \
+                 pixel_finder_simple.cpp \
                  coalesce_simple.cpp \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
@@ -35,6 +36,7 @@ HEADERS       += \
                  hll_frame_processor.h \
                  pixel_finder_base.h \
                  above_noise_finder.h \
+                 pixel_finder_simple.h \
                  coalesce_simple.h \
                  coalescing_base.h \
                  pixeldetector_mask.h \

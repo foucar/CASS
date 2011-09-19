@@ -1,7 +1,7 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file hll_frame_processor.cpp contains hll correctionlike frame processor.
+ * @file above_noise_finder.cpp contains hll like pixel finder using noise maps
  *
  * @author Lutz Foucar
  */

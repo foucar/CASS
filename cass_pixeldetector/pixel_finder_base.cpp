@@ -12,6 +12,7 @@
 #include "pixel_finder_base.h"
 
 #include "above_noise_finder.h"
+#include "pixel_finder_simple.h"
 
 using namespace cass;
 using namespace pixeldetector;

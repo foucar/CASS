@@ -63,7 +63,7 @@ struct Frame
    *           - "none": No processing is done to the frame, just the raw frame
    *                     will be returned
    *           - "hll": The type of processing that the semiconductor lab applies
-   *                    to their frame data. see cass::pixeldetector::HLLProcess
+   *                    to their frame data. see cass::pixeldetector::HLLProcessor
    * @cassttng PixelDetectors/\%name\%/{PixelFinderType}\n
    *           Functor for finding pixels of interest in the frame. The pixels
    *           will be found after the frame processor has processed the frame.
@@ -71,10 +71,10 @@ struct Frame
    *           - "aboveNoise": uses the noise map
    *                           (see cass::pixeldetector::CommonData) to check
    *                           whether a pixel is of interest. See
-   *                           cass::pixeldetector::AboveNoise
-   *           - "pixfind": checks whether a pixel value is higher than the
-   *                        pixelvalues of the neighbours.
-   *                        See cass::pixeldetector::PixelFind
+   *                           cass::pixeldetector::AboveNoiseFinder
+   *           - "simple": checks whether a pixel value is higher than the
+   *                       pixelvalues of the neighbours.
+   *                       See cass::pixeldetector::PixelFinderSimple
    * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n
    *           Functor to coalesce the pixels into hits. Default is "simple".
    *           Options are:
