@@ -16,15 +16,35 @@
 
 namespace cass
 {
+//forward declaration
+class CASSSettings;
+class CASSEvent;
+
 namespace pixeldetector
 {
 //forward declaration
+struct CommonData;
 class CoalescingBase;
-class CASSSettings;
-class CASSEvent;
 class FrameAnalyzerBase;
 class FrameExtractorBase;
 
+/** A Frame of an advance Pixel Detector
+ *
+ * the frame conststs of the data and columns and rows
+ *
+ * @author Lutz Foucar
+ */
+struct Frame
+{
+  /** how many columns */
+  uint16_t columns;
+
+  /** how many rows */
+  uint16_t rows;
+
+  /** the frame data */
+  Detector::frame_t data;
+};
 
 /** An Advanced Pixel Detector
    *
@@ -79,7 +99,7 @@ public:
   void loadSettings(CASSSettings &s);
 
   /** retrieve the frame */
-  const Detector::frame_t& frame();
+  const Frame& frame();
 
   /** retrieve the pixellist */
   const pixels_t& pixellist();
@@ -90,8 +110,11 @@ public:
 
 
 private:
+  /** container for data common for all detectors with this name */
+  std::tr1::shared_ptr<CommonData> _common;
+
   /** the frame of the detector */
-  Detector::frame_t _frame;
+  Frame _frame;
 
   /** flag to tell whether the frame has been extracted already */
   bool _frameExtracted;
@@ -120,8 +143,8 @@ private:
   /** the name of this detector */
   std::string _name;
 
-  /** device that contains the right pixel detector */
-  int32_t _device;
+  /** the detector within the device */
+  int32_t _detector;
 };
 
 }
