@@ -30,7 +30,7 @@ class CoalescingBase;
 
 /** A Frame of an advance Pixel Detector
  *
- * the frame conststs of the data and columns and rows
+ * the frame consists of the data and columns and rows
  *
  * @author Lutz Foucar
  */
