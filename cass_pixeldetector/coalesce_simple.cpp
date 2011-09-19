@@ -53,15 +53,15 @@ struct isNeighbour
   {}
 
   /** the operator
-     *
-     * @return true when pixel has not been used and is neighbour
-     * @param pixel reference to the potential neighbour
-     */
+   *
+   * @return true when pixel has not been used and is neighbour
+   * @param pixel reference to the potential neighbour
+   */
   bool operator()(const Pixel &pixel)
   {
-    return (!pixel.isUsed() &&
-            pixel.x() == _neighbourCoordinate.first &&
-            pixel.y() == _neighbourCoordinate.second);
+    return (!pixel.used &&
+            pixel.x == _neighbourCoordinate.first &&
+            pixel.y == _neighbourCoordinate.second);
   }
 };
 
@@ -83,11 +83,12 @@ struct isNeighbour
  * @param maxDepth The maximum allowed recursive depth of calling this function
  * @param pixel The pixel whos neighbours we are searching for
  * @param direction The direction that we came from
- * @param det Reference to the detector container containing the frame and
- *            pixellist that we are now trying to find the split pixels in.
+ * @param frame Reference to the frame containing the frame data an info about
+ *              the coulumns and rows of the frame.
+ * @param pixels the list of pixels that should be coalesced
  * @param splitpixellist Reference to the list of pixels that have neighbours
- *                       The event that this all these pixels belong to has
- *                       been split among the pxixels in this list.
+ *                       The event (hit) that all these pixels belong to has been
+ *                       split among the pixels in this list.
  *
  * @author Lutz Foucar
  */
@@ -95,64 +96,64 @@ void findNeighbours(uint16_t depth,
                     const uint16_t maxDepth,
                     Pixel& pixel,
                     Direction::direction direction,
-                    PixelDetectorContainer &det,
-                    PixelDetector::pixelList_t &splitpixelslist)
+                    const Frame &frame,
+                    CoalescingBase::pixels_t &pixels,
+                    CoalescingBase::pixels_t &splitpixelslist)
 {
-  typedef PixelDetector::pixelList_t pixelslist_t;
+  typedef AdvancedDetector::pixels_t pixels_t;
   typedef pair<uint16_t,uint16_t> position_t;
 
   if (depth > maxDepth)
     return;
-  pixel.isUsed() = true;
+  pixel.used = true;
   splitpixelslist.push_back(pixel);
 
-  pixelslist_t &pixellist(det.pixellist());
   /** check for neighbour to the west */
   if (direction != Direction::east)
   {
-    if (pixel.x() != 0)
+    if (pixel.x != 0)
     {
-      position_t left(make_pair(pixel.x()-1,pixel.y()));
-      pixelslist_t::iterator neighbourPixelIt
-          (find_if(pixellist.begin(), pixellist.end(), isNeighbour(left)));
-      if (neighbourPixelIt != pixellist.end())
-        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::west, det, splitpixelslist);
+      position_t left(make_pair(pixel.x-1,pixel.y));
+      CoalescingBase::pixels_t::iterator neighbourPixelIt
+          (find_if(pixels.begin(), pixels.end(), isNeighbour(left)));
+      if (neighbourPixelIt != pixels.end())
+        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::west, frame, pixels, splitpixelslist);
     }
   }
   /** check for neighbour to the east */
   if (direction != Direction::west)
   {
-    if (pixel.x() < det.pixelDetector().columns()-1)
+    if (pixel.x < frame.columns-1)
     {
-      position_t right(make_pair(pixel.x()+1,pixel.y()));
-      pixelslist_t::iterator neighbourPixelIt
-          (find_if(pixellist.begin(), pixellist.end(), isNeighbour(right)));
-      if (neighbourPixelIt != pixellist.end())
-        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::east, det, splitpixelslist);
+      position_t right(make_pair(pixel.x+1,pixel.y));
+      CoalescingBase::pixels_t::iterator neighbourPixelIt
+          (find_if(pixels.begin(), pixels.end(), isNeighbour(right)));
+      if (neighbourPixelIt != pixels.end())
+        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::east, frame, pixels, splitpixelslist);
     }
   }
   /** check for neighbour to the north */
   if (direction != Direction::south)
   {
-    if (pixel.y() < det.pixelDetector().rows()-1)
+    if (pixel.y < frame.rows-1)
     {
-      position_t top(make_pair(pixel.x(),pixel.y()+1));
-      pixelslist_t::iterator neighbourPixelIt
-          (find_if(pixellist.begin(), pixellist.end(), isNeighbour(top)));
-      if (neighbourPixelIt != pixellist.end())
-        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::north, det, splitpixelslist);
+      position_t top(make_pair(pixel.x,pixel.y+1));
+      CoalescingBase::pixels_t::iterator neighbourPixelIt
+          (find_if(pixels.begin(), pixels.end(), isNeighbour(top)));
+      if (neighbourPixelIt != pixels.end())
+        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::north, frame, pixels, splitpixelslist);
     }
   }
   /** check for neighbour to the south*/
   if (direction != Direction::north)
   {
-    if (pixel.y() != 0)
+    if (pixel.y != 0)
     {
-      position_t bottom(make_pair(pixel.x(),pixel.y()-1));
-      pixelslist_t::iterator neighbourPixelIt
-          (find_if(pixellist.begin(), pixellist.end(), isNeighbour(bottom)));
-      if (neighbourPixelIt != pixellist.end())
-        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::south, det, splitpixelslist);
+      position_t bottom(make_pair(pixel.x,pixel.y-1));
+      CoalescingBase::pixels_t::iterator neighbourPixelIt
+          (find_if(pixels.begin(), pixels.end(), isNeighbour(bottom)));
+      if (neighbourPixelIt != pixels.end())
+        findNeighbours(depth+1,maxDepth,*neighbourPixelIt, Direction::south, frame, pixels, splitpixelslist);
     }
   }
 }
@@ -170,24 +171,25 @@ void findNeighbours(uint16_t depth,
  *
  * @author Lutz Foucar
  */
-PixelDetectorHit coalesce(const PixelDetector::pixelList_t &splitpixelslist)
+Hit coalesce(const CoalescingBase::pixels_t &splitpixelslist)
 {
-  PixelDetectorHit hit;
-  hit.x() = splitpixelslist.front().x();
-  hit.y() = splitpixelslist.front().y();
-  hit.z() = splitpixelslist.front().z();
-  float weightX(hit.x()*hit.z());
-  float weightY(hit.y()*hit.z());
-  PixelDetector::pixelList_t::const_iterator pixel(splitpixelslist.begin()+1);
+
+  Hit hit;
+  hit.x = splitpixelslist.front().x;
+  hit.y = splitpixelslist.front().y;
+  hit.z = splitpixelslist.front().z;
+  float weightX(hit.x*hit.z);
+  float weightY(hit.y*hit.z);
+  CoalescingBase::pixels_t::const_iterator pixel(splitpixelslist.begin()+1);
   for (; pixel != splitpixelslist.end(); ++pixel)
   {
-    weightX += (pixel->z()*pixel->x());
-    weightY += (pixel->z()*pixel->y());
-    hit.z() += pixel->z();
+    weightX += (pixel->z*pixel->x);
+    weightY += (pixel->z*pixel->y);
+    hit.z += pixel->z;
   }
-  hit.x() = weightX / hit.z();
-  hit.y() = weightY / hit.z();
-  hit.nbrPixels() = splitpixelslist.size();
+  hit.x = weightX / hit.z;
+  hit.y = weightY / hit.z;
+  hit.nbrPixels = splitpixelslist.size();
   return hit;
 }
 
@@ -210,69 +212,69 @@ PixelDetectorHit coalesce(const PixelDetector::pixelList_t &splitpixelslist)
  *
  * @author Lutz Foucar
  */
-bool shouldCoalescePixel(const PixelDetector::pixelList_t &splitpixelslist,
+bool shouldCoalescePixel(const CoalescingBase::pixels_t &splitpixelslist,
                          const float mipThreshold,
-                         PixelDetectorContainer &det)
+                         const Frame &frame)
 {
-  PixelDetector::pixelList_t::const_iterator pixel(splitpixelslist.begin());
+  CoalescingBase::pixels_t::const_iterator pixel(splitpixelslist.begin());
+  const size_t framewidth(frame.columns);
+  const size_t frameheight(frame.rows);
+  const Detector::frame_t &data(frame.data);
   for (; pixel != splitpixelslist.end(); ++pixel)
   {
-    if (pixel->z() > mipThreshold)
+    if (pixel->z > mipThreshold)
     {
       //        cout <<" mpiThreshold reached: " <<pixel->z()<<endl;
       return false;
     }
-    const size_t framewidth(det.pixelDetector().columns());
-    const size_t frameheight(det.pixelDetector().rows());
-    size_t idx(pixel->y()*framewidth + pixel->x());
-    const PixelDetector::frame_t &frame(det.pixelDetector().frame());
-    if (pixel->y() != 0)
+    const size_t idx(pixel->y*framewidth + pixel->x);
+    if (pixel->y != 0)
     {
-      if (abs(frame[idx-framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
+      if (abs(data[idx-framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon()))  //lower middle
       {
         //          cout << "lower middle is " << frame[idx-framewidth]<<endl;
         return false;
       }
-      if (pixel->x() != 0)
-        if (abs(frame[idx-framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
+      if (pixel->x != 0)
+        if (abs(data[idx-framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower left
         {
           //            cout << "lower left is " << frame[idx-framewidth-1]<<endl;
           return false;
         }
-      if (pixel->x() < framewidth-1)
-        if (abs(frame[idx-framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
+      if (pixel->x < framewidth-1)
+        if (abs(data[idx-framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //lower right
         {
           //            cout << "lower right is " << frame[idx-framewidth+1]<<endl;
           return false;
         }
     }
-    if (pixel->x() != 0)
-      if (abs(frame[idx-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //left
+    if (pixel->x != 0)
+      if (abs(data[idx-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //left
       {
         //          cout << "left is " << frame[idx-1]<<endl;
         return false;
       }
-    if (pixel->x() < framewidth-1)
-      if (abs(frame[idx+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //right
+    if (pixel->x < framewidth-1)
+      if (abs(data[idx+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //right
       {
         //          cout << "right is " << frame[idx+1]<<endl;
         return false;
       }
-    if (pixel->y() < frameheight-1)
+    if (pixel->y < frameheight-1)
     {
-      if (abs(frame[idx+framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
+      if (abs(data[idx+framewidth]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper middle
       {
         //          cout << "upper middle is " << frame[idx+framewidth]<<endl;
         return false;
       }
-      if (pixel->x() != 0)
-        if (abs(frame[idx+framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
+      if (pixel->x != 0)
+        if (abs(data[idx+framewidth-1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper left
         {
           //            cout << "upper left is " << frame[idx+framewidth-1]<<endl;
           return false;
         }
-      if (pixel->x() < framewidth-1)
-        if (abs(frame[idx+framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
+      if (pixel->x < framewidth-1)
+        if (abs(data[idx+framewidth+1]) < sqrt(numeric_limits<pixel_t>::epsilon())) //upper right
         {
           //            cout << "uppper right is " << frame[idx+framewidth+1]<<endl;
           return false;
@@ -297,25 +299,25 @@ void SimpleCoalesce::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-SimpleCoalesce::hitlist_t& SimpleCoalesce::operator() (PixelDetectorContainer &det,
-                                                       SimpleCoalesce::hitlist_t &hits)
+SimpleCoalesce::hits_t& SimpleCoalesce::operator() (const Frame &frame,
+                                                    pixels_t &pixels,
+                                                    hits_t &hits)
 {
-  PixelDetector::pixelList_t &pixellist(det.pixellist());
-  PixelDetector::pixelList_t::iterator pixel(pixellist.begin());
-  if (pixellist.size() > _maxPixelListSize)
+  pixels_t::iterator pixel(pixels.begin());
+  if (pixels.size() > _maxPixelListSize)
   {
 //    cout << pixellist.size() <<" "<< hits.size()<<endl;
     return hits;
   }
-  for(; pixel != pixellist.end();++ pixel)
+  for(; pixel != pixels.end();++ pixel)
   {
-    if (!pixel->isUsed())
+    if (!pixel->used)
     {
-      PixelDetector::pixelList_t splitpixellist;
-      findNeighbours(0,_maxRecursionDepth,*pixel, Direction::origin, det, splitpixellist);
-      if (shouldCoalescePixel(splitpixellist,_mipThreshold,det))
+      pixels_t splitHit_pixels;
+      findNeighbours(0,_maxRecursionDepth,*pixel, Direction::origin, frame, pixels, splitHit_pixels);
+      if (shouldCoalescePixel(splitHit_pixels,_mipThreshold,frame))
       {
-        PixelDetectorHit hit(coalesce(splitpixellist));
+        Hit hit(coalesce(splitHit_pixels));
         hits.push_back(hit);
       }
     }

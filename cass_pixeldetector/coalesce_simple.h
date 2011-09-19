@@ -47,11 +47,12 @@ public:
    * coalesced, see cass::shouldCoalescePixel(), coalesce the pixels to hits,
    * see cass::coalesce()
    *
-   * @return reference to the list of hits
-   * @param det the detector that contains the relevant pixellist
+   * @return reference to the coalesced pixel list
+   * @param frame the frame containing the pixels of interest
+   * @param pixels the list of pixels that should be coalesced
    * @param hits The list where the pixels that were coalesced to hits go in
    */
-  hits_t& operator() (AdvancedDetector &det, hits_t &hits);
+  hits_t& operator() (const Frame &frame, pixels_t &pixels, hits_t &hits);
 
   /** load the settings of this
    *
