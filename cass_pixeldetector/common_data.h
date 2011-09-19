@@ -20,6 +20,7 @@
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
 
+#include "cass_pixeldetector.h"
 
 namespace cass
 {
@@ -75,6 +76,42 @@ public:
 
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
+
+  /** the offset map
+   *
+   * the offset map is the mean value of the individual pixels for given
+   * number of frames
+   */
+  frame_t offsetMap;
+
+  /** the noise map
+   *
+   * the noise map is the standart deviation of the mean value of indidual
+   * pixels for a given number of frames
+   */
+  frame_t noiseMap;
+
+  /** the detector mask
+   *
+   * the mask is a matrix with either 0 or 1 which indicate which pixels
+   * shoud be omitted (1 stands for :take pixel, 0 is for don't take pixel
+   */
+  frame_t mask;
+
+  /** the gain + cte map
+   *
+   * this is a matrix of values containing correction factors for each
+   * individual pixel of the frame
+   */
+  frame_t gain_cteMap;
+
+  /** the correction map
+   *
+   * this map contains the correction values calculated from the mask, the gain
+   * and cte map. With this values the indivdual pixels will be mulitplied
+   * in the HLL like processing of the frame
+   */
+  frame_t correctionMap;
 
 private:
   /** prevent people from constructing other than using instance().*/
