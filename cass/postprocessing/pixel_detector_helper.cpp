@@ -11,9 +11,10 @@
 
 #include "cass_settings.h"
 #include "cass_event.h"
-#include "pixel_detector_container.h"
+#include "advanced_pixeldetector.h"
 
 using namespace cass;
+using namespace pixeldetector;
 using namespace std;
 
 namespace cass
@@ -38,7 +39,7 @@ namespace cass
      * @return true when id is the same as in the pair
      * @param element reference to one pair in the list
      */
-    bool operator()(const HelperPixelDetectors::detectorList_t::value_type &element)const
+    bool operator()(const DetectorHelper::detectorList_t::value_type &element)const
     { return (_id == element.first); }
 
     /** the id */
@@ -48,59 +49,51 @@ namespace cass
 
 
 //initialize static members//
-HelperPixelDetectors::instancesmap_t HelperPixelDetectors::_instances;
-QMutex HelperPixelDetectors::_mutex;
+DetectorHelper::instancesmap_t DetectorHelper::_instances;
+QMutex DetectorHelper::_mutex;
 
-HelperPixelDetectors::shared_pointer HelperPixelDetectors::instance(const instancesmap_t::key_type& detector)
+DetectorHelper::shared_pointer DetectorHelper::instance(const instancesmap_t::key_type& detector)
 {
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(std::cout << "HelperPixelDetectors::instance(): creating an"
+    VERBOSEOUT(std::cout << "DetectorHelper::instance(): creating an"
                <<" instance of the Pixel Detector Helper for detector '"<<detector
                <<"'"
                <<std::endl);
-    _instances[detector] = HelperPixelDetectors::shared_pointer(new HelperPixelDetectors(detector));
+    _instances[detector] = DetectorHelper::shared_pointer(new DetectorHelper(detector));
   }
   return _instances[detector];
 }
 
-HelperPixelDetectors::HelperPixelDetectors(const instancesmap_t::key_type& detname)
+DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 {
   for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(make_pair(0,new PixelDetectorContainer(detname)));
-  VERBOSEOUT(std::cout << "HelperPixelDetectors::constructor: "
+    _detectorList.push_front(make_pair(0,new AdvancedDetector(detname)));
+  VERBOSEOUT(std::cout << "DetectorHelper::constructor: "
              << "we are responsible for pixel det '"<<detname <<"'"
              <<std::endl);
 }
 
 
-HelperPixelDetectors::PixDetContainer_sptr HelperPixelDetectors::detector(const CASSEvent &evt)
+DetectorHelper::AdvDet_sptr DetectorHelper::detector(const CASSEvent &evt)
 {
   QMutexLocker lock(&_helperMutex);
   detectorList_t::iterator it
     (find_if(_detectorList.begin(), _detectorList.end(), IsID(evt.id())));
-//  cout << " DetHelp 1"<<endl;
   if(_detectorList.end() == it)
   {
-//    cout << " DetHelp 2"<<endl;
-    HelperPixelDetectors::PixDetContainer_sptr det(_detectorList.back().second);
-//    cout << " DetHelp 3  "<<det<<endl;
+    DetectorHelper::AdvDet_sptr det(_detectorList.back().second);
     det->associate(evt);
-//    cout << " DetHelp 4"<<endl;
     detectorList_t::value_type newPair(make_pair(evt.id(),det));
-//    cout << " DetHelp 5"<<endl;
     _detectorList.push_front(newPair);
-//    cout << " DetHelp 6"<<endl;
     _detectorList.pop_back();
     it = _detectorList.begin();
-//    cout << " DetHelp 7"<<endl;
   }
-//  cout << " DetHelp 8 "<<it->second<<endl;
   return it->second;
 }
 
-void HelperPixelDetectors::loadSettings(size_t)
+void DetectorHelper::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PixelDetectors");

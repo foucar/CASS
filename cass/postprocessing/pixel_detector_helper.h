@@ -25,122 +25,126 @@
 
 namespace cass
 {
-  class CASSEvent;
+class CASSEvent;
 
-  class PixelDetectorContainer;
+namespace pixeldetector
+{
+class AdvancedDetector;
 
-  /** Helper for PixelDetector related Postprocessors.
+/** Helper for Advanced Pixel Detector related Postprocessors.
+ *
+ * This class will look whether a AdvancedDetector with the name does already
+ * exist. If not it will create it and put it in list so that one event is
+ * always associated with one AdvancedDetector.
+ *
+ * @cassttng PixelDetectors/{Name}\n
+ *           Name of the Pixeldetector. See
+ *           cass::pixeldetector::AdvancedDetector for more information.
+ *
+ * @author Lutz Foucar
+ */
+class DetectorHelper
+{
+public:
+  /** typedef a shared pointer of this */
+  typedef std::tr1::shared_ptr<DetectorHelper> shared_pointer;
+
+  /** typedef describing the instances of the helper */
+  typedef std::map<std::string,shared_pointer> instancesmap_t;
+
+  typedef std::tr1::shared_ptr<AdvancedDetector> AdvDet_sptr;
+
+  /** typedef defining the list of detectors for more readable code*/
+  typedef std::list<std::pair<uint64_t, AdvDet_sptr> > detectorList_t;
+
+public:
+  /** static function creating instance of this.
+     *
+     * return the instance of the helper that is managing the detector. If the
+     * helper is not yet inside the _instances map the helper instance will be
+     * created and put into the _instances map.
+     *
+     * @return instance of the helper manaing the detector
+     * @param detector key (name) of the detector to find it in the _instances map
+     */
+  static shared_pointer instance(const instancesmap_t::key_type& detector);
+
+  /** retrieve detector for event
    *
-   * This class will look whether a pixelcontainer with the name does already
-   * exist. If not it will create it and put it in list so that one event is
-   * always associated with one pixeldetector container.
+   * This function will lock, so that it can be consecutivly called by
+   * different threads.\n
+   * Check if the event is already associated with one of the detectors in
+   * the detector list. If so just return the pointer to the detector that
+   * is associated with this event.\n
+   * If not then take the detector of the last element  in the _detectorList
+   * and call its associate() member with this event. Then create a new
+   * element to be put into the _detectorList, where the key of the element
+   * is the id of the event and the value is the pointer to the detector,
+   * that we associated with this event. Put the newly created element in
+   * the beginning of the _detectorList and erase the last element.
    *
-   * @cassttng PixelDetectors/{Name}\n
-   *           Name of the Pixeldetector. See cass::PixelDetectorContainer for
-   *           more information.
-   *
-   * @author Lutz Foucar
+   * @return pointer to the detector that contains the data related to the
+   *         requested event
+   * @param evt the event whos data we need to relate to the detector.
    */
-  class HelperPixelDetectors
-  {
-  public:
-    /** typedef a shared pointer of this */
-    typedef std::tr1::shared_ptr<HelperPixelDetectors> shared_pointer;
+  AdvDet_sptr detector(const CASSEvent& evt);
 
-    /** typedef describing the instances of the helper */
-    typedef std::map<std::string,shared_pointer> instancesmap_t;
+  /** load the settings of the detectors in the detector list
+   *
+   * go through the list of detectors and tell each of the detector to load
+   * its settings.
+   *
+   * @param i unused parameter
+   */
+  void loadSettings(size_t i=0);
 
-    typedef std::tr1::shared_ptr<PixelDetectorContainer> PixDetContainer_sptr;
+protected:
+  /** list of pairs of id-detectors.
+   *
+   * @note  Needs to be at least the size of workers that can possibly call
+   *        this helper simultaniously, but should be shrinked if it gets
+   *        much bigger than the number of workers.
+   */
+  detectorList_t _detectorList;
 
-    /** typedef defining the list of detectors for more readable code*/
-    typedef std::list<std::pair<uint64_t, PixDetContainer_sptr> > detectorList_t;
+private:
+  /** prevent people from constructin other than using instance().*/
+  DetectorHelper() {}
 
-  public:
-    /** static function creating instance of this.
-       *
-       * return the instance of the helper that is managing the detector. If the
-       * helper is not yet inside the _instances map the helper instance will be
-       * created and put into the _instances map.
-       *
-       * @return instance of the helper manaing the detector
-       * @param detector key (name) of the detector to find it in the _instances map
-       */
-    static shared_pointer instance(const instancesmap_t::key_type& detector);
+  /** private constructor.
+   *
+   * Creates the list of detectors. The detectors are of the user chosen
+   * type. The type can be chosen by the user via the .cass ini setting
+   * dettype. The instance of the detectors are created
+   * by DetectorBackend::instance() \n
+   * The name of the detector is also the key in the instances map.
+   *
+   * @param detname the name of the detector
+   */
+  DetectorHelper(const instancesmap_t::key_type& detname);
 
-    /** retrieve detector for event
-     *
-     * This function will lock, so that it can be consecutivly called by
-     * different threads.\n
-     * Check if the event is already associated with one of the detectors in
-     * the detector list. If so just return the pointer to the detector that
-     * is associated with this event.\n
-     * If not then take the detector of the last element  in the _detectorList
-     * and call its associate() member with this event. Then create a new
-     * element to be put into the _detectorList, where the key of the element
-     * is the id of the event and the value is the pointer to the detector,
-     * that we associated with this event. Put the newly created element in
-     * the beginning of the _detectorList and erase the last element.
-     *
-     * @return pointer to the detector that contains the data related to the
-     *         requested event
-     * @param evt the event whos data we need to relate to the detector.
-     */
-     PixDetContainer_sptr detector(const CASSEvent& evt);
+  /** prevent copy-construction*/
+  DetectorHelper(const DetectorHelper&);
 
-    /** load the settings of the detectors in the detector list
-     *
-     * go through the list of detectors and tell each of the detector to load
-     * its settings.
-     *
-     * @param i unused parameter
-     */
-    void loadSettings(size_t i=0);
+  /** prevent assingment */
+  DetectorHelper& operator=(const DetectorHelper&);
 
-  protected:
-    /** list of pairs of id-detectors.
-     *
-     * @note  Needs to be at least the size of workers that can possibly call
-     *        this helper simultaniously, but should be shrinked if it gets
-     *        much bigger than the number of workers.
-     */
-    detectorList_t _detectorList;
+  /** the helperclass instances.
+   *
+   * the instances of this class put into map
+   * one instance for each available detector
+   */
+  static instancesmap_t _instances;
 
-  private:
-    /** prevent people from constructin other than using instance().*/
-    HelperPixelDetectors() {}
+  /** Singleton Mutex to lock write operations*/
+  static QMutex _mutex;
 
-    /** private constructor.
-     *
-     * Creates the list of detectors. The detectors are of the user chosen
-     * type. The type can be chosen by the user via the .cass ini setting
-     * dettype. The instance of the detectors are created
-     * by DetectorBackend::instance() \n
-     * The name of the detector is also the key in the instances map.
-     *
-     * @param detname the name of the detector
-     */
-    HelperPixelDetectors(const instancesmap_t::key_type& detname);
+  /** Mutex for each helper*/
+  QMutex _helperMutex;
+};
 
-    /** prevent copy-construction*/
-    HelperPixelDetectors(const HelperPixelDetectors&);
-
-    /** prevent assingment */
-    HelperPixelDetectors& operator=(const HelperPixelDetectors&);
-
-    /** the helperclass instances.
-     *
-     * the instances of this class put into map
-     * one instance for each available detector
-     */
-    static instancesmap_t _instances;
-
-    /** Singleton Mutex to lock write operations*/
-    static QMutex _mutex;
-
-    /** Mutex for each helper*/
-    QMutex _helperMutex;
-  };
-}
+} //end namespace pixeldetector
+} //end namespace cass
 
 
 #endif
