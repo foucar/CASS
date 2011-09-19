@@ -10,11 +10,22 @@
 #define _HLLFRAMEPROCESSOR_H_
 
 #include "frame_processor_base.h"
+#include "common_data.h"
 
 namespace cass
 {
 namespace pixeldetector
 {
+class CommonModeCalulatorBase;
+
+/** HLL like frame processing
+ *
+ * this processor will do a processing of the frame that should be similar
+ * to what the semi conductor lab in Munich (HLL) is doing to process the
+ * pnCCD frames
+ *
+ * @author Lutz Foucar
+ */
 class HLLProcessor : public FrameProcessorBase
 {
 public:
@@ -36,6 +47,12 @@ public:
    */
   void loadSettings(CASSSettings &s);
 
+private:
+  /** the commonly used data container */
+  CommonData::shared_pointer _commondata;
+
+  /** functor for calculating the common mode level */
+  CommonModeCalulatorBase::shared_pointer _commonModeCalc;
 };
 }//end namespace pixeldetector
 }//end namespace cass
