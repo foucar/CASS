@@ -127,9 +127,6 @@ SOURCES            += soapCASSsoapService.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
-                      pixel_detector_container.cpp \
-                      coalescing_base.cpp \
-                      coalesce_simple.cpp \
                       rate_plotter.cpp \
                       cass_settings.cpp \
                       calibcycle.cpp \
