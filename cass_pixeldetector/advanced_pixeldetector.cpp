@@ -19,6 +19,26 @@ using namespace cass;
 using namespace pixeldetector;
 using namespace std;
 
+const Frame& AdvancedDetector::frame()
+{
+  if(!_frameExtracted)
+  {
+    /** @todo correct frame here */
+    _frameExtracted = true;
+  }
+  return _frame;
+}
+
+const AdvancedDetector::pixels_t& AdvancedDetector::pixels()
+{
+  if(!_pixellistCreated)
+  {
+    /** @todo create pixel list here */
+    _pixellistCreated = true;
+  }
+  return _pixels;
+}
+
 const AdvancedDetector::hits_t& AdvancedDetector::hits()
 {
   if (!_hitListCreated)
