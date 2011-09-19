@@ -23,7 +23,6 @@ const Frame& AdvancedDetector::frame()
 {
   if(!_frameExtracted)
   {
-    /** @todo correct frame here */
     FrameProcessorBase &process(*_process);
     process(_frame);
     _frameExtracted = true;
@@ -35,7 +34,6 @@ const AdvancedDetector::pixels_t& AdvancedDetector::pixels()
 {
   if(!_pixellistCreated)
   {
-    /** @todo create pixel list here */
     PixelExtractorBase &extract(*_extract);
     //make sure the frame is processed
     frame();
