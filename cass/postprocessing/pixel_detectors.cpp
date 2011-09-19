@@ -11,10 +11,13 @@
 #include "pixel_detectors.h"
 
 #include "advanced_pixeldetector.h"
+#include "cass_settings.h"
+#include "convenience_functions.h"
+#include "histogram.h"
 
 using namespace cass;
 using namespace std;
-using namespace pixeldetectors;
+using namespace pixeldetector;
 
 
 
@@ -41,7 +44,7 @@ void cass::pp143::loadSettings(size_t)
                                settings.value("SplitLevelUpperLimit",2).toUInt());
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  HelperPixelDetectors::instance(_detector)->loadSettings();
+  DetectorHelper::instance(_detector)->loadSettings();
   cout<<endl<<"Postprocessor '"<<_key
       <<"' will display the spectrum of detector '"<<_detector
       <<"' only when the the split level is between '"<<_splitLevelRange.first
@@ -52,15 +55,15 @@ void cass::pp143::loadSettings(size_t)
 
 void cass::pp143::process(const CASSEvent& evt)
 {
-  HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(evt));
-  PixelDetectorContainer::hitlist_t::const_iterator hit(det->hits().begin());
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
   _result->lock.lockForWrite();
   _result->clear();
   for (; hit != det->hits().end(); ++hit)
   {
-    if (_splitLevelRange.first < hit->nbrPixels() && hit->nbrPixels() < _splitLevelRange.second)
-      dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->z());
+    if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
+      dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->z);
   }
   _result->lock.unlock();
 }
@@ -99,7 +102,7 @@ void cass::pp144::loadSettings(size_t)
                      settings.value("SpectralUpperLimit",0.).toFloat());
   _splitLevelRange = make_pair(settings.value("SplitLevelLowerLimit",0).toUInt(),
                                settings.value("SplitLevelUpperLimit",2).toUInt());
-  HelperPixelDetectors::instance(_detector)->loadSettings();
+  DetectorHelper::instance(_detector)->loadSettings();
   cout<<endl<<"Postprocessor '"<<_key
       <<"' will display ccd image of detector '"<<_detector
       <<"' only when the spectral component is between '"<<_range.first
@@ -112,16 +115,16 @@ void cass::pp144::loadSettings(size_t)
 
 void cass::pp144::process(const CASSEvent& evt)
 {
-  HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(evt));
-  PixelDetectorContainer::hitlist_t::const_iterator hit(det->hits().begin());
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
   _result->lock.lockForWrite();
   _result->clear();
   for (; hit != det->hits().end(); ++hit)
   {
-    if (_splitLevelRange.first < hit->nbrPixels() && hit->nbrPixels() < _splitLevelRange.second)
-      if (_range.first < hit->z() && hit->z() < _range.second)
-        dynamic_cast<Histogram2DFloat*>(_result)->fill(hit->x(),hit->y(),hit->z());
+    if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
+      if (_range.first < hit->z && hit->z < _range.second)
+        dynamic_cast<Histogram2DFloat*>(_result)->fill(hit->x,hit->y,hit->z);
   }
   _result->lock.unlock();
 }
@@ -155,7 +158,7 @@ void cass::pp145::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  HelperPixelDetectors::instance(_detector)->loadSettings();
+  DetectorHelper::instance(_detector)->loadSettings();
   cout<<endl<<"Postprocessor '"<<_key
       <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
@@ -164,9 +167,9 @@ void cass::pp145::loadSettings(size_t)
 
 void cass::pp145::process(const CASSEvent& evt)
 {
-  HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(evt));
-  const PixelDetectorContainer::hitlist_t& hits(det->hits());
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  const AdvancedDetector::hits_t& hits(det->hits());
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill(hits.size());
   _result->lock.unlock();
@@ -199,7 +202,7 @@ void cass::pp146::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  HelperPixelDetectors::instance(_detector)->loadSettings();
+  DetectorHelper::instance(_detector)->loadSettings();
   cout<<endl<<"Postprocessor '"<<_key
       <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
       <<"'. Condition is '"<<_condition->key()<<"'"
@@ -208,14 +211,14 @@ void cass::pp146::loadSettings(size_t)
 
 void cass::pp146::process(const CASSEvent& evt)
 {
-  HelperPixelDetectors::PixDetContainer_sptr det
-      (HelperPixelDetectors::instance(_detector)->detector(evt));
-  PixelDetectorContainer::hitlist_t::const_iterator hit(det->hits().begin());
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
   _result->lock.lockForWrite();
   _result->clear();
   for (; hit != det->hits().end(); ++hit)
   {
-      dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->nbrPixels());
+      dynamic_cast<Histogram1DFloat*>(_result)->fill(hit->nbrPixels);
   }
   _result->lock.unlock();
 }

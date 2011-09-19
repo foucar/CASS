@@ -61,7 +61,7 @@ public:
 
 protected:
   /** detector to work on */
-  HelperPixelDetectors::instancesmap_t::key_type _detector;
+  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 
   /** gate on split level */
   std::pair<size_t, size_t> _splitLevelRange;
@@ -112,7 +112,7 @@ public:
 
 protected:
   /** detector to work on */
-  HelperPixelDetectors::instancesmap_t::key_type _detector;
+  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 
   /** gate on the z */
   std::pair<float,float> _range;
@@ -153,7 +153,7 @@ public:
 
 protected:
   /** detector to work on */
-  HelperPixelDetectors::instancesmap_t::key_type _detector;
+  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 };
 
 
@@ -190,7 +190,7 @@ public:
 
 protected:
   /** detector to work on */
-  HelperPixelDetectors::instancesmap_t::key_type _detector;
+  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
 };
 
 

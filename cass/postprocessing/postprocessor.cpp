@@ -26,13 +26,7 @@
 #include "operation_templates.hpp"
 #include "cass_settings.h"
 #include "coltrims_analysis.h"
-#include "image_manipulation.h"
-#include "partial_covariance.h"
-
-#ifdef HDF5
-#include "hdf5_converter.h"
-#include "hdf5dump.h"
-#endif
+#include "pixel_detectors.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -828,3 +822,4 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
 // c-file-style: "Stroustrup"
 // fill-column: 100
 // End:
+S
