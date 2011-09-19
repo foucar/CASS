@@ -16,11 +16,12 @@
 
 namespace cass
 {
+class CASSSettings;
+
 namespace pixeldetector
 {
 //forward declaration//
-class CASSSettings;
-class AdvancedDetector;
+struct Frame;
 
 /** base class for all coalescing functors
  *
@@ -55,10 +56,11 @@ public:
    * take the input pixel list and coalesce it to hits on the detector.
    *
    * @return reference to the coalesced pixel list
-   * @param det the detector that contains the relevant pixellist
+   * @param frame the frame containing the pixels of interest
+   * @param pixels the list of pixels that should be coalesced
    * @param hits The list where the pixels that were coalesced to hits go in
    */
-  virtual hits_t& operator() (AdvancedDetector &det, hits_t &hits)=0;
+  virtual hits_t& operator() (const Frame &frame, pixels_t pixels, hits_t &hits)=0;
 
   /** load the settings of this
    *
