@@ -11,6 +11,8 @@
 
 #include "frame_processor_base.h"
 
+#include "hll_frame_processor.h"
+
 
 using namespace cass;
 using namespace pixeldetector;
@@ -21,6 +23,12 @@ namespace cass
 {
 namespace pixeldetector
 {
+/** Class with no processing
+ *
+ * this functor will just return the frame and leave it unprocessed
+ *
+ * @author Lutz Foucar
+ */
 class NoProcess : public FrameProcessorBase
 {
 public:
@@ -38,8 +46,8 @@ FrameProcessorBase::shared_pointer FrameProcessorBase::instance(const string &ty
   shared_pointer ptr;
   if (type == "none")
     ptr = shared_pointer(new NoProcess());
-//  else if (type == "hll")
-//    ptr = shared_pointer(new HLLProcess());
+  else if (type == "hll")
+    ptr = shared_pointer(new HLLProcessor());
   else
   {
     stringstream ss;
