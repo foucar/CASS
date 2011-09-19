@@ -15,6 +15,7 @@ INCLUDEPATH   += ../cass ../LCLS
 DEPENDPATH    += ../cass
 
 SOURCES       += \
+                 common_data.cpp \
                  coalesce_simple.cpp \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
@@ -25,6 +26,7 @@ HEADERS       += \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
+                 common_data.h \
                  coalesce_simple.h \
                  coalescing_base.h \
                  pixeldetector_mask.h \

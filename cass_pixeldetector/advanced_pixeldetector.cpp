@@ -14,6 +14,7 @@
 #include "coalescing_base.h"
 #include "cass_settings.h"
 #include "cass_event.h"
+#include "common_data.h"
 
 using namespace cass;
 using namespace pixeldetector;
