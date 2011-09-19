@@ -15,6 +15,8 @@
 #include <vector>
 #include <map>
 #include <stdint.h>
+
+#include "cass_pixeldetector.h"
 #include "serializer.h"
 #include "serializable.h"
 #include "device_backend.h"
@@ -52,10 +54,6 @@ public:
   {
     deserialize(in);
   }
-
-public:
-  /** definition of the frame*/
-  typedef std::vector<pixel_t> frame_t;
 
 public:
   /** serialize the data to the Serializer

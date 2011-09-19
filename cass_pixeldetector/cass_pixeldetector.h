@@ -11,6 +11,7 @@
 #define _CASS_PIXELDETECTOR_H_
 
 #include <stdint.h>
+#include <vector>
 
 namespace cass
 {
@@ -19,6 +20,9 @@ namespace pixeldetector
 
 /** the type of a pixel of a ccd image*/
 typedef float pixel_t;
+
+/** a frame is a vector of pixels */
+typedef std::vector<pixel_t> frame_t;
 
 /** Pixel definition
  *
