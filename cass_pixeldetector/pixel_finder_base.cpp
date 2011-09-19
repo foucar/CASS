@@ -11,6 +11,7 @@
 
 #include "pixel_finder_base.h"
 
+#include "above_noise_finder.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -20,11 +21,11 @@ using namespace std::tr1;
 PixelFinderBase::shared_pointer PixelFinderBase::instance(const string &type)
 {
   shared_pointer ptr;
-//  if (type == "aboveNoise")
-//    ptr = shared_pointer(new AboveNoise());
-//  else if (type == "pixfind")
-//    ptr = shared_pointer(new PixelFinder());
-//  else
+  if (type == "aboveNoise")
+    ptr = shared_pointer(new AboveNoiseFinder());
+  else if (type == "pixfind")
+    ptr = shared_pointer(new PixelFinderSimple());
+  else
   {
     stringstream ss;
     ss << "PixelFinderBase::instance: Pixel Finder type '"<< type

@@ -16,6 +16,7 @@
 #include "cass_event.h"
 #include "common_data.h"
 #include "frame_processor_base.h"
+#include "pixel_finder_base.h"
 
 using namespace cass;
 using namespace pixeldetector;
