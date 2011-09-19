@@ -59,7 +59,6 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
   {
     CoalescingBase & coalesce (*_coalesce);
     //make sure that frame and pixels are created//
-    frame();
     pixels();
     coalesce(_frame,_pixels,_hits);
     _hitListCreated = true;
