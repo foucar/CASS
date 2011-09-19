@@ -16,6 +16,7 @@ DEPENDPATH    += ../cass
 
 SOURCES       += \
                  common_data.cpp \
+                 frame_processor_base.cpp \
                  coalesce_simple.cpp \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
@@ -27,6 +28,7 @@ HEADERS       += \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
                  common_data.h \
+                 frame_processor_base.h \
                  coalesce_simple.h \
                  coalescing_base.h \
                  pixeldetector_mask.h \

@@ -25,7 +25,7 @@ namespace pixeldetector
 //forward declaration
 class CommonData;
 class FrameProcessorBase;
-class PixelExtractorBase;
+class PixelFinderBase;
 class CoalescingBase;
 
 /** A Frame of an advance Pixel Detector
@@ -141,7 +141,7 @@ private:
   bool _pixellistCreated;
 
   /** functor to extract the pixel list */
-  std::tr1::shared_ptr<PixelExtractorBase> _extract;
+  std::tr1::shared_ptr<PixelFinderBase> _find;
 
   /** hits on the detector */
   hits_t _hits;

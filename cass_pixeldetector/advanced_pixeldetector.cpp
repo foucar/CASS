@@ -15,6 +15,7 @@
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "common_data.h"
+#include "frame_processor_base.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -44,10 +45,10 @@ const AdvancedDetector::pixels_t& AdvancedDetector::pixels()
 {
   if(!_pixellistCreated)
   {
-    PixelExtractorBase &extract(*_extract);
+    PixelFinderBase &find(*_find);
     //make sure the frame is processed
     frame();
-    extract(_frame,_pixels);
+    find(_frame,_pixels);
     _pixellistCreated = true;
   }
   return _pixels;
@@ -102,8 +103,8 @@ void AdvancedDetector::loadSettings(CASSSettings &s)
   _process = FrameProcessorBase::instance(frameprocesstype);
   _process->loadSettings(s);
   string pixfindtype(s.value("PixelFinderType","simple").toString().toStdString());
-  _extract = PixelExtractorBase::instance(pixfindtype);
-  _extract->loadSettings(s);
+  _find = PixelFinderBase::instance(pixfindtype);
+  _find->loadSettings(s);
   string coalescetype(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(coalescetype);
   _coalesce->loadSettings(s);
