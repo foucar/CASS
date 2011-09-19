@@ -45,9 +45,9 @@ public:
    */
   static shared_pointer instance(const std::string &type);
 
-  /** coalesce the pixels
+  /** process the frame
    *
-   * take the input pixel list and coalesce it to hits on the detector.
+   * take the input frame, process it and then return a reference to it
    *
    * @return reference to the processed frame
    * @param frame the frame that should be processed
