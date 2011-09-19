@@ -32,24 +32,26 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
 
 void AdvancedDetector::associate(const CASSEvent &evt)
 {
-  CASSEvent::Device device (static_cast<CASSEvent::Device>(_device));
-  if (evt.devices().find(device) == evt.devices().end())
+  if (evt.devices().find(CASSEvent::PixelDetectors) == evt.devices().end())
   {
     stringstream ss;
-    ss << "PixelDetectorContainer::associate(): Device '"<<_device
-        <<"' does not exist in Event";
+    ss << "AdvancedDetector::associate(): Device 'PixelDetectors'"
+        <<"' does not exist in CASSEvent";
     throw invalid_argument(ss.str());
   }
-  if (evt.devices().find(device)->second->detectors()->size() <= _detector)
+  const Device &dev (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::PixelDetectors)->second)));
+  if (dev.dets().find(_detector) == dev.dets().end())
   {
     stringstream ss;
-    ss << "PixelDetectorContainer::associate(): Detector '"<<_detector
-        <<"' does not exist in Device '"<<_device
-        <<"' of the Event";
+    ss << "AdvancedDetector::associate(): Detector '"<<_detector
+        <<"' does not exist in the CASSEvent";
     throw invalid_argument(ss.str());
   }
-  _pixeldetector = &(*(evt.devices().find(device)->second->detectors()))[_detector];
-  _pixelslist = _pixeldetector->pixellist();
+  const Detector &det(dev.dets().find(_detector)->second);
+  /** @todo copy info from cassevent to this container */
+  _frameExtracted = false;
+  _pixels.clear();
+  _pixellistCreated = false;
   _hits.clear();
   _hitListCreated = false;
 }
@@ -57,7 +59,6 @@ void AdvancedDetector::associate(const CASSEvent &evt)
 void AdvancedDetector::loadSettings(CASSSettings &s)
 {
   s.beginGroup(QString::fromStdString(_name));
-  _device = s.value("Device",0).toUInt();
   _detector = s.value("Detector",0).toUInt();
   string type(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(type);
