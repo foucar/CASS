@@ -73,6 +73,8 @@ void CommonData::loadSettings(CASSSettings &s)
        <<"' does not exist";
     throw invalid_argument(ss.str());
   }
+  /** @todo add mask */
+  createCorrectionMap(*this);
   s.endGroup();
 }
 
