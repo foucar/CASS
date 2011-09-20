@@ -80,6 +80,8 @@ struct Frame
  *           Options are:
  *           - "simple": simple coalescing with basic checks.
  *                       See cass::pixeldetector::SimpleCoalesce.
+ * @cassttng there are more settings for the common data. Please see
+ *           CommonData for details on what to set.
  *
  * @author Lutz Foucar
  */
@@ -118,6 +120,7 @@ public:
    * the right type and load its settings.
    * loads which CoalescingBase functor should be used, get an instance of
    * the right type and load its settings.
+   * the loads the seetings for the common data. See CommonData for details.
    *
    * @param s the CASSSettings object to read the information from
    */
