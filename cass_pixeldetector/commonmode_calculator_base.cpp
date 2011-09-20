@@ -50,17 +50,19 @@ public:
 }
 }
 
-FrameProcessorBase::shared_pointer FrameProcessorBase::instance(const string &type)
+CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
 {
   shared_pointer ptr;
   if (type == "none")
-    ptr = shared_pointer(new NoProcess());
-  else if (type == "hll")
-    ptr = shared_pointer(new HLLProcessor());
+    ptr = shared_pointer(new NoCalc());
+  else if (type == "mean")
+    ptr = shared_pointer(new MeanCalculator());
+  else if (type == "median")
+    ptr = shared_pointer(new MedianCalculator());
   else
   {
     stringstream ss;
-    ss << "FrameProcessorBase::instance: Frame processor type '"<< type
+    ss << "CalculatorBase::instance: Common Mode Calculator type '"<< type
         <<"' is unknown.";
     throw invalid_argument(ss.str());
   }
