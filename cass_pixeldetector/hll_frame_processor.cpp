@@ -13,6 +13,7 @@
 
 using namespace cass;
 using namespace pixeldetector;
+using namespace commonmode;
 using namespace std;
 
 HLLProcessor::HLLProcessor()
@@ -20,7 +21,7 @@ HLLProcessor::HLLProcessor()
 
 Frame& HLLProcessor::operator ()(Frame &frame)
 {
-  const CommonModeCalulator &commonMode(*_commonModeCalc);
+  const CommonModeCalulator &commonModeCalculator(*_commonModeCalculator);
   QReadLocker lock(&_commondata->lock);
   frame_t::iterator pixel(frame.data.begin());
   frame_t::const_iterator offset(_commondata->offsetMap.begin());
@@ -29,8 +30,8 @@ Frame& HLLProcessor::operator ()(Frame &frame)
   float commonmodeLevel(0);
   for (; pixel != frame.data.end(); ++pixel, ++correction, ++idx)
   {
-    if(idx % commonMode.width())
-      commonmodeLevel = commonMode(pixel);
+    if(idx % commonModeCalculator.width())
+      commonmodeLevel = commonModeCalculator(pixel,idx);
     *pixel = (*pixel - *offset - commonmodeLevel) * *correction;
   }
   return frame;
@@ -42,7 +43,7 @@ void HLLProcessor::loadSettings(CASSSettings &s)
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("HLLProcessing");
   string commonmodetype = s.value("CommonModeCalculationType","none").toString();
-  _commonModeCalc = CommonModeCalulatorBase::instance(type);
-  _commonModeCalc->loadSettings(s);
+  _commonModeCalculator = CalculatorBase::instance(type);
+  _commonModeCalculator->loadSettings(s);
   s.endGroup();
 }

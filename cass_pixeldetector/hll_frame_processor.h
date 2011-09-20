@@ -18,7 +18,7 @@ namespace pixeldetector
 {
 namespace commonmode
 {
-class CalulatorBase;
+class CalculatorBase;
 }
 
 /** HLL like frame processing
@@ -66,7 +66,7 @@ private:
   CommonData::shared_pointer _commondata;
 
   /** functor for calculating the common mode level */
-  CommonModeCalulatorBase::shared_pointer _commonModeCalc;
+  commonmode::CalculatorBase::shared_pointer _commonModeCalculator;
 };
 }//end namespace pixeldetector
 }//end namespace cass
