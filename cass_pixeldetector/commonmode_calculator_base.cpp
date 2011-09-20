@@ -12,6 +12,7 @@
 
 #include "commonmode_calculator_base.h"
 
+#include "commonmode_calculators.h"
 
 using namespace cass;
 using namespace pixeldetector;

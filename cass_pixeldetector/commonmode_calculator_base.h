@@ -22,6 +22,7 @@ namespace pixeldetector
 {
 //forward declaration//
 struct Frame;
+class CommonData;
 
 namespace commonmode
 {
@@ -64,6 +65,13 @@ public:
    * @param s the CASSSettings object to read the information from
    */
   virtual void loadSettings(CASSSettings &s)=0;
+
+protected:
+  /** the commonly used data container */
+  std::tr1::shared_ptr<CommonData> _commondata;
+
+  /** how many pixels should be used for calculating the common mode */
+  size_t nbrPixels;
 };
 
 } //end namespace commonmode

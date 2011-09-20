@@ -19,6 +19,7 @@ SOURCES       += \
                  frame_processor_base.cpp \
                  hll_frame_processor.cpp \
                  commonmode_calculator_base.cpp \
+                 commonmode_calculators.cpp \
                  pixel_finder_base.cpp \
                  above_noise_finder.cpp \
                  pixel_finder_simple.cpp \
@@ -36,6 +37,7 @@ HEADERS       += \
                  frame_processor_base.h \
                  hll_frame_processor.h \
                  commonmode_calculator_base.h \
+                 commonmode_calculators.h \
                  pixel_finder_base.h \
                  above_noise_finder.h \
                  pixel_finder_simple.h \
