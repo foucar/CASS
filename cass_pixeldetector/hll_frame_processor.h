@@ -16,13 +16,27 @@ namespace cass
 {
 namespace pixeldetector
 {
-class CommonModeCalulatorBase;
+namespace commonmode
+{
+class CalulatorBase;
+}
 
 /** HLL like frame processing
  *
  * this processor will do a processing of the frame that should be similar
  * to what the semi conductor lab in Munich (HLL) is doing to process the
  * pnCCD frames
+ *
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/{CommonModeCalculationType}\n
+ *           defines what kind of common mode correction should be done with the
+ *           frames. Default is "none". Possible values are:
+ *           - "none": No common mode correction is done
+ *           - "mean": The common mode is calculated from the mean value of the
+ *                     pixels. See cass::pixeldetector::commonmode::MeanCalculator
+ *           - "median": The common mode is calculated from the median of the
+ *                       pixels. See
+ *                       cass::pixeldetector::commonmode::MedianCalculator for
+ *                       details.
  *
  * @author Lutz Foucar
  */

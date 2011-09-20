@@ -41,7 +41,7 @@ void HLLProcessor::loadSettings(CASSSettings &s)
   string detectorname(s.group().split("/").back().toStdString());
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("HLLProcessing");
-  string commonmodetype = s.value("","none").toString();
+  string commonmodetype = s.value("CommonModeCalculationType","none").toString();
   _commonModeCalc = CommonModeCalulatorBase::instance(type);
   _commonModeCalc->loadSettings(s);
   s.endGroup();
