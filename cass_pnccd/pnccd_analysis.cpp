@@ -1744,7 +1744,6 @@ bool cass::pnCCD::Analysis::readGainCTE(DetectorParameter &dp)
   in_gain.getline(line, 80);
   if (strncmp(line, "VERSION 3", 9)) throw std::runtime_error("Wrong file format: " + std::string(line));
   in_gain.getline(line, 80);
-  if (strncmp(line, "HE       #Column   Gain    CTE0", 31)) throw std::runtime_error("Wrong file format, 3");
   //resize the vectors to the right size//
   dp._gain_ao_CTE.resize(pnCCD::default_size_sq);
   std::vector<double> gain(2*pnCCD::default_size, 1.0);
