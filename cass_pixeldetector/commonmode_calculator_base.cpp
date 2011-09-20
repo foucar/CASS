@@ -35,7 +35,12 @@ namespace commonmode
 class NoCalc : public CalculatorBase
 {
 public:
-  /** just returns the frame */
+  /** the operation
+   *
+   * @return 0.
+   * @param pixel unused
+   * @param idx unused
+   */
   pixel_t& operator ()(frame_t::const_iterator &pixel, size_t idx) {return 0;}
 
   /** no settings to be loaded */
