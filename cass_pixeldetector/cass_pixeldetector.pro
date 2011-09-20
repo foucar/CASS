@@ -16,6 +16,7 @@ DEPENDPATH    += ../cass
 
 SOURCES       += \
                  common_data.cpp \
+                 mapcreator_base.cpp \
                  frame_processor_base.cpp \
                  hll_frame_processor.cpp \
                  commonmode_calculator_base.cpp \
@@ -34,6 +35,7 @@ HEADERS       += \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
                  common_data.h \
+                 mapcreator_base.h \
                  frame_processor_base.h \
                  hll_frame_processor.h \
                  commonmode_calculator_base.h \

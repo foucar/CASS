@@ -47,7 +47,7 @@ class MapCreatorBase;
  *                     not be altered when applying them. See
  *                     cass::pixeldetector::NonAlteringMaps for details.
  *           - "fixed": The maps will be created from a fixed number of frames.
- *                      See cass::pixeldetector::FixedMap for details.
+ *                      See cass::pixeldetector::FixedMaps for details.
  *           - "moving": The maps will be created from the last few frames. See
  *                       cass::pixeldetector::MovingMaps for details.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OffsetNoiseFilename}\n
