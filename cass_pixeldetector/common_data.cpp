@@ -6,6 +6,9 @@
  * @author Lutz Foucar
  */
 
+#include <stdexcept>
+#include <sstream>
+
 #include "common_data.h"
 
 #include "cass_settings.h"
@@ -44,12 +47,32 @@ void CommonData::loadSettings(CASSSettings &s)
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);
   _mapcreator->loadSettings(s);
-  string offsetfilename(s.value("OffsetNoiseFilename","").toString());
-  string offsetfiletype(s.value("OffsetNoiseFiletype","hll").toString());
-  /** @todo load the file here */
-  string gainfilename(s.value("CTEGainFilename","").toString());
-  string gainfiletype(s.value("CTEGainFiletype","hll").toString());
-  /** @todo load the file here */
+  string offsetfilename(s.value("OffsetNoiseFilename","").toString().toStdString());
+  string offsetfiletype(s.value("OffsetNoiseFiletype","hll").toString().toStdString());
+  if (offsetfiletype == "hll")
+    readHLLOffsetFile(offsetfilename, *this);
+  else if(offsetfiletype == "cass")
+    readCASSOffsetFile(offsetfilename, *this);
+  else
+  {
+    stringstream ss;
+    ss <<"CommonData::loadSettings: OffsetNoiseFiletype '"<<offsetfiletype
+       <<"' does not exist";
+    throw invalid_argument(ss.str());
+  }
+  string gainfilename(s.value("CTEGainFilename","").toString().toStdString());
+  string gainfiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
+  if (gainfiletype == "hll")
+    readHLLGainFile(gainfilename, *this);
+  else if(gainfiletype == "cass")
+    readCASSGainFile(gainfilename, *this);
+  else
+  {
+    stringstream ss;
+    ss <<"CommonData::loadSettings: CTEGainFiletype '"<<offsetfiletype
+       <<"' does not exist";
+    throw invalid_argument(ss.str());
+  }
   s.endGroup();
 }
 
