@@ -427,7 +427,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Needs to
    *           be implemented, because default is "", which is invalid.
-   * @cassttng PostProcessor/\%name\%/{Value} \n
+   * @cassttng PostProcessor/\%name\%/{Factor} \n
    *           Value for the operation. Default is 1.
    *
    * @tparam Operator operator that will work on the data
