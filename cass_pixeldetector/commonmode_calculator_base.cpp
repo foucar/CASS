@@ -42,7 +42,7 @@ public:
    * @param pixel unused
    * @param idx unused
    */
-  pixel_t& operator ()(frame_t::const_iterator &pixel, size_t idx) {return 0;}
+  pixel_t operator ()(frame_t::const_iterator &/*pixel*/, size_t /*idx*/)const {return 0;}
 
   /** no settings to be loaded */
   void loadSettings(CASSSettings&) {}
@@ -68,4 +68,9 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
     throw invalid_argument(ss.str());
   }
   return ptr;
+}
+
+void CalculatorBase::load(CASSSettings &s)
+{
+
 }

@@ -6,6 +6,9 @@
  * @author Lutz Foucar
  */
 
+#include <QtCore/QStringList>
+#include <QtCore/QString>
+
 #include "hll_frame_processor.h"
 
 #include "cass_settings.h"
@@ -21,7 +24,7 @@ HLLProcessor::HLLProcessor()
 
 Frame& HLLProcessor::operator ()(Frame &frame)
 {
-  const CommonModeCalulator &commonModeCalculator(*_commonModeCalculator);
+  const CalculatorBase &commonModeCalculator(*_commonModeCalculator);
   QReadLocker lock(&_commondata->lock);
   frame_t::iterator pixel(frame.data.begin());
   frame_t::const_iterator offset(_commondata->offsetMap.begin());
@@ -42,8 +45,8 @@ void HLLProcessor::loadSettings(CASSSettings &s)
   string detectorname(s.group().split("/").back().toStdString());
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("HLLProcessing");
-  string commonmodetype = s.value("CommonModeCalculationType","none").toString();
-  _commonModeCalculator = CalculatorBase::instance(type);
+  string commonmodetype (s.value("CommonModeCalculationType","none").toString().toStdString());
+  _commonModeCalculator = CalculatorBase::instance(commonmodetype);
   _commonModeCalculator->loadSettings(s);
   s.endGroup();
 }

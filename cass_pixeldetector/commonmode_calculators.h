@@ -44,7 +44,7 @@ public:
    *              calculation.
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::const_iterator &pixel, size_t idx);
+  pixel_t operator ()(frame_t::const_iterator &pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *
@@ -78,7 +78,7 @@ public:
    *              calculation.
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::const_iterator &pixel, size_t idx);
+  pixel_t operator ()(frame_t::const_iterator &pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *

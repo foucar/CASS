@@ -58,7 +58,7 @@ public:
    *              common mode.
    * @param idx index where the pixel iterator is right now within the frame
    */
-  virtual pixel_t operator() (frame_t::const_iterator &pixel, size_t idx)=0;
+  virtual pixel_t operator() (frame_t::const_iterator &pixel, size_t idx)const=0;
 
   /** load the settings of this calculator
    *
@@ -66,12 +66,21 @@ public:
    */
   virtual void loadSettings(CASSSettings &s)=0;
 
+  /** load all common settings
+   *
+   * @param s the CASSSettings object to read the information from
+   */
+  void load(CASSSettings &s);
+
+  /** retrieve the number of pixels (or the width of calculation */
+  size_t width()const {return _nbrPixels;}
+
 protected:
   /** the commonly used data container */
   std::tr1::shared_ptr<CommonData> _commondata;
 
   /** how many pixels should be used for calculating the common mode */
-  size_t nbrPixels;
+  size_t _nbrPixels;
 };
 
 } //end namespace commonmode

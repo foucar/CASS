@@ -11,6 +11,8 @@
 
 #include "mapcreator_base.h"
 
+#include "mapcreators.h"
+
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;

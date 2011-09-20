@@ -14,11 +14,73 @@
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "advanced_pixeldetector.h"
+#include "mapcreator_base.h"
 
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
 
+namespace cass
+{
+namespace pixeldetector
+{
+/** will read the file containing the offset and noise map in the hll format
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
+ * @author Lutz Foucar
+ */
+void readHLLOffsetFile(const string &filename, CommonData& data)
+{
+
+}
+
+/** will read the file containing the offset and noise map in the former CASS format
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
+ * @author Lutz Foucar
+ */
+void readCASSOffsetFile(const string &filename, CommonData& data)
+{
+
+}
+
+/** will read the file containing the gain and cte corretion factors in the HLL format
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
+ * @author Lutz Foucar
+ */
+void readHLLGainFile(const string &filename, CommonData& data)
+{
+
+}
+
+/** will read the file containing the gain and cte corretion factors in the former CASS format
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
+ * @author Lutz Foucar
+ */
+void readCASSGainFile(const string &filename, CommonData& data)
+{
+
+}
+
+/** will create the final correction map from the info stored in the other maps
+ *
+ * @param data the data storage that is used to create the maps from
+ *
+ * @author Lutz Foucar
+ */
+void createCorrectionMap(CommonData& data)
+{
+
+}
+
+} //end namespace pixeldetector
+} //end namespace cass
 
 //initialize static members//
 CommonData::instancesmap_t CommonData::_instances;
@@ -80,6 +142,6 @@ void CommonData::loadSettings(CASSSettings &s)
 
 void CommonData::createMaps(const Frame &frame)
 {
-  const MapCreatorBase& createMaps(*_mapcreator);
-  createMaps(frame);
+  MapCreatorBase& createCorrectionMaps(*_mapcreator);
+  createCorrectionMaps(frame);
 }

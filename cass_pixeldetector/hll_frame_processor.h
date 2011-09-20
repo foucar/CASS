@@ -10,16 +10,14 @@
 #define _HLLFRAMEPROCESSOR_H_
 
 #include "frame_processor_base.h"
+
 #include "common_data.h"
+#include "commonmode_calculator_base.h"
 
 namespace cass
 {
 namespace pixeldetector
 {
-namespace commonmode
-{
-class CalculatorBase;
-}
 
 /** HLL like frame processing
  *

@@ -6,8 +6,8 @@
  * @author Lutz Foucar
  */
 
-#ifndef _FRAMEPROCESSORBASE_H_
-#define _FRAMEPROCESSORBASE_H_
+#ifndef _MAPCREATORBASE_H_
+#define _MAPCREATORBASE_H_
 
 #include <tr1/memory>
 #include <vector>
@@ -23,9 +23,9 @@ namespace pixeldetector
 //forward declaration//
 struct Frame;
 
-/** base class for all frame processors
+/** base class for all correction map creators
  *
- * a frame processor will process the pixels of a frame
+ * a map creator will take the frame data that it gets to create correction maps.
  *
  * @author Lutz Foucar
  */
