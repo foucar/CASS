@@ -38,6 +38,23 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
 CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
 {}
 
-void CommonData::loadSettings(CASSSettings &/*s*/)
+void CommonData::loadSettings(CASSSettings &s)
 {
+  s.beginGroup("CorrectionMaps");
+  string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
+  _mapcreator = MapCreatorBase::instance(mapcreatortype);
+  _mapcreator->loadSettings(s);
+  string offsetfilename(s.value("OffsetNoiseFilename","").toString());
+  string offsetfiletype(s.value("OffsetNoiseFiletype","hll").toString());
+  /** @todo load the file here */
+  string gainfilename(s.value("CTEGainFilename","").toString());
+  string gainfiletype(s.value("CTEGainFiletype","hll").toString());
+  /** @todo load the file here */
+  s.endGroup();
+}
+
+void CommonData::createMaps(const Frame &frame)
+{
+  const MapCreatorBase& createMaps(*_mapcreator);
+  createMaps(frame);
 }

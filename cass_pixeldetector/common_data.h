@@ -28,6 +28,9 @@ class CASSSettings;
 
 namespace pixeldetector
 {
+class Frame;
+class MapCreatorBase;
+
 /** Data used commonly for one AdvancedDetector
  *
  * This class hold the data for one AdvancedDetector. There can be multiple
@@ -37,9 +40,34 @@ namespace pixeldetector
  * CommonData::instance will return only a new instance when the name does not
  * exist yet.
  *
- * @cassttng PixelDetectors/{Name}\n
- *           Name of the Pixeldetector. See
- *           cass::pixeldetector::AdvancedDetector for more information.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{MapCreatorType}\n
+ *           The type of functor that will create the maps used for correcting
+ *           the frames from individual frames. Default is "none". Options are:
+ *           - "none": All maps will be initialized such that the frame will
+ *                     not be altered when applying them. See
+ *                     cass::pixeldetector::NonAlteringMaps for details.
+ *           - "fixed": The maps will be created from a fixed number of frames.
+ *                      See cass::pixeldetector::FixedMap for details.
+ *           - "moving": The maps will be created from the last few frames. See
+ *                       cass::pixeldetector::MovingMaps for details.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OffsetNoiseFilename}\n
+ *           The filename containing the saved noise and offset maps. Default
+ *           is "".
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OffsetNoiseFiletype}\n
+ *           The filetype that the values are stored in. Default is "hll".
+ *           Options are:
+ *           - "hll": the filetype used by the semi conductor lab.
+ *           - "cass": the filetype formerly used in CASS, and now when option
+ *                     OLDCCDLAYOUT is selected during compiliation.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{CTEGainFilename}\n
+ *           The filename containing the saved cte and gain values. Default
+ *           is "".
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{CTEGainFiletype}\n
+ *           The filetype that the values are stored in. Default is "hll".
+ *           Options are:
+ *           - "hll": the filetype used by the semi conductor lab.
+ *           - "cass": the filetype formerly used in CASS, and now when option
+ *                     OLDCCDLAYOUT is selected during compiliation.
  *
  * @author Lutz Foucar
  */
@@ -64,7 +92,6 @@ public:
    */
   static shared_pointer instance(const instancesmap_t::key_type& detector);
 
-
   /** load the settings of the detectors in the detector list
    *
    * go through the list of detectors and tell each of the detector to load
@@ -73,6 +100,12 @@ public:
    * @param s the object to load the settings for the common data from.
    */
   void loadSettings(CASSSettings &s);
+
+  /** create the maps from the frame data with help of the functor
+   *
+   * @param frame The frame data to create the maps from
+   */
+  void createMaps(const Frame& frame);
 
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
@@ -119,11 +152,7 @@ private:
 
   /** private constructor.
    *
-   * Creates the list of detectors. The detectors are of the user chosen
-   * type. The type can be chosen by the user via the .cass ini setting
-   * dettype. The instance of the detectors are created
-   * by DetectorBackend::instance() \n
-   * The name of the detector is also the key in the instances map.
+   * unused
    *
    * @param detname the name of the detector
    */
@@ -144,6 +173,10 @@ private:
 
   /** mutex to lock the creation of an instance */
   static QMutex _mutex;
+
+private:
+  /** functor to create the Maps */
+  std::tr1::shared_ptr<MapCreatorBase> _mapcreator;
 };
 
 } //end namespace pixeldetector
