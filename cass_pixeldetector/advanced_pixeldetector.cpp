@@ -82,7 +82,7 @@ void AdvancedDetector::associate(const CASSEvent &evt)
   {
     stringstream ss;
     ss << "AdvancedDetector::associate(): Detector '"<<_detector
-        <<"' does not exist in the CASSEvent";
+        <<"' does not exist in Device 'PixelDetectors' within the CASSEvent";
     throw invalid_argument(ss.str());
   }
   const Detector &det(dev.dets().find(_detector)->second);

@@ -99,12 +99,25 @@ public:
 
   /** associate the detector with a simple Pixel Detector within a CASSEvent
    *
+   * resets the flags indicating whether the frame, the pixel list and the hit
+   * list have been created. Copies the Frame data the info about the columns
+   * and rows to the _frame object of this class. The _frame object is then
+   * passed to the _common object. This should then build up the necessary
+   * Maps for correcting. See CommonData for details
+   *
    * @param evt Pointer to the CASSEvent that contains the PixelDetector that
    *            this container is responsible for.
    */
   void associate(const CASSEvent &evt);
 
   /** load the settings of this
+   *
+   * loads which FrameProcessorBase functor should be used, get an instance of
+   * the right type and load its settings.
+   * loads which PixelFinderBase functor should be used, get an instance of
+   * the right type and load its settings.
+   * loads which CoalescingBase functor should be used, get an instance of
+   * the right type and load its settings.
    *
    * @param s the CASSSettings object to read the information from
    */
