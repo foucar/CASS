@@ -770,6 +770,9 @@ inline size_t AxisProperty::bin(float pos) const
         throw std::out_of_range(ss.str());
     }
     size_t index(static_cast<size_t>(_size * ((pos - _low) / (_up - _low))));
+    /** @todo check where this function gets called and find out whether the
+     *        one needs to check if the size is smaller than the index calculated
+     */
     if(size() == index)
         // be forgiving and compensate for rounding errors
         --index;

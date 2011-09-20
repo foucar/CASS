@@ -1188,7 +1188,7 @@ void cass::pp66::process(const CASSEvent& evt)
 //  cout <<"result "<< memory.size()<<endl;
   for (size_t j(0); j < twoNBins; ++j)
     for (size_t i(0); i < oneNBins; ++i)
-      memory[i*oneNBins+j] = one.memory()[i]*two.memory()[j];
+      memory[j*oneNBins+i] = one.memory()[i]*two.memory()[j];
   _result->nbrOfFills()=1;
   _result->lock.unlock();
   two.lock.unlock();
