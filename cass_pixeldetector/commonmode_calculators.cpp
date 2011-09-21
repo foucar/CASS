@@ -17,7 +17,7 @@ using namespace std::tr1;
 MeanCalculator::MeanCalculator()
 {}
 
-pixel_t MeanCalculator::operator ()(frame_t::const_iterator &pixel, size_t idx)const
+pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
   return commonmodelevel;
@@ -31,7 +31,7 @@ void MeanCalculator::loadSettings(CASSSettings &s)
 MedianCalculator::MedianCalculator()
 {}
 
-pixel_t MedianCalculator::operator ()(frame_t::const_iterator &pixel, size_t idx)const
+pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
   return commonmodelevel;

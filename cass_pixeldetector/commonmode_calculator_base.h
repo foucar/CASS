@@ -58,7 +58,7 @@ public:
    *              common mode.
    * @param idx index where the pixel iterator is right now within the frame
    */
-  virtual pixel_t operator() (frame_t::const_iterator &pixel, size_t idx)const=0;
+  virtual pixel_t operator() (frame_t::iterator &pixel, size_t idx)const=0;
 
   /** load the settings of this calculator
    *

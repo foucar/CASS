@@ -42,7 +42,7 @@ public:
    * @param pixel unused
    * @param idx unused
    */
-  pixel_t operator ()(frame_t::const_iterator &/*pixel*/, size_t /*idx*/)const {return 0;}
+  pixel_t operator ()(frame_t::iterator &/*pixel*/, size_t /*idx*/)const {return 0;}
 
   /** no settings to be loaded */
   void loadSettings(CASSSettings&) {}
