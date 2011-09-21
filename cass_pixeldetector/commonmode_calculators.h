@@ -55,6 +55,9 @@ public:
 private:
   /** number of maximum and minimum elements to remove */
   std::pair<size_t,size_t> _nbrElementsToRemove;
+
+  /** mininmal number of pixels that should be present when calculating the mean */
+  size_t _minNbrPixels;
 };
 
 /** Calculate the common mode by taking the median of pixel values

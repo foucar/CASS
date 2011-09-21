@@ -25,7 +25,6 @@ MeanCalculator::MeanCalculator()
 pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   typedef multiset<pixel_t> orderedPixels_t;
-  typedef pair<orderedPixels_t::iterator, orderedPixels_t::iterator> range_t;
 
   pixel_t commonmodelevel(0);
   QReadLocker lock(&_commondata->lock);
@@ -44,7 +43,7 @@ pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
   orderedPixels_t::iterator end(pixels.end());
   advance(begin,_nbrElementsToRemove.first);
   advance(end,-1*(_nbrElementsToRemove.second));
-  commonmodelevel = accumulate(begin,end,0) / distance(begin,end);
+  commonmodelevel = (_minNbrPixels < distance(begin,end))? accumulate(begin,end,0) / distance(begin,end) : 0;
 
   return commonmodelevel;
 }
