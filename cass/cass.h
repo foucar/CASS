@@ -58,11 +58,23 @@ inline T square(const T& val) { return val * val; }
 /** A resource that will point at a specific location within a file */
 struct FilePointer
 {
-  /** defining a shared poitner to the stream */
-  typedef std::tr1::shared_ptr<std::ifstream> filestream_t;
-
-  /** the position with the file */
-  int _pos;
+  /** global variable to set the ring buffer size */
+  const size_t RingBufferSize=32;
+  /** global variable to set the number of worker threads */
+  const size_t NbrOfWorkers=16;
+  /** the maximum size of one datagram should be 10 MB */
+  const size_t DatagramBufferSize=0x1000000;
+#ifdef OLDPIXELDETECTORLAYOUT
+  /** the type of a pixel of a ccd image*/
+  typedef float pixel_t;
+#endif
+  //forward decalration//
+  class PixelDetector;
+  /** type of the container for ccd detectors */
+  typedef std::vector<PixelDetector> detectors_t;
+  /** known/supported Qt image formats */
+  enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
+}
 
   /** the stream to the file */
   filestream_t _filestream;
