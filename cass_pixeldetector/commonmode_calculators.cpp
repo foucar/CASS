@@ -12,6 +12,7 @@
 #include "commonmode_calculators.h"
 
 #include "common_data.h"
+#include "cass_settings.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -69,9 +70,6 @@ void createPixelList(size_t nbrPixels,
 }//end namespace cass
 
 
-MeanCalculator::MeanCalculator()
-{}
-
 pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
@@ -79,29 +77,34 @@ pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
   frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
   frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
   orderedPixels_t pixels;
-  createPixelList(_nbrPixels,
-                  pixel,
-                  offset,
-                  noise,
-                  _multiplier,
-                  0.,
-                  pixels);
-  orderedPixels_t::iterator begin(pixels.begin());
-  orderedPixels_t::iterator end(pixels.end());
-  advance(begin,_nbrElementsToRemove.first);
-  advance(end,-1*(_nbrElementsToRemove.second));
-  commonmodelevel = (_minNbrPixels < distance(begin,end))? accumulate(begin,end,0) / distance(begin,end) : 0;
-
+  createPixelList(_nbrPixels, pixel, offset, noise, _multiplier, 0., pixels);
+  const int nbrElementsOfInterest
+      (pixels.size() - _nbrMinimumElementsToRemove - _nbrMaximumElementsToRemove);
+  const bool shouldCalcCommonMode (_minNbrPixels <  nbrElementsOfInterest);
+  if (shouldCalcCommonMode)
+  {
+    orderedPixels_t::iterator begin(pixels.begin());
+    orderedPixels_t::iterator end(pixels.end());
+    advance(begin,_nbrMinimumElementsToRemove);
+    advance(end,-1*(_nbrMaximumElementsToRemove));
+    commonmodelevel = accumulate(begin,end,0) / distance(begin,end);
+  }
+  else
+  {
+    commonmodelevel = 0.;
+  }
   return commonmodelevel;
 }
 
 void MeanCalculator::loadSettings(CASSSettings &s)
 {
   load(s);
+  s.beginGroup("MeanCommonMode");
+  _nbrMaximumElementsToRemove = s.value("",5).toUInt();
+  _nbrMinimumElementsToRemove = s.value("",0).toUInt();
+  _minNbrPixels = s.value("",8).toUInt();
+  s.endGroup();
 }
-
-MedianCalculator::MedianCalculator()
-{}
 
 pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {

@@ -33,7 +33,7 @@ class MeanCalculator : public CalculatorBase
 {
 public:
   /** constructor */
-  MeanCalculator();
+  MeanCalculator() {}
 
   /** the operation
    *
@@ -53,8 +53,11 @@ public:
   void loadSettings(CASSSettings &s);
 
 private:
-  /** number of maximum and minimum elements to remove */
-  std::pair<size_t,size_t> _nbrElementsToRemove;
+  /** number of maximum elements to remove */
+  size_t _nbrMaximumElementsToRemove;
+
+  /** number of minimum elements to remove */
+  size_t _nbrMinimumElementsToRemove;
 
   /** mininmal number of pixels that should be present when calculating the mean */
   int _minNbrPixels;
@@ -74,7 +77,7 @@ class MedianCalculator : public CalculatorBase
 {
 public:
   /** constructor */
-  MedianCalculator();
+  MedianCalculator() {}
 
   /** the operation
    *
