@@ -81,6 +81,9 @@ protected:
 
   /** how many pixels should be used for calculating the common mode */
   size_t _nbrPixels;
+
+  /** the multiplier to identify pixels that contain information */
+  float _multiplier;
 };
 
 } //end namespace commonmode

@@ -10,9 +10,14 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <QtCore/QString>
+#include <QtCore/QStringList>
+
 #include "commonmode_calculator_base.h"
 
 #include "commonmode_calculators.h"
+#include "common_data.h"
+#include "cass_settings.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -72,5 +77,9 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
 
 void CalculatorBase::load(CASSSettings &s)
 {
-
+  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  _commondata = CommonData::instance(detectorname);
+  s.beginGroup("CommonModeCorrection");
+  _nbrPixels = s.value("Width",128).toUInt();
+  s.endGroup();
 }

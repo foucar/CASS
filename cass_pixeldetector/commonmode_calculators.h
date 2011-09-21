@@ -51,6 +51,10 @@ public:
    * @param s the CASSSettings object to read the information from
    */
   void loadSettings(CASSSettings &s);
+
+private:
+  /** number of maximum and minimum elements to remove */
+  std::pair<size_t,size_t> _nbrElementsToRemove;
 };
 
 /** Calculate the common mode by taking the median of pixel values
