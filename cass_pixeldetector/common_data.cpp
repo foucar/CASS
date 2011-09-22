@@ -222,7 +222,9 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
 #warning "copy also the bad pix map contained in the darkcalfile"
 
   QWriteLocker lock(&data.lock);
+  data.offsetMap.resize(header.length);
   HLL2CASS(hlloffsets,data.offsetMap,header.rows,header.rows,header.columns);
+  data.noiseMap.resize(header.length);
   HLL2CASS(hllnoises,data.noiseMap,header.rows,header.rows,header.columns);
 }
 
@@ -257,6 +259,9 @@ void readHLLGainFile(const string &filename, CommonData& data)
 void readCASSGainFile(const string &filename, CommonData& data)
 {
 #warning "implement function"
+//  in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
+//  in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+
 }
 
 /** will create the final correction map from the info stored in the other maps
