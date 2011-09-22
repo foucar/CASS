@@ -237,6 +237,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
 void readCASSOffsetFile(const string &filename, CommonData& data)
 {
 #warning "implement function"
+  //  in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
+  //  in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
 }
 
 /** will read the file containing the gain and cte corretion factors in the HLL format
@@ -259,9 +261,6 @@ void readHLLGainFile(const string &filename, CommonData& data)
 void readCASSGainFile(const string &filename, CommonData& data)
 {
 #warning "implement function"
-//  in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
-//  in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
-
 }
 
 /** will create the final correction map from the info stored in the other maps
