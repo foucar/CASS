@@ -97,8 +97,14 @@ public:
   void loadSettings(CASSSettings &s);
 
 private:
-  /** how many highest values should be disregarded */
-  size_t _nbrValuesDisregardedUpper;
+  /** number of maximum elements to remove */
+  size_t _nbrDisregardedMaximumElements;
+
+  /** number of minimum elements to remove */
+  size_t _nbrDisregardedMinimumElements;
+
+  /** mininmal number of pixels that should be present when calculating the mean */
+  int _minNbrPixels;
 };
 }//end namespace commonmode
 }//end namespace pixeldetector

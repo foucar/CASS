@@ -6,8 +6,9 @@
  * @author Lutz Foucar
  */
 
-#include <set>
+#include <vector>
 #include <numeric>
+#include <algorithm>
 
 #include "commonmode_calculators.h"
 
@@ -26,7 +27,7 @@ namespace pixeldetector
 {
 namespace commonmode
 {
-typedef multiset<pixel_t> orderedPixels_t;
+typedef vector<pixel_t> pixels_t;
 
 /** build up the list of pixels that contribute to the common mode calculation
  *
@@ -54,37 +55,39 @@ void createPixelList(size_t nbrPixels,
                      frame_t::const_iterator noise,
                      float multiplier,
                      pixel_t initialLevel,
-                     orderedPixels_t& pixels)
+                     pixels_t& pixels)
 {
   for(size_t i(0); i<nbrPixels;++i,++pixel,++offset,++noise)
   {
     pixel_t offsetcorrectedPixel(*pixel - *offset );
     if((offsetcorrectedPixel - initialLevel) < (multiplier * *noise))
     {
-      pixels.insert(offsetcorrectedPixel);
+      pixels.push_back(offsetcorrectedPixel);
     }
   }
+
 }
 }//end namespace commonmode
 }//end namespace pixeldetector
 }//end namespace cass
 
 
-pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
   QReadLocker lock(&_commondata->lock);
   frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
   frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
-  orderedPixels_t pixels;
+  pixels_t pixels;
   createPixelList(_nbrPixels, pixel, offset, noise, _multiplier, 0., pixels);
   const int nbrElementsOfInterest
       (pixels.size() - _nbrMinimumElementsToRemove - _nbrMaximumElementsToRemove);
   const bool shouldCalcCommonMode (_minNbrPixels <  nbrElementsOfInterest);
   if (shouldCalcCommonMode)
   {
-    orderedPixels_t::iterator begin(pixels.begin());
-    orderedPixels_t::iterator end(pixels.end());
+    sort(pixels.begin(),pixels.end());
+    pixels_t::iterator begin(pixels.begin());
+    pixels_t::iterator end(pixels.end());
     advance(begin,_nbrMinimumElementsToRemove);
     advance(end,-1*(_nbrMaximumElementsToRemove));
     commonmodelevel = accumulate(begin,end,0) / distance(begin,end);
@@ -106,9 +109,27 @@ void MeanCalculator::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
+  QReadLocker lock(&_commondata->lock);
+  frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
+  frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
+  pixels_t pixels;
+  createPixelList(_nbrPixels, pixel, offset, noise, _multiplier, 0., pixels);
+  const int nbrElementsOfInterest
+      (pixels.size() - _nbrDisregardedMinimumElements - _nbrDisregardedMaximumElements);
+  const bool shouldCalcCommonMode (_minNbrPixels <  nbrElementsOfInterest);
+  if (shouldCalcCommonMode)
+  {
+    size_t median = 0.5*nbrElementsOfInterest + _nbrDisregardedMinimumElements;
+    nth_element(pixels.begin(),pixels.begin()+median,pixels.end());
+    commonmodelevel = pixels[median];
+  }
+  else
+  {
+    commonmodelevel = 0.;
+  }
   return commonmodelevel;
 }
 
