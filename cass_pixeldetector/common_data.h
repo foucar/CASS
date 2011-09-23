@@ -149,6 +149,9 @@ public:
    */
   frame_t correctionMap;
 
+  /** the threshold in adu for masking noisy pixels */
+  pixel_t noiseThreshold;
+
 private:
   /** prevent people from constructing other than using instance().*/
   CommonData() {}
@@ -180,6 +183,7 @@ private:
 private:
   /** functor to create the Maps */
   std::tr1::shared_ptr<MapCreatorBase> _mapcreator;
+
 };
 
 } //end namespace pixeldetector

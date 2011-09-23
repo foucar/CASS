@@ -206,6 +206,7 @@ struct HllFileHeader
  *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
+ *
  * @author Lutz Foucar
  */
 void readHLLOffsetFile(const string &filename, CommonData& data)
@@ -260,6 +261,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
  *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
+ *
  * @author Lutz Foucar
  */
 void readCASSOffsetFile(const string &filename, CommonData& data)
@@ -374,6 +376,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
   }
 
   //convert HLL format to CASS format
+  QWriteLocker lock(&data.lock);
   HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
 }
 
@@ -396,7 +399,12 @@ void readCASSGainFile(const string &filename, CommonData& data)
  */
 void createCorrectionMap(CommonData& data)
 {
-#warning "implement function"
+  QWriteLocker lock(&data.lock);
+  frame_t::iterator corvalue(data.correctionMap.begin());
+  frame_t::const_iterator noise(data.noiseMap.begin());
+  frame_t::const_iterator mask(data.mask.begin());
+  for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask)
+    *corval = *corval * *mask * (*noise < data.noiseThreshold);
 }
 
 } //end namespace pixeldetector
@@ -455,7 +463,8 @@ void CommonData::loadSettings(CASSSettings &s)
        <<"' does not exist";
     throw invalid_argument(ss.str());
   }
-#warning "add mask"
+#warning "load mask from mask elements (formerly known as roi)"
+  _noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
   createCorrectionMap(*this);
   s.endGroup();
 }
