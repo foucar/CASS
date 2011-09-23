@@ -187,7 +187,7 @@ struct HllFileHeader
  */
 void readHLLOffsetFile(const string &filename, CommonData& data)
 {
-  ifstream hllfile(filename.c_str(),std::ios::in);
+  ifstream hllfile(filename.c_str(),ios::in);
   if (!hllfile.is_open())
   {
     //fehler
@@ -230,15 +230,31 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
 
 /** will read the file containing the offset and noise map in the former CASS format
  *
+ * open the file then determine its size from which one can extract the size of
+ * the frame. Then read data into temporary containers for double and then copy
+ * the data to the final float containers
+ *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
  * @author Lutz Foucar
  */
 void readCASSOffsetFile(const string &filename, CommonData& data)
 {
-#warning "implement function"
-  //  in.read(reinterpret_cast<char*>(&(dp._offset[0])), dp._offset.size()*sizeof(double));
-  //  in.read(reinterpret_cast<char*>(&(dp._noise[0])), dp._noise.size()*sizeof(double));
+  ifstream in(filename.c_str(), ios::binary);
+  if (!in.is_open())
+  {
+    //fehler
+  }
+  in.seekg(0,std::ios::end);
+  const size_t size = in.tellg() / 2 / sizeof(double);
+  in.seekg(0,std::ios::beg);
+  vector<double> offsets(size);
+  in.read(reinterpret_cast<char*>(&offsets[0]), size*sizeof(double));
+  vector<double> noises(size);
+  in.read(reinterpret_cast<char*>(&noises[0]), size*sizeof(double));
+  QWriteLocker lock(&data.lock);
+  copy(offsets.begin(),offsets.end(),data.offsetMap.begin());
+  copy(noises.begin(),noises.end(),data.noiseMap.begin());
 }
 
 /** will read the file containing the gain and cte corretion factors in the HLL format

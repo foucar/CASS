@@ -80,6 +80,9 @@ public:
   /** typedef describing the instances of the helper */
   typedef std::map<std::string,shared_pointer> instancesmap_t;
 
+  /** a mask is a vector of bools */
+  typedef std::vector<bool> mask_t;
+
 public:
   /** static function creating instance of this.
    *
@@ -129,7 +132,7 @@ public:
    * the mask is a matrix with either 0 or 1 which indicate which pixels
    * shoud be omitted (1 stands for :take pixel, 0 is for don't take pixel
    */
-  frame_t mask;
+  mask_t mask;
 
   /** the gain + cte map
    *

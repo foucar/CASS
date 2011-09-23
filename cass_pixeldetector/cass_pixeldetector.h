@@ -24,9 +24,6 @@ typedef float pixel_t;
 /** a frame is a vector of pixels */
 typedef std::vector<pixel_t> frame_t;
 
-/** a mask is a vector of bools */
-typedef std::vector<bool> mask_t;
-
 /** Pixel definition
  *
  * Defines a pixel within a pixel detector.
