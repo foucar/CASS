@@ -400,9 +400,9 @@ void readCASSGainFile(const string &filename, CommonData& data)
 void createCorrectionMap(CommonData& data)
 {
   QWriteLocker lock(&data.lock);
-  frame_t::iterator corvalue(data.correctionMap.begin());
+  frame_t::iterator corval(data.correctionMap.begin());
   frame_t::const_iterator noise(data.noiseMap.begin());
-  frame_t::const_iterator mask(data.mask.begin());
+  CommonData::mask_t::const_iterator mask(data.mask.begin());
   for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask)
     *corval = *corval * *mask * (*noise < data.noiseThreshold);
 }
@@ -464,7 +464,7 @@ void CommonData::loadSettings(CASSSettings &s)
     throw invalid_argument(ss.str());
   }
 #warning "load mask from mask elements (formerly known as roi)"
-  _noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+  noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
   createCorrectionMap(*this);
   s.endGroup();
 }
