@@ -225,8 +225,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   staDataType pixelStatistics[header.length];
   const size_t pixelStatisticsLength(sizeof(staDataType)*header.length);
   hllfile.read(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
-  char badpixmap[header.length];
-  hllfile.read(badpixmap,header.length);
+  vector<char> badpixmap(header.length);
+  hllfile.read(&badpixmap[0],header.length);
 
   frame_t hlloffsets(header.length);
   frame_t::iterator hlloffset(hlloffsets.begin());
@@ -242,13 +242,14 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   {
     *hllnoise = pixelStatistic->sigma;
   }
-#warning "copy also the bad pix map contained in the darkcalfile"
 
   QWriteLocker lock(&data.lock);
   data.offsetMap.resize(header.length);
   HLL2CASS(hlloffsets,data.offsetMap,header.rows,header.rows,header.columns);
   data.noiseMap.resize(header.length);
   HLL2CASS(hllnoises,data.noiseMap,header.rows,header.rows,header.columns);
+  data.mask.resize(header.length);
+  HLL2CASS(badpixmap,data.mask,header.rows,header.rows,header.columns);
 }
 
 /** will read the file containing the offset and noise map in the former CASS format
