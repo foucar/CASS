@@ -11,6 +11,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <cmath>
 
 #include "common_data.h"
 
@@ -194,7 +195,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   }
   HllFileHeader header;
   hllfile.read(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
-  if ((string("HE pixel statistics map") != header.identifystring) &&
+  if ((string("HE pixel statistics map") != header.identifystring) ||
       (header.columns * header.rows != header.length))
   {
     //fehler
@@ -259,13 +260,98 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
 
 /** will read the file containing the gain and cte corretion factors in the HLL format
  *
+ * read in HLL gain/CTE correction format
+ *
+ * the first four lines look like the following
+ *
+ * HE File containing gain and CTE values
+ * VERSION 3
+ * HE       #Column   Gain    CTE0
+ * GC          0          1   0.999977
+ * [...]
+ *
+ * the third line and following lines have different spacing, depending on
+ * how xonline is writing these files.
+ *
+ * column is related to the way the ccd is read out.  The ccd
+ * consists of four segments
+ *
+ * BC
+ * AD
+ *
+ * that are placed ABCD for the HLL file format with the
+ * following numbers
+ *
+ * 1023 <- 512    1535 <- 1024
+ *
+ *    0 -> 512    1536 -> 2048
+ *
+ * The segments are read out bottom up for AD and
+ * top down for BC (actually shifted to the corresponding edge).
+ *
+ * The memory representation is continuously
+ *
+ *  ...
+ * 1024 -> 2047
+ *    0 -> 1023
+ *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
+ *
+ * @author Mirko Scholz
  * @author Lutz Foucar
  */
 void readHLLGainFile(const string &filename, CommonData& data)
 {
-#warning "implement function"
+  ifstream in(filename.c_str(), ios::binary);
+  if (!in.is_open())
+  {
+    //fehler
+  }
+  char line[80];
+  in.getline(line, 80);
+  if (line != string("HE File"))
+  {
+    //error
+    throw runtime_error("Wrong file format: " + std::string(line));
+  }
+  in.getline(line, 80);
+  if (strncmp(line, "VERSION 3", 9))
+  {
+    throw runtime_error("Wrong file format: " + std::string(line));
+  }
+  in.getline(line, 80);
+
+  vector<float> gains;
+  vector<float> ctes;
+
+  char g='G', c='C';
+  size_t col;
+  float gain, cte;
+
+  while(true)
+  {
+    in>>g>>c>>col>>gain>>cte;
+    if ((g != 'G') || (c != 'C'))
+      break;
+    gains.push_back(gain);
+    ctes.push_back(cte);
+  }
+
+  frame_t hllgaincteMap;
+  //build up gain + cte map in HLL format
+  const size_t rows(512);
+  const size_t columns(gains.size());
+  for (size_t row(0); row < rows; ++row)
+  {
+    for (size_t column(0); column < columns; ++column)
+    {
+      hllgaincteMap.push_back(gains[column] / pow(ctes[column], row+1));
+    }
+  }
+
+  //convert HLL format to CASS format
+  HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
 }
 
 /** will read the file containing the gain and cte corretion factors in the former CASS format
