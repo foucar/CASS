@@ -31,22 +31,33 @@ namespace pixeldetector
 
 /** convert a linearised matrix in the CASS format to the hll format
  *
- * @param
+ * the difference between the CASS and HLL is, that the CASS format has all 4
+ * quadrants in a quadrat wheras in HLL they are aligned in a rectange. See
+ * pixeldetector::readHLLGainFile for more detais.
+ *
+ * @tparam inputContainerType the type of the container containing the input
+ * @tparam outputContainerType the type of the container containing the output
+ * @param CASSMatrix the container containing the linearised input matrix
+ * @param HLLMatrix the container containing the linearised out matrix
+ * @param quadrantColumns the number of columns in one quadrant
+ * @param quadrantRows the number of rows in one quadrant
+ * @param CASSColumns the number of columns in the CASS input container
  *
  * @author Lutz Foucar
  */
-void CASS2HLL(const frame_t& CASSMatrix,
-              frame_t& HLLMatrix,
+template <typename inputContainerType, typename outputContainerType>
+void CASS2HLL(const inputContainerType& CASSMatrix,
+              outputContainerType& HLLMatrix,
               size_t quadrantColumns,
               size_t quadrantRows,
               size_t CASSColumns)
 {
-  frame_t::const_iterator cassquadrant0(CASSMatrix.begin());
-  frame_t::const_iterator cassquadrant1(CASSMatrix.begin()+quadrantColumns);
-  frame_t::const_reverse_iterator cassquadrant2(CASSMatrix.rbegin()+quadrantColumns);
-  frame_t::const_reverse_iterator cassquadrant3(CASSMatrix.rbegin());
+  typename inputContainerType::const_iterator cassquadrant0(CASSMatrix.begin());
+  typename inputContainerType::const_iterator cassquadrant1(CASSMatrix.begin()+quadrantColumns);
+  typename inputContainerType::const_reverse_iterator cassquadrant2(CASSMatrix.rbegin()+quadrantColumns);
+  typename inputContainerType::const_reverse_iterator cassquadrant3(CASSMatrix.rbegin());
 
-  frame_t::iterator HLL(HLLMatrix.begin());
+  typename outputContainerType::iterator HLL(HLLMatrix.begin());
 
   for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
   {
@@ -68,22 +79,33 @@ void CASS2HLL(const frame_t& CASSMatrix,
 
 /** convert a linearised matrix in the hll format to the CASS format
  *
- * @param
+ * the difference between the CASS and HLL is, that the CASS format has all 4
+ * quadrants in a quadrat wheras in HLL they are aligned in a rectange. See
+ * pixeldetector::readHLLGainFile for more detais.
+ *
+ * @tparam inputContainerType the type of the container containing the input
+ * @tparam outputContainerType the type of the container containing the output
+ * @param HLLMatrix the container containing the linearised input matrix
+ * @param CASSMatrix the container containing the linearised out matrix
+ * @param quadrantColumns the number of columns in one quadrant
+ * @param quadrantRows the number of rows in one quadrant
+ * @param HLLColumns the number of columns in the HLL input container
  *
  * @author Lutz Foucar
  */
-void HLL2CASS(const frame_t& HLLMatrix,
-              frame_t& CASSMatrix,
+template <typename inputContainerType, typename outputContainerType>
+void HLL2CASS(const inputContainerType& HLLMatrix,
+              outputContainerType& CASSMatrix,
               size_t quadrantColumns,
               size_t quadrantRows,
               size_t HLLColumns)
 {
-  frame_t::const_iterator hllquadrant0(HLLMatrix.begin());
-  frame_t::const_reverse_iterator hllquadrant1(HLLMatrix.rbegin()+2*quadrantColumns);
-  frame_t::const_reverse_iterator hllquadrant2(HLLMatrix.rbegin()+1*quadrantColumns);
-  frame_t::const_iterator hllquadrant3(HLLMatrix.begin()+3*quadrantColumns);
+  typename inputContainerType::const_iterator hllquadrant0(HLLMatrix.begin());
+  typename inputContainerType::const_reverse_iterator hllquadrant1(HLLMatrix.rbegin()+2*quadrantColumns);
+  typename inputContainerType::const_reverse_iterator hllquadrant2(HLLMatrix.rbegin()+1*quadrantColumns);
+  typename inputContainerType::const_iterator hllquadrant3(HLLMatrix.begin()+3*quadrantColumns);
 
-  frame_t::iterator cass(CASSMatrix.begin());
+  typename outputContainerType::iterator cass(CASSMatrix.begin());
 
   //copy quadrant read to right side (lower in CASS)
   for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
@@ -338,8 +360,8 @@ void readHLLGainFile(const string &filename, CommonData& data)
     ctes.push_back(cte);
   }
 
-  frame_t hllgaincteMap;
   //build up gain + cte map in HLL format
+  frame_t hllgaincteMap;
   const size_t rows(512);
   const size_t columns(gains.size());
   for (size_t row(0); row < rows; ++row)
