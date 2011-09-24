@@ -119,6 +119,12 @@ public:
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
 
+  /** the width of the maps */
+  size_t columns;
+
+  /** the height of the maps */
+  size_t rows;
+
   /** the offset map
    *
    * the offset map is the mean value of the individual pixels for given
