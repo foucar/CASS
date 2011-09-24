@@ -76,6 +76,22 @@ index_t operator*(const index_t& lhs, const index_t& rhs)
                    lhs.second * rhs.second);
 }
 
+/** operates devides on two indices
+ *
+ * performs \f(lhs_1/rhs_1)(lhs_2/rhs_2)\f$.
+ *
+ * @return the result of the operation
+ * @param lhs the left hand side of the operation
+ * @param rhs the right hand side of the opeation
+ *
+ * @author Lutz Foucar
+ */
+index_t operator/(const index_t& lhs, const index_t& rhs)
+{
+  return make_pair(lhs.first / rhs.first,
+                   lhs.second / rhs.second);
+}
+
 /** operates less of an  indices to a scalar
  *
  * performs \f(lhs_1+lhs_2)<rhs\f$.
@@ -253,6 +269,7 @@ void addCircle(CommonData &data, CASSSettings &s)
  */
 void addSquare(CommonData &data, CASSSettings &s)
 {
+  QWriteLocker lock(&data.lock);
   const index_t lowerLeft(make_pair(s.value("LowerLeftX",0).toUInt(),
                                     s.value("LowerLeftY",0).toUInt()));
   const index_t upperRight(make_pair(s.value("UpperRightX",1024).toUInt(),
@@ -279,12 +296,22 @@ void addSquare(CommonData &data, CASSSettings &s)
     for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t idx(make_pair(column,row));
-      data.mask[TwoD2OneD(idx,width)] = false;
+      data.mask[TwoD2OneD(idx,width)] = 0;
     }
   }
 }
 
 /** add a ellipsodial element to the mask
+ *
+ * adds an ellipsodial to the mask. Will iterate trhough the sqare that contains
+ * the ellipse and checks which pixels should be masked.
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
+ *           The center of the circle. Default is 500|500.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{SemiAxisX|SemiAxisY}\n
+ *           The semi axis along x and y of the ellipse. By definition the
+ *           longer one defines the major axis and the smaller on the minor axis.
+ *           Default is 5|4.
  *
  * @param data the container containing the mask where the element should be added
  * @param s the settings element to read the mask element parameters from
@@ -294,8 +321,28 @@ void addSquare(CommonData &data, CASSSettings &s)
  */
 void addEllipse(CommonData &data, CASSSettings &s)
 {
-#warning "implement this"
+  QWriteLocker lock(&data.lock);
+  const index_t center(make_pair(s.value("CenterX",500).toUInt(),
+                                 s.value("CenterY",500).toUInt()));
+  const size_t a(s.value("SemiAxisX",5).toUInt());
+  const size_t b(s.value("SemiAxisY",2).toUInt());
+  const size_t width(data.columns);
+#warning "add consistency check"
 
+  const index_t lowerLeft(make_pair(center.first-a, center.second-b));
+  const index_t upperRight(make_pair(center.first+a, center.second+b));
+  const index_t axis_sq(make_pair(a,b)*make_pair(a,b));
+
+  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  {
+    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    {
+      const index_t idx(make_pair(column,row));
+      const index_t idx_sq((idx - center)*(idx - center));
+      const index_t idx_tmp(idx_sq / axis_sq);
+      data.mask[TwoD2OneD(idx,width)] *=  !(idx_tmp < 1);
+    }
+  }
 }
 
 /** add a triangluar element to the mask
