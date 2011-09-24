@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <stdexcept>
+#include <sstream>
 
 #include "pixeldetector_mask.h"
 
@@ -90,7 +91,24 @@ bool operator<(const index_t& lhs, const size_t rhs)
   return ((lhs.first + lhs.second) < rhs);
 }
 
-/** @endgroup */
+/** convert any type to a string
+ *
+ * should be used for converting numbers to strings. This function was inspired
+ * by a function found at Sep, 24th 2011 here:
+ * http://notfaq.wordpress.com/2006/08/30/c-convert-int-to-string/
+ *
+ * @tparam Type the type of the number
+ * @param t the number to convert to string
+ *
+ * @author Lutz Foucar
+ */
+template <typename Type>
+inline string toString (const Type& t)
+{
+  stringstream ss;
+  ss << t;
+  return ss.str();
+}
 
 /** a mask element
  *
@@ -189,6 +207,17 @@ void addCircle(CommonData &data, CASSSettings &s)
                                  s.value("CenterY",500).toUInt()));
   const size_t radius(s.value("Radius",2).toUInt());
 
+  if ((center.first < radius) ||
+      (center.second < radius) ||
+      ((center.first + radius) > data.columns) ||
+      ((center.second + radius) > data.rows))
+  {
+
+    throw invalid_argument("addCircle(): The radius '" + toString(radius) +
+                           "'is choosen to big and does not fit with center ("
+                           + toString(center.first) +","
+                           + toString(center.second)+")");
+  }
   const size_t radius_sq(radius*radius);
   const index_t lowerLeft(make_pair(center.first-radius, center.second-radius));
   const index_t upperRight(make_pair(center.first+radius, center.second+radius));
@@ -228,6 +257,22 @@ void addSquare(CommonData &data, CASSSettings &s)
                                     s.value("LowerLeftY",0).toUInt()));
   const index_t upperRight(make_pair(s.value("UpperRightX",1024).toUInt(),
                                      s.value("UpperRightY",1024).toUInt()));
+  if ((data.columns < upperRight.first) ||
+      (data.rows < upperRight.second) ||
+      (upperRight.first < lowerLeft.first) ||
+      (upperRight.second < lowerLeft.second))
+  {
+    throw invalid_argument("addSquare(): Either the upper right coordinate ("
+                           + toString(upperRight.first) +","
+                           + toString(upperRight.second)+") "+
+                           "is too big for the mask that has a size of ("
+                           + toString(data.columns) +","
+                           + toString(data.rows)+") "+
+                           "or the lowerLeft corner ("
+                           + toString(lowerLeft.first) +","
+                           + toString(lowerLeft.second)+") "+
+                           "is not really at the lower left");
+  }
   const size_t width(data.columns);
   for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
   {
