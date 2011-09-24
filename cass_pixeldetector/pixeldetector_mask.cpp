@@ -26,7 +26,7 @@ namespace cass
 namespace pixeldetector
 {
 /** an index within a matrix */
-typedef pair<size_t,size_t> index_t;
+typedef pair<int,int> index_t;
 
 /** operates a plus on two indices
  *
@@ -102,7 +102,7 @@ index_t operator/(const index_t& lhs, const index_t& rhs)
  *
  * @author Lutz Foucar
  */
-bool operator<(const index_t& lhs, const size_t rhs)
+bool operator<(const index_t& lhs, const index_t::first_type rhs)
 {
   return ((lhs.first + lhs.second) < rhs);
 }
@@ -190,12 +190,12 @@ void addCircle(CommonData &data, CASSSettings &s)
   QWriteLocker lock(&data.lock);
   const index_t center(make_pair(s.value("CenterX",500).toUInt(),
                                  s.value("CenterY",500).toUInt()));
-  const size_t radius(s.value("Radius",2).toUInt());
+  const index_t::first_type radius(s.value("Radius",2).toUInt());
 
   if ((center.first < radius) ||
       (center.second < radius) ||
-      (data.columns <= (center.first + radius)) ||
-      (data.rows <= (center.second + radius)))
+      (static_cast<int>(data.columns) <= (center.first + radius)) ||
+      (static_cast<int>(data.rows) <= (center.second + radius)))
   {
     throw invalid_argument("addCircle(): The radius '" + toString(radius) +
                            "' is choosen to big and does not fit with center ("
@@ -207,9 +207,9 @@ void addCircle(CommonData &data, CASSSettings &s)
   const index_t upperRight(make_pair(center.first+radius, center.second+radius));
   const size_t width(data.columns);
 
-  for (size_t row(lowerLeft.second); row < upperRight.second; ++row)
+  for (index_t::first_type row(lowerLeft.second); row < upperRight.second; ++row)
   {
-    for (size_t column(lowerLeft.first); column < upperRight.first; ++column)
+    for (index_t::first_type column(lowerLeft.first); column < upperRight.first; ++column)
     {
       const index_t idx(make_pair(column,row));
       const index_t idx_sq((idx - center)*(idx - center));
@@ -242,8 +242,8 @@ void addSquare(CommonData &data, CASSSettings &s)
                                     s.value("LowerLeftY",0).toUInt()));
   const index_t upperRight(make_pair(s.value("UpperRightX",1024).toUInt(),
                                      s.value("UpperRightY",1024).toUInt()));
-  if ((data.columns <= upperRight.first) ||
-      (data.rows <= upperRight.second) ||
+  if ((static_cast<int>(data.columns) <= upperRight.first) ||
+      (static_cast<int>(data.rows) <= upperRight.second) ||
       (upperRight.first < lowerLeft.first) ||
       (upperRight.second < lowerLeft.second))
   {
@@ -259,9 +259,9 @@ void addSquare(CommonData &data, CASSSettings &s)
                            "is not really at the lower left");
   }
   const size_t width(data.columns);
-  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  for (index_t::first_type row(lowerLeft.second); row <= upperRight.second; ++row)
   {
-    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t idx(make_pair(column,row));
       data.mask[TwoD2OneD(idx,width)] = 0;
@@ -292,14 +292,14 @@ void addEllipse(CommonData &data, CASSSettings &s)
   QWriteLocker lock(&data.lock);
   const index_t center(make_pair(s.value("CenterX",500).toUInt(),
                                  s.value("CenterY",500).toUInt()));
-  const size_t a(s.value("SemiAxisX",5).toUInt());
-  const size_t b(s.value("SemiAxisY",2).toUInt());
+  const index_t::first_type a(s.value("SemiAxisX",5).toUInt());
+  const index_t::first_type b(s.value("SemiAxisY",2).toUInt());
   const size_t width(data.columns);
 
   if ((center.first < a) ||
       (center.second < b) ||
-      (data.columns <= (center.first + a)) ||
-      (data.rows <= (center.second + b)))
+      (static_cast<int>(data.columns) <= (center.first + a)) ||
+      (static_cast<int>(data.rows) <= (center.second + b)))
   {
     throw invalid_argument("addCircle(): The semi axis x '" + toString(a) +
                            "' and b '" + toString(b) +
@@ -312,9 +312,9 @@ void addEllipse(CommonData &data, CASSSettings &s)
   const index_t upperRight(make_pair(center.first+a, center.second+b));
   const index_t axis_sq(make_pair(a,b)*make_pair(a,b));
 
-  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  for (index_t::first_type row(lowerLeft.second); row <= upperRight.second; ++row)
   {
-    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t idx(make_pair(column,row));
       const index_t idx_sq((idx - center)*(idx - center));
@@ -374,12 +374,12 @@ void addTriangle(CommonData &data, CASSSettings &s)
   if (A == B ||
       B == C ||
       A == C ||
-      data.columns <= A.first ||
-      data.columns <= B.first ||
-      data.columns <= C.first ||
-      data.rows <= A.second ||
-      data.rows <= B.second ||
-      data.rows <= C.second )
+      static_cast<int>(data.columns) <= A.first ||
+      static_cast<int>(data.columns) <= B.first ||
+      static_cast<int>(data.columns) <= C.first ||
+      static_cast<int>(data.rows) <= A.second ||
+      static_cast<int>(data.rows) <= B.second ||
+      static_cast<int>(data.rows) <= C.second )
   {
     throw invalid_argument("addTriangle(): the 3 Points "
                            "A("+toString(A.first)+","+toString(A.second)+"), "
@@ -397,9 +397,9 @@ void addTriangle(CommonData &data, CASSSettings &s)
   const index_t lowerLeft(make_pair(minX,minY));
   const index_t upperRight(make_pair(maxX,maxY));
 
-  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  for (index_t::first_type row(lowerLeft.second); row <= upperRight.second; ++row)
   {
-    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t P(make_pair(column,row));
 
