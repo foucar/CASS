@@ -357,6 +357,13 @@ void addEllipse(CommonData &data, CASSSettings &s)
  * Inspired by ideas found here (last checked Sep. 24th, 2011):
  * http://www.blackpawn.com/texts/pointinpoly/default.html
  *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointA_X|PointA_Y}\n
+ *           The triangles first point. Default is 500|500.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointB_X|PointB_Y}\n
+ *           The triangles first point. Default is 500|500.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointC_X|PointC_Y}\n
+ *           The triangles first point. Default is 500|500.
+ *
  * @param data the container containing the mask where the element should be added
  * @param s the settings element to read the mask element parameters from
  *
