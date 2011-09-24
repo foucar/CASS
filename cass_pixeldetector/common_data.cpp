@@ -474,3 +474,8 @@ void CommonData::createMaps(const Frame &frame)
   MapCreatorBase& createCorrectionMaps(*_mapcreator);
   createCorrectionMaps(frame);
 }
+
+void CommonData::saveMaps()
+{
+#warning "implement this"
+}

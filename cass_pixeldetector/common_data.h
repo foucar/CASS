@@ -110,6 +110,12 @@ public:
    */
   void createMaps(const Frame& frame);
 
+  /** save maps
+   *
+   * save the maps to file in HLL Format
+   */
+  void saveMaps();
+
   /** lock to synchronize read and write acces to the common data */
   QReadWriteLock lock;
 
