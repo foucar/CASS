@@ -200,7 +200,7 @@ void addCircle(CommonData &data, CASSSettings &s)
     {
       const index_t idx(make_pair(column,row));
       const index_t idx_sq((idx - center)*(idx - center));
-      data.mask[TwoD2OneD(idx,width)] = data.mask[TwoD2OneD(idx,width)] && !(idx_sq < radius_sq);
+      data.mask[TwoD2OneD(idx,width)] *=  !(idx_sq < radius_sq);
     }
   }
 }

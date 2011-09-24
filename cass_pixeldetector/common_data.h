@@ -81,7 +81,7 @@ public:
   typedef std::map<std::string,shared_pointer> instancesmap_t;
 
   /** a mask is a vector of bools */
-  typedef std::vector<bool> mask_t;
+  typedef std::vector<char> mask_t;
 
 public:
   /** static function creating instance of this.
