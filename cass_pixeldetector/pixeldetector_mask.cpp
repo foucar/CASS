@@ -176,8 +176,8 @@ index_t OneD2TwoD(const size_t linearisedIndex, const size_t width)
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{Radius}\n
  *           The radius of the circle. Default is 2.
  *
- * @param element the mask element to be added to the mask
- * @param mask the Mask where the element should be added
+ * @param data the container containing the mask where the element should be added
+ * @param s the settings element to read the mask element parameters from
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
@@ -207,22 +207,42 @@ void addCircle(CommonData &data, CASSSettings &s)
 
 /** add a square element to the mask
  *
- * @param element the mask element to be added to the mask
- * @param mask the Mask where the element should be added
+ * sets all pixels covered by the square to 0.
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerY}\n
+ *           The lower left pixel of the square element. The indizes given are
+ *.          included in the square. Default is 0|0.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerY}\n
+ *           The upper right pixel of the square element. The indizes given are
+ *.          included in the square. Default is 1023|1023.
+ *
+ * @param data the container containing the mask where the element should be added
+ * @param s the settings element to read the mask element parameters from
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
  */
 void addSquare(CommonData &data, CASSSettings &s)
 {
-#warning "implement this"
-
+  const index_t lowerLeft(make_pair(s.value("LowerLeftX",0).toUInt(),
+                                    s.value("LowerLeftY",0).toUInt()));
+  const index_t upperRight(make_pair(s.value("UpperRightX",1024).toUInt(),
+                                     s.value("UpperRightY",1024).toUInt()));
+  const size_t width(data.columns);
+  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  {
+    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    {
+      const index_t idx(make_pair(column,row));
+      data.mask[TwoD2OneD(idx,width)] = false;
+    }
+  }
 }
 
 /** add a ellipsodial element to the mask
  *
- * @param element the mask element to be added to the mask
- * @param mask the Mask where the element should be added
+ * @param data the container containing the mask where the element should be added
+ * @param s the settings element to read the mask element parameters from
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
@@ -235,8 +255,8 @@ void addEllipse(CommonData &data, CASSSettings &s)
 
 /** add a triangluar element to the mask
  *
- * @param element the mask element to be added to the mask
- * @param mask the Mask where the element should be added
+ * @param data the container containing the mask where the element should be added
+ * @param s the settings element to read the mask element parameters from
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
