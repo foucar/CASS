@@ -34,6 +34,10 @@ class CommonData;
  *                       cass::pixeldetector::addSquare
  *           - "circle" or "circ": a circular region of the mask. See
  *                                 cass::pixeldetector::addCircle
+ *           - "ellipse": a ellipsodial region of the mask. See
+ *                       cass::pixeldetector::addEllipse
+ *           - "triangle": a square region of the mask. See
+ *                       cass::pixeldetector::addTriangle
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
