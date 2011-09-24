@@ -16,30 +16,36 @@ using namespace std;
 
 void NonAlteringMaps::operator ()(const Frame &frame)
 {
+#warning "implement this"
 
 }
 
 void NonAlteringMaps::loadSettings(CASSSettings &s)
 {
+#warning "implement this"
 
 }
 
 void FixedMaps::operator ()(const Frame &frame)
 {
+#warning "implement this"
 
 }
 
 void FixedMaps::loadSettings(CASSSettings &s)
 {
+#warning "implement this"
 
 }
 
 void MovingMaps::operator ()(const Frame &frame)
 {
+#warning "implement this"
 
 }
 
 void MovingMaps::loadSettings(CASSSettings &s)
 {
+#warning "implement this"
 
 }
