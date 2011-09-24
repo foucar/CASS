@@ -19,6 +19,7 @@
 #include "cass_event.h"
 #include "advanced_pixeldetector.h"
 #include "mapcreator_base.h"
+#include "pixeldetector_mask.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -463,7 +464,7 @@ void CommonData::loadSettings(CASSSettings &s)
        <<"' does not exist";
     throw invalid_argument(ss.str());
   }
-#warning "load mask from mask elements (formerly known as roi)"
+  createCASSMask(*this,s);
   noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
   createCorrectionMap(*this);
   s.endGroup();
