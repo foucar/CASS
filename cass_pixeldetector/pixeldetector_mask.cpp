@@ -371,7 +371,23 @@ void addTriangle(CommonData &data, CASSSettings &s)
   const index_t C(make_pair(s.value("PointC_X",500).toUInt(),
                             s.value("PointC_Y",500).toUInt()));
 
-#warning add check for consistency of parameters (points not same, and not out side frame)
+  if (A == B ||
+      B == C ||
+      A == C ||
+      data.columns <= A.first ||
+      data.columns <= B.first ||
+      data.columns <= C.first ||
+      data.rows <= A.second ||
+      data.rows <= B.second ||
+      data.rows <= C.second )
+  {
+    throw invalid_argument("addTriangle(): the 3 Points "
+                           "A("+toString(A.first)+","+toString(A.second)+"), "
+                           "B("+toString(B.first)+","+toString(B.second)+"), "
+                           "C("+toString(C.first)+","+toString(C.second)+"), "
+                           "are inconsistent. Or outside the the mask boundaries "+
+                           toString(data.columns) +","+ toString(data.rows));
+  }
 
   const size_t width(data.columns);
   const index_t::first_type minX(min(min(A.first,B.first),C.first));
