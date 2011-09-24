@@ -107,6 +107,21 @@ bool operator<(const index_t& lhs, const size_t rhs)
   return ((lhs.first + lhs.second) < rhs);
 }
 
+/** calculate the scalar product of two indices
+ *
+ * perform operation \f$ lhs_1*rhs_1 + lhs_2*rhs_2\f$
+ *
+ * @return the result of the operation
+ * @param lhs the left hand side of the operation
+ * @param rhs the right hand side of the opeation
+ *
+ * @author Lutz Foucar
+ */
+index_t::first_type dot(const index_t& lhs, const index_t& rhs)
+{
+  return ((lhs.first*rhs.first)+(lhs.second*lhs.second));
+}
+
 /** convert any type to a string
  *
  * should be used for converting numbers to strings. This function was inspired
@@ -126,52 +141,6 @@ inline string toString (const Type& t)
   return ss.str();
 }
 
-/** a mask element
- *
- * each Mask element need the following "attributes": shape, xsize, ysize,
- * xcenter, ycenter, shape and orientation shapes:=circ(==circle),ellipse,
- * triangle(isosceles),square and  the orientation!!!
- *
- * The orientation is used only in the case of a triangular shape
- *
- * xsize,ysize and center are in pixel units.
- *
- * The orientation is used only in the case of a triangular shape.
- *
- * @verbatim
- /\           ----         |\           /|
-/  \  ==+1    \  /  ==-1   | \  ==+2   / | == -2
-----           \/          | /         \ |
-                           |/           \|
-   @endverbatim
- * if I rotate the plane by -pi/2: -2=>+1 1=>+2 -1=>-2  +2=>-1.
- * Please remember to use the rotated frame wrt standard-natural frame
- * orientation!!
- *
- * @todo refine the documentation by using casssettng
- *
- * @author Nicola Coppola
- */
-struct MaskElement
-{
-  /** shape type */
-  std::string type;
-
-  /** size of shape along x-axis */
-  uint32_t xsize;
-
-  /** the size(s) along the y axis */
-  uint32_t ysize;
-
-  /** the centre(s) along the x axis */
-  uint32_t xcentre;
-
-  /** the centre(s) along the y axis */
-  uint32_t ycentre;
-
-  /** the orientation of the triangle */
-  int32_t orientation;
-};
 
 /** convert matrix index to linearised index
  *
@@ -357,15 +326,84 @@ void addEllipse(CommonData &data, CASSSettings &s)
 
 /** add a triangluar element to the mask
  *
+ * To see whether a point is within a triangle on just creates a new coordinate
+ * sytem where the origin is one point of the triangle defined by the three
+ * points A B C. The two vectors AB and AC define the coordiante system. Then
+ * any point P can be described as
+ * \f[ P = A + u * (C - A) + v * (B - A)\f]
+ * where u is the distance along the vector AC and v is the distance along AB.
+ * once one has determined u and v for a given point P one has just to check
+ * whether u and v are positive and whether their sum is smaller than 1 to see
+ * whether the P is inside the triangle defined by Points ABC.
+ * This is because "if u or v < 0 then we've walked in the wrong direction and
+ * must be outside the triangle. Also if u or v > 1 then we've walked too far in
+ * a direction and are outside the triangle. Finally if u + v > 1 then we've
+ * crossed the edge BC again leaving the triangle."
+ * One can rearrange the above equation to solve for u and v and the result is
+ * \f{eqnarray*}{
+ * u &=& \frac{(v1 \cdot v1)(v2 \cdot v0)-(v1 \cdot v0)(v2 \cdot v1)}
+ *            {(v0 \cdot v0)(v1 \cdot v1) - (v0 \cdot v1)(v1 \cdot v0)} \\
+ * v &=& \frac{(v0 \cdot v0)(v2 \cdot v1)-(v0 \cdot v1)(v2 \cdot v0)}
+ *            {(v0 \cdot v0)(v1 \cdot v1) - (v0 \cdot v1)(v1 \cdot v0)}
+ * \f}
+ * where the dot between two vectors mark that it is a scalar product and the
+ * vectors are defined as follows:
+ * \f{eqnarray*}{
+ * v0 $=$ AC \\
+ * v1 $=$ AB \\
+ * v2 $=$ AP
+ * \f}
+ *
+ * Inspired by ideas found here (last checked Sep. 24th, 2011):
+ * http://www.blackpawn.com/texts/pointinpoly/default.html
+ *
  * @param data the container containing the mask where the element should be added
  * @param s the settings element to read the mask element parameters from
  *
- * @author Nicola Coppola
  * @author Lutz Foucar
  */
 void addTriangle(CommonData &data, CASSSettings &s)
 {
-#warning "implement this"
+  const index_t A(make_pair(s.value("PointA_X",500).toUInt(),
+                            s.value("PointA_Y",500).toUInt()));
+  const index_t B(make_pair(s.value("PointB_X",500).toUInt(),
+                            s.value("PointB_Y",500).toUInt()));
+  const index_t C(make_pair(s.value("PointC_X",500).toUInt(),
+                            s.value("PointC_Y",500).toUInt()));
+
+#warning add check for consistency of parameters (points not same, and not out side frame)
+
+  const size_t width(data.columns);
+  const index_t::first_type minX(min(min(A.first,B.first),C.first));
+  const index_t::first_type minY(min(min(A.second,B.second),C.second));
+  const index_t::first_type maxX(max(max(A.first,B.first),C.first));
+  const index_t::first_type maxY(max(max(A.second,B.second),C.second));
+  const index_t lowerLeft(make_pair(minX,minY));
+  const index_t upperRight(make_pair(maxX,maxY));
+
+  for (size_t row(lowerLeft.second); row <= upperRight.second; ++row)
+  {
+    for (size_t column(lowerLeft.first); column <= upperRight.first; ++column)
+    {
+      const index_t P(make_pair(column,row));
+
+      const index_t v0(C - A);
+      const index_t v1(B - A);
+      const index_t v2(P - A);
+
+      const index_t::first_type dot00 = dot(v0, v0);
+      const index_t::first_type dot01 = dot(v0, v1);
+      const index_t::first_type dot02 = dot(v0, v2);
+      const index_t::first_type dot11 = dot(v1, v1);
+      const index_t::first_type dot12 = dot(v1, v2);
+
+      const float invDenom(1. / (dot00 * dot11 - dot01 * dot01));
+      const float u((dot11 * dot02 - dot01 * dot12) * invDenom);
+      const float v((dot00 * dot12 - dot01 * dot02) * invDenom);
+
+      data.mask[TwoD2OneD(P,width)] *=  !((u+v < 1) && (0 < u) && (0 < v));
+    }
+  }
 
 }
 
@@ -391,263 +429,4 @@ void createCASSMask(CommonData &data, CASSSettings &s)
     functions[type](data,s);
   }
   s.endArray();
-
-
-
-//    //------------------------------------------------------------------------
-
-
-//    if(dp._detROI._ROI[iROI].name=="triangle")
-//    {
-//      int32_t  xlocal,ylocal;
-//      float xlocal_f,ylocal_f;
-//      float xsize,ysize;
-//      xsize=static_cast<float>(dp._detROI._ROI[iROI].xsize);
-//      ysize=static_cast<float>(dp._detROI._ROI[iROI].ysize);
-
-//#ifdef debug
-//      std::cout << printoutdef <<  "triangle seen" <<std::endl;
-//#endif
-//      if(dp._detROI._ROI[iROI].orientation==+1)
-//      {
-//#ifdef debug
-//        std::cout << printoutdef <<  "triangle seen vertex upwards" <<std::endl;
-//#endif
-//        //the triangle is at least isosceles
-//        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
-//        {
-//          xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
-//          ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize + 1);
-//          xlocal_f=static_cast<float>(xlocal);
-//          ylocal_f=static_cast<float>(ylocal);
-
-//#ifdef debug
-//          std::cout<<"local "<<xlocal<<" "<<ylocal
-//                   << " " <<2 * ysize/xsize*xlocal_f << " " <<4*ysize - 2* ysize/xsize*xlocal_f
-//                   <<std::endl;
-//#endif
-//          if(ylocal-1<(2 * ysize/xsize*xlocal_f)
-//             && xlocal< (signed_ROI_xsize+1) )
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//          else if(ylocal-1<(4*ysize - 2* ysize/xsize*xlocal_f)
-//                  && xlocal>signed_ROI_xsize)
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }
-//      if(dp._detROI._ROI[iROI].orientation==-1)
-//      {
-//#ifdef debug
-//        std::cout << printoutdef <<  "triangle seen vertex downwards" <<std::endl;
-//#endif
-//        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
-//        {
-//          xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
-//          ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize + 1);
-//          xlocal_f=static_cast<float>(xlocal);
-//          ylocal_f=static_cast<float>(ylocal);
-//#ifdef debug
-//          std::cout<<"local "<<xlocal<<" "<<ylocal
-//                   << " " <<(-2 * ysize/xsize*xlocal_f) + 2 * ysize
-//                   << " "<<-2*ysize + 2 *  ysize/xsize*xlocal <<std::endl;
-//#endif
-
-//          if(ylocal+1>((-2 * ysize/xsize*xlocal_f)
-//                     + 2 * ysize)
-//             && xlocal< (signed_ROI_xsize+1))
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//          else if(ylocal+1>(-2*ysize +
-//                          2 * ysize/xsize*xlocal_f)
-//                  && xlocal>signed_ROI_xsize)
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }
-//      if(dp._detROI._ROI[iROI].orientation==+2)
-//      {
-//#ifdef debug
-//        std::cout << printoutdef <<  "triangle seen vertex towards right" <<std::endl;
-//#endif
-//        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
-//        {
-//          // not debugged
-//          xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize + 1);
-//          ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize + 1);
-//          xlocal_f=static_cast<float>(xlocal);
-//          ylocal_f=static_cast<float>(ylocal);
-//#ifdef debug
-//          std::cout<<"local "<<xlocal<<" "<<ylocal
-//                   << " " <<(ysize/xsize*xlocal_f) << " "<<- ysize/xsize*xlocal_f + 4 * ylocal_f
-//                   <<std::endl;
-//#endif
-//          if(ylocal_f>(ysize/(2*xsize) * xlocal_f) && ylocal_f< (-ysize/(2*xsize)*xlocal_f + 2 * ysize) )
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }
-//      if(dp._detROI._ROI[iROI].orientation==-2)
-//      {
-//#ifdef debug
-//        std::cout << printoutdef <<  "triangle seen vertex towards left" <<std::endl;
-//#endif
-//        for(size_t iFrame=u_indexROI_min;iFrame<u_indexROI_max; ++iFrame)
-//        {
-//          xlocal=iFrame%(2* dp._detROI._ROI[iROI].xsize);
-//          ylocal=iFrame/(2* dp._detROI._ROI[iROI].xsize);
-//          xlocal_f=static_cast<float>(xlocal);
-//          ylocal_f=static_cast<float>(ylocal);
-//          if(ylocal>(- ysize/(2*xsize) * xlocal_f + ysize) && ylocal<( ysize/(2*xsize) * xlocal_f + ysize) )
-//          {
-//            this_index=index_min+xlocal+ sign_pnCCD_def_size * (ylocal);
-//            //I do not need to set again to zero a pixel that was already masked!
-//            //I have also to check that I have not landed on the other side of the CHIP
-//            if (this_index>=0 && (this_index < sign_pnCCD_def_size_sq) && dp._ROImask[this_index]!=0)
-//            {
-//              if( dp._detROI._ROI[iROI].xcentre<=half_pnCCD_def_size )
-//              {
-//                if( (this_index%sign_pnCCD_def_size)<= signed_ROI_xsize+signed_ROI_xcentre )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//              else
-//              {
-//                if( (signed_ROI_xcentre-signed_ROI_xsize) < (this_index%sign_pnCCD_def_size) )
-//                {
-//                  dp._ROImask[this_index]=0;
-//                  //remember how many pixels I have masked
-//                  number_of_pixelsettozero++;
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
-//  } // end iROI loop
-
 }
