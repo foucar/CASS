@@ -206,7 +206,7 @@ index_t OneD2TwoD(const size_t linearisedIndex, const size_t width)
  * is covered by the circle. If so the mask at that index will be set to false.
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
- *           The X center of the circle. Default is 500|500.
+ *           The center of the circle. Default is 500|500.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{Radius}\n
  *           The radius of the circle. Default is 2.
  *
@@ -228,9 +228,8 @@ void addCircle(CommonData &data, CASSSettings &s)
       ((center.first + radius) > data.columns) ||
       ((center.second + radius) > data.rows))
   {
-
     throw invalid_argument("addCircle(): The radius '" + toString(radius) +
-                           "'is choosen to big and does not fit with center ("
+                           "' is choosen to big and does not fit with center ("
                            + toString(center.first) +","
                            + toString(center.second)+")");
   }
@@ -307,7 +306,7 @@ void addSquare(CommonData &data, CASSSettings &s)
  * the ellipse and checks which pixels should be masked.
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{CenterX|CenterY}\n
- *           The center of the circle. Default is 500|500.
+ *           The central point of the ellipse. Default is 500|500.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{SemiAxisX|SemiAxisY}\n
  *           The semi axis along x and y of the ellipse. By definition the
  *           longer one defines the major axis and the smaller on the minor axis.
@@ -327,7 +326,18 @@ void addEllipse(CommonData &data, CASSSettings &s)
   const size_t a(s.value("SemiAxisX",5).toUInt());
   const size_t b(s.value("SemiAxisY",2).toUInt());
   const size_t width(data.columns);
-#warning "add consistency check"
+
+  if ((center.first < a) ||
+      (center.second < b) ||
+      ((center.first + a) > data.columns) ||
+      ((center.second + b) > data.rows))
+  {
+    throw invalid_argument("addCircle(): The semi axis x '" + toString(a) +
+                           "' and b '" + toString(b) +
+                           "' are choosen to big and do not fit with center ("
+                           + toString(center.first) +","
+                           + toString(center.second)+")");
+  }
 
   const index_t lowerLeft(make_pair(center.first-a, center.second-b));
   const index_t upperRight(make_pair(center.first+a, center.second+b));
