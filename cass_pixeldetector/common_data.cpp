@@ -528,7 +528,8 @@ void CommonData::loadSettings(CASSSettings &s)
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);
   _mapcreator->loadSettings(s);
-  string offsetfilename(s.value("InputOffsetNoiseFilename","").toString().toStdString());
+  string offsetfilename(s.value("InputOffsetNoiseFilename",
+                                QString::fromStdString("darkcal_"+toString(detectorId)+".cal")).toString().toStdString());
   string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
   if (offsetfiletype == "hll")
     readHLLOffsetFile(offsetfilename, *this);
