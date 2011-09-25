@@ -110,6 +110,8 @@ void AdvancedDetector::loadSettings(CASSSettings &s)
   string coalescetype(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(coalescetype);
   _coalesce->loadSettings(s);
+  _common = CommonData::instance(_name);
+  _common->detectorId = _detector;
   _common->loadSettings(s);
   s.endGroup();
 }
