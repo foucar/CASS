@@ -107,6 +107,7 @@ void MeanCalculator::loadSettings(CASSSettings &s)
   _nbrMinimumElementsToRemove = s.value("",0).toUInt();
   _minNbrPixels = s.value("",8).toUInt();
   s.endGroup();
+#warning finalize implementation
 }
 
 pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
@@ -136,4 +137,6 @@ pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, s
 void MedianCalculator::loadSettings(CASSSettings &s)
 {
   load(s);
+#warning implement this
+
 }
