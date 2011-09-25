@@ -280,7 +280,8 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     "HE pixel statistics map",
     data.columns*2,
     data.rows*0.5,
-    data.rows * data.columns
+    data.rows * data.columns,
+    ""
   };
   out.write(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
   frame_t hlloffsets(data.offsetMap);
