@@ -122,25 +122,6 @@ index_t::first_type dot(const index_t& lhs, const index_t& rhs)
   return ((lhs.first*rhs.first)+(lhs.second*lhs.second));
 }
 
-/** convert any type to a string
- *
- * should be used for converting numbers to strings. This function was inspired
- * by a function found at Sep, 24th 2011 here:
- * http://notfaq.wordpress.com/2006/08/30/c-convert-int-to-string/
- *
- * @tparam Type the type of the number
- * @param t the number to convert to string
- *
- * @author Lutz Foucar
- */
-template <typename Type>
-inline string toString (const Type& t)
-{
-  stringstream ss;
-  ss << t;
-  return ss.str();
-}
-
 
 /** convert matrix index to linearised index
  *
