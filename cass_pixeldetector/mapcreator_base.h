@@ -35,6 +35,9 @@ public:
   /** typedef the shared pointer of this */
   typedef std::tr1::shared_ptr<MapCreatorBase> shared_pointer;
 
+  /** the type of storage used */
+  typedef std::vector<frame_t> storage_t;
+
   /** virtual destructor */
   virtual ~MapCreatorBase() {}
 
