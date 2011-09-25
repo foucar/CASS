@@ -283,6 +283,7 @@ void FixedMaps::loadSettings(CASSSettings &s)
 void MovingMaps::operator ()(const Frame &frame)
 {
 #warning "implement this (not urgent)"
+  throw runtime_error("MovingMaps() has not been implemented yet");
 
 }
 
@@ -291,5 +292,6 @@ void MovingMaps::loadSettings(CASSSettings &s)
 #warning "implement this (not urgent)"
   string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
   _commondata = CommonData::instance(detectorname);
+  throw runtime_error("MovingMaps::loadSettings() has not been implemented yet");
 
 }

@@ -453,10 +453,8 @@ void CommonData::loadSettings(CASSSettings &s)
     readCASSOffsetFile(offsetfilename, *this);
   else
   {
-    stringstream ss;
-    ss <<"CommonData::loadSettings: OffsetNoiseFiletype '"<<offsetfiletype
-       <<"' does not exist";
-    throw invalid_argument(ss.str());
+    throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
+                           offsetfiletype + "' does not exist");
   }
   string gainfilename(s.value("CTEGainFilename","").toString().toStdString());
   string gainfiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
@@ -466,10 +464,8 @@ void CommonData::loadSettings(CASSSettings &s)
     readCASSGainFile(gainfilename, *this);
   else
   {
-    stringstream ss;
-    ss <<"CommonData::loadSettings: CTEGainFiletype '"<<offsetfiletype
-       <<"' does not exist";
-    throw invalid_argument(ss.str());
+    throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
+                           offsetfiletype + "' does not exist");
   }
   createCASSMask(*this,s);
   noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
