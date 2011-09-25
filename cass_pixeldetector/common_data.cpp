@@ -283,6 +283,7 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     data.rows * data.columns,
     ""
   };
+
   out.write(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
   frame_t hlloffsets(data.offsetMap);
   CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
@@ -457,17 +458,6 @@ void readHLLGainFile(const string &filename, CommonData& data)
   //convert HLL format to CASS format
   QWriteLocker lock(&data.lock);
   HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
-}
-
-/** will read the file containing the gain and cte corretion factors in the former CASS format
- *
- * @param filename the filename of file containing the offset and noise maps.
- * @param data the data storage where the info should be written to.
- * @author Lutz Foucar
- */
-void readCASSGainFile(const string &filename, CommonData& data)
-{
-  throw runtime_error("readCASSGainFile() has not been implemented yet");
 }
 
 /** will create the final correction map from the info stored in the other maps
