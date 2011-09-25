@@ -31,6 +31,12 @@ namespace commonmode
  * the calculators determine the common mode of the a user defined part of the
  * row and return the value for correcting the frame.
  *
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/CommonModeCorrection/{Width}\n
+ *           How many pixels shoudl be included in the common mode correction.
+ *           The width of one Camex is 128 pixels. Sometimes it is better to
+ *           to calculate the common mode from the entire quadrant in which case
+ *           it should be 512. Default is 128.
+ *
  * @author Lutz Foucar
  */
 class CalculatorBase

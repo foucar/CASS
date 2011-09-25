@@ -103,11 +103,10 @@ void MeanCalculator::loadSettings(CASSSettings &s)
 {
   load(s);
   s.beginGroup("MeanCommonMode");
-  _nbrMaximumElementsToRemove = s.value("",5).toUInt();
-  _nbrMinimumElementsToRemove = s.value("",0).toUInt();
-  _minNbrPixels = s.value("",8).toUInt();
+  _nbrMaximumElementsToRemove = s.value("NbrMaxDisregardedValues",5).toUInt();
+  _nbrMinimumElementsToRemove = s.value("NbrMinDisregardedValues",0).toUInt();
+  _minNbrPixels = s.value("MinNbrPixels",8).toUInt();
   s.endGroup();
-#warning finalize implementation
 }
 
 pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
@@ -137,6 +136,9 @@ pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, s
 void MedianCalculator::loadSettings(CASSSettings &s)
 {
   load(s);
-#warning implement this
-
+  s.beginGroup("MedianCommonMode");
+  _nbrDisregardedMaximumElements = s.value("NbrMaxDisregardedValues",5).toUInt();
+  _nbrDisregardedMinimumElements = s.value("NbrMinDisregardedValues",0).toUInt();
+  _minNbrPixels = s.value("MinNbrPixels",8).toUInt();
+  s.endGroup();
 }

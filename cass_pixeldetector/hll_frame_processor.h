@@ -27,7 +27,9 @@ namespace pixeldetector
  *
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/{CommonModeCalculationType}\n
  *           defines what kind of common mode correction should be done with the
- *           frames. Default is "none". Possible values are:
+ *           frames. There are settings that are used fo all calculation types.
+ *           see cass::pixeldetector::commonmode::CalculatorBase. Default type
+ *           is "none". Possible values are:
  *           - "none": No common mode correction is done
  *           - "mean": The common mode is calculated from the mean value of the
  *                     pixels. See cass::pixeldetector::commonmode::MeanCalculator

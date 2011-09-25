@@ -23,9 +23,23 @@ namespace commonmode
 
 /** Calculate the common mode by taking mean of pixel values
  *
- * description
+ * This functor calculates the mean value of the pixels. To create the list
+ * of pixels it will check whether the pixel might contain an event such as an
+ * photon. If so it will not be included in the mean. There must be a minimum
+ * number of pixels without an event before the common mode is calculated.
  *
- * @cassttng PixelDetectors/\%name\%/HLLProcessing/CommonModeMean/{CommonModeCalculationType}\n
+ * The user has the option to not include a number of highest and lowest pixel
+ * values when calculating the mean. This helps to get rid of possible extremes.
+ *
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{NbrMinDisregardedValues}\n
+ *           The number of lowest values that should be disreagarded when
+ *           calculating the mean value. Default is 5.
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{NbrMinDisregardedValues}\n
+ *           The number of highest values that should be disreagarded when
+ *           calculating the mean value. Default is 0.
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{MinNbrPixels}\n
+ *           The minimal number of Pixels that should be found in the range
+ *           before the common mode value will be calculated.
  *
  * @author Lutz Foucar
  */
@@ -65,11 +79,24 @@ private:
 
 /** Calculate the common mode by taking the median of pixel values
  *
- * Will calculate the common mode level by taking the median of the area of
- * pixels. User can choose how many upper and lower values should be disregarded
- * when calculating the median.
+ * This functor retrieves the median value of the pixels. To create the list
+ * of pixels it will check whether the pixel might contain an event such as an
+ * photon. If so it will not be included in the mean. There must be a minimum
+ * number of pixels without an event before the common mode is calculated.
  *
- * @cassttng PixelDetectors/\%name\%/HLLProcessing/CommonModeMean/{CommonModeCalculationType}\n
+ * The user has the option to not include a number of highest and lowest pixel
+ * values when getting the median of the distribution. This helps to get rid of
+ * possible extremes.
+ *
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MedianCommonMode/{NbrMinDisregardedValues}\n
+ *           The number of lowest values that should be disreagarded when
+ *           getting the median value. Default is 5.
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MedianCommonMode/{NbrMinDisregardedValues}\n
+ *           The number of highest values that should be disreagarded when
+ *           getting the median value. Default is 0.
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MedianCommonMode/{MinNbrPixels}\n
+ *           The minimal number of Pixels that should be found in the range
+ *           before the common mode value will be calculated.
  *
  * @author Lutz Foucar
  */
