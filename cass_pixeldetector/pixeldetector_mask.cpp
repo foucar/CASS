@@ -408,10 +408,6 @@ void addTriangle(CommonData &data, CASSSettings &s)
       data.mask[TwoD2OneD(P,width)] *=  !((u+v < 1) && (0 < u) && (0 < v));
     }
   }
-
-}
-
-}
 }
 
 void createCASSMask(CommonData &data, CASSSettings &s)
@@ -434,3 +430,6 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   }
   s.endArray();
 }
+
+}//end namespace pixeldetector
+}//end namespace cass
