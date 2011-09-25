@@ -215,14 +215,20 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   ifstream hllfile(filename.c_str(),ios::in);
   if (!hllfile.is_open())
   {
-    //fehler
+    throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
+                           filename + "'");
   }
   HllFileHeader header;
   hllfile.read(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
   if ((string("HE pixel statistics map") != header.identifystring) ||
       (header.columns * header.rows != header.length))
   {
-    //fehler
+    throw invalid_argument("readHLLOffsetFile(): Error file '" + filename +
+                           "' has either wrong header identify string '" +
+                           header.identifystring + "' or the header information"
+                           " is inconsistent columns * rows != length '" +
+                           toString(header.columns)+ "*" + toString(header.rows) +
+                           "!=" + toString(header.length) +"'");
   }
   staDataType pixelStatistics[header.length];
   const size_t pixelStatisticsLength(sizeof(staDataType)*header.length);
@@ -270,7 +276,8 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {
-    //fehler
+    throw invalid_argument("readCASSOffsetFile(): Error opening file '" +
+                           filename + "'");
   }
   in.seekg(0,std::ios::end);
   const size_t size = in.tellg() / 2 / sizeof(double);
