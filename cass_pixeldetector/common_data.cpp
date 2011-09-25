@@ -396,7 +396,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
  */
 void readCASSGainFile(const string &filename, CommonData& data)
 {
-#warning "implement function"
+#warning "implement function (not urgent)"
 }
 
 /** will create the final correction map from the info stored in the other maps

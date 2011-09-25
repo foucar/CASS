@@ -136,7 +136,7 @@ frame_t::value_type calcMedian(frame_t& values,
 void isSameSize(const Frame& frame, CommonData& data)
 {
   QReadLocker lock(&data.lock);
-  if ((frame.columns * frame.rows) != data.offsetMap.size())
+  if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
     lock.unlock();
     QWriteLocker wlock(&data.lock);
@@ -150,7 +150,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     wlock.unlock();
     lock.relock();
   }
-  if ((frame.columns * frame.rows) != data.noiseMap.size())
+  if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
   {
     lock.unlock();
         QWriteLocker wlock(&data.lock);
@@ -164,7 +164,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     wlock.unlock();
     lock.relock();
   }
-  if ((frame.columns * frame.rows) != data.mask.size())
+  if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
     lock.unlock();
     QWriteLocker wlock(&data.lock);
@@ -178,7 +178,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     wlock.unlock();
     lock.relock();
   }
-  if ((frame.columns * frame.rows) != data.gain_cteMap.size())
+  if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
     lock.unlock();
     QWriteLocker wlock(&data.lock);
@@ -192,7 +192,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     wlock.unlock();
     lock.relock();
   }
-  if ((frame.columns * frame.rows) != data.correctionMap.size())
+  if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
     lock.unlock();
     QWriteLocker wlock(&data.lock);
@@ -282,13 +282,13 @@ void FixedMaps::loadSettings(CASSSettings &s)
 
 void MovingMaps::operator ()(const Frame &frame)
 {
-#warning "implement this"
+#warning "implement this (not urgent)"
 
 }
 
 void MovingMaps::loadSettings(CASSSettings &s)
 {
-#warning "implement this"
+#warning "implement this (not urgent)"
   string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
   _commondata = CommonData::instance(detectorname);
 
