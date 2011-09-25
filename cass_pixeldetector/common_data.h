@@ -123,6 +123,9 @@ public:
    * save the maps to file in the user chosen fileformat.See
    * cass::pixeldetector::saveCASSOffsetFile or cass::pixeldetector::saveHLLOffsetFile
    * for details.
+   *
+   * first append the detector id and the current time to the user selected out
+   * filename. Then save the file and create a link to it. The name of the link
    */
   void saveMaps();
 

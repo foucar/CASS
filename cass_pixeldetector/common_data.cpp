@@ -13,6 +13,9 @@
 #include <iterator>
 #include <cmath>
 
+#include <QtCore/QFile>
+#include <QtCore/QDateTime>
+
 #include "common_data.h"
 
 #include "cass_settings.h"
@@ -186,22 +189,6 @@ struct HllFileHeader
   /** empty to fill the header up to 1024 bytes */
   char fillspace[988];
 };
-
-/** create an outputfilename from a filename prefix
- *
- * append the date and time to the file name as well as the detector id
- *
- * @return string containing filename with appended time and detector id
- * @param filename the filename that should be altered
- *
- * @author Lutz Foucar
- */
-string createOutputFilename(const string& filename)
-{
-  string output;
-#warning implement this
-  return output;
-}
 
 /** will read the file containing the offset and noise map in the hll format
  *
@@ -574,7 +561,12 @@ void CommonData::createMaps(const Frame &frame)
 
 void CommonData::saveMaps()
 {
-  string outname(createOutputFilename(_outputOffsetFilename));
+  string outname(_outputOffsetFilename + "_"+toString(detectorId) + "_" +
+                 QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
+                 ".cal");
   _saveTo(outname,*this);
-#warning create link to output filename
+  string linkname("darkcal_" + toString(detectorId) +".cal");
+  if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
+    throw runtime_error("CommonData::saveMaps: could not create a link named '"+
+                        linkname + "' that points to the outputfile '" + outname +"'");
 }
