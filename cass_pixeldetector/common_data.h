@@ -16,6 +16,7 @@
 #include <string>
 #include <map>
 #include <tr1/memory>
+#include <tr1/functional>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
@@ -50,24 +51,31 @@ class MapCreatorBase;
  *                      See cass::pixeldetector::FixedMaps for details.
  *           - "moving": The maps will be created from the last few frames. See
  *                       cass::pixeldetector::MovingMaps for details.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OffsetNoiseFilename}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
  *           is "".
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OffsetNoiseFiletype}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFiletype}\n
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
  *           - "hll": the filetype used by the semi conductor lab.
- *           - "cass": the filetype formerly used in CASS, and now when option
- *                     OLDCCDLAYOUT is selected during compiliation.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{CTEGainFilename}\n
+ *           - "cass": the filetype formerly used in CASS.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputOffsetNoiseFilename}\n
+ *           The filename to store the noise, offset and mask in. This is only
+ *           the prefix the current time and detector id will be appended to the
+ *           name. See cass::pixeldetector::CommonData::saveMaps for more
+ *           details Default is "darkcal".
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{OutputOffsetNoiseFiletype}\n
+ *           The filetype that the values are stored to. Default is "hll".
+ *           Options are:
+ *           - "hll": the filetype used by the semi conductor lab.
+ *           - "cass": the filetype formerly used in CASS.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputCTEGainFilename}\n
  *           The filename containing the saved cte and gain values. Default
  *           is "".
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{CTEGainFiletype}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputCTEGainFiletype}\n
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
  *           - "hll": the filetype used by the semi conductor lab.
- *           - "cass": the filetype formerly used in CASS, and now when option
- *                     OLDCCDLAYOUT is selected during compiliation.
  *
  * @author Lutz Foucar
  */
@@ -112,7 +120,7 @@ public:
 
   /** save maps
    *
-   * save the maps to file in HLL Format
+   * save the maps to file in the user chosen fileformat
    */
   void saveMaps();
 
@@ -164,6 +172,9 @@ public:
   /** the threshold in adu for masking noisy pixels */
   pixel_t noiseThreshold;
 
+  /** the id of the detector that contains the frames whos maps we have here */
+  int32_t detectorId;
+
 private:
   /** prevent people from constructing other than using instance().*/
   CommonData() {}
@@ -196,6 +207,11 @@ private:
   /** functor to create the Maps */
   std::tr1::shared_ptr<MapCreatorBase> _mapcreator;
 
+  /** function to write the offset maps */
+  std::tr1::function<void(const std::string&,CommonData&)> _saveTo;
+
+  /** output filename for the maps */
+  std::string _outputOffsetFilename;
 };
 
 } //end namespace pixeldetector

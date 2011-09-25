@@ -187,6 +187,22 @@ struct HllFileHeader
   char fillspace[988];
 };
 
+/** create an outputfilename from a filename prefix
+ *
+ * append the date and time to the file name as well as the detector id
+ *
+ * @return string containing filename with appended time and detector id
+ * @param filename the filename that should be altered
+ *
+ * @author Lutz Foucar
+ */
+string createOutputFilename(const string& filename)
+{
+  string output;
+#warning implement this
+  return output;
+}
+
 /** will read the file containing the offset and noise map in the hll format
  *
  * The Hll darkcal file format starts with a 1024 bit long header. Then an array
@@ -238,19 +254,14 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
 
   frame_t hlloffsets(header.length);
   frame_t::iterator hlloffset(hlloffsets.begin());
-  staDataType *pixelStatistic(&pixelStatistics[0]);
-  for( size_t i(0); i < header.length; ++i, ++hlloffset, ++pixelStatistic )
-  {
-    *hlloffset = pixelStatistic->offset;
-  }
   frame_t hllnoises(header.length);
   frame_t::iterator hllnoise(hllnoises.begin());
-  pixelStatistic = (&pixelStatistics[0]);
-  for( size_t i(0); i < header.length; ++i, ++hllnoise, ++pixelStatistic )
+  staDataType *pixelstatistic(&pixelStatistics[0]);
+  for( size_t i(0); i < header.length; ++i, ++hlloffset, ++pixelstatistic )
   {
-    *hllnoise = pixelStatistic->sigma;
+    *hlloffset = pixelstatistic->offset;
+    *hllnoise = pixelstatistic->sigma;
   }
-
   QWriteLocker lock(&data.lock);
   data.offsetMap.resize(header.length);
   HLL2CASS(hlloffsets,data.offsetMap,header.rows,header.rows,header.columns);
@@ -258,6 +269,52 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   HLL2CASS(hllnoises,data.noiseMap,header.rows,header.rows,header.columns);
   data.mask.resize(header.length);
   HLL2CASS(badpixmap,data.mask,header.rows,header.rows,header.columns);
+}
+
+/** save the maps to a hll type darkcal file
+ *
+ * see readHLLOffsetFile for details about the fileformat
+ *
+ * @param filename the name of the file to write the data to
+ * @param data the container including the maps to write to file
+ *
+ * @author Lutz Foucar
+ */
+void saveHLLOffsetFile(const string &filename, CommonData& data)
+{
+  ofstream out(filename.c_str(),ios::out|ios::trunc);
+  if (!out.is_open())
+  {
+    throw invalid_argument("saveHLLOffsetFile(): Error opening file '" +
+                           filename + "'");
+  }
+  HllFileHeader header =
+  {
+    "HE pixel statistics map",
+    data.columns*2,
+    data.rows*0.5,
+    data.rows * data.columns
+  };
+  out.write(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
+  frame_t hlloffsets(data.offsetMap);
+  CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
+  frame_t hllnoises(data.noiseMap);
+  CASS2HLL(data.noiseMap,hllnoises,header.rows,header.rows,data.columns);
+  frame_t::const_iterator hlloffset(hlloffsets.begin());
+  frame_t::const_iterator hllnoise(hllnoises.begin());
+  staDataType pixelStatistics[header.length];
+  staDataType *pixelstatistic(&pixelStatistics[0]);
+  for(; hlloffset != hlloffsets.end(); ++hlloffset, ++hllnoise, ++pixelstatistic )
+  {
+    pixelstatistic->offset = *hlloffset;
+    pixelstatistic->sigma = *hllnoise;
+  }
+  const size_t pixelStatisticsLength(sizeof(staDataType)*header.length);
+  out.write(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
+  CommonData::mask_t hllmask(data.mask);
+  CASS2HLL(data.mask,hllmask,header.rows,header.rows,data.columns);
+  const size_t maskLength(sizeof(char)*header.length);
+  out.write(reinterpret_cast<char*>(&hllmask[0]),maskLength);
 }
 
 /** will read the file containing the offset and noise map in the former CASS format
@@ -289,6 +346,32 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
   QWriteLocker lock(&data.lock);
   copy(offsets.begin(),offsets.end(),data.offsetMap.begin());
   copy(noises.begin(),noises.end(),data.noiseMap.begin());
+}
+
+/** will save the file containing the offset and noise map in the former CASS format
+ *
+ * description
+ *
+ * @param filename the filename of file containing the offset and noise maps.
+ * @param data the data storage where the info should be written to.
+ *
+ * @author Lutz Foucar
+ */
+void saveCASSOffsetFile(const string &filename, CommonData& data)
+{
+  ofstream out(filename.c_str(), ios::binary);
+  if (!out.is_open())
+  {
+    throw invalid_argument("saveCASSOffsetFile(): Error opening file '" +
+                           filename + "'");
+  }
+  QReadLocker lock(&data.lock);
+  vector<double> offsets(data.offsetMap.size());
+  copy(data.offsetMap.begin(),data.offsetMap.end(),offsets.begin());
+  out.write(reinterpret_cast<char*>(&offsets[0]), offsets.size()*sizeof(double));
+  vector<double> noises(data.noiseMap.size());
+  copy(data.noiseMap.begin(),data.noiseMap.end(),noises.begin());
+  out.write(reinterpret_cast<char*>(&noises[0]), noises.size()*sizeof(double));
 }
 
 /** will read the file containing the gain and cte corretion factors in the HLL format
@@ -396,7 +479,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
  */
 void readCASSGainFile(const string &filename, CommonData& data)
 {
-#warning "implement function (not urgent)"
+  throw runtime_error("readCASSGainFile() has not been implemented yet");
 }
 
 /** will create the final correction map from the info stored in the other maps
@@ -445,8 +528,8 @@ void CommonData::loadSettings(CASSSettings &s)
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);
   _mapcreator->loadSettings(s);
-  string offsetfilename(s.value("OffsetNoiseFilename","").toString().toStdString());
-  string offsetfiletype(s.value("OffsetNoiseFiletype","hll").toString().toStdString());
+  string offsetfilename(s.value("InputOffsetNoiseFilename","").toString().toStdString());
+  string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
   if (offsetfiletype == "hll")
     readHLLOffsetFile(offsetfilename, *this);
   else if(offsetfiletype == "cass")
@@ -460,12 +543,21 @@ void CommonData::loadSettings(CASSSettings &s)
   string gainfiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
   if (gainfiletype == "hll")
     readHLLGainFile(gainfilename, *this);
-  else if(gainfiletype == "cass")
-    readCASSGainFile(gainfilename, *this);
   else
   {
     throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
                            offsetfiletype + "' does not exist");
+  }
+  _outputOffsetFilename = (s.value("OutputOffsetNoiseFilename","darkcal").toString().toStdString());
+  string outputoffsetfiletype(s.value("OutputOffsetNoiseFiletype","hll").toString().toStdString());
+  if (outputoffsetfiletype == "hll")
+    _saveTo = &saveHLLOffsetFile;
+  else if(outputoffsetfiletype == "cass")
+    _saveTo = &saveCASSOffsetFile;
+  else
+  {
+    throw invalid_argument("CommonData::loadSettings: OutputOffsetNoiseFiletype '" +
+                           outputoffsetfiletype + "' does not exist");
   }
   createCASSMask(*this,s);
   noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
@@ -481,5 +573,7 @@ void CommonData::createMaps(const Frame &frame)
 
 void CommonData::saveMaps()
 {
-#warning "implement this"
+  string outname(createOutputFilename(_outputOffsetFilename));
+  _saveTo(outname,*this);
+#warning create link to output filename
 }
