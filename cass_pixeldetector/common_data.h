@@ -53,7 +53,7 @@ class MapCreatorBase;
  *                       cass::pixeldetector::MovingMaps for details.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
- *           is "".
+ *           is "darkcal_\%detectorId\%.cal".
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFiletype}\n
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
@@ -120,7 +120,9 @@ public:
 
   /** save maps
    *
-   * save the maps to file in the user chosen fileformat
+   * save the maps to file in the user chosen fileformat.See
+   * cass::pixeldetector::saveCASSOffsetFile or cass::pixeldetector::saveHLLOffsetFile
+   * for details.
    */
   void saveMaps();
 
