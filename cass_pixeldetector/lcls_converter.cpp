@@ -24,13 +24,16 @@
 
 using namespace cass;
 using namespace pixeldetector;
+using namespace lclsid;
 using namespace std;
+using std::tr1::shared_ptr;
+using namespace Pds;
 
 namespace cass
 {
 namespace pixeldetector
 {
-namespace Id
+namespace lclsid
 {
 /** Key for IdConversion Map
  *
@@ -45,9 +48,9 @@ public:
    *
    * @param
    */
-  Key(const Pds::TypeId::Type& detectorType,
-      const Pds::DetInfo::Detector& det, uint32_t detId,
-      const Pds::DetInfo::Device& dev, uint32_t devId)
+  Key(const TypeId::Type& detectorType,
+      const DetInfo::Detector& det, uint32_t detId,
+      const DetInfo::Device& dev, uint32_t devId)
     :_detectorType(detectorType),
      _detector(((det&0xff)<<24) | ((detId&0xff)<<16) | ((dev&0xff)<<8) |(devId&0xff))
   {}
@@ -56,7 +59,7 @@ public:
    *
    * @param
    */
-  Key(Pds::TypeId::Type detectorType, uint32_t physicalId)
+  Key(TypeId::Type detectorType, uint32_t physicalId)
     :_detectorType(detectorType),_detector(physicalId)
   {}
 
@@ -78,21 +81,6 @@ private:
   /** */
   uint32_t _detector;
 };
-
-/** */
-typedef map<Key, Device::detectors_t::key_type>  idmap_t;
-
-/**  */
-//idmap_t::value_type map_data[] =
-//{
-//  make_pair(Key(Pds::TypeId::Id_pnCCDframe,
-//                Pds::DetInfo::Camp, 3,
-//                Pds::DetInfo::pnCCD, 5),
-//            1)
-//};
-///** */
-//idmap_t IdMap(map_data, map_data + sizeof map_data / sizeof map_data[0]);
-
 }//end namespace Id
 }//end namepsace pixeldetector
 }//end namespace cass
@@ -115,42 +103,60 @@ cass::ConversionBackend::shared_pointer Converter::instance()
 
 Converter::Converter()
 {
-  _pdsTypeList.push_back(Pds::TypeId::Id_pnCCDconfig);
-  _pdsTypeList.push_back(Pds::TypeId::Id_pnCCDframe);
-  _pdsTypeList.push_back(Pds::TypeId::Id_Frame);
+  _pdsTypeList.push_back(TypeId::Id_pnCCDconfig);
+  _pdsTypeList.push_back(TypeId::Id_pnCCDframe);
+  _pdsTypeList.push_back(TypeId::Id_Frame);
 
-  LCLSToCASSId[Id::Key(Pds::TypeId::Id_pnCCDframe,
-                       Pds::DetInfo::Camp, 3,
-                       Pds::DetInfo::pnCCD, 5)] = 1;
+  Key FrontPnCCD(TypeId::Id_pnCCDframe,
+                 DetInfo::Camp, 3,
+                 DetInfo::pnCCD, 5);
+  Key BackPnCCD(TypeId::Id_pnCCDframe,
+                 DetInfo::Camp, 3,
+                 DetInfo::pnCCD, 5);
+  Key commCCD1(TypeId::Id_Frame,
+               DetInfo::Camp, 3,
+               DetInfo::pnCCD, 5);
+  Key commCCD2(TypeId::Id_Frame,
+               DetInfo::Camp, 3,
+               DetInfo::pnCCD, 5);
+  Key commCCD3(TypeId::Id_Frame,
+               DetInfo::Camp, 3,
+               DetInfo::pnCCD, 5);
+  LCLSToCASSId[FrontPnCCD] = 1;
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* cassevent)
 {
-  // Check whether the xtc object id contains configuration or event data:
+  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
+      <<"'("<<xtc->contains.id()
+      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
+      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
+      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
+      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
+      <<")"<<endl;
+
+  idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
+  idmap_t::iterator lclsmapIt(LCLSToCASSId.find(lclskey));
+  if (lclsmapIt == LCLSToCASSId.end())
+  {
+    throw runtime_error("pixeldetector::Converter::operator(): There is no corresponding cass key for '" + string(TypeId::name(xtc->contains.id())) +
+                        "'(" + toString(xtc->contains.id()) +
+                        "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+                        "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()));
+  }
+  const idmap_t::mapped_type &casskey(lclsmapIt->second);
+
   switch( xtc->contains.id() )
   {
   case (Pds::TypeId::Id_pnCCDconfig) :
     {
-//      //Get the the detecotor id //
-//      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-//      const size_t detectorId = info.devId();
-//      //the configuration version//
-//      uint32_t version = xtc->contains.version();
-
-//      std::cout << "pnCCDConverter::ConfigXTC: DeviceId:" << detectorId
-//          << " Version:" << version << std::endl;
-//      //if necessary resize the config container//
-//      DEBUGOUT(std::cout << "pnCCD::Converter debug " << detectorId << " "<< cassevent->id() << std::endl);
-//      if (detectorId >= _pnccdConfig.size())
-//        _pnccdConfig.resize(detectorId+1,std::make_pair<uint32_t,Pds::PNCCD::ConfigV2*>(version,0));
-
-//      //retrieve the reference to the right pointer to config//
-//      //and store the transmitted config//
-//      Pds::PNCCD::ConfigV2 *&pnccdConfig = _pnccdConfig[detectorId].second;
-//      delete pnccdConfig;
-//      pnccdConfig = new Pds::PNCCD::ConfigV2();
-//      *pnccdConfig = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
-//      std::cout << "pnCCDConverter::ConfigXTC: done"<<std::endl;
+      uint32_t version = xtc->contains.version();
+      config_t config
+          (make_pair(version,shared_ptr<PNCCD::ConfigV2>(new PNCCD::ConfigV2())));
+      *(config.second) = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
+      _pnccdConfigStore[casskey] = config;
     }
     break;
 

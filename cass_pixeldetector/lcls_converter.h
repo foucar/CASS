@@ -31,7 +31,7 @@ class CASSEvent;
 
 namespace pixeldetector
 {
-namespace Id
+namespace lclsid
 {
 class Key;
 }
@@ -48,14 +48,26 @@ public:
 
   /** operator to convert the LCLS Data to CASSEvent
    *
-   * @param
-   * @param
+   * in case that xtc is a Id_pnCCDconfig:\n
+   * extract the version and create a config object toghether with this. Then
+   * copy the information from the xtc config to the config object. Then store
+   * the config object in the _pnccdConfigStore map.
+   *
+   * in case that xtc is a Id_pnCCDframe:\n
+   *
+   * in case that xtc is a Id_Frame:\n
+   *
+   * @param xtc the part of the datagram that this converter is responsible for
+   * @param evt The CASSEvent that should store the information from the xtc.
    */
-  void operator()(const Pds::Xtc*, cass::CASSEvent*);
+  void operator()(const Pds::Xtc* xtc, cass::CASSEvent* evt);
 
 private:
-  /** */
-  typedef std::map<Id::Key, int32_t>  idmap_t;
+  /** map that will map the LCLS key to the CASS key */
+  typedef std::map<lclsid::Key, int32_t>  idmap_t;
+
+  /** pair the version of the config with a shared pointer of the config */
+  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::PNCCD::ConfigV2> > config_t;
 
   /** constructor
    *
@@ -82,7 +94,7 @@ private:
    *
    * Will store the version and the configuration itself in a pair
    */
-  std::map<Id::Key, std::pair<uint32_t, Pds::PNCCD::ConfigV2> > _pnccdConfig;
+  std::map<int32_t, config_t > _pnccdConfigStore;
 };
 }//end namespace vmi
 }//end namespace cass
