@@ -48,6 +48,10 @@ public:
 
   /** operator to convert the LCLS Data to CASSEvent
    *
+   * retrieve the corresponding CASS key from the lcls xtc that are contained in
+   * the TypeId and Src (DetInfo) parts of the Xtc. Use the_LCLSToCASSId to do
+   * this.
+   *
    * in case that xtc is a Id_pnCCDconfig:\n
    * extract the version and create a config object toghether with this. Then
    * copy the information from the xtc config to the config object. Then store
@@ -88,7 +92,7 @@ private:
   static QMutex _mutex;
 
   /** map lcls id to cass id */
-  idmap_t LCLSToCASSId;
+  idmap_t _LCLSToCASSId;
 
   /** store for the pnccd configuration.
    *

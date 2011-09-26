@@ -122,10 +122,10 @@ Converter::Converter()
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
-  LCLSToCASSId[FrontPnCCD] = 1;
+  _LCLSToCASSId[FrontPnCCD] = 1;
 }
 
-void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* cassevent)
+void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
   cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
       <<"'("<<xtc->contains.id()
@@ -136,8 +136,8 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* cassevent)
       <<")"<<endl;
 
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
-  idmap_t::iterator lclsmapIt(LCLSToCASSId.find(lclskey));
-  if (lclsmapIt == LCLSToCASSId.end())
+  idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
+  if (lclsmapIt == _LCLSToCASSId.end())
   {
     throw runtime_error("pixeldetector::Converter::operator(): There is no corresponding cass key for '" + string(TypeId::name(xtc->contains.id())) +
                         "'(" + toString(xtc->contains.id()) +
