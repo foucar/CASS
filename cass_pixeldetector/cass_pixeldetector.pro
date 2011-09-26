@@ -28,7 +28,8 @@ SOURCES       += \
                  coalesce_simple.cpp \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
-                 advanced_pixeldetector.cpp
+                 advanced_pixeldetector.cpp \
+                 lcls_converter.cpp
 
 HEADERS       += \
                  ../cass/cass_settings.h \
@@ -50,7 +51,9 @@ HEADERS       += \
                  pixeldetector_mask.h \
                  pixeldetector.hpp \
                  cass_pixeldetector.h \
-                 advanced_pixeldetector.h
+                 advanced_pixeldetector.h \
+                 lcls_converter.h
+
 
 headers.files  = $$HEADERS
 target.path    = $$INSTALLBASE/lib
