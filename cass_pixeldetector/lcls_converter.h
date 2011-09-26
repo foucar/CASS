@@ -1,7 +1,7 @@
 // Copyright (C) 2009, 2010, 2011 Lutz Foucar
 
 /**
- * @file lcls_converter.cpp contains the converters to convert ccd and pnccd data
+ * @file lcls_converter.h contains the converters to convert ccd and pnccd data
  *                          to CASSEvent
  *
  * @author Lutz Foucar
@@ -11,6 +11,8 @@
 #define _LCLSCONVERTER_H_
 
 #include <map>
+#include <tr1/memory>
+#include <utility>
 
 #include <QtCore/QMutex>
 
@@ -37,6 +39,8 @@ class Key;
 }
 
 /** Converter for pnCCD and commercial CCD Data.
+ *
+ * see Converter::operator() for details about the functionality
  *
  * @author Lutz Foucar
  */
@@ -129,7 +133,8 @@ private:
 
   /** constructor
    *
-   * set up the pds type ids that it is responsible for
+   * set up the pds type ids that it is responsible for and creates the map
+   * that maps the lcls id to the cass key.
    */
   Converter();
 
