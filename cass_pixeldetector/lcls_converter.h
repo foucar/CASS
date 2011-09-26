@@ -58,6 +58,12 @@ public:
    * the config object in the _pnccdConfigStore map.
    *
    * in case that xtc is a Id_pnCCDframe:\n
+   * the conversion will only be performed if there is an config present for
+   * the data. The config of version 1 does not contain information about the
+   * frame size, therefore one needs to set it manually. In version 2 these
+   * values are present, but sometimes there is a problem and one gets wrong
+   * data. To prevent this, a check for consistency is implemented that will
+   * output the wrong values and set them to the default values.
    *
    * in case that xtc is a Id_Frame:\n
    *

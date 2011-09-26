@@ -7,10 +7,10 @@
  * @author Lutz Foucar
  */
 
-#include "lcls_converter.h"
 
 #include <iostream>
 #include <stdexcept>
+#include <algorithm>
 
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
@@ -18,6 +18,9 @@
 #include "pdsdata/pnCCD/ConfigV1.hh"
 #include "pdsdata/pnCCD/ConfigV2.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
+#include "pdsdata/camera/FrameV1.hh"
+
+#include "lcls_converter.h"
 
 #include "cass_event.h"
 #include "pixeldetector.hpp"
@@ -82,6 +85,30 @@ private:
   uint32_t _detector;
 };
 }//end namespace Id
+
+/** extract the right detector from the CASSEvent
+ *
+ * check whether the device that contains the detector is present in the CASSevent
+ * if not throw and runtime error
+ *
+ * @return reference to the requested detector
+ * @param evt the cassvent containing the detector
+ * @param key key of the detector within the map of the device holding the devices
+ *
+ * @author Lutz Foucar
+ */
+Detector& retrieveDet(CASSEvent& evt, const Device::detectors_t::key_type& key)
+{
+  CASSEvent::devices_t &devices(evt.devices());
+  CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+  if(devIt == devices.end())
+  {
+    throw runtime_error("pixeldetector::retrieveDet: There is no  pixeldetector device within the CASSEvent");
+  }
+  Device &dev (*dynamic_cast<Device*>(devIt->second));
+  return (dev.dets()[key]);
+}
+
 }//end namepsace pixeldetector
 }//end namespace cass
 
@@ -150,210 +177,154 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 
   switch( xtc->contains.id() )
   {
+
   case (Pds::TypeId::Id_pnCCDconfig) :
+  {
+    uint32_t version = xtc->contains.version();
+    if (2 < version)
     {
-      uint32_t version = xtc->contains.version();
-      config_t config
-          (make_pair(version,shared_ptr<PNCCD::ConfigV2>(new PNCCD::ConfigV2())));
-      *(config.second) = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
-      _pnccdConfigStore[casskey] = config;
+      throw runtime_error("pixeldetector::Converter::operator: pnCCD Config version" +
+                          toString(version) + "is not supported");
     }
+    config_t config
+        (make_pair(version,shared_ptr<PNCCD::ConfigV2>(new PNCCD::ConfigV2())));
+    *(config.second) = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
+    _pnccdConfigStore[casskey] = config;
+  }
     break;
 
 
   case (Pds::TypeId::Id_pnCCDframe) :
+  {
+    map<int32_t,config_t>::const_iterator storeIt(_pnccdConfigStore.find(casskey));
+    if(storeIt == _pnccdConfigStore.end())
+      break;
+    const config_t config(storeIt->second);
+
+    Detector &det(retrieveDet(*evt,casskey));
+    const PNCCD::FrameV1* frameSegment
+        (reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload()));
+
+    size_t rowsOfSegment(0);
+    size_t columnsOfSegment(0);
+    switch(config.first)
     {
-//      // Get a reference to the pnCCDDevice
-//      pnCCDDevice &dev =
-//          *dynamic_cast<pnCCDDevice*>(cassevent->devices()[cass::CASSEvent::pnCCD]);
-//      //Get the frame from the xtc
-//      const Pds::PNCCD::FrameV1* frameSegment =
-//          reinterpret_cast<const Pds::PNCCD::FrameV1*>(xtc->payload());
-//      //Get the the detecotor id //
-//      const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-//      const size_t detectorId = info.devId();
-
-//      //DEBUGOUT(std::cout << "pnCCD::Converter frame debug " << detectorId << " "<< cassevent->id() << std::endl);
-
-//      //if necessary resize the detector container//
-////      std::cout<<"pnCCDConverter::DataXTC: resizing container"<<std::endl;
-//      if (detectorId >= dev.detectors()->size())
-//        dev.detectors()->resize(detectorId+1);
-////      std::cout<<"pnCCDConverter::DataXTC: done resizing"<<std::endl;
-
-//      //only convert if we have a config for this detector
-//      if (_pnccdConfig.size() > detectorId)
-//      if (_pnccdConfig[detectorId].second)
-//      {
-//        //get a reference to the detector we are working on right now//
-////        std::cout<<"pnCCDConverter::DataXTC: getting det from container"<<std::endl;
-//        PixelDetector& det = (*dev.detectors())[detectorId];
-////        std::cout<<"pnCCDConverter::DataXTC: done getting det from container"<<std::endl;
-//        //get the pointer to the config for this detector//
-//        const Pds::PNCCD::ConfigV2 *pnccdConfig = _pnccdConfig[detectorId].second;
-
-//        size_t rowsOfSegment(0);
-//        size_t columnsOfSegment(0);
-//        //check the version and retrieve info of detector//
-//        switch(_pnccdConfig[detectorId].first)
-//        {
-//        case 1:
-//          //we need to set the rows and columns hardcoded since the information is not yet
-//          //provided by LCLS in Version 1//
-//          det.rows() = det.columns() = pnCCD::default_size;
-//          det.originalrows() = det.originalcolumns() = pnCCD::default_size;
-//          rowsOfSegment = pnCCD::default_size/2;
-//          columnsOfSegment = pnCCD::default_size/2;
-//          break;
-//        case 2:
-//          //get the rows and columns from config//
-//          det.rows() = pnccdConfig->numRows();
-//          det.columns() = pnccdConfig->numChannels();
-//          det.originalrows() =  pnccdConfig->numRows();
-//          det.originalcolumns() = pnccdConfig->numChannels();
-//          det.info().assign(pnccdConfig->info());
-//          det.timingFilename().assign(pnccdConfig->timingFName());
-//          det.camaxMagic() = pnccdConfig->camexMagic();
-//          rowsOfSegment = pnccdConfig->numSubmoduleRows();
-//          columnsOfSegment = pnccdConfig->numSubmoduleChannels();
-//          if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
-//          {
-//            std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
-//            std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
-//            //in this case I am overwriting the values
-//            rowsOfSegment=512;
-//            columnsOfSegment=512;
-//            det.rows() = 1024;
-//            det.columns() = 1024;
-//            det.originalrows() = 1024;
-//            det.originalcolumns() = 1024;
-//          }
-//          break;
-//        default:
-//          throw std::range_error("Unsupported pnCCD configuration version");
-//        }
-
-//        //find out the total size of this frame//
-//        const size_t sizeOfOneSegment = frameSegment->sizeofData(*pnccdConfig);
-//        const size_t NbrOfSegments = pnccdConfig->numLinks();
-//        const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
-
-//        //std::cout << "test " << sizeOfOneSegment << " " << NbrOfSegments
-//        //          << " " << FrameSize<<std::endl;
-
-//        //resize the frame to what we will receive//
-//        det.frame().resize(FrameSize);
-
-//        //create a container for pointers to the beginning of the data for all segments//
-//        std::vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
-//        //go through all segments and get the pointers to the beginning//
-//        for (size_t i=0; i<NbrOfSegments ;++i)
-//        {
-//          //pointer to first data element of segment//
-//          xtcSegmentPointers[i] = frameSegment->data();
-//          //iterate to the next frame segment//
-//          frameSegment = frameSegment->next(*pnccdConfig);
-//        }
-
-//        //reorient the xtc segements to real frame segments//
-//        std::vector<const uint16_t*> frameSegmentPointers(NbrOfSegments,0);
-//        frameSegmentPointers[0] = xtcSegmentPointers[0];
-//        frameSegmentPointers[1] = xtcSegmentPointers[3];
-//        frameSegmentPointers[2] = xtcSegmentPointers[1];
-//        frameSegmentPointers[3] = xtcSegmentPointers[2];
-
-//        //go through each row of each element and align the data that it is//
-//        //create a iterator for the raw frame//
-//        cass::PixelDetector::frame_t::iterator it = det.frame().begin();
-//        //we need to do the reordering of the segments here
-//        //go through the all rows of the first two segments and //
-//        //do first row , first row, second row , second row ...//
-//        //The HLL People said the one needs to ignore the upper two bits//
-//        //so ignore them//
-
-//        for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
-//        {
-//          //copy the row of first segment//
-//          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-//            *it++ =  *frameSegmentPointers[0]++ & 0x3fff;
-//          //copy the row of second segment//
-//          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-//            *it++ =  *frameSegmentPointers[1]++ & 0x3fff;
-//        }
-//        //go through the all rows of the next two segments and //
-//        //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
-//        //therefore we need to let the datapointers of the last two segments//
-//        //point to the end of the segement//
-//        frameSegmentPointers[2] += rowsOfSegment*columnsOfSegment - 1;
-//        frameSegmentPointers[3] += rowsOfSegment*columnsOfSegment - 1;
-//        for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
-//        {
-//          //copy row of 3rd segment reversed
-//          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-//            *it++ = *frameSegmentPointers[2]-- & 0x3fff;
-//          //copy row of 4th segement reversed
-//          for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-//            *it++ = *frameSegmentPointers[3]--  & 0x3fff;
-//        }
-//      }
+    case 1:
+      det.rows() = det.columns() = 1024;
+      rowsOfSegment = 512;
+      columnsOfSegment = 512;
+      break;
+    case 2:
+      det.rows() = config.second->numRows();
+      det.columns() = config.second->numChannels();
+      det.info().assign(config.second->info());
+      det.timingFilename().assign(config.second->timingFName());
+      det.camaxMagic() = config.second->camexMagic();
+      rowsOfSegment = config.second->numSubmoduleRows();
+      columnsOfSegment = config.second->numSubmoduleChannels();
+      if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
+      {
+        std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
+        std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
+        //in this case I am overwriting the values
+        rowsOfSegment=512;
+        columnsOfSegment=512;
+        det.rows() = 1024;
+        det.columns() = 1024;
+      }
+      break;
+    default:
+      break;
     }
-    break;
+    const size_t sizeOfOneSegment = frameSegment->sizeofData(*(config.second));
+    if (sizeOfOneSegment != rowsOfSegment*columnsOfSegment)
+    {
+      throw runtime_error("pixeldetector::Converter::operator: size of one segment '" +
+                          toString(sizeOfOneSegment) +
+                          "' is inconsistent with number of rows '" +
+                          toString(rowsOfSegment) + "' colums '" +
+                          toString(columnsOfSegment) + "' of the segments");
+    }
+    const size_t NbrOfSegments = config.second->numLinks();
+    const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
+
+    det.frame().resize(FrameSize);
+
+    //create a container for pointers to the beginning of the data for all segments//
+    vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
+    //go through all segments and get the pointers to the beginning//
+    for (size_t i=0; i<NbrOfSegments ;++i)
+    {
+      //pointer to first data element of segment//
+      xtcSegmentPointers[i] = frameSegment->data();
+      //iterate to the next frame segment//
+      frameSegment = frameSegment->next(*config.second);
+    }
+    const uint16_t * segmentA = xtcSegmentPointers[0];
+    const uint16_t * segmentB = xtcSegmentPointers[3];
+    const uint16_t * segmentC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
+    const uint16_t * segmentD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
+
+    //go through each row of each element and align the data that it is//
+    //create a iterator for the raw frame//
+    frame_t::iterator pixel = det.frame().begin();
+
+    //we need to do the reordering of the segments here
+    //go through the all rows of the first two segments and //
+    //do first row , first row, second row , second row ...//
+    //The HLL People said the one needs to ignore the upper two bits//
+    //so ignore them//
+    for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+    {
+      //copy the row of first segment//
+      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+        *pixel++ =  *segmentA++ & 0x3fff;
+      //copy the row of second segment//
+      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+        *pixel++ =  *segmentB++ & 0x3fff;
+    }
+    //go through the all rows of the next two segments and //
+    //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
+    //therefore we need to let the datapointers of the last two segments//
+    //point to the end of the segement//
+    for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
+    {
+      //copy row of 3rd segment reversed
+      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+        *pixel++ = *segmentC-- & 0x3fff;
+      //copy row of 4th segement reversed
+      for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
+        *pixel++ = *segmentD--  & 0x3fff;
+    }
+  }
+  break;
 
   case (Pds::TypeId::Id_Frame) :
   {
+    Detector &det(retrieveDet(*evt,casskey));
+    const Camera::FrameV1 &frame =
+        *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
 
-//    //Get the the detector's device id //
-//    const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
-//    const size_t detectorId = info.detId();
-//    //  cout<<"CCDConverter::XTCData: DetectorID:"<<info.detId()
-//    //      <<" DeviceId:"<< info.devId()
-//    //      <<" Detector:"<<info.detector()<<"("<<Pds::DetInfo::name(info.detector())<<")"
-//    //      <<" Device:"<< info.device()<<"("<<Pds::DetInfo::name(info.device())<<")"
-//    //      <<endl;
-//    //retrieve a reference to the frame contained int the xtc//
-//    const Pds::Camera::FrameV1 &frame =
-//        *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
-//    //retrieve a pointer to the ccd device we are working on//
-//    cass::CCD::CCDDevice* dev = dynamic_cast<cass::CCD::CCDDevice*>(cassevent->devices()[cass::CASSEvent::CCD]);
-//    //if necessary resize the detector container//
-//    if (detectorId >= dev->detectors()->size())
-//      dev->detectors()->resize(detectorId+1);
-//    //retrieve a reference to the commercial ccd detector//
-//    cass::PixelDetector& det = (*dev->detectors())[detectorId];
-//    //  cout<< dev->detectors()->size()
-//    //      <<" "<<detectorId()
-//    //      <<" "<<frame.width()
-//    //      <<" "<<frame.height()
-//    //      <<" "<<frame.offset()
-//    //      <<endl;
+    //copy the values status values from the frame to the detector//
+    det.columns()          = frame.width();
+    det.rows()             = frame.height();
 
-//    //copy the values status values from the frame to the detector//
-//    det.columns()          = frame.width();
-//    det.rows()             = frame.height();
-//    det.originalcolumns()  = frame.width();
-//    det.originalrows()     = frame.height();
-
-//    //copy the frame data to this detector and do a type convertion implicitly//
-//    const uint16_t* framedata (reinterpret_cast<const uint16_t*>(frame.data()));
-//    const size_t framesize(frame.width()*frame.height());
-//    //make frame big enough to take all data//
-//    det.frame().resize(framesize);
-//    det.frame().assign(framedata, framedata+framesize);
-//    transform(det.frame().begin(),det.frame().end(),
-//              det.frame().begin(),
-//              bind2nd(minus<float>(),static_cast<float>(frame.offset())));
-//    /* in the below how do I make sure that the casting from uint16 to float is done correctly */
-//    // copy frame data to cass event, substract the offset from each pixel//
-//    //  transform(framedata,framedata + framesize,
-//    //            det.frame().begin(),
-//    //            bind2nd(minus<float>(),static_cast<float>(frame.offset())));
-//    //mark out the first 8 pixels since they store status info, that might mess up the picture
-//    fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
+    //copy the frame data to this detector and do a type convertion implicitly//
+    const uint16_t* framedata (reinterpret_cast<const uint16_t*>(frame.data()));
+    const size_t framesize(frame.width()*frame.height());
+    //make frame big enough to take all data//
+    det.frame().resize(framesize);
+    //copy frame data to cass event, substract the offset from each pixel//
+      transform(framedata,framedata + framesize,
+                det.frame().begin(),
+                bind2nd(minus<float>(),static_cast<float>(frame.offset())));
+    //mark out the first 8 pixels since they store status info, that might mess up the picture
+    fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
   }
     break;
 
