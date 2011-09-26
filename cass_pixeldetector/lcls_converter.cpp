@@ -252,54 +252,35 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     }
     const size_t NbrOfSegments = config.second->numLinks();
     const size_t FrameSize = sizeOfOneSegment * NbrOfSegments;
-
     det.frame().resize(FrameSize);
 
-    //create a container for pointers to the beginning of the data for all segments//
     vector<const uint16_t*> xtcSegmentPointers(NbrOfSegments,0);
-    //go through all segments and get the pointers to the beginning//
     for (size_t i=0; i<NbrOfSegments ;++i)
     {
       //pointer to first data element of segment//
       xtcSegmentPointers[i] = frameSegment->data();
-      //iterate to the next frame segment//
       frameSegment = frameSegment->next(*config.second);
     }
-    const uint16_t * segmentA = xtcSegmentPointers[0];
-    const uint16_t * segmentB = xtcSegmentPointers[3];
-    const uint16_t * segmentC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
-    const uint16_t * segmentD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
+    const uint16_t * tileA = xtcSegmentPointers[0];
+    const uint16_t * tileB = xtcSegmentPointers[3];
+    const uint16_t * tileC = xtcSegmentPointers[1]+sizeOfOneSegment-1;
+    const uint16_t * tileD = xtcSegmentPointers[2]+sizeOfOneSegment-1;
 
-    //go through each row of each element and align the data that it is//
-    //create a iterator for the raw frame//
     frame_t::iterator pixel = det.frame().begin();
 
-    //we need to do the reordering of the segments here
-    //go through the all rows of the first two segments and //
-    //do first row , first row, second row , second row ...//
-    //The HLL People said the one needs to ignore the upper two bits//
-    //so ignore them//
     for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
     {
-      //copy the row of first segment//
       for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ =  *segmentA++ & 0x3fff;
-      //copy the row of second segment//
+        *pixel++ =  *tileA++ & 0x3fff;
       for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ =  *segmentB++ & 0x3fff;
+        *pixel++ =  *tileB++ & 0x3fff;
     }
-    //go through the all rows of the next two segments and //
-    //do last row reversed, last row reversed, last row -1 reversed , last row -1 reversed...//
-    //therefore we need to let the datapointers of the last two segments//
-    //point to the end of the segement//
     for (size_t iRow=0; iRow<rowsOfSegment ;++iRow)
     {
-      //copy row of 3rd segment reversed
       for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ = *segmentC-- & 0x3fff;
-      //copy row of 4th segement reversed
+        *pixel++ = *tileC-- & 0x3fff;
       for (size_t iCol=0; iCol<columnsOfSegment ;++iCol)
-        *pixel++ = *segmentD--  & 0x3fff;
+        *pixel++ = *tileD--  & 0x3fff;
     }
   }
     break;

@@ -63,8 +63,49 @@ public:
    * frame size, therefore one needs to set it manually. In version 2 these
    * values are present, but sometimes there is a problem and one gets wrong
    * data. To prevent this, a check for consistency is implemented that will
-   * output the wrong values and set them to the default values.
-   *
+   * output the wrong values and set them to the default values.\n
+   * The frame data of the pnccd is subdived into 4 segments in the lcls data
+   * format and one is provided with pointers to the beginning of the segments.
+   * The data of the segments is put into a linearised array.
+   * The frame looks as follows in the lab (when viwing into the beam)
+ @verbatim
+
+   -----------
+|  | 2  | 3  | ^
+|  | D  | B  | |
+|  -----O----- |
+|  | 1  | 0  | |
+v  | C  | A  | |
+   -----------
+
+ @endverbatim
+   * Here the numbers indicate the segment number in the lcls data.
+   * The data alignmet of the array is indicated with the arrows. This means
+   * that the slow increasing axis for segments 0 and 3 is going to the left and
+   * for segments 1 and 2 to the right. In order to read the segments fast, it
+   * is decided that one should read the segments data of segment 0 and 3 first
+   * and then 1 and 2, with the fast increasing axis being upward. This effectively
+   * rotates the frame in the cass representation 90 degress clockwise with
+   * respect to the lab. The resulting segments in CASS are therefore given in
+   * letters.\n
+   * To copy one now has to copy the first row of segment 0 (A in CASS coordinates)
+   * then copy the the first row of segment 3 (B in CASS coordinates). Then one
+   * copies 2nd row of segment 0 and 2nd row of segment 3. This keeps going
+   * until one has copied all rows of segment 0 and 3. Then one needs to copy
+   * the data from segment 1 reversely, meaning that one copies the last row in
+   * reverse direction. After that one does the same with segment 2. Then one
+   * reversly copies the 2nd to last row of segment 1 and the 2nd to last row of
+   * segment 2. This is done until all the data has been copied.\n
+   * This gives to following assignment from lcls segments to CASS coordinates:
+   * LCLS segment -> CASS Tiles \n
+   * 0 -> A \n
+   * 3 -> B \n
+   * 1 (reverse) -> C \n
+   * 2 (reverse) -> D \n
+   * If one wants to see the fram as it is oriented in the lab one has to rotate
+   * the data by 90 degrees counterclockwise. There is a postprocessor that can
+   * do this.\n
+   * While copying the data one has to ignore the upper two bits of the data.
    *
    * in case that xtc is a Id_Frame:\n
    * the frame data of the lcls is just copied to the detectors frame. The
