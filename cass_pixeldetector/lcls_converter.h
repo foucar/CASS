@@ -65,7 +65,14 @@ public:
    * data. To prevent this, a check for consistency is implemented that will
    * output the wrong values and set them to the default values.
    *
+   *
    * in case that xtc is a Id_Frame:\n
+   * the frame data of the lcls is just copied to the detectors frame. The
+   * alignment is already like it is within CASS as a linearised array of pixels
+   * with x being the fast increasing axis. One has to substract the offset from
+   * all pixels, which is done during the copying. The first 8 pixels of the
+   * frame contain status information and are therefore set to the same value
+   * that the ninth pixel has.
    *
    * @param xtc the part of the datagram that this converter is responsible for
    * @param evt The CASSEvent that should store the information from the xtc.

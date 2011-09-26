@@ -302,28 +302,21 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
         *pixel++ = *segmentD--  & 0x3fff;
     }
   }
-  break;
+    break;
 
   case (Pds::TypeId::Id_Frame) :
   {
     Detector &det(retrieveDet(*evt,casskey));
-    const Camera::FrameV1 &frame =
-        *reinterpret_cast<const Pds::Camera::FrameV1*>(xtc->payload());
-
-    //copy the values status values from the frame to the detector//
-    det.columns()          = frame.width();
-    det.rows()             = frame.height();
-
-    //copy the frame data to this detector and do a type convertion implicitly//
+    const Camera::FrameV1 &frame
+        (*reinterpret_cast<const Camera::FrameV1*>(xtc->payload()));
+    det.columns() = frame.width();
+    det.rows() = frame.height();
     const uint16_t* framedata (reinterpret_cast<const uint16_t*>(frame.data()));
     const size_t framesize(frame.width()*frame.height());
-    //make frame big enough to take all data//
     det.frame().resize(framesize);
-    //copy frame data to cass event, substract the offset from each pixel//
-      transform(framedata,framedata + framesize,
-                det.frame().begin(),
-                bind2nd(minus<float>(),static_cast<float>(frame.offset())));
-    //mark out the first 8 pixels since they store status info, that might mess up the picture
+    transform(framedata,framedata + framesize,
+              det.frame().begin(),
+              bind2nd(minus<float>(),static_cast<float>(frame.offset())));
     fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
   }
     break;

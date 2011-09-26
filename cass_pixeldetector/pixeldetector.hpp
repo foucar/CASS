@@ -96,9 +96,7 @@ public:
 private:
   /** Linear array of CCD data.
    *
-   * how the data is aligned with respect to the laboratory see:
-   * - pnCCDConverter
-   * - Pulnix -> ask Chris O'Grady
+   * see cass::pixeldetector::Converter for layout
    */
   frame_t _frame;
 
