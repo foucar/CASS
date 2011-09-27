@@ -18,6 +18,7 @@
 #include "ccd_converter.h"
 #include "machine_converter.h"
 #include "pnccd_converter.h"
+#include "lcls_converter.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -92,6 +93,8 @@ ConversionBackend::shared_pointer ConversionBackend::instance(const std::string 
     converter = CCD::Converter::instance();
   else if("pnCCD" == type)
     converter = pnCCD::Converter::instance();
+  else if("pixeldetector" == type)
+    converter = pixeldetector::Converter::instance();
   else if("Machine" == type)
     converter = MachineData::Converter::instance();
   else if("Blank" == type)

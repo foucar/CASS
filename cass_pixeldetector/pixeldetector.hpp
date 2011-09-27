@@ -33,7 +33,7 @@ namespace pixeldetector
  * @author Lutz Foucar
  * @author Nicola Coppola
  */
-class Detector : public cass::Serializable
+class Detector : public Serializable
 {
 public:
   /** constructor */
@@ -120,14 +120,16 @@ private:
  *
  * @author Lutz Foucar
  */
-class Device :public cass::DeviceBackend
+class Device : public DeviceBackend
 {
 public:
   /** a map of all pixel detectors available */
   typedef std::map<int32_t,Detector> detectors_t;
 
   /** constructor.*/
-  Device();
+  Device()
+    :DeviceBackend(1)
+  {}
 
 public:
   /** instrument setter*/
@@ -138,7 +140,7 @@ public:
 
   /** serialize the data to the Serializer
    *
-   * serializes the the key and then the detector to the serializer.
+   * serializes the key within the map and then the detector to the serializer.
    *
    * @param out the serializer object that the data will be serialzed to
    */
