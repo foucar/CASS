@@ -99,23 +99,37 @@ the Class description for information about what parameters are user settable.
 00085: full width at half maximum for a peak in given range
 
 ---Data retrieval (Histogram contain only last shot)--
+##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
 00100: CCD image
 00101: CCD image Integral
 00102: CCD image Integral using pixel(s) over user defined Threshold
-00110: Acqiris Waveform
+
+00140: Photonhits Spectrum (works with old pnccd and ccd device)
+00141: Photonhits Image (works with old pnccd and ccd device)
+00142: Nbr of Photonhits (works with old pnccd and ccd device)
+
+##Data used with new pixeldetector device (select appropriate format convert to use these)
+00105: Pixeldetector Image
+00106: Histogram of Pixeldetector pixel values
+00107: Display the Map used for correction and pixel detection
+
+00147: detected pixels spectrum (z-values)
+00148: 2d image from detected pixels
+00149: Number of detected pixels
+
+00143: coalesced detected pixels (hits) spectrum (z-values)
+00144: 2d image from coalesced detected pixels (hits)
+00145: Number of coalesced detected pixels (hits)
+00146: Split level of coalesced detected pixels (hits) (how many detected pixels within coalseced hit)
+
+
 00120: Beamline data
 00121: Eventcode check
 00122: EventID retrival
 00130: Epics data
 
-00140: Photonhits Spectrum
-00141: Photonhits Image
-00142: Nbr of Photonhits
 
-00143: Coalesced Pixels Photonhits Spectrum
-00144: Coalesced Pixels Photonhits image
-00145: Nbr of Coalesced Pixels Photonhits
-00146: Split level of Coalesced Pixels Photonhits
+00110: Acqiris Waveform
 
 00150: TofDetector number of signals in MCP waveform
 00151: TofDetector all signals
@@ -300,6 +314,11 @@ using the custom doxygen tag cassttng.
       SingleCcdImage=100,
       SingleCcdImageIntegral=101,
       SingleCcdImageIntegralOverThres=102,
+
+      PixelDetectorImage=105,
+      PixelDetectorImageHistogram=106,
+      CorrectionMaps=107,
+
       AcqirisWaveform=110,
       BlData=120,
       EvrCode=121,
@@ -314,6 +333,10 @@ using the custom doxygen tag cassttng.
       CCDCoalescedPhotonHitsImage=144,
       NbrOfCCDCoalescedPhotonHits=145,
       SplitLevelCoalescedPhotonHits=146,
+
+      NewCCDPhotonHitsSpectrum=147,
+      NewCCDPhotonHitsImage=148,
+      NewNbrOfCCDPhotonHits=149,
 
       TofDetNbrSignals=150,
       TofDetAllSignals=151,

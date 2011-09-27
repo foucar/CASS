@@ -641,6 +641,15 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case SingleCcdImageIntegralOverThres:
     processor = new pp102(*this, key);
     break;
+  case PixelDetectorImage:
+    processor = new pp105(*this, key);
+    break;
+  case PixelDetectorImageHistogram:
+    processor = new pp106(*this, key);
+    break;
+  case CorrectionMaps:
+    processor = new pp107(*this, key);
+    break;
   case AcqirisWaveform:
     processor = new pp110(*this,key);
     break;
@@ -676,6 +685,15 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case SplitLevelCoalescedPhotonHits:
     processor = new pp146(*this,key);
+    break;
+  case NewCCDPhotonHitsSpectrum:
+    processor = new pp147(*this,key);
+    break;
+  case NewCCDPhotonHitsImage:
+    processor = new pp148(*this,key);
+    break;
+  case NewNbrOfCCDPhotonHits:
+    processor = new pp149(*this,key);
     break;
   case TofDetNbrSignals:
     processor = new pp150(*this, key);
