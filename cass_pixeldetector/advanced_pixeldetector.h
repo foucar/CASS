@@ -81,7 +81,7 @@ struct Frame
  *           - "simple": simple coalescing with basic checks.
  *                       See cass::pixeldetector::SimpleCoalesce.
  * @cassttng there are more settings for the common data. Please see
- *           CommonData for details on what to set.
+ *           cass::pixeldetector::CommonData for details on what to set.
  *
  * @author Lutz Foucar
  */
