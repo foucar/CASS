@@ -36,8 +36,44 @@ namespace pixeldetector
 /** convert a linearised matrix in the CASS format to the hll format
  *
  * the difference between the CASS and HLL is, that the CASS format has all 4
- * quadrants in a quadrat wheras in HLL they are aligned in a rectange. See
- * pixeldetector::readHLLGainFile for more detais.
+ * quadrants in a quadrat wheras in HLL they are aligned in a rectangle.
+ *
+ @verbatim
+
+   -----------
+   | 1  | 2  |
+   | C  | D  |
+   -----O-----
+   | 0  | 3  |
+   | A  | B  |
+   -----------
+   --------->
+
+       |
+       v
+
+   ----()--------()-----
+   | 0  | 1  | 2  | 3  |
+   | A  | C  | D  | B  |
+   ---------------------
+        --------->
+
+ @endverbatim
+ * The numbers indicate the tile of the frame wihtin the HLL frame format, the
+ * letters indicate the tiles within the CASS format. The arrows indicate the
+ * fast increasing coordinate within the linearised array. The parenthesis and
+ * the 0 indicate where the hole btw the quater holes are in the new tiles.
+ * This implies that the top two tiles in the CASS format have to be rotated by
+ * 180 degrees before adding them to HLL format array. This basically mean that
+ * one has to read these tiles reverseley. This is done in this function by
+ * using reverse iterators that will point at the last element of the tile.
+ *
+ * This function will then read the first row of tile A then the last of tile C
+ * then the last row of tile C, then the first row Tile B to the first row of
+ * the HLL format.
+ * The second row of the HLL format is then build by the 2nd row of Tile A, the
+ * 2nd to last row of Tile C then the 2nd to last row of tile D and the 2nd row
+ * of tile B. This continues until one has read all the rows of the tiles.
  *
  * @tparam inputContainerType the type of the container containing the input
  * @tparam outputContainerType the type of the container containing the output
@@ -84,8 +120,47 @@ void CASS2HLL(const inputContainerType& CASSMatrix,
 /** convert a linearised matrix in the hll format to the CASS format
  *
  * the difference between the CASS and HLL is, that the CASS format has all 4
- * quadrants in a quadrat wheras in HLL they are aligned in a rectange. See
- * pixeldetector::readHLLGainFile for more detais.
+ * quadrants in a quadrat wheras in HLL they are aligned in a rectangle.
+ @verbatim
+
+
+   ----()--------()-----
+   | 0  | 1  | 2  | 3  |
+   | A  | C  | D  | B  |
+   ---------------------
+        --------->
+
+       |
+       v
+
+   -----------
+   | 1  | 2  |
+   | C  | D  |
+   -----O-----
+   | 0  | 3  |
+   | A  | B  |
+   -----------
+   --------->
+ @endverbatim
+ * The numbers indicate the tile of the frame wihtin the HLL frame format, the
+ * letters indicate the tiles within the CASS format. The arrows indicate the
+ * fast increasing coordinate within the linearised array. The parenthesis and
+ * the 0 indicate where the hole btw the quater holes are in the new tiles.
+ * This implies that the tiles 1 and 2  in the HLL format have to be rotated by
+ * 180 degrees before adding them to CASS format array. This basically mean that
+ * one has to read these tiles reverseley. This is done in this function by
+ * using reverse iterators that will point at the last element of the tile.
+ *
+ * This function will then read the first row of tile 0 then the first rowv of
+ * tile 3. Then the 2nd row of tile 0 and then the 2nd row of tile 3. This
+ * continues until all rows of the tiles have been read.
+ * It then continues with the last of tile 1 and the last row of tile 2. Then
+ * the 2nd to last row of tile 1 and the 2nd to last row of tile 2. This
+ * continues until all rows of the tiles have been read.
+ *
+ * @note The resulting image in the CASS format is rotated by 90 degrees clockwise
+ *       to the image as it would look like inside the lab frame if one looks
+ *       into the beam.
  *
  * @tparam inputContainerType the type of the container containing the input
  * @tparam outputContainerType the type of the container containing the output
