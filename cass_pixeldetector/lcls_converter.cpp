@@ -7,7 +7,6 @@
  * @author Lutz Foucar
  */
 
-
 #include <iostream>
 #include <stdexcept>
 #include <algorithm>
