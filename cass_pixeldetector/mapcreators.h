@@ -38,6 +38,9 @@ public:
    * check whether the frame has the same size as the maps. If not resize them
    * and initialize with right values.
    *
+   * The map resources are locked since the function calling this operator will
+   * lock the resources.
+   *
    * @param frame the frame to check for
    */
   void operator() (const Frame &frame);
@@ -99,6 +102,9 @@ public:
    * each pixel a list of all pixels within the storage that don't contain an
    * event (e.g. photonhit).
    *
+   * The map resources are locked since the function calling this operator will
+   * lock the resources.
+   *
    * After calculation reset the _createMaps flag and clear the storage.
    *
    * @param frame the frame containing the data to build the maps from
@@ -149,6 +155,9 @@ class MovingMaps : public MapCreatorBase
 {
 public:
   /** build map from frame
+   *
+   * The map resources are locked since the function calling this operator will
+   * lock the resources.
    *
    * take the input frame and use its data to build up the correction maps.
    *

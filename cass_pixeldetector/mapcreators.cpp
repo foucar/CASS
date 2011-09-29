@@ -128,6 +128,10 @@ frame_t::value_type calcMedian(frame_t& values,
  * will let the hitfinder find no pixels and the correction make does not alter
  * the frame.
  *
+ * this function relys on that the maps are locked. Usually they are since this
+ * is called by the operators of the map creators. These are locked because
+ * the function calling the operators will lock the maps before.
+ *
  * @param frame the Frame to check
  * @param data the container for all maps.
  *
@@ -135,11 +139,8 @@ frame_t::value_type calcMedian(frame_t& values,
  */
 void isSameSize(const Frame& frame, CommonData& data)
 {
-  QReadLocker lock(&data.lock);
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
-    lock.unlock();
-    QWriteLocker wlock(&data.lock);
     data.offsetMap.resize(frame.columns*frame.rows, 0);
     cout << "isSameSize(): WARNING the offsetMap does not have the right size '"
          << data.offsetMap.size()
@@ -147,13 +148,9 @@ void isSameSize(const Frame& frame, CommonData& data)
          << frame.columns * frame.rows
          << "'. Resizing the offsetMap"
          <<endl;
-    wlock.unlock();
-    lock.relock();
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
   {
-    lock.unlock();
-        QWriteLocker wlock(&data.lock);
     data.noiseMap.resize(frame.columns*frame.rows, 4000);
     cout << "isSameSize(): WARNING the noiseMap does not have the right size '"
          << data.noiseMap.size()
@@ -161,13 +158,9 @@ void isSameSize(const Frame& frame, CommonData& data)
          << frame.columns * frame.rows
          << "'. Resizing the noiseMap"
          <<endl;
-    wlock.unlock();
-    lock.relock();
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
-    lock.unlock();
-    QWriteLocker wlock(&data.lock);
     data.mask.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the mask does not have the right size '"
          << data.offsetMap.size()
@@ -175,13 +168,9 @@ void isSameSize(const Frame& frame, CommonData& data)
          << frame.columns * frame.rows
          << "'. Resizing the mask"
          <<endl;
-    wlock.unlock();
-    lock.relock();
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
-    lock.unlock();
-    QWriteLocker wlock(&data.lock);
     data.gain_cteMap.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the gain_cteMap does not have the right size '"
          << data.offsetMap.size()
@@ -189,13 +178,9 @@ void isSameSize(const Frame& frame, CommonData& data)
          << frame.columns * frame.rows
          << "'. Resizing the gain_cteMap"
          <<endl;
-    wlock.unlock();
-    lock.relock();
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
-    lock.unlock();
-    QWriteLocker wlock(&data.lock);
     data.correctionMap.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the correctionMap does not have the right size '"
          << data.offsetMap.size()
@@ -203,8 +188,6 @@ void isSameSize(const Frame& frame, CommonData& data)
          << frame.columns * frame.rows
          << "'. Resizing the correctionMap"
          <<endl;
-    wlock.unlock();
-    lock.relock();
   }
 }
 
@@ -243,7 +226,6 @@ void FixedMaps::operator ()(const Frame &frame)
       _storage.push_back(frame.data);
     else
     {
-      QWriteLocker lock(&_commondata->lock);
       for (size_t i=0; i < 2; ++i)
       {
         frame_t::iterator offset(_commondata->offsetMap.begin());
@@ -259,7 +241,6 @@ void FixedMaps::operator ()(const Frame &frame)
       }
       _createMaps = false;
       _storage.clear();
-      lock.unlock();
       _commondata->saveMaps();
     }
   }

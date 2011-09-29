@@ -260,7 +260,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
 
 /** save the maps to a hll type darkcal file
  *
- * see readHLLOffsetFile for details about the fileformat
+ * see readHLLOffsetFile for details about the fileformat. There is no need to
+ * lock the maps since they are still locked by the lock started in createMaps
  *
  * @param filename the name of the file to write the data to
  * @param data the container including the maps to write to file
@@ -339,7 +340,9 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
 
 /** will save the file containing the offset and noise map in the former CASS format
  *
- * description
+ * write the offset and noise map into a file. The values will just be written
+ * in a binary stream of doubles
+ * the maps are still locked by the createMaps lock when writing.
  *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
@@ -354,7 +357,6 @@ void saveCASSOffsetFile(const string &filename, CommonData& data)
     throw invalid_argument("saveCASSOffsetFile(): Error opening file '" +
                            filename + "'");
   }
-  QReadLocker lock(&data.lock);
   vector<double> offsets(data.offsetMap.size());
   copy(data.offsetMap.begin(),data.offsetMap.end(),offsets.begin());
   out.write(reinterpret_cast<char*>(&offsets[0]), offsets.size()*sizeof(double));
@@ -546,6 +548,7 @@ void CommonData::loadSettings(CASSSettings &s)
 
 void CommonData::createMaps(const Frame &frame)
 {
+  QWriteLocker wlock(&lock);
   MapCreatorBase& createCorrectionMaps(*_mapcreator);
   createCorrectionMaps(frame);
 }
