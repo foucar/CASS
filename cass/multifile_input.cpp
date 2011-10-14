@@ -169,7 +169,6 @@ void MultiFileInput::run()
   vector<FileParser::shared_pointer>::iterator fileparseIt(parsercontainer.begin());
   for (;fileparseIt!=parsercontainer.end();++fileparseIt)
     (*fileparseIt)->wait();
-cout <<"all parsers finished"<<endl;
 
   /** Then iterator through the eventlist, read the contents of each file and
    *  put it into the cassvent. For each entry in the eventlist, check whether
@@ -191,7 +190,10 @@ cout <<"all parsers finished"<<endl;
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
     if (filetypes.size() != _filereaders.size())
+    {
+      ++eventmapIt;
       continue;
+    }
 
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
@@ -206,12 +208,15 @@ cout <<"all parsers finished"<<endl;
       if(_filereaders.find(ext) == _filereaders.end())
         throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext+ "'");
       FileReader &reader(*(_filereaders[ext]));
-      reader.newFile(false);
+      reader.newFile();
+      filepointer._filestream->seekg(0, ios::beg);
+      reader(*(filepointer._filestream),*cassevent);
       ifstream &filestream(filepointer.getStream());
       isGood = reader(filestream,*cassevent) && isGood;
     }
     _ringbuffer.doneFilling(cassevent, isGood);
     emit newEventAdded();
+    ++eventmapIt;
   }
 
   cout << "MultiFileInput::run(): Finished with all files." <<endl;
