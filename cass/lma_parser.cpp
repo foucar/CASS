@@ -58,10 +58,12 @@ void LMAParser::run()
         int16_t nbrPulses(FileStreaming::retrieve<int16_t>(file));
         for (int16_t i(0); i < nbrPulses; ++i)
         {
-          int32_t wavefromOffset(FileStreaming::retrieve<int32_t>(file));
-          int32_t pulslength(FileStreaming::retrieve<int32_t>(file));
-          size_t dataSize(pulslength * 2);
-          file.seekg(file.tellg() + dataSize);
+          const int32_t wavefromOffset(FileStreaming::retrieve<int32_t>(file));
+          const int32_t pulslength(FileStreaming::retrieve<int32_t>(file));
+          const size_t dataSize(pulslength * 2);
+          const size_t curPos(file.tellg());
+          const size_t offset(curPos + dataSize);
+          file.seekg(offset);
         }
       }
     }

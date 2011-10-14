@@ -32,7 +32,9 @@ void RAWSSSParser::run()
     uint32_t eventId(FileStreaming::peek<uint32_t>(file));
     savePos(eventId);
     eventId = (FileStreaming::retrieve<uint32_t>(file));
-    file.seekg(file.tellg() + imagesize);
+    const size_t curPos(file.tellg());
+    const size_t offset(curPos + imagesize);
+    file.seekg(offset);
     uint32_t heightCompare(FileStreaming::retrieve<uint32_t>(file));
 
     if (heightCompare != height)
