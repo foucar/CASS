@@ -56,7 +56,7 @@ namespace cass
      *
      * this is called everytime a new file is opened for reading
      */
-    virtual void newFile()=0;
+    virtual void newFile(bool state=true)=0;
 
   protected:
     /** only inheritants can create this */

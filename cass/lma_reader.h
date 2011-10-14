@@ -45,8 +45,11 @@ namespace cass
     /** load the settings of the reader */
     void loadSettings();
 
-    /** when a new file is opened set the flag */
-    void newFile() {_newFile=true;}
+    /** this tells when a new file is opened.
+     *
+     * @param state the state that the _newFile flag should be set to
+     */
+    void newFile(bool state=true) {_newFile=state;}
 
   private:
     /** flag to tell whether there is a new file */

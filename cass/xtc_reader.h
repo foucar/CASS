@@ -48,7 +48,7 @@ namespace cass
      *
      * ignore this message
      */
-    void newFile(){}
+    void newFile(bool){}
 
   private:
     /** a reference to the format converter functor */

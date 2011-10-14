@@ -26,7 +26,7 @@ FileReader::shared_pointer FileReader::instance(const string &type)
     ptr = shared_pointer(new XtcReader());
   else if (type == "lma")
     ptr = shared_pointer(new LmaReader());
-  else if (type == "raw_sss")
+  else if (type == "sss")
     ptr = shared_pointer(new RAWSSSReader());
   else
   {

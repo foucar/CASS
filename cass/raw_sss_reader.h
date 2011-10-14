@@ -43,9 +43,9 @@ namespace cass
 
     /** this tells when a new file is opened.
      *
-     * ignore this message
+     * @param state the state that the _newFile flag should be set to
      */
-    void newFile() {_newFile=true;}
+    void newFile(bool state=true) {_newFile=state;}
 
   private:
     /** flag to tell whether there is a new file */
