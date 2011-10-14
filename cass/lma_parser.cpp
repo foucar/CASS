@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <stdexcept>
 
 #include "lma_parser.h"
@@ -33,9 +34,13 @@ void LMAParser::run()
      <<header.nbrBits<<"'. Currently this is not supported.";
     throw runtime_error(ss.str());
   }
+  cout <<"LMAParser(): File contains instrument with '"<<header.nbrChannels
+       <<"' channels:"<<endl;
 
   for (int16_t i(0) ; i < header.nbrChannels ;++i)
   {
+    cout <<"LMAParser(): Channel '"<<i<<"' is "
+         <<((header.usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
     if (header.usedChannelBitmask & (0x1<<i))
     {
       vector<char> chanheaderarray(sizeof(lmaFile::ChannelHeader));

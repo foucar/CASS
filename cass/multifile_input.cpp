@@ -160,6 +160,7 @@ void MultiFileInput::run()
     if (_quit)
       break;
     string filename(*filelistIt++);
+    cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
     FileParser::shared_pointer fileparser(FileParser::instance(filename,eventmap,lock));
     fileparser->start();
     parsercontainer.push_back(fileparser);
