@@ -209,6 +209,7 @@ void MultiFileInput::run()
         throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext+ "'");
       FileReader &reader(*(_filereaders[ext]));
       reader.newFile();
+      filepointer._filestream->clear();
       filepointer._filestream->seekg(0, ios::beg);
       reader(*(filepointer._filestream),*cassevent);
       ifstream &filestream(filepointer.getStream());
