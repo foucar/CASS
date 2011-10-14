@@ -40,6 +40,9 @@ namespace cass
    *           Possible values are:
    *           - xtc: reads xtc files recorded at slac see XtcReader
    *           - lma: reads lma files recorded by AGAT. see LmaReader
+   *           - raw_sss: reads lma files recorded by Per's VMI Program. see 
+   *                      RAWSSSReader
+   *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
    *
    * @author Lutz Foucar
    */
