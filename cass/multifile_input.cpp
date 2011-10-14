@@ -126,6 +126,8 @@ void MultiFileInput::end()
 
 void MultiFileInput::run()
 {
+  _status = lmf::PausableThread::running;
+
   /** open the file containing the files to process, convert the contents to a
    *  vector of filenames.
    */
@@ -135,7 +137,7 @@ void MultiFileInput::run()
   if (!filelistfile.is_open())
   {
     stringstream ss;
-    ss <<"FileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
+    ss <<"MultiFileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
     throw invalid_argument(ss.str());
   }
   vector<string> filelist(tokenize(filelistfile));
@@ -157,7 +159,6 @@ void MultiFileInput::run()
   {
     if (_quit)
       break;
-
     string filename(*filelistIt++);
     FileParser::shared_pointer fileparser(FileParser::instance(filename,eventmap,lock));
     fileparser->start();
@@ -168,6 +169,7 @@ void MultiFileInput::run()
   vector<FileParser::shared_pointer>::iterator fileparseIt(parsercontainer.begin());
   for (;fileparseIt!=parsercontainer.end();++fileparseIt)
     (*fileparseIt)->wait();
+cout <<"all parsers finished"<<endl;
 
   /** Then iterator through the eventlist, read the contents of each file and
    *  put it into the cassvent. For each entry in the eventlist, check whether
@@ -201,7 +203,10 @@ void MultiFileInput::run()
     {
       const string ext(filetypesIt->first);
       FilePointer &filepointer(filetypesIt->second);
+      if(_filereaders.find(ext) == _filereaders.end())
+        throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext+ "'");
       FileReader &reader(*(_filereaders[ext]));
+      reader.newFile(false);
       ifstream &filestream(filepointer.getStream());
       isGood = reader(filestream,*cassevent) && isGood;
     }
