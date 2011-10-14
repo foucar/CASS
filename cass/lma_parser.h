@@ -20,6 +20,18 @@ namespace cass
   class LMAParser : public FileParser
   {
   public:
+    /** constructor
+     *
+     * @param filename the file to parse
+     * @param eventmap reference to the map of events
+     * @param lock reference to the protector of the eventlist map
+     */
+    LMAParser(const std::string &filename,
+              eventmap_t &eventmap,
+              QReadWriteLock &lock)
+       :FileParser(filename,eventmap,lock)
+    {}
+
     /** parse the lma file
      *
      * first read the headers and check whether this parser is suitable for

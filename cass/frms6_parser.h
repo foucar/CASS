@@ -20,6 +20,22 @@ namespace cass
   class Frms6Parser : public FileParser
   {
   public:
+    /** constructor
+     *
+     * @param filename the file to parse
+     * @param eventmap reference to the map of events
+     * @param lock reference to the protector of the eventlist map
+     */
+    Frms6Parser (const std::string &filename,
+                 eventmap_t &eventmap,
+                 QReadWriteLock &lock)
+       :FileParser(filename,eventmap,lock)
+    {}
+
+    /** parse the frms6 file
+     *
+     * detailed description
+     */
     void run();
   };
 }

@@ -11,6 +11,10 @@
 
 #include "file_parser.h"
 
+#include "lma_parser.h"
+#include "raw_sss_parser.h"
+#include "frms6_parser.h"
+
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
@@ -64,11 +68,13 @@ FileParser::shared_pointer FileParser::instance(const std::string &filename,
 {
   shared_pointer ptr;
   string ext(extension(filename));
-//  if (ext == "lma")
-//    ptr = shared_pointer(new XtcReader());
-//  else if (ext == "lma")
-//    ptr = shared_pointer(new LmaReader());
-//  else
+  if (ext == "lma")
+    ptr = shared_pointer(new LMAParser(filename, eventmap, lock));
+  else if (ext == "sss")
+    ptr = shared_pointer(new RAWSSSParser(filename, eventmap, lock));
+  else if (ext == "frms6")
+    ptr = shared_pointer(new Frms6Parser(filename, eventmap, lock));
+  else
   {
     stringstream ss;
     ss << "FileParser::instance: file extension '"<< ext <<"' is unknown.";

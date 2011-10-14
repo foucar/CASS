@@ -21,6 +21,22 @@ namespace cass
   class RAWSSSParser : public FileParser
   {
   public:
+    /** constructor
+     *
+     * @param filename the file to parse
+     * @param eventmap reference to the map of events
+     * @param lock reference to the protector of the eventlist map
+     */
+    RAWSSSParser(const std::string &filename,
+                 eventmap_t &eventmap,
+                 QReadWriteLock &lock)
+       :FileParser(filename,eventmap,lock)
+    {}
+
+    /** parse the raw.sss file
+     *
+     * detailed description
+     */
     void run();
   };
 }
