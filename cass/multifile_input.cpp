@@ -170,7 +170,7 @@ void MultiFileInput::run()
     (*fileparseIt)->wait();
 
   /** Then iterator through the eventlist, read the contents of each file and
-   *  put it intothe cassvent. For each entry in the eventlist, check whether
+   *  put it into the cassvent. For each entry in the eventlist, check whether
    *  all requested infos are present.
    *  If the data for this eventid is complete, retrieve a CASSEvent from the
    *  ringbuffer and use the file readers to retrieve the data from the file
