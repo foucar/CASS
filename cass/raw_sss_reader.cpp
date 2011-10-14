@@ -33,6 +33,8 @@ void RAWSSSReader::loadSettings()
 
 bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
 {
+  typedef vector<uint8_t> image_t;
+
   /** if it is a new file read the file header first */
   if (_newFile)
   {
@@ -52,20 +54,21 @@ bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
        <<" by the header '"<<_nimages<<"'";
     throw runtime_error(ss.str());
   }
-
   uint32_t eventId(FileStreaming::retrieve<uint32_t>(file));
-  vector<uint8_t> image(_width*_height,0);
-  file.read(reinterpret_cast<char*>(&image.front()),image.size());
-  uint32_t heightCompare(FileStreaming::retrieve<uint32_t>(file));
+  image_t image(_width*_height,0);
+  file.read(reinterpret_cast<char*>(&image.front()),image.size()*sizeof(image_t::value_type));
 
-  if (heightCompare != _height)
-  {
-    stringstream ss;
-    ss << "RAWSSSReader(): The read height '"<<heightCompare
-       <<"' does not match to the height given in the header '"<<_height<<"'";
-    throw runtime_error(ss.str());
-  }
+//  uint32_t heightCompare(FileStreaming::retrieve<uint32_t>(file));
+//  cout << _width <<" "<<_height<<" "<<_nimages<<" "<<image.size()<<" "<<eventId<<" "<<heightCompare<<" "<<sizeof(image_t::value_type)<<endl;
+//  if (heightCompare != _height)
+//  {
+//    stringstream ss;
+//    ss << "RAWSSSReader(): The read height '"<<heightCompare
+//       <<"' does not match to the height given in the header '"<<_height<<"'";
+//    throw runtime_error(ss.str());
+//  }
 
+  event.id() = eventId;
   CCDDevice *dev(dynamic_cast<CCDDevice*>(event.devices()[CASSEvent::CCD]));
   if(dev->detectors()->empty())
     dev->detectors()->resize(1);
