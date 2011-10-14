@@ -43,6 +43,8 @@ bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
     _width = FileStreaming::retrieve<uint32_t>(file);
     _height = FileStreaming::retrieve<uint32_t>(file);
     _nimages = FileStreaming::retrieve<uint32_t>(file);
+    cout << "RAWSSSReader(): File contains '"<<_nimages
+         <<"' images"<<endl;
   }
 
   ++_imagecounter;

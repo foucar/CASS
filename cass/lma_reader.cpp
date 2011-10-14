@@ -60,13 +60,18 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
     }
     _instrument.channels().resize(header.nbrChannels);
     _usedChannelBitmask = header.usedChannelBitmask;
-
+    
+    cout <<"LMAReader(): File contains instrument with '"<<header.nbrChannels
+         <<"' channels:"<<endl;
     for (int16_t i(0) ; i < header.nbrChannels ;++i)
     {
       Channel &chan(_instrument.channels()[i]);
       chan.sampleInterval() = header.samplingInterval;
       chan.waveform().resize(header.nbrSamples);
       chan.channelNbr() = i;
+
+      cout <<"LMAReader(): Channel '"<<i<<"' is "
+           <<((_usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
 
       if (_usedChannelBitmask & (0x1<<i))
       {
