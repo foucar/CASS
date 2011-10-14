@@ -29,7 +29,7 @@ void PausableThread::pause(bool wait)
     throw runtime_error("PausableThread::pause(): Thread is already told to pause");
   _control = _pause;
   ++_pausecount;
-  if (wait)
+  if (_status != notstarted && wait)
     waitUntilPaused();
 }
 

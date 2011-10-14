@@ -28,7 +28,7 @@ namespace lmf
     Q_OBJECT
   public:
     /** enum describing the internal status of the thread */
-    enum status_t {running, paused};
+    enum status_t {running, paused, notstarted};
 
     /** enum describing the control status of the thread */
     enum control_t {_run, _quit, _pause};
@@ -44,7 +44,7 @@ namespace lmf
      */
     PausableThread(control_t control=_run, QObject *parent = 0)
       :QThread(parent),
-       _status((control==_run?running:paused)),
+       _status(notstarted),
        _control(control),
        _pausecount((control==_run?0:1))
     {}
