@@ -171,7 +171,7 @@ void MultiFileInput::run()
   for (;fileparseIt!=parsercontainer.end();++fileparseIt)
     (*fileparseIt)->wait();
 
-  /** Then iterator through the eventlist, read the contents of each file and
+  /** Then iterate through the eventlist, read the contents of each file and
    *  put it into the cassvent. For each entry in the eventlist, check whether
    *  all requested infos are present.
    *  If the data for this eventid is complete, retrieve a CASSEvent from the
@@ -190,11 +190,11 @@ void MultiFileInput::run()
 
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
-    if (filetypes.size() != _filereaders.size())
-    {
-      ++eventmapIt;
-      continue;
-    }
+//    if (filetypes.size() != _filereaders.size())
+//    {
+//      ++eventmapIt;
+//      continue;
+//    }
 
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
