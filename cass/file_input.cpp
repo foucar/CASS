@@ -181,7 +181,10 @@ void cass::FileInput::run()
     {
       cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
       _read->newFile();
-      while(!file.eof() && !_quit)
+      file.seekg (0, ios::end);
+      const streampos filesize(file.tellg());
+      file.seekg (0, ios::beg);
+      while(file.tellg() < filesize && !_quit)
       {
         pausePoint();
         /** rewind if requested */
