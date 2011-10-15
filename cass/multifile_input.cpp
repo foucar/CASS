@@ -207,7 +207,7 @@ void MultiFileInput::run()
       const string ext(filetypesIt->first);
       FilePointer &filepointer(filetypesIt->second);
       if(_filereaders.find(ext) == _filereaders.end())
-        throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext+ "'");
+        throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext + "'");
       FileReader &reader(*(_filereaders[ext]));
       reader.newFile();
       filepointer._filestream->clear();
