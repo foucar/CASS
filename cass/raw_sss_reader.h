@@ -17,51 +17,51 @@
 
 namespace cass
 {
-  class CASSEvent;
+class CASSEvent;
 
-  /** class for reading commercial ccd files
+/** class for reading commercial ccd files
+ *
+ * @author Lutz Foucar
+ */
+class RAWSSSReader : public FileReader
+{
+public:
+  /** constructor */
+  RAWSSSReader();
+
+  /** read the raw.sss file contents put them into cassevent
    *
-   * @author Lutz Foucar
+   * @return true when the workers should work on the filled cassevent,
+   *         false if not.
+   * @param file the file that contains the data to be put into the cassevent
+   * @param event the CASSEvent where the data will be put into
    */
-  class RAWSSSReader : public FileReader
-  {
-  public:
-    /** constructor */
-    RAWSSSReader();
+  bool operator()(std::ifstream &file, CASSEvent& event);
 
-    /** read the xtc file contents put them into cassevent
-     *
-     * @return true when the workers should work on the filled cassevent,
-     *         false if not.
-     * @param file the file that contains the data to be put into the cassevent
-     * @param event the CASSEvent where the data will be put into
-     */
-    bool operator()(std::ifstream &file, CASSEvent& event);
+  /** load the settings of the reader */
+  void loadSettings();
 
-    /** load the settings of the reader */
-    void loadSettings();
+  /** this tells when a new file is opened.
+   *
+   * @param state the state that the _newFile flag should be set to
+   */
+  void newFile(bool state=true) {_newFile=state;}
 
-    /** this tells when a new file is opened.
-     *
-     * @param state the state that the _newFile flag should be set to
-     */
-    void newFile(bool state=true) {_newFile=state;}
+private:
+  /** flag to tell whether there is a new file */
+  bool _newFile;
 
-  private:
-    /** flag to tell whether there is a new file */
-    bool _newFile;
+  /** height of images */
+  uint32_t _height;
 
-    /** height of images */
-    uint32_t _height;
+  /** width of images */
+  uint32_t _width;
 
-    /** width of images */
-    uint32_t _width;
+  /** Number of images in this file */
+  uint32_t _nimages;
 
-    /** Number of images in this file */
-    uint32_t _nimages;
-
-    /** counter to see how many images have been read from file */
-    uint32_t _imagecounter;
-  };
-}
+  /** counter to see how many images have been read from file */
+  uint32_t _imagecounter;
+};
+}//end namespace cass
 #endif

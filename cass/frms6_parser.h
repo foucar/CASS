@@ -13,30 +13,30 @@
 
 namespace cass
 {
-  /** Will parse a frms6 file created by Xonline
+/** Will parse a frms6 file created by Xonline
+ *
+ * @author to be determined
+ */
+class Frms6Parser : public FileParser
+{
+public:
+  /** constructor
    *
-   * @author Lutz Foucar
+   * @param filename the file to parse
+   * @param eventmap reference to the map of events
+   * @param lock reference to the protector of the eventlist map
    */
-  class Frms6Parser : public FileParser
-  {
-  public:
-    /** constructor
-     *
-     * @param filename the file to parse
-     * @param eventmap reference to the map of events
-     * @param lock reference to the protector of the eventlist map
-     */
-    Frms6Parser (const std::string &filename,
-                 eventmap_t &eventmap,
-                 QReadWriteLock &lock)
-       :FileParser(filename,eventmap,lock)
-    {}
+  Frms6Parser (const std::string &filename,
+               eventmap_t &eventmap,
+               QReadWriteLock &lock)
+    :FileParser(filename,eventmap,lock)
+  {}
 
-    /** parse the frms6 file
-     *
-     * detailed description
-     */
-    void run();
-  };
-}
+  /** parse the frms6 file
+   *
+   * detailed description
+   */
+  void run();
+};
+}//end namespace cass
 #endif

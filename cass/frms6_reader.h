@@ -17,35 +17,35 @@
 
 namespace cass
 {
-  class CASSEvent;
+class CASSEvent;
 
-  /** class for reading frms6 files
+/** class for reading frms6 files
+ *
+ * @author to be determined
+ */
+class Frms6Reader : public FileReader
+{
+public:
+  /** constructor */
+  Frms6Reader();
+
+  /** read the frms6 file contents put them into cassevent
    *
-   * @author to be determined
+   * @return true when the workers should work on the filled cassevent,
+   *         false if not.
+   * @param file the file that contains the data to be put into the cassevent
+   * @param event the CASSEvent where the data will be put into
    */
-  class Frms6Reader : public FileReader
-  {
-  public:
-    /** constructor */
-    Frms6Reader();
+  bool operator()(std::ifstream &file, CASSEvent& event);
 
-    /** read the xtc file contents put them into cassevent
-     *
-     * @return true when the workers should work on the filled cassevent,
-     *         false if not.
-     * @param file the file that contains the data to be put into the cassevent
-     * @param event the CASSEvent where the data will be put into
-     */
-    bool operator()(std::ifstream &file, CASSEvent& event);
+  /** load the settings of the reader */
+  void loadSettings();
 
-    /** load the settings of the reader */
-    void loadSettings();
-
-    /** this tells when a new file is opened.
-     *
-     * ignore this message
-     */
-    void newFile(){}
-  };
-}
+  /** this tells when a new file is opened.
+   *
+   * ignore this message
+   */
+  void newFile(bool/* state=true*/){}
+};
+}//end namespace cass
 #endif

@@ -22,131 +22,131 @@
 
 namespace cass
 {
-  /** File Input for cass
+/** File Input for cass
+ *
+ * This class will be used in offline modus. I will take an string that
+ * contains a filename. In the file that the filename points to has to be a
+ * list with files, that one wants to analyze.
+ * The filename name must be passed to the program with the -i parameter.
+ *
+ * For each file in the filelist it will open the file, and call the readers
+ * to extract the data from the file.
+ *
+ * @cassttng FileInput/{Rewind}\n
+ *           Tells the program to start over running over all files when true.
+ *           Default is false.
+ * @cassttng FileInput/{FileType}\n
+ *           What kind of files do you want to analyze. Default value is "xtc"
+ *           Possible values are:
+ *           - xtc: reads xtc files recorded at slac see XtcReader
+ *           - lma: reads lma files recorded by AGAT. see LmaReader
+ *           - sss: reads lma files recorded by Per's VMI Program. see
+ *                  RAWSSSReader
+ *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
+ *
+ * @author Lutz Foucar
+ */
+class CASSSHARED_EXPORT FileInput : public QThread
+{
+  Q_OBJECT;
+public:
+  /** constructor */
+  FileInput(std::string filelistname,
+            RingBuffer<CASSEvent,RingBufferSize>&,
+            bool quitwhendone,
+            QObject *parent=0);
+
+  /** destructor */
+  ~FileInput();
+
+  /** function with the main loop */
+  void run();
+
+  /** suspends the thread
    *
-   * This class will be used in offline modus. I will take an string that
-   * contains a filename. In the file that the filename points to has to be a
-   * list with files, that one wants to analyze.
-   * The filename name must be passed to the program with the -i parameter.
-   *
-   * For each file in the filelist it will open the file, and call the readers
-   * to extract the data from the file.
-   *
-   * @cassttng FileInput/{Rewind}\n
-   *           Tells the program to start over running over all files when true.
-   *           Default is false.
-   * @cassttng FileInput/{FileType}\n
-   *           What kind of files do you want to analyze. Default value is "xtc"
-   *           Possible values are:
-   *           - xtc: reads xtc files recorded at slac see XtcReader
-   *           - lma: reads lma files recorded by AGAT. see LmaReader
-   *           - sss: reads lma files recorded by Per's VMI Program. see
-   *                  RAWSSSReader
-   *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
-   *
-   * @author Lutz Foucar
+   * blocks until the thread has suspended
    */
-  class CASSSHARED_EXPORT FileInput : public QThread
-  {
-    Q_OBJECT;
-  public:
-    /** constructor */
-    FileInput(std::string filelistname,
-              RingBuffer<CASSEvent,RingBufferSize>&,
-              bool quitwhendone,
-              QObject *parent=0);
+  void suspend();
 
-    /** destructor */
-    ~FileInput();
+  /** resumes the thread */
+  void resume();
 
-    /** function with the main loop */
-    void run();
+public slots:
+  /** tell the thread to quit */
+  void end();
 
-    /** suspends the thread
-     *
-     * blocks until the thread has suspended
-     */
-    void suspend();
+  /** load the parameters used for this thread
+   *
+   * @param what unused parameter
+   */
+  void loadSettings(size_t what);
 
-    /** resumes the thread */
-    void resume();
+signals:
+  /** signal emitted when done with one event
+   *
+   * To indicate that we are done processing an event this signal is emitted.
+   * This is used for by the ratemeter to evaluate how fast we get events.
+   */
+  void newEventAdded();
 
-  public slots:
-    /** tell the thread to quit */
-    void end();
+protected:
+  /** helper function for suspending
+   *
+   * this function call will block until the thread is suspended.
+   */
+  void waitUntilSuspended();
 
-    /** load the parameters used for this thread
-     *
-     * @param what unused parameter
-     */
-    void loadSettings(size_t what);
+  /** call this at the point you want to pause
+   *
+   * when told to pause, this will actually pause and only resume when resume
+   * is called.
+   */
+  void pausePoint();
 
-  signals:
-    /** signal emitted when done with one event
-     *
-     * To indicate that we are done processing an event this signal is emitted.
-     * This is used for by the ratemeter to evaluate how fast we get events.
-     */
-    void newEventAdded();
+  /** tokenize the file containing the files that we want to process
+   *
+   * will return a list containing all non empty lines of the file. Before
+   * returning the list strip the 'new line' and 'line feed' from the line.
+   *
+   * @return stringlist containing all non empty lines of the file
+   * @param file the filestream to tokenize
+   */
+  std::vector<std::string> tokenize(std::ifstream &file);
 
-  protected:
-    /** helper function for suspending
-     *
-     * this function call will block until the thread is suspended.
-     */
-    void waitUntilSuspended();
+private:
+  /** reference to the ringbuffer */
+  RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
 
-    /** call this at the point you want to pause
-     *
-     * when told to pause, this will actually pause and only resume when resume
-     * is called.
-     */
-    void pausePoint();
+  /** flag to quit the input */
+  bool _quit;
 
-    /** tokenize the file containing the files that we want to process
-     *
-     * will return a list containing all non empty lines of the file. Before
-     * returning the list strip the 'new line' and 'line feed' from the line.
-     *
-     * @return stringlist containing all non empty lines of the file
-     * @param file the filestream to tokenize
-     */
-    std::vector<std::string> tokenize(std::ifstream &file);
+  /** flag to tell the thread to quit when its done with all files */
+  bool _quitWhenDone;
 
-  private:
-    /** reference to the ringbuffer */
-    RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
+  /** name of the file containing all files that we need to process */
+  std::string _filelistname;
 
-    /** flag to quit the input */
-    bool _quit;
+  /** shared pointer to the actual reader */
+  FileReader::shared_pointer _read;
 
-    /** flag to tell the thread to quit when its done with all files */
-    bool _quitWhenDone;
+  /** mutex for suspending the thread */
+  QMutex _pauseMutex;
 
-    /** name of the file containing all files that we need to process */
-    std::string _filelistname;
+  /** condition to signal that we need to resume */
+  QWaitCondition _pauseCondition;
 
-    /** shared pointer to the actual reader */
-    FileReader::shared_pointer _read;
+  /** flag to tell to pause this thread */
+  bool _pause;
 
-    /** mutex for suspending the thread */
-    QMutex _pauseMutex;
+  /** flag telling whether thread is suspended */
+  bool _paused;
 
-    /** condition to signal that we need to resume */
-    QWaitCondition _pauseCondition;
+  /** flag to start over with the files */
+  bool _rewind;
 
-    /** flag to tell to pause this thread */
-    bool _pause;
-
-    /** flag telling whether thread is suspended */
-    bool _paused;
-
-    /** flag to start over with the files */
-    bool _rewind;
-
-    /** condition to signal that the thread is suspended */
-    QWaitCondition _waitUntilpausedCondition;
-  };
+  /** condition to signal that the thread is suspended */
+  QWaitCondition _waitUntilpausedCondition;
+};
 
 }//end namespace cass
 
