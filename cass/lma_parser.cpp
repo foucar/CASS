@@ -56,7 +56,7 @@ void LMAParser::run()
     eventID = FileStreaming::retrieve<int32_t>(file);
     double horpos(FileStreaming::retrieve<double>(file));
 
-    for (size_t i=0; i<header.nbrChannels;++i)
+    for (int16_t i=0; i<header.nbrChannels;++i)
     {
       if (header.usedChannelBitmask & (0x1<<i))
       {
