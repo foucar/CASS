@@ -14,6 +14,7 @@
 #include "lma_parser.h"
 #include "raw_sss_parser.h"
 #include "frms6_parser.h"
+#include "txt_parser.h"
 
 using namespace cass;
 using namespace std;
@@ -74,6 +75,8 @@ FileParser::shared_pointer FileParser::instance(const std::string &filename,
     ptr = shared_pointer(new RAWSSSParser(filename, eventmap, lock));
   else if (ext == "frms6")
     ptr = shared_pointer(new Frms6Parser(filename, eventmap, lock));
+  else if (ext == "txt")
+    ptr = shared_pointer(new TxtParser(filename, eventmap, lock));
   else
   {
     stringstream ss;
