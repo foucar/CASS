@@ -12,6 +12,7 @@
 #include <tr1/memory>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "file_reader.h"
 
@@ -21,8 +22,15 @@ class CASSEvent;
 
 /** class for reading txt files
  *
- * first line has to give the names of the varibles, which are then ordered
+ * first line has to give the names of the variables, which are then ordered
  * line by line.
+ *
+ * @cassttng TxtReader/{Deliminator}\n
+ *           The deliminator that is used to separate the values. Default is '\t',
+ *           which is a tab.
+ * @cassttng TxtReader/{EventIdHeader}\n
+ *           The name of the Header under which the Event Id is stored. Default
+ *           is "".
  *
  * @author Lutz Foucar
  */
@@ -48,11 +56,20 @@ public:
    *
    * ignore this message
    */
-  void newFile(bool state=true){_newfile = state;}
+  void newFile(bool state=true){_newFile = state;}
 
 private:
   /** flag to tell whether its a new file */
-  bool _newfile;
+  bool _newFile;
+
+  /** the value names */
+  std::vector<std::string> _headers;
+
+  /** the deliminator by which the values are separated in the ascii file */
+  char _delim;
+
+  /** the header name under which the event id is stored */
+  std::string _eventIdhead;
 };
 }//end namespace cass
 #endif

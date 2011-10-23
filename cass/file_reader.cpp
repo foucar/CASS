@@ -15,6 +15,7 @@
 #include "lma_reader.h"
 #include "raw_sss_reader.h"
 #include "frms6_reader.h"
+#include "txt_reader.h"
 
 using namespace cass;
 using namespace std;
@@ -31,6 +32,8 @@ FileReader::shared_pointer FileReader::instance(const string &type)
     ptr = shared_pointer(new RAWSSSReader());
   else if (type == "frms6")
     ptr = shared_pointer(new Frms6Reader());
+  else if (type == "txt")
+    ptr = shared_pointer(new TxtReader());
   else
   {
     stringstream ss;
