@@ -13,56 +13,11 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "machine_device.h"
+#include "cass.h"
 
 using namespace cass;
 using namespace MachineData;
 using namespace std;
-
-namespace cass
-{
-/** split the line into the values in that line
- *
- * @param line string containing the line that should be split
- * @param elems vector containing the elements of the line
- * @param delim the delimiter that the line should be splitted by.
- *
- * @author Lutz Foucar
- */
-void split(const string &line, vector<double> &elems, char delim)
-{
-  stringstream ss(line);
-  string str;
-  while(getline(ss, str, delim))
-  {
-    if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
-      continue;
-    stringstream ssvalue(str);
-    double value;
-    ssvalue >> value;
-    elems.push_back(value);
-  }
-}
-
-/** split line of strings into separate strings
- *
- * @param line string containing the line that should be split
- * @param elems vector containing the elements of the line
- * @param delim the delimiter that the line should be splitted by.
- *
- * @author Lutz Foucar
- */
-void splitString(const string &line, vector<string> &elems, char delim)
-{
-  stringstream ss(line);
-  string str;
-  while(getline(ss, str, delim))
-  {
-    if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
-      continue;
-    elems.push_back(str);
-  }
-}
-} //end namespace cass
 
 TxtReader::TxtReader()
   :_delim('\t')
@@ -83,11 +38,12 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
   {
     _newFile = false;
     string headerline;
+    splitString splitHeader;
     while (true)
     {
       getline(file, headerline);
       _headers.clear();
-      splitString(headerline,_headers,_delim);
+      splitHeader(headerline,_headers,_delim);
       if (!_headers.empty() &&
           !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
         break;
@@ -101,11 +57,12 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 
   string line;
   vector<double> values;
+  split splitLine;
   while(true)
   {
     getline(file, line);
     values.clear();
-    split(line,values,_delim);
+    splitLine(line,values,_delim);
     if (!values.empty())
       break;
   }

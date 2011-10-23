@@ -15,6 +15,7 @@
 #include <list>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <fstream>
 #include <tr1/memory>
 #include <QtCore/qglobal.h>
@@ -85,6 +86,91 @@ struct FilePointer
   }
 };
 
+/** split the line into the values in that line
+ *
+ * @author Lutz Foucar
+ */
+struct split
+{
+  /** the operator
+   *
+   * @param line string containing the line that should be split
+   * @param elems vector containing the elements of the line
+   * @param delim the delimiter that the line should be splitted by.
+   */
+  void operator()(const std::string &line, std::vector<double> &elems, char delim)
+  {
+    using namespace std;
+    stringstream ss(line);
+    while(getline(ss, _str, delim))
+    {
+      if ((_str.size() == 1 && !(isalpha(_str[0]))) || _str.empty())
+        continue;
+      stringstream ssvalue(_str);
+      ssvalue >> _value;
+      elems.push_back(_value);
+    }
+  }
+
+private:
+  /** string containing the splitted part of the line */
+  std::string _str;
+
+  /** the value that the splittet part corresponsed to */
+  double _value;
+};
+
+/** split line of strings into separate strings
+ *
+ * @author Lutz Foucar
+ */
+struct splitString
+{
+  /** the operator
+   *
+   * @param line string containing the line that should be split
+   * @param elems vector containing the elements of the line
+   * @param delim the delimiter that the line should be splitted by.
+   */
+  void operator()(const std::string &line, std::vector<std::string> &elems, char delim)
+  {
+    using namespace std;
+    stringstream ss(line);
+    while(getline(ss, _str, delim))
+    {
+      if ((_str.size() == 1 && !(isalpha(_str[0]))) || _str.empty())
+        continue;
+      elems.push_back(_str);
+    }
+  }
+
+private:
+  /** string containing the splitted part of the line */
+  std::string _str;
+};
+
+/** split line of strings into separate strings
+ *
+ * @param line string containing the line that should be split
+ * @param elems vector containing the elements of the line
+ * @param delim the delimiter that the line should be splitted by.
+ *
+ * @author Lutz Foucar
+ */
+//template<>
+//void split(const std::string &line, std::vector<std::string> &elems, char delim)
+//{
+//  using namespace std;
+//  stringstream ss(line);
+//  string str;
+//  while(getline(ss, str, delim))
+//  {
+//    if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
+//      continue;
+//    elems.push_back(str);
+//  }
+//}
+
 namespace FileStreaming
 {
 /** retrieve a variable from a file stream
@@ -118,6 +204,7 @@ T peek(std::ifstream &file)
   file.seekg(currentpos);
   return var;
 }
+
 }//end namespace FileStreaming
 
 /** global variable to set the ring buffer size */
