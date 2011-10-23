@@ -190,11 +190,12 @@ void MultiFileInput::run()
 
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
-//    if (filetypes.size() != _filereaders.size())
-//    {
-//      ++eventmapIt;
-//      continue;
-//    }
+    if (filetypes.size() != _filereaders.size())
+    {
+      cout << "MultiFileInput::run(): skipping incomplete event '"<<eventId<<"'"<<endl;
+      ++eventmapIt;
+      continue;
+    }
 
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
