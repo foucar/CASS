@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 #include "file_parser.h"
 
@@ -91,4 +92,6 @@ void FileParser::savePos(uint64_t eventId)
   _filepointer._pos = _filepointer._filestream->tellg();
   QWriteLocker lock(&_lock);
   _eventmap[eventId][_ext] = _filepointer;
+  if (!eventId)
+    cout <<"FileParser::savePos: WARNING EventId seems to be wrong: '"<<eventId<<"'"<<endl;
 }
