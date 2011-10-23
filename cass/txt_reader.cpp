@@ -34,16 +34,16 @@ void TxtReader::loadSettings()
 
 bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 {
+  splitter split;
   if(_newFile)
   {
     _newFile = false;
     string headerline;
-    splitString splitHeader;
     while (true)
     {
       getline(file, headerline);
       _headers.clear();
-      splitHeader(headerline,_headers,_delim);
+      split(headerline,_headers,_delim);
       if (!_headers.empty() &&
           !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
         break;
@@ -57,12 +57,11 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 
   string line;
   vector<double> values;
-  split splitLine;
   while(true)
   {
     getline(file, line);
     values.clear();
-    splitLine(line,values,_delim);
+    split(line,values,_delim);
     if (!values.empty())
       break;
   }

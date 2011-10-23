@@ -90,9 +90,9 @@ struct FilePointer
  *
  * @author Lutz Foucar
  */
-struct split
+struct splitter
 {
-  /** the operator
+  /** the operator for splitting a line of values
    *
    * @param line string containing the line that should be split
    * @param elems vector containing the elements of the line
@@ -112,21 +112,7 @@ struct split
     }
   }
 
-private:
-  /** string containing the splitted part of the line */
-  std::string _str;
-
-  /** the value that the splittet part corresponsed to */
-  double _value;
-};
-
-/** split line of strings into separate strings
- *
- * @author Lutz Foucar
- */
-struct splitString
-{
-  /** the operator
+  /** the operator for splitting into substrings
    *
    * @param line string containing the line that should be split
    * @param elems vector containing the elements of the line
@@ -147,29 +133,10 @@ struct splitString
 private:
   /** string containing the splitted part of the line */
   std::string _str;
-};
 
-/** split line of strings into separate strings
- *
- * @param line string containing the line that should be split
- * @param elems vector containing the elements of the line
- * @param delim the delimiter that the line should be splitted by.
- *
- * @author Lutz Foucar
- */
-//template<>
-//void split(const std::string &line, std::vector<std::string> &elems, char delim)
-//{
-//  using namespace std;
-//  stringstream ss(line);
-//  string str;
-//  while(getline(ss, str, delim))
-//  {
-//    if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
-//      continue;
-//    elems.push_back(str);
-//  }
-//}
+  /** the value that the splittet part corresponsed to */
+  double _value;
+};
 
 namespace FileStreaming
 {

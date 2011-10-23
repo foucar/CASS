@@ -33,12 +33,12 @@ void TxtParser::run()
 
   string headerline;
   vector<string> headers;
-  splitString splitHeader;
+  splitter split;
   while (true)
   {
     getline(file, headerline);
     headers.clear();
-    splitHeader(headerline,headers,delim);
+    split(headerline,headers,delim);
     if (!headers.empty() &&
         !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
       break;
@@ -53,7 +53,6 @@ void TxtParser::run()
   vector<double> values;
   map<string,double> head2value;
   streampos eventstartpos;
-  split splitLine;
   while(file.tellg()<filesize)
   {
     while(true)
@@ -61,7 +60,7 @@ void TxtParser::run()
       eventstartpos = file.tellg();
       getline(file, line);
       values.clear();
-      splitLine(line,values,delim);
+      split(line,values,delim);
       if (!values.empty())
         break;
     }
