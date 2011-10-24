@@ -160,6 +160,7 @@ HEADERS            += analysis_backend.h \
                       conversion_backend.h \
                       daemon.h \
                       event_getter.h \
+                      input_base.h \
                       file_input.h \
                       file_parser.h \
                       file_reader.h \

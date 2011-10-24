@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "pausablethread.h"
+#include "input_base.h"
 
 #include "cass.h"
 #include "ringbuffer.h"
@@ -57,9 +57,8 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT MultiFileInput : public lmf::PausableThread
+class CASSSHARED_EXPORT MultiFileInput : public InputBase
 {
-  Q_OBJECT
 public:
   /** constructor
    *
@@ -81,28 +80,10 @@ public:
   /** function with the main loop */
   void run();
 
-public slots:
-  /** load the parameters used for this thread
-   *
-   * pauses the thread then loads the settings of the MulitFileInput. Then
-   * loads the settings of all requested FileReaders. Then resumes the thread.
-   *
-   * @param what unused parameter
-   */
-  void loadSettings(size_t what);
-
-signals:
-  /** signal emitted when done with one event
-   *
-   * To indicate that we are done processing an event this signal is emitted.
-   * This is used for by the ratemeter to evaluate how fast we get events.
-   */
-  void newEventAdded();
+  /** load the parameters used for the multifile input */
+  void load();
 
 private:
-  /** reference to the ringbuffer */
-  RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
-
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
 

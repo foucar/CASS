@@ -53,8 +53,7 @@ MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                bool quitWhenDone,
                                QObject *parent)
-  :PausableThread(lmf::PausableThread::_run,parent),
-    _ringbuffer(ringbuffer),
+  :InputBase(ringbuffer,parent),
     _quitWhenDone(quitWhenDone),
     _filelistname(filelistname),
     _rewind(false)
@@ -68,11 +67,8 @@ MultiFileInput::~MultiFileInput()
   VERBOSEOUT(cout<< "MultiFileInput is closed" <<endl);
 }
 
-void MultiFileInput::loadSettings(size_t /*what*/)
+void MultiFileInput::load()
 {
-  VERBOSEOUT(cout << "MultiFileInput:loadSettings: suspend"<<endl);
-  pause(true);
-  VERBOSEOUT(cout << "MultiFileInput:loadSettings: suspended."<<endl);
   CASSSettings s;
   s.beginGroup("MultiFileInput");
   _rewind = s.value("Rewind",false).toBool();
@@ -84,9 +80,6 @@ void MultiFileInput::loadSettings(size_t /*what*/)
     _filereaders[filereadertype] = FileReader::instance(filereadertype);
     _filereaders[filereadertype]->loadSettings();
   }
-  VERBOSEOUT(cout << "MultiFileInput:loadSettings: Resuming Thread"<<endl);
-  resume();
-  VERBOSEOUT(cout << "MultiFileInput:loadSettings: resumed"<<endl);
 }
 
 void MultiFileInput::run()
