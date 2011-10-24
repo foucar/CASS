@@ -31,9 +31,9 @@ void TxtParser::run()
   const streampos filesize(file.tellg());
   file.seekg (0, ios::beg);
 
+  Splitter split;
   string headerline;
   vector<string> headers;
-  splitter split;
   while (true)
   {
     getline(file, headerline);

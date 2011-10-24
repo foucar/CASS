@@ -25,57 +25,6 @@ using namespace std;
 using namespace cass;
 
 
-namespace cass
-{
-/** tokenize the file containing the files that we want to process
- *
- * will return a list containing all non empty lines of the file. Before
- * returning the list strip the 'new line' and 'line feed' from the line.
- * Also skip all lines that contain either a '#' or a ';'.
- *
- * @return vector of string  containing all non empty lines of the file
- * @param file the filestream to tokenize
- *
- * @author Lutz Foucar
- */
-vector<string> tokenize(std::ifstream &file)
-{
-  vector<string> lines;
-  while (!file.eof())
-  {
-    string line;
-    getline(file,line);
-    /* remove newline */
-    if(line[line.length()-1] == '\n')
-    {
-      line.resize(line.length()-1);
-    }
-    /* remove line feed */
-    if(line[line.length()-1] == '\r')
-    {
-      line.resize(line.length()-1);
-    }
-    /* dont read newlines */
-    if(line.empty() || line[0] == '\n')
-    {
-      continue;
-    }
-    /* don't read lines containing ';' or '#' */
-    if(line.find(';') != string::npos || line.find('#') != string::npos)
-    {
-      continue;
-    }
-    lines.push_back(line);
-    VERBOSEOUT(cout <<"tokenize(): adding '"
-               <<line.c_str()
-               <<"' to list"
-               <<endl);
-  }
-  return lines;
-}
-
-}
-
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                bool quitWhenDone,
@@ -132,6 +81,7 @@ void MultiFileInput::run()
     ss <<"MultiFileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
     throw invalid_argument(ss.str());
   }
+  Tokenizer tokenize;
   vector<string> filelist(tokenize(filelistfile));
 
   /** create the resource and a lock for it that contains the pointers to the

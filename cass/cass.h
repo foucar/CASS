@@ -56,7 +56,10 @@ namespace cass
 template<typename T>
 inline T square(const T& val) { return val * val; }
 
-/** A resource that will point at a specific location within a file */
+/** A resource that will point at a specific location within a file
+ *
+ * @author Lutz Foucar
+ */
 struct FilePointer
 {
   /** global variable to set the ring buffer size */
@@ -78,7 +81,7 @@ struct FilePointer
   /** the stream to the file */
   filestream_t _filestream;
 
-  /** return a stream to the right position within the file */
+  /** @return a stream to the right position within the file */
   std::ifstream& getStream()
   {
     _filestream->seekg(_pos);
@@ -86,11 +89,64 @@ struct FilePointer
   }
 };
 
+/** tokenize to return all lines of an ascii file in a vector
+ *
+ * will return a list containing all non empty lines of the file. Before
+ * returning the list strip the 'new line' and 'line feed' from the line.
+ * Also skip all lines that contain either a '#' or a ';'.
+ *
+ * @author Lutz Foucar
+ */
+struct Tokenizer
+{
+  /** the operator
+   *
+   * @return vector of string  containing all non empty lines of the file
+   * @param file the filestream to tokenize
+   */
+  std::vector<std::string> operator()(std::ifstream &file)
+  {
+    using namespace std;
+    vector<string> lines;
+    while (!file.eof())
+    {
+      string line;
+      getline(file,line);
+      /* remove newline */
+      if(line[line.length()-1] == '\n')
+      {
+        line.resize(line.length()-1);
+      }
+      /* remove line feed */
+      if(line[line.length()-1] == '\r')
+      {
+        line.resize(line.length()-1);
+      }
+      /* dont read newlines */
+      if(line.empty() || line[0] == '\n')
+      {
+        continue;
+      }
+      /* don't read lines containing ';' or '#' */
+      if(line.find(';') != string::npos || line.find('#') != string::npos)
+      {
+        continue;
+      }
+      lines.push_back(line);
+      VERBOSEOUT(cout <<"tokenize(): adding '"
+                 <<line.c_str()
+                 <<"' to list"
+                 <<endl);
+    }
+    return lines;
+  }
+};
+
 /** split the line into the values in that line
  *
  * @author Lutz Foucar
  */
-struct splitter
+struct Splitter
 {
   /** the operator for splitting a line of values
    *
@@ -102,13 +158,15 @@ struct splitter
   {
     using namespace std;
     stringstream ss(line);
-    while(getline(ss, _str, delim))
+    string str;
+    while(getline(ss, str, delim))
     {
-      if ((_str.size() == 1 && !(isalpha(_str[0]))) || _str.empty())
+      if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
         continue;
-      stringstream ssvalue(_str);
-      ssvalue >> _value;
-      elems.push_back(_value);
+      stringstream ssvalue(str);
+      double value;
+      ssvalue >> value;
+      elems.push_back(value);
     }
   }
 
@@ -122,20 +180,14 @@ struct splitter
   {
     using namespace std;
     stringstream ss(line);
-    while(getline(ss, _str, delim))
+    string str;
+    while(getline(ss, str, delim))
     {
-      if ((_str.size() == 1 && !(isalpha(_str[0]))) || _str.empty())
+      if ((str.size() == 1 && !(isalpha(str[0]))) || str.empty())
         continue;
-      elems.push_back(_str);
+      elems.push_back(str);
     }
   }
-
-private:
-  /** string containing the splitted part of the line */
-  std::string _str;
-
-  /** the value that the splittet part corresponsed to */
-  double _value;
 };
 
 namespace FileStreaming

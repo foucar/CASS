@@ -34,7 +34,7 @@ void TxtReader::loadSettings()
 
 bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  splitter split;
+  Splitter split;
   if(_newFile)
   {
     _newFile = false;
