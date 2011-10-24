@@ -241,7 +241,7 @@ typedef std::vector<PixelDetector> detectors_t;
 /** known/supported Qt image formats */
 enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
 /** map file extrension to the filepointer */
-typedef std::map<std::string,FilePointer> filetypes_t;
+typedef std::multimap<std::string,FilePointer> filetypes_t;
 /** the list of events contained  in a file */
 typedef std::map<uint64_t, filetypes_t> eventmap_t;
 }
