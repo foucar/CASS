@@ -43,6 +43,7 @@ namespace cass
  *           - sss: reads lma files recorded by Per's VMI Program. see
  *                  RAWSSSReader
  *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
+ *           - txt: reads ascii files where values are separated by a delimiter
  *
  * @author Lutz Foucar
  */

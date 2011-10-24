@@ -53,6 +53,7 @@ namespace cass
  *           - sss: reads raw.sss files recorded by Pers program. see
  *                  RAWSSSReader
  *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
+ *           - txt: reads ascii files where values are separated by a delimiter
  *
  * @author Lutz Foucar
  */
@@ -80,6 +81,7 @@ public:
   /** function with the main loop */
   void run();
 
+public slots:
   /** load the parameters used for this thread
    *
    * pauses the thread then loads the settings of the MulitFileInput. Then
