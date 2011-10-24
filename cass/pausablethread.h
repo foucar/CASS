@@ -83,6 +83,10 @@ namespace lmf
     /** return the current status of the thread */
     status_t status()   {return _status;}
 
+  public slots:
+    /** tell the thread to quit */
+    void end() {_control = _quit;}
+
   protected:
     /** point where the thread will be paused
      *

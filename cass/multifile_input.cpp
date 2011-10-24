@@ -82,7 +82,6 @@ MultiFileInput::MultiFileInput(const string& filelistname,
                                QObject *parent)
   :PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
-    _quit(false),
     _quitWhenDone(quitWhenDone),
     _filelistname(filelistname),
     _rewind(false)
@@ -93,7 +92,7 @@ MultiFileInput::MultiFileInput(const string& filelistname,
 
 MultiFileInput::~MultiFileInput()
 {
-  VERBOSEOUT(cout<< "input is closed" <<endl);
+  VERBOSEOUT(cout<< "MultiFileInput is closed" <<endl);
 }
 
 void MultiFileInput::loadSettings(size_t /*what*/)
@@ -116,13 +115,6 @@ void MultiFileInput::loadSettings(size_t /*what*/)
   resume();
   VERBOSEOUT(cout << "MultiFileInput:loadSettings: resumed"<<endl);
 }
-
-void MultiFileInput::end()
-{
-  VERBOSEOUT(cout << "MultiFileInput::end(): received end signal" <<endl);
-  _quit=true;
-}
-
 
 void MultiFileInput::run()
 {
@@ -157,7 +149,7 @@ void MultiFileInput::run()
   vector<string>::const_iterator filelistIt(filelist.begin());
   while (filelistIt != filelist.end())
   {
-    if (_quit)
+    if (_control == _quit)
       break;
     string filename(*filelistIt++);
     cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
@@ -224,7 +216,7 @@ void MultiFileInput::run()
 
   cout << "MultiFileInput::run(): Finished with all files." <<endl;
   if(!_quitWhenDone)
-    while(!_quit)
+    while(_control != _quit)
       this->sleep(1);
   cout << "MultiFileInput::run(): closing the input"<<endl;
 }

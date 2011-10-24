@@ -80,10 +80,6 @@ public:
   /** function with the main loop */
   void run();
 
-public slots:
-  /** tell the thread to quit */
-  void end();
-
   /** load the parameters used for this thread
    *
    * pauses the thread then loads the settings of the MulitFileInput. Then
@@ -104,9 +100,6 @@ signals:
 private:
   /** reference to the ringbuffer */
   RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
-
-  /** flag to quit the input */
-  bool _quit;
 
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
