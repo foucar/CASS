@@ -86,5 +86,7 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
   event.id() = md.BeamlineData()[_eventIdhead];
 
 //  cout << "EventID '"<<_eventIdhead<<"'= "<<event.id()<<endl;
-  return (true);
+  if(!event.id())
+    cout << "TxtReader: EventId is bad '"<<event.id()<<"': skipping Event"<<endl;
+  return (event.id());
 }

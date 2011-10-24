@@ -75,10 +75,13 @@ void TxtParser::run()
 //      cout << "'"<<*head<<"'="<<*value<<", ";
     }
 //    cout <<endl;
+    const uint64_t eventId(head2value[eventIdhead]);
     const streampos currentpos(file.tellg());
     file.seekg(eventstartpos);
-    savePos(head2value[eventIdhead]);
-//    cout << "EventID: '"<<eventIdhead<<"'= "<<head2value[eventIdhead]<<endl;
+    if(!eventId)
+      cout << "TxtParser: EventId is bad '"<<eventId<<"': skipping Event"<<endl;
+    else
+      savePos(eventId);
     file.seekg(currentpos);
   }
 }

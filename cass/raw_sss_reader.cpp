@@ -82,5 +82,8 @@ bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
   det.frame().resize(image.size());
   copy(image.begin(),image.end(),det.frame().begin());
 
-  return true;
+  if (!event.id())
+    cout << "RAWSSSReader: EventId is bad '"<<event.id()<<"': skipping Event"<<endl;
+
+  return event.id();
 }

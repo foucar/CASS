@@ -51,7 +51,10 @@ void LMAParser::run()
   while(!file.eof())
   {
     uint32_t eventID(FileStreaming::peek<int32_t>(file));
-    savePos(eventID);
+    if(!eventID)
+      cout << "LMAParser: EventId is bad '"<<eventID<<"': skipping Event"<<endl;
+    else
+      savePos(eventID);
 
     eventID = FileStreaming::retrieve<int32_t>(file);
     double horpos(FileStreaming::retrieve<double>(file));

@@ -93,7 +93,7 @@ void FileInput::pausePoint()
   }
 }
 
-void cass::FileInput::resume()
+void FileInput::resume()
 {
   /** check if the thread has not been paused if so  return immidiately */
   if(!_pause)
@@ -105,7 +105,7 @@ void cass::FileInput::resume()
 }
 
 
-void cass::FileInput::waitUntilSuspended()
+void FileInput::waitUntilSuspended()
 {
   /** check if it is already paused, if so  retrun imidiatly */
   if(_paused)
@@ -116,7 +116,7 @@ void cass::FileInput::waitUntilSuspended()
   _waitUntilpausedCondition.wait(&mutex);
 }
 
-void cass::FileInput::end()
+void FileInput::end()
 {
   VERBOSEOUT(std::cout << "input got signal that it should close"
              <<std::endl);
@@ -154,7 +154,7 @@ vector<string> FileInput::tokenize(std::ifstream &file)
   return lines;
 }
 
-void cass::FileInput::run()
+void FileInput::run()
 {
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
              <<_filelistname<<"'"
@@ -199,7 +199,12 @@ void cass::FileInput::run()
         CASSEvent *cassevent(0);
         _ringbuffer.nextToFill(cassevent);
         /** fill the cassevent object with the contents from the file */
-        const bool isGood((*_read)(file,*cassevent));
+        bool isGood((*_read)(file,*cassevent));
+        if (!cassevent->id())
+        {
+          isGood = false;
+          cout << "FileInput: EventId is bad '"<<cassevent->id()<<"': skipping Event"<<endl;
+        }
         cassevent->setFilename(filelistIt->c_str());
         _ringbuffer.doneFilling(cassevent, isGood);
         emit newEventAdded();

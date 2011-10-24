@@ -36,7 +36,10 @@ void RAWSSSParser::run()
   for (uint32_t iImage(0); iImage < nImages; ++iImage)
   {
     uint32_t eventId(FileStreaming::peek<uint32_t>(file));
-    savePos(eventId);
+    if (!eventId)
+      cout << "RAWSSSParser: EventId is bad '"<<eventId<<"': skipping Event"<<endl;
+    else
+      savePos(eventId);
 
     const size_t curPos(file.tellg());
     const size_t offset(curPos + imagesize + sizeof(uint32_t));
