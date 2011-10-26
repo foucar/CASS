@@ -232,7 +232,7 @@ namespace lucassview
    */
   bool operator== (const cass::AxisProperty &ca, const TAxis &ra)
   {
-    return (ca.nbrBins() == ra.GetNbins() &&
+    return (static_cast<int>(ca.nbrBins()) == ra.GetNbins() &&
             fabs(ca.lowerLimit() - ra.GetXmin()) <  sqrt(numeric_limits<double>::epsilon()) &&
             fabs(ca.upperLimit() - ra.GetXmax()) <  sqrt(numeric_limits<double>::epsilon()) &&
             ca.title() == ra.GetTitle());
