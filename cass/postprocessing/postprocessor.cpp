@@ -645,6 +645,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case EvrCode:
     processor = new pp121(*this,key);
     break;
+  case EventID:
+    processor = new pp122(*this,key);
+    break;
   case EpicsData:
     processor = new pp130(*this,key);
     break;

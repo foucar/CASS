@@ -129,6 +129,36 @@ namespace cass
 
 
 
+  /** retrieve the eventId from event
+   *
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @author Lutz Foucar
+   */
+  class pp122 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp122(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy data from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings from cass.ini */
+    virtual void loadSettings(size_t);
+  };
+
+
+
+
+
+
+
+
+
+
 
   /** retrieval of Epics data.
    *

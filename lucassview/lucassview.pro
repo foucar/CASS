@@ -63,7 +63,7 @@ HEADERS       += soapH.h \
                  tcpclient.h
 
 INCLUDEPATH   += $$(ROOTSYS)/include
-LIBS          += -L$$(ROOTSYS)/lib -lCore -lCint -lRIO -lRint -lNet -lHist -lMathCore -lMatrix
+LIBS          += $$system(root-config --libs)
 LIBS          += -lgsoap++ -lgsoap
 
 INSTALLS      += target
