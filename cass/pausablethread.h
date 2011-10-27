@@ -85,7 +85,7 @@ namespace lmf
 
   public slots:
     /** tell the thread to quit */
-    void end() {_control = _quit;}
+    virtual void end() {_control = _quit;}
 
   protected:
     /** point where the thread will be paused
