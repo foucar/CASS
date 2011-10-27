@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
+#include <tr1/functional>
 
 #include "waveform.h"
 #include "histogram.h"
@@ -20,18 +21,25 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 
+using namespace cass;
+using namespace ACQIRIS;
+using std::runtime_error;
+using std::minus;
+using std::multiplies;
+using std::cout;
+using std::endl;
+using std::tr1::bind;
+using std::tr1::placeholders::_1;
 
 //the last wavefrom postprocessor
-cass::pp110::pp110(cass::PostProcessors &pp, const cass::PostProcessors::key_t &key)
-  :cass::PostprocessorBackend(pp,key)
+pp110::pp110(PostProcessors &pp, const PostProcessors::key_t &key)
+  :PostprocessorBackend(pp,key)
 {
   loadSettings(0);
 }
 
-void cass::pp110::loadSettings(size_t)
+void pp110::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -41,30 +49,29 @@ void cass::pp110::loadSettings(size_t)
   if (!setupCondition())
     return;
   _result = new Histogram1DFloat(1,0,1,"Time [s]");
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*NbrOfWorkers);
   cout<< endl <<"PostProcessor '"<<_key
       <<"' is showing channel '"<<_channel
       <<"' of acqiris '"<<_instrument
       <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+   <<endl;
 }
 
-void cass::pp110::process(const cass::CASSEvent &evt)
+void pp110::process(const CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
   const Device *dev
       (dynamic_cast<const Device*>(evt.devices().find(CASSEvent::Acqiris)->second));
   Device::instruments_t::const_iterator instrIt (dev->instruments().find(_instrument));
   if (dev->instruments().end() == instrIt)
-    throw std::runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
-                             .arg(_key.c_str())
-                             .arg(_instrument).toStdString());
+    throw runtime_error(QString("PostProcessor %1: Data doesn't contain Instrument %2")
+                        .arg(_key.c_str())
+                        .arg(_instrument).toStdString());
   const Instrument &instr(instrIt->second);
   if (instr.channels().size() <= _channel)
-    throw std::runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
-                             .arg(_key.c_str())
-                             .arg(_instrument)
-                             .arg(_channel).toStdString());
+    throw runtime_error(QString("PostProcessor %1: Instrument %2 doesn't contain channel %3")
+                        .arg(_key.c_str())
+                        .arg(_instrument)
+                        .arg(_channel).toStdString());
   const Channel &channel (instr.channels()[_channel]);
   const waveform_t &waveform (channel.waveform());
   _result->lock.lockForWrite();
@@ -81,10 +88,12 @@ void cass::pp110::process(const cass::CASSEvent &evt)
     for (; it != dependands.end(); ++it)
       _pp.getPostProcessor(*it).histogramsChanged(_result);
   }
-  std::transform(waveform.begin(),
-                 waveform.end(),
-                 dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-                 cass::Adc2Volts<waveform_t::value_type>(channel.gain(),channel.offset()));
+  transform(waveform.begin(),
+            waveform.end(),
+            dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
+//            Adc2Volts(channel.gain(),channel.offset()));
+            bind<waveform_t::value_type>(minus<double>(),channel.offset(),
+                                         bind<>(multiplies<double>(),channel.gain(),_1)));
   _result->nbrOfFills()=1;
   _result->lock.unlock();
 }

@@ -7,6 +7,7 @@
 
 
 #include <algorithm>
+#include <tr1/functional>
 
 #include "cass_event.h"
 #include "histogram.h"
@@ -17,6 +18,8 @@
 #include "cass_settings.h"
 
 using namespace cass;
+using std::tr1::bind;
+using std::tr1::placeholders::_1;
 
 PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
                                            const PostProcessors::key_t &key)
@@ -52,7 +55,11 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
   histogramList_t::iterator it
-    (find_if(_histList.begin(), _histList.end(), IsKey(evt.id())));
+    (find_if(_histList.begin(),
+             _histList.end(),
+//             IsKey(evt.id())));
+             bind<bool>(equal_to<histogramList_t::value_type::first_type>(),evt.id(),
+                  bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
   if(_histList.end() == it)
   {
     _result = _histList.back().second;
@@ -102,7 +109,11 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
   else
   {
     histogramList_t::const_iterator it
-        (find_if(_histList.begin(),_histList.end(),IsKey(eventid)));
+        (find_if(_histList.begin(),
+                 _histList.end(),
+//                 IsKey(eventid)));
+                 bind<bool>(equal_to<histogramList_t::value_type::first_type>(),eventid,
+                      bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     return *(it->second);

@@ -6,6 +6,7 @@
  *
  * @author Lutz Foucar
  */
+#include <tr1/functional>
 
 #include "acqiris_detectors_helper.h"
 
@@ -16,6 +17,11 @@
 #include "convenience_functions.h"
 
 using namespace cass::ACQIRIS;
+using std::cout;
+using std::endl;
+using std::make_pair;
+using std::tr1::bind;
+using std::tr1::placeholders::_1;
 
 //initialize static members//
 HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
@@ -26,10 +32,10 @@ HelperAcqirisDetectors* HelperAcqirisDetectors::instance(const helperinstancesma
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(std::cout << "HelperAcqirisDetectors::instance(): creating an"
+    VERBOSEOUT(cout << "HelperAcqirisDetectors::instance(): creating an"
                <<" instance of the Acqiris Detector Helper for detector '"<<detector
                <<"'"
-               <<std::endl);
+               <<endl);
     _instances[detector] = new HelperAcqirisDetectors(detector);
   }
   return _instances[detector];
@@ -58,11 +64,11 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
   settings.endGroup();
   settings.endGroup();
   for (size_t i=0; i<NbrOfWorkers*2;++i)
-    _detectorList.push_front(std::make_pair(0,DetectorBackend::instance(_dettype,detname)));
-  VERBOSEOUT(std::cout << "AcqirisDetectorHelper::constructor: "
+    _detectorList.push_front(make_pair(0,DetectorBackend::instance(_dettype,detname)));
+  VERBOSEOUT(cout << "AcqirisDetectorHelper::constructor: "
              << "we are responsible for det '"<<detname
              << "', which is of type " <<_dettype
-             <<std::endl);
+             <<endl);
 }
 
 HelperAcqirisDetectors::~HelperAcqirisDetectors()
@@ -78,7 +84,11 @@ DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
   using namespace std;
   QMutexLocker lock(&_helperMutex);
   detectorList_t::iterator it
-    (find_if(_detectorList.begin(), _detectorList.end(), IsKey(evt.id())));
+    (find_if(_detectorList.begin(),
+             _detectorList.end(),
+//             IsKey(evt.id())));
+             bind<bool>(equal_to<detectorList_t::value_type::first_type>(),evt.id(),
+                        bind<detectorList_t::value_type::first_type>(&detectorList_t::value_type::first,_1))));
 //  cout << " DetHelp 1"<<endl;
   if(_detectorList.end() == it)
   {

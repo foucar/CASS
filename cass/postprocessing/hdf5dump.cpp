@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <utility>
 #include <hdf5.h>
+#include <tr1/functional>
 
 #include <QtCore/QString>
 #include <qfileinfo.h>
@@ -26,6 +27,11 @@
 #include "acqiris_device.h"
 #include "pdsdata/xtc/Dgram.hh"
 #include "cass_acqiris.h"
+
+using std::minus;
+using std::multiplies;
+using std::tr1::bind;
+using std::tr1::placeholders::_1;
 
 
 namespace cass
@@ -272,8 +278,12 @@ void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
 
       // Convert to volts
       float *volts(new float[waveform.size()]);
-      std::transform(waveform.begin(), waveform.end(), volts,
-                     cass::Adc2Volts<cass::ACQIRIS::waveform_t::value_type>(channel.gain(),channel.offset()));
+      std::transform(waveform.begin(),
+                     waveform.end(),
+                     volts,
+//                     cass::Adc2Volts(channel.gain(),channel.offset()));
+                     bind<cass::ACQIRIS::waveform_t::value_type>(minus<double>(),channel.offset(),
+                                                                 bind<>(multiplies<double>(),channel.gain(),_1)));
 
       snprintf(fieldname, 63, "ch%i_V", i);
 
