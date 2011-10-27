@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <tr1/functional>
 
 #include <QStringList>
 
@@ -23,31 +24,8 @@
 
 using namespace std;
 using namespace cass;
-
-namespace cass
-{
-/** retrieve the key from the key value pair of a map
- *
- * taken from
- * http://stackoverflow.com/questions/110157/how-to-retrieve-all-keys-or-values-from-a-stdmap
- *
- * @author Mark
- */
-struct RetrieveKey
-{
-  /** the operator
-   *
-   * @tparam the type of the map
-   * @return the key of the key value pair
-   * @param keyValuePair the key - value - pair
-   */
-  template <typename T>
-  typename T::first_type operator()(T keyValuePair) const
-  {
-    return keyValuePair.first;
-  }
-};
-}//end namespace cass
+using tr1::bind;
+using tr1::placeholders::_1;
 
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
@@ -150,8 +128,11 @@ void MultiFileInput::run()
     uint64_t eventId(eventmapIt->first);
     filetypes_t &filetypes(eventmapIt->second);
     /** find out how many parser should be needed */
-    vector<string> keys;
-    transform(filetypes.begin(),filetypes.end(),back_inserter(keys),RetrieveKey());
+    vector<filetypes_t::key_type> keys;
+    transform(filetypes.begin(),
+              filetypes.end(),
+              back_inserter(keys),
+              bind(&filetypes_t::value_type::first, _1));
     vector<string>::iterator it(unique(keys.begin(),keys.end()));
     if (static_cast<size_t>(distance(keys.begin(),it)) != _filereaders.size())
     {
