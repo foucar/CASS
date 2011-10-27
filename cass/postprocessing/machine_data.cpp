@@ -109,6 +109,46 @@ void cass::pp121::process(const CASSEvent& evt)
 
 
 
+// *** postprocessors 122 retrieve eventID ***
+
+cass::pp122::pp122(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp122::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<< "PostProcessor '"<<_key
+      <<"' will retrieve the event ID from events"
+      <<". Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp122::process(const CASSEvent& evt)
+{
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = evt.id();
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // *** postprocessors 130 retrives epics data ***
 
