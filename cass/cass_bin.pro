@@ -283,10 +283,11 @@ lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclsapps.path       = $$INSTALLBASE/bin
 lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
 bin_copy.path       = $$INSTALLBASE/bin
-bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE}
+bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 headers.files       = $$HEADERS
-INSTALLS           += target bin_copy lclslibs lclsapps
+#INSTALLS           += target lclslibs lclsapps
 
+INSTALLS           += target bin_copy lclslibs lclsapps
 #INSTALLS           += headers target bin_copy lclslibs lclsapps
 
 
@@ -294,8 +295,8 @@ versiontarget.target = $$PWD/../cass/update-version.sh
 versiontarget.commands = $$PWD/../cass/update-version.sh
 versiontarget.depends= FORCE
 
-#PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
-#QMAKE_EXTRA_TARGETS+= versiontarget
+PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
+QMAKE_EXTRA_TARGETS+= versiontarget
 
 QMAKE_CLEAN        += $$SOAPFiles.files
 QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
