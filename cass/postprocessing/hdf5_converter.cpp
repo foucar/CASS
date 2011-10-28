@@ -29,7 +29,10 @@ namespace cass
      *        yet supported in QDateTime
      */
     time.setTime_t(timet);
-    groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+    if (timet)
+      groupname << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+    else
+      groupname << "UnknownTime_"<<eventid;
     VERBOSEOUT(std::cout<<"createGroupNameFromEventId(): creating group: "<<groupname.str()
                <<std::endl);
     return H5Gcreate1(calibcycle, groupname.str().c_str(),0);

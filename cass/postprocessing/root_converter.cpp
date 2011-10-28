@@ -37,12 +37,20 @@ namespace cass
   {
     string eventIdToDirectoryName(uint64_t eventid)
     {
+      cout << eventid<<endl;
       uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
       uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
       stringstream name;
-      QDateTime time;
-      time.setTime_t(timet);
-      name << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+      if (timet)
+      {
+        QDateTime time;
+        time.setTime_t(timet);
+        name << time.toString(Qt::ISODate).toStdString() <<"_"<<eventFiducial;
+      }
+      else
+      {
+        name << "UnknownTime_"<<eventid;
+      }
       VERBOSEOUT(cout<<"eventIdToDirectoryName(): name: "<<name.str()
                  <<endl);
       return name.str();
@@ -199,6 +207,7 @@ void pp2000::process(const cass::CASSEvent &evt)
   /** create directory from eventId and cd into it */
   _rootfile->cd("/");
   string dirname(ROOT::eventIdToDirectoryName(evt.id()));
+  cout <<dirname<<endl;
   _rootfile->mkdir(dirname.c_str())->cd();
   /** retrieve postprocessor container */
   PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
