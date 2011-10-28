@@ -22,28 +22,6 @@ namespace cass
   {
     class DetectorBackend;
 
-    /** predicate class for find_if.
-     *
-     * this helps finding the right key in the list of pairs
-     * @see HelperAcqirisDetectors::_detectorList
-     *
-     * @author Lutz Foucar
-     */
-//    class IsKey
-//    {
-//    public:
-//      /** initialize the key in the constructor*/
-//      IsKey(const uint64_t key):_key(key){}
-
-//      /** compares the first element of the pair to the key*/
-//      bool operator()(const std::pair<uint64_t,DetectorBackend*>& p)const
-//      { return (p.first == _key); }
-
-//    private:
-//      /** the key that we will compare to in the operator*/
-//      const uint64_t _key;
-//    };
-
     /** load detector from file
      *
      * after loading check whether it is a delayline detector, if not throw
@@ -80,27 +58,6 @@ namespace cass
                              int ppNbr,
                              const PostProcessors::key_t& key);
   }
-
-  /** predicate class for find_if.
-   *
-   * this helps finding the right key in the list of pairs eventid - Histogram
-   *
-   * @author Lutz Foucar
-   */
-//  class IsKey
-//  {
-//  public:
-//    /** initialize the key in the constructor*/
-//    IsKey(const uint64_t key):_key(key){}
-
-//    /** compares the first element of the pair to the key*/
-//    bool operator()(const std::pair<uint64_t,HistogramBackend*>& p)const
-//    { return (_key == p.first); }
-
-//  private:
-//    /** the key that we will compare to in the operator*/
-//    const uint64_t _key;
-//  };
 
   /** Binary function for thresholding
    *
@@ -141,34 +98,6 @@ namespace cass
   };
 
 
-
-  /** Convert Waveform Point
-   *
-   * unary function for converting the waveform points that are in ADC Values to
-   * Volts.
-   *
-   * @author Lutz Foucar
-   */
-//  class Adc2Volts : public std::unary_function<ACQIRIS::waveform_t::value_type, float>
-//  {
-//  public:
-//    /** constructor.
-//     *
-//     * @param gain the gain of the channel that contains the waveform
-//     * @param offset the offset in Volts of the channel
-//     */
-//    Adc2Volts(double gain, double offset):
-//        _gain(gain),_offset(offset)
-//    {}
-
-//    /** operator. converts adc values to volts*/
-//    float operator ()(ACQIRIS::waveform_t::value_type adc)
-//    { return adc * _gain - _offset;}
-
-//  protected:
-//    double _gain;
-//    double _offset;
-//  };
 
   /** binary function for averaging.
    *
