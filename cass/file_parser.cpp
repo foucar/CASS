@@ -16,82 +16,53 @@
 #include "raw_sss_parser.h"
 #include "frms6_parser.h"
 #include "txt_parser.h"
+#include "file_reader.h"
 
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
 
-namespace cass
-{
-/** retrieve the extension of a filename
- *
- * find the last occurence of '.' after which hopefully the extension comes.
- * Funtion was inspired by 'graphitemaster' at stackoverflow:
- *
- * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
- *
- * @return string containing the extension
- * @param string containing the filename
- *
- * @author Lutz Foucar
- */
-string extension(const string &filename)
-{
-  if(filename.find_last_of(".") != std::string::npos)
-    return filename.substr(filename.find_last_of(".")+1);
-  else
-  {
-    stringstream ss;
-    ss <<"extension: the filename '"<<filename<<"' does not have a file extension.";
-    throw invalid_argument(ss.str());
-  }
-}
-}
-
-FileParser::FileParser(const std::string &filename,
-                       eventmap_t &eventmap,
+FileParser::FileParser(const filereaderpointerpair_t readerpointerpair,
+                       event2positionreaders_t &event2posreader,
                        QReadWriteLock &lock)
   :QThread(),
-    _eventmap(eventmap),
-    _lock(lock),
-    _ext(extension(filename))
-{
-  _filepointer._filestream =
-      FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
-}
+    _readerpointerpair(readerpointerpair),
+    _event2posreader(event2posreader),
+    _lock(lock)
+{}
 
 FileParser::~FileParser()
-{
-}
+{}
 
-FileParser::shared_pointer FileParser::instance(const std::string &filename,
-                                                eventmap_t &eventmap,
+FileParser::shared_pointer FileParser::instance(const std::string type,
+                                                const filereaderpointerpair_t readerpointerpair,
+                                                event2positionreaders_t &event2posreader,
                                                 QReadWriteLock &lock)
 {
   shared_pointer ptr;
-  string ext(extension(filename));
-  if (ext == "lma")
-    ptr = shared_pointer(new LMAParser(filename, eventmap, lock));
-  else if (ext == "sss")
-    ptr = shared_pointer(new RAWSSSParser(filename, eventmap, lock));
-  else if (ext == "frms6")
-    ptr = shared_pointer(new Frms6Parser(filename, eventmap, lock));
-  else if (ext == "txt")
-    ptr = shared_pointer(new TxtParser(filename, eventmap, lock));
+  if (type == "lma")
+    ptr = shared_pointer(new LMAParser(readerpointerpair,event2posreader, lock));
+  else if (type == "sss")
+    ptr = shared_pointer(new RAWSSSParser(readerpointerpair,event2posreader, lock));
+  else if (type == "frms6")
+    ptr = shared_pointer(new Frms6Parser(readerpointerpair,event2posreader, lock));
+  else if (type == "txt")
+    ptr = shared_pointer(new TxtParser(readerpointerpair,event2posreader, lock));
   else
-  {
-    stringstream ss;
-    ss << "FileParser::instance: file extension '"<< ext <<"' is unknown.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("FileParser::instance: file extension '"+ type +"' is unknown.");
   return ptr;
 }
 
 void FileParser::savePos(uint64_t eventId)
 {
-  _filepointer._pos = _filepointer._filestream->tellg();
-  QWriteLocker lock(&_lock);
-  _eventmap[eventId].insert(make_pair(_ext, _filepointer));
+  _readerpointerpair.second._pos = _readerpointerpair.second._filestream->tellg();
   if (!eventId)
-    cout <<"FileParser::savePos: WARNING EventId seems to be wrong: '"<<eventId<<"'"<<endl;
+  {
+    cout <<"FileParser::savePos: WARNING EventId '"<<eventId
+        <<"' from parser type '"<< type()
+         <<"'seems to be wrong skipping event." <<endl;
+    return;
+  }
+  QWriteLocker lock(&_lock);
+  _event2posreader[eventId].push_back(_readerpointerpair);
 }

@@ -62,21 +62,11 @@ inline T square(const T& val) { return val * val; }
  */
 struct FilePointer
 {
-  /** global variable to set the ring buffer size */
-  const size_t RingBufferSize=32;
-  /** global variable to set the number of worker threads */
-  const size_t NbrOfWorkers=16;
-  /** the maximum size of one datagram should be 10 MB */
-  const size_t DatagramBufferSize=0x1000000;
-  /** the type of a pixel of a ccd image*/
-  typedef float pixel_t;
-  //forward decalration//
-  class PixelDetector;
-  /** type of the container for ccd detectors */
-  typedef std::vector<PixelDetector> detectors_t;
-  /** known/supported Qt image formats */
-  enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
-}
+  /** defining a shared pointer to the stream */
+  typedef std::tr1::shared_ptr<std::ifstream> filestream_t;
+
+  /** the position with the file */
+  int _pos;
 
   /** the stream to the file */
   filestream_t _filestream;
@@ -236,14 +226,17 @@ const size_t DatagramBufferSize=0x1000000;
 typedef float pixel_t;
 //forward decalration//
 class PixelDetector;
+class FileReader;
 /** type of the container for ccd detectors */
 typedef std::vector<PixelDetector> detectors_t;
 /** known/supported Qt image formats */
 enum ImageFormat {PNG=1, TIFF=2, JPEG=3, GIF=4, BMP=5};
-/** map file extrension to the filepointer */
-typedef std::multimap<std::string,FilePointer> filetypes_t;
-/** the list of events contained  in a file */
-typedef std::map<uint64_t, filetypes_t> eventmap_t;
+/** pair of a file pointer with the associated file reader */
+typedef std::pair<std::tr1::shared_ptr<FileReader>, FilePointer> filereaderpointerpair_t;
+/** map file name to the filepointer */
+typedef std::vector<filereaderpointerpair_t> positionreaders_t;
+/** the list of events contained  in a file with the associated position and reader*/
+typedef std::map<uint64_t, positionreaders_t> event2positionreaders_t;
 }
 
 #endif

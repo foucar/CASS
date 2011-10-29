@@ -20,8 +20,7 @@ using namespace cass::CCD;
 using namespace std;
 
 RAWSSSReader::RAWSSSReader()
-  :_newFile(true),
-    _height(0),
+  :_height(0),
     _width(0),
     _nimages(0),
     _imagecounter(0)
@@ -31,21 +30,19 @@ void RAWSSSReader::loadSettings()
 {
 }
 
+void RAWSSSReader::readHeaderInfo(std::ifstream &file)
+{
+  _imagecounter = 0;
+  _width = FileStreaming::retrieve<uint32_t>(file);
+  _height = FileStreaming::retrieve<uint32_t>(file);
+  _nimages = FileStreaming::retrieve<uint32_t>(file);
+  cout << "RAWSSSReader(): File contains '"<<_nimages
+       <<"' images"<<endl;
+}
+
 bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
 {
   typedef vector<uint8_t> image_t;
-
-  /** if it is a new file read the file header first */
-  if (_newFile)
-  {
-    _newFile = false;
-    _imagecounter = 0;
-    _width = FileStreaming::retrieve<uint32_t>(file);
-    _height = FileStreaming::retrieve<uint32_t>(file);
-    _nimages = FileStreaming::retrieve<uint32_t>(file);
-    cout << "RAWSSSReader(): File contains '"<<_nimages
-         <<"' images"<<endl;
-  }
 
   ++_imagecounter;
   if (_imagecounter > _nimages)

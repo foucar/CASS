@@ -23,14 +23,15 @@ class RAWSSSParser : public FileParser
 public:
   /** constructor
    *
-   * @param filename the file to parse
-   * @param eventmap reference to the map of events
+   * @param readerpointerpair the filereader the will read the event from files
+   * @param event2posreader reference to container that maps events to the
+   *                        position in file, reader pair vector
    * @param lock reference to the protector of the eventlist map
    */
-  RAWSSSParser(const std::string &filename,
-               eventmap_t &eventmap,
+  RAWSSSParser(const filereaderpointerpair_t readerpointerpair,
+               event2positionreaders_t &event2posreader,
                QReadWriteLock &lock)
-    :FileParser(filename,eventmap,lock)
+    :FileParser(readerpointerpair,event2posreader,lock)
   {}
 
   /** parse the raw.sss file
@@ -42,6 +43,9 @@ public:
    * throw an error.
    */
   void run();
+
+  /** @return the type of file parser */
+  virtual const std::string type() {return "sss";}
 };
 }//end namespace cass
 #endif

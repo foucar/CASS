@@ -52,11 +52,11 @@ public:
   /** load the settings of the reader */
   virtual void loadSettings()=0;
 
-  /** tell that new file is read
+  /** read the file header
    *
-   * this is called everytime a new file is opened for reading
+   * @param file the filestream to the header information of the file
    */
-  virtual void newFile(bool state=true)=0;
+  virtual void readHeaderInfo(std::ifstream &/*file*/) {}
 
 protected:
   /** only inheritants can create this */

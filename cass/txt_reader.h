@@ -52,16 +52,13 @@ public:
   /** load the settings of the reader */
   void loadSettings();
 
-  /** this tells when a new file is opened.
+  /** read the file header
    *
-   * ignore this message
+   * @param file the filestream to the header information of the file
    */
-  void newFile(bool state=true){_newFile = state;}
+  void readHeaderInfo(std::ifstream &file);
 
 private:
-  /** flag to tell whether its a new file */
-  bool _newFile;
-
   /** the value names */
   std::vector<std::string> _headers;
 

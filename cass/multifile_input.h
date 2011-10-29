@@ -92,9 +92,6 @@ private:
 
   /** flag that tells the input to rewind to the beginning of the eventlist */
   bool _rewind;
-
-  /** the number of files with differnt kind of data */
-  std::map<std::string,FileReader::shared_pointer> _filereaders;
 };
 
 }//end namespace cass

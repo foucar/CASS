@@ -41,16 +41,13 @@ public:
   /** load the settings of the reader */
   void loadSettings();
 
-  /** this tells when a new file is opened.
+  /** read the file header
    *
-   * @param state the state that the _newFile flag should be set to
+   * @param file the filestream to the header information of the file
    */
-  void newFile(bool state=true) {_newFile=state;}
+  void readHeaderInfo(std::ifstream &file);
 
 private:
-  /** flag to tell whether there is a new file */
-  bool _newFile;
-
   /** height of images */
   uint32_t _height;
 

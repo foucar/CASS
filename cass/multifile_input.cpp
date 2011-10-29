@@ -27,6 +27,30 @@ using namespace cass;
 using tr1::bind;
 using tr1::placeholders::_1;
 
+namespace cass
+{
+/** retrieve the extension of a filename
+ *
+ * find the last occurence of '.' after which hopefully the extension comes.
+ * Funtion was inspired by 'graphitemaster' at stackoverflow:
+ *
+ * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
+ *
+ * @return string containing the extension
+ * @param string containing the filename
+ *
+ * @author Lutz Foucar
+ */
+string extension(const string &filename)
+{
+  if(filename.find_last_of(".") != std::string::npos)
+    return filename.substr(filename.find_last_of(".")+1);
+  else
+    throw invalid_argument("extension: the filename '"+filename+
+                           "' does not have a file extension.");
+}
+}
+
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                bool quitWhenDone,
@@ -50,14 +74,6 @@ void MultiFileInput::load()
   CASSSettings s;
   s.beginGroup("MultiFileInput");
   _rewind = s.value("Rewind",false).toBool();
-  QStringList filetypesList(s.value("FileTypes").toStringList());
-  QStringList::const_iterator filetypesIt(filetypesList.constBegin());
-  for (; filetypesIt != filetypesList.constEnd(); ++filetypesIt)
-  {
-    string filereadertype((*filetypesIt).toStdString());
-    _filereaders[filereadertype] = FileReader::instance(filereadertype);
-    _filereaders[filereadertype]->loadSettings();
-  }
 }
 
 void MultiFileInput::run()
@@ -71,11 +87,8 @@ void MultiFileInput::run()
              <<_filelistname<<"'"<<endl);
   ifstream filelistfile(_filelistname.c_str());
   if (!filelistfile.is_open())
-  {
-    stringstream ss;
-    ss <<"MultiFileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("MultiFileInput::run(): filelist '"+_filelistname +
+                           "' could not be opened");
   Tokenizer tokenize;
   vector<string> filelist(tokenize(filelistfile));
 
@@ -83,7 +96,7 @@ void MultiFileInput::run()
    *  places in the files where one finds the data that corresponds to a given
    *  eventID.
    */
-  eventmap_t eventmap;
+  event2positionreaders_t event2posreaders;
   QReadWriteLock lock;
 
   /** iterate through the vector of filenames and for each filename create a
@@ -98,7 +111,18 @@ void MultiFileInput::run()
       break;
     string filename(*filelistIt++);
     cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
-    FileParser::shared_pointer fileparser(FileParser::instance(filename,eventmap,lock));
+    FilePointer fp;
+    fp._filestream =
+        FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
+    fp._pos = fp._filestream->tellg();
+    filereaderpointerpair_t readerpointer
+        (make_pair(FileReader::instance(extension(filename)),fp));
+    readerpointer.first->loadSettings();
+    readerpointer.first->readHeaderInfo(*fp._filestream);
+    fp._filestream->seekg(0,ios::beg);
+    fp._pos = fp._filestream->tellg();
+    FileParser::shared_pointer fileparser
+        (FileParser::instance(extension(filename),readerpointer,event2posreaders,lock));
     fileparser->start();
     parsercontainer.push_back(fileparser);
   }
@@ -115,55 +139,42 @@ void MultiFileInput::run()
    *  ringbuffer and use the file readers to retrieve the data from the file
    *  and convert them into the CASSEvent.
    */
-  eventmap_t::iterator eventmapIt(eventmap.begin());
-  while (eventmapIt != eventmap.end())
+  event2positionreaders_t::iterator eventIt(event2posreaders.begin());
+  event2positionreaders_t::const_iterator eventEnd(event2posreaders.end());
+  while (eventIt != eventEnd)
   {
     pausePoint();
     if (_rewind)
     {
-      eventmapIt = eventmap.begin();
+      eventIt = event2posreaders.begin();
       continue;
     }
 
-    uint64_t eventId(eventmapIt->first);
-    filetypes_t &filetypes(eventmapIt->second);
-    /** find out how many parser should be needed */
-    vector<filetypes_t::key_type> keys;
-    transform(filetypes.begin(),
-              filetypes.end(),
-              back_inserter(keys),
-              bind(&filetypes_t::value_type::first, _1));
-    vector<string>::iterator it(unique(keys.begin(),keys.end()));
-    if (static_cast<size_t>(distance(keys.begin(),it)) != _filereaders.size())
+    /** check whether the event contains information from all files */
+    if (eventIt->second.size() != parsercontainer.size())
     {
-      cout << "MultiFileInput::run(): skipping incomplete event '"<<eventId<<"'"<<endl;
-      ++eventmapIt;
+      cout <<"MultiFileInput:run(): Event '"<<eventIt->first
+           <<"' is incomplete, skipping event."<<endl;
+      ++eventIt;
       continue;
     }
-
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
-    cassevent->id() = eventId;
-    cassevent->setFilename(filelistIt->c_str());
+    cassevent->id() = eventIt->first;
     bool isGood(true);
-    filetypes_t::iterator filetypesIt(filetypes.begin());
-    for (;filetypesIt != filetypes.end();++filetypesIt)
+    positionreaders_t &posreaders(eventIt->second);
+    positionreaders_t::iterator fileposread(posreaders.begin());
+    positionreaders_t::const_iterator posreadEnd(posreaders.end());
+    for (; fileposread != posreadEnd; ++fileposread)
     {
-      const string ext(filetypesIt->first);
-      FilePointer &filepointer(filetypesIt->second);
-      if(_filereaders.find(ext) == _filereaders.end())
-        throw runtime_error("MultiFileInput::run(): No File reader is loaded for extension '"+ ext + "'");
-      FileReader &reader(*(_filereaders[ext]));
-      reader.newFile();
-      filepointer._filestream->clear();
-      filepointer._filestream->seekg(0, ios::beg);
-      reader(*(filepointer._filestream),*cassevent);
+      FilePointer &filepointer(fileposread->second);
+      FileReader &read(*(fileposread->first));
       ifstream &filestream(filepointer.getStream());
-      isGood = reader(filestream,*cassevent) && isGood;
+      isGood = read(filestream,*cassevent) && isGood;
     }
     _ringbuffer.doneFilling(cassevent, isGood);
     emit newEventAdded();
-    ++eventmapIt;
+    ++eventIt;
   }
 
   cout << "MultiFileInput::run(): Finished with all files." <<endl;

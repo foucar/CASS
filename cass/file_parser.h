@@ -31,12 +31,13 @@ class FileParser : public QThread
 public:
   /** constructor
    *
-   * @param filename the file to parse
-   * @param eventmap reference to the map of events
+   * @param readerpointerpair the filereader the will read the event from files
+   * @param event2posreader reference to container that maps events to the
+   *                        position in file, reader pair vector
    * @param lock reference to the protector of the eventlist map
    */
-  FileParser(const std::string &filename,
-             eventmap_t &eventmap,
+  FileParser(const filereaderpointerpair_t readerpointerpair,
+             event2positionreaders_t &event2posreader,
              QReadWriteLock &lock);
 
   /** typedef the shared pointer of this */
@@ -52,13 +53,19 @@ public:
    * right file parser is created.
    *
    * @return a shared pointer to the requested type
-   * @param filename the file to parse
-   * @param eventmap reference to the map of events
+   * @param type the type of the parser requested
+   * @param readerpointerpair the filereader the will read the event from files
+   * @param event2posreader reference to container that maps events to the
+   *                        position in file, reader pair vector
    * @param lock reference to the protector of the eventlist map
    */
-  static shared_pointer instance(const std::string &filename,
-                                 eventmap_t &eventmap,
+  static shared_pointer instance(const std::string type,
+                                 const filereaderpointerpair_t readerpointerpair,
+                                 event2positionreaders_t &event2posreader,
                                  QReadWriteLock &lock);
+
+  /** @return the type of file parser */
+  virtual const std::string type() {return "Unknown";}
 
 protected:
   /** put current file position in the eventmap
@@ -71,17 +78,15 @@ protected:
   void savePos(uint64_t eventId);
 
 protected:
+  /** the file pointer */
+  filereaderpointerpair_t _readerpointerpair;
+
   /** reference to the map containing the beginnings of the event */
-  eventmap_t &_eventmap;
+  event2positionreaders_t &_event2posreader;
 
   /** Lock that protects the map */
   QReadWriteLock &_lock;
 
-  /** the file pointer */
-  FilePointer _filepointer;
-
-  /** the extension of the filename */
-  std::string _ext;
 };
 }//end namespace cass
 #endif

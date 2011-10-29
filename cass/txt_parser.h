@@ -22,14 +22,15 @@ class TxtParser : public FileParser
 public:
   /** constructor
    *
-   * @param filename the file to parse
-   * @param eventmap reference to the map of events
+   * @param readerpointerpair the filereader the will read the event from files
+   * @param event2posreader reference to container that maps events to the
+   *                        position in file, reader pair vector
    * @param lock reference to the protector of the eventlist map
    */
-  TxtParser (const std::string &filename,
-               eventmap_t &eventmap,
-               QReadWriteLock &lock)
-    :FileParser(filename,eventmap,lock)
+  TxtParser(const filereaderpointerpair_t readerpointerpair,
+            event2positionreaders_t &event2posreader,
+            QReadWriteLock &lock)
+    :FileParser(readerpointerpair,event2posreader,lock)
   {}
 
   /** parse the frms6 file
@@ -37,6 +38,9 @@ public:
    * detailed description
    */
   void run();
+
+  /** @return the type of file parser */
+  virtual const std::string type() {return "txt";}
 };
 }//end namespace cass
 #endif

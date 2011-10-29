@@ -26,7 +26,7 @@ void TxtParser::run()
   char delim = s.value("Deliminator",'\t').toInt();
   string eventIdhead = s.value("EventIdHeader","Event ID 24 bits").toString().toStdString();
   s.endGroup();
-  ifstream &file(*(_filepointer._filestream));
+  ifstream &file(*(_readerpointerpair.second._filestream));
   file.seekg (0, ios::end);
   const streampos filesize(file.tellg());
   file.seekg (0, ios::beg);
@@ -78,10 +78,7 @@ void TxtParser::run()
     const uint64_t eventId(head2value[eventIdhead]);
     const streampos currentpos(file.tellg());
     file.seekg(eventstartpos);
-    if(!eventId)
-      cout << "TxtParser: EventId is bad '"<<eventId<<"': skipping Event"<<endl;
-    else
-      savePos(eventId);
+    savePos(eventId);
     file.seekg(currentpos);
   }
 }

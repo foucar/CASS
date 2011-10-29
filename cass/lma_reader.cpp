@@ -21,82 +21,57 @@ using namespace cass::ACQIRIS;
 using namespace std;
 
 LmaReader::LmaReader()
-  :_newFile(true)
 {}
 
 void LmaReader::loadSettings()
 {
 }
 
-bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
+void LmaReader::readHeaderInfo(std::ifstream &file)
 {
-  /** if it is a new file read the file header first */
-  if (_newFile)
+  vector<char> headerarray(sizeof(lmaFile::GeneralHeader));
+  file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
+  const lmaFile::GeneralHeader &header
+      (*reinterpret_cast<lmaFile::GeneralHeader*>(&headerarray.front()));
+  if (header.nbrBits != 16)
   {
-    _newFile = false;
-    vector<char> headerarray(sizeof(lmaFile::GeneralHeader));
-    file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
-    const lmaFile::GeneralHeader &header
-        (*reinterpret_cast<lmaFile::GeneralHeader*>(&headerarray.front()));
-    //    size_t headersizebytes(FileStreaming::retrieve<int32_t>(file));
-    //    int16_t nbrChannels(FileStreaming::retrieve<int16_t>(file));
-    //    int16_t nbrBits(FileStreaming::retrieve<int16_t>(file));
-    //    double sampInter(FileStreaming::retrieve<double>(file));
-    //    int32_t nbrSamples(FileStreaming::retrieve<int32_t>(file));
-    //    double delayTime(FileStreaming::retrieve<double>(file));
-    //    int16_t triggerChannel(FileStreaming::retrieve<int16_t>(file));
-    //    double triggerLevel(FileStreaming::retrieve<double>(file));
-    //    int16_t triggerSlope(FileStreaming::retrieve<int16_t>(file));
-    //    _usedChannelBitmask = static_cast<uint32_t>(FileStreaming::retrieve<int32_t>(file));
-    //    int32_t channelCombinationBitmask(FileStreaming::retrieve<int32_t>(file));
-    //    int16_t nbrConvertersPerChan(FileStreaming::retrieve<int16_t>(file));
+    stringstream ss;
+    ss<<"LmaReader(): The lma file seems to contain 8-bit wavefroms '"<<header.nbrBits
+     <<"'. Currently this is not supported.";
+    throw runtime_error(ss.str());
+  }
+  _instrument.channels().resize(header.nbrChannels);
+  _usedChannelBitmask = header.usedChannelBitmask;
 
-    if (header.nbrBits != 16)
+  cout <<"LMAReader(): File contains instrument with '"<<header.nbrChannels
+       <<"' channels:"<<endl;
+  for (int16_t i(0) ; i < header.nbrChannels ;++i)
+  {
+    Channel &chan(_instrument.channels()[i]);
+    chan.sampleInterval() = header.samplingInterval;
+    chan.waveform().resize(header.nbrSamples);
+    chan.channelNbr() = i;
+
+    cout <<"LMAReader(): Channel '"<<i<<"' is "
+         <<((_usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
+
+    if (_usedChannelBitmask & (0x1<<i))
     {
-      stringstream ss;
-      ss<<"LmaReader(): The lma file seems to contain 8-bit wavefroms '"<<header.nbrBits
-       <<"'. Currently this is not supported.";
-      throw runtime_error(ss.str());
-    }
-    _instrument.channels().resize(header.nbrChannels);
-    _usedChannelBitmask = header.usedChannelBitmask;
-    
-    cout <<"LMAReader(): File contains instrument with '"<<header.nbrChannels
-         <<"' channels:"<<endl;
-    for (int16_t i(0) ; i < header.nbrChannels ;++i)
-    {
-      Channel &chan(_instrument.channels()[i]);
-      chan.sampleInterval() = header.samplingInterval;
-      chan.waveform().resize(header.nbrSamples);
-      chan.channelNbr() = i;
+      vector<char> chanheaderarray(sizeof(lmaFile::ChannelHeader));
+      file.read(&chanheaderarray.front(),sizeof(lmaFile::ChannelHeader));
+      const lmaFile::ChannelHeader &chanheader
+          (*reinterpret_cast<lmaFile::ChannelHeader*>(&chanheaderarray.front()));
 
-      cout <<"LMAReader(): Channel '"<<i<<"' is "
-           <<((_usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
-
-      if (_usedChannelBitmask & (0x1<<i))
-      {
-        vector<char> chanheaderarray(sizeof(lmaFile::ChannelHeader));
-        file.read(&chanheaderarray.front(),sizeof(lmaFile::ChannelHeader));
-        const lmaFile::ChannelHeader &chanheader
-            (*reinterpret_cast<lmaFile::ChannelHeader*>(&chanheaderarray.front()));
-
-        //        int16_t fullscale_mV(FileStreaming::retrieve<int16_t>(file));
-        //        int16_t offset_mV(FileStreaming::retrieve<int16_t>(file));
-        //        //the vertical Gain (conversion factor to convert the bits to mV)
-        //        double gain_mVperLSB(FileStreaming::retrieve<double>(file));
-        //        int16_t baseline(FileStreaming::retrieve<int16_t>(file));
-        //        int16_t noiseLevel(FileStreaming::retrieve<int16_t>(file));
-        //        int32_t stepsize(FileStreaming::retrieve<int32_t>(file));
-        //        int32_t backsize(FileStreaming::retrieve<int32_t>(file));
-
-        chan.offset() = chanheader.offset_mV*1e-3;
-        chan.gain() = chanheader.gain_mVperLSB*1e-3;
-        waveform_t & waveform (chan.waveform());
-        fill(waveform.begin(),waveform.end(),chanheader.offset_mV/chanheader.gain_mVperLSB);
-      }
+      chan.offset() = chanheader.offset_mV*1e-3;
+      chan.gain() = chanheader.gain_mVperLSB*1e-3;
+      waveform_t & waveform (chan.waveform());
+      fill(waveform.begin(),waveform.end(),chanheader.offset_mV/chanheader.gain_mVperLSB);
     }
   }
+}
 
+bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
+{
   /** extract the right device from the cassevent */
   Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
   /** extract the right instrument from the acqiris device */

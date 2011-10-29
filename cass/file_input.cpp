@@ -180,10 +180,10 @@ void FileInput::run()
     if (file.is_open())
     {
       cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
-      _read->newFile();
       file.seekg (0, ios::end);
       const streampos filesize(file.tellg());
       file.seekg (0, ios::beg);
+      _read->readHeaderInfo(file);
       while(file.tellg() < filesize && !_quit)
       {
         pausePoint();

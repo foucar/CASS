@@ -32,29 +32,29 @@ void TxtReader::loadSettings()
   s.endGroup();
 }
 
+void TxtReader::readHeaderInfo(std::ifstream &file)
+{
+  Splitter split;
+  string headerline;
+  while (true)
+  {
+    getline(file, headerline);
+    _headers.clear();
+    split(headerline,_headers,_delim);
+    if (!_headers.empty() &&
+        !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
+      break;
+  }
+  cout <<"TextReader: the txt file contains the following variables:";
+  vector<string>::const_iterator h(_headers.begin());
+  for (; h != _headers.end();++h)
+    cout <<"'"<<*h<<"',";
+  cout <<endl;
+}
+
 bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 {
   Splitter split;
-  if(_newFile)
-  {
-    _newFile = false;
-    string headerline;
-    while (true)
-    {
-      getline(file, headerline);
-      _headers.clear();
-      split(headerline,_headers,_delim);
-      if (!_headers.empty() &&
-          !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
-        break;
-    }
-    cout <<"TextReader: the txt file contains the following variables:";
-    vector<string>::const_iterator h(_headers.begin());
-    for (; h != _headers.end();++h)
-      cout <<"'"<<*h<<"',";
-    cout <<endl;
-  }
-
   string line;
   vector<double> values;
   while(true)

@@ -20,7 +20,7 @@ using namespace std::tr1;
 
 void LMAParser::run()
 {
-  ifstream &file(*(_filepointer._filestream));
+  ifstream &file(*(_readerpointerpair.second._filestream));
 
   vector<char> headerarray(sizeof(lmaFile::GeneralHeader));
   file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
@@ -51,10 +51,7 @@ void LMAParser::run()
   while(!file.eof())
   {
     uint32_t eventID(FileStreaming::peek<int32_t>(file));
-    if(!eventID)
-      cout << "LMAParser: EventId is bad '"<<eventID<<"': skipping Event"<<endl;
-    else
-      savePos(eventID);
+    savePos(eventID);
 
     eventID = FileStreaming::retrieve<int32_t>(file);
     double horpos(FileStreaming::retrieve<double>(file));

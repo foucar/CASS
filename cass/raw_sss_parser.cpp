@@ -21,7 +21,7 @@ using namespace std::tr1;
 
 void RAWSSSParser::run()
 {
-  ifstream &file(*(_filepointer._filestream));
+  ifstream &file(*(_readerpointerpair.second._filestream));
   file.seekg (0, ios::end);
   const streampos filesize(file.tellg());
   file.seekg (0, ios::beg);
@@ -36,10 +36,7 @@ void RAWSSSParser::run()
   for (uint32_t iImage(0); iImage < nImages; ++iImage)
   {
     uint32_t eventId(FileStreaming::peek<uint32_t>(file));
-    if (!eventId)
-      cout << "RAWSSSParser: EventId is bad '"<<eventId<<"': skipping Event"<<endl;
-    else
-      savePos(eventId);
+    savePos(eventId);
 
     const size_t curPos(file.tellg());
     const size_t offset(curPos + imagesize + sizeof(uint32_t));
