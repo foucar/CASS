@@ -66,7 +66,7 @@ struct FilePointer
   typedef std::tr1::shared_ptr<std::ifstream> filestream_t;
 
   /** the position with the file */
-  int _pos;
+  std::streampos _pos;
 
   /** the stream to the file */
   filestream_t _filestream;

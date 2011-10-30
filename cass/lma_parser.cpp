@@ -50,8 +50,9 @@ void LMAParser::run()
 
   while(!file.eof())
   {
-    uint32_t eventID(FileStreaming::peek<int32_t>(file));
-    savePos(eventID);
+    const streampos eventStartPos(file.tellg());
+    uint32_t eventID(FileStreaming::retrieve<int32_t>(file));
+    savePos(eventStartPos,eventID);
 
     eventID = FileStreaming::retrieve<int32_t>(file);
     double horpos(FileStreaming::retrieve<double>(file));

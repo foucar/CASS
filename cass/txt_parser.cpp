@@ -76,9 +76,6 @@ void TxtParser::run()
     }
 //    cout <<endl;
     const uint64_t eventId(head2value[eventIdhead]);
-    const streampos currentpos(file.tellg());
-    file.seekg(eventstartpos);
-    savePos(eventId);
-    file.seekg(currentpos);
+    savePos(eventstartpos,eventId);
   }
 }

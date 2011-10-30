@@ -73,9 +73,10 @@ protected:
    * save the current position of the filestream in the filepointer and put
    * a copy of the file pointer in the eventmap.
    *
+   * @param eventStartPos the position in the file where the event starts
    * @param eventId the event id that should be associated with this position
    */
-  void savePos(uint64_t eventId);
+  void savePos(const std::streampos& eventStartPos, const uint64_t eventId);
 
 protected:
   /** the file pointer */

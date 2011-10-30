@@ -53,14 +53,14 @@ FileParser::shared_pointer FileParser::instance(const std::string type,
   return ptr;
 }
 
-void FileParser::savePos(uint64_t eventId)
+void FileParser::savePos(const std::streampos& eventStartPos, const uint64_t eventId)
 {
-  _readerpointerpair.second._pos = _readerpointerpair.second._filestream->tellg();
+  _readerpointerpair.second._pos = eventStartPos;
   if (!eventId)
   {
     cout <<"FileParser::savePos: WARNING EventId '"<<eventId
         <<"' from parser type '"<< type()
-         <<"'seems to be wrong skipping event." <<endl;
+         <<"' seems to be wrong skipping event." <<endl;
     return;
   }
   QWriteLocker lock(&_lock);

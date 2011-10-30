@@ -15,6 +15,8 @@
 
 #include "raw_sss_parser.h"
 
+#include "raw_sss_file_header.h"
+
 using namespace cass;
 using namespace std;
 using namespace std::tr1;
@@ -22,40 +24,26 @@ using namespace std::tr1;
 void RAWSSSParser::run()
 {
   ifstream &file(*(_readerpointerpair.second._filestream));
-  file.seekg (0, ios::end);
+  file.seekg (0, ios_base::end);
   const streampos filesize(file.tellg());
-  file.seekg (0, ios::beg);
+  file.seekg (0, ios_base::beg);
 
-  const uint32_t width(FileStreaming::retrieve<uint32_t>(file));
-  const uint32_t height(FileStreaming::retrieve<uint32_t>(file));
-  const uint32_t nImages(FileStreaming::retrieve<uint32_t>(file));
-  const uint32_t imagesize(width*height);
+  /** the file header information */
+  sssFile::Header header;
+  file.read(reinterpret_cast<char*>(&header),sizeof(sssFile::Header));
 
-  cout <<"RAWSSSParser::run(): file contains '"<<nImages<<"' images"<<endl;
+  const uint32_t imagesize(header.width*header.height*sizeof(sssFile::image_t::value_type));
+
+  cout <<"RAWSSSParser::run(): file contains '"<<header.nFrames<<"' images"<<endl;
   
-  for (uint32_t iImage(0); iImage < nImages; ++iImage)
+  for (uint32_t iImage(0); iImage < header.nFrames; ++iImage)
   {
-    uint32_t eventId(FileStreaming::peek<uint32_t>(file));
-    savePos(eventId);
-
-    const size_t curPos(file.tellg());
-    const size_t offset(curPos + imagesize + sizeof(uint32_t));
-    file.seekg(offset);
-//    uint32_t heightCompare(FileStreaming::retrieve<uint32_t>(file));
-
-//    if (heightCompare != height)
-//    {
-//      stringstream ss;
-//      ss << "RAWSSSParser(): The read height '"<<heightCompare
-//         <<"' does not match to the height given in the header '"<<height<<"'";
-//      throw runtime_error(ss.str());
-//    }
+    const streampos eventStartPos(file.tellg());
+    uint32_t eventId(FileStreaming::retrieve<uint32_t>(file));
+    savePos(eventStartPos,eventId);
+    file.seekg(imagesize,ios_base::cur);
   }
  
   if (file.tellg()<filesize)
-  {
-    stringstream ss;
-    ss <<"we read all images, but we are not at the end of the file.";
-    throw runtime_error(ss.str());
-  }
+    throw runtime_error("RAWSSSParser::run(): Read all images, but end of the file not reached.");
 }

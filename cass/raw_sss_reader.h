@@ -12,8 +12,10 @@
 
 #include <fstream>
 #include <stdint.h>
+#include <vector>
 
 #include "file_reader.h"
+#include "raw_sss_file_header.h"
 
 namespace cass
 {
@@ -48,17 +50,17 @@ public:
   void readHeaderInfo(std::ifstream &file);
 
 private:
-  /** height of images */
-  uint32_t _height;
-
-  /** width of images */
-  uint32_t _width;
-
-  /** Number of images in this file */
-  uint32_t _nimages;
+  /** the file header information */
+  sssFile::Header _header;
 
   /** counter to see how many images have been read from file */
   uint32_t _imagecounter;
+
+  /** buffer for images */
+  sssFile::image_t _imageBuffer;
+
+  /** the length of the image in bytes */
+  size_t _imageSize;
 };
 }//end namespace cass
 #endif

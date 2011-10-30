@@ -200,11 +200,8 @@ void FileInput::run()
         _ringbuffer.nextToFill(cassevent);
         /** fill the cassevent object with the contents from the file */
         bool isGood((*_read)(file,*cassevent));
-        if (!cassevent->id())
-        {
-          isGood = false;
-          cout << "FileInput: EventId is bad '"<<cassevent->id()<<"': skipping Event"<<endl;
-        }
+        if (!isGood)
+          cout << "FileInput: Event with id '"<<cassevent->id()<<"' is bad: skipping Event"<<endl;
         cassevent->setFilename(filelistIt->c_str());
         _ringbuffer.doneFilling(cassevent, isGood);
         emit newEventAdded();

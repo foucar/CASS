@@ -109,8 +109,5 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
     }
   }
 
-  if (!evt.id())
-    cout << "LMAReader: EventId is bad '"<<evt.id()<<"': skipping Event"<<endl;
-
   return evt.id();
 }

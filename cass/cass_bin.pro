@@ -165,13 +165,14 @@ HEADERS            += analysis_backend.h \
                       file_parser.h \
                       file_reader.h \
                       xtc_reader.h \
+                      raw_sss_file_header.h \
                       raw_sss_reader.h \
+                      raw_sss_parser.h \
                       frms6_reader.h \
                       txt_reader.h \
                       lma_file_header.h \
                       lma_reader.h \
                       lma_parser.h \
-                      raw_sss_parser.h \
                       frms6_parser.h \
                       txt_parser.h \
                       multifile_input.h \

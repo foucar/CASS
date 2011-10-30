@@ -20,10 +20,7 @@ using namespace cass::CCD;
 using namespace std;
 
 RAWSSSReader::RAWSSSReader()
-  :_height(0),
-    _width(0),
-    _nimages(0),
-    _imagecounter(0)
+  : _imagecounter(0)
 {}
 
 void RAWSSSReader::loadSettings()
@@ -33,54 +30,39 @@ void RAWSSSReader::loadSettings()
 void RAWSSSReader::readHeaderInfo(std::ifstream &file)
 {
   _imagecounter = 0;
-  _width = FileStreaming::retrieve<uint32_t>(file);
-  _height = FileStreaming::retrieve<uint32_t>(file);
-  _nimages = FileStreaming::retrieve<uint32_t>(file);
-  cout << "RAWSSSReader(): File contains '"<<_nimages
+  file.read(reinterpret_cast<char*>(&_header),sizeof(sssFile::Header));
+  _imageBuffer.resize(_header.width*_header.height,0);
+  _imageSize = _imageBuffer.size() * sizeof(sssFile::image_t::value_type);
+  cout << "RAWSSSReader(): File contains '"<<_header.nFrames
        <<"' images"<<endl;
 }
 
 bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  typedef vector<uint8_t> image_t;
-
   ++_imagecounter;
-  if (_imagecounter > _nimages)
+  if (_imagecounter > _header.nFrames)
   {
+    /** @todo use toString(int) here */
     stringstream ss;
     ss << "RAWSSSReader(): We are trying to read more '"<<_imagecounter
        <<"' images in the file than there reported to be in the file"
-       <<" by the header '"<<_nimages<<"'";
+       <<" by the header '"<<_header.nFrames<<"'";
     throw runtime_error(ss.str());
   }
-  uint32_t eventId(FileStreaming::retrieve<uint32_t>(file));
-  image_t image(_width*_height,0);
-  file.read(reinterpret_cast<char*>(&image.front()),image.size()*sizeof(image_t::value_type));
+  event.id() = FileStreaming::retrieve<uint32_t>(file);
 
-//  uint32_t heightCompare(FileStreaming::retrieve<uint32_t>(file));
-//  cout << _width <<" "<<_height<<" "<<_nimages<<" "<<image.size()<<" "<<eventId<<" "<<heightCompare<<" "<<sizeof(image_t::value_type)<<endl;
-//  if (heightCompare != _height)
-//  {
-//    stringstream ss;
-//    ss << "RAWSSSReader(): The read height '"<<heightCompare
-//       <<"' does not match to the height given in the header '"<<_height<<"'";
-//    throw runtime_error(ss.str());
-//  }
+  file.read(reinterpret_cast<char*>(&_imageBuffer.front()),_imageSize);
 
-  event.id() = eventId;
   CCDDevice *dev(dynamic_cast<CCDDevice*>(event.devices()[CASSEvent::CCD]));
   if(dev->detectors()->empty())
     dev->detectors()->resize(1);
   PixelDetector& det(dev->detectors()->front());
-  det.columns() = _width;
-  det.rows()    = _height;
-  det.originalcolumns() = _width;
-  det.originalrows()    = _height;
-  det.frame().resize(image.size());
-  copy(image.begin(),image.end(),det.frame().begin());
-
-  if (!event.id())
-    cout << "RAWSSSReader: EventId is bad '"<<event.id()<<"': skipping Event"<<endl;
+  det.columns() = _header.width;
+  det.rows()    = _header.height;
+  det.originalcolumns() = _header.width;
+  det.originalrows()    = _header.height;
+  det.frame().resize(_imageBuffer.size());
+  copy(_imageBuffer.begin(),_imageBuffer.end(),det.frame().begin());
 
   return event.id();
 }
