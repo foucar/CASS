@@ -51,10 +51,13 @@ public:
   void readHeaderInfo(std::ifstream &file);
 
 private:
+  /** the frms6 file header */
   frms6File::FileHeader _fileHead;
 
+  /** header that comes before every frame */
   frms6File::FrameHeader _frameHead;
 
+  /** a buffer to not allocate the read buffer for each event */
   std::vector<frms6File::pixel> _hllFrameBuffer;
 };
 }//end namespace cass
