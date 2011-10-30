@@ -12,8 +12,11 @@
 #include <tr1/memory>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "file_reader.h"
+
+#include "frms6_file_header.h"
 
 namespace cass
 {
@@ -41,11 +44,18 @@ public:
   /** load the settings of the reader */
   void loadSettings();
 
-  /** this tells when a new file is opened.
+  /** read the file header
    *
-   * ignore this message
+   * @param file the filestream to the header information of the file
    */
-  void newFile(bool/* state=true*/){}
+  void readHeaderInfo(std::ifstream &file);
+
+private:
+  frms6File::FileHeader _fileHead;
+
+  frms6File::FrameHeader _frameHead;
+
+  std::vector<frms6File::pixel> _hllFrameBuffer;
 };
 }//end namespace cass
 #endif
