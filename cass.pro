@@ -5,8 +5,7 @@ include( cass_config.pri )
 
 TEMPLATE       = subdirs
 CONFIG        += ordered
-SUBDIRS        = \
-                 cass_acqiris \
+SUBDIRS        = cass_acqiris \
                  cass_ccd \
                  cass_pnccd \
                  cass_machinedata \
