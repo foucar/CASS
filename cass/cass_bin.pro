@@ -112,6 +112,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       file_reader.cpp \
                       file_parser.cpp \
                       xtc_reader.cpp \
+                      xtc_parser.cpp \
                       raw_sss_reader.cpp \
                       frms6_reader.cpp \
                       txt_reader.cpp \
@@ -165,6 +166,7 @@ HEADERS            += analysis_backend.h \
                       file_parser.h \
                       file_reader.h \
                       xtc_reader.h \
+                      xtc_parser.h \
                       raw_sss_file_header.h \
                       raw_sss_reader.h \
                       raw_sss_parser.h \

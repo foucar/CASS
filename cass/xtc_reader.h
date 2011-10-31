@@ -34,6 +34,9 @@ namespace cass
 
     /** read the xtc file contents put them into cassevent
      *
+     * read datagrams until the return value of the conversion is true, which
+     * indicates
+     *
      * @return true when the workers should work on the filled cassevent,
      *         false if not.
      * @param file the file that contains the data to be put into the cassevent

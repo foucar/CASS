@@ -27,9 +27,14 @@ void XtcReader::loadSettings()
 
 bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  Pds::Dgram& dg
-      (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
-  file.read(event.datagrambuffer(),sizeof(dg));
-  file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-  return (_convert(&event));
+  while(1)
+  {
+    Pds::Dgram& dg
+        (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
+    file.read(event.datagrambuffer(),sizeof(dg));
+    file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+    if (_convert(&event))
+      break;
+  }
+  return (event.id());
 }
