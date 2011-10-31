@@ -8,3 +8,5 @@
 /bin
 /lib
 *_dict*
+*.doxytag
+*.log
