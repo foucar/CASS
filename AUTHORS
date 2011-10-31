@@ -4,10 +4,22 @@ This file contains a list of all major contributors to CASS
   general leader
   cass, cass_acqiris, cass_ccd, cass_machinedata implementation
   CASS design, infrastructure development
+  new postprocessor framework
   all acqiris related postprocessors
+
+- Nicola Coppola
+  cass_database
+  cass_dictionary
+  new pnCCD analysis
+  Region of Interest (ROI) implementation
+  CASS testing, debug and development
 
 - Uwe Hoppe
   jocassview - SOAP client/imageviewer
+
+- Stephan Kassemeyer
+  Jocassview, plotwidget, spectrogramwidget,
+  general bug hunting and fixing.
 
 - Nils Kimmel
   cass_pnCCD
@@ -18,17 +30,10 @@ This file contains a list of all major contributors to CASS
   postprocessor setup and synchronization
   TCP (SOAP) server and client
 
-- Nicola Coppola
-  cass_database
-  cass_dictionary
-  new pnCCD analysis
-  Region of Interest (ROI) implementation
-  CASS testing, debug and development
+- Mirko Scholz
+  Added calib cycle retrieval from xtc files
+  Enabled readout of Gain/CTE Correction files from semiconductor lab.
 
 - Thomas White
   pp1000 (HDF dump) and offline mode
   General bug squashing
-
-- Stephan Kassemeyer
-  Jocassview, plotwidget, spectrogramwidget,
-  general bug hunting and fixing.
