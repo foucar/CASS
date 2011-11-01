@@ -105,8 +105,9 @@ int main(int argc, char **argv)
 #ifdef OFFLINE
       std::cout<<"WARNING: client id for shm: '"<<optarg
           <<"' will be ignored in offline mode."<<std::endl;
-#endif
+#else
       index = strtol(optarg, 0, 0);
+#endif
       break;
     case 'q':
 #ifndef OFFLINE
