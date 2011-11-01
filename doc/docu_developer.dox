@@ -99,7 +99,6 @@ processor:
 
 @section addnew Adding new functionality to CASS
 
-@section rules Rules when developing
 Please refer to @ref develnotes for the rules when developing code
 
 @section newpp How to add a new PostProcessor
