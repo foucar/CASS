@@ -84,7 +84,7 @@ void cass::pp110::process(const cass::CASSEvent &evt)
   std::transform(waveform.begin(),
                  waveform.end(),
                  dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-                 cass::Adc2Volts(channel.gain(),channel.offset()));
+                 cass::Adc2Volts<waveform_t::value_type>(channel.gain(),channel.offset()));
   _result->nbrOfFills()=1;
   _result->lock.unlock();
 }

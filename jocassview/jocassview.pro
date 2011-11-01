@@ -64,18 +64,10 @@ FORMS         += imageviewer.ui
 
 INCLUDEPATH   += $$PWD/.. \
                  $$PWD/../cass \
-                 $$PWD/../cass_acqiris \
                  $$QWTINCDIR \
-                 $$PWD/../LCLS
 
 LIBS          += -lgsoap++ -lgsoap \
-                 -L$${CASS_ROOT}/lib -lcass_acqiris \
-                 -lcass_pnccd -lcass_ccd \
-                 -lcass_machinedata \
-                 -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                 -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lxtcdata \
-                 -lgsoap++ -lgsoap \
-                 -lqwt
+                 -lqwt-qt4
 
 # TODO: THIS IS NOT CROSS-PLATFORM!!
 bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE} $${TARGET}
