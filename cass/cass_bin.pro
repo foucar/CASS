@@ -248,7 +248,7 @@ singleparticle_hit {
 
 cernroot {
     INCLUDEPATH    += $$(ROOTSYS)/include
-    LIBS           += -L$$(ROOTSYS)/lib -lCore -lCint -lHist -lRIO -lMathCore -lMatrix -lTree -lThread -lNet
+    LIBS           += $$system(root-config --libs)
     SOURCES        += ./postprocessing/root_converter.cpp
     SOURCES        += ./postprocessing/rootfile_helper.cpp
     DEFINES        += CERNROOT
