@@ -77,8 +77,10 @@ int main(int argc, char **argv)
   std::string outputfilename("output.ext");
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
+#ifndef OFFLINE
   //the sharememory client index
   int index(0);
+#endif
   //flag to tell to quit when program has finished executing all files
   bool quitwhendone(false);
   //flag to suppress the rate output
