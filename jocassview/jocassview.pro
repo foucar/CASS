@@ -29,8 +29,6 @@ SOAPFiles.depends   = $$PWD/../cass/soapserver.h
 SOAPFiles2.target   = soapC.cpp
 SOAPFiles2.depends  = soapCASSsoapProxy.cpp
 
-QMAKE_CLEAN        += $$SOAPFiles.files
-
 versiontarget.target = $$PWD/../jocassview/update-version.sh
 versiontarget.commands = $$PWD/../jocassview/update-version.sh
 versiontarget.depends = FORCE
@@ -76,6 +74,11 @@ INSTALLS      += target bin_copy
 
 RESOURCES     += $$PWD/../jocassview/jocassview.qrc
 
+
+QMAKE_CLEAN   += $$SOAPFiles.files
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += $$TARGET
 
 
 ## Local Variables:

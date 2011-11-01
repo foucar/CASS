@@ -31,8 +31,6 @@ SOAPFiles.depends   = $$PWD/../cass/soapserver.h
 SOAPFiles2.target   = soapC.cpp
 SOAPFiles2.depends  = soapCASSsoapProxy.cpp
 
-QMAKE_CLEAN        += $$SOAPFiles.files
-
 QMAKE_EXTRA_TARGETS+= SOAPFiles SOAPFiles2
 
 # dictionary creation
@@ -67,3 +65,8 @@ LIBS          += $$system(root-config --libs)
 LIBS          += -lgsoap++ -lgsoap
 
 INSTALLS      += target
+
+QMAKE_CLEAN   += $$SOAPFiles.files
+QMAKE_CLEAN   += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN   += $$MOC_DIR/moc_*
+QMAKE_CLEAN   += $$TARGET

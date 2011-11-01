@@ -20,8 +20,6 @@ SUBDIRS       += lucassview
 }
 
 
-
-
 ## Local Variables:
 ## coding: utf-8
 ## mode: makefile

@@ -285,10 +285,8 @@ lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xt
 bin_copy.path       = $$INSTALLBASE/bin
 bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 headers.files       = $$HEADERS
-#INSTALLS           += target lclslibs lclsapps
 
 INSTALLS           += target bin_copy lclslibs lclsapps
-#INSTALLS           += headers target bin_copy lclslibs lclsapps
 
 
 versiontarget.target = $$PWD/../cass/update-version.sh
@@ -342,7 +340,9 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/ConfigV1.o \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/FrameV1.o \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/TM6740ConfigV1.o
-
+QMAKE_CLEAN += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN += $$MOC_DIR/moc_*
+QMAKE_CLEAN += $$TARGET
 
 ## Local Variables:
 ## coding: utf-8
