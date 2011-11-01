@@ -258,7 +258,7 @@ cernroot {
     rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c ./postprocessing/tree_structure.h ./postprocessing/tree_structure_linkdef.h
     rootcint.depends      = ./postprocessing/tree_structure.h
     rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for tree_structure.h "
-    QMAKE_EXTRA_UNIX_TARGETS += rootcintecho rootcint
+    QMAKE_EXTRA_TARGETS  += rootcintecho rootcint
     QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
 }
 
