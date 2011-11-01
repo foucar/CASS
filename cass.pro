@@ -19,8 +19,6 @@ LuCASSView{
 SUBDIRS       += lucassview
 }
 
-message($$SUBDIRS)
-
 
 
 
