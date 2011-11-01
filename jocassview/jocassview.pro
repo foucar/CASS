@@ -65,7 +65,7 @@ INCLUDEPATH   += $$PWD/.. \
                  $$QWTINCDIR \
 
 LIBS          += -lgsoap++ -lgsoap \
-                 -lqwt-qt4
+                 -lqwt
 
 # TODO: THIS IS NOT CROSS-PLATFORM!!
 bin_copy.extra+= bash backup_copy.sh $${INSTALLBASE} $${TARGET}
