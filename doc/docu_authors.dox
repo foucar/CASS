@@ -1,31 +1,8 @@
 /**
 @page cred Credits
 
-@par Authors:
-
-Nicola Coppola
-- depreciated cass_database
-- depreciated cass_dictionary
-- new pnCCD analysis
-- Region of Interest (ROI) implementation
-- CASS testing, debug and development
-
-Nils Kimmel
-- original pnCCD analysis
-
-Jochen Kuepper
-- CASS design, infrastructure development
-- cass framework implementation
-- postprocessor setup
-- TCP/SOAP server
-
-@par Project admin:
-
-Lutz Foucar
-- cass, cass_acqiris, cass_ccd, cass_machinedata implementation
-- CASS design, infrastructure development
-
-@see @ref authors file in distribution for details
+please see @ref authors file in distribution for a detailed list of people
+who contributed to the project
 */
 
 /**
