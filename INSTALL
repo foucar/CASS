@@ -104,4 +104,6 @@ The following sequence of commands will build and install CASS:
   make
   make install
 
-
+Compiling CASS on multiple cores with
+  make -j
+will not work with the current structure.
