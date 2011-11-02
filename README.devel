@@ -3,7 +3,7 @@ CASS developer notes
 
 These are some guidelines for the CASS software development.
 
-* Prefer standard language features (including the C++ standard library)
+* Prefer standard language features (including the C++ standard library and TR1)
   over external libraries. If you don't, please document your decision.
 
 * Favor initialization over assignment
@@ -11,11 +11,14 @@ These are some guidelines for the CASS software development.
 
 * Please document the code using inline comments on implementation
   details and doxygen comments for interfaces and implementation choices:
+
   /** short description title.
    * detailed description
    * parameters and return values using @param and @return.
    */
+
    or
+
    /** short description title
     *
     * detailed description
@@ -36,14 +39,18 @@ These are some guidelines for the CASS software development.
   list for automatic indentation.)
 
 
-
-
 Software repository
 -------------------
 
-* Please check in often and keep the changes small.
+* Please commit often and keep the changes small.
 
-* Make sure the committed code always compiles!
+* Push the code into descriptive branches, so that they can be reviewed by the
+  principle developer to be merged to master.
+
+* One can check into tmp/branchname. If you need write access to other branches
+  ask the principle developer.
+
+* Make sure the pushed code compiles.
   - if you made changes to the project, so that it will probably
     not compile for the other users, write a detailed description
     what one has to do in order to compile again to the cass

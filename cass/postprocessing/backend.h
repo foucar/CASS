@@ -128,9 +128,8 @@ namespace cass
      *
      * @param in pointer to the histogram that has changed
      */
-    virtual void histogramsChanged(const HistogramBackend* in=0)
+    virtual void histogramsChanged(const HistogramBackend* /*in*/)
     {
-      in=0;
       VERBOSEOUT(std::cout<<"PostprocessorBackend("<<_key<<")::histogramsChanged()"<< std::endl);
     }
 

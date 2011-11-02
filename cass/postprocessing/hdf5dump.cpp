@@ -273,7 +273,7 @@ void pp1000::add_acqiris_traces(hid_t fh, cass::ACQIRIS::Instruments instrument,
       // Convert to volts
       float *volts(new float[waveform.size()]);
       std::transform(waveform.begin(), waveform.end(), volts,
-                     cass::Adc2Volts(channel.gain(),channel.offset()));
+                     cass::Adc2Volts<cass::ACQIRIS::waveform_t::value_type>(channel.gain(),channel.offset()));
 
       snprintf(fieldname, 63, "ch%i_V", i);
 
@@ -354,7 +354,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   hid_t   dataset_id;
   hid_t   datatype;
   hsize_t dims[2];
-  herr_t  hdf_error;
+//  herr_t  hdf_error;
   hid_t   gh;
   hid_t   gid;
 
@@ -508,7 +508,8 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
 
   // Create symbolic link from /data/data0 to /data/data
   // (to maintain our convention of /data/data always containing data)
-  hdf_error = H5Lcreate_soft( "/data/data0", fh, "/data/data",0,0);
+//    hdf_error = H5Lcreate_soft( "/data/data0", fh, "/data/data",0,0);
+  H5Lcreate_soft( "/data/data0", fh, "/data/data",0,0);
 
   // Write pnCCD configurations
   H5Gclose(gid);
@@ -707,7 +708,7 @@ void pp1000::write_HDF5(const cass::CASSEvent &cassevent)
   H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, timestr);
   H5Dclose(dataset_id);
   H5Sclose(dataspace_id);
-  hdf_error = H5Lcreate_soft("/LCLS/eventTimeString", fh,
+  H5Lcreate_soft("/LCLS/eventTimeString", fh,
                              "/LCLS/eventTime", 0, 0);
   delete[](timestr);
 

@@ -79,8 +79,10 @@ int main(int argc, char **argv)
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
 #endif
+#ifndef OFFLINE
   //the sharememory client index
   int index(0);
+#endif
   //flag to tell to quit when program has finished executing all files
   bool quitwhendone(false);
   //flag to suppress the rate output
@@ -107,8 +109,9 @@ int main(int argc, char **argv)
 #ifdef OFFLINE
       std::cout<<"WARNING: client id for shm: '"<<optarg
           <<"' will be ignored in offline mode."<<std::endl;
-#endif
+#else
       index = strtol(optarg, 0, 0);
+#endif
       break;
     case 'q':
 #ifndef OFFLINE

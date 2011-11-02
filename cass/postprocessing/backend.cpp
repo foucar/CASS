@@ -112,7 +112,7 @@ void PostprocessorBackend::clearHistograms()
   histogramList_t::iterator it (_histList.begin());
   for (;it != _histList.end();++it)
     it->second->clear();
-  histogramsChanged(); // notify derived classes.
+  histogramsChanged(0); // notify derived classes.
 }
 
 void PostprocessorBackend::processCommand(std::string /*command*/)

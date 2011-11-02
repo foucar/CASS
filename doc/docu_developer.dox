@@ -1,6 +1,8 @@
 /**
 @page developer Developer information
 
+
+@section general General program layout Information
 CASS has two basic parts the input and analyze. Where the input part gets the data
 from either file or shared memory and the analyze part will analyze the data.
 Both of them are threaded, where the input is always just one thread and the
@@ -97,6 +99,8 @@ processor:
 
 @section addnew Adding new functionality to CASS
 
+Please refer to @ref develnotes for the rules when developing code
+
 @section newpp How to add a new PostProcessor
 A new PostProcessor needs to inherit from cass::PostprocessorBackend. The most
 important function that need to be overwritten are
@@ -166,4 +170,9 @@ Once you have set up your converter, you need to modify
 cass::ConversionBackend::instance() and add an @c else-if-statment that returns
 converter. Please document in cass/format_converter.h which string will return
 your the singleton of your converter.
+*/
+
+/**
+\page develnotes Developer Notes
+@include "README.devel"
 */

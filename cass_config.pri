@@ -27,9 +27,5 @@ else {
 MOC_DIR      = moc
 OBJECTS_DIR  = obj$${SUFFIX_STR}
 
-QMAKE_CLEAN += $$OBJECTS_DIR/*.o
-QMAKE_CLEAN += $$MOC_DIR/moc_*
-QMAKE_CLEAN += $$TARGET
-
 headers.path = $$INSTALLBASE/include
 

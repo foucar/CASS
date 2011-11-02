@@ -260,7 +260,7 @@ singleparticle_hit {
 
 cernroot {
     INCLUDEPATH    += $$(ROOTSYS)/include
-    LIBS           += -L$$(ROOTSYS)/lib -lCore -lCint -lHist -lRIO -lMathCore -lMatrix -lTree -lThread -lNet
+    LIBS           += $$system(root-config --libs)
     SOURCES        += ./postprocessing/root_converter.cpp
     SOURCES        += ./postprocessing/rootfile_helper.cpp
     DEFINES        += CERNROOT
@@ -270,7 +270,7 @@ cernroot {
     rootcint.commands    += $(ROOTSYS)/bin/rootcint -f $$rootcint.target -c ./postprocessing/tree_structure.h ./postprocessing/tree_structure_linkdef.h
     rootcint.depends      = ./postprocessing/tree_structure.h
     rootcintecho.commands = @echo "Generating dictionary $$rootcint.target for tree_structure.h "
-    QMAKE_EXTRA_UNIX_TARGETS += rootcintecho rootcint
+    QMAKE_EXTRA_TARGETS  += rootcintecho rootcint
     QMAKE_CLEAN          +=  ./postprocessing/treestructure_dict.cpp ./postprocessing/treestructure_dict.h
 }
 
@@ -295,19 +295,18 @@ lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclsapps.path       = $$INSTALLBASE/bin
 lclsapps.files      = $$PWD/../LCLS/build/pdsdata/bin/x86_64-linux-static-opt/xtcmonserver
 bin_copy.path       = $$INSTALLBASE/bin
-bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE}
+bin_copy.extra     += bash backup_copy.sh $${INSTALLBASE} $${TARGET}
 headers.files       = $$HEADERS
-INSTALLS           += target bin_copy lclslibs lclsapps
 
-#INSTALLS           += headers target bin_copy lclslibs lclsapps
+INSTALLS           += target bin_copy lclslibs lclsapps
 
 
 versiontarget.target = $$PWD/../cass/update-version.sh
 versiontarget.commands = $$PWD/../cass/update-version.sh
 versiontarget.depends= FORCE
 
-#PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
-#QMAKE_EXTRA_TARGETS+= versiontarget
+PRE_TARGETDEPS     += $$PWD/../cass/update-version.sh
+QMAKE_EXTRA_TARGETS+= versiontarget
 
 QMAKE_CLEAN        += $$SOAPFiles.files
 QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
@@ -353,7 +352,9 @@ QMAKE_CLEAN        += $$lclslibs.files $$lclsapps.files \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/ConfigV1.o \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/princeton/src/FrameV1.o \
                       $$PWD/../LCLS/build/pdsdata/obj/x86_64-linux-static-opt/pulnix/src/TM6740ConfigV1.o
-
+QMAKE_CLEAN += $$OBJECTS_DIR/*.o
+QMAKE_CLEAN += $$MOC_DIR/moc_*
+QMAKE_CLEAN += $$TARGET
 
 ## Local Variables:
 ## coding: utf-8

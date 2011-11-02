@@ -13,7 +13,6 @@
 
 #include "postprocessor.h"
 #include "cass.h"
-#include "cass_acqiris.h"
 
 namespace cass
 {
@@ -150,7 +149,8 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class Adc2Volts : public std::unary_function<ACQIRIS::waveform_t::value_type, float>
+  template <typename waveformValueType>
+  class Adc2Volts : public std::unary_function<waveformValueType, float>
   {
   public:
     /** constructor.
@@ -163,7 +163,7 @@ namespace cass
     {}
 
     /** operator. converts adc values to volts*/
-    float operator ()(ACQIRIS::waveform_t::value_type adc)
+    float operator ()(waveformValueType adc)
     { return adc * _gain - _offset;}
 
   protected:

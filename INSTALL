@@ -91,21 +91,19 @@ NOTE: the above should not be necessary, if you installed the HDF5 library as
       described.
 
 
-Downloading & Building CASS
----------------------------
-To download and configure please do the following:
-  svn co --username asg --password cass https://www.mpi-hd.mpg.de/repos/lutz/diode/trunk cass
-  cp cass/cass_defaultconfig.pri cass/cass_myconfig.pri
-now modify cass/cass_myconfig.pri and enable the parts that you want to be using
-there. You can also specify the installation directory by modifying the
-INSTALLBASE variable. This can also be done later (see below).
-Now continue with doing
-  cd cass
-  qmake [INSTALLBASE=some/path]
+Building CASS
+--------------
+
+To configure CASS for your needs please copy the default config as follows:
+  cp cass_defaultconfig.pri cass_myconfig.pri
+and make all your changes to the created cass_myconfig.pri. By changing the
+INSTALLBASE variable you can control where cass will be installed. Optionally
+this parameter can also be set when calling the qmake utility (see below).
+The following sequence of commands will build and install CASS:
+  qmake [INSTALLBASE=/path/to/your/preferred/binary/directory]
   make
   make install
-to build and install. The option in brackets is optional and sets the
-installation point during the qmake call. As described above this can also be
-set by changing the INSTALLBASE variable in cass_myconfig.pri
 
-
+Compiling CASS on multiple cores with
+  make -j
+will not work with the current structure.
