@@ -27,30 +27,6 @@ using namespace cass;
 using tr1::bind;
 using tr1::placeholders::_1;
 
-namespace cass
-{
-/** retrieve the extension of a filename
- *
- * find the last occurence of '.' after which hopefully the extension comes.
- * Funtion was inspired by 'graphitemaster' at stackoverflow:
- *
- * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
- *
- * @return string containing the extension
- * @param string containing the filename
- *
- * @author Lutz Foucar
- */
-string extension(const string &filename)
-{
-  if(filename.find_last_of(".") != std::string::npos)
-    return filename.substr(filename.find_last_of(".")+1);
-  else
-    throw invalid_argument("extension: the filename '"+filename+
-                           "' does not have a file extension.");
-}
-}
-
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                bool quitWhenDone,
@@ -80,6 +56,7 @@ void MultiFileInput::run()
 {
   _status = lmf::PausableThread::running;
 
+  Splitter extension;
   /** open the file containing the files to process, convert the contents to a
    *  vector of filenames.
    */

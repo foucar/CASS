@@ -17,6 +17,7 @@
 #include <map>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
 #include <tr1/memory>
 #include <QtCore/qglobal.h>
 #include <stdint.h>
@@ -178,7 +179,32 @@ struct Splitter
       elems.push_back(str);
     }
   }
+
+  /** split of the extension of a filename
+   *
+   * find the last occurence of '.' after which hopefully the extension comes.
+   * Funtion was inspired by 'graphitemaster' at stackoverflow:
+   *
+   * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
+   *
+   * @return string containing the extension
+   * @param string containing the filename
+   *
+   * @author Lutz Foucar
+   */
+  std::string operator()(const std::string &filename)
+  {
+    using namespace std;
+    if(filename.find_last_of(".") != string::npos)
+      return filename.substr(filename.find_last_of(".")+1);
+    else
+      throw invalid_argument("extension: the filename '"+filename+
+                             "' does not have a file extension.");
+  }
+
 };
+
+
 
 namespace FileStreaming
 {
