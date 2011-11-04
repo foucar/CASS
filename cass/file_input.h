@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include "input_base.h"
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
@@ -38,11 +39,18 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT FileInput : public QThread
+class CASSSHARED_EXPORT FileInput :  public InputBase
 {
-  Q_OBJECT;
 public:
-  /** constructor */
+  /** constructor
+   *
+   * @param filelistname name of the file containing all files that should be
+   *                     processed
+   * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param quitwhendone flag that tells this class that it should quit the
+   *                     Program when its done reading all events
+   * @param parent The parent QT Object of this class
+   */
   FileInput(std::string filelistname,
             RingBuffer<CASSEvent,RingBufferSize>&,
             bool quitwhendone,
@@ -54,63 +62,12 @@ public:
   /** function with the main loop */
   void run();
 
-  /** suspends the thread
-   *
-   * blocks until the thread has suspended
-   */
-  void suspend();
-
-  /** resumes the thread */
-  void resume();
-
-public slots:
-  /** tell the thread to quit */
-  void end();
-
-  /** load the parameters used for this thread
-   *
-   * @param what unused parameter
-   */
-  void loadSettings(size_t what);
-
-signals:
-  /** signal emitted when done with one event
-   *
-   * To indicate that we are done processing an event this signal is emitted.
-   * This is used for by the ratemeter to evaluate how fast we get events.
-   */
-  void newEventAdded();
-
-protected:
-  /** helper function for suspending
-   *
-   * this function call will block until the thread is suspended.
-   */
-  void waitUntilSuspended();
-
-  /** call this at the point you want to pause
-   *
-   * when told to pause, this will actually pause and only resume when resume
-   * is called.
-   */
-  void pausePoint();
-
-  /** tokenize the file containing the files that we want to process
-   *
-   * will return a list containing all non empty lines of the file. Before
-   * returning the list strip the 'new line' and 'line feed' from the line.
-   *
-   * @return stringlist containing all non empty lines of the file
-   * @param file the filestream to tokenize
-   */
-  std::vector<std::string> tokenize(std::ifstream &file);
+  /** load the parameters used for the multifile input */
+  void load();
 
 private:
-  /** reference to the ringbuffer */
-  RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
-
-  /** flag to quit the input */
-  bool _quit;
+  /** flag that tells the input to rewind to the beginning of the eventlist */
+  bool _rewind;
 
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
@@ -120,24 +77,6 @@ private:
 
   /** shared pointer to the actual reader */
   FileReader::shared_pointer _read;
-
-  /** mutex for suspending the thread */
-  QMutex _pauseMutex;
-
-  /** condition to signal that we need to resume */
-  QWaitCondition _pauseCondition;
-
-  /** flag to tell to pause this thread */
-  bool _pause;
-
-  /** flag telling whether thread is suspended */
-  bool _paused;
-
-  /** flag to start over with the files */
-  bool _rewind;
-
-  /** condition to signal that the thread is suspended */
-  QWaitCondition _waitUntilpausedCondition;
 };
 
 }//end namespace cass

@@ -25,14 +25,9 @@ FileInput::FileInput(string filelistname,
                      RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                      bool quitWhenDone,
                      QObject *parent)
-  :QThread(parent),
-  _ringbuffer(ringbuffer),
-  _quit(false),
+  :InputBase(ringbuffer,parent),
   _quitWhenDone(quitWhenDone),
-  _filelistname(filelistname),
-  _pause(false),
-  _paused(false),
-  _rewind(false)
+  _filelistname(filelistname)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
   loadSettings(0);
@@ -43,14 +38,13 @@ cass::FileInput::~FileInput()
   VERBOSEOUT(cout<< "input is closed" <<endl);
 }
 
-void cass::FileInput::loadSettings(size_t /*what*/)
+void cass::FileInput::load()
 {
   /** pause the thread if it is running */
   VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
              <<" before laoding settings"
              <<endl);
-  if(isRunning())
-    suspend();
+  pause();
   VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
       <<endl);
   CASSSettings s;
@@ -64,112 +58,27 @@ void cass::FileInput::loadSettings(size_t /*what*/)
   VERBOSEOUT(cout << "File Input: Load Settings: thread is resumed"<<endl);
 }
 
-void cass::FileInput::suspend()
-{
-  /** set the pause flag */
-  _pause=true;
-  /** then wait until the thread suspended with the help of waitUntilSuspended */
-  waitUntilSuspended();
-}
-
-void FileInput::pausePoint()
-{
-  if (_pause)
-  {
-    /** lock the mutex to prevent that more than one thread is calling pause */
-    QMutexLocker locker(&_pauseMutex);
-    /** set the status flag to paused */
-    _paused=true;
-    /** tell the wait until paused condtion that we are now pausing */
-    _waitUntilpausedCondition.wakeOne();
-    /** wait until the condition is called again */
-    _pauseCondition.wait(&_pauseMutex);
-    /** reset the paused status flag */
-    _paused=false;
-  }
-}
-
-void FileInput::resume()
-{
-  /** check if the thread has not been paused if so  return immidiately */
-  if(!_pause)
-    return;
-  /** reset the pause flag */
-  _pause=false;
-  /** and tell run to resume by waking the one waiting on the _pauseCondition */
-  _pauseCondition.wakeOne();
-}
-
-
-void FileInput::waitUntilSuspended()
-{
-  /** check if it is already paused, if so  retrun imidiatly */
-  if(_paused)
-    return;
-  /** otherwise wait until the _waitUntilpausedCondition is waked by the pausePoint */
-  QMutex mutex;
-  QMutexLocker lock(&mutex);
-  _waitUntilpausedCondition.wait(&mutex);
-}
-
-void FileInput::end()
-{
-  VERBOSEOUT(std::cout << "input got signal that it should close"
-             <<std::endl);
-  _quit=true;
-}
-
-vector<string> FileInput::tokenize(std::ifstream &file)
-{
-  vector<string> lines;
-  while (!file.eof())
-  {
-    string line;
-    getline(file,line);
-    /* remove newline */
-    if(line[line.length()-1] == '\n')
-    {
-      line.resize(line.length()-1);
-    }
-    /* remove line feed */
-    if(line[line.length()-1] == '\r')
-    {
-      line.resize(line.length()-1);
-    }
-    /* dont read newlines */
-    if(line.empty() || line[0] == '\n')
-    {
-      continue;
-    }
-    lines.push_back(line);
-    VERBOSEOUT(cout <<"FileInput::tokenize(): adding '"
-               <<line.c_str()
-               <<"' to list"
-               <<endl);
-  }
-  return lines;
-}
-
 void FileInput::run()
 {
+  _status = lmf::PausableThread::running;
   Splitter extension;
+  Tokenizer tokenize;
+
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
              <<_filelistname<<"'"
              <<endl);
   ifstream filelistfile(_filelistname.c_str());
   if (!filelistfile.is_open())
-  {
-    stringstream ss;
-    ss <<"FileInput::run(): filelist '"<<_filelistname<<"' could not be opened";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("FileInput::run(): filelist '" + _filelistname +
+                           "' could not be opened");
+
+  /** get a list of all filenames and go trhough that list */
   vector<string> filelist(tokenize(filelistfile));
-  //go through all files in the list
   vector<string>::const_iterator filelistIt(filelist.begin());
   vector<string>::const_iterator filelistEnd(filelist.end());
   while (filelistIt != filelistEnd)
   {
-    if (_quit)
+    if (_control == _quit)
       break;
     string filename(*filelistIt++);
     VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
@@ -181,7 +90,7 @@ void FileInput::run()
       _read = FileReader::instance(extension(filename));
       _read->loadSettings();
       cout <<"FileInput::run(): processing file '"<<filename
-           <<"' with file reader '"<<extension(filename)<<"'"<<endl;
+           <<"' with file reader type '"<<extension(filename)<<"'"<<endl;
       file.seekg (0, ios::end);
       const streampos filesize(file.tellg());
       file.seekg (0, ios::beg);
