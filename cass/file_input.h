@@ -35,15 +35,6 @@ namespace cass
  * @cassttng FileInput/{Rewind}\n
  *           Tells the program to start over running over all files when true.
  *           Default is false.
- * @cassttng FileInput/{FileType}\n
- *           What kind of files do you want to analyze. Default value is "xtc"
- *           Possible values are:
- *           - xtc: reads xtc files recorded at slac see XtcReader
- *           - lma: reads lma files recorded by AGAT. see LmaReader
- *           - sss: reads lma files recorded by Per's VMI Program. see
- *                  RAWSSSReader
- *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
- *           - txt: reads ascii files where values are separated by a delimiter
  *
  * @author Lutz Foucar
  */

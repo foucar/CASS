@@ -42,18 +42,6 @@ namespace cass
  * @cassttng MultiFileInput/{Rewind}\n
  *           Tells the program to start over running over all files when true.
  *           Default is false.
- * @cassttng MultiFileInput/{FileTypes}\n
- *           Comma separated list ist of File Types that are contained in the
- *           "filestoprocess.txt" file. Needs to match exactly the number of
- *           different files types that are present in the
- *           "filestoprocess.txt" file
- *           Possible values are:
- *           - xtc: reads xtc files recorded at slac see XtcReader
- *           - lma: reads lma files recorded by AGAT. see LmaReader
- *           - sss: reads raw.sss files recorded by Pers program. see
- *                  RAWSSSReader
- *           - frm6: reads .frm6 files recorded by xOnline. see FRM6Reader
- *           - txt: reads ascii files where values are separated by a delimiter
  *
  * @author Lutz Foucar
  */
