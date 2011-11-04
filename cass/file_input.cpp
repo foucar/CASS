@@ -57,10 +57,6 @@ void cass::FileInput::loadSettings(size_t /*what*/)
   s.beginGroup("FileInput");
   /** load the rewind info */
   _rewind = s.value("Rewind",false).toBool();
-  /** load the right reader */
-  _read = FileReader::instance(s.value("FileType","xtc").toString().toStdString());
-  /** and load its settings */
-  _read->loadSettings();
   /** then resume the thread */
   VERBOSEOUT(cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
       <<endl);
@@ -156,6 +152,7 @@ vector<string> FileInput::tokenize(std::ifstream &file)
 
 void FileInput::run()
 {
+  Splitter extension;
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
              <<_filelistname<<"'"
              <<endl);
@@ -169,17 +166,22 @@ void FileInput::run()
   vector<string> filelist(tokenize(filelistfile));
   //go through all files in the list
   vector<string>::const_iterator filelistIt(filelist.begin());
-  while (filelistIt != filelist.end())
+  vector<string>::const_iterator filelistEnd(filelist.end());
+  while (filelistIt != filelistEnd)
   {
     if (_quit)
       break;
     string filename(*filelistIt++);
     VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
-    ifstream file(filename.c_str(), std::ios::binary | std::ios::in);
-    //if there was such a file then we want to load it
+    ifstream file(filename.c_str(), ios::binary | ios::in);
+    /** if there was such a file then we want to load it */
     if (file.is_open())
     {
-      cout <<"FileInput::run(): processing file '"<<filename<<"'"<<endl;
+      /** load the right reader for the file type depending on its extension */
+      _read = FileReader::instance(extension(filename));
+      _read->loadSettings();
+      cout <<"FileInput::run(): processing file '"<<filename
+           <<"' with file reader '"<<extension(filename)<<"'"<<endl;
       file.seekg (0, ios::end);
       const streampos filesize(file.tellg());
       file.seekg (0, ios::beg);
