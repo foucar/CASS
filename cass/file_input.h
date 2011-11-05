@@ -9,10 +9,6 @@
 #ifndef _FILEINPUT_H_
 #define _FILEINPUT_H_
 
-#include <QtCore/QObject>
-#include <QThread>
-#include <QMutex>
-
 #include <string>
 
 #include "input_base.h"
@@ -39,7 +35,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT FileInput :  public InputBase
+class FileInput :  public InputBase
 {
 public:
   /** constructor

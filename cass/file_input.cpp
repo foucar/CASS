@@ -33,29 +33,16 @@ FileInput::FileInput(string filelistname,
   loadSettings(0);
 }
 
-cass::FileInput::~FileInput()
+FileInput::~FileInput()
 {
   VERBOSEOUT(cout<< "input is closed" <<endl);
 }
 
-void cass::FileInput::load()
+void FileInput::load()
 {
-  /** pause the thread if it is running */
-  VERBOSEOUT(cout << "File Input: Load Settings: suspend when we are running"
-             <<" before laoding settings"
-             <<endl);
-  pause();
-  VERBOSEOUT(cout << "File Input: Load Settings: suspended. Now loading Settings"
-      <<endl);
   CASSSettings s;
   s.beginGroup("FileInput");
-  /** load the rewind info */
   _rewind = s.value("Rewind",false).toBool();
-  /** then resume the thread */
-  VERBOSEOUT(cout << "File Input: Load Settings: Done loading Settings. Now Resuming Thread"
-      <<endl);
-  resume();
-  VERBOSEOUT(cout << "File Input: Load Settings: thread is resumed"<<endl);
 }
 
 void FileInput::run()
