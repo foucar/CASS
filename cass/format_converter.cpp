@@ -27,6 +27,7 @@
 #include "calibcycle.h"
 
 using namespace std;
+using namespace cass;
 
 namespace cass
 {
@@ -73,28 +74,25 @@ namespace cass
 
 
 // ===============define static members====================
-std::tr1::shared_ptr<cass::FormatConverter> cass::FormatConverter::_instance;
-QMutex cass::FormatConverter::_mutex;
+FormatConverter::shared_pointer FormatConverter::_instance;
+QMutex FormatConverter::_mutex;
 
-std::tr1::shared_ptr<cass::FormatConverter> cass::FormatConverter::instance()
+tr1::shared_ptr<FormatConverter> FormatConverter::instance()
 {
   QMutexLocker locker(&_mutex);
   if(!_instance)
-    _instance = std::tr1::shared_ptr<FormatConverter>(new FormatConverter());
+    _instance = tr1::shared_ptr<FormatConverter>(new FormatConverter());
   return _instance;
 }
 //==========================================================
 
 
 
-cass::FormatConverter::FormatConverter()
+FormatConverter::FormatConverter()
   :_configseen(false), _pvSS(NULL)
-{
-  //now load the converters, that the user want to use//
-  loadSettings(0);
-}
+{}
 
-void cass::FormatConverter::loadSettings(size_t)
+void FormatConverter::loadSettings(size_t)
 {
   // initialze all xtc ids with blank converters to be on the save side//
   for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
@@ -124,7 +122,7 @@ void cass::FormatConverter::loadSettings(size_t)
 }
 
 enum {NoGoodData=0,GoodData};
-bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
+bool FormatConverter::operator()(CASSEvent *cassevent)
 {
   //intialize the return value//
   // the return value reflects the whether the datagram was a L1Transition(an event)
@@ -133,12 +131,12 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
 
 /*
-  std::cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
-  std::cout << "0x"<< std::hex<< datagram->xtc.sizeofPayload()<<std::dec<<"  ";
-  std::cout << "0x"<< std::hex<<datagram->xtc.damage.value()<<std::dec<<" ";
-  std::cout << "0x"<< std::hex<< datagram->seq.clock().seconds()<<std::dec<<" ";
-  std::cout << "0x"<< std::hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<std::dec<<" ";
-  std::cout << std::dec <<std::endl;
+  cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
+  cout << "0x"<< hex<< datagram->xtc.sizeofPayload()<<dec<<"  ";
+  cout << "0x"<< hex<<datagram->xtc.damage.value()<<dec<<" ";
+  cout << "0x"<< hex<< datagram->seq.clock().seconds()<<dec<<" ";
+  cout << "0x"<< hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<dec<<" ";
+  cout << dec <<endl;
 */
 
   //if datagram is configuration or an event (L1Accept) then we will iterate through it//
@@ -168,7 +166,7 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
     }
     else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle) 
     {
-      std::cout << "BeginCalibCycle " ;
+      cout << "BeginCalibCycle " ;
       CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
       retval = iter.iterate() && retval;
       if (_pvSS) delete _pvSS;
@@ -178,7 +176,7 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
         *_pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
         if (!(i+1 == _pvNum)) *_pvSS << ",";
       }
-      std::cout << _pvSS->str() << endl;
+      cout << _pvSS->str() << endl;
     }
 
     //iterate through the datagram and find the wanted information//
@@ -187,7 +185,7 @@ bool cass::FormatConverter::operator()(cass::CASSEvent *cassevent)
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
     retval = iter.iterate() && retval;
   }
-//  std::cout<< std::boolalpha<<retval<<std::endl;
+//  cout<< boolalpha<<retval<<endl;
   return retval;
 }
 

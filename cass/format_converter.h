@@ -59,8 +59,11 @@ namespace cass
   public:
     static const unsigned int pvNumMax = 2;
 
+    /** a shared pointer of this type */
+    typedef std::tr1::shared_ptr<FormatConverter> shared_pointer;
+
     /** Return a pointer to the single FormatConverter instance */
-    static std::tr1::shared_ptr<FormatConverter> instance();
+    static shared_pointer instance();
 
     /** function to process a datagram and turn it into a cassevent.
      *
@@ -70,7 +73,7 @@ namespace cass
      * @return returns true if the datagram was a L1Accept (an event) transition
      * @param evt pointer to the CASSEvent which also contains the datagram
      */
-    bool operator()(cass::CASSEvent*evt);
+    bool operator()(CASSEvent*evt);
 
     /** function to load  the settings for the format converter */
     void loadSettings(size_t what);
@@ -98,10 +101,11 @@ namespace cass
     usedConverters_t _usedConverters;
 
     /** pointer to the single instance */
-    static std::tr1::shared_ptr<FormatConverter> _instance;
+    static shared_pointer _instance;
 
     /** Singleton operation locker in a multi-threaded environment.*/
     static QMutex _mutex;
+
   private:
     unsigned int _pvNum;
     double _pvControlValue[pvNumMax];
