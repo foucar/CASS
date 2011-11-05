@@ -56,33 +56,36 @@ void MultiFileInput::run()
 {
   _status = lmf::PausableThread::running;
 
-  Splitter extension;
-  /** open the file containing the files to process, convert the contents to a
-   *  vector of filenames.
+
+  /** create the resource and a lock for it that contains the pointers to the
+   *  places in the files where one finds the data that corresponds to a given
+   *  eventID. And create a container for all the file parser that we create in
+   *  the next step. Create helpers to split the extension from the filename
+   *  and to tokenize the list of filenames.
    */
-  VERBOSEOUT(cout<<"MultiFileInput::run(): try to open filelist '"
-             <<_filelistname<<"'"<<endl);
+  Splitter extension;
+  Tokenizer tokenize;
+  event2positionreaders_t event2posreaders;
+  QReadWriteLock lock;
+  vector<FileParser::shared_pointer> parsercontainer;
+
+  /** open the file containing the files to process, convert the contents to a
+   *  vector of filenames. Iterate through the vector of filenames and for each
+   *  filename create a file parser that will parse this file. Then put the
+   *  fileparser in the container. Also create a reader for the file and put it
+   *  in the pair that contains the filepointer and the reader for it. Then read
+   *  the header information into the file reader. Rewind the file to the
+   *  beginning and
+   */
   ifstream filelistfile(_filelistname.c_str());
   if (!filelistfile.is_open())
     throw invalid_argument("MultiFileInput::run(): filelist '"+_filelistname +
                            "' could not be opened");
-  Tokenizer tokenize;
+
   vector<string> filelist(tokenize(filelistfile));
-
-  /** create the resource and a lock for it that contains the pointers to the
-   *  places in the files where one finds the data that corresponds to a given
-   *  eventID.
-   */
-  event2positionreaders_t event2posreaders;
-  QReadWriteLock lock;
-
-  /** iterate through the vector of filenames and for each filename create a
-   * file parser that will parse this file. Then put the fileparser in the
-   * container.
-   */
-  vector<FileParser::shared_pointer> parsercontainer;
   vector<string>::const_iterator filelistIt(filelist.begin());
-  while (filelistIt != filelist.end())
+  vector<string>::const_iterator filelistEnd(filelist.end());
+  while (filelistIt != filelistEnd)
   {
     if (_control == _quit)
       break;
@@ -106,7 +109,8 @@ void MultiFileInput::run()
 
   /** wait until all files are parsed */
   vector<FileParser::shared_pointer>::iterator fileparseIt(parsercontainer.begin());
-  for (;fileparseIt!=parsercontainer.end();++fileparseIt)
+  vector<FileParser::shared_pointer>::const_iterator fileparseEnd(parsercontainer.end());
+  for (;fileparseIt!=fileparseEnd;++fileparseIt)
     (*fileparseIt)->wait();
 
   /** Then iterate through the eventlist, read the contents of each file and
