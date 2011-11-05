@@ -27,7 +27,9 @@ SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
     _partitionTag(partitionTag),
     _index(index),
     _convert(*FormatConverter::instance())
-{}
+{
+  loadSettings(0);
+}
 
 SharedMemoryInput::~SharedMemoryInput()
 {
