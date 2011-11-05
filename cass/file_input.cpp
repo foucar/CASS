@@ -68,7 +68,6 @@ void FileInput::run()
     if (_control == _quit)
       break;
     string filename(*filelistIt++);
-    VERBOSEOUT(cout<< "FileInput::run(): trying to open '"<<filename<<"'"<<endl);
     ifstream file(filename.c_str(), ios::binary | ios::in);
     /** if there was such a file then we want to load it */
     if (file.is_open())
