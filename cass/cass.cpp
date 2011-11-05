@@ -14,6 +14,7 @@
 #include "cass.h"
 #include "analyzer.h"
 #include "daemon.h"
+#include "input_base.h"
 #include "file_input.h"
 #include "multifile_input.h"
 #include "format_converter.h"
@@ -30,6 +31,7 @@
 
 
 using namespace std;
+using namespace cass;
 
 /** The main program.
  *
@@ -42,6 +44,7 @@ using namespace std;
  * - q quit after finished with all files (offline)
  * - f optional complete path to the cass.ini to use (offline / online)
  * - r suppress the rate output
+ * - m enable multifile input
  *
  * @author Lutz Foucar
  */
@@ -83,6 +86,9 @@ int main(int argc, char **argv)
 #ifndef OFFLINE
   //the sharememory client index
   int index(0);
+#else
+  // the flag whether to use multifile input default is false
+  bool multifile(false);
 #endif
   //flag to tell to quit when program has finished executing all files
   bool quitwhendone(false);
@@ -90,7 +96,7 @@ int main(int argc, char **argv)
   bool suppressrate(false);
 
   //get the partition string
-  while((c = getopt(argc, argv, "rqp:s:c:i:o:f:")) != -1)
+  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
   {
     switch (c)
     {
@@ -137,6 +143,10 @@ int main(int argc, char **argv)
     case 'o':
       outputfilename = optarg;
       break;
+#ifdef OFFLINE
+    case 'm':
+      multifile = true;
+      break;
     default:
 #ifndef OFFLINE
       std::cout << "please give me at least a partition tag" <<std::endl;
@@ -160,11 +170,11 @@ int main(int argc, char **argv)
                                                              index,
                                                              ringbuffer));
 #else
-#ifdef MULTIFILE
-  cass::MultiFileInput *input(new cass::MultiFileInput(filelistname,ringbuffer,quitwhendone));
-#else
-  // create file input object
-  cass::FileInput *input(new cass::FileInput(filelistname.c_str(),ringbuffer,quitwhendone));
+  InputBase::shared_pointer input;
+  if (multifile)
+    input = InputBase::shared_pointer(new MultiFileInput(filelistname,ringbuffer,quitwhendone));
+  else
+    input = InputBase::shared_pointer(new FileInput(filelistname,ringbuffer,quitwhendone));
 #endif
 #endif
 
@@ -184,25 +194,25 @@ int main(int argc, char **argv)
 
   //connect ratemeters//
   QObject::connect(workers, SIGNAL(processedEvent()), workerrate, SLOT(count()));
-  QObject::connect(input,   SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
+  QObject::connect(input.get(),   SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
 
 
   //when the thread has finished, we want to close this application
-  QObject::connect(input, SIGNAL(finished()), workers, SLOT(end()));
-  QObject::connect(input, SIGNAL(terminated()), workers, SLOT(end()));
+  QObject::connect(input.get(), SIGNAL(finished()), workers, SLOT(end()));
+  QObject::connect(input.get(), SIGNAL(terminated()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
   //close the programm when sigquit or sigterm were received//
-  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input, SLOT(end()));
-  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input, SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
 
   // TCP/SOAP server
 #ifdef SOAPSERVER
   cass::EventGetter get_event(ringbuffer);
   cass::HistogramGetter get_histogram;
   cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
-  QObject::connect(server, SIGNAL(quit()), input, SLOT(end()));
-  QObject::connect(server, SIGNAL(readini(size_t)), input, SLOT(loadSettings(size_t)));
+  QObject::connect(server, SIGNAL(quit()), input.get(), SLOT(end()));
+  QObject::connect(server, SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
   QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
@@ -238,7 +248,6 @@ int main(int argc, char **argv)
     delete workerrate;
     delete inputrate;
     delete workers;
-    delete input;
 
     // one last sync of settings file
     settings.sync();
@@ -275,7 +284,6 @@ int main(int argc, char **argv)
     delete workerrate;
     delete inputrate;
     delete workers;
-    delete input;
   }
   return retval;
 }

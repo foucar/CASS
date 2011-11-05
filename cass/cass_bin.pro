@@ -304,10 +304,6 @@ CONFIG(offline) {
     DEFINES        += OFFLINE RINGBUFFER_BLOCKING
 }
 
-CONFIG(multifileread) {
-    DEFINES        += MULTIFILE
-}
-
 lclslibs.path       = $$INSTALLBASE/lib
 lclslibs.files      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libacqdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libappdata.a \

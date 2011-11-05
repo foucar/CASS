@@ -32,9 +32,6 @@ CONFIG      += staticlib
 # Uncomment this if you want to read files instead of connecting to shared LCLS memory
 CONFIG      += offline
 
-# Uncmomment this if you are running offline and want a multifile reading enabled
-CONFIG      += multifileread
-
 # Uncomment the following line to enable pp1000 (HDF5 output)
 #CONFIG      += hdf5
 
