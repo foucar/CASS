@@ -25,16 +25,33 @@ void XtcReader::loadSettings()
   _convert.loadSettings(0);
 }
 
-bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
+void XtcReader::readHeaderInfo(std::ifstream &file)
 {
+  CASSEvent event;
   while(1)
   {
+    const streampos eventstartpos(file.tellg());
     Pds::Dgram& dg
         (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
-    file.read(event.datagrambuffer(),sizeof(dg));
-    file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-    if (_convert(&event))
+    file.read(event.datagrambuffer(),sizeof(Pds::Dgram));
+    if (dg.seq.service() != Pds::TransitionId::L1Accept)
+    {
+      file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+      _convert(&event);
+    }
+    else
+    {
+      file.seekg(eventstartpos);
       break;
+    }
   }
-  return (event.id());
+}
+
+bool XtcReader::operator ()(ifstream &file, CASSEvent& event)
+{
+  Pds::Dgram& dg
+      (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
+  file.read(event.datagrambuffer(),sizeof(dg));
+  file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
+  return (_convert(&event));
 }

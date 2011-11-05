@@ -47,11 +47,13 @@ namespace cass
     /** load the settings of the reader */
     void loadSettings();
 
-    /** this tells when a new file is opened.
+    /** read the file header
      *
-     * ignore this message
+     * read datagram by datagram until the first L1 transition appears
+     *
+     * @param file the filestream to the header information of the file
      */
-    void newFile(bool){}
+    void readHeaderInfo(std::ifstream &file);
 
   private:
     /** a reference to the format converter functor */
