@@ -10,6 +10,8 @@
 #ifndef __SHAREDMEMORYINPUT_H__
 #define __SHAREDMEMORYINPUT_H__
 
+#include <string>
+
 #include "cass.h"
 #include "input_base.h"
 #include "pdsdata/app/XtcMonitorClient.hh"
@@ -47,7 +49,7 @@ namespace cass
      * @param index the client index of the shared memory
      * @param parent the parent of this object
      */
-    SharedMemoryInput(char * PartitionTag,
+    SharedMemoryInput(const std::string &PartitionTag,
                       int index,
                       cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
                       QObject *parent=0);
@@ -86,7 +88,7 @@ namespace cass
 
   private:
     /** the name of the partition tag we connect to*/
-    char *_partitionTag;
+    std::string _partitionTag;
 
     /** the client index of the shared memory */
     int _index;

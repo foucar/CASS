@@ -76,8 +76,7 @@ int main(int argc, char **argv)
   bool quitwhendone(false);
 #else
   //create a container for the partition tag
-  char partitionTag[128];
-  partitionTag[0]='\0';
+  string partitionTag;
   //the sharememory client index
   int index(0);
 #endif
@@ -108,7 +107,7 @@ int main(int argc, char **argv)
       break;
 #else
     case 'p':
-      strcpy(partitionTag, optarg);
+      partitionTag = optarg;
       break;
     case 'c':
       index = strtol(optarg, 0, 0);

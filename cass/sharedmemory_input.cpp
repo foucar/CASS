@@ -19,7 +19,7 @@
 using namespace cass;
 using namespace std;
 
-SharedMemoryInput::SharedMemoryInput(char * partitionTag,
+SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
                                      int index,
                                      RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                                      QObject *parent)
@@ -46,7 +46,7 @@ void SharedMemoryInput::run()
   VERBOSEOUT(cout << "starting shared memory in put with partition Tag: \""
       <<_partitionTag <<"\""
       << " and Client Index "<< _index<<endl);
-  Pds::XtcMonitorClient::run(_partitionTag,_index,_index,2);
+  Pds::XtcMonitorClient::run(_partitionTag.c_str(),_index,_index,2);
   VERBOSEOUT(cout << "shared memory input is closing down"<<endl);
 }
 
