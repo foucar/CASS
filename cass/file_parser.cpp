@@ -16,6 +16,7 @@
 #include "raw_sss_parser.h"
 #include "frms6_parser.h"
 #include "txt_parser.h"
+#include "xtc_parser.h"
 #include "file_reader.h"
 
 using namespace cass;
@@ -48,6 +49,8 @@ FileParser::shared_pointer FileParser::instance(const std::string type,
     ptr = shared_pointer(new Frms6Parser(readerpointerpair,event2posreader, lock));
   else if (type == "txt")
     ptr = shared_pointer(new TxtParser(readerpointerpair,event2posreader, lock));
+  else if (type == "xtc")
+    ptr = shared_pointer(new XtcParser(readerpointerpair,event2posreader, lock));
   else
     throw invalid_argument("FileParser::instance: file extension '"+ type +"' is unknown.");
   return ptr;
