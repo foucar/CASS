@@ -53,107 +53,87 @@ int main(int argc, char **argv)
   // construct Qt application object
   QApplication app(argc, argv,false);
   // register used types as Qt meta type
-  qRegisterMetaType< std::string >("std::string");
-  qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
+  qRegisterMetaType< string >("std::string");
+  qRegisterMetaType<PostProcessors::key_t>("PostProcessors::key_t");
   qRegisterMetaType<size_t>("size_t");
   // set up details for QSettings and Co.
-  // (So we can simply use QSettings settings; everywhere else.)
   QCoreApplication::setOrganizationName("CFEL-ASG");
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("CASS");
   QSettings::setDefaultFormat(QSettings::IniFormat);
   QSettings settings;
-  // QStringList keys(settings.allKeys());
-  // for(QStringList::iterator iter = keys.begin(); iter != keys.end(); ++iter)
-  //     std::cout << "   cass.ini keys: " << iter->toStdString() << std::endl;
   settings.sync();
   // setup cass settings. when one wants a user settable cass.ini, just use
   // CASSSettings instead of QSettings
-  cass::CASSSettings::setFilename(settings.fileName().toStdString());
+  CASSSettings::setFilename(settings.fileName().toStdString());
 
+#ifdef OFFLINE
+  // filename containing XTC filenames
+  string filelistname("filesToProcess.txt");
+  // the flag whether to use multifile input default is false
+  bool multifile(false);
+  //flag to tell to quit when program has finished executing all files
+  bool quitwhendone(false);
+#else
   //create a container for the partition tag
-  int c;
   char partitionTag[128];
   partitionTag[0]='\0';
-  // filename containing XTC filenames
-  std::string filelistname("filesToProcess.txt");
-  // filename of the output filename
-  std::string outputfilename("output.ext");
+  //the sharememory client index
+  int index(0);
+#endif
 #ifdef SOAPSERVER
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
 #endif
-#ifndef OFFLINE
-  //the sharememory client index
-  int index(0);
-#else
-  // the flag whether to use multifile input default is false
-  bool multifile(false);
-#endif
-  //flag to tell to quit when program has finished executing all files
-  bool quitwhendone(false);
   //flag to suppress the rate output
   bool suppressrate(false);
+  // filename of the output filename
+  string outputfilename("output.ext");
 
-  //get the partition string
+  //parse command line options
+  int c;
   while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
   {
     switch (c)
     {
-    case 'p':
 #ifdef OFFLINE
-      std::cout<<"WARNING: partition tag for shm: '"<<optarg
-          <<"' will be ignored in offline mode."<<std::endl;
-#endif
-      strcpy(partitionTag, optarg);
-      break;
-    case 's':
-#ifdef SOAPSERVER
-      soap_port = strtol(optarg, 0, 0);
-#endif
-      break;
-    case 'c':
-#ifdef OFFLINE
-      std::cout<<"WARNING: client id for shm: '"<<optarg
-          <<"' will be ignored in offline mode."<<std::endl;
-#else
-      index = strtol(optarg, 0, 0);
-#endif
-      break;
     case 'q':
-#ifndef OFFLINE
-      std::cout<<"WARNING: 'quit when done' has no effect in online mode.";
-#endif
       quitwhendone = true;
       break;
+    case 'i':
+      filelistname = optarg;
+      break;
+    case 'm':
+      multifile = true;
+      break;
+#else
+    case 'p':
+      strcpy(partitionTag, optarg);
+      break;
+    case 'c':
+      index = strtol(optarg, 0, 0);
+      break;
+#endif
+#ifdef SOAPSERVER
+    case 's':
+      soap_port = strtol(optarg, 0, 0);
+      break;
+#endif
     case 'r':
       suppressrate = true;
       break;
-    case 'i':
-#ifndef OFFLINE
-      std::cout<<"WARNING: file '"<<optarg
-          <<"' containing all filenames will be ignored in online mode."
-          <<std::endl;
-#endif
-      filelistname = optarg;
-      break;
     case 'f':
-      cass::CASSSettings::setFilename(optarg);
+      CASSSettings::setFilename(optarg);
       break;
     case 'o':
       outputfilename = optarg;
       break;
-#ifdef OFFLINE
-    case 'm':
-      multifile = true;
-      break;
     default:
-#ifndef OFFLINE
-      std::cout << "please give me at least a partition tag" <<std::endl;
+#ifdef OFFLINE
+      cout << "please give me at least an filename that contains the"
+           <<" xtcfilenames you want to process"<<endl;
 #else
-      std::cout << "please give me at least an filename that contains the"
-          <<" xtcfilenames you want to process"
-          <<std::endl;
+      cout << "please give me at least a partition tag" <<endl;
 #endif
       return 2;
       break;
@@ -161,35 +141,38 @@ int main(int argc, char **argv)
   }
 
   //a ringbuffer for the cassevents//
-  cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> ringbuffer;
+  RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
   //create workers//
-  cass::Workers *workers(new cass::Workers(ringbuffer, outputfilename, qApp));
-#ifndef OFFLINE
-  // create shared memory input object //
-  cass::SharedMemoryInput *input(new cass::SharedMemoryInput(partitionTag,
-                                                             index,
-                                                             ringbuffer));
-#else
+  Workers *workers(new Workers(ringbuffer, outputfilename, qApp));
+#ifdef OFFLINE
   InputBase::shared_pointer input;
   if (multifile)
-    input = InputBase::shared_pointer(new MultiFileInput(filelistname,ringbuffer,quitwhendone));
+    input = InputBase::shared_pointer(new MultiFileInput(filelistname,
+                                                         ringbuffer,
+                                                         quitwhendone));
   else
-    input = InputBase::shared_pointer(new FileInput(filelistname,ringbuffer,quitwhendone));
-#endif
+    input = InputBase::shared_pointer(new FileInput(filelistname,
+                                                    ringbuffer,
+                                                    quitwhendone));
+#else
+  // create shared memory input object //
+  InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
+                                                        index,
+                                                        ringbuffer));
 #endif
 
   //create a ratemeter object for the input//
-  cass::Ratemeter *inputrate(new cass::Ratemeter(1,qApp));
+  Ratemeter *inputrate(new Ratemeter(1,qApp));
   //create a ratemeter object for the worker//
-  cass::Ratemeter *workerrate(new cass::Ratemeter(1,qApp));
+  Ratemeter *workerrate(new Ratemeter(1,qApp));
   //create a rate plotter that will plot the rate of the worker and input//
   //only if user has not disabled it//
-  cass::RatePlotter *rateplotter(0);
+  RatePlotter *rateplotter(0);
   if (!suppressrate)
-    rateplotter = new cass::RatePlotter(*inputrate,*workerrate,qApp);
+    rateplotter = new RatePlotter(*inputrate,*workerrate,qApp);
   //create deamon to capture UNIX signals//
-  cass::setup_unix_signal_handlers();
-  cass::UnixSignalDaemon *signaldaemon(new cass::UnixSignalDaemon(qApp));
+  setup_unix_signal_handlers();
+  UnixSignalDaemon *signaldaemon(new UnixSignalDaemon(qApp));
 
 
   //connect ratemeters//
@@ -208,15 +191,15 @@ int main(int argc, char **argv)
 
   // TCP/SOAP server
 #ifdef SOAPSERVER
-  cass::EventGetter get_event(ringbuffer);
-  cass::HistogramGetter get_histogram;
-  cass::SoapServer *server(cass::SoapServer::instance(get_event, get_histogram, soap_port));
+  EventGetter get_event(ringbuffer);
+  HistogramGetter get_histogram;
+  SoapServer *server(SoapServer::instance(get_event, get_histogram, soap_port));
   QObject::connect(server, SIGNAL(quit()), input.get(), SLOT(end()));
   QObject::connect(server, SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
-  QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
-  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
+  QObject::connect(server, SIGNAL(clearHistogram(PostProcessors::key_t)), workers, SLOT(clearHistogram(PostProcessors::key_t)));
+  QObject::connect(server, SIGNAL(receiveCommand(PostProcessors::key_t, string)), workers, SLOT(receiveCommand(PostProcessors::key_t, string)));
 #endif
 
 #ifdef HTTPSERVER
@@ -243,6 +226,9 @@ int main(int argc, char **argv)
     //clean up
 #ifdef SOAPSERVER
     server->destroy();
+#endif
+#ifdef HTTPSERVER
+    http_server.stop();
 #endif
     delete rateplotter;
     delete workerrate;
