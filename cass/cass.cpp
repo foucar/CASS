@@ -46,6 +46,8 @@ using namespace cass;
  * - r suppress the rate output
  * - m enable multifile input
  *
+ * @todo make the workers a shared pointer, to make the whole main program within
+ *       a try - catch environment
  * @author Lutz Foucar
  */
 int main(int argc, char **argv)
@@ -84,8 +86,8 @@ int main(int argc, char **argv)
   // SOAP server port (default: 12321)
   size_t soap_port(12321);
 #endif
-  //flag to suppress the rate output
-  bool suppressrate(false);
+  //flag to tell whether the rate should be plotted
+  bool plotrate(true);
   // filename of the output filename
   string outputfilename("output.ext");
 
@@ -119,7 +121,7 @@ int main(int argc, char **argv)
       break;
 #endif
     case 'r':
-      suppressrate = true;
+      plotrate = false;
       break;
     case 'f':
       CASSSettings::setFilename(optarg);
@@ -142,11 +144,10 @@ int main(int argc, char **argv)
   //a ringbuffer for the cassevents//
   RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
 
-
   //create a ratemeters objects and the plotter for them//
   Ratemeter inputrate(1,qApp);
   Ratemeter workerrate(1,qApp);
-  RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
+  RatePlotter rateplotter(inputrate,workerrate,plotrate,qApp);
 
   //create workers and inputs//
   Workers *workers(new Workers(ringbuffer, outputfilename, qApp));
@@ -170,23 +171,20 @@ int main(int argc, char **argv)
                                                         inputrate));
 #endif
 
-  //create deamon to capture UNIX signals//
+  //create deamon to capture UNIX signals and connect the quit signal//
   setup_unix_signal_handlers();
   UnixSignalDaemon *signaldaemon(new UnixSignalDaemon(qApp));
-
+  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
+  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
 
   //connect ratemeters//
   QObject::connect(workers, SIGNAL(processedEvent()), &workerrate, SLOT(count()));
-
 
   //when the thread has finished, we want to close this application
   QObject::connect(input.get(), SIGNAL(finished()), workers, SLOT(end()));
   QObject::connect(input.get(), SIGNAL(terminated()), workers, SLOT(end()));
   QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
-  //close the programm when sigquit or sigterm were received//
-  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
-  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
 
   // TCP/SOAP server
 #ifdef SOAPSERVER
@@ -230,6 +228,7 @@ int main(int argc, char **argv)
     http_server.stop();
 #endif
     delete workers;
+    delete signaldaemon;
 
     // one last sync of settings file
     settings.sync();
@@ -263,6 +262,7 @@ int main(int argc, char **argv)
     http_server.stop();
 #endif
     delete workers;
+    delete signaldaemon;
   }
   return retval;
 }
