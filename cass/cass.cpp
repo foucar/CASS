@@ -55,8 +55,8 @@ int main(int argc, char **argv)
   // construct Qt application object
   QApplication app(argc, argv,false);
   // register used types as Qt meta type
-  qRegisterMetaType< string >("std::string");
-  qRegisterMetaType<PostProcessors::key_t>("PostProcessors::key_t");
+  qRegisterMetaType< std::string >("std::string");
+  qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
   qRegisterMetaType<size_t>("size_t");
   // set up details for QSettings and Co.
   QCoreApplication::setOrganizationName("CFEL-ASG");
@@ -192,8 +192,8 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
   QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
-  QObject::connect(server, SIGNAL(clearHistogram(PostProcessors::key_t)), workers, SLOT(clearHistogram(PostProcessors::key_t)));
-  QObject::connect(server, SIGNAL(receiveCommand(PostProcessors::key_t, string)), workers, SLOT(receiveCommand(PostProcessors::key_t, string)));
+  QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
+  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 #endif
 
 #ifdef HTTPSERVER
