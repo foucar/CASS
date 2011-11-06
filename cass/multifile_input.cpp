@@ -95,6 +95,11 @@ void MultiFileInput::run()
     FilePointer fp;
     fp._filestream =
         FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
+    if (!fp._filestream->is_open())
+    {
+      cout << "MultiFileInput::run(): could not open File '"<<filename<<"'"<<endl;
+      continue;
+    }
     fp._pos = fp._filestream->tellg();
     filereaderpointerpair_t readerpointer
         (make_pair(FileReader::instance(extension(filename)),fp));
