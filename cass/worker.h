@@ -187,7 +187,7 @@ namespace cass
      *
      * @param key the postprocessor whos histograms should be cleared
      */
-    void clearHistogram(const PostProcessors::key_t & key);
+    void clearHistogram(PostProcessors::key_t key);
 
     /** process command in postprocessor with id
      *
@@ -199,7 +199,7 @@ namespace cass
      * @param key the postprocessor who will receive the command
      * @param comand the command string
      */
-    void receiveCommand(const PostProcessors::key_t &key, const std::string &command);
+    void receiveCommand(PostProcessors::key_t key, std::string command);
 
   signals:
     /** this is emmitted once all workers have stoped */

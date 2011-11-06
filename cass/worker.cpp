@@ -38,6 +38,7 @@ Worker::~Worker()
 
 void Worker::aboutToQuit()
 {
+
   _postprocessor->aboutToQuit();
   _analyzer->aboutToQuit();
 }
@@ -128,7 +129,7 @@ void Workers::saveSettings()
     _workers[i]->resume();
 }
 
-void Workers::clearHistogram(const PostProcessors::key_t &key)
+void Workers::clearHistogram(PostProcessors::key_t key)
 {
   if(_workers.empty())
     throw bad_exception();
@@ -142,7 +143,7 @@ void Workers::clearHistogram(const PostProcessors::key_t &key)
     _workers[i]->resume();
 }
 
-void Workers::receiveCommand(const PostProcessors::key_t &key, const string &command)
+void Workers::receiveCommand(PostProcessors::key_t key, string command)
 {
   if(_workers.empty())
     throw bad_exception();
@@ -167,8 +168,8 @@ void Workers::end()
   QMutexLocker locker(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->resume();
+//  for (size_t i=0;i<_workers.size();++i)
+//    _workers[i]->resume();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
   _workers[0]->aboutToQuit();
