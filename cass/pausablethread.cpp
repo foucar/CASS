@@ -14,13 +14,11 @@ using namespace std;
 
 PausableThread::~PausableThread()
 {
-  cout << "Deleting PausableThread"<<endl;
   if(isRunning())
   {
     terminate();
   }
   wait();
-  cout << "done deleting PausableThread"<<endl;
 }
 
 void PausableThread::pause(bool wait)
