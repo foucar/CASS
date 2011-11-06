@@ -43,12 +43,14 @@ public:
    * @param filelistname name of the file containing all files that should be
    *                     processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
    * @param quitwhendone flag that tells this class that it should quit the
    *                     Program when its done reading all events
    * @param parent The parent QT Object of this class
    */
   FileInput(std::string filelistname,
             RingBuffer<CASSEvent,RingBufferSize>&,
+            Ratemeter &ratemeter,
             bool quitwhendone,
             QObject *parent=0);
 

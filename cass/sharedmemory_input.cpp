@@ -22,8 +22,9 @@ using namespace std;
 SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
                                      int index,
                                      RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                                     Ratemeter &ratemeter,
                                      QObject *parent)
-  :InputBase(ringbuffer,parent),
+  :InputBase(ringbuffer,ratemeter,parent),
     _partitionTag(partitionTag),
     _index(index),
     _convert(*FormatConverter::instance())

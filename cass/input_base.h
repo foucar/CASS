@@ -20,6 +20,7 @@
 
 namespace cass
 {
+class Ratemeter;
 /** Input base class
  *
  * This class acts as base class for all input modules.
@@ -37,11 +38,15 @@ public:
   /** constructor
    *
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
    * @param parent The parent QT Object of this class
    */
-  InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer, QObject *parent=0)
+  InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+            Ratemeter & ratemeter,
+            QObject *parent=0)
     :PausableThread(lmf::PausableThread::_run,parent),
-     _ringbuffer(ringbuffer)
+     _ringbuffer(ringbuffer),
+     _ratemeter(ratemeter)
   {}
 
   /** destructor */
@@ -66,22 +71,9 @@ public slots:
    *
    * @param what unused parameter
    */
-  void loadSettings(size_t/* what*/)
-  {
-    pause(true);
-    load();
-    resume();
-  }
+  void loadSettings(size_t/* what*/);
 
-//  /** return an instance of the requested input module type
-//   *
-//   * @return shared pointer of the requested type
-//   * @param type the type of input module that should be returned
-//   */
-//  static shared_pointer instance(std::string type);
-
-signals:
-  /** signal emitted when done with one event
+  /** increment the numer of events received in the ratemeter
    *
    * To indicate that we are done processing an event this signal is emitted.
    * This is used for by the ratemeter to evaluate how fast we get events.
@@ -91,6 +83,9 @@ signals:
 protected:
   /** reference to the ringbuffer */
   RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
+
+  /** ratemeter to measure the rate */
+  Ratemeter & _ratemeter;
 };
 
 }//end namespace cass

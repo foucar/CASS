@@ -46,12 +46,14 @@ namespace cass
      * @param PartitionTag the name of the partition tag we want to connect to
      * @param buffer the ringbuffer, that we take events out and fill it
      *        with the incomming information
+     * @param ratemeter reference to the ratemeter to measure the rate of the input
      * @param index the client index of the shared memory
      * @param parent the parent of this object
      */
     SharedMemoryInput(const std::string &PartitionTag,
                       int index,
                       cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
+                      Ratemeter &ratemeter,
                       QObject *parent=0);
 
     /** deletes the thread*/

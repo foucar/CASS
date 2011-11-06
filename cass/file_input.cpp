@@ -23,9 +23,10 @@ using namespace cass;
 
 FileInput::FileInput(string filelistname,
                      RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                     Ratemeter &ratemeter,
                      bool quitWhenDone,
                      QObject *parent)
-  :InputBase(ringbuffer,parent),
+  :InputBase(ringbuffer,ratemeter,parent),
   _quitWhenDone(quitWhenDone),
   _filelistname(filelistname)
 {

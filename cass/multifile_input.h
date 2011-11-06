@@ -45,7 +45,7 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CASSSHARED_EXPORT MultiFileInput : public InputBase
+class MultiFileInput : public InputBase
 {
 public:
   /** constructor
@@ -53,12 +53,14 @@ public:
    * @param filelistname name of the file containing all files that should be
    *                     processed
    * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
    * @param quitwhendone flag that tells this class that it should quit the
    *                     Program when its done reading all events
    * @param parent The parent QT Object of this class
    */
   MultiFileInput(const std::string& filelistname,
                  RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                 Ratemeter &ratemeter,
                  bool quitwhendone,
                  QObject *parent=0);
 

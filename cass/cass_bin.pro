@@ -108,6 +108,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       conversion_backend.cpp \
                       daemon.cpp \
                       event_getter.cpp \
+                      input_base.cpp \
                       file_input.cpp \
                       file_reader.cpp \
                       file_parser.cpp \

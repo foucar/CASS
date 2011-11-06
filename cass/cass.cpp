@@ -141,42 +141,44 @@ int main(int argc, char **argv)
 
   //a ringbuffer for the cassevents//
   RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
-  //create workers//
+
+
+  //create a ratemeters objects and the plotter for them//
+  Ratemeter inputrate(1,qApp);
+  Ratemeter workerrate(1,qApp);
+  RatePlotter *rateplotter(0);
+  if (!suppressrate)
+    rateplotter = new RatePlotter(inputrate,workerrate,qApp);
+
+  //create workers and inputs//
   Workers *workers(new Workers(ringbuffer, outputfilename, qApp));
 #ifdef OFFLINE
   InputBase::shared_pointer input;
   if (multifile)
     input = InputBase::shared_pointer(new MultiFileInput(filelistname,
                                                          ringbuffer,
+                                                         inputrate,
                                                          quitwhendone));
   else
     input = InputBase::shared_pointer(new FileInput(filelistname,
                                                     ringbuffer,
+                                                    inputrate,
                                                     quitwhendone));
 #else
   // create shared memory input object //
   InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
                                                         index,
-                                                        ringbuffer));
+                                                        ringbuffer,
+                                                        inputrate));
 #endif
 
-  //create a ratemeter object for the input//
-  Ratemeter *inputrate(new Ratemeter(1,qApp));
-  //create a ratemeter object for the worker//
-  Ratemeter *workerrate(new Ratemeter(1,qApp));
-  //create a rate plotter that will plot the rate of the worker and input//
-  //only if user has not disabled it//
-  RatePlotter *rateplotter(0);
-  if (!suppressrate)
-    rateplotter = new RatePlotter(*inputrate,*workerrate,qApp);
   //create deamon to capture UNIX signals//
   setup_unix_signal_handlers();
   UnixSignalDaemon *signaldaemon(new UnixSignalDaemon(qApp));
 
 
   //connect ratemeters//
-  QObject::connect(workers, SIGNAL(processedEvent()), workerrate, SLOT(count()));
-  QObject::connect(input.get(),   SIGNAL(newEventAdded()),  inputrate,  SLOT(count()));
+  QObject::connect(workers, SIGNAL(processedEvent()), &workerrate, SLOT(count()));
 
 
   //when the thread has finished, we want to close this application
@@ -230,8 +232,6 @@ int main(int argc, char **argv)
     http_server.stop();
 #endif
     delete rateplotter;
-    delete workerrate;
-    delete inputrate;
     delete workers;
 
     // one last sync of settings file
@@ -266,8 +266,6 @@ int main(int argc, char **argv)
     http_server.stop();
 #endif
     delete rateplotter;
-    delete workerrate;
-    delete inputrate;
     delete workers;
   }
   return retval;

@@ -29,9 +29,10 @@ using tr1::placeholders::_1;
 
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                               Ratemeter &ratemeter,
                                bool quitWhenDone,
                                QObject *parent)
-  :InputBase(ringbuffer,parent),
+  :InputBase(ringbuffer,ratemeter,parent),
     _quitWhenDone(quitWhenDone),
     _filelistname(filelistname),
     _rewind(false)
