@@ -82,7 +82,7 @@ void FileInput::run()
       const streampos filesize(file.tellg());
       file.seekg (0, ios::beg);
       _read->readHeaderInfo(file);
-      while(file.tellg() < filesize && !_quit)
+      while(file.tellg() < filesize && _control != _quit)
       {
         pausePoint();
         /** rewind if requested */
@@ -102,7 +102,7 @@ void FileInput::run()
           cout << "FileInput: Event with id '"<<cassevent->id()<<"' is bad: skipping Event"<<endl;
         cassevent->setFilename(filelistIt->c_str());
         _ringbuffer.doneFilling(cassevent, isGood);
-        emit newEventAdded();
+        newEventAdded();
       }
       file.close();
     }
@@ -111,7 +111,7 @@ void FileInput::run()
   }
   cout << "FileInput::run(): Finished with all files." <<endl;
   if(!_quitWhenDone)
-    while(!_quit)
+    while(_control != _quit)
       this->sleep(1);
   cout << "FileInput::run(): closing the input"<<endl;
 }
