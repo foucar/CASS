@@ -13,7 +13,13 @@
 #include "rate_plotter.h"
 #include "ratemeter.h"
 
-cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObject *parent)
+using namespace std;
+using namespace cass;
+
+RatePlotter::RatePlotter(Ratemeter &inputrate,
+                         Ratemeter &analyzerate,
+                         bool plot,
+                         QObject *parent)
     :QObject(parent),
     _timer(this),
     _inputrate(inputrate),
@@ -21,15 +27,16 @@ cass::RatePlotter::RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObj
 {
   //start the timer that will call the plot() function//
   connect (&_timer,SIGNAL(timeout()),this,SLOT(plot()));
-  _timer.start(1000);
+  if (plot)
+    _timer.start(1000);
 }
 
-void cass::RatePlotter::plot()
+void RatePlotter::plot()
 {
   char tmp[256];
   snprintf(tmp, 255, "\rInput: %4.1fHz | Analyze: %4.1fHz",
            _inputrate.calculateRate(), _analyzerate.calculateRate());
-  std::cout << tmp << std::flush;
+  cout << tmp << flush;
 }
 
 

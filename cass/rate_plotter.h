@@ -28,7 +28,7 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT RatePlotter : public QObject
+  class RatePlotter : public QObject
   {
     Q_OBJECT;
 
@@ -37,18 +37,27 @@ namespace cass
      *
      * @param inputrate the ratemeter of the input thread
      * @param analyzerate the ratemeter of the worker threads
+     * @param plot flag to tell the ratemeter to output the rates
      * @param parent the qt parent of this object
      */
-    RatePlotter(Ratemeter &inputrate,Ratemeter &analyzerate, QObject *parent=0);
+    RatePlotter(Ratemeter &inputrate,
+                Ratemeter &analyzerate,
+                bool plot,
+                QObject *parent=0);
 
   private slots:
     /** slot to tell the plotter to plot the current rates*/
     void plot();
 
   private:
-    QTimer     _timer;        //!< the timer that tells it to plot the rate
-    Ratemeter &_inputrate;    //!< reference to the input Ratemeter
-    Ratemeter &_analyzerate;  //!< reference to the workers (analysis) Ratemeter
+    /** the timer that tells it to plot the rate */
+    QTimer _timer;
+
+    /** reference to the input Ratemeter */
+    Ratemeter &_inputrate;
+
+    /** reference to the workers (analysis) Ratemeter */
+    Ratemeter &_analyzerate;
   };
 }
 

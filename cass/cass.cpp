@@ -146,9 +146,7 @@ int main(int argc, char **argv)
   //create a ratemeters objects and the plotter for them//
   Ratemeter inputrate(1,qApp);
   Ratemeter workerrate(1,qApp);
-  RatePlotter *rateplotter(0);
-  if (!suppressrate)
-    rateplotter = new RatePlotter(inputrate,workerrate,qApp);
+  RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
 
   //create workers and inputs//
   Workers *workers(new Workers(ringbuffer, outputfilename, qApp));
@@ -231,7 +229,6 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.stop();
 #endif
-    delete rateplotter;
     delete workers;
 
     // one last sync of settings file
@@ -265,7 +262,6 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.stop();
 #endif
-    delete rateplotter;
     delete workers;
   }
   return retval;
