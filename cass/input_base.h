@@ -63,6 +63,13 @@ public:
   /** load the settings of the input module from ini file */
   virtual void load()=0;
 
+  /** increment the numer of events received in the ratemeter
+   *
+   * To indicate that we are done processing an event this signal is emitted.
+   * This is used for by the ratemeter to evaluate how fast we get events.
+   */
+  void newEventAdded();
+
 public slots:
   /** load the parameters used for this input module
    *
@@ -72,13 +79,6 @@ public slots:
    * @param what unused parameter
    */
   void loadSettings(size_t/* what*/);
-
-  /** increment the numer of events received in the ratemeter
-   *
-   * To indicate that we are done processing an event this signal is emitted.
-   * This is used for by the ratemeter to evaluate how fast we get events.
-   */
-  void newEventAdded();
 
 protected:
   /** reference to the ringbuffer */
