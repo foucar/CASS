@@ -150,7 +150,7 @@ int main(int argc, char **argv)
   RatePlotter rateplotter(inputrate,workerrate,plotrate,qApp);
 
   //create workers and inputs//
-  Workers *workers(new Workers(ringbuffer, outputfilename, qApp));
+  Workers *workers(new Workers(ringbuffer, workerrate, outputfilename, qApp));
 #ifdef OFFLINE
   InputBase::shared_pointer input;
   if (multifile)
@@ -176,9 +176,6 @@ int main(int argc, char **argv)
   UnixSignalDaemon *signaldaemon(new UnixSignalDaemon(qApp));
   QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
   QObject::connect(signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
-
-  //connect ratemeters//
-  QObject::connect(workers, SIGNAL(processedEvent()), &workerrate, SLOT(count()));
 
   //when the thread has finished, we want to close this application
   QObject::connect(input.get(), SIGNAL(finished()), workers, SLOT(end()));

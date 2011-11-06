@@ -7,105 +7,111 @@
  * @author Lutz Foucar
  */
 
-#include <exception>
+#include <stdexcept>
 #include <QtCore/QMutexLocker>
 
 #include "worker.h"
 #include "analyzer.h"
 #include "format_converter.h"
 #include "postprocessing/postprocessor.h"
+#include "ratemeter.h"
 
-cass::Worker::Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
-                     std::string outputfilename,
-                     QObject *parent)
+using namespace cass;
+using namespace std;
+
+Worker::Worker(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+               Ratemeter &ratemeter,
+               string outputfilename,
+               QObject *parent)
   :QThread(parent),
     _ringbuffer(ringbuffer),
-    _analyzer(cass::Analyzer::instance()),
-    _postprocessor(cass::PostProcessors::instance(outputfilename)),
+    _analyzer(Analyzer::instance()),
+    _postprocessor(PostProcessors::instance(outputfilename)),
     _quit(false),
     _pause(false),
-    _paused(false)
+    _paused(false),
+    _ratemeter(ratemeter)
 {}
 
-cass::Worker::~Worker()
+Worker::~Worker()
 {
-  VERBOSEOUT(std::cout <<"worker "<<this<<" will be deleted"<<std::endl);
+  VERBOSEOUT(cout <<"worker "<<this<<" will be deleted"<<endl);
   _postprocessor->destroy();
   _analyzer->destroy();
-  VERBOSEOUT(std::cout<< "worker "<<this<<" is deleted" <<std::endl);
+  VERBOSEOUT(cout<< "worker "<<this<<" is deleted" <<endl);
 }
 
-void cass::Worker::end()
+void Worker::end()
 {
-  VERBOSEOUT(std::cout << "worker "<<this<<" is told to close"<<std::endl);
+  VERBOSEOUT(cout << "worker "<<this<<" is told to close"<<endl);
   _quit = true;
 }
 
-void cass::Worker::aboutToQuit()
+void Worker::aboutToQuit()
 {
   _postprocessor->aboutToQuit();
   _analyzer->aboutToQuit();
 }
 
-void cass::Worker::suspend()
+void Worker::suspend()
 {
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": suspend(): signaled to suspend"<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": suspend(): signaled to suspend"<<endl);
   //set flag to pause//
   _pause=true;
 }
 
-void cass::Worker::resume()
+void Worker::resume()
 {
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": resume(): I am signaled to resume."<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": resume(): I am signaled to resume."<<endl);
   //if the thread has not been paused return here//
   if(!_pause)
   {
-    VERBOSEOUT(std::cout<<"Worker::"<<this<<": resume(): I am already running! Return"<<std::endl);
+    VERBOSEOUT(cout<<"Worker::"<<this<<": resume(): I am already running! Return"<<endl);
     return;
   }
   //reset the pause flag;
   _pause=false;
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": resume(): telling myself that I need to resume"<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": resume(): telling myself that I need to resume"<<endl);
   //tell run to resume via the waitcondition//
   _pauseCondition.wakeOne();
 }
 
-void cass::Worker::waitUntilSuspended()
+void Worker::waitUntilSuspended()
 {
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": waitUntilSuspended(): check if I am suspended"<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": waitUntilSuspended(): check if I am suspended"<<endl);
   //if it is already paused then retrun imidiatly//
   if(_paused)
   {
-    VERBOSEOUT(std::cout<<"Worker::"<<this<<": waitUntilSuspended(): I am already suspended. Returning"<<std::endl);
+    VERBOSEOUT(cout<<"Worker::"<<this<<": waitUntilSuspended(): I am already suspended. Returning"<<endl);
     return;
   }
   //otherwise wait until the conditions has been called//
   QMutex mutex;
   QMutexLocker lock(&mutex);
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": waitUntilSuspended(): Not yet suspended. Wait until i am signaled that I am suspended"<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": waitUntilSuspended(): Not yet suspended. Wait until i am signaled that I am suspended"<<endl);
   _waitUntilpausedCondition.wait(&mutex);
-  VERBOSEOUT(std::cout<<"Worker::"<<this<<": waitUntilSuspended(): Now I am suspended. Returning"<<std::endl);
+  VERBOSEOUT(cout<<"Worker::"<<this<<": waitUntilSuspended(): Now I am suspended. Returning"<<endl);
 }
 
 
-void cass::Worker::run()
+void Worker::run()
 {
-  VERBOSEOUT(std::cout << "worker \""<<this <<"\" is starting"<<std::endl);
+  VERBOSEOUT(cout << "worker \""<<this <<"\" is starting"<<endl);
   //a pointer that we use//
-  cass::CASSEvent *cassevent=0;
+  CASSEvent *cassevent=0;
   //run als long as we are told not to stop//
   while(!_quit)
   {
     //pause execution if suspend has been called//
     if (_pause)
     {
-      VERBOSEOUT(std::cout<<"Worker::"<<this<<": run(): I should suspend."<<std::endl);
+      VERBOSEOUT(cout<<"Worker::"<<this<<": run(): I should suspend."<<endl);
       //lock the mutex to prevent that more than one thread is calling pause//
       _pauseMutex.lock();
       //set the status flag to paused//
       _paused=true;
       //tell the wait until paused condtion that we are now pausing//
-      VERBOSEOUT(std::cout<<"Worker::"<<this<<": run(): Tell suspend() that I am suspending."<<std::endl);
+      VERBOSEOUT(cout<<"Worker::"<<this<<": run(): Tell suspend() that I am suspending."<<endl);
       _waitUntilpausedCondition.wakeOne();
       //wait until the condition is called again
       _pauseCondition.wait(&_pauseMutex);
@@ -113,7 +119,7 @@ void cass::Worker::run()
       _paused=false;
       //unlock the mutex, such that others can work again//
       _pauseMutex.unlock();
-      VERBOSEOUT(std::cout<<"Worker::"<<this<<": run(): I am now running again"<<std::endl);
+      VERBOSEOUT(cout<<"Worker::"<<this<<": run(): I am now running again"<<endl);
       //start over again//
       continue;
     }
@@ -136,19 +142,19 @@ void cass::Worker::run()
       _ringbuffer.doneProcessing(cassevent);
 
       //tell outside that we are done, when we should have anlyzed the event//
-      emit processedEvent();
+      _ratemeter.count();
     }
   }
-  VERBOSEOUT(std::cout <<"worker "<<this<<" is closing down"<<std::endl);
+  VERBOSEOUT(cout <<"worker "<<this<<" is closing down"<<endl);
 }
 
-void cass::Worker::loadSettings(size_t what)
+void Worker::loadSettings(size_t what)
 {
   _postprocessor->loadSettings(what);
   _analyzer->loadSettings(what);
 }
 
-void cass::Worker::saveSettings()
+void Worker::saveSettings()
 {
   _postprocessor->saveSettings();
   _analyzer->saveSettings();
@@ -166,16 +172,17 @@ void cass::Worker::saveSettings()
 
 
 //-----------------------the wrapper for more than 1 worker--------------------
-cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &ringbuffer,
-                       std::string outputfilename,
-                       QObject */*parent*/)
-                         :_workers(cass::NbrOfWorkers,0)
+Workers::Workers(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                 Ratemeter &ratemeter,
+                 string outputfilename,
+                 QObject */*parent*/)
+  :_workers(NbrOfWorkers,0)
 {
   //create the worker instances//
   //connect all workers output to this output//
   for (size_t i=0;i<_workers.size();++i)
   {
-    _workers[i] = new cass::Worker(ringbuffer,outputfilename);
+    _workers[i] = new Worker(ringbuffer,ratemeter,outputfilename);
     connect(_workers[i],SIGNAL(processedEvent()),this,SIGNAL(processedEvent()));
   }
   //load the settings for one worker, which will load the settings for all other
@@ -183,132 +190,132 @@ cass::Workers::Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize> &r
   _workers[0]->loadSettings(0);
 }
 
-cass::Workers::~Workers()
+Workers::~Workers()
 {
-  VERBOSEOUT(std::cout <<"workers are beeing deleted"<<std::endl);
+  VERBOSEOUT(cout <<"workers are beeing deleted"<<endl);
   //delete the worker instances//
   for (size_t i=0;i<_workers.size();++i)
     delete _workers[i];
-  VERBOSEOUT(std::cout<< "workers are deleted" <<std::endl);
+  VERBOSEOUT(cout<< "workers are deleted" <<endl);
 }
 
-void cass::Workers::loadSettings(size_t what)
+void Workers::loadSettings(size_t what)
 {
   //make sure there is at least one worker//
   if(_workers.empty())
-    throw std::bad_exception();
+    throw bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  VERBOSEOUT(std::cout << "Workers: Load Settings: suspend all workers before loading settings"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: suspend all workers before loading settings"
+      <<endl);
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->waitUntilSuspended();
-  VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are suspend. Load Settings of one Worker,"
-      <<" which shares all settings."<<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: Workers are suspend. Load Settings of one Worker,"
+      <<" which shares all settings."<<endl);
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
   _workers[0]->loadSettings(what);
   //resume the workers tasks//
-  VERBOSEOUT(std::cout << "Workers: Load Settings: Done Loading. Now resume all workers"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: Done Loading. Now resume all workers"
+      <<endl);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
-  VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are resumed"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: Workers are resumed"
+      <<endl);
 }
 
-void cass::Workers::saveSettings()
+void Workers::saveSettings()
 {
   //make sure there is at least one worker//
   if(_workers.empty())
-    throw std::bad_exception();
+    throw bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  VERBOSEOUT(std::cout << "Workers: Save Settings: suspend all workers before saving settings"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Save Settings: suspend all workers before saving settings"
+      <<endl);
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->waitUntilSuspended();
-  VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are suspend. Save Settings of one Worker,"
-      <<" which shares all settings."<<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: Workers are suspend. Save Settings of one Worker,"
+      <<" which shares all settings."<<endl);
   //load the settings of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
   _workers[0]->saveSettings();
   //resume the workers tasks//
-  VERBOSEOUT(std::cout << "Workers: Save Settings: Done Saving. Now resume all workers"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Save Settings: Done Saving. Now resume all workers"
+      <<endl);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
-  VERBOSEOUT(std::cout << "Workers: Load Settings: Workers are resumed"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Load Settings: Workers are resumed"
+      <<endl);
 }
 
-void cass::Workers::clearHistogram(PostProcessors::key_t key)
+void Workers::clearHistogram(PostProcessors::key_t key)
 {
   //make sure there is at least one worker//
   if(_workers.empty())
-    throw std::bad_exception();
+    throw bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  VERBOSEOUT(std::cout << "Workers: Clear: suspend all workers before clearing histogram"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Clear: suspend all workers before clearing histogram"
+      <<endl);
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->waitUntilSuspended();
-  VERBOSEOUT(std::cout << "Workers: Clear: Workers are suspend."
-      <<" Clear the requested histogram."<<std::endl);
+  VERBOSEOUT(cout << "Workers: Clear: Workers are suspend."
+      <<" Clear the requested histogram."<<endl);
   //clear histogram of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
   _workers[0]->clear(key);
   //resume the workers tasks//
-  VERBOSEOUT(std::cout << "Workers: Clear: Done clearing. Now resume all workers"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Clear: Done clearing. Now resume all workers"
+      <<endl);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
-  VERBOSEOUT(std::cout << "Workers: Clear: Workers are resumed"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: Clear: Workers are resumed"
+      <<endl);
 }
 
-void cass::Workers::receiveCommand(PostProcessors::key_t key, std::string command)
+void Workers::receiveCommand(PostProcessors::key_t key, string command)
 {
   //make sure there is at least one worker//
   if(_workers.empty())
-    throw std::bad_exception();
+    throw bad_exception();
   //lock this from here on, so that it is reentrant
   QMutexLocker lock(&_mutex);
-  VERBOSEOUT(std::cout << "Workers: receiveCommand: suspend all workers before processing command."
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: receiveCommand: suspend all workers before processing command."
+      <<endl);
   //suspend all workers//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->suspend();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->waitUntilSuspended();
-  VERBOSEOUT(std::cout << "Workers: receiveCommand: Workers are suspend."
-      <<" process command in requested histogram."<<std::endl);
+  VERBOSEOUT(cout << "Workers: receiveCommand: Workers are suspend."
+      <<" process command in requested histogram."<<endl);
   //process command of one worker//
   //since the workers have only singletons this will make sure//
   //that the parameters are the same for all workers//
   _workers[0]->receiveCommand(key, command);
   //resume the workers tasks//
-  VERBOSEOUT(std::cout << "Workers: receiveCommand: Done. Now resume all workers"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: receiveCommand: Done. Now resume all workers"
+      <<endl);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
-  VERBOSEOUT(std::cout << "Workers: receiveCommand: Workers are resumed"
-      <<std::endl);
+  VERBOSEOUT(cout << "Workers: receiveCommand: Workers are resumed"
+      <<endl);
 }
 
-void cass::Workers::start()
+void Workers::start()
 {
   //start all workers//
   for (size_t i=0;i<_workers.size();++i)
@@ -316,10 +323,10 @@ void cass::Workers::start()
 }
 
 
-void cass::Workers::end()
+void Workers::end()
 {
   QMutexLocker locker(&_mutex);
-  VERBOSEOUT(std::cout << "got signal to close the workers"<<std::endl);
+  VERBOSEOUT(cout << "got signal to close the workers"<<endl);
   //tell all workers that they should quit//
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();

@@ -31,6 +31,7 @@ namespace cass
 {
   //forward declarations
   class Analyzer;
+  class Ratemeter;
 
   /** The worker thread.
    *
@@ -42,18 +43,21 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT Worker : public QThread
+  class Worker : public QThread
   {
     Q_OBJECT;
+
   public:
     /** constructor.
      *
      * @param rb the rinbguffer we get the events from
+     * @param ratemeter the ratemeter object to measure the rate
      * @param outputfilename a name that is passed to special pp. Can be defined
      *                       using -o in the commandline call of cass.
      * @param parent the qt parent of this object
      */
-    Worker(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
+    Worker(RingBuffer<CASSEvent,RingBufferSize>&rb,
+           Ratemeter &ratemeter,
            std::string outputfilename,
            QObject *parent=0);
 
@@ -115,31 +119,34 @@ namespace cass
 
   private:
     /** the ringbuffer */
-    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>  &_ringbuffer;
+    RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
 
     /** pointer to the analyzer */
-    Analyzer      *_analyzer;
+    Analyzer *_analyzer;
 
     /** pointer to the postprocessors */
-    PostProcessors*_postprocessor;
+    PostProcessors *_postprocessor;
 
     /** flag to quit the thread */
-    bool           _quit;
+    bool _quit;
 
     /** mutex for suspending the thread */
-    QMutex         _pauseMutex;
+    QMutex _pauseMutex;
 
     /** condition to suspend the thread */
     QWaitCondition _pauseCondition;
 
     /** flag to suspend the thread */
-    bool           _pause;
+    bool _pause;
 
     /** flag to retrieve the state of the thread */
-    bool           _paused;
+    bool _paused;
 
     /** condition to notice once the thread has been paused */
     QWaitCondition _waitUntilpausedCondition;
+
+    /** the ratemeter to measure the analysis rate */
+    Ratemeter &_ratemeter;
   };
 
 
@@ -152,7 +159,7 @@ namespace cass
    *
    * a class that will handle the requested amount of workers threads.
    * The amount of threads can be set in cass.h via parameters
-   * @see cass::NbrOfWorkers.
+   * @see NbrOfWorkers.
    *
    * @author Lutz Foucar
    */
@@ -165,11 +172,13 @@ namespace cass
      *
      * will create the requested amount of threads.
      * @param rb the rinbguffer we get the events from
+     * @param ratemeter the ratemeter object to measure the rate
      * @param outputfilename a name that is passed to special pp. Can be defined
      *                       using -o in the commandline call of cass.
      * @param parent the qt parent of this object
      */
-    Workers(cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>&rb,
+    Workers(RingBuffer<CASSEvent,RingBufferSize>&rb,
+            Ratemeter &ratemeter,
             std::string outputfilename,
             QObject *parent=0);
 
@@ -190,10 +199,10 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clearHistogram(cass::PostProcessors::key_t);
+    void clearHistogram(PostProcessors::key_t);
 
     /** process command in postprocessor with id */
-    void receiveCommand(cass::PostProcessors::key_t, std::string command);
+    void receiveCommand(PostProcessors::key_t, std::string command);
 
   signals:
     /** this is emmitted once all workers have stoped */
@@ -204,7 +213,7 @@ namespace cass
 
   private:
     /** container of workers */
-    std::vector<cass::Worker*> _workers;
+    std::vector<Worker*> _workers;
 
     /** mutex to make loadSettings reentrant */
     QMutex _mutex;
