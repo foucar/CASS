@@ -207,7 +207,7 @@ void pp2000::process(const cass::CASSEvent &evt)
   /** create directory from eventId and cd into it */
   _rootfile->cd("/");
   string dirname(ROOT::eventIdToDirectoryName(evt.id()));
-  cout <<dirname<<endl;
+//  cout <<dirname<<endl;
   _rootfile->mkdir(dirname.c_str())->cd();
   /** retrieve postprocessor container */
   PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
