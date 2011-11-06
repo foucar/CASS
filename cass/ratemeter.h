@@ -11,8 +11,8 @@
 
 #include <vector>
 
-#include <QtCore/QObject>
 #include <QtCore/QTime>
+#include <QtCore/QMutex>
 
 #include "cass.h"
 
@@ -25,10 +25,8 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT Ratemeter : public QObject
+  class Ratemeter : public QObject
   {
-    Q_OBJECT;
-
   public:
     /** constuctor
      *
@@ -48,15 +46,27 @@ namespace cass
      */
     double calculateRate();
 
-  public slots:
-    /** increase the counts */
+    /** increase the counts
+     *
+     * this function is locked by a mutex to make it reentrant
+     */
     void count();
 
   private:
-    QTime         _time;        //!< the time to stop the timeinterval
-    double        _counts;      //!< a counter that will increase with each call to count
-    double        _rate;        //!< the current rate
-    const double  _averagetime; //!< time constant with which the rate will decrease
+    /** mutex to make function counting reentrant */
+    QMutex _mutex;
+
+    /** the time to stop the timeinterval */
+    QTime _time;
+
+    /** a counter that will increase with each call to count*/
+    double _counts;
+
+    /** the current rate */
+    double _rate;
+
+    /** time constant with which the rate will decrease */
+    const double  _averagetime;
   };
 }
 

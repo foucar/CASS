@@ -11,7 +11,10 @@
 
 #include "ratemeter.h"
 
-cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
+using namespace cass;
+using namespace std;
+
+Ratemeter::Ratemeter(const double averagetime, QObject *parent)
     :QObject(parent),
     _counts(0),
     _rate(0),
@@ -22,14 +25,14 @@ cass::Ratemeter::Ratemeter(const double averagetime, QObject *parent)
 }
 
 
-double cass::Ratemeter::calculateRate()
+double Ratemeter::calculateRate()
 {
   //how long since the last calculation?//
   const double elapsedtime = _time.elapsed();
 
   //calc rate//
-  _rate = ((1 - std::exp(-elapsedtime/_averagetime))*_counts) +
-                std::exp(-elapsedtime/_averagetime)*_rate;
+  _rate = ((1 - exp(-elapsedtime/_averagetime))*_counts) +
+                exp(-elapsedtime/_averagetime)*_rate;
   
   //reset values//
   _counts = 0.;
@@ -38,7 +41,8 @@ double cass::Ratemeter::calculateRate()
   return _rate;
 }
 
-void cass::Ratemeter::count()
+void Ratemeter::count()
 {
+  QMutexLocker lock(&_mutex);
   _counts += 1.;
 }
