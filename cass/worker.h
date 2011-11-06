@@ -14,13 +14,13 @@
 
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
-#include <QtCore/QThread>
-#include <QtCore/QWaitCondition>
 
 #include <map>
 #include <utility>
 #include <string>
+#include <tr1/memory>
 
+#include "pausablethread.h"
 #include "cass.h"
 #include "ringbuffer.h"
 #include "cass_event.h"
@@ -43,11 +43,13 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class Worker : public QThread
+  class Worker : public lmf::PausableThread
   {
-    Q_OBJECT;
-
   public:
+
+    /** a shared pointer of this */
+    typedef std::tr1::shared_ptr<Worker> shared_pointer;
+
     /** constructor.
      *
      * @param rb the rinbguffer we get the events from
@@ -66,41 +68,15 @@ namespace cass
 
     /** start the thread.
      *
-     * this will be called by the start member of the thread
-     * contains a while loop to do the job.
+     * retrieve a cassevent from the ringbuffer, but with a timeout. If we got
+     * a new event from the ringbuffer put it into the pre analyzer chain and
+     * then into the postanalysis chain. Then put it back to the ringbuffer for
+     * new refilling and increase the counter of the ratemeter.
      */
     void run();
 
-    /** suspend thread.
-     *
-     * will suspend the thread when it is done working on the event.
-     * by calling @see waitUntilSuspended() it makes sure only to return when
-     * the thread is really suspended.
-     *
-     * @returns when thread is suspended.
-     */
-    void suspend();
-
-    /** waits until thread is suspended.
-     *
-     * once the pause flag is set, then this function waits
-     * until the thread is really suspended
-     */
-    void waitUntilSuspended();
-
-    /** will continue the thread */
-    void resume();
-
-    /** notice that we are about to quit */
+    /** notice the preanalyzer and the postprocessor that we are about to quit */
     void aboutToQuit();
-
-  signals:
-    /** emit signal when you are done with one event */
-    void processedEvent();
-
-  public slots:
-    /** sets the flag to end this thread and waits until the thread finished */
-    void end();
 
     /** tells the thread to load the settings */
     void loadSettings(size_t what);
@@ -109,10 +85,10 @@ namespace cass
     void saveSettings();
 
     /** clear histogram with id */
-    void clear(PostProcessors::key_t key) { _postprocessor->clear(key); }
+    void clear(const PostProcessors::key_t &key) { _postprocessor->clear(key); }
 
     /** process command in pp with id */
-    void receiveCommand(PostProcessors::key_t key, std::string command)
+    void receiveCommand(const PostProcessors::key_t &key, const std::string &command)
     {
       _postprocessor->receiveCommand(key, command);
     }
@@ -126,24 +102,6 @@ namespace cass
 
     /** pointer to the postprocessors */
     PostProcessors *_postprocessor;
-
-    /** flag to quit the thread */
-    bool _quit;
-
-    /** mutex for suspending the thread */
-    QMutex _pauseMutex;
-
-    /** condition to suspend the thread */
-    QWaitCondition _pauseCondition;
-
-    /** flag to suspend the thread */
-    bool _pause;
-
-    /** flag to retrieve the state of the thread */
-    bool _paused;
-
-    /** condition to notice once the thread has been paused */
-    QWaitCondition _waitUntilpausedCondition;
 
     /** the ratemeter to measure the analysis rate */
     Ratemeter &_ratemeter;
@@ -163,21 +121,23 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class CASSSHARED_EXPORT Workers : public QObject
+  class  Workers : public QObject
   {
     Q_OBJECT;
 
   public:
     /** constructor.
      *
-     * will create the requested amount of threads.
+     * will create the requested amount of threads. and calls the load settings
+     * member of one of them.
+     *
      * @param rb the rinbguffer we get the events from
      * @param ratemeter the ratemeter object to measure the rate
      * @param outputfilename a name that is passed to special pp. Can be defined
      *                       using -o in the commandline call of cass.
      * @param parent the qt parent of this object
      */
-    Workers(RingBuffer<CASSEvent,RingBufferSize>&rb,
+    Workers(RingBuffer<CASSEvent,RingBufferSize> &rb,
             Ratemeter &ratemeter,
             std::string outputfilename,
             QObject *parent=0);
@@ -185,24 +145,61 @@ namespace cass
     /** deletes all workers*/
     ~Workers();
 
-    //! starts the threads
+    /** starts the threads */
     void start();
 
   public slots:
-    /** will set the flags to end the threads */
+    /** will set the flags to end the threads
+     *
+     * this function is locked so that it can be reentrant. Will call the end()
+     * member of all workers. Then resumes all workers in case they are still
+     * running. Then waits until all workers are finished executing then send.
+     * the aboutToQuit to only one worker. Once this is done the finished signal
+     * is emitted.
+     */
     void end();
 
-    /** will cause the loading of the settings from the cass.ini file */
+    /** will cause the loading of the settings from the cass.ini file
+     *
+     * pause all threads, wait until they are paused and then call the load
+     * settings of only one worker. This will work, because the analyser and
+     * the postprocessors are singletons. Then resume all threads.
+     * This function is protected by a mutex to make it reentrant.
+     *
+     * @param what unused parameter
+     */
     void loadSettings(size_t what);
 
-    /** save the settings */
+    /** save the settings
+     *
+     * pause all threads, wait until they are paused and then call the save
+     * settings of only one worker. This will work, because the analyser and
+     * the postprocessors are singletons. Then resume all threads.
+     */
     void saveSettings();
 
-    /** clear histogram with id */
-    void clearHistogram(PostProcessors::key_t);
+    /** clear histogram with id
+     *
+     * pause all threads, wait until they are paused and then call the clear
+     * histogram of postpressor with key of only one worker. This will work,
+     * because the analyser and the postprocessors are singletons. Then resume
+     * all threads.
+     *
+     * @param key the postprocessor whos histograms should be cleared
+     */
+    void clearHistogram(const PostProcessors::key_t & key);
 
-    /** process command in postprocessor with id */
-    void receiveCommand(PostProcessors::key_t, std::string command);
+    /** process command in postprocessor with id
+     *
+     * pause all threads, wait until they are paused and then call the call the
+     * command of postpressor with key of only one worker. This will work,
+     * because the analyser and the postprocessors are singletons. Then resume
+     * all threads.
+     *
+     * @param key the postprocessor who will receive the command
+     * @param comand the command string
+     */
+    void receiveCommand(const PostProcessors::key_t &key, const std::string &command);
 
   signals:
     /** this is emmitted once all workers have stoped */
@@ -213,7 +210,7 @@ namespace cass
 
   private:
     /** container of workers */
-    std::vector<Worker*> _workers;
+    std::vector<Worker::shared_pointer> _workers;
 
     /** mutex to make loadSettings reentrant */
     QMutex _mutex;
