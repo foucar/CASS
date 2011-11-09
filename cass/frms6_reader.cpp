@@ -44,10 +44,10 @@ bool Frms6Reader::operator ()(ifstream &file, CASSEvent& evt)
   if(dev->detectors()->empty())
     dev->detectors()->resize(1);
   PixelDetector& det(dev->detectors()->front());
-  det.columns() = _fileHead.width;
-  det.rows()    = _frameHead.height;
-  det.originalcolumns() = _fileHead.width;
-  det.originalrows()    = _frameHead.height;
+  det.columns() = _fileHead.the_width/2;
+  det.rows()    = _frameHead.the_height*2;
+  det.originalcolumns() = _fileHead.the_width/2;
+  det.originalrows()    = _frameHead.the_height*2;
   det.frame().resize(_hllFrameBuffer.size());
 
   /** @todo: remove code duplication: HLL2CASS */
