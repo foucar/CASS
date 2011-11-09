@@ -36,7 +36,8 @@ void PausableThread::waitUntilPaused()
   QMutex mutex;
   QMutexLocker lock(&mutex);
   if(_status == paused)
-    throw runtime_error("PausableThread::waitUntilPaused(): Thread is already paused");
+    return;  /** @todo check control and throw error or just return */
+    //throw runtime_error("PausableThread::waitUntilPaused(): Thread is already paused");
   _waitUntilPausedCondition.wait(&mutex);
 }
 
