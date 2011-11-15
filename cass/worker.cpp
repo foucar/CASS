@@ -168,8 +168,6 @@ void Workers::end()
   QMutexLocker locker(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
-//  for (size_t i=0;i<_workers.size();++i)
-//    _workers[i]->resume();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
   _workers[0]->aboutToQuit();
