@@ -150,7 +150,7 @@ int main(int argc, char **argv)
   RatePlotter rateplotter(inputrate,workerrate,plotrate,qApp);
 
   //create workers and inputs//
-  Workers *workers(new Workers(ringbuffer, workerrate, outputfilename, qApp));
+  Workers workers(ringbuffer, workerrate, outputfilename, qApp);
 #ifdef OFFLINE
   InputBase::shared_pointer input;
   if (multifile)
@@ -173,14 +173,14 @@ int main(int argc, char **argv)
 
   //create deamon to capture UNIX signals and connect the quit signal//
   setup_unix_signal_handlers();
-  UnixSignalDaemon *signaldaemon(new UnixSignalDaemon(qApp));
-  QObject::connect(signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
-  QObject::connect(signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
+  UnixSignalDaemon signaldaemon(qApp);
+  QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
+  QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
 
   //when the thread has finished, we want to close this application
-  QObject::connect(input.get(), SIGNAL(finished()), workers, SLOT(end()));
-  QObject::connect(input.get(), SIGNAL(terminated()), workers, SLOT(end()));
-  QObject::connect(workers, SIGNAL(finished()), qApp, SLOT(quit()));
+  QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
+  QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
+  QObject::connect(&workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
 
   // TCP/SOAP server
@@ -190,10 +190,10 @@ int main(int argc, char **argv)
   SoapServer *server(SoapServer::instance(get_event, get_histogram, soap_port));
   QObject::connect(server, SIGNAL(quit()), input.get(), SLOT(end()));
   QObject::connect(server, SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
-  QObject::connect(server, SIGNAL(readini(size_t)), workers, SLOT(loadSettings(size_t)));
-  QObject::connect(server, SIGNAL(writeini(size_t)), workers, SLOT(saveSettings()));
-  QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
-  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
+  QObject::connect(server, SIGNAL(readini(size_t)), &workers, SLOT(loadSettings(size_t)));
+  QObject::connect(server, SIGNAL(writeini(size_t)), &workers, SLOT(saveSettings()));
+  QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), &workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
+  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), &workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 #endif
 
 #ifdef HTTPSERVER
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
   try
   {
     //start input and worker threads
-    workers->start();
+    workers.start();
     input->start();
 #ifdef SOAPSERVER
     server->start();
@@ -224,8 +224,6 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.stop();
 #endif
-    delete workers;
-    delete signaldaemon;
 
     // one last sync of settings file
     settings.sync();
@@ -249,7 +247,7 @@ int main(int argc, char **argv)
     //stop threads//
     input->end();
     input->wait();
-    workers->end();
+    workers.end();
 
     //clean up
 #ifdef SOAPSERVER
@@ -258,8 +256,6 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.stop();
 #endif
-    delete workers;
-    delete signaldaemon;
   }
   return retval;
 }
