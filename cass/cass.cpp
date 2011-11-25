@@ -130,7 +130,7 @@ int main(int argc, char **argv)
       outputfilename = optarg;
       break;
     default:
-      throw invalid_argument("CASS: Parameter '" + QString::number(c).toStdString() +
+      throw invalid_argument("CASS: Parameter '" + string(1,c) +
                              "' with argument '" + optarg +
                              "' does not exist in current CASS configuration.");
       break;
