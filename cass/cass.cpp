@@ -78,7 +78,7 @@ int main(int argc, char **argv)
   bool quitwhendone(false);
 #else
   //create a container for the partition tag
-  string partitionTag;
+  string partitionTag("0_1_cass_AMO");
   //the sharememory client index
   int index(0);
 #endif
@@ -130,13 +130,9 @@ int main(int argc, char **argv)
       outputfilename = optarg;
       break;
     default:
-#ifdef OFFLINE
-      cout << "please give me at least an filename that contains the"
-           <<" xtcfilenames you want to process"<<endl;
-#else
-      cout << "please give me at least a partition tag" <<endl;
-#endif
-      return 2;
+      throw invalid_argument("CASS: Parameter '" + QString::number(c).toStdString() +
+                             "' with argument '" + optarg +
+                             "' does not exist in current CASS configuration.");
       break;
     }
   }
