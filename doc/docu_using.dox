@@ -161,8 +161,9 @@ LD_LIBRARY_PATH variable. i. e.
 export LD_LIBRARY_PATH=/reg/g/cass/lib
 ./jocassview
 @endverbatim
-One can also use the convenience startup script that will set the commands above
-automaticaly. It is located in the cass directory. Here is how to start it:
+At LCLS, one can also use the convenience startup script that will set the
+commands above automaticaly. It is located in the cass directory. Here is how
+to start it:
 @verbatim
 /reg/g/cass/bin/startJocassview.sh
 @endverbatim
@@ -180,7 +181,7 @@ export PATH=$ROOTSYS/bin:$PATH
 export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
 ./lucassview
 @endverbatim
-There is also a convenience script available that will set
+At LCLS, there is also a convenience script available that will set
 the environmental variables and start the lucassviewer
 @verbatim
 /reg/g/cass/bin/startLucassview.sh
