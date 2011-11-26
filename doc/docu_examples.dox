@@ -4,6 +4,7 @@
 @example photodiode-photonhits.ini
 @example singleParticleDetection.ini
 @example threshold-average.ini
+@example tof.ini
 @example hexanode.ini
 @example quadanode.ini
 @example pnCCDSpectrum.ini
