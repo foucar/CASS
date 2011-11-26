@@ -23,7 +23,6 @@ public key.
 
 The recent working version is contained in the 'master' branch.
 
-
 @section compiling Compiling CASS
 See the @ref cassinstall file for the prerequeries. Once you cloned / downloaded
 the version you want to compile you need to do the following steps:
