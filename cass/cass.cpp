@@ -8,6 +8,7 @@
  */
 
 #include <iostream>
+
 #include <QtCore/QStringList>
 #include <QtGui/QApplication>
 
@@ -32,6 +33,103 @@
 
 using namespace std;
 using namespace cass;
+
+namespace cass
+{
+/** command line argument parser
+ *
+ * object that will parse the command line parameters and set the switches and
+ * retrieve the arguments
+ *
+ * @author Lutz Foucar
+ */
+class CliParser
+{
+  /** a container type for switches */
+  typedef map<string,bool*>  switches_t;
+
+  /** a container type for switches */
+  typedef map<string,int*>  intarguments_t;
+
+  /** a container type for switches */
+  typedef map<string,string*>  stringarguments_t;
+
+  /** operator to parse the argumetns
+   *
+   * the arguments are retrieved as a QStringList from Qt. Go through the list
+   * and try to find the parameter in the containers. If it is the switches
+   * container simply set the switch to true. Otherwise take the next parameter
+   * that should be the argumetn of the preceding parameter.
+   *
+   * @param list the list of arguments
+   */
+  void operator()(const QStringList& list)
+  {
+    QStringList::const_iterator constIterator;
+    for (constIterator = list.constBegin(); constIterator != list.constEnd(); ++constIterator)
+    {
+      bool foundParam(false);
+      switches_t::iterator swIt(_switches.find((*constIterator).toStdString()));
+      if (swIt != _switches.end())
+      {
+        *(swIt->second) = true;
+        foundParam = true;
+      }
+      if (!foundParam)
+      {
+        intarguments_t::iterator iaIt(_intargs.find((*constIterator).toStdString()));
+        if (iaIt != _intargs.end())
+        {
+          ++constIterator;
+          *(iaIt->second) = (*constIterator).toInt();
+          foundParam = true;
+        }
+      }
+      if (!foundParam)
+      {
+        stringarguments_t::iterator saIt(_stringargs.find((*constIterator).toStdString()));
+        if (saIt != _stringargs.end())
+        {
+          ++constIterator;
+          *(saIt->second) = (*constIterator).toStdString();
+          foundParam = true;
+        }
+      }
+    }
+  }
+
+  /** add a switch to the switches container
+   *
+   * @param sw the name of the parameter to look for
+   * @param val a reference to the value that should be changed.
+   */
+  void add(const string &sw, bool &val ) {_switches[sw] = &val;}
+
+  /** add a switch to the string container
+   *
+   * @param sw the name of the parameter to look for
+   * @param val a reference to the value that should be changed.
+   */
+  void add(const string &sw, string &val ) {_stringargs[sw] = &val;}
+
+  /** add a switch to the int container
+   *
+   * @param sw the name of the parameter to look for
+   * @param val a reference to the value that should be changed.
+   */
+  void add(const string &sw, int &val ) {_intargs[sw] = &val;}
+
+private:
+  /** container for the switches */
+  switches_t _switches;
+
+  /** container for the string arguments */
+  stringarguments_t _stringargs;
+
+  /** container for the int arguments */
+  intarguments_t _intargs;
+};
+}
 
 /** The main program.
  *
