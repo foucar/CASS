@@ -61,39 +61,32 @@ class CliParser
    * container simply set the switch to true. Otherwise take the next parameter
    * that should be the argumetn of the preceding parameter.
    *
-   * @param list the list of arguments
+   * @param argumentList the list of arguments
    */
-  void operator()(const QStringList& list)
+  void operator()(const QStringList& argumentList)
   {
-    QStringList::const_iterator constIterator;
-    for (constIterator = list.constBegin(); constIterator != list.constEnd(); ++constIterator)
+    QStringList::const_iterator argument(argumentList.constBegin());
+    for (; argument != argumentList.constEnd(); ++argument)
     {
-      bool foundParam(false);
-      switches_t::iterator swIt(_switches.find((*constIterator).toStdString()));
-      if (swIt != _switches.end())
+      switches_t::iterator boolarg(_switches.find(argument->toStdString()));
+      if (boolarg != _switches.end())
       {
-        *(swIt->second) = true;
-        foundParam = true;
+        *(boolarg->second) = true;
+        continue;
       }
-      if (!foundParam)
+      intarguments_t::iterator intarg(_intargs.find(argument->toStdString()));
+      if (intarg != _intargs.end())
       {
-        intarguments_t::iterator iaIt(_intargs.find((*constIterator).toStdString()));
-        if (iaIt != _intargs.end())
-        {
-          ++constIterator;
-          *(iaIt->second) = (*constIterator).toInt();
-          foundParam = true;
-        }
+        ++argument;
+        *(intarg->second) = argument->toInt();
+        continue;
       }
-      if (!foundParam)
+      stringarguments_t::iterator stringarg(_stringargs.find(argument->toStdString()));
+      if (stringarg != _stringargs.end())
       {
-        stringarguments_t::iterator saIt(_stringargs.find((*constIterator).toStdString()));
-        if (saIt != _stringargs.end())
-        {
-          ++constIterator;
-          *(saIt->second) = (*constIterator).toStdString();
-          foundParam = true;
-        }
+        ++argument;
+        *(stringarg->second) = argument->toStdString();
+        continue;
       }
     }
   }
