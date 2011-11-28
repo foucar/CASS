@@ -204,31 +204,31 @@ int main(int argc, char **argv)
   QSettings::setDefaultFormat(QSettings::IniFormat);
   QSettings settings;
   settings.sync();
-  // setup cass settings. when one wants a user settable cass.ini, just use
-  // CASSSettings instead of QSettings
-  CASSSettings::setFilename(settings.fileName().toStdString());
 
+  CommandlineArgumentParser parser;
 #ifdef OFFLINE
-  // filename containing XTC filenames
   string filelistname("filesToProcess.txt");
-  // the flag whether to use multifile input default is false
+  parser.add("-i","filename of file containing filesnames of files to process",filelistname);
   bool multifile(false);
-  //flag to tell to quit when program has finished executing all files
+  parser.add("-m","enable the multifile input",multifile);
   bool quitwhendone(false);
+  parser.add("-q","quit after finished with all files",quitwhendone);
 #else
-  //create a container for the partition tag
   string partitionTag("0_1_cass_AMO");
-  //the sharememory client index
+  parser.add("-p","partition tag for accessing the shared memory",partitionTag);
   int index(0);
+  parser.add("-c","client id for shared memory access",index);
 #endif
 #ifdef SOAPSERVER
-  // SOAP server port (default: 12321)
   size_t soap_port(12321);
+  parser.add("-s","TCP port of the soap server ",soap_port);
 #endif
-  //flag to tell whether the rate should be plotted
-  bool plotrate(true);
-  // filename of the output filename
+  bool suppressrate(false);
+  parser.add("-r","suppress the rate output",suppressrate);
   string outputfilename("output.ext");
+  parser.add("-o","output filename passed to the postprocessor",outputfilename);
+  string settingsfilename(settings.fileName().toStdString());
+  parser.add("-f","complete path to the cass.ini to use",settingsfilename);
 
   //parse command line options
   int c;
@@ -260,10 +260,10 @@ int main(int argc, char **argv)
       break;
 #endif
     case 'r':
-      plotrate = false;
+      suppressrate = true;
       break;
     case 'f':
-      CASSSettings::setFilename(optarg);
+      settingsfilename = optarg;
       break;
     case 'o':
       outputfilename = optarg;
@@ -276,13 +276,16 @@ int main(int argc, char **argv)
     }
   }
 
+  // set the .ini file to use
+  CASSSettings::setFilename(settingsfilename);
+
   //a ringbuffer for the cassevents//
   RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
 
   //create a ratemeters objects and the plotter for them//
   Ratemeter inputrate(1,qApp);
   Ratemeter workerrate(1,qApp);
-  RatePlotter rateplotter(inputrate,workerrate,plotrate,qApp);
+  RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
 
   //create workers and inputs//
   Workers workers(ringbuffer, workerrate, outputfilename, qApp);
