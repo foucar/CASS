@@ -36,6 +36,8 @@ using namespace cass;
 
 namespace cass
 {
+class CommandlineArgumentParser;
+
 /** command line argument parser
  *
  * object that will parse the command line parameters and set the switches and
@@ -43,16 +45,29 @@ namespace cass
  *
  * @author Lutz Foucar
  */
-class CliParser
+class CommandlineArgumentParser
 {
+public:
   /** a container type for switches */
-  typedef map<string,bool*>  switches_t;
+  typedef map<string,pair<bool*,string> >  switches_t;
 
   /** a container type for switches */
-  typedef map<string,int*>  intarguments_t;
+  typedef map<string,pair<int*,string> >  intarguments_t;
 
   /** a container type for switches */
-  typedef map<string,string*>  stringarguments_t;
+  typedef map<string,pair<string*,string> >  stringarguments_t;
+
+  /** output which commandline parameters are available */
+  void usage()
+  {
+    switches_t::iterator boolarg(_switches.begin());
+    switches_t::iterator boolargEnd(_switches.end());
+    for (;boolarg !=boolargEnd; ++boolarg);
+    {
+      cout << boolarg->first <<":"<<boolarg->second.second
+           <<" Default value is '"<<*(boolarg->second.first)<<"'"<<endl;
+    }
+  }
 
   /** operator to parse the argumetns
    *
@@ -71,46 +86,64 @@ class CliParser
       switches_t::iterator boolarg(_switches.find(argument->toStdString()));
       if (boolarg != _switches.end())
       {
-        *(boolarg->second) = true;
+        *(boolarg->second.first) = true;
         continue;
       }
       intarguments_t::iterator intarg(_intargs.find(argument->toStdString()));
       if (intarg != _intargs.end())
       {
         ++argument;
-        *(intarg->second) = argument->toInt();
+        *(intarg->second.first) = argument->toInt();
         continue;
       }
       stringarguments_t::iterator stringarg(_stringargs.find(argument->toStdString()));
       if (stringarg != _stringargs.end())
       {
         ++argument;
-        *(stringarg->second) = argument->toStdString();
+        *(stringarg->second.first) = argument->toStdString();
         continue;
       }
+
+      cout << "CommandlineArgumentParser(): parameter '" << argument->toStdString()
+           << "' is unknown. Possible values for this version of CASS are: "
+           << endl;
+
+      usage();
     }
   }
 
   /** add a switch to the switches container
    *
    * @param sw the name of the parameter to look for
+   * @param desc the description of the parameter
    * @param val a reference to the value that should be changed.
    */
-  void add(const string &sw, bool &val ) {_switches[sw] = &val;}
+  void add(const string &sw, const string& desc, bool &val)
+  {
+    _switches[sw] = make_pair(&val,desc);
+  }
 
   /** add a switch to the string container
    *
    * @param sw the name of the parameter to look for
+   * @param desc the description of the parameter
    * @param val a reference to the value that should be changed.
    */
-  void add(const string &sw, string &val ) {_stringargs[sw] = &val;}
+  void add(const string &sw, const string& desc, string &val)
+  {
+    _stringargs[sw] = make_pair(&val,desc);
+  }
 
   /** add a switch to the int container
    *
    * @param sw the name of the parameter to look for
+   * @param desc the description of the parameter
    * @param val a reference to the value that should be changed.
    */
-  void add(const string &sw, int &val ) {_intargs[sw] = &val;}
+  void add(const string &sw, const string& desc, int &val)
+  {
+    _intargs[sw] = make_pair(&val, desc);
+  }
 
 private:
   /** container for the switches */
