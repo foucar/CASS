@@ -62,10 +62,25 @@ public:
   {
     switches_t::iterator boolarg(_switches.begin());
     switches_t::iterator boolargEnd(_switches.end());
-    for (;boolarg !=boolargEnd; ++boolarg);
+    for (;boolarg != boolargEnd; ++boolarg);
     {
-      cout << boolarg->first <<":"<<boolarg->second.second
-           <<" Default value is '"<<*(boolarg->second.first)<<"'"<<endl;
+      cout << boolarg->first <<":"<<boolarg->second.second<<endl;
+    }
+
+    intarguments_t::iterator intarg(_intargs.begin());
+    intarguments_t::iterator intargEnd(_intargs.end());
+    for (;intarg != intargEnd; ++intarg);
+    {
+      cout << intarg->first <<":"<<intarg->second.second
+           <<" Default value is '"<<*(intarg->second.first)<<"'"<<endl;
+    }
+
+    stringarguments_t::iterator strarg(_stringargs.begin());
+    stringarguments_t::iterator strargEnd(_stringargs.end());
+    for (;strarg != strargEnd; ++strarg);
+    {
+      cout << strarg->first <<":"<<strarg->second.second
+           <<" Default value is '"<<*(strarg->second.first)<<"'"<<endl;
     }
   }
 
