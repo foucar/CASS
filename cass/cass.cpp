@@ -237,51 +237,62 @@ int main(int argc, char **argv)
   parser.add("-o","output filename passed to the postprocessor",outputfilename);
   string settingsfilename(settings.fileName().toStdString());
   parser.add("-f","complete path to the cass.ini to use",settingsfilename);
+  bool showUsage(false);
+  parser.add("-h","show this help",showUsage);
 
-  //parse command line options
-  int c;
-  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
+  parser(QCoreApplication::arguments());
+
+//  //parse command line options
+//  int c;
+//  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
+//  {
+//    switch (c)
+//    {
+//#ifdef OFFLINE
+//    case 'q':
+//      quitwhendone = true;
+//      break;
+//    case 'i':
+//      filelistname = optarg;
+//      break;
+//    case 'm':
+//      multifile = true;
+//      break;
+//#else
+//    case 'p':
+//      partitionTag = optarg;
+//      break;
+//    case 'c':
+//      index = strtol(optarg, 0, 0);
+//      break;
+//#endif
+//#ifdef SOAPSERVER
+//    case 's':
+//      soap_port = strtol(optarg, 0, 0);
+//      break;
+//#endif
+//    case 'r':
+//      suppressrate = true;
+//      break;
+//    case 'f':
+//      settingsfilename = optarg;
+//      break;
+//    case 'o':
+//      outputfilename = optarg;
+//      break;
+//    default:
+//      throw invalid_argument("CASS: Parameter '" + string(1,c) +
+//                             "' with argument '" + optarg +
+//                             "' does not exist in current CASS configuration.");
+//      break;
+//    }
+//  }
+
+  /** show help and exit if requested */
+  if (showUsage)
   {
-    switch (c)
-    {
-#ifdef OFFLINE
-    case 'q':
-      quitwhendone = true;
-      break;
-    case 'i':
-      filelistname = optarg;
-      break;
-    case 'm':
-      multifile = true;
-      break;
-#else
-    case 'p':
-      partitionTag = optarg;
-      break;
-    case 'c':
-      index = strtol(optarg, 0, 0);
-      break;
-#endif
-#ifdef SOAPSERVER
-    case 's':
-      soap_port = strtol(optarg, 0, 0);
-      break;
-#endif
-    case 'r':
-      suppressrate = true;
-      break;
-    case 'f':
-      settingsfilename = optarg;
-      break;
-    case 'o':
-      outputfilename = optarg;
-      break;
-    default:
-      throw invalid_argument("CASS: Parameter '" + string(1,c) +
-                             "' with argument '" + optarg +
-                             "' does not exist in current CASS configuration.");
-      break;
-    }
+    parser.usage();
+    exit(0);
   }
 
   /** set the user requested .ini file name */
