@@ -185,26 +185,34 @@ private:
  * - r suppress the rate output
  * - m enable multifile input
  *
- * @todo make the workers a shared pointer, to make the whole main program within
- *       a try - catch environment
  * @author Lutz Foucar
  */
 int main(int argc, char **argv)
 {
-  // construct Qt application object
+  /** construct Qt application object to hold the run loop */
   QApplication app(argc, argv,false);
-  // register used types as Qt meta type
+
+  /** register used types as Qt meta type */
   qRegisterMetaType< std::string >("std::string");
   qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
   qRegisterMetaType<size_t>("size_t");
-  // set up details for QSettings and Co.
+
+  /** set up details for QSettings and Co.*/
   QCoreApplication::setOrganizationName("CFEL-ASG");
   QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
   QCoreApplication::setApplicationName("CASS");
   QSettings::setDefaultFormat(QSettings::IniFormat);
+
+  /** create a qsettings object from which one can retrieve the default cass.ini.
+   *  After parsing one can then set the CASSSettings default object to the user
+   *  requested .ini file or the keep the default .ini file to use
+   */
   QSettings settings;
   settings.sync();
 
+  /** set up parameters to be retrieved from the command line and parse them
+   *  with the help of the command line parser object
+   */
   CommandlineArgumentParser parser;
 #ifdef OFFLINE
   string filelistname("filesToProcess.txt");
@@ -276,18 +284,22 @@ int main(int argc, char **argv)
     }
   }
 
-  // set the .ini file to use
+  /** set the user requested .ini file name */
   CASSSettings::setFilename(settingsfilename);
 
-  //a ringbuffer for the cassevents//
-  RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
-
-  //create a ratemeters objects and the plotter for them//
+  /** create a ratemeter objects for input and worker and the plotter to plot
+   *  the rqtes that are calculated.
+   */
   Ratemeter inputrate(1,qApp);
   Ratemeter workerrate(1,qApp);
   RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
 
-  //create workers and inputs//
+  /** create workers and requested inputs which need a ringbuffer for passing the
+   *  the events from one to the other. Once created connect their terminated
+   *  and finished signals such that they notify each other about that they are
+   *  done processing the events.
+   */
+  RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
   Workers workers(ringbuffer, workerrate, outputfilename, qApp);
 #ifdef OFFLINE
   InputBase::shared_pointer input;
@@ -302,26 +314,29 @@ int main(int argc, char **argv)
                                                     inputrate,
                                                     quitwhendone));
 #else
-  // create shared memory input object //
   InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
                                                         index,
                                                         ringbuffer,
                                                         inputrate));
 #endif
-
-  //create deamon to capture UNIX signals and connect the quit signal//
-  setup_unix_signal_handlers();
-  UnixSignalDaemon signaldaemon(qApp);
-  QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
-  QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
-
-  //when the thread has finished, we want to close this application
   QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
   QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
   QObject::connect(&workers, SIGNAL(finished()), qApp, SLOT(quit()));
 
 
-  // TCP/SOAP server
+  /** create a deamon to capture UNIX signals and use it to let the user quit
+   *  the program via cli by connecting the quit and term signal to notify the
+   *  input to quit
+   */
+  setup_unix_signal_handlers();
+  UnixSignalDaemon signaldaemon(qApp);
+  QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
+  QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
+
+
+  /** set up the TCP/SOAP server and connect its provided signals to the
+   *  appropriate slots fo the input and the workers
+   */
 #ifdef SOAPSERVER
   EventGetter get_event(ringbuffer);
   HistogramGetter get_histogram;
@@ -334,15 +349,15 @@ int main(int argc, char **argv)
   QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), &workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 #endif
 
+  /** set up the optional http server */
 #ifdef HTTPSERVER
-  // http server
   httpServer http_server(get_histogram);
 #endif
 
   int retval(0);
   try
   {
-    //start input and worker threads
+    /** start worker, input and server threads and then start the qt event loop */
     workers.start();
     input->start();
 #ifdef SOAPSERVER
@@ -352,7 +367,6 @@ int main(int argc, char **argv)
     http_server.start();
 #endif
 
-    //start Qt event loop
     retval = app.exec();
 
     //clean up
