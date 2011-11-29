@@ -122,8 +122,8 @@ public:
       cout << "CommandlineArgumentParser(): parameter '" << argument->toStdString()
            << "' is unknown. Possible values for this version of CASS are: "
            << endl;
-
       usage();
+      exit(2);
     }
   }
 
