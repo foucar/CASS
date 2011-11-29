@@ -22,7 +22,7 @@ namespace cass
 {
 
 
-SoapServer *SoapServer::_instance(0);
+SoapServer::shared_pointer SoapServer::_instance;
 QMutex SoapServer::_mutex;
 const size_t SoapServer::_backlog(100);
 
@@ -36,11 +36,11 @@ void SoapHandler::run()
 
 
 
-SoapServer *SoapServer::instance(const EventGetter& event, const HistogramGetter& hist, size_t port)
+SoapServer::shared_pointer SoapServer::instance(const EventGetter& event, const HistogramGetter& hist, size_t port)
 {
     QMutexLocker locker(&_mutex);
-    if(0 == _instance)
-        _instance = new SoapServer(event, hist, port);
+    if(!_instance)
+        _instance = shared_pointer(new SoapServer(event, hist, port));
     return _instance;
 }
 
@@ -51,8 +51,7 @@ void SoapServer::destroy()
     QMutexLocker locker(&_mutex);
     _instance->terminate();
     _instance->wait();
-    delete _instance;
-    _instance = 0;
+    _instance.reset();
 }
 
 
@@ -177,7 +176,7 @@ int CASSsoapService::getHistogram(cass::PostProcessors::key_t type, ULONG64 /*ev
     static QQueue<std::pair<size_t, std::string> *> queue;
     try {
         // get data
-        cass::SoapServer *server(cass::SoapServer::instance());
+        cass::SoapServer::shared_pointer server(cass::SoapServer::instance());
         std::pair<size_t, std::string> *data(
             new std::pair<size_t, std::string>(server->get_histogram(cass::HistogramParameter(type))));
         // MIME type

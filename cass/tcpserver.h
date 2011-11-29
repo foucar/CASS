@@ -6,6 +6,8 @@
 #define CASS_TCPSERVER_H
 
 #include <stdexcept>
+#include <tr1/memory>
+
 #include <QtCore/QThread>
 #include <QtCore/QThread>
 #include <QRunnable>
@@ -15,6 +17,8 @@
 #include "histogram_getter.h"
 #include "soapCASSsoapService.h"
 
+
+using std::tr1::shared_ptr;
 
 namespace cass
 {
@@ -65,9 +69,11 @@ class SoapServer : public QThread
 
 
 public:
+    /** a shared pointer of this class */
+    typedef shared_ptr<SoapServer> shared_pointer;
 
     /** create the instance if not it does not exist already */
-    static SoapServer *instance(const EventGetter& event, const HistogramGetter& hist, size_t port=12321);
+    static shared_pointer instance(const EventGetter& event, const HistogramGetter& hist, size_t port=12321);
 
     /** destroy the instance */
     static void destroy();
@@ -92,9 +98,9 @@ protected:
     virtual void run();
 
     /** return existing instance for our friends -- if it doesn't exist, throw exception */
-    static SoapServer *instance() {
+    static shared_pointer instance() {
         QMutexLocker locker(&_mutex);
-        if(0 == _instance)
+        if(!_instance)
             throw std::runtime_error("SoapServer does not exist");
         return _instance;
     };
@@ -150,14 +156,16 @@ private:
     /** Disabled assignment */
     SoapServer& operator=(const SoapServer&);
 
+public:
     /** Destructor
 
     clean up SOAP
     */
     ~SoapServer() { _soap->destroy(); delete _soap; };
 
+private:
     /** pointer to the singleton instance */
-    static SoapServer *_instance;
+    static shared_pointer _instance;
 
     /** Singleton operation locker */
     static QMutex _mutex;
