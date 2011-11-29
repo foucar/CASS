@@ -189,185 +189,184 @@ private:
  */
 int main(int argc, char **argv)
 {
-  /** construct Qt application object to hold the run loop */
-  QApplication app(argc, argv,false);
-
-  /** register used types as Qt meta type */
-  qRegisterMetaType< std::string >("std::string");
-  qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
-  qRegisterMetaType<size_t>("size_t");
-
-  /** set up details for QSettings and Co.*/
-  QCoreApplication::setOrganizationName("CFEL-ASG");
-  QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
-  QCoreApplication::setApplicationName("CASS");
-  QSettings::setDefaultFormat(QSettings::IniFormat);
-
-  /** create a qsettings object from which one can retrieve the default cass.ini.
-   *  After parsing one can then set the CASSSettings default object to the user
-   *  requested .ini file or the keep the default .ini file to use
-   */
-  QSettings settings;
-  settings.sync();
-
-  /** set up parameters to be retrieved from the command line and parse them
-   *  with the help of the command line parser object
-   */
-  CommandlineArgumentParser parser;
-#ifdef OFFLINE
-  string filelistname("filesToProcess.txt");
-  parser.add("-i","filename of file containing filesnames of files to process",filelistname);
-  bool multifile(false);
-  parser.add("-m","enable the multifile input",multifile);
-  bool quitwhendone(false);
-  parser.add("-q","quit after finished with all files",quitwhendone);
-#else
-  string partitionTag("0_1_cass_AMO");
-  parser.add("-p","partition tag for accessing the shared memory",partitionTag);
-  int index(0);
-  parser.add("-c","client id for shared memory access",index);
-#endif
-#ifdef SOAPSERVER
-  size_t soap_port(12321);
-  parser.add("-s","TCP port of the soap server ",soap_port);
-#endif
-  bool suppressrate(false);
-  parser.add("-r","suppress the rate output",suppressrate);
-  string outputfilename("output.ext");
-  parser.add("-o","output filename passed to the postprocessor",outputfilename);
-  string settingsfilename(settings.fileName().toStdString());
-  parser.add("-f","complete path to the cass.ini to use",settingsfilename);
-  bool showUsage(false);
-  parser.add("-h","show this help",showUsage);
-
-  parser(QCoreApplication::arguments());
-
-//  //parse command line options
-//  int c;
-//  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
-//  {
-//    switch (c)
-//    {
-//#ifdef OFFLINE
-//    case 'q':
-//      quitwhendone = true;
-//      break;
-//    case 'i':
-//      filelistname = optarg;
-//      break;
-//    case 'm':
-//      multifile = true;
-//      break;
-//#else
-//    case 'p':
-//      partitionTag = optarg;
-//      break;
-//    case 'c':
-//      index = strtol(optarg, 0, 0);
-//      break;
-//#endif
-//#ifdef SOAPSERVER
-//    case 's':
-//      soap_port = strtol(optarg, 0, 0);
-//      break;
-//#endif
-//    case 'r':
-//      suppressrate = true;
-//      break;
-//    case 'f':
-//      settingsfilename = optarg;
-//      break;
-//    case 'o':
-//      outputfilename = optarg;
-//      break;
-//    default:
-//      throw invalid_argument("CASS: Parameter '" + string(1,c) +
-//                             "' with argument '" + optarg +
-//                             "' does not exist in current CASS configuration.");
-//      break;
-//    }
-//  }
-
-  /** show help and exit if requested */
-  if (showUsage)
-  {
-    parser.usage();
-    exit(0);
-  }
-
-  /** set the user requested .ini file name */
-  CASSSettings::setFilename(settingsfilename);
-
-  /** create a ratemeter objects for input and worker and the plotter to plot
-   *  the rqtes that are calculated.
-   */
-  Ratemeter inputrate(1,qApp);
-  Ratemeter workerrate(1,qApp);
-  RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
-
-  /** create workers and requested inputs which need a ringbuffer for passing the
-   *  the events from one to the other. Once created connect their terminated
-   *  and finished signals such that they notify each other about that they are
-   *  done processing the events.
-   */
-  RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
-  Workers workers(ringbuffer, workerrate, outputfilename, qApp);
-#ifdef OFFLINE
-  InputBase::shared_pointer input;
-  if (multifile)
-    input = InputBase::shared_pointer(new MultiFileInput(filelistname,
-                                                         ringbuffer,
-                                                         inputrate,
-                                                         quitwhendone));
-  else
-    input = InputBase::shared_pointer(new FileInput(filelistname,
-                                                    ringbuffer,
-                                                    inputrate,
-                                                    quitwhendone));
-#else
-  InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
-                                                        index,
-                                                        ringbuffer,
-                                                        inputrate));
-#endif
-  QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
-  QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
-  QObject::connect(&workers, SIGNAL(finished()), qApp, SLOT(quit()));
-
-
-  /** create a deamon to capture UNIX signals and use it to let the user quit
-   *  the program via cli by connecting the quit and term signal to notify the
-   *  input to quit
-   */
-  setup_unix_signal_handlers();
-  UnixSignalDaemon signaldaemon(qApp);
-  QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
-  QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
-
-
-  /** set up the TCP/SOAP server and connect its provided signals to the
-   *  appropriate slots fo the input and the workers
-   */
-#ifdef SOAPSERVER
-  EventGetter get_event(ringbuffer);
-  HistogramGetter get_histogram;
-  SoapServer *server(SoapServer::instance(get_event, get_histogram, soap_port));
-  QObject::connect(server, SIGNAL(quit()), input.get(), SLOT(end()));
-  QObject::connect(server, SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
-  QObject::connect(server, SIGNAL(readini(size_t)), &workers, SLOT(loadSettings(size_t)));
-  QObject::connect(server, SIGNAL(writeini(size_t)), &workers, SLOT(saveSettings()));
-  QObject::connect(server, SIGNAL(clearHistogram(cass::PostProcessors::key_t)), &workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
-  QObject::connect(server, SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), &workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
-#endif
-
-  /** set up the optional http server */
-#ifdef HTTPSERVER
-  httpServer http_server(get_histogram);
-#endif
-
-  int retval(0);
   try
   {
+    /** construct Qt application object to hold the run loop */
+    QApplication app(argc, argv,false);
+
+    /** register used types as Qt meta type */
+    qRegisterMetaType< std::string >("std::string");
+    qRegisterMetaType<cass::PostProcessors::key_t>("cass::PostProcessors::key_t");
+    qRegisterMetaType<size_t>("size_t");
+
+    /** set up details for QSettings and Co.*/
+    QCoreApplication::setOrganizationName("CFEL-ASG");
+    QCoreApplication::setOrganizationDomain("endstation.asg.cfel.de");
+    QCoreApplication::setApplicationName("CASS");
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+
+    /** create a qsettings object from which one can retrieve the default cass.ini.
+     *  After parsing one can then set the CASSSettings default object to the user
+     *  requested .ini file or the keep the default .ini file to use
+     */
+    QSettings settings;
+    settings.sync();
+
+    /** set up parameters to be retrieved from the command line and parse them
+     *  with the help of the command line parser object
+     */
+    CommandlineArgumentParser parser;
+#ifdef OFFLINE
+    string filelistname("filesToProcess.txt");
+    parser.add("-i","filename of file containing filesnames of files to process",filelistname);
+    bool multifile(false);
+    parser.add("-m","enable the multifile input",multifile);
+    bool quitwhendone(false);
+    parser.add("-q","quit after finished with all files",quitwhendone);
+#else
+    string partitionTag("0_1_cass_AMO");
+    parser.add("-p","partition tag for accessing the shared memory",partitionTag);
+    int index(0);
+    parser.add("-c","client id for shared memory access",index);
+#endif
+#ifdef SOAPSERVER
+    int soap_port(12321);
+    parser.add("-s","TCP port of the soap server ",soap_port);
+#endif
+    bool suppressrate(false);
+    parser.add("-r","suppress the rate output",suppressrate);
+    string outputfilename("output.ext");
+    parser.add("-o","output filename passed to the postprocessor",outputfilename);
+    string settingsfilename(settings.fileName().toStdString());
+    parser.add("-f","complete path to the cass.ini to use",settingsfilename);
+    bool showUsage(false);
+    parser.add("-h","show this help",showUsage);
+
+    parser(QCoreApplication::arguments());
+
+    //  //parse command line options
+    //  int c;
+    //  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
+    //  {
+    //    switch (c)
+    //    {
+    //#ifdef OFFLINE
+    //    case 'q':
+    //      quitwhendone = true;
+    //      break;
+    //    case 'i':
+    //      filelistname = optarg;
+    //      break;
+    //    case 'm':
+    //      multifile = true;
+    //      break;
+    //#else
+    //    case 'p':
+    //      partitionTag = optarg;
+    //      break;
+    //    case 'c':
+    //      index = strtol(optarg, 0, 0);
+    //      break;
+    //#endif
+    //#ifdef SOAPSERVER
+    //    case 's':
+    //      soap_port = strtol(optarg, 0, 0);
+    //      break;
+    //#endif
+    //    case 'r':
+    //      suppressrate = true;
+    //      break;
+    //    case 'f':
+    //      settingsfilename = optarg;
+    //      break;
+    //    case 'o':
+    //      outputfilename = optarg;
+    //      break;
+    //    default:
+    //      throw invalid_argument("CASS: Parameter '" + string(1,c) +
+    //                             "' with argument '" + optarg +
+    //                             "' does not exist in current CASS configuration.");
+    //      break;
+    //    }
+    //  }
+
+    /** show help and exit if requested */
+    if (showUsage)
+    {
+      parser.usage();
+      exit(0);
+    }
+
+    /** set the user requested .ini file name */
+    CASSSettings::setFilename(settingsfilename);
+
+    /** create a ratemeter objects for input and worker and the plotter to plot
+     *  the rqtes that are calculated.
+     */
+    Ratemeter inputrate(1,qApp);
+    Ratemeter workerrate(1,qApp);
+    RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
+
+    /** create workers and requested inputs which need a ringbuffer for passing the
+     *  the events from one to the other. Once created connect their terminated
+     *  and finished signals such that they notify each other about that they are
+     *  done processing the events.
+     */
+    RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
+    Workers workers(ringbuffer, workerrate, outputfilename, qApp);
+#ifdef OFFLINE
+    InputBase::shared_pointer input;
+    if (multifile)
+      input = InputBase::shared_pointer(new MultiFileInput(filelistname,
+                                                           ringbuffer,
+                                                           inputrate,
+                                                           quitwhendone));
+    else
+      input = InputBase::shared_pointer(new FileInput(filelistname,
+                                                      ringbuffer,
+                                                      inputrate,
+                                                      quitwhendone));
+#else
+    InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
+                                                          index,
+                                                          ringbuffer,
+                                                          inputrate));
+#endif
+    QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
+    QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
+    QObject::connect(&workers, SIGNAL(finished()), qApp, SLOT(quit()));
+
+
+    /** create a deamon to capture UNIX signals and use it to let the user quit
+     *  the program via cli by connecting the quit and term signal to notify the
+     *  input to quit
+     */
+    setup_unix_signal_handlers();
+    UnixSignalDaemon signaldaemon(qApp);
+    QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
+    QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
+
+
+    /** set up the TCP/SOAP server and connect its provided signals to the
+     *  appropriate slots fo the input and the workers
+     */
+#ifdef SOAPSERVER
+    EventGetter get_event(ringbuffer);
+    HistogramGetter get_histogram;
+    SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
+    QObject::connect(server.get(), SIGNAL(quit()), input.get(), SLOT(end()));
+    QObject::connect(server.get(), SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
+    QObject::connect(server.get(), SIGNAL(readini(size_t)), &workers, SLOT(loadSettings(size_t)));
+    QObject::connect(server.get(), SIGNAL(writeini(size_t)), &workers, SLOT(saveSettings()));
+    QObject::connect(server.get(), SIGNAL(clearHistogram(cass::PostProcessors::key_t)), &workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
+    QObject::connect(server.get(), SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), &workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
+#endif
+
+    /** set up the optional http server */
+#ifdef HTTPSERVER
+    httpServer http_server(get_histogram);
+#endif
+
     /** start worker, input and server threads and then start the qt event loop */
     workers.start();
     input->start();
@@ -378,21 +377,7 @@ int main(int argc, char **argv)
     http_server.start();
 #endif
 
-    retval = app.exec();
-
-    //clean up
-#ifdef SOAPSERVER
-    server->destroy();
-#endif
-#ifdef HTTPSERVER
-    http_server.stop();
-#endif
-
-    // one last sync of settings file
-    settings.sync();
-
-    //finish
-    return retval;
+    return app.exec();
   }
   catch (const invalid_argument &error)
   {
@@ -407,20 +392,7 @@ int main(int argc, char **argv)
   catch (...)
   {
     cout<<"main(): something bad happend, quitting the program."<<endl;
-    //stop threads//
-    input->end();
-    input->wait();
-    workers.end();
-
-    //clean up
-#ifdef SOAPSERVER
-    server->destroy();
-#endif
-#ifdef HTTPSERVER
-    http_server.stop();
-#endif
   }
-  return retval;
 }
 
 
