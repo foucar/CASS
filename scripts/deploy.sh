@@ -13,14 +13,14 @@ INSTLOC=/lfs/l3/asg
 
 # set the environment variables
 export ROOTSYS=/lfs/l3/asg/root_v5.28.00c
-QTDIR=/usr/local/Packages/qt-4.6.1
-HDF5DIR=/lfs/l3/asg
-GSOAPDIR=/lfs/l3/asg
+export QTDIR=/usr/local/Packages/qt-4.6.1
+export HDF5DIR=/lfs/l3/asg
+export GSOAPDIR=/lfs/l3/asg
 
-PATH=$ROOTSYS/bin:$QTDIR/bin:$HDF5DIR/bin:$GSOAPDIR/bin:$PATH
-CPLUS_INCLUDE_PATH=$QTDIR/include:$GSOAPDIR/include:$HDF5DIR/include:
-LIBRARY_PATH=$GSOAPDIR/lib:$HDF5DIR/lib:$LIBRARY_PATH
-LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+export PATH=$ROOTSYS/bin:$QTDIR/bin:$HDF5DIR/bin:$GSOAPDIR/bin:$PATH
+export CPLUS_INCLUDE_PATH=$QTDIR/include:$GSOAPDIR/include:$HDF5DIR/include:
+export LIBRARY_PATH=$GSOAPDIR/lib:$HDF5DIR/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
 
 
 
