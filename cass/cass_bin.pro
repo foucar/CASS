@@ -16,6 +16,7 @@ TEMPLATE             = app
 DESTDIR              = $${CASS_ROOT}/bin
 target.path          = $$INSTALLBASE/bin
 CONFIG              -= gui
+QT                  += network
 DEFINES             += CASS_LIBRARY
 
 
@@ -128,6 +129,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       histogram.cpp \
                       histogram_getter.cpp \
                       sharedmemory_input.cpp \
+                      tcp_input.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
@@ -190,6 +192,7 @@ HEADERS            += analysis_backend.h \
                       serializable.h \
                       serializer.h \
                       sharedmemory_input.h \
+                      tcp_input.h \
                       soapCASSsoapService.h \
                       soapH.h \
                       soapserver.h \
