@@ -224,6 +224,8 @@ int main(int argc, char **argv)
     bool quitwhendone(false);
     parser.add("-q","quit after finished with all files",quitwhendone);
 #else
+    bool tcp(false);
+    parser.add("-t","enable the tcp input",tcp);
     string partitionTag("0_1_cass_AMO");
     parser.add("-p","partition tag for accessing the shared memory",partitionTag);
     int index(0);
@@ -327,10 +329,14 @@ int main(int argc, char **argv)
                                                       inputrate,
                                                       quitwhendone));
 #else
-    InputBase::shared_pointer input(new SharedMemoryInput(partitionTag,
-                                                          index,
-                                                          ringbuffer,
-                                                          inputrate));
+    InputBase::shared_pointer input;
+    if (tcp)
+      input = InputBase::shared_pointer(new TCPInput(ringbuffer,inputrate));
+    else
+      input = InputBase::shared_pointer(new SharedMemoryInput(partitionTag,
+                                                              index,
+                                                              ringbuffer,
+                                                              inputrate));
 #endif
     QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
     QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
