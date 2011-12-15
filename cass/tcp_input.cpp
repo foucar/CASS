@@ -14,6 +14,7 @@
 #include "tcp_input.h"
 
 #include "cass_settings.h"
+#include "agat_deserializer.h"
 
 using namespace cass;
 using namespace std;
@@ -33,6 +34,7 @@ void TCPInput::run()
   const int Timeout = 3 * 1000;
 
   map<string,function<bool(QDataStream&,CASSEvent&)> > functions;
+  functions["agat"] = ACQIRIS::deserializeNormalAgat();
 
   CASSSettings s;
   s.beginGroup("TCPInput");

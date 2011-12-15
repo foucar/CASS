@@ -34,6 +34,7 @@ SOURCES += ./acqiris_converter.cpp \
     ./acqiris_device.cpp \
     ./acqiristdc_converter.cpp \
     ./acqiristdc_device.cpp \
+    ./agat_deserializer.cpp \
     ./classes/particle.cpp \
     ./classes/signal_producer.cpp \
     ./classes/delayline_detector.cpp \
@@ -55,6 +56,7 @@ HEADERS += ./acqiris_converter.h \
     ./acqiris_device.h \
     ./acqiristdc_converter.h \
     ./acqiristdc_device.h \
+    ./agat_deserializer.h \
     ./map.hpp \
     ../cass/analysis_backend.h \
     ../cass/conversion_backend.h \
