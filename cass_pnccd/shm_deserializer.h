@@ -20,13 +20,13 @@ namespace pnCCD
 {
 /** deserialize the data stream of shm2tcp program
  *
- * details
+ * see operator() for details
  *
  * @author Lutz Foucar
  */
 struct deserializeSHM
 {
-  /** do it
+  /** deserialize stream
    *
    * @return true when the stream was successfully deserialized
    * @param stream The stream that contains the serialized data

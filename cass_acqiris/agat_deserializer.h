@@ -20,13 +20,13 @@ namespace ACQIRIS
 {
 /** deserialize the data stream of the regular agat program
  *
- * details
+ * see operator for details
  *
  * @author Lutz Foucar
  */
 struct deserializeNormalAgat
 {
-  /** do it
+  /** deserialize stream
    *
    * @return true when the stream was successfully deserialized
    * @param stream The stream that contains the serialized data
