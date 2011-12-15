@@ -19,32 +19,11 @@ namespace cass
 {
 namespace pixeldetector
 {
-
 /** the type of a pixel of a ccd image*/
 typedef float pixel_t;
 
 /** a frame is a vector of pixels */
 typedef std::vector<pixel_t> frame_t;
-
-
-/** convert any type to a string
- *
- * should be used for converting numbers to strings. This function was inspired
- * by a function found at Sep, 24th 2011 here:
- * http://notfaq.wordpress.com/2006/08/30/c-convert-int-to-string/
- *
- * @tparam Type the type of the number
- * @param t the number to convert to string
- *
- * @author Lutz Foucar
- */
-template <typename Type>
-std::string toString (const Type& t)
-{
-  std::stringstream ss;
-  ss << t;
-  return ss.str();
-}
 
 /** Pixel definition
  *
