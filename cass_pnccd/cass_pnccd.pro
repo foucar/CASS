@@ -23,6 +23,7 @@ DEPENDPATH    += ../cass
 
 SOURCES       += pnccd_analysis.cpp \
                  pnccd_converter.cpp \
+                 shm_deserializer.cpp
 
 HEADERS       += ../cass/analysis_backend.h \
                  ../cass/cass_settings.h \
@@ -35,7 +36,9 @@ HEADERS       += ../cass/analysis_backend.h \
                  pnccd_converter.h \
                  cass_pnccd.h \
                  pnccd_device.h \
-                 pnccd_detector.h
+                 pnccd_detector.h \
+                 shm_deserializer.h
+
 
 headers.files  = $$HEADERS
 target.path    = $$INSTALLBASE/lib

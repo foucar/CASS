@@ -15,6 +15,7 @@
 
 #include "cass_settings.h"
 #include "agat_deserializer.h"
+#include "shm_deserializer.h"
 
 using namespace cass;
 using namespace std;
@@ -35,6 +36,7 @@ void TCPInput::run()
 
   map<string,function<bool(QDataStream&,CASSEvent&)> > functions;
   functions["agat"] = ACQIRIS::deserializeNormalAgat();
+  functions["shm"] = pnCCD::deserializeSHM();
 
   CASSSettings s;
   s.beginGroup("TCPInput");
