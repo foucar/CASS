@@ -66,7 +66,7 @@ void TCPInput::run()
         continue;
     }
 
-    quint16 blockSize;
+    quint32 blockSize;
     QDataStream in(&socket);
     in.setVersion(QDataStream::Qt_4_0);
     in >> blockSize;
@@ -82,11 +82,13 @@ void TCPInput::run()
         return;
       }
     }
-
-    CASSEvent *cassevent(0);
-    _ringbuffer.nextToFill(cassevent);
-    bool isGood(deserialize(in,*cassevent));
-    _ringbuffer.doneFilling(cassevent,isGood);
-    emit newEventAdded();
+    while(!in.atEnd())
+    {
+      CASSEvent *cassevent(0);
+      _ringbuffer.nextToFill(cassevent);
+      bool isGood(deserialize(in,*cassevent));
+      _ringbuffer.doneFilling(cassevent,isGood);
+      emit newEventAdded();
+    }
   }
 }
