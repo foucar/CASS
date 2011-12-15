@@ -12,7 +12,7 @@ INSTLOC=/lfs/l3/asg
 
 
 # set the environment variables
-export ROOTSYS=/lfs/l3/asg/root_v5.28.00c
+export ROOTSYS=/lfs/l3/asg/root_v5.32.00
 export QTDIR=/usr/local/Packages/qt-4.6.1
 export HDF5DIR=/lfs/l3/asg
 export GSOAPDIR=/lfs/l3/asg
