@@ -159,7 +159,7 @@ bool deserializeNormalAgat::operator ()(QDataStream& stream, CASSEvent& evt)
 {
   /** extract the right device from the cassevent */
   if (evt.devices().find(CASSEvent::Acqiris) == evt.devices().end())
-    throw runtime_error("...");
+    throw runtime_error("deserializeNormalAgat(): The Acqiris Device does not exist.");
   Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
   /** extract the right instrument from the acqiris device */
   Instrument &instr(dev->instruments()[Standalone]);

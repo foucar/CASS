@@ -43,18 +43,17 @@ void TCPInput::run()
                        s.value("Port",9090).toUInt());
   string functiontype(s.value("DataType","agat").toString().toStdString());
   if (functions.find(functiontype) == functions.end())
-    throw invalid_argument("...");
+    throw invalid_argument("TCPInput::run(): The Function with type '" + functiontype +
+                           "' does not exist");
   function<bool(QDataStream&,CASSEvent&)> deserialize(functions[functiontype]);
   s.endGroup();
 
   if (!socket.waitForConnected(Timeout))
-  {
-    cout << "TCPInput::run(): error '" << socket.errorString().toStdString()
-         <<"' occurred trying to connect to server '"<<socket.peerName().toStdString()
-         <<"' on Port '"<<socket.peerPort()
-         <<"'"<<endl;
-    return;
-  }
+    throw runtime_error("TCPInput::run(): error '" + socket.errorString().toStdString() +
+                        "' occurred trying to connect to server '" + socket.peerName().toStdString() +
+                        "' on Port '"+ toString(socket.peerPort()) +
+                        "'");
+
 
   while(_control != _quit)
   {
@@ -66,22 +65,20 @@ void TCPInput::run()
         continue;
     }
 
-    quint32 blockSize;
+    quint32 payloadSize;
     QDataStream in(&socket);
     in.setVersion(QDataStream::Qt_4_0);
-    in >> blockSize;
+    in >> payloadSize;
 
-    while (socket.bytesAvailable() < blockSize)
+    while (socket.bytesAvailable() < payloadSize)
     {
       if (!socket.waitForReadyRead(Timeout))
-      {
-        cout << "TCPInput::run(): error '" << socket.errorString().toStdString()
-             <<"' occurred trying to get the data from server '"<<socket.peerName().toStdString()
-             <<"' on Port '"<<socket.peerPort()
-             <<"'"<<endl;
-        return;
-      }
+        throw runtime_error("TCPInput::run(): error '" + socket.errorString().toStdString() +
+                            "' occurred trying to get the data from server '" + socket.peerName().toStdString() +
+                            "' on Port '"+ toString(socket.peerPort()) +
+                            "'");
     }
+
     while(!in.atEnd())
     {
       CASSEvent *cassevent(0);
