@@ -130,6 +130,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       histogram_getter.cpp \
                       sharedmemory_input.cpp \
                       tcp_input.cpp \
+                      tcp_streamer.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
@@ -193,6 +194,7 @@ HEADERS            += analysis_backend.h \
                       serializer.h \
                       sharedmemory_input.h \
                       tcp_input.h \
+                      tcp_streamher.h \
                       soapCASSsoapService.h \
                       soapH.h \
                       soapserver.h \

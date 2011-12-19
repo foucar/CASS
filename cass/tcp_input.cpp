@@ -7,19 +7,17 @@
  */
 
 #include <iostream>
-#include <tr1/functional>
 
 #include <QtNetwork/QTcpSocket>
 
 #include "tcp_input.h"
 
 #include "cass_settings.h"
-#include "agat_deserializer.h"
-#include "shm_deserializer.h"
+#include "cass_exceptions.h"
+#include "tcp_streamer.h"
 
 using namespace cass;
 using namespace std;
-using tr1::function;
 
 TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                    Ratemeter &ratemeter,
@@ -34,20 +32,13 @@ void TCPInput::run()
   _status = lmf::PausableThread::running;
   const int Timeout = 3 * 1000;
 
-  map<string,function<bool(QDataStream&,CASSEvent&)> > functions;
-  functions["agat"] = ACQIRIS::deserializeNormalAgat();
-  functions["shm"] = pnCCD::deserializeSHM();
-
   CASSSettings s;
   s.beginGroup("TCPInput");
   QTcpSocket socket;
   socket.connectToHost(s.value("Server","localhost").toString(),
                        s.value("Port",9090).toUInt());
   string functiontype(s.value("DataType","agat").toString().toStdString());
-  if (functions.find(functiontype) == functions.end())
-    throw invalid_argument("TCPInput::run(): The Function with type '" + functiontype +
-                           "' does not exist");
-  function<bool(QDataStream&,CASSEvent&)> deserialize(functions[functiontype]);
+  TCPStreamer& deserialize(TCPStreamer::instance(functiontype));
   s.endGroup();
 
   if (!socket.waitForConnected(Timeout))
@@ -82,13 +73,23 @@ void TCPInput::run()
                             "'");
     }
 
-    while(!in.atEnd())
+    payloadSize -= deserialize(in);
+    while(payloadSize > 0)
     {
       CASSEvent *cassevent(0);
       _ringbuffer.nextToFill(cassevent);
-      bool isGood(deserialize(in,*cassevent));
-      _ringbuffer.doneFilling(cassevent,isGood);
-      emit newEventAdded();
+      try
+      {
+        payloadSize -= deserialize(in,*cassevent);
+        _ringbuffer.doneFilling(cassevent,true);
+        emit newEventAdded();
+      }
+      catch(const DeserializeError& error)
+      {
+        cout << error.what() <<": skipping rest of data"<<endl;
+        _ringbuffer.doneFilling(cassevent,false);
+        break;
+      }
     }
   }
 }
