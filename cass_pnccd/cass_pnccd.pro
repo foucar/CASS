@@ -23,6 +23,8 @@ DEPENDPATH    += ../cass
 
 SOURCES       += pnccd_analysis.cpp \
                  pnccd_converter.cpp \
+                 frms6_reader.cpp \
+                 frms6_parser.cpp \
                  shm_deserializer.cpp
 
 HEADERS       += ../cass/analysis_backend.h \
@@ -31,6 +33,8 @@ HEADERS       += ../cass/analysis_backend.h \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
                  ../cass_pixel_detector/pixel_detector.h \
+                 frms6_parser.h \
+                 frms6_reader.h \
                  pnccd_analysis.h \
                  pnccd_analysis_new.h \
                  pnccd_converter.h \

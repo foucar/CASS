@@ -38,6 +38,7 @@ HEADERS       += \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
                  ../cass/tcp_streamer.h \
+                 ../cass/hlltypes.h \
                  common_data.h \
                  mapcreator_base.h \
                  mapcreators.h \

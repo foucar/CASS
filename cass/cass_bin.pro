@@ -115,13 +115,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       file_parser.cpp \
                       xtc_reader.cpp \
                       xtc_parser.cpp \
-                      raw_sss_reader.cpp \
-                      frms6_reader.cpp \
                       txt_reader.cpp \
-                      lma_reader.cpp \
-                      lma_parser.cpp \
-                      raw_sss_parser.cpp \
-                      frms6_parser.cpp \
                       txt_parser.cpp \
                       multifile_input.cpp \
                       pausablethread.cpp \
@@ -171,16 +165,8 @@ HEADERS            += analysis_backend.h \
                       file_reader.h \
                       xtc_reader.h \
                       xtc_parser.h \
-                      raw_sss_file_header.h \
-                      raw_sss_reader.h \
-                      raw_sss_parser.h \
-                      frms6_file_header.h \
-                      frms6_parser.h \
-                      frms6_reader.h \
+                      hlltypes.h \
                       txt_reader.h \
-                      lma_file_header.h \
-                      lma_reader.h \
-                      lma_parser.h \
                       txt_parser.h \
                       multifile_input.h \
                       pausablethread.h \
@@ -194,7 +180,7 @@ HEADERS            += analysis_backend.h \
                       serializer.h \
                       sharedmemory_input.h \
                       tcp_input.h \
-                      tcp_streamher.h \
+                      tcp_streamer.h \
                       soapCASSsoapService.h \
                       soapH.h \
                       soapserver.h \

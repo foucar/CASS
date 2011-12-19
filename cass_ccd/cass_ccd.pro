@@ -17,7 +17,10 @@ INCLUDEPATH   += ../cass ../LCLS
 DEPENDPATH    += ../cass
 
 SOURCES       += ccd_analysis.cpp \
-                 ccd_converter.cpp
+                 ccd_converter.cpp \
+                 raw_sss_parser.cpp \
+                 raw_sss_reader.cpp
+
 
 HEADERS       += ../cass/analysis_backend.h \
                  ../cass/cass_settings.h \
@@ -25,6 +28,9 @@ HEADERS       += ../cass/analysis_backend.h \
                  ../cass/device_backend.h \
                  ../cass/pixel_detector.h \
                  ../cass/serializer.h \
+                 raw_sss_file_header.h \
+                 raw_sss_reader.h \
+                 raw_sss_parser.h \
                  ccd_analysis.h \
                  ccd_converter.h \
                  cass_ccd.h \

@@ -23,6 +23,7 @@
 #include "advanced_pixeldetector.h"
 #include "mapcreator_base.h"
 #include "pixeldetector_mask.h"
+#include "hlltypes.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -32,239 +33,6 @@ namespace cass
 {
 namespace pixeldetector
 {
-
-/** convert a linearised matrix in the CASS format to the hll format
- *
- * the difference between the CASS and HLL is, that the CASS format has all 4
- * quadrants in a quadrat wheras in HLL they are aligned in a rectangle.
- *
- @verbatim
-
-   -----------
-   | 1  | 2  |
-   | C  | D  |
-   -----O-----
-   | 0  | 3  |
-   | A  | B  |
-   -----------
-   --------->
-
-       |
-       v
-
-   ----()--------()-----
-   | 0  | 1  | 2  | 3  |
-   | A  | C  | D  | B  |
-   ---------------------
-        --------->
-
- @endverbatim
- * The numbers indicate the tile of the frame wihtin the HLL frame format, the
- * letters indicate the tiles within the CASS format. The arrows indicate the
- * fast increasing coordinate within the linearised array. The parenthesis and
- * the 0 indicate where the hole btw the quater holes are in the new tiles.
- * This implies that the top two tiles in the CASS format have to be rotated by
- * 180 degrees before adding them to HLL format array. This basically mean that
- * one has to read these tiles reverseley. This is done in this function by
- * using reverse iterators that will point at the last element of the tile.
- *
- * This function will then read the first row of tile A then the last of tile C
- * then the last row of tile C, then the first row Tile B to the first row of
- * the HLL format.
- * The second row of the HLL format is then build by the 2nd row of Tile A, the
- * 2nd to last row of Tile C then the 2nd to last row of tile D and the 2nd row
- * of tile B. This continues until one has read all the rows of the tiles.
- *
- * @tparam inputContainerType the type of the container containing the input
- * @tparam outputContainerType the type of the container containing the output
- * @param CASSMatrix the container containing the linearised input matrix
- * @param HLLMatrix the container containing the linearised out matrix
- * @param quadrantColumns the number of columns in one quadrant
- * @param quadrantRows the number of rows in one quadrant
- * @param CASSColumns the number of columns in the CASS input container
- *
- * @author Lutz Foucar
- */
-template <typename inputContainerType, typename outputContainerType>
-void CASS2HLL(const inputContainerType& CASSMatrix,
-              outputContainerType& HLLMatrix,
-              size_t quadrantColumns,
-              size_t quadrantRows,
-              size_t CASSColumns)
-{
-  typename inputContainerType::const_iterator cassquadrant0(CASSMatrix.begin());
-  typename inputContainerType::const_iterator cassquadrant1(CASSMatrix.begin()+quadrantColumns);
-  typename inputContainerType::const_reverse_iterator cassquadrant2(CASSMatrix.rbegin()+quadrantColumns);
-  typename inputContainerType::const_reverse_iterator cassquadrant3(CASSMatrix.rbegin());
-
-  typename outputContainerType::iterator HLL(HLLMatrix.begin());
-
-  for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
-  {
-    copy(cassquadrant0,cassquadrant0+quadrantColumns,HLL);
-    advance(HLL,quadrantColumns);
-    copy(cassquadrant2,cassquadrant2+quadrantColumns,HLL);
-    advance(HLL,quadrantColumns);
-    copy(cassquadrant3,cassquadrant3+quadrantColumns,HLL);
-    advance(HLL,quadrantColumns);
-    copy(cassquadrant1,cassquadrant1+quadrantColumns,HLL);
-    advance(HLL,quadrantColumns);
-
-    advance(cassquadrant0,CASSColumns);
-    advance(cassquadrant1,CASSColumns);
-    advance(cassquadrant2,CASSColumns);
-    advance(cassquadrant3,CASSColumns);
-  }
-}
-
-/** convert a linearised matrix in the hll format to the CASS format
- *
- * the difference between the CASS and HLL is, that the CASS format has all 4
- * quadrants in a quadrat wheras in HLL they are aligned in a rectangle.
- @verbatim
-
-
-   ----()--------()-----
-   | 0  | 1  | 2  | 3  |
-   | A  | C  | D  | B  |
-   ---------------------
-        --------->
-
-       |
-       v
-
-   -----------
-   | 1  | 2  |
-   | C  | D  |
-   -----O-----
-   | 0  | 3  |
-   | A  | B  |
-   -----------
-   --------->
- @endverbatim
- * The numbers indicate the tile of the frame wihtin the HLL frame format, the
- * letters indicate the tiles within the CASS format. The arrows indicate the
- * fast increasing coordinate within the linearised array. The parenthesis and
- * the 0 indicate where the hole btw the quater holes are in the new tiles.
- * This implies that the tiles 1 and 2  in the HLL format have to be rotated by
- * 180 degrees before adding them to CASS format array. This basically mean that
- * one has to read these tiles reverseley. This is done in this function by
- * using reverse iterators that will point at the last element of the tile.
- *
- * This function will then read the first row of tile 0 then the first rowv of
- * tile 3. Then the 2nd row of tile 0 and then the 2nd row of tile 3. This
- * continues until all rows of the tiles have been read.
- * It then continues with the last of tile 1 and the last row of tile 2. Then
- * the 2nd to last row of tile 1 and the 2nd to last row of tile 2. This
- * continues until all rows of the tiles have been read.
- *
- * @note The resulting image in the CASS format is rotated by 90 degrees clockwise
- *       to the image as it would look like inside the lab frame if one looks
- *       into the beam.
- *
- * @tparam inputContainerType the type of the container containing the input
- * @tparam outputContainerType the type of the container containing the output
- * @param HLLMatrix the container containing the linearised input matrix
- * @param CASSMatrix the container containing the linearised out matrix
- * @param quadrantColumns the number of columns in one quadrant
- * @param quadrantRows the number of rows in one quadrant
- * @param HLLColumns the number of columns in the HLL input container
- *
- * @author Lutz Foucar
- */
-template <typename inputContainerType, typename outputContainerType>
-void HLL2CASS(const inputContainerType& HLLMatrix,
-              outputContainerType& CASSMatrix,
-              size_t quadrantColumns,
-              size_t quadrantRows,
-              size_t HLLColumns)
-{
-  typename inputContainerType::const_iterator hllquadrant0(HLLMatrix.begin());
-  typename inputContainerType::const_reverse_iterator hllquadrant1(HLLMatrix.rbegin()+2*quadrantColumns);
-  typename inputContainerType::const_reverse_iterator hllquadrant2(HLLMatrix.rbegin()+1*quadrantColumns);
-  typename inputContainerType::const_iterator hllquadrant3(HLLMatrix.begin()+3*quadrantColumns);
-
-  typename outputContainerType::iterator cass(CASSMatrix.begin());
-
-  //copy quadrant read to right side (lower in CASS)
-  for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
-  {
-    copy(hllquadrant0,hllquadrant0+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-    copy(hllquadrant3,hllquadrant3+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-
-    advance(hllquadrant0,HLLColumns);
-    advance(hllquadrant3,HLLColumns);
-  }
-  //copy quadrants read to left side (upper in CASS)
-  for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
-  {
-    copy(hllquadrant1,hllquadrant1+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-    copy(hllquadrant2,hllquadrant2+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-
-    advance(hllquadrant1,HLLColumns);
-    advance(hllquadrant2,HLLColumns);
-  }
-}
-
-/** struct describing the statistics saved in a HLL Darkcal file
- *
- * copied from the pnCCD lib
- *
- * @author Peter Holl
- * @author Nils Kimmel
- */
-struct staDataType
-{
-  /** internal use */
-  double sum;
-
-  /** offset mean value of pixel (raw) */
-  double offset;
-
-  /** noise sigma value of pixel */
-  double sigma;
-
-  /** internal use */
-  double sumSq;
-
-  /** internal use */
-  int count;
-
-  /** offset mean value of pixel (common mode corrected) */
-  int16_t mean;
-};
-
-/** the file header structure of the hll darkcal file format
- *
- * derived from the code within the pnCCD lib
- *
- * @author Lutz Foucar
- */
-struct HllDarkcalFileHeader
-{
-  /** string to identify that it is a hll darkcal file
-   *
-   * should contain "HE pixel statistics map"
-   */
-  char identifystring[24];
-
-  /** the width of the frames */
-  uint32_t columns;
-
-  /** the height of the frames */
-  uint32_t rows;
-
-  /** the overal length of the frame, if the matrix is linearized */
-  uint32_t length;
-
-  /** empty to fill the header up to 1024 bytes */
-  char fillspace[988];
-};
-
 /** will read the file containing the offset and noise map in the hll format
  *
  * The Hll darkcal file format starts with a 1024 bit long header. Then an array
@@ -296,8 +64,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
     throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
                            filename + "'");
   }
-  HllDarkcalFileHeader header;
-  hllfile.read(reinterpret_cast<char*>(&header),sizeof(HllDarkcalFileHeader));
+  hllDataTypes::DarkcalFileHeader header;
+  hllfile >> header;
   if ((string("HE pixel statistics map") != header.identifystring) ||
       (header.columns * header.rows != header.length))
   {
@@ -308,8 +76,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
                            toString(header.columns)+ "*" + toString(header.rows) +
                            "!=" + toString(header.length) +"'");
   }
-  staDataType pixelStatistics[header.length];
-  const size_t pixelStatisticsLength(sizeof(staDataType)*header.length);
+  hllDataTypes::statistics pixelStatistics[header.length];
+  const size_t pixelStatisticsLength(sizeof(hllDataTypes::statistics)*header.length);
   hllfile.read(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
   vector<char> badpixmap(header.length);
   hllfile.read(&badpixmap[0],header.length);
@@ -318,7 +86,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   frame_t::iterator hlloffset(hlloffsets.begin());
   frame_t hllnoises(header.length);
   frame_t::iterator hllnoise(hllnoises.begin());
-  staDataType *pixelstatistic(&pixelStatistics[0]);
+  hllDataTypes::statistics *pixelstatistic(&pixelStatistics[0]);
   for( size_t i(0); i < header.length; ++i, ++hlloffset, ++pixelstatistic )
   {
     *hlloffset = pixelstatistic->offset;
@@ -326,11 +94,11 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   }
   QWriteLocker lock(&data.lock);
   data.offsetMap.resize(header.length);
-  HLL2CASS(hlloffsets,data.offsetMap,header.rows,header.rows,header.columns);
+  hllDataTypes::HLL2CASS(hlloffsets,data.offsetMap,header.rows,header.rows,header.columns);
   data.noiseMap.resize(header.length);
-  HLL2CASS(hllnoises,data.noiseMap,header.rows,header.rows,header.columns);
+  hllDataTypes::HLL2CASS(hllnoises,data.noiseMap,header.rows,header.rows,header.columns);
   data.mask.resize(header.length);
-  HLL2CASS(badpixmap,data.mask,header.rows,header.rows,header.columns);
+  hllDataTypes:: HLL2CASS(badpixmap,data.mask,header.rows,header.rows,header.columns);
 }
 
 /** save the maps to a hll type darkcal file
@@ -351,7 +119,7 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     throw invalid_argument("saveHLLOffsetFile(): Error opening file '" +
                            filename + "'");
   }
-  HllDarkcalFileHeader header =
+  hllDataTypes::DarkcalFileHeader header =
   {
     "HE pixel statistics map",
     data.columns*2,
@@ -360,24 +128,24 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     ""
   };
 
-  out.write(reinterpret_cast<char*>(&header),sizeof(HllDarkcalFileHeader));
+  out.write(reinterpret_cast<char*>(&header),sizeof(hllDataTypes::DarkcalFileHeader));
   frame_t hlloffsets(data.offsetMap);
-  CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
+  hllDataTypes::CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
   frame_t hllnoises(data.noiseMap);
-  CASS2HLL(data.noiseMap,hllnoises,header.rows,header.rows,data.columns);
+  hllDataTypes::CASS2HLL(data.noiseMap,hllnoises,header.rows,header.rows,data.columns);
   frame_t::const_iterator hlloffset(hlloffsets.begin());
   frame_t::const_iterator hllnoise(hllnoises.begin());
-  staDataType pixelStatistics[header.length];
-  staDataType *pixelstatistic(&pixelStatistics[0]);
+  hllDataTypes::statistics pixelStatistics[header.length];
+  hllDataTypes::statistics *pixelstatistic(&pixelStatistics[0]);
   for(; hlloffset != hlloffsets.end(); ++hlloffset, ++hllnoise, ++pixelstatistic )
   {
     pixelstatistic->offset = *hlloffset;
     pixelstatistic->sigma = *hllnoise;
   }
-  const size_t pixelStatisticsLength(sizeof(staDataType)*header.length);
+  const size_t pixelStatisticsLength(sizeof(hllDataTypes::statistics)*header.length);
   out.write(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
   CommonData::mask_t hllmask(data.mask);
-  CASS2HLL(data.mask,hllmask,header.rows,header.rows,data.columns);
+  hllDataTypes::CASS2HLL(data.mask,hllmask,header.rows,header.rows,data.columns);
   const size_t maskLength(sizeof(char)*header.length);
   out.write(reinterpret_cast<char*>(&hllmask[0]),maskLength);
 }
@@ -534,7 +302,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
 
   //convert HLL format to CASS format
   QWriteLocker lock(&data.lock);
-  HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
+  hllDataTypes::HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
 }
 
 /** will create the final correction map from the info stored in the other maps

@@ -10,8 +10,8 @@
 #define _FILEPARSER_H_
 
 #include <QtCore/QObject>
-#include <QThread>
-#include <QReadWriteLock>
+#include <QtCore/QThread>
+#include <QtCore/QReadWriteLock>
 
 #include <tr1/memory>
 #include <fstream>

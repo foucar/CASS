@@ -16,7 +16,7 @@
 
 #include "file_reader.h"
 
-#include "frms6_file_header.h"
+#include "hlltypes.h"
 
 namespace cass
 {
@@ -52,13 +52,13 @@ public:
 
 private:
   /** the frms6 file header */
-  frms6File::FileHeader _fileHead;
+  hllDataTypes::Frms6FileHeader _fileHead;
 
   /** header that comes before every frame */
-  frms6File::FrameHeader _frameHead;
+  hllDataTypes::FrameHeader _frameHead;
 
   /** a buffer to not allocate the read buffer for each event */
-  std::vector<frms6File::pixel> _hllFrameBuffer;
+  std::vector<hllDataTypes::pixel> _hllFrameBuffer;
 };
 }//end namespace cass
 #endif

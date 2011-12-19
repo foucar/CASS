@@ -12,10 +12,9 @@
 #include "shm_deserializer.h"
 
 #include "cass_event.h"
-//#include "pixeldetector.hpp"
 #include "pnccd_device.h"
 #include "pixel_detector.h"
-#include "frms6_file_header.h"
+#include "hlltypes.h"
 
 using namespace cass;
 using namespace pnCCD;
@@ -23,26 +22,30 @@ using namespace std;
 
 size_t SHMStreamer::operator ()(QDataStream& stream)
 {
-  frms6File::FileHeader fileHead;
+  hllDataTypes::Frms6FileHeader fileHead;
   stream >> fileHead;
   _width = fileHead.the_width;
-  return sizeof(frms6File::FileHeader);
+  return sizeof(hllDataTypes::Frms6FileHeader);
 }
 
 size_t SHMStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
 {
   size_t nBytesRead(0);
-  frms6File::FrameHeader frameHead;
+  /** read frame header and calculate the frame data size from the contained
+   *  info. Set the eventid according to the id in the info Then read the frame
+   *  from the stream into the frame buffer.
+   */
+  hllDataTypes::FrameHeader frameHead;
   stream >> frameHead;
-  nBytesRead += sizeof(frms6File::FrameHeader);
+  nBytesRead += sizeof(hllDataTypes::FrameHeader);
+  evt.id() = frameHead.external_id;
   const size_t framesize(_width * frameHead.the_height);
-  const size_t framesizeBytes(framesize * sizeof(frms6File::pixel));
+  const size_t framesizeBytes(framesize * sizeof(hllDataTypes::pixel));
   _hllFrameBuffer.resize(framesize);
   stream.readRawData(reinterpret_cast<char*>(&_hllFrameBuffer.front()), framesizeBytes);
   nBytesRead += framesizeBytes;
 
-  evt.id() = frameHead.external_id;
-
+  /** get just the first detector from the event and copy the info from the header to it */
   pnCCDDevice *dev(dynamic_cast<pnCCDDevice*>(evt.devices()[CASSEvent::pnCCD]));
   if(dev->detectors()->empty())
     dev->detectors()->resize(1);
@@ -53,43 +56,11 @@ size_t SHMStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
   det.originalrows()    = frameHead.the_height*2;
   det.frame().resize(_hllFrameBuffer.size());
 
-  /** @todo: remove code duplication: HLL2CASS */
+  /** convert the hll type frame to the cass type frame */
   size_t quadrantColumns = frameHead.the_height;
   size_t quadrantRows = quadrantColumns; /** @todo: read out somehow? */
   size_t HLLColumns = _width;
+  hllDataTypes::HLL2CASS(_hllFrameBuffer,det.frame(),quadrantColumns,quadrantRows,HLLColumns);
 
-  cass::PixelDetector::frame_t::iterator cass(det.frame().begin());
-
-  frms6File::frame_t::const_iterator hllquadrant0
-      (_hllFrameBuffer.begin());
-  frms6File::frame_t::const_reverse_iterator hllquadrant1
-      (_hllFrameBuffer.rbegin()+2*quadrantColumns);
-  frms6File::frame_t::const_reverse_iterator hllquadrant2
-      (_hllFrameBuffer.rbegin()+1*quadrantColumns);
-  frms6File::frame_t::const_iterator hllquadrant3
-      (_hllFrameBuffer.begin()+3*quadrantColumns);
-
-  //copy quadrant read to right side (lower in CASS)
-  for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
-  {
-    copy(hllquadrant0,hllquadrant0+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-    copy(hllquadrant3,hllquadrant3+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-
-    advance(hllquadrant0,HLLColumns);
-    advance(hllquadrant3,HLLColumns);
-  }
-  //copy quadrants read to left side (upper in CASS)
-  for (size_t quadrantRow(0); quadrantRow < quadrantRows; ++quadrantRow)
-  {
-    copy(hllquadrant1,hllquadrant1+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-    copy(hllquadrant2,hllquadrant2+quadrantColumns,cass);
-    advance(cass,quadrantColumns);
-
-    advance(hllquadrant1,HLLColumns);
-    advance(hllquadrant2,HLLColumns);
-  }
   return nBytesRead;
 }
