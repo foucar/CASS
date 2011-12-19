@@ -71,6 +71,7 @@ void TCPInput::run()
     QDataStream in(&socket);
     in.setVersion(QDataStream::Qt_4_0);
     in >> payloadSize;
+    payloadSize -= sizeof(quint32);
 
     while (socket.bytesAvailable() < payloadSize)
     {
