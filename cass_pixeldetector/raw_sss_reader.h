@@ -7,8 +7,8 @@
  * @author Lutz Foucar
  */
 
-#ifndef _RAWSSSREADER_H_
-#define _RAWSSSREADER_H_
+#ifndef _RAWSSSREADERTOPIXDET_H_
+#define _RAWSSSREADERTOPIXDET_H_
 
 #include <fstream>
 #include <stdint.h>

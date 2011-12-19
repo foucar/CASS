@@ -6,8 +6,8 @@
  * @author Lutz Foucar
  */
 
-#ifndef _FRMS6READER_H_
-#define _FRMS6READER_H_
+#ifndef _FRMS6READERTOPIXDET_H_
+#define _FRMS6READERTOPIXDET_H_
 
 #include <tr1/memory>
 #include <fstream>

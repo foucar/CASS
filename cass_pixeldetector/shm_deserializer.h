@@ -7,8 +7,8 @@
  * @author Lutz Foucar
  */
 
-#ifndef __SHMDESERIALIZE_H__
-#define __SHMDESERIALIZE_H__
+#ifndef __SHMDESERIALIZETOPIXDET_H__
+#define __SHMDESERIALIZETOPIXDET_H__
 
 class QDataStream;
 
