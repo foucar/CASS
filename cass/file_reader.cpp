@@ -13,9 +13,12 @@
 
 #include "xtc_reader.h"
 #include "lma_reader.h"
-#include "raw_sss_reader.h"
-#include "frms6_reader.h"
 #include "txt_reader.h"
+#include "../cass_ccd/raw_sss_reader.h"
+#include "../cass_pnccd/frms6_reader.h"
+#include "../cass_pixeldetector/raw_sss_reader.h"
+#include "../cass_pixeldetector/frms6_reader.h"
+
 
 using namespace cass;
 using namespace std;
@@ -26,12 +29,20 @@ FileReader::shared_pointer FileReader::instance(const string &type)
   shared_pointer ptr;
   if (type == "xtc")
     ptr = shared_pointer(new XtcReader());
+  if (type == "xtc_new")
+    ptr = shared_pointer(new XtcReader());
   else if (type == "lma")
+    ptr = shared_pointer(new ACQIRIS::LmaReader());
+  else if (type == "lma_new")
     ptr = shared_pointer(new ACQIRIS::LmaReader());
   else if (type == "sss")
     ptr = shared_pointer(new CCD::RAWSSSReader());
+  else if (type == "sss_new")
+    ptr = shared_pointer(new pixeldetector::RAWSSSReader());
   else if (type == "frms6")
     ptr = shared_pointer(new pnCCD::Frms6Reader());
+  else if (type == "frms6_new")
+    ptr = shared_pointer(new pixeldetector::Frms6Reader());
   else if (type == "txt")
     ptr = shared_pointer(new TxtReader());
   else
