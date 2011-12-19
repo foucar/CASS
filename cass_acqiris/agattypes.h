@@ -6,6 +6,9 @@
  * @author Lutz Foucar
  */
 
+#ifndef _AGATTYPES_H_
+#define _AGATTYPES_H_
+
 #include <stdint.h>
 
 namespace cass
@@ -231,3 +234,5 @@ struct Channel
 
 #pragma pack()
 } //end namespace cass
+
+#endif

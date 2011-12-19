@@ -7,6 +7,9 @@
  * @author Lutz Foucar
  */
 
+#ifndef _HLLTYPES_H_
+#define _HLLTYPES_H_
+
 #include <stdint.h>
 #include <vector>
 #include <fstream>
@@ -354,3 +357,4 @@ void HLL2CASS(const inputContainerType& HLLMatrix,
 }
 } //end namespace hlltypes
 } //end namespace cass
+#endif

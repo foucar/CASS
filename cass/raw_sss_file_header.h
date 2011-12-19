@@ -6,6 +6,9 @@
  * @author Lutz Foucar
  */
 
+#ifndef _RAWSSSHEADER_H_
+#define _RAWSSSHEADER_H_
+
 #include <stdint.h>
 #include <vector>
 
@@ -35,3 +38,5 @@ struct Header
 #pragma pack()
 } //end namespace lmafile
 } //end namespace cass
+
+#endif
