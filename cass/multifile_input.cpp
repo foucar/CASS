@@ -51,6 +51,7 @@ void MultiFileInput::load()
   CASSSettings s;
   s.beginGroup("MultiFileInput");
   _rewind = s.value("Rewind",false).toBool();
+  _new = s.value("useNewContainer",false).toBool()? "_new" :"";
 }
 
 void MultiFileInput::run()
@@ -102,7 +103,7 @@ void MultiFileInput::run()
     }
     fp._pos = fp._filestream->tellg();
     filereaderpointerpair_t readerpointer
-        (make_pair(FileReader::instance(extension(filename)),fp));
+        (make_pair(FileReader::instance(extension(filename)+_new),fp));
     readerpointer.first->loadSettings();
     readerpointer.first->readHeaderInfo(*fp._filestream);
     fp._filestream->seekg(0,ios::beg);

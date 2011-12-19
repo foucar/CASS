@@ -39,6 +39,9 @@ namespace cass
  * in the different files. The data is then converted to a CASSEvent and put
  * into the RingBuffer
  *
+ * @cassttng MultiFileInput/{useNewContainer}\n
+ *           set to true if you want to use the new container for pixeldetector
+ *           data that can make use of the new analysis chain. Default is false.
  * @cassttng MultiFileInput/{Rewind}\n
  *           Tells the program to start over running over all files when true.
  *           Default is false.
@@ -82,6 +85,9 @@ private:
 
   /** flag that tells the input to rewind to the beginning of the eventlist */
   bool _rewind;
+
+  /** string to identify whether one want to use the new container */
+  std::string _new;
 };
 
 }//end namespace cass

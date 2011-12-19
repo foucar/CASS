@@ -44,6 +44,7 @@ void FileInput::load()
   CASSSettings s;
   s.beginGroup("FileInput");
   _rewind = s.value("Rewind",false).toBool();
+  _new = s.value("useNewContainer",false).toBool()? "_new" :"";
 }
 
 void FileInput::run()
@@ -74,7 +75,7 @@ void FileInput::run()
     if (file.is_open())
     {
       /** load the right reader for the file type depending on its extension */
-      _read = FileReader::instance(extension(filename));
+      _read = FileReader::instance(extension(filename)+_new);
       _read->loadSettings();
       cout <<"FileInput::run(): processing file '"<<filename
            <<"' with file reader type '"<<extension(filename)<<"'"<<endl;
