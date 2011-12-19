@@ -12,6 +12,9 @@
 
 class QDataStream;
 
+#include <vector>
+#include <stdint.h>
+
 namespace cass
 {
 class CASSEvent;
@@ -33,7 +36,20 @@ struct deserializeSHM
    * @param evt The CASS Event that the data should be deserialized to.
    */
   bool operator()(QDataStream& stream, CASSEvent& evt);
-};
+
+  /** read header off from stream
+   *
+   * @param stream The stream that contains the serialized data
+   */
+  void operator()(QDataStream& stream);
+
+private:
+  /** the width of the framaes*/
+  int _width;
+
+  /** a buffer to store frame data that needs to be converted to the cass structur */
+  std::vector<int16_t> _hllFrameBuffer;
+ };
 }//end namespace pnCCD
 }//end namespace CASS
 
