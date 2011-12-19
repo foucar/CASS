@@ -15,6 +15,8 @@ class QDataStream;
 #include <vector>
 #include <stdint.h>
 
+#include "tcp_streamer.h"
+
 namespace cass
 {
 class CASSEvent;
@@ -27,21 +29,23 @@ namespace pnCCD
  *
  * @author Lutz Foucar
  */
-struct deserializeSHM
+class SHMStreamer : public TCPStreamer
 {
+public:
   /** deserialize stream
    *
-   * @return true when the stream was successfully deserialized
+   * @return the number of bytes read off the stream
    * @param stream The stream that contains the serialized data
    * @param evt The CASS Event that the data should be deserialized to.
    */
-  bool operator()(QDataStream& stream, CASSEvent& evt);
+  size_t operator()(QDataStream& stream, CASSEvent& evt);
 
   /** read header off from stream
    *
+   * @return the number of bytes read off the stream
    * @param stream The stream that contains the serialized data
    */
-  void operator()(QDataStream& stream);
+  size_t operator()(QDataStream& stream);
 
 private:
   /** the width of the framaes*/

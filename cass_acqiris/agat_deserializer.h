@@ -12,6 +12,8 @@
 
 class QDataStream;
 
+#include "tcp_streamer.h"
+
 namespace cass
 {
 class CASSEvent;
@@ -24,15 +26,16 @@ namespace ACQIRIS
  *
  * @author Lutz Foucar
  */
-struct deserializeNormalAgat
+class AGATStreamer : public TCPStreamer
 {
+public:
   /** deserialize stream
    *
-   * @return true when the stream was successfully deserialized
+   * @return number of bytes read off the stream
    * @param stream The stream that contains the serialized data
    * @param evt The CASS Event that the data should be deserialized to.
    */
-  bool operator()(QDataStream& stream, CASSEvent& evt);
+  size_t operator()(QDataStream& stream, CASSEvent& evt);
 };
 }//end namespace ACQIRIS
 }//end namespace CASS

@@ -155,8 +155,9 @@ QDataStream &operator>>(QDataStream& stream, T& evt)
 } //end namespace cass
 
 
-bool deserializeNormalAgat::operator ()(QDataStream& stream, CASSEvent& evt)
+size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
 {
+  size_t nBytesRead(0);
   /** extract the right device from the cassevent */
   if (evt.devices().find(CASSEvent::Acqiris) == evt.devices().end())
     throw runtime_error("deserializeNormalAgat(): The Acqiris Device does not exist.");
@@ -166,6 +167,7 @@ bool deserializeNormalAgat::operator ()(QDataStream& stream, CASSEvent& evt)
   /** read the event header */
   AGATHeader::Event evtHead;
   stream >> evtHead;
+  nBytesRead += sizeof(AGATHeader::Event);
   /** resize the channel container to fit the right number of channels */
   instr.channels().resize(evtHead.nbrChannels);
   /** for each channel */
@@ -178,6 +180,7 @@ bool deserializeNormalAgat::operator ()(QDataStream& stream, CASSEvent& evt)
       /** read the channel header */
       AGATHeader::Channel chanHead;
       stream >> chanHead;
+      nBytesRead += sizeof(AGATHeader::Channel);
       /** copy channel parameters from the header to the cassevent */
       Channel &chan(instr.channels()[iChan]);
       chan.channelNbr() = iChan;
@@ -194,10 +197,12 @@ bool deserializeNormalAgat::operator ()(QDataStream& stream, CASSEvent& evt)
         /** read the puls header and determine the length of the puls form it*/
         AGATHeader::Puls pulsHead;
         stream >> pulsHead;
+        nBytesRead += sizeof(AGATHeader::Puls);
         size_t datasize = pulsHead.length * evtHead.nbrBits/8;
         /** read the puls data into the wavefrom at the right position */
         stream.readRawData(reinterpret_cast<char*>(&waveform[pulsHead.idxPos]),
                            datasize);
+        nBytesRead += datasize;
       }
     }
   }

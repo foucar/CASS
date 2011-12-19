@@ -21,21 +21,25 @@ using namespace cass;
 using namespace pnCCD;
 using namespace std;
 
-void deserializeSHM::operator ()(QDataStream& stream)
+size_t SHMStreamer::operator ()(QDataStream& stream)
 {
   frms6File::FileHeader fileHead;
   stream >> fileHead;
   _width = fileHead.the_width;
+  return sizeof(frms6File::FileHeader);
 }
 
-bool deserializeSHM::operator ()(QDataStream& stream, CASSEvent& evt)
+size_t SHMStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
 {
+  size_t nBytesRead(0);
   frms6File::FrameHeader frameHead;
   stream >> frameHead;
+  nBytesRead += sizeof(frms6File::FrameHeader);
   const size_t framesize(_width * frameHead.the_height);
   const size_t framesizeBytes(framesize * sizeof(frms6File::pixel));
   _hllFrameBuffer.resize(framesize);
   stream.readRawData(reinterpret_cast<char*>(&_hllFrameBuffer.front()), framesizeBytes);
+  nBytesRead += framesizeBytes;
 
   evt.id() = frameHead.external_id;
 
@@ -87,5 +91,5 @@ bool deserializeSHM::operator ()(QDataStream& stream, CASSEvent& evt)
     advance(hllquadrant1,HLLColumns);
     advance(hllquadrant2,HLLColumns);
   }
-  return true;
+  return nBytesRead;
 }
