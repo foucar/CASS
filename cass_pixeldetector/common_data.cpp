@@ -244,7 +244,7 @@ struct staDataType
  *
  * @author Lutz Foucar
  */
-struct HllFileHeader
+struct HllDarkcalFileHeader
 {
   /** string to identify that it is a hll darkcal file
    *
@@ -296,8 +296,8 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
     throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
                            filename + "'");
   }
-  HllFileHeader header;
-  hllfile.read(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
+  HllDarkcalFileHeader header;
+  hllfile.read(reinterpret_cast<char*>(&header),sizeof(HllDarkcalFileHeader));
   if ((string("HE pixel statistics map") != header.identifystring) ||
       (header.columns * header.rows != header.length))
   {
@@ -351,7 +351,7 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     throw invalid_argument("saveHLLOffsetFile(): Error opening file '" +
                            filename + "'");
   }
-  HllFileHeader header =
+  HllDarkcalFileHeader header =
   {
     "HE pixel statistics map",
     data.columns*2,
@@ -360,7 +360,7 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
     ""
   };
 
-  out.write(reinterpret_cast<char*>(&header),sizeof(HllFileHeader));
+  out.write(reinterpret_cast<char*>(&header),sizeof(HllDarkcalFileHeader));
   frame_t hlloffsets(data.offsetMap);
   CASS2HLL(data.offsetMap,hlloffsets,header.rows,header.rows,data.columns);
   frame_t hllnoises(data.noiseMap);
