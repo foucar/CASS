@@ -29,13 +29,15 @@ SOURCES       += \
                  coalescing_base.cpp \
                  pixeldetector_mask.cpp \
                  advanced_pixeldetector.cpp \
-                 lcls_converter.cpp
+                 lcls_converter.cpp \
+                 shm_deserializer.cpp
 
 HEADERS       += \
                  ../cass/cass_settings.h \
                  ../cass/conversion_backend.h \
                  ../cass/device_backend.h \
                  ../cass/serializer.h \
+                 ../cass/tcp_streamer.h \
                  common_data.h \
                  mapcreator_base.h \
                  mapcreators.h \
@@ -52,7 +54,8 @@ HEADERS       += \
                  pixeldetector.hpp \
                  cass_pixeldetector.h \
                  advanced_pixeldetector.h \
-                 lcls_converter.h
+                 lcls_converter.h \
+                 shm_deserializer.h
 
 
 headers.files  = $$HEADERS
