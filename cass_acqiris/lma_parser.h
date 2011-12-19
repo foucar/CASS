@@ -13,6 +13,8 @@
 
 namespace cass
 {
+namespace ACQIRIS
+{
 /** Will parse a lma file
  *
  * @author Lutz Foucar
@@ -48,5 +50,6 @@ public:
   /** @return the type of file parser */
   virtual const std::string type() {return "lma";}
 };
+}//end namespace Acqiris
 }//end namespace cass
 #endif

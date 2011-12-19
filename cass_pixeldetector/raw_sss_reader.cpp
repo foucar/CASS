@@ -12,11 +12,10 @@
 #include "raw_sss_reader.h"
 
 #include "cass_event.h"
-#include "cass_settings.h"
-#include "ccd_device.h"
+#include "pixeldetector.hpp"
 
 using namespace cass;
-using namespace cass::CCD;
+using namespace pixeldetector;
 using namespace std;
 using Streaming::operator >>;
 
@@ -50,14 +49,14 @@ bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)
 
   file.read(reinterpret_cast<char*>(&_imageBuffer.front()),_imageSize);
 
-  CCDDevice *dev(dynamic_cast<CCDDevice*>(event.devices()[CASSEvent::CCD]));
-  if(dev->detectors()->empty())
-    dev->detectors()->resize(1);
-  PixelDetector& det(dev->detectors()->front());
+  CASSEvent::devices_t &devices(event.devices());
+  CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+  if(devIt == devices.end())
+    throw runtime_error("SHMStreamer: There is no pixeldetector device within the CASSEvent");
+  Device &dev(*dynamic_cast<Device*>(devIt->second));
+  Detector &det(dev.dets()[100]);
   det.columns() = _header.width;
   det.rows()    = _header.height;
-  det.originalcolumns() = _header.width;
-  det.originalrows()    = _header.height;
   det.frame().resize(_imageBuffer.size());
 
   copy(_imageBuffer.begin(),_imageBuffer.end(),det.frame().begin());

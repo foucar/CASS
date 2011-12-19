@@ -13,13 +13,12 @@
 
 #include "cass_event.h"
 #include "pixeldetector.hpp"
-#include "pixel_detector.h"
 #include "hlltypes.h"
-#include "common_data.h"
 
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
+using Streaming::operator >>;
 
 size_t SHMStreamer::operator ()(QDataStream& stream)
 {

@@ -11,11 +11,11 @@
 #include "frms6_reader.h"
 
 #include "cass_event.h"
-#include "cass_settings.h"
-#include "pnccd_device.h"
+#include "cass.h"
+#include "pixeldetector.hpp"
 
 using namespace cass;
-using namespace pnCCD;
+using namespace pixeldetector;
 using namespace std;
 using Streaming::operator >>;
 
@@ -45,16 +45,16 @@ bool Frms6Reader::operator ()(ifstream &file, CASSEvent& evt)
   file.read(reinterpret_cast<char*>(&_hllFrameBuffer.front()), framesizeBytes);
 
   /** get the detector associated with the frame info id from the event */
-  pnCCDDevice *dev(dynamic_cast<pnCCDDevice*>(evt.devices()[CASSEvent::pnCCD]));
-  if(dev->detectors()->empty())
-    dev->detectors()->resize(1);
-  PixelDetector& det(dev->detectors()->front());
+  CASSEvent::devices_t &devices(evt.devices());
+  CASSEvent::devices_t::iterator devIt(devices.find(CASSEvent::PixelDetectors));
+  if(devIt == devices.end())
+    throw runtime_error("Frms6Reader: There is no pixeldetector device within the CASSEvent");
+  Device &dev(*dynamic_cast<Device*>(devIt->second));
+  Detector &det(dev.dets()[_frameHead.id]);
 
   /** set the information of the frame to the detector */
   det.columns() = _fileHead.the_width/2;
   det.rows()    = _frameHead.the_height*2;
-  det.originalcolumns() = _fileHead.the_width/2;
-  det.originalrows()    = _frameHead.the_height*2;
   det.frame().resize(_hllFrameBuffer.size());
 
   /** convert hll frame format to cass frame format */

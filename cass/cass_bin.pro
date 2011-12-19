@@ -166,6 +166,7 @@ HEADERS            += analysis_backend.h \
                       xtc_reader.h \
                       xtc_parser.h \
                       hlltypes.h \
+                      raw_sss_file_header.h \
                       txt_reader.h \
                       txt_parser.h \
                       multifile_input.h \

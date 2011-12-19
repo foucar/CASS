@@ -13,8 +13,6 @@
 
 namespace cass
 {
-namespace pnCCD
-{
 /** Will parse a frms6 file created by Xonline
  *
  * @author to be determined
@@ -44,6 +42,5 @@ public:
   /** @return the type of file parser */
   virtual const std::string type() {return "frms6";}
 };
-}//end namespace pnCCD
 }//end namespace cass
 #endif

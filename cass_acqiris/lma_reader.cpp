@@ -14,11 +14,12 @@
 
 #include "cass_event.h"
 #include "cass_settings.h"
-#include "lma_file_header.h"
+#include "agattypes.h"
 
 using namespace cass;
 using namespace cass::ACQIRIS;
 using namespace std;
+using Streaming::operator >>;
 
 LmaReader::LmaReader()
 {}
@@ -29,17 +30,13 @@ void LmaReader::loadSettings()
 
 void LmaReader::readHeaderInfo(std::ifstream &file)
 {
-  vector<char> headerarray(sizeof(lmaFile::GeneralHeader));
-  file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
-  const lmaFile::GeneralHeader &header
-      (*reinterpret_cast<lmaFile::GeneralHeader*>(&headerarray.front()));
+  lmaHeader::General header;
+  file >> header;
+
   if (header.nbrBits != 16)
-  {
-    stringstream ss;
-    ss<<"LmaReader(): The lma file seems to contain 8-bit wavefroms '"<<header.nbrBits
-     <<"'. Currently this is not supported.";
-    throw runtime_error(ss.str());
-  }
+    throw runtime_error("LMAParser():run: The lma file seems to contain 8-bit wavefroms '"
+                        + toString(header.nbrBits) + "'. Currently this is not supported.");
+
   _instrument.channels().resize(header.nbrChannels);
   _usedChannelBitmask = header.usedChannelBitmask;
 
@@ -57,11 +54,8 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
 
     if (_usedChannelBitmask & (0x1<<i))
     {
-      vector<char> chanheaderarray(sizeof(lmaFile::ChannelHeader));
-      file.read(&chanheaderarray.front(),sizeof(lmaFile::ChannelHeader));
-      const lmaFile::ChannelHeader &chanheader
-          (*reinterpret_cast<lmaFile::ChannelHeader*>(&chanheaderarray.front()));
-
+      lmaHeader::Channel chanheader;
+      file >> chanheader;
       chan.offset() = chanheader.offset_mV*1e-3;
       chan.gain() = chanheader.gain_mVperLSB*1e-3;
       waveform_t & waveform (chan.waveform());
@@ -72,22 +66,22 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
 
 bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
 {
-  /** extract the right device from the cassevent */
+  /** extract the right instrument from the cassevent */
   Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
-  /** extract the right instrument from the acqiris device */
   Instrument &instr(dev->instruments()[Standalone]);
   /** copy the header information to the instrument */
   instr = _instrument;
   Instrument::channels_t &channels(instr.channels());
 
-  /** read the acqiris data from the file */
-  evt.id() = (FileStreaming::retrieve<int32_t>(file));
-  double horpos(FileStreaming::retrieve<double>(file));
+  /** read the event information data from the file */
+  lmaHeader::Event evtHead;
+  file >> evtHead;
+  evt.id() = evtHead.id;
 
   for (size_t i=0; i<channels.size();++i)
   {
     Channel &chan(instr.channels()[i]);
-    chan.horpos() = horpos;
+    chan.horpos() = evtHead.horpos;
     waveform_t &waveform(chan.waveform());
     if (_usedChannelBitmask & (0x1<<i))
     {
@@ -96,14 +90,14 @@ bool LmaReader::operator ()(ifstream &file, CASSEvent& evt)
        *  wavefrom sinpplets called pulses and put them at the right position in
        *  the wavefrom of the channel.
        */
-      int16_t nbrPulses(FileStreaming::retrieve<int16_t>(file));
+      int16_t nbrPulses(Streaming::retrieve<int16_t>(file));
       for (int16_t i(0); i < nbrPulses; ++i)
       {
         /** read the puls properties from file */
-        int32_t wavefromOffset(FileStreaming::retrieve<int32_t>(file));
-        int32_t pulslength(FileStreaming::retrieve<int32_t>(file));
-        size_t dataSize(pulslength * 2);
-        file.read(reinterpret_cast<char*>(&(*(waveform.begin()+wavefromOffset))),
+        lmaHeader::Puls pulsHead;
+        file >> pulsHead;
+        size_t dataSize(pulsHead.length * 2);
+        file.read(reinterpret_cast<char*>(&waveform[pulsHead.idxPos]),
                   dataSize);
       }
     }

@@ -18,9 +18,8 @@
 #include "raw_sss_file_header.h"
 
 using namespace cass;
-using namespace CCD;
 using namespace std;
-using Streaming::operator >>;
+using namespace std::tr1;
 
 void RAWSSSParser::run()
 {
@@ -31,17 +30,16 @@ void RAWSSSParser::run()
 
   /** the file header information */
   sssFile::Header header;
-  file >> header;
+  file.read(reinterpret_cast<char*>(&header),sizeof(sssFile::Header));
 
-  const uint32_t imagesize(header.width * header.height *
-                           sizeof(sssFile::image_t::value_type));
+  const uint32_t imagesize(header.width*header.height*sizeof(sssFile::image_t::value_type));
 
   cout <<"RAWSSSParser::run(): file contains '"<<header.nFrames<<"' images"<<endl;
   
   for (uint32_t iImage(0); iImage < header.nFrames; ++iImage)
   {
     const streampos eventStartPos(file.tellg());
-    uint32_t eventId(Streaming::retrieve<uint32_t>(file));
+    uint32_t eventId(FileStreaming::retrieve<uint32_t>(file));
     savePos(eventStartPos,eventId);
     file.seekg(imagesize,ios_base::cur);
   }

@@ -21,6 +21,8 @@ namespace cass
 {
 class CASSEvent;
 
+namespace CCD
+{
 /** class for reading commercial ccd files
  *
  * @author Lutz Foucar
@@ -62,5 +64,6 @@ private:
   /** the length of the image in bytes */
   size_t _imageSize;
 };
+}//end namespace ccd
 }//end namespace cass
 #endif

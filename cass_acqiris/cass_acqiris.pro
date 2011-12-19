@@ -59,7 +59,7 @@ HEADERS += ./acqiris_converter.h \
     ./acqiristdc_converter.h \
     ./acqiristdc_device.h \
     ./agat_deserializer.h \
-    ./lma_file_header.h \
+    ./agattypes.h \
     ./lma_reader.h \
     ./lma_parser.h \
     ./map.hpp \

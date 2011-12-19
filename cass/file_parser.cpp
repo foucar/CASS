@@ -42,11 +42,11 @@ FileParser::shared_pointer FileParser::instance(const std::string type,
 {
   shared_pointer ptr;
   if (type == "lma")
-    ptr = shared_pointer(new LMAParser(readerpointerpair,event2posreader, lock));
+    ptr = shared_pointer(new ACQIRIS::LMAParser(readerpointerpair,event2posreader, lock));
   else if (type == "sss")
-    ptr = shared_pointer(new RAWSSSParser(readerpointerpair,event2posreader, lock));
+    ptr = shared_pointer(new CCD::RAWSSSParser(readerpointerpair,event2posreader, lock));
   else if (type == "frms6")
-    ptr = shared_pointer(new Frms6Parser(readerpointerpair,event2posreader, lock));
+    ptr = shared_pointer(new pnCCD::Frms6Parser(readerpointerpair,event2posreader, lock));
   else if (type == "txt")
     ptr = shared_pointer(new TxtParser(readerpointerpair,event2posreader, lock));
   else if (type == "xtc")

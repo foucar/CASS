@@ -32,6 +32,6 @@ struct Header
   /** number of frames contained in file */
   uint32_t nFrames;
 };
-} //end namespace lmafile
 #pragma pack()
+} //end namespace lmafile
 } //end namespace cass

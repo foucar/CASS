@@ -12,28 +12,24 @@
 #include <stdexcept>
 
 #include "lma_parser.h"
-#include "lma_file_header.h"
+#include "agattypes.h"
 
 using namespace cass;
+using namespace ACQIRIS;
 using namespace std;
-using namespace std::tr1;
+using Streaming::operator >>;
 
 void LMAParser::run()
 {
   ifstream &file(*(_readerpointerpair.second._filestream));
 
-  vector<char> headerarray(sizeof(lmaFile::GeneralHeader));
-  file.read(&headerarray.front(),sizeof(lmaFile::GeneralHeader));
-  const lmaFile::GeneralHeader &header
-      (*reinterpret_cast<lmaFile::GeneralHeader*>(&headerarray.front()));
+  lmaHeader::General header;
+  file >> header;
 
   if (header.nbrBits != 16)
-  {
-    stringstream ss;
-    ss<<"LMAParser():run: The lma file seems to contain 8-bit wavefroms '"
-     <<header.nbrBits<<"'. Currently this is not supported.";
-    throw runtime_error(ss.str());
-  }
+    throw runtime_error("LMAParser():run: The lma file seems to contain 8-bit wavefroms '"
+                        + toString(header.nbrBits) + "'. Currently this is not supported.");
+
   cout <<"LMAParser(): File contains instrument with '"<<header.nbrChannels
        <<"' channels:"<<endl;
 
@@ -42,34 +38,27 @@ void LMAParser::run()
     cout <<"LMAParser(): Channel '"<<i<<"' is "
          <<((header.usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
     if (header.usedChannelBitmask & (0x1<<i))
-    {
-      vector<char> chanheaderarray(sizeof(lmaFile::ChannelHeader));
-      file.read(&chanheaderarray.front(),sizeof(lmaFile::ChannelHeader));
-    }
+      file.seekg(sizeof(lmaHeader::Channel),ios_base::cur);
   }
 
+  lmaHeader::Event evtHead;
   while(!file.eof())
   {
     const streampos eventStartPos(file.tellg());
-    uint32_t eventID(FileStreaming::retrieve<int32_t>(file));
-    savePos(eventStartPos,eventID);
-
-    eventID = FileStreaming::retrieve<int32_t>(file);
-    double horpos(FileStreaming::retrieve<double>(file));
+    file >> evtHead;
+    savePos(eventStartPos,evtHead.id);
 
     for (int16_t i=0; i<header.nbrChannels;++i)
     {
       if (header.usedChannelBitmask & (0x1<<i))
       {
-        int16_t nbrPulses(FileStreaming::retrieve<int16_t>(file));
+        int16_t nbrPulses(Streaming::retrieve<int16_t>(file));
         for (int16_t i(0); i < nbrPulses; ++i)
         {
-          const int32_t wavefromOffset(FileStreaming::retrieve<int32_t>(file));
-          const int32_t pulslength(FileStreaming::retrieve<int32_t>(file));
-          const size_t dataSize(pulslength * 2);
-          const size_t curPos(file.tellg());
-          const size_t offset(curPos + dataSize);
-          file.seekg(offset);
+          lmaHeader::Puls pulsHead;
+          file >> pulsHead;
+          const size_t dataSize(pulsHead.length * 2);
+          file.seekg(dataSize,ios_base::cur);
         }
       }
     }

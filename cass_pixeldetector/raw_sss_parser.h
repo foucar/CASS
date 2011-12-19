@@ -14,8 +14,6 @@
 
 namespace cass
 {
-namespace CCD
-{
 /** Will parse a file containing commercial ccd images.
  *
  * @author Lutz Foucar
@@ -49,6 +47,5 @@ public:
   /** @return the type of file parser */
   virtual const std::string type() {return "sss";}
 };
-}//end namespace CCD
 }//end namespace cass
 #endif

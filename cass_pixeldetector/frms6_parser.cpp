@@ -14,9 +14,8 @@
 #include "hlltypes.h"
 
 using namespace cass;
-using namespace pnCCD;
 using namespace std;
-using Streaming::operator >>;
+using namespace std::tr1;
 
 void Frms6Parser::run()
 {

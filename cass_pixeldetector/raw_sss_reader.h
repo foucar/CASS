@@ -1,40 +1,39 @@
 // Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file frms6_reader.h contains class to read frms6 files created by Xonline
+ * @file raw_sss_reader.h contains class to read commercial ccd files created
+ *                        with Per Johnsonn's program
  *
  * @author Lutz Foucar
  */
 
-#ifndef _FRMS6READER_H_
-#define _FRMS6READER_H_
+#ifndef _RAWSSSREADER_H_
+#define _RAWSSSREADER_H_
 
-#include <tr1/memory>
 #include <fstream>
-#include <string>
+#include <stdint.h>
 #include <vector>
 
 #include "file_reader.h"
-
-#include "hlltypes.h"
+#include "raw_sss_file_header.h"
 
 namespace cass
 {
 class CASSEvent;
 
-namespace pnCCD
+namespace pixeldetector
 {
-/** class for reading frms6 files
+/** class for reading commercial ccd files
  *
- * @author to be determined
+ * @author Lutz Foucar
  */
-class Frms6Reader : public FileReader
+class RAWSSSReader : public FileReader
 {
 public:
   /** constructor */
-  Frms6Reader();
+  RAWSSSReader();
 
-  /** read the frms6 file contents put them into cassevent
+  /** read the raw.sss file contents put them into cassevent
    *
    * @return true when the workers should work on the filled cassevent,
    *         false if not.
@@ -53,15 +52,18 @@ public:
   void readHeaderInfo(std::ifstream &file);
 
 private:
-  /** the frms6 file header */
-  hllDataTypes::Frms6FileHeader _fileHead;
+  /** the file header information */
+  sssFile::Header _header;
 
-  /** header that comes before every frame */
-  hllDataTypes::FrameHeader _frameHead;
+  /** counter to see how many images have been read from file */
+  uint32_t _imagecounter;
 
-  /** a buffer to not allocate the read buffer for each event */
-  std::vector<hllDataTypes::pixel> _hllFrameBuffer;
+  /** buffer for images */
+  sssFile::image_t _imageBuffer;
+
+  /** the length of the image in bytes */
+  size_t _imageSize;
 };
-}//end namespace pnCCD
+}//end namespace pixeldetector
 }//end namespace cass
 #endif

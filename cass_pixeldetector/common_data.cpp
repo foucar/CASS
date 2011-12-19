@@ -28,6 +28,7 @@
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
+using Streaming::operator >>;
 
 namespace cass
 {

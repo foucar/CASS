@@ -22,7 +22,7 @@ namespace cass
 {
 class CASSEvent;
 
-namespace pnCCD
+namespace pixeldetector
 {
 /** class for reading frms6 files
  *
@@ -62,6 +62,6 @@ private:
   /** a buffer to not allocate the read buffer for each event */
   std::vector<hllDataTypes::pixel> _hllFrameBuffer;
 };
-}//end namespace pnCCD
+}//end namespace pixeldetector
 }//end namespace cass
 #endif

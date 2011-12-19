@@ -19,8 +19,9 @@
 namespace cass
 {
 class CASSEvent;
-class FormatConverter;
 
+namespace ACQIRIS
+{
 /** class for reading lma files
  *
  * read an event in lma file format from a given position in a file stream and
@@ -59,5 +60,6 @@ private:
   /** bitmask describing which channels are active in the instrument */
   uint32_t _usedChannelBitmask;
 };
+}//end namespace acqiris
 }//end namespace cass
 #endif

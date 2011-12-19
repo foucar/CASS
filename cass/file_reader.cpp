@@ -27,11 +27,11 @@ FileReader::shared_pointer FileReader::instance(const string &type)
   if (type == "xtc")
     ptr = shared_pointer(new XtcReader());
   else if (type == "lma")
-    ptr = shared_pointer(new LmaReader());
+    ptr = shared_pointer(new ACQIRIS::LmaReader());
   else if (type == "sss")
-    ptr = shared_pointer(new RAWSSSReader());
+    ptr = shared_pointer(new CCD::RAWSSSReader());
   else if (type == "frms6")
-    ptr = shared_pointer(new Frms6Reader());
+    ptr = shared_pointer(new pnCCD::Frms6Reader());
   else if (type == "txt")
     ptr = shared_pointer(new TxtReader());
   else

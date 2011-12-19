@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <tr1/memory>
 #include <QtCore/qglobal.h>
+#include <QtCore/QDataStream>
 #include <stdint.h>
 
 
@@ -225,7 +226,7 @@ struct Splitter
 
 
 
-namespace FileStreaming
+namespace Streaming
 {
 /** retrieve a variable from a file stream
  *
@@ -257,6 +258,41 @@ T peek(std::ifstream &file)
   file.read(reinterpret_cast<char*>(&var),sizeof(T));
   file.seekg(currentpos);
   return var;
+}
+
+/** reading a type from the QDataStream
+ *
+ * @tparam T the type that should be read from the stream
+ * @return reference to the stream
+ * @param stream the stream to read from
+ * @param evt the header to read to
+ *
+ * @author Lutz Foucar
+ */
+template<typename T>
+QDataStream &operator>>(QDataStream& stream, T& evt)
+{
+  if(stream.readRawData(reinterpret_cast<char*>(&evt),sizeof(T)) != sizeof(T))
+    throw std::runtime_error("operator>>(QDdataStream&,T&): could not retrieve the right size");
+  return stream;
+}
+
+/** reading a type from the filestream
+ *
+ * @tparam T the type that should be read from the stream
+ * @return reference to the stream
+ * @param stream the stream to read from
+ * @param evt the header to read to
+ *
+ * @author Lutz Foucar
+ */
+template<typename T>
+std::ifstream &operator>>(std::ifstream& stream, T& evt)
+{
+  stream.read(reinterpret_cast<char*>(&evt),sizeof(T));
+  if(stream.rdstate() != std::ios_base::goodbit)
+    throw std::runtime_error("operator>>(ifstream&,T&): could not retrieve the right size");
+  return stream;
 }
 
 }//end namespace FileStreaming

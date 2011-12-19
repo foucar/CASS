@@ -19,6 +19,7 @@
 using namespace cass;
 using namespace pnCCD;
 using namespace std;
+using Streaming::operator >>;
 
 size_t SHMStreamer::operator ()(QDataStream& stream)
 {
