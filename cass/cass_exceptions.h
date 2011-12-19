@@ -62,6 +62,25 @@ namespace cass
     std::string _key;
   };
 
+  /** Exception thrown when there is a problem with deserializing QDataStreams
+   *
+   * @author Lutz Foucar
+   */
+  class DeserializeError : public std::runtime_error
+  {
+  public:
+    /** explicit constructor
+     *
+     * @param message the error message
+     */
+    explicit DeserializeError(const std::string & message)
+      : std::runtime_error(message)
+    {
+
+    }
+
+    virtual ~DeserializeError() throw() {}
+  };
 }
 
 #endif
