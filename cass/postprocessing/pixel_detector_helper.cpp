@@ -79,6 +79,7 @@ DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 DetectorHelper::AdvDet_sptr DetectorHelper::detector(const CASSEvent &evt)
 {
   QMutexLocker lock(&_helperMutex);
+  /** @todo use bind */
   detectorList_t::iterator it
     (find_if(_detectorList.begin(), _detectorList.end(), IsID(evt.id())));
   if(_detectorList.end() == it)
@@ -97,6 +98,7 @@ void DetectorHelper::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PixelDetectors");
+  /** @todo use for each with bind */
   detectorList_t::iterator it(_detectorList.begin());
   for (;it != _detectorList.end();++it)
     it->second->loadSettings(s);

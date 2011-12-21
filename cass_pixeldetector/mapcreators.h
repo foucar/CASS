@@ -28,6 +28,8 @@ class CommonData;
 
 /** Creates maps such that they will not do any correction
  *
+ * All offsets are set to 0 and noises are set to 4000.
+ *
  * @author Lutz Foucar
  */
 class NonAlteringMaps : public MapCreatorBase
@@ -47,7 +49,8 @@ public:
 
   /** load the settings of this creator
    *
-   * set the correction map such that it will not alter the frame
+   * set the correction map such that it will not alter the frame. See classes
+   * help for more information.
    *
    * @param s the CASSSettings object to read the information from
    */
@@ -61,7 +64,7 @@ private:
 
 /** Creates maps from a fixed number of Frames
  *
- * Cretes the maps after collecting a user given number of frames. The maps will
+ * Creates the maps after collecting a user given number of frames. The maps will
  * be created using standart statistics. The user has the choice of whehter the
  * mean or the median should be used for the offset value.
  *
@@ -113,6 +116,8 @@ public:
 
   /** load the settings of this creator
    *
+   * See class description for a detailed list.
+   *
    * @param s the CASSSettings object to read the information from
    */
   void loadSettings(CASSSettings &s);
@@ -148,6 +153,8 @@ private:
 
 
 /** Creates maps from the last number of maps
+ *
+ * details.
  *
  * @author Lutz Foucar
  */

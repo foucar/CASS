@@ -241,6 +241,10 @@ void FixedMaps::operator ()(const Frame &frame)
       }
       _createMaps = false;
       _storage.clear();
+      /** @todo will this make the newly created map available for analysis or
+       *        just store it to disc? How would we be able to make the newly
+       *        created correction map available?
+       */
       _commondata->saveMaps();
     }
   }

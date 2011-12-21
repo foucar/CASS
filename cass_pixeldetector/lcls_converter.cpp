@@ -170,6 +170,7 @@ Converter::Converter()
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
+  /** @todo check whether all id are given or need to be given */
   _LCLSToCASSId[FrontPnCCD] = 1;
 }
 

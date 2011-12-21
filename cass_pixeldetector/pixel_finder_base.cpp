@@ -28,6 +28,7 @@ PixelFinderBase::shared_pointer PixelFinderBase::instance(const string &type)
     ptr = shared_pointer(new PixelFinderSimple());
   else
   {
+    /** @todo get rid of stringstream */
     stringstream ss;
     ss << "PixelFinderBase::instance: Pixel Finder type '"<< type
         <<"' is unknown.";

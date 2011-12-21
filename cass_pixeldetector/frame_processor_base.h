@@ -25,7 +25,8 @@ struct Frame;
 
 /** base class for all frame processors
  *
- * a frame processor will process the pixels of a frame
+ * a frame processor will process the pixels of a frame. For a list of possible
+ * processors see description of pixeldetector::AdvancedDetector.
  *
  * @author Lutz Foucar
  */

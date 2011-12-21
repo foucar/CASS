@@ -27,6 +27,7 @@ CoalescingBase::shared_pointer CoalescingBase::instance(const string &type)
 //    ptr = shared_pointer(new LmaReader());
   else
   {
+    /** @todo get rid of stringstream */
     stringstream ss;
     ss << "CoalescingBase::instance: Coalescing function type '"<< type
         <<"' is unknown.";

@@ -88,7 +88,7 @@ void pp105::process(const cass::CASSEvent& evt)
 {
   DetectorHelper::AdvDet_sptr det
       (DetectorHelper::instance(_detector)->detector(evt));
-   const pixeldetector::frame_t& frame (det->frame().data);
+  const pixeldetector::frame_t& frame (det->frame().data);
   _result->lock.lockForWrite();
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det->frame().columns ||
       _result->axis()[HistogramBackend::yAxis].nbrBins() != det->frame().rows)

@@ -23,7 +23,10 @@ namespace pixeldetector
  *
  * this processor will do a processing of the frame that should be similar
  * to what the semi conductor lab in Munich (HLL) is doing to process the
- * pnCCD frames
+ * pnCCD frames. The individual pixels will be common mode and offset corrected.
+ * See below for a list of available common mode corrections. Then the correction
+ * map is applied to the pixel. For details about the correction map see
+ * CommonData.
  *
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/{CommonModeCalculationType}\n
  *           defines what kind of common mode correction should be done with the
@@ -48,7 +51,8 @@ public:
 
   /** process the frame
    *
-   * take the input frame, process it and then return a reference to it
+   * take the input frame, process it and then return a reference to it. For
+   * details about processing see this classes description.
    *
    * @return reference to the processed frame
    * @param frame the frame that should be processed

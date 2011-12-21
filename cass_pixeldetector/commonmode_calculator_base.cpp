@@ -41,7 +41,7 @@ namespace commonmode
 class NoCalc : public CalculatorBase
 {
 public:
-  /** the operation
+  /** no operation performed
    *
    * @return 0.
    * @param pixel unused
@@ -67,6 +67,7 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
     ptr = shared_pointer(new MedianCalculator());
   else
   {
+    /** @todo get rid of stringstream */
     stringstream ss;
     ss << "CalculatorBase::instance: Common Mode Calculator type '"<< type
         <<"' is unknown.";

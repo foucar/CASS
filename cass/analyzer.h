@@ -44,7 +44,12 @@ namespace cass
     /** list of known individual analyzers*/
     enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
 
-    /** creates an instance if it does not exist already*/
+    /** creates an instance if it does not exist already
+     *
+     * @todo use shared pointer here.
+     *
+     * @return pointer to this singleton class
+     */
     static Analyzer *instance();
 
     /** this destroys the the instance*/

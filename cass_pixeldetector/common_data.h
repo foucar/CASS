@@ -94,25 +94,33 @@ public:
 public:
   /** static function creating instance of this.
    *
-   * return the instance of the common data. If the instance is not yet inside
-   * the _instances map the helper instance will be created one and put into the
-   * _instances map.
+   * return the instance of the common data used with the advanced detector with
+   * the name detector. If the instance is not yet inside the _instances map the
+   * helper instance will be created one and put into the _instances map. So
+   * that later calls to this will return the same shared pointer.
    *
    * @return instance of the common data
    * @param detector key (name) of the detector to find it in the _instances map
    */
   static shared_pointer instance(const instancesmap_t::key_type& detector);
 
-  /** load the settings of the detectors in the detector list
+  /** load the settings of this common object
    *
-   * go through the list of detectors and tell each of the detector to load
-   * its settings.
+   * See the description of this class for the list of possible variables that
+   * will be loaded via this function. Once all parameters are loaded it will
+   * load the Mask for this detector. See pixeldetector::createCASSMask for
+   * options creating the mask. Also the correction map for this dector is
+   * created once all information has been loaded. See createCorrectionMap for
+   * details.
    *
    * @param s the object to load the settings for the common data from.
    */
   void loadSettings(CASSSettings &s);
 
   /** create the maps from the frame data with help of the functor
+   *
+   * There are several ways of creating the maps available. For a detailed list
+   * see this classes help.
    *
    * @param frame The frame data to create the maps from
    */
@@ -121,11 +129,12 @@ public:
   /** save maps
    *
    * save the maps to file in the user chosen fileformat.See
-   * cass::pixeldetector::saveCASSOffsetFile or cass::pixeldetector::saveHLLOffsetFile
-   * for details.
+   * cass::pixeldetector::saveCASSOffsetFile or
+   * cass::pixeldetector::saveHLLOffsetFile for details.
    *
    * first append the detector id and the current time to the user selected out
    * filename. Then save the file and create a link to it. The name of the link
+   * will be called like "darkcal_\%detectorID\%.cal"
    */
   void saveMaps();
 

@@ -10,6 +10,7 @@
 #define _PIXELDETECTORNEW_H_
 
 #include <tr1/memory>
+#include <stdint.h>
 
 #include "pixeldetector.hpp"
 #include "cass_pixeldetector.h"
@@ -107,8 +108,8 @@ public:
    * passed to the _common object. This should then build up the necessary
    * Maps for correcting. See CommonData for details
    *
-   * @param evt Pointer to the CASSEvent that contains the PixelDetector that
-   *            this container is responsible for.
+   * @param evt The CASSEvent that contains the PixelDetector that this
+   *            container is responsible for.
    */
   void associate(const CASSEvent &evt);
 
@@ -126,13 +127,33 @@ public:
    */
   void loadSettings(CASSSettings &s);
 
-  /** retrieve the frame */
+  /** retrieve the frame
+   *
+   * the frame from the cass event is treated with the frame processor _process
+   * before it is returned, but only when it has not yet been treated. For
+   * all available options see this classes cass settings information.
+   */
   const Frame& frame();
 
-  /** retrieve the pixellist */
+  /** retrieve the pixellist
+   *
+   * the pixels list contains all pixels that fullfill a certain criteria. They
+   * are found in the processed frame using different finding functions. For a
+   * list of all available finding procedures please refer to the description
+   * of this class.
+   */
   const pixels_t& pixels();
 
-  /** retrieve the hits */
+  /** retrieve the hits/
+   *
+   * Hits are defined as particles or photons that hit the detector. Those hits
+   * can potentially not only be detected by just one pixel. Therefore one has
+   * to find the pixels that belong to one hit on the detector. This is done
+   * by the coalsecing functions available to this class (for a complete
+   * list of all available finding procedures please refer to the description
+   * of this class). The coalsecing functions work on the pixellist that is
+   * created from the processed frame.
+   */
   const hits_t& hits();
 
 

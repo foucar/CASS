@@ -21,6 +21,13 @@ namespace pixeldetector
  * This HLL like finding of pixels will compare the pixel values to a "noise"
  * Map (see cass::pixeldetector::CommonData::noiseMap).
  *
+ * @note the multiplication should be done here since if we do it on the global
+ *       noise map it will be the same for all detectors @todo is this right?
+ *
+ * @cassttng PixelDetectors/\%name\%/AboveNoiseFinder/{Multiplier}\n
+ *           Value multiplied to the noise value before comparing whether the
+ *           pixel is above the noise. Default is 4.
+ *
  * @author Lutz Foucar
  */
 class AboveNoiseFinder : public PixelFinderBase

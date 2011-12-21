@@ -50,6 +50,7 @@ FrameProcessorBase::shared_pointer FrameProcessorBase::instance(const string &ty
     ptr = shared_pointer(new HLLProcessor());
   else
   {
+    /** @todo don't use stringstream here */
     stringstream ss;
     ss << "FrameProcessorBase::instance: Frame processor type '"<< type
         <<"' is unknown.";

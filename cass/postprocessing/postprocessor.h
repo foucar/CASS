@@ -402,6 +402,13 @@ using the custom doxygen tag cassttng.
     typedef std::list<key_t> keyList_t;
 
     /** create the instance if not it does not exist already.
+     *
+     * @todo create second function with same name without parameter that
+     *       will check whether the instance has been created yet otherwise
+     *       throws.
+     * @todo instance should be a shared_pointer
+     *
+     * @return poiner to this singelton class.
      * @param outputfilename filename of the outputfile
      */
     static PostProcessors *instance(std::string outputfilename);
@@ -412,6 +419,7 @@ using the custom doxygen tag cassttng.
     /** process event
      *
      * This function will call postprocessors operators in the container
+     *
      * @param event CASSEvent to process by all active postprocessors
      */
     void process(const CASSEvent& event);

@@ -185,8 +185,9 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
 /** will save the file containing the offset and noise map in the former CASS format
  *
  * write the offset and noise map into a file. The values will just be written
- * in a binary stream of doubles
- * the maps are still locked by the createMaps lock when writing.
+ * in a binary stream of doubles.
+ *
+ * The maps are still locked by the createMaps lock when writing.
  *
  * @param filename the filename of file containing the offset and noise maps.
  * @param data the data storage where the info should be written to.
@@ -258,12 +259,12 @@ void readHLLGainFile(const string &filename, CommonData& data)
   if (!in.is_open())
   {
     //fehler
+    /** @todo throw runtime error here */
   }
   char line[80];
   in.getline(line, 80);
   if (line != string("HE File"))
   {
-    //error
     throw runtime_error("Wrong file format: " + std::string(line));
   }
   in.getline(line, 80);
@@ -308,6 +309,14 @@ void readHLLGainFile(const string &filename, CommonData& data)
 
 /** will create the final correction map from the info stored in the other maps
  *
+ * the correction value for a pixel is calculated using the following formular:
+ * @todo find right doxygen writing for cases
+ * \f[
+ *  corval = corval \times maskval \times \begin{cases}
+ *                                0 & text{if noise \$<\$ noisethreshold \\
+ *                                1 & text{otherwise}
+ *                                        \end{cases}
+ * \f]
  * @param data the data storage that is used to create the maps from
  *
  * @author Lutz Foucar

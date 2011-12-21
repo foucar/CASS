@@ -46,9 +46,8 @@ const AdvancedDetector::pixels_t& AdvancedDetector::pixels()
 {
   if(!_pixellistCreated)
   {
-    PixelFinderBase &find(*_find);
-    //make sure the frame is processed
     frame();
+    PixelFinderBase &find(*_find);
     find(_frame,_pixels);
     _pixellistCreated = true;
   }
@@ -59,9 +58,8 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
 {
   if (!_hitListCreated)
   {
-    CoalescingBase & coalesce (*_coalesce);
-    //make sure that frame and pixels are created//
     pixels();
+    CoalescingBase & coalesce (*_coalesce);
     coalesce(_frame,_pixels,_hits);
     _hitListCreated = true;
   }
@@ -72,19 +70,23 @@ void AdvancedDetector::associate(const CASSEvent &evt)
 {
   if (evt.devices().find(CASSEvent::PixelDetectors) == evt.devices().end())
   {
+    /** @todo correct this */
     stringstream ss;
     ss << "AdvancedDetector::associate(): Device 'PixelDetectors'"
         <<"' does not exist in CASSEvent";
     throw invalid_argument(ss.str());
   }
+  /** @todo use reference to device here to safe space in line below */
   const Device &dev (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::PixelDetectors)->second)));
   if (dev.dets().find(_detector) == dev.dets().end())
   {
+    /** @todo use toString */
     stringstream ss;
     ss << "AdvancedDetector::associate(): Detector '"<<_detector
         <<"' does not exist in Device 'PixelDetectors' within the CASSEvent";
     throw invalid_argument(ss.str());
   }
+  /** @todo use reference to device here to safe space in line below */
   const Detector &det(dev.dets().find(_detector)->second);
   _frame.columns = det.columns();
   _frame.rows = det.rows();
@@ -110,7 +112,7 @@ void AdvancedDetector::loadSettings(CASSSettings &s)
   string coalescetype(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(coalescetype);
   _coalesce->loadSettings(s);
-  _common = CommonData::instance(_name);
+  _common = CommonData::instance(_name); /** @todo do we need this here since we already got it in the constructor?*/
   _common->detectorId = _detector;
   _common->loadSettings(s);
   s.endGroup();
