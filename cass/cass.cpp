@@ -330,29 +330,25 @@ int main(int argc, char **argv)
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
 #endif
-    QObject::connect(&InputBase::reference(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
-    QObject::connect(&InputBase::reference(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
 
     /** create a deamon to capture UNIX signals and use it to let the user quit
      *  the program via cli by connecting the quit and term signal to notify the
      *  input to quit
      */
+    /** @todo implement something that will quit the input without signal slot */
     setup_unix_signal_handlers();
     UnixSignalDaemon signaldaemon(qApp);
-    QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), &InputBase::reference(), SLOT(end()));
-    QObject::connect(&signaldaemon, SIGNAL(TermSignal()), &InputBase::reference(), SLOT(end()));
 
     /** set up the TCP/SOAP server and connect its provided signals to the
      *  appropriate slots fo the input and the workers
      */
-    /** @todo make sure that the , readini, writeini, sendcommand, clear hist
+    /** @todo make sure that the quit, readini, writeini, sendcommand, clear hist
      *        are implemetned
      */
 #ifdef SOAPSERVER
     EventGetter get_event(ringbuffer);
     HistogramGetter get_histogram;
     SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
-    QObject::connect(server.get(), SIGNAL(quit()), &InputBase::reference(), SLOT(end()));
 #endif
 
     /** set up the optional http server */
@@ -360,17 +356,21 @@ int main(int argc, char **argv)
     httpServer http_server(get_histogram);
 #endif
 
-    /** start worker, input and server threads and then start the qt event loop */
+    /** start worker and server threads, then start input and wait until input is done */
     Workers::reference().start();
-    InputBase::reference().start();
 #ifdef SOAPSERVER
     server->start();
 #endif
 #ifdef HTTPSERVER
     http_server.start();
 #endif
+    InputBase::reference().start();
+    InputBase::reference().wait();
 
-    return app.exec();
+    /** now stop the other threads */
+    Workers::reference().end();
+
+    /** @todo find out how to stop the other threads */
   }
   catch (const invalid_argument &error)
   {

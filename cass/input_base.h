@@ -21,6 +21,7 @@
 namespace cass
 {
 class Ratemeter;
+
 /** Input base class
  *
  * This class acts as base class for all input modules.
@@ -29,8 +30,6 @@ class Ratemeter;
  */
 class InputBase : public lmf::PausableThread
 {
-  Q_OBJECT
-
 public:
   /** shared pointer of this type */
   typedef std::tr1::shared_ptr<InputBase> shared_pointer;

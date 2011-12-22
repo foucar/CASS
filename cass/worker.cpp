@@ -9,7 +9,6 @@
 
 #include <stdexcept>
 #include <QtCore/QMutexLocker>
-#include <QtCore/QCoreApplication>
 
 #include "worker.h"
 #include "analyzer.h"
@@ -122,7 +121,6 @@ void Workers::end()
     _workers[i]->wait();
   PostProcessors::instance()->aboutToQuit();
   Analyzer::instance()->aboutToQuit();
-  QCoreApplication::instance()->quit();
 }
 
 

@@ -13,7 +13,6 @@
 #define __WORKER_H__
 
 #include <QtCore/QMutex>
-#include <QtCore/QObject>
 
 #include <map>
 #include <utility>
@@ -103,9 +102,8 @@ private:
  *
  * @author Lutz Foucar
  */
-class  Workers : public QObject
+class  Workers
 {
-  Q_OBJECT;
 public:
   /** a shared pointer of this class */
   typedef std::tr1::shared_ptr<Workers> shared_pointer;
@@ -138,7 +136,6 @@ public:
   /** resumes the threads */
   void resume();
 
-public slots:
   /** will set the flags to end the threads
    *
    * this function is locked so that it can be reentrant. Will call the end()
@@ -147,10 +144,6 @@ public slots:
    * Once this is done the finished signal is emitted.
    */
   void end();
-
-signals:
-  /** this is emmitted once all workers have been deleted */
-  void finished();
 
 private:
   /** constructor.
