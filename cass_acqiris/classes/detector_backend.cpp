@@ -11,23 +11,26 @@
 #include "delayline_detector.h"
 
 using namespace cass::ACQIRIS;
+using namespace std;
 
-DetectorBackend *DetectorBackend::instance(const DetectorType &dettype, const std::string &detname)
+DetectorBackend::shared_pointer DetectorBackend::instance(const DetectorType &dettype, const std::string &detname)
 {
-  DetectorBackend *det(0);
+  shared_pointer det;
+
   switch(dettype)
   {
   case Delayline:
     {
-      det = new DelaylineDetector(detname);
+      det = shared_pointer(new DelaylineDetector(detname));
     }
     break;
   case ToF:
     {
-      det = new TofDetector(detname);
+      det = shared_pointer(new TofDetector(detname));
     }
     break;
-  default: throw std::invalid_argument("DetectorBackend::instance: no such detector type is present");
+  default:
+      throw invalid_argument("DetectorBackend::instance: no such detector type is present");
   }
   return det;
 }

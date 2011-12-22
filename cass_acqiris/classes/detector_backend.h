@@ -15,78 +15,85 @@
 #define _DETECTOR_BACKEND_H_
 
 #include <iostream>
+#include <tr1/memory>
+
 #include "cass_acqiris.h"
 
 namespace cass
 {
-  class CASSEvent;
-  class CASSSettings;
+class CASSEvent;
+class CASSSettings;
 
-  namespace ACQIRIS
-  {
-    class DetectorAnalyzerBackend;
+namespace ACQIRIS
+{
+class DetectorAnalyzerBackend;
 
-    /** Base class for all Detectors attached to an Acqiris Instrument.
-     *
-     * @author Lutz Foucar
-     */
-    class CASS_ACQIRISSHARED_EXPORT DetectorBackend
-    {
-    public:
-      /** constructor.
-       *
-       * @param[in] name the name of the detector
-       */
-      DetectorBackend(const std::string name)
-          :_name(name)
-      {}
+/** Base class for all Detectors attached to an Acqiris Instrument.
+ *
+ * @author Lutz Foucar
+ */
+class CASS_ACQIRISSHARED_EXPORT DetectorBackend
+{
+public:
+  /** a shared pointer of this type */
+  typedef std::tr1::shared_ptr<DetectorBackend> shared_pointer;
 
-      /** virtual destructor*/
-      virtual ~DetectorBackend() {}
+protected:
+  /** constructor.
+   *
+   * @param[in] name the name of the detector
+   */
+  DetectorBackend(const std::string name)
+    :_name(name)
+  {}
 
-      /** load the settings of the detector
-       *
-       * load the settings from the .ini file. Needs to be implemented by the
-       * detector that inherits from this.
-       *
-       * @param s reference to the CASSSettings object
-       */
-      virtual void loadSettings(CASSSettings &s)=0;
+public:
+  /** virtual destructor*/
+  virtual ~DetectorBackend() {}
 
-      /** associate the event with this detector
-       *
-       * retrieve all necessary information for this detector from the event.
-       * Needs to be implemented by the detector inheriting from this.
-       *
-       * @param evt The event to take the data from
-       */
-      virtual void associate(const CASSEvent& evt)=0;
+  /** load the settings of the detector
+   *
+   * load the settings from the .ini file. Needs to be implemented by the
+   * detector that inherits from this.
+   *
+   * @param s reference to the CASSSettings object
+   */
+  virtual void loadSettings(CASSSettings &s)=0;
 
-      /** return the detector name*/
-      const std::string name()const {return _name;}
+  /** associate the event with this detector
+   *
+   * retrieve all necessary information for this detector from the event.
+   * Needs to be implemented by the detector inheriting from this.
+   *
+   * @param evt The event to take the data from
+   */
+  virtual void associate(const CASSEvent& evt)=0;
 
-      /** create an instance of the requested dectortype
-       *
-       * if the requested detector type is not known an exception will be thrown
-       *
-       * @return an instance of the the requested detector type.
-       * @param dettype type that the detector should have
-       * @param detname the name of the detector in the .ini file
-       */
-      static DetectorBackend* instance(const DetectorType &dettype, const std::string &detname);
+  /** return the detector name*/
+  const std::string name()const {return _name;}
 
-      /** retrieve what kind of detector this is */
-      virtual DetectorType type()=0;
+  /** create an instance of the requested dectortype
+   *
+   * if the requested detector type is not known an exception will be thrown
+   *
+   * @return an instance of the the requested detector type.
+   * @param dettype type that the detector should have
+   * @param detname the name of the detector in the .ini file
+   */
+  static shared_pointer instance(const DetectorType &dettype, const std::string &detname);
 
-    protected:
-      /** the name of the detector. used for casssettings group*/
-      std::string _name;
+  /** retrieve what kind of detector this is */
+  virtual DetectorType type()=0;
 
-    private:
-      /** default constructor should not be called therefore its privat*/
-      DetectorBackend():_name("unamed") {}
-    };
-  }
+protected:
+  /** the name of the detector. used for casssettings group*/
+  std::string _name;
+
+private:
+  /** default constructor should not be called therefore its privat*/
+  DetectorBackend():_name("unamed") {}
+};
+}//end namespace acqiris
 }//end namespace cass
 
 #endif
