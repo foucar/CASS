@@ -124,26 +124,42 @@ public:
   /** return a reference to the instance itselve if it exists */
   static shared_pointer::element_type& reference();
 
-  /** starts the threads */
+  /** starts the threads
+   *
+   * function is not reentrant. One needs to use the _lock mutex to prevent
+   * simultanious calling of this function.
+   */
   void start();
 
   /** pause the threads.
    *
    * Blocks until all threads are paused
+   *
+   * function is not reentrant. One needs to use the _lock mutex to prevent
+   * simultanious calling of this function.
    */
   void pause();
 
-  /** resumes the threads */
+  /** resumes the threads
+   *
+   * function is not reentrant. One needs to use the _lock mutex to prevent
+   * simultanious calling of this function.
+   */
   void resume();
 
   /** will set the flags to end the threads
    *
-   * this function is locked so that it can be reentrant. Will call the end()
+   * Will call the end()
    * member of all workers. Then waits until all workers are finished. After this
    * the aboutToQuit member of the postprocessor and the Analyzer are notified.
-   * Once this is done the finished signal is emitted.
+   *
+   * function is not reentrant. One needs to use the _lock mutex to prevent
+   * simultanious calling of this function.
    */
   void end();
+
+  /** a lock to be used by functions that are using this worker */
+  QMutex _lock;
 
 private:
   /** constructor.
@@ -165,7 +181,7 @@ private:
   /** the instance of this class */
   static shared_pointer _instance;
 
-  /** mutex to make loadSettings reentrant */
+  /** mutex to protect the creation of the signelton */
   static QMutex _mutex;
 };
 

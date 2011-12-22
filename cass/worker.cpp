@@ -91,14 +91,12 @@ Workers::Workers(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
 
 void Workers::start()
 {
-  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->start();
 }
 
 void Workers::pause()
 {
-  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->pause();
   for (size_t i=0;i<_workers.size();++i)
@@ -107,14 +105,12 @@ void Workers::pause()
 
 void Workers::resume()
 {
-  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->resume();
 }
 
 void Workers::end()
 {
-  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
   for (size_t i=0;i<_workers.size();++i)
