@@ -8,13 +8,15 @@
  */
 
 #include <iostream>
+#include <signal.h>
+
 
 #include <QtCore/QStringList>
 #include <QtGui/QApplication>
 
 #include "cass.h"
 #include "analyzer.h"
-#include "daemon.h"
+//#include "daemon.h"
 #include "input_base.h"
 #include "file_input.h"
 #include "multifile_input.h"
@@ -171,7 +173,34 @@ private:
   /** container for the int arguments */
   intarguments_t _intargs;
 };
+
+/** end the input thread
+ *
+ * @param unused unused parameter needed to register this callback as signal
+ *               handler
+ *
+ * @author Lutz Foucar
+ */
+void endInputThread(int /*unused*/)
+{
+  InputBase::reference().end();
 }
+
+/** set up the own handler to react on the sigquit (crtl+ \\) signal
+ *
+ * @author Lutz Foucar
+ */
+void setSignalHandler()
+{
+  struct sigaction quit;
+  quit.sa_handler = endInputThread;
+  sigemptyset(&quit.sa_mask);
+  quit.sa_flags = SA_RESTART;
+
+  if (sigaction(SIGQUIT, &quit, 0))
+    throw runtime_error("setSignalHandler(): could not set up the quit signal");
+}
+}//end namespace cass
 
 /** The main program.
  *
@@ -331,13 +360,10 @@ int main(int argc, char **argv)
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
 #endif
 
-    /** create a deamon to capture UNIX signals and use it to let the user quit
-     *  the program via cli by connecting the quit and term signal to notify the
-     *  input to quit
+    /** connect a own signal handler that acts on when sigquit is sent by linux
+     *  it will call the end member of the input.
      */
-    /** @todo implement something that will quit the input without signal slot */
-    setup_unix_signal_handlers();
-    UnixSignalDaemon signaldaemon(qApp);
+    setSignalHandler();
 
     /** set up the TCP/SOAP server and connect its provided signals to the
      *  appropriate slots fo the input and the workers
@@ -356,7 +382,9 @@ int main(int argc, char **argv)
     httpServer http_server(get_histogram);
 #endif
 
-    /** start worker and server threads, then start input and wait until input is done */
+    /** start worker and server threads, then start input and wait until input
+     *  is done
+     */
     Workers::reference().start();
 #ifdef SOAPSERVER
     server->start();
