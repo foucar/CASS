@@ -330,10 +330,8 @@ int main(int argc, char **argv)
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
 #endif
-    QObject::connect(InputBase::instance().get(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
-    QObject::connect(InputBase::instance().get(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
-    QObject::connect(&Workers::reference(), SIGNAL(finished()), qApp, SLOT(quit()));
-
+    QObject::connect(&InputBase::reference(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
+    QObject::connect(&InputBase::reference(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
 
     /** create a deamon to capture UNIX signals and use it to let the user quit
      *  the program via cli by connecting the quit and term signal to notify the
@@ -344,16 +342,17 @@ int main(int argc, char **argv)
     QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), &InputBase::reference(), SLOT(end()));
     QObject::connect(&signaldaemon, SIGNAL(TermSignal()), &InputBase::reference(), SLOT(end()));
 
-
     /** set up the TCP/SOAP server and connect its provided signals to the
      *  appropriate slots fo the input and the workers
+     */
+    /** @todo make sure that the , readini, writeini, sendcommand, clear hist
+     *        are implemetned
      */
 #ifdef SOAPSERVER
     EventGetter get_event(ringbuffer);
     HistogramGetter get_histogram;
     SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
     QObject::connect(server.get(), SIGNAL(quit()), &InputBase::reference(), SLOT(end()));
-    QObject::connect(server.get(), SIGNAL(readini(size_t)), &InputBase::reference(), SLOT(loadSettings(size_t)));
 #endif
 
     /** set up the optional http server */

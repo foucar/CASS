@@ -96,12 +96,16 @@ private:
  * The amount of threads can be set in cass.h via parameters
  * @see NbrOfWorkers.
  *
+ * @todo find a way to close the program without using signal slot mechnism
+ * @note the problem is that the input should also have control to quit the
+ *       program. Maybe one can instead of starting the global eventloop just
+ *       wait until the input has finished?
+ *
  * @author Lutz Foucar
  */
 class  Workers : public QObject
 {
   Q_OBJECT;
-
 public:
   /** a shared pointer of this class */
   typedef std::tr1::shared_ptr<Workers> shared_pointer;
