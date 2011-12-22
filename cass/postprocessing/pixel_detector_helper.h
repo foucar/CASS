@@ -54,8 +54,11 @@ public:
 
   typedef std::tr1::shared_ptr<AdvancedDetector> AdvDet_sptr;
 
+  /** defining a key - value pair for the list */
+  typedef std::pair<uint64_t,AdvDet_sptr> KeyDetPair_t;
+
   /** typedef defining the list of detectors for more readable code*/
-  typedef std::list<std::pair<uint64_t, AdvDet_sptr> > detectorList_t;
+  typedef std::list<KeyDetPair_t> detectorList_t;
 
 public:
   /** static function creating instance of this.

@@ -7,6 +7,8 @@
  * @author Lutz Foucar
  */
 
+#include<tr1/functional>
+
 #include "pixel_detector_helper.h"
 
 #include "cass_settings.h"
@@ -16,36 +18,8 @@
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
-
-namespace cass
-{
-  /** check wether the id is in the list
-   *
-   * checks whether the id ,which is the first part of the pair, is the id that
-   * we are looking for
-   *
-   * @author Lutz Foucar
-   */
-  struct IsID
-  {
-    /** constructor
-     *
-     * @param id the id to check for
-     */
-    IsID(const uint64_t id):_id(id){}
-
-    /** the operator
-     *
-     * @return true when id is the same as in the pair
-     * @param element reference to one pair in the list
-     */
-    bool operator()(const DetectorHelper::detectorList_t::value_type &element)const
-    { return (_id == element.first); }
-
-    /** the id */
-    const uint64_t _id;
-  };
-}
+using std::tr1::bind;
+using std::tr1::placeholders::_1;
 
 
 //initialize static members//
@@ -79,9 +53,10 @@ DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 DetectorHelper::AdvDet_sptr DetectorHelper::detector(const CASSEvent &evt)
 {
   QMutexLocker lock(&_helperMutex);
-  /** @todo use bind */
   detectorList_t::iterator it
-    (find_if(_detectorList.begin(), _detectorList.end(), IsID(evt.id())));
+    (find_if(_detectorList.begin(), _detectorList.end(),
+             bind<bool>(equal_to<uint64_t>(),evt.id(),
+                        bind<uint64_t>(&detectorList_t::value_type::first,_1))));
   if(_detectorList.end() == it)
   {
     DetectorHelper::AdvDet_sptr det(_detectorList.back().second);
@@ -100,7 +75,13 @@ void DetectorHelper::loadSettings(size_t)
   s.beginGroup("PixelDetectors");
   /** @todo use for each with bind */
   detectorList_t::iterator it(_detectorList.begin());
-  for (;it != _detectorList.end();++it)
+  detectorList_t::const_iterator end(_detectorList.end());
+  for (; it != end; ++it)
     it->second->loadSettings(s);
+//  for_each(_detectorList.begin(),_detectorList.end(),
+//           bind<void>(&AdvancedDetector::loadSettings,
+//                      bind<AdvancedDetector*>(&AdvDet_sptr::get,
+//                                              bind<AdvDet_sptr>(&detectorList_t::value_type::second,_1)),
+//                      s));
   s.endGroup();
 }
