@@ -27,7 +27,7 @@ using std::tr1::placeholders::_1;
 HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
 QMutex HelperAcqirisDetectors::_mutex;
 
-HelperAcqirisDetectors* HelperAcqirisDetectors::instance(const helperinstancesmap_t::key_type& detector)
+HelperAcqirisDetectors::shared_pointer HelperAcqirisDetectors::instance(const helperinstancesmap_t::key_type& detector)
 {
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
@@ -36,7 +36,7 @@ HelperAcqirisDetectors* HelperAcqirisDetectors::instance(const helperinstancesma
                <<" instance of the Acqiris Detector Helper for detector '"<<detector
                <<"'"
                <<endl);
-    _instances[detector] = new HelperAcqirisDetectors(detector);
+    _instances[detector] = shared_pointer(new HelperAcqirisDetectors(detector));
   }
   return _instances[detector];
 }
@@ -47,22 +47,14 @@ const HelperAcqirisDetectors::helperinstancesmap_t& HelperAcqirisDetectors::inst
   return _instances;
 }
 
-void cass::ACQIRIS::HelperAcqirisDetectors::destroy()
-{
-  QMutexLocker lock(&_mutex);
-  helperinstancesmap_t::iterator itdm(_instances.begin());
-  for (;itdm!=_instances.end();++itdm)
-    delete itdm->second;
-}
-
 HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_type& detname)
 {
-  CASSSettings settings;
-  settings.beginGroup("AcqirisDetectors");
-  settings.beginGroup(detname.c_str());
-  _dettype = (static_cast<DetectorType>(settings.value("DetectorType",ToF).toUInt()));
-  settings.endGroup();
-  settings.endGroup();
+  CASSSettings s;
+  s.beginGroup("AcqirisDetectors");
+  s.beginGroup(detname.c_str());
+  _dettype = (static_cast<DetectorType>(s.value("DetectorType",ToF).toUInt()));
+  s.endGroup();
+  s.endGroup();
   for (size_t i=0; i<NbrOfWorkers*2;++i)
     _detectorList.push_front(make_pair(0,DetectorBackend::instance(_dettype,detname)));
   VERBOSEOUT(cout << "AcqirisDetectorHelper::constructor: "
@@ -71,41 +63,23 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
              <<endl);
 }
 
-HelperAcqirisDetectors::~HelperAcqirisDetectors()
-{
-  for (detectorList_t::iterator it=_detectorList.begin();
-       it != _detectorList.end();
-       ++it)
-    delete it->second;
-}
-
-DetectorBackend * HelperAcqirisDetectors::validate(const CASSEvent &evt)
+HelperAcqirisDetectors::Det_sptr HelperAcqirisDetectors::validate(const CASSEvent &evt)
 {
   using namespace std;
   QMutexLocker lock(&_helperMutex);
   detectorList_t::iterator it
-    (find_if(_detectorList.begin(),
-             _detectorList.end(),
-//             IsKey(evt.id())));
-             bind<bool>(equal_to<detectorList_t::value_type::first_type>(),evt.id(),
-                        bind<detectorList_t::value_type::first_type>(&detectorList_t::value_type::first,_1))));
-//  cout << " DetHelp 1"<<endl;
+    (find_if(_detectorList.begin(),_detectorList.end(),
+             bind<bool>(equal_to<uint64_t>(),evt.id(),
+                        bind<uint64_t>(&detectorList_t::value_type::first,_1))));
   if(_detectorList.end() == it)
   {
-//    cout << " DetHelp 2"<<endl;
-    DetectorBackend* det (_detectorList.back().second);
-//    cout << " DetHelp 3  "<<det<<endl;
+    Det_sptr det(_detectorList.back().second);
     det->associate(evt);
-//    cout << " DetHelp 4"<<endl;
     detectorList_t::value_type newPair(make_pair(evt.id(),det));
-//    cout << " DetHelp 5"<<endl;
     _detectorList.push_front(newPair);
-//    cout << " DetHelp 6"<<endl;
     _detectorList.pop_back();
     it = _detectorList.begin();
-//    cout << " DetHelp 7"<<endl;
   }
-//  cout << " DetHelp 8 "<<it->second<<endl;
   return it->second;
 }
 
@@ -114,7 +88,8 @@ void HelperAcqirisDetectors::loadSettings(size_t)
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
   detectorList_t::iterator it(_detectorList.begin());
-  for (;it != _detectorList.end();++it)
+  detectorList_t::const_iterator end(_detectorList.end());
+  for (;it != end ;++it)
     it->second->loadSettings(s);
   s.endGroup();
 }

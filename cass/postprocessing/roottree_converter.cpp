@@ -77,7 +77,7 @@ void loadAllDets()
  */
 bool isDLD(const detectorkey_t &detkey)
 {
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detkey));
+  HelperAcqirisDetectors::shared_pointer dethelp (HelperAcqirisDetectors::instance(detkey));
   return (dethelp->detectortype() == Delayline);
 }
 
@@ -238,7 +238,7 @@ void pp2001::process(const cass::CASSEvent &evt)
   for (;detector != _detectors.end(); ++detector)
   {
     DetectorBackend *rawdet
-        (HelperAcqirisDetectors::instance(*detector)->detector(evt));
+        (HelperAcqirisDetectors::instance(*detector)->detector(evt).get());
     DelaylineDetector &det (*dynamic_cast<DelaylineDetector*>(rawdet));
 
     treedetector_t &treedet(_treestructure[*detector]);
@@ -256,7 +256,7 @@ void pp2001::process(const cass::CASSEvent &evt)
   for (;particle != _particles.end();++particle)
   {
     DetectorBackend *rawdet
-        (HelperAcqirisDetectors::instance(particle->second)->detector(evt));
+        (HelperAcqirisDetectors::instance(particle->second)->detector(evt).get());
     DelaylineDetector &det(*dynamic_cast<DelaylineDetector*>(rawdet));
 
     treedetector_t &treeparticle(_treestructure[particle->first]);

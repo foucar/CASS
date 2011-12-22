@@ -51,6 +51,7 @@ TFile* ROOTFileHelper::create(const std::string& rootfilename, const std::string
 void ROOTFileHelper::close(TFile *rootfile)
 {
   QMutexLocker lock(&_mutex);
+  /** @todo use bind here */
   rootfiles_t::iterator iFile
       (find_if(_rootfiles.begin(),_rootfiles.end(),
                bind2nd(map_data_compare<rootfiles_t>(),rootfile)));

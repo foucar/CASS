@@ -71,13 +71,11 @@ std::string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
   using namespace std;
   string detector
       (s.value("Detector","blubb").toString().toStdString());
-  HelperAcqirisDetectors *dethelp (HelperAcqirisDetectors::instance(detector));
+  HelperAcqirisDetectors::shared_pointer dethelp(HelperAcqirisDetectors::instance(detector));
   if (dethelp->detectortype() != Delayline)
-  {
-    stringstream ss;
-    ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error detector '"<<detector<<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
+    throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
+                           "': Error detector '" + detector +
+                           "' is not a Delaylinedetector.");
   dethelp->loadSettings();
   return detector;
 }
@@ -90,14 +88,11 @@ std::string cass::ACQIRIS::loadParticle(CASSSettings &s,
   using namespace std;
   string particle (s.value("Particle","NeP").toString().toStdString());
   const DelaylineDetector *det
-      (dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(detector)->detector()));
+      (dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(detector)->detector().get()));
   if (det->particles().end() == det->particles().find(particle))
-  {
-    stringstream ss;
-    ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Error Particle '"<<particle
-        <<"' is not defined for detector '"<<detector<<"'";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
+                           "': Error Particle '" + particle +
+                           "' is not defined for detector '" + detector +"'");
   return particle;
 }
 

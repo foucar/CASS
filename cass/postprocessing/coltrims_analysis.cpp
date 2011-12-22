@@ -25,6 +25,7 @@
 
 using namespace cass;
 
+/** @todo use dynamic_pointer_cast here */
 
 //----------------Electron Energy----------------------------------------------
 pp5000::pp5000(PostProcessors &pp, const PostProcessors::key_t &key)
@@ -61,7 +62,7 @@ void pp5000::process(const CASSEvent &evt)
   using namespace cass::ACQIRIS;
   using namespace std;
   DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
   Particle &particle(det->particles()[_particle]);
   particleHits_t::iterator it(particle.hits().begin());
   _result->clear();
@@ -109,7 +110,7 @@ void pp5001::process(const cass::CASSEvent &evt)
   using namespace cass::ACQIRIS;
   using namespace std;
   TofDetector *det01
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt)));
+      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
   SignalProducer::signals_t::const_iterator it01(det01->mcp().output().begin());
   SignalProducer::signals_t::const_iterator end(det01->mcp().output().end());
   _result->clear();

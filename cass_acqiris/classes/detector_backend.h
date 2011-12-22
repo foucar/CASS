@@ -6,6 +6,7 @@
  *
  * @todo create another acqiris detector, that will just measure the voltage
  *       on a given channel
+ * @todo use shared pointers
  *
  * @author Lutz Foucar
  */
