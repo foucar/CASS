@@ -27,8 +27,11 @@ namespace cass
     {
       /** Implematation of Constant Fraction Method
        *
-       * @todo add detailed describtion of how the constant fraction algorithm
-       *       works
+       * The CFD calculates a second trace from the original trace, where two
+       * points of the original create one point of the cfd trace
+       * \f[new_x = -orig_x*fraction + orig_x-delay \f]
+       * It will then find where the new trace will cross the walk value where
+       * this point defines the time.
        *
        * @tparam T type of a wavform point
        * @param[in] c the channel that contains the waveform to analyze

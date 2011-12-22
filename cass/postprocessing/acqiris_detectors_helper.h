@@ -49,7 +49,7 @@ namespace cass
     class HelperAcqirisDetectors
     {
     public:
-      /** typedef describing the instances of the helper */
+      /** typedef describing the instances of the helper  @todo make shared pointers */
       typedef std::map<std::string,HelperAcqirisDetectors*> helperinstancesmap_t;
 
     protected:

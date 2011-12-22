@@ -15,6 +15,7 @@
 #include <string>
 #include <stdint.h>
 #include <utility>
+#include <tr1/memory>
 
 #include "cass.h"
 #include "postprocessor.h"
@@ -39,6 +40,9 @@ namespace cass
   class CASSSHARED_EXPORT PostprocessorBackend
   {
   public:
+    /** a shared pointer of this */
+    typedef std::tr1::shared_ptr<PostprocessorBackend> shared_pointer;
+
     /** constructor
      *
      * @param pp reference to the class that contains all postprocessors

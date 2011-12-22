@@ -28,7 +28,10 @@ namespace cass
     {
       /** Implementation of Center of Mass
        *
-       * @todo add detailed description of what we do here
+       * go through the puls and find all points above a given threshold.
+       * Calculate the center of mass of all the points above the threshold, which
+       * is treated as the time of the identified peak.
+       *
        * @todo maybe just find the rising slope and let all other things be done
        *       by helper functions. (starting with findstartstop)
        *

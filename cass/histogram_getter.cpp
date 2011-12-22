@@ -21,9 +21,9 @@ using namespace cass;
 
 const std::pair<size_t, std::string> HistogramGetter::operator()(const HistogramParameter& hp) const
 {
-  QReadLocker(&_postprocessors->lock);
+  QReadLocker(&_postprocessors.lock);
   PostprocessorBackend &pp
-      (_postprocessors->getPostProcessor(hp.key));
+      (_postprocessors.getPostProcessor(hp.key));
   const HistogramBackend &hist (pp.getHist(hp.eventId));
   Serializer serializer;
   size_t dim(hist.dimension());
@@ -35,7 +35,7 @@ void HistogramGetter::clear(const HistogramParameter& hp) const
 {
   // retrieve iterator pointing to postprocessor containing the histogram //
   PostprocessorBackend &pp
-      (_postprocessors->getPostProcessor(hp.key));
+      (_postprocessors.getPostProcessor(hp.key));
   // clear the histograms of the postprocessor //
   pp.clearHistograms();
 }

@@ -111,9 +111,9 @@ int CASSsoapService::getPostprocessorIds(bool *success)
 {
     static QQueue< std::string* > queue;
     int result;
-    cass::PostProcessors *pp(cass::PostProcessors::instance(""));
+    cass::PostProcessors::shared_pointer pp(cass::PostProcessors::instance(""));
     QReadLocker lock(&pp->lock);
-    cass::IdList* idlist(pp->getIdList());
+    std::tr1::shared_ptr<cass::IdList> idlist(pp->getIdList());
     cass::Serializer* ser(new cass::Serializer);
     idlist->serialize(*ser);
     *success = true;

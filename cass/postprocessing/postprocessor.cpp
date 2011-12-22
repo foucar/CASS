@@ -39,61 +39,70 @@
 
 //#define DEBUG_FIND_DEPENDANT
 
-// ============define static members (do not touch)==============
-cass::PostProcessors *cass::PostProcessors::_instance(0);
-QMutex cass::PostProcessors::_mutex;
+using namespace cass;
+using namespace std;
 
-// create an instance of the singleton
-cass::PostProcessors *cass::PostProcessors::instance(std::string outputfilename)
+// ============define static members (do not touch)==============
+PostProcessors::shared_pointer PostProcessors::_instance;
+QMutex PostProcessors::_mutex;
+
+PostProcessors::shared_pointer PostProcessors::instance(string outputfilename)
 {
 #ifdef VERBOSE
   static int /*n(0),*/ create(0);
 #endif
-//  VERBOSEOUT(std::cerr<<"PostProcessors::instance -- call "<<++n<<std::endl);
+//  VERBOSEOUT(cerr<<"PostProcessors::instance -- call "<<++n<<endl);
   QMutexLocker locker(&_mutex);
-  if(0 == _instance)
+  if(!_instance)
   {
-    VERBOSEOUT(std::cerr<<"PostProcessors::instance -- create "<<++create
-               << std::endl);
-    _instance = new PostProcessors(outputfilename);
+    VERBOSEOUT(cerr<<"PostProcessors::instance -- create "<<++create
+               << endl);
+    _instance = shared_pointer(new PostProcessors(outputfilename));
   }
   return _instance;
 }
 
-// destroy the instance of the singleton
-void cass::PostProcessors::destroy()
+PostProcessors::shared_pointer PostProcessors::instance()
 {
-  QMutexLocker locker(&_mutex);
-  delete _instance;
-  _instance = 0;
+  QMutexLocker lock(&_mutex);
+  if (!_instance)
+    throw logic_error("PostProcessors::instance(): The instance has not yet been created");
+  return _instance;
+}
+
+PostProcessors::shared_pointer::element_type& PostProcessors::reference()
+{
+  QMutexLocker lock(&_mutex);
+  if (!_instance)
+    throw logic_error("PostProcessors::reference(): The instance has not yet been created");
+  return *_instance;
 }
 //===============================================================
 
 
 
 /** Internal helper function to convert QVariant to id_t */
-static inline std::string QStringToStdString(QString str)
+static inline string QStringToStdString(QString str)
 {
-  return std::string(str.toStdString());
+  return string(str.toStdString());
 }
 
 
 
 
 
-cass::PostProcessors::PostProcessors(std::string outputfilename)
+PostProcessors::PostProcessors(string outputfilename)
   :_IdList(new IdList()),
   _outputfilename(outputfilename)
 
 {
-  VERBOSEOUT(std::cout<<"Postprocessors::constructor: output Filename: "
+  VERBOSEOUT(cout<<"Postprocessors::constructor: output Filename: "
              <<_outputfilename
-             <<std::endl);
+             <<endl);
 }
 
-void cass::PostProcessors::process(const CASSEvent& event)
+void PostProcessors::operator()(const CASSEvent& event)
 {
-  using namespace std;
   /**
    * @todo catch when postprocessor throws an exeption and delete the
    *       postprocessor from the active list.
@@ -103,6 +112,7 @@ void cass::PostProcessors::process(const CASSEvent& event)
    *       - remove all pp that made it on the removelist
    *       - this needs to be done in a locked way since more than one thread
    *         do this
+   * @todo use for each and bind
    */
   postprocessors_t::iterator iter(_postprocessors.begin());
   for(;iter != _postprocessors.end(); ++iter)
@@ -112,7 +122,7 @@ void cass::PostProcessors::process(const CASSEvent& event)
   }
 }
 
-void cass::PostProcessors::aboutToQuit()
+void PostProcessors::aboutToQuit()
 {
   for(postprocessors_t::iterator iter = _postprocessors.begin();
       iter != _postprocessors.end();
@@ -120,7 +130,7 @@ void cass::PostProcessors::aboutToQuit()
     iter->second->aboutToQuit();
 }
 
-void cass::PostProcessors::loadSettings(size_t)
+void PostProcessors::loadSettings(size_t)
 {
   QWriteLocker locker(&lock);
   using namespace std;
@@ -144,39 +154,42 @@ void cass::PostProcessors::loadSettings(size_t)
   //add a default true and false pp to container//
   _active.push_back("DefaultTrueHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
-    _postprocessors["DefaultTrueHist"] = new pp10(*this, "DefaultTrueHist",true);
+    _postprocessors["DefaultTrueHist"] =
+        PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
   _active.push_back("DefaultFalseHist");
   if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
-    _postprocessors["DefaultFalseHist"] = new pp10(*this, "DefaultFalseHist",false);
+    _postprocessors["DefaultFalseHist"] =
+        PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
   setup(_active);
   cout <<"   Active postprocessor(s): "<<endl;
+  /** @todo use for_each and bind */
   for(keyList_t::iterator iter (_active.begin()); iter != _active.end(); ++iter)
     cout << *iter << " "<<endl;
   cout<<endl;
 }
 
-void cass::PostProcessors::clear(const key_t &key)
+void PostProcessors::clear(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() != it)
     it->second->clearHistograms();
 }
 
-void cass::PostProcessors::receiveCommand(const key_t &key, std::string command)
+void PostProcessors::receiveCommand(const key_t &key, string command)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() != it)
     it->second->processCommand(command);
 }
 
-void cass::PostProcessors::saveSettings()
+void PostProcessors::saveSettings()
 {
-  // call saveSettings for each postprocessor.
+  /** @todo use for_each and bind */
   for (postprocessors_t::iterator it=_postprocessors.begin(); it!=_postprocessors.end(); ++it)
     it->second->saveSettings(0); 
 }
 
-cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &key)
+PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
 {
   postprocessors_t::iterator it (_postprocessors.find(key));
   if (_postprocessors.end() == it)
@@ -184,7 +197,7 @@ cass::PostprocessorBackend& cass::PostProcessors::getPostProcessor(const key_t &
   return *(it->second);
 }
 
-cass::IdList* cass::PostProcessors::getIdList()
+tr1::shared_ptr<IdList> PostProcessors::getIdList()
 {
   _IdList->clear();
   keyList_t active;
@@ -197,9 +210,8 @@ cass::IdList* cass::PostProcessors::getIdList()
   return _IdList;
 }
 
-cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostProcessors::key_t &key)
+PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::key_t &key)
 {
-  using namespace std;
   //go through all pp and retrieve their dependencies//
   //make a list of all key that have a dependency on the requested key//
   //iteratively go through and find all depends depandats
@@ -283,7 +295,7 @@ cass::PostProcessors::keyList_t cass::PostProcessors::find_dependant(const PostP
   return dependandList;
 }
 
-void cass::PostProcessors::setup(keyList_t &active)
+void PostProcessors::setup(keyList_t &active)
 {
   using namespace std;
   /**
@@ -481,15 +493,12 @@ void cass::PostProcessors::setup(keyList_t &active)
     VERBOSEOUT(cout << "PostProcessor::setup(): Erasing '"<< *iter
                     << "' from the postprocessor container."
                     << endl);
-    PostprocessorBackend* p = _postprocessors[*iter];
-    delete p;
     _postprocessors.erase(*iter);
   }
 }
 
-cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
+PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
 {
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(key));
@@ -497,271 +506,356 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   VERBOSEOUT(cout << "PostProcessor::create(): Creating PP '" << key
                   << "' with ID=" << ppid
                   << endl);
-  PostprocessorBackend * processor(0);
+  PostprocessorBackend::shared_pointer processor;
   switch(ppid)
   {
   case ConstantLess:
-    processor = new pp1<less<float> >(*this, key, less<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1<less<float> >(*this, key, less<float>()));
     break;
   case ConstantGreater:
-    processor = new pp1<greater<float> >(*this, key, greater<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1<greater<float> >(*this, key, greater<float>()));
     break;
   case ConstantEqual:
-    processor = new pp1<equal_to<float> >(*this, key, equal_to<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1<equal_to<float> >(*this, key, equal_to<float>()));
     break;
   case BooleanNOT:
-    processor = new pp4(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp4(*this, key));
     break;
   case BooleanAND:
-    processor = new pp5<logical_and<bool> >(*this, key, logical_and<bool>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp5<logical_and<bool> >(*this, key, logical_and<bool>()));
     break;
   case BooleanOR:
-    processor = new pp5<logical_or<bool> >(*this, key, logical_or<bool>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp5<logical_or<bool> >(*this, key, logical_or<bool>()));
     break;
   case CompareForLess:
-    processor = new pp7<less<float> >(*this, key, less<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp7<less<float> >(*this, key, less<float>()));
     break;
   case CompareForEqual:
-    processor = new pp7<greater<float> >(*this, key, greater<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp7<greater<float> >(*this, key, greater<float>()));
     break;
   case CheckRange:
-    processor = new pp9(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp9(*this, key));
     break;
   case ConstantTrue:
-    processor = new pp10(*this, key, true);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp10(*this, key, true));
     break;
   case ConstantFalse:
-    processor = new pp10(*this, key, false);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp10(*this, key, false));
     break;
   case ConstantValue:
     processor = new pp12(*this, key);
     break;
   case SubtractHistograms:
-    processor = new pp20<minus<float> >(*this, key, minus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp20<minus<float> >(*this, key, minus<float>()));
     break;
   case AddHistograms:
-    processor = new pp20<plus<float> >(*this, key, plus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp20<plus<float> >(*this, key, plus<float>()));
     break;
   case DivideHistograms:
-    processor = new pp20<divides<float> >(*this, key, divides<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp20<divides<float> >(*this, key, divides<float>()));
     break;
   case MultiplyHistograms:
-    processor = new pp20<multiplies<float> >(*this, key, multiplies<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp20<multiplies<float> >(*this, key, multiplies<float>()));
     break;
   case SubtractConstant:
-    processor = new pp23<minus<float> >(*this, key, minus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp23<minus<float> >(*this, key, minus<float>()));
     break;
   case AddConstant:
-    processor = new pp23<plus<float> >(*this, key, plus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp23<plus<float> >(*this, key, plus<float>()));
     break;
   case MultiplyConstant:
-    processor = new pp23<multiplies<float> >(*this, key, multiplies<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp23<multiplies<float> >(*this, key, multiplies<float>()));
     break;
   case DivideConstant:
-    processor = new pp23<divides<float> >(*this, key, divides<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp23<divides<float> >(*this, key, divides<float>()));
     break;
   case Subtract0DConstant:
-    processor = new pp30<minus<float> >(*this, key, minus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp30<minus<float> >(*this, key, minus<float>()));
     break;
   case Add0DConstant:
-    processor = new pp30<plus<float> >(*this, key, plus<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp30<plus<float> >(*this, key, plus<float>()));
     break;
   case Multiply0DConstant:
-    processor = new pp30<multiplies<float> >(*this, key, multiplies<float>());
+    processor = PostprocessorBackend::shared_pointer
+          (new pp30<multiplies<float> >(*this, key, multiplies<float>()));
     break;
   case Divide0DConstant:
-    processor = new pp30<divides<float> >(*this, key, divides<float>());
+    processor = PostprocessorBackend::shared_pointer
+        (new pp30<divides<float> >(*this, key, divides<float>()));
     break;
   case Threshold:
-    processor = new pp40(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp40(*this, key));
     break;
   case TwoDProjection:
-    processor = new pp50(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp50(*this, key));
     break;
   case OneDIntergral:
-    processor = new pp51(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp51(*this, key));
     break;
   case RadalProjection:
-    processor = new pp52(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp52(*this, key));
     break;
   case AngularDistribution:
-    processor = new pp53(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp53(*this, key));
     break;
   case R_Phi_Representation:
-    processor = new pp54(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp54(*this, key));
     break;
   case imageManip:
     processor = new pp55(*this, key);
     break;
   case ZeroDHistogramming:
-    processor = new pp60(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp60(*this, key));
     break;
   case HistogramAveraging:
-    processor = new pp61(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp61(*this, key));
     break;
   case HistogramSumming:
-    processor = new pp62(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp62(*this, key));
     break;
   case TimeAverage:
-    processor = new pp63(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp63(*this, key));
     break;
   case running1Dfrom0D:
-    processor = new pp64(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp64(*this, key));
     break;
   case ZeroDto2DHistogramming:
-    processor = new pp65(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp65(*this, key));
     break;
   case OneDto2DHistogramming:
-    processor = new pp66(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp66(*this, key));
     break;
   case ZeroDto1DHistogramming:
-    processor = new pp67(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp67(*this, key));
     break;
   case ZeroDand1Dto2DHistogramming:
-    processor = new pp68(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp68(*this, key));
     break;
   case SubsetHistogram:
-    processor = new pp70(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp70(*this, key));
     break;
   case nbrOfFills:
-    processor = new pp80(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp80(*this, key));
     break;
   case maximumBin:
-    processor = new pp81(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp81(*this, key));
     break;
   case fwhmPeak:
-    processor = new pp85(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp85(*this, key));
     break;
   case SingleCcdImage:
-    processor = new pp100(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp100(*this, key));
     break;
   case SingleCcdImageIntegral:
-    processor = new pp101(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp101(*this, key));
     break;
   case SingleCcdImageIntegralOverThres:
-    processor = new pp102(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp102(*this, key));
     break;
   case PixelDetectorImage:
-    processor = new pp105(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp105(*this, key));
     break;
   case PixelDetectorImageHistogram:
-    processor = new pp106(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp106(*this, key));
     break;
   case CorrectionMaps:
-    processor = new pp107(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp107(*this, key));
     break;
   case AcqirisWaveform:
-    processor = new pp110(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp110(*this,key));
     break;
   case BlData:
-    processor = new pp120(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp120(*this,key));
     break;
   case EvrCode:
-    processor = new pp121(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp121(*this,key));
     break;
   case EventID:
-    processor = new pp122(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp122(*this,key));
     break;
   case EpicsData:
-    processor = new pp130(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp130(*this,key));
     break;
   case CCDPhotonHitsSpectrum:
-    processor = new pp140(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp140(*this,key));
     break;
   case CCDPhotonHitsImage:
-    processor = new pp141(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp141(*this,key));
     break;
   case NbrOfCCDPhotonHits:
-    processor = new pp142(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp142(*this,key));
     break;
   case CCDCoalescedPhotonHitsSpectrum:
-    processor = new pp143(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp143(*this,key));
     break;
   case CCDCoalescedPhotonHitsImage:
-    processor = new pp144(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp144(*this,key));
     break;
   case NbrOfCCDCoalescedPhotonHits:
-    processor = new pp145(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp145(*this,key));
     break;
   case SplitLevelCoalescedPhotonHits:
-    processor = new pp146(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp146(*this,key));
     break;
   case NewCCDPhotonHitsSpectrum:
-    processor = new pp147(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp147(*this,key));
     break;
   case NewCCDPhotonHitsImage:
-    processor = new pp148(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp148(*this,key));
     break;
   case NewNbrOfCCDPhotonHits:
-    processor = new pp149(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp149(*this,key));
     break;
   case TofDetNbrSignals:
-    processor = new pp150(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp150(*this, key));
     break;
   case TofDetAllSignals:
-    processor = new pp151(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp151(*this, key));
     break;
   case TofDetMcpHeightVsFwhm:
-    processor = new pp152(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp152(*this, key));
     break;
   case WireendNbrSignals:
-    processor = new pp160(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp160(*this, key));
     break;
   case WireendHeightvsFwhm:
-    processor = new pp161(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp161(*this, key));
     break;
   case AnodeTimesum:
-    processor = new pp162(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp162(*this, key));
     break;
   case AnodeTimesumVsPos:
-    processor = new pp163(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp163(*this, key));
     break;
   case DelaylineFirstGoodHit:
-    processor = new pp164(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp164(*this, key));
     break;
   case DelaylineNbrReconstructedHits:
-    processor = new pp165(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp165(*this, key));
     break;
   case DelaylineAllReconstuctedHits:
-    processor = new pp166(*this, key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp166(*this, key));
     break;
   case Cos2Theta:
-    processor = new pp200(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp200(*this,key));
     break;
   case RealAngularDistribution:
-    processor = new pp201(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp201(*this,key));
     break;
   case RealPolarTransformation:
-    processor = new pp202(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp202(*this,key));
     break;
   case AdvancedPhotonFinderDump:
-    processor = new pp212(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp212(*this,key));
     break;
   case PIPICO:
-    processor = new pp220(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp220(*this,key));
     break;
   case PhotonEnergy:
-    processor = new pp230(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp230(*this,key));
     break;
   case TestImage:
-    processor = new pp240(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp240(*this,key));
     break;
   case ParticleValue:
-    processor = new pp250(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp250(*this,key));
     break;
   case ParticleValues:
-    processor = new pp251(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp251(*this,key));
     break;
   case NbrParticles:
-    processor = new pp252(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp252(*this,key));
     break;
 #ifdef SINGLEPARTICLE_HIT
   case SingleParticleDetection:
-    processor = new pp300(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp300(*this,key));
     break;
 #endif
   case medianLastValues:
-    processor = new pp301(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp301(*this,key));
   break;
   case tof2energy:
       processor = new pp400(*this,key);
@@ -801,31 +895,35 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
       break;
 #ifdef HDF5
   case PnccdHDF5:
-    processor = new pp1000(*this,key);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1000(*this,key));
     break;
   case HDF5Converter:
-    processor = new pp1001(*this,key,_outputfilename);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1001(*this,key,_outputfilename));
     break;
 #endif
 #ifdef CERNROOT
   case ROOTDump:
-    processor = new pp2000(*this,key,_outputfilename);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp2000(*this,key,_outputfilename));
     break;
   case ROOTTreeDump:
-    processor = new pp2001(*this,key,_outputfilename);
+    processor = PostprocessorBackend::shared_pointer
+          (new pp2001(*this,key,_outputfilename));
     break;
 #endif
   case ElectronEnergy:
-     processor = new pp5000(*this,key);
+     processor = PostprocessorBackend::shared_pointer
+           (new pp5000(*this,key));
      break;
   case TrippleCoincidence:
-     processor = new pp5001(*this,key);
+     processor = PostprocessorBackend::shared_pointer
+           (new pp5001(*this,key));
      break;
   default:
-    throw invalid_argument(QString("PostProcessors::create(): Postprocessor '%1' has unknown ID=%2")
-                           .arg(key.c_str())
-                           .arg(ppid)
-                           .toStdString());
+    throw invalid_argument("PostProcessors::create(): Postprocessor '" +  key +
+                           "' has unknown ID '" + toString(ppid) + "'");
   }
   return processor;
 }

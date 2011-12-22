@@ -23,6 +23,7 @@
 #include "rate_plotter.h"
 #include "ringbuffer.h"
 #include "sharedmemory_input.h"
+#include "tcp_input.h"
 #include "tcpserver.h"
 #ifdef HTTPSERVER
 #include "httpserver.h"
@@ -312,10 +313,12 @@ int main(int argc, char **argv)
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
      *  and finished signals such that they notify each other about that they are
-     *  done processing the events.
+     *  done processing the events. Also create the postprocessor singleton used
+     *  by the worker to post process the events.
      */
     RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
-    Workers workers(ringbuffer, workerrate, outputfilename, qApp);
+    PostProcessors::instance(outputfilename);
+    Workers::instance(ringbuffer, workerrate, qApp);
 #ifdef OFFLINE
     InputBase::shared_pointer input;
     if (multifile)
@@ -338,9 +341,9 @@ int main(int argc, char **argv)
                                                               ringbuffer,
                                                               inputrate));
 #endif
-    QObject::connect(input.get(), SIGNAL(finished()), &workers, SLOT(end()));
-    QObject::connect(input.get(), SIGNAL(terminated()), &workers, SLOT(end()));
-    QObject::connect(&workers, SIGNAL(finished()), qApp, SLOT(quit()));
+    QObject::connect(input.get(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
+    QObject::connect(input.get(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
+    QObject::connect(&Workers::reference(), SIGNAL(finished()), qApp, SLOT(quit()));
 
 
     /** create a deamon to capture UNIX signals and use it to let the user quit
@@ -362,10 +365,6 @@ int main(int argc, char **argv)
     SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
     QObject::connect(server.get(), SIGNAL(quit()), input.get(), SLOT(end()));
     QObject::connect(server.get(), SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
-    QObject::connect(server.get(), SIGNAL(readini(size_t)), &workers, SLOT(loadSettings(size_t)));
-    QObject::connect(server.get(), SIGNAL(writeini(size_t)), &workers, SLOT(saveSettings()));
-    QObject::connect(server.get(), SIGNAL(clearHistogram(cass::PostProcessors::key_t)), &workers, SLOT(clearHistogram(cass::PostProcessors::key_t)));
-    QObject::connect(server.get(), SIGNAL(receiveCommand(cass::PostProcessors::key_t, std::string)), &workers, SLOT(receiveCommand(cass::PostProcessors::key_t, std::string)));
 #endif
 
     /** set up the optional http server */
@@ -374,7 +373,7 @@ int main(int argc, char **argv)
 #endif
 
     /** start worker, input and server threads and then start the qt event loop */
-    workers.start();
+    Workers::reference().start();
     input->start();
 #ifdef SOAPSERVER
     server->start();

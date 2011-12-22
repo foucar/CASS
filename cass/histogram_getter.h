@@ -53,11 +53,15 @@ public:
 
     /** constructor */
     HistogramGetter()
-      :_postprocessors(PostProcessors::instance(""))
+      :_postprocessors(*PostProcessors::instance())
     {}
 
     /** Serialize histogram.
-     * function that will serialize the requested histogram to a string and return it
+     *
+     * will serialize the requested histogram to a string and return it
+     *
+     * @return
+     * @param
      */
     const std::pair<size_t, std::string> operator()(const HistogramParameter&) const;
 
@@ -78,7 +82,7 @@ public:
 
 protected:
     /** pointer to the postprocessors class. will be retrieved using singleton */
-    PostProcessors *_postprocessors;
+    PostProcessors &_postprocessors;
 
 #ifdef JPEG_CONVERSION
     std::map<PostProcessors::key_t, std::vector<JOCTET>*> jpeg_cache;

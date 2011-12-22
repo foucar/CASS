@@ -10,10 +10,10 @@
 #include <sstream>
 #include <stdexcept>
 #include <iostream>
+#include <tr1/memory>
 
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
-#include <QtCore/QObject>
 
 #include "cass.h"
 #include "serializer.h"
@@ -22,12 +22,13 @@
 
 namespace cass
 {
-  class CASSEvent;
-  class PostprocessorBackend;
-  class HistogramBackend;
-  class Histogram1DFloat;
-  class Histogram2DFloat;
-  class IdList;
+//forward declarations
+class CASSEvent;
+class PostprocessorBackend;
+class HistogramBackend;
+class Histogram1DFloat;
+class Histogram2DFloat;
+class IdList;
 
 
 
@@ -245,288 +246,287 @@ does. When documenting please use doxygen style as then your documentation will
 be available on the webserver. Documenting the parameters in cass.ini can be done
 using the custom doxygen tag cassttng.
 */
-  class CASSSHARED_EXPORT PostProcessors : public QObject
+class CASSSHARED_EXPORT PostProcessors
+{
+public:
+
+  /** List of all currently registered postprocessors
+   *
+   * @todo instead of this list use strings as id
+   *
+   * Keep this fully list synchronized with the documentation in the class header!
+   */
+  enum id_t
   {
-    Q_OBJECT;
+    ConstantLess=1,
+    ConstantGreater=2,
+    ConstantEqual=3,
+    BooleanNOT=4,
+    BooleanAND=5,
+    BooleanOR=6,
+    CompareForLess=7,
+    CompareForEqual=8,
+    CheckRange=9,
+    ConstantTrue=10,
+    ConstantFalse=11,
 
-  public:
+    SubtractHistograms=20,
+    AddHistograms=21,
+    DivideHistograms=22,
+    MultiplyHistograms=23,
+    SubtractConstant=24,
+    AddConstant=25,
+    MultiplyConstant=26,
+    DivideConstant=27,
 
-    /** List of all currently registered postprocessors
-     *
-     * Keep this fully list synchronized with the documentation in the class header!
-     */
-    enum id_t
-    {
-      ConstantLess=1,
-      ConstantGreater=2,
-      ConstantEqual=3,
-      BooleanNOT=4,
-      BooleanAND=5,
-      BooleanOR=6,
-      CompareForLess=7,
-      CompareForEqual=8,
-      CheckRange=9,
-      ConstantTrue=10,
-      ConstantFalse=11,
-      ConstantValue=12,
+    Subtract0DConstant=30,
+    Add0DConstant=31,
+    Multiply0DConstant=32,
+    Divide0DConstant=33,
 
-      SubtractHistograms=20,
-      AddHistograms=21,
-      DivideHistograms=22,
-      MultiplyHistograms=23,
-      SubtractConstant=24,
-      AddConstant=25,
-      MultiplyConstant=26,
-      DivideConstant=27,
+    Threshold=40,
 
-      Subtract0DConstant=30,
-      Add0DConstant=31,
-      Multiply0DConstant=32,
-      Divide0DConstant=33,
+    TwoDProjection=50,
+    OneDIntergral=51,
+    RadalProjection=52,
+    AngularDistribution=53,
+    R_Phi_Representation=54,
 
-      Threshold=40,
+    ZeroDHistogramming=60,
+    HistogramAveraging=61,
+    HistogramSumming=62,
+    TimeAverage=63,
+    running1Dfrom0D=64,
+    ZeroDto2DHistogramming=65,
+    OneDto2DHistogramming=66,
+    ZeroDto1DHistogramming=67,
+    ZeroDand1Dto2DHistogramming=68,
 
-      TwoDProjection=50,
-      OneDIntergral=51,
-      RadalProjection=52,
-      AngularDistribution=53,
-      R_Phi_Representation=54,
+    SubsetHistogram=70,
 
-      imageManip=55,
+    nbrOfFills=80,
+    maximumBin=81,
 
-      ZeroDHistogramming=60,
-      HistogramAveraging=61,
-      HistogramSumming=62,
-      TimeAverage=63,
-      running1Dfrom0D=64,
-      ZeroDto2DHistogramming=65,
-      OneDto2DHistogramming=66,
-      ZeroDto1DHistogramming=67,
-      ZeroDand1Dto2DHistogramming=68,
+    fwhmPeak=85,
 
-      SubsetHistogram=70,
+    SingleCcdImage=100,
+    SingleCcdImageIntegral=101,
+    SingleCcdImageIntegralOverThres=102,
 
-      nbrOfFills=80,
-      maximumBin=81,
+    PixelDetectorImage=105,
+    PixelDetectorImageHistogram=106,
+    CorrectionMaps=107,
 
-      fwhmPeak=85,
+    AcqirisWaveform=110,
+    BlData=120,
+    EvrCode=121,
+    EventID=122,
+    EpicsData=130,
 
-      SingleCcdImage=100,
-      SingleCcdImageIntegral=101,
-      SingleCcdImageIntegralOverThres=102,
+    CCDPhotonHitsSpectrum=140,
+    CCDPhotonHitsImage=141,
+    NbrOfCCDPhotonHits=142,
 
-      PixelDetectorImage=105,
-      PixelDetectorImageHistogram=106,
-      CorrectionMaps=107,
+    CCDCoalescedPhotonHitsSpectrum=143,
+    CCDCoalescedPhotonHitsImage=144,
+    NbrOfCCDCoalescedPhotonHits=145,
+    SplitLevelCoalescedPhotonHits=146,
 
-      AcqirisWaveform=110,
-      BlData=120,
-      EvrCode=121,
-      EventID=122,
-      EpicsData=130,
+    NewCCDPhotonHitsSpectrum=147,
+    NewCCDPhotonHitsImage=148,
+    NewNbrOfCCDPhotonHits=149,
 
-      CCDPhotonHitsSpectrum=140,
-      CCDPhotonHitsImage=141,
-      NbrOfCCDPhotonHits=142,
+    TofDetNbrSignals=150,
+    TofDetAllSignals=151,
+    TofDetMcpHeightVsFwhm=152,
 
-      CCDCoalescedPhotonHitsSpectrum=143,
-      CCDCoalescedPhotonHitsImage=144,
-      NbrOfCCDCoalescedPhotonHits=145,
-      SplitLevelCoalescedPhotonHits=146,
+    WireendNbrSignals=160,
+    WireendHeightvsFwhm=161,
+    AnodeTimesum=162,
+    AnodeTimesumVsPos=163,
+    DelaylineFirstGoodHit=164,
+    DelaylineNbrReconstructedHits=165,
+    DelaylineAllReconstuctedHits=166,
 
-      NewCCDPhotonHitsSpectrum=147,
-      NewCCDPhotonHitsImage=148,
-      NewNbrOfCCDPhotonHits=149,
+    Cos2Theta=200,
+    RealAngularDistribution=201,
+    RealPolarTransformation=202,
 
-      TofDetNbrSignals=150,
-      TofDetAllSignals=151,
-      TofDetMcpHeightVsFwhm=152,
+    AdvancedPhotonFinderDump=212,
 
-      WireendNbrSignals=160,
-      WireendHeightvsFwhm=161,
-      AnodeTimesum=162,
-      AnodeTimesumVsPos=163,
-      DelaylineFirstGoodHit=164,
-      DelaylineNbrReconstructedHits=165,
-      DelaylineAllReconstuctedHits=166,
+    PIPICO=220,
 
-      Cos2Theta=200,
-      RealAngularDistribution=201,
-      RealPolarTransformation=202,
+    PhotonEnergy=230,
 
-      AdvancedPhotonFinderDump=212,
+    ParticleValue = 250,
+    ParticleValues = 251,
+    NbrParticles = 252,
 
-      PIPICO=220,
 
-      PhotonEnergy=230,
+    SingleParticleDetection=300,
+    medianLastValues=301,
+    TestImage=240,
 
-      ParticleValue = 250,
-      ParticleValues = 251,
-      NbrParticles = 252,
+    PnccdHDF5=1000,
+    HDF5Converter=1001,
+    ROOTDump=2000,
+    ROOTTreeDump=2001,
 
-      SingleParticleDetection=300,
-      medianLastValues=301,
-      TestImage=240,
+    ElectronEnergy=5000,
+    TrippleCoincidence=5001,
 
-      tof2energy=400,
-      calcVariance=401,
-      HistogramSqAveraging=402,
-      Bin1DHist=403,
-      TofToMTC=404,
-      PulseDuration=405,
-      tof2energy0D=406,
-      tof2energylinear=407,
-      tof2energylinear0D=408,
-      calcCovarianceMap=410,
-      calcCorrection=412,
-      EventNumber=420,
-
-      PnccdHDF5=1000,
-      HDF5Converter=1001,
-      ROOTDump=2000,
-      ROOTTreeDump=2001,
-
-      ElectronEnergy=5000,
-      TrippleCoincidence=5001,
-
-      InvalidPP
-    };
-
-    /** type of postproccessor accessor key */
-    typedef std::string key_t;
-
-    /** Container of all currently active postprocessors */
-    typedef std::map<key_t, PostprocessorBackend*> postprocessors_t;
-
-    /** List of all postprocessor keys */
-    typedef std::list<key_t> keyList_t;
-
-    /** create the instance if not it does not exist already.
-     *
-     * @todo create second function with same name without parameter that
-     *       will check whether the instance has been created yet otherwise
-     *       throws.
-     * @todo instance should be a shared_pointer
-     *
-     * @return poiner to this singelton class.
-     * @param outputfilename filename of the outputfile
-     */
-    static PostProcessors *instance(std::string outputfilename);
-
-    /** destroy the instance */
-    static void destroy();
-
-    /** process event
-     *
-     * This function will call postprocessors operators in the container
-     *
-     * @param event CASSEvent to process by all active postprocessors
-     */
-    void process(const CASSEvent& event);
-
-    /** retrieve all activated postprocessors keys */
-    IdList* getIdList();
-
-    /** retreive pp with key */
-    PostprocessorBackend& getPostProcessor(const key_t &key);
-
-    /** retrieve pp container */
-    postprocessors_t& postprocessors() {return _postprocessors;}
-
-    /** will be called when program will quit */
-    void aboutToQuit();
-
-    /** find all postprocessors that depend on the given one
-     *
-     * @return list of postprocessor key that depend on requested one
-     * @param[in] key key of postprocessor that we find the dependants for
-     */
-    keyList_t find_dependant(const key_t& key);
-
-    /** retrieve the list of active postprocessors */
-    const keyList_t &activeList() {return _active;}
-
-    /** a read write lock
-     *
-     * read write for making sure that reload is not called when someone
-     * wants retrieve a list or retrieve a postprocessor.
-     */
-    QReadWriteLock lock;
-
-  public slots:
-    /** Load active postprocessors and histograms
-     *
-     * Reset set of active postprocessors/histograms based on cass.ini
-     */
-    void loadSettings(size_t);
-
-    /** Save active postprocessors and histograms */
-    void saveSettings();
-
-    /** clear the histogram that has id */
-    void clear(const key_t&);
- 
-    /** process command in pp that has id */
-    void receiveCommand(const key_t&, std::string command);
-
-  protected:
-    /** Create new Postprocessor with key.
-     *
-     * @return the newly created postprocessor
-     * @param[in] key the key of the postprocessor
-     */
-    PostprocessorBackend * create(const key_t &key);
-
-    /** Set up _postprocessors using the user requested pp in active
-     *
-     * Make sure that all PostProcessors on active list are in the pp container.
-     * When the PostProcessor has a dependency resolve it, add it to the active
-     * list if it's not already on it.
-     *
-     * Delete all postprocessors that are not on the active list.
-     *
-     * @param active reference to list of all postprocessors that should be in
-     *               container.
-     */
-    void setup(keyList_t& active);
-
-  protected:
-    /** the list of keys.
-     * used to create the combobox in cassview
-     */
-    IdList *_IdList;
-
-    /** container for user selected and registered postprocessors */
-    postprocessors_t _postprocessors;
-
-    /** filename of the output file */
-    std::string _outputfilename;
-
-    /** list of active keys */
-    keyList_t _active;
-
-  private:
-    /** Private constructor of singleton
-     * @param outputfilename filename of the file containing the results. Used
-     *                       by special postprocessors.
-     */
-    PostProcessors(std::string outputfilename);
-
-    /** Prevent copy-construction of singleton */
-    PostProcessors(const PostProcessors&);
-
-    /** Prevent assignment (potentially resulting in a copy) of singleton */
-    PostProcessors& operator=(const PostProcessors&);
-
-    /** Prevent destruction unless going through destroy */
-    ~PostProcessors() {}
-
-    /** pointer to the singleton instance */
-    static PostProcessors *_instance;
-
-    /** Singleton operation locker */
-    static QMutex _mutex;
+    InvalidPP
   };
+
+  /** a shared pointer of this class */
+  typedef std::tr1::shared_ptr<PostProcessors> shared_pointer;
+
+  /** type of postproccessor accessor key */
+  typedef std::string key_t;
+
+  /** Container of all currently active postprocessors */
+  typedef std::map<key_t, std::tr1::shared_ptr<PostprocessorBackend> > postprocessors_t;
+
+  /** List of all postprocessor keys */
+  typedef std::list<key_t> keyList_t;
+
+  /** create the instance if not it does not exist already.
+   *
+   * @return poiner to this singelton class.
+   * @param outputfilename filename of the outputfile
+   */
+  static shared_pointer instance(std::string outputfilename);
+
+  /** return the already created instance of this
+   *
+   * check whether static instance has been created and returns if so otherwise
+   * throws an exception.
+   *
+   * @return the instance
+   */
+  static shared_pointer instance();
+
+  /** return a reference to this instance
+   *
+   * check whether static instance has been created and returns if so otherwise
+   * throws an exception.
+   *
+   * @return reference to the instance
+   */
+  static shared_pointer::element_type& reference();
+
+  /** process event
+   *
+   * This function will call postprocessors operators in the container
+   *
+   * @param event CASSEvent to process by all active postprocessors
+   */
+  void operator()(const CASSEvent& event);
+
+  /** retrieve all activated postprocessors keys */
+  std::tr1::shared_ptr<IdList> getIdList();
+
+  /** retreive pp with key */
+  PostprocessorBackend& getPostProcessor(const key_t &key);
+
+  /** retrieve pp container */
+  postprocessors_t& postprocessors() {return _postprocessors;}
+
+  /** will be called when program will quit */
+  void aboutToQuit();
+
+  /** find all postprocessors that depend on the given one
+   *
+   * @return list of postprocessor key that depend on requested one
+   * @param[in] key key of postprocessor that we find the dependants for
+   */
+  keyList_t find_dependant(const key_t& key);
+
+  /** retrieve the list of active postprocessors */
+  const keyList_t &activeList() {return _active;}
+
+  /** a read write lock
+   *
+   * read write for making sure that reload is not called when someone
+   * wants retrieve a list or retrieve a postprocessor.
+   */
+  QReadWriteLock lock;
+
+  /** Load active postprocessors and histograms
+   *
+   * Reset set of active postprocessors/histograms based on cass.ini
+   */
+  void loadSettings(size_t);
+
+  /** Save active postprocessors and histograms */
+  void saveSettings();
+
+  /** clear the histogram that has id */
+  void clear(const key_t&);
+
+  /** process command in pp that has id */
+  void receiveCommand(const key_t&, std::string command);
+
+protected:
+  /** factory to create new Postprocessor with the name key.
+   *
+   * The ID which postprocessor should be used for the name is extracted from
+   * the settings and has the property ID.
+   *
+   * @return instance the newly created postprocessor
+   * @param[in] key the key of the postprocessor
+   */
+  std::tr1::shared_ptr<PostprocessorBackend> create(const key_t &key);
+
+  /** Set up _postprocessors using the user requested pp in active
+   *
+   * Make sure that all PostProcessors on active list are in the pp container.
+   * When the PostProcessor has a dependency resolve it, add it to the active
+   * list if it's not already on it.
+   *
+   * Delete all postprocessors that are not on the active list.
+   *
+   * @param active reference to list of all postprocessors that should be in
+   *               container.
+   */
+  void setup(keyList_t& active);
+
+protected:
+  /** the list of keys.
+   *
+   * used to create the combobox in cassview
+   */
+  std::tr1::shared_ptr<IdList> _IdList;
+
+  /** container for user selected and registered postprocessors */
+  postprocessors_t _postprocessors;
+
+  /** filename of the output file */
+  std::string _outputfilename;
+
+  /** list of active keys */
+  keyList_t _active;
+
+private:
+  /** Private constructor of singleton
+   *
+   * @param outputfilename filename of the file containing the results. Used
+   *                       by special postprocessors.
+   */
+  PostProcessors(std::string outputfilename);
+
+  /** Prevent copy-construction of singleton */
+  PostProcessors(const PostProcessors&);
+
+  /** Prevent assignment (potentially resulting in a copy) of singleton */
+  PostProcessors& operator=(const PostProcessors&);
+
+  /** pointer to the singleton instance */
+  static shared_pointer _instance;
+
+  /** Singleton operation locker */
+  static QMutex _mutex;
+};
 
 } // namespace cass
 

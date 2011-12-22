@@ -13,35 +13,22 @@
 #include "worker.h"
 #include "analyzer.h"
 #include "format_converter.h"
-#include "postprocessing/postprocessor.h"
 #include "ratemeter.h"
+#include "postprocessor.h"
+
 
 using namespace cass;
 using namespace std;
 
 Worker::Worker(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                Ratemeter &ratemeter,
-               string outputfilename,
                QObject *parent)
   :PausableThread(lmf::PausableThread::_run,parent),
     _ringbuffer(ringbuffer),
-    _analyzer(Analyzer::instance()),
-    _postprocessor(PostProcessors::instance(outputfilename)),
+    _preanalyze(*Analyzer::instance()),
+    _postprocess(*PostProcessors::instance()),
     _ratemeter(ratemeter)
 {}
-
-Worker::~Worker()
-{
-  _postprocessor->destroy();
-  _analyzer->destroy();
-}
-
-void Worker::aboutToQuit()
-{
-
-  _postprocessor->aboutToQuit();
-  _analyzer->aboutToQuit();
-}
 
 void Worker::run()
 {
@@ -53,124 +40,87 @@ void Worker::run()
     _ringbuffer.nextToProcess(cassevent, 1000);
     if (cassevent)
     {
-      _analyzer->processEvent(cassevent);
-      _postprocessor->process(*cassevent);
+      _preanalyze(cassevent);
+      _postprocess(*cassevent);
       _ringbuffer.doneProcessing(cassevent);
       _ratemeter.count();
     }
   }
 }
 
-void Worker::loadSettings(size_t what)
+
+
+
+
+
+
+
+// ============define static members (do not touch)==============
+Workers::shared_pointer Workers::_instance;
+QMutex Workers::_mutex;
+
+Workers::shared_pointer Workers::instance(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                                          Ratemeter &ratemeter,
+                                          QObject *parent)
 {
-  _postprocessor->loadSettings(what);
-  _analyzer->loadSettings(what);
+  QMutexLocker lock(&_mutex);
+  if(!_instance)
+    _instance = Workers::shared_pointer(new Workers(ringbuffer, ratemeter, parent));
+  return _instance;
 }
 
-void Worker::saveSettings()
+Workers::shared_pointer::element_type& Workers::reference()
 {
-  _postprocessor->saveSettings();
-  _analyzer->saveSettings();
+  QMutexLocker lock(&_mutex);
+  if (!_instance)
+    throw logic_error("Workers::reference(): The instance has not yet been created");
+  return *_instance;
 }
-
-
-
-
-
-
-
-
-
-
+//===============================================================
 
 
 //-----------------------the wrapper for more than 1 worker--------------------
 Workers::Workers(RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                  Ratemeter &ratemeter,
-                 string outputfilename,
-                 QObject */*parent*/)
+                 QObject *parent)
   :_workers(NbrOfWorkers)
 {
   for (size_t i=0;i<_workers.size();++i)
-    _workers[i] = Worker::shared_pointer(new Worker(ringbuffer,ratemeter,outputfilename));
-  _workers[0]->loadSettings(0);
-}
-
-Workers::~Workers()
-{}
-
-void Workers::loadSettings(size_t what)
-{
-  //make sure there is at least one worker//
-  if(_workers.empty())
-    throw bad_exception();
-  QMutexLocker lock(&_mutex);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->pause();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->waitUntilPaused();
-  _workers[0]->loadSettings(what);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->resume();
-}
-
-void Workers::saveSettings()
-{
-  //make sure there is at least one worker//
-  if(_workers.empty())
-    throw bad_exception();
-  QMutexLocker lock(&_mutex);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->pause();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->waitUntilPaused();
-  _workers[0]->saveSettings();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->resume();
-}
-
-void Workers::clearHistogram(PostProcessors::key_t key)
-{
-  if(_workers.empty())
-    throw bad_exception();
-  QMutexLocker lock(&_mutex);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->pause();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->waitUntilPaused();
-  _workers[0]->clear(key);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->resume();
-}
-
-void Workers::receiveCommand(PostProcessors::key_t key, string command)
-{
-  if(_workers.empty())
-    throw bad_exception();
-  QMutexLocker lock(&_mutex);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->pause();
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->waitUntilPaused();
-  _workers[0]->receiveCommand(key, command);
-  for (size_t i=0;i<_workers.size();++i)
-    _workers[i]->resume();
+    _workers[i] = Worker::shared_pointer(new Worker(ringbuffer,ratemeter,parent));
 }
 
 void Workers::start()
 {
+  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->start();
 }
 
+void Workers::pause()
+{
+  QMutexLocker lock(&_mutex);
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->pause();
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->waitUntilPaused();
+}
+
+void Workers::resume()
+{
+  QMutexLocker lock(&_mutex);
+  for (size_t i=0;i<_workers.size();++i)
+    _workers[i]->resume();
+}
+
 void Workers::end()
 {
-  QMutexLocker locker(&_mutex);
+  QMutexLocker lock(&_mutex);
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->end();
   for (size_t i=0;i<_workers.size();++i)
     _workers[i]->wait();
-  _workers[0]->aboutToQuit();
+  PostProcessors::instance()->aboutToQuit();
+  Analyzer::instance()->aboutToQuit();
   emit finished();
 }
 
