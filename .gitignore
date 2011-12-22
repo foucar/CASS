@@ -1,5 +1,6 @@
 /doc/*.doxytag
 /doc/*.log
+/doc/doxygen
 /cass_myconfig.pri
 *~
 /*.user*
