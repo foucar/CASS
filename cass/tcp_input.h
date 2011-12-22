@@ -73,6 +73,9 @@ public:
    */
   void run();
 
+  /** do not load anything */
+  void load() {}
+
 private:
 };
 
