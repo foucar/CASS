@@ -10,6 +10,8 @@
 #ifndef CASS_ANALYSISBACKEND_H
 #define CASS_ANALYSISBACKEND_H
 
+#include <tr1/memory>
+
 #include "cass.h"
 
 namespace cass
@@ -27,6 +29,9 @@ namespace cass
   class CASSSHARED_EXPORT AnalysisBackend
   {
   public:
+    /** a shared pointer of this type */
+    typedef std::tr1::shared_ptr<AnalysisBackend> shared_pointer;
+
     /** virtual desctructor */
     virtual ~AnalysisBackend()  {}
 

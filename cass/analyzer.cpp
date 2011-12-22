@@ -17,50 +17,37 @@
 #include "cass_settings.h"
 
 
+using namespace cass;
+using namespace std;
+
+
 // ============define static members==============
-cass::Analyzer *cass::Analyzer::_instance(0);
-QMutex cass::Analyzer::_mutex;
+Analyzer::shared_pointer Analyzer::_instance;
+QMutex Analyzer::_mutex;
 
-cass::Analyzer* cass::Analyzer::instance()
+Analyzer::shared_pointer Analyzer::instance()
 {
-  QMutexLocker locker(&_mutex);
-  if(0 == _instance)
-    _instance = new Analyzer();
+  QMutexLocker lock(&_mutex);
+  if(!_instance)
+    _instance = shared_pointer(new Analyzer());
   return _instance;
-}
-
-void cass::Analyzer::destroy()
-{
-  QMutexLocker locker(&_mutex);
-  delete _instance;
-  _instance = 0;
 }
 //===================================================
 
-
-
-
-cass::Analyzer::Analyzer()
+Analyzer::Analyzer()
 {
-  _analyzer[ccd]          = new CCD::Analysis();
-  _analyzer[pnCCD]        = new pnCCD::Analysis();
+  _analyzer[ccd] = AnalysisBackend::shared_pointer(new CCD::Analysis());
+  _analyzer[pnCCD] =  AnalysisBackend::shared_pointer(new pnCCD::Analysis());
 }
 
-cass::Analyzer::~Analyzer()
-{
-  analyzers_t::iterator it (_analyzer.begin());
-  for (; it != _analyzer.end(); ++it )
-    delete (it->second);
-}
-
-void cass::Analyzer::processEvent(cass::CASSEvent* cassevent)
+void Analyzer::operator()(CASSEvent* cassevent)
 {
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
   for(; it!=_activeAnalyzers.end();++it)
     (*_analyzer[*it])(cassevent);
 }
 
-void cass::Analyzer::loadSettings(size_t)
+void Analyzer::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PreAnalyzer");
@@ -73,8 +60,9 @@ void cass::Analyzer::loadSettings(size_t)
     (*_analyzer[*it]).loadSettings();
 }
 
-void cass::Analyzer::saveSettings()
+void Analyzer::saveSettings()
 {
+  /** @todo use for_each and bind here */
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
   for(; it != _activeAnalyzers.end();++it)
     (*_analyzer[*it]).saveSettings();

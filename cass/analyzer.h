@@ -13,85 +13,86 @@
 
 #include <map>
 #include <set>
+#include <tr1/memory>
+
 #include <QtCore/QMutex>
 #include <QtCore/QObject>
+
 #include "cass.h"
 
 namespace cass
 {
-  class CASSEvent;
-  class AnalysisBackend;
+class CASSEvent;
+class AnalysisBackend;
 
 
-  /** Container and call handler for all Pre Analyzers.
+/** Container and call handler for all Pre Analyzers.
+ *
+ * @section preanalyzer Parameters for the pre analyzers
+ * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
+ *           Should pre analysis run: default true
+ *           (see cass::CCD::Parameter)
+ * @cassttng PreAnalyzer/{usepnCCDAnalyzer}\n
+ *           Should pre analysis run: default true
+ *           (see cass::pnCCD::Parameter)
+ *
+ * @author Jochen Kuepper
+ * @author Lutz Foucar
+ */
+class CASSSHARED_EXPORT Analyzer
+{
+public:
+  /** a shared pointer of this */
+  typedef std::tr1::shared_ptr<Analyzer> shared_pointer;
+
+  /** list of known individual analyzers*/
+  enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
+
+  /** creates an instance if it does not exist already
    *
-   * @section preanalyzer Parameters for the pre analyzers
-   * @cassttng PreAnalyzer/{useCommercialCCDAnalyzer}\n
-   *           Should pre analysis run: default true
-   *           (see cass::CCD::Parameter)
-   * @cassttng PreAnalyzer/{usepnCCDAnalyzer}\n
-   *           Should pre analysis run: default true
-   *           (see cass::pnCCD::Parameter)
-   *
-   * @author Jochen Kuepper
-   * @author Lutz Foucar
+   * @return pointer to this singleton class
    */
-  class CASSSHARED_EXPORT Analyzer : public QObject
-  {
-    Q_OBJECT;
+  static shared_pointer instance();
 
-  public:
-    /** list of known individual analyzers*/
-    enum Analyzers {Acqiris, ccd, MachineData, pnCCD};
+  /** function to use the analyzers for the different instruments
+   *
+   * @param evt The event to pre process
+   */
+  void operator()(CASSEvent* evt);
 
-    /** creates an instance if it does not exist already
-     *
-     * @todo use shared pointer here.
-     *
-     * @return pointer to this singleton class
-     */
-    static Analyzer *instance();
+  /** function that one can implement when one wants to do something just before quitting*/
+  void aboutToQuit() {}
 
-    /** this destroys the the instance*/
-    static void destroy();
+  /** save the settings of the analyzers*/
+  void saveSettings();
 
-    /** function to use the analyzers for the different instruments*/
-    void processEvent(cass::CASSEvent*);
+  /** load the settings of the analyzers*/
+  void loadSettings(size_t what);
 
-    /** function that one can implement when one wants to do something just before quitting*/
-    void aboutToQuit() {}
+protected:
+  /** protected constructor, should only be called through instance*/
+  Analyzer();
 
-  public slots:
-    /** save the settings of the analyzers*/
-    void saveSettings();
+public:
+  /** container of the pre anaylzers */
+  typedef std::map<Analyzers, std::tr1::shared_ptr<AnalysisBackend> > analyzers_t;
 
-    /** load the settings of the analyzers*/
-    void loadSettings(size_t what);
+  /** the active preanalyzers */
+  typedef std::set<Analyzers> active_analyzers_t;
 
-  protected:
-    /** protected constructor, should only be called through instance*/
-    Analyzer();
+protected:
+  /** map of available analyzers*/
+  analyzers_t _analyzer;
 
-    /** protected destructor, should only be called through destroy*/
-    ~Analyzer();
+  /** a set of the active analyzers*/
+  active_analyzers_t _activeAnalyzers;
 
-  public:
-    typedef std::map<Analyzers, AnalysisBackend*> analyzers_t;
-    typedef std::set<Analyzers> active_analyzers_t;
+  /** pointer to the instance*/
+  static shared_pointer _instance;
 
-  protected:
-    /** map of available analyzers*/
-    analyzers_t _analyzer;
-
-    /** a set of the active analyzers*/
-    active_analyzers_t _activeAnalyzers;
-
-    /** pointer to the instance*/
-    static Analyzer *_instance;
-
-    /** Singleton operation locker in a multi-threaded environment.*/
-    static QMutex _mutex;
-  };
+  /** Singleton operation locker in a multi-threaded environment.*/
+  static QMutex _mutex;
+};
 }//end namespace cass
 
 #endif
