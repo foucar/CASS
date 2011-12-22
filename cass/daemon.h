@@ -34,7 +34,7 @@ namespace cass
 
 
   /** a deamon that will intercept chosen unix signals.
-
+   *
    * This will connect to the selected unix signals and emit
    * Qt Signals to be able to use the Qt Signal - Slot mechanism with them.
    * ideas taken from http://qt.nokia.com/doc/4.6/unix-signals.html.

@@ -13,10 +13,11 @@
 #include <stdio.h>
 #include <signal.h>
 
+using namespace cass;
 
-//initialize static memebers
-int cass::UnixSignalDaemon::sigquitFd[2];
-int cass::UnixSignalDaemon::sigtermFd[2];
+//initialize static members
+int UnixSignalDaemon::sigquitFd[2];
+int UnixSignalDaemon::sigtermFd[2];
 
 //installation of Unix singal handlers//
 int cass::setup_unix_signal_handlers()
@@ -24,7 +25,7 @@ int cass::setup_unix_signal_handlers()
   struct sigaction quit, term;
   VERBOSEOUT(std::cout << "Daemon: what to do in case signal to exit "<<std::endl);
 
-  quit.sa_handler = cass::UnixSignalDaemon::quitSignalHandler;
+  quit.sa_handler = UnixSignalDaemon::quitSignalHandler;
   sigemptyset(&quit.sa_mask);
   quit.sa_flags = SA_RESTART;
 
@@ -32,7 +33,7 @@ int cass::setup_unix_signal_handlers()
     return 1;
 
   VERBOSEOUT(std::cout << "Daemon: what to do in case signal to quit "<<std::endl);
-  term.sa_handler = cass::UnixSignalDaemon::termSignalHandler;
+  term.sa_handler = UnixSignalDaemon::termSignalHandler;
   sigemptyset(&term.sa_mask);
   term.sa_flags = SA_RESTART;
 
@@ -42,7 +43,7 @@ int cass::setup_unix_signal_handlers()
   return 0;
 }
 
-cass::UnixSignalDaemon::UnixSignalDaemon(QObject *parent)
+UnixSignalDaemon::UnixSignalDaemon(QObject *parent)
   :QObject(parent)
 {
   if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigquitFd))
@@ -58,7 +59,7 @@ cass::UnixSignalDaemon::UnixSignalDaemon(QObject *parent)
 
 
 /* See daemon.h for details of that's going on here */
-void cass::UnixSignalDaemon::quitSignalHandler(int)
+void UnixSignalDaemon::quitSignalHandler(int)
 {
   std::cout<<"Daemon::quitSignalHandler(): quit signal seen"<<std::endl;
   char a = 1;
@@ -68,7 +69,7 @@ void cass::UnixSignalDaemon::quitSignalHandler(int)
   }
 }
 
-void cass::UnixSignalDaemon::handleSigQuit()
+void UnixSignalDaemon::handleSigQuit()
 {
   std::cout<<"Daemon::handleSigQuit(): quit signal handle"<<std::endl;
   snQuit->setEnabled(false);
@@ -83,7 +84,7 @@ void cass::UnixSignalDaemon::handleSigQuit()
 }
 
 
-void cass::UnixSignalDaemon::termSignalHandler(int)
+void UnixSignalDaemon::termSignalHandler(int)
 {
   std::cout<<"Daemon::termSignalHandler(): Quitterm signal seen"<<std::endl;
   char a = 1;
@@ -94,7 +95,7 @@ void cass::UnixSignalDaemon::termSignalHandler(int)
 }
 
 
-void cass::UnixSignalDaemon::handleSigTerm()
+void UnixSignalDaemon::handleSigTerm()
 {
   std::cout<<"Daemon::handleSigTerm(): term signal handle"<<std::endl;
   snTerm->setEnabled(false);
