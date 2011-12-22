@@ -19,6 +19,21 @@
 using namespace cass;
 using namespace std;
 
+void SharedMemoryInput::instance(const string &partitionTag,
+                                 int index,
+                                 RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                                 Ratemeter &ratemeter,
+                                 QObject *parent)
+{
+  if(_instance)
+    throw logic_error("SharedMemoryInput::instance(): The instance of the base class is already initialized");
+  _instance = shared_pointer(new SharedMemoryInput(partitionTag,
+                                                   index,
+                                                   ringbuffer,
+                                                   ratemeter,
+                                                   parent));
+}
+
 SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
                                      int index,
                                      RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
@@ -31,12 +46,6 @@ SharedMemoryInput::SharedMemoryInput(const string &partitionTag,
 {
   loadSettings(0);
 }
-
-SharedMemoryInput::~SharedMemoryInput()
-{
-  VERBOSEOUT(cout<<"deleting shared memory input"<<endl);
-}
-
 
 void SharedMemoryInput::load()
 {

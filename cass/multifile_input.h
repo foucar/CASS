@@ -51,6 +51,32 @@ namespace cass
 class MultiFileInput : public InputBase
 {
 public:
+  /** create an instance of this
+   *
+   * @param filelistname name of the file containing all files that should be
+   *                     processed
+   * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param quitwhendone flag that tells this class that it should quit the
+   *                     Program when its done reading all events
+   * @param parent The parent QT Object of this class
+   */
+  static void instance(const std::string& filelistname,
+                       RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+                       Ratemeter &ratemeter,
+                       bool quitwhendone,
+                       QObject *parent=0);
+
+  /** destructor */
+  ~MultiFileInput();
+
+  /** function with the main loop */
+  void run();
+
+  /** load the parameters used for the multifile input */
+  void load();
+
+private:
   /** constructor
    *
    * @param filelistname name of the file containing all files that should be
@@ -67,16 +93,6 @@ public:
                  bool quitwhendone,
                  QObject *parent=0);
 
-  /** destructor */
-  ~MultiFileInput();
-
-  /** function with the main loop */
-  void run();
-
-  /** load the parameters used for the multifile input */
-  void load();
-
-private:
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
 

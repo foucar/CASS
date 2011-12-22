@@ -27,6 +27,17 @@ using namespace cass;
 using tr1::bind;
 using tr1::placeholders::_1;
 
+void MultiFileInput::instance(const string& filelistname,
+                              RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                              Ratemeter &ratemeter,
+                              bool quitWhenDone,
+                              QObject *parent)
+{
+  if(_instance)
+    throw logic_error("MultiFileInput::instance(): The instance of the base class is already initialized");
+  _instance = shared_pointer(new MultiFileInput(filelistname,ringbuffer,ratemeter,quitWhenDone,parent));
+}
+
 MultiFileInput::MultiFileInput(const string& filelistname,
                                RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                                Ratemeter &ratemeter,

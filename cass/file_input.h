@@ -41,6 +41,29 @@ namespace cass
 class FileInput :  public InputBase
 {
 public:
+  /** create instance of this
+   *
+   * @param filelistname name of the file containing all files that should be
+   *                     processed
+   * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param quitwhendone flag that tells this class that it should quit the
+   *                     Program when its done reading all events
+   * @param parent The parent QT Object of this class
+   */
+  static void instance(std::string filelistname,
+                       RingBuffer<CASSEvent,RingBufferSize>&,
+                       Ratemeter &ratemeter,
+                       bool quitwhendone,
+                       QObject *parent=0);
+
+  /** function with the main loop */
+  void run();
+
+  /** load the parameters used for the multifile input */
+  void load();
+
+private:
   /** constructor
    *
    * @param filelistname name of the file containing all files that should be
@@ -57,16 +80,6 @@ public:
             bool quitwhendone,
             QObject *parent=0);
 
-  /** destructor */
-  ~FileInput();
-
-  /** function with the main loop */
-  void run();
-
-  /** load the parameters used for the multifile input */
-  void load();
-
-private:
   /** flag that tells the input to rewind to the beginning of the eventlist */
   bool _rewind;
 

@@ -19,13 +19,20 @@
 using namespace cass;
 using namespace std;
 
+void TCPInput::instance(RingBuffer<CASSEvent, RingBufferSize> &buffer,
+                   Ratemeter &ratemeter,
+                   QObject *parent)
+{
+  if(_instance)
+    throw logic_error("TCPInput::instance(): The instance of the base class is already initialized");
+  _instance = shared_pointer(new TCPInput(buffer,ratemeter,parent));
+}
+
 TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
                    Ratemeter &ratemeter,
                    QObject *parent)
   :InputBase(ringbuffer,ratemeter,parent)
-{
-  loadSettings(0);
-}
+{}
 
 void TCPInput::run()
 {

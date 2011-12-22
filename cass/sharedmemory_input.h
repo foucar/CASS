@@ -20,10 +20,10 @@
 
 namespace cass
 {
-  //forward declaration//
-  class FormatConverter;
+//forward declaration//
+class FormatConverter;
 
-  /** Shared Memory Input for receiving xtc datagrams
+/** Shared Memory Input for receiving xtc datagrams
    *
    * This class is a thread that connects to the sahred memory of LCLS. The
    * baseclass does all the connection and once there is new data available
@@ -34,73 +34,85 @@ namespace cass
    *
    * @author Lutz Foucar
    */
-  class SharedMemoryInput
+class SharedMemoryInput
     : public InputBase, Pds::XtcMonitorClient
-  {
-  public:
-    /** constructor
-     *
-     * creates the thread. The base class will create the interface to the shared
-     * memory.
-     *
-     * @param PartitionTag the name of the partition tag we want to connect to
-     * @param buffer the ringbuffer, that we take events out and fill it
-     *        with the incomming information
-     * @param ratemeter reference to the ratemeter to measure the rate of the input
-     * @param index the client index of the shared memory
-     * @param parent the parent of this object
-     */
-    SharedMemoryInput(const std::string &PartitionTag,
-                      int index,
-                      cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
-                      Ratemeter &ratemeter,
-                      QObject *parent=0);
+{
+public:
+  /** create an instance of this
+   *
+   * @param PartitionTag the name of the partition tag we want to connect to
+   * @param buffer the ringbuffer, that we take events out and fill it
+   *        with the incomming information
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param index the client index of the shared memory
+   * @param parent the parent of this object
+   */
+  static void instance(const std::string &PartitionTag,
+                       int index,
+                       cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
+                       Ratemeter &ratemeter,
+                       QObject *parent=0);
 
-    /** deletes the thread*/
-    ~SharedMemoryInput();
+  /** starts the thread
+   *
+   * Starts the thread and the loop in the shared memory client we inerhited
+   * from. The loop will be notified when there are new events available in
+   * the shared memory.
+   */
+  void run();
 
-    /** starts the thread
-     *
-     * Starts the thread and the loop in the shared memory client we inerhited
-     * from. The loop will be notified when there are new events available in
-     * the shared memory.
-     */
-    void run();
+  /** overwrite the base class function with our code
+   *
+   * This is called once the eventqueue has new data available.
+   *
+   * @return the errorcode, when != 0, then the baseclasses will exit its loop
+   * @param[in] dg The datagram we can work on
+   */
+  int processDgram(Pds::Dgram*dg);
 
-    /** overwrite the base class function with our code
-     *
-     * This is called once the eventqueue has new data available.
-     *
-     * @return the errorcode, when != 0, then the baseclasses will exit its loop
-     * @param[in] dg The datagram we can work on
-     */
-    int processDgram(Pds::Dgram*dg);
+  /** do all clean up when quitting
+   *
+   * this function from the base class needs to be overwritten, since it might
+   * happen that we loose connection to the shared memory in wich case we
+   * will never be able to check the quit status. Therefore after waiting 5 s
+   * this will just terminate the thread.
+   */
+  void end();
 
-    /** do all clean up when quitting
-     *
-     * this function from the base class needs to be overwritten, since it might
-     * happen that we loose connection to the shared memory in wich case we
-     * will never be able to check the quit status. Therefore after waiting 5 s
-     * this will just terminate the thread.
-     */
-    void end();
+  /** load the parameters of the FormatConverter */
+  void load();
 
-    /** load the parameters of the FormatConverter */
-    void load();
+private:
+  /** constructor
+   *
+   * creates the thread. The base class will create the interface to the shared
+   * memory.
+   *
+   * @param PartitionTag the name of the partition tag we want to connect to
+   * @param buffer the ringbuffer, that we take events out and fill it
+   *        with the incomming information
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param index the client index of the shared memory
+   * @param parent the parent of this object
+   */
+  SharedMemoryInput(const std::string &PartitionTag,
+                    int index,
+                    cass::RingBuffer<cass::CASSEvent,cass::RingBufferSize>& buffer,
+                    Ratemeter &ratemeter,
+                    QObject *parent=0);
 
-  private:
-    /** the name of the partition tag we connect to*/
-    std::string _partitionTag;
+  /** the name of the partition tag we connect to*/
+  std::string _partitionTag;
 
-    /** the client index of the shared memory */
-    int _index;
+  /** the client index of the shared memory */
+  int _index;
 
-    /** a reference to the format converter functor
-     *
-     * The converter will convert the incomming data to our CASSEvent
-     */
-    FormatConverter &_convert;
-  };
+  /** a reference to the format converter functor
+   *
+   * The converter will convert the incomming data to our CASSEvent
+   */
+  FormatConverter &_convert;
+};
 
 }//end namespace cass
 

@@ -35,20 +35,6 @@ public:
   /** shared pointer of this type */
   typedef std::tr1::shared_ptr<InputBase> shared_pointer;
 
-  /** constructor
-   *
-   * @param ringbuffer reference to the ringbuffer containing the CASSEvents
-   * @param ratemeter reference to the ratemeter to measure the rate of the input
-   * @param parent The parent QT Object of this class
-   */
-  InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
-            Ratemeter & ratemeter,
-            QObject *parent=0)
-    :PausableThread(lmf::PausableThread::_run,parent),
-     _ringbuffer(ringbuffer),
-     _ratemeter(ratemeter)
-  {}
-
   /** destructor */
   virtual ~InputBase(){}
 
@@ -70,7 +56,22 @@ public:
    */
   void newEventAdded();
 
-public slots:
+  /** get the signelton instance
+   *
+   * throws logic error when instance does not exist yet
+   *
+   * @return the singleton instance
+   */
+  static shared_pointer instance();
+
+  /** get reference to the singelton instance
+   *
+   * throws logic error when instance does not exist yet
+   *
+   * @return reference to the singleton
+   */
+  static shared_pointer::element_type& reference();
+
   /** load the parameters used for this input module
    *
    * pauses the thread then loads the settings of the MulitFileInput. Then
@@ -81,11 +82,32 @@ public slots:
   void loadSettings(size_t/* what*/);
 
 protected:
+  /** protected constructor since it should be a singelton
+   *
+   * @param ringbuffer reference to the ringbuffer containing the CASSEvents
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param parent The parent QT Object of this class
+   */
+  InputBase(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
+            Ratemeter & ratemeter,
+            QObject *parent=0)
+    :PausableThread(lmf::PausableThread::_run,parent),
+     _ringbuffer(ringbuffer),
+     _ratemeter(ratemeter)
+  {}
+
   /** reference to the ringbuffer */
   RingBuffer<CASSEvent,RingBufferSize>  &_ringbuffer;
 
   /** ratemeter to measure the rate */
   Ratemeter & _ratemeter;
+
+  /** singelton instance */
+  static shared_pointer _instance;
+
+private:
+  /** a mutex to lock operations */
+  static QMutex _mutex;
 };
 
 }//end namespace cass

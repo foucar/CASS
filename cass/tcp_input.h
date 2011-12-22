@@ -46,6 +46,31 @@ namespace cass
 class TCPInput : public InputBase
 {
 public:
+  /** create an instance of this
+   *
+   * this initializes the _instance member of the base class. Check here if
+   * it is already initialized, if so throw logic error.
+   *
+   * @param buffer the ringbuffer, that we take events out and fill it
+   *        with the incomming information
+   * @param ratemeter reference to the ratemeter to measure the rate of the input
+   * @param parent the parent of this object
+   */
+  static void instance(RingBuffer<CASSEvent,RingBufferSize>& buffer,
+                       Ratemeter &ratemeter,
+                       QObject *parent=0);
+
+  /** starts the thread
+   *
+   * Starts the thread and the loop that waits for data. When an timout occured
+   * it will just restart the loop until the quit flag is set.
+   */
+  void run();
+
+  /** do not load anything */
+  void load() {}
+
+private:
   /** constructor
    *
    * creates the thread. Connects to the tcp server and then retrieves the
@@ -65,18 +90,6 @@ public:
   TCPInput(RingBuffer<CASSEvent,RingBufferSize>& buffer,
            Ratemeter &ratemeter,
            QObject *parent=0);
-
-  /** starts the thread
-   *
-   * Starts the thread and the loop that waits for data. When an timout occured
-   * it will just restart the loop until the quit flag is set.
-   */
-  void run();
-
-  /** do not load anything */
-  void load() {}
-
-private:
 };
 
 }//end namespace cass

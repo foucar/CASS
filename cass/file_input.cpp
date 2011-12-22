@@ -21,6 +21,17 @@
 using namespace std;
 using namespace cass;
 
+void FileInput::instance(string filelistname,
+                         RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
+                         Ratemeter &ratemeter,
+                         bool quitWhenDone,
+                         QObject *parent)
+{
+  if(_instance)
+    throw logic_error("FileInput::instance(): The instance of the base class is already initialized");
+  _instance = shared_pointer(new FileInput(filelistname,ringbuffer,ratemeter,quitWhenDone,parent));
+}
+
 FileInput::FileInput(string filelistname,
                      RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
                      Ratemeter &ratemeter,
@@ -32,11 +43,6 @@ FileInput::FileInput(string filelistname,
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
   loadSettings(0);
-}
-
-FileInput::~FileInput()
-{
-  VERBOSEOUT(cout<< "input is closed" <<endl);
 }
 
 void FileInput::load()

@@ -320,29 +320,18 @@ int main(int argc, char **argv)
     PostProcessors::instance(outputfilename);
     Workers::instance(ringbuffer, workerrate, qApp);
 #ifdef OFFLINE
-    InputBase::shared_pointer input;
     if (multifile)
-      input = InputBase::shared_pointer(new MultiFileInput(filelistname,
-                                                           ringbuffer,
-                                                           inputrate,
-                                                           quitwhendone));
+      MultiFileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
     else
-      input = InputBase::shared_pointer(new FileInput(filelistname,
-                                                      ringbuffer,
-                                                      inputrate,
-                                                      quitwhendone));
+      FileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
 #else
-    InputBase::shared_pointer input;
     if (tcp)
-      input = InputBase::shared_pointer(new TCPInput(ringbuffer,inputrate));
+      TCPInput::instance(ringbuffer,inputrate);
     else
-      input = InputBase::shared_pointer(new SharedMemoryInput(partitionTag,
-                                                              index,
-                                                              ringbuffer,
-                                                              inputrate));
+      SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
 #endif
-    QObject::connect(input.get(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
-    QObject::connect(input.get(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
+    QObject::connect(InputBase::instance().get(), SIGNAL(finished()), &Workers::reference(), SLOT(end()));
+    QObject::connect(InputBase::instance().get(), SIGNAL(terminated()), &Workers::reference(), SLOT(end()));
     QObject::connect(&Workers::reference(), SIGNAL(finished()), qApp, SLOT(quit()));
 
 
@@ -352,8 +341,8 @@ int main(int argc, char **argv)
      */
     setup_unix_signal_handlers();
     UnixSignalDaemon signaldaemon(qApp);
-    QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), input.get(), SLOT(end()));
-    QObject::connect(&signaldaemon, SIGNAL(TermSignal()), input.get(), SLOT(end()));
+    QObject::connect(&signaldaemon, SIGNAL(QuitSignal()), &InputBase::reference(), SLOT(end()));
+    QObject::connect(&signaldaemon, SIGNAL(TermSignal()), &InputBase::reference(), SLOT(end()));
 
 
     /** set up the TCP/SOAP server and connect its provided signals to the
@@ -363,8 +352,8 @@ int main(int argc, char **argv)
     EventGetter get_event(ringbuffer);
     HistogramGetter get_histogram;
     SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
-    QObject::connect(server.get(), SIGNAL(quit()), input.get(), SLOT(end()));
-    QObject::connect(server.get(), SIGNAL(readini(size_t)), input.get(), SLOT(loadSettings(size_t)));
+    QObject::connect(server.get(), SIGNAL(quit()), &InputBase::reference(), SLOT(end()));
+    QObject::connect(server.get(), SIGNAL(readini(size_t)), &InputBase::reference(), SLOT(loadSettings(size_t)));
 #endif
 
     /** set up the optional http server */
@@ -374,7 +363,7 @@ int main(int argc, char **argv)
 
     /** start worker, input and server threads and then start the qt event loop */
     Workers::reference().start();
-    input->start();
+    InputBase::reference().start();
 #ifdef SOAPSERVER
     server->start();
 #endif
