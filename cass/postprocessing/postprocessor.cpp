@@ -112,10 +112,10 @@ void PostProcessors::operator()(const CASSEvent& event)
    *       - remove all pp that made it on the removelist
    *       - this needs to be done in a locked way since more than one thread
    *         do this
-   * @todo don't use getter function to copy a const iterator everytime
    */
   postprocessors_t::iterator iter(_postprocessors.begin());
-  for(;iter != _postprocessors.end(); ++iter)
+  postprocessors_t::iterator end(_postprocessors.end());
+  for(;iter != end; ++iter)
   {
 //     cout <<event.id()<<" running '" << iter->first<<"'"<<endl;
     (*(iter->second))(event);
@@ -124,11 +124,10 @@ void PostProcessors::operator()(const CASSEvent& event)
 
 void PostProcessors::aboutToQuit()
 {
-  /** @todo dont use function to get copy of end iterator for every loop */
-  for(postprocessors_t::iterator iter = _postprocessors.begin();
-      iter != _postprocessors.end();
-      ++iter)
-    iter->second->aboutToQuit();
+  postprocessors_t::iterator iter = _postprocessors.begin();
+  postprocessors_t::iterator end = _postprocessors.end();
+  while( iter != end )
+    (*iter++).second->aboutToQuit();
 }
 
 void PostProcessors::loadSettings(size_t)
@@ -208,7 +207,8 @@ PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::k
   keyList_t dependandList;
   dependandList.push_front(key);
   postprocessors_t::const_iterator iter = _postprocessors.begin();
-  while(iter != _postprocessors.end())
+  postprocessors_t::const_iterator end = _postprocessors.end();
+  while(iter != end)
   {
     bool update(false);
     keyList_t dependencyList(iter->second->dependencies());
