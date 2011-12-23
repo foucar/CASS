@@ -159,7 +159,7 @@ public:
   void end();
 
   /** a lock to be used by functions that are using this worker */
-  QMutex _lock;
+  QMutex lock;
 
 private:
   /** constructor.
