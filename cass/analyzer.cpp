@@ -42,9 +42,10 @@ Analyzer::Analyzer()
 
 void Analyzer::operator()(CASSEvent* cassevent)
 {
-  active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
-  for(; it!=_activeAnalyzers.end();++it)
-    (*_analyzer[*it])(cassevent);
+  active_analyzers_t::const_iterator it(_activeAnalyzers.begin());
+  active_analyzers_t::const_iterator end(_activeAnalyzers.end());
+  while(it != end)
+    (*_analyzer[*it++])(cassevent);
 }
 
 void Analyzer::loadSettings(size_t)
@@ -56,16 +57,17 @@ void Analyzer::loadSettings(size_t)
   if (settings.value("usepnCCDAnalyzer",true).toBool())
     _activeAnalyzers.insert(pnCCD);       else _activeAnalyzers.erase(pnCCD);
   active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
-  for(; it != _activeAnalyzers.end();++it)
-    (*_analyzer[*it]).loadSettings();
+  active_analyzers_t::const_iterator end (_activeAnalyzers.end());
+  while(it != end)
+    _analyzer[*it++]->loadSettings();
 }
 
 void Analyzer::saveSettings()
 {
-  /** @todo use for_each and bind here */
-  active_analyzers_t::const_iterator it (_activeAnalyzers.begin());
-  for(; it != _activeAnalyzers.end();++it)
-    (*_analyzer[*it]).saveSettings();
+  active_analyzers_t::const_iterator it(_activeAnalyzers.begin());
+  active_analyzers_t::const_iterator end(_activeAnalyzers.end());
+  while(it != end)
+    _analyzer[*it++]->saveSettings();
 }
 
 
