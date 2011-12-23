@@ -112,7 +112,7 @@ void PostProcessors::operator()(const CASSEvent& event)
    *       - remove all pp that made it on the removelist
    *       - this needs to be done in a locked way since more than one thread
    *         do this
-   * @todo use for each and bind
+   * @todo don't use getter function to copy a const iterator everytime
    */
   postprocessors_t::iterator iter(_postprocessors.begin());
   for(;iter != _postprocessors.end(); ++iter)
@@ -124,6 +124,7 @@ void PostProcessors::operator()(const CASSEvent& event)
 
 void PostProcessors::aboutToQuit()
 {
+  /** @todo dont use function to get copy of end iterator for every loop */
   for(postprocessors_t::iterator iter = _postprocessors.begin();
       iter != _postprocessors.end();
       ++iter)
@@ -153,6 +154,7 @@ void PostProcessors::loadSettings(size_t)
       << endl;
   //add a default true and false pp to container//
   _active.push_back("DefaultTrueHist");
+  /** @todo since its a shared pointer we don't need to check anymore just add it */
   if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
     _postprocessors["DefaultTrueHist"] =
         PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
