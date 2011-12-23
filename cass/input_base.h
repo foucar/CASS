@@ -80,6 +80,9 @@ public:
    */
   void loadSettings(size_t/* what*/);
 
+  /** a mutex so that external program can lock access to this */
+  QMutex lock;
+
 protected:
   /** protected constructor since it should be a singelton
    *
