@@ -33,6 +33,7 @@
 
 using namespace cass;
 using namespace std;
+using namespace tr1;
 
 //==========DEFINE static variables=========================
 SoapServer::shared_pointer SoapServer::_instance;
@@ -116,32 +117,32 @@ int CASSsoapService::readini(size_t what, bool *success)
   InputBase::reference().loadSettings(what);
   Analyzer::instance()->loadSettings(what);
   QWriteLocker pplock(&PostProcessors::instance()->lock);
-  PostProcessors::instance()->loadSettings(what);
+  PostProcessors::reference().loadSettings(what);
   Workers::reference().resume();
   InputBase::reference().resume();
   *success = true;;
   return SOAP_OK;
 }
 
+/** retrieve which postprocessors are running
+ *
+ * get a list of keys of the running postprocessors. Lock the postprocessors
+ * handler lock to prevent that the list changes while its being created.
+ */
 int CASSsoapService::getPostprocessorIds(bool *success)
 {
-  /** @todo use shared pointer inside the queue */
-  /** @todo make sure that the id list is copied and protected */
-  static QQueue< string* > queue;
-  int result;
-  PostProcessors::shared_pointer pp(PostProcessors::instance(""));
-  QReadLocker lock(&pp->lock);
-  tr1::shared_ptr<IdList> idlist(pp->getIdList());
-  Serializer* ser(new Serializer);
-  idlist->serialize(*ser);
-  *success = true;
+  static QQueue< shared_ptr<string> > queue;
+  QReadLocker lock(&PostProcessors::reference().lock);
+  tr1::shared_ptr<IdList> keys(PostProcessors::reference().keys());
+  shared_ptr<Serializer> ser(new Serializer);
+  keys->serialize(*ser);
   soap_set_dime(this);
-  string* datstr = new string(ser->buffer());
+  shared_ptr<string> datstr(new string(ser->buffer()));
   queue.enqueue(datstr);
-  result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
+  int result = soap_set_dime_attachment(this, (char*) datstr->data(), ser->buffer().size(), "application/postprocessorList", "0", 0, NULL);
   if(100 < queue.size())
-    delete queue.dequeue();
-  delete ser;
+    queue.dequeue();
+  *success = true;
   return result;
 }
 

@@ -92,7 +92,7 @@ static inline string QStringToStdString(QString str)
 
 
 PostProcessors::PostProcessors(string outputfilename)
-  :_IdList(new IdList()),
+  :_keys(new IdList()),
   _outputfilename(outputfilename)
 
 {
@@ -170,25 +170,12 @@ void PostProcessors::loadSettings(size_t)
   cout<<endl;
 }
 
-void PostProcessors::clear(const key_t &key)
-{
-  postprocessors_t::iterator it (_postprocessors.find(key));
-  if (_postprocessors.end() != it)
-    it->second->clearHistograms();
-}
-
-void PostProcessors::receiveCommand(const key_t &key, string command)
-{
-  postprocessors_t::iterator it (_postprocessors.find(key));
-  if (_postprocessors.end() != it)
-    it->second->processCommand(command);
-}
-
 void PostProcessors::saveSettings()
 {
-  /** @todo use for_each and bind */
-  for (postprocessors_t::iterator it=_postprocessors.begin(); it!=_postprocessors.end(); ++it)
-    it->second->saveSettings(0); 
+  postprocessors_t::iterator iter(_postprocessors.begin());
+  postprocessors_t::iterator end(_postprocessors.end());
+  while (iter != iter)
+    (*iter++).second->saveSettings(0);
 }
 
 PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
@@ -199,17 +186,18 @@ PostprocessorBackend& PostProcessors::getPostProcessor(const key_t &key)
   return *(it->second);
 }
 
-tr1::shared_ptr<IdList> PostProcessors::getIdList()
+tr1::shared_ptr<IdList> PostProcessors::keys()
 {
-  _IdList->clear();
   keyList_t active;
-  for(postprocessors_t::iterator iter = _postprocessors.begin(); iter != _postprocessors.end(); ++iter)
+  postprocessors_t::iterator iter(_postprocessors.begin());
+  postprocessors_t::iterator end(_postprocessors.end());
+  for(; iter != end; ++iter)
 #ifndef DEBUG
     if (!iter->second->hide())
 #endif
       active.push_back(iter->first);
-  _IdList->setList(active);
-  return _IdList;
+  _keys->setList(active);
+  return _keys;
 }
 
 PostProcessors::keyList_t PostProcessors::find_dependant(const PostProcessors::key_t &key)

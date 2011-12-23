@@ -423,8 +423,14 @@ public:
    */
   void operator()(const CASSEvent& event);
 
-  /** retrieve all activated postprocessors keys */
-  std::tr1::shared_ptr<IdList> getIdList();
+  /** retrieve all activated postprocessors keys
+   *
+   * populate the serializable list of keys with the postprocessors that are
+   * not hidden and return it
+   *
+   * @return shared pointer to the key list
+   */
+  std::tr1::shared_ptr<IdList> keys();
 
   /** retreive pp with key */
   PostprocessorBackend& getPostProcessor(const key_t &key);
@@ -461,12 +467,6 @@ public:
   /** Save active postprocessors and histograms */
   void saveSettings();
 
-  /** clear the histogram that has id */
-  void clear(const key_t&);
-
-  /** process command in pp that has id */
-  void receiveCommand(const key_t&, std::string command);
-
 protected:
   /** factory to create new Postprocessor with the name key.
    *
@@ -496,7 +496,7 @@ protected:
    *
    * used to create the combobox in cassview
    */
-  std::tr1::shared_ptr<IdList> _IdList;
+  std::tr1::shared_ptr<IdList> _keys;
 
   /** container for user selected and registered postprocessors */
   postprocessors_t _postprocessors;
