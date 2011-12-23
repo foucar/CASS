@@ -20,6 +20,7 @@
 #include "cass.h"
 #include "postprocessor.h"
 
+/** @todo make indentation correct */
 namespace cass
 {
   //forward declaration
@@ -54,6 +55,7 @@ namespace cass
     virtual ~PostprocessorBackend();
 
     /** typedef describing how the list of histograms works */
+    /** @todo make the histogram list a list of shared pointers to the hbacks */
     typedef std::list<std::pair<uint64_t, HistogramBackend*> > histogramList_t;
 
     /** main operator
@@ -84,6 +86,11 @@ namespace cass
      * there is no histogram for the requested event id, then this function will
      * throw an invalid_argument exception.
      *
+     * @todo create second funciton that will return a copy of the histogram
+     *       so that one can work on the histogram without beeing influenced by
+     *       what happens to the histogram meanwhile.
+     *
+     * @return const reference to the requested histogram
      * @param eventid the event id of the histogram that is requested.
      *                Default is 0
      */
@@ -139,9 +146,12 @@ namespace cass
 
     /** process command in pp
      *
-     * this will lock for write access to the histograms before clearing them
+     * overwrite this function in pp. can do whatever it wants to do as a
+     * reaction on command.
+     *
+     * @param command the command string transmitted
      */
-    virtual void processCommand(std::string command);
+    virtual void processCommand(std::string /*command*/) {}
 
     /** retrieve the key of this postprocessor */
     const PostProcessors::key_t key() const {return _key;}

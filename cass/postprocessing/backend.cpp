@@ -58,6 +58,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
     (find_if(_histList.begin(),
              _histList.end(),
 //             IsKey(evt.id())));
+             /** @todo replace long names by the acutal names and format */
              bind<bool>(equal_to<histogramList_t::value_type::first_type>(),evt.id(),
                   bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
   if(_histList.end() == it)
@@ -127,12 +128,6 @@ void PostprocessorBackend::clearHistograms()
   for (;it != _histList.end();++it)
     it->second->clear();
   histogramsChanged(0); // notify derived classes.
-}
-
-void PostprocessorBackend::processCommand(std::string /*command*/)
-{
-  // overwrite this function in pp. can do whatever it wants to
-  // do as a reaction on command.
 }
 
 void PostprocessorBackend::createHistList(size_t size, bool isaccumulate)
