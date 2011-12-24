@@ -29,8 +29,6 @@
 #include "worker.h"
 #include "analyzer.h"
 
-
-
 using namespace cass;
 using namespace std;
 using namespace tr1;
