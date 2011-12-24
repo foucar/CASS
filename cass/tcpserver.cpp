@@ -211,18 +211,19 @@ int CASSsoapService::receiveCommand(PostProcessors::key_t type, string command, 
 
 int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *success)
 {
-  /** @todo use shared pointer inside the queue */
-  /** @todo get rid of the functor and do everything here */
-  VERBOSEOUT(cerr << "CASSsoapService::getEvent" << endl);
-  static QQueue<string *> queue;
-  string *data(new string(SoapServer::instance()->get_event(EventParameter(type, t1, t2))));
-  queue.enqueue(data);
-  if(10 < queue.size())
-    queue.dequeue();
-  *success = true;
-  soap_set_dime(this); // enable dime
-  return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/cassevent",
-                                  QString::number(type).toStdString().c_str(), 0, NULL);
+//  /** @todo use shared pointer inside the queue */
+//  /** @todo get rid of the functor and do everything here */
+//  VERBOSEOUT(cerr << "CASSsoapService::getEvent" << endl);
+//  static QQueue<string *> queue;
+//  string *data(new string(SoapServer::instance()->get_event(EventParameter(type, t1, t2))));
+//  queue.enqueue(data);
+//  if(10 < queue.size())
+//    queue.dequeue();
+//  *success = true;
+//  soap_set_dime(this); // enable dime
+//  return soap_set_dime_attachment(this, (char *)data->c_str(), data->size(), "application/cassevent",
+//                                  QString::number(type).toStdString().c_str(), 0, NULL);
+  throw runtime_error("CASSsoapService::getEvent: has not yet been properly implemented");
 }
 
 /** get the the requested histogram and return it as dime attachement
