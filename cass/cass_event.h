@@ -41,6 +41,7 @@ namespace cass
     enum Device{pnCCD, Acqiris, CCD, MachineData, AcqirisTDC,PixelDetectors};
 
     /** mapping from device type to handler instance */
+    /** @todo use shared pointer here */
     typedef std::map<Device, DeviceBackend*> devices_t;
 
   public:
