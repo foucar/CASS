@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <tr1/functional>
+#include <tr1/memory>
 
 #include "cass_event.h"
 #include "histogram.h"
@@ -18,8 +19,10 @@
 #include "cass_settings.h"
 
 using namespace cass;
+using std::tr1::shared_ptr;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
+using std::equal_to;
 
 PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
                                            const PostProcessors::key_t &key)
@@ -118,6 +121,27 @@ const HistogramBackend& PostprocessorBackend::getHist(const uint64_t eventid)
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     return *(it->second);
+  }
+}
+
+shared_ptr<HistogramBackend> PostprocessorBackend::getHistCopy(const uint64_t eventid)
+{
+  QWriteLocker lock(&_histLock);
+  if (0 == eventid)
+  {
+    QReadLocker(&_histList.front().second->lock);
+    return shared_ptr<HistogramBackend>(_histList.front().second->clone());
+  }
+  else
+  {
+    histogramList_t::const_iterator it
+        (find_if(_histList.begin(), _histList.end(),
+                 bind<bool>(equal_to<uint64_t>(),eventid,
+                            bind<uint64_t>(&histogramList_t::value_type::first,_1))));
+    if (_histList.end() == it)
+      throw InvalidHistogramError(eventid);
+    QReadLocker(&it->second->lock);
+    return shared_ptr<HistogramBackend>(it->second->clone());
   }
 }
 

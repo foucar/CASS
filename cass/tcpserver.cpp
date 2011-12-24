@@ -20,7 +20,6 @@
 #include "tcpserver.h"
 
 #include "CASSsoap.nsmap"
-#include "histogram_getter.h"
 #include "postprocessor.h"
 #include "backend.h"
 #include "id_list.h"
@@ -28,6 +27,8 @@
 #include "input_base.h"
 #include "worker.h"
 #include "analyzer.h"
+#include "histogram.h"
+
 
 using namespace cass;
 using namespace std;
@@ -224,20 +225,35 @@ int CASSsoapService::getEvent(size_t type, unsigned t1, unsigned t2, bool *succe
                                   QString::number(type).toStdString().c_str(), 0, NULL);
 }
 
-int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 /*eventId*/, bool *success)
+/** get the the requested histogram and return it as dime attachement
+ *
+ * lock the postprocessor handlers list by using the lock. then get a copy of
+ * the requested histogram and serialize it. The mimetype of the dime is
+ * determined by the dimension of the histogram.
+ *
+ * The serialized data is enqueued to make sure that the data is still around
+ * also after the scope of this function is left since it might be transferred
+ * after this funtion returned.
+ */
+int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 eventId, bool *success)
 {
   VERBOSEOUT(cerr << "CASSsoapService::getHistogram" << endl);
-  /** @todo use shared pointer inside the queue */
-  /** @todo get rid of the functor and do everything here */
-  static QQueue<pair<size_t, string> *> queue;
-  try {
+  static QQueue<shared_ptr<pair<size_t, string> > > queue;
+  QWriteLocker pplock(&PostProcessors::instance()->lock);
+  try
+  {
     // get data
-    SoapServer::shared_pointer server(SoapServer::instance());
-    pair<size_t, string> *data(
-          new pair<size_t, string>(server->get_histogram(HistogramParameter(type))));
+    shared_ptr<HistogramBackend> hist(
+          PostProcessors::reference().getPostProcessor(type).getHistCopy(eventId));
+    Serializer serializer;
+    size_t dim(hist->dimension());
+    hist->serialize(serializer);
+    shared_ptr<pair<size_t, string> >data(
+          new pair<size_t, string>(make_pair(dim,serializer.buffer())));
     // MIME type
     string mimetype;
-    switch(data->first) {
+    switch(data->first)
+    {
       case 0:
         mimetype = string("application/cass0Dhistogram");
         break;
@@ -254,17 +270,20 @@ int CASSsoapService::getHistogram(PostProcessors::key_t type, ULONG64 /*eventId*
     // keep bytes around for a while -- this should mitigate the "zeros" problem
     queue.enqueue(data);
     if(200 < queue.size())
-      delete queue.dequeue();
+      queue.dequeue();
     // answer request
     *success = true;
     soap_set_dime(this);
     return soap_set_dime_attachment(this, (char *)data->second.data(), data->second.size(), mimetype.c_str(),
                                     type.c_str(), 0, NULL);
-  } catch(InvalidHistogramError) {
+  }
+  catch(InvalidHistogramError)
+  {
     *success = false;
     return SOAP_FATAL_ERROR;
   }
-  catch(InvalidPostProcessorError) {
+  catch(InvalidPostProcessorError)
+  {
     *success = false;
     return SOAP_FATAL_ERROR;
   }

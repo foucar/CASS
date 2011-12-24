@@ -82,19 +82,32 @@ namespace cass
      *
      * Lock this function with a readlock. When this function returns it will
      * automaticaly release the lock.
+     *
+     * @note we need to use a write lock here. Otherwise on will never get the
+     *       histogram, as the histogram list is almost everytime locked for
+     *       write access.
+     *
      * When parameter is 0 then it just returns the last known histogram. When
      * there is no histogram for the requested event id, then this function will
      * throw an invalid_argument exception.
-     *
-     * @todo create second funciton that will return a copy of the histogram
-     *       so that one can work on the histogram without beeing influenced by
-     *       what happens to the histogram meanwhile.
      *
      * @return const reference to the requested histogram
      * @param eventid the event id of the histogram that is requested.
      *                Default is 0
      */
     const HistogramBackend& getHist(const uint64_t eventid);
+
+    /** retrieve histogram for id
+     *
+     * same as getHist, but returns a copy of the histogram.
+     *
+     * Locks the histogram for read access before creating the copy.
+     *
+     * @return copy of the requested histogram
+     * @param eventid the event id of the histogram that is requested.
+     *                Default is 0
+     */
+    std::tr1::shared_ptr<HistogramBackend> getHistCopy(const uint64_t eventid);
 
     /** Provide default implementation of loadSettings that does nothing */
     virtual void loadSettings(size_t)
