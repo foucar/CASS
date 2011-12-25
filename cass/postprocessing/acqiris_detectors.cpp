@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
+#include <tr1/memory>
 
 #include <QtCore/QString>
 
@@ -22,6 +23,12 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 
+using namespace cass;
+using namespace ACQIRIS;
+using namespace std;
+using std::tr1::dynamic_pointer_cast;
+using std::tr1::shared_ptr;
+
 /** @todo use dynamic_pointer_cast here:
  * shared_ptr<Base> base(new Base())
  * shared_ptr<Derived> derived;
@@ -29,93 +36,85 @@
  */
 namespace cass
 {
-  namespace ACQIRIS
+namespace ACQIRIS
+{
+/** load layer from file
+ *
+ * load the requested layer from .ini file and checks whether it is valid.
+ * If it is not valid an invalid_argument exception is thrown
+ *
+ * @return key containing the layer name
+ * @param s CASSSettings object to read the info from
+ * @param detector the name of the detector that contains the layer
+ * @param layerKey key how the layer value is called in the .ini file
+ * @param ppNbr the Postprocessor number of the postprocessor calling this
+ *              function
+ * @param key the key of the postprocessor calling this function
+ *
+ * @author Lutz Foucar
+ */
+DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
+                                                     const HelperAcqirisDetectors::helperinstancesmap_t::key_type &detector,
+                                                     const std::string &layerKey,
+                                                     int ppNbr,
+                                                     const PostProcessors::key_t& key)
+{
+  HelperAcqirisDetectors::shared_pointer dethelp (HelperAcqirisDetectors::instance(detector));
+  DelaylineDetector::anodelayers_t::key_type layer
+      (s.value(layerKey.c_str(),"U").toString()[0].toAscii());
+  if (layer != 'U' && layer != 'V' && layer != 'W' &&
+      layer != 'X' && layer != 'Y')
   {
-    /** load layer from file
-     *
-     * load the requested layer from .ini file and checks whether it is valid.
-     * If it is not valid an invalid_argument exception is thrown
-     *
-     * @return key containing the layer name
-     * @param s CASSSettings object to read the info from
-     * @param detector the name of the detector that contains the layer
-     * @param layerKey key how the layer value is called in the .ini file
-     * @param ppNbr the Postprocessor number of the postprocessor calling this
-     *              function
-     * @param key the key of the postprocessor calling this function
-     *
-     * @author Lutz Foucar
-     */
-    DelaylineDetector::anodelayers_t::key_type loadLayer(CASSSettings &s,
-                                                         const HelperAcqirisDetectors::helperinstancesmap_t::key_type &detector,
-                                                         const std::string &layerKey,
-                                                         int ppNbr,
-                                                         const PostProcessors::key_t& key)
-    {
-      using namespace std;
-      HelperAcqirisDetectors::shared_pointer dethelp (HelperAcqirisDetectors::instance(detector));
-      DelaylineDetector::anodelayers_t::key_type layer
-          (s.value(layerKey.c_str(),"U").toString()[0].toAscii());
-      if (layer != 'U' && layer != 'V' && layer != 'W' &&
-          layer != 'X' && layer != 'Y')
-      {
-        stringstream ss;
-        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': The loaded value of '"<<layerKey<<"' '"<<layer<<"' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'";
-        throw invalid_argument(ss.str());
-      }
-      else if (dynamic_cast<const DelaylineDetector*>(dethelp->detector().get())->isHex())
-      {
-        if (layer == 'X' || layer == 'Y')
-        {
-          stringstream ss;
-          ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Detector '"<<detector<<"' is Hex-detector and cannot have Layer '"<<layer<<"'";
-          throw invalid_argument(ss.str());
-        }
-      }
-      else
-      {
-        if (layer == 'U' || layer == 'V' || layer == 'W')
-        {
-          stringstream ss;
-          ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': Detector '"<<detector<<"' is Quad-detector and cannot have Layer '"<<layer<<"'";
-          throw invalid_argument(ss.str());
-        }
-      }
-      return layer;
-    }
-
-    /** load wireend from file
-     *
-     * load the requested wireend from .ini file. Check whether it is a valid
-     * wireend otherwise throw invalid_argument exception.
-     *
-     * @return key containing the wireend name
-     * @param s CASSSettings object to read the info from
-     * @param wireendKey key how the wireend value is called in the .ini file
-     * @param ppNbr the Postprocessor number of the postprocessor calling this
-     *              function
-     * @param key the key of the postprocessor calling this function
-     *
-     * @author Lutz Foucar
-     */
-    AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
-                                                 const std::string & wireendKey,
-                                                 int ppNbr,
-                                                 const PostProcessors::key_t& key)
-    {
-      using namespace std;
-      AnodeLayer::wireends_t::key_type wireend
-          (s.value(wireendKey.c_str(),"1").toString()[0].toAscii());
-      if (wireend != '1' && wireend != '2')
-      {
-        stringstream ss;
-        ss <<"pp"<<ppNbr<<"::loadSettings()'"<<key<<"': The loaded value of '"<<wireendKey<<"' '"<<wireend<<"' does not exist. Can only be '1' or '2'";
-        throw invalid_argument(ss.str());
-      }
-      return wireend;
-    }
+    throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
+                           "': The loaded value of '" + layerKey +"' '"+ layer +
+                           "' does not exist. Can only be 'U', 'V', 'W', 'X' or 'Y'");
   }
+  else if (dynamic_cast<const DelaylineDetector&>(dethelp->detector()).isHex())
+  {
+    if (layer == 'X' || layer == 'Y')
+      throw invalid_argument("pp"+ toString(ppNbr) + "::loadSettings()'"+ key +
+                             "': Detector '" + detector +
+                             "' is Hex-detector and cannot have Layer '" +layer +"'");
+  }
+  else
+  {
+    if (layer == 'U' || layer == 'V' || layer == 'W')
+      throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
+                             "': Detector '" + detector +
+                             "' is Quad-detector and cannot have Layer '" + layer + "'");
+  }
+  return layer;
 }
+
+/** load wireend from file
+ *
+ * load the requested wireend from .ini file. Check whether it is a valid
+ * wireend otherwise throw invalid_argument exception.
+ *
+ * @return key containing the wireend name
+ * @param s CASSSettings object to read the info from
+ * @param wireendKey key how the wireend value is called in the .ini file
+ * @param ppNbr the Postprocessor number of the postprocessor calling this
+ *              function
+ * @param key the key of the postprocessor calling this function
+ *
+ * @author Lutz Foucar
+ */
+AnodeLayer::wireends_t::key_type loadWireend(CASSSettings &s,
+                                             const std::string & wireendKey,
+                                             int ppNbr,
+                                             const PostProcessors::key_t& key)
+{
+  AnodeLayer::wireends_t::key_type wireend
+      (s.value(wireendKey.c_str(),"1").toString()[0].toAscii());
+  if (wireend != '1' && wireend != '2')
+    throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
+                           "': The loaded value of '" + wireendKey +
+                           "' '" + wireend + "' does not exist. Can only be '1' or '2'");
+  return wireend;
+}
+}//end namespace acqiris
+}//end namespace cass
 
 
 
@@ -128,8 +127,6 @@ cass::pp150::pp150(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp150::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -148,11 +145,11 @@ void cass::pp150::loadSettings(size_t)
 
 void cass::pp150::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  TofDetector *det
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
   _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->mcp().output().size());
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.mcp().output().size());
   _result->lock.unlock();
 }
 
@@ -174,8 +171,6 @@ cass::pp151::pp151(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp151::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -195,19 +190,16 @@ void cass::pp151::loadSettings(size_t)
 
 void cass::pp151::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  TofDetector *det
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-//  cout << " pp151: 1"<<endl;
-  SignalProducer::signals_t::const_iterator it (det->mcp().output().begin());
-//  cout << " pp151: 2"<<endl;
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
+  SignalProducer::signals_t::const_iterator it (det.mcp().output().begin());
+  SignalProducer::signals_t::const_iterator end (det.mcp().output().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != det->mcp().output().end(); ++it)
-    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it)["time"]);
+  while ( it != end )
+    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it++)["time"]);
   _result->lock.unlock();
-//  cout << " pp151: 3"<<endl;
 }
 
 
@@ -228,8 +220,6 @@ cass::pp152::pp152(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp152::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -249,14 +239,14 @@ void cass::pp152::loadSettings(size_t)
 
 void cass::pp152::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  TofDetector *det
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  SignalProducer::signals_t::const_iterator it (det->mcp().output().begin());
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  TofDetector &det(dynamic_cast<TofDetector&>(rawdet));
+  SignalProducer::signals_t::const_iterator it(det.mcp().output().begin());
+  SignalProducer::signals_t::const_iterator end(det.mcp().output().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (;it != det->mcp().output().end(); ++it)
+  for (; it != end; ++it)
     dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)["fwhm"],(*it)["height"]);
   _result->lock.unlock();
 }
@@ -281,8 +271,6 @@ cass::pp160::pp160(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp160::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -304,11 +292,11 @@ void cass::pp160::loadSettings(size_t)
 
 void cass::pp160::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  _result->lock.lockForWrite();
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->layers()[_layer].wireends()[_signal].output().size());
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+   _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.layers()[_layer].wireends()[_signal].output().size());
   _result->lock.unlock();
 }
 
@@ -331,8 +319,6 @@ cass::pp161::pp161(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp161::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -354,14 +340,14 @@ void cass::pp161::loadSettings(size_t)
 
 void cass::pp161::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  SignalProducer::signals_t::const_iterator it (det->layers()[_layer].wireends()[_signal].output().begin());
+  DetectorBackend &rawdet(
+      HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  SignalProducer::signals_t::const_iterator it (det.layers()[_layer].wireends()[_signal].output().begin());
+  SignalProducer::signals_t::const_iterator end (det.layers()[_layer].wireends()[_signal].output().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != det->layers()[_layer].wireends()[_signal].output().end(); ++it)
+  for (; it != end; ++it)
     dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)["fwhm"],(*it)["height"]);
   _result->lock.unlock();
 }
@@ -384,8 +370,6 @@ cass::pp162::pp162(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp162::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -409,20 +393,12 @@ void cass::pp162::loadSettings(size_t)
 
 void cass::pp162::process(const cass::CASSEvent &evt)
 {
-  using namespace std;
-  using namespace cass::ACQIRIS;
-//  static int counter;
-//  cout <<counter++<< " pp162"<<endl;
-  DetectorBackend *rawdet
-      (HelperAcqirisDetectors::instance(_detector)->detector(evt).get());
-  DelaylineDetector *det (dynamic_cast<DelaylineDetector*>(rawdet));
-//  cout << "pp162 1"<<endl;
-  const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
-//  cout << "pp162 6"<<endl;
-  const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
-//  cout << "pp162 7"<<endl;
-  const double mcp (det->mcp().firstGood(_range));
-//  cout << "pp162 mcp '"<<mcp<<"' one '"<<one<<"' two '"<<two<<"'"<<endl;
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  const double one (det.layers()[_layer].wireends()['1'].firstGood(_range));
+  const double two (det.layers()[_layer].wireends()['2'].firstGood(_range));
+  const double mcp (det.mcp().firstGood(_range));
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill( one + two - 2.*mcp);
   _result->lock.unlock();
@@ -446,8 +422,6 @@ cass::pp163::pp163(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp163::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -469,13 +443,12 @@ void cass::pp163::loadSettings(size_t)
 
 void cass::pp163::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  const double one (det->layers()[_layer].wireends()['1'].firstGood(_range));
-  const double two (det->layers()[_layer].wireends()['2'].firstGood(_range));
-  const double mcp (det->mcp().firstGood(_range));
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  const double one (det.layers()[_layer].wireends()['1'].firstGood(_range));
+  const double two (det.layers()[_layer].wireends()['2'].firstGood(_range));
+  const double mcp (det.mcp().firstGood(_range));
   const double timesum (one + two - 2.*mcp);
   const double position (one - two);
   _result->clear();
@@ -503,8 +476,6 @@ cass::pp164::pp164(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp164::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -535,20 +506,19 @@ void cass::pp164::loadSettings(size_t)
       <<"'. The Timesum range of the second layer goes from '"<<_tsrange.second.first
       <<"' to '"<<_tsrange.second.second
       <<"'. Condition is '"<<_condition->key()<<"'"
-      <<std::endl;
+      <<endl;
 }
 
 void cass::pp164::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  const double f1 (det->layers()[_first].wireends()['1'].firstGood(_range));
-  const double f2 (det->layers()[_first].wireends()['2'].firstGood(_range));
-  const double s1 (det->layers()[_second].wireends()['1'].firstGood(_range));
-  const double s2 (det->layers()[_second].wireends()['2'].firstGood(_range));
-  const double mcp (det->mcp().firstGood(_range));
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  const double f1 (det.layers()[_first].wireends()['1'].firstGood(_range));
+  const double f2 (det.layers()[_first].wireends()['2'].firstGood(_range));
+  const double s1 (det.layers()[_second].wireends()['1'].firstGood(_range));
+  const double s2 (det.layers()[_second].wireends()['2'].firstGood(_range));
+  const double mcp (det.mcp().firstGood(_range));
   const double tsf (f1 + f2 - 2.*mcp);
   const double tss (s1 + s2 - 2.*mcp);
   const double f (f1-f2);
@@ -588,8 +558,6 @@ cass::pp165::pp165(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp165::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -607,19 +575,12 @@ void cass::pp165::loadSettings(size_t)
 
 void cass::pp165::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-//  static int counter;
-//  cout << counter++ <<" pp165 1"<<endl;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-//  cout << "pp165 2"<<endl;
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
   _result->lock.lockForWrite();
-//  cout << "pp165 3"<<endl;
-  dynamic_cast<Histogram0DFloat*>(_result)->fill(det->hits().size());
-//  cout << "pp165 4"<<endl;
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(det.hits().size());
   _result->lock.unlock();
-//  cout << "pp165 5"<<endl;
 }
 
 
@@ -666,26 +627,26 @@ void cass::pp166::loadSettings(size_t)
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the Property '"<<_second
-      <<"' vs. '"<<_first
-      <<"' of the reconstructed detectorhits of detector '"<<_detector
-      <<"'. It puts a condition from '"<<_cond.first
-      <<"' to '"<<_cond.second
-      <<"' on Property '"<< _third
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+     <<"' histograms the Property '"<<_second
+    <<"' vs. '"<<_first
+   <<"' of the reconstructed detectorhits of detector '"<<_detector
+  <<"'. It puts a condition from '"<<_cond.first
+  <<"' to '"<<_cond.second
+  <<"' on Property '"<< _third
+  <<"'. Condition is '"<<_condition->key()<<"'"
+  <<endl;
 }
 
 void cass::pp166::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  detectorHits_t::iterator it (det->hits().begin());
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  detectorHits_t::iterator it (det.hits().begin());
+  detectorHits_t::iterator end (det.hits().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != det->hits().end(); ++it)
+  for (; it != end; ++it)
   {
     if (_cond.first < (*it)[_third] && (*it)[_third] < _cond.second)
       dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_first],(*it)[_second]);
@@ -710,8 +671,6 @@ cass::pp220::pp220(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp220::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -733,23 +692,25 @@ void cass::pp220::loadSettings(size_t)
 
 void cass::pp220::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  TofDetector *det01
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector01)->detector(evt).get()));
-  TofDetector *det02
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector02)->detector(evt).get()));
-  SignalProducer::signals_t::const_iterator it01(det01->mcp().output().begin());
+  DetectorBackend &rawdet01(
+      HelperAcqirisDetectors::instance(_detector01)->detector(evt));
+  TofDetector &det01(dynamic_cast<TofDetector&>(rawdet01));
+  DetectorBackend &rawdet02(
+      HelperAcqirisDetectors::instance(_detector02)->detector(evt));
+  TofDetector &det02(dynamic_cast<TofDetector&>(rawdet02));
+  SignalProducer::signals_t::const_iterator it01(det01.mcp().output().begin());
+  SignalProducer::signals_t::const_iterator end01(det01.mcp().output().end());
+  SignalProducer::signals_t::const_iterator end02(det02.mcp().output().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it01 != det01->mcp().output().end();++it01)
+  for (; it01 != end01;++it01)
   {
     //if both detectors are the same, then the second iterator should start
     //i+1, otherwise we will just draw all hits vs. all hits
     SignalProducer::signals_t::const_iterator it02((_detector01==_detector02) ?
-                                                   it01+1 :
-                                                   det02->mcp().output().begin());
-    for (; it02 != det02->mcp().output().end(); ++it02)
+                                                     it01+1 :
+                                                     det02.mcp().output().begin());
+    for (; it02 != end02; ++it02)
       dynamic_cast<Histogram2DFloat*>(_result)->fill((*it01)["time"],(*it02)["time"]);
   }
   _result->lock.unlock();
@@ -769,8 +730,6 @@ cass::pp250::pp250(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp250::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -792,18 +751,17 @@ void cass::pp250::loadSettings(size_t)
 
 void cass::pp250::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  Particle &particle(det->particles()[_particle]);
-//  cout << "pp250 size"<<particle.hits().size()<<endl;
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  Particle &particle(det.particles()[_particle]);
   particleHits_t::iterator it (particle.hits().begin());
+  particleHits_t::iterator end (particle.hits().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != particle.hits().end(); ++it)
+  while( it != end )
   {
-    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it)[_property]);
+    dynamic_cast<Histogram1DFloat*>(_result)->fill((*it++)[_property]);
   }
   _result->lock.unlock();
 }
@@ -823,8 +781,6 @@ cass::pp251::pp251(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp251::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -848,18 +804,16 @@ void cass::pp251::loadSettings(size_t)
 
 void cass::pp251::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  Particle & particle(det->particles()[_particle]);
-  particleHits_t::iterator it (particle.hits().begin());
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
+  Particle &particle(det.particles()[_particle]);
+  particleHits_t::iterator it(particle.hits().begin());
+  particleHits_t::iterator end(particle.hits().end());
   _result->clear();
   _result->lock.lockForWrite();
-  for (; it != particle.hits().end(); ++it)
-  {
+  for (; it != end; ++it)
     dynamic_cast<Histogram2DFloat*>(_result)->fill((*it)[_property01],(*it)[_property02]);
-  }
   _result->lock.unlock();
 }
 
@@ -876,8 +830,6 @@ cass::pp252::pp252(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void cass::pp252::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -889,19 +841,18 @@ void cass::pp252::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   cout<<endl<< "PostProcessor '"<<_key
-      <<"' outputs how many particles were found for '"<<_particle
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+     <<"' outputs how many particles were found for '"<<_particle
+     <<"' of detector '"<<_detector
+     <<"'. Condition is '"<<_condition->key()<<"'"
+     <<endl;
 }
 
 void cass::pp252::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  Particle & particle (det->particles()[_particle]);
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  Particle& particle (det.particles()[_particle]);
   _result->lock.lockForWrite();
   dynamic_cast<Histogram0DFloat*>(_result)->fill(particle.hits().size());
   _result->lock.unlock();

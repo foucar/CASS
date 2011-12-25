@@ -63,7 +63,7 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
              <<endl);
 }
 
-HelperAcqirisDetectors::Det_sptr HelperAcqirisDetectors::validate(const CASSEvent &evt)
+DetectorBackend& HelperAcqirisDetectors::validate(const CASSEvent &evt)
 {
   using namespace std;
   QMutexLocker lock(&_helperMutex);
@@ -80,7 +80,7 @@ HelperAcqirisDetectors::Det_sptr HelperAcqirisDetectors::validate(const CASSEven
     _detectorList.pop_back();
     it = _detectorList.begin();
   }
-  return it->second;
+  return *it->second;
 }
 
 void HelperAcqirisDetectors::loadSettings(size_t)

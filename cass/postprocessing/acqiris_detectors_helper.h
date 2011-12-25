@@ -89,7 +89,7 @@ public:
    *         requested event
    * @param evt the event whos data we need to relate to the detector.
    */
-  Det_sptr detector(const CASSEvent& evt)  {return validate(evt);}
+  DetectorBackend& detector(const CASSEvent& evt)  {return validate(evt);}
 
   /** retrieve detector
    *
@@ -98,7 +98,7 @@ public:
    *
    * @return const pointer to the first detector in _detectorList
    */
-  const Det_sptr detector()const  {return _detectorList.front().second;}
+  const DetectorBackend& detector()const  {return *_detectorList.front().second;}
 
 
   /** load the settings of the detectors in the detector list
@@ -110,6 +110,10 @@ public:
    */
   void loadSettings(size_t i=0);
 
+  /** retrieve the detector type that the helper is there for */
+  DetectorType detectortype() {return _dettype;}
+
+protected:
   /** validate that this event has been associated with the detector.
    *
    * This function will lock, so that it can be consecutivly called by
@@ -124,15 +128,11 @@ public:
    * that we associated with this event. Put the newly created element in
    * the beginning of the _detectorList and erase the last element.
    *
-   * @return the pointer to this detector
+   * @return reference to the validated detector
    * @param evt the cass event to validate
    */
-  Det_sptr validate(const CASSEvent &evt);
+  DetectorBackend& validate(const CASSEvent &evt);
 
-  /** retrieve the detector type that the helper is there for */
-  DetectorType detectortype() {return _dettype;}
-
-protected:
   /** list of pairs of id-detectors.
    *
    * @note  Needs to be at least the size of workers that can possibly call

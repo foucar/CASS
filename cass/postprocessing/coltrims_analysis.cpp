@@ -24,8 +24,9 @@
 #include "cass_settings.h"
 
 using namespace cass;
+using namespace ACQIRIS;
+using namespace std;
 
-/** @todo use dynamic_pointer_cast here */
 
 //----------------Electron Energy----------------------------------------------
 pp5000::pp5000(PostProcessors &pp, const PostProcessors::key_t &key)
@@ -37,8 +38,6 @@ pp5000::pp5000(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void pp5000::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -59,11 +58,10 @@ void pp5000::loadSettings(size_t)
 
 void pp5000::process(const CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  DelaylineDetector *det
-      (dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  Particle &particle(det->particles()[_particle]);
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det (dynamic_cast<DelaylineDetector&>(rawdet));
+  Particle &particle(det.particles()[_particle]);
   particleHits_t::iterator it(particle.hits().begin());
   _result->clear();
   _result->lock.lockForWrite();
@@ -87,8 +85,6 @@ pp5001::pp5001(PostProcessors &pp, const PostProcessors::key_t &key)
 
 void pp5001::loadSettings(size_t)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   settings.beginGroup(_key.c_str());
@@ -107,12 +103,11 @@ void pp5001::loadSettings(size_t)
 
 void pp5001::process(const cass::CASSEvent &evt)
 {
-  using namespace cass::ACQIRIS;
-  using namespace std;
-  TofDetector *det01
-      (dynamic_cast<TofDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
-  SignalProducer::signals_t::const_iterator it01(det01->mcp().output().begin());
-  SignalProducer::signals_t::const_iterator end(det01->mcp().output().end());
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &det01 (dynamic_cast<DelaylineDetector&>(rawdet));
+  SignalProducer::signals_t::const_iterator it01(det01.mcp().output().begin());
+  SignalProducer::signals_t::const_iterator end(det01.mcp().output().end());
   _result->clear();
   _result->lock.lockForWrite();
   for (; it01 != end;++it01)

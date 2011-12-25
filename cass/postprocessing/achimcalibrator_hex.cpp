@@ -22,7 +22,6 @@ using namespace cass::ACQIRIS;
 using namespace std;
 using namespace std::tr1;
 
-/** @todo use dynamic_pointer_cast here */
 namespace cass
 {
   namespace ACQIRIS
@@ -203,8 +202,9 @@ void HexCalibrator::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(_key));
   _detector = loadDelayDet(settings,161,_key);
-  const DelaylineDetector &d
-      (*dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector().get()));
+  const DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector());
+  const DelaylineDetector &d (dynamic_cast<const DelaylineDetector&>(rawdet));
   if(!d.isHex())
   {
     stringstream ss;
@@ -258,8 +258,9 @@ void HexCalibrator::loadSettings(size_t)
 
 void HexCalibrator::process(const CASSEvent &evt)
 {
-  DelaylineDetector &d
-      (*dynamic_cast<DelaylineDetector*>(HelperAcqirisDetectors::instance(_detector)->detector(evt).get()));
+  DetectorBackend &rawdet(
+        HelperAcqirisDetectors::instance(_detector)->detector(evt));
+  DelaylineDetector &d (dynamic_cast<DelaylineDetector&>(rawdet));
   _result->lock.lockForWrite();
   vector<double> values(7);
   values[mcp] = d.mcp().firstGood();

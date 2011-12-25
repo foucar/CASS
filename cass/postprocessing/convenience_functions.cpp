@@ -16,7 +16,8 @@
 #include "delayline_detector.h"
 
 using namespace cass;
-using namespace cass::ACQIRIS;
+using namespace ACQIRIS;
+using namespace std;
 
 void cass::set1DHist(HistogramBackend*& hist, PostProcessors::key_t key)
 {
@@ -25,16 +26,16 @@ void cass::set1DHist(HistogramBackend*& hist, PostProcessors::key_t key)
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  VERBOSEOUT(std::cerr << "Creating 1D histogram with"
+  VERBOSEOUT(cerr << "Creating 1D histogram with"
              <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
              <<" XLow:"<<param.value("XLow",0).toFloat()
              <<" XUp:"<<param.value("XUp",0).toFloat()
              <<" XTitle:"<<param.value("XTitle","x-axis").toString().toStdString()
-             <<std::endl);
-  hist = new cass::Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
-                                    param.value("XLow",0).toFloat(),
-                                    param.value("XUp",0).toFloat(),
-                                    param.value("XTitle","x-axis").toString().toStdString());
+             <<endl);
+  hist = new Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
+                              param.value("XLow",0).toFloat(),
+                              param.value("XUp",0).toFloat(),
+                              param.value("XTitle","x-axis").toString().toStdString());
 }
 
 void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
@@ -44,7 +45,7 @@ void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  VERBOSEOUT(std::cerr << "Creating 2D histogram with"
+  VERBOSEOUT(cerr << "Creating 2D histogram with"
              <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
              <<" XLow:"<<param.value("XLow",0).toFloat()
              <<" XUp:"<<param.value("XUp",0).toFloat()
@@ -53,22 +54,21 @@ void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
              <<" YLow:"<<param.value("YLow",0).toFloat()
              <<" YUp:"<<param.value("YUp",0).toFloat()
              <<" YTitle:"<<param.value("YTitle","y-axis").toString().toStdString()
-             <<std::endl);
-  hist = new cass::Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
-                                    param.value("XLow",0).toFloat(),
-                                    param.value("XUp",0).toFloat(),
-                                    param.value("YNbrBins",1).toUInt(),
-                                    param.value("YLow",0).toFloat(),
-                                    param.value("YUp",0).toFloat(),
-                                    param.value("XTitle","x-axis").toString().toStdString(),
-                                    param.value("YTitle","y-axis").toString().toStdString());
+             <<endl);
+  hist = new Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
+                              param.value("XLow",0).toFloat(),
+                              param.value("XUp",0).toFloat(),
+                              param.value("YNbrBins",1).toUInt(),
+                              param.value("YLow",0).toFloat(),
+                              param.value("YUp",0).toFloat(),
+                              param.value("XTitle","x-axis").toString().toStdString(),
+                              param.value("YTitle","y-axis").toString().toStdString());
 }
 
-std::string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
-                                        int ppNbr,
-                                        const PostProcessors::key_t& key)
+string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
+                                   int ppNbr,
+                                   const PostProcessors::key_t& key)
 {
-  using namespace std;
   string detector
       (s.value("Detector","blubb").toString().toStdString());
   HelperAcqirisDetectors::shared_pointer dethelp(HelperAcqirisDetectors::instance(detector));
@@ -80,16 +80,15 @@ std::string cass::ACQIRIS::loadDelayDet(CASSSettings &s,
   return detector;
 }
 
-std::string cass::ACQIRIS::loadParticle(CASSSettings &s,
-                                        const std::string &detector,
-                                        int ppNbr,
-                                        const PostProcessors::key_t& key)
+string cass::ACQIRIS::loadParticle(CASSSettings &s,
+                                   const string &detector,
+                                   int ppNbr,
+                                   const PostProcessors::key_t& key)
 {
-  using namespace std;
   string particle (s.value("Particle","NeP").toString().toStdString());
-  const DelaylineDetector *det
-      (dynamic_cast<const DelaylineDetector*>(HelperAcqirisDetectors::instance(detector)->detector().get()));
-  if (det->particles().end() == det->particles().find(particle))
+  const DelaylineDetector &det(
+        dynamic_cast<const DelaylineDetector&>(HelperAcqirisDetectors::instance(detector)->detector()));
+  if (det.particles().end() == det.particles().find(particle))
     throw invalid_argument("pp" + toString(ppNbr) + "::loadSettings()'" + key +
                            "': Error Particle '" + particle +
                            "' is not defined for detector '" + detector +"'");

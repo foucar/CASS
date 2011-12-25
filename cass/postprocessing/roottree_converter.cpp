@@ -127,7 +127,7 @@ particleskey_t qstring2particle(const QString & qstr)
     if (isDLD(det->first))
     {
       HelperAcqirisDetectors &dethelp(*HelperAcqirisDetectors::instance(det->first));
-      const DetectorBackend &detback(*(dethelp.detector()));
+      const DetectorBackend &detback((dethelp.detector()));
       const DelaylineDetector &dld(dynamic_cast<const DelaylineDetector&>(detback));
       const DelaylineDetector::particles_t &particles(dld.particles());
       DelaylineDetector::particles_t::const_iterator particle(particles.find(particlekey.first));
@@ -235,11 +235,12 @@ void pp2001::process(const cass::CASSEvent &evt)
   _result->lock.lockForWrite();
   _eventid = evt.id();
   dlddetectors_t::const_iterator detector(_detectors.begin());
-  for (;detector != _detectors.end(); ++detector)
+  dlddetectors_t::const_iterator detectorEnd(_detectors.end());
+  for (;detector != detectorEnd; ++detector)
   {
-    DetectorBackend *rawdet
-        (HelperAcqirisDetectors::instance(*detector)->detector(evt).get());
-    DelaylineDetector &det (*dynamic_cast<DelaylineDetector*>(rawdet));
+    DetectorBackend &rawdet(
+          HelperAcqirisDetectors::instance(*detector)->detector(evt));
+    DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
 
     treedetector_t &treedet(_treestructure[*detector]);
     treedet.clear();
@@ -253,17 +254,19 @@ void pp2001::process(const cass::CASSEvent &evt)
     }
   }
   particleslist_t::const_iterator particle(_particles.begin());
-  for (;particle != _particles.end();++particle)
+  particleslist_t::const_iterator particleEnd(_particles.end());
+  for (;particle !=particleEnd;++particle)
   {
-    DetectorBackend *rawdet
-        (HelperAcqirisDetectors::instance(particle->second)->detector(evt).get());
-    DelaylineDetector &det(*dynamic_cast<DelaylineDetector*>(rawdet));
+    DetectorBackend &rawdet(
+          HelperAcqirisDetectors::instance(particle->second)->detector(evt));
+    DelaylineDetector &det(dynamic_cast<DelaylineDetector&>(rawdet));
 
     treedetector_t &treeparticle(_treestructure[particle->first]);
     treeparticle.clear();
     particleHits_t & hits(det.particles()[particle->first].hits());
     particleHits_t::iterator hit(hits.begin());
-    for (; hit != hits.end(); ++hit)
+    particleHits_t::iterator hitEnd(hits.end());
+    for (; hit != hitEnd; ++hit)
     {
       treehit_t treehit;
       particleHit_t &hitvalues(*hit);
@@ -275,7 +278,6 @@ void pp2001::process(const cass::CASSEvent &evt)
       (*dynamic_cast<const MachineDataDevice*>(evt.devices().find(cass::CASSEvent::MachineData)->second));
   copyMapValues(machinedata.BeamlineData().begin(), machinedata.BeamlineData().end(), _machinestructure);
   copyMapValues(machinedata.EpicsData().begin(), machinedata.EpicsData().end(), _machinestructure);
-//  copyMapValues(machinedata.EvrData().first(), machinedata.EvrData().end(), _machinestructure);
   _tree->Fill();
   _result->lock.unlock();
 }
