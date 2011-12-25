@@ -30,6 +30,14 @@ class DetectorAnalyzerBackend;
 
 /** Base class for all Detectors attached to an Acqiris Instrument.
  *
+ * @todo this class can have the conatiner for all signal producers. It can
+ *       also have the container for all particles and detectorhits. In case
+ *       it is a tof detector it just won't have the px and py components and
+ *       related values. This sig prod will just be call either "u1" .. so the
+ *       map is of string,sigprod instead of char,sigprod. When changing this
+ *       also change the directory structure by flatening it out so that one
+ *       can call make -j. (Or create a .pro file for each subfolder)
+ *
  * @author Lutz Foucar
  */
 class CASS_ACQIRISSHARED_EXPORT DetectorBackend
