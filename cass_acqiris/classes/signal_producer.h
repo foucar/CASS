@@ -131,7 +131,7 @@ namespace cass
        * @note the output of a signal producer are the singals. Unfortunately
        *       if we call this function signals it will not compile anymore.
        *
-       * @return reference to the singals of this singalproducer
+       * @return reference to the singals of this signalproducer
        */
       signals_t& output();
 

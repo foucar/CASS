@@ -23,6 +23,8 @@ namespace cass
   {
     /** functor returning true if signal is in requested range
      *
+     * @todo replace this by bind..
+     *
      * @author Lutz Foucar
      */
     class isInTimeRange : std::unary_function<SignalProducer::signal_t,bool>
