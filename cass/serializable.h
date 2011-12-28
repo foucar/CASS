@@ -68,8 +68,7 @@ namespace cass
      */
     virtual void checkVersion(SerializerBackend& in)const
     {
-      uint16_t version;
-      version = in.retrieveUint16();
+      uint16_t version(in.retrieveUint16());
       assert(version == _version);
     }
 
