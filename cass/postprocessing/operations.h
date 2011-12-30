@@ -5,6 +5,9 @@
  *                     on histograms of other postprocessors
  *
  * @todo add pp that has input and condition output is copy of input
+ * @todo add 0d pp that takes a constant value
+ * @todo add pp to rotate 2d in 90 deg steps
+-* @todo add pp creating a running/moving standart deviation (just lke average)
  *
  * @author Lutz Foucar
  */
