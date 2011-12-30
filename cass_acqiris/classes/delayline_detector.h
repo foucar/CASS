@@ -107,6 +107,16 @@ namespace cass
      * "ULayer", "VLayer" and "WLayer". Please refer to AnodeLayer for the
      * user settable parameters of the anode layers.
      *
+     * @todo instead of having a layer (which does nothing) and a wireend a det
+     *       should have a map of string, signalproducers. THis way one could
+     *       possibly get rid of the two classes. One has to create a dethit
+     *       identifier for creating a detecthit list for tof dets (the output of
+     *       the sig prod. then one could also use the particle class to identif
+     *       particles. later on one could calc the enegey using the eland
+     *       methos (stuff that koji and marco added). In this case one could
+     *       also flatten the directory structure maybe make a sublib for this
+     *       acqiris lib
+     *
      * @cassttng AcqirisDetectors/\%detectorname\%/{AnalysisMethod}\n
      *           Method that is used to reconstruct the detector hits. Default
      *           is 0. Choises are:
