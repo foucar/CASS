@@ -29,11 +29,6 @@ using namespace std;
 using std::tr1::dynamic_pointer_cast;
 using std::tr1::shared_ptr;
 
-/** @todo use dynamic_pointer_cast here:
- * shared_ptr<Base> base(new Base())
- * shared_ptr<Derived> derived;
- * derived = dynamic_pointer_cast<Derived>(base);
- */
 namespace cass
 {
 namespace ACQIRIS

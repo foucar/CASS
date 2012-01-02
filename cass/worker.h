@@ -3,9 +3,6 @@
 /**
  * @file worker.h file contains declaration of class Worker and Workers
  *
- * @todo instead of using a singnal to provide a costum command string to the
- *       postprocessors we need to do it like the histogram getter.
- *
  * @author Lutz Foucar
  */
 
@@ -94,11 +91,6 @@ private:
  * a class that will handle the requested amount of workers threads.
  * The amount of threads can be set in cass.h via parameters
  * @see NbrOfWorkers.
- *
- * @todo find a way to close the program without using signal slot mechnism
- * @note the problem is that the input should also have control to quit the
- *       program. Maybe one can instead of starting the global eventloop just
- *       wait until the input has finished?
  *
  * @author Lutz Foucar
  */

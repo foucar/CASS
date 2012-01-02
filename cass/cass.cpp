@@ -368,9 +368,6 @@ int main(int argc, char **argv)
     /** set up the TCP/SOAP server and connect its provided signals to the
      *  appropriate slots fo the input and the workers
      */
-    /** @todo make sure that the quit, readini, writeini, sendcommand, clear hist
-     *        are implemetned
-     */
 #ifdef SOAPSERVER
     EventGetter get_event(ringbuffer);
     HistogramGetter get_histogram;

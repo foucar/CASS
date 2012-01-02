@@ -57,13 +57,10 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
   using namespace std;
   QWriteLocker lock(&_histLock);
   assert(!_histList.empty());
-  histogramList_t::iterator it
-    (find_if(_histList.begin(),
-             _histList.end(),
-//             IsKey(evt.id())));
-             /** @todo replace long names by the acutal names and format */
-             bind<bool>(equal_to<histogramList_t::value_type::first_type>(),evt.id(),
-                  bind<histogramList_t::value_type::first_type>(&histogramList_t::value_type::first,_1))));
+  histogramList_t::iterator it(
+        find_if(_histList.begin(), _histList.end(),
+                bind<bool>(equal_to<uint64_t>(),evt.id(),
+                           bind<uint64_t>(&histogramList_t::value_type::first,_1))));
   if(_histList.end() == it)
   {
     _result = _histList.back().second;

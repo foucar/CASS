@@ -7,7 +7,7 @@
  * @author Lutz Foucar
  */
 
-#include<tr1/functional>
+#include <tr1/functional>
 
 #include "pixel_detector_helper.h"
 
@@ -73,15 +73,9 @@ void DetectorHelper::loadSettings(size_t)
 {
   CASSSettings s;
   s.beginGroup("PixelDetectors");
-  /** @todo use for each with bind */
   detectorList_t::iterator it(_detectorList.begin());
   detectorList_t::const_iterator end(_detectorList.end());
   for (; it != end; ++it)
     it->second->loadSettings(s);
-//  for_each(_detectorList.begin(),_detectorList.end(),
-//           bind<void>(&AdvancedDetector::loadSettings,
-//                      bind<AdvancedDetector*>(&AdvDet_sptr::get,
-//                                              bind<AdvDet_sptr>(&detectorList_t::value_type::second,_1)),
-//                      s));
   s.endGroup();
 }
