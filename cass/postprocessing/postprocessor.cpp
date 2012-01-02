@@ -153,19 +153,14 @@ void PostProcessors::loadSettings(size_t)
       << endl;
   //add a default true and false pp to container//
   _active.push_back("DefaultTrueHist");
-  /** @todo since its a shared pointer we don't need to check anymore just add it */
-  if (_postprocessors.end() == _postprocessors.find("DefaultTrueHist"))
-    _postprocessors["DefaultTrueHist"] =
-        PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
+  _postprocessors["DefaultTrueHist"] =
+      PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultTrueHist",true));
   _active.push_back("DefaultFalseHist");
-  if (_postprocessors.end() == _postprocessors.find("DefaultFalseHist"))
-    _postprocessors["DefaultFalseHist"] =
-        PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
+  _postprocessors["DefaultFalseHist"] =
+      PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
   setup(_active);
   cout <<"   Active postprocessor(s): "<<endl;
-  /** @todo use for_each and bind */
-  for(keyList_t::iterator iter (_active.begin()); iter != _active.end(); ++iter)
-    cout << *iter << " "<<endl;
+  copy(_active.begin(), _active.end(), ostream_iterator<string>(cout,"\n"));
   cout<<endl;
 }
 
