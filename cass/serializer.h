@@ -35,7 +35,8 @@ namespace cass
   class CASSSHARED_EXPORT SerializerBackend
   {
   public:
-    SerializerBackend() {
+    SerializerBackend()
+    {
         _checkSumGroupStartedForRead = false;
         _checkSumGroupStartedForWrite = false;
     }
@@ -68,6 +69,17 @@ namespace cass
     void addFloat(const float);         //!< add float to serialized buffer
     void addBool(const bool);           //!< add bool to serialized buffer
 
+    /** add arbitrary value to the stream
+     *
+     * @tparam Type the type of the value
+     * @param value the value to add
+     */
+    template <typename Type>
+    void add(const Type& value)
+    {
+      writeToStream(reinterpret_cast<const char *> (&value), sizeof (Type));
+    }
+
     std::string retrieveString();   //!< retrieve string from serialized buffer
     uint16_t    retrieveUint16();   //!< retrieve string from serialized buffer
     uint8_t     retrieveUint8();    //!< retrieve string from serialized buffer
@@ -80,6 +92,19 @@ namespace cass
     double      retrieveDouble();   //!< retrieve string from serialized buffer
     float       retrieveFloat();    //!< retrieve string from serialized buffer
     bool        retrieveBool();     //!< retrieve string from serialized buffer
+
+    /** read arbitrary value from stream
+     *
+     * @tparam Type the type of the value
+     * @return the read value
+     */
+    template <typename Type>
+    Type retrieve()
+    {
+      Type val;
+      readFromStream (reinterpret_cast<char *> (&val), sizeof (Type));
+      return val;
+    }
 
   protected:
     std::iostream* _stream;    //!< the string to serialize the objects to (buffer)

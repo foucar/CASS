@@ -57,7 +57,7 @@ void ROOTFileHelper::close(TFile *rootfile)
   if (iFile != _rootfiles.end())
   {
     rootfile->SaveSelf();
-//    rootfile->Close();
+    rootfile->Close();
     iFile->second = 0;
   }
 }

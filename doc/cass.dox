@@ -39,10 +39,10 @@ If you use this software for publishable work, please cite and
 acknowledge the authors and the CASS collaboration in your
 publication. The suggested reference is:
 @verbatim
-CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2011.
+CFEL-ASG Software System (CASS), developed by the CASS collaboration, 2009-2012.
 @endverbatim
 
-@date 2009-2011
+@date 2009-2012
 
 @todo next to the cass executable create a cass library so that the viewer
       can use the histogram part for it.

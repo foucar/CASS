@@ -50,6 +50,28 @@ namespace cass
     /** retrieve the version of the serializer */
     uint16_t ver()const {return _version;}
 
+    /** write the version to the stream
+     *
+     * @param out the stream to write the version to
+     */
+    virtual void writeVersion(SerializerBackend &out)const
+    {
+      out.addUint16(_version);
+    }
+
+    /** check the version
+     *
+     * asserts that the version of this class corresponsed to the one read
+     * from the stream
+     *
+     * @param in the stream to read the version from
+     */
+    virtual void checkVersion(SerializerBackend& in)const
+    {
+      uint16_t version(in.retrieveUint16());
+      assert(version == _version);
+    }
+
 protected:
     /** the version for de/serializing*/
     uint16_t _version;

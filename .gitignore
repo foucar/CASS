@@ -7,6 +7,8 @@
 /build*
 /bin
 /lib
+/doc/doxygen
 *_dict*
 *.doxytag
 *.log
+*.bak
