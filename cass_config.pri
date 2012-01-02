@@ -29,3 +29,5 @@ OBJECTS_DIR  = obj$${SUFFIX_STR}
 
 headers.path = $$INSTALLBASE/include
 
+#QMAKE_INSTALL_PROGRAM = install -m 755 -p
+
