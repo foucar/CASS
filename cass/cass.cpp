@@ -93,12 +93,14 @@ public:
    * and try to find the parameter in the containers. If it is the switches
    * container simply set the switch to true. Otherwise take the next parameter
    * that should be the argumetn of the preceding parameter.
+   * Start at the 2nd argument of the list, since the first is just the 
+   * program name.
    *
    * @param argumentList the list of arguments
    */
   void operator()(const QStringList& argumentList)
   {
-    QStringList::const_iterator argument(argumentList.constBegin());
+    QStringList::const_iterator argument(argumentList.constBegin()+1);
     for (; argument != argumentList.constEnd(); ++argument)
     {
       switches_t::iterator boolarg(_switches.find(argument->toStdString()));
