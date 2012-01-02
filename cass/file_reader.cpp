@@ -26,10 +26,11 @@ using namespace std::tr1;
 
 FileReader::shared_pointer FileReader::instance(const string &type)
 {
+  /** @todo use "Or" here */
   shared_pointer ptr;
   if (type == "xtc")
     ptr = shared_pointer(new XtcReader());
-  if (type == "xtc_new")
+  else if (type == "xtc_new")
     ptr = shared_pointer(new XtcReader());
   else if (type == "lma")
     ptr = shared_pointer(new ACQIRIS::LmaReader());
@@ -48,7 +49,7 @@ FileReader::shared_pointer FileReader::instance(const string &type)
   else
   {
     stringstream ss;
-    ss << "FileReader::instance: file reader type '"<< type<<"' is unknown.";
+    ss << "FileReader::instance: file reader type '"<< type<<"' is unknown."<< (type == "xtc");
     throw invalid_argument(ss.str());
   }
   return ptr;
