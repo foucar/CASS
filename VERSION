@@ -1,0 +1,17 @@
+This is the layout of the version Number
+
+1.2.3
+^ ^ ^
+| | |
+| | +--- Build number
+| +----- Minor version number
++------- Major version number
+
+Try to use the RubyGems Rational Versioning policy in which:
+
+    The Major version number is incremented when binary compatibility is broken
+    The Minor version number is incremented when new functionality is added
+    The Build number changes for bug fixes /typos
+
+When releasing a version (pushing a commit in the master branch to the repository)
+you need to give a tag according to the version number described above first.
