@@ -26,6 +26,9 @@ namespace cass
    *
    * class that will plot the rates calculated in the given Ratemeter's
    *
+   * @todo this needs to be a thread so that it can plot withouth the signal
+   *       slot mechanism
+   *
    * @author Lutz Foucar
    */
   class RatePlotter : public QObject
