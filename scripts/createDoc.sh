@@ -24,8 +24,8 @@ cd $BASEDIR
 # comment if not creating the docu for the official documentation
 $BASEDIR/scripts/createDownloadLocations.sh $BASEDIR
 
-# run doxygen from the docu directory
-cd $BASEDIR/doc && $DOXYGEN
+# run doxygen from the docu directory and add the current version to the description
+cd $BASEDIR/doc && (cat Doxyfile ; echo "PROJECT_NUMBER=`env -i git describe --tags`") | $DOXYGEN -
 
 # now delete the existing webpage and copy the just created html files to the
 # webpage and set the permissions correctly
