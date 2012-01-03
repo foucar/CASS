@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <tr1/memory>
+
 #include "xtc_reader.h"
 
 #include "cass_event.h"
@@ -15,6 +17,7 @@
 
 using namespace cass;
 using namespace std;
+using std::tr1::shared_ptr;
 
 XtcReader::XtcReader()
   :_convert(*FormatConverter::instance())
@@ -27,17 +30,17 @@ void XtcReader::loadSettings()
 
 void XtcReader::readHeaderInfo(std::ifstream &file)
 {
-  CASSEvent event;
+  shared_ptr<CASSEvent> event(new CASSEvent);
   while(1)
   {
     const streampos eventstartpos(file.tellg());
     Pds::Dgram& dg
-        (*reinterpret_cast<Pds::Dgram*>(event.datagrambuffer()));
-    file.read(event.datagrambuffer(),sizeof(Pds::Dgram));
+        (*reinterpret_cast<Pds::Dgram*>(event->datagrambuffer()));
+    file.read(event->datagrambuffer(),sizeof(Pds::Dgram));
     if (dg.seq.service() != Pds::TransitionId::L1Accept)
     {
       file.read(dg.xtc.payload(), dg.xtc.sizeofPayload());
-      _convert(&event);
+      _convert(event.get());
     }
     else
     {
