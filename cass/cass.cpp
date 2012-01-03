@@ -335,10 +335,10 @@ int main(int argc, char **argv)
     CASSSettings::setFilename(settingsfilename);
 
     /** create a ratemeter objects for input and worker and the plotter to plot
-     *  the rqtes that are calculated.
+     *  the rates that are calculated.
      */
-    Ratemeter inputrate(1,qApp);
-    Ratemeter workerrate(1,qApp);
+    Ratemeter inputrate;
+    Ratemeter workerrate;
     RatePlotter plotter(inputrate,workerrate);
 
     /** create workers and requested inputs which need a ringbuffer for passing the

@@ -14,16 +14,14 @@
 using namespace cass;
 using namespace std;
 
-Ratemeter::Ratemeter(const double averagetime, QObject *parent)
-    :QObject(parent),
-    _counts(0),
+Ratemeter::Ratemeter(const double averagetime)
+  : _counts(0),
     _rate(0),
     _averagetime(averagetime)
 {
   //start the clock//
   _time.start();
 }
-
 
 double Ratemeter::calculateRate()
 {
@@ -41,8 +39,8 @@ double Ratemeter::calculateRate()
   return _rate;
 }
 
-void Ratemeter::count()
+void Ratemeter::count(double increase)
 {
   QMutexLocker lock(&_mutex);
-  _counts += 1.;
+  _counts += increase;
 }
