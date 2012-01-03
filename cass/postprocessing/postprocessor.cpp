@@ -57,8 +57,8 @@ PostProcessors::shared_pointer PostProcessors::instance(string outputfilename)
   {
     VERBOSEOUT(cerr<<"PostProcessors::instance -- create "<<++create
                << endl);
-    /** @todo make sure that load settings is called at some point */
     _instance = shared_pointer(new PostProcessors(outputfilename));
+    _instance->loadSettings(0);
   }
   return _instance;
 }

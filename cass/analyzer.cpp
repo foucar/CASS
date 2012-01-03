@@ -38,6 +38,7 @@ Analyzer::Analyzer()
 {
   _analyzer[ccd] = AnalysisBackend::shared_pointer(new CCD::Analysis());
   _analyzer[pnCCD] =  AnalysisBackend::shared_pointer(new pnCCD::Analysis());
+  loadSettings(0);
 }
 
 void Analyzer::operator()(CASSEvent* cassevent)
