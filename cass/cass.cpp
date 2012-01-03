@@ -349,7 +349,7 @@ int main(int argc, char **argv)
      */
     RingBuffer<CASSEvent,RingBufferSize> ringbuffer;
     PostProcessors::instance(outputfilename);
-    Workers::instance(ringbuffer, workerrate, qApp);
+    Workers::instance(ringbuffer, workerrate);
 #ifdef OFFLINE
     if (multifile)
       MultiFileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
