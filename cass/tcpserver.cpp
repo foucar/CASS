@@ -58,6 +58,14 @@ void SoapHandler::run()
   _soap->destroy(); // dealloc C++ data, dealloc data and clean up (destroy + end)
 }
 
+SoapServer::~SoapServer()
+{
+  if(isRunning())
+    terminate();
+  wait();
+  _soap->destroy();
+  delete _soap;
+}
 
 void SoapServer::run()
 {

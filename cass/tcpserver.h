@@ -161,9 +161,11 @@ private:
 public:
   /** Destructor
    *
-   * clean up SOAP by destroying and deleting the soap instance
+   * Check whether thread is still running. If so terminate it and wait until
+   * it finished. Then clean up SOAP by destroying and deleting the soap 
+   * instance.
    */
-  ~SoapServer() { _soap->destroy(); delete _soap; }
+  ~SoapServer();
 
 private:
   /** pointer to the singleton instance */
