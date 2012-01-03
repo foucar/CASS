@@ -339,7 +339,7 @@ int main(int argc, char **argv)
      */
     Ratemeter inputrate(1,qApp);
     Ratemeter workerrate(1,qApp);
-    RatePlotter rateplotter(inputrate,workerrate,!suppressrate,qApp);
+    RatePlotter plotter(inputrate,workerrate);
 
     /** create workers and requested inputs which need a ringbuffer for passing the
      *  the events from one to the other. Once created connect their terminated
@@ -391,6 +391,8 @@ int main(int argc, char **argv)
 #ifdef HTTPSERVER
     http_server.start();
 #endif
+    if(!suppressrate)
+      plotter.start();
     InputBase::reference().start();
     InputBase::reference().wait();
 

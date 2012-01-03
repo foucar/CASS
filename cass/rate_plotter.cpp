@@ -18,25 +18,31 @@ using namespace cass;
 
 RatePlotter::RatePlotter(Ratemeter &inputrate,
                          Ratemeter &analyzerate,
-                         bool plot,
+                         int updateInterval,
                          QObject *parent)
-    :QObject(parent),
-    _timer(this),
+  : QThread(parent),
     _inputrate(inputrate),
-    _analyzerate(analyzerate)
+    _analyzerate(analyzerate),
+    _interval(updateInterval)
+{}
+
+RatePlotter::~RatePlotter()
 {
-  //start the timer that will call the plot() function//
-  connect (&_timer,SIGNAL(timeout()),this,SLOT(plot()));
-  if (plot)
-    _timer.start(1000);
+  if(isRunning())
+    terminate();
+  wait();
 }
 
-void RatePlotter::plot()
+void RatePlotter::run()
 {
-  char tmp[256];
-  snprintf(tmp, 255, "\rInput: %4.1fHz | Analyze: %4.1fHz",
-           _inputrate.calculateRate(), _analyzerate.calculateRate());
-  cout << tmp << flush;
+  while(true)
+  {
+    sleep(_interval);
+    char tmp[256];
+    snprintf(tmp, 255, "\rInput: %4.1fHz | Analyze: %4.1fHz",
+             _inputrate.calculateRate(), _analyzerate.calculateRate());
+    cout << tmp << flush;
+  }
 }
 
 

@@ -11,58 +11,68 @@
 #define _RATE_PLOTTER_H_
 
 #include <vector>
+#include <tr1/memory>
 
-#include <QtCore/QObject>
-#include <QtCore/QTimer>
+#include <QtCore/QThread>
 
 #include "cass.h"
 
 namespace cass
 {
-  //forward declarations
-  class Ratemeter;
+//forward declarations
+class Ratemeter;
 
-  /** Plotting the rate of input and prcessing threads.
+/** Plotting the rate of input and prcessing threads.
+ *
+ * class that will plot the rates calculated in the given Ratemeter's
+ *
+ * @author Lutz Foucar
+ */
+class RatePlotter : public QThread
+{
+public:
+  /** a shared pointer of this type */
+  typedef std::tr1::shared_ptr<RatePlotter> shared_pointer;
+
+  /** constructor.
    *
-   * class that will plot the rates calculated in the given Ratemeter's
-   *
-   * @todo this needs to be a thread so that it can plot withouth the signal
-   *       slot mechanism
-   *
-   * @author Lutz Foucar
+   * @param inputrate the ratemeter of the input thread
+   * @param analyzerate the ratemeter of the worker threads
+   * @param updateInterval the interval in which the rate will be plottet.
+   *        Default is 1
+   * @param parent the qt parent of this object
    */
-  class RatePlotter : public QObject
-  {
-    Q_OBJECT;
+  RatePlotter(Ratemeter &inputrate,
+              Ratemeter &analyzerate,
+              int updateInterval=1,
+              QObject *parent=0);
 
-  public:
-    /** constructor.
-     *
-     * @param inputrate the ratemeter of the input thread
-     * @param analyzerate the ratemeter of the worker threads
-     * @param plot flag to tell the ratemeter to output the rates
-     * @param parent the qt parent of this object
-     */
-    RatePlotter(Ratemeter &inputrate,
-                Ratemeter &analyzerate,
-                bool plot,
-                QObject *parent=0);
+  /** destructor
+   *
+   * checks whether thread is still running in which case it will be terminated.
+   * Then waits until thread has finished.
+   */
+  virtual ~RatePlotter();
 
-  private slots:
-    /** slot to tell the plotter to plot the current rates*/
-    void plot();
+protected:
+  /** the plotting loop
+   *
+   * sleep for interval time and then retrieve the rate from the ratemeters
+   * and plot it.
+   */
+  void run();
 
-  private:
-    /** the timer that tells it to plot the rate */
-    QTimer _timer;
+private:
+  /** reference to the input Ratemeter */
+  Ratemeter &_inputrate;
 
-    /** reference to the input Ratemeter */
-    Ratemeter &_inputrate;
+  /** reference to the workers (analysis) Ratemeter */
+  Ratemeter &_analyzerate;
 
-    /** reference to the workers (analysis) Ratemeter */
-    Ratemeter &_analyzerate;
-  };
-}
+  /** the interval in which the rate is plottet in s */
+  int _interval;
+};
+}//end namespace cass
 
 #endif // RATEMETER_H
 
