@@ -54,7 +54,7 @@ namespace lmf
      * stops the threads execution before deleting the thread. Make sure that
      * all waitconditions are properly shut down.
      */
-    ~PausableThread();
+    virtual ~PausableThread();
 
     /** pause the thread
      *
