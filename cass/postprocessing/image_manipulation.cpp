@@ -115,6 +115,42 @@ size_t Transpose(size_t destCol, size_t destRow, pair<size_t,size_t> size)
   const size_t srcRow(destCol);
   return toLinearized(srcCol,srcRow,nSrcCols);
 }
+
+/** flip matrix horizontally
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t FlipHorizontal(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  return 0;
+}
+
+
+/** flip matrix vertically
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t FlipVertical(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  return 0;
+}
+
 }//end namespace cass
 
 
@@ -123,6 +159,12 @@ pp55::pp55(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
   loadSettings(0);
+  _functions["90DegCCW"] = &cass::Rotate90DegCCW;
+  _functions["270DegCW"] = &cass::Rotate90DegCCW;
+  _functions["180Deg"] = &cass::Rotate180Deg;
+  _functions["270DegCCW"] = &cass::Rotate270DegCCW;
+  _functions["90DegCW"] = &cass::Rotate270DegCCW;
+  _functions["Transpose"] = &cass::Transpose;
 }
 
 void pp55::loadSettings(size_t)
@@ -134,30 +176,28 @@ void pp55::loadSettings(size_t)
   _one = setupDependency("HistName");
   bool ret (setupCondition());
   if (!(_one && ret)) return;
-  string operation(s.value("Operation","90ccw").toString().toStdString());
-  if (operation == "90ccw")
+  _operation = s.value("Operation","90DegCCW").toString().toStdString();
+  if (_operation == "90DegCCW")
+  {
+  }
+  else if (_operation == "270DegCCW")
   {
 
   }
-  else if (operation == "90cw")
+  else if (_operation == "180Deg")
+  {
+    _result = _one->getHist(0).clone();
+  }
+  else if (_operation == "transpose")
   {
 
   }
-  else if (operation == "180")
+  else if (_operation == "mirrorHorizontal")
   {
     _result = _one->getHist(0).clone();
 
   }
-  else if (operation == "transpose")
-  {
-
-  }
-  else if (operation == "mirrorHorizontal")
-  {
-    _result = _one->getHist(0).clone();
-
-  }
-  else if(operation == "mirrorVertical")
+  else if(_operation == "mirrorVertical")
   {
     _result = _one->getHist(0).clone();
 
@@ -168,6 +208,12 @@ void pp55::loadSettings(size_t)
                            "' is not supported.");
   }
   createHistList(2*NbrOfWorkers);
+  if (_functions.find(_operation) == _functions.end())
+    throw invalid_argument("pp55 (" + _key +"): Operation '" + operation +
+                           "' is not supported.");
+  _pixIdx = _functions[_operation];
+  _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
+                    _result->axis()[HistogramBackend::yAxis].nbrBins());
 
   cout<<endl << "PostProcessor '" << _key
       <<"' will do '"<< operation

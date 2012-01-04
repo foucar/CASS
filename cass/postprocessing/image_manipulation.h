@@ -60,6 +60,9 @@ public:
   virtual void histogramsChanged(const HistogramBackend* hist);
 
 protected:
+  /** functions to calc the index of source from the indizes of the destination */
+  typedef std::tr1::function<size_t(size_t, size_t, const std::pair<size_t,size_t>&)> func_t;
+
   /** pp containing 2d histogram */
   PostprocessorBackend *_one;
 
@@ -67,7 +70,13 @@ protected:
   std::pair<size_t,size_t> _size;
 
   /** function that will calc the corresponding bin */
-  std::tr1::function<size_t(size_t, size_t, const std::pair<size_t,size_t>&)> _pixIdx;
+  func_t _pixIdx;
+
+  /** container for all functions */
+  std::map<std::string, func_t> _functions;
+
+  /** the user chosen operation */
+  std::string _operation;
 };
 
 }//end namspace cass
