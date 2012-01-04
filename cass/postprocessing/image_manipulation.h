@@ -11,6 +11,7 @@
 #define _IMAGEMANIPULATION_H__
 
 #include <utility>
+#include <string>
 #include <tr1/functional>
 
 #include "backend.h"
@@ -25,6 +26,17 @@ namespace cass
  * @cassttng PostProcessor/\%name\%/{HistName} \n
  *           the postprocessor name that contain the first histogram. Default
  *           is "".
+ * @cassttng PostProcessor/\%name\%/{Operation} \n
+ *           the operation that one wants to perform on the 2d histogram.
+ *           Default is "90DegCCW". Possible values are:
+ *           - "90DegCCW" or "270DegCW": rotate the 2d hist by 90 deg counter
+ *                                       clock wise bzw. 270 deg clock wise
+ *           - "270DegCCW" or "90DegCW": rotate the 2d hist by 270 deg counter
+ *                                       clock wise bzw. 90 deg clock wise
+ *           - "180Deg": rotate the 2d hist by 180 deg
+ *           - "Transpose": transpose x and y axis of the 2d hist
+ *           - "FlipVertical": flip the 2d hist vertically
+ *           - "FlipHorizontal": flip the 2d hist horizontally
  *
  * @author Lutz Foucar
  */
