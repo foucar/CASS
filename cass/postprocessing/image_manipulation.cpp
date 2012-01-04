@@ -130,7 +130,11 @@ size_t Transpose(size_t destCol, size_t destRow, pair<size_t,size_t> size)
  */
 size_t FlipHorizontal(size_t destCol, size_t destRow, pair<size_t,size_t> size)
 {
-  return 0;
+  const size_t nSrcCols(size.first);
+  const size_t nDestRows(size.second);
+  const size_t srcCol(destCol);
+  const size_t srcRow(nDestRows - destRow - 1);
+  return toLinearized(srcCol,srcRow,nSrcCols);
 }
 
 
@@ -148,7 +152,11 @@ size_t FlipHorizontal(size_t destCol, size_t destRow, pair<size_t,size_t> size)
  */
 size_t FlipVertical(size_t destCol, size_t destRow, pair<size_t,size_t> size)
 {
-  return 0;
+  const size_t nSrcCols(size.first);
+  const size_t nDestCols(size.first);
+  const size_t srcCol(nDestCols - destCol -1);
+  const size_t srcRow(destRow);
+  return toLinearized(srcCol,srcRow,nSrcCols);
 }
 
 }//end namespace cass
