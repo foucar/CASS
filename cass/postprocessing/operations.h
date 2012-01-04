@@ -5,7 +5,6 @@
  *                     on histograms of other postprocessors
  *
  * @todo add pp that has input and condition output is copy of input
- * @todo add 0d pp that takes a constant value
  * @todo add pp to rotate 2d in 90 deg steps
 -* @todo add pp creating a running/moving standart deviation (just lke average)
  *
@@ -118,8 +117,38 @@ namespace cass
       _hide =true;
       _write =false;
     }
+
     /** don't do anything to the histogram */
     virtual void process(const CASSEvent&){}
+  };
+
+
+
+
+
+
+
+  /** Constant Value postprocessor.
+   *
+   * It will not show up in the pp list and not be written to file. And contains
+   * a user choosable value
+   *
+   * @cassttng PostProcessor/\%name\%/{Value} \n
+   *           The value of the postprocessors 0d histogram Default is 0.
+   *
+   * @author Lutz Foucar
+   */
+  class pp12 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp12(PostProcessors& pp, const PostProcessors::key_t &key);
+
+    /** don't do anything to the histogram */
+    virtual void process(const CASSEvent&){}
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
   };
 
 

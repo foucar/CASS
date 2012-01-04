@@ -134,6 +134,35 @@ void cass::pp9::process(const CASSEvent &evt)
 
 
 
+// ********** Postprocessor 12: PP with constant value ************
+
+cass::pp12::pp12(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp12::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(_key.c_str());
+  _result = new Histogram0DFloat();
+  *dynamic_cast<Histogram0DFloat*>(_result) = s.value("Value",0).toFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  _hide =true;
+  _write =false;
+
+  cout<<endl << "PostProcessor '" << _key
+      <<"' has constant value of '" << dynamic_cast<Histogram0DFloat*>(_result)->getValue()
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+
+
+
 
 
 

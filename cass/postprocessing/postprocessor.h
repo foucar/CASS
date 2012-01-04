@@ -55,6 +55,7 @@ the Class description for information about what parameters are user settable.
 00009: Check whether histogram is in a range
 00010: Constant true (pp10)
 00011: Constant false (pp10)
+00012: Constant Value
 
 00020: Subtract second histogram from first histogram (pp20)
 00021: Add first histogram to second histogram (pp20)
@@ -239,6 +240,7 @@ using the custom doxygen tag cassttng.
       CheckRange=9,
       ConstantTrue=10,
       ConstantFalse=11,
+      ConstantValue=12,
 
       SubtractHistograms=20,
       AddHistograms=21,
