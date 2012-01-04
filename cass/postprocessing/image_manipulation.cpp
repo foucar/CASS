@@ -137,7 +137,6 @@ size_t FlipHorizontal(size_t destCol, size_t destRow, pair<size_t,size_t> size)
   return toLinearized(srcCol,srcRow,nSrcCols);
 }
 
-
 /** flip matrix vertically
  *
  * convert the calculated indizes into the index of the linearized matrix and
