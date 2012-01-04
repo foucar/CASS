@@ -95,7 +95,29 @@ size_t Rotate270DegCCW(size_t destCol, size_t destRow, pair<size_t,size_t> size)
   const size_t srcRow(destCol);
   return toLinearized(srcCol,srcRow,nSrcCols);
 }
+
+/** transpose the indizes
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t Transpose(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  const size_t nSrcCols(size.second);
+  const size_t srcCol(destRow);
+  const size_t srcRow(destCol);
+  return toLinearized(srcCol,srcRow,nSrcCols);
+}
 }//end namespace cass
+
+
 
 pp55::pp55(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
