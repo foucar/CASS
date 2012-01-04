@@ -251,14 +251,14 @@ void pp55::process(const CASSEvent &evt)
       (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
 
   hist.lock.lockForRead();
-  const HistogramFloatBase::storage_t& orig(hist.memory()) ;
+  const HistogramFloatBase::storage_t& src(hist.memory()) ;
   _result->lock.lockForWrite();
-  HistogramFloatBase::storage_t::iterator pixel(
+  HistogramFloatBase::storage_t::iterator dest(
         dynamic_cast<HistogramFloatBase*>(_result)->memory().begin());
   _result->nbrOfFills()=1;
   for (size_t row(0); row < _size.second; ++row)
     for (size_t col(0); col < _size.first; ++col)
-      *pixel++ = orig[_pixIdx(col,row,_size)];
+      *dest++ = src[_pixIdx(col,row,_size)];
   _result->lock.unlock();
   hist.lock.unlock();
 }
