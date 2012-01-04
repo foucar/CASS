@@ -28,6 +28,7 @@
 #include "cass_settings.h"
 #include "hdf5_converter.h"
 #include "coltrims_analysis.h"
+#include "image_manipulation.h"
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -590,6 +591,9 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
     break;
   case R_Phi_Representation:
     processor = new pp54(*this, key);
+    break;
+  case imageManip:
+    processor = new pp55(*this, key);
     break;
   case ZeroDHistogramming:
     processor = new pp60(*this, key);
