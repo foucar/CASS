@@ -17,7 +17,85 @@
 using namespace cass;
 using namespace std;
 
-// ****************** Postprocessor 40: Threshold histogram ********************
+
+namespace cass
+{
+/** convert the index for rows and cols into the index of linareized array
+ *
+ * @return the linearized index
+ * @param col the Column index of the element
+ * @param row the Row index of the element
+ * @param nCols the number of columns in the matrix
+ */
+size_t toLinearized(size_t col, size_t row, size_t nCols)
+{
+  return (nCols*row + col);
+}
+
+/** calculate the corresponding indezes for 90 deg ccw rotation
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t Rotate90DegCCW(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  const size_t nDestCols(size.first);
+  const size_t nSrcCols(size.second);
+  const size_t srcCol(destRow);
+  const size_t srcRow(nDestCols - destCol - 1);
+  return toLinearized(srcCol,srcRow,nSrcCols);
+}
+
+/** calculate the corresponding indezes for 180 deg rotation
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t Rotate180Deg(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  const size_t nDestCols(size.first);
+  const size_t nDestRows(size.second);
+  const size_t nSrcCols(size.first);
+  const size_t srcCol(nDestCols - destCol - 1);
+  const size_t srcRow(nDestRows - destRow - 1);
+  return toLinearized(srcCol,srcRow,nSrcCols);
+}
+
+/** calculate the corresponding indezes for 270 deg ccw (90 cw) rotation
+ *
+ * convert the calculated indizes into the index of the linearized matrix and
+ * return it
+ *
+ * @return index of the src as linearized index
+ * @param destCol the column index of the destination matrix
+ * @param destRow the row index of the destination matrix
+ * @param size the size of the destination matrix
+ *
+ * @author Lutz Foucar
+ */
+size_t Rotate270DegCCW(size_t destCol, size_t destRow, pair<size_t,size_t> size)
+{
+  const size_t nDestRows(size.second);
+  const size_t nSrcCols(size.first);
+  const size_t srcCol(nDestRows - destRow - 1);
+  const size_t srcRow(destCol);
+  return toLinearized(srcCol,srcRow,nSrcCols);
+}
+}//end namespace cass
 
 pp55::pp55(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
