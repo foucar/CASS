@@ -73,7 +73,7 @@ protected:
   func_t _pixIdx;
 
   /** container for all functions */
-  std::map<std::string, func_t> _functions;
+  std::map<std::string, std::pair<func_t,bool> > _functions;
 
   /** the user chosen operation */
   std::string _operation;

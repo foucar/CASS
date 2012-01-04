@@ -158,13 +158,15 @@ size_t FlipVertical(size_t destCol, size_t destRow, pair<size_t,size_t> size)
 pp55::pp55(PostProcessors& pp, const PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key)
 {
+  _functions["90DegCCW"] = make_pair(&cass::Rotate90DegCCW,true);
+  _functions["270DegCW"] = make_pair(&cass::Rotate90DegCCW,true);
+  _functions["180Deg"] = make_pair(&cass::Rotate180Deg,false);
+  _functions["270DegCCW"] = make_pair(&cass::Rotate270DegCCW,true);
+  _functions["90DegCW"] = make_pair(&cass::Rotate270DegCCW,true);
+  _functions["Transpose"] = make_pair(&cass::Transpose,true);
+  _functions["FlipVertical"] = make_pair(&cass::FlipVertical,true);
+  _functions["FlipHorizontal"] = make_pair(&cass::FlipHorizontal,true);
   loadSettings(0);
-  _functions["90DegCCW"] = &cass::Rotate90DegCCW;
-  _functions["270DegCW"] = &cass::Rotate90DegCCW;
-  _functions["180Deg"] = &cass::Rotate180Deg;
-  _functions["270DegCCW"] = &cass::Rotate270DegCCW;
-  _functions["90DegCW"] = &cass::Rotate270DegCCW;
-  _functions["Transpose"] = &cass::Transpose;
 }
 
 void pp55::loadSettings(size_t)
@@ -177,46 +179,29 @@ void pp55::loadSettings(size_t)
   bool ret (setupCondition());
   if (!(_one && ret)) return;
   _operation = s.value("Operation","90DegCCW").toString().toStdString();
-  if (_operation == "90DegCCW")
+  if (_functions.find(_operation) == _functions.end())
+    throw invalid_argument("pp55 (" + _key +"): Operation '" + _operation +
+                           "' is not supported.");
+  _pixIdx = _functions[_operation].first;
+  if (_functions[_operation].second)
   {
-  }
-  else if (_operation == "270DegCCW")
-  {
-
-  }
-  else if (_operation == "180Deg")
-  {
-    _result = _one->getHist(0).clone();
-  }
-  else if (_operation == "transpose")
-  {
-
-  }
-  else if (_operation == "mirrorHorizontal")
-  {
-    _result = _one->getHist(0).clone();
-
-  }
-  else if(_operation == "mirrorVertical")
-  {
-    _result = _one->getHist(0).clone();
+    const AxisProperty& xaxis(_one->getHist(0).axis()[HistogramBackend::xAxis]);
+    const AxisProperty& yaxis(_one->getHist(0).axis()[HistogramBackend::yAxis]);
+    _result = new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
+                                   xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
+                                   xaxis.title(),yaxis.title());
 
   }
   else
   {
-    throw invalid_argument("pp55 (" + _key +"): Operation '" + operation +
-                           "' is not supported.");
+    _result = _one->getHist(0).clone();
   }
   createHistList(2*NbrOfWorkers);
-  if (_functions.find(_operation) == _functions.end())
-    throw invalid_argument("pp55 (" + _key +"): Operation '" + operation +
-                           "' is not supported.");
-  _pixIdx = _functions[_operation];
   _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
                     _result->axis()[HistogramBackend::yAxis].nbrBins());
 
   cout<<endl << "PostProcessor '" << _key
-      <<"' will do '"<< operation
+      <<"' will do '"<< _operation
       <<"' on Histogram in PostProcessor '" << _one->key()
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
@@ -224,25 +209,39 @@ void pp55::loadSettings(size_t)
 
 void pp55::histogramsChanged(const HistogramBackend* in)
 {
-//  QWriteLocker lock(&_histLock);
-//  //return when there is no incomming histogram
-//  if(!in)
-//    return;
-//  //return when the incomming histogram is not a direct dependant
-//  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
-//    return;
-//  //the previous _result pointer is on the histlist and will be deleted
-//  //with the call to createHistList
-//  _result = in->clone();
-//  createHistList(2*NbrOfWorkers);
-//  //notify all pp that depend on us that our histograms have changed
-//  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
-//  PostProcessors::keyList_t::iterator it (dependands.begin());
-//  for (; it != dependands.end(); ++it)
-//    _pp.getPostProcessor(*it).histogramsChanged(_result);
-//  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-//             <<"': histograms changed => delete existing histo"
-//             <<" and create new one from input"<<endl);
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
+  if (_functions[_operation].second)
+  {
+    const AxisProperty& xaxis(_one->getHist(0).axis()[HistogramBackend::xAxis]);
+    const AxisProperty& yaxis(_one->getHist(0).axis()[HistogramBackend::yAxis]);
+    _result = new Histogram2DFloat(yaxis.nbrBins(),yaxis.lowerLimit(),yaxis.upperLimit(),
+                                   xaxis.nbrBins(),xaxis.lowerLimit(),xaxis.upperLimit(),
+                                   xaxis.title(),yaxis.title());
+
+  }
+  else
+  {
+    _result = _one->getHist(0).clone();
+  }
+  createHistList(2*NbrOfWorkers);
+  _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
+                    _result->axis()[HistogramBackend::yAxis].nbrBins());
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  VERBOSEOUT(cout<<"Postprocessor '"<<_key
+             <<"': histograms changed => delete existing histo"
+             <<" and create new one from input"<<endl);
 }
 
 void pp55::process(const CASSEvent &evt)
