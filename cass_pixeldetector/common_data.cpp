@@ -178,7 +178,9 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
   vector<double> noises(size);
   in.read(reinterpret_cast<char*>(&noises[0]), size*sizeof(double));
   QWriteLocker lock(&data.lock);
+  data.offsetMap.resize(size);
   copy(offsets.begin(),offsets.end(),data.offsetMap.begin());
+  data.noiseMap.resize(size);
   copy(noises.begin(),noises.end(),data.noiseMap.begin());
 }
 
