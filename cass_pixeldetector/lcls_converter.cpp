@@ -189,13 +189,13 @@ Converter::Converter()
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
-  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
-      <<"'("<<xtc->contains.id()
-      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
-      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
-      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
-      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
-      <<")"<<endl;
+  //  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
+  //  <<"'("<<xtc->contains.id()
+  //  <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
+  //  <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
+  //  <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
+  //  <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
+  //  <<")"<<endl;
 
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
