@@ -76,6 +76,10 @@ class MapCreatorBase;
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
  *           - "hll": the filetype used by the semi conductor lab.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold}\n
+ *           The threshold to identify noisy pixels. Will be used when creating
+ *           the mask. When the noise of the pixel is higher than this value
+ *           the pixel will be masked. Default is 40000. 
  *
  * @author Lutz Foucar
  */

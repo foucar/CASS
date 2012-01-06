@@ -366,6 +366,10 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
 }
 
 CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
+  : columns(1024),
+    rows(1024),
+    noiseThreshold(0),
+    detectorId(-1)
 {}
 
 void CommonData::loadSettings(CASSSettings &s)
