@@ -27,6 +27,13 @@ struct Frame;
  *
  * a map creator will take the frame data that it gets to create correction maps.
  *
+ * @todo add functionality that one can start the creation with a gui event
+ *       e.g.: create a virutal function here to start and stop the creation
+ *       then create a function in commondata that calls this and a static
+ *       member that will call this for all common data objects inside _instances
+ *       container. Maybe the static can already access the mapcreator functor?
+ *       Then one does not have to create another function in common data.
+ *
  * @author Lutz Foucar
  */
 class MapCreatorBase

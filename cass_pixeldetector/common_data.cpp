@@ -356,10 +356,9 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(std::cout << "CommonData::instance(): creating an"
-               <<" instance of the common data container for detector '"<<detector
-               <<"'"
-               <<std::endl);
+    VERBOSEOUT(cout << "CommonData::instance(): creating an instance of the"
+               <<" common data container for detector '"<<detector<<"'"
+               <<endl);
     _instances[detector] = CommonData::shared_pointer(new CommonData(detector));
   }
   return _instances[detector];

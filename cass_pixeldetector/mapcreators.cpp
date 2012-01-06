@@ -48,7 +48,7 @@ void createPixelList(const frame_t::value_type &offset,
                      const frame_t::value_type &noise,
                      const MapCreatorBase::storage_t& storage,
                      size_t pixel,
-		     bool exclude,
+                     bool exclude,
                      frame_t &pixellist)
 {
   MapCreatorBase::storage_t::const_iterator frame(storage.begin());
@@ -247,23 +247,23 @@ void FixedMaps::operator ()(const Frame &frame)
         frame_t::iterator offsetEnd(_commondata->offsetMap.end());
         frame_t::iterator noise(_commondata->noiseMap.begin());
         size_t idx(0);
-	frame_t pixels;
+        frame_t pixels;
         for (;offset != offsetEnd; ++offset, ++noise, ++idx)
         {
-	  pixels.clear();
+          pixels.clear();
           createPixelList(*offset,*noise,_storage,idx,i,pixels);
-	  if(!pixels.empty())
-	  {
-	    *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
-	    *noise = calcNoise(pixels, *offset);
-	  }
+          if(!pixels.empty())
+          {
+            *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
+            *noise = calcNoise(pixels, *offset);
+          }
         }
       }
       _createMaps = false;
       _storage.clear();
-      /** @todo will this make the newly created map available for analysis or
-       *        just store it to disc? How would we be able to make the newly
-       *        created correction map available?
+      /** @todo this does not calculate the correction map (the one convoluted
+       *        from cte / gain + noise + mask newly. Function createCorrectionMap
+       *        in common_data.cpp does this; can it be accessed from here?
        */
       _commondata->saveMaps();
     }
