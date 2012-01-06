@@ -38,6 +38,8 @@ namespace pixeldetector
  * @param noise the noise for the pixel at index pixel
  * @param storage the container for all the frames data
  * @param pixel index of the pixel that one wants to create the pixel list for.
+ * @param exclude flag to show whether to exclude the pixels that potentially
+ *        a photon hit
  * @param[out] pixellist the list of pixels the are non events
  *
  * @author Lutz Foucar
@@ -46,12 +48,14 @@ void createPixelList(const frame_t::value_type &offset,
                      const frame_t::value_type &noise,
                      const MapCreatorBase::storage_t& storage,
                      size_t pixel,
+		     bool exclude,
                      frame_t &pixellist)
 {
   MapCreatorBase::storage_t::const_iterator frame(storage.begin());
-  for (; frame != storage.end() ; ++frame)
+  MapCreatorBase::storage_t::const_iterator frameEnd(storage.end());
+  for (; frame != frameEnd ; ++frame)
   {
-    if ((*frame)[pixel] - offset < noise)
+    if ((*frame)[pixel] - offset < noise || !exclude)
       pixellist.push_back((*frame)[pixel]);
   }
 }
@@ -141,53 +145,63 @@ void isSameSize(const Frame& frame, CommonData& data)
 {
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
-    data.offsetMap.resize(frame.columns*frame.rows, 0);
     cout << "isSameSize(): WARNING the offsetMap does not have the right size '"
          << data.offsetMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the offsetMap"
          <<endl;
+    data.offsetMap.resize(frame.columns*frame.rows, 0);
+    data.columns = frame.columns;
+    data.rows = frame.rows;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
   {
-    data.noiseMap.resize(frame.columns*frame.rows, 4000);
     cout << "isSameSize(): WARNING the noiseMap does not have the right size '"
          << data.noiseMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the noiseMap"
          <<endl;
+    data.noiseMap.resize(frame.columns*frame.rows, 4000);
+    data.columns = frame.columns;
+    data.rows = frame.rows;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
-    data.mask.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the mask does not have the right size '"
          << data.offsetMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the mask"
          <<endl;
+    data.mask.resize(frame.columns*frame.rows, 1);
+    data.columns = frame.columns;
+    data.rows = frame.rows;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
-    data.gain_cteMap.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the gain_cteMap does not have the right size '"
          << data.offsetMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the gain_cteMap"
          <<endl;
+    data.gain_cteMap.resize(frame.columns*frame.rows, 1);
+    data.columns = frame.columns;
+    data.rows = frame.rows;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
-    data.correctionMap.resize(frame.columns*frame.rows, 1);
     cout << "isSameSize(): WARNING the correctionMap does not have the right size '"
          << data.offsetMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the correctionMap"
          <<endl;
+    data.correctionMap.resize(frame.columns*frame.rows, 1);
+    data.columns = frame.columns;
+    data.rows = frame.rows;
   }
 }
 
@@ -209,7 +223,7 @@ void NonAlteringMaps::loadSettings(CASSSettings &s)
     *offset = 0;
   frame_t::iterator noise(_commondata->noiseMap.begin());
   for (;noise != _commondata->noiseMap.end(); ++noise)
-    *noise = 4000;
+    *noise = 0;
   frame_t::iterator corval(_commondata->correctionMap.begin());
   for (;corval != _commondata->correctionMap.end(); ++corval)
     *corval = 1;
@@ -217,6 +231,7 @@ void NonAlteringMaps::loadSettings(CASSSettings &s)
 
 void FixedMaps::operator ()(const Frame &frame)
 {
+  //  cout << _createMaps<<endl;
   isSameSize(frame,*_commondata);
   if(!_createMaps)
     return;
@@ -229,14 +244,19 @@ void FixedMaps::operator ()(const Frame &frame)
       for (size_t i=0; i < 2; ++i)
       {
         frame_t::iterator offset(_commondata->offsetMap.begin());
+        frame_t::iterator offsetEnd(_commondata->offsetMap.end());
         frame_t::iterator noise(_commondata->noiseMap.begin());
-        size_t i(0);
-        for (;offset != _commondata->offsetMap.end(); ++offset, ++noise, ++i)
+        size_t idx(0);
+	frame_t pixels;
+        for (;offset != offsetEnd; ++offset, ++noise, ++idx)
         {
-          frame_t pixels;
-          createPixelList(*offset,*noise,_storage,i,pixels);
-          *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
-          *noise = calcNoise(pixels, *offset);
+	  pixels.clear();
+          createPixelList(*offset,*noise,_storage,idx,i,pixels);
+	  if(!pixels.empty())
+	  {
+	    *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
+	    *noise = calcNoise(pixels, *offset);
+	  }
         }
       }
       _createMaps = false;
