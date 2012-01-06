@@ -68,26 +68,17 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
 
 void AdvancedDetector::associate(const CASSEvent &evt)
 {
-  if (evt.devices().find(CASSEvent::PixelDetectors) == evt.devices().end())
-  {
-    /** @todo correct this */
-    stringstream ss;
-    ss << "AdvancedDetector::associate(): Device 'PixelDetectors'"
-        <<"' does not exist in CASSEvent";
-    throw invalid_argument(ss.str());
-  }
+  CASSEvent::devices_t::const_iterator devIt(evt.devices().find(CASSEvent::PixelDetectors));
+  if (devIt == evt.devices().end())
+    throw invalid_argument("AdvancedDetector::associate(): Device 'PixelDetectors'" +
+                           string("' does not exist in CASSEvent"));
   /** @todo use reference to device here to safe space in line below */
-  const Device &dev (dynamic_cast<const Device&>(*(evt.devices().find(CASSEvent::PixelDetectors)->second)));
-  if (dev.dets().find(_detector) == dev.dets().end())
-  {
-    /** @todo use toString */
-    stringstream ss;
-    ss << "AdvancedDetector::associate(): Detector '"<<_detector
-        <<"' does not exist in Device 'PixelDetectors' within the CASSEvent";
-    throw invalid_argument(ss.str());
-  }
-  /** @todo use reference to device here to safe space in line below */
-  const Detector &det(dev.dets().find(_detector)->second);
+  const Device &dev (dynamic_cast<const Device&>(*(devIt->second)));
+  Device::detectors_t::const_iterator detIt(dev.dets().find(_detector));
+  if (detIt == dev.dets().end())
+    throw invalid_argument("AdvancedDetector::associate(): Detector '" + toString(_detector) +
+                           "' does not exist in Device 'PixelDetectors' within the CASSEvent");
+  const Detector &det(detIt->second);
   _frame.columns = det.columns();
   _frame.rows = det.rows();
   _frame.data = det.frame();
