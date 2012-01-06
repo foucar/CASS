@@ -80,9 +80,9 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
                            toString(header.columns)+ "*" + toString(header.rows) +
                            "!=" + toString(header.length) +"'");
   }
-  hllDataTypes::statistics pixelStatistics[header.length];
+  vector<hllDataTypes::statistics> pixelStatistics(header.length);
   const size_t pixelStatisticsLength(sizeof(hllDataTypes::statistics)*header.length);
-  hllfile.read(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
+  hllfile.read(reinterpret_cast<char*>(&pixelStatistics.front()),pixelStatisticsLength);
   vector<char> badpixmap(header.length);
   hllfile.read(&badpixmap[0],header.length);
 
@@ -90,7 +90,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   frame_t::iterator hlloffset(hlloffsets.begin());
   frame_t hllnoises(header.length);
   frame_t::iterator hllnoise(hllnoises.begin());
-  hllDataTypes::statistics *pixelstatistic(&pixelStatistics[0]);
+  vector<hllDataTypes::statistics>::iterator pixelstatistic(pixelStatistics.begin());
   for( size_t i(0); i < header.length; ++i, ++hlloffset, ++pixelstatistic )
   {
     *hlloffset = pixelstatistic->offset;
@@ -139,15 +139,15 @@ void saveHLLOffsetFile(const string &filename, CommonData& data)
   hllDataTypes::CASS2HLL(data.noiseMap,hllnoises,header.rows,header.rows,data.columns);
   frame_t::const_iterator hlloffset(hlloffsets.begin());
   frame_t::const_iterator hllnoise(hllnoises.begin());
-  hllDataTypes::statistics pixelStatistics[header.length];
-  hllDataTypes::statistics *pixelstatistic(&pixelStatistics[0]);
+  vector<hllDataTypes::statistics> pixelStatistics(header.length);
+  vector<hllDataTypes::statistics>::iterator pixelstatistic(pixelStatistics.begin());
   for(; hlloffset != hlloffsets.end(); ++hlloffset, ++hllnoise, ++pixelstatistic )
   {
     pixelstatistic->offset = *hlloffset;
     pixelstatistic->sigma = *hllnoise;
   }
   const size_t pixelStatisticsLength(sizeof(hllDataTypes::statistics)*header.length);
-  out.write(reinterpret_cast<char*>(pixelStatistics),pixelStatisticsLength);
+  out.write(reinterpret_cast<char*>(&pixelStatistics.front()),pixelStatisticsLength);
   CommonData::mask_t hllmask(data.mask);
   hllDataTypes::CASS2HLL(data.mask,hllmask,header.rows,header.rows,data.columns);
   const size_t maskLength(sizeof(char)*header.length);
