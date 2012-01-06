@@ -156,11 +156,18 @@ Converter::Converter()
   _pdsTypeList.push_back(TypeId::Id_Frame);
 
   Key FrontPnCCD(TypeId::Id_pnCCDframe,
-                 DetInfo::Camp, 3,
-                 DetInfo::pnCCD, 5);
+                 DetInfo::Camp, 0,
+                 DetInfo::pnCCD, 0);
+  Key FrontPnCCDConfig(TypeId::Id_pnCCDconfig,
+                       DetInfo::Camp, 0,
+                       DetInfo::pnCCD, 0);
   Key BackPnCCD(TypeId::Id_pnCCDframe,
-                 DetInfo::Camp, 3,
-                 DetInfo::pnCCD, 5);
+                 DetInfo::Camp, 0,
+                 DetInfo::pnCCD, 1);
+  Key BackPnCCDConfig(TypeId::Id_pnCCDconfig,
+                 DetInfo::Camp, 0,
+                 DetInfo::pnCCD, 1);
+  /** @todo make sure that these definitions are correct */
   Key commCCD1(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
@@ -170,8 +177,14 @@ Converter::Converter()
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
-  /** @todo check whether all id are given or need to be given */
-  _LCLSToCASSId[FrontPnCCD] = 1;
+
+  _LCLSToCASSId[FrontPnCCD] = 0;
+  _LCLSToCASSId[FrontPnCCDConfig] = 0;
+  _LCLSToCASSId[BackPnCCD] = 1;  
+  _LCLSToCASSId[BackPnCCDConfig] = 1;
+  _LCLSToCASSId[commCCD1] = 2;
+  _LCLSToCASSId[commCCD2] = 3;
+  _LCLSToCASSId[commCCD3] = 4;
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
@@ -181,19 +194,21 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
       <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
       <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
-      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
+      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
       <<")"<<endl;
 
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
   if (lclsmapIt == _LCLSToCASSId.end())
   {
-    throw runtime_error("pixeldetector::Converter::operator(): There is no corresponding cass key for '" + string(TypeId::name(xtc->contains.id())) +
+    throw runtime_error("pixeldetector::Converter::operator(): There is no corresponding cass key for '"+
+                         string(TypeId::name(xtc->contains.id())) +
                         "'(" + toString(xtc->contains.id()) +
                         "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
                         "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
                         "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
-                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()));
+                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+                        ")");
   }
   const idmap_t::mapped_type &casskey(lclsmapIt->second);
 
