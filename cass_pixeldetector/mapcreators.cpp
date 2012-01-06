@@ -253,6 +253,7 @@ void FixedMaps::operator ()(const Frame &frame)
 void FixedMaps::loadSettings(CASSSettings &s)
 {
   string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+  s.beginGroup("FixedCreator");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
   _maxDisregarded = s.value("DisregardedHighValues",5).toUInt();
@@ -263,6 +264,7 @@ void FixedMaps::loadSettings(CASSSettings &s)
     _calcOffset = &calcMedian;
   else
     _calcOffset = &calcMean;
+  s.endGroup();
 }
 
 void MovingMaps::operator ()(const Frame &frame)
