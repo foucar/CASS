@@ -62,8 +62,11 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   ifstream hllfile(filename.c_str(),ios::in);
   if (!hllfile.is_open())
   {
-    throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
-                           filename + "'");
+    cout << "readHllOffsetFile: Could not open '"<<filename
+         <<"'. Skip loading the offset and noise map."<<endl;
+    return; 
+    //    throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
+    //                     filename + "'");
   }
   hllDataTypes::DarkcalFileHeader header;
   hllfile >> header;
@@ -167,8 +170,11 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {
-    throw invalid_argument("readCASSOffsetFile(): Error opening file '" +
-                           filename + "'");
+    cout <<"readCASSOffsetFile: Warning: could not open '"<<filename
+	 <<"'. Skipping reading the noise and offset maps."<<endl;
+    return;
+    //    throw invalid_argument("readCASSOffsetFile(): Error opening file '" +
+    //                     filename + "'");
   }
   in.seekg(0,std::ios::end);
   const size_t size = in.tellg() / 2 / sizeof(double);
