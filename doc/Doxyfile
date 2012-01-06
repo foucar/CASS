@@ -652,6 +652,7 @@ INPUT                  = ../cass \
                          ../cass_acqiris \
                          ../cass_ccd \
                          ../cass_machinedata \
+                         ../cass_pixeldetector \
                          ../cass_pnccd \
                          ../doc \
                          ../jocassview \

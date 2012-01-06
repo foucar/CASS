@@ -34,7 +34,7 @@ namespace commonmode
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{NbrMinDisregardedValues}\n
  *           The number of lowest values that should be disreagarded when
  *           calculating the mean value. Default is 5.
- * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{NbrMinDisregardedValues}\n
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{NbrMaxDisregardedValues}\n
  *           The number of highest values that should be disreagarded when
  *           calculating the mean value. Default is 0.
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{MinNbrPixels}\n

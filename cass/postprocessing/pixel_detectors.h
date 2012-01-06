@@ -36,7 +36,7 @@ class Histogram2DFloat;
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
@@ -79,7 +79,7 @@ protected:
  *           properties of the 1D histogram:
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
@@ -116,7 +116,7 @@ protected:
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  * @cassttng PostProcessor/\%name\%/{MapType}\n
  *           the type of the map that should be displayed. See
@@ -161,7 +161,7 @@ protected:
 /** Spectrum of coalesced pixels (hits) in a pixeldetector.
  *
  * This postprocessor will fill a 1D histogram with the z values of the coalesced
- * hits. See See cass::pixeldetector::AdvancedDetector for the options available
+ * hits. See cass::pixeldetector::AdvancedDetector for the options available
  * to coalesce the detected hits on the pixeldetectors. If one wants to fill
  * only pixels that are within a certain area of the pixeldetector, one can
  * use the mask to mask out uninteresting areas. See
@@ -174,7 +174,7 @@ protected:
  *           properties of the 1D histogram:
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  * @cassttng PostProcessor/\%name\%/{SplitLevelUpperLimit|SplitLevelLowerLimit}\n
  *           The range of the Splitlevel of the photon hit. Splitlevel tells
@@ -221,7 +221,7 @@ protected:
  *           properties of the 2d histogram
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  * @cassttng PostProcessor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
  *           The range of the z value of the pixel. Only when the pixel is in
@@ -278,7 +278,7 @@ protected:
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
@@ -315,7 +315,7 @@ protected:
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|Xup}\n
  *           properties of the 1D histogram:
@@ -359,7 +359,7 @@ protected:
  *           properties of the 1D histogram:
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar
@@ -403,7 +403,7 @@ protected:
  *           properties of the 2d histogram
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelper for infos how to set up that
  *           detector.
  * @cassttng PostProcessor/\%name\%/{SpectralLowerLimit|SpectralUpperLimit}\n
  *           The range of the z value of the pixel. Only when the pixel is in
@@ -453,7 +453,7 @@ protected:
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the Detector that one is interested in. Default "blubb"
- *           See cass::HelperPixelDetectors for infos how to set up that
+ *           See cass::pixeldetector::DetectorHelperHelper for infos how to set up that
  *           detector.
  *
  * @author Lutz Foucar

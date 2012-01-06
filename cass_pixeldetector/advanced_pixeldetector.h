@@ -156,8 +156,6 @@ public:
    */
   const hits_t& hits();
 
-
-
 private:
   /** container for data common for all detectors with this name */
   std::tr1::shared_ptr<CommonData> _common;
