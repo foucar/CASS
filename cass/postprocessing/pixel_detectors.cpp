@@ -202,9 +202,11 @@ void pp107::loadSettings(size_t)
   else
     throw invalid_argument("p107::loadSettings(" +_key + "): MapType '"+ mapType +
                            "' does not exist");
-  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns-1,
-                                 CommonData::instance(_detector)->rows-1);
-  createHistList(2*cass::NbrOfWorkers);
+  _mapLock = &CommonData::instance(_detector)->lock;
+  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
+                                 CommonData::instance(_detector)->rows);
+  /** @todo enable to resize the histogram, when the map does not have the default size */
+  createHistList(2*cass::NbrOfWorkers,true);
   cout<<endl<<"Postprocessor '"<<_key
       <<"' will display the '"<< mapType
       <<"' map of detector '"<<_detector
@@ -214,10 +216,9 @@ void pp107::loadSettings(size_t)
 
 void pp107::process(const cass::CASSEvent&/* evt*/)
 {
-  QReadLocker lock(&CommonData::instance(_detector)->lock);
+  QReadLocker locker(_mapLock);
   _result->lock.lockForWrite();
-  copy(_map->begin(),
-       _map->end(),
+  copy(_map->begin(), _map->end(),
        dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
   _result->nbrOfFills() = 1;
   _result->lock.unlock();

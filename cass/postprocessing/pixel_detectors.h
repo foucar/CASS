@@ -148,6 +148,9 @@ protected:
 
   /** pointer to the map */
   pixeldetector::frame_t *_map;
+
+  /** the lock for locking the map */
+  QReadWriteLock *_mapLock;
 };
 
 
