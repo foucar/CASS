@@ -344,7 +344,7 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
   if (_instances.find(detector) == _instances.end())
   {
     VERBOSEOUT(std::cout << "CommonData::instance(): creating an"
-               <<" instance of the Pixel Detector Helper for detector '"<<detector
+               <<" instance of the common data container for detector '"<<detector
                <<"'"
                <<std::endl);
     _instances[detector] = CommonData::shared_pointer(new CommonData(detector));
