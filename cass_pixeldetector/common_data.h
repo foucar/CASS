@@ -134,7 +134,8 @@ public:
    *
    * first append the detector id and the current time to the user selected out
    * filename. Then save the file and create a link to it. The name of the link
-   * will be called like "darkcal_\%detectorID\%.cal"
+   * will be called like "darkcal_\%detectorID\%.cal". In case the link exists
+   * try to remove it first.
    */
   void saveMaps();
 

@@ -426,6 +426,10 @@ void CommonData::saveMaps()
                  ".cal");
   _saveTo(outname,*this);
   string linkname("darkcal_" + toString(detectorId) +".cal");
+  if (QFile::exists(QString::fromStdString(linkname)))
+    if(QFile::remove(QString::fromStdString(linkname)))
+      throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
+			  linkname +"'");
   if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
     throw runtime_error("CommonData::saveMaps: could not create a link named '"+
                         linkname + "' that points to the outputfile '" + outname +"'");
