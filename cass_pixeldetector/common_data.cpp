@@ -267,12 +267,12 @@ void readHLLGainFile(const string &filename, CommonData& data)
   in.getline(line, 80);
   if (line != string("HE File"))
   {
-    throw runtime_error("Wrong file format: " + std::string(line));
+    throw runtime_error("readHLLGainFile: Wrong file format: " + std::string(line));
   }
   in.getline(line, 80);
   if (strncmp(line, "VERSION 3", 9))
   {
-    throw runtime_error("Wrong file format: " + std::string(line));
+    throw runtime_error("readHLLGainFile: Wrong file format: " + std::string(line));
   }
   in.getline(line, 80);
 
