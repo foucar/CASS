@@ -214,7 +214,8 @@ void saveCASSOffsetFile(const string &filename, CommonData& data)
 
 /** will read the file containing the gain and cte corretion factors in the HLL format
  *
- * read in HLL gain/CTE correction format
+ * read in HLL gain/CTE correction format from a given file. If no filename is given
+ * just return from the function without doing anything.
  *
  * the first four lines look like the following
  *
@@ -257,11 +258,15 @@ void saveCASSOffsetFile(const string &filename, CommonData& data)
  */
 void readHLLGainFile(const string &filename, CommonData& data)
 {
+  if (filename.empty())
+    return;
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {
-    //fehler
-    /** @todo throw runtime error here */
+    cout << "readHLLGainFile: Warning: file '"<<filename
+         <<"' does not exist. Skipping reading the Gain/CTE file"<<endl;
+    /** @todo throw runtime error instead of just returning? */
+    return;
   }
   char line[80];
   in.getline(line, 80);
