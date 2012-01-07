@@ -66,13 +66,8 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
   else if (type == "median")
     ptr = shared_pointer(new MedianCalculator());
   else
-  {
-    /** @todo get rid of stringstream */
-    stringstream ss;
-    ss << "CalculatorBase::instance: Common Mode Calculator type '"<< type
-        <<"' is unknown.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("CalculatorBase::instance: Common Mode Calculator type '" + type +
+			   "' is unknown.");
   return ptr;
 }
 
