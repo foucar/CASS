@@ -49,12 +49,12 @@ public:
    */
   pixel_t operator ()(frame_t::iterator &/*pixel*/, size_t /*idx*/)const {return 0;}
 
-  /** no settings to be loaded */
-  void loadSettings(CASSSettings&) {}
+  /** need to load the settings of the base class loaded */
+  void loadSettings(CASSSettings& s) {load(s);}
 };
-}
-}
-}
+}//end namespace commonmode
+}//end namespace pixeldetector
+}//end namespace cass
 
 CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
 {
