@@ -27,13 +27,15 @@ Frame& HLLProcessor::operator ()(Frame &frame)
   const CalculatorBase &commonModeCalculator(*_commonModeCalculator);
   QReadLocker lock(&_commondata->lock);
   frame_t::iterator pixel(frame.data.begin());
+  frame_t::iterator pixelEnd(frame.data.end());
   frame_t::const_iterator offset(_commondata->offsetMap.begin());
   frame_t::const_iterator correction(_commondata->correctionMap.begin());
   size_t idx(0);
   float commonmodeLevel(0);
-  for (; pixel != frame.data.end(); ++pixel, ++correction, ++idx)
+  const size_t width(commonModeCalculator.width());
+  for (; pixel != pixelEnd; ++pixel, ++correction, ++idx)
   {
-    if(idx % commonModeCalculator.width())
+    if(idx % width)
       commonmodeLevel = commonModeCalculator(pixel,idx);
     *pixel = (*pixel - *offset - commonmodeLevel) * *correction;
   }
