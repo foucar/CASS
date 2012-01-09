@@ -33,14 +33,17 @@ PostprocessorBackend::PostprocessorBackend(PostProcessors& pp,
 PostprocessorBackend::~PostprocessorBackend()
 {
   QWriteLocker lock(&_histLock);
-  histogramList_t::iterator it (_histList.begin());
-  HistogramBackend * old = it->second;
-  delete it->second;
-  ++it;
-  for (;it != _histList.end(); ++it)
-    if (old != it->second)
-      delete it->second;
-  _histList.clear();
+  if (!_histList.empty())
+  {
+    histogramList_t::iterator it (_histList.begin());
+    HistogramBackend * old = it->second;
+    delete it->second;
+    ++it;
+    for (;it != _histList.end(); ++it)
+      if (old != it->second)
+	delete it->second;
+    _histList.clear();
+  }
 }
 
 const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
