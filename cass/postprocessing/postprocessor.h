@@ -78,9 +78,7 @@ the Class description for information about what parameters are user settable.
 00051: Integral of 1D histogram
 00052: radial average / Project 2D to radius
 00053: Angular Distribution / Radar Plot
-00054: Convert 2D histogram to Radius - Phi representation (deprecitated; use pp202 instead)
-
-00055: Axis operations performed on 2d histogram
+00054: Convert 2D histogram to Radius - Phi representation (deprectiated; use pp202 instead)
 
 00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
