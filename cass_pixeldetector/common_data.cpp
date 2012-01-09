@@ -373,21 +373,34 @@ CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
 
 void CommonData::loadSettings(CASSSettings &s)
 {
+  Splitter extension;
   s.beginGroup("CorrectionMaps");
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);
   _mapcreator->loadSettings(s);
   string offsetfilename(s.value("InputOffsetNoiseFilename",
-                                QString::fromStdString("darkcal_"+toString(detectorId)+".cal")).toString().toStdString());
+                                QString::fromStdString("darkcal_"+toString(detectorId)+".lnk")).toString().toStdString());
   string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
-  if (offsetfiletype == "hll")
-    readHLLOffsetFile(offsetfilename, *this);
-  else if(offsetfiletype == "cass")
-    readCASSOffsetFile(offsetfilename, *this);
-  else
+  /** if filename is a link, try to deduce the real filename */
+  if (extension(offsetfilename) == "lnk")
   {
-    throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
-                           offsetfiletype + "' does not exist");
+    offsetfilename = QFile::symLinkTarget(QString::fromStdString(offsetfilename)).toStdString();
+    cout << offsetfilename<<endl;
+    if (offsetfilename.empty())
+      cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
+  }
+  if (offsetfilename != _inputOffsetFilename)
+  {
+    _inputOffsetFilename = offsetfilename;
+    if (offsetfiletype == "hll")
+      readHLLOffsetFile(offsetfilename, *this);
+    else if(offsetfiletype == "cass")
+      readCASSOffsetFile(offsetfilename, *this);
+    else
+    {
+      throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
+			     offsetfiletype + "' does not exist");
+    }
   }
   string gainfilename(s.value("CTEGainFilename","").toString().toStdString());
   string gainfiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
@@ -428,9 +441,9 @@ void CommonData::saveMaps()
                  QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
                  ".cal");
   _saveTo(outname,*this);
-  string linkname("darkcal_" + toString(detectorId) +".cal");
+  string linkname("darkcal_" + toString(detectorId) +".lnk");
   if (QFile::exists(QString::fromStdString(linkname)))
-    if(QFile::remove(QString::fromStdString(linkname)))
+    if(!QFile::remove(QString::fromStdString(linkname)))
       throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
 			  linkname +"'");
   if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))

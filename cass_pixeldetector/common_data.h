@@ -53,7 +53,8 @@ class MapCreatorBase;
  *                       cass::pixeldetector::MovingMaps for details.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
- *           is "darkcal_\%detectorId\%.cal".
+ *           is "darkcal_\%detectorId\%.lnk". Which is a link to the most recent
+ *           darkcalibration file.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFiletype}\n
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
@@ -138,7 +139,7 @@ public:
    *
    * first append the detector id and the current time to the user selected out
    * filename. Then save the file and create a link to it. The name of the link
-   * will be called like "darkcal_\%detectorID\%.cal". In case the link exists
+   * will be called like "darkcal_\%detectorID\%.lnk". In case the link exists
    * try to remove it first.
    */
   void saveMaps();
@@ -231,6 +232,9 @@ private:
 
   /** output filename for the maps */
   std::string _outputOffsetFilename;
+
+  /** input filename of the offset and noise map */
+  std::string _inputOffsetFilename;
 };
 
 } //end namespace pixeldetector
