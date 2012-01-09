@@ -261,11 +261,8 @@ void FixedMaps::operator ()(const Frame &frame)
       }
       _createMaps = false;
       _storage.clear();
-      /** @todo this does not calculate the correction map (the one convoluted
-       *        from cte / gain + noise + mask newly. Function createCorrectionMap
-       *        in common_data.cpp does this; can it be accessed from here?
-       */
       _commondata->saveMaps();
+      _commondata->createCorMap();
     }
   }
 }
