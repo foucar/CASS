@@ -63,6 +63,8 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
     ptr = shared_pointer(new NoCalc());
   else if (type == "mean")
     ptr = shared_pointer(new MeanCalculator());
+  else if (type == "simpleMean")
+    ptr = shared_pointer(new SimpleMeanCalculator());
   else if (type == "median")
     ptr = shared_pointer(new MedianCalculator());
   else
