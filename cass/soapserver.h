@@ -39,3 +39,6 @@ int ns__getEvent(size_t type, unsigned t1, unsigned t2, bool *success);
 // get histogram from server
 int ns__getHistogram(std::string type, ULONG64 eventId, bool *success);
 
+// control darkcal calibration
+int ns__controlDarkcal(std::string controlCommand, bool *success);
+

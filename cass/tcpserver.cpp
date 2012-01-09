@@ -28,6 +28,7 @@
 #include "worker.h"
 #include "analyzer.h"
 #include "histogram.h"
+#include "common_data.h"
 
 
 using namespace cass;
@@ -189,6 +190,25 @@ int CASSsoapService::clearHistogram(PostProcessors::key_t type, bool *success)
     return SOAP_OK;
   }
   catch(const InvalidPostProcessorError&)
+  {
+    *success = false;
+    return SOAP_FATAL_ERROR;
+  }
+}
+
+/** control the darkcal calibration
+ *
+ * will tell the map creators of all defined pixeldetectors to start calibrating
+ */
+int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
+{
+  if (controlCommand == "start")
+  {
+    pixeldetector::CommonData::startCalibration();
+    *success = true;
+    return SOAP_OK;
+  }
+  else
   {
     *success = false;
     return SOAP_FATAL_ERROR;
