@@ -77,5 +77,6 @@ void CalculatorBase::load(CASSSettings &s)
   _commondata = CommonData::instance(detectorname);
   s.beginGroup("CommonModeCorrection");
   _nbrPixels = s.value("Width",128).toUInt();
+  _multiplier = s.value("Multiplier",4).toUInt();
   s.endGroup();
 }

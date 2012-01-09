@@ -34,6 +34,9 @@ namespace pixeldetector
  *           see cass::pixeldetector::commonmode::CalculatorBase. Default type
  *           is "none". Possible values are:
  *           - "none": No common mode correction is done
+ *           - "simpleMean": The common mode is calculated from the mean value
+ *                           Which is determined with a simple algorithm. See
+ *                           cass::pixeldetector::commonmode::SimpleMeanCalculator
  *           - "mean": The common mode is calculated from the mean value of the
  *                     pixels. See cass::pixeldetector::commonmode::MeanCalculator
  *           - "median": The common mode is calculated from the median of the

@@ -6,7 +6,6 @@
  * @author Lutz Foucar
  */
 
-#include <vector>
 #include <numeric>
 #include <algorithm>
 
@@ -27,7 +26,6 @@ namespace pixeldetector
 {
 namespace commonmode
 {
-typedef vector<pixel_t> pixels_t;
 
 /** build up the list of pixels that contribute to the common mode calculation
  *
@@ -76,6 +74,38 @@ void createPixelList(size_t nbrPixels,
 }//end namespace commonmode
 }//end namespace pixeldetector
 }//end namespace cass
+
+
+pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+{
+  QReadLocker locker(&_commondata->lock);
+  frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
+  frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
+  CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
+  pixel_t commlvl(0);
+  size_t accumulatedValues(0);
+  for(size_t i(0); i<_nbrPixels;++i,++pixel,++offset,++noise)
+  {
+    if (! *mask)
+    {
+      pixel_t pixel_wo_offset(*pixel - *offset );
+      if((pixel_wo_offset) < (_multiplier * *noise))
+      {
+        ++accumulatedValues;
+        commlvl += (pixel_wo_offset - commlvl / accumulatedValues);
+      }
+    }
+  }
+  return (_minNbrPixels <  accumulatedValues ? commlvl : 0.);
+}
+
+void SimpleMeanCalculator::loadSettings(CASSSettings &s)
+{
+  load(s);
+  s.beginGroup("SimpleMeanCommonMode");
+  _minNbrPixels = s.value("MinNbrPixels",8).toUInt();
+  s.endGroup();
+}
 
 
 pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const

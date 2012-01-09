@@ -10,6 +10,7 @@
 #define _COMMONMODECALCULATORS_H_
 
 #include <tr1/memory>
+#include <vector>
 
 #include "commonmode_calculator_base.h"
 
@@ -20,6 +21,51 @@ namespace pixeldetector
 
 namespace commonmode
 {
+typedef std::vector<pixel_t> pixels_t;
+
+/** Calculate the common mode by taking mean of pixel values
+ *
+ * This functor calculates the mean value of the pixels. To create the list
+ * of pixels it will check whether the pixel might contain an event such as an
+ * photon. If so it will not be included in the mean. There must be a minimum
+ * number of pixels without an event before the common mode is calculated.
+ *
+ * To calculate the mean a simple accumulating average is done.
+ *
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/SimpleMeanCommonMode/{MinNbrPixels}\n
+ *           The minimal number of Pixels that should be found in the range
+ *           before the common mode value will be calculated. Default is 8
+ *
+ * @author Lutz Foucar
+ */
+class SimpleMeanCalculator : public CalculatorBase
+{
+public:
+  /** constructor */
+  SimpleMeanCalculator() {}
+
+  /** the operation
+   *
+   * determine the common mode level and return it.
+   *
+   * @return the common mode level
+   * @param pixel iterator to the first pixel of the area used for common mode
+   *              calculation.
+   * @param idx index of the first pixel.
+   */
+  pixel_t operator ()(frame_t::iterator &pixel, size_t idx)const;
+
+  /** load the settings of this calculator
+   *
+   * @param s the CASSSettings object to read the information from
+   */
+  void loadSettings(CASSSettings &s);
+
+private:
+  /** mininmal number of pixels that should be present when calculating the mean */
+  size_t _minNbrPixels;
+};
+
 
 /** Calculate the common mode by taking mean of pixel values
  *
@@ -39,7 +85,7 @@ namespace commonmode
  *           calculating the mean value. Default is 0.
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/MeanCommonMode/{MinNbrPixels}\n
  *           The minimal number of Pixels that should be found in the range
- *           before the common mode value will be calculated.
+ *           before the common mode value will be calculated. Default is 8
  *
  * @author Lutz Foucar
  */
@@ -77,6 +123,7 @@ private:
   int _minNbrPixels;
 };
 
+
 /** Calculate the common mode by taking the median of pixel values
  *
  * This functor retrieves the median value of the pixels. To create the list
@@ -96,7 +143,7 @@ private:
  *           getting the median value. Default is 0.
  * @cassttng PixelDetectors/\%name\%/HLLProcessing/MedianCommonMode/{MinNbrPixels}\n
  *           The minimal number of Pixels that should be found in the range
- *           before the common mode value will be calculated.
+ *           before the common mode value will be calculated. Default is 8.
  *
  * @author Lutz Foucar
  */

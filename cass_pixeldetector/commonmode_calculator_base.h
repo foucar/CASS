@@ -36,6 +36,10 @@ namespace commonmode
  *           The width of one Camex is 128 pixels. Sometimes it is better to
  *           to calculate the common mode from the entire quadrant in which case
  *           it should be 512. Default is 128.
+ * @cassttng PixelDetectors/\%name\%/HLLProcessing/CommonModeCorrection/{Multiplier}\n
+ *           When suppressing pixels in the common mode calculation that contain
+ *           photons this is the multiplier that should be added to the noise
+ *           before checking for photons. Default is 4
  *
  * @author Lutz Foucar
  */
