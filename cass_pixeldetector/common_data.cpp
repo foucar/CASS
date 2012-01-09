@@ -330,13 +330,16 @@ void readHLLGainFile(const string &filename, CommonData& data)
  *                                1 & text{otherwise}
  *                                        \end{cases}
  * \f]
+ *
+ * @note one should lock this from the caller of this function
+ *
  * @param data the data storage that is used to create the maps from
  *
  * @author Lutz Foucar
  */
 void createCorrectionMap(CommonData& data)
 {
-  QWriteLocker lock(&data.lock);
+  //  QWriteLocker lock(&data.lock);
   frame_t::iterator corval(data.correctionMap.begin());
   frame_t::const_iterator noise(data.noiseMap.begin());
   CommonData::mask_t::const_iterator mask(data.mask.begin());
@@ -424,6 +427,7 @@ void CommonData::loadSettings(CASSSettings &s)
   }
   createCASSMask(*this,s);
   noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+  QWriteLocker locker(&lock);
   createCorrectionMap(*this);
   s.endGroup();
 }
