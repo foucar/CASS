@@ -431,8 +431,8 @@ void CommonData::loadSettings(CASSSettings &s)
 void CommonData::createMaps(const Frame &frame)
 {
   QWriteLocker wlock(&lock);
-  MapCreatorBase& createCorrectionMaps(*_mapcreator);
-  createCorrectionMaps(frame);
+  MapCreatorBase& createOffsetNoiseMaps(*_mapcreator);
+  createOffsetNoiseMaps(frame);
 }
 
 void CommonData::saveMaps()
@@ -449,4 +449,9 @@ void CommonData::saveMaps()
   if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
     throw runtime_error("CommonData::saveMaps: could not create a link named '"+
                         linkname + "' that points to the outputfile '" + outname +"'");
+}
+
+void CommonData::createCorMap()
+{
+  createCorrectionMap(*this);
 }

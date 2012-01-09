@@ -131,6 +131,19 @@ public:
    */
   void createMaps(const Frame& frame);
 
+  /** create the correction map
+   * 
+   * will create the correction map from the mask, noise and cte/gain values
+   * with the help of the cass::pixeldetector::createCorrectionMap function
+   *
+   * @note we do not need to lock this function since, it will be called by 
+   *       the map creators only. And theier operators are still locked by
+   *       this classes createMaps function that will envoke the functors.
+   * @todo make this a friend and protected so only functions that we allow 
+   *       can call it.
+   */
+  void createCorMap();
+
   /** save maps
    *
    * save the maps to file in the user chosen fileformat.See
