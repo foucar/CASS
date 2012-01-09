@@ -170,7 +170,7 @@ void isSameSize(const Frame& frame, CommonData& data)
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
     cout << "isSameSize(): WARNING the mask does not have the right size '"
-         << data.offsetMap.size()
+         << data.mask.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the mask"
@@ -182,7 +182,7 @@ void isSameSize(const Frame& frame, CommonData& data)
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
     cout << "isSameSize(): WARNING the gain_cteMap does not have the right size '"
-         << data.offsetMap.size()
+         << data.gain_cteMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the gain_cteMap"
@@ -194,7 +194,7 @@ void isSameSize(const Frame& frame, CommonData& data)
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
     cout << "isSameSize(): WARNING the correctionMap does not have the right size '"
-         << data.offsetMap.size()
+         << data.correctionMap.size()
          <<  "' to accommodate the frames with size '"
          << frame.columns * frame.rows
          << "'. Resizing the correctionMap"
