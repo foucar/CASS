@@ -68,6 +68,12 @@ public:
    * @param s the CASSSettings object to read the information from
    */
   virtual void loadSettings(CASSSettings &s)=0;
+
+  /** start the calibration
+   *
+   * used by the gui to tell the map creators to start the calibration
+   */
+  virtual void startCalibration() {}
 };
 
 } //end namespace pixeldetector

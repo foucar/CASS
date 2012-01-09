@@ -109,6 +109,9 @@ public:
    */
   static shared_pointer instance(const instancesmap_t::key_type& detector);
 
+  /** tell the map creator of all detectors to start calibrating*/
+  static void startCalibration();
+
   /** load the settings of this common object
    *
    * See the description of this class for the list of possible variables that

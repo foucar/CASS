@@ -123,7 +123,7 @@ public:
   void loadSettings(CASSSettings &s);
 
   /** start accumulating the maps */
-  void startCollecting() {_createMaps = true;}
+  void startCalibration() {_createMaps = true;}
 
 private:
   /** the container with all the maps */
