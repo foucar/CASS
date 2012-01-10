@@ -33,7 +33,7 @@ Frame& HLLProcessor::operator ()(Frame &frame)
   size_t idx(0);
   float commonmodeLevel(0);
   const size_t width(commonModeCalculator.width());
-  for (; pixel != pixelEnd; ++pixel, ++correction, ++idx)
+  for (; pixel != pixelEnd; ++pixel, ++offset, ++correction, ++idx)
   {
     if(idx % width)
       commonmodeLevel = commonModeCalculator(pixel,idx);
