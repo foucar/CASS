@@ -91,7 +91,7 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   frame_t hllnoises(header.length);
   frame_t::iterator hllnoise(hllnoises.begin());
   vector<hllDataTypes::statistics>::iterator pixelstatistic(pixelStatistics.begin());
-  for( size_t i(0); i < header.length; ++i, ++hlloffset, ++pixelstatistic )
+  for( size_t i(0); i < header.length; ++i, ++hlloffset, ++hllnoise, ++pixelstatistic )
   {
     *hlloffset = pixelstatistic->offset;
     *hllnoise = pixelstatistic->sigma;
