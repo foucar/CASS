@@ -76,9 +76,10 @@ void createPixelList(size_t nbrPixels,
 }//end namespace cass
 
 
-pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixelIt, size_t idx)const
 {
   QReadLocker locker(&_commondata->lock);
+  frame_t::iterator pixel(pixelIt);
   frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
   frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
   CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
