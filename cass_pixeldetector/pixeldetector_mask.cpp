@@ -203,10 +203,10 @@ void addCircle(CommonData &data, CASSSettings &s)
  *
  * sets all pixels covered by the square to 0.
  *
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerY}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerLeftY}\n
  *           The lower left pixel of the square element. The indizes given are
  *.          included in the square. Default is 0|0.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{LowerLeftX|LowerY}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{UpperRightX|UpperRightY}\n
  *           The upper right pixel of the square element. The indizes given are
  *.          included in the square. Default is 1023|1023.
  *
