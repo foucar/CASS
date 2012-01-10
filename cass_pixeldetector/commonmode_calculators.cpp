@@ -94,7 +94,7 @@ pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixe
       if((pixel_wo_offset) < (_multiplier * *noise))
       {
         ++accumulatedValues;
-        commlvl += (pixel_wo_offset - commlvl / accumulatedValues);
+        commlvl += ((pixel_wo_offset - commlvl) / accumulatedValues);
       }
     }
   }
@@ -133,7 +133,7 @@ pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, siz
     pixels_t::iterator end(pixels.end());
     advance(begin,_nbrMinimumElementsToRemove);
     advance(end,-1*(_nbrMaximumElementsToRemove));
-    commonmodelevel = accumulate(begin,end,0) / distance(begin,end);
+    commonmodelevel = accumulate(begin,end,0) / static_cast<pixel_t>(distance(begin,end));
   }
   else
   {
