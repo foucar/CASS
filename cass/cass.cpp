@@ -415,6 +415,7 @@ int main(int argc, char **argv)
   {
     cout<<"main(): something bad happend, quitting the program."<<endl;
   }
+  cout<<endl;
 }
 
 
