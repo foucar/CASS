@@ -99,7 +99,7 @@ frame_t::value_type calcMean(frame_t& values, size_t mindisregard, size_t maxdis
   frame_t::iterator end(values.end());
   advance(begin,mindisregard);
   advance(end,-1*(maxdisregard));
-  return (accumulate(begin,end,0) / distance(begin,end));
+  return (accumulate(begin,end,0) / static_cast<frame_t::value_type>(distance(begin,end)));
 }
 
 /** calculate the median of the distribution
