@@ -241,21 +241,43 @@ void FixedMaps::operator ()(const Frame &frame)
       _storage.push_back(frame.data);
     else
     {
+      frame_t pixels;
       for (size_t i=0; i < 2; ++i)
       {
         frame_t::iterator offset(_commondata->offsetMap.begin());
         frame_t::iterator offsetEnd(_commondata->offsetMap.end());
         frame_t::iterator noise(_commondata->noiseMap.begin());
         size_t idx(0);
-        frame_t pixels;
         for (;offset != offsetEnd; ++offset, ++noise, ++idx)
         {
           pixels.clear();
-          createPixelList(*offset,*noise,_storage,idx,i,pixels);
-          if(!pixels.empty())
+          storage_t::const_iterator frame(_storage.begin());
+          storage_t::const_iterator framesEnd(_storage.end());
+          for(; frame != framesEnd ; ++frame)
+            pixels.push_back((*frame)[idx]);
+          if (!pixels.empty())
           {
             *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
             *noise = calcNoise(pixels, *offset);
+            frame_t::iterator it(pixels.begin());
+            while(it != pixels.end())
+            {
+              if ((*noise * 4. < *it - *offset))
+                it = pixels.erase(it);
+              else
+                ++it;
+            }
+            if (!pixels.empty())
+            {
+              *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
+              *noise = calcNoise(pixels, *offset);
+              //          createPixelList(*offset,*noise,_storage,idx,i,pixels);
+              //          if(!pixels.empty())
+              //          {
+              //            *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
+              //            *noise = calcNoise(pixels, *offset);
+              //          }
+            }
           }
         }
       }
