@@ -397,7 +397,6 @@ void CommonData::loadSettings(CASSSettings &s)
   if (extension(offsetfilename) == "lnk")
   {
     offsetfilename = QFile::symLinkTarget(QString::fromStdString(offsetfilename)).toStdString();
-    cout << offsetfilename<<endl;
     if (offsetfilename.empty())
       cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
   }
