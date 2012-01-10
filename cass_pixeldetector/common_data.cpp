@@ -332,6 +332,8 @@ void readHLLGainFile(const string &filename, CommonData& data)
  * \f]
  *
  * @note one should lock this from the caller of this function
+ * @todo should one also recreate the mask to include the pixels that are
+ *       too noisy?
  *
  * @param data the data storage that is used to create the maps from
  *
@@ -435,6 +437,12 @@ void CommonData::loadSettings(CASSSettings &s)
   }
   createCASSMask(*this,s);
   noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+  /** @todo this will actually do nothing when started for the first time since
+   *        the cormap has not been resized correctly. Check what happens if
+   *        it is called while the program is running (maybe slows it down?) 
+   *        then one could find out how to only create it once not for all pix
+   *        det helper instances
+   */
   QWriteLocker locker(&lock);
   createCorrectionMap(*this);
   s.endGroup();
