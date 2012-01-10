@@ -60,7 +60,7 @@ void createPixelList(size_t nbrPixels,
 {
   for(size_t i(0); i<nbrPixels;++i,++pixel,++offset,++noise)
   {
-    if (! *mask)
+    if (*mask)
     {
       pixel_t offsetcorrectedPixel(*pixel - *offset );
       if((offsetcorrectedPixel - initialLevel) < (multiplier * *noise))
@@ -86,7 +86,7 @@ pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixe
   size_t accumulatedValues(0);
   for(size_t i(0); i<_nbrPixels;++i,++pixel,++offset,++noise)
   {
-    if (! *mask)
+    if (*mask)
     {
       pixel_t pixel_wo_offset(*pixel - *offset );
       if((pixel_wo_offset) < (_multiplier * *noise))
