@@ -143,6 +143,7 @@ frame_t::value_type calcMedian(frame_t& values,
  */
 void isSameSize(const Frame& frame, CommonData& data)
 {
+  bool changed(false);
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
     cout << "isSameSize(): WARNING the offsetMap does not have the right size '"
@@ -154,6 +155,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     data.offsetMap.resize(frame.columns*frame.rows, 0);
     data.columns = frame.columns;
     data.rows = frame.rows;
+    changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
   {
@@ -166,6 +168,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     data.noiseMap.resize(frame.columns*frame.rows, 4000);
     data.columns = frame.columns;
     data.rows = frame.rows;
+    changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
@@ -178,6 +181,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     data.mask.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
+    changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
@@ -190,6 +194,7 @@ void isSameSize(const Frame& frame, CommonData& data)
     data.gain_cteMap.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
+    changed=true;
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
@@ -202,7 +207,10 @@ void isSameSize(const Frame& frame, CommonData& data)
     data.correctionMap.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
+    changed=true;
   }
+  if(changed)
+    data.createCorMap();
 }
 
 }//end namespace pixeldetector
