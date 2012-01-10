@@ -68,16 +68,17 @@ const AdvancedDetector::hits_t& AdvancedDetector::hits()
 
 void AdvancedDetector::associate(const CASSEvent &evt)
 {
-  CASSEvent::devices_t::const_iterator devIt(evt.devices().find(CASSEvent::PixelDetectors));
+  CASSEvent::devices_t::const_iterator devIt(
+        evt.devices().find(CASSEvent::PixelDetectors));
   if (devIt == evt.devices().end())
-    throw invalid_argument("AdvancedDetector::associate(): Device 'PixelDetectors'" +
-                           string("' does not exist in CASSEvent"));
-  /** @todo use reference to device here to safe space in line below */
+    throw invalid_argument("AdvancedDetector::associate(): Device " +
+                           string("'PixelDetectors' does not exist in CASSEvent"));
   const Device &dev (dynamic_cast<const Device&>(*(devIt->second)));
   Device::detectors_t::const_iterator detIt(dev.dets().find(_detector));
   if (detIt == dev.dets().end())
-    throw invalid_argument("AdvancedDetector::associate(): Detector '" + toString(_detector) +
-                           "' does not exist in Device 'PixelDetectors' within the CASSEvent");
+    throw invalid_argument("AdvancedDetector::associate(): Detector '" +
+                           toString(_detector) + "' does not exist in Device " +
+                           "'PixelDetectors' within the CASSEvent");
   const Detector &det(detIt->second);
   _frame.columns = det.columns();
   _frame.rows = det.rows();
@@ -103,7 +104,7 @@ void AdvancedDetector::loadSettings(CASSSettings &s)
   string coalescetype(s.value("CoalescingFunctionType","simple").toString().toStdString());
   _coalesce = CoalescingBase::instance(coalescetype);
   _coalesce->loadSettings(s);
-  _common = CommonData::instance(_name); /** @todo do we need this here since we already got it in the constructor?*/
+  _common = CommonData::instance(_name);
   _common->detectorId = _detector;
   _common->loadSettings(s);
   s.endGroup();

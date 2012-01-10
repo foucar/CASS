@@ -69,7 +69,7 @@ CalculatorBase::shared_pointer CalculatorBase::instance(const string &type)
     ptr = shared_pointer(new MedianCalculator());
   else
     throw invalid_argument("CalculatorBase::instance: Common Mode Calculator type '" + type +
-			   "' is unknown.");
+                           "' is unknown.");
   return ptr;
 }
 

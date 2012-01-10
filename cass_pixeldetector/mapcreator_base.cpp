@@ -28,12 +28,7 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
   else if (type == "moving")
     ptr = shared_pointer(new MovingMaps());
   else
-  {
-    /** @todo toString */
-    stringstream ss;
-    ss << "MapCreatorBase::instance: Map Creator type '"<< type
-        <<"' is unknown.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +
+                           "' is unknown.");
   return ptr;
 }
