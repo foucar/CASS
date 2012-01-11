@@ -173,11 +173,11 @@ void FixedMaps::operator ()(const Frame &frame)
             *noise = calcNoise(pixels, *offset);
           }
         }
-        _createMaps = false;
-        _storage.clear();
-        _commondata->saveMaps();
-        _commondata->createCorMap();
       }
+      _createMaps = false;
+      _storage.clear();
+      _commondata->saveMaps();
+      _commondata->createCorMap();
     }
   }
 }
