@@ -68,7 +68,7 @@ public:
    *
    * used by the gui to tell the map creators to start the calibration
    */
-  virtual void controlCalibration(const std::string& command) {}
+  virtual void controlCalibration(const std::string& /*command*/) {}
 };
 
 } //end namespace pixeldetector
