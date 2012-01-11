@@ -109,8 +109,11 @@ public:
    */
   static shared_pointer instance(const instancesmap_t::key_type& detector);
 
-  /** tell the map creator of all detectors to start calibrating*/
-  static void startCalibration();
+  /** issue a command to the map creators of all instances
+   *
+   * @param command the command to issue
+   */
+  static void controlCalibration(const std::string& command);
 
   /** load the settings of this common object
    *

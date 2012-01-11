@@ -64,11 +64,11 @@ public:
    */
   virtual void loadSettings(CASSSettings &s)=0;
 
-  /** start the calibration
+  /** control the calibration process
    *
    * used by the gui to tell the map creators to start the calibration
    */
-  virtual void startCalibration() {}
+  virtual void controlCalibration(const std::string& command) {}
 };
 
 } //end namespace pixeldetector

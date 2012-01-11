@@ -457,13 +457,13 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
   return _instances[detector];
 }
 
-void CommonData::startCalibration()
+void CommonData::controlCalibration(const string& command)
 {
   QMutexLocker locker(&_mutex);
   instancesmap_t::iterator instance(_instances.begin());
   instancesmap_t::const_iterator end(_instances.end());
   for (; instance != end; ++instance)
-    instance->second->_mapcreator->startCalibration();
+    instance->second->_mapcreator->controlCalibration(command);
 }
 
 CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)

@@ -119,7 +119,7 @@ public:
   void loadSettings(CASSSettings &s);
 
   /** start accumulating the maps */
-  void startCalibration() {_createMaps = true;}
+  void controlCalibration(const std::string& /*unused*/) {_createMaps = true;}
 
 private:
   /** the container with all the maps */

@@ -204,7 +204,7 @@ int CASSsoapService::controlDarkcal(string controlCommand, bool *success)
 {
   if (controlCommand == "start")
   {
-    pixeldetector::CommonData::startCalibration();
+    pixeldetector::CommonData::controlCalibration(controlCommand);
     *success = true;
     return SOAP_OK;
   }
