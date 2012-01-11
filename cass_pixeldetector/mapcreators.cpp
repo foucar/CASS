@@ -125,101 +125,9 @@ frame_t::value_type calcMedian(frame_t& values,
   nth_element(values.begin(),values.begin()+median,values.end());
   return (values[median]);
 }
-
-/** check whether the frame has the same size as the maps.
- *
- * if not resize the maps to the right size and initialize them with values, that
- * will let the hitfinder find no pixels and the correction make does not alter
- * the frame.
- *
- * this function relys on that the maps are locked. Usually they are since this
- * is called by the operators of the map creators. These are locked because
- * the function calling the operators will lock the maps before.
- *
- * @param frame the Frame to check
- * @param data the container for all maps.
- *
- * @author Lutz Foucar
- */
-void isSameSize(const Frame& frame, CommonData& data)
-{
-  bool changed(false);
-  if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
-  {
-    cout << "isSameSize(): WARNING the offsetMap does not have the right size '"
-         << data.offsetMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the offsetMap"
-         <<endl;
-    data.offsetMap.resize(frame.columns*frame.rows, 0);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
-    changed=true;
-  }
-  if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
-  {
-    cout << "isSameSize(): WARNING the noiseMap does not have the right size '"
-         << data.noiseMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the noiseMap"
-         <<endl;
-    data.noiseMap.resize(frame.columns*frame.rows, 4000);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
-    changed=true;
-  }
-  if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
-  {
-    cout << "isSameSize(): WARNING the mask does not have the right size '"
-         << data.mask.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the mask"
-         <<endl;
-    data.mask.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
-    changed=true;
-  }
-  if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
-  {
-    cout << "isSameSize(): WARNING the gain_cteMap does not have the right size '"
-         << data.gain_cteMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the gain_cteMap"
-         <<endl;
-    data.gain_cteMap.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
-    changed=true;
-  }
-  if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
-  {
-    cout << "isSameSize(): WARNING the correctionMap does not have the right size '"
-         << data.correctionMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the correctionMap"
-         <<endl;
-    data.correctionMap.resize(frame.columns*frame.rows, 1);
-    data.columns = frame.columns;
-    data.rows = frame.rows;
-    changed=true;
-  }
-  if(changed)
-    data.createCorMap();
-}
-
 }//end namespace pixeldetector
 }//end namespace cass
 
-void NonAlteringMaps::operator ()(const Frame &frame)
-{
-  isSameSize(frame,*_commondata);
-}
 
 void NonAlteringMaps::loadSettings(CASSSettings &s)
 {
@@ -237,10 +145,9 @@ void NonAlteringMaps::loadSettings(CASSSettings &s)
     *corval = 1;
 }
 
+
 void FixedMaps::operator ()(const Frame &frame)
 {
-  //  cout << _createMaps<<endl;
-  isSameSize(frame,*_commondata);
   if(!_createMaps)
     return;
   else
@@ -313,6 +220,7 @@ void FixedMaps::loadSettings(CASSSettings &s)
     _calcOffset = &calcMean;
   s.endGroup();
 }
+
 
 void MovingMaps::operator ()(const Frame &frame)
 {

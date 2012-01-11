@@ -251,6 +251,9 @@ private:
 
   /** input filename of the offset and noise map */
   std::string _inputOffsetFilename;
+
+  /** switch to when to check the size of the maps */
+  bool _checksize;
 };
 
 } //end namespace pixeldetector

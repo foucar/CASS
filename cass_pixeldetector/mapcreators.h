@@ -37,15 +37,11 @@ class NonAlteringMaps : public MapCreatorBase
 public:
   /** the operator
    *
-   * check whether the frame has the same size as the maps. If not resize them
-   * and initialize with right values.
-   *
-   * The map resources are locked since the function calling this operator will
-   * lock the resources.
+   * does nothing
    *
    * @param frame the frame to check for
    */
-  void operator() (const Frame &frame);
+  void operator() (const Frame &/*frame*/) {}
 
   /** load the settings of this creator
    *
