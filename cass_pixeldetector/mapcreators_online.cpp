@@ -14,7 +14,7 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-
+ 
 #include "mapcreators_online.h"
 
 #include "cass_settings.h"
@@ -36,8 +36,9 @@ void OnlineFixedCreator::controlCalibration(const string &)
 void OnlineFixedCreator::buildAndCalc(const Frame& frame)
 {
   /** as long as there are not enough frames collected build up the specail storage */
-  if (_specialstorage.size() < _nbrFrames)
+  if (_framecounter < _nbrFrames)
   {
+    ++_framecounter;
     _specialstorage.resize(frame.columns * frame.rows);
     specialstorage_t::iterator storagePixel(_specialstorage.begin());
     specialstorage_t::const_iterator lastStoragePixel(_specialstorage.end());
@@ -96,6 +97,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
     _commondata->createCorMap();
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
     _specialstorage.clear();
+    _framecounter = 0;
   }
 }
 
@@ -105,6 +107,7 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
   s.beginGroup("FixedOnlineCreator");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
+  _framecounter = 0;
 //  _maxDisregarded = s.value("DisregardedHighValues",5).toUInt();
 //  _minDisregarded = s.value("DisregardedLowValues",0).toUInt();
   _writeMaps = s.value("WriteMaps",true).toBool();

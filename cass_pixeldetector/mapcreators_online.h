@@ -91,6 +91,9 @@ private:
 
   /** flag wether the create maps should be saved to file or just used */
   bool _writeMaps;
+
+  /** counter to keep track how many frames are collected */
+  size_t _framecounter;
 };
 
 
