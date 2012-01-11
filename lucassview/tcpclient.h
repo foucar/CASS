@@ -46,6 +46,9 @@ namespace lucassview
     /** reload .ini file */
     void reloadIni() const;
 
+    /** reload .ini file */
+    void controlDarkcal(const std::string& command) const;
+
     /** retrieve the transferred bytes */
     size_t receivedBytes()const {return _transferredBytes;}
 

@@ -1,7 +1,7 @@
 //Copyright (C) 2011 Lutz Foucar
 
 /**
- * @file histou_pdater.cpp file contains the classes that update histograms
+ * @file histo_updater.cpp file contains the classes that update histograms
  *
  * @author Lutz Foucar
  */
@@ -469,5 +469,20 @@ void HistogramUpdater::reloadIni()
   catch (const runtime_error &error)
   {
     cout << "HistogramUpdater::reloadIni(): "<<error.what()<<endl;
+  }
+}
+
+void HistogramUpdater::controlDarkcal(const std::string& command)
+{
+  try
+  {
+    stringstream serveradress;
+    serveradress << _server << ":" << _port;
+    TCPClient client (serveradress.str());
+    client.controlDarkcal(command);
+  }
+  catch (const runtime_error &error)
+  {
+    cout << "HistogramUpdater::controlDarkcal(): "<<error.what()<<endl;
   }
 }

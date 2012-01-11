@@ -7,6 +7,7 @@
  */
 #include <stdexcept>
 #include <sstream>
+#include <string>
 
 #include "tcpclient.h"
 #include "soapCASSsoapProxy.h"
@@ -30,6 +31,17 @@ void TCPClient::reloadIni() const
   client.readini(0, &ret);
   if(!ret)
     throw runtime_error("TCPClient::reloadIni(): Could not communicate writeini command");
+}
+
+void TCPClient::controlDarkcal(const std::string &command) const
+{
+  using namespace std;
+  bool ret(false);
+  CASSsoapProxy client;
+  client.soap_endpoint = _server.c_str();
+  client.controlDarkcal(command, &ret);
+  if(!ret)
+    throw runtime_error("TCPClient::controlDarkcal(): Could not communicate darkcal command");
 }
 
 std::list<std::string> TCPClient::operator() ()const

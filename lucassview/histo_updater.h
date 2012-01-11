@@ -77,6 +77,9 @@ public:
   /** tell the server reload the .ini parameters */
   void reloadIni();
 
+  /** control the dark calibration */
+  void controlDarkcal(const std::string& command="start");
+
 private:
   /** the server */
   std::string _server;
