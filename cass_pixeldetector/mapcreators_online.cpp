@@ -56,29 +56,37 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
       /** calc noise and offset from all pixels */
       specialstorage_t::value_type::iterator pixel(storagePixels->begin());
       specialstorage_t::value_type::const_iterator lastPixel(storagePixels->end());
+      size_t accumulatedValues(0);
+      pixel_t tmp_offset(0.);
+      pixel_t tmp_noise(0.);
       for(; pixel != lastPixel ; ++pixel)
       {
-//        *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
-//        *noise = calcNoise(pixels, *offset);
+        ++accumulatedValues;
+        const pixel_t old_offset(tmp_offset);
+        tmp_offset += ((*pixel - tmp_offset) / accumulatedValues);
+        tmp_noise += ((*pixel - old_offset)*(*pixel - tmp_offset));
       }
-      /** remove pixels that are potential photon hits */
+      *offset = tmp_offset;
+      *noise = sqrt(tmp_noise/(accumulatedValues-1));
+      /** calc noise and offset from pixels that do not contain photon hits */
       pixel = storagePixels->begin();
+      accumulatedValues = 0;
+      tmp_offset = 0.;
+      tmp_noise = 0.;
       const pixel_t maxNoise(*noise * _multiplier);
-      while(pixel != storagePixels->end())
-      {
-        if ((maxNoise < *pixel - *offset))
-          pixel = storagePixels->erase(pixel);
-        else
-          ++pixel;
-      }
-      /** calc noise and offset from remaining pixels */
-      pixel = storagePixels->begin();
-      lastPixel = storagePixels->end();
       for(; pixel != lastPixel ; ++pixel)
       {
-//        *offset = _calcOffset(pixels,_minDisregarded,_maxDisregarded);
-//        *noise = calcNoise(pixels, *offset);
+        const pixel_t pixel_wo_offset(*pixel - *offset);
+        if ((maxNoise < pixel_wo_offset))
+        {
+          ++accumulatedValues;
+          const pixel_t old_offset(tmp_offset);
+          tmp_offset += ((*pixel - tmp_offset) / accumulatedValues);
+          tmp_noise += ((*pixel - old_offset)*(*pixel - tmp_offset));
+        }
       }
+      *offset = tmp_offset;
+      *noise = sqrt(tmp_noise/(accumulatedValues-1));
     }
     /** write the maps to file if requested and recreate the correction map.
      *  then reset everything.
