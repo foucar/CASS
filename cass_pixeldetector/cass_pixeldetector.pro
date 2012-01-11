@@ -18,6 +18,7 @@ SOURCES       += \
                  common_data.cpp \
                  mapcreator_base.cpp \
                  mapcreators.cpp \
+                 mapcreators_online.cpp \
                  frame_processor_base.cpp \
                  hll_frame_processor.cpp \
                  commonmode_calculator_base.cpp \
@@ -44,6 +45,7 @@ HEADERS       += \
                  common_data.h \
                  mapcreator_base.h \
                  mapcreators.h \
+                 mapcreators_online.h \
                  frame_processor_base.h \
                  hll_frame_processor.h \
                  commonmode_calculator_base.h \
