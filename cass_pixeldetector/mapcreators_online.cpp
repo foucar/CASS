@@ -28,10 +28,9 @@ using tr1::bind;
 using tr1::placeholders::_1;
 
 
-
-void OnlineFixedCreator::operator ()(const Frame &frame)
+void OnlineFixedCreator::controlCalibration(const string &)
 {
-  _createMap(frame);
+  _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
 }
 
 void OnlineFixedCreator::buildAndCalc(const Frame& frame)

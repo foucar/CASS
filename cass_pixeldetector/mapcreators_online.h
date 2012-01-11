@@ -38,11 +38,18 @@ class OnlineFixedCreator : public MapCreatorBase
 public:
   /** the operator
    *
-   * details
+   * just calls the function that creates the map. This function is exchanged
+   * depending on whether the frames should be calculated or not.
    *
    * @param frame the frame to check for
    */
-  void operator() (const Frame &/*frame*/);
+  void operator() (const Frame &frame) {_createMap(frame);}
+
+  /** start accumulating the maps
+   *
+   * @param command the comamnd that the gui issued to this creator
+   */
+  void controlCalibration(const std::string& unused);
 
   /** load the settings of this creator
    *
