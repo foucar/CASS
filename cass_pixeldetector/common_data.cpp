@@ -493,6 +493,7 @@ void CommonData::loadSettings(CASSSettings &s)
   }
   if (offsetfilename != _inputOffsetFilename)
   {
+    cout << "CommonData::loadSettings(): Load Darkcal data for detector with id '"<<detectorId<<"' from file '"<<offsetfilename<<"'"<<endl;
     _inputOffsetFilename = offsetfilename;
     if (offsetfiletype == "hll")
       readHLLOffsetFile(offsetfilename, *this);
