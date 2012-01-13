@@ -297,10 +297,12 @@ void addEllipse(CommonData &data, CASSSettings &s)
   {
     for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
+      /** @todo cleanup and probably set up an float index type that is returned from a division operator */
       const index_t idx(make_pair(column,row));
       const index_t idx_sq((idx - center)*(idx - center));
-      const index_t idx_tmp(idx_sq / axis_sq);
-      data.mask[TwoD2OneD(idx,width)] *=  !(idx_tmp < 1);
+      const float first(static_cast<float>(idx_sq.first)/static_cast<float>(axis_sq.first));
+      const float second(static_cast<float>(idx_sq.second)/static_cast<float>(axis_sq.second));
+      data.mask[TwoD2OneD(idx,width)] *= (1 < (first+second));
     }
   }
 }
@@ -390,22 +392,21 @@ void addTriangle(CommonData &data, CASSSettings &s)
     for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t P(make_pair(column,row));
+      /** @todo clean up and adopt documentation to the new version (wikipedia) */ 
+      const float x1(A.first);
+      const float x2(B.first);
+      const float x3(C.first);
+      const float x(P.first);
+      const float y1(A.second);
+      const float y2(B.second);
+      const float y3(C.second);
+      const float y(P.second);
 
-      const index_t v0(C - A);
-      const index_t v1(B - A);
-      const index_t v2(P - A);
+      const float l1( ( (y2-y3)*(x-x3) + (x3-x2)*(y-y3) ) / ( (y2-y3)*(x1-x3) + (x3-x2)*(y1-y3) ) );
+      const float l2( ( (y3-y1)*(x-x3) + (x1-x3)*(y-y3) ) / ( (y2-y3)*(x1-x3) + (x3-x2)*(y1-y3) ) );
+      const float l3( 1 - l1 - l2 );
 
-      const index_t::first_type dot00 = dot(v0, v0);
-      const index_t::first_type dot01 = dot(v0, v1);
-      const index_t::first_type dot02 = dot(v0, v2);
-      const index_t::first_type dot11 = dot(v1, v1);
-      const index_t::first_type dot12 = dot(v1, v2);
-
-      const float invDenom(1. / (dot00 * dot11 - dot01 * dot01));
-      const float u((dot11 * dot02 - dot01 * dot12) * invDenom);
-      const float v((dot00 * dot12 - dot01 * dot02) * invDenom);
-
-      data.mask[TwoD2OneD(P,width)] *=  !((u+v < 1) && (0 < u) && (0 < v));
+      data.mask[TwoD2OneD(P,width)] *= !((0<l1) && (l1<1) && (0<l2) && (l2<1) && (0<l3) && (l3<1));
     }
   }
 }
@@ -426,6 +427,7 @@ void createCASSMask(CommonData &data, CASSSettings &s)
     string type(s.value("MaskElementType","square").toString().toStdString());
     if (functions.find(type) == functions.end())
       throw invalid_argument("createCASSMask(): Unknown Mask Element Type '" +type+ "'");
+    VERBOSEOUT(cout << "createCASSMask: add mask element type '"<<type<<"'"<<endl);
     functions[type](data,s);
   }
   s.endArray();
