@@ -29,7 +29,18 @@ class CommonData;
 
 /** Creates the maps fast and simple
  *
- * details
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{NbrFrames}\n
+ *           The number of frames that should be collected for calculating the
+ *           maps. Default is 200.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{StartInstantly}\n
+ *           Flag to tell whether the calculator should start instantly with
+ *           collecting the frames and calculating the maps. If false it will
+ *           wait until told by the program through the available GUI's. Default
+ *           is false.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{WriteMaps}\n
+ *           Tell the creator to write the calulated maps once they have been
+ *           calculated. For further infomration on how the files are written,
+ *           see cass::pixeldetector::CommonData. Default is true.
  *
  * @author Lutz Foucar
  */
