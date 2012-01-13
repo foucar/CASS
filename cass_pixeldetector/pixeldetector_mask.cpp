@@ -30,7 +30,7 @@ typedef pair<int,int> index_t;
 
 /** operates a plus on two indices
  *
- * performs \f(lhs_1+rhs_1)(lhs_2+rhs_2)\f$.
+ * performs \f$(lhs_1+rhs_1)(lhs_2+rhs_2)\f$.
  *
  * @return the result of the operation
  * @param lhs the left hand side of the operation
@@ -46,7 +46,7 @@ index_t operator+(const index_t& lhs, const index_t& rhs)
 
 /** operates a minus on two indices
  *
- * performs \f(lhs_1-rhs_1)(lhs_2-rhs_2)\f$.
+ * performs \f$(lhs_1-rhs_1)(lhs_2-rhs_2)\f$.
  *
  * @return the result of the operation
  * @param lhs the left hand side of the operation
@@ -62,7 +62,7 @@ index_t operator-(const index_t& lhs, const index_t& rhs)
 
 /** operates times on two indices
  *
- * performs \f(lhs_1*rhs_1)(lhs_2*rhs_2)\f$.
+ * performs \f$(lhs_1*rhs_1)(lhs_2*rhs_2)\f$.
  *
  * @return the result of the operation
  * @param lhs the left hand side of the operation
@@ -78,7 +78,7 @@ index_t operator*(const index_t& lhs, const index_t& rhs)
 
 /** operates devides on two indices
  *
- * performs \f(lhs_1/rhs_1)(lhs_2/rhs_2)\f$.
+ * performs \f$(lhs_1/rhs_1)(lhs_2/rhs_2)\f$.
  *
  * @return the result of the operation
  * @param lhs the left hand side of the operation
@@ -94,7 +94,7 @@ index_t operator/(const index_t& lhs, const index_t& rhs)
 
 /** operates less of an  indices to a scalar
  *
- * performs \f(lhs_1+lhs_2)<rhs\f$.
+ * performs \f$(lhs_1+lhs_2)<rhs\f$.
  *
  * @return the result of the operation
  * @param lhs the left hand side of the operation
@@ -309,36 +309,23 @@ void addEllipse(CommonData &data, CASSSettings &s)
 
 /** add a triangluar element to the mask
  *
- * To see whether a point is within a triangle on just creates a new coordinate
- * sytem where the origin is one point of the triangle defined by the three
- * points A B C. The two vectors AB and AC define the coordiante system. Then
- * any point P can be described as
- * \f[ P = A + u * (C - A) + v * (B - A)\f]
- * where u is the distance along the vector AC and v is the distance along AB.
- * once one has determined u and v for a given point P one has just to check
- * whether u and v are positive and whether their sum is smaller than 1 to see
- * whether the P is inside the triangle defined by Points ABC.
- * This is because "if u or v < 0 then we've walked in the wrong direction and
- * must be outside the triangle. Also if u or v > 1 then we've walked too far in
- * a direction and are outside the triangle. Finally if u + v > 1 then we've
- * crossed the edge BC again leaving the triangle."
- * One can rearrange the above equation to solve for u and v and the result is
+ * To see whether a point is within a triangle one can use barycentric coordinates.
+ * See http://en.wikipedia.org/wiki/Barycentric_coordinates_(mathematics) for
+ * details. A point within barycentric can be defined by converting to these
+ * coordinates. The bayrocentric coordinates are represented by three points
+ * A, B, C. Each point can be represented by
+ * \f$ \vec{P} = \lambda_1\vec{A} + \lambda_2\vec{B} + \lambda_3\vec{C}\f$
+ * where \f$ \lambda_1, \lambda_2, \lambda_3\f$ can be determined from
+ * \f$ \vec{P} \f$ using the components of the triangle points and the wanted point
+ * \f$ \vec{P} = (x,y) ; \vec{A} = (x_1,y_1); \vec{B} = (x_2,y_2); \vec{C} = (x_3,y_3)\f$
+ * with these definition the following equalities are given:
  * \f{eqnarray*}{
- * u &=& \frac{(v1 \cdot v1)(v2 \cdot v0)-(v1 \cdot v0)(v2 \cdot v1)}
- *            {(v0 \cdot v0)(v1 \cdot v1) - (v0 \cdot v1)(v1 \cdot v0)} \\
- * v &=& \frac{(v0 \cdot v0)(v2 \cdot v1)-(v0 \cdot v1)(v2 \cdot v0)}
- *            {(v0 \cdot v0)(v1 \cdot v1) - (v0 \cdot v1)(v1 \cdot v0)}
+ * \lambda_1&=&\frac{(y_2-y_3)(x-x_3)+(x_3-x_2)(y-y_3)}{(y_2-y_3)(x_1-x_3)+(x_3-x_2)(y_1-y_3)}\\
+ * \lambda_2&=&\frac{(y_3-y_1)(x-x_3)+(x_1-x_3)(y-y_3)}{(y_2-y_3)(x_1-x_3)+(x_3-x_2)(y_1-y_3)}\\
+ * \lambda_3&=&1-\lambda_1-\lambda_2
  * \f}
- * where the dot between two vectors mark that it is a scalar product and the
- * vectors are defined as follows:
- * \f{eqnarray*}{
- * v0 $=$ AC \\
- * v1 $=$ AB \\
- * v2 $=$ AP
- * \f}
- *
- * Inspired by ideas found here (last checked Sep. 24th, 2011):
- * http://www.blackpawn.com/texts/pointinpoly/default.html
+ * With this we know that \f$ \vec{P} \f$ lies within the triangluar when
+ * \f[ 0 \leq \lambda_i \leq 1 \f]
  *
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{PointA_X|PointA_Y}\n
  *           The triangles first point. Default is 500|500.
@@ -386,27 +373,29 @@ void addTriangle(CommonData &data, CASSSettings &s)
   const index_t::first_type maxY(max(max(A.second,B.second),C.second));
   const index_t lowerLeft(make_pair(minX,minY));
   const index_t upperRight(make_pair(maxX,maxY));
+  const float x1(A.first);
+  const float x2(B.first);
+  const float x3(C.first);
+  const float y1(A.second);
+  const float y2(B.second);
+  const float y3(C.second);
+  const float denom( (y2-y3)*(x1-x3) + (x3-x2)*(y1-y3) );
 
   for (index_t::first_type row(lowerLeft.second); row <= upperRight.second; ++row)
   {
     for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
       const index_t P(make_pair(column,row));
-      /** @todo clean up and adopt documentation to the new version (wikipedia) */ 
-      const float x1(A.first);
-      const float x2(B.first);
-      const float x3(C.first);
       const float x(P.first);
-      const float y1(A.second);
-      const float y2(B.second);
-      const float y3(C.second);
       const float y(P.second);
 
-      const float l1( ( (y2-y3)*(x-x3) + (x3-x2)*(y-y3) ) / ( (y2-y3)*(x1-x3) + (x3-x2)*(y1-y3) ) );
-      const float l2( ( (y3-y1)*(x-x3) + (x1-x3)*(y-y3) ) / ( (y2-y3)*(x1-x3) + (x3-x2)*(y1-y3) ) );
+      const float l1( ( (y2-y3)*(x-x3) + (x3-x2)*(y-y3) ) / denom );
+      const float l2( ( (y3-y1)*(x-x3) + (x1-x3)*(y-y3) ) / denom );
       const float l3( 1 - l1 - l2 );
 
-      data.mask[TwoD2OneD(P,width)] *= !((0<l1) && (l1<1) && (0<l2) && (l2<1) && (0<l3) && (l3<1));
+      data.mask[TwoD2OneD(P,width)] *= !((0<=l1) && (l1<=1) &&
+                                         (0<=l2) && (l2<=1) &&
+                                         (0<=l3) && (l3<=1));
     }
   }
 }
