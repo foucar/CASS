@@ -28,6 +28,9 @@ namespace pixeldetector
 /** an index within a matrix */
 typedef pair<int,int> index_t;
 
+/** an index within a matrix but with with floating point precision */
+typedef pair<float,float> indexf_t;
+
 /** operates a plus on two indices
  *
  * performs \f$(lhs_1+rhs_1)(lhs_2+rhs_2)\f$.
@@ -86,7 +89,7 @@ index_t operator*(const index_t& lhs, const index_t& rhs)
  *
  * @author Lutz Foucar
  */
-index_t operator/(const index_t& lhs, const index_t& rhs)
+indexf_t operator/(const indexf_t& lhs, const indexf_t& rhs)
 {
   return make_pair(lhs.first / rhs.first,
                    lhs.second / rhs.second);
@@ -102,7 +105,7 @@ index_t operator/(const index_t& lhs, const index_t& rhs)
  *
  * @author Lutz Foucar
  */
-bool operator<(const index_t& lhs, const index_t::first_type rhs)
+bool operator<(const indexf_t& lhs, const indexf_t::first_type rhs)
 {
   return ((lhs.first + lhs.second) < rhs);
 }
@@ -297,12 +300,14 @@ void addEllipse(CommonData &data, CASSSettings &s)
   {
     for (index_t::first_type column(lowerLeft.first); column <= upperRight.first; ++column)
     {
-      /** @todo cleanup and probably set up an float index type that is returned from a division operator */
+      /** @todo check whether this works */
       const index_t idx(make_pair(column,row));
       const index_t idx_sq((idx - center)*(idx - center));
-      const float first(static_cast<float>(idx_sq.first)/static_cast<float>(axis_sq.first));
-      const float second(static_cast<float>(idx_sq.second)/static_cast<float>(axis_sq.second));
-      data.mask[TwoD2OneD(idx,width)] *= (1 < (first+second));
+      const indexf_t idx_tmp(idx_sq / axis_sq);
+      data.mask[TwoD2OneD(idx,width)] *= !(idx_tmp < 1);
+//      const float first(static_cast<float>(idx_sq.first)/static_cast<float>(axis_sq.first));
+//      const float second(static_cast<float>(idx_sq.second)/static_cast<float>(axis_sq.second));
+//      data.mask[TwoD2OneD(idx,width)] *= (1 < (first+second));
     }
   }
 }
