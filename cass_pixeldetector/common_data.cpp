@@ -323,17 +323,14 @@ void readHLLGainFile(const string &filename, CommonData& data)
 /** will create the final correction map from the info stored in the other maps
  *
  * the correction value for a pixel is calculated using the following formular:
- * @todo find right doxygen writing for cases
+ *
  * \f[
- *  corval = corval \times maskval \times \begin{cases}
- *                                0 & text{if noise \$<\$ noisethreshold \\
- *                                1 & text{otherwise}
- *                                        \end{cases}
+ *  corval = corval \times maskval \times (
+ *     0, & \text{if} noise < noisethreshold ;
+ *     1, & \text{otherwise})
  * \f]
  *
  * @note one should lock this from the caller of this function
- * @todo should one also recreate the mask to include the pixels that are
- *       too noisy?
  *
  * @param data the data storage that is used to create the maps from
  *
