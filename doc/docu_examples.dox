@@ -10,4 +10,6 @@
 @example pnCCDSpectrum.ini
 @example advanced_ccd.ini
 @example pnCCDAnalysis_new.ini
+@example CCDAnalysis_new.ini
+@example tcpinput_shm.ini
 */
