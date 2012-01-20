@@ -115,7 +115,7 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   _ringbuffer.doneFilling(cassevent,isGood);
 
   //for ratemeter purposes send a signal that we added a new event//
-  emit newEventAdded();
+  newEventAdded();
 
   //return the quit code//
   return  _control == _quit;
