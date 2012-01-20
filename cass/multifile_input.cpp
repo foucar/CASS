@@ -24,8 +24,30 @@
 
 using namespace std;
 using namespace cass;
-using tr1::bind;
-using tr1::placeholders::_1;
+
+namespace cass
+{
+/** read the information from the different files into the cassevent
+ *
+ * @return true when read was successfull
+ * @param posreaders the different files and their readers
+ * @param evt the cassevent where the dat sould go into
+ */
+bool readEventData(positionreaders_t &posreaders, CASSEvent& evt)
+{
+  bool isGood(true);
+  positionreaders_t::iterator fileposread(posreaders.begin());
+  positionreaders_t::const_iterator posreadEnd(posreaders.end());
+  for (; fileposread != posreadEnd; ++fileposread)
+  {
+    FilePointer &filepointer(fileposread->second);
+    FileReader &read(*(fileposread->first));
+    ifstream &filestream(filepointer.getStream());
+    isGood = read(filestream,evt) && isGood;
+  }
+  return isGood;
+}
+}//end namespace cass
 
 void MultiFileInput::instance(const string& filelistname,
                               RingBuffer<CASSEvent,RingBufferSize> &ringbuffer,
@@ -160,19 +182,9 @@ void MultiFileInput::run()
     CASSEvent *cassevent(0);
     _ringbuffer.nextToFill(cassevent);
     cassevent->id() = eventIt->first;
-    bool isGood(true);
-    positionreaders_t &posreaders(eventIt->second);
-    positionreaders_t::iterator fileposread(posreaders.begin());
-    positionreaders_t::const_iterator posreadEnd(posreaders.end());
-    for (; fileposread != posreadEnd; ++fileposread)
-    {
-      FilePointer &filepointer(fileposread->second);
-      FileReader &read(*(fileposread->first));
-      ifstream &filestream(filepointer.getStream());
-      isGood = read(filestream,*cassevent) && isGood;
-    }
+    bool isGood(readEventData(eventIt->second,*cassevent));
     _ringbuffer.doneFilling(cassevent, isGood);
-    emit newEventAdded();
+    newEventAdded();
     ++eventIt;
   }
 
