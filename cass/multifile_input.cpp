@@ -64,7 +64,8 @@ void MultiFileInput::load()
   CASSSettings s;
   s.beginGroup("MultiFileInput");
   _rewind = s.value("Rewind",false).toBool();
-  _new = s.value("useNewContainer",false).toBool()? "_new" :"";
+  _new = s.value("UseNewContainer",false).toBool()? "_new" :"";
+  _nbrDifferentSources = s.value("NbrDifferentSources",2).toUInt();
 }
 
 void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
@@ -172,7 +173,7 @@ void MultiFileInput::run()
     }
 
     /** check whether the event contains information from all files */
-    if (eventIt->second.size() != parsercontainer.size())
+    if (eventIt->second.size() != _nbrDifferentSources)
     {
       cout <<"MultiFileInput:run(): Event '"<<eventIt->first
            <<"' is incomplete, skipping event."<<endl;
