@@ -93,6 +93,12 @@ private:
                  bool quitwhendone,
                  QObject *parent=0);
 
+  /** read the information from the different files into the cassevent
+   *
+   * @param eventIt iterator to the map containing all events
+   */
+  void readEventData(event2positionreaders_t::iterator &eventIt);
+
   /** flag to tell the thread to quit when its done with all files */
   bool _quitWhenDone;
 

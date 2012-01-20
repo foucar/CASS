@@ -27,26 +27,6 @@ using namespace cass;
 
 namespace cass
 {
-/** read the information from the different files into the cassevent
- *
- * @return true when read was successfull
- * @param posreaders the different files and their readers
- * @param evt the cassevent where the dat sould go into
- */
-bool readEventData(positionreaders_t &posreaders, CASSEvent& evt)
-{
-  bool isGood(true);
-  positionreaders_t::iterator fileposread(posreaders.begin());
-  positionreaders_t::const_iterator posreadEnd(posreaders.end());
-  for (; fileposread != posreadEnd; ++fileposread)
-  {
-    FilePointer &filepointer(fileposread->second);
-    FileReader &read(*(fileposread->first));
-    ifstream &filestream(filepointer.getStream());
-    isGood = read(filestream,evt) && isGood;
-  }
-  return isGood;
-}
 }//end namespace cass
 
 void MultiFileInput::instance(const string& filelistname,
@@ -85,6 +65,26 @@ void MultiFileInput::load()
   s.beginGroup("MultiFileInput");
   _rewind = s.value("Rewind",false).toBool();
   _new = s.value("useNewContainer",false).toBool()? "_new" :"";
+}
+
+void MultiFileInput::readEventData(event2positionreaders_t::iterator &eventIt)
+{
+  CASSEvent *cassevent(0);
+  _ringbuffer.nextToFill(cassevent);
+  cassevent->id() = eventIt->first;
+  bool isGood(true);
+  positionreaders_t &posreaders(eventIt->second);
+  positionreaders_t::iterator fileposread(posreaders.begin());
+  positionreaders_t::const_iterator posreadEnd(posreaders.end());
+  for (; fileposread != posreadEnd; ++fileposread)
+  {
+    FilePointer &filepointer(fileposread->second);
+    FileReader &read(*(fileposread->first));
+    ifstream &filestream(filepointer.getStream());
+    isGood = read(filestream,*cassevent) && isGood;
+  }
+  _ringbuffer.doneFilling(cassevent, isGood);
+  newEventAdded();
 }
 
 void MultiFileInput::run()
@@ -179,12 +179,7 @@ void MultiFileInput::run()
       ++eventIt;
       continue;
     }
-    CASSEvent *cassevent(0);
-    _ringbuffer.nextToFill(cassevent);
-    cassevent->id() = eventIt->first;
-    bool isGood(readEventData(eventIt->second,*cassevent));
-    _ringbuffer.doneFilling(cassevent, isGood);
-    newEventAdded();
+    readEventData(eventIt);
     ++eventIt;
   }
 
