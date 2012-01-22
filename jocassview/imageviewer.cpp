@@ -1059,6 +1059,14 @@ getDataThread::getDataThread()
 
 }
 
+void jocassview::ImageViewer::on_actionControl_Darkcal_triggered()
+{
+  bool ret;
+  _cass->controlDarkcal("start",&ret);
+  if (!ret)
+    QMessageBox::information(this, tr("jocassviewer"),
+                             tr("Error: Cannot communicate control darkcal command."));
+}
 
 
 // Local Variables:
@@ -1068,3 +1076,4 @@ getDataThread::getDataThread()
 // c-file-style: "Stroustrup"
 // fill-column: 100
 // End:
+

@@ -199,6 +199,8 @@ private slots:
 
     void updateHistogram(cass::Histogram0DFloat* hist);
 
+    /** tells the server to start the dark calibration */
+    void on_actionControl_Darkcal_triggered();
 
 private:
 

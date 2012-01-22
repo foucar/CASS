@@ -62,6 +62,7 @@
     <addaction name="sendCommand"/>
     <addaction name="readIni"/>
     <addaction name="writeIni"/>
+    <addaction name="actionControl_Darkcal"/>
     <addaction name="separator"/>
     <addaction name="quitServer"/>
    </widget>
@@ -274,6 +275,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionControl_Darkcal">
+   <property name="text">
+    <string>Control &amp;Darkcal</string>
+   </property>
+   <property name="toolTip">
+    <string>Control Darkcalibration</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>
