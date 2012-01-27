@@ -30,6 +30,8 @@ using tr1::placeholders::_1;
 
 void OnlineFixedCreator::controlCalibration(const string &)
 {
+  cout <<endl<< "OnlineFixedCreator::controlCalibration(): Start collecting "<<_nbrFrames
+       <<" frames for calibration"<<endl;
   _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
 }
 
@@ -48,6 +50,8 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
   }
   else
   {
+    cout <<endl<<"OnlineFixedCreator::buildAndCalc(): collected "<<_framecounter
+         << " frames. Starting to generate the offset and noise map"<<endl;
     specialstorage_t::iterator storagePixels(_specialstorage.begin());
     specialstorage_t::const_iterator lastStoragePixels(_specialstorage.end());
     frame_t::iterator offset(_commondata->offsetMap.begin());
@@ -116,7 +120,11 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
 //  else
 //    _calcOffset = &calcMean;
   if(s.value("StartInstantly",false).toBool())
+  {
+    cout <<endl<< "OnlineFixedCreator::loadSettings(): Start collecting "<<_nbrFrames
+         <<" frames for calibration"<<endl;
     _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
+  }
   else
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
 
