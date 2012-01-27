@@ -28,6 +28,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtGui/QColor>
 #include <QtGui/QImage>
+
 #ifdef JPEG_CONVERSION
 #include <jpeglib.h>
 #endif //JPEG_CONVERSION
@@ -217,6 +218,12 @@ public:
      */
     virtual HistogramBackend* clone()const=0;
 
+    /** create a copy of the histogram
+     *
+     * creates a copy that will copy everything (including data) except for the lock
+     */
+    virtual HistogramBackend* copyclone()const=0;
+
     /** clear the histogram*/
     virtual void clear()=0;
 
@@ -312,6 +319,18 @@ public:
       return new HistogramFloatBase(dimension(),memory().size());
     }
 
+    /** clone the histogram completly
+     *
+     * @return pointer to the copied histogram
+     */
+    virtual HistogramBackend* copyclone()const
+    {
+      HistogramFloatBase* copy(new HistogramFloatBase(dimension(),memory().size()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      return copy;
+    }
+
     /** typedef describing the type of the values stored in memory*/
     typedef float value_t;
 
@@ -401,6 +420,18 @@ public:
       return new Histogram0DFloat();
     }
 
+    /** clone the histogram completly
+     *
+     * @return pointer to the cloned histogram
+     */
+    virtual HistogramBackend* copyclone()const
+    {
+      Histogram0DFloat* copy(new Histogram0DFloat());
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      return copy;
+    }
+
     /** fill the 0d histogram with a value */
     void fill(value_t value=0.)
     {
@@ -464,6 +495,21 @@ public:
                                   _axis[xAxis].lowerLimit(),
                                   _axis[xAxis].upperLimit(),
                                   _axis[xAxis].title());
+    }
+    
+    /** clone the histogram completly
+     *
+     * @return pointer to the copied histogram
+     */
+    virtual HistogramBackend* copyclone()const
+    {
+     Histogram1DFloat*copy(new Histogram1DFloat(_axis[xAxis].nbrBins(),
+                                  _axis[xAxis].lowerLimit(),
+                                  _axis[xAxis].upperLimit(),
+                                  _axis[xAxis].title()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      return copy;
     }
 
     /** resize histogram.
@@ -613,6 +659,24 @@ public:
                                   _axis[yAxis].title());
     }
 
+    /** clone the histogram completly
+     *
+     * @return pointer to the copied histogram
+     */
+    virtual HistogramBackend* copyclone()const
+    {
+      Histogram2DFloat* copy(new Histogram2DFloat(_axis[xAxis].nbrBins(),
+                                  _axis[xAxis].lowerLimit(),
+                                  _axis[xAxis].upperLimit(),
+                                  _axis[yAxis].nbrBins(),
+                                  _axis[yAxis].lowerLimit(),
+                                  _axis[yAxis].upperLimit(),
+                                  _axis[xAxis].title(),
+                                  _axis[yAxis].title()));
+      copy->memory() = memory();
+      copy->nbrOfFills() = nbrOfFills();
+      return copy;
+    }
 
     /** resize histogram.
      * will drop all memory and resize axis and memory to the newly requsted size

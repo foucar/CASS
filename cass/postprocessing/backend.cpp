@@ -61,6 +61,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
         find_if(_histList.begin(), _histList.end(),
                 bind<bool>(equal_to<uint64_t>(),evt.id(),
                            bind<uint64_t>(&histogramList_t::value_type::first,_1))));
+
   if(_histList.end() == it)
   {
     _result = _histList.back().second;
@@ -87,7 +88,7 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
 //      if(_condition)
 //        cout <<evt.id()<<" '"<<_key << "' condition '"<<_condition->key()<<"' was true "<<endl;
 //      else
-//        cout <<evt.id()<<" '"<<_key << "' has no condition"<<endl;
+//         cout <<evt.id()<<" '"<<_key << "' has no condition"<<endl;
       process(evt);
 //      cout <<evt.id()<<" '"<< _key<< "' return from process"<<endl;
       _histList.pop_back();
@@ -96,6 +97,8 @@ const HistogramBackend& PostprocessorBackend::operator()(const CASSEvent& evt)
       it = _histList.begin();
     }
   }
+//  else
+//    cout << "evt seems to have been on the event list"<<endl;
 //  cout <<evt.id()<<" '"<< _key<< "' return from operator"<<endl;
   return *(it->second);
 }
@@ -127,7 +130,7 @@ shared_ptr<HistogramBackend> PostprocessorBackend::getHistCopy(const uint64_t ev
   if (0 == eventid)
   {
     QReadLocker(&_histList.front().second->lock);
-    return shared_ptr<HistogramBackend>(_histList.front().second->clone());
+    return shared_ptr<HistogramBackend>(_histList.front().second->copyclone());
   }
   else
   {
@@ -138,7 +141,7 @@ shared_ptr<HistogramBackend> PostprocessorBackend::getHistCopy(const uint64_t ev
     if (_histList.end() == it)
       throw InvalidHistogramError(eventid);
     QReadLocker(&it->second->lock);
-    return shared_ptr<HistogramBackend>(it->second->clone());
+    return shared_ptr<HistogramBackend>(it->second->copyclone());
   }
 }
 
