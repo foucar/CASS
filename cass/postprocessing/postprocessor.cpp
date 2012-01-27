@@ -138,8 +138,6 @@ void PostProcessors::aboutToQuit()
 
 void PostProcessors::loadSettings(size_t)
 {
-  QWriteLocker locker(&lock);
-  using namespace std;
   VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
   CASSSettings settings;
   settings.beginGroup("PostProcessor");

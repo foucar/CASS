@@ -34,12 +34,10 @@ InputBase::shared_pointer::element_type& InputBase::reference()
 }
 //===================================================
 
-void InputBase::loadSettings(size_t)
-{
-  pause(true);
-  load();
-  resume();
-}
+//void InputBase::loadSettings(size_t)
+//{
+//  load();
+//}
 
 void InputBase::newEventAdded()
 {

@@ -51,7 +51,8 @@ MultiFileInput::MultiFileInput(const string& filelistname,
     _rewind(false)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
-  loadSettings(0);
+//  loadSettings(0);
+  load();
 }
 
 MultiFileInput::~MultiFileInput()

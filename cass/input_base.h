@@ -45,7 +45,11 @@ public:
    */
   virtual void run()=0;
 
-  /** load the settings of the input module from ini file */
+  /** load the settings of the input module from ini file
+   *
+   * @note before calling this the caller has to make sure that the input has
+   *       paused. And resume it afterwards.
+   */
   virtual void load()=0;
 
   /** increment the numer of events received in the ratemeter
@@ -78,7 +82,7 @@ public:
    *
    * @param what unused parameter
    */
-  void loadSettings(size_t/* what*/);
+//  void loadSettings(size_t/* what*/);
 
   /** a mutex so that external program can lock access to this */
   QMutex lock;

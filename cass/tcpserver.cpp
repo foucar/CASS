@@ -122,7 +122,7 @@ int CASSsoapService::readini(size_t what, bool *success)
   QMutexLocker workerLock(&Workers::reference().lock);
   InputBase::reference().pause(true);
   Workers::reference().pause();
-  InputBase::reference().loadSettings(what);
+  InputBase::reference().load();
   Analyzer::instance()->loadSettings(what);
   QWriteLocker pplock(&PostProcessors::instance()->lock);
   PostProcessors::reference().loadSettings(what);

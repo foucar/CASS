@@ -42,7 +42,8 @@ FileInput::FileInput(string filelistname,
   _filelistname(filelistname)
 {
   VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
-  loadSettings(0);
+//  loadSettings(0);
+  load();
 }
 
 void FileInput::load()
