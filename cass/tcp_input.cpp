@@ -37,7 +37,7 @@ TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
 void TCPInput::run()
 {
   _status = lmf::PausableThread::running;
-  const int Timeout = 3 * 1000;
+  const int Timeout = 20 * 1000;
 
   CASSSettings s;
   s.beginGroup("TCPInput");
@@ -89,7 +89,7 @@ void TCPInput::run()
       {
         payloadSize -= deserialize(in,*cassevent);
         _ringbuffer.doneFilling(cassevent,true);
-        emit newEventAdded();
+        newEventAdded();
       }
       catch(const DeserializeError& error)
       {
