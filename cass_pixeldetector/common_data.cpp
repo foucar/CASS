@@ -311,7 +311,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
   {
     for (size_t column(0); column < columns; ++column)
     {
-      hllgaincteMap.push_back(gains[column] / pow(ctes[column], row+1));
+      hllgaincteMap.push_back(gains[column] / pow(ctes[column], static_cast<int>(row+1)));
     }
   }
 
