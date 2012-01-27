@@ -15,7 +15,6 @@
 #include "alignment.h"
 #include "postprocessor.h"
 #include "waveform.h"
-#include "hdf5dump.h"
 #include "operations.h"
 #include "rankfilter.h"
 #include "imaging.h"
@@ -26,9 +25,13 @@
 #include "cass_exceptions.h"
 #include "operation_templates.hpp"
 #include "cass_settings.h"
-#include "hdf5_converter.h"
 #include "coltrims_analysis.h"
 #include "image_manipulation.h"
+
+#ifdef HDF5
+#include "hdf5_converter.h"
+#include "hdf5dump.h"
+#endif
 
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
@@ -109,7 +112,7 @@ void cass::PostProcessors::process(const CASSEvent& event)
   postprocessors_t::iterator iter(_postprocessors.begin());
   for(;iter != _postprocessors.end(); ++iter)
   {
-//    cout <<event.id()<<" running '" << iter->first<<"'"<<endl;
+//     cout <<event.id()<<" running '" << iter->first<<"'"<<endl;
     (*(iter->second))(event);
   }
 }

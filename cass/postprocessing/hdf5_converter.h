@@ -10,6 +10,7 @@
 #define _HDF5_CONVERTER_H_
 
 #include <string>
+#include <hdf5.h>
 
 #include "postprocessing/backend.h"
 
