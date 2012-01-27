@@ -28,6 +28,11 @@
 #include "coltrims_analysis.h"
 #include "pixel_detectors.h"
 
+#ifdef HDF5
+#include "hdf5_converter.h"
+#include "hdf5dump.h"
+#endif
+
 #ifdef SINGLEPARTICLE_HIT
 #include "hitrate.h"
 #endif
