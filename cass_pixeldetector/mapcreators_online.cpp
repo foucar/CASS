@@ -127,6 +127,6 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
   }
   else
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
-
+  _multiplier = s.value("Multiplier",4).toFloat();
   s.endGroup();
 }
