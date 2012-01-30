@@ -29,6 +29,10 @@ class CommonData;
 
 /** Creates the maps fast and simple
  *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{Multiplier}\n
+ *           How much bigger does the pixel value have to be than the noise before
+ *           The pixel is not taken into account when calculating the offset and
+ *           noise of that pixel. Default is 4.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{NbrFrames}\n
  *           The number of frames that should be collected for calculating the
  *           maps. Default is 200.
