@@ -69,6 +69,10 @@ void TCPInput::run()
     QDataStream in(&socket);
     in.setVersion(QDataStream::Qt_4_0);
     in >> payloadSize;
+    /** check whether the upper bit is set (indicating that data is compressed) */
+    const bool dataCompressed(payloadSize & 0x80000000);
+    /** reset the upper bit */
+    payloadSize &= ~(1<<31);
     payloadSize -= sizeof(quint32);
 
     while (socket.bytesAvailable() < payloadSize)
@@ -80,14 +84,29 @@ void TCPInput::run()
                             "'");
     }
 
-    payloadSize -= deserialize(in);
-    while(payloadSize > 0)
+    /** write received data into a temporary buffer */
+    QByteArray buffer;
+    if (dataCompressed)
+    {
+      QByteArray tmp;
+      in >> tmp;
+      buffer = qUncompress(tmp);
+    }
+    else
+      in >> buffer;
+
+    /** use stream to deserialize buffer */
+    QDataStream stream(buffer);
+
+    /** deserialize the buffer header */
+    deserialize(stream);
+    while(!stream.atEnd())
     {
       CASSEvent *cassevent(0);
       _ringbuffer.nextToFill(cassevent);
       try
       {
-        payloadSize -= deserialize(in,*cassevent);
+        deserialize(stream,*cassevent);
         _ringbuffer.doneFilling(cassevent,true);
         newEventAdded();
       }
