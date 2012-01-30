@@ -150,7 +150,27 @@ private:
 
 /** Creates maps from the last number of maps
  *
- * details.
+ * The algorithm that calculates the running average (offset) and standard
+ * deviation is taken from here (last checked 30.01.2012):
+ * http://www-uxsup.csx.cam.ac.uk/~fanf2/hermes/doc/antiforgery/stats.pdf
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{NbrTrainingFrames}\n
+ *           The number of frames that should be collected for calculating the
+ *           initial maps. Default is 50.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{DoTraining}\n
+ *           Before updating collect a set of "training" frames from which the
+ *           initial maps are created. This is recommended if one does not have
+ *           or has an outdated noise and offset map. Default is false.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{NbrOfAverages}\n
+ *           The number of past frames that should be taken into account when
+ *           calculating the noise and offset map. Default is 50.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{Multiplier}\n
+ *           How much bigger does the pixel value have to be than the noise before
+ *           The pixel is not taken into account when calculating the offset and
+ *           noise of that pixel. Default is 4.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/ChangingCreator/{AutoSaveSize}\n
+ *           Tells to save the noise and offset map and recalculate the correction
+ *           map after this many frames. Default is 1e6.
  *
  * @author Lutz Foucar
  */
@@ -166,7 +186,7 @@ public:
    *
    * @param frame the frame containing the data to build the maps from
    */
-  void operator() (const Frame &frame);
+  void operator() (const Frame &frame) {_createMap(frame);}
 
   /** load the settings of this creator
    *
@@ -174,9 +194,54 @@ public:
    */
   void loadSettings(CASSSettings &s);
 
+  /** start the training
+   *
+   * @param command the comamnd that the gui issued to this creator
+   */
+  void controlCalibration(const std::string& unused);
+
+private:
+  /** train the maps
+   *
+   * collect user settable amount of frames and create intial maps from it
+   * these maps will then be updated with each new frame
+   *
+   * @param frame the frame to build up the storage and to calc the maps from
+   */
+  void train(const Frame &frame);
+
+  /** update the existing map with the incomming frame inforamtion
+   *
+   * will update the maps with the information of the frame
+   *
+   * @param frame the frame to update the maps from
+   */
+  void updateMaps(const Frame &frame);
+
 private:
   /** the container with all the maps */
   std::tr1::shared_ptr<CommonData> _commondata;
+
+  /** the function object that will be called by the operator */
+  std::tr1::function<void(const Frame&)> _createMap;
+
+  /** the storage with all the frames from which the maps are calculated */
+  storage_t _storage;
+
+  /** counter to keep track how many frames are collected */
+  size_t _framecounter;
+
+  /** after wich number of frames should the maps be written to file */
+  size_t _frameSave;
+
+  /** how much frames should the training include */
+  size_t _trainingsize;
+
+  /** how many frames should the memory go back */
+  float _alpha;
+
+  /** how much noise is allowed before disregarding pixel from list */
+  float _multiplier;
 };
 
 } //end namespace pixeldetector
