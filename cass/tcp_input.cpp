@@ -59,7 +59,7 @@ void TCPInput::run()
   {
     pausePoint();
 
-    while (socket.bytesAvailable() < (int)sizeof(quint16))
+    while (socket.bytesAvailable() < (int)sizeof(quint32))
     {
       if (!socket.waitForReadyRead(Timeout))
         continue;
