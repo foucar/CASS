@@ -15,6 +15,12 @@ namespace cass
 {
 /** Will parse a txt files
  *
+ * @cassttng TxtParser/{Deliminator}\n
+ *           The character that deliminates the different values. Default is "\t"
+ * @cassttng TxtParser/{EventIdHeader}\n
+ *           The value for which the events should be sorted for Default is
+ *           "Event ID 24 bits"
+ *
  * @author Lutz Foucar
  */
 class TxtParser : public FileParser
