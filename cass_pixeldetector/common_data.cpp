@@ -363,6 +363,7 @@ void createCorrectionMap(CommonData& data)
  */
 void isSameSize(const Frame& frame, CommonData& data)
 {
+  QWriteLocker(&data.lock);
   bool changed(false);
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
@@ -538,7 +539,6 @@ void CommonData::loadSettings(CASSSettings &s)
 
 void CommonData::createMaps(const Frame &frame)
 {
-  QWriteLocker wlock(&lock);
   if (_checksize)
   {
     _checksize = false;

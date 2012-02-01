@@ -37,6 +37,7 @@ void OnlineFixedCreator::controlCalibration(const string &)
 
 void OnlineFixedCreator::buildAndCalc(const Frame& frame)
 {
+  QWriteLocker (&_commondata.lock);
   /** as long as there are not enough frames collected build up the specail storage */
   if (_framecounter < _nbrFrames)
   {
