@@ -31,10 +31,10 @@ DetectorHelper::shared_pointer DetectorHelper::instance(const instancesmap_t::ke
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(std::cout << "DetectorHelper::instance(): creating an"
+    VERBOSEOUT(cout << "DetectorHelper::instance(): creating an"
                <<" instance of the Pixel Detector Helper for detector '"<<detector
                <<"'"
-               <<std::endl);
+               <<endl);
     _instances[detector] = DetectorHelper::shared_pointer(new DetectorHelper(detector));
   }
   return _instances[detector];
@@ -44,9 +44,9 @@ DetectorHelper::DetectorHelper(const instancesmap_t::key_type& detname)
 {
   for (size_t i=0; i<NbrOfWorkers*2;++i)
     _detectorList.push_front(make_pair(0,new AdvancedDetector(detname)));
-  VERBOSEOUT(std::cout << "DetectorHelper::constructor: "
+  VERBOSEOUT(cout << "DetectorHelper::constructor: "
              << "we are responsible for pixel det '"<<detname <<"'"
-             <<std::endl);
+             <<endl);
 }
 
 
