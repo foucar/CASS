@@ -12,4 +12,5 @@
 @example pnCCDAnalysis_new.ini
 @example CCDAnalysis_new.ini
 @example tcpinput_shm.ini
+@example multifileinput.ini
 */
