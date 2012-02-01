@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "file_reader.h"
+#include "cass.h"
 
 namespace cass
 {
@@ -25,19 +26,25 @@ class CASSEvent;
  * first line has to give the names of the variables, which are then ordered
  * line by line.
  *
- * @cassttng TxtReader/{Deliminator}\n
+ * @cassttng TxtReader/\%filename\%/{Deliminator}\n
  *           The deliminator that is used to separate the values. Default is '\t',
  *           which is a tab.
- * @cassttng TxtReader/{EventIdHeader}\n
+ * @cassttng TxtReader/\%filename\%/{EventIdHeader}\n
  *           The name of the Header under which the Event Id is stored. Default
  *           is "".
+ * @cassttng TxtReader/\%filename\%/{LinesToSkip}\n
+ *           How many lines do we have to skip before the line appears that
+ *           contains the headers. Default is 3
  *
  * @author Lutz Foucar
  */
 class TxtReader : public FileReader
 {
 public:
-  /** constructor */
+  /** constructor
+   *
+   * @param filename the name of the file that we read from
+   */
   TxtReader();
 
   /** read the frms6 file contents put them into cassevent
@@ -58,15 +65,30 @@ public:
    */
   void readHeaderInfo(std::ifstream &file);
 
+  /** tell the reader the name of the file it is working on
+   *
+   * @param filename the filename of the file that this reader is working on
+   */
+  virtual void setFilename(const std::string& filename) {_filename = filename;}
+
 private:
   /** the value names */
   std::vector<std::string> _headers;
+
+  /** a splitter object to split up the lines */
+  Splitter _split;
 
   /** the deliminator by which the values are separated in the ascii file */
   char _delim;
 
   /** the header name under which the event id is stored */
   std::string _eventIdhead;
+
+  /** how many lines should be skipped before reading the header line */
+  size_t _linesToSkip;
+
+  /** the name of the file that we read the values from */
+  std::string _filename;
 };
 }//end namespace cass
 #endif

@@ -26,16 +26,13 @@ using namespace std::tr1;
 
 FileReader::shared_pointer FileReader::instance(const string &type)
 {
-  /** @todo use "Or" here */
   shared_pointer ptr;
-  if (type == "xtc")
+  if ((type == "xtc") || (type == "xtc_new"))
     ptr = shared_pointer(new XtcReader());
-  else if (type == "xtc_new")
-    ptr = shared_pointer(new XtcReader());
-  else if (type == "lma")
+  else if ((type == "lma") || (type == "lma_new"))
     ptr = shared_pointer(new ACQIRIS::LmaReader());
-  else if (type == "lma_new")
-    ptr = shared_pointer(new ACQIRIS::LmaReader());
+  else if ((type == "txt") || (type == "txt_new"))
+    ptr = shared_pointer(new TxtReader());
   else if (type == "sss")
     ptr = shared_pointer(new CCD::RAWSSSReader());
   else if (type == "sss_new")
@@ -44,14 +41,9 @@ FileReader::shared_pointer FileReader::instance(const string &type)
     ptr = shared_pointer(new pnCCD::Frms6Reader());
   else if (type == "frms6_new")
     ptr = shared_pointer(new pixeldetector::Frms6Reader());
-  else if (type == "txt")
-    ptr = shared_pointer(new TxtReader());
   else
-  {
-    stringstream ss;
-    ss << "FileReader::instance: file reader type '"<< type<<"' is unknown."<< (type == "xtc");
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("FileReader::instance: file reader type '" + type +
+                           "' is unknown.");
   return ptr;
 }
 

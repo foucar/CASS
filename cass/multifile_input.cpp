@@ -93,14 +93,13 @@ void MultiFileInput::run()
 {
   _status = lmf::PausableThread::running;
 
-
   /** create the resource and a lock for it that contains the pointers to the
    *  places in the files where one finds the data that corresponds to a given
    *  eventID. And create a container for all the file parser that we create in
    *  the next step. Create helpers to split the extension from the filename
    *  and to tokenize the list of filenames.
    */
-  Splitter extension;
+  SplitExtension extension;
   Tokenizer tokenize;
   event2positionreaders_t event2posreaders;
   QReadWriteLock lock;
@@ -139,6 +138,7 @@ void MultiFileInput::run()
     fp._pos = fp._filestream->tellg();
     filereaderpointerpair_t readerpointer
         (make_pair(FileReader::instance(extension(filename)+_new),fp));
+    readerpointer.first->setFilename(filename);
     readerpointer.first->loadSettings();
     readerpointer.first->readHeaderInfo(*fp._filestream);
     fp._filestream->seekg(0,ios::beg);

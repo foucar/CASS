@@ -20,31 +20,30 @@ using namespace MachineData;
 using namespace std;
 
 TxtReader::TxtReader()
-  :_delim('\t')
 {}
 
 void TxtReader::loadSettings()
 {
+  ExtractFilename filenameFromPath;
   CASSSettings s;
   s.beginGroup("TxtReader");
+  s.beginGroup(QString::fromStdString(filenameFromPath(_filename)));
   _delim = s.value("Deliminator",'\t').toInt();
   _eventIdhead = s.value("EventIdHeader","Event ID 24 bits").toString().toStdString();
+  _linesToSkip = s.value("LinesToSkip",3).toUInt();
+  s.endGroup();
   s.endGroup();
 }
 
 void TxtReader::readHeaderInfo(std::ifstream &file)
 {
-  Splitter split;
   string headerline;
-  while (true)
-  {
-    getline(file, headerline);
-    _headers.clear();
-    split(headerline,_headers,_delim);
-    if (!_headers.empty() &&
-        !QString::fromStdString(headerline).contains("GMD	(GMD_DATA)	-	GMD main vlaues"))
-      break;
-  }
+  string tmp;
+  for (size_t i=0;i<_linesToSkip;++i)
+    getline(file, tmp);
+  _headers.clear();
+  getline(file, headerline);
+  _split(headerline,_headers,_delim);
   cout <<"TextReader: the txt file contains the following variables:";
   vector<string>::const_iterator h(_headers.begin());
   for (; h != _headers.end();++h)
@@ -54,14 +53,13 @@ void TxtReader::readHeaderInfo(std::ifstream &file)
 
 bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
 {
-  Splitter split;
   string line;
   vector<double> values;
   while(true)
   {
     getline(file, line);
     values.clear();
-    split(line,values,_delim);
+    _split(line,values,_delim);
     if (!values.empty())
       break;
   }
@@ -77,14 +75,9 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
   vector<double>::const_iterator value(values.begin());
   vector<string>::const_iterator head(_headers.begin());
   for (;value != values.end(); ++value, ++head)
-  {
     md.BeamlineData()[*head] = *value;
-//    cout << "'"<<*head<<"'="<<*value<<", ";
-  }
-//  cout <<endl;
 
   event.id() = md.BeamlineData()[_eventIdhead];
-//  cout << "EventID '"<<_eventIdhead<<"'= "<<event.id()<<endl;
 
   return (event.id());
 }

@@ -199,18 +199,23 @@ struct Splitter
       elems.push_back(str);
     }
   }
+};
 
-  /** split of the extension of a filename
-   *
-   * find the last occurence of '.' after which hopefully the extension comes.
-   * Funtion was inspired by 'graphitemaster' at stackoverflow:
-   *
-   * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
+/** split off the extension of a filename
+ *
+ * find the last occurence of '.' after which hopefully the extension comes.
+ * Function was inspired by 'graphitemaster' at stackoverflow:
+ *
+ * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
+ *
+ * @author Lutz Foucar
+ */
+struct SplitExtension
+{
+  /** the operator
    *
    * @return string containing the extension
    * @param string containing the filename
-   *
-   * @author Lutz Foucar
    */
   std::string operator()(const std::string &filename)
   {
@@ -221,9 +226,31 @@ struct Splitter
       throw invalid_argument("extension: the filename '"+filename+
                              "' does not have a file extension.");
   }
-
 };
 
+/** extract the filename from the path
+ *
+ * find the last occurence of '/' after which the filename comes. If there is
+ * no '/' then just return the whole string
+ *
+ * @author Lutz Foucar
+ */
+struct ExtractFilename
+{
+  /** the operator
+   *
+   * @return string containing the filename
+   * @param string containing the path
+   */
+  std::string operator()(const std::string &path)
+  {
+    using namespace std;
+    if(path.find_last_of("/") != string::npos)
+      return path.substr(path.find_last_of("/")+1);
+    else
+      return path;
+  }
+};
 
 
 namespace Streaming

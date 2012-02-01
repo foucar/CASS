@@ -473,7 +473,7 @@ CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
 
 void CommonData::loadSettings(CASSSettings &s)
 {
-  Splitter extension;
+  SplitExtension extension;
   s.beginGroup("CorrectionMaps");
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);

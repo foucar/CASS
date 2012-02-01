@@ -58,6 +58,12 @@ public:
    */
   virtual void readHeaderInfo(std::ifstream &/*file*/) {}
 
+  /** tell the reader the name of the file it is working on
+   *
+   * @param filename the filename of the file that this reader is working on
+   */
+  virtual void setFilename(const std::string& /*filename*/) {}
+
 protected:
   /** only inheritants can create this */
   FileReader() {}

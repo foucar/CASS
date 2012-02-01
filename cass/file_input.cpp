@@ -57,7 +57,7 @@ void FileInput::load()
 void FileInput::run()
 {
   _status = lmf::PausableThread::running;
-  Splitter extension;
+  SplitExtension extension;
   Tokenizer tokenize;
 
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
@@ -83,6 +83,7 @@ void FileInput::run()
     {
       /** load the right reader for the file type depending on its extension */
       _read = FileReader::instance(extension(filename)+_new);
+      _read->setFilename(filename);
       _read->loadSettings();
       cout <<"FileInput::run(): processing file '"<<filename
            <<"' with file reader type '"<<extension(filename)<<"'"<<endl;
