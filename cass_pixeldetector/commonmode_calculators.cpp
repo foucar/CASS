@@ -50,7 +50,7 @@ namespace commonmode
  * @author Lutz Foucar
  */
 void createPixelList(size_t nbrPixels,
-                     frame_t::iterator pixel,
+                     frame_t::const_iterator pixel,
                      frame_t::const_iterator offset,
                      frame_t::const_iterator noise,
                      CommonData::mask_t::const_iterator mask,
@@ -76,17 +76,15 @@ void createPixelList(size_t nbrPixels,
 }//end namespace cass
 
 
-pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::iterator &pixelIt, size_t idx)const
+pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
 {
-  QReadLocker locker(&_commondata->lock);
-  frame_t::iterator pixel(pixelIt);
   frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
   frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
   CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
   pixel_t commlvl(0);
   size_t accumulatedValues(0);
   pixel_t pixel_wo_offset(0);
-  for(size_t i(0); i<_nbrPixels;++i,++pixel,++offset,++noise)
+  for(size_t i(0); i<_nbrPixels;++i,++pixel,++offset,++noise,++mask)
   {
     if (*mask)
     {
@@ -110,19 +108,15 @@ void SimpleMeanCalculator::loadSettings(CASSSettings &s)
 }
 
 
-pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+pixeldetector::pixel_t MeanCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
-  QReadLocker lock(&_commondata->lock);
-  //  frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
-  //  frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
-  //  CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
   pixels_t pixels;
   createPixelList(_nbrPixels, pixel,
-		  _commondata->offsetMap.begin()+idx,
-		  _commondata->noiseMap.begin()+idx,
-		  _commondata->mask.begin()+idx,
-		  _multiplier, 0., pixels);
+                  _commondata->offsetMap.begin()+idx,
+                  _commondata->noiseMap.begin()+idx,
+                  _commondata->mask.begin()+idx,
+                  _multiplier, 0., pixels);
   const int nbrElementsOfInterest
       (pixels.size() - _nbrMinimumElementsToRemove - _nbrMaximumElementsToRemove);
   const bool shouldCalcCommonMode (_minNbrPixels <  nbrElementsOfInterest);
@@ -152,15 +146,15 @@ void MeanCalculator::loadSettings(CASSSettings &s)
   s.endGroup();
 }
 
-pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::iterator &pixel, size_t idx)const
+pixeldetector::pixel_t MedianCalculator::operator ()(frame_t::const_iterator pixel, size_t idx)const
 {
   pixel_t commonmodelevel(0);
-  QReadLocker lock(&_commondata->lock);
-  frame_t::const_iterator offset(_commondata->offsetMap.begin()+idx);
-  frame_t::const_iterator noise(_commondata->noiseMap.begin()+idx);
-  CommonData::mask_t::const_iterator mask(_commondata->mask.begin()+idx);
   pixels_t pixels;
-  createPixelList(_nbrPixels, pixel, offset, noise, mask, _multiplier, 0., pixels);
+  createPixelList(_nbrPixels, pixel,
+                  _commondata->offsetMap.begin()+idx,
+                  _commondata->noiseMap.begin()+idx,
+                  _commondata->mask.begin()+idx,
+                  _multiplier, 0., pixels);
   const int nbrElementsOfInterest
       (pixels.size() - _nbrDisregardedMinimumElements - _nbrDisregardedMaximumElements);
   const bool shouldCalcCommonMode (_minNbrPixels <  nbrElementsOfInterest);

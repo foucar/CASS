@@ -24,20 +24,22 @@ HLLProcessor::HLLProcessor()
 
 Frame& HLLProcessor::operator ()(Frame &frame)
 {
-  const CalculatorBase &commonModeCalculator(*_commonModeCalculator);
+  const CalculatorBase &calcCommonMode(*_commonModeCalculator);
   QReadLocker lock(&_commondata->lock);
   frame_t::iterator pixel(frame.data.begin());
-  frame_t::iterator pixelEnd(frame.data.end());
   frame_t::const_iterator offset(_commondata->offsetMap.begin());
   frame_t::const_iterator correction(_commondata->correctionMap.begin());
   size_t idx(0);
   float commonmodeLevel(0);
-  const size_t width(commonModeCalculator.width());
-  for (; pixel != pixelEnd; ++pixel, ++offset, ++correction, ++idx)
+  const size_t width(_commonModeCalculator->width());
+  const size_t parts(frame.data.size() / width);
+  for (size_t part(0); part < parts; ++part)
   {
-    if((idx % width) == 0)
-      commonmodeLevel = commonModeCalculator(pixel,idx);
-    *pixel = (*pixel - *offset - commonmodeLevel) * *correction;
+    commonmodeLevel = calcCommonMode(pixel,idx);
+    for (size_t i(0); i < width; ++i, ++pixel, ++offset, ++correction, ++idx)
+    {
+      *pixel = (*pixel - *offset - commonmodeLevel) * *correction;
+    }
   }
   return frame;
 }

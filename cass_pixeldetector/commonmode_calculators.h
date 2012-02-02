@@ -49,11 +49,11 @@ public:
    * determine the common mode level and return it.
    *
    * @return the common mode level
-   * @param pixel iterator to the first pixel of the area used for common mode
-   *              calculation.
+   * @param pixel the start pixel within the frame to start the common mode
+   *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::iterator &pixel, size_t idx)const;
+  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *
@@ -100,11 +100,11 @@ public:
    * determine the common mode level and return it.
    *
    * @return the common mode level
-   * @param pixel iterator to the first pixel of the area used for common mode
-   *              calculation.
+   * @param pixel the start pixel within the frame to start the common mode
+   *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::iterator &pixel, size_t idx)const;
+  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *
@@ -158,11 +158,11 @@ public:
    * determine the common mode level and return it.
    *
    * @return the common mode level
-   * @param pixel iterator to the first pixel of the area used for common mode
-   *              calculation.
+   * @param pixel the start pixel within the frame to start the common mode
+   *        calculation
    * @param idx index of the first pixel.
    */
-  pixel_t operator ()(frame_t::iterator &pixel, size_t idx)const;
+  pixel_t operator ()(frame_t::const_iterator pixel, size_t idx)const;
 
   /** load the settings of this calculator
    *

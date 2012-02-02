@@ -61,14 +61,14 @@ public:
 
   /** determine the common mode value
    *
-   * take the input pixel and calculate the common mode value
+   * calculate the common mode from the given index on.
    *
    * @return the common mode value
-   * @param pixel the pixel iterator the first pixel of the area to calculate
-   *              common mode.
+   * @param pixel the start pixel within the frame to start the common mode
+   *        calculation
    * @param idx index where the pixel iterator is right now within the frame
    */
-  virtual pixel_t operator() (frame_t::iterator &pixel, size_t idx)const=0;
+  virtual pixel_t operator() (frame_t::const_iterator pixel, size_t idx)const=0;
 
   /** load the settings of this calculator
    *
