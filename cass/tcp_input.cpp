@@ -50,6 +50,15 @@ void TCPInput::connectToServer(QTcpSocket &socket)
       cout<<endl<<endl<< "TCPInput::connectToServer: (Re)Connected to server '"
           << socket.peerAddress().toString().toStdString()
           << "' on port '"<<socket.peerPort()<<"'"<<endl<<endl;
+      break;
+    }
+    else
+    {
+      cout<<endl<< "TCPInput::connectToServer: Could not connect to server '"
+          << s.value("Server","localhost").toString().toStdString()
+          << "' on port '"<<s.value("Port",9090).toUInt()
+          <<"' retrying now..."
+          <<endl<<endl;
     }
   }
   s.endGroup();
@@ -142,5 +151,5 @@ void TCPInput::run()
     {
     }
   }
-  cout <<endl<<endl<< "TCPInput::run(): Quitting the input"<<endl<<endl;
+  cout <<endl<<endl<< "TCPInput::run(): Quitting"<<endl<<endl;
 }
