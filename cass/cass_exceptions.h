@@ -81,6 +81,28 @@ namespace cass
 
     virtual ~DeserializeError() throw() {}
   };
+
+  /** Exception thrown when one needs to reastart the input loop
+   *
+   * @author Lutz Foucar
+   */
+  class RestartInputLoop : public std::runtime_error
+  {
+  public:
+    /** explicit constructor
+     *
+     * @param message the error message
+     */
+    explicit RestartInputLoop(const std::string & message ="")
+      : std::runtime_error(message)
+    {
+
+    }
+
+    virtual ~RestartInputLoop() throw() {}
+  };
+
+
 }
 
 #endif

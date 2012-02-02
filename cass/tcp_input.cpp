@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <QtNetwork/QTcpSocket>
+#include <QtNetwork/QHostAddress>
 
 #include "tcp_input.h"
 
@@ -18,6 +19,7 @@
 
 using namespace cass;
 using namespace std;
+
 
 void TCPInput::instance(RingBuffer<CASSEvent, RingBufferSize> &buffer,
                    Ratemeter &ratemeter,
@@ -34,88 +36,111 @@ TCPInput::TCPInput(RingBuffer<CASSEvent,RingBufferSize>& ringbuffer,
   :InputBase(ringbuffer,ratemeter,parent)
 {}
 
+void TCPInput::connectToServer(QTcpSocket &socket)
+{
+  CASSSettings s;
+  s.beginGroup("TCPInput");
+  while (_control != _quit)
+  {
+    socket.abort();
+    socket.connectToHost(s.value("Server","localhost").toString(),
+                         s.value("Port",9090).toUInt());
+    if (socket.waitForConnected(1000))
+    {
+      cout<<endl<<endl<< "TCPInput::connectToServer: (Re)Connected to server '"
+          << socket.peerAddress().toString().toStdString()
+          << "' on port '"<<socket.peerPort()<<"'"<<endl<<endl;
+    }
+  }
+  s.endGroup();
+  throw RestartInputLoop();
+}
+
+void TCPInput::checkSocket(QTcpSocket &socket)
+{
+  if (_control == _quit)
+    throw RestartInputLoop();
+  if (socket.state() != QAbstractSocket::ConnectedState)
+    connectToServer(socket);
+}
+
 void TCPInput::run()
 {
   _status = lmf::PausableThread::running;
-  const int Timeout = 20 * 1000;
+  const int Timeout = 2 * 1000;
+  QTcpSocket socket;
 
   CASSSettings s;
   s.beginGroup("TCPInput");
-  QTcpSocket socket;
-  socket.connectToHost(s.value("Server","localhost").toString(),
-                       s.value("Port",9090).toUInt());
   string functiontype(s.value("DataType","agat").toString().toStdString());
   TCPStreamer& deserialize(TCPStreamer::instance(functiontype));
   s.endGroup();
 
-  if (!socket.waitForConnected(Timeout))
-    throw runtime_error("TCPInput::run(): error '" + socket.errorString().toStdString() +
-                        "' occurred trying to connect to server '" + socket.peerName().toStdString() +
-                        "' on Port '"+ toString(socket.peerPort()) +
-                        "'");
-
-
   while(_control != _quit)
   {
-    pausePoint();
-
-    while (socket.bytesAvailable() < (int)sizeof(quint32))
+    try
     {
-      if (!socket.waitForReadyRead(Timeout))
-        continue;
-    }
+      pausePoint();
 
-    quint32 payloadSize;
-    QDataStream in(&socket);
-    in.setVersion(QDataStream::Qt_4_0);
-    in >> payloadSize;
-    /** check whether the upper bit is set (indicating that data is compressed) */
-    const bool dataCompressed(payloadSize & 0x80000000);
-    /** reset the upper bit */
-    payloadSize &= ~(1<<31);
-    payloadSize -= sizeof(quint32);
-
-    while (socket.bytesAvailable() < payloadSize)
-    {
-      if (!socket.waitForReadyRead(Timeout))
-        throw runtime_error("TCPInput::run(): error '" + socket.errorString().toStdString() +
-                            "' occurred trying to get the data from server '" + socket.peerName().toStdString() +
-                            "' on Port '"+ toString(socket.peerPort()) +
-                            "'");
-    }
-
-    /** write received data into a temporary buffer */
-    QByteArray buffer;
-    if (dataCompressed)
-    {
-      QByteArray tmp;
-      in >> tmp;
-      buffer = qUncompress(tmp);
-    }
-    else
-      in >> buffer;
-
-    /** use stream to deserialize buffer */
-    QDataStream stream(buffer);
-
-    /** deserialize the buffer header */
-    deserialize(stream);
-    while(!stream.atEnd())
-    {
-      CASSEvent *cassevent(0);
-      _ringbuffer.nextToFill(cassevent);
-      try
+      while (socket.bytesAvailable() < static_cast<qint64>(sizeof(quint32)))
       {
-        deserialize(stream,*cassevent);
-        _ringbuffer.doneFilling(cassevent,true);
-        newEventAdded();
+        if (!socket.waitForReadyRead(Timeout))
+          checkSocket(socket);
       }
-      catch(const DeserializeError& error)
+
+      quint32 payloadSize;
+      QDataStream in(&socket);
+      in.setVersion(QDataStream::Qt_4_0);
+      in >> payloadSize;
+      /** check whether the upper bit is set (indicating that data is compressed) */
+      const bool dataCompressed(payloadSize & 0x80000000);
+      /** reset the upper bit */
+      payloadSize &= 0x7FFFFFFF;
+      payloadSize -= sizeof(quint32);
+
+      while (socket.bytesAvailable() < payloadSize)
       {
-        cout << error.what() <<": skipping rest of data"<<endl;
-        _ringbuffer.doneFilling(cassevent,false);
-        break;
+        if (!socket.waitForReadyRead(Timeout))
+          checkSocket(socket);
       }
+
+      /** write received data into a temporary buffer */
+      QByteArray buffer;
+      if (dataCompressed)
+      {
+        QByteArray tmp;
+        in >> tmp;
+        buffer = qUncompress(tmp);
+      }
+      else
+        in >> buffer;
+
+      /** use stream to deserialize buffer */
+      QDataStream stream(buffer);
+
+      /** deserialize the buffer header */
+      deserialize(stream);
+      while(!stream.atEnd())
+      {
+        CASSEvent *cassevent(0);
+        _ringbuffer.nextToFill(cassevent);
+        try
+        {
+          deserialize(stream,*cassevent);
+          _ringbuffer.doneFilling(cassevent,true);
+          newEventAdded();
+        }
+        catch(const DeserializeError& error)
+        {
+          cout << error.what() <<": skipping rest of data"<<endl;
+          _ringbuffer.doneFilling(cassevent,false);
+          break;
+        }
+      }
+    }
+    catch(RestartInputLoop&) {}
+    {
     }
   }
+  cout <<endl<<endl<< "TCPInput::run(): Quitting the input"<<endl<<endl;
 }

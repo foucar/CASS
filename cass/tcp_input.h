@@ -16,6 +16,8 @@
 #include "cass_event.h"
 #include "ringbuffer.h"
 
+class QTcpSocket;
+
 namespace cass
 {
 /** TCP Input for receiving data
@@ -90,6 +92,24 @@ private:
   TCPInput(RingBuffer<CASSEvent,RingBufferSize>& buffer,
            Ratemeter &ratemeter,
            QObject *parent=0);
+
+  /** check the socket
+   *
+   * if the socket is connected then just return otherwise try connecting it to
+   * the server
+   *
+   * @param socket the socket to check
+   */
+  void checkSocket(QTcpSocket &socket);
+
+  /** connect the socket to server
+   *
+   * tries to connect the socket to the server as long as user did not finish
+   * the program or the socket has connected to the server
+   *
+   * @param socket the socket that one should connect to the server
+   */
+  void connectToServer(QTcpSocket &socket);
 };
 
 }//end namespace cass
