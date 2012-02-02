@@ -154,7 +154,7 @@ void FixedMaps::operator ()(const Frame &frame)
     return;
   else
   {
-    QWriteLocker (&_commondata.lock);
+    QWriteLocker (&_commondata->lock);
     if (_storage.size() < _nbrFrames)
       _storage.push_back(frame.data);
     else
@@ -213,7 +213,7 @@ void MovingMaps::controlCalibration(const string &/*unused*/)
 
 void MovingMaps::train(const Frame &frame)
 {
-  QWriteLocker (&_commondata.lock);
+  QWriteLocker (&_commondata->lock);
   if (_framecounter++ < _trainingsize)
   {
     _storage.push_back(frame.data);
@@ -272,7 +272,7 @@ void MovingMaps::train(const Frame &frame)
 
 void MovingMaps::updateMaps(const Frame &frame)
 {
-  QWriteLocker (&_commondata.lock);
+  QWriteLocker (&_commondata->lock);
   frame_t::const_iterator pixel(frame.data.begin());
   frame_t::const_iterator pixelEnd(frame.data.end());
   frame_t::iterator offset(_commondata->offsetMap.begin());
