@@ -59,10 +59,10 @@ void TCPInput::connectToServer(QTcpSocket &socket)
           << s.value("Server","localhost").toString().toStdString()
           << "' on port '"<<s.value("Port",9090).toUInt()
           <<"', because of error '"<<socket.errorString().toStdString()
-          <<"'. Retrying in 1 s..."
+          <<"'. Retrying in 5 s..."
           <<endl<<endl;
     }
-    sleep(1);
+    sleep(5);
   }
   s.endGroup();
   throw RestartInputLoop();
