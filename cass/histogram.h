@@ -328,6 +328,7 @@ public:
       HistogramFloatBase* copy(new HistogramFloatBase(dimension(),memory().size()));
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
       return copy;
     }
 
@@ -429,6 +430,7 @@ public:
       Histogram0DFloat* copy(new Histogram0DFloat());
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
       return copy;
     }
 
@@ -509,6 +511,7 @@ public:
                                   _axis[xAxis].title()));
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
       return copy;
     }
 
@@ -675,6 +678,7 @@ public:
                                   _axis[yAxis].title()));
       copy->memory() = memory();
       copy->nbrOfFills() = nbrOfFills();
+      copy->key() = key();
       return copy;
     }
 
