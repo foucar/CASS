@@ -38,6 +38,8 @@ class CommonData;
  *                       cass::pixeldetector::addEllipse
  *           - "triangle": a square region of the mask. See
  *                       cass::pixeldetector::addTriangle
+ *           . "ring": a ring with inner and outer part composed by ellipsoids.
+ *                     See cass::pixeldetector::addRing
  *
  * @author Nicola Coppola
  * @author Lutz Foucar

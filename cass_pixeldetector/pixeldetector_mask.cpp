@@ -312,6 +312,94 @@ void addEllipse(CommonData &data, CASSSettings &s)
   }
 }
 
+/** add a ring
+ *
+ * define the ring by two ellipses; an inner and outer ellipse. The area covered
+ * by the out but not by the inner will be masked. The two ellipsoids can have
+ * different centers and axis. Therefore the ring can take any shape.
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{InnerCenterX|InnerCenterY}\n
+ *           The central point of the inner ellipse. Default is 500|500.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{InnerSemiAxisX|InnerSemiAxisY}\n
+ *           The semi axis along x and y of the inner ellipse. By definition the
+ *           longer one defines the major axis and the smaller on the minor axis.
+ *           Default is 5|4.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{OuterCenterX|OuterCenterY}\n
+ *           The central point of the outer ellipse. Default is 500|500.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{OuterSemiAxisX|OuterSemiAxisY}\n
+ *           The semi axis along x and y of the outer ellipse. By definition the
+ *           longer one defines the major axis and the smaller on the minor axis.
+ *           Default is 20|20.
+ *
+ * @author Lutz Foucar
+ */
+void addRing(CommonData &data, CASSSettings &s)
+{
+  QWriteLocker lock(&data.lock);
+  const index_t outer_center(make_pair(s.value("OuterCenterX",500).toUInt(),
+                                       s.value("OuterCenterY",500).toUInt()));
+  const index_t::first_type outer_a(s.value("OuterSemiAxisX",5).toUInt());
+  const index_t::first_type outer_b(s.value("OuterSemiAxisY",2).toUInt());
+  const index_t inner_center(make_pair(s.value("InnerCenterX",500).toUInt(),
+                                       s.value("InnerCenterY",500).toUInt()));
+  const index_t::first_type inner_a(s.value("InnerSemiAxisX",20).toUInt());
+  const index_t::first_type inner_b(s.value("InnerSemiAxisY",20).toUInt());
+  const size_t width(data.columns);
+
+  if ((outer_center.first < outer_a) ||
+      (outer_center.second < outer_b) ||
+      (static_cast<int>(data.columns) <= (outer_center.first + outer_a)) ||
+      (static_cast<int>(data.rows) <= (outer_center.second + outer_b)))
+  {
+    throw invalid_argument("addCircle(): The outer semi axis x '" + toString(outer_a) +
+                           "' and b '" + toString(outer_b) +
+                           "' are choosen to big and do not fit with center ("
+                           + toString(outer_center.first) +","
+                           + toString(outer_center.second)+")");
+  }
+  if ((inner_center.first < inner_a) ||
+      (inner_center.second < inner_b) ||
+      (static_cast<int>(data.columns) <= (inner_center.first + inner_a)) ||
+      (static_cast<int>(data.rows) <= (inner_center.second + inner_b)))
+  {
+    throw invalid_argument("addCircle(): The inner semi axis x '" + toString(inner_a) +
+                           "' and b '" + toString(inner_b) +
+                           "' are choosen to big and do not fit with center ("
+                           + toString(inner_center.first) +","
+                           + toString(inner_center.second)+")");
+  }
+
+  const size_t min_col(min(outer_center.first - outer_a,
+                           inner_center.first - inner_a));
+  const size_t max_col(max(outer_center.first + outer_a,
+                           inner_center.first + inner_a));
+  const size_t min_row(min(outer_center.second - outer_b,
+                           inner_center.second - inner_b));
+  const size_t max_row(max(outer_center.second + outer_b,
+                           inner_center.second + inner_b));
+
+  const index_t outer_axis_sq(make_pair(outer_a,outer_b)*make_pair(outer_a,outer_b));
+  const index_t inner_axis_sq(make_pair(inner_a,inner_b)*make_pair(inner_a,inner_b));
+
+  for (size_t row(min_row); row <= max_row; ++row)
+  {
+    for (size_t column(min_col); column <= max_col; ++column)
+    {
+      const index_t idx(make_pair(column,row));
+
+      const index_t idx_sq_inner((idx - inner_center)*(idx - inner_center));
+      const indexf_t idx_tmp_inner(idx_sq_inner / inner_axis_sq);
+      const bool isNotInInner(!(idx_tmp_inner < 1));
+
+      const index_t idx_sq_outer((idx - outer_center)*(idx - outer_center));
+      const indexf_t idx_tmp_outer(idx_sq_outer / outer_axis_sq);
+      const bool isInOuter(idx_tmp_outer < 1);
+
+      data.mask[TwoD2OneD(idx,width)] *= !(isInOuter && isNotInInner);
+    }
+  }
+}
+
 /** add a triangluar element to the mask
  *
  * To see whether a point is within a triangle one can use barycentric coordinates.
@@ -413,6 +501,7 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   functions["square"] = &addSquare;
   functions["triangle"] = &addTriangle;
   functions["ellipse"] = &addEllipse;
+  functions["ring"] = &addRing;
 
   int size = s.beginReadArray("Mask");
   for (int i = 0; i < size; ++i)
