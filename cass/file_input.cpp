@@ -13,6 +13,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <QtCore/QFileInfo>
+
 #include "file_input.h"
 
 #include "cass_event.h"
@@ -57,7 +59,6 @@ void FileInput::load()
 void FileInput::run()
 {
   _status = lmf::PausableThread::running;
-  SplitExtension extension;
   Tokenizer tokenize;
 
   VERBOSEOUT(cout<<"FileInput::run(): try to open filelist '"
@@ -77,16 +78,17 @@ void FileInput::run()
     if (_control == _quit)
       break;
     string filename(*filelistIt++);
-    ifstream file(filename.c_str(), ios::binary | ios::in);
+    QFileInfo info(QString::fromStdString(filename));
     /** if there was such a file then we want to load it */
-    if (file.is_open())
+    if (info.exists())
     {
+      ifstream file(filename.c_str(), ios::binary | ios::in);
       /** load the right reader for the file type depending on its extension */
-      _read = FileReader::instance(extension(filename)+_new);
+      _read = FileReader::instance(info.suffix().toStdString()+_new);
       _read->setFilename(filename);
       _read->loadSettings();
       cout <<"FileInput::run(): processing file '"<<filename
-           <<"' with file reader type '"<<extension(filename)<<"'"<<endl;
+           <<"' with file reader type '"<<info.suffix().toStdString()<<"'"<<endl;
       file.seekg (0, ios::end);
       const streampos filesize(file.tellg());
       file.seekg (0, ios::beg);

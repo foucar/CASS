@@ -15,6 +15,7 @@
 #include <tr1/functional>
 
 #include <QStringList>
+#include <QtCore/QFileInfo>
 
 #include "multifile_input.h"
 
@@ -99,7 +100,6 @@ void MultiFileInput::run()
    *  the next step. Create helpers to split the extension from the filename
    *  and to tokenize the list of filenames.
    */
-  SplitExtension extension;
   Tokenizer tokenize;
   event2positionreaders_t event2posreaders;
   QReadWriteLock lock;
@@ -126,25 +126,27 @@ void MultiFileInput::run()
     if (_control == _quit)
       break;
     string filename(*filelistIt++);
+    QFileInfo info(QString::fromStdString(filename));
     cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
-    FilePointer fp;
-    fp._filestream =
-        FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
-    if (!fp._filestream->is_open())
+    if (info.exists())
     {
       cout << "MultiFileInput::run(): could not open File '"<<filename<<"'"<<endl;
       continue;
     }
+    FilePointer fp;
+    fp._filestream =
+        FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
     fp._pos = fp._filestream->tellg();
     filereaderpointerpair_t readerpointer
-        (make_pair(FileReader::instance(extension(filename)+_new),fp));
+        (make_pair(FileReader::instance(info.suffix().toStdString()+_new),fp));
     readerpointer.first->setFilename(filename);
     readerpointer.first->loadSettings();
     readerpointer.first->readHeaderInfo(*fp._filestream);
     fp._filestream->seekg(0,ios::beg);
     fp._pos = fp._filestream->tellg();
     FileParser::shared_pointer fileparser
-        (FileParser::instance(extension(filename),readerpointer,event2posreaders,lock));
+        (FileParser::instance(info.suffix().toStdString(),
+                              readerpointer,event2posreaders,lock));
     fileparser->start();
     parsercontainer.push_back(fileparser);
   }

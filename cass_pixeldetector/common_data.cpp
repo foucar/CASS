@@ -15,6 +15,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
+#include <QtCore/QFileInfo>
 
 #include "common_data.h"
 
@@ -474,7 +475,6 @@ CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
 
 void CommonData::loadSettings(CASSSettings &s)
 {
-  SplitExtension extension;
   s.beginGroup("CorrectionMaps");
   string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
   _mapcreator = MapCreatorBase::instance(mapcreatortype);
@@ -483,10 +483,11 @@ void CommonData::loadSettings(CASSSettings &s)
                                 QString::fromStdString("darkcal_"+toString(detectorId)+".lnk")).toString().toStdString());
   string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
   /** if filename is a link, try to deduce the real filename */
-  if (extension(offsetfilename) == "lnk")
+  QFileInfo offsetfilenameInfo(QString::fromStdString(offsetfilename));
+  if (offsetfilenameInfo.isSymLink())
   {
-    offsetfilename = QFile::symLinkTarget(QString::fromStdString(offsetfilename)).toStdString();
-    if (offsetfilename.empty())
+    offsetfilename = offsetfilenameInfo.symLinkTarget().toStdString();
+    if (!offsetfilenameInfo.exists())
       cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
   }
   if (offsetfilename != _inputOffsetFilename)

@@ -8,6 +8,8 @@
 
 #include <algorithm>
 
+#include <QtCore/QFileInfo>
+
 #include "txt_reader.h"
 
 #include "cass_event.h"
@@ -24,10 +26,9 @@ TxtReader::TxtReader()
 
 void TxtReader::loadSettings()
 {
-  ExtractFilename filenameFromPath;
   CASSSettings s;
   s.beginGroup("TxtReader");
-  s.beginGroup(QString::fromStdString(filenameFromPath(_filename)));
+  s.beginGroup(QFileInfo(QString::fromStdString(_filename)).baseName());
   _delim = s.value("Deliminator",'\t').toInt();
   _eventIdhead = s.value("EventIdHeader","Event ID 24 bits").toString().toStdString();
   _linesToSkip = s.value("LinesToSkip",3).toUInt();

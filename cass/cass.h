@@ -201,58 +201,6 @@ struct Splitter
   }
 };
 
-/** split off the extension of a filename
- *
- * find the last occurence of '.' after which hopefully the extension comes.
- * Function was inspired by 'graphitemaster' at stackoverflow:
- *
- * http://stackoverflow.com/questions/51949/how-to-get-file-extension-from-string-in-c
- *
- * @author Lutz Foucar
- */
-struct SplitExtension
-{
-  /** the operator
-   *
-   * @return string containing the extension
-   * @param string containing the filename
-   */
-  std::string operator()(const std::string &filename)
-  {
-    using namespace std;
-    if(filename.find_last_of(".") != string::npos)
-      return filename.substr(filename.find_last_of(".")+1);
-    else
-      throw invalid_argument("extension: the filename '"+filename+
-                             "' does not have a file extension.");
-  }
-};
-
-/** extract the filename from the path
- *
- * find the last occurence of '/' after which the filename comes. If there is
- * no '/' then just return the whole string
- *
- * @author Lutz Foucar
- */
-struct ExtractFilename
-{
-  /** the operator
-   *
-   * @return string containing the filename
-   * @param string containing the path
-   */
-  std::string operator()(const std::string &path)
-  {
-    using namespace std;
-    if(path.find_last_of("/") != string::npos)
-      return path.substr(path.find_last_of("/")+1);
-    else
-      return path;
-  }
-};
-
-
 namespace Streaming
 {
 /** retrieve a variable from a file stream
@@ -300,7 +248,7 @@ template<typename T>
 QDataStream &operator>>(QDataStream& stream, T& evt)
 {
   if(stream.readRawData(reinterpret_cast<char*>(&evt),sizeof(T)) != sizeof(T))
-    throw std::runtime_error("operator>>(QDdataStream&,T&): could not retrieve the right size");
+    throw std::runtime_error("operator>>(QDdataStream&,T&): could not retrieve all requested bytes");
   return stream;
 }
 
@@ -318,7 +266,7 @@ std::ifstream &operator>>(std::ifstream& stream, T& evt)
 {
   stream.read(reinterpret_cast<char*>(&evt),sizeof(T));
   if(stream.rdstate() != std::ios_base::goodbit)
-    throw std::runtime_error("operator>>(ifstream&,T&): could not retrieve the right size");
+    throw std::runtime_error("operator>>(ifstream&,T&): could not retrieve all requested bytes");
   return stream;
 }
 
