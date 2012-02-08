@@ -80,5 +80,45 @@ namespace cass
 
     hid_t getGroupNameForCalibCycle(const cass::CASSEvent &);
   };
+
+  /** saves a selected 2d histogram to hdf5
+   *
+   * it will just save one histogram in a file and then write the next into the
+   * next hdf5 file. Inside the hdf5 it uses the same layout that the Chapman
+   * crew is using to be able to read and process the hdf5 with crystfel
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name containing the histogram that write to hdf5.
+   *
+   * @author Lutz Foucar
+   */
+  class pp1002 : public PostprocessorBackend
+  {
+  public:
+    /** constructor
+     *
+     * @param pp reference to the postprocessor manager
+     * @param key the name of this PostProce
+     * @param filename initial string of the output filename
+     */
+    pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const std::string& filename);
+
+    /** process the event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** the filename that the data will be written to */
+    std::string _basefilename;
+
+    /** pp containing histogram to dump to hdf5 */
+    PostprocessorBackend *_pHist;
+
+  private:
+    /** a lock to make the process reentrant */
+    QMutex _lock;
+  };
 }
 #endif

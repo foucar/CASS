@@ -16,6 +16,9 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 
+using namespace cass;
+using namespace std;
+
 namespace cass
 {
   hid_t createGroupNameFromEventId(uint64_t eventid, hid_t calibcycle)
@@ -548,4 +551,71 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
   }
   H5Gclose(eventgrouphandle);
   if (!_events_root_is_filehandle) H5Gclose(calibcyclehandle);
+}
+
+
+pp1002::pp1002(PostProcessors &pp, const PostProcessors::key_t &key, const string& outfilename)
+  : PostprocessorBackend(pp,key),
+    _basefilename(outfilename)
+{
+  loadSettings(0);
+}
+
+void pp1002::loadSettings(size_t)
+{
+  CASSSettings settings;
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  const HistogramBackend &hist(_pHist->getHist(0));
+  if (hist.dimension() != 2)
+    throw invalid_argument("pp1002: The histogram that shoudl be written to hdf5 is not a 2d histogram");
+  _write = false;
+  _hide = true;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers,true);
+  cout <<"PostProcessor '"<<_key
+      <<"'' will write chosen histograms to hdf5 file with '"<<_basefilename
+      <<"' as basename. Condition is '"<<_condition->key()
+      <<endl;
+}
+
+void pp1002::process(const CASSEvent &evt)
+{
+  QMutexLocker locker(&_lock);
+  const Histogram2DFloat& hist
+      (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
+  /** create fielname from base filename + event id */
+  string filename(_basefilename + "_" + toString(evt.id()));
+  /** create the hdf5 file with the name and the handles to the specific data storage*/
+  hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+  if (fh == 0)
+    throw runtime_error("pp1002::process(): Could not open the hdf5 file '" + filename +"'");
+
+  hid_t gid = H5Gcreate1(fh, "data", 0);
+  hsize_t dims[2];
+  dims[0] = hist.axis()[HistogramBackend::yAxis].nbrBins();
+  dims[1] = hist.axis()[HistogramBackend::xAxis].nbrBins();
+  hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
+  if (dataspace_id == 0)
+    throw runtime_error("pp1002::process(): Could not open the dataspace for the 2d histogram");
+  hid_t dataset_id = (H5Dcreate1(gid, "data",
+                                 H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+  if (dataset_id == 0 )
+    throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
+  /** write data */
+  hist.lock.lockForRead();
+  H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL,
+           H5P_DEFAULT, &hist.memory().front());
+  hist.lock.unlock();
+  /** close hdf5 handles and file */
+  H5Dclose(dataset_id);
+  H5Sclose(dataspace_id);
+  H5Gclose(gid);
+  H5Fflush(fh,H5F_SCOPE_LOCAL);
+  H5Fclose(fh);
 }
