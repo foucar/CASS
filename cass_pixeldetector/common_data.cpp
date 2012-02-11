@@ -16,6 +16,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
+#include <QtCore/QStringList>
 
 #include "common_data.h"
 
@@ -470,79 +471,78 @@ CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
     rows(1024),
     noiseThreshold(0),
     detectorId(-1),
-    _checksize(true)
+    _settingsLoaded(false)
 {}
 
 void CommonData::loadSettings(CASSSettings &s)
 {
-  s.beginGroup("CorrectionMaps");
-  string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
-  _mapcreator = MapCreatorBase::instance(mapcreatortype);
-  _mapcreator->loadSettings(s);
-  string offsetfilename(s.value("InputOffsetNoiseFilename",
-                                QString::fromStdString("darkcal_"+toString(detectorId)+".lnk")).toString().toStdString());
-  string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
-  /** if filename is a link, try to deduce the real filename */
-  QFileInfo offsetfilenameInfo(QString::fromStdString(offsetfilename));
-  if (offsetfilenameInfo.isSymLink())
+  if (!_settingsLoaded)
   {
-    offsetfilename = offsetfilenameInfo.symLinkTarget().toStdString();
-    if (!offsetfilenameInfo.exists())
-      cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
-  }
-  if (offsetfilename != _inputOffsetFilename)
-  {
-    cout << "CommonData::loadSettings(): Load Darkcal data for detector with id '"<<detectorId<<"' from file '"<<offsetfilename<<"'"<<endl;
-    _inputOffsetFilename = offsetfilename;
-    if (offsetfiletype == "hll")
-      readHLLOffsetFile(offsetfilename, *this);
-    else if(offsetfiletype == "cass")
-      readCASSOffsetFile(offsetfilename, *this);
+    string detectorname(s.group().split("/").back().toStdString());
+    s.beginGroup("CorrectionMaps");
+    string mapcreatortype(s.value("MapCreatorType","none").toString().toStdString());
+    _mapcreator = MapCreatorBase::instance(mapcreatortype);
+    _mapcreator->loadSettings(s);
+    string offsetfilename(s.value("InputOffsetNoiseFilename",
+                                  QString::fromStdString("darkcal_"+toString(detectorId)+".lnk")).toString().toStdString());
+    string offsetfiletype(s.value("InputOffsetNoiseFiletype","hll").toString().toStdString());
+    /** if filename is a link, try to deduce the real filename */
+    QFileInfo offsetfilenameInfo(QString::fromStdString(offsetfilename));
+    if (offsetfilenameInfo.isSymLink())
+    {
+      offsetfilename = offsetfilenameInfo.symLinkTarget().toStdString();
+      if (!offsetfilenameInfo.exists())
+        cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
+    }
+    if (offsetfilename != _inputOffsetFilename)
+    {
+      cout << "CommonData::loadSettings(): Load Darkcal data for detector with name '"
+           << detectorname <<"' which has id '" <<detectorId<<"' from file '"
+           <<offsetfilename<<"'"<<endl;
+      _inputOffsetFilename = offsetfilename;
+      if (offsetfiletype == "hll")
+        readHLLOffsetFile(offsetfilename, *this);
+      else if(offsetfiletype == "cass")
+        readCASSOffsetFile(offsetfilename, *this);
+      else
+      {
+        throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
+                               offsetfiletype + "' does not exist");
+      }
+    }
+    string ctegainFiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
+    if (ctegainFiletype == "hll")
+      _readGain = &readHLLGainFile;
     else
     {
-      throw invalid_argument("CommonData::loadSettings: OffsetNoiseFiletype '" +
+      throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
                              offsetfiletype + "' does not exist");
     }
+    _outputOffsetFilename = (s.value("OutputOffsetNoiseFilename","darkcal").toString().toStdString());
+    string outputoffsetfiletype(s.value("OutputOffsetNoiseFiletype","hll").toString().toStdString());
+    if (outputoffsetfiletype == "hll")
+      _saveTo = &saveHLLOffsetFile;
+    else if(outputoffsetfiletype == "cass")
+      _saveTo = &saveCASSOffsetFile;
+    else
+    {
+      throw invalid_argument("CommonData::loadSettings: OutputOffsetNoiseFiletype '" +
+                             outputoffsetfiletype + "' does not exist");
+    }
+    /** read the mask values */
+    createCASSMask(*this,s);
+    noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
+    createCorMap();
+    s.endGroup();
   }
-  string gainfilename(s.value("CTEGainFilename","").toString().toStdString());
-  string gainfiletype(s.value("CTEGainFiletype","hll").toString().toStdString());
-  if (gainfiletype == "hll")
-    readHLLGainFile(gainfilename, *this);
-  else
-  {
-    throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
-                           offsetfiletype + "' does not exist");
-  }
-  _outputOffsetFilename = (s.value("OutputOffsetNoiseFilename","darkcal").toString().toStdString());
-  string outputoffsetfiletype(s.value("OutputOffsetNoiseFiletype","hll").toString().toStdString());
-  if (outputoffsetfiletype == "hll")
-    _saveTo = &saveHLLOffsetFile;
-  else if(outputoffsetfiletype == "cass")
-    _saveTo = &saveCASSOffsetFile;
-  else
-  {
-    throw invalid_argument("CommonData::loadSettings: OutputOffsetNoiseFiletype '" +
-                           outputoffsetfiletype + "' does not exist");
-  }
-  createCASSMask(*this,s);
-  noiseThreshold = s.value("NoisyPixelThreshold",40000).toFloat();
-  /** @todo this will actually do nothing when started for the first time since
-   *        the cormap has not been resized correctly. Check what happens if
-   *        it is called while the program is running (maybe slows it down?) 
-   *        then one could find out how to only create it once not for all pix
-   *        det helper instances
-   */
-  QWriteLocker locker(&lock);
-  createCorrectionMap(*this);
-  s.endGroup();
-  _checksize = true;
+  _settingsLoaded = true;
 }
 
 void CommonData::createMaps(const Frame &frame)
 {
-  if (_checksize)
+  if (_settingsLoaded)
   {
-    _checksize = false;
+    _settingsLoaded = false;
     isSameSize(frame,*this);
   }
   MapCreatorBase& createOffsetNoiseMaps(*_mapcreator);
@@ -559,7 +559,7 @@ void CommonData::saveMaps()
   if (QFile::exists(QString::fromStdString(linkname)))
     if(!QFile::remove(QString::fromStdString(linkname)))
       throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
-			  linkname +"'");
+                          linkname +"'");
   if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
     throw runtime_error("CommonData::saveMaps: could not create a link named '"+
                         linkname + "' that points to the outputfile '" + outname +"'");
@@ -567,5 +567,8 @@ void CommonData::saveMaps()
 
 void CommonData::createCorMap()
 {
+  /** reset the correction map before reading the correction values */
+  fill(correctionMap.begin(),correctionMap.end(),1.);
+  _readGain(_ctegainFilename,*this);
   createCorrectionMap(*this);
 }

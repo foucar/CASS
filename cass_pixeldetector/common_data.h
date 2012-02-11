@@ -255,8 +255,14 @@ private:
   /** input filename of the offset and noise map */
   std::string _inputOffsetFilename;
 
-  /** switch to when to check the size of the maps */
-  bool _checksize;
+  /** switch to tell that load settins for this common data was already running */
+  bool _settingsLoaded;
+
+  /** the cte / gain correction filename */
+  std::string _ctegainFilename;
+
+  /** function to read the gain / cte corrections */
+  std::tr1::function<void(const std::string&,CommonData&)> _readGain;
 };
 
 } //end namespace pixeldetector
