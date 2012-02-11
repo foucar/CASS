@@ -503,6 +503,8 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   functions["ellipse"] = &addEllipse;
   functions["ring"] = &addRing;
 
+  /** reset the mask before creating it*/
+  fill(data.mask.begin(),data.mask.end(),1);
   int size = s.beginReadArray("Mask");
   for (int i = 0; i < size; ++i)
   {
