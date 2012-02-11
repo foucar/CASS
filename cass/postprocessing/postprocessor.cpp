@@ -891,6 +891,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp1001(*this,key,_outputfilename));
     break;
+  case HDF52dConverter:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp1002(*this,key,_outputfilename));
+    break;
 #endif
 #ifdef CERNROOT
   case ROOTDump:

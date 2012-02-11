@@ -172,6 +172,7 @@ the Class description for information about what parameters are user settable.
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
+01002: Put a selectable 2d histogram into HDF5-Files use Chapman convention
 02000: Dump all selected 0d, 1d and 2d cass histograms to root file
 02001: Write Hits of selected Delayline Detectors to ROOT Tree
 
@@ -367,6 +368,7 @@ public:
 
     PnccdHDF5=1000,
     HDF5Converter=1001,
+    HDF52dConverter=1002,
     ROOTDump=2000,
     ROOTTreeDump=2001,
 
