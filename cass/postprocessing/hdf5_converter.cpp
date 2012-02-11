@@ -573,13 +573,13 @@ void pp1002::loadSettings(size_t)
     return;
   const HistogramBackend &hist(_pHist->getHist(0));
   if (hist.dimension() != 2)
-    throw invalid_argument("pp1002: The histogram that shoudl be written to hdf5 is not a 2d histogram");
+    throw invalid_argument("pp1002: The histogram that should be written to hdf5 is not a 2d histogram");
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
   cout <<"PostProcessor '"<<_key
-      <<"'' will write chosen histograms to hdf5 file with '"<<_basefilename
+      <<"' will write chosen histograms to hdf5 file with '"<<_basefilename
       <<"' as basename. Condition is '"<<_condition->key()
       <<endl;
 }
@@ -590,7 +590,7 @@ void pp1002::process(const CASSEvent &evt)
   const Histogram2DFloat& hist
       (dynamic_cast<const Histogram2DFloat&>((*_pHist)(evt)));
   /** create fielname from base filename + event id */
-  string filename(_basefilename + "_" + toString(evt.id()));
+  string filename(_basefilename + "_" + toString(evt.id()) + ".h5");
   /** create the hdf5 file with the name and the handles to the specific data storage*/
   hid_t fh = H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   if (fh == 0)
