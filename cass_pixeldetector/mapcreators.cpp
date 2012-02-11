@@ -133,18 +133,18 @@ frame_t::value_type calcMedian(frame_t& values,
 
 void NonAlteringMaps::loadSettings(CASSSettings &s)
 {
-  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
-  _commondata = CommonData::instance(detectorname);
-  QWriteLocker lock(&_commondata->lock);
-  frame_t::iterator offset(_commondata->offsetMap.begin());
-  for (;offset != _commondata->offsetMap.end(); ++offset)
-    *offset = 0;
-  frame_t::iterator noise(_commondata->noiseMap.begin());
-  for (;noise != _commondata->noiseMap.end(); ++noise)
-    *noise = 0;
-  frame_t::iterator corval(_commondata->correctionMap.begin());
-  for (;corval != _commondata->correctionMap.end(); ++corval)
-    *corval = 1;
+//  string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
+//  _commondata = CommonData::instance(detectorname);
+//  QWriteLocker lock(&_commondata->lock);
+//  frame_t::iterator offset(_commondata->offsetMap.begin());
+//  for (;offset != _commondata->offsetMap.end(); ++offset)
+//    *offset = 0;
+//  frame_t::iterator noise(_commondata->noiseMap.begin());
+//  for (;noise != _commondata->noiseMap.end(); ++noise)
+//    *noise = 0;
+//  frame_t::iterator corval(_commondata->correctionMap.begin());
+//  for (;corval != _commondata->correctionMap.end(); ++corval)
+//    *corval = 1;
 }
 
 
