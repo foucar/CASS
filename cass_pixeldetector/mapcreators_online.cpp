@@ -83,7 +83,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
       for(; pixel != lastPixel ; ++pixel)
       {
         const pixel_t pixel_wo_offset(*pixel - *offset);
-        if ((maxNoise < pixel_wo_offset))
+        if ((pixel_wo_offset < maxNoise))
         {
           ++accumulatedValues;
           const pixel_t old_offset(tmp_offset);
