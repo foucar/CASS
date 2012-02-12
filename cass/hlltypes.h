@@ -98,7 +98,7 @@ struct FrameHeader
 
   /** start data taking time in microseconds */	// PxH from long to int, 17-Aug-07
   uint32_t tv_usec;
-  \
+
   /** index number */				// PxH from long to int, 17-Aug-07
   uint32_t index;
 
