@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011, 2012 Lutz Foucar
 
 /**
  * @file tcp_input.h contains input that uses tcp as interface
