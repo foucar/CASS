@@ -224,6 +224,8 @@ int main(int argc, char **argv)
 {
   try
   {
+    Log::add(Log::INFO,"Start CASS");
+
     /** construct Qt application object to hold the run loop */
     QApplication app(argc, argv,false);
 
@@ -371,7 +373,8 @@ int main(int argc, char **argv)
   {
     Log::add(Log::ERROR,"main(): something bad happend, quitting the program.");
   }
-  cout<<endl;
+  Log::add(Log::INFO,"Quitting CASS");
+  cout << endl;
 }
 
 
