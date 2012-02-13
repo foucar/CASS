@@ -16,6 +16,7 @@
 #include "cass_settings.h"
 #include "cass_exceptions.h"
 #include "tcp_streamer.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
@@ -47,20 +48,18 @@ void TCPInput::connectToServer(QTcpSocket &socket)
                          s.value("Port",9090).toUInt());
     if (socket.waitForConnected(1000))
     {
-      cout<<endl<<endl<< "TCPInput::connectToServer: (Re)Connected to server '"
-          << socket.peerAddress().toString().toStdString()
-          << "' on port '"<<socket.peerPort()
-          <<"'"<<endl<<endl;
+      Log::add(Log::INFO,string("TCPInput::connectToServer: (Re)Connected to server '") +
+               socket.peerAddress().toString().toStdString() +
+               "' on port '" + toString(socket.peerPort()) + "'");
       break;
     }
     else
     {
-      cout<<endl<< "TCPInput::connectToServer: Could not connect to server '"
-          << s.value("Server","localhost").toString().toStdString()
-          << "' on port '"<<s.value("Port",9090).toUInt()
-          <<"', because of error '"<<socket.errorString().toStdString()
-          <<"'. Retrying in 5 s..."
-          <<endl<<endl;
+      Log::add(Log::WARNING,"TCPInput::connectToServer: Could not connect to server '" +
+               s.value("Server","localhost").toString().toStdString() +
+               "' on port '" + toString(s.value("Port",9090).toUInt()) +
+               "', because of error '" + socket.errorString().toStdString() +
+               "'. Retrying in 5 s...");
     }
     sleep(5);
   }
@@ -144,7 +143,8 @@ void TCPInput::run()
         }
         catch(const DeserializeError& error)
         {
-          cout << error.what() <<": skipping rest of data"<<endl;
+          Log::add(Log::ERROR,string(error.what()) +
+                   ": skipping rest of data");
           _ringbuffer.doneFilling(cassevent,false);
           break;
         }
@@ -154,5 +154,5 @@ void TCPInput::run()
     {
     }
   }
-  cout <<endl<<endl<< "TCPInput::run(): Quitting"<<endl<<endl;
+  Log::add(Log::INFO,"TCPInput::run(): Quitting");
 }
