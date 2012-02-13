@@ -43,6 +43,9 @@ public:
    */
   ~Log();
 
+  /** load the logging settings from the .ini file */
+  void loadSettings();
+
 private:
   /** constructor
    *
@@ -51,6 +54,8 @@ private:
    * where yyyy encodes the year, MM the month and dd the day. The log file is
    * opened such that new entries will always be appended to the file.
    *
+   * @cassttng Log/{MaxLoggingLevel} \n
+   *           The maximum Level of output requested.
    * @cassttng Log/{Directory} \n
    *           The directory where the log file will be written to. Default is
    *           the directory that cass was started in.
@@ -84,6 +89,9 @@ private:
 
   /** the used logging level*/
   static Level _loggingLevel;
+
+  /** map the level to a string */
+  static const char* _level2string[];
 };
 }//end namespace cass
 

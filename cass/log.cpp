@@ -23,6 +23,8 @@ using namespace tr1;
 shared_ptr<Log> Log::_instance;
 QMutex Log::_lock;
 Log::Level Log::_loggingLevel;
+const char* Log::_level2string[] =
+{"ERROR ","WARNING ","INFO ","DEBUG ","DEBUG1 ","DEBUG2 ","DEBUG3 ","DEBUG4 "};
 
 void Log::add(Level level, const std::string& line)
 {
@@ -36,9 +38,23 @@ void Log::add(Level level, const std::string& line)
 
 Log::Log()
 {
+  loadSettings();
+}
+
+void Log::loadSettings()
+{
   CASSSettings s;
   s.beginGroup("Log");
-  _loggingLevel = static_cast<Level>(s.value("LoggingLevel",INFO).toInt());
+  for (int i(0); i < 7 ; ++i)
+  {
+    if (s.value("MaxLoggingLevel","INFO").toString() + " " == _level2string[i])
+    {
+      _loggingLevel = static_cast<Level>(i);
+      break;
+    }
+    _loggingLevel = INFO;
+  }
+
   QDir directory(s.value("Directory",QDir::currentPath()).toString());
   QString filename(QDateTime::currentDateTime().toString("casslog_yyyyMMdd.log"));
   _log.open(QFileInfo(directory,filename).filePath().toUtf8().data(),
@@ -52,9 +68,6 @@ Log::~Log()
 
 void Log::addline(Level level, const string &line)
 {
-  static const char* _level2string[] =
-  {"ERROR ","WARNING ","INFO ","DEBUG ","DEBUG1 ","DEBUG2 ","DEBUG3 ","DEBUG4 "};
-
   _log << QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss-z: ").toStdString()
        << _level2string[level]
        << line
