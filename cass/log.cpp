@@ -81,7 +81,7 @@ Log::~Log()
 
 void Log::addline(Level level, const string &line)
 {
-  _log << QDateTime::currentDateTime().toString("yyyy/MM/dd-hh:mm:ss:z: ").toStdString()
+  _log << QDateTime::currentDateTime().toString("yyyy/MM/dd_hh:mm:ss:z ").toStdString()
        << _level2string[level]
        << line
        << endl;
