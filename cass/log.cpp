@@ -6,6 +6,8 @@
  * @author Lutz Foucar
  */
 
+#include <iostream>
+
 #include <QtCore/QDateTime>
 #include <QtCore/QString>
 #include <QtCore/QFileInfo>
@@ -22,7 +24,7 @@ using namespace tr1;
 
 shared_ptr<Log> Log::_instance;
 QMutex Log::_lock;
-Log::Level Log::_loggingLevel;
+Log::Level Log::_loggingLevel=Log::INFO;
 const char* Log::_level2string[] =
 {"ERROR ","WARNING ","INFO ","DEBUG ","DEBUG1 ","DEBUG2 ","DEBUG3 ","DEBUG4 "};
 
@@ -51,10 +53,10 @@ Log::Log()
 
 void Log::loadSettings()
 {
-  QMutexLocker locker(&_lock);
+//  QMutexLocker locker(&_lock);
   CASSSettings s;
   s.beginGroup("Log");
-  for (int i(0); i < 7 ; ++i)
+  for (int i(0); i < nbrOfLogLevel ; ++i)
   {
     if (s.value("MaxLoggingLevel","INFO").toString() + " " == _level2string[i])
     {
@@ -65,7 +67,9 @@ void Log::loadSettings()
   }
 
   QDir directory(s.value("Directory",QDir::currentPath()).toString());
-  QString filename(QDateTime::currentDateTime().toString("casslog_yyyyMMdd.log"));
+  QString filename("casslog_" +
+                   QDateTime::currentDateTime().toString("yyyyMMdd") +
+                   ".log");
   _log.open(QFileInfo(directory,filename).filePath().toUtf8().data(),
             ios_base::out | ios_base::app);
 }
@@ -77,7 +81,7 @@ Log::~Log()
 
 void Log::addline(Level level, const string &line)
 {
-  _log << QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss-z: ").toStdString()
+  _log << QDateTime::currentDateTime().toString("yyyy/MM/dd-hh:mm:ss:z: ").toStdString()
        << _level2string[level]
        << line
        << endl;
