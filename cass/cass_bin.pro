@@ -1,5 +1,5 @@
 # Copyright (C) 2009, 2010 Jochen Küpper
-# Copyright (C) 2009, 2010 Lutz Foucar
+# Copyright (C) 2009, 2010,2011, 2012 Lutz Foucar
 # Copyright (C) 2009 Nicola Coppola
 
 CASS_ROOT            = ..
@@ -108,6 +108,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       cass_event.cpp \
                       conversion_backend.cpp \
                       daemon.cpp \
+                      log.cpp \
                       event_getter.cpp \
                       input_base.cpp \
                       file_input.cpp \
@@ -158,6 +159,7 @@ HEADERS            += analysis_backend.h \
                       cass_event.h \
                       conversion_backend.h \
                       daemon.h \
+                      log.h \
                       event_getter.h \
                       input_base.h \
                       file_input.h \

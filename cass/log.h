@@ -27,7 +27,7 @@ namespace cass
 class Log
 {
 public:
-  /** the logging level */
+  /** the logging levels available */
   enum Level{ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4};
 
   /** retrieve a reference to the logging instance
@@ -37,6 +37,11 @@ public:
    */
   static void add(Level level, const std::string& line);
 
+  /** destructor
+   *
+   * closes the log file
+   */
+  ~Log();
 
 private:
   /** constructor
@@ -76,6 +81,9 @@ private:
 
   /** mutex to lock the singleton */
   static QMutex _lock;
+
+  /** the used logging level*/
+  static Level _loggingLevel;
 };
 }//end namespace cass
 

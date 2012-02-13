@@ -21,10 +21,13 @@ using namespace std;
 using namespace tr1;
 
 shared_ptr<Log> Log::_instance;
-QMutex Log::_singletonLock;
+QMutex Log::_lock;
+Log::Level Log::_loggingLevel;
 
 void Log::add(Level level, const std::string& line)
 {
+  if (_loggingLevel < level)
+    return;
   QMutexLocker locker(&_lock);
   if (!_instance)
     _instance = std::tr1::shared_ptr<Log>(new Log());
@@ -35,9 +38,11 @@ Log::Log()
 {
   CASSSettings s;
   s.beginGroup("Log");
-  QDir directory(s.value("Directory",QDir::currentPath()).toString);
+  _loggingLevel = static_cast<Level>(s.value("LoggingLevel",INFO).toInt());
+  QDir directory(s.value("Directory",QDir::currentPath()).toString());
   QString filename(QDateTime::currentDateTime().toString("casslog_yyyyMMdd.log"));
-  _log.open(QFileInfo(directory,filename).filePath(), ios::out | ios::app);
+  _log.open(QFileInfo(directory,filename).filePath().toUtf8().data(),
+            ios_base::out | ios_base::app);
 }
 
 Log::~Log()
