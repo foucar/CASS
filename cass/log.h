@@ -30,10 +30,16 @@ public:
   /** the logging levels available */
   enum Level{ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4};
 
-  /** retrieve a reference to the logging instance
+  /** retrive a reference to the singleton instance
    *
    * @return reference to the log singleton instance
-   * @param type the type of logging that one wants to add
+   */
+  static Log& ref();
+
+  /** add a string to the log
+   *
+   * @param level the level of importance that the log message has
+   * @param line string containing the line that should be added to the log
    */
   static void add(Level level, const std::string& line);
 

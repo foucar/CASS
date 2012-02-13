@@ -36,6 +36,14 @@ void Log::add(Level level, const std::string& line)
   _instance->addline(level,line);
 }
 
+Log& Log::ref()
+{
+  QMutexLocker locker(&_lock);
+  if (!_instance)
+    _instance = std::tr1::shared_ptr<Log>(new Log());
+  return *_instance;
+}
+
 Log::Log()
 {
   loadSettings();
@@ -43,6 +51,7 @@ Log::Log()
 
 void Log::loadSettings()
 {
+  QMutexLocker locker(&_lock);
   CASSSettings s;
   s.beginGroup("Log");
   for (int i(0); i < 7 ; ++i)

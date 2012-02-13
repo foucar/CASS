@@ -29,6 +29,7 @@
 #include "analyzer.h"
 #include "histogram.h"
 #include "common_data.h"
+#include "log.h"
 
 
 using namespace cass;
@@ -118,6 +119,7 @@ int CASSsoapService::quit(bool *success)
 int CASSsoapService::readini(size_t what, bool *success)
 {
   VERBOSEOUT(cerr << "CASSsoapService::readini(what=" << what << ")" << endl);
+  Log::ref().loadSettings();
   QMutexLocker inputLock(&InputBase::reference().lock);
   QMutexLocker workerLock(&Workers::reference().lock);
   InputBase::reference().pause(true);
