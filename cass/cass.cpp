@@ -15,6 +15,7 @@
 #include <QtGui/QApplication>
 
 #include "cass.h"
+#include "log.h"
 #include "analyzer.h"
 //#include "daemon.h"
 #include "input_base.h"
@@ -278,51 +279,6 @@ int main(int argc, char **argv)
 
     parser(QCoreApplication::arguments());
 
-    //  //parse command line options
-    //  int c;
-    //  while((c = getopt(argc, argv, "rmqp:s:c:i:o:f:")) != -1)
-    //  {
-    //    switch (c)
-    //    {
-    //#ifdef OFFLINE
-    //    case 'q':
-    //      quitwhendone = true;
-    //      break;
-    //    case 'i':
-    //      filelistname = optarg;
-    //      break;
-    //    case 'm':
-    //      multifile = true;
-    //      break;
-    //#else
-    //    case 'p':
-    //      partitionTag = optarg;
-    //      break;
-    //    case 'c':
-    //      index = strtol(optarg, 0, 0);
-    //      break;
-    //#endif
-    //#ifdef SOAPSERVER
-    //    case 's':
-    //      soap_port = strtol(optarg, 0, 0);
-    //      break;
-    //#endif
-    //    case 'r':
-    //      suppressrate = true;
-    //      break;
-    //    case 'f':
-    //      settingsfilename = optarg;
-    //      break;
-    //    case 'o':
-    //      outputfilename = optarg;
-    //      break;
-    //    default:
-    //      throw invalid_argument("CASS: Parameter '" + string(1,c) +
-    //                             "' with argument '" + optarg +
-    //                             "' does not exist in current CASS configuration.");
-    //      break;
-    //    }
-    //  }
 
     /** show help and exit if requested */
     if (showUsage)
@@ -403,17 +359,17 @@ int main(int argc, char **argv)
   }
   catch (const invalid_argument &error)
   {
-    cout << "User input is wrong: "<<error.what() <<endl;
+    Log::add(Log::ERROR,string("User input is wrong: ") + error.what());
     throw;
   }
   catch (const runtime_error &error)
   {
-    cout << "Runtime error: "<<error.what() <<endl;
+    Log::add(Log::ERROR,string("Runtime error: ") + error.what());
     throw;
   }
   catch (...)
   {
-    cout<<"main(): something bad happend, quitting the program."<<endl;
+    Log::add(Log::ERROR,"main(): something bad happend, quitting the program.");
   }
   cout<<endl;
 }
