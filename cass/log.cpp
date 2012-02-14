@@ -26,7 +26,7 @@ shared_ptr<Log> Log::_instance;
 QMutex Log::_lock;
 Log::Level Log::_loggingLevel=Log::INFO;
 const char* Log::_level2string[] =
-{"ERROR ","WARNING ","INFO ","DEBUG ","DEBUG1 ","DEBUG2 ","DEBUG3 ","DEBUG4 "};
+{"ERROR ","WARNING ","INFO ","VERBOSEINFO ","DEBUG ","DEBUG1 ","DEBUG2 ","DEBUG3 ","DEBUG4 "};
 
 void Log::add(Level level, const std::string& line)
 {

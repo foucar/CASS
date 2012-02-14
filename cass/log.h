@@ -28,7 +28,8 @@ class Log
 {
 public:
   /** the logging levels available */
-  enum Level{ERROR, WARNING, INFO, DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4,nbrOfLogLevel};
+  enum Level{ERROR, WARNING, INFO, VERBOSEINFO,
+             DEBUG, DEBUG1, DEBUG2, DEBUG3, DEBUG4,nbrOfLogLevel};
 
   /** retrive a reference to the singleton instance
    *
