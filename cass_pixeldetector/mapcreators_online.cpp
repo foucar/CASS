@@ -20,6 +20,7 @@
 #include "cass_settings.h"
 #include "common_data.h"
 #include "advanced_pixeldetector.h"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -30,8 +31,8 @@ using tr1::placeholders::_1;
 
 void OnlineFixedCreator::controlCalibration(const string &)
 {
-  cout <<endl<< "OnlineFixedCreator::controlCalibration(): Start collecting "<<_nbrFrames
-       <<" frames for calibration"<<endl;
+  Log::add(Log::INFO,"OnlineFixedCreator::controlCalibration(): Start collecting '" +
+           toString(_nbrFrames) + "' frames for calibration");
   _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
 }
 
@@ -51,8 +52,9 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
   }
   else
   {
-    cout <<endl<<"OnlineFixedCreator::buildAndCalc(): collected "<<_framecounter
-         << " frames. Starting to generate the offset and noise map"<<endl;
+    Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Collected '"
+             + toString(_framecounter) +
+             "' frames. Starting to generate the offset and noise map");
     specialstorage_t::iterator storagePixels(_specialstorage.begin());
     specialstorage_t::const_iterator lastStoragePixels(_specialstorage.end());
     frame_t::iterator offset(_commondata->offsetMap.begin());
@@ -103,6 +105,7 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
     _specialstorage.clear();
     _framecounter = 0;
+    Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Done creating maps");
   }
 }
 
@@ -113,17 +116,11 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
   _framecounter = 0;
-//  _maxDisregarded = s.value("DisregardedHighValues",5).toUInt();
-//  _minDisregarded = s.value("DisregardedLowValues",0).toUInt();
   _writeMaps = s.value("WriteMaps",true).toBool();
-//  if(s.value("UseMedian",false).toBool())
-//    _calcOffset = &calcMedian;
-//  else
-//    _calcOffset = &calcMean;
   if(s.value("StartInstantly",false).toBool())
   {
-    cout <<endl<< "OnlineFixedCreator::loadSettings(): Start collecting "<<_nbrFrames
-         <<" frames for calibration"<<endl;
+    Log::add(Log::INFO,"OnlineFixedCreator::loadSettings(): Start collecting '" +
+             toString(_nbrFrames) +"' frames for calibration");
     _createMap = bind(&OnlineFixedCreator::buildAndCalc,this,_1);
   }
   else

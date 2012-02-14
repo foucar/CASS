@@ -26,6 +26,7 @@
 #include "mapcreator_base.h"
 #include "pixeldetector_mask.h"
 #include "hlltypes.h"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -64,11 +65,9 @@ void readHLLOffsetFile(const string &filename, CommonData& data)
   ifstream hllfile(filename.c_str(),ios::in);
   if (!hllfile.is_open())
   {
-    cout << "readHllOffsetFile: Could not open '"<<filename
-         <<"'. Skip loading the offset and noise map."<<endl;
+    Log::add(Log::WARNING,"readHllOffsetFile: Could not open '" + filename +
+             "'. Skip loading the offset and noise map.");
     return; 
-    //    throw invalid_argument("readHLLOffsetFile(): Error opening file '" +
-    //                     filename + "'");
   }
   hllDataTypes::DarkcalFileHeader header;
   hllfile >> header;
@@ -172,11 +171,9 @@ void readCASSOffsetFile(const string &filename, CommonData& data)
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {
-    cout <<"readCASSOffsetFile: Warning: could not open '"<<filename
-	 <<"'. Skipping reading the noise and offset maps."<<endl;
+    Log::add(Log::WARNING,"readCASSOffsetFile: Could not open '" + filename +
+             "'. Skipping reading the noise and offset maps.");
     return;
-    //    throw invalid_argument("readCASSOffsetFile(): Error opening file '" +
-    //                     filename + "'");
   }
   in.seekg(0,std::ios::end);
   const size_t size = in.tellg() / 2 / sizeof(double);
@@ -271,9 +268,8 @@ void readHLLGainFile(const string &filename, CommonData& data)
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {
-    cout << "readHLLGainFile: Warning: file '"<<filename
-         <<"' does not exist. Skipping reading the Gain/CTE file"<<endl;
-    /** @todo throw runtime error instead of just returning? */
+    Log::add(Log::WARNING,"readHLLGainFile: File '" + filename +
+             "' does not exist. Skipping reading the Gain/CTE file");
     return;
   }
   char line[80];
@@ -340,7 +336,6 @@ void readHLLGainFile(const string &filename, CommonData& data)
  */
 void createCorrectionMap(CommonData& data)
 {
-  //  QWriteLocker lock(&data.lock);
   frame_t::iterator corval(data.correctionMap.begin());
   frame_t::const_iterator noise(data.noiseMap.begin());
   CommonData::mask_t::const_iterator mask(data.mask.begin());
@@ -369,12 +364,11 @@ void isSameSize(const Frame& frame, CommonData& data)
   bool changed(false);
   if ((frame.columns * frame.rows) != static_cast<int>(data.offsetMap.size()))
   {
-    cout << "isSameSize(): WARNING the offsetMap does not have the right size '"
-         << data.offsetMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the offsetMap"
-         <<endl;
+    Log::add(Log::WARNING,"isSameSize():The offsetMap does not have the right size '" +
+             toString(data.offsetMap.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the offsetMap");
     data.offsetMap.resize(frame.columns*frame.rows, 0);
     data.columns = frame.columns;
     data.rows = frame.rows;
@@ -382,12 +376,11 @@ void isSameSize(const Frame& frame, CommonData& data)
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.noiseMap.size()))
   {
-    cout << "isSameSize(): WARNING the noiseMap does not have the right size '"
-         << data.noiseMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the noiseMap"
-         <<endl;
+    Log::add(Log::WARNING,"isSameSize():The noiseMap does not have the right size '" +
+             toString(data.noiseMap.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the noiseMap");
     data.noiseMap.resize(frame.columns*frame.rows, 4000);
     data.columns = frame.columns;
     data.rows = frame.rows;
@@ -395,12 +388,11 @@ void isSameSize(const Frame& frame, CommonData& data)
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.mask.size()))
   {
-    cout << "isSameSize(): WARNING the mask does not have the right size '"
-         << data.mask.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the mask"
-         <<endl;
+    Log::add(Log::WARNING,"isSameSize():The mask does not have the right size '" +
+             toString(data.mask.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the mask");
     data.mask.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
@@ -408,12 +400,11 @@ void isSameSize(const Frame& frame, CommonData& data)
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.gain_cteMap.size()))
   {
-    cout << "isSameSize(): WARNING the gain_cteMap does not have the right size '"
-         << data.gain_cteMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the gain_cteMap"
-         <<endl;
+    Log::add(Log::WARNING,"isSameSize():The gain_cteMap does not have the right size '" +
+             toString(data.gain_cteMap.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the gain_cteMap");
     data.gain_cteMap.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
@@ -421,12 +412,11 @@ void isSameSize(const Frame& frame, CommonData& data)
   }
   if ((frame.columns * frame.rows) != static_cast<int>(data.correctionMap.size()))
   {
-    cout << "isSameSize(): WARNING the correctionMap does not have the right size '"
-         << data.correctionMap.size()
-         <<  "' to accommodate the frames with size '"
-         << frame.columns * frame.rows
-         << "'. Resizing the correctionMap"
-         <<endl;
+    Log::add(Log::WARNING,"isSameSize():The correctionMap does not have the right size '" +
+             toString(data.correctionMap.size()) +
+             "' to accommodate the frames with size '" +
+             toString(frame.columns * frame.rows) +
+             "'. Resizing the correctionMap");
     data.correctionMap.resize(frame.columns*frame.rows, 1);
     data.columns = frame.columns;
     data.rows = frame.rows;
@@ -449,9 +439,8 @@ CommonData::shared_pointer CommonData::instance(const instancesmap_t::key_type& 
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(cout << "CommonData::instance(): creating an instance of the"
-               <<" common data container for detector '"<<detector<<"'"
-               <<endl);
+    Log::add(Log::DEBUG,"CommonData::instance(): creating an instance of the" +
+             string(" common data container for detector '") + detector + "'");
     _instances[detector] = CommonData::shared_pointer(new CommonData(detector));
   }
   return _instances[detector];
@@ -490,15 +479,17 @@ void CommonData::loadSettings(CASSSettings &s)
     QFileInfo offsetfilenameInfo(QString::fromStdString(offsetfilename));
     if (offsetfilenameInfo.isSymLink())
     {
-      offsetfilename = offsetfilenameInfo.symLinkTarget().toStdString();
-      if (!offsetfilenameInfo.exists())
-        cout <<"CommonData::loadSettings: WARNING: The given offset filename is a link that referes to a non existing file!"<<endl;
+      if (offsetfilenameInfo.exists())
+        offsetfilename = offsetfilenameInfo.symLinkTarget().toStdString();
+      else
+        Log::add(Log::WARNING,"CommonData::loadSettings: The given offset filename '" +
+                 offsetfilename + "' is a link that referes to a non existing file!");
     }
     if (offsetfilename != _inputOffsetFilename)
     {
-      cout << "CommonData::loadSettings(): Load Darkcal data for detector with name '"
-           << detectorname <<"' which has id '" <<detectorId<<"' from file '"
-           <<offsetfilename<<"'"<<endl;
+      Log::add(Log::VERBOSEINFO, "CommonData::loadSettings(): Load Darkcal data " +
+               string(" for detector with name '") + detectorname + "' which has id '" +
+               toString(detectorId) + "' from file '" + offsetfilename +"'");
       _inputOffsetFilename = offsetfilename;
       if (offsetfiletype == "hll")
         readHLLOffsetFile(offsetfilename, *this);

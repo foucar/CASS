@@ -15,6 +15,7 @@
 #include "convenience_functions.h"
 #include "histogram.h"
 #include "common_data.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
@@ -78,10 +79,9 @@ void pp105::loadSettings(size_t)
   _result = new Histogram2DFloat(1024,1024);
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display frame of detector '"<<_detector
-      <<"'. It will use condition '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will display frame of detector '" + _detector +
+           "'. It will use condition '" + _condition->key() +"'");
 }
 
 void pp105::process(const cass::CASSEvent& evt)
@@ -105,8 +105,7 @@ void pp105::process(const cass::CASSEvent& evt)
     for (; dependand != dependands.end(); ++dependand)
       _pp.getPostProcessor(*dependand).histogramsChanged(_result);
   }
-  copy(frame.begin(),
-       frame.end(),
+  copy(frame.begin(), frame.end(),
        dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
   _result->nbrOfFills() = 1;
   _result->lock.unlock();
@@ -142,10 +141,9 @@ void pp106::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will histogram the frame z values of detector '"<<_detector
-      <<"'. It will use condition '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will histogram the frame z values of detector '" + _detector +
+           "'. It will use condition '" + _condition->key() + "'");
 }
 
 void pp106::process(const cass::CASSEvent& evt)
@@ -207,11 +205,9 @@ void pp107::loadSettings(size_t)
                                  CommonData::instance(_detector)->rows);
   /** @todo enable to resize the histogram, when the map does not have the default size */
   createHistList(2*cass::NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display the '"<< mapType
-      <<"' map of detector '"<<_detector
-      <<"'. It will use condition '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key + "' will display the '"+ mapType +
+           "' map of detector '" + _detector + "'. It will use condition '" +
+           _condition->key() +"'");
 }
 
 void pp107::process(const cass::CASSEvent&/* evt*/)
@@ -317,16 +313,15 @@ void pp144::loadSettings(size_t)
     _getZ = &getConstant<Hit>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will add all hits of detector '"<<_detector
-      <<"' to an image only when the spectral component is between '"<<_range.first
-      <<"' and '"<<_range.second
-      <<"', and the the split level is between '"<<_splitLevelRange.first
-      <<"' and '"<<_splitLevelRange.second
-      <<boolalpha<<"'. It will fill the weight of the histograms with the "
-      <<"pixels z value"<<fillPixelvalueAsWeight
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will add all hits of detector '" + _detector +
+           "' to an image only when the spectral component is between '" +
+           toString(_range.first) + "' and '" + toString(_range.second) +
+           "', and the the split level is between '" + toString(_splitLevelRange.first) +
+           "' and '" + toString(_splitLevelRange.second) +
+           "'. It will fill the weight of the histograms with the " +
+           "pixels z value" + toString(fillPixelvalueAsWeight) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp144::process(const CASSEvent& evt)
@@ -374,10 +369,9 @@ void pp145::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will retrieve the number of coalesced pixels (hits) of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will retrieve the number of coalesced pixels (hits) of detector '"
+           + _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp145::process(const CASSEvent& evt)
@@ -417,10 +411,9 @@ void pp146::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will retrieve the number of coalesced photonhits of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will retrieve the number of coalesced photonhits of detector '"
+           + _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp146::process(const CASSEvent& evt)
@@ -463,10 +456,9 @@ void pp147::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will histogram the detected pixels of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will histogram the detected pixels of detector '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp147::process(const CASSEvent& evt)
@@ -519,14 +511,13 @@ void pp148::loadSettings(size_t)
     _getZ = &getConstant<Pixel>;
 
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will add all hits of detector '"<<_detector
-      <<"' to an image only when the spectral component is between '"<<_range.first
-      <<"' and '"<<_range.second
-      <<boolalpha<<"'. It will fill the weight of the histograms with the "
-      <<"pixels z value"<<fillPixelvalueAsWeight
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will add all hits of detector '" + _detector +
+           "' to an image only when the spectral component is between '" +
+           toString(_range.first) + "' and '" + toString(_range.second) +
+           "'. It will fill the weight of the histograms with the " +
+           "pixels z value" + toString(fillPixelvalueAsWeight) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp148::process(const CASSEvent& evt)
@@ -573,10 +564,9 @@ void pp149::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   DetectorHelper::instance(_detector)->loadSettings();
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will retrieve the number of coalesced pixels (hits) of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will retrieve the number of coalesced pixels (hits) of detector '" +
+           _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp149::process(const CASSEvent& evt)

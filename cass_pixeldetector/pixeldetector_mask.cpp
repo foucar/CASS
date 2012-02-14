@@ -16,6 +16,7 @@
 
 #include "cass_settings.h"
 #include "common_data.h"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -512,7 +513,7 @@ void createCASSMask(CommonData &data, CASSSettings &s)
     string type(s.value("MaskElementType","square").toString().toStdString());
     if (functions.find(type) == functions.end())
       throw invalid_argument("createCASSMask(): Unknown Mask Element Type '" +type+ "'");
-    VERBOSEOUT(cout << "createCASSMask: add mask element type '"<<type<<"'"<<endl);
+    Log::add(Log::DEBUG,"createCASSMask: add mask element type '" + type +"'");
     functions[type](data,s);
   }
   s.endArray();

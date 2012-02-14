@@ -19,6 +19,7 @@
 #include "cass_settings.h"
 #include "common_data.h"
 #include "advanced_pixeldetector.h"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -205,8 +206,8 @@ void FixedMaps::loadSettings(CASSSettings &s)
 
 void MovingMaps::controlCalibration(const string &/*unused*/)
 {
-  cout <<endl<< "MovingMaps::controlCalibration(): start training by collecting '"<<_trainingsize
-             <<"' Frames"<<endl<<endl;
+  Log::add(Log::INFO,"MovingMaps::controlCalibration(): start training by collecting '" +
+           toString(_trainingsize) + "' Frames");
   _framecounter = 0;
   _createMap = bind(&MovingMaps::train,this,_1);
 }
@@ -220,8 +221,8 @@ void MovingMaps::train(const Frame &frame)
   }
   else
   {
-    cout <<endl<< "MovingMaps::train(): collected '"<<_framecounter
-         <<"' frames; building intial offset and noise map"<<endl<<endl;
+    Log::add(Log::INFO,"MovingMaps::train(): collected '" + toString(_framecounter) +
+             "' frames; building intial offset and noise map");
     frame_t::iterator offset(_commondata->offsetMap.begin());
     frame_t::iterator offsetEnd(_commondata->offsetMap.end());
     frame_t::iterator noise(_commondata->noiseMap.begin());
@@ -240,8 +241,6 @@ void MovingMaps::train(const Frame &frame)
           const pixel_t old_offset(tmp_offset);
           tmp_offset += ((pixel - tmp_offset) / accumulatedValues);
           tmp_noise += ((pixel - old_offset)*(pixel - tmp_offset));
-
-//          if ((*iFrame)[pixel] - *offset < *noise)
       }
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues - 1));
@@ -253,7 +252,7 @@ void MovingMaps::train(const Frame &frame)
       for (storage_t::const_iterator iFrame(storageBegin); iFrame != storageEnd ; ++iFrame)
       {
         pixel_t pixel((*iFrame)[pixelIdx]);
-        if ((maxNoise < pixel - *offset))
+        if ((pixel - *offset < maxNoise))
         {
           ++accumulatedValues;
           const pixel_t old_offset(tmp_offset);
@@ -267,6 +266,7 @@ void MovingMaps::train(const Frame &frame)
     _commondata->saveMaps();
     _commondata->createCorMap();
     _createMap = bind(&MovingMaps::updateMaps,this,_1);
+    Log::add(Log::INFO,"MovingMaps::train(): Done training.");
   }
 }
 
@@ -302,15 +302,16 @@ void MovingMaps::loadSettings(CASSSettings &s)
   s.beginGroup("ChangingCreator");
   _framecounter = 0;
   _commondata = CommonData::instance(detectorname);
+  _trainingsize = s.value("NbrTrainingFrames",50).toUInt();
   if (s.value("DoTraining",false).toBool())
   {
-    cout<<endl<<"MovingMaps::loadSettings(): Do Training"<<endl;
+    Log::add(Log::INFO,"MovingMaps::loadSettings(): Start collecting '" +
+             toString(_trainingsize) + "' Frames for training.");
     _createMap = bind(&MovingMaps::train,this,_1);
   }
   else
     _createMap = bind(&MovingMaps::updateMaps,this,_1);
   _frameSave = s.value("AutoSaveSize",1e6).toUInt();
-  _trainingsize = s.value("NbrTrainingFrames",50).toUInt();
   size_t average(s.value("NbrOfAverages", 50).toUInt());
   _alpha =  2./static_cast<float>(average+1.);
   _multiplier = s.value("Multiplier",4).toFloat();
