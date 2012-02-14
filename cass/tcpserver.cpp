@@ -119,7 +119,7 @@ int CASSsoapService::quit(bool *success)
 int CASSsoapService::readini(size_t what, bool *success)
 {
   VERBOSEOUT(cerr << "CASSsoapService::readini(what=" << what << ")" << endl);
-  Log::ref().loadSettings();
+  Log::loadSettings();
   QMutexLocker inputLock(&InputBase::reference().lock);
   QMutexLocker workerLock(&Workers::reference().lock);
   InputBase::reference().pause(true);

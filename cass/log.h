@@ -22,6 +22,12 @@ namespace cass
  *
  * class is a singleton so one can call it from everywhere
  *
+ * @cassttng Log/{MaxLoggingLevel} \n
+ *           The maximum Level of output requested.
+ * @cassttng Log/{Directory} \n
+ *           The directory where the log file will be written to. Default is
+ *           the directory that cass was started in.
+ *
  * @author Lutz Foucar
  */
 class Log
@@ -50,8 +56,11 @@ public:
    */
   ~Log();
 
-  /** load the logging settings from the .ini file */
-  void loadSettings();
+  /** load the logging settings from the .ini file
+   *
+   * if the instance has not yet been created create the logging instance.
+   */
+  static void loadSettings();
 
 private:
   /** constructor
@@ -60,12 +69,6 @@ private:
    * via the .ini file. The name is always composed out of "casslog_yyyyMMdd.log"
    * where yyyy encodes the year, MM the month and dd the day. The log file is
    * opened such that new entries will always be appended to the file.
-   *
-   * @cassttng Log/{MaxLoggingLevel} \n
-   *           The maximum Level of output requested.
-   * @cassttng Log/{Directory} \n
-   *           The directory where the log file will be written to. Default is
-   *           the directory that cass was started in.
    *
    * @note private so one can only create the instance from the static
    *       function
@@ -81,6 +84,18 @@ private:
    */
   void addline(Level level, const std::string& line);
 
+  /** load the logging settings from the .ini file
+   *
+   * Sets the logging message level that will be put into the log file and the
+   * position and name of the file.
+   *
+   * The log file will be created from the current date and the user defined
+   * directory. It will only be opened if the file has not been opened yet. If
+   * the name of the file (including the absolute path) has changed, close it
+   * (if it was open) and open it with the new filename.
+   */
+  void load();
+
 private:
   /** the instance */
   static std::tr1::shared_ptr<Log> _instance;
@@ -90,6 +105,9 @@ private:
 
   /** a buffer for concatinating the message */
   std::string _buffer;
+
+  /** the filename of the log file */
+  std::string _filename;
 
   /** mutex to lock the singleton */
   static QMutex _lock;
