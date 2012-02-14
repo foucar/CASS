@@ -15,6 +15,7 @@
 #include "histogram.h"
 #include "cass_event.h"
 #include "cass_settings.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
@@ -574,14 +575,24 @@ void pp1002::loadSettings(size_t)
   const HistogramBackend &hist(_pHist->getHist(0));
   if (hist.dimension() != 2)
     throw invalid_argument("pp1002: The histogram that should be written to hdf5 is not a 2d histogram");
+  _compress = settings.value("Compress",true).toBool();
+  if (_compress)
+  {
+    htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
+    unsigned int filter_info;
+    H5Zget_filter_info(H5Z_FILTER_DEFLATE, &filter_info);
+    if (!compavailable ||
+        !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
+        !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
+      _compress = false;
+  }
   _write = false;
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  cout <<"PostProcessor '"<<_key
-      <<"' will write chosen histograms to hdf5 file with '"<<_basefilename
-      <<"' as basename. Condition is '"<<_condition->key()
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           + "' will write chosen histograms to hdf5 file with '" + _basefilename +
+           + "' as basename. Condition is '" + _condition->key() + "'");
 }
 
 void pp1002::process(const CASSEvent &evt)
@@ -603,8 +614,21 @@ void pp1002::process(const CASSEvent &evt)
   hid_t dataspace_id = H5Screate_simple( 2, dims, NULL);
   if (dataspace_id == 0)
     throw runtime_error("pp1002::process(): Could not open the dataspace for the 2d histogram");
-  hid_t dataset_id = (H5Dcreate1(gid, "data",
-                                 H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
+  hid_t dataset_id;
+  if (_compress)
+  {
+    // Create dataset creation property list, set the gzip compression filter
+    // and chunck size
+    hsize_t chunk[2] = {40,3};
+    hid_t dcpl (H5Pcreate (H5P_DATASET_CREATE));
+    H5Pset_deflate (dcpl, 9);
+    H5Pset_chunk (dcpl, 2, chunk);
+    dataset_id = (H5Dcreate(gid, "data",
+                            H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, dcpl, H5P_DEFAULT));
+  }
+  else
+    dataset_id = (H5Dcreate1(gid, "data",
+                             H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT));
   if (dataset_id == 0 )
     throw runtime_error("pp1002:process(): Could not open dataset for 2d histogram");
   /** write data */

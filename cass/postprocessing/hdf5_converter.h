@@ -119,6 +119,9 @@ namespace cass
   private:
     /** a lock to make the process reentrant */
     QMutex _lock;
+
+    /** compress flag */
+    bool _compress;
   };
 }
 #endif
