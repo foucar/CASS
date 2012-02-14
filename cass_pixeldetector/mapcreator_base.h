@@ -56,13 +56,13 @@ public:
    *
    * @param frame the frame containing the data to build the maps from
    */
-  virtual void operator() (const Frame &frame)=0;
+  virtual void operator() (const Frame &/*frame*/) {}
 
   /** load the settings of this creator
    *
    * @param s the CASSSettings object to read the information from
    */
-  virtual void loadSettings(CASSSettings &s)=0;
+  virtual void loadSettings(CASSSettings &/*s*/) {}
 
   /** control the calibration process
    *

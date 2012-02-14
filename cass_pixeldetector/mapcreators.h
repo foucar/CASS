@@ -26,37 +26,6 @@ namespace pixeldetector
 struct Frame;
 class CommonData;
 
-/** Creates maps such that they will not do any correction
- *
- * All offsets are set to 0 and noises are set to 4000.
- *
- * @author Lutz Foucar
- */
-class NonAlteringMaps : public MapCreatorBase
-{
-public:
-  /** the operator
-   *
-   * does nothing
-   *
-   * @param frame the frame to check for
-   */
-  void operator() (const Frame &/*frame*/) {}
-
-  /** load the settings of this creator
-   *
-   * set the correction map such that it will not alter the frame. See classes
-   * help for more information.
-   *
-   * @param s the CASSSettings object to read the information from
-   */
-  void loadSettings(CASSSettings &s);
-
-private:
-  /** the container with all the maps */
-  std::tr1::shared_ptr<CommonData> _commondata;
-};
-
 
 /** Creates maps from a fixed number of Frames
  *

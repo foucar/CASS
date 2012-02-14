@@ -23,7 +23,7 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
 {
   shared_pointer ptr;
   if (type == "none")
-    ptr = shared_pointer(new NonAlteringMaps());
+    ptr = shared_pointer(new MapCreatorBase());
   else if (type == "fixed")
     ptr = shared_pointer(new FixedMaps());
   else if (type == "moving")
