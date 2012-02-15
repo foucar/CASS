@@ -1,4 +1,4 @@
-//Copyright (C) 2011 Lutz Foucar
+//Copyright (C) 2011, 2012 Lutz Foucar
 
 /**
  * @file pixeldetector_mask.cpp contains definition of the mask of a pixeldetector
