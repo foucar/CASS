@@ -27,6 +27,7 @@
 #include "cass_settings.h"
 #include "coltrims_analysis.h"
 #include "image_manipulation.h"
+#include "partial_covariance.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -750,6 +751,42 @@ cass::PostprocessorBackend * cass::PostProcessors::create(const key_t &key)
   case medianLastValues:
     processor = new pp301(*this,key);
   break;
+  case tof2energy:
+      processor = new pp400(*this,key);
+      break;
+  case calcVariance:
+      processor = new pp401(*this,key);
+      break;
+  case HistogramSqAveraging:
+      processor = new pp402(*this, key);
+      break;
+  case Bin1DHist:
+      processor = new pp403(*this, key);
+      break;
+  case TofToMTC:
+      processor = new pp404(*this, key);
+      break;
+  case PulseDuration:
+      processor = new pp405(*this,key);
+      break;
+  case tof2energy0D:
+      processor = new pp406(*this,key);
+      break;
+  case tof2energylinear:
+      processor = new pp407(*this,key);
+      break;
+  case tof2energylinear0D:
+      processor = new pp408(*this,key);
+      break;
+  case calcCovarianceMap:
+      processor = new pp410(*this, key);
+      break;
+  case calcCorrection:
+      processor = new pp412(*this, key);
+      break;
+  case EventNumber:
+      processor = new pp420(*this, key);
+      break;
 #ifdef HDF5
   case PnccdHDF5:
     processor = new pp1000(*this,key);

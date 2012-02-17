@@ -143,6 +143,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       ./postprocessing/coltrims_analysis.cpp \
                       ./postprocessing/achimcalibrator_hex.cpp \
                       ./postprocessing/image_manipulation.cpp \
+                      ./postprocessing/partial_covariance.cpp
 
 HEADERS            += analysis_backend.h \
                       analyzer.h \
@@ -202,6 +203,7 @@ HEADERS            += analysis_backend.h \
                       ./postprocessing/coltrims_analysis.h \
                       ./postprocessing/achimcalibrator_hex.h \
                       ./postprocessing/image_manipulation.h \
+                      ./postprocessing/partial_covariance.h
 
 INCLUDEPATH        += postprocessing \
                       ../cass_acqiris \

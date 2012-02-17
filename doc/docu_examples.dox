@@ -9,4 +9,5 @@
 @example quadanode.ini
 @example pnCCDSpectrum.ini
 @example advanced_ccd.ini
+@example Covariance_Electrons.ini
 */

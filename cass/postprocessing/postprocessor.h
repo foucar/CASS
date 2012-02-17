@@ -144,6 +144,18 @@ the Class description for information about what parameters are user settable.
 00301: median over last values
 00240: Test Image
 
+00400: ToF to Energy conversion
+00401: Calculate variance
+00402: Square average
+00403: Binned 1D histogram
+00404: ToF to Mass to Charge ratio conversion
+00405: Pulse duration od shot
+00406: ToF to Energy conversion from 0D histogram
+00407: ToF to Energy conversion by linear interpolation
+00408: ToF to Energy conversion by linear interpolation and correction from 0D histogram
+00410: calclate covariance map
+00420: indicate number of event
+
 ---Output--
 01000: Dump front and back pnCCD images (and more...) to HDF5
 01001: Put selected Histograms to HDF5-File
@@ -329,10 +341,22 @@ using the custom doxygen tag cassttng.
       ParticleValues = 251,
       NbrParticles = 252,
 
-
       SingleParticleDetection=300,
       medianLastValues=301,
       TestImage=240,
+
+      tof2energy=400,
+      calcVariance=401,
+      HistogramSqAveraging=402,
+      Bin1DHist=403,
+      TofToMTC=404,
+      PulseDuration=405,
+      tof2energy0D=406,
+      tof2energylinear=407,
+      tof2energylinear0D=408,
+      calcCovarianceMap=410,
+      calcCorrection=412,
+      EventNumber=420,
 
       PnccdHDF5=1000,
       HDF5Converter=1001,
