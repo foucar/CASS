@@ -15,6 +15,7 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "agattypes.h"
+#include "log.h"
 
 using namespace cass;
 using namespace cass::ACQIRIS;
@@ -40,8 +41,8 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
   _instrument.channels().resize(header.nbrChannels);
   _usedChannelBitmask = header.usedChannelBitmask;
 
-  cout <<"LMAReader(): File contains instrument with '"<<header.nbrChannels
-       <<"' channels:"<<endl;
+  Log::add(Log::VERBOSEINFO,"LMAReader(): File contains instrument with '" +
+           toString(header.nbrChannels)  +"' channels:");
   for (int16_t i(0) ; i < header.nbrChannels ;++i)
   {
     Channel &chan(_instrument.channels()[i]);
@@ -49,8 +50,8 @@ void LmaReader::readHeaderInfo(std::ifstream &file)
     chan.waveform().resize(header.nbrSamples);
     chan.channelNbr() = i;
 
-    cout <<"LMAReader(): Channel '"<<i<<"' is "
-         <<((_usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
+    Log::add(Log::VERBOSEINFO,"LMAReader(): Channel '" + toString(i) + "' is " +
+             ((_usedChannelBitmask & (0x1<<i))?"":"not") + " recorded!");
 
     if (_usedChannelBitmask & (0x1<<i))
     {

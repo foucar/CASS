@@ -13,6 +13,7 @@
 
 #include "lma_parser.h"
 #include "agattypes.h"
+#include "log.h"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -30,13 +31,13 @@ void LMAParser::run()
     throw runtime_error("LMAParser():run: The lma file seems to contain 8-bit wavefroms '"
                         + toString(header.nbrBits) + "'. Currently this is not supported.");
 
-  cout <<"LMAParser(): File contains instrument with '"<<header.nbrChannels
-       <<"' channels:"<<endl;
+  Log::add(Log::VERBOSEINFO,"LMAParser(): File contains instrument with '" +
+           toString(header.nbrChannels) + "' channels:");
 
   for (int16_t i(0) ; i < header.nbrChannels ;++i)
   {
-    cout <<"LMAParser(): Channel '"<<i<<"' is "
-         <<((header.usedChannelBitmask & (0x1<<i))?"":"not")<<" recorded!"<<endl;
+    Log::add(Log::VERBOSEINFO,"LMAParser(): Channel '" + toString(i) + "' is " +
+             ((header.usedChannelBitmask & (0x1<<i))?"":"not") + " recorded!");
     if (header.usedChannelBitmask & (0x1<<i))
       file.seekg(sizeof(lmaHeader::Channel),ios_base::cur);
   }

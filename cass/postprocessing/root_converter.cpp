@@ -25,6 +25,7 @@
 #include "cass_settings.h"
 #include "cass_event.h"
 #include "rootfile_helper.h"
+#include "log.h"
 
 
 using namespace cass;
@@ -37,7 +38,6 @@ namespace cass
   {
     string eventIdToDirectoryName(uint64_t eventid)
     {
-      cout << eventid<<endl;
       uint32_t timet(static_cast<uint32_t>((eventid & 0xFFFFFFFF00000000) >> 32));
       uint32_t eventFiducial = static_cast<uint32_t>((eventid & 0x00000000FFFFFFFF) >> 8);
       stringstream name;
@@ -51,8 +51,7 @@ namespace cass
       {
         name << "UnknownTime_"<<eventid;
       }
-      VERBOSEOUT(cout<<"eventIdToDirectoryName(): name: "<<name.str()
-                 <<endl);
+      Log::add(Log::DEBUG4,"eventIdToDirectoryName(): name: '"+ name.str() + "'");
       return name.str();
     }
 
