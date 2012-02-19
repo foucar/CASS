@@ -88,12 +88,10 @@ void pp110::process(const CASSEvent &evt)
     for (; it != dependands.end(); ++it)
       _pp.getPostProcessor(*it).histogramsChanged(_result);
   }
-  transform(waveform.begin(),
-            waveform.end(),
+  transform(waveform.begin(), waveform.end(),
             dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
-//            Adc2Volts(channel.gain(),channel.offset()));
-            bind<waveform_t::value_type>(minus<double>(),channel.offset(),
-                                         bind<>(multiplies<double>(),channel.gain(),_1)));
+            bind<float>(minus<float>(),
+                        bind(multiplies<float>(),channel.gain(),_1),channel.offset()));
   _result->nbrOfFills()=1;
   _result->lock.unlock();
 }
