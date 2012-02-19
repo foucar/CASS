@@ -17,6 +17,7 @@
 #include <QtCore/QDateTime>
 #include <QtCore/QFileInfo>
 #include <QtCore/QStringList>
+#include <QtCore/QtGlobal>
 
 #include "common_data.h"
 
@@ -340,7 +341,7 @@ void createCorrectionMap(CommonData& data)
   frame_t::const_iterator noise(data.noiseMap.begin());
   CommonData::mask_t::const_iterator mask(data.mask.begin());
   for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask)
-    *corval = *corval * *mask * (*noise < data.noiseThreshold);
+    *corval = *corval * *mask * (*noise < data.noiseThreshold) * (!qFuzzyCompare(*noise,0.f));
 }
 
 /** check whether the frame has the same size as the maps.
