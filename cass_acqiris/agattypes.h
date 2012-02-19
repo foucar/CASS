@@ -142,7 +142,7 @@ namespace AGATRemoteHeader
 struct Event
 {
   /** the event id */
-  uint32_t headersize;
+  uint32_t id;
 
   /** horpos value from acqiris */
   double horpos;

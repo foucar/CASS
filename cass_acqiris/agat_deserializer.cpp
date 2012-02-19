@@ -33,10 +33,11 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
   Device *dev(dynamic_cast<Device*>(evt.devices()[CASSEvent::Acqiris]));
   Instrument &instr(dev->instruments()[Standalone]);
 
-  /** read the event header */
+  /** read the event header and copy the id */
   AGATRemoteHeader::Event evtHead;
   stream >> evtHead;
   nBytesRead += sizeof(AGATRemoteHeader::Event);
+  evt.id() = evtHead.id;
   /** resize the channel container to fit the right number of channels */
   instr.channels().resize(evtHead.nbrChannels);
   /** for each channel */
@@ -55,6 +56,7 @@ size_t AGATStreamer::operator ()(QDataStream& stream, CASSEvent& evt)
       chan.channelNbr() = iChan;
       chan.offset() = chanHead.offset_mV*1e-3;
       chan.gain() = chanHead.gain_mVperLSB*1e-3;
+      chan.sampleInterval() = evtHead.samplingInterval;
       /** resize the wavefrom so that all the pulses will fit into it */
       waveform_t& waveform(chan.waveform());
       waveform.resize(evtHead.nbrSamples);
