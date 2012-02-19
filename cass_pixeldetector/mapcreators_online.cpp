@@ -14,6 +14,8 @@
 
 #include <QtCore/QString>
 #include <QtCore/QStringList>
+#include <QtCore/QTime>
+#include <QtCore/QtGlobal>
  
 #include "mapcreators_online.h"
 
@@ -52,6 +54,8 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
   }
   else
   {
+    QTime t;
+    t.start();
     Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Collected '"
              + toString(_framecounter) +
              "' frames. Starting to generate the offset and noise map");
@@ -72,10 +76,14 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
         ++accumulatedValues;
         const pixel_t old_offset(tmp_offset);
         tmp_offset += ((*pixel - tmp_offset) / accumulatedValues);
-        tmp_noise += ((*pixel - old_offset)*(*pixel - tmp_offset));
+        tmp_noise  += ((*pixel - old_offset)*(*pixel - tmp_offset));
       }
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues-1));
+      if(qFuzzyCompare(*noise,0.f))
+        Log::add(Log::ERROR,"OnlineFixedCreator::buildAndCalc(): the noise of pixel '" +
+                 toString(distance(_specialstorage.begin(), storagePixels))
+                 + "' is 0 after the first iteration.");
       /** calc noise and offset from pixels that do not contain photon hits */
       pixel = storagePixels->begin();
       accumulatedValues = 0;
@@ -95,6 +103,15 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
       }
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues-1));
+      if(accumulatedValues == 0)
+        Log::add(Log::ERROR,"OnlineFixedCreator::buildAndCalc(): for pixel '" +
+                 toString(distance(_specialstorage.begin(), storagePixels))
+                 + "' did not find any pixel below the maximum Noise of '" +
+                 toString(maxNoise) +"'");
+      if(qFuzzyCompare(*noise,0.f))
+        Log::add(Log::ERROR,"OnlineFixedCreator::buildAndCalc(): the noise of pixel '" +
+                 toString(distance(_specialstorage.begin(), storagePixels))
+                 + "' is 0.");
     }
     /** write the maps to file if requested and recreate the correction map.
      *  then reset everything.
@@ -105,7 +122,8 @@ void OnlineFixedCreator::buildAndCalc(const Frame& frame)
     _createMap = bind(&OnlineFixedCreator::doNothing,this,_1);
     _specialstorage.clear();
     _framecounter = 0;
-    Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Done creating maps");
+    Log::add(Log::INFO,"OnlineFixedCreator::buildAndCalc(): Done creating maps: it took " +
+             toString(t.elapsed()) + " ms.");
   }
 }
 
