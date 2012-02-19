@@ -513,7 +513,7 @@ void createCASSMask(CommonData &data, CASSSettings &s)
     string type(s.value("MaskElementType","square").toString().toStdString());
     if (functions.find(type) == functions.end())
       throw invalid_argument("createCASSMask(): Unknown Mask Element Type '" +type+ "'");
-    Log::add(Log::DEBUG,"createCASSMask: add mask element type '" + type +"'");
+    Log::add(Log::DEBUG0,"createCASSMask: add mask element type '" + type +"'");
     functions[type](data,s);
   }
   s.endArray();
