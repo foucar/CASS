@@ -8,6 +8,7 @@
 
 #include <numeric>
 #include <algorithm>
+#include <iostream>
 
 #include "commonmode_calculators.h"
 
@@ -96,6 +97,8 @@ pixeldetector::pixel_t SimpleMeanCalculator::operator ()(frame_t::const_iterator
       }
     }
   }
+//  if (accumulatedValues < _minNbrPixels || qFuzzyCompare(commlvl,0.f))
+//    cout << _minNbrPixels << " "<< _nbrPixels<< " " << accumulatedValues<< " " <<commlvl<<endl;
   return (_minNbrPixels <  accumulatedValues ? commlvl : 0.);
 }
 

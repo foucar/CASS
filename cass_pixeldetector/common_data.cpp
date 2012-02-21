@@ -453,7 +453,11 @@ void CommonData::controlCalibration(const string& command)
   instancesmap_t::iterator instance(_instances.begin());
   instancesmap_t::const_iterator end(_instances.end());
   for (; instance != end; ++instance)
+  {
+    Log::add(Log::DEBUG1,"CommonData::controlCalibration: Starting calibration of '" +
+             instance->first +"'");
     instance->second->_mapcreator->controlCalibration(command);
+  }
 }
 
 CommonData::CommonData(const instancesmap_t::key_type& /*detname*/)
