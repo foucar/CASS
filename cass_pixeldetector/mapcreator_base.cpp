@@ -30,6 +30,8 @@ MapCreatorBase::shared_pointer MapCreatorBase::instance(const string &type)
     ptr = shared_pointer(new MovingMaps());
   else if (type == "online")
     ptr = shared_pointer(new OnlineFixedCreator());
+  else if (type == "onlinetest")
+    ptr = shared_pointer(new OnlineFixedCreatorTest());
   else
     throw invalid_argument("MapCreatorBase::instance: Map Creator type '" + type +
                            "' is unknown.");
