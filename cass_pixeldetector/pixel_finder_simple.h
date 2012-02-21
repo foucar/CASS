@@ -40,7 +40,7 @@ public:
    * a smaller value. If this is the case and the pixel is not at the edge of
    * the frame add the pixel to the list of pixels
    *
-   * @return reference to the coalesced pixel list
+   * @return reference to the pixel list
    * @param frame the frame containing the pixels of interest
    * @param pixels the list of pixels that should be found
    */
@@ -55,6 +55,46 @@ public:
 private:
   /** the threshold above which the pixels have to be */
   pixel_t _threshold;
+};
+
+
+/** within range
+ *
+ * will check whether pixels are within a user set range.
+ *
+ * @cassttng PixelDetectors/\%name\%/InRangeFinder/{LowerThreshold}\n
+ *           The threshold above which the pixels have to be. Default is 0.
+ * @cassttng PixelDetectors/\%name\%/InRangeFinder/{UpperThreshold}\n
+ *           The threshold above which the pixels have to be. Default is 1e6.
+ *
+ * @author Lutz Foucar
+ */
+class WithinRange : public PixelFinderBase
+{
+public:
+  /** constructor */
+  WithinRange();
+
+  /** find the pixels
+   *
+   * checks whether the pixel is in the user set range. If so add it to the
+   * pixel list.
+   *
+   * @return reference to the pixel list
+   * @param frame the frame containing the pixels of interest
+   * @param pixels the list of pixels that should be found
+   */
+  pixels_t& operator() (const Frame &frame, pixels_t &pixels);
+
+  /** load the settings of this
+   *
+   * @param s the CASSSettings object to read the information from
+   */
+  void loadSettings(CASSSettings &s);
+
+private:
+  /** the threshold above which the pixels have to be */
+  std::pair<pixel_t,pixel_t> _range;
 };
 }//end namespace pixeldetector
 }//end namespace cass

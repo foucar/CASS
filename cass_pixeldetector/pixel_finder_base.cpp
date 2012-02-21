@@ -26,6 +26,8 @@ PixelFinderBase::shared_pointer PixelFinderBase::instance(const string &type)
     ptr = shared_pointer(new AboveNoiseFinder());
   else if (type == "simple")
     ptr = shared_pointer(new PixelFinderSimple());
+  else if (type == "range")
+    ptr = shared_pointer(new WithinRange());
   else
     throw invalid_argument("PixelFinderBase::instance: Pixel Finder type '" +type +
                            "' is unknown.");

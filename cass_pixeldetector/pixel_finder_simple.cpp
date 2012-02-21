@@ -57,3 +57,34 @@ void PixelFinderSimple::loadSettings(CASSSettings &s)
   _threshold = s.value("Threshold",0).toUInt();
   s.endGroup();
 }
+
+
+
+WithinRange::WithinRange()
+{}
+
+WithinRange::pixels_t& WithinRange::operator ()(const Frame &frame, pixels_t &pixels)
+{
+  frame_t::const_iterator pixel(frame.data.begin());
+  frame_t::const_iterator end(frame.data.end());
+  size_t idx(0);
+  for (; pixel != end; ++pixel, ++idx)
+  {
+//    cout << *pixel<<" " << _range.first<<" "<< _range.second<<" "<< (_range.first < *pixel && *pixel < _range.second) << endl;
+    if(_range.first < *pixel && *pixel < _range.second)
+    {
+      const uint16_t x(idx % frame.columns);
+      const uint16_t y(idx / frame.columns);
+      pixels.push_back(Pixel(x,y,*pixel));
+    }
+  }
+  return pixels;
+}
+
+void WithinRange::loadSettings(CASSSettings &s)
+{
+  s.beginGroup("InRangeFinder");
+  _range = make_pair(s.value("LowerThreshold",0).toFloat(),
+                     s.value("UpperThreshold",1e6).toFloat());
+  s.endGroup();
+}
