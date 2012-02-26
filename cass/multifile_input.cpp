@@ -130,25 +130,25 @@ void MultiFileInput::run()
     cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
     if (info.exists())
     {
-      cout << "MultiFileInput::run(): could not open File '"<<filename<<"'"<<endl;
-      continue;
+      FilePointer fp;
+      fp._filestream =
+          FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
+      fp._pos = fp._filestream->tellg();
+      filereaderpointerpair_t readerpointer
+          (make_pair(FileReader::instance(info.suffix().toStdString()+_new),fp));
+      readerpointer.first->setFilename(filename);
+      readerpointer.first->loadSettings();
+      readerpointer.first->readHeaderInfo(*fp._filestream);
+      fp._filestream->seekg(0,ios::beg);
+      fp._pos = fp._filestream->tellg();
+      FileParser::shared_pointer fileparser
+          (FileParser::instance(info.suffix().toStdString(),
+                                readerpointer,event2posreaders,lock));
+      fileparser->start();
+      parsercontainer.push_back(fileparser);
     }
-    FilePointer fp;
-    fp._filestream =
-        FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
-    fp._pos = fp._filestream->tellg();
-    filereaderpointerpair_t readerpointer
-        (make_pair(FileReader::instance(info.suffix().toStdString()+_new),fp));
-    readerpointer.first->setFilename(filename);
-    readerpointer.first->loadSettings();
-    readerpointer.first->readHeaderInfo(*fp._filestream);
-    fp._filestream->seekg(0,ios::beg);
-    fp._pos = fp._filestream->tellg();
-    FileParser::shared_pointer fileparser
-        (FileParser::instance(info.suffix().toStdString(),
-                              readerpointer,event2posreaders,lock));
-    fileparser->start();
-    parsercontainer.push_back(fileparser);
+    else
+      cout << "MultiFileInput::run(): could not open File '"<<filename<<"'"<<endl;
   }
 
   /** wait until all files are parsed */
