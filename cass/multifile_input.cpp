@@ -135,8 +135,7 @@ void MultiFileInput::run()
           FilePointer::filestream_t(new ifstream(filename.c_str(), std::ios::binary | std::ios::in));
       fp._pos = fp._filestream->tellg();
       filereaderpointerpair_t readerpointer
-          (make_pair(FileReader::instance(info.suffix().toStdString()+_new),fp));
-      readerpointer.first->setFilename(filename);
+          (make_pair(FileReader::instance(filename + _new),fp));
       readerpointer.first->loadSettings();
       readerpointer.first->readHeaderInfo(*fp._filestream);
       fp._filestream->seekg(0,ios::beg);

@@ -32,10 +32,12 @@ public:
 
   /** create an instance of the requested type
    *
+   * The type is determined from the filename
+   *
    * @return a shared pointer to the requested type
-   * @param type the reqested type
+   * @param filename the filename of the file that this reader is working on
    */
-  static shared_pointer instance(const std::string &type);
+  static shared_pointer instance(const std::string &filename);
 
   /** read the file contents
    *
@@ -58,15 +60,24 @@ public:
    */
   virtual void readHeaderInfo(std::ifstream &/*file*/) {}
 
-  /** tell the reader the name of the file it is working on
+  /** set the filename of the instance
    *
    * @param filename the filename of the file that this reader is working on
    */
-  virtual void setFilename(const std::string& /*filename*/) {}
+  void filename(const std::string &filename) {_filename = filename;}
+
+  /** retrieve  the filename that this instance is working on
+   *
+   * @return filename the filename of the file that this reader is working on
+   */
+  const std::string& filename()const {return _filename;}
 
 protected:
   /** only inheritants can create this */
   FileReader() {}
+
+  /** the name of the file that we read the values from */
+  std::string _filename;
 };
 } //end namespace cass
 #endif

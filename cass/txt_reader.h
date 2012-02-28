@@ -65,12 +65,6 @@ public:
    */
   void readHeaderInfo(std::ifstream &file);
 
-  /** tell the reader the name of the file it is working on
-   *
-   * @param filename the filename of the file that this reader is working on
-   */
-  virtual void setFilename(const std::string& filename) {_filename = filename;}
-
 private:
   /** the value names */
   std::vector<std::string> _headers;
@@ -86,9 +80,6 @@ private:
 
   /** how many lines should be skipped before reading the header line */
   size_t _linesToSkip;
-
-  /** the name of the file that we read the values from */
-  std::string _filename;
 };
 }//end namespace cass
 #endif

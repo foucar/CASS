@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <QtCore/QFileInfo>
+
 #include "file_reader.h"
 
 #include "xtc_reader.h"
@@ -24,8 +26,10 @@ using namespace cass;
 using namespace std;
 using namespace std::tr1;
 
-FileReader::shared_pointer FileReader::instance(const string &type)
+FileReader::shared_pointer FileReader::instance(const string &filename)
 {
+  QFileInfo info(QString::fromStdString(filename));
+  string type = info.suffix().toStdString();
   shared_pointer ptr;
   if ((type == "xtc") || (type == "xtc_new"))
     ptr = shared_pointer(new XtcReader());
@@ -44,6 +48,8 @@ FileReader::shared_pointer FileReader::instance(const string &type)
   else
     throw invalid_argument("FileReader::instance: file reader type '" + type +
                            "' is unknown.");
+  /** set the filename */
+  ptr->filename(filename);
   return ptr;
 }
 

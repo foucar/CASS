@@ -84,8 +84,7 @@ void FileInput::run()
     {
       ifstream file(filename.c_str(), ios::binary | ios::in);
       /** load the right reader for the file type depending on its extension */
-      _read = FileReader::instance(info.suffix().toStdString()+_new);
-      _read->setFilename(filename);
+      _read = FileReader::instance(filename + _new);
       _read->loadSettings();
       cout <<"FileInput::run(): processing file '"<<filename
            <<"' with file reader type '"<<info.suffix().toStdString()<<"'"<<endl;

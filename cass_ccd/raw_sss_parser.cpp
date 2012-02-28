@@ -41,7 +41,7 @@ void RAWSSSParser::run()
   for (uint32_t iImage(0); iImage < header.nFrames; ++iImage)
   {
     const streampos eventStartPos(file.tellg());
-    uint32_t eventId(Streaming::retrieve<uint32_t>(file));
+    const uint32_t eventId(Streaming::retrieve<uint32_t>(file));
     savePos(eventStartPos,eventId);
     file.seekg(imagesize,ios_base::cur);
   }
