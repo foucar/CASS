@@ -16,6 +16,7 @@
 #include "cass_settings.h"
 #include "machine_device.h"
 #include "cass.h"
+#include "log.h"
 
 using namespace cass;
 using namespace MachineData;
@@ -45,11 +46,11 @@ void TxtReader::readHeaderInfo(std::ifstream &file)
   _headers.clear();
   getline(file, headerline);
   _split(headerline,_headers,_delim);
-  cout <<"TextReader: the txt file contains the following variables:";
-  vector<string>::const_iterator h(_headers.begin());
-  for (; h != _headers.end();++h)
-    cout <<"'"<<*h<<"',";
-  cout <<endl;
+  string info("TextReader: '" + _filename +"' contains the following variables:");
+  vector<string>::const_iterator h(_headers.begin()), end(_headers.end());
+  while(h != end)
+    info += "'"+ *h++ + "',";
+  Log::add(Log::VERBOSEINFO,info);
 }
 
 bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
@@ -65,7 +66,9 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
       break;
   }
   if(_headers.size() != values.size())
-    throw runtime_error("TextReader():There are not enough values for the amount of values suggested by the header");
+    throw runtime_error("TextReader(): In file '" + _filename +
+                        "' are not enough values for the amount of values " +
+                        "suggested by the header");
 
   if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
     throw runtime_error("TextReader():The CASSEvent does not contain a Machine Data Device");
