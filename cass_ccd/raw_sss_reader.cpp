@@ -14,6 +14,7 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "ccd_device.h"
+#include "log.h"
 
 using namespace cass;
 using namespace cass::CCD;
@@ -34,8 +35,8 @@ void RAWSSSReader::readHeaderInfo(std::ifstream &file)
   file >> _header;
   _imageBuffer.resize(_header.width*_header.height,0);
   _imageSize = _imageBuffer.size() * sizeof(sssFile::image_t::value_type);
-  cout << "RAWSSSReader(): File contains '"<<_header.nFrames
-       <<"' images"<<endl;
+  Log::add(Log::VERBOSEINFO,"RAWSSSReader(): '" + _filename +"' contains '" +
+           toString(_header.nFrames) +"' images");
 }
 
 bool RAWSSSReader::operator ()(ifstream &file, CASSEvent& event)

@@ -22,6 +22,7 @@
 #include "cass_event.h"
 #include "cass_settings.h"
 #include "file_parser.h"
+#include "log.h"
 
 using namespace std;
 using namespace cass;
@@ -51,15 +52,11 @@ MultiFileInput::MultiFileInput(const string& filelistname,
     _filelistname(filelistname),
     _rewind(false)
 {
-  VERBOSEOUT(cout<< "FileInput::FileInput: constructed" <<endl);
-//  loadSettings(0);
   load();
 }
 
 MultiFileInput::~MultiFileInput()
-{
-  VERBOSEOUT(cout<< "MultiFileInput is closed" <<endl);
-}
+{}
 
 void MultiFileInput::load()
 {
@@ -127,7 +124,7 @@ void MultiFileInput::run()
       break;
     string filename(*filelistIt++);
     QFileInfo info(QString::fromStdString(filename));
-    cout <<"MultiFileInput::run(): parsing file '"<<filename<<"'"<<endl;
+    Log::add(Log::INFO,"MultiFileInput::run(): parsing file '" + filename + "'");
     if (info.exists())
     {
       FilePointer fp;
@@ -147,7 +144,8 @@ void MultiFileInput::run()
       parsercontainer.push_back(fileparser);
     }
     else
-      cout << "MultiFileInput::run(): could not open File '"<<filename<<"'"<<endl;
+      Log::add(Log::ERROR,"MultiFileInput::run(): could not open File '" +
+               filename + "'");
   }
 
   /** wait until all files are parsed */
@@ -177,8 +175,8 @@ void MultiFileInput::run()
     /** check whether the event contains information from all files */
     if (eventIt->second.size() != _nbrDifferentSources)
     {
-      cout <<"MultiFileInput:run(): Event '"<<eventIt->first
-           <<"' is incomplete, skipping event."<<endl;
+      Log::add(Log::WARNING,"MultiFileInput:run(): Event '" +
+               toString(eventIt->first) + "' is incomplete; skipping event.");
       ++eventIt;
       continue;
     }
@@ -186,11 +184,11 @@ void MultiFileInput::run()
     ++eventIt;
   }
 
-  cout << "MultiFileInput::run(): Finished with all files." <<endl;
+  Log::add(Log::INFO,"MultiFileInput::run(): Finished with all files.");
   if(!_quitWhenDone)
     while(_control != _quit)
       this->sleep(1);
-  cout << "MultiFileInput::run(): closing the input"<<endl;
+  Log::add(Log::INFO,"MultiFileInput::run(): closing the input");
 }
 
 

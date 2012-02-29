@@ -18,6 +18,7 @@
 #include "txt_parser.h"
 #include "xtc_parser.h"
 #include "file_reader.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
@@ -52,7 +53,8 @@ FileParser::shared_pointer FileParser::instance(const std::string type,
   else if (type == "xtc")
     ptr = shared_pointer(new XtcParser(readerpointerpair,event2posreader, lock));
   else
-    throw invalid_argument("FileParser::instance: file extension '"+ type +"' is unknown.");
+    throw invalid_argument("FileParser::instance: file extension '"+ type +
+                           "' is unknown.");
   return ptr;
 }
 
@@ -61,9 +63,8 @@ void FileParser::savePos(const std::streampos& eventStartPos, const uint64_t eve
   _readerpointerpair.second._pos = eventStartPos;
   if (!eventId)
   {
-    cout <<"FileParser::savePos: WARNING EventId '"<<eventId
-        <<"' from parser type '"<< type()
-         <<"' seems to be wrong skipping event." <<endl;
+    Log::add(Log::WARNING,"FileParser::savePos: EventId '"+ toString(eventId) +
+             "' from parser type '"+type()+"' of seems to be wrong; skipping event.");
     return;
   }
   QWriteLocker lock(&_lock);
