@@ -67,8 +67,9 @@ bool TxtReader::operator ()(ifstream &file, CASSEvent& event)
   }
   if(_headers.size() != values.size())
     throw runtime_error("TextReader(): In file '" + _filename +
-                        "' are not enough values for the amount of values " +
-                        "suggested by the header");
+                        "' are not enough values for the amount of values '" + toString(values.size()) +
+                        "' suggested by the header '" + toString(_headers.size())+
+                        "'. This is the line: " + line);
 
   if (event.devices().find(CASSEvent::MachineData) == event.devices().end())
     throw runtime_error("TextReader():The CASSEvent does not contain a Machine Data Device");
