@@ -102,6 +102,7 @@ void TCPInput::run()
       quint32 payloadSize;
       QDataStream in(&socket);
       in.setVersion(QDataStream::Qt_4_0);
+      in.setByteOrder(QDataStream::LittleEndian);
       in >> payloadSize;
       /** check whether the upper bit is set (indicating that data is compressed) */
       const bool dataCompressed(payloadSize & 0x80000000);
@@ -119,12 +120,15 @@ void TCPInput::run()
       QByteArray buffer;
       if (dataCompressed)
       {
-        QByteArray tmp;
-        in >> tmp;
+        QByteArray tmp(payloadSize,'0');
+        in.readRawData(tmp.data(),payloadSize);
         buffer = qUncompress(tmp);
       }
       else
-        in >> buffer;
+      {
+        buffer.resize(payloadSize);
+        in.readRawData(buffer.data(),payloadSize);
+      }
 
       /** use stream to deserialize buffer */
       QDataStream stream(buffer);
