@@ -438,6 +438,22 @@ void HistogramUpdater::syncHistograms()
   }
 }
 
+void HistogramUpdater::syncHistogram(const string &name)
+{
+  try
+  {
+    stringstream serveradress;
+    serveradress << _server << ":" << _port;
+    TCPClient client (serveradress.str());
+    updateHist updater = updateHist(client);
+    updater(name);
+  }
+  catch (const runtime_error &error)
+  {
+    cout << "HistogramUpdater::updateHistogram(): "<<error.what()<<endl;
+  }
+}
+
 void HistogramUpdater::writeRootFile(const std::string& name)
 {
   try

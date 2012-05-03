@@ -38,6 +38,12 @@ public:
    */
   void syncHistograms();
 
+  /** copy a single result into a histogram
+   *
+   * @param name The name of the result to retrieve
+   */
+  void syncHistogram(const std::string &name);
+
   /** set the server
    *
    * @param server the server ip or name
