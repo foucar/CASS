@@ -155,6 +155,42 @@ namespace cass
 
 
 
+  /** Check whether value has changed.
+   *
+   * check whether a value has changed with respekt to the previous event.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           the postprocessor name that contain the first histogram. Default
+   *           is 0.
+   *
+   * @author Lutz Foucar
+   */
+  class pp15 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp15(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing the value to check */
+    PostprocessorBackend *_hist;
+
+    /** the value of the previous event */
+    float _previousVal;
+  };
+
+
+
+
+
+
+
   /** Threshold histogram.
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
@@ -863,6 +899,48 @@ namespace cass
     /** pp containing second 0D histogram to work on */
     PostprocessorBackend *_two;
   };
+
+
+
+
+
+
+  /** 0D to 1D scatter plot.
+   *
+   * sets two 0d values into one 1D Histogram where the first Histogram
+   * defines the x axis bin and the second is the weight.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{XNbrBins|XLow|XUp}\n
+   *           properties of the resulting 1d histogram
+   * @cassttng PostProcessor/\%name\%/{HistOne|HistTwo} \n
+   *           Postprocessor names containing the 0D values to histogram.
+   *
+   * @author Lutz Foucar
+   */
+  class pp69 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp69(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing first 0D histogram to work on */
+    PostprocessorBackend *_one;
+
+    /** pp containing second 0D histogram to work on */
+    PostprocessorBackend *_two;
+  };
+
+
 
 
 

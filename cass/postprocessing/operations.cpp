@@ -16,6 +16,7 @@
 #include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
 
 
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
@@ -158,6 +159,62 @@ void cass::pp12::loadSettings(size_t)
       <<"' has constant value of '" << dynamic_cast<Histogram0DFloat*>(_result)->getValue()
       <<"'. Condition is '"<<_condition->key()<<"'"
       <<endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// ********** Postprocessor 15: Check if value has changed ************
+
+cass::pp15::pp15(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp15::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _previousVal = 0;
+  setupGeneral();
+  _hist = setupDependency("HistName");
+  if (_hist->getHist(0).dimension() != 0 )
+    throw std::runtime_error("PP type 15: Hist is not a 0D Hist");
+
+  bool ret (setupCondition());
+  if (!(_hist && ret)) return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will check whether value of '" + _hist->key() +
+           "'has changed. It will use condition '" + _condition->key() +"'");
+
+}
+
+void cass::pp15::process(const CASSEvent &evt)
+{
+  using namespace std;
+  const Histogram0DFloat &val
+      (dynamic_cast<const Histogram0DFloat&>((*_hist)(evt)));
+  val.lock.lockForRead();
+  float value(val.getValue());
+  val.lock.unlock();
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) = qFuzzyCompare(value,_previousVal);
+  _result->nbrOfFills()=1;
+  _previousVal = value;
+  _result->lock.unlock();
 }
 
 
@@ -1390,6 +1447,80 @@ void cass::pp68::process(const CASSEvent& evt)
   {
 
   }
+  _result->lock.unlock();
+  two.lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+// *** postprocessor 69 histograms 2 0D values to 1D scatter plot ***
+
+cass::pp69::pp69(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp69::loadSettings(size_t)
+{
+  using namespace std;
+  using namespace cass;
+  setupGeneral();
+  _one = setupDependency("HistOne");
+  _two = setupDependency("HistTwo");
+  bool ret (setupCondition());
+  if ( !(_one && _two && ret) )
+    return;
+  if (_one->getHist(0).dimension() != 0 ||
+      _two->getHist(0).dimension() != 0)
+    throw std::runtime_error("PP type 67: Either HistOne or HistTwo is not a 0D Hist");
+  set1DHist(_result,_key);
+  createHistList(2*cass::NbrOfWorkers,true);
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' makes a 1D Histogram where '"+  _one->key() +
+           "' defines the x bin to set and '" + _two->key() +
+           "' defines the y value of the x bin"
+           ". Condition on PostProcessor '" + _condition->key() + "'");
+}
+
+void cass::pp69::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram0DFloat &one
+      (dynamic_cast<const Histogram0DFloat&>((*_one)(evt)));
+  const Histogram0DFloat &two
+      (dynamic_cast<const Histogram0DFloat&>((*_two)(evt)));
+  one.lock.lockForRead();
+  two.lock.lockForRead();
+  _result->lock.lockForWrite();
+  Histogram1DFloat::storage_t &mem(dynamic_cast<Histogram1DFloat*>(_result)->memory());
+
+  const float x(one.getValue());
+  const float weight(two.getValue());
+  const int nxBins(static_cast<const int>(_result->axis()[HistogramBackend::xAxis].nbrBins()));
+  const float xlow(_result->axis()[HistogramBackend::xAxis].lowerLimit());
+  const float xup(_result->axis()[HistogramBackend::xAxis].upperLimit());
+  const int xBin(static_cast<int>( nxBins * (x - xlow) / (xup-xlow)));
+
+  //check whether the fill is in the right range//
+  const bool xInRange = 0<=xBin && xBin<nxBins;
+  // if in range fill the memory otherwise figure out whether over of underflow occured//
+  if (xInRange)
+    mem[xBin] = weight;
+  else if (xBin >= nxBins)
+    mem[nxBins+HistogramBackend::Overflow] += 1;
+  else if (xBin < 0)
+    mem[nxBins+HistogramBackend::Underflow] += 1;
+  //increase the number of fills//
+  ++(_result->nbrOfFills());
+
   _result->lock.unlock();
   two.lock.unlock();
   one.lock.unlock();
