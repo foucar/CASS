@@ -58,6 +58,8 @@ the Class description for information about what parameters are user settable.
 00011: Constant false (pp10)
 00012: Constant Value
 
+00015: Check whether value of 0d histogram has changed
+
 00020: Subtract second histogram from first histogram (pp20)
 00021: Add first histogram to second histogram (pp20)
 00022: Divide first histogram by second histogram (pp20)
@@ -89,8 +91,11 @@ the Class description for information about what parameters are user settable.
 00066: Histogram two 1D traces to a 2D histogram
 00067: Histogram two 0D values to a 1D histogram, with first=x, second=weight
 00068: Histogram 0D and 1D histogram to 2D histogram
+00069: Use two 0D values for a scatter plot
 
 00070: Subset a Histogram
+
+00075: Clear a Histogram
 
 00080: nbrOfFills of given histogram
 00081: maximum bin of 1D histogram
@@ -269,6 +274,8 @@ public:
     ConstantTrue=10,
     ConstantFalse=11,
 
+    CheckChange=15,
+
     SubtractHistograms=20,
     AddHistograms=21,
     DivideHistograms=22,
@@ -300,8 +307,11 @@ public:
     OneDto2DHistogramming=66,
     ZeroDto1DHistogramming=67,
     ZeroDand1Dto2DHistogramming=68,
+    OneDtoScatterPlot=69,
 
     SubsetHistogram=70,
+
+    ClearHistogram=75,
 
     nbrOfFills=80,
     maximumBin=81,

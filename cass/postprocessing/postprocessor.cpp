@@ -545,6 +545,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case ConstantValue:
     processor = new pp12(*this, key);
     break;
+  case CheckChange:
+    processor = PostprocessorBackend::shared_pointer(new pp15(*this, key));
+    break;
   case SubtractHistograms:
     processor = PostprocessorBackend::shared_pointer
           (new pp20<minus<float> >(*this, key, minus<float>()));
@@ -655,10 +658,14 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case ZeroDand1Dto2DHistogramming:
     processor = PostprocessorBackend::shared_pointer
           (new pp68(*this, key));
+  case OneDtoScatterPlot:
+    processor = PostprocessorBackend::shared_pointer(new pp69(*this, key));
     break;
   case SubsetHistogram:
     processor = PostprocessorBackend::shared_pointer
           (new pp70(*this, key));
+  case ClearHistogram:
+    processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
     break;
   case nbrOfFills:
     processor = PostprocessorBackend::shared_pointer
