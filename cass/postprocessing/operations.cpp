@@ -1691,6 +1691,57 @@ void cass::pp70::process(const cass::CASSEvent& evt)
 
 
 
+
+
+
+
+
+
+// ***  pp 75 clears a histogram ***
+
+cass::pp75::pp75(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp75::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _hist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _hist))
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' clears the histogram in pp '" + _hist->key() +
+           "'. Condition is "+ _condition->key());
+}
+
+void cass::pp75::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  HistogramBackend& input(const_cast<HistogramBackend&>((*_hist)(evt)));
+  _result->lock.lockForWrite();
+  input.clear();
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
 // ***  pp 80 returns the number of fills of a given histogram ***
 
 cass::pp80::pp80(PostProcessors& pp, const cass::PostProcessors::key_t &key)

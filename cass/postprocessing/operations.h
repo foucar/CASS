@@ -1001,6 +1001,43 @@ namespace cass
 
 
 
+  /** clear Histogram
+   *
+   * Will clear a specific histogram when the condition is true.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           name of postprocessor that contains the histogram you want a
+   *           subset from. Default is "".
+   *
+   * @author Lutz Foucar
+   */
+  class pp75 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp75(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_hist;
+  };
+
+
+
+
+
+
+
+
 
   /** return number of fills of a given histogram
    *
