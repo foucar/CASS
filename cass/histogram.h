@@ -103,7 +103,7 @@ public:
     size_t nbrBins() const {return size();}
 
     /** Lower limit of axis */
-    float lowerLimit() const {return _low;};
+    float lowerLimit() const {return _low;}
 
     /** Upper limit of axis */
     float upperLimit() const {return _up;}
@@ -112,7 +112,7 @@ public:
     size_t bin(float x)const;
 
     /** position for bin-index idx */
-    float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); };
+    float position(size_t idx) const { return _low + idx * (_up-_low)/(_size-1); }
 
     /** convert user distance to distance in histogram memory coordinates*/
     size_t user2hist(float user)const {return static_cast<size_t>(user*_size / (_up-_low));}
@@ -351,7 +351,7 @@ public:
     const storage_t& memory()const {return _memory;}
 
     /** return reference to histogram data, so that one can manipulate the data */
-    storage_t& memory() { return _memory; };
+    storage_t& memory() { return _memory; }
 
     /** Minimum value in current histogram.
      * needs to be implemented in the histogram, since we need to mask out over /  underflow bins
@@ -536,24 +536,24 @@ public:
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); };
+    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-2)); }
 
     /** Maximum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); };
+    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-2)); }
 
     /** Return histogram bin that contains x */
-    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; };
+    value_t& operator()(float x) { return _memory[_axis[0].bin(x)]; }
 
     /** Return histogram bin that contains x */
-    const value_t& operator()(float x) const { return _memory[_axis[0].bin(x)]; };
+    const value_t& operator()(float x) const { return _memory[_axis[0].bin(x)]; }
 
     /** Return histogram bin */
-    value_t& bin(size_t bin) { return _memory[bin]; };
+    value_t& bin(size_t bin) { return _memory[bin]; }
 
     /** Return histogram bin */
-    const value_t& bin(size_t bin) const { return _memory[bin]; };
+    const value_t& bin(size_t bin) const { return _memory[bin]; }
 
 
     /** center of histogram */
@@ -689,33 +689,33 @@ public:
                 size_t nbrYBins, float yLow, float yUp);
 
     /** @return shape of histogram (rows, columns) */
-    std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); };
+    std::pair<size_t, size_t> shape() const {return std::make_pair(_axis[0].size(), _axis[1].size()); }
 
     /** Return histogram bin that contains (x,y) */
-    value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; };
+    value_t& operator()(float x, float y) { return _memory[_axis[0].bin(x) + _axis[1].bin(y) * _axis[0].size()]; }
 
     /** Return histogram bin (row,col) */
-    const value_t& bin(size_t row, size_t col) const { return _memory[col + row * _axis[0].size()]; };
+    const value_t& bin(size_t row, size_t col) const { return _memory[col + row * _axis[0].size()]; }
 
     /** Minimum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-8)); };
+    virtual value_t min() const { return *(std::min_element(_memory.begin(), _memory.end()-8)); }
 
     /** Maximum value in current histogram.
      * Avoid checking over / underflow bins.
      */
-    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); };
+    virtual value_t max() const { return *(std::max_element(_memory.begin(), _memory.end()-8)); }
 
     /** Return histogram bin (row,col).
      * @overload
      */
-    value_t& bin(size_t row, size_t col) { return _memory[col + row * _axis[0].size()]; };
+    value_t& bin(size_t row, size_t col) { return _memory[col + row * _axis[0].size()]; }
 
     /** center of histogram.
      * @todo check and improve
      */
-    std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); };
+    std::pair<float, float> center() const { return std::make_pair(reduce(xAxis).center(), reduce(yAxis).center()); }
 
     /** Add datum to histogram.
      * This operation will lock the memory before attempting to fill the right bin.
