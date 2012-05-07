@@ -240,12 +240,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   case(Pds::TypeId::Id_ControlConfig):
   {
       const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload()); 
-      if (config.npvControls()>1) throw std::runtime_error("implement more than one control PV");
+//      if (config.npvControls()>1)
+//        throw std::runtime_error("MachineData::Converter:implement more than one control PV");
       for (unsigned int i = 0; i < config.npvControls(); i++) 
       {
         const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
-        _pvControl = pvControlCur.value();
-        _pvControlName = pvControlCur.name();
+        _pvStore[pvControlCur.name()] = pvControlCur.value();
+//        _pvControl = pvControlCur.value();
+//        _pvControlName = pvControlCur.name();
       }
   }
   break;
@@ -253,9 +255,14 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   default: break;
   }
   //copy the epics values in the storedevent to the machineevent
-  if (cassevent) {
+  if (cassevent)
+  {
     md->EpicsData() = _store.EpicsData();
-    md->BeamlineData()[_pvControlName] = _pvControl;
+//    md->BeamlineData()[_pvControlName] = _pvControl;
+    for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
+    {
+      md->BeamlineData()[it->first] = it->second;
+    }
   }
 
 }

@@ -66,14 +66,17 @@ namespace cass
       /** map to convert epics indexes to strings */
       indexMap_t _index2name;
 
-      /** a container for the machindata values
+      /** a container for the epics values
        *
        * @note this is necessary, since not every shot there is info about the
        *       epics values
        */
       MachineDataDevice _store;
-      double _pvControl;
-      std::string _pvControlName;
+
+      /** storage for the pv control variables */
+      MachineDataDevice::bldMap_t _pvStore;
+//      double _pvControl;
+//      std::string _pvControlName;
     };
   }//end namespace MachineData
 }//end namespace cass
