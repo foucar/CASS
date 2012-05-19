@@ -1,8 +1,6 @@
 #ifndef EPICS_DBR_TOOLS_H
 #define EPICS_DBR_TOOLS_H
 
-#include <cstdio>
-#include <cstring>
 #include <string>
 #include <stdint.h>
 
@@ -460,7 +458,7 @@ void printCtrlFields(TCtrl& pvCtrlVal)
 }
 
 template <> inline 
-void printCtrlFields(const dbr_sts_string& /*pvCtrlVal*/) {}
+void printCtrlFields(const dbr_sts_string& pvCtrlVal) {}
 
 template <> inline 
 void printCtrlFields(const dbr_ctrl_enum& pvCtrlVal) 

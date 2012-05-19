@@ -15,7 +15,7 @@ TypeId::Type TypeId::id() const {return (TypeId::Type)(_value&0xffff);}
 
 const char* TypeId::name(Type type)
 { 
-  static const char* _names[] = {
+   static const char* _names[NumberOf] = {
     "Any",
     "Xtc",
     "Frame",
@@ -39,10 +39,11 @@ const char* TypeId::name(Type type)
     "FrameFccdConfig",
     "FccdConfig",  
     "IpimbData",
-    "IpimbConfig","EncoderData",
+    "IpimbConfig",
+    "EncoderData",
     "EncoderConfig",
     "EvrIOConfig",
-    "PrincetonInfo",
+    "PrincetonInfo",    
     "CspadElement",
     "CspadConfig",
     "IpmFexConfig",
@@ -52,7 +53,26 @@ const char* TypeId::name(Type type)
     "PimImageConfig",
     "SharedIpimb",
     "AcqTDCConfig",
-    "AcqTDCData"
+    "AcqTDCData",
+    "Index",
+    "XampsConfig",
+    "XampsElement",
+    "Cspad2x2Element",
+    "SharedPIM",
+    "Cspad2x2Config",
+    "FexampConfig",
+    "FexampElement",
+    "Gsc16aiConfig",
+    "Gsc16aiData",
+    "PhasicsConfig",
+    "TimepixConfig",
+    "TimepixData",
+    "CspadCompressedElement",
+    "OceanOpticsConfig",
+    "OceanOpticsData",
+    "EpicsConfig",
+    "FliConfig",
+    "FliFrame",
   };
   return (type < NumberOf ? _names[type] : "-Invalid-");
 }

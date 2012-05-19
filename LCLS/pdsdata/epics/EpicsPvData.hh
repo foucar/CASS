@@ -19,17 +19,17 @@ public:
      *                                                           Ctrl Types: DB_CTRL_STRING ~ DBR_CTRL_DOUBLE
      * iNumElements               2              Int16        Size of Pv Array
      */
-    short int   iPvId;
-    short int   iDbrType;
-    short int   iNumElements;         
+    int16_t   iPvId;
+    int16_t   iDbrType;
+    int16_t   iNumElements;         
     
-    EpicsPvHeader( short int iPvId1, short int iDbrType1, short int iNumElements1 ) :
+    EpicsPvHeader( int16_t iPvId1, int16_t iDbrType1, int16_t iNumElements1 ) :
       iPvId(iPvId1), iDbrType(iDbrType1), iNumElements(iNumElements1)
     {}
     
     int printPv() const;
 
-    static void* operator new(size_t /*size*/, char* p)     { return p; }
+    static void* operator new(size_t size, char* p)     { return p; }
     // Disable ordinary (non-placement) new: only placement new and memory mapped objects are allowed
     // Disable placement delete: Not allow to delete memory mapped objects
     
@@ -77,10 +77,16 @@ public:
      */
     char        sPvName[_iMaxPvNameLength];
     
-    EpicsPvCtrlHeader( short int iPvId1, short int iDbrType1, short int iNumElements1, const char sPvName1[] ) :
+    EpicsPvCtrlHeader( int16_t iPvId1, int16_t iDbrType1, int16_t iNumElements1, const char sPvName1[] ) :
       EpicsPvHeader( iPvId1, iDbrType1, iNumElements1)
     {
-        strcpy( sPvName, sPvName1 );        
+        strncpy( sPvName, sPvName1, _iMaxPvNameLength );        
+        if ( sPvName[_iMaxPvNameLength-1] != 0 )
+  {
+          printf("EpicsPvCtrlHeader::EpicsPvCtrlHeader(): Pv Name %s\n" 
+            "  is too long for buffer size %d\n", sPvName1, _iMaxPvNameLength );
+          sPvName[_iMaxPvNameLength-1] = 0;
+  }
     }
 };
     
@@ -162,7 +168,7 @@ class EpicsPvCtrl :
 public:
     enum { iDbrCtrlType = EpicsDbrTools::DbrTypeTraits<iDbrType1>::iDbrCtrlType };
 
-    EpicsPvCtrl( short int iPvId1, short int iNumElements1, const char sPvName1[], void* pEpicsDataValue1, int* piSize = NULL ) :
+    EpicsPvCtrl( int16_t iPvId1, int16_t iNumElements1, const char sPvName1[], void* pEpicsDataValue1, int* piSize = NULL ) :
       EpicsPvCtrlHeader(iPvId1, iDbrCtrlType, iNumElements1, sPvName1),
       EpicsPvBase( *(EpicsPvBase*) pEpicsDataValue1 )
     {
@@ -230,7 +236,7 @@ class EpicsPvTime :
 public:
     enum { iDbrTimeType = EpicsDbrTools::DbrTypeTraits<iDbrType1>::iDbrTimeType };
 
-    EpicsPvTime( short int iPvId1, int iNumElements1, void* pEpicsDataValue1, int* piSize = NULL ) :
+    EpicsPvTime( int16_t iPvId1, int iNumElements1, void* pEpicsDataValue1, int* piSize = NULL ) :
       EpicsPvHeader( iPvId1, iDbrTimeType, iNumElements1 ),
       EpicsPvBase( *(EpicsPvBase*) pEpicsDataValue1 )
     {

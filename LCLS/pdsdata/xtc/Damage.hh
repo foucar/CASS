@@ -28,7 +28,7 @@ namespace Pds {
       _damage &= NotUserBitsMask;
       _damage |= (v << UserBitsShift);
     }
-
+    
   private:
     uint32_t _damage;
   };
