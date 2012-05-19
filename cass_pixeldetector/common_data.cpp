@@ -32,7 +32,7 @@
 using namespace cass;
 using namespace pixeldetector;
 using namespace std;
-using Streaming::operator >>;
+//using Streaming::operator >>;
 
 namespace cass
 {
@@ -63,6 +63,7 @@ namespace pixeldetector
  */
 void readHLLOffsetFile(const string &filename, CommonData& data)
 {
+  using Streaming::operator >>;
   ifstream hllfile(filename.c_str(),ios::in);
   if (!hllfile.is_open())
   {
@@ -275,7 +276,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
   }
   char line[80];
   in.getline(line, 80);
-  if (line != string("HE File"))
+  if (line != string("HE File containing gain and CTE values"))
   {
     throw runtime_error("readHLLGainFile: Wrong file format: " + std::string(line));
   }
@@ -290,12 +291,17 @@ void readHLLGainFile(const string &filename, CommonData& data)
   vector<float> ctes;
 
   char g='G', c='C';
-  size_t col;
+  int col;
   float gain, cte;
 
   while(true)
   {
-    in>>g>>c>>col>>gain>>cte;
+    in>>g;
+    in>>c;
+    in>>skipws>>col;
+    in>>skipws>>gain;
+    in>>skipws>>cte;
+//    cout << g << " " << c <<" "<<col<<" "<<gain<<" "<<cte<<endl;
     if ((g != 'G') || (c != 'C'))
       break;
     gains.push_back(gain);
@@ -306,6 +312,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
   frame_t hllgaincteMap;
   const size_t rows(512);
   const size_t columns(gains.size());
+//  cout << rows << " " << columns<<endl;
   for (size_t row(0); row < rows; ++row)
   {
     for (size_t column(0); column < columns; ++column)
@@ -313,9 +320,9 @@ void readHLLGainFile(const string &filename, CommonData& data)
       hllgaincteMap.push_back(gains[column] / pow(ctes[column], static_cast<int>(row+1)));
     }
   }
-
   //convert HLL format to CASS format
   QWriteLocker lock(&data.lock);
+  data.gain_cteMap.resize(hllgaincteMap.size());
   hllDataTypes::HLL2CASS(hllgaincteMap,data.gain_cteMap,512,512,columns);
 }
 
@@ -324,7 +331,7 @@ void readHLLGainFile(const string &filename, CommonData& data)
  * the correction value for a pixel is calculated using the following formular:
  *
  * \f[
- *  corval = corval \times maskval \times (
+ *  corval = ctegain \times corval \times maskval \times (
  *     0, & \text{if} noise < noisethreshold ;
  *     1, & \text{otherwise})
  * \f]
@@ -339,9 +346,10 @@ void createCorrectionMap(CommonData& data)
 {
   frame_t::iterator corval(data.correctionMap.begin());
   frame_t::const_iterator noise(data.noiseMap.begin());
+  frame_t::const_iterator gain(data.gain_cteMap.begin());
   CommonData::mask_t::const_iterator mask(data.mask.begin());
-  for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask)
-    *corval = *corval * *mask * (*noise < data.noiseThreshold) * (!qFuzzyCompare(*noise,0.f));
+  for(;corval != data.correctionMap.end(); ++corval, ++noise, ++mask, ++gain)
+    *corval = *gain * *corval * *mask * (*noise < data.noiseThreshold) * (!qFuzzyCompare(*noise,0.f));
 }
 
 /** check whether the frame has the same size as the maps.
@@ -514,6 +522,7 @@ void CommonData::loadSettings(CASSSettings &s)
       throw invalid_argument("CommonData::loadSettings: CTEGainFiletype '" +
                              offsetfiletype + "' does not exist");
     }
+    _ctegainFilename = s.value("CTEGainFilename","").toString().toStdString();
     _outputOffsetFilename = (s.value("OutputOffsetNoiseFilename","darkcal").toString().toStdString());
     string outputoffsetfiletype(s.value("OutputOffsetNoiseFiletype","hll").toString().toStdString());
     if (outputoffsetfiletype == "hll")
