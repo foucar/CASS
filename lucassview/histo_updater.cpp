@@ -330,7 +330,11 @@ namespace lucassview
             /** copy histogram contents */
             for (size_t iY(0); iY<yaxis.nbrBins();++iY)
               for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-                roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),casshist->memory()[iX + iY*xaxis.nbrBins()]);
+              {
+                const float value = (isnan(casshist->memory()[iX + iY*xaxis.nbrBins()])) ?
+                              0. : casshist->memory()[iX + iY*xaxis.nbrBins()];
+                roothist->SetBinContent(roothist->GetBin(iX+1,iY+1),value);
+              }
             /** copy over / underflow */
             size_t OverUnderFlowStart (xaxis.nbrBins()*yaxis.nbrBins());
             roothist->SetBinContent(roothist->GetBin(0,0),casshist->memory()[OverUnderFlowStart+HistogramBackend::LowerLeft]);
@@ -364,7 +368,10 @@ namespace lucassview
             }
             /** copy histogram contents */
             for (size_t iX(0); iX<xaxis.nbrBins();++iX)
-              roothist->SetBinContent(roothist->GetBin(iX+1),casshist->memory()[iX]);
+            {
+              const float value = (isnan(casshist->memory()[iX])) ? 0. : casshist->memory()[iX];
+              roothist->SetBinContent(roothist->GetBin(iX+1),value);
+            }
             /** copy over / underflow */
             size_t OverUnderFlowStart (xaxis.nbrBins());
             roothist->SetBinContent(roothist->GetBin(0),casshist->memory()[OverUnderFlowStart+HistogramBackend::Underflow]);
@@ -381,7 +388,8 @@ namespace lucassview
               cout << "updateHist(): '"<<key<<"' create roothist with for 0D histogram"<<endl;
               roothist = new TH1F(key.c_str(),key.c_str(),1,0,1);
             }
-            roothist->SetBinContent(1,casshist->memory()[0]);
+            const float value = (isnan(casshist->memory()[0])) ? 0. : casshist->memory()[0];
+            roothist->SetBinContent(1,value);
             roothist->SetEntries(casshist->nbrOfFills());
           }
           break;
