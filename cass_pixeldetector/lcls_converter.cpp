@@ -177,6 +177,13 @@ Converter::Converter()
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
+ /** bogus thing for xpp */
+  Key xppCCD(TypeId::Id_Frame,
+             DetInfo::XppSb3Pim, 1,
+             DetInfo::TM6740, 1);
+
+
+
 
   _LCLSToCASSId[FrontPnCCD] = 0;
   _LCLSToCASSId[FrontPnCCDConfig] = 0;
@@ -185,6 +192,7 @@ Converter::Converter()
   _LCLSToCASSId[commCCD1] = 2;
   _LCLSToCASSId[commCCD2] = 3;
   _LCLSToCASSId[commCCD3] = 4;
+  _LCLSToCASSId[xppCCD] = 5;
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
