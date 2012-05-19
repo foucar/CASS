@@ -148,16 +148,15 @@ void cass::pp12::loadSettings(size_t)
   using namespace std;
   CASSSettings s;
   s.beginGroup("PostProcessor");
-  s.beginGroup(_key.c_str());
+  s.beginGroup(QString::fromStdString(_key));
   _result = new Histogram0DFloat();
   *dynamic_cast<Histogram0DFloat*>(_result) = s.value("Value",0).toFloat();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   _hide =true;
   _write =false;
 
   cout<<endl << "PostProcessor '" << _key
-      <<"' has constant value of '" << dynamic_cast<Histogram0DFloat*>(_result)->getValue()
-      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<"' has constant value of '" << dynamic_cast<Histogram0DFloat*>(_result)->getValue()<<"'"
       <<endl;
 }
 
@@ -211,7 +210,7 @@ void cass::pp15::process(const CASSEvent &evt)
   float value(val.getValue());
   val.lock.unlock();
   _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = qFuzzyCompare(value,_previousVal);
+  *dynamic_cast<Histogram0DFloat*>(_result) = !(qFuzzyCompare(value,_previousVal));
   _result->nbrOfFills()=1;
   _previousVal = value;
   _result->lock.unlock();
