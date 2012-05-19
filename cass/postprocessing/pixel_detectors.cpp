@@ -223,6 +223,50 @@ void pp107::process(const cass::CASSEvent&/* evt*/)
 
 
 
+// *** sum up z values of all pixels ***
+
+pp108::pp108(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  :PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp108::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  DetectorHelper::instance(_detector)->loadSettings();
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will sum up the frame z values of detector '" + _detector +
+           "'. It will use condition '" + _condition->key() + "'");
+}
+
+void pp108::process(const cass::CASSEvent& evt)
+{
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  pixeldetector::frame_t::const_iterator pixel(det->frame().data.begin());
+  _result->lock.lockForWrite();
+  _result->clear();
+  float sum(0);
+  for (; pixel != det->frame().data.end(); ++pixel)
+    sum += *pixel;
+  *dynamic_cast<Histogram0DFloat*>(_result) = sum;
+  _result->nbrOfFills() = 1;
+  _result->lock.unlock();
+}
+
+
+
+
+
 
 
 
@@ -578,6 +622,107 @@ void pp149::process(const CASSEvent& evt)
   dynamic_cast<Histogram0DFloat*>(_result)->fill(pixels.size());
   _result->lock.unlock();
 }
+
+
+
+
+
+
+// *** will sum up the detected pixels ***
+
+pp155::pp155(PostProcessors& pp, const PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp155::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  DetectorHelper::instance(_detector)->loadSettings();
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will sum up the detected pixels of detector '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
+}
+
+void pp155::process(const CASSEvent& evt)
+{
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  AdvancedDetector::pixels_t::const_iterator pixel(det->pixels().begin());
+  _result->lock.lockForWrite();
+  _result->clear();
+  float sum(0);
+  for (; pixel != det->pixels().end(); ++pixel)
+    sum += pixel->z;
+  *dynamic_cast<Histogram0DFloat*>(_result) = sum;
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+// *** will sum up the coalesced pixels (hits)  ***
+
+pp156::pp156(PostProcessors& pp, const PostProcessors::key_t &key)
+    : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp156::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _splitLevelRange = make_pair(s.value("SplitLevelLowerLimit",0).toUInt(),
+                               s.value("SplitLevelUpperLimit",2).toUInt());
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  DetectorHelper::instance(_detector)->loadSettings();
+  cout<<endl<<"Postprocessor '"<<_key
+      <<"' will sum up the coalesced pixels of detector '"<<_detector
+      <<"' only when the the split level is between '"<<_splitLevelRange.first
+      <<"' and '"<<_splitLevelRange.second
+      <<"'. Condition is '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void pp156::process(const CASSEvent& evt)
+{
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  AdvancedDetector::hits_t::const_iterator hit(det->hits().begin());
+  _result->lock.lockForWrite();
+  _result->clear();
+  float sum(0);
+  for (; hit != det->hits().end(); ++hit)
+  {
+    if (_splitLevelRange.first < hit->nbrPixels && hit->nbrPixels < _splitLevelRange.second)
+      sum += hit->z;
+    *dynamic_cast<Histogram0DFloat*>(_result) = sum;
+  }
+  _result->lock.unlock();
+}
+
 
 
 

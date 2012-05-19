@@ -703,6 +703,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp107(*this, key));
     break;
+  case SumPixels:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp108(*this, key));
+    break;
   case AcqirisWaveform:
     processor = PostprocessorBackend::shared_pointer
           (new pp110(*this,key));
@@ -774,6 +778,14 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case TofDetMcpHeightVsFwhm:
     processor = PostprocessorBackend::shared_pointer
           (new pp152(*this, key));
+    break;
+  case SumFoundPixels:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp155(*this, key));
+    break;
+  case SumPhotonHits:
+    processor = PostprocessorBackend::shared_pointer
+          (new pp156(*this, key));
     break;
   case WireendNbrSignals:
     processor = PostprocessorBackend::shared_pointer
