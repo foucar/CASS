@@ -14,4 +14,6 @@
 @example tcpinput_shm.ini
 @example multifileinput.ini
 @example fileinput.ini
+@example Covariance_Electrons.ini
+@example scan.ini
 */
