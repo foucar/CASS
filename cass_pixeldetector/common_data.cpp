@@ -566,15 +566,17 @@ void CommonData::saveMaps()
   else
     outname = _outputOffsetFilename;
   _saveTo(outname,*this);
-  /** @todo do the next only if in online mode */
-  string linkname("darkcal_" + toString(detectorId) +".lnk");
-  if (QFile::exists(QString::fromStdString(linkname)))
-    if(!QFile::remove(QString::fromStdString(linkname)))
-      throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
-                          linkname +"'");
-  if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
-    throw runtime_error("CommonData::saveMaps: could not create a link named '"+
-                        linkname + "' that points to the outputfile '" + outname +"'");
+  if (_outputOffsetFilename == "darkcal")
+  {
+    string linkname("darkcal_" + toString(detectorId) +".lnk");
+    if (QFile::exists(QString::fromStdString(linkname)))
+      if(!QFile::remove(QString::fromStdString(linkname)))
+        throw runtime_error("CommonData::saveMaps: could not remove already existing link '" +
+                            linkname +"'");
+    if (!QFile::link(QString::fromStdString(outname),QString::fromStdString(linkname)))
+      throw runtime_error("CommonData::saveMaps: could not create a link named '"+
+                          linkname + "' that points to the outputfile '" + outname +"'");
+  }
 }
 
 void CommonData::createCorMap()
