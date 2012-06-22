@@ -556,10 +556,17 @@ void CommonData::createMaps(const Frame &frame)
 
 void CommonData::saveMaps()
 {
-  string outname(_outputOffsetFilename + "_"+toString(detectorId) + "_" +
-                 QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
-                 ".cal");
+  string outname;
+  if (_outputOffsetFilename == "darkcal")
+  {
+    outname = _outputOffsetFilename + "_"+toString(detectorId) + "_" +
+              QDateTime::currentDateTime().toString("yyyyMMdd_HHmm").toStdString() +
+              ".cal";
+  }
+  else
+    outname = _outputOffsetFilename;
   _saveTo(outname,*this);
+  /** @todo do the next only if in online mode */
   string linkname("darkcal_" + toString(detectorId) +".lnk");
   if (QFile::exists(QString::fromStdString(linkname)))
     if(!QFile::remove(QString::fromStdString(linkname)))
