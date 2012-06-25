@@ -153,14 +153,14 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
 
 
 
-void OnlineFixedCreatorTest::controlCalibration(const string &)
+void OnlineFixedCreatorCommonMode::controlCalibration(const string &)
 {
   Log::add(Log::INFO,"OnlineFixedCreatorTest::controlCalibration(): Start collecting '" +
            toString(_nbrFrames) + "' frames for calibration");
-  _createMap = bind(&OnlineFixedCreatorTest::buildAndCalc,this,_1);
+  _createMap = bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
 }
 
-void OnlineFixedCreatorTest::buildAndCalc(const Frame& frame)
+void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
 {
   QWriteLocker (&_commondata->lock);
   /** as long as there are not enough frames collected build up the specail storage */
@@ -269,7 +269,7 @@ void OnlineFixedCreatorTest::buildAndCalc(const Frame& frame)
     if(_writeMaps)
       _commondata->saveMaps();
     _commondata->createCorMap();
-    _createMap = bind(&OnlineFixedCreatorTest::doNothing,this,_1);
+    _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
     _storage.clear();
     _framecounter = 0;
     Log::add(Log::INFO,"OnlineFixedCreatorTest::buildAndCalc(): Done creating maps: it took " +
@@ -277,10 +277,10 @@ void OnlineFixedCreatorTest::buildAndCalc(const Frame& frame)
   }
 }
 
-void OnlineFixedCreatorTest::loadSettings(CASSSettings &s)
+void OnlineFixedCreatorCommonMode::loadSettings(CASSSettings &s)
 {
   string detectorname(s.group().split("/").at(s.group().split("/").length()-2).toStdString());
-  s.beginGroup("FixedOnlineCreator");
+  s.beginGroup("FixedOnlineCreatorCommonMode");
   _commondata = CommonData::instance(detectorname);
   _nbrFrames = s.value("NbrFrames",200).toUInt();
   _framecounter = 0;
@@ -289,10 +289,10 @@ void OnlineFixedCreatorTest::loadSettings(CASSSettings &s)
   {
     Log::add(Log::INFO,"OnlineFixedCreatorTest::loadSettings(): Start collecting '" +
              toString(_nbrFrames) +"' frames for calibration");
-    _createMap = bind(&OnlineFixedCreatorTest::buildAndCalc,this,_1);
+    _createMap = bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
   }
   else
-    _createMap = bind(&OnlineFixedCreatorTest::doNothing,this,_1);
+    _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
   _multiplier = s.value("Multiplier",4).toFloat();
   string commonmodetype (s.value("CommonModeCalculationType","simpleMean").toString().toStdString());
   s.endGroup();

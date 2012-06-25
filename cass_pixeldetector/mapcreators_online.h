@@ -115,28 +115,46 @@ private:
 
 
 
-/** Creates the maps fast and simple testing
+/** Creates the maps fast and simple with commond mode correction
  *
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{Multiplier}\n
+ * Uses collects the user chosen nbr of frames and uses them to calculate the
+ * correction and noise maps. In addition it will correct the frames from the
+ * common mode noise.
+ *
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{Multiplier}\n
  *           How much bigger does the pixel value have to be than the noise before
  *           The pixel is not taken into account when calculating the offset and
  *           noise of that pixel. Default is 4.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{NbrFrames}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{NbrFrames}\n
  *           The number of frames that should be collected for calculating the
  *           maps. Default is 200.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{StartInstantly}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{StartInstantly}\n
  *           Flag to tell whether the calculator should start instantly with
  *           collecting the frames and calculating the maps. If false it will
  *           wait until told by the program through the available GUI's. Default
  *           is false.
- * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreator/{WriteMaps}\n
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{WriteMaps}\n
  *           Tell the creator to write the calulated maps once they have been
  *           calculated. For further infomration on how the files are written,
  *           see cass::pixeldetector::CommonData. Default is true.
+ * @cassttng PixelDetectors/\%name\%/CorrectionMaps/FixedOnlineCreatorCommonMode/{CommonModeCalculationType}\n
+ *           The type of commonmode calculation thats used to correct the common
+ *           mode when trying to get rid of it. Default is "simpleMean". Possible
+ *           values are:
+ *           - "none": No common mode correction is done
+ *           - "simpleMean": The common mode is calculated from the mean value
+ *                           Which is determined with a simple algorithm. See
+ *                           cass::pixeldetector::commonmode::SimpleMeanCalculator
+ *           - "mean": The common mode is calculated from the mean value of the
+ *                     pixels. See cass::pixeldetector::commonmode::MeanCalculator
+ *           - "median": The common mode is calculated from the median of the
+ *                       pixels. See
+ *                       cass::pixeldetector::commonmode::MedianCalculator for
+ *                       details.
  *
- * @author Lutz Foucar
+ * @author Lutz
  */
-class OnlineFixedCreatorTest : public MapCreatorBase
+class OnlineFixedCreatorCommonMode : public MapCreatorBase
 {
 public:
   /** the operator
@@ -164,7 +182,6 @@ private:
 
   /** a function that just returns and does nothing
    *
-   * @param unused not used
    * @param unused not used
    */
   void doNothing(const Frame& /*unused*/) {}
