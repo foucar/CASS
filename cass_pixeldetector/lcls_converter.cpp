@@ -169,8 +169,8 @@ Converter::Converter()
                  DetInfo::pnCCD, 1);
   /** @todo make sure that these definitions are correct */
   Key commCCD1(TypeId::Id_Frame,
-               DetInfo::Camp, 3,
-               DetInfo::pnCCD, 5);
+               DetInfo::AmoBps, 0,
+               DetInfo::Opal1000, 0);
   Key commCCD2(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::pnCCD, 5);
@@ -197,13 +197,13 @@ Converter::Converter()
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
-  //  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
-  //  <<"'("<<xtc->contains.id()
-  //  <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
-  //  <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
-  //  <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
-  //  <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
-  //  <<")"<<endl;
+//  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
+//      <<"'("<<xtc->contains.id()
+//      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
+//      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
+//      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
+//      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
+//      <<")"<<endl;
 
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
