@@ -2047,7 +2047,7 @@ void cass::pp86::process(const cass::CASSEvent& evt)
       (one.memory().begin()+_xRangeBaseline.first);
   HistogramFloatBase::storage_t::const_iterator baselineEnd
       (one.memory().begin()+_xRangeBaseline.second);
-  const float baseline(accumulate(baselineBegin,baselineEnd,0) /
+  const float baseline(accumulate(baselineBegin,baselineEnd,0.f) /
                        static_cast<float>(distance(baselineBegin,baselineEnd)));
 
   HistogramFloatBase::storage_t::const_iterator stepRangeBegin
