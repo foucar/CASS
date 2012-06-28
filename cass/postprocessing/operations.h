@@ -1122,7 +1122,8 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           histogram name for which we count fills. Default is 0.
+   *           Name of PostProcessor that contains the histogram that we want to
+   *           analyze and find the FWHM. Default is 0.
    * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
    *           Lower and upper limit of the range that we look for the width at half maximum.
    *           Default is 0|1.
@@ -1156,6 +1157,79 @@ namespace cass
 
     /** the requested x-axis limits in histogram coordinates */
     std::pair<size_t,size_t> _xRange;
+  };
+
+
+
+
+
+
+
+
+
+  /** find step in 1d hist
+   *
+   * finds the x-position of a step in a 1d hist. It does this by defining a
+   * baseline from the user selected range. It then searches for the highest
+   * point in the range that should contain the step. Now it looks for the first
+   * x position where the y value is Fraction * (highestPoint + baselline).
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Histogram name of the 1d Histogram that we look for the step in.
+   *          Default is 0.
+   * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+   *           Lower and upper limit of the range that we look for the step.
+   *           Default is 0|1.
+   * @cassttng PostProcessor/\%name\%/{BaselineLow|BaselineUp} \n
+   *           Lower and upper limit of the range that we use to calculate the
+   *           Baseline.
+   *           Default is 0|1.
+   * @cassttng PostProcessor/\%name\%/{Fraction} \n
+   *           The Fraction between the baseline and the highest value that
+   *           should be taken when searching for the right point. Default is
+   *           0.5
+   *
+   * @author Lutz Foucar
+   */
+  class pp86 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp86(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** change the parameters, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+  protected:
+    /** setup the parameters for finding the step */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** the user requested x-axis limits for the step finding*/
+    std::pair<float,float> _userXRangeStep;
+
+    /** the requested x-axis limits for find the step in histogram coordinates */
+    std::pair<size_t,size_t> _xRangeStep;
+
+    /** the user requested x-axis limits for the baseline finding*/
+    std::pair<float,float> _userXRangeBaseline;
+
+    /** the requested x-axis limits for find the baseline in histogram coordinates */
+    std::pair<size_t,size_t> _xRangeBaseline;
+
+    /** user fraction of the height between low and up */
+    float _userFraction;
   };
 
 

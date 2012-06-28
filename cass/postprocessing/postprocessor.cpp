@@ -676,9 +676,13 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp81(*this, key));
     break;
   case fwhmPeak:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp85(*this, key));
-    break;
+      processor = PostprocessorBackend::shared_pointer
+            (new pp85(*this, key));
+      break;
+  case step:
+      processor = PostprocessorBackend::shared_pointer
+            (new pp86(*this, key));
+      break;
   case SingleCcdImage:
     processor = PostprocessorBackend::shared_pointer
           (new pp100(*this, key));

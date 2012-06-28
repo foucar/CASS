@@ -1969,6 +1969,128 @@ void cass::pp85::process(const cass::CASSEvent& evt)
 
 
 
+
+// ***  pp 86 return x positioin of a step in 1D histgoram ***
+
+cass::pp86::pp86(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp86::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _userXRangeStep = make_pair(s.value("XLow",0).toFloat(),
+                              s.value("XUp",1).toFloat());
+  _xRangeBaseline = make_pair(s.value("BaselineLow",0).toFloat(),
+                              s.value("BaselineUp",1).toFloat());
+  _userFraction = s.value("Fraction",0.5).toFloat();
+  setupParameters(_pHist->getHist(0));
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the postion of the step in '" << _pHist->key()
+      <<"' in the range from xlow '"<< _userXRangeStep.first
+      <<"' to xup '"<< _userXRangeStep.second
+      <<"'. Where the baseline is defined in range '"<< _xRangeBaseline.first
+      <<"' to '"<< _xRangeBaseline.second
+      <<"'. The Fraction is '"<<_userFraction
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp86::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  setupParameters(*in);
+}
+
+void cass::pp86::setupParameters(const HistogramBackend &hist)
+{
+  using namespace std;
+  if (hist.dimension() != 1)
+    throw invalid_argument("pp86::setupParameters()'" + _key +
+                           "': Error the histogram we depend on '" + hist.key() +
+                           "' is not a 1D Histogram.");
+  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  _xRangeStep = make_pair(xaxis.bin(_userXRangeStep.first),
+                          xaxis.bin(_userXRangeStep.second));
+  _xRangeBaseline = make_pair(xaxis.bin(_userXRangeBaseline.first),
+                              xaxis.bin(_userXRangeBaseline.second));
+}
+
+void cass::pp86::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram1DFloat& one
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+
+  HistogramFloatBase::storage_t::const_iterator baselineBegin
+      (one.memory().begin()+_userXRangeBaseline.first);
+  HistogramFloatBase::storage_t::const_iterator baselineEnd
+      (one.memory().begin()+_userXRangeBaseline.second);
+  const float baseline(accumulate(baselineBegin,baselineEnd,0) /
+                       static_cast<float>(distance(baselineBegin,baselineEnd)));
+
+  HistogramFloatBase::storage_t::const_iterator stepRangeBegin
+      (one.memory().begin()+_userXRangeStep.first);
+  HistogramFloatBase::storage_t::const_iterator stepRangeEnd
+      (one.memory().begin()+_userXRangeStep.second);
+
+  HistogramFloatBase::storage_t::const_iterator maxElementIt
+      (max_element(stepRangeBegin, stepRangeEnd));
+  const float halfMax((*maxElementIt+baseline) * _userFraction);
+
+  HistogramFloatBase::storage_t::const_iterator stepIt(stepRangeBegin+1);
+  for ( ; stepIt!=maxElementIt ; stepIt++ )
+    if ( *(stepIt-1) <= halfMax && halfMax < *stepIt )
+      break;
+  const size_t steppos(distance(one.memory().begin(),stepIt));
+
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(steppos);
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Local Variables:
 // coding: utf-8
 // mode: C++
