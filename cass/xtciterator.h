@@ -80,11 +80,13 @@ namespace cass
         {
           std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())
               << " is damaged: 0x" <<xtc->damage.value()
+              <<" skipping event."
               <<std::dec<<std::endl;
-          if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
+//          if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
+          if (damage & ( 0x1 << Pds::Damage::DroppedContribution))
           {
             std::cout <<std::hex<<"0x"<<xtc->damage.value()
-                <<" is incomplete Contribution. Skipping Event"
+                <<" is dropped Contribution. Skipping Event"
                 <<std::dec<<std::endl;
             return Stop;
           }
