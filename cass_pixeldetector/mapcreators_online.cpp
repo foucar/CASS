@@ -155,7 +155,7 @@ void OnlineFixedCreator::loadSettings(CASSSettings &s)
 
 void OnlineFixedCreatorCommonMode::controlCalibration(const string &)
 {
-  Log::add(Log::INFO,"OnlineFixedCreatorTest::controlCalibration(): Start collecting '" +
+  Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::controlCalibration(): Start collecting '" +
            toString(_nbrFrames) + "' frames for calibration");
   _createMap = bind(&OnlineFixedCreatorCommonMode::buildAndCalc,this,_1);
 }
@@ -173,7 +173,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
   {
     QTime t;
     t.start();
-    Log::add(Log::INFO,"OnlineFixedCreatorTest::buildAndCalc(): Collected '"
+    Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::buildAndCalc(): Collected '"
              + toString(_framecounter) +
              "' frames. Starting to generate the offset and noise map");
     frame_t::iterator offset(_commondata->offsetMap.begin());
@@ -198,7 +198,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues-1));
       if(qFuzzyCompare(*noise,0.f))
-        Log::add(Log::WARNING,"OnlineFixedCreatorTest::buildAndCalc(): the noise of pixel '" +
+        Log::add(Log::WARNING,"OnlineFixedCreatorCommonMode::buildAndCalc(): the noise of pixel '" +
                  toString(idx) + "' is 0 after the first iteration.");
       /** calc noise and offset from pixels that do not contain photon hits */
       storagePixels = _storage.begin();
@@ -221,12 +221,12 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
       *offset = tmp_offset;
       *noise = sqrt(tmp_noise/(accumulatedValues-1));
       if(accumulatedValues == 0)
-        Log::add(Log::WARNING,"OnlineFixedCreator::buildAndCalc(): for pixel '" +
+        Log::add(Log::WARNING,"OnlineFixedCreatorCommonMode::buildAndCalc(): for pixel '" +
                  toString(idx)
                  + "' did not find any pixel below the maximum Noise of '" +
                  toString(maxNoise) +"'");
       if(qFuzzyCompare(*noise,0.f))
-        Log::add(Log::WARNING,"OnlineFixedCreator::buildAndCalc(): the noise of pixel '" +
+        Log::add(Log::WARNING,"OnlineFixedCreatorCommonMode::buildAndCalc(): the noise of pixel '" +
                  toString(idx) + "' is 0.");
     }
     /** save the values to the map */
@@ -272,7 +272,7 @@ void OnlineFixedCreatorCommonMode::buildAndCalc(const Frame& frame)
     _createMap = bind(&OnlineFixedCreatorCommonMode::doNothing,this,_1);
     _storage.clear();
     _framecounter = 0;
-    Log::add(Log::INFO,"OnlineFixedCreatorTest::buildAndCalc(): Done creating maps: it took " +
+    Log::add(Log::INFO,"OnlineFixedCreatorCommonMode::buildAndCalc(): Done creating maps: it took " +
              toString(t.elapsed()) + " ms.");
   }
 }
