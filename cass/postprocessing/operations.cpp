@@ -1991,7 +1991,7 @@ void cass::pp86::loadSettings(size_t)
     return;
   _userXRangeStep = make_pair(s.value("XLow",0).toFloat(),
                               s.value("XUp",1).toFloat());
-  _xRangeBaseline = make_pair(s.value("BaselineLow",0).toFloat(),
+  _userXRangeBaseline = make_pair(s.value("BaselineLow",0).toFloat(),
                               s.value("BaselineUp",1).toFloat());
   _userFraction = s.value("Fraction",0.5).toFloat();
   setupParameters(_pHist->getHist(0));
@@ -2044,23 +2044,23 @@ void cass::pp86::process(const cass::CASSEvent& evt)
   _result->lock.lockForWrite();
 
   HistogramFloatBase::storage_t::const_iterator baselineBegin
-      (one.memory().begin()+_userXRangeBaseline.first);
+      (one.memory().begin()+_xRangeBaseline.first);
   HistogramFloatBase::storage_t::const_iterator baselineEnd
-      (one.memory().begin()+_userXRangeBaseline.second);
+      (one.memory().begin()+_xRangeBaseline.second);
   const float baseline(accumulate(baselineBegin,baselineEnd,0) /
                        static_cast<float>(distance(baselineBegin,baselineEnd)));
 
   HistogramFloatBase::storage_t::const_iterator stepRangeBegin
-      (one.memory().begin()+_userXRangeStep.first);
+      (one.memory().begin()+_xRangeStep.first);
   HistogramFloatBase::storage_t::const_iterator stepRangeEnd
-      (one.memory().begin()+_userXRangeStep.second);
+      (one.memory().begin()+_xRangeStep.second);
 
   HistogramFloatBase::storage_t::const_iterator maxElementIt
       (max_element(stepRangeBegin, stepRangeEnd));
   const float halfMax((*maxElementIt+baseline) * _userFraction);
 
   HistogramFloatBase::storage_t::const_iterator stepIt(stepRangeBegin+1);
-  for ( ; stepIt!=maxElementIt ; stepIt++ )
+  for ( ; stepIt != maxElementIt ; stepIt++ )
     if ( *(stepIt-1) <= halfMax && halfMax < *stepIt )
       break;
   const size_t steppos(distance(one.memory().begin(),stepIt));
