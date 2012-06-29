@@ -82,6 +82,8 @@ the Class description for information about what parameters are user settable.
 00053: Angular Distribution / Radar Plot
 00054: Convert 2D histogram to Radius - Phi representation (deprectiated; use pp202 instead)
 
+00055: Axis operations performed on 2d histogram
+
 00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
 00062: Summing up of histogram
@@ -277,6 +279,7 @@ public:
     CheckRange=9,
     ConstantTrue=10,
     ConstantFalse=11,
+    ConstantValue=12,
 
     CheckChange=15,
 
@@ -301,6 +304,8 @@ public:
     RadalProjection=52,
     AngularDistribution=53,
     R_Phi_Representation=54,
+
+    imageManip=55,
 
     ZeroDHistogramming=60,
     HistogramAveraging=61,
@@ -380,10 +385,22 @@ public:
     ParticleValues = 251,
     NbrParticles = 252,
 
-
     SingleParticleDetection=300,
     medianLastValues=301,
     TestImage=240,
+
+    tof2energy=400,
+    calcVariance=401,
+    HistogramSqAveraging=402,
+    Bin1DHist=403,
+    TofToMTC=404,
+    PulseDuration=405,
+    tof2energy0D=406,
+    tof2energylinear=407,
+    tof2energylinear0D=408,
+    calcCovarianceMap=410,
+    calcCorrection=412,
+    EventNumber=420,
 
     PnccdHDF5=1000,
     HDF5Converter=1001,

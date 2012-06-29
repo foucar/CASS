@@ -98,7 +98,6 @@ namespace cass
   };
 
 
-
   /** binary function for averaging.
    *
    * this operator is capable of performing a cumulative moving average and

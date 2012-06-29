@@ -27,6 +27,13 @@
 #include "cass_settings.h"
 #include "coltrims_analysis.h"
 #include "pixel_detectors.h"
+#include "image_manipulation.h"
+#include "partial_covariance.h"
+
+#ifdef HDF5
+#include "hdf5_converter.h"
+#include "hdf5dump.h"
+#endif
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -543,7 +550,7 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp10(*this, key, false));
     break;
   case ConstantValue:
-    processor = new pp12(*this, key);
+    processor = PostprocessorBackend::shared_pointer(new pp12(*this, key));
     break;
   case CheckChange:
     processor = PostprocessorBackend::shared_pointer(new pp15(*this, key));
@@ -621,7 +628,7 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp54(*this, key));
     break;
   case imageManip:
-    processor = new pp55(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp55(*this, key));
     break;
   case ZeroDHistogramming:
     processor = PostprocessorBackend::shared_pointer
@@ -870,40 +877,40 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp301(*this,key));
   break;
   case tof2energy:
-      processor = new pp400(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp400(*this,key));
       break;
   case calcVariance:
-      processor = new pp401(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp401(*this,key));
       break;
   case HistogramSqAveraging:
-      processor = new pp402(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp402(*this, key));
       break;
   case Bin1DHist:
-      processor = new pp403(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp403(*this, key));
       break;
   case TofToMTC:
-      processor = new pp404(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp404(*this, key));
       break;
   case PulseDuration:
-      processor = new pp405(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp405(*this,key));
       break;
   case tof2energy0D:
-      processor = new pp406(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp406(*this,key));
       break;
   case tof2energylinear:
-      processor = new pp407(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp407(*this,key));
       break;
   case tof2energylinear0D:
-      processor = new pp408(*this,key);
+      processor = PostprocessorBackend::shared_pointer(new pp408(*this,key));
       break;
   case calcCovarianceMap:
-      processor = new pp410(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp410(*this, key));
       break;
   case calcCorrection:
-      processor = new pp412(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp412(*this, key));
       break;
   case EventNumber:
-      processor = new pp420(*this, key);
+      processor = PostprocessorBackend::shared_pointer(new pp420(*this, key));
       break;
 #ifdef HDF5
   case PnccdHDF5:
@@ -954,4 +961,3 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
 // c-file-style: "Stroustrup"
 // fill-column: 100
 // End:
-S
