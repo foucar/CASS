@@ -162,17 +162,17 @@ Converter::Converter()
                        DetInfo::Camp, 0,
                        DetInfo::pnCCD, 0);
   Key BackPnCCD(TypeId::Id_pnCCDframe,
-                 DetInfo::Camp, 0,
-                 DetInfo::pnCCD, 1);
+                DetInfo::Camp, 0,
+                DetInfo::pnCCD, 1);
   Key BackPnCCDConfig(TypeId::Id_pnCCDconfig,
-                 DetInfo::Camp, 0,
-                 DetInfo::pnCCD, 1);
+                      DetInfo::Camp, 0,
+                      DetInfo::pnCCD, 1);
   Key commCCD1(TypeId::Id_Frame,
                DetInfo::AmoBps, 0,
                DetInfo::Opal1000, 0);
   Key xppCCD(TypeId::Id_Frame,
-              DetInfo::XppSb3Pim, 1,
-              DetInfo::TM6740, 1);
+             DetInfo::XppSb3Pim, 1,
+             DetInfo::TM6740, 1);
   /** @todo make sure that these definitions are correct */
   Key commCCD2(TypeId::Id_Frame,
                DetInfo::AmoVmi, 0,
