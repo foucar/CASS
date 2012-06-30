@@ -11,6 +11,7 @@
 #include <string>
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 #include "pixeldetector_mask.h"
 
@@ -505,6 +506,7 @@ void createCASSMask(CommonData &data, CASSSettings &s)
   functions["ring"] = &addRing;
 
   /** reset the mask before creating it*/
+  data.mask.resize(data.columns*data.rows);
   fill(data.mask.begin(),data.mask.end(),1);
   int size = s.beginReadArray("Mask");
   for (int i = 0; i < size; ++i)
