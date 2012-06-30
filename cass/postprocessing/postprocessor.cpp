@@ -665,12 +665,14 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case ZeroDand1Dto2DHistogramming:
     processor = PostprocessorBackend::shared_pointer
           (new pp68(*this, key));
+    break;
   case OneDtoScatterPlot:
     processor = PostprocessorBackend::shared_pointer(new pp69(*this, key));
     break;
   case SubsetHistogram:
     processor = PostprocessorBackend::shared_pointer
           (new pp70(*this, key));
+    break;
   case ClearHistogram:
     processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
     break;
