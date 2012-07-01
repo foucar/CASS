@@ -94,7 +94,7 @@ void cass::pp121::process(const CASSEvent& evt)
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::evrStatus_t &evr(mdev->EvrData());
   _result->lock.lockForWrite();
-  *dynamic_cast<Histogram0DFloat*>(_result) = _eventcode < evr.size()  ? 0 : evr[_eventcode];
+  *dynamic_cast<Histogram0DFloat*>(_result) = ((_eventcode < evr.size()) ? evr[_eventcode] : 0);
   _result->lock.unlock();
 }
 
