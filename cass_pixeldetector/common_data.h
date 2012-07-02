@@ -52,9 +52,13 @@ class MapCreatorBase;
  *           - "moving": The maps will be created from the last few frames. See
  *                       cass::pixeldetector::MovingMaps for details.
  *           - "online": Uses a fast way to collect the frames and a fast and
- *                       simple way to calculate the maps.
+ *                       simple way to calculate the maps.See
+ *                       cass::pixeldetector::OnlineFixedCreator
+ *                       for details.
  *           - "onlinecommonmode": same as online, but corrects the common mode
- *                                 from the frames when calculating the maps.
+ *                                 from the frames when calculating the maps.See
+ *                                 cass::pixeldetector::OnlineFixedCreatorCommonMode
+ *                                 for details.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
  *           is "darkcal_\%detectorId\%.lnk". Which is a link to the most recent
