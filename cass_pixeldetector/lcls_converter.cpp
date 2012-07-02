@@ -170,13 +170,13 @@ Converter::Converter()
   Key commCCD1(TypeId::Id_Frame,
                DetInfo::AmoBps, 0,
                DetInfo::Opal1000, 0);
+  Key commCCD2(TypeId::Id_Frame,
+               DetInfo::Camp, 0,
+               DetInfo::Opal1000, 0);
   Key xppCCD(TypeId::Id_Frame,
              DetInfo::XppSb3Pim, 1,
              DetInfo::TM6740, 1);
   /** @todo make sure that these definitions are correct */
-  Key commCCD2(TypeId::Id_Frame,
-               DetInfo::AmoVmi, 0,
-               DetInfo::Opal1000, 0);
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::Camp, 3,
                DetInfo::Opal1000, 5);
