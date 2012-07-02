@@ -16,4 +16,7 @@
 @example fileinput.ini
 @example Covariance_Electrons.ini
 @example scan.ini
+@example nanocrystal_hitdetection.ini
+@example singleParticleDetection_new.ini
+@example darkfilecreation_offline.ini
 */
