@@ -41,10 +41,30 @@ namespace cass
    * hdf5 library. If it is not enabled then it will not compress the data.
    *
    * @cassttng PostProcessor/\%name\%/{Compress}\n
-   *           tells the converter to compress the 1d and 2d data using a zip
+   *           Tells the converter to compress the 1d and 2d data using a zip
    *           algorithm. Default is false.
-   *
-   * @todo use hyperslab to have data provided also as xbins x ybins matrix
+   * @cassttng PostProcessor/\%name\%/{Write2dAsMatrix}\n
+   *           Instead of storing the 2d data in a table where the first two
+   *           columns contain the coordinate and the third column contains the
+   *           element value, the 2d data is stored in a matrix, that can only
+   *           be addressed by their indizes. Default is false.
+   * @cassttng PostProcessor/\%name\%/{WriteBeamlineData}\n
+   *           When enabled this will write all beamline data available. This is
+   *           not written in the summary only when the condition is true.
+   *           Default is false.
+   * @cassttng PostProcessor/\%name\%/{WriteEpicsData}\n
+   *           When enabled this will write all epcis data available. This is
+   *           not written in the summary only when the condition is true.
+   *           Default is false.
+   * @cassttng PostProcessor/\%name\%/{WriteEvrCodes}\n
+   *           When enabled this will write all evr codes that are contained in
+   *           the event. Those are only available at LCLS. This is not written
+   *           in the summary only when the condition is true. Default is false.
+   * @cassttng PostProcessor/\%name\%/{WriteSummary}\n
+   *           With this flag one can enable or disable that a summary is
+   *           written before cass quits. In the summary all PostProcessors are
+   *           written, that the user did not disable writing for. Default is
+   *           true.
    *
    * @author Lutz Foucar
    */
@@ -76,8 +96,28 @@ namespace cass
     /** default behaviour */
     bool _events_root_is_filehandle;
 
+    /** flag to tell whether 2d hist should be stored as matrix */
+    bool _store2dAsMatrix;
+
+    /** flag to tell whether to dump all machine data */
+    bool _dumpMachineData;
+
+    /** flag to tell whether to write bld data */
+    bool _dumpBLD;
+
+    /** flag to tell wehther to write epics data */
+    bool _dumpEpics;
+
+    /** flag to tell whether to write EVR Codes */
+    bool _dumpEVR;
+
+    /** flag to tell whether to write a summary */
+    bool _writeSummary;
+
+    /** lock for the scan group */
     QReadWriteLock _calibGroupLock;
 
+    /** create a folder with the scan value */
     hid_t getGroupNameForCalibCycle(const cass::CASSEvent &);
   };
 
