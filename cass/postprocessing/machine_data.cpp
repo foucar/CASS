@@ -46,7 +46,7 @@ void cass::pp120::process(const CASSEvent& evt)
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::bldMap_t bld(mdev->BeamlineData());
+  const MachineDataDevice::bldMap_t &bld(mdev->BeamlineData());
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = bld.find(_varname) == bld.end() ? 0: bld.find(_varname)->second;
   _result->lock.unlock();
@@ -182,7 +182,7 @@ void cass::pp130::process(const CASSEvent& evt)
   const MachineDataDevice *mdev
       (dynamic_cast<const MachineDataDevice *>
        (evt.devices().find(CASSEvent::MachineData)->second));
-  const MachineDataDevice::epicsDataMap_t epics(mdev->EpicsData());
+  const MachineDataDevice::epicsDataMap_t &epics(mdev->EpicsData());
   _result->lock.lockForWrite();
 //  std::cout <<std::boolalpha<<"pp130::process:'"<<_varname
 //      <<"' is "<<(epics.find(_varname) == epics.end()?"not":"")
