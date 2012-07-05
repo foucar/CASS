@@ -685,7 +685,7 @@ void cass::pp1001::loadSettings(size_t)
            "'. Write2dAsMatrix '"+ (_store2dAsMatrix?"true":"false") +
            "'. WriteBeamlineData '"+ (_dumpBLD?"true":"false") +
            "'. WriteEpicsData '"+ (_dumpEpics?"true":"false") +
-           "'. WriteEvrCodesData '"+ (_dumpEVR?"true":"false") +
+           "'. WriteEvrCodes '"+ (_dumpEVR?"true":"false") +
            "'. WriteSummary '"+ (_writeSummary?"true":"false") +
            "'. Condition is '" + _condition->key());
 }
@@ -805,7 +805,10 @@ void cass::pp1001::process(const cass::CASSEvent &evt)
           hdf5::write1DHist(dynamic_cast<const Histogram1DFloat&>(hist),ppgrouphandle,_compress);
           break;
         case 2:
-          hdf5::write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
+          if (_store2dAsMatrix)
+            hdf5::write2DMatrix(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
+          else
+            hdf5::write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
           break;
       }
       Log::add(Log::DEBUG4, "pp1001::process(): done writing '" + pp.key() + "'");
