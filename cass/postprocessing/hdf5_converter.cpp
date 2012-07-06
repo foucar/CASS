@@ -606,7 +606,8 @@ void writeEpicsData(const MachineData::MachineDataDevice::epicsDataMap_t &epics,
 /** write all evr codes of the event to file
  *
  * creates a list of all evr codes that were sent with this event and writes it
- * as an array to the group.
+ * as an array to the group. When the list of evr codes is empty, don't write
+ * anything.
  *
  * @param bld the device from the CASSEvent that contains the machine data
  * @param groupid the id of the group that the data shoudl be added to
@@ -619,19 +620,25 @@ void writeEvrCodes(const MachineData::MachineDataDevice::evrStatus_t &evr, hid_t
   for(size_t i(0);i < evr.size(); ++i)
     if (evr[i])
       list.push_back(i);
+  if(list.empty())
+  {
+    Log::add(Log::WARNING,"writeEvrCodes(): The list of EVR Codes is empty. Nothing will be written");
+  }
+  else
+  {
+    hsize_t dims[2];
+    dims[0] = list.size();
+    dims[1] = 1;
+    hid_t dataspace_id(H5Screate_simple(2, dims, NULL));
 
-  hsize_t dims[2];
-  dims[0] = list.size();
-  dims[1] = 1;
-  hid_t dataspace_id(H5Screate_simple(2, dims, NULL));
+    hid_t dataset_id(H5Dcreate1(groupid, "EventCodes",
+                                H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT));
+    H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
+             H5P_DEFAULT, &list.front());
 
-  hid_t dataset_id(H5Dcreate1(groupid, "EventCodes",
-                              H5T_NATIVE_INT, dataspace_id, H5P_DEFAULT));
-  H5Dwrite(dataset_id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL,
-           H5P_DEFAULT, &list.front());
-
-  H5Dclose(dataset_id);
-  H5Sclose(dataspace_id);
+    H5Dclose(dataset_id);
+    H5Sclose(dataspace_id);
+  }
 }
 
 }//end namespace hdf5
