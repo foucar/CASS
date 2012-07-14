@@ -1116,6 +1116,90 @@ namespace cass
 
 
 
+
+
+
+
+  /** return the mean value of all bins of incomming histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   *
+   * @author Lutz Foucar
+   */
+  class pp82 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp82(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /** return the standart deviation of all bins of incomming histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for which we count fills. Default is 0.
+   *
+   * @author Lutz Foucar
+   */
+  class pp83 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp83(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
   /** return full width at half maximum in given range of 1D histgoram
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini

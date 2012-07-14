@@ -101,6 +101,8 @@ the Class description for information about what parameters are user settable.
 
 00080: nbrOfFills of given histogram
 00081: maximum bin of 1D histogram
+00082: mean value of all bins of a histogram
+00083: standart deviation of the mean of all bins of a histogram
 
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
@@ -324,6 +326,8 @@ public:
 
     nbrOfFills=80,
     maximumBin=81,
+    meanvalue=82,
+    standartDev=83,
 
     fwhmPeak=85,
     step=86,

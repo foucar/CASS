@@ -684,6 +684,12 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp81(*this, key));
     break;
+  case meanvalue:
+    processor = PostprocessorBackend::shared_pointer(new pp82(*this, key));
+    break;
+  case standartDev:
+    processor = PostprocessorBackend::shared_pointer(new pp83(*this, key));
+    break;
   case fwhmPeak:
       processor = PostprocessorBackend::shared_pointer
             (new pp85(*this, key));

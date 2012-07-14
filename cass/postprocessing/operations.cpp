@@ -9,6 +9,7 @@
 #include <QtCore/QString>
 #include <iterator>
 #include <algorithm>
+#include <numeric>
 
 #include "cass.h"
 #include "operations.h"
@@ -1827,6 +1828,125 @@ void cass::pp81::process(const cass::CASSEvent& evt)
   size_t bin(distance(one.memory().begin(),maxElementIt));
   dynamic_cast<Histogram0DFloat*>(_result)->
       fill(one.axis()[HistogramBackend::xAxis].position(bin));
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ***  pp 82 returns mean value of all bins in a Histogram ***
+
+cass::pp82::pp82(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp82::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the mean of all bins in '" << _pHist->key()
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp82::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  const float sum(accumulate(one.memory().begin(),one.memory().end(),0.));
+  const float nElements(one.memory().size());
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(sum/nElements);
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ***  pp 83 returns standard deviation of all bins in a Histogram ***
+
+cass::pp83::pp83(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp83::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the standart deviation of all bins in '" << _pHist->key()
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp83::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+//  const float sum(accumulate(one.memory().begin(),one.memory().end(),0.));
+//  const float nElements(one.memory().size());
+  HistogramFloatBase::storage_t::const_iterator element(one.memory().begin());
+  HistogramFloatBase::storage_t::const_iterator end(one.memory().end());
+  size_t accumulatedValues(0);
+  float tmp_mean(0.);
+  float tmp_variance(0.);
+  for(; element != end ; ++element)
+  {
+    ++accumulatedValues;
+    const float old_mean(tmp_mean);
+    tmp_mean += ((*element - tmp_mean) / accumulatedValues);
+    tmp_variance  += ((*element - old_mean)*(*element - tmp_mean));
+  }
+  const float standartdeviation(sqrt(tmp_variance/(accumulatedValues-1)));
+
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(standartdeviation);
   _result->nbrOfFills()=1;
   _result->lock.unlock();
   one.lock.unlock();
