@@ -266,7 +266,10 @@ void saveCASSOffsetFile(const string &filename, CommonData& data)
 void readHLLGainFile(const string &filename, CommonData& data)
 {
   if (filename.empty())
+  {
+    Log::add(Log::WARNING,"readHLLGainFile: No filename given therefore gain / cte will be set to 1");
     return;
+  }
   ifstream in(filename.c_str(), ios::binary);
   if (!in.is_open())
   {

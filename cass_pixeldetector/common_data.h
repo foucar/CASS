@@ -61,8 +61,11 @@ class MapCreatorBase;
  *                                 for details.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFilename}\n
  *           The filename containing the saved noise and offset maps. Default
- *           is "darkcal_\%detectorId\%.lnk". Which is a link to the most recent
- *           darkcalibration file.
+ *           is "darkcal_%detectorId%.lnk". Which is a link to the most recent
+ *           darkcalibration file. If no file is found, the offset will be set to
+ *           0 and the noise will be set to 4000. When the user has chosen a
+ *           "NoisyPixelThreshold" lower than 4000 this will result in a completly
+ *           masked frame.
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{InputOffsetNoiseFiletype}\n
  *           The filetype that the values are stored in. Default is "hll".
  *           Options are:
@@ -88,7 +91,7 @@ class MapCreatorBase;
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/{NoisyPixelThreshold}\n
  *           The threshold to identify noisy pixels. Will be used when creating
  *           the mask. When the noise of the pixel is higher than this value
- *           the pixel will be masked. Default is 40000. 
+ *           the pixel will be masked. Default is 40000.
  *
  * @author Lutz Foucar
  */
