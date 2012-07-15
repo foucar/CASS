@@ -567,7 +567,9 @@ void write2DMatrix(const Histogram2DFloat& hist, hid_t groupid, bool compress)
 
 /** write all beamline data variables to file
  *
- * details
+ * when there is no beamline data to be written return immediately,
+ * otherwise write all beamline data available to the "Beamline Data"
+ * group after creating it.
  *
  * @param bld the beamline data contained in the event
  * @param groupid the id of the group that the data shoudl be added to
@@ -576,6 +578,8 @@ void write2DMatrix(const Histogram2DFloat& hist, hid_t groupid, bool compress)
  */
 void writeBeamlineData(const MachineData::MachineDataDevice::bldMap_t &bld, hid_t groupid)
 {
+  if (bld.empty())
+    return;
   hid_t bldGroup(H5Gcreate1(groupid,"Beamline Data",0));
   MachineData::MachineDataDevice::bldMap_t::const_iterator bldIt(bld.begin());
   MachineData::MachineDataDevice::bldMap_t::const_iterator bldEnd(bld.end());
@@ -586,7 +590,9 @@ void writeBeamlineData(const MachineData::MachineDataDevice::bldMap_t &bld, hid_
 
 /** write all epics  data variables to file
  *
- * details
+ * when there is no epics data to be written return immediately,
+ * otherwise write all epics data available to the "Epics Data"
+ * group after creating it.
  *
  * @param epics the epics data contained in the event
  * @param groupid the id of the group that the data shoudl be added to
@@ -595,6 +601,8 @@ void writeBeamlineData(const MachineData::MachineDataDevice::bldMap_t &bld, hid_
  */
 void writeEpicsData(const MachineData::MachineDataDevice::epicsDataMap_t &epics, hid_t groupid)
 {
+  if (epics.empty())
+    return;
   hid_t epcsGroup (H5Gcreate1(groupid,"Epics Data",0));
   MachineData::MachineDataDevice::epicsDataMap_t::const_iterator epicsIt(epics.begin());
   MachineData::MachineDataDevice::epicsDataMap_t::const_iterator epicsEnd(epics.end());
