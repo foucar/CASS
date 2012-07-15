@@ -685,7 +685,11 @@ void cass::pp1001::loadSettings(size_t)
     if (!compavailable ||
         !(filter_info & H5Z_FILTER_CONFIG_ENCODE_ENABLED) ||
         !(filter_info & H5Z_FILTER_CONFIG_DECODE_ENABLED))
+    {
+      Log::add(Log::WARNING,"pp1001: '"+_key+"', compressing is not available in this " +
+               "hdf5 library. Turning it off.");
       _compress = false;
+    }
   }
   setupGeneral();
   if (!setupCondition(false))
