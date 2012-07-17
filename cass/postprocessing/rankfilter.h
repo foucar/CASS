@@ -30,7 +30,7 @@ namespace cass
    * @cassttng PostProcessor/\%name\%/{HistName} \n
    *           the postprocessor name that contain the first histogram. Default
    *           is 0.
-   * @cassttng PostProcessor/\%name\%/{medianSize} \n
+   * @cassttng PostProcessor/\%name\%/{MedianSize} \n
    *           how many last values should be included in median calculation.
    *           default is 100.
    *

@@ -16,15 +16,13 @@
 #include "histogram.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
+
+using namespace std;
+using namespace cass;
 
 
-
-
-
-
-
-
-// ********** Postprocessor 66: median of last values ************
+// ********** Postprocessor 301: median of last values ************
 
 cass::pp301::pp301(PostProcessors& pp, const cass::PostProcessors::key_t &key)
   : PostprocessorBackend(pp, key), _medianStorage(NULL)
@@ -34,13 +32,13 @@ cass::pp301::pp301(PostProcessors& pp, const cass::PostProcessors::key_t &key)
 
 void cass::pp301::loadSettings(size_t)
 {
-  CASSSettings settings;
+  CASSSettings s;
 
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
 
   // size of dataset for median
-  _medianSize = settings.value("medianSize", 100).toInt();
+  _medianSize = s.value("MedianSize", 100).toInt();
 
   setupGeneral();
 
@@ -54,23 +52,20 @@ void cass::pp301::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
 
   delete _medianStorage;
-  _medianStorage = new std::deque<float>();
+  _medianStorage = new deque<float>();
 
-  std::cout << "PostProcessor " << _key
-      << ": computes median of " << _medianSize
-      << " of pp " << _one->key()
-      <<"Condition is "<<_condition->key()
-      << std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' computes median with a size of '" + toString(_medianSize) +
+           "' of pp '"+ _one->key() +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp301::process(const CASSEvent &evt)
 {
   // Get the input
-  using namespace std;
   const HistogramFloatBase &one
       (dynamic_cast<const HistogramFloatBase&>((*_one)(evt)));
 
-  // Sum up the histogram under lock
   one.lock.lockForRead();
   float value (accumulate(one.memory().begin(),
                           one.memory().end(),
@@ -78,16 +73,15 @@ void cass::pp301::process(const CASSEvent &evt)
   one.lock.unlock();
 
   float result(0);
-  _medianStorage->push_back(value);
-  if (_medianStorage->size() >= _medianSize)
-  {
-    std::vector<float> lastData(_medianStorage->size());
-    std::copy( _medianStorage->begin(), _medianStorage->end(), lastData.begin() );
-    std::nth_element(lastData.begin(), lastData.begin() + _medianSize/2,
-        lastData.end());
-    result = lastData[_medianSize/2];
-    _medianStorage->pop_front();
-  }
+  if (_medianStorage->empty())
+    _medianStorage->resize(_medianSize,value);
+  else
+    _medianStorage->push_back(value);
+  vector<float> lastData(_medianStorage->begin(),_medianStorage->end());
+  nth_element(lastData.begin(), lastData.begin() + _medianSize/2,
+              lastData.end());
+  result = lastData[_medianSize/2];
+  _medianStorage->pop_front();
 
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = result;
