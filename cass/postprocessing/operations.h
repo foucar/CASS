@@ -1320,6 +1320,56 @@ namespace cass
 
 
 
+
+  /** find center of Mass of 1d hist in a user given range
+   *
+   * calculates the center of Mass in the user given range.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Histogram name of the 1d Histogram that we look for the step in.
+   *          Default is 0.
+   * @cassttng PostProcessor/\%name\%/{XLow|XUp} \n
+   *           Lower and upper limit of the range that we look for the step.
+   *           Default is 0|1.
+   *
+   * @author Lutz Foucar
+   */
+  class pp87 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp87(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** copy image from CASS event to histogram storage */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+    /** change the parameters, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+  protected:
+    /** setup the parameters for finding the step */
+    void setupParameters(const HistogramBackend &hist);
+
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** the user requested x-axis limits */
+    std::pair<float,float> _userXRange;
+
+    /** the requested x-axis limits in histogram coordinates */
+    std::pair<size_t,size_t> _xRange;
+  };
+
+
+
+
+
 }
 
 #endif

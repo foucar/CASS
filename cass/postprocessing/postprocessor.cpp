@@ -695,8 +695,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
             (new pp85(*this, key));
       break;
   case step:
-      processor = PostprocessorBackend::shared_pointer
-            (new pp86(*this, key));
+      processor = PostprocessorBackend::shared_pointer(new pp86(*this, key));
+      break;
+  case centerofmass:
+      processor = PostprocessorBackend::shared_pointer(new pp87(*this, key));
       break;
   case SingleCcdImage:
     processor = PostprocessorBackend::shared_pointer

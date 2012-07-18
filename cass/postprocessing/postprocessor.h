@@ -106,6 +106,7 @@ the Class description for information about what parameters are user settable.
 
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
+00087: find center of mass in given range of 1d histo
 
 ---Data retrieval (Histogram contain only last shot)--
 ##CCD data used with old pnccd and ccd devices (select appropriate format converters)##
@@ -331,6 +332,7 @@ public:
 
     fwhmPeak=85,
     step=86,
+    centerofmass=87,
 
     SingleCcdImage=100,
     SingleCcdImageIntegral=101,

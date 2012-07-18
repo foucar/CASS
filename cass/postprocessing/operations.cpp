@@ -2206,6 +2206,89 @@ void cass::pp86::process(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 87 return center of mass in range of 1D histgoram ***
+
+cass::pp87::pp87(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp87::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _userXRange = make_pair(s.value("XLow",0).toFloat(),
+                          s.value("XUp",1).toFloat());
+  setupParameters(_pHist->getHist(0));
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO, "PostProcessor '" + _key +
+           "' returns the center of mass in '" + _pHist->key() +
+           "' in the range from xlow '" + toString(_userXRange.first) +
+           "' to xup '" + toString(_userXRange.second) +
+           "' .Condition on postprocessor '"+_condition->key()+"'");
+}
+
+void cass::pp87::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  setupParameters(*in);
+}
+
+void cass::pp87::setupParameters(const HistogramBackend &hist)
+{
+  using namespace std;
+  if (hist.dimension() != 1)
+    throw invalid_argument("pp87::setupParameters()'" + _key +
+                           "': Error the histogram we depend on '" + hist.key() +
+                           "' is not a 1D Histogram.");
+  const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
+  _xRange = make_pair(xaxis.bin(_userXRange.first),
+                      xaxis.bin(_userXRange.second));
+}
+
+void cass::pp87::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram1DFloat& hist
+      (dynamic_cast<const Histogram1DFloat&>((*_pHist)(evt)));
+  hist.lock.lockForRead();
+  _result->lock.lockForWrite();
+
+  const AxisProperty &xAxis(hist.axis()[HistogramBackend::xAxis]);
+  const HistogramFloatBase::storage_t &data(hist.memory());
+
+  float integral(0);
+  float weight(0);
+  for (size_t i(_xRange.first); i < _xRange.second; ++i)
+  {
+    integral += (data[i]);
+    const float pos(xAxis.position(i));
+    weight += (data[i]*pos);
+  }
+  const float com(weight/integral);
+
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(com);
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  hist.lock.unlock();
+}
+
 
 
 
