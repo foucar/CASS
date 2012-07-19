@@ -510,6 +510,46 @@ namespace cass
 
 
 
+  /** store previous histogram of other PostProcessor
+   *
+   * Stores a previous version of another histogram.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           Postprocessor name containing the histogram that we average.
+   *
+   * @author Lutz Foucar
+   */
+  class pp56 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp56(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings */
+    virtual void loadSettings(size_t);
+
+    /** change the histogram, when told the the dependand histogram has changed */
+    virtual void histogramsChanged(const HistogramBackend*);
+
+  protected:
+    /** alpha for the running average */
+    HistogramFloatBase::storage_t _storage;
+
+    /** pp containing histogram to work on */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
+
+
+
 
 
 

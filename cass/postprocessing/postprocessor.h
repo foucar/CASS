@@ -84,6 +84,8 @@ the Class description for information about what parameters are user settable.
 
 00055: Axis operations performed on 2d histogram
 
+00056: Contains the Histogram of the previous event
+
 00060: Histogram 0D values to a 1D histogram
 00061: Average of a histogram
 00062: Summing up of histogram
@@ -309,6 +311,7 @@ public:
     R_Phi_Representation=54,
 
     imageManip=55,
+    previousHist=56,
 
     ZeroDHistogramming=60,
     HistogramAveraging=61,

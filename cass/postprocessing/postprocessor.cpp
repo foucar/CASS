@@ -630,6 +630,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case imageManip:
       processor = PostprocessorBackend::shared_pointer(new pp55(*this, key));
     break;
+  case previousHist:
+      processor = PostprocessorBackend::shared_pointer(new pp56(*this, key));
+    break;
   case ZeroDHistogramming:
     processor = PostprocessorBackend::shared_pointer
           (new pp60(*this, key));

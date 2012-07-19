@@ -700,6 +700,87 @@ void cass::pp54::process(const CASSEvent& evt)
 
 
 
+
+// *** postprocessor 56 stores previous version of another histogram ***
+
+cass::pp56::pp56(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp56::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  const HistogramBackend &one(_pHist->getHist(0));
+  _result = one.clone();
+  _storage.resize(dynamic_cast<const HistogramFloatBase&>(one).memory().size());
+
+  createHistList(2*cass::NbrOfWorkers,true);
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' stores the previous histogram from PostProcessor '" + _pHist->key() +
+           "'. Condition on postprocessor '" + _condition->key() +"'");
+}
+
+void cass::pp56::histogramsChanged(const HistogramBackend* in)
+{
+  using namespace std;
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //the previous _result pointer is on the histlist and will be deleted
+  //with the call to createHistList
+  _result = in->clone();
+  _storage.resize(dynamic_cast<const HistogramFloatBase*>(in)->memory().size());
+  createHistList(2*cass::NbrOfWorkers,true);
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+  Log::add(Log::DEBUG4,"Postprocessor '" + _key +
+           "': histograms changed => delete existing histo" +
+           " and create new one from input");
+}
+
+void cass::pp56::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t &histmem(dynamic_cast<HistogramFloatBase*>(_result)->memory());
+  copy(one.memory().begin(),one.memory().end(),_storage.begin());
+  copy(_storage.begin(),_storage.end(),histmem.begin());
+  _result->nbrOfFills() = 1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // *** postprocessor 60 histograms 0D values ***
 
 cass::pp60::pp60(PostProcessors& pp, const cass::PostProcessors::key_t &key)
