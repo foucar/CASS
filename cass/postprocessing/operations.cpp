@@ -760,8 +760,8 @@ void cass::pp56::process(const CASSEvent& evt)
   one.lock.lockForRead();
   _result->lock.lockForWrite();
   HistogramFloatBase::storage_t &histmem(dynamic_cast<HistogramFloatBase*>(_result)->memory());
-  copy(one.memory().begin(),one.memory().end(),_storage.begin());
   copy(_storage.begin(),_storage.end(),histmem.begin());
+  copy(one.memory().begin(),one.memory().end(),_storage.begin());
   _result->nbrOfFills() = 1;
   _result->lock.unlock();
   one.lock.unlock();
