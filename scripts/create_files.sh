@@ -8,7 +8,7 @@
 # config
 
 # the diretory where the analysis is taken place
-BASEDIR=/home/ullrch/foucar/sacla/commisioning_feb2012/analysis
+BASEDIR=$HOME/analysis/exp54912
 
 # the dir where all the .ini for the runs will be placed
 INIDIR=$BASEDIR/ini
@@ -23,19 +23,16 @@ SHDIR=$BASEDIR/sh
 DARKCALDIR=$BASEDIR/darkcal
 
 # the dir where all the data file are residing
-DATAFILESDIR=/reg/d/pdsm/amo/amoxxx/xtc
+DATAFILESDIR=/reg/d/psdm/amo/amo54912/xtc
 
 # the dir where the ouput files will be written to
 OUTPUTDIR=$BASEDIR/hd5
 
 # sting the precedes the runnumber
-FILEBASENAME=e-xxx-xxx
-
-# the cass binary
-CASSBIN=/reg/neh/home/lutz/src/cass/bin/cass_offline
+FILEBASENAME=e188-r0
 
 # the directory where all the output files should be written to
-ANALYSISOUTPUTDIR=/some/where
+ANALYSISOUTPUTDIR=$BASEDIR/h5
 
 # the ini file that works as template for the runs
 INIRUNTEMPLATE=$INIDIR/run_template.ini
@@ -44,13 +41,13 @@ INIRUNTEMPLATE=$INIDIR/run_template.ini
 INIDARKCALTEMPALTE=$INIDIR/darkcal_template.ini
 
 # sh file template to be used as run
-SHRUNTEMPLATE=$SHDIR/run_template.sh
+SHRUNTEMPLATE=$SHDIR/runTemplate.sh
 
 # sh file template to be used for darkcal creation
-SHDARKCALTEMPLATE=$SHDIR/darkcal_template.sh
+SHDARKCALTEMPLATE=$SHDIR/darkcalTemplate.sh
 
 # command to submit the sh file to the cluster
-SUBMITCOMMAND=qsub
+SUBMITCOMMAND="bsub -q psnehq -o $BASEDIR/jobs.out "
 
 # the extension that the output file should have
 OUTPUTEXT=h5
@@ -66,8 +63,8 @@ OUTPUTEXT=h5
 create_ini_file()
 {
   iniFilename=$INIDIR/run_$1.ini
-  darkcal0Filename=$DARKCALDIR/darkcal_$2_0.cal
-  darkcal1Filename=$DARKCALDIR/darkcal_$2_1.cal
+  darkcal0Filename=$DARKCALDIR/darkcal_run$2_0.cal
+  darkcal1Filename=$DARKCALDIR/darkcal_run$2_1.cal
 
   if [ ! -f "$darkcal0Filename" ]
   then
@@ -90,12 +87,11 @@ create_ini_file()
 
   if [ ! -f "$INIRUNTEMPLATE" ]
   then
-    echo "The ini template for runs $INIRUNTEMPLATE does not exist. Please provide it"
-    exit(0)
+    echo "The ini template for runs $INIRUNTEMPLATE does not exist. Please provide it";
+    exit 0
   fi
 
-  sed 's:darkcal_0.cal:'"$darkcal0Filename"':' <$INIRUNTEMPLATE > $iniFilename
-  sed 's:darkcal_1.cal:'"$darkcal1Filename"':' <iniFilename > $iniFilename
+  sed -e 's:darkcal_0.lnk:'"$darkcal0Filename"':' -e 's:darkcal_1.lnk:'"$darkcal1Filename"':' <$INIRUNTEMPLATE > $iniFilename
 }
 
 
@@ -104,8 +100,8 @@ create_ini_file()
 create_darkcal_ini_file()
 {
   iniFilename=$INIDIR/run_$1.ini
-  darkcal0Filename=$DARKCALDIR/darkcal_$1_0.cal
-  darkcal1Filename=$DARKCALDIR/darkcal_$1_1.cal
+  darkcal0Filename=$DARKCALDIR/darkcal_run$1_0.cal
+  darkcal1Filename=$DARKCALDIR/darkcal_run$1_1.cal
 
   if [ -f "$iniFilename" ]
   then
@@ -117,11 +113,10 @@ create_darkcal_ini_file()
   if [ ! -f "$INIDARKCALTEMPALTE" ]
   then
     echo "The ini template to create darkcals $INIDARKCALTEMPALTE does not exist. Please provide it"
-    exit(0)
+    exit 0
   fi
 
-  sed 's:darkcal_0.cal:'"$darkcal0Filename"':' <$INIDARKCALTEMPALTE > $iniFilename
-  sed 's:darkcal_1.cal:'"$darkcal1Filename"':' <iniFilename > $iniFilename
+  sed -e 's:darkcal_0.cal:'"$darkcal0Filename"':' -e 's:darkcal_1.cal:'"$darkcal1Filename"':' <$INIDARKCALTEMPALTE > $iniFilename
 }
 
 
@@ -146,27 +141,25 @@ create_txt_file()
 
 create_sh_file()
 {
-  shFileName=$SHDIR/run_$1.sh
+  shFilename=$SHDIR/run_$1.sh
   txtFilename=$TXTDIR/run_$1.txt
   iniFilename=$INIDIR/run_$1.ini
   outputFilename=$OUTPUTDIR/run_$1.$OUTPUTEXT
 
-  if [ -f "$shFileName" ]
+  if [ -f "$shFilename" ]
   then
-    echo "WARNING: $shFileName does already exist, overwriting it"
+    echo "WARNING: $shFilename does already exist, overwriting it"
   else
-    echo "Creating sh file $shFileName to submit the job for run $1"
+    echo "Creating sh file $shFilename to submit the job for run $1"
   fi
 
   if [ ! -f "$SHRUNTEMPLATE" ]
   then
     echo "The sh template for runs $SHRUNTEMPLATE does not exist. Please provide it"
-    exit(0)
+    exit 0
   fi
 
-  sed 's:FilesToProcess.txt:'"$txtFilename"':' <$SHRUNTEMPLATE > $shFilename
-  sed 's:IniFile.ini:'"$iniFilename"':' <$shFilename > $shFilename
-  sed 's:OutputFile.out:'"$outputFilename"':' <$shFilename > $shFilename
+  sed -e 's:FilesToProcess.txt:'"$txtFilename"':' -e 's:IniFile.ini:'"$iniFilename"':' -e 's:OutputFile.out:'"$outputFilename"':' <$SHRUNTEMPLATE > $shFilename
 }
 
 
@@ -174,25 +167,24 @@ create_sh_file()
 
 create_darkcal_sh_file()
 {
-  shFileName=$SHDIR/run_$1.sh
+  shFilename=$SHDIR/run_$1.sh
   txtFilename=$TXTDIR/run_$1.txt
   iniFilename=$INIDIR/run_$1.ini
 
   if [ -f "$shFileName" ]
   then
-    echo "WARNING: $shFileName does already exist, overwriting it"
+    echo "WARNING: $shFilename does already exist, overwriting it"
   else
-    echo "Creating sh file $shFileName to submit the job for darkcal run $1"
+    echo "Creating sh file $shFilename to submit the job for darkcal run $1"
   fi
 
   if [ ! -f "$SHDARKCALTEMPLATE" ]
   then
     echo "The sh template for darkcals $SHDARKCALTEMPLATE does not exist. Please provide it"
-    exit(0)
+    exit 0
   fi
 
-  sed 's:FilesToProcess.txt:'"$txtFilename"':' <$SHDARKCALTEMPLATE > $shFilename
-  sed 's:IniFile.ini:'"$iniFilename"':' <$shFilename > $shFilename
+  sed -e 's:FilesToProcess.txt:'"$txtFilename"':' -e 's:IniFile.ini:'"$iniFilename"':' <$SHDARKCALTEMPLATE > $shFilename
 }
 
 
@@ -207,9 +199,9 @@ create_darkcal_sh_file()
 # parameter 1 should contain the file that links run numbers to the corresponding
 # darkcal run
 
-if [ -n "$1" ]
+if [ -z "$1" ]
 then
-  echo "No file containing the runumbers to process has been given";
+  echo "No file containing the run numbers $1 to process has been given";
 else
   cat $1 | while read runnbr darkcalrunnbr;
   do
@@ -225,14 +217,15 @@ else
         create_txt_file $darkcalrunnbr
         create_darkcal_ini_file $darkcalrunnbr
         create_darkcal_sh_file $darkcalrunnbr
-        $SHFILETORUN=$SHDIR/run_$darkcalrunnbr
+        SHFILETORUN=$SHDIR/run_$darkcalrunnbr.sh
+        echo "submitting job containing run $darkcalrunnbr to cluster";
       else
         create_txt_file $runnbr
         create_sh_file $runnbr $darkcalrunnbr
-        $SHFILETORUN=$SHDIR/run_$runnbr
+        SHFILETORUN=$SHDIR/run_$runnbr.sh
+        echo "submitting job containing run $runnbr to cluster";
       fi
-      echo "submitting job containing run $runnbr to cluster";
-      $SUBMITCOMMAND $SHFILETORUN
+      echo "$SUBMITCOMMAND $SHFILETORUN"
     fi
   done
 fi
