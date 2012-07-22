@@ -19,4 +19,5 @@
 @example nanocrystal_hitdetection.ini
 @example singleParticleDetection_new.ini
 @example darkfilecreation_offline.ini
+@example singleParticleWithMemory.ini
 */
