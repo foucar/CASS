@@ -789,7 +789,10 @@ public:
           <<" height: "<<brect.height()
           <<std::endl);
       _zoomer->setZoomBase( brect  );
-      _zoomer->zoom(0);
+//      _zoomer->zoom(0);
+      _zoomer->zoom(brect);
+      _zoomer->setZoomBase(true);
+
     }
     _plot->replot();
   }
