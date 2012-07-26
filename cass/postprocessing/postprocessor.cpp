@@ -693,6 +693,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case standartDev:
     processor = PostprocessorBackend::shared_pointer(new pp83(*this, key));
     break;
+  case sumbins:
+    processor = PostprocessorBackend::shared_pointer(new pp84(*this, key));
+    break;
   case fwhmPeak:
       processor = PostprocessorBackend::shared_pointer
             (new pp85(*this, key));

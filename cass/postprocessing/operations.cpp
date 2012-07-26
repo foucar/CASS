@@ -2041,6 +2041,52 @@ void cass::pp83::process(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 84 returns the sum of all bins in a Histogram ***
+
+cass::pp84::pp84(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp84::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  cout<<endl<< "PostProcessor '"<<_key
+      <<"' returns the sum of all bins in '" << _pHist->key()
+      <<"' .Condition on postprocessor '"<<_condition->key()<<"'"
+      <<endl;
+}
+
+void cass::pp84::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase &one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  const float sum(accumulate(one.memory().begin(),one.memory().end(),0.));
+  dynamic_cast<Histogram0DFloat*>(_result)->fill(sum);
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
+
+
+
+
+
+
+
+
 
 
 

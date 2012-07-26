@@ -1095,7 +1095,7 @@ namespace cass
     /** constructor */
     pp80(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1134,7 +1134,7 @@ namespace cass
     /** constructor */
     pp81(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1166,7 +1166,8 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           histogram name for which we count fills. Default is 0.
+   *           histogram name for which the mean is calulated.
+   *           Default is blubb
    *
    * @author Lutz Foucar
    */
@@ -1176,7 +1177,7 @@ namespace cass
     /** constructor */
     pp82(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1208,7 +1209,8 @@ namespace cass
    *      settings.
    *
    * @cassttng PostProcessor/\%name\%/{HistName} \n
-   *           histogram name for which we count fills. Default is 0.
+   *           histogram name for which the standart deviation is calculated.
+   *           Default is blubb.
    *
    * @author Lutz Foucar
    */
@@ -1218,7 +1220,47 @@ namespace cass
     /** constructor */
     pp83(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /** return the sum of all bin elements of incomming histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name for the sum of all bins is calculated.
+   *           Default is blubb
+   *
+   * @author Lutz Foucar
+   */
+  class pp84 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp84(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1260,7 +1302,7 @@ namespace cass
     /** constructor */
     pp85(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1324,7 +1366,7 @@ namespace cass
     /** constructor */
     pp86(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
@@ -1383,7 +1425,7 @@ namespace cass
     /** constructor */
     pp87(PostProcessors& hist, const PostProcessors::key_t&);
 
-    /** copy image from CASS event to histogram storage */
+    /** process event */
     virtual void process(const CASSEvent&);
 
     /** load the settings of the pp */
