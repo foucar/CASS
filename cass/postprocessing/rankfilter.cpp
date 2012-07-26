@@ -101,45 +101,49 @@ void cass::pp302::loadSettings(size_t)
 {
   using namespace std;
   setupGeneral();
-  CASSSettings settings;
+  CASSSettings s;
 
-  settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
 
   _write = false;
 
-  _filename = settings.value("binaryFile", "").toString().toStdString();
-  _sizeX = settings.value("sizeX",0).toInt();
-  _sizeY = settings.value("sizeX",0).toInt();
+  string filename(s.value("binaryFile", "").toString().toStdString());
+  size_t sizeX(s.value("sizeX",0).toInt());
+  size_t sizeY(s.value("sizeX",0).toInt());
 
-  _result = new Histogram2DFloat( _sizeX, 0, _sizeX-1, _sizeY, 0, _sizeY-1 );
+  _result = new Histogram2DFloat( sizeX, 0, sizeX-1, sizeY, 0, sizeY-1 );
 
   // load binary file into _result:
-  std::ifstream in(_filename.c_str(), std::ios::binary|std::ios::ate);
+  std::ifstream in(filename.c_str(), std::ios::binary|std::ios::ate);
   if (in.is_open())
   {
     const size_t size_raw = in.tellg();
     const size_t size = size_raw / sizeof(float);
-    std::cout << "binary size: " << size << " " <<  _sizeX*_sizeY << std::endl;
-    if (size == _sizeX*_sizeY)
+    Log::add(Log::DEBUG4,"pp302:loadSettings(): binary size: " + toString(size)+
+             " " + toString(sizeX*sizeY) );
+    if (size == sizeX*sizeY)
     {
       in.seekg(0,std::ios::beg); // go to beginning
       in.read( reinterpret_cast<char*>(&(static_cast<Histogram2DFloat*>(_result)->memory()[0])), size_raw );
     }
-    else cout << endl << "binary file Histogram2D: wrong size " << _filename << endl;
+    else
+      Log::add(Log::ERROR,"pp302:loadSettings(): binary file Histogram2D: wrong size '"+ filename +"'");
   }
-  else cout << endl << "binary file Histogram2D: cannot open file " << _filename << endl;
+  else
+    Log::add(Log::ERROR,"pp302:loadSettings(): binary file Histogram2D: cannot open file '" + filename +"'");
 
-  createHistList(1);
-  //createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
 
-  cout<<endl << "PostProcessor '" << _key
-      <<"' corresponds to 2DHistogram from binary File '" << _filename
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' loads 2DHistogram from binary File '" + filename +
+           "' which is is of size '" + toString(sizeX) +
+           "x" + toString(sizeY) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 
-void cass::pp302::process(const CASSEvent &evt)
+void cass::pp302::process(const CASSEvent &/*evt*/)
 {
   // don't do anything. Values are fetched on loadSettings.
 }

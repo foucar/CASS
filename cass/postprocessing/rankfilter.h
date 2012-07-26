@@ -113,10 +113,6 @@ namespace cass
 
     /** load the settings of this pp */
     virtual void loadSettings(size_t);
-
-  protected:
-    std::string _filename;
-    int _sizeX, _sizeY;
   };
 
 
