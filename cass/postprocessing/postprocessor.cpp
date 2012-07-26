@@ -573,19 +573,19 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     break;
   case SubtractConstant:
     processor = PostprocessorBackend::shared_pointer
-          (new pp23<minus<float> >(*this, key, minus<float>()));
+          (new pp24<minus<float> >(*this, key, minus<float>()));
     break;
   case AddConstant:
     processor = PostprocessorBackend::shared_pointer
-          (new pp23<plus<float> >(*this, key, plus<float>()));
+          (new pp24<plus<float> >(*this, key, plus<float>()));
     break;
   case MultiplyConstant:
     processor = PostprocessorBackend::shared_pointer
-          (new pp23<multiplies<float> >(*this, key, multiplies<float>()));
+          (new pp24<multiplies<float> >(*this, key, multiplies<float>()));
     break;
   case DivideConstant:
     processor = PostprocessorBackend::shared_pointer
-          (new pp23<divides<float> >(*this, key, divides<float>()));
+          (new pp24<divides<float> >(*this, key, divides<float>()));
     break;
   case Subtract0DConstant:
     processor = PostprocessorBackend::shared_pointer

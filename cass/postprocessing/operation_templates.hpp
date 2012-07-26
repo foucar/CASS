@@ -434,11 +434,11 @@ namespace cass
    * @author Lutz Foucar
    */
   template <class Operator>
-  class pp23 : public PostprocessorBackend
+  class pp24 : public PostprocessorBackend
   {
   public:
     /** constructor */
-    pp23(PostProcessors& pp, const PostProcessors::key_t& key, const Operator& x)
+    pp24(PostProcessors& pp, const PostProcessors::key_t& key, const Operator& x)
       : PostprocessorBackend(pp, key), op (x)
     {
       loadSettings(0);
