@@ -89,5 +89,61 @@ void cass::pp301::process(const CASSEvent &evt)
 }
 
 
+// ****************** Postprocessor 302: Binary data from file into 2DHistogram ********************
+
+cass::pp302::pp302(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp302::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  CASSSettings settings;
+
+  settings.beginGroup("PostProcessor");
+  settings.beginGroup(_key.c_str());
+
+  _write = false;
+
+  _filename = settings.value("binaryFile", "").toString().toStdString();
+  _sizeX = settings.value("sizeX",0).toInt();
+  _sizeY = settings.value("sizeX",0).toInt();
+
+  _result = new Histogram2DFloat( _sizeX, 0, _sizeX-1, _sizeY, 0, _sizeY-1 );
+
+  // load binary file into _result:
+  std::ifstream in(_filename.c_str(), std::ios::binary|std::ios::ate);
+  if (in.is_open())
+  {
+    const size_t size_raw = in.tellg();
+    const size_t size = size_raw / sizeof(float);
+    std::cout << "binary size: " << size << " " <<  _sizeX*_sizeY << std::endl;
+    if (size == _sizeX*_sizeY)
+    {
+      in.seekg(0,std::ios::beg); // go to beginning
+      in.read( reinterpret_cast<char*>(&(static_cast<Histogram2DFloat*>(_result)->memory()[0])), size_raw );
+    }
+    else cout << endl << "binary file Histogram2D: wrong size " << _filename << endl;
+  }
+  else cout << endl << "binary file Histogram2D: cannot open file " << _filename << endl;
+
+  createHistList(1);
+  //createHistList(2*cass::NbrOfWorkers);
+
+  cout<<endl << "PostProcessor '" << _key
+      <<"' corresponds to 2DHistogram from binary File '" << _filename
+      <<endl;
+}
+
+
+void cass::pp302::process(const CASSEvent &evt)
+{
+  // don't do anything. Values are fetched on loadSettings.
+}
+
+
 
 

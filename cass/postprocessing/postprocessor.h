@@ -172,6 +172,7 @@ the Class description for information about what parameters are user settable.
 
 00300: single particle detection
 00301: median over last values
+00302: binary file 2DHistogram
 00240: Test Image
 
 00400: ToF to Energy conversion
@@ -398,6 +399,7 @@ public:
 
     SingleParticleDetection=300,
     medianLastValues=301,
+    binaryFile2D=302,
     TestImage=240,
 
     tof2energy=400,

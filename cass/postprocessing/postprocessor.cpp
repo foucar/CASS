@@ -892,6 +892,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp301(*this,key));
   break;
+  case binaryFile2D:
+      processor = PostprocessorBackend::shared_pointer (new pp302(*this, key));
+      break;
   case tof2energy:
       processor = PostprocessorBackend::shared_pointer(new pp400(*this,key));
       break;

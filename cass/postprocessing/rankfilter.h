@@ -65,6 +65,67 @@ namespace cass
 
 
 
+  /** load data from binary dump into 2DHistogram
+   *
+   *
+   *  example python code to generate binary file:
+   *  
+   *  import numpy
+   *  arr = numpy.zeros( (1024,1024), dtype=numpy.float32 ) 
+   *  cord = numpy.mgrid[0:1024,0:1024]
+   *  arr[ cord[0]**2+cord[1]**2 < 5000 ] = 1 
+   *  arr.tofile('waterJetMask.bin')
+   *  
+   *  import vigra
+   *  import numpy
+   *  arr = vigra.readImage('waterJetMask.png')
+   *  arr = numpy.array( arr[:,:,0], dtype=numpy.float32 )  # only save one color channel
+   *  arr /= 255     # rgb -> 0..1
+   *  arr = arr.T    # transpose image to match cass coordinate system
+   *  arr.tofile('waterJetMask_png.bin')
+   *
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{binaryFile} \n
+   *           Filename of binary float[sizeX*sizeY] file which contains data.
+   *           Default is "".
+   *
+   * @cassttng PostProcessor/\%name\%/{sizeX} \n
+   *           nr of Pixels for x axis.
+   *           Default is 0.
+   *
+   * @cassttng PostProcessor/\%name\%/{sizeY} \n
+   *           nr of Pixels for y axis.
+   *           Default is 0.
+   *
+   * @author Stephan Kassemeyer
+   */
+  class pp302 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp302(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of this pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    std::string _filename;
+    int _sizeX, _sizeY;
+  };
+
+
+
+
+
+
+
+
 
 
 
