@@ -31,15 +31,15 @@ class CommonData;
  * @cassttng PixelDetectors/\%name\%/CorrectionMaps/Mask/\%index\%/{MaskElementType}\n
  *           Name of the mask element. Default is "square". Possible values are:
  *           - "square": a square region of the mask. See
- *                       cass::pixeldetector::addSquare
+ *                       cass::pixeldetector::addSquare for details
  *           - "circle" or "circ": a circular region of the mask. See
  *                                 cass::pixeldetector::addCircle
  *           - "ellipse": a ellipsodial region of the mask. See
- *                       cass::pixeldetector::addEllipse
+ *                       cass::pixeldetector::addEllipse for details
  *           - "triangle": a square region of the mask. See
- *                       cass::pixeldetector::addTriangle
- *           . "ring": a ring with inner and outer part composed by ellipsoids.
- *                     See cass::pixeldetector::addRing
+ *                       cass::pixeldetector::addTriangle for details
+ *           - "ring": a ring with inner and outer part composed by ellipsoids.
+ *                     See cass::pixeldetector::addRing for details
  *
  * @author Nicola Coppola
  * @author Lutz Foucar
