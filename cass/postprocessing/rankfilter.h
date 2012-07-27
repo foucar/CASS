@@ -88,15 +88,15 @@ namespace cass
    * @see PostprocessorBackend for a list of all commonly available cass.ini
    *      settings.
    *
-   * @cassttng PostProcessor/\%name\%/{binaryFile} \n
+   * @cassttng PostProcessor/\%name\%/{BinaryFile} \n
    *           Filename of binary float[sizeX*sizeY] file which contains data.
    *           Default is "".
    *
-   * @cassttng PostProcessor/\%name\%/{sizeX} \n
+   * @cassttng PostProcessor/\%name\%/{SizeX} \n
    *           nr of Pixels for x axis.
    *           Default is 0.
    *
-   * @cassttng PostProcessor/\%name\%/{sizeY} \n
+   * @cassttng PostProcessor/\%name\%/{SizeY} \n
    *           nr of Pixels for y axis.
    *           Default is 0.
    *

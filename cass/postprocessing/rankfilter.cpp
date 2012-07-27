@@ -101,6 +101,8 @@ void cass::pp302::loadSettings(size_t)
 {
   using namespace std;
   setupGeneral();
+  if (!setupCondition())
+    return;
   CASSSettings s;
 
   s.beginGroup("PostProcessor");
@@ -108,9 +110,9 @@ void cass::pp302::loadSettings(size_t)
 
   _write = false;
 
-  string filename(s.value("binaryFile", "").toString().toStdString());
-  size_t sizeX(s.value("sizeX",0).toInt());
-  size_t sizeY(s.value("sizeX",0).toInt());
+  string filename(s.value("BinaryFile", "").toString().toStdString());
+  size_t sizeX(s.value("SizeX",0).toInt());
+  size_t sizeY(s.value("SizeY",0).toInt());
 
   _result = new Histogram2DFloat( sizeX, 0, sizeX-1, sizeY, 0, sizeY-1 );
 
