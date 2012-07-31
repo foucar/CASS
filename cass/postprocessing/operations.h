@@ -114,6 +114,7 @@ namespace cass
       createHistList(1);
       _hide =true;
       _write =false;
+      _write_summary=false;
     }
 
     /** don't do anything to the histogram */
