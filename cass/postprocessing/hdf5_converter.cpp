@@ -10,6 +10,8 @@
 
 #include <hdf5.h>
 #include <stdint.h>
+#include <sstream>
+#include <iomanip>
 
 #include "hdf5_converter.h"
 #include "histogram.h"
@@ -26,6 +28,53 @@ namespace cass
 
 namespace hdf5
 {
+
+/** check filesize and open new file if too big
+ *
+ * check if the current size of the h5 file is bigger than the
+ * user set maximum file size. When this is the case, close the
+ * current file and open a new file with the same file name, but
+ * with an increasing extension.
+ *
+ * @return new filename
+ * @param filehandle the filehandle to the hdf5 file
+ * @param maxsize the maximum size of the file before a new file
+ *                is opened
+ * @param currentfilename the name of the current hdf5 file
+ *
+ * @author Lutz Foucar
+ */
+string reopenFile(int & filehandle, size_t maxsize, const string& currentfilename)
+{
+  hsize_t currentsize;
+  H5Fget_filesize(filehandle,&currentsize);
+  string newfilename(currentfilename);
+  if (maxsize < currentsize)
+  {
+    H5Fflush(filehandle,H5F_SCOPE_LOCAL);
+    H5Fclose(filehandle);
+
+    size_t found =  newfilename.rfind("__");
+    if (found == string::npos)
+    {
+      newfilename.insert(newfilename.find_last_of("."),"__0001");
+    }
+    else
+    {
+      int filenumber = atoi(newfilename.substr(found+2,found+6).c_str());
+      ++filenumber;
+      stringstream ss;
+      ss << currentfilename.substr(0,found+2)
+         <<setw(4)<< setfill('0')<<filenumber
+         << currentfilename.substr(found+6,currentfilename.length());
+      newfilename = ss.str();
+    }
+    filehandle = H5Fcreate(newfilename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    Log::add(Log::INFO,"Maximum filesize is exceeded. Close current file '" + currentfilename +
+             "' and open the new file '" + newfilename + "'");
+  }
+  return newfilename;
+}
 
 /** create group name for an event from its ID
  *
@@ -677,6 +726,7 @@ void cass::pp1001::loadSettings(size_t)
   _dumpMachineData = _dumpBLD || _dumpEpics || _dumpEVR;
   _writeSummary = s.value("WriteSummary",true).toBool();
   _compress = s.value("Compress",false).toBool();
+  _maxsize = s.value("MaximumFilesize",2048).toUInt() * 1024*1024;
   if (_compress)
   {
     htri_t compavailable (H5Zfilter_avail(H5Z_FILTER_DEFLATE));
@@ -706,37 +756,38 @@ void cass::pp1001::loadSettings(size_t)
            "'. WriteEpicsData '"+ (_dumpEpics?"true":"false") +
            "'. WriteEvrCodes '"+ (_dumpEVR?"true":"false") +
            "'. WriteSummary '"+ (_writeSummary?"true":"false") +
+           "'. Maximum Filesize in Bytes '"+ toString(_maxsize) +
            "'. Condition is '" + _condition->key());
 }
 
 void cass::pp1001::aboutToQuit()
 {
-  if(!_writeSummary)
-    return;
-  hid_t grouphandle ( H5Gcreate1(_filehandle, "Summary",0));
-  PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
-  PostProcessors::postprocessors_t::iterator it (ppc.begin());
-  for (;it != ppc.end(); ++it)
+  if(_writeSummary)
   {
-    PostprocessorBackend &pp (*(it->second));
-    if (pp.write_summary())
+    hid_t grouphandle ( H5Gcreate1(_filehandle, "Summary",0));
+    PostProcessors::postprocessors_t &ppc(_pp.postprocessors());
+    PostProcessors::postprocessors_t::iterator it (ppc.begin());
+    for (;it != ppc.end(); ++it)
     {
-      hid_t ppgrouphandle (H5Gcreate1(grouphandle, pp.key().c_str(),0));
-      const HistogramBackend &hist (pp.getHist(0));
-      //write comment//
-      hid_t dataspace_id (H5Screate(H5S_SCALAR));
-      hid_t datatype (H5Tcopy(H5T_C_S1));
-      H5Tset_size(datatype,pp.comment().size()+1);
-      hid_t dataset_id (H5Dcreate1(ppgrouphandle, "Comment", datatype,
-                                   dataspace_id, H5P_DEFAULT));
-      H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
-               pp.comment().c_str());
-      H5Dclose(dataset_id);
-      H5Sclose(dataspace_id);
-      Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): write '" + pp.key() +
-               "' which is " + toString(hist.dimension()) +"D");
-      switch (hist.dimension())
+      PostprocessorBackend &pp (*(it->second));
+      if (pp.write_summary())
       {
+        hid_t ppgrouphandle (H5Gcreate1(grouphandle, pp.key().c_str(),0));
+        const HistogramBackend &hist (pp.getHist(0));
+        //write comment//
+        hid_t dataspace_id (H5Screate(H5S_SCALAR));
+        hid_t datatype (H5Tcopy(H5T_C_S1));
+        H5Tset_size(datatype,pp.comment().size()+1);
+        hid_t dataset_id (H5Dcreate1(ppgrouphandle, "Comment", datatype,
+                                     dataspace_id, H5P_DEFAULT));
+        H5Dwrite(dataset_id, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT,
+                 pp.comment().c_str());
+        H5Dclose(dataset_id);
+        H5Sclose(dataspace_id);
+        Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): write '" + pp.key() +
+                 "' which is " + toString(hist.dimension()) +"D");
+        switch (hist.dimension())
+        {
         case 0:
           hdf5::write0DHist(dynamic_cast<const Histogram0DFloat&>(hist),ppgrouphandle);
           break;
@@ -749,13 +800,13 @@ void cass::pp1001::aboutToQuit()
           else
             hdf5::write2DHist(dynamic_cast<const Histogram2DFloat&>(hist),ppgrouphandle,_compress);
           break;
+        }
+        Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): done writing '" + pp.key() + "'");
+        H5Gclose(ppgrouphandle);
       }
-      Log::add(Log::DEBUG4, "pp1001::aboutToQuit(): done writing '" + pp.key() + "'");
-      H5Gclose(ppgrouphandle);
     }
+    H5Gclose(grouphandle);
   }
-  H5Gclose(grouphandle);
-
   // close file//
   H5Fflush(_filehandle,H5F_SCOPE_LOCAL);
   H5Fclose(_filehandle);
@@ -792,6 +843,7 @@ hid_t cass::pp1001::getGroupNameForCalibCycle(const cass::CASSEvent &evt)
 
 void cass::pp1001::process(const cass::CASSEvent &evt)
 {
+  _outfilename = hdf5::reopenFile(_filehandle,_maxsize,_outfilename);
   hid_t calibcyclehandle (getGroupNameForCalibCycle(evt));
   hid_t eventgrouphandle (hdf5::createGroupNameFromEventId(evt.id(), calibcyclehandle));
   PostProcessors::postprocessors_t &ppc(_pp.postprocessors());

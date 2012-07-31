@@ -65,6 +65,9 @@ namespace cass
    *           written before cass quits. In the summary all PostProcessors are
    *           written, that the user did not disable writing for. Default is
    *           true.
+   * @cassttng PostProcessor/\%name\%/{MaximumFilesize}\n
+   *           The maximum size that the output file should have in MB.
+   *           Default is 2048
    *
    * @author Lutz Foucar
    */
@@ -113,6 +116,9 @@ namespace cass
 
     /** flag to tell whether to write a summary */
     bool _writeSummary;
+
+    /** maximum filesize of the output hdf5 file in bytes */
+    size_t _maxsize;
 
     /** lock for the scan group */
     QReadWriteLock _calibGroupLock;
