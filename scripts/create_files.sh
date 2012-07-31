@@ -8,7 +8,7 @@
 # config
 
 # the diretory where the analysis is taken place
-BASEDIR=$HOME/analysis/exp54912
+BASEDIR=$HOME/analysis/exp60512
 
 # the dir where all the .ini for the runs will be placed
 INIDIR=$BASEDIR/ini
@@ -23,31 +23,34 @@ SHDIR=$BASEDIR/sh
 DARKCALDIR=$BASEDIR/darkcal
 
 # the dir where all the data file are residing
-DATAFILESDIR=/reg/d/psdm/amo/amo54912/xtc
+DATAFILESDIR=/reg/d/psdm/amo/amo60512/xtc
 
 # the dir where the ouput files will be written to
-OUTPUTDIR=$BASEDIR/hd5
+OUTPUTDIR=$BASEDIR/hdf5
+
+# the dir where the jobs output will be written to
+JOBDIR=$BASEDIR/jobs
 
 # sting the precedes the runnumber
-FILEBASENAME=e188-r0
+FILEBASENAME=e199-r0
 
 # the directory where all the output files should be written to
-ANALYSISOUTPUTDIR=$BASEDIR/h5
+ANALYSISOUTPUTDIR=$BASEDIR/hdf5
 
 # the ini file that works as template for the runs
-INIRUNTEMPLATE=$INIDIR/run_template.ini
+INIRUNTEMPLATE=$INIDIR/CroVTemplate.ini
 
 # the ini file that works as template for creating darkcals
-INIDARKCALTEMPALTE=$INIDIR/darkcal_template.ini
+INIDARKCALTEMPALTE=$INIDIR/darkcalTemplate.ini
 
 # sh file template to be used as run
-SHRUNTEMPLATE=$SHDIR/runTemplate.sh
+SHRUNTEMPLATE=$SHDIR/template.sh
 
 # sh file template to be used for darkcal creation
-SHDARKCALTEMPLATE=$SHDIR/darkcalTemplate.sh
+SHDARKCALTEMPLATE=$SHDIR/template.sh
 
 # command to submit the sh file to the cluster
-SUBMITCOMMAND="bsub -q psnehq -o $BASEDIR/jobs.out "
+SUBMITCOMMAND="bsub -q psnehq -o"
 
 # the extension that the output file should have
 OUTPUTEXT=h5
@@ -107,7 +110,7 @@ create_darkcal_ini_file()
   then
     echo "WARNING: $iniFilename does already exist, overwriting it"
   else
-    echo "Creating ini file $iniFilename for to create darkcal files $darkcal0Filename and $darkcal1Filename"
+    echo "Creating ini file $iniFilename to create darkcal files $darkcal0Filename and $darkcal1Filename"
   fi
 
   if [ ! -f "$INIDARKCALTEMPALTE" ]
@@ -160,6 +163,7 @@ create_sh_file()
   fi
 
   sed -e 's:FilesToProcess.txt:'"$txtFilename"':' -e 's:IniFile.ini:'"$iniFilename"':' -e 's:OutputFile.out:'"$outputFilename"':' <$SHRUNTEMPLATE > $shFilename
+  chmod u+x $shFilename
 }
 
 
@@ -185,13 +189,76 @@ create_darkcal_sh_file()
   fi
 
   sed -e 's:FilesToProcess.txt:'"$txtFilename"':' -e 's:IniFile.ini:'"$iniFilename"':' <$SHDARKCALTEMPLATE > $shFilename
+  chmod u+x $shFilename
+}
+
+
+
+# check whether the run has been anlyzed
+
+check_analyzed()
+{
+  outputFilename=$OUTPUTDIR/run_$1.$OUTPUTEXT
+
+  if [ ! -f "$outputFilename" ]
+  then
+    return 0
+  fi
+  return 1
+}
+
+
+
+# check whether the run is in the queue right now
+
+check_in_queue()
+{
+  jobname=$1.sh
+  echo "check if $jobname is in the queue"
+  bjobs | while read line
+  do
+    if [[ "$line" == *"$jobname"* ]]
+    then
+      return 1
+    fi
+  done
+  retval=$?
+  return $retval
+}
+
+
+
+# check whether the files of the run are present to the user yet
+
+check_offline_files_not_present()
+{
+
+  datafilenames=$DATAFILESDIR/$FILEBASENAME$1*
+
+  echo "check if $datafilenames are not present to be analyzed"
+  ls $datafilenames | while read line
+  do
+    if [[ "$line" == *progress* ]]
+    then
+      return 1
+    fi
+  done
+  retval=$?
+  filecount=`ls $datafilenames | wc -l`
+  if [ $filecount -eq 0 ]
+  then
+    retval=1
+  fi
+  return $retval
 }
 
 
 
 
 
-# main
+
+
+# ------------------------- main ---------------------------------
 
 
 # rm -f $BASEDIR/run_all_$1.sh
@@ -209,23 +276,84 @@ else
     then
       echo "line containing $runnbr will be ignored";
     else
-      SHFILETORUN=""
       create_ini_file $runnbr $darkcalrunnbr
       return_val=$?
       if [ "$return_val" -eq 1 ]
+      # when the darkrun needs to be created first
       then
-        create_txt_file $darkcalrunnbr
-        create_darkcal_ini_file $darkcalrunnbr
-        create_darkcal_sh_file $darkcalrunnbr
-        SHFILETORUN=$SHDIR/run_$darkcalrunnbr.sh
-        echo "submitting job containing run $darkcalrunnbr to cluster";
+        check_offline_files_not_present $darkcalrunnbr
+        return_val=$?
+        if [ "$return_val" -eq 1 ]
+        then
+          echo "data files for run $darkcalrunnbr are not yet present"
+        else
+          echo "data files for run $darkcalrunnbr are present"
+          create_txt_file $darkcalrunnbr
+          create_darkcal_ini_file $darkcalrunnbr
+          create_darkcal_sh_file $darkcalrunnbr
+          SHFILETORUN=$SHDIR/run_$darkcalrunnbr.sh
+          joboutput=$JOBDIR/run_$darkcalrunnbr.out
+          # check whether job is already on the queue
+          check_in_queue $darkcalrunnbr
+          return_val=$?
+          if [ "$return_val" -eq 0 ]
+          then
+            echo "$SHFILETORUN is not in the queue: Submitting job that will create the darkcals from run $darkcalrunnbr for run $runnbr"
+            $SUBMITCOMMAND $joboutput $SHFILETORUN #!!!
+            echo "check if job is submitted"
+            in_queue=0
+            while [ "$in_queue" -eq 0 ]
+            do
+              check_in_queue $darkcalrunnbr
+              in_queue=$?
+              sleep 5
+            done
+            echo "Job $SHFILETORUN is now submitted"
+          else
+            echo "The job $SHFILETORUN is already been submitted to the queue. Don't do anything"
+          fi
+        fi
+      # when the run should be analyzed
       else
-        create_txt_file $runnbr
-        create_sh_file $runnbr $darkcalrunnbr
-        SHFILETORUN=$SHDIR/run_$runnbr.sh
-        echo "submitting job containing run $runnbr to cluster";
+        check_offline_files_not_present $runnbr
+        return_val=$?
+        if [ "$return_val" -eq 1 ]
+        then
+          echo "data files for run $runnbr are not yet present"
+        else
+          create_txt_file $runnbr
+          create_sh_file $runnbr $darkcalrunnbr
+          SHFILETORUN=$SHDIR/run_$runnbr.sh
+          joboutput=$JOBDIR/run_$runnbr.out
+          # check whether this run has already been analyzed
+#          check_analyzed $runnbr
+#          retval=$?
+#          if [ "$retval" -eq 0 ]
+#          then
+#            # check whether it is in the queue
+#            check_in_queue $runnbr
+#            return_val=$?
+#            if [ "$return_val" -eq 0 ]
+#            then
+#              echo "submitting job that will analyze run $runnbr"
+#              $SUBMITCOMMAND $joboutput $SHFILETORUN                              #!!!
+#              echo "check if job $SHFILETORUN is submitted"
+#              in_queue=0
+#             while [ "$in_queue" -eq 0 ]
+#              do
+#                check_in_queue $runnbr
+#               in_queue=$?
+#                sleep 5
+#              done
+#             echo "Job $SHFILETORUN is now submitted"
+#           else
+#             echo "The job $SHFILETORUN is already been submitted to the queue. Don't do anything"
+#            fi
+#          else
+#            echo "$runnbr has already been analyzed, Don't do anything"
+#          fi
+        fi
       fi
-      echo "$SUBMITCOMMAND $SHFILETORUN"
     fi
   done
 fi
