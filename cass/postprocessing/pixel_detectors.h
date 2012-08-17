@@ -601,6 +601,43 @@ protected:
 
 
 
+/** decreased offset correction
+ *
+ * modifies the incomming 2d histogram such that a wrong offset du to much charge
+ * on the pnCCD detector will be corrected.
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           Name of PostProcessor containing the distorted pnCCD image
+ *
+ * @author Lutz Foucar
+ */
+class pp241 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp241(PostProcessors& hist, const PostProcessors::key_t&);
+
+  /** process event */
+  virtual void process(const CASSEvent&);
+
+  /** change the histogram, when told the the dependand histogram has changed */
+  virtual void histogramsChanged(const HistogramBackend*);
+
+  /** set up the histogram */
+  void setup(const Histogram2DFloat &one);
+
+  /** load the settings */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** pp containing 2d histogram to work on */
+  PostprocessorBackend *_hist;
+};
+
+
 
 }//end namespace cass
 #endif

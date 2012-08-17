@@ -175,6 +175,8 @@ the Class description for information about what parameters are user settable.
 00302: binary file 2DHistogram
 00240: Test Image
 
+00241: fix distorted offset of pnCCD frames
+
 00400: ToF to Energy conversion
 00401: Calculate variance
 00402: Square average
@@ -401,6 +403,8 @@ public:
     medianLastValues=301,
     binaryFile2D=302,
     TestImage=240,
+
+    fixOffset=241,
 
     tof2energy=400,
     calcVariance=401,

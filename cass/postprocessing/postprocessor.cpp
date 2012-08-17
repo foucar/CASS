@@ -866,9 +866,12 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp230(*this,key));
     break;
-  case TestImage:
-    processor = PostprocessorBackend::shared_pointer
-          (new pp240(*this,key));
+    case TestImage:
+      processor = PostprocessorBackend::shared_pointer
+            (new pp240(*this,key));
+      break;
+  case fixOffset:
+    processor = PostprocessorBackend::shared_pointer(new pp241(*this,key));
     break;
   case ParticleValue:
     processor = PostprocessorBackend::shared_pointer

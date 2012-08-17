@@ -727,3 +727,114 @@ void pp156::process(const CASSEvent& evt)
 
 
 
+
+// *** postprocessor to correct a distorted pnCCD image ***
+
+pp241::pp241(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp241::loadSettings(size_t)
+{
+  setupGeneral();
+  _hist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if ( !(_hist && ret) )
+    return;
+  if (_hist->getHist(0).dimension() != 2)
+    throw std::runtime_error("PP type 241: Incomming is not a 2d histo");
+  setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' corrects the distorted offset of image in '" + _hist->key() +
+           ". Condition on PostProcessor '" + _condition->key() + "'");
+}
+
+void pp241::setup(const Histogram2DFloat &one)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  const AxisProperty &xaxis(one.axis()[HistogramBackend::xAxis]);
+  const AxisProperty &yaxis(one.axis()[HistogramBackend::xAxis]);
+  _result = new Histogram2DFloat(xaxis.nbrBins(),
+                                 xaxis.lowerLimit(),
+                                 xaxis.upperLimit(),
+                                 yaxis.nbrBins(),
+                                 yaxis.lowerLimit(),
+                                 yaxis.upperLimit(),
+                                 xaxis.title(),
+                                 yaxis.title());
+  createHistList(2*cass::NbrOfWorkers);
+}
+
+void pp241::histogramsChanged(const HistogramBackend* in)
+{
+  QWriteLocker lock(&_histLock);
+  //return when there is no incomming histogram
+  if(!in)
+    return;
+  //return when the incomming histogram is not a direct dependant
+  if (find(_dependencies.begin(),_dependencies.end(),in->key()) == _dependencies.end())
+    return;
+  //return when it is the wrong dimension
+  if (in->dimension() != 2)
+    return;
+  setup(*dynamic_cast<const Histogram2DFloat*>(in));
+  //notify all pp that depend on us that our histograms have changed
+  PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+  PostProcessors::keyList_t::iterator it (dependands.begin());
+  for (; it != dependands.end(); ++it)
+    _pp.getPostProcessor(*it).histogramsChanged(_result);
+}
+
+void pp241::process(const CASSEvent& evt)
+{
+  using namespace std;
+  const Histogram2DFloat &imagehist
+      (dynamic_cast<const Histogram2DFloat&>((*_hist)(evt)));
+  imagehist.lock.lockForRead();
+  _result->lock.lockForWrite();
+  _result->clear();
+
+  const HistogramFloatBase::storage_t& image(imagehist.memory());
+  HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
+
+  for(size_t row=0; row < 512; ++row)
+  {
+    //1st quadrant in cass ( x in hll)
+    const float slopeA(0.0055 * image[row*1024 + 0] - 0.0047);
+    for(size_t col=0; col < 512; ++col)
+    {
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col + image[row*1024 + col]);
+    }
+    //2nd quadrant in cass ( x in hll)
+    const float slopeB(0.0056 * image[row*1024 + 1023] + 0.0007);
+    for(size_t col=512; col < 1024; ++col)
+    {
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col) + image[row*1024 + col]);
+    }
+  }
+  for(size_t row=512; row < 1024; ++row)
+  {
+    //3rd quadrant in cass ( x in hll)
+    const float slopeC(0.0005 * image[row*1024 + 0] + 0.0078);
+    for(size_t col=0; col < 512; ++col)
+    {
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col + image[row*1024 + col]);
+    }
+    //4th quadrant in cass ( x in hll)
+    const float slopeD(0.0049 * image[row*1024 + 1023] + 0.0043);
+    for(size_t col=512; col < 1024; ++col)
+    {
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col) + image[row*1024 + col]);
+    }
+  }
+  _result->lock.unlock();
+  imagehist.lock.unlock();
+}
+
+
+
+
