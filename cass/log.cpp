@@ -65,9 +65,10 @@ void Log::load()
     _loggingLevel = INFO;
   }
   QDir directory(s.value("Directory",QDir::currentPath()).toString());
-  QString filename("casslog_" +
+  QString tmpfilename("casslog_" +
                    QDateTime::currentDateTime().toString("yyyyMMdd") +
                    ".log");
+  QString filename(s.value("Filename",tmpfilename).toString());
   QFileInfo fileinfo(directory,filename);
   if(fileinfo.filePath().toStdString() != _filename)
   {

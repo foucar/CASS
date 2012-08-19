@@ -27,6 +27,8 @@ namespace cass
  * @cassttng Log/{Directory} \n
  *           The directory where the log file will be written to. Default is
  *           the directory that cass was started in.
+ * @cassttng Log/{Filename} \n
+ *           The name of the log file. Default is "casslog_%yyyyMMdd%".
  *
  * @author Lutz Foucar
  */
