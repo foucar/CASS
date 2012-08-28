@@ -75,6 +75,7 @@ void Log::load()
     if (_log.is_open())
       _log.close();
     _log.open(fileinfo.filePath().toUtf8().data(), ios_base::out | ios_base::app);
+    _filename = fileinfo.filePath().toStdString();
   }
 }
 
