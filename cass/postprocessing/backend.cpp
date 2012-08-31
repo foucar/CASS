@@ -47,7 +47,7 @@ PostprocessorBackend::~PostprocessorBackend()
     ++it;
     for (;it != _histList.end(); ++it)
       if (old != it->second)
-	delete it->second;
+        delete it->second;
     _histList.clear();
   }
 }
