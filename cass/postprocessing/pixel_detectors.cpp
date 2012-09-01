@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Lutz Foucar
+// Copyright (C) 2011,2012 Lutz Foucar
 
 /** @file pixel_detectors.cpp contains postprocessor dealing with more advanced
  *                          pixel detectors.
