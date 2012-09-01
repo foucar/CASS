@@ -801,14 +801,14 @@ void pp241::process(const CASSEvent& evt)
   const HistogramFloatBase::storage_t& image(imagehist.memory());
   HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
 
-  const float _thresholdA = 0;
-  const float _thresholdB = 0;
-  const float _thresholdC = 0;
-  const float _thresholdD = 0;
+  const float _thresholdA = -3;
+  const float _thresholdB = -3;
+  const float _thresholdC = -3;
+  const float _thresholdD = -3;
 
-//  const float _weightAdjectentRow = 0.75;
-//  const float _weightSecondRow = 0.5;
-//  const float _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
+  const float _weightAdjectentRow = 0.75;
+  const float _weightSecondRow = 0.5;
+  const float _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
 
   for(size_t row=0; row < 512; ++row)
   {
@@ -819,15 +819,15 @@ void pp241::process(const CASSEvent& evt)
     {
       averageOffsetA += image[row*1024 + col];
 
-//      averageOffsetA += image[(row-1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetA += image[(row+1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetA += image[(row-2)*1024 + col] * _weightSecondRow;
-//      averageOffsetA += image[(row+2)*1024 + col] * _weightSecondRow;
+      if (row >= 2 && row < 510)
+      {
+        averageOffsetA += image[(row-1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetA += image[(row+1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetA += image[(row-2)*1024 + col] * _weightSecondRow;
+        averageOffsetA += image[(row+2)*1024 + col] * _weightSecondRow;
+      }
     }
-    averageOffsetA /= 5.f;
-
-//    averageOffsetA /= _weightSum;
-
+    averageOffsetA = (row >= 2 && row < 510) ? averageOffsetA / _weightSum : averageOffsetA / 5.f;
     //calc the slope
     const float slopeA = (averageOffsetA < _thresholdA) ? (0.0055 * averageOffsetA - 0.0047) : 0.f;
     for(size_t col=0; col < 512; ++col)
@@ -842,15 +842,15 @@ void pp241::process(const CASSEvent& evt)
     {
       averageOffsetB += image[row*1024 + col];
 
-//      averageOffsetB += image[(row-1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetB += image[(row+1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetB += image[(row-2)*1024 + col] * _weightSecondRow;
-//      averageOffsetB += image[(row+2)*1024 + col] * _weightSecondRow;
+      if (row >= 2 && row < 510)
+      {
+        averageOffsetB += image[(row-1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetB += image[(row+1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetB += image[(row-2)*1024 + col] * _weightSecondRow;
+        averageOffsetB += image[(row+2)*1024 + col] * _weightSecondRow;
+      }
     }
-    averageOffsetB /= 5.f;
-
-//    averageOffsetB /= _weightSum;
-
+    averageOffsetB = (row >= 2 && row < 510) ? averageOffsetB / _weightSum : averageOffsetB / 5.f;
     //calc the slope
     const float slopeB = (averageOffsetB < _thresholdB)? (0.0056 * averageOffsetB + 0.0007) : 0.f;
     for(size_t col=512; col < 1024; ++col)
@@ -867,15 +867,15 @@ void pp241::process(const CASSEvent& evt)
     {
       averageOffsetC += image[row*1024 + col];
 
-//      averageOffsetC += image[(row-1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetC += image[(row+1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetC += image[(row-2)*1024 + col] * _weightSecondRow;
-//      averageOffsetC += image[(row+2)*1024 + col] * _weightSecondRow;
+      if (row >= 514 && row < 1022)
+      {
+        averageOffsetC += image[(row-1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetC += image[(row+1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetC += image[(row-2)*1024 + col] * _weightSecondRow;
+        averageOffsetC += image[(row+2)*1024 + col] * _weightSecondRow;
+      }
     }
-    averageOffsetC /= 5.f;
-
-//    averageOffsetC /= _weightSum;
-
+    averageOffsetC = (row >= 514 && row < 1022) ? averageOffsetC / _weightSum : averageOffsetC / 5.f;
     //calc the slope
     const float slopeC = (averageOffsetC < _thresholdC) ? (0.0050 * averageOffsetC + 0.0078) : 0.f;
     for(size_t col=0; col < 512; ++col)
@@ -890,15 +890,15 @@ void pp241::process(const CASSEvent& evt)
     {
       averageOffsetD += image[row*1024 + col];
 
-//      averageOffsetD += image[(row-1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetD += image[(row+1)*1024 + col] * _weightAdjectentRow;
-//      averageOffsetD += image[(row-2)*1024 + col] * _weightSecondRow;
-//      averageOffsetD += image[(row+2)*1024 + col] * _weightSecondRow;
+      if (row >= 514 && row < 1022)
+      {
+        averageOffsetD += image[(row-1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetD += image[(row+1)*1024 + col] * _weightAdjectentRow;
+        averageOffsetD += image[(row-2)*1024 + col] * _weightSecondRow;
+        averageOffsetD += image[(row+2)*1024 + col] * _weightSecondRow;
+      }
     }
-    averageOffsetD /= 5.f;
-
-//    averageOffsetD /= _weightSum;
-
+    averageOffsetD = (row >= 514 && row < 1022) ? averageOffsetD / _weightSum : averageOffsetD / 5.f;
     //calc the slope
     const float slopeD = (averageOffsetD < _thresholdD) ? (0.0049 * averageOffsetD + 0.0043) : 0.f;
     for(size_t col=512; col < 1024; ++col)
