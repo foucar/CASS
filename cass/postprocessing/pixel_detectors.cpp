@@ -801,34 +801,109 @@ void pp241::process(const CASSEvent& evt)
   const HistogramFloatBase::storage_t& image(imagehist.memory());
   HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
 
+  const float _thresholdA = 0;
+  const float _thresholdB = 0;
+  const float _thresholdC = 0;
+  const float _thresholdD = 0;
+
+//  const float _weightAdjectentRow = 0.75;
+//  const float _weightSecondRow = 0.5;
+//  const float _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
+
   for(size_t row=0; row < 512; ++row)
   {
-    //1st quadrant in cass ( x in hll)
-    const float slopeA(0.0055 * image[row*1024 + 0] - 0.0047);
+    //1st quadrant in cass (1st in hll)
+    //determine the average offset at the left side pixels
+    float averageOffsetA(0);
+    for (size_t col=2; col<=6; ++col)
+    {
+      averageOffsetA += image[row*1024 + col];
+
+//      averageOffsetA += image[(row-1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetA += image[(row+1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetA += image[(row-2)*1024 + col] * _weightSecondRow;
+//      averageOffsetA += image[(row+2)*1024 + col] * _weightSecondRow;
+    }
+    averageOffsetA /= 5.f;
+
+//    averageOffsetA /= _weightSum;
+
+    //calc the slope
+    const float slopeA = (averageOffsetA < _thresholdA) ? (0.0055 * averageOffsetA - 0.0047) : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col + image[row*1024 + col]);
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col) - averageOffsetA;
     }
-    //2nd quadrant in cass ( x in hll)
-    const float slopeB(0.0056 * image[row*1024 + 1023] + 0.0007);
+
+    //2nd quadrant in cass (4th in hll)
+    //determine the average offset at the right side pixels
+    float averageOffsetB(0);
+    for (size_t col=1017; col<=1021; ++col)
+    {
+      averageOffsetB += image[row*1024 + col];
+
+//      averageOffsetB += image[(row-1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetB += image[(row+1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetB += image[(row-2)*1024 + col] * _weightSecondRow;
+//      averageOffsetB += image[(row+2)*1024 + col] * _weightSecondRow;
+    }
+    averageOffsetB /= 5.f;
+
+//    averageOffsetB /= _weightSum;
+
+    //calc the slope
+    const float slopeB = (averageOffsetB < _thresholdB)? (0.0056 * averageOffsetB + 0.0007) : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col) + image[row*1024 + col]);
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
     }
   }
   for(size_t row=512; row < 1024; ++row)
   {
-    //3rd quadrant in cass ( x in hll)
-    const float slopeC(0.0005 * image[row*1024 + 0] + 0.0078);
+    //3rd quadrant in cass (2nd in hll)
+    //determine the average offset at the left side pixels
+    float averageOffsetC(0);
+    for (size_t col=2; col<=6; ++col)
+    {
+      averageOffsetC += image[row*1024 + col];
+
+//      averageOffsetC += image[(row-1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetC += image[(row+1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetC += image[(row-2)*1024 + col] * _weightSecondRow;
+//      averageOffsetC += image[(row+2)*1024 + col] * _weightSecondRow;
+    }
+    averageOffsetC /= 5.f;
+
+//    averageOffsetC /= _weightSum;
+
+    //calc the slope
+    const float slopeC = (averageOffsetC < _thresholdC) ? (0.0050 * averageOffsetC + 0.0078) : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col + image[row*1024 + col]);
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col) - averageOffsetC;
     }
-    //4th quadrant in cass ( x in hll)
-    const float slopeD(0.0049 * image[row*1024 + 1023] + 0.0043);
+
+    //4th quadrant in cass (3rd in hll)
+    //determine the average offset at the right side pixels
+    float averageOffsetD(0);
+    for (size_t col=1017; col<=1021; ++col)
+    {
+      averageOffsetD += image[row*1024 + col];
+
+//      averageOffsetD += image[(row-1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetD += image[(row+1)*1024 + col] * _weightAdjectentRow;
+//      averageOffsetD += image[(row-2)*1024 + col] * _weightSecondRow;
+//      averageOffsetD += image[(row+2)*1024 + col] * _weightSecondRow;
+    }
+    averageOffsetD /= 5.f;
+
+//    averageOffsetD /= _weightSum;
+
+    //calc the slope
+    const float slopeD = (averageOffsetD < _thresholdD) ? (0.0049 * averageOffsetD + 0.0043) : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
-      corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col) + image[row*1024 + col]);
+      corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;
     }
   }
   _result->lock.unlock();
