@@ -746,6 +746,19 @@ void pp241::loadSettings(size_t)
   if (_hist->getHist(0).dimension() != 2)
     throw std::runtime_error("PP type 241: Incomming is not a 2d histo");
   setup(dynamic_cast<const Histogram2DFloat&>(_hist->getHist(0)));
+
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _thresholdA = s.value("ThresholdQuadrantA",0).toFloat();
+  _thresholdB = s.value("ThresholdQuadrantA",0).toFloat();
+  _thresholdC = s.value("ThresholdQuadrantA",0).toFloat();
+  _thresholdD = s.value("ThresholdQuadrantA",0).toFloat();
+
+  _weightAdjectentRow = s.value("WeightAdjecentRow",0.75).toFloat();
+  _weightSecondRow = s.value("WeightSecondNextRow",0.5).toFloat();
+  _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
+
   Log::add(Log::INFO,"Postprocessor '" + _key +
            "' corrects the distorted offset of image in '" + _hist->key() +
            ". Condition on PostProcessor '" + _condition->key() + "'");
@@ -801,15 +814,6 @@ void pp241::process(const CASSEvent& evt)
   const HistogramFloatBase::storage_t& image(imagehist.memory());
   HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
 
-  const float _thresholdA = -3;
-  const float _thresholdB = -3;
-  const float _thresholdC = -3;
-  const float _thresholdD = -3;
-
-  const float _weightAdjectentRow = 0.75;
-  const float _weightSecondRow = 0.5;
-  const float _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
-
   for(size_t row=0; row < 512; ++row)
   {
     //1st quadrant in cass (1st in hll)
@@ -830,6 +834,7 @@ void pp241::process(const CASSEvent& evt)
     averageOffsetA = (row >= 2 && row < 510) ? averageOffsetA / _weightSum : averageOffsetA / 5.f;
     //calc the slope
     const float slopeA = (averageOffsetA < _thresholdA) ? (0.0055 * averageOffsetA - 0.0047) : 0.f;
+    averageOffsetA = (averageOffsetA < _thresholdA) ? averageOffsetA : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col) - averageOffsetA;
@@ -853,6 +858,7 @@ void pp241::process(const CASSEvent& evt)
     averageOffsetB = (row >= 2 && row < 510) ? averageOffsetB / _weightSum : averageOffsetB / 5.f;
     //calc the slope
     const float slopeB = (averageOffsetB < _thresholdB)? (0.0056 * averageOffsetB + 0.0007) : 0.f;
+    averageOffsetB = (averageOffsetB < _thresholdB) ? averageOffsetB : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
@@ -878,6 +884,7 @@ void pp241::process(const CASSEvent& evt)
     averageOffsetC = (row >= 514 && row < 1022) ? averageOffsetC / _weightSum : averageOffsetC / 5.f;
     //calc the slope
     const float slopeC = (averageOffsetC < _thresholdC) ? (0.0050 * averageOffsetC + 0.0078) : 0.f;
+    averageOffsetC = (averageOffsetC < _thresholdC) ? averageOffsetC : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col) - averageOffsetC;
@@ -901,6 +908,7 @@ void pp241::process(const CASSEvent& evt)
     averageOffsetD = (row >= 514 && row < 1022) ? averageOffsetD / _weightSum : averageOffsetD / 5.f;
     //calc the slope
     const float slopeD = (averageOffsetD < _thresholdD) ? (0.0049 * averageOffsetD + 0.0043) : 0.f;
+    averageOffsetD = (averageOffsetD < _thresholdD) ? averageOffsetD : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;

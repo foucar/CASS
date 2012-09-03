@@ -606,11 +606,53 @@ protected:
  * modifies the incomming 2d histogram such that a wrong offset du to much charge
  * on the pnCCD detector will be corrected.
  *
+ * The correction is different for each quadrant. Basically one corrects a line
+ * with a linear slope. Therefore one determines how much the nominal offset at
+ * the edge of the detector has been disturbed. It should not be disturbed at
+ * all since these parts are shielded from the light. A distortion will therefore
+ * indicate how much these lines have been distorted.
+ *
+ * This postprocessor will therefore first determine at the edge of the detector
+ * how much the offset has been distorted. Once this is know one can use a
+ * correction factor and substract this from the measured value. A pixels
+ * correction is therefore done like
+ *
+ * determine the averageOffsetAtEdge value and from that determine the slope for
+ * the quadrant. Then pixel values are calculated like this:
+ *
+ * cor_function_value = slope * column_number - averageOffsetAtEdge;
+ * final_corection = pix_raw_val - offset_from_darkcal - cor_function_value;
+ *
+ * Because the average offset at the edge of the detector might contain statisics
+ * outliers. One can includes the line above and below with less (user selectable)
+ * weight. If one chooses 0 weight that line will not be included in the
+ * calculation of the determination of the average offset value at the edge.
+ *
+ * The average offset at the edge of the first two and the last two rows will
+ * only be determined by the current row.
+ *
  * @see PostprocessorBackend for a list of all commonly available cass.ini
  *      settings.
  *
  * @cassttng PostProcessor/\%name\%/{HistName} \n
- *           Name of PostProcessor containing the distorted pnCCD image
+ *           Name of PostProcessor containing the distorted pnCCD image. Default
+ *           is "".
+ * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantA} \n
+ *           Threshold for the rows of quadrant A. If the averaged value is
+ *           below this value the whole row of this quadrant is changed. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantB} \n
+ *           Threshold for the rows of quadrant B. If the averaged value is
+ *           below this value the whole row of this quadrant is changed. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantC} \n
+ *           Threshold for the rows of quadrant A. If the averaged value is
+ *           below this value the whole row of this quadrant is changed. Default
+ *           is 0.
+ * @cassttng PostProcessor/\%name\%/{ThresholdQuadrantD} \n
+ *           Threshold for the rows of quadrant D. If the averaged value is
+ *           below this value the whole row of this quadrant is changed. Default
+ *           is 0.
  *
  * @author Lutz Foucar
  */
@@ -635,6 +677,27 @@ public:
 protected:
   /** pp containing 2d histogram to work on */
   PostprocessorBackend *_hist;
+
+  /** threshold for quadrant A */
+  float _thresholdA;
+
+  /** threshold for quadrant A */
+  float _thresholdB;
+
+  /** threshold for quadrant A */
+  float _thresholdC;
+
+  /** threshold for quadrant A */
+  float _thresholdD;
+
+  /** the weight of the row next to the current one */
+  float _weightAdjectentRow;
+
+  /** the weight of the row next over to the current one */
+  float _weightSecondRow;
+
+  /** the value by which one has to divide to get the right average value */
+  float _weightSum;
 };
 
 
