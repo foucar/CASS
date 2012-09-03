@@ -653,6 +653,14 @@ protected:
  *           Threshold for the rows of quadrant D. If the averaged value is
  *           below this value the whole row of this quadrant is changed. Default
  *           is 0.
+ * @cassttng PostProcessor/\%name\%/{WeightAdjecentRow} \n
+ *           How much will the row that is adjecent to the current row be weightd
+ *           when calculating the average offset at the edge of the detector.
+ *           Default is 0.75.
+ * @cassttng PostProcessor/\%name\%/{WeightSecondNextRow} \n
+ *           How much will the row that is the next over to the current row be
+ *           weightd when calculating the average offset at the edge of the
+ *           detector. Default is 0.5.
  *
  * @author Lutz Foucar
  */
