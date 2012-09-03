@@ -16,11 +16,8 @@
 
 #include <QtCore/QMutex>
 
-#include "cass_pixeldetector.h"
-
 namespace cass
 {
-class CASSSettings;
 class CASSEvent;
 
 /** base class for all data generators
@@ -32,6 +29,7 @@ class CASSEvent;
 class DataGenerator
 {
 public:
+
   /** typedef the shared pointer of this */
   typedef std::tr1::shared_ptr<DataGenerator> shared_pointer;
 
@@ -58,10 +56,10 @@ public:
    *
    * @param evt the cassevent that should be filled.
    */
-  virtual void fill(CASSEvent& evt);
+  virtual void fill(CASSEvent& /*evt*/) {}
 
   /** load the settings of this from the ini file */
-  virtual void load();
+  virtual void load() {}
 
 protected:
   /** retrieve the map of instanciators
