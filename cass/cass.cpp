@@ -27,6 +27,7 @@
 #include "ringbuffer.h"
 #include "sharedmemory_input.h"
 #include "tcp_input.h"
+#include "test_input.h"
 #include "tcpserver.h"
 #include "postprocessor.h"
 #ifdef HTTPSERVER
@@ -270,6 +271,8 @@ int main(int argc, char **argv)
     parser.add("--noSoap","Disable the Soap Server",noSoap);
     int soap_port(12321);
     parser.add("-s","TCP port of the soap server ",soap_port);
+    bool useDatagenerator(false);
+    parser.add("-d","Use generated fake data as input",useDatagenerator);
     bool suppressrate(false);
     parser.add("-r","suppress the rate output",suppressrate);
     string outputfilename("output.ext");
@@ -317,11 +320,15 @@ int main(int argc, char **argv)
 #ifdef OFFLINE
     if (multifile)
       MultiFileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
+    else if (useDatagenerator)
+      TestInput::instance(ringbuffer,inputrate);
     else
       FileInput::instance(filelistname, ringbuffer, inputrate, quitwhendone);
 #else
     if (tcp)
       TCPInput::instance(ringbuffer,inputrate);
+    else if (useDatagenerator)
+      TestInput::instance(ringbuffer,inputrate);
     else
       SharedMemoryInput::instance(partitionTag, index, ringbuffer, inputrate);
 #endif

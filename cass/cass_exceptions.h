@@ -103,6 +103,24 @@ namespace cass
   };
 
 
+  /** Exception thrown when there is a problem during data generation
+   *
+   * @author Lutz Foucar
+   */
+  class DataGenerationError : public std::runtime_error
+  {
+  public:
+    /** explicit constructor
+     *
+     * @param message the error message
+     */
+    explicit DataGenerationError(const std::string & message)
+      : std::runtime_error(message)
+    {}
+
+    virtual ~DataGenerationError() throw() {}
+  };
+
 }
 
 #endif

@@ -61,6 +61,8 @@ SOURCES            += soapCASSsoapService.cpp \
                       sharedmemory_input.cpp \
                       tcp_input.cpp \
                       tcp_streamer.cpp \
+                      test_input.cpp \
+                      data_generator.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
@@ -122,6 +124,8 @@ HEADERS            += analysis_backend.h \
                       sharedmemory_input.h \
                       tcp_input.h \
                       tcp_streamer.h \
+                      test_input.h \
+                      data_generator.h \
                       soapCASSsoapService.h \
                       soapH.h \
                       soapserver.h \
