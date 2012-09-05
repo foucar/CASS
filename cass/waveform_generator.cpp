@@ -29,13 +29,13 @@ WaveformGenerator::WaveformGenerator()
 void WaveformGenerator::load()
 {
   CASSSettings s;
-  s.beginGroup("TestInput");
   s.beginGroup("WaveformGenerator");
   _instrID = s.value("InstrumentId",8).toInt();
   Instrument::channels_t &channels = _instrument.channels();
   const size_t nSamples = s.value("NbrOfSamples",20000).toUInt();
   const double sampleInterval = s.value("SampleInterval",1.e-9).toDouble();
   const int size = s.beginReadArray("Channel");
+  channels.resize(size);
   for (int i = 0; i < size; ++i)
   {
     s.setArrayIndex(i);
@@ -54,7 +54,7 @@ void WaveformGenerator::fill(CASSEvent& evt)
 {
   /** generate random waveform */
   Instrument::channels_t &channels = _instrument.channels();
-  for (Instrument::channels_t::iterator it; it != channels.end(); ++it)
+  for (Instrument::channels_t::iterator it(channels.begin()); it != channels.end(); ++it)
   {
     Channel &chan = *it;
     waveform_t &waveform (chan.waveform());
