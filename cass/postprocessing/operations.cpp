@@ -1772,6 +1772,55 @@ void cass::pp70::process(const cass::CASSEvent& evt)
 
 
 
+// ***  pp 71 returns the maximum value of a Histogram ***
+
+cass::pp71::pp71(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp71::loadSettings(size_t)
+{
+  using namespace std;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _pHist = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(ret && _pHist))
+    return;
+  string functype(s.value("RetrieveType","max").toString().toStdString());
+  if (functype == "max")
+    _func = &max_element<HistogramFloatBase::storage_t::const_iterator>;
+  else if (functype == "min")
+    _func = &min_element<HistogramFloatBase::storage_t::const_iterator>;
+  else
+    throw invalid_argument("pp71::loadSettings(): RetrieveType '" + functype + "' unknown.");
+
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' returns the value in '" + _pHist->key() +
+           "' that is retrieved by using function type '" + functype +
+           "' .Condition on postprocessor '" + _condition->key() + "'");
+}
+
+void cass::pp71::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  const HistogramFloatBase& one
+      (dynamic_cast<const HistogramFloatBase&>((*_pHist)(evt)));
+  one.lock.lockForRead();
+  _result->lock.lockForWrite();
+  dynamic_cast<Histogram0DFloat*>(_result)->
+      fill(*(_func(one.memory().begin(), one.memory().end())));
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+  one.lock.unlock();
+}
+
 
 
 

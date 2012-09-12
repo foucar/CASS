@@ -676,6 +676,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
           (new pp70(*this, key));
     break;
+  case RetrieveValue:
+    processor = PostprocessorBackend::shared_pointer(new pp71(*this, key));
+    break;
   case ClearHistogram:
     processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
     break;

@@ -12,6 +12,8 @@
 #ifndef _OPERATIONS_H_
 #define _OPERATIONS_H_
 
+#include <tr1/functional>
+
 #include "backend.h"
 #include "cass_event.h"
 #include "histogram.h"
@@ -1036,6 +1038,44 @@ namespace cass
   };
 
 
+
+
+
+
+  /** return the maximum value of a histogram
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{RetrieveType} \n
+   *           Type of function used to retrieve the requested value in the
+   *           Histogram. Default is "max". Possible values are:
+   *           - "max": return the maximum value in the histogram
+   *           - "min": return the minimum value in the histogram
+   * @cassttng PostProcessor/\%name\%/{HistName} \n
+   *           histogram name to find the maximum value in.
+   *
+   * @author Lutz Foucar
+   */
+  class pp71 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp71(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** pp containing input histogram */
+    PostprocessorBackend *_pHist;
+
+    /** the type of function used to retrive the wanted element */
+    std::tr1::function<HistogramFloatBase::storage_t::const_iterator(HistogramFloatBase::storage_t::const_iterator,HistogramFloatBase::storage_t::const_iterator)> _func;
+  };
 
 
 

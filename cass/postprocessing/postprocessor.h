@@ -106,6 +106,7 @@ the Class description for information about what parameters are user settable.
 00082: mean value of all bins of a histogram
 00083: standart deviation of the mean of all bins of a histogram
 00084: sum of all bins of a histogram
+00071: retrieve a user choosable value of a histogram
 
 00085: full width at half maximum for a peak in given range
 00086: find step in a given range of 1d histo
@@ -329,6 +330,8 @@ public:
     OneDtoScatterPlot=69,
 
     SubsetHistogram=70,
+
+    RetrieveValue=71,
 
     ClearHistogram=75,
 
