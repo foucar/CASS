@@ -29,6 +29,7 @@
 #include "pixel_detectors.h"
 #include "image_manipulation.h"
 #include "partial_covariance.h"
+#include "cbf_output.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -954,6 +955,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
           (new pp1002(*this,key,_outputfilename));
     break;
 #endif
+  case CBFOutput:
+    processor = PostprocessorBackend::shared_pointer
+        (new pp1500(*this,key,_outputfilename));
+    break;
 #ifdef CERNROOT
   case ROOTDump:
     processor = PostprocessorBackend::shared_pointer
