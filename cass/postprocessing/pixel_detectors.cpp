@@ -921,3 +921,76 @@ void pp241::process(const CASSEvent& evt)
 
 
 
+
+
+
+
+// *** the maps of the pixeldetector ***
+
+pp242::pp242(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  :PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void pp242::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _detector = s.value("Detector","blubb").toString().toStdString();
+  _value = s.value("Value",0.f).toFloat();
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  DetectorHelper::instance(_detector)->loadSettings();
+  _mask = &CommonData::instance(_detector)->correctionMap;
+  _maskLock = &CommonData::instance(_detector)->lock;
+  _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
+                                 CommonData::instance(_detector)->rows);
+  createHistList(2*cass::NbrOfWorkers,true);
+  Log::add(Log::INFO,"Postprocessor '" + _key + "' sets the masked pixels of detector '" +
+           _detector + "' to '" +toString(_value) + "' It will use condition '"
+           + _condition->key() +"'");
+}
+
+void pp242::process(const cass::CASSEvent& evt)
+{
+  DetectorHelper::AdvDet_sptr det
+      (DetectorHelper::instance(_detector)->detector(evt));
+  const pixeldetector::frame_t& frame (det->frame().data);
+  _result->lock.lockForWrite();
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det->frame().columns ||
+      _result->axis()[HistogramBackend::yAxis].nbrBins() != det->frame().rows)
+  {
+    histogramList_t::iterator hist(_histList.begin());
+    for (; hist != _histList.end(); ++hist)
+    {
+      Histogram2DFloat *histo(dynamic_cast<Histogram2DFloat*>(hist->second));
+      histo->resize(det->frame().columns,0,det->frame().columns-1,
+                    det->frame().rows,   0,det->frame().rows   -1);
+    }
+    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+    PostProcessors::keyList_t::iterator dependand (dependands.begin());
+    for (; dependand != dependands.end(); ++dependand)
+      _pp.getPostProcessor(*dependand).histogramsChanged(_result);
+  }
+  HistogramFloatBase::storage_t &rframe(dynamic_cast<Histogram2DFloat*>(_result)->memory());
+  copy(frame.begin(), frame.end(), rframe.begin());
+  QReadLocker locker(_maskLock);
+  HistogramFloatBase::storage_t::iterator pixel(rframe.begin());
+  pixeldetector::frame_t::const_iterator mask(_mask->begin());
+  for (; pixel != rframe.end(); ++pixel, ++mask)
+  {
+    if (qFuzzyCompare(*mask,0))
+      *pixel = _value;
+  }
+  _result->nbrOfFills() = 1;
+  _result->lock.unlock();
+}
+
+
+
+
+
+

@@ -876,6 +876,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case fixOffset:
     processor = PostprocessorBackend::shared_pointer(new pp241(*this,key));
     break;
+  case MaskValue:
+    processor = PostprocessorBackend::shared_pointer(new pp242(*this,key));
+    break;
   case ParticleValue:
     processor = PostprocessorBackend::shared_pointer
           (new pp250(*this,key));

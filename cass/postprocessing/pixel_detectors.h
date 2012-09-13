@@ -710,5 +710,57 @@ protected:
 
 
 
+
+
+
+
+
+/** process untreated frame with mask
+ *
+ * Copys the frame data and then sets all maked  pixels in the 2d histogram to a
+ * predefined value
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{Detector}\n
+ *           Name of the Detector who's values should be masked
+ * @cassttng PostProcessor/\%name\%/{Value}\n
+ *           Value that should be assigned to pixels that should be masked
+ *           Default is 0.
+ *
+ * @author Lutz Foucar
+ */
+class pp242 : public PostprocessorBackend
+{
+public:
+  /** constructor */
+  pp242(PostProcessors&, const PostProcessors::key_t&);
+
+  /** copy pixels from CASS event to histogram storage */
+  virtual void process(const CASSEvent&);
+
+  /** set the histogram size */
+  virtual void loadSettings(size_t);
+
+protected:
+  /** detector to work on */
+  pixeldetector::DetectorHelper::instancesmap_t::key_type _detector;
+
+  /** pointer to the mask */
+  pixeldetector::frame_t *_mask;
+
+  /** the lock for locking the map */
+  QReadWriteLock *_maskLock;
+
+  /** the value that the masked things should take */
+  float _value;
+};
+
+
+
+
+
+
 }//end namespace cass
 #endif

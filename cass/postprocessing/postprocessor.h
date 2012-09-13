@@ -177,6 +177,7 @@ the Class description for information about what parameters are user settable.
 00240: Test Image
 
 00241: fix distorted offset of pnCCD frames
+00242: same as 105, but one can put a user defined value at the masked pixels
 
 00400: ToF to Energy conversion
 00401: Calculate variance
@@ -408,6 +409,7 @@ public:
     TestImage=240,
 
     fixOffset=241,
+    MaskValue=242,
 
     tof2energy=400,
     calcVariance=401,
