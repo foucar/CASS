@@ -224,9 +224,7 @@ int main(int argc, char **argv)
 {
   try
   {
-    Log::add(Log::INFO,"Start CASS");
-
-    /** construct Qt application object to hold the run loop */
+     /** construct Qt application object to hold the run loop */
     QApplication app(argc, argv,false);
 
     /** register used types as Qt meta type */
@@ -291,6 +289,12 @@ int main(int argc, char **argv)
 
     /** set the user requested .ini file name */
     CASSSettings::setFilename(settingsfilename);
+
+    /** since the settings for the log are now loaded one can now add things to
+     *  the log
+     */
+    Log::add(Log::INFO,"Start CASS");
+
 
     /** create a ratemeter objects for input and worker and the plotter to plot
      *  the rates that are calculated.
