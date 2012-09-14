@@ -61,11 +61,9 @@ void pp1500::process(const CASSEvent &evt)
   /** create filename from base filename + event id */
   string filename(_basefilename + "_" + toString(evt.id()) + ".cbf");
 
-
-
   const Histogram2DFloat::storage_t& histdata( hist.memory() );
 
-  // cbf parameters:
+  /** cbf parameters: */
   int IOBUFSIZ = 4096;
   char MARKBYTE[4] = {0x0C,0x01A,0x004,0x0D5};
 
@@ -76,7 +74,7 @@ void pp1500::process(const CASSEvent &evt)
   int ny = hist.shape().second;
 
 
-  // find out length of file:
+  /**  find out length of the compressed array: */
   int nbytes = 0;
   int pixvalue = 0;
   int diff;
@@ -124,7 +122,8 @@ void pp1500::process(const CASSEvent &evt)
 
   // determine endianness
   int step, first2, last2, first4, last4;
-  union {
+  union
+  {
     uint32_t ii;
     char cc[4];
   } bint = {0x01020304};
@@ -143,13 +142,16 @@ void pp1500::process(const CASSEvent &evt)
     first4=0; last4=3;
   }
 
-  // compress image using the byte offset method and save as octet stream
+  /** write histogram data
+   * compress image using the byte offset method and save as octet stream
+   */
   pixvalue = 0;
 
   signed char onebyte[1];
   signed char twobytes[2];
   signed char fourbytes[4];
   int shortint;
+
 
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
@@ -176,15 +178,15 @@ void pp1500::process(const CASSEvent &evt)
       continue;
 
     fourbytes[0] = (diff & 0xff000000 ) >> (8*3);
-    fourbytes[1] = (diff & 0xff0000 ) >> (8*2);
-    fourbytes[2] = (diff & 0xff00 ) >> (8*1);
-    fourbytes[3] = (diff & 0xff ) >> (8*0);
+    fourbytes[1] = (diff & 0x00ff0000 ) >> (8*2);
+    fourbytes[2] = (diff & 0x0000ff00 ) >> (8*1);
+    fourbytes[3] = (diff & 0x000000ff ) >> (8*0);
 
     for (int ii=first4; ii!=last4+step; ii+=step)
       cbf_file << fourbytes[ii];
   }
 
-  // terminate image data part and pad last record of file with zeros:
+  /** terminate image data part and pad last record of file with zeros:*/
   cbf_file << "--CIF-BINARY-FORMAT-SECTION----";
   cbf_file << ";";
 
@@ -195,15 +197,9 @@ void pp1500::process(const CASSEvent &evt)
   
   cbf_file.close();
 
-
-
-  /** write histogram data */
   hist.lock.lockForRead();
 
-  //put code here
 
   /** close file */
   hist.lock.unlock();
-
-  //put code here
 }
