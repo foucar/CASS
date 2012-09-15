@@ -115,9 +115,9 @@ void pp1500::process(const CASSEvent &evt)
   cbf_file << "X-Binary-Number-of-Elements:" << nx*ny << "\r\n";
   cbf_file << "X-Binary-Size-Fastest-Dimension:" << nx << "\r\n";
   cbf_file << "X-Binary-Size-Second-Dimension:" << ny << "\r\n";
-  cbf_file << "" << "\\r\\n";
-//  cbf_file << 0x0C << 0x01A << 0x004 << 0x0D5;  // MARKBYTE << "\\r\\n"S
-  cbf_file << MARKBYTE[0] << MARKBYTE[1] << MARKBYTE[2] << MARKBYTE[3];  // MARKBYTE << "\\r\\n"S
+  cbf_file << "" << "\r\n";
+//  cbf_file << 0x0C << 0x01A << 0x004 << 0x0D5;  // MARKBYTE
+  cbf_file << MARKBYTE[0] << MARKBYTE[1] << MARKBYTE[2] << MARKBYTE[3];
 
 
   // determine endianness
