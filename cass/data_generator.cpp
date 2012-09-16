@@ -19,7 +19,7 @@ QMutex DataGenerator::_instanciatorMapLock;
 
 DataGenerator::instanciatorMap_p DataGenerator::getInstanciatorMap()
 {
-  QMutexLocker locker(&_instanciatorMapLock);
+//  QMutexLocker locker(&_instanciatorMapLock);
   if(!_instanciatorMap)
     _instanciatorMap = instanciatorMap_p(new instanciatorMap_t);
   return _instanciatorMap;
