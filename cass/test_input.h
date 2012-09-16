@@ -68,6 +68,9 @@ private:
 
   /** container for all used fillers */
   generators_t _generators;
+
+  /** a counter to create a fake event id */
+  size_t _counter;
 };
 
 }//end namespace cass

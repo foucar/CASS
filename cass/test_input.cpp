@@ -78,6 +78,7 @@ void TestInput::run()
     {
       for (generators_t::iterator gen(_generators.begin()); gen != _generators.end(); ++gen)
         (*gen)->fill(*cassevent);
+      cassevent->id() = ++_counter;
       _ringbuffer.doneFilling(cassevent, true);
     }
     catch(const DataGenerationError &error)
