@@ -81,13 +81,15 @@ void pp1500::process(const CASSEvent &evt)
   int absdiff;
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = histdata[iadr] - pixvalue;
+    diff = ((double) histdata[iadr]) - pixvalue;
+    pixvalue = (double) histdata[iadr];
+
     absdiff = abs(diff);
     ++nbytes;
     if (absdiff < 128)
       continue;
     nbytes += 2;
-    if (absdiff < 23768)
+    if (absdiff < 32768)
       nbytes += 4;
   }
 
@@ -155,9 +157,9 @@ void pp1500::process(const CASSEvent &evt)
 
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = histdata[iadr] - pixvalue;
-    pixvalue = histdata[iadr];
+    diff = ((double) histdata[iadr]) - pixvalue;
     absdiff = abs(diff);
+    pixvalue = (double)histdata[iadr];
 
     onebyte[0] = -128;
     if (absdiff < 128)
@@ -169,18 +171,25 @@ void pp1500::process(const CASSEvent &evt)
     shortint = -32768;
     if (absdiff < 32768)
       shortint = diff;
-    twobytes[0] = (shortint & 0xff00)>>8;
-    twobytes[1] = shortint & 0xff;
+    *((char*)(&twobytes)+0) = *((char*)(&shortint)+0);
+    *((char*)(&twobytes)+1) = *((char*)(&shortint)+1);
+    //twobytes[0] = (shortint & 0xff00)>>8;
+    //twobytes[1] = shortint & 0xff;
 
     for (int ii=first2; ii!=last2+step; ii+=step)
       cbf_file << twobytes[ii];
     if (absdiff < 32768)
       continue;
 
-    fourbytes[0] = (diff & 0xff000000 ) >> (8*3);
-    fourbytes[1] = (diff & 0x00ff0000 ) >> (8*2);
-    fourbytes[2] = (diff & 0x0000ff00 ) >> (8*1);
-    fourbytes[3] = (diff & 0x000000ff ) >> (8*0);
+    *((char*)(&fourbytes)+0) = *((char*)(&diff)+0);
+    *((char*)(&fourbytes)+1) = *((char*)(&diff)+1);
+    *((char*)(&fourbytes)+2) = *((char*)(&diff)+2);
+    *((char*)(&fourbytes)+3) = *((char*)(&diff)+3);
+
+    //fourbytes[0] = (diff & 0xff000000 ) >> (8*3);
+    //fourbytes[1] = (diff & 0x00ff0000 ) >> (8*2);
+    //fourbytes[2] = (diff & 0x0000ff00 ) >> (8*1);
+    //fourbytes[3] = (diff & 0x000000ff ) >> (8*0);
 
     for (int ii=first4; ii!=last4+step; ii+=step)
       cbf_file << fourbytes[ii];
