@@ -18,6 +18,8 @@
 #include "convenience_functions.h"
 #include "cass_settings.h"
 #include "log.h"
+#include "input_base.h"
+
 
 
 // ************ Postprocessor 4: Apply boolean NOT to 0D histogram *************
@@ -1859,6 +1861,35 @@ void cass::pp75::process(const cass::CASSEvent& evt)
   HistogramBackend& input(const_cast<HistogramBackend&>((*_hist)(evt)));
   _result->lock.lockForWrite();
   input.clear();
+  _result->lock.unlock();
+}
+
+
+
+
+// ***  pp 76 quit program
+
+cass::pp76::pp76(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void  cass::pp76::loadSettings(size_t)
+{
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' will quit CASS.. Condition is "+ _condition->key());
+}
+
+void cass::pp76::process(const cass::CASSEvent& /*evt*/)
+{
+  _result->lock.lockForWrite();
+  InputBase::reference().end();
   _result->lock.unlock();
 }
 

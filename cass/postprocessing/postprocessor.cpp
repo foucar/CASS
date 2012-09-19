@@ -683,6 +683,9 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case ClearHistogram:
     processor = PostprocessorBackend::shared_pointer(new pp75(*this, key));
     break;
+  case QuitCASS:
+    processor = PostprocessorBackend::shared_pointer(new pp76(*this, key));
+    break;
   case nbrOfFills:
     processor = PostprocessorBackend::shared_pointer
           (new pp80(*this, key));

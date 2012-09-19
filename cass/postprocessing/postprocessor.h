@@ -101,6 +101,8 @@ the Class description for information about what parameters are user settable.
 
 00075: Clear a Histogram
 
+00076: Quit CASS when Condition is met
+
 00080: nbrOfFills of given histogram
 00081: maximum bin of 1D histogram
 00082: mean value of all bins of a histogram
@@ -336,6 +338,7 @@ public:
     RetrieveValue=71,
 
     ClearHistogram=75,
+    QuitCASS=76,
 
     nbrOfFills=80,
     maximumBin=81,

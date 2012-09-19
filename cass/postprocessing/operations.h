@@ -1120,6 +1120,40 @@ namespace cass
 
 
 
+
+  /** Quit Program
+   *
+   * Will quit the program, when called. Make sure that it is only called when
+   * you want it to be called by setting the "ConditionName" to something
+   * meaningful. Defaultly "ConditionName is set to "DefaultTrueHist" which
+   * will let the program quit immediately
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @author Lutz Foucar
+   */
+  class pp76 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp76(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+  };
+
+
+
+
+
+
+
+
+
   /** return number of fills of a given histogram
    *
    * @see PostprocessorBackend for a list of all commonly available cass.ini
