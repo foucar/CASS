@@ -81,8 +81,8 @@ void pp1500::process(const CASSEvent &evt)
   int absdiff;
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = ((double) histdata[iadr]) - pixvalue;
-    pixvalue = (double) histdata[iadr];
+    diff = ((int) histdata[iadr]) - pixvalue;
+    pixvalue = (int) histdata[iadr];
 
     absdiff = abs(diff);
     ++nbytes;
@@ -157,9 +157,9 @@ void pp1500::process(const CASSEvent &evt)
 
   for (int iadr=0; iadr<nx*ny; ++iadr)
   {
-    diff = ((double) histdata[iadr]) - pixvalue;
+    diff = ((int) histdata[iadr]) - pixvalue;
     absdiff = abs(diff);
-    pixvalue = (double)histdata[iadr];
+    pixvalue = (int)histdata[iadr];
 
     onebyte[0] = -128;
     if (absdiff < 128)
