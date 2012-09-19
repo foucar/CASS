@@ -1903,6 +1903,62 @@ void cass::pp76::process(const cass::CASSEvent& /*evt*/)
 
 
 
+// ***  pp 77 checks ids
+
+cass::pp77::pp77(PostProcessors& pp, const cass::PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key)
+{
+  loadSettings(0);
+}
+
+void cass::pp77::loadSettings(size_t)
+{
+  using namespace std;
+  setupGeneral();
+  if (!setupCondition())
+    return;
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  _list.clear();
+  string filename(s.value("List","").toString().toStdString());
+  ifstream file(filename.c_str(),ios::in);
+  if (!file.is_open())
+    throw invalid_argument("pp77::loadSettings(): list file '" + filename +
+                           "' could not be opened.");
+  uint64_t id;
+  while (file.good())
+  {
+    file >> id;
+    _list.push_back(id);
+  }
+  _result = new Histogram0DFloat();
+  createHistList(2*cass::NbrOfWorkers);
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' will check whether eventid in file '" + filename +
+           "'. Condition is "+ _condition->key());
+}
+
+void cass::pp77::process(const cass::CASSEvent& evt)
+{
+  using namespace std;
+  _result->lock.lockForWrite();
+  *dynamic_cast<Histogram0DFloat*>(_result) =
+      (find(_list.begin(),_list.end(),evt.id()) != _list.end());
+  _result->nbrOfFills()=1;
+  _result->lock.unlock();
+}
+
+
+
+
+
+
+
+
+
+
+
 // ***  pp 80 returns the number of fills of a given histogram ***
 
 cass::pp80::pp80(PostProcessors& pp, const cass::PostProcessors::key_t &key)

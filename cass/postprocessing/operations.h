@@ -1152,6 +1152,43 @@ namespace cass
 
 
 
+  /** Checks for id on list
+   *
+   * Checks if the id of the current event is on a user provided list. The
+   * user provided list of id should be an ascii file where the ids are in lines.
+   *
+   * @see PostprocessorBackend for a list of all commonly available cass.ini
+   *      settings.
+   *
+   * @cassttng PostProcessor/\%name\%/{List} \n
+   *           Path and name of the file containing the list of id that should
+   *           be checked. Default is "".
+   *
+   * @author Lutz Foucar
+   */
+  class pp77 : public PostprocessorBackend
+  {
+  public:
+    /** constructor */
+    pp77(PostProcessors& hist, const PostProcessors::key_t&);
+
+    /** process event */
+    virtual void process(const CASSEvent&);
+
+    /** load the settings of the pp */
+    virtual void loadSettings(size_t);
+
+  protected:
+    /** the list of ids */
+    std::vector<uint64_t> _list;
+  };
+
+
+
+
+
+
+
 
 
   /** return number of fills of a given histogram
