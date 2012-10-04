@@ -95,6 +95,15 @@ protected:
 
   /** pointer to the event status structure */
   eventStatus_t *_eventstatusstructure_ptr;
+
+  /** container for all 0d PostProcessors that should be added to the tree */
+  std::list<PostprocessorBackend*> _pps;
+
+  /** 0d postprocessor structure */
+  ppstructure_t _ppstructure;
+
+  /** pointer to the 0d postprocessor structure */
+  ppstructure_t *_ppstructure_ptr;
 };
 } // end namespace cass
 

@@ -165,7 +165,7 @@ void copyMapValues(map<string,double>::const_iterator first,
     ++first;
   }
 }
-}
+}//end namespace cass
 
 pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::string filename)
     : PostprocessorBackend(pp, key),
@@ -173,7 +173,8 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
      _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
      _treestructure_ptr(&_treestructure),
      _machinestructure_ptr(&_machinestructure),
-     _eventstatusstructure_ptr(&_eventstatusstructure)
+     _eventstatusstructure_ptr(&_eventstatusstructure),
+     _ppstructure_ptr(&_ppstructure)
 {
   if (!_rootfile)
     throw invalid_argument("pp2001 (" + key + "): '" + filename +
@@ -185,10 +186,23 @@ void pp2001::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   if (!setupCondition())
     return;
+  QStringList pps(settings.value("PostProcessors").toStringList());
+  QStringList::const_iterator ppname(pps.begin());
+  _pps.clear();
+  for (; ppname != pps.constEnd(); ++ppname)
+  {
+    PostprocessorBackend *pp(setupDependency((*ppname).toLocal8Bit().constData()));
+    if (!pp)
+      return;
+    if (pp->getHist(0).dimension() != 0)
+      throw invalid_argument("pp2001 (" + _key + "): PostProcessor '" + pp->key() +
+                             "' does not handle a 0d histogram.");
+    _pps.push_back(pp);
+  }
   loadAllDets();
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
@@ -207,6 +221,9 @@ void pp2001::loadSettings(size_t)
   if (settings.value("EventStatus",false).toBool())
     if (_tree->FindBranch("EventStatus") == 0)
       _tree->Branch("EventStatus","vector<bool>",&_eventstatusstructure_ptr);
+  if (!_pps.empty())
+    if (_tree->FindBranch("PostProcessors") == 0)
+      _tree->Branch("PostProcessors","map<string,double>",&_ppstructure_ptr);
 
   _write = false;
   _hide = true;
@@ -282,6 +299,20 @@ void pp2001::process(const cass::CASSEvent &evt)
   copyMapValues(machinedata.EpicsData().begin(), machinedata.EpicsData().end(), _machinestructure);
   _eventstatusstructure.resize(machinedata.EvrData().size());
   copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
+
+  /** copy the values of each 0d PostProcessor into the postprocessor structure */
+  std::list<PostprocessorBackend*>::const_iterator pp(_pps.begin());
+  std::list<PostprocessorBackend*>::const_iterator ppEnd(_pps.end());
+  for (;pp != ppEnd;++pp)
+  {
+    PostprocessorBackend *postprocessor(*pp);
+    const Histogram0DFloat &val
+        (dynamic_cast<const Histogram0DFloat&>((*postprocessor)(evt)));
+    val.lock.lockForRead();
+    float value(val.getValue());
+    val.lock.unlock();
+    _ppstructure[postprocessor->key()] = value;
+  }
   _tree->Fill();
   _result->lock.unlock();
 }
