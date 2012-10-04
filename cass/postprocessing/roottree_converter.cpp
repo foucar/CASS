@@ -32,6 +32,7 @@
 #include "tree_structure.h"
 #include "machine_device.h"
 #include "rootfile_helper.h"
+#include "log.h"
 
 
 using namespace cass;
@@ -171,14 +172,12 @@ pp2001::pp2001(PostProcessors& pp, const cass::PostProcessors::key_t &key, std::
      _rootfile(ROOTFileHelper::create(filename)),
      _tree(new TTree("CASSData","Selected preprocessed data from the CASSEvent")),
      _treestructure_ptr(&_treestructure),
-     _machinestructure_ptr(&_machinestructure)
+     _machinestructure_ptr(&_machinestructure),
+     _eventstatusstructure_ptr(&_eventstatusstructure)
 {
   if (!_rootfile)
-  {
-    stringstream ss;
-    ss <<"pp2001 ("<<key<<"): '"<<filename<< "' could not be opened! Maybe deleting the file helps.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("pp2001 (" + key + "): '" + filename +
+                           "' could not be opened! Maybe deleting the file helps.");
   loadSettings(0);
 }
 
@@ -205,6 +204,9 @@ void pp2001::loadSettings(size_t)
   if (settings.value("MachineData",false).toBool())
     if (_tree->FindBranch("MachineData") == 0)
     _tree->Branch("MachineData","map<string,double>",&_machinestructure_ptr);
+  if (settings.value("EventStatus",false).toBool())
+    if (_tree->FindBranch("EventStatus") == 0)
+      _tree->Branch("EventStatus","vector<bool>",&_eventstatusstructure_ptr);
 
   _write = false;
   _hide = true;
@@ -278,6 +280,8 @@ void pp2001::process(const cass::CASSEvent &evt)
       (*dynamic_cast<const MachineDataDevice*>(evt.devices().find(cass::CASSEvent::MachineData)->second));
   copyMapValues(machinedata.BeamlineData().begin(), machinedata.BeamlineData().end(), _machinestructure);
   copyMapValues(machinedata.EpicsData().begin(), machinedata.EpicsData().end(), _machinestructure);
+  _eventstatusstructure.resize(machinedata.EvrData().size());
+  copy(machinedata.EvrData().begin(),machinedata.EvrData().end(),_eventstatusstructure.begin());
   _tree->Fill();
   _result->lock.unlock();
 }

@@ -17,4 +17,7 @@ typedef std::map<std::string, treedetector_t> treestructure_t;
 /** the machine structure just a map of values identified by a string */
 typedef std::map<std::string, double> machinestructure_t;
 
+/** a vector of bools that show which eventcodes where associated with the event */
+typedef std::vector<bool> eventStatus_t;
+
 #endif
