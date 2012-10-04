@@ -192,7 +192,7 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
         uint32_t eventcode = fifoEvent.EventCode;
         //check if the array is big enough to hold the recorded eventcode
         if (md->EvrData().size() < eventcode )
-          md->EvrData().resize(eventcode+1);
+          md->EvrData().resize(eventcode+1,false);
         md->EvrData()[eventcode]=true;
       }
     }
