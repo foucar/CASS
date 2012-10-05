@@ -93,7 +93,7 @@ public:
    * the arguments are retrieved as a QStringList from Qt. Go through the list
    * and try to find the parameter in the containers. If it is the switches
    * container simply set the switch to true. Otherwise take the next parameter
-   * that should be the argumetn of the preceding parameter.
+   * that should be the argument of the preceding parameter.
    * Start at the 2nd argument of the list, since the first is just the 
    * program name.
    *
@@ -217,6 +217,7 @@ void setSignalHandler()
  * - f optional complete path to the cass.ini to use (offline / online)
  * - r suppress the rate output
  * - m enable multifile input
+ * - --noSoap disables the soap server
  *
  * @author Lutz Foucar
  */
@@ -264,10 +265,10 @@ int main(int argc, char **argv)
     int index(0);
     parser.add("-c","client id for shared memory access",index);
 #endif
-#ifdef SOAPSERVER
+    bool noSoap(false);
+    parser.add("--noSoap","Disable the Soap Server",noSoap);
     int soap_port(12321);
     parser.add("-s","TCP port of the soap server ",soap_port);
-#endif
     bool suppressrate(false);
     parser.add("-r","suppress the rate output",suppressrate);
     string outputfilename("output.ext");
@@ -332,11 +333,13 @@ int main(int argc, char **argv)
     /** set up the TCP/SOAP server and connect its provided signals to the
      *  appropriate slots fo the input and the workers
      */
-#ifdef SOAPSERVER
-    EventGetter get_event(ringbuffer);
-    HistogramGetter get_histogram;
-    SoapServer::shared_pointer server(SoapServer::instance(get_event, get_histogram, soap_port));
-#endif
+    SoapServer::shared_pointer server;
+    if(!noSoap)
+    {
+      EventGetter get_event(ringbuffer);
+      HistogramGetter get_histogram;
+      server = SoapServer::instance(get_event, get_histogram, soap_port);
+    }
 
     /** set up the optional http server */
 #ifdef HTTPSERVER
@@ -347,9 +350,8 @@ int main(int argc, char **argv)
      *  is done
      */
     Workers::reference().start();
-#ifdef SOAPSERVER
-    server->start();
-#endif
+    if (!noSoap)
+      server->start();
 #ifdef HTTPSERVER
     http_server.start();
 #endif
