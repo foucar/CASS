@@ -37,6 +37,9 @@ namespace cass
  *           added to the tree. The corrosponding detector does not need to be
  *           added above since this postprocessor will find out what detector
  *           a particle belongs to automatically.
+ * @cassttng PostProcessor/\%name\%/{PostProcessors}\n
+ *           comma separated list of 0d PostProcessors who's values should be
+ *           added to the tree.
  * @cassttng PostProcessor/\%name\%/{MachineData}\n
  *           Flag whether to add the Beamline and Epics data to the tree.
  *           Default is false.

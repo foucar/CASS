@@ -188,14 +188,12 @@ void pp2001::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  if (!setupCondition())
-    return;
   QStringList pps(settings.value("PostProcessors").toStringList());
   QStringList::const_iterator ppname(pps.begin());
   _pps.clear();
   for (; ppname != pps.constEnd(); ++ppname)
   {
-    PostprocessorBackend *pp(setupDependency((*ppname).toLocal8Bit().constData()));
+    PostprocessorBackend *pp(&(_pp.getPostProcessor((*ppname).toStdString())));
     if (!pp)
       return;
     if (pp->getHist(0).dimension() != 0)
@@ -203,6 +201,8 @@ void pp2001::loadSettings(size_t)
                              "' does not handle a 0d histogram.");
     _pps.push_back(pp);
   }
+  if (!setupCondition())
+    return;
   loadAllDets();
   QStringList detectors(settings.value("Detectors").toStringList());
   _detectors.resize(detectors.size());
