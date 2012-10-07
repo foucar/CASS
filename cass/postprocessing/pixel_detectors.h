@@ -661,6 +661,10 @@ protected:
  *           How much will the row that is the next over to the current row be
  *           weightd when calculating the average offset at the edge of the
  *           detector. Default is 0.5.
+ * @cassttng PostProcessor/\%name\%/{MinumRow} \n
+ *           Define from which row the correction should be applied. Default is 0.
+ * @cassttng PostProcessor/\%name\%/{MaximumRow} \n
+ *           Define to which row the correction should be applied. Default is 1024.
  *
  * @author Lutz Foucar
  */
@@ -706,6 +710,12 @@ protected:
 
   /** the value by which one has to divide to get the right average value */
   float _weightSum;
+
+  /** the range of the rows of the lower part of the detector to be corrected */
+  std::pair<size_t,size_t> _lowerPart;
+
+  /** the range of the rows of the upper part of the detector to be corrected */
+  std::pair<size_t,size_t> _upperPart;
 };
 
 

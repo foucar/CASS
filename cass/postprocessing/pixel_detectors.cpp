@@ -759,6 +759,14 @@ void pp241::loadSettings(size_t)
   _weightSecondRow = s.value("WeightSecondNextRow",0.5).toFloat();
   _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
 
+  size_t minRow = s.value("MinumRow",0).toUInt();
+  size_t maxRow = s.value("MaximumRow",1024).toUInt();
+
+  _lowerPart = make_pair(max(static_cast<size_t>(0),minRow),
+                         min(static_cast<size_t>(512),maxRow));
+  _upperPart = make_pair(max(static_cast<size_t>(512),minRow),
+                         min(static_cast<size_t>(1024),maxRow));
+
   Log::add(Log::INFO,"Postprocessor '" + _key +
            "' corrects the distorted offset of image in '" + _hist->key() +
            ". Condition on PostProcessor '" + _condition->key() + "'");
@@ -814,7 +822,7 @@ void pp241::process(const CASSEvent& evt)
   const HistogramFloatBase::storage_t& image(imagehist.memory());
   HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
 
-  for(size_t row=0; row < 512; ++row)
+  for(size_t row=_lowerPart.first; row < _lowerPart.second; ++row)
   {
     //1st quadrant in cass (1st in hll)
     //determine the average offset at the left side pixels
@@ -864,7 +872,7 @@ void pp241::process(const CASSEvent& evt)
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
     }
   }
-  for(size_t row=512; row < 1024; ++row)
+  for(size_t row=_upperPart.first; row < _upperPart.second; ++row)
   {
     //3rd quadrant in cass (2nd in hll)
     //determine the average offset at the left side pixels
