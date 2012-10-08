@@ -64,6 +64,7 @@ SOURCES            += soapCASSsoapService.cpp \
                       test_input.cpp \
                       data_generator.cpp \
                       waveform_generator.cpp \
+                      image_generator.cpp \
                       ratemeter.cpp \
                       worker.cpp \
                       pixel_detector.cpp \
@@ -128,6 +129,7 @@ HEADERS            += analysis_backend.h \
                       test_input.h \
                       data_generator.h \
                       waveform_generator.h \
+                      image_generator.h \
                       soapCASSsoapService.h \
                       soapH.h \
                       soapserver.h \
