@@ -14,7 +14,7 @@
 using namespace cass;
 using namespace std;
 
-DataGenerator::instanciatorMap_p DataGenerator::_instanciatorMap;
+DataGenerator::instanciatorMap_p DataGenerator::_instanciatorMap(0);
 QMutex DataGenerator::_instanciatorMapLock;
 
 DataGenerator::instanciatorMap_p DataGenerator::getInstanciatorMap()

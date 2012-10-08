@@ -40,7 +40,7 @@ public:
   typedef std::map<std::string, instanciator_t> instanciatorMap_t;
 
   /** pointer to the map */
-  typedef std::tr1::shared_ptr<instanciatorMap_t> instanciatorMap_p;
+  typedef instanciatorMap_t* instanciatorMap_p;
 
   /** create and return an instance of the requested type
    *
