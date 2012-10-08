@@ -16,12 +16,12 @@ namespace cass
 {
 /** generate a waveform of a chosen type
  *
- * @cassttng TestInput/WaveformGenerator/{InstrumentId} \n
- * @cassttng TestInput/WaveformGenerator/{NbrOfSamples} \n
- * @cassttng TestInput/WaveformGenerator/{SampleInterval} \n
- * @cassttng TestInput/WaveformGenerator/Channel/{size} \n
- * @cassttng TestInput/WaveformGenerator/Channel/\%id\%/{Offset} \n
- * @cassttng TestInput/WaveformGenerator/Channel/\%id\%/{FullScale} \n
+ * @cassttng WaveformGenerator/{InstrumentId} \n
+ * @cassttng WaveformGenerator/{NbrOfSamples} \n
+ * @cassttng WaveformGenerator/{SampleInterval} \n
+ * @cassttng WaveformGenerator/Channel/{size} \n
+ * @cassttng WaveformGenerator/Channel/\%id\%/{Offset} \n
+ * @cassttng WaveformGenerator/Channel/\%id\%/{FullScale} \n
  *
  * @author Lutz Foucar
  */
