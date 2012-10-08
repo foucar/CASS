@@ -23,7 +23,7 @@ ImageGenerator::ImageGenerator()
 {
 }
 
-void WaveformGenerator::load()
+void ImageGenerator::load()
 {
   CASSSettings s;
   s.beginGroup("WaveformGenerator");
