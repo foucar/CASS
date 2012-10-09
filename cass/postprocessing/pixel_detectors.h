@@ -661,7 +661,7 @@ protected:
  *           How much will the row that is the next over to the current row be
  *           weightd when calculating the average offset at the edge of the
  *           detector. Default is 0.5.
- * @cassttng PostProcessor/\%name\%/{MinumRow} \n
+ * @cassttng PostProcessor/\%name\%/{MinimumRow} \n
  *           Define from which row the correction should be applied. Default is 0.
  * @cassttng PostProcessor/\%name\%/{MaximumRow} \n
  *           Define to which row the correction should be applied. Default is 1024.
