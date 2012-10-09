@@ -759,13 +759,8 @@ void pp241::loadSettings(size_t)
   _weightSecondRow = s.value("WeightSecondNextRow",0.5).toFloat();
   _weightSum = 5 + 2*_weightAdjectentRow*5 + 2*_weightSecondRow*5;
 
-  size_t minRow = s.value("MinumRow",0).toUInt();
-  size_t maxRow = s.value("MaximumRow",1024).toUInt();
-
-  _lowerPart = make_pair(max(static_cast<size_t>(0),minRow),
-                         min(static_cast<size_t>(512),maxRow));
-  _upperPart = make_pair(max(static_cast<size_t>(512),minRow),
-                         min(static_cast<size_t>(1024),maxRow));
+  _minRow = s.value("MinimumRow",0).toUInt();
+  _maxRow = s.value("MaximumRow",1024).toUInt();
 
   Log::add(Log::INFO,"Postprocessor '" + _key +
            "' corrects the distorted offset of image in '" + _hist->key() +
@@ -822,7 +817,7 @@ void pp241::process(const CASSEvent& evt)
   const HistogramFloatBase::storage_t& image(imagehist.memory());
   HistogramFloatBase::storage_t& corimage(dynamic_cast<HistogramFloatBase*>(_result)->memory());
 
-  for(size_t row=_lowerPart.first; row < _lowerPart.second; ++row)
+  for(size_t row=0; row < 512; ++row)
   {
     //1st quadrant in cass (1st in hll)
     //determine the average offset at the left side pixels
@@ -841,8 +836,8 @@ void pp241::process(const CASSEvent& evt)
     }
     averageOffsetA = (row >= 2 && row < 510) ? averageOffsetA / _weightSum : averageOffsetA / 5.f;
     //calc the slope
-    const float slopeA = (averageOffsetA < _thresholdA) ? (0.0055 * averageOffsetA - 0.0047) : 0.f;
-    averageOffsetA = (averageOffsetA < _thresholdA) ? averageOffsetA : 0.f;
+    const float slopeA = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetA < _thresholdA)) ? (0.0055 * averageOffsetA - 0.0047) : 0.f;
+    averageOffsetA = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetA < _thresholdA)) ? averageOffsetA : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeA * col) - averageOffsetA;
@@ -865,14 +860,14 @@ void pp241::process(const CASSEvent& evt)
     }
     averageOffsetB = (row >= 2 && row < 510) ? averageOffsetB / _weightSum : averageOffsetB / 5.f;
     //calc the slope
-    const float slopeB = (averageOffsetB < _thresholdB)? (0.0056 * averageOffsetB + 0.0007) : 0.f;
-    averageOffsetB = (averageOffsetB < _thresholdB) ? averageOffsetB : 0.f;
+    const float slopeB = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetB < _thresholdB))? (0.0056 * averageOffsetB + 0.0007) : 0.f;
+    averageOffsetB = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetB < _thresholdB)) ? averageOffsetB : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeB * (1023-col)) - averageOffsetB;
     }
   }
-  for(size_t row=_upperPart.first; row < _upperPart.second; ++row)
+  for(size_t row = 512; row < 1024; ++row)
   {
     //3rd quadrant in cass (2nd in hll)
     //determine the average offset at the left side pixels
@@ -891,8 +886,8 @@ void pp241::process(const CASSEvent& evt)
     }
     averageOffsetC = (row >= 514 && row < 1022) ? averageOffsetC / _weightSum : averageOffsetC / 5.f;
     //calc the slope
-    const float slopeC = (averageOffsetC < _thresholdC) ? (0.0050 * averageOffsetC + 0.0078) : 0.f;
-    averageOffsetC = (averageOffsetC < _thresholdC) ? averageOffsetC : 0.f;
+    const float slopeC = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetC < _thresholdC)) ? (0.0050 * averageOffsetC + 0.0078) : 0.f;
+    averageOffsetC = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetC < _thresholdC)) ? averageOffsetC : 0.f;
     for(size_t col=0; col < 512; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeC * col) - averageOffsetC;
@@ -915,8 +910,8 @@ void pp241::process(const CASSEvent& evt)
     }
     averageOffsetD = (row >= 514 && row < 1022) ? averageOffsetD / _weightSum : averageOffsetD / 5.f;
     //calc the slope
-    const float slopeD = (averageOffsetD < _thresholdD) ? (0.0049 * averageOffsetD + 0.0043) : 0.f;
-    averageOffsetD = (averageOffsetD < _thresholdD) ? averageOffsetD : 0.f;
+    const float slopeD = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetD < _thresholdD)) ? (0.0049 * averageOffsetD + 0.0043) : 0.f;
+    averageOffsetD = ((_minRow <= row) && (row <= _maxRow) && (averageOffsetD < _thresholdD)) ? averageOffsetD : 0.f;
     for(size_t col=512; col < 1024; ++col)
     {
       corimage[row*1024 + col] = image[row*1024 + col] - (slopeD * (1023-col)) - averageOffsetD;

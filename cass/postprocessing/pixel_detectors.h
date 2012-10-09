@@ -711,11 +711,11 @@ protected:
   /** the value by which one has to divide to get the right average value */
   float _weightSum;
 
-  /** the range of the rows of the lower part of the detector to be corrected */
-  std::pair<size_t,size_t> _lowerPart;
+  /** the minimum row */
+  size_t _minRow;
 
-  /** the range of the rows of the upper part of the detector to be corrected */
-  std::pair<size_t,size_t> _upperPart;
+  /** the maximum row */
+  size_t _maxRow;
 };
 
 
