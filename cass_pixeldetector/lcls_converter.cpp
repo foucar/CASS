@@ -176,6 +176,9 @@ Converter::Converter()
   Key commCCD3(TypeId::Id_Frame,
                DetInfo::AmoEndstation, 1,
                DetInfo::Opal1000, 0);
+  Key commCCD4(TypeId::Id_Frame,
+               DetInfo::AmoEndstation, 0,
+               DetInfo::Opal1000, 0);
   Key xppCCD(TypeId::Id_Frame,
              DetInfo::XppSb3Pim, 1,
              DetInfo::TM6740, 1);
@@ -190,6 +193,7 @@ Converter::Converter()
   _LCLSToCASSId[commCCD1] = 2;
   _LCLSToCASSId[commCCD2] = 3;
   _LCLSToCASSId[commCCD3] = 4;
+  _LCLSToCASSId[commCCD4] = 6;
   _LCLSToCASSId[xppCCD] = 5;
 }
 
