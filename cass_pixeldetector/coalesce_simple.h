@@ -27,6 +27,12 @@ namespace pixeldetector
  * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MipThreshold}\n
  *           The threhold in ADU above which a pixel is regarded as part of
  *           a Ionizing Particle. Default is 1e6
+ * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{ShouldNotCheckCoalsescing}\n
+ *           Once a sublist of pixels that should be coalesced is found,
+ *           usually the function checks whether it should be coalesced based
+ *           on whether non of the sourrounding pixels is 0. This is bad when
+ *           using this with detectors other than pnCCD. This flag when true
+ *           will disable this check. Default is 'false'
  * @cassttng PixelDetectors/\%name\%/SimpleCoalescing/{MaxRecursionDepth}\n
  *           The maximum recursion depth whith which the recursive search for
  *           neighbouring pixels will be done. For details see
@@ -69,6 +75,9 @@ private:
 
   /** the threshold above which a pixel is identified as MIP signature */
   float _mipThreshold;
+
+  /** flag to show whether the pixels should be coalesced */
+  bool _notCheckCoalesce;
 };
 
 } //end namespace pixeldetector

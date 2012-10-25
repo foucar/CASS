@@ -296,6 +296,7 @@ void SimpleCoalesce::loadSettings(CASSSettings &s)
   _maxPixelListSize = s.value("MaxPixelListSize",10000).toUInt();
   _maxRecursionDepth = s.value("MaxRecursionDepth",7).toUInt();
   _mipThreshold = s.value("MipThreshold",1e6).toFloat();
+  _notCheckCoalesce = s.value("ShouldNotCheckCoalsescing",false).toBool();
   s.endGroup();
 }
 
@@ -315,7 +316,7 @@ SimpleCoalesce::hits_t& SimpleCoalesce::operator() (const Frame &frame,
     {
       pixels_t splitHit_pixels;
       findNeighbours(0,_maxRecursionDepth,*pixel, Direction::origin, frame, pixels, splitHit_pixels);
-      if (shouldCoalescePixel(splitHit_pixels,_mipThreshold,frame))
+      if (_notCheckCoalesce || shouldCoalescePixel(splitHit_pixels,_mipThreshold,frame))
       {
         Hit hit(coalesce(splitHit_pixels));
         hits.push_back(hit);
