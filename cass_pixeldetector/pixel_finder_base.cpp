@@ -28,6 +28,8 @@ PixelFinderBase::shared_pointer PixelFinderBase::instance(const string &type)
     ptr = shared_pointer(new PixelFinderSimple());
   else if (type == "range")
     ptr = shared_pointer(new WithinRange());
+  else if (type == "simpleMoreOptions")
+    ptr = shared_pointer(new PixelFinderSimpleMoreOptions());
   else
     throw invalid_argument("PixelFinderBase::instance: Pixel Finder type '" +type +
                            "' is unknown.");

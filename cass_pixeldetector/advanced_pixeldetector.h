@@ -77,6 +77,9 @@ struct Frame
  *           - "simple": checks whether a pixel value is higher than the
  *                       pixelvalues of the neighbours.
  *                       See cass::pixeldetector::PixelFinderSimple
+ *           - "simpleMoreOptions": checks whether a pixel value is higher than the
+ *                       pixelvalues of the neighbours defining a box
+ *                       See cass::pixeldetector::PixelFinderSimpleMoreOptions
  *           - "range": checks whether the pixel value is a user set range. See
  *                      cass::pixeldetector::WithinRange
  * @cassttng PixelDetectors/\%name\%/{CoalescingFunctionType}\n

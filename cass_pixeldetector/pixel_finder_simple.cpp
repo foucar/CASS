@@ -59,6 +59,55 @@ void PixelFinderSimple::loadSettings(CASSSettings &s)
 }
 
 
+PixelFinderSimpleMoreOptions::PixelFinderSimpleMoreOptions()
+{
+
+}
+
+PixelFinderSimple::pixels_t& PixelFinderSimpleMoreOptions::operator ()(const Frame &frame, pixels_t &pixels)
+{
+  size_t idx(0);
+  frame_t::const_iterator pixel(frame.data.begin());
+  for (;pixel != frame.data.end(); ++pixel)
+  {
+    ++idx;
+    const uint16_t x(idx % frame.columns);
+    const uint16_t y(idx / frame.columns);
+    //not at edges
+    if (*pixel > _threshold &&
+        y > _squaresize-1 &&
+        y < frame.rows-_squaresize &&
+        x > _squaresize-1 &&
+        y < frame.columns-_squaresize)
+    {
+      //check surrounding pixels
+      bool pixelIsLocalMaximum(true);
+      for (size_t squareRow=-_squaresize; squareRow <= _squaresize; ++squareRow)
+      {
+        for (size_t squareCol=-_squaresize; squareCol <= _squaresize; ++squareCol)
+        {
+          if (!(squareRow == 0 && squareCol == 0))
+            pixelIsLocalMaximum = pixelIsLocalMaximum && (frame.data[idx + squareRow*frame.columns + squareCol] < *pixel);
+        }
+      }
+      if (pixelIsLocalMaximum)
+      {
+        pixels.push_back(Pixel(x,y,*pixel));
+      }
+    }
+  }
+  return pixels;
+}
+
+void PixelFinderSimpleMoreOptions::loadSettings(CASSSettings &s)
+{
+  s.beginGroup("SimpleFinder");
+  _threshold = s.value("Threshold",0).toUInt();
+  _squaresize = s.value("SquareSize",1).toUInt();
+  s.endGroup();
+}
+
+
 
 WithinRange::WithinRange()
 {}
