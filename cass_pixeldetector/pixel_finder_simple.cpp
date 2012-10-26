@@ -26,7 +26,6 @@ PixelFinderSimple::pixels_t& PixelFinderSimple::operator ()(const Frame &frame, 
   frame_t::const_iterator pixel(frame.data.begin());
   for (;pixel != frame.data.end(); ++pixel)
   {
-    ++idx;
     const uint16_t x(idx % frame.columns);
     const uint16_t y(idx / frame.columns);
     if (*pixel > _threshold &&
@@ -47,6 +46,7 @@ PixelFinderSimple::pixels_t& PixelFinderSimple::operator ()(const Frame &frame, 
     {
       pixels.push_back(Pixel(x,y,*pixel));
     }
+    ++idx;
   }
   return pixels;
 }
@@ -70,7 +70,6 @@ PixelFinderSimple::pixels_t& PixelFinderSimpleMoreOptions::operator ()(const Fra
   frame_t::const_iterator pixel(frame.data.begin());
   for (;pixel != frame.data.end(); ++pixel)
   {
-    ++idx;
     const uint16_t x(idx % frame.columns);
     const uint16_t y(idx / frame.columns);
     //not at edges
@@ -95,6 +94,7 @@ PixelFinderSimple::pixels_t& PixelFinderSimpleMoreOptions::operator ()(const Fra
         pixels.push_back(Pixel(x,y,*pixel));
       }
     }
+    ++idx;
   }
   return pixels;
 }
