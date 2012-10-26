@@ -82,9 +82,9 @@ PixelFinderSimple::pixels_t& PixelFinderSimpleMoreOptions::operator ()(const Fra
     {
       //check surrounding pixels
       bool pixelIsLocalMaximum(true);
-      for (size_t squareRow=-_squaresize; squareRow <= _squaresize; ++squareRow)
+      for (int squareRow=-_squaresize; squareRow <= _squaresize; ++squareRow)
       {
-        for (size_t squareCol=-_squaresize; squareCol <= _squaresize; ++squareCol)
+        for (int squareCol=-_squaresize; squareCol <= _squaresize; ++squareCol)
         {
           if (!(squareRow == 0 && squareCol == 0))
             pixelIsLocalMaximum = pixelIsLocalMaximum && (frame.data[idx + squareRow*frame.columns + squareCol] < *pixel);

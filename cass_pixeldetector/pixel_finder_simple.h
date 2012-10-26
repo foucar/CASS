@@ -58,10 +58,13 @@ private:
 };
 
 
-/** simple algorithm to find pixels of interest
+/** same as simple, but with adjustable box size
  *
- * the algorithm is taken from Per Johnsons code and is just put into a functor.
+ * the algorithm is an enhanced version of pers code where one can choose the
+ * size of the box to be checked.
  *
+ * @cassttng PixelDetectors/\%name\%/SimpleFinder/{SquareSize}\n
+ *           The size of the box.
  * @cassttng PixelDetectors/\%name\%/SimpleFinder/{Threshold}\n
  *           The threshold above which the pixels have to be. Default is 0.
  *
@@ -100,7 +103,7 @@ private:
   pixel_t _threshold;
 
   /** the size of the square to check */
-  size_t _squaresize;
+  int _squaresize;
 };
 
 
