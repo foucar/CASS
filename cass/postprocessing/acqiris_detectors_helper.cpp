@@ -7,6 +7,7 @@
  * @author Lutz Foucar
  */
 #include <tr1/functional>
+#include <string>
 
 #include "acqiris_detectors_helper.h"
 
@@ -15,6 +16,7 @@
 #include "detector_backend.h"
 #include "detector_analyzer_backend.h"
 #include "convenience_functions.h"
+#include "log.h"
 
 using namespace cass::ACQIRIS;
 using std::cout;
@@ -22,6 +24,7 @@ using std::endl;
 using std::make_pair;
 using std::tr1::bind;
 using std::tr1::placeholders::_1;
+using std::string;
 
 //initialize static members//
 HelperAcqirisDetectors::helperinstancesmap_t HelperAcqirisDetectors::_instances;
@@ -32,10 +35,8 @@ HelperAcqirisDetectors::shared_pointer HelperAcqirisDetectors::instance(const he
   QMutexLocker lock(&_mutex);
   if (_instances.find(detector) == _instances.end())
   {
-    VERBOSEOUT(cout << "HelperAcqirisDetectors::instance(): creating an"
-               <<" instance of the Acqiris Detector Helper for detector '"<<detector
-               <<"'"
-               <<endl);
+    Log::add(Log::DEBUG0,string("HelperAcqirisDetectors::instance(): creating an") +
+               " instance of the Acqiris Detector Helper for detector '" + detector + "'");
     _instances[detector] = shared_pointer(new HelperAcqirisDetectors(detector));
   }
   return _instances[detector];
@@ -57,10 +58,8 @@ HelperAcqirisDetectors::HelperAcqirisDetectors(const helperinstancesmap_t::key_t
   s.endGroup();
   for (size_t i=0; i<NbrOfWorkers*2;++i)
     _detectorList.push_front(make_pair(0,DetectorBackend::instance(_dettype,detname)));
-  VERBOSEOUT(cout << "AcqirisDetectorHelper::constructor: "
-             << "we are responsible for det '"<<detname
-             << "', which is of type " <<_dettype
-             <<endl);
+  Log::add(Log::DEBUG0,string("AcqirisDetectorHelper::constructor: ") +
+           "we are responsible for det '" + detname +  "', which is of type " + toString(_dettype));
 }
 
 DetectorBackend& HelperAcqirisDetectors::validate(const CASSEvent &evt)

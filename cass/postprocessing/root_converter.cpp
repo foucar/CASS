@@ -154,7 +154,7 @@ void pp2000::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   if (!setupCondition(false))
     return;
@@ -162,19 +162,16 @@ void pp2000::loadSettings(size_t)
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  cout<<endl<<"PostProcessor '"<<_key
-      <<"' will write all cass histograms with the write flag set "
-      <<"to rootfile '"<<_rootfile->GetName()
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' will write all cass histograms with the write flag set " +
+           "to rootfile '" + _rootfile->GetName() + "'. Condition is '" +
+           _condition->key() + "'");
 }
 
 void pp2000::aboutToQuit()
 {
-  VERBOSEOUT(cout << "pp2000::aboutToQuit() ("<<_key
-             <<"): Histograms will be written to: '"
-             <<_rootfile->GetName()<<"'"
-             <<endl);
+  Log::add(Log::VERBOSEINFO,"pp2000::aboutToQuit() (" + _key +
+           "): Histograms will be written to: '" + _rootfile->GetName() + "'");
   /** create the summary directory and cd into it */
   _rootfile->cd("/");
   _rootfile->mkdir("Summary")->cd();
@@ -206,7 +203,6 @@ void pp2000::process(const cass::CASSEvent &evt)
   /** create directory from eventId and cd into it */
   _rootfile->cd("/");
   string dirname(ROOT::eventIdToDirectoryName(evt.id()));
-//  cout <<dirname<<endl;
   _rootfile->mkdir(dirname.c_str())->cd();
   /** retrieve postprocessor container */
   PostProcessors::postprocessors_t &ppc(_pp.postprocessors());

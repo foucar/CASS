@@ -21,6 +21,7 @@
 #include "acqiris_detectors_helper.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
 
 // *** postprocessor 100 -- single images from a CCD ***
 
@@ -35,7 +36,7 @@ void cass::pp100::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   int cols(0); int rows(0);
@@ -58,13 +59,10 @@ void cass::pp100::loadSettings(size_t)
     return;
   _result = new Histogram2DFloat(cols,rows);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display ccd image of detector '"<<_detector
-      <<"' in device '"<<_device
-      <<"'. The image has '"<<rows
-      <<"' rows and '"<<cols
-      <<"' columns. It will use condition '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key + "' will display ccd image of detector '" +
+           toString(_detector ) + "' in device '" + toString(_device) +
+           "'. The image has '" + toString(rows) + "' rows and '"+ toString(cols) +
+           "' columns. It will use condition '" + _condition->key() + "'");
 }
 
 void cass::pp100::process(const cass::CASSEvent& evt)
@@ -80,26 +78,6 @@ void cass::pp100::process(const cass::CASSEvent& evt)
   //get frame and fill image//
   const PixelDetector &det ((*(evt.devices().find(_device)->second)->detectors())[_detector]);
   const PixelDetector::frame_t& frame (det.frame());
-//      ((*(evt.devices().find(_device)->second)->detectors())[_detector].frame());
-//  std::cout << frame.size()<<" "<<dynamic_cast<Histogram2DFloat*>(_result)->memory().size()<<std::endl;
-  /*
-      // the following block is reasonable, if the frames are already rebinned within the Analysis::operator
-      if(frame.size()!=_image->shape().first *_image->shape().second)
-      {
-        size_t cols = _image->shape().first;
-        size_t rows = _image->shape().second;
-        size_t ratio= cols * rows /frame.size();
-        size_t side_ratio = static_cast<size_t>(sqrt( static_cast<double>(ratio) ));
-        //std::cout<<"ratio of sizes, ratio of axis are: "<< ratio << " , "<< side_ratio <<std::endl;
-        _image = new Histogram2DFloat(cols/side_ratio, 0, cols-1, rows/side_ratio, 0, rows-1);
-      }
-
-      const PixelDetector &det((*event.devices().find(_device)->second->detectors())[_detector]);
-
-      const cass::ROI::ROIiterator_t& ROIiterator_pp(det.ROIiterator_pp());
-      std::cout<< "cacca " << ROIiterator_pp.size()
-        <<std::endl;
-  */
   _result->lock.lockForWrite();
   if (_result->axis()[HistogramBackend::xAxis].nbrBins() != det.columns() ||
       _result->axis()[HistogramBackend::yAxis].nbrBins() != det.rows())
@@ -140,7 +118,7 @@ void cass::pp101::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
@@ -148,11 +126,9 @@ void cass::pp101::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' retrieves the Integral over the whole '"<<_detector
-      <<"'' detector"
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' retrieves the Integral over the whole '" + toString(_detector) +
+           "'' detector. Condition is '"+ _condition->key() + "'");
 }
 
 void cass::pp101::process(const cass::CASSEvent &evt)
@@ -192,7 +168,7 @@ void cass::pp102::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _result = new Histogram0DFloat();
@@ -200,11 +176,10 @@ void cass::pp102::loadSettings(size_t)
   if (!setupCondition())
     return;
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' retrieves the Integral over the whole '"<<_detector
-      <<"' detector calculated using pixels over threshold."
-      <<"Condition is '"<<_condition->key()<<"'"
-      <<std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' retrieves the Integral over the whole '" + toString(_detector) +
+           "' detector calculated using pixels over threshold." +
+           "Condition is '"+ _condition->key()+ "'");
 }
 
 void cass::pp102::process(const cass::CASSEvent &evt)
@@ -245,7 +220,7 @@ void cass::pp140::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   _adu2eV = settings.value("Adu2eV",1).toFloat();
@@ -254,12 +229,11 @@ void cass::pp140::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display ccd spectrum of detector '"<<_detector
-      <<"' in device '"<<_device
-      <<"'. Pixelvalues will be converter by factor '"<<_adu2eV
-      <<"'. Condition is "<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will display ccd spectrum of detector '" + toString(_detector) +
+           "' in device '" + toString(_device) +
+           "'. Pixelvalues will be converter by factor '" + toString(_adu2eV) +
+           "'. Condition is "+ toString(_condition->key()) + "'");
 }
 
 void cass::pp140::process(const CASSEvent& evt)
@@ -300,7 +274,7 @@ void cass::pp141::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   setupGeneral();
@@ -308,11 +282,10 @@ void cass::pp141::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will display ccd image of detector '"<<_detector
-      <<"' in device '"<<_device
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will display ccd image of detector '"+ toString(_detector) +
+           "' in device '" + toString(_device) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp141::process(const CASSEvent& evt)
@@ -359,7 +332,7 @@ void cass::pp142::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _device = static_cast<CASSEvent::Device>(settings.value("Device",0).toUInt());
   _detector = settings.value("Detector",0).toUInt();
   setupGeneral();
@@ -367,11 +340,10 @@ void cass::pp142::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<<"Postprocessor '"<<_key
-      <<"' will retrieve the number of photon hits of detector '"<<_detector
-      <<"' in device '"<<_device
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' will retrieve the number of photon hits of detector '" +
+           toString(_detector) + "' in device '" + toString(_device) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp142::process(const CASSEvent& evt)
@@ -388,23 +360,3 @@ void cass::pp142::process(const CASSEvent& evt)
   _result->lock.unlock();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-style: "Stroustrup"
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// fill-column: 100
-// End:

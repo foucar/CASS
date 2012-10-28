@@ -20,6 +20,7 @@
 #include "acqiris_device.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -42,7 +43,7 @@ void pp110::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _instrument = static_cast<Instruments>(settings.value("InstrumentId",8).toUInt());
   _channel    = settings.value("ChannelNbr",0).toUInt();
   setupGeneral();
@@ -50,11 +51,9 @@ void pp110::loadSettings(size_t)
     return;
   _result = new Histogram1DFloat(1,0,1,"Time [s]");
   createHistList(2*NbrOfWorkers);
-  cout<< endl <<"PostProcessor '"<<_key
-      <<"' is showing channel '"<<_channel
-      <<"' of acqiris '"<<_instrument
-      <<"'. Condition is '"<<_condition->key()<<"'"
-   <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' is showing channel '" +
+           toString(_channel) + "' of acqiris '" + toString(_instrument) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp110::process(const CASSEvent &evt)

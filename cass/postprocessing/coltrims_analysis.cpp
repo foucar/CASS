@@ -22,6 +22,7 @@
 #include "cass.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -40,7 +41,7 @@ void pp5000::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _detector = loadDelayDet(settings,5000,_key);
   _particle = loadParticle(settings,_detector,5000,_key);
   setupGeneral();
@@ -48,12 +49,11 @@ void pp5000::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' extracts the total momentum of the particle '"<<_particle
-      <<"' of detector '"<<_detector
-      <<"' and then converts it to Energy assuming that it is an electron. "
-      <<"Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' extracts the total momentum of the particle '" + _particle +
+           "' of detector '" + _detector +
+           "' and then converts it to Energy assuming that it is an electron. " +
+           "Condition is '" + _condition->key() + "'");
 }
 
 void pp5000::process(const CASSEvent &evt)
@@ -87,7 +87,7 @@ void pp5001::loadSettings(size_t)
 {
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   _detector = settings.value("Detector","blubb").toString().toStdString();
   setupGeneral();
   if (!setupCondition())
@@ -95,10 +95,9 @@ void pp5001::loadSettings(size_t)
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' create a tripple coincidence Histogram of particles of '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' create a tripple coincidence Histogram of particles of '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp5001::process(const cass::CASSEvent &evt)

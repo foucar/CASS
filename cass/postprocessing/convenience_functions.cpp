@@ -7,6 +7,8 @@
  * @author Lutz Foucar
  */
 
+#include <string>
+
 #include "convenience_functions.h"
 
 #include "cass_exceptions.h"
@@ -14,6 +16,7 @@
 #include "cass_settings.h"
 #include "acqiris_detectors_helper.h"
 #include "delayline_detector.h"
+#include "log.h"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -26,12 +29,11 @@ void cass::set1DHist(HistogramBackend*& hist, PostProcessors::key_t key)
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  VERBOSEOUT(cerr << "Creating 1D histogram with"
-             <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
-             <<" XLow:"<<param.value("XLow",0).toFloat()
-             <<" XUp:"<<param.value("XUp",0).toFloat()
-             <<" XTitle:"<<param.value("XTitle","x-axis").toString().toStdString()
-             <<endl);
+  Log::add(Log::VERBOSEINFO,string("set1dHist(): Creating 1D histogram with") +
+           " XNbrBins:" + toString(param.value("XNbrBins",1).toUInt()) +
+           " XLow:" + toString(param.value("XLow",0).toFloat()) +
+           " XUp:" + toString(param.value("XUp",0).toFloat()) +
+           " XTitle:" + param.value("XTitle","x-axis").toString().toStdString());
   hist = new Histogram1DFloat(param.value("XNbrBins",1).toUInt(),
                               param.value("XLow",0).toFloat(),
                               param.value("XUp",0).toFloat(),
@@ -45,16 +47,15 @@ void cass::set2DHist(HistogramBackend*& hist, PostProcessors::key_t key)
   param.beginGroup("PostProcessor");
   param.beginGroup(key.c_str());
   //create new histogram using the parameters//
-  VERBOSEOUT(cerr << "Creating 2D histogram with"
-             <<" XNbrBins:"<<param.value("XNbrBins",1).toUInt()
-             <<" XLow:"<<param.value("XLow",0).toFloat()
-             <<" XUp:"<<param.value("XUp",0).toFloat()
-             <<" XTitle:"<<param.value("XTitle","x-axis").toString().toStdString()
-             <<" YNbrBins:"<<param.value("YNbrBins",1).toUInt()
-             <<" YLow:"<<param.value("YLow",0).toFloat()
-             <<" YUp:"<<param.value("YUp",0).toFloat()
-             <<" YTitle:"<<param.value("YTitle","y-axis").toString().toStdString()
-             <<endl);
+  Log::add(Log::VERBOSEINFO,string("set2DHist(): Creating 2D histogram with") +
+             " XNbrBins:" + toString(param.value("XNbrBins",1).toUInt()) +
+             " XLow:" + toString(param.value("XLow",0).toFloat()) +
+             " XUp:" + toString(param.value("XUp",0).toFloat()) +
+             " XTitle:" + param.value("XTitle","x-axis").toString().toStdString() +
+             " YNbrBins:" + toString(param.value("YNbrBins",1).toUInt()) +
+             " YLow:" + toString(param.value("YLow",0).toFloat()) +
+             " YUp:" + toString(param.value("YUp",0).toFloat()) +
+             " YTitle:" + param.value("YTitle","y-axis").toString().toStdString());
   hist = new Histogram2DFloat(param.value("XNbrBins",1).toUInt(),
                               param.value("XLow",0).toFloat(),
                               param.value("XUp",0).toFloat(),

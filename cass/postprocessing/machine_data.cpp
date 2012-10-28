@@ -13,6 +13,7 @@
 #include "histogram.h"
 #include "machine_device.h"
 #include "cass_settings.h"
+#include "log.h"
 
 // *** postprocessors 120 retrives beamline data ***
 
@@ -33,11 +34,8 @@ void cass::pp120::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor "<<_key
-      <<": will retrieve datafield \""<<_varname
-      <<"\" from beamline data"
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "': will retrieve datafield ' " +
+           _varname + "' from beamline data. Condition is '" + _condition->key() +"'");
 }
 
 void cass::pp120::process(const CASSEvent& evt)
@@ -79,11 +77,9 @@ void cass::pp121::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<< "PostProcessor '"<<_key
-      <<"' will check whether event code '"<<_eventcode
-      <<"' is present in the event"
-      <<". Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '"+ _key + "' will check whether event code '" +
+           toString(_eventcode) + "' is present in the event. Condition is '" +
+           _condition->key() +"'");
 }
 
 void cass::pp121::process(const CASSEvent& evt)
@@ -125,10 +121,8 @@ void cass::pp122::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<< "PostProcessor '"<<_key
-      <<"' will retrieve the event ID from events"
-      <<". Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve the event ID from events. Condition is '" +
+           _condition->key() + "'");
 }
 
 void cass::pp122::process(const CASSEvent& evt)
@@ -169,11 +163,8 @@ void cass::pp130::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor "<<_key
-      <<": will retrieve datafield \""<<_varname
-      <<"\" from epics data"
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' will retrieve datafield ' " +
+           _varname +"' from epics data. Condition is" + _condition->key() + "'");
 }
 
 void cass::pp130::process(const CASSEvent& evt)
@@ -184,10 +175,6 @@ void cass::pp130::process(const CASSEvent& evt)
        (evt.devices().find(CASSEvent::MachineData)->second));
   const MachineDataDevice::epicsDataMap_t &epics(mdev->EpicsData());
   _result->lock.lockForWrite();
-//  std::cout <<std::boolalpha<<"pp130::process:'"<<_varname
-//      <<"' is "<<(epics.find(_varname) == epics.end()?"not":"")
-//      <<" available in Epics Data so value is "<<(epics.find(_varname) == epics.end()? 0:epics.find(_varname)->second)
-//      <<std::endl;
   *dynamic_cast<Histogram0DFloat*>(_result) = epics.find(_varname) == epics.end() ? 0 : epics.find(_varname)->second;
   _result->lock.unlock();
 }
@@ -219,10 +206,9 @@ void cass::pp230::loadSettings(size_t)
   _result = new Histogram0DFloat();
   setupGeneral();
   createHistList(2*cass::NbrOfWorkers);
-  std::cout << "PostProcessor: "<<_key
-      <<" calc photonenergy from beamline data"
-      <<". Condition is"<<_condition->key()
-      <<std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' calculates photonenergy from " +
+           "'EbeamL3Energy' and 'EbeamPkCurrBC2'." + " Condition is '" +
+           _condition->key() + "'");
 }
 
 void cass::pp230::process(const CASSEvent& evt)

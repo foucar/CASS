@@ -17,6 +17,7 @@
 #include "backend.h"
 #include "histogram.h"
 #include "convenience_functions.h"
+#include "log.h"
 
 namespace cass
 {
@@ -55,7 +56,7 @@ namespace cass
       using namespace std;
       CASSSettings settings;
       settings.beginGroup("PostProcessor");
-      settings.beginGroup(_key.c_str());
+      settings.beginGroup(QString::fromStdString(_key));
       _value = settings.value("Value",0).toFloat();
       setupGeneral();
       _one = setupDependency("HistName");
@@ -63,12 +64,10 @@ namespace cass
       if (!_one || !ret) return;
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl<< "PostProcessor '"<<_key
-          <<"' will compare hist in PostProcessor '"<<_one->key()
-          <<"' to constant '"<<_value
-          <<"' using '"<< typeid(op).name()
-          <<"'. Condition is '"<<_condition->key()<<"'"
-          << endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key +
+               "' will compare hist in PostProcessor '" + _one->key() +
+               "' to constant '" + toString(_value) + "' using '"+  typeid(op).name() +
+               "'. Condition is '" + _condition->key() + "'");
     }
 
     /** process event */
@@ -144,22 +143,15 @@ namespace cass
       const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
       const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
       if (one.dimension() != two.dimension())
-      {
-        stringstream ss;
-        ss << "pp5::loadSettings(): HistOne '"<<one.key()
-            <<"' with dimension '"<< one.dimension()
-            <<"' differs from HistTwo '"<<two.key()
-            <<"' with has dimension '"<< two.dimension();
-        throw invalid_argument(ss.str());
-      }
+        throw invalid_argument("pp5::loadSettings(): HistOne '" + one.key() +
+                               "' with dimension '" + toString(one.dimension()) +
+                               "' differs from HistTwo '" + two.key() +
+                               "' with has dimension '" + toString(two.dimension()));
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl<< "PostProcessor '" << _key
-          <<"' will boolean compare PostProcessor '" << _one->key()
-          <<"' to PostProcessor '" << _two->key()
-          <<"' using '"<< typeid(op).name()
-          <<"'. Condition is '"<<_condition->key()<<"'"
-          <<endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key + "' will boolean compare PostProcessor '" +
+               _one->key() + "' to PostProcessor '" + _two->key() + "' using '" +
+               typeid(op).name() + "'. Condition is '" + _condition->key() + "'");
     }
 
     /** process event */
@@ -235,22 +227,17 @@ namespace cass
       const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_one->getHist(0)));
       const HistogramFloatBase &two(dynamic_cast<const HistogramFloatBase&>(_two->getHist(0)));
       if (one.dimension() != two.dimension())
-      {
-        stringstream ss;
-        ss << "pp7::loadSettings(): HistOne '"<<one.key()
-            <<"' with dimension '"<< one.dimension()
-            <<"' differs from HistTwo '"<<two.key()
-            <<"' with has dimension '"<< two.dimension();
-        throw invalid_argument(ss.str());
-      }
+        throw invalid_argument("pp7::loadSettings(): HistOne '" + one.key() +
+                               "' with dimension '"+ toString(one.dimension()) +
+                               "' differs from HistTwo '" + two.key() +
+                               "' which has dimension '" + toString(two.dimension()));
       _result = new Histogram0DFloat();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl<< "PostProcessor '" << _key
-          <<"' compares Histogram in PostProcessor '" << _one->key()
-          <<"' to Histogram in PostProcessor '" << _two->key()
-          <<"' using '"<< typeid(op).name()
-          <<"' Condition is '"<<_condition->key()<<"'"
-          <<endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key +
+          "' compares Histogram in PostProcessor '" + _one->key() +
+          "' to Histogram in PostProcessor '" + _two->key() +
+          "' using '" +  typeid(op).name() +
+          "' Condition is '" + _condition->key() + "'");
     }
 
     /** process event */
@@ -336,26 +323,21 @@ namespace cass
       if (one.dimension() != two.dimension() ||
           one.memory().size() !=
           two.memory().size())
-      {
-        stringstream ss;
-        ss << "pp20::loadSettings(): HistOne '"<<one.key()
-            <<"' with dimension '"<< one.dimension()
-            <<"' and memory size '"<<one.memory().size()
-            <<"' differs from HistTwo '"<<two.key()
-            <<"' with has dimension '"<< two.dimension()
-            <<"' and memory size '"<<two.memory().size();
-        throw invalid_argument(ss.str());
-      }
+        throw invalid_argument("pp20::loadSettings(): HistOne '" + one.key() +
+                               "' with dimension '" + toString(one.dimension()) +
+                               "' and memory size '" + toString(one.memory().size()) +
+                               "' differs from HistTwo '" + two.key() +
+                               "' with has dimension '" + toString(two.dimension()) +
+                               "' and memory size '" + toString(two.memory().size()));
       _result = one.clone();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl << "PostProcessor '"<<_key
-          <<"' operation '"<< typeid(op).name()
-          <<"' on Histogram in PostProcessor '" << _one->key()
-          <<"' which has a memory size of '"<< one.memory().size()
-          <<"' with Histogram in PostProcessor '" << _two->key()
-          <<"' which has a memory size of '"<< two.memory().size()
-          <<"'. Condition is '"<<_condition->key()<<"'"
-          << endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key +
+          "' operation '" + typeid(op).name() +
+          "' on Histogram in PostProcessor '" + _one->key() +
+          "' which has a memory size of '" + toString(one.memory().size()) +
+          "' with Histogram in PostProcessor '" + _two->key() +
+          "' which has a memory size of '" + toString(two.memory().size()) +
+          "'. Condition is '" + _condition->key() + "'");
     }
 
     virtual void histogramsChanged(const HistogramBackend* in)
@@ -377,9 +359,9 @@ namespace cass
       PostProcessors::keyList_t::iterator it (dependands.begin());
       for (; it != dependands.end(); ++it)
         _pp.getPostProcessor(*it).histogramsChanged(_result);
-      VERBOSEOUT(cout<<"Postprocessor '"<<_key
-                 <<"': histograms changed => delete existing histo"
-                 <<" and create new one from input"<<endl);
+      Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+               "': histograms changed => delete existing histo" +
+               " and create new one from input");
     }
 
     /** process event */
@@ -450,7 +432,7 @@ namespace cass
       using namespace std;
       CASSSettings settings;
       settings.beginGroup("PostProcessor");
-      settings.beginGroup(_key.c_str());
+      settings.beginGroup(QString::fromStdString(_key));
       _value = settings.value("Factor",1).toFloat();
       setupGeneral();
       _one = setupDependency("HistName");
@@ -459,12 +441,10 @@ namespace cass
       const HistogramBackend &one(_one->getHist(0));
       _result = one.clone();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl << "PostProcessor '" << _key
-          <<"' operation "<< typeid(op).name()
-          <<"' on Histogram in PostProcessor '" << _one->key()
-          <<"' with '" << _value
-          <<"'. Condition is "<<_condition->key()<<"'"
-          << endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key +
+               "' operation " +  typeid(op).name() +
+               "' on Histogram in PostProcessor '" +  _one->key()  +"' with '" +
+                toString(_value) + "'. Condition is "+ _condition->key() + "'");
     }
 
     virtual void histogramsChanged(const HistogramBackend* in)
@@ -486,9 +466,9 @@ namespace cass
       PostProcessors::keyList_t::iterator it (dependands.begin());
       for (; it != dependands.end(); ++it)
         _pp.getPostProcessor(*it).histogramsChanged(_result);
-      VERBOSEOUT(cout<<"Postprocessor '"<<_key
-                 <<"': histograms changed => delete existing histo"
-                 <<" and create new one from input"<<endl);
+      Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+                 "': histograms changed => delete existing histo" +
+                 " and create new one from input");
     }
 
     /** process event */
@@ -579,13 +559,11 @@ namespace cass
       }
       _result = one.clone();
       createHistList(2*cass::NbrOfWorkers);
-      cout<<endl << "PostProcessor '"<<_key
-          <<"' operation '"<< typeid(op).name()
-          <<"' on Histogram in PostProcessor '" << _one->key()
-          <<"' which has a memory size of '"<< one.memory().size()
-          <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
-          <<"'. Condition is '"<<_condition->key()<<"'"
-          << endl;
+      Log::add(Log::INFO,"PostProcessor '" + _key + "' operation '" +
+               typeid(op).name() + "' on Histogram in PostProcessor '" + _one->key() +
+               "' which has a memory size of '" + toString(one.memory().size()) +
+               "' with constant in 0D Histogram in PostProcessor '" + _constHist->key() +
+               "'. Condition is '" + _condition->key() + "'");
     }
 
     virtual void histogramsChanged(const HistogramBackend* in)
@@ -611,9 +589,9 @@ namespace cass
       PostProcessors::keyList_t::iterator it (dependands.begin());
       for (; it != dependands.end(); ++it)
         _pp.getPostProcessor(*it).histogramsChanged(_result);
-      VERBOSEOUT(cout<<"Postprocessor '"<<_key
-                 <<"': histograms changed => delete existing histo"
-                 <<" and create new one from input"<<endl);
+      Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+                 "': histograms changed => delete existing histo" +
+                 " and create new one from input");
     }
 
     /** process event */

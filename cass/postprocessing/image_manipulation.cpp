@@ -13,6 +13,7 @@
 
 #include "cass_settings.h"
 #include "histogram.h"
+#include "log.h"
 
 using namespace cass;
 using namespace std;
@@ -207,11 +208,9 @@ void pp55::loadSettings(size_t)
   _size = make_pair(_result->axis()[HistogramBackend::xAxis].nbrBins(),
                     _result->axis()[HistogramBackend::yAxis].nbrBins());
 
-  cout<<endl << "PostProcessor '" << _key
-      <<"' will do '"<< _operation
-      <<"' on Histogram in PostProcessor '" << _one->key()
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will do '" + _operation +
+           "' on Histogram in PostProcessor '" +  _one->key() +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void pp55::histogramsChanged(const HistogramBackend* in)
@@ -246,9 +245,9 @@ void pp55::histogramsChanged(const HistogramBackend* in)
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
-  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-             <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<endl);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+             "': histograms changed => delete existing histo" +
+             " and create new one from input");
 }
 
 void pp55::process(const CASSEvent &evt)

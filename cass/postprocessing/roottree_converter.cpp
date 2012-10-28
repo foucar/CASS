@@ -97,12 +97,8 @@ detectorkey_t qstring2detector(const QString & qstr)
 {
   detectorkey_t dld(qstr.toStdString());
   if (!isDLD(dld))
-  {
-    stringstream ss;
-    ss <<"pp2001::loadSettings(): Error detector '"<<dld
-       <<"' is not a Delaylinedetector.";
-    throw (invalid_argument(ss.str()));
-  }
+    throw invalid_argument("pp2001::loadSettings(): Error detector '" + dld +
+                            "' is not a Delaylinedetector.");
   return dld;
 }
 
@@ -139,10 +135,8 @@ particleskey_t qstring2particle(const QString & qstr)
       }
     }
   }
-  stringstream ss;
-  ss <<"pp2001::loadSettings(): Error particle '"<<particlekey.first
-     <<"' is not part of any Delaylinedetector.";
-  throw (invalid_argument(ss.str()));
+  throw invalid_argument("pp2001::loadSettings(): Error particle '" + particlekey.first +
+                          "' is not part of any Delaylinedetector.");
   return particlekey;
 }
 
@@ -229,18 +223,17 @@ void pp2001::loadSettings(size_t)
   _hide = true;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers,true);
-  cout<<endl<<"PostProcessor '"<<_key
-      <<"' will write the hits of detectors: ";
+  string output("PostProcessor '" + _key + "' will write the hits of detectors: ");
   dlddetectors_t::const_iterator detectorsIt(_detectors.begin());
   for (;detectorsIt!=_detectors.end();++detectorsIt)
-    cout <<"'"<<(*detectorsIt)<<"', ";
-  cout<<" and particles: ";
+    output += ("'" + (*detectorsIt) + "', ");
+  output += " and particles: ";
   particleslist_t::const_iterator particle(_particles.begin());
   for (;particle != _particles.end();++particle)
-    cout <<"'"<<particle->first<<"("<<particle->second<<")', ";
-  cout<<" to rootfile '"<<_rootfile->GetName()
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+    output += ("'" + particle->first + "(" + particle->second + ")', ");
+  output += (" to rootfile '" + string(_rootfile->GetName()) + "'. Condition is '" +
+            _condition->key() + "'");
+  Log::add(Log::INFO,output);
 }
 
 void pp2001::aboutToQuit()

@@ -22,6 +22,7 @@
 #include "cass.h"
 #include "convenience_functions.h"
 #include "cass_settings.h"
+#include "log.h"
 
 using namespace cass;
 using namespace ACQIRIS;
@@ -132,10 +133,9 @@ void cass::pp150::loadSettings(size_t)
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' retrieves the nbr of mcp signals of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' retrieves the nbr of mcp signals of detector '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp150::process(const cass::CASSEvent &evt)
@@ -176,11 +176,9 @@ void cass::pp151::loadSettings(size_t)
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms times of the found mcp signals"
-      <<" of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' histograms times of the found mcp signals of detector '" + _detector +
+           "'. Condition is '"+ _condition->key() + "'");
 }
 
 void cass::pp151::process(const cass::CASSEvent &evt)
@@ -225,11 +223,10 @@ void cass::pp152::loadSettings(size_t)
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector)->loadSettings();
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the FWHM vs the height of the found mcp signals"
-      <<" of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' histograms the FWHM vs the height of the found mcp signals" +
+           " of detector '" + _detector + "'. Condition is '" +
+           _condition->key() + "'");
 }
 
 void cass::pp152::process(const cass::CASSEvent &evt)
@@ -277,12 +274,10 @@ void cass::pp160::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' outputs the nbr of signals of layer '"<<_layer
-      <<"' wireend '"<<_signal
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' outputs the nbr of signals of layer '" + _layer + "' wireend '" +
+           _signal + "' of detector '" + _detector +"'. Condition is '" +
+           _condition->key() + "'");
 }
 
 void cass::pp160::process(const cass::CASSEvent &evt)
@@ -325,12 +320,10 @@ void cass::pp161::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the FWHM vs the height from the signals of layer '"<<_layer
-      <<"' wireend '"<<_signal
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' histograms the FWHM vs the height from the signals of layer '" +
+           _layer + "' wireend '" + _signal + "' of detector '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp161::process(const cass::CASSEvent &evt)
@@ -377,13 +370,11 @@ void cass::pp162::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' calculates the timesum of layer '"<<_layer
-      <<"' of detector '"<<_detector
-      <<"'. It will use the first signals that appeared in the ToF range from '"<<_range.first
-      <<"' ns to '"<<_range.second
-      <<"' ns. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' calculates the timesum of layer '" + _layer + "' of detector '" +
+           _detector + "'. It will use the first signals that appeared in the" +
+           "ToF range from '" + toString(_range.first) + "' ns to '" +
+           toString(_range.second) + "' ns. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp162::process(const cass::CASSEvent &evt)
@@ -429,11 +420,9 @@ void cass::pp163::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the timesum vs Postion on layer '"<<_layer
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' histograms the timesum vs Postion on layer '" + _layer + "' of detector '" +
+           _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp163::process(const cass::CASSEvent &evt)
@@ -488,20 +477,15 @@ void cass::pp164::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' creates a detector picture of the first Hit on the detector created"
-      <<" from  Layers '"<<_first
-      <<"' and '"<<_second
-      <<"' of detector '"<<_detector
-      <<"'. The signals from wich the frist hit is calculated have to be in the"
-      <<" range from '"<<_range.first
-      <<"' ns to '"<<_range.second
-      <<"' ns. The Timesum range of the first layer goes from '"<<_tsrange.first.first
-      <<"' to '"<<_tsrange.first.second
-      <<"'. The Timesum range of the second layer goes from '"<<_tsrange.second.first
-      <<"' to '"<<_tsrange.second.second
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' creates a detector picture of the first Hit on the detector created" +
+           " from  Layers '" + _first + "' and '" + _second + "' of detector '" +
+           _detector + "'. The signals from wich the frist hit is calculated have to be in the" +
+           " range from '" + toString(_range.first) + "' ns to '" + toString(_range.second) +
+           "' ns. The Timesum range of the first layer goes from '"+ toString(_tsrange.first.first) +
+           "' to '" + toString(_tsrange.first.second) + "'. The Timesum range of the second layer goes from '" +
+           toString(_tsrange.second.first) + "' to '" + toString(_tsrange.second.second) +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp164::process(const cass::CASSEvent &evt)
@@ -562,10 +546,9 @@ void cass::pp165::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' outputs the number of reconstructed hits of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' outputs the number of reconstructed hits of detector '" + _detector +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp165::process(const cass::CASSEvent &evt)
@@ -621,15 +604,12 @@ void cass::pp166::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-     <<"' histograms the Property '"<<_second
-    <<"' vs. '"<<_first
-   <<"' of the reconstructed detectorhits of detector '"<<_detector
-  <<"'. It puts a condition from '"<<_cond.first
-  <<"' to '"<<_cond.second
-  <<"' on Property '"<< _third
-  <<"'. Condition is '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+           _second + "' vs. '" + _first +
+           "' of the reconstructed detectorhits of detector '" + _detector +
+           "'. It puts a condition from '" + toString(_cond.first) +
+           "' to '" + toString(_cond.second) +  "' on Property '" +  _third +
+           "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp166::process(const cass::CASSEvent &evt)
@@ -678,11 +658,9 @@ void cass::pp220::loadSettings(size_t)
   createHistList(2*cass::NbrOfWorkers);
   HelperAcqirisDetectors::instance(_detector01)->loadSettings();
   HelperAcqirisDetectors::instance(_detector02)->loadSettings();
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' create a PIPICO Histogram of detectors '"<<_detector01
-      <<"' and '"<<_detector02
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '"+ _key +
+      "' create a PIPICO Histogram of detectors '" + _detector01 +
+      "' and '" + _detector02 + "'. Condition is '"+ _condition->key() + "'");
 }
 
 void cass::pp220::process(const cass::CASSEvent &evt)
@@ -736,12 +714,9 @@ void cass::pp250::loadSettings(size_t)
     return;
   set1DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the Property '"<<_property
-      <<"' of the particle '"<<_particle
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+           _property + "' of the particle '" + _particle + "' of detector '" +
+           _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp250::process(const cass::CASSEvent &evt)
@@ -788,13 +763,10 @@ void cass::pp251::loadSettings(size_t)
     return;
   set2DHist(_result,_key);
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' histograms the Property '"<<_property02
-      <<"' vs. '"<<_property01
-      <<"' of the particle '"<<_particle
-      <<"' of detector '"<<_detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' histograms the Property '" +
+           _property02 + "' vs. '" + _property01 + "' of the particle '" +
+           _particle + "' of detector '" + _detector + "'. Condition is '"+
+           _condition->key() + "'");
 }
 
 void cass::pp251::process(const cass::CASSEvent &evt)
@@ -835,11 +807,9 @@ void cass::pp252::loadSettings(size_t)
     return;
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-     <<"' outputs how many particles were found for '"<<_particle
-     <<"' of detector '"<<_detector
-     <<"'. Condition is '"<<_condition->key()<<"'"
-     <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           + "' outputs how many particles were found for '" + _particle +
+           + "' of detector '" + _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void cass::pp252::process(const cass::CASSEvent &evt)
