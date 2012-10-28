@@ -30,6 +30,7 @@
 #include "image_manipulation.h"
 #include "partial_covariance.h"
 #include "cbf_output.h"
+#include "log.h"
 
 #ifdef HDF5
 #include "hdf5_converter.h"
@@ -61,15 +62,11 @@ QMutex PostProcessors::_mutex;
 
 PostProcessors::shared_pointer PostProcessors::instance(string outputfilename)
 {
-#ifdef VERBOSE
-  static int /*n(0),*/ create(0);
-#endif
-//  VERBOSEOUT(cerr<<"PostProcessors::instance -- call "<<++n<<endl);
+  static int create(0);
   QMutexLocker locker(&_mutex);
   if(!_instance)
   {
-    VERBOSEOUT(cerr<<"PostProcessors::instance -- create "<<++create
-               << endl);
+    Log::add(Log::VERBOSEINFO,"PostProcessors::instance -- create "+ toString(++create));
     _instance = shared_pointer(new PostProcessors(outputfilename));
     _instance->loadSettings(0);
   }
@@ -110,9 +107,8 @@ PostProcessors::PostProcessors(string outputfilename)
   _outputfilename(outputfilename)
 
 {
-  VERBOSEOUT(cout<<"Postprocessors::constructor: output Filename: "
-             <<_outputfilename
-             <<endl);
+  Log::add(Log::DEBUG0,"Postprocessors::constructor: output Filename: " +
+           _outputfilename);
 }
 
 void PostProcessors::operator()(const CASSEvent& event)
@@ -130,10 +126,7 @@ void PostProcessors::operator()(const CASSEvent& event)
   postprocessors_t::iterator iter(_postprocessors.begin());
   postprocessors_t::iterator end(_postprocessors.end());
   for(;iter != end; ++iter)
-  {
-//     cout <<event.id()<<" running '" << iter->first<<"'"<<endl;
     (*(iter->second))(event);
-  }
 }
 
 void PostProcessors::aboutToQuit()
@@ -146,23 +139,21 @@ void PostProcessors::aboutToQuit()
 
 void PostProcessors::loadSettings(size_t)
 {
-  VERBOSEOUT(cout << "Postprocessor::loadSettings" << endl);
+  Log::add(Log::DEBUG0,"Postprocessor::loadSettings");
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
   QStringList list(settings.childGroups());
-#ifdef VERBOSE
-  cout << settings.fileName().toStdString() << " " ;
-  cout << "Entries of "<< settings.group().toStdString() << ": ";
+  string output("PostProcessor::loadSettings(): ini file '" + settings.fileName().toStdString() +
+                "' contains in Group '" + settings.group().toStdString() + "': ");
   foreach(QString str, list){
-    cout<<str.toStdString() << ", ";
+    output += (str.toStdString() + ", ");
   }
-  cout << endl;
-#endif
+  Log::add(Log::DEBUG1,output);
   _active.clear();
   _active.resize(list.size());
   transform(list.begin(), list.end(), _active.begin(), QStringToStdString);
-  cout <<"   Number of unique postprocessor activations: "<<_active.size()
-      << endl;
+  Log::add(Log::VERBOSEINFO, "PostProcessors::loadSettings(): Number of unique postprocessor activations: " +
+           toString(_active.size()));
   //add a default true and false pp to container//
   _active.push_back("DefaultTrueHist");
   _postprocessors["DefaultTrueHist"] =
@@ -171,9 +162,10 @@ void PostProcessors::loadSettings(size_t)
   _postprocessors["DefaultFalseHist"] =
       PostprocessorBackend::shared_pointer(new pp10(*this, "DefaultFalseHist",false));
   setup(_active);
-  cout <<"   Active postprocessor(s): "<<endl;
-  copy(_active.begin(), _active.end(), ostream_iterator<string>(cout,"\n"));
-  cout<<endl;
+  output = "PostProcessor::loadSettings(): Active postprocessor(s): ";
+  for (keyList_t::const_iterator it(_active.begin()); it != _active.end(); ++it)
+    output += (*it + " ,");
+  Log::add(Log::INFO,output);
 }
 
 void PostProcessors::saveSettings()

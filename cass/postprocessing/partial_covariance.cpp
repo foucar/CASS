@@ -11,6 +11,7 @@
 #include "cass_settings.h"
 #include "partial_covariance.h"
 #include "machine_device.h"
+#include "log.h"
 
 using namespace cass;
 
@@ -107,7 +108,7 @@ void pp400::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
@@ -139,13 +140,14 @@ void pp400::loadSettings(size_t)
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);//
   createHistList(2*NbrOfWorkers);
 
-  cout<<endl<<"PostProcessor '"<<_key
-      <<"' converts ToF into Energy scale '" << _pHist->key()
-      <<"' which has dimension '"<<one.dimension()<<" test TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-      <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-      <<", NbrBins:"<<NbrBins
-      <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::INFO,"PostProcessor '"+ _key +
+           "' converts ToF into Energy scale '" +  _pHist->key() +
+           "' which has dimension '" + toString(one.dimension()) + " test TofUp:" +
+           toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
+           " binTofUp:" + toString(binTofUp) + "'. Conversion parameters e0:" +
+           toString(e0) + " t0(bin):" + toString(t0) + "(" + toString(bint0) + ") alpha:" +
+           toString(alpha) + ", NbrBins:" + toString(NbrBins) + ". Condition on postprocessor '" +
+           _condition->key() + "'");
 }
 
 void pp400::histogramsChanged(const HistogramBackend* in)
@@ -169,13 +171,14 @@ void pp400::histogramsChanged(const HistogramBackend* in)
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);
   createHistList(2*NbrOfWorkers);
 
-  cout<<endl<<"PostProcessor '"<<_key
-      <<"' converts ToF into Energy scale '" << _pHist->key()
-      <<"' which has dimension '"<<in->dimension()<<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-      <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-      <<", NbrBins:"<<NbrBins
-      <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key +
+           "' converts ToF into Energy scale '" + _pHist->key() +
+           "' which has dimension '" + toString(in->dimension()) +"  TofUp:" +
+           toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
+           " binTofUp:"+ toString(binTofUp) + "'. Conversion parameters e0:" +
+           toString(e0) + " t0(bin):" + toString(t0) + "(" + toString(bint0) +
+           ") alpha:" + toString(alpha) + ", NbrBins:" + toString(NbrBins) +
+           ". Condition on postprocessor '" + _condition->key() + "'");
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -244,9 +247,6 @@ void pp400::ToftoEnergy(const HistogramFloatBase& TofHisto , HistogramFloatBase:
     klow = xaxis.bin(tofBinLow);
     kup = xaxis.bin(tofBinUp);
 
-
-    //      std::cout<<" kup:"<<kup<<" klow:"<<klow<<std::endl;
-
     if (klow == kup) Energy[i] = (tofBinUp - tofBinLow)/bin_size * (Tof[klow]-offset);
 
     else if ((kup - klow) == 1 ) Energy[i] = (xaxis.position(klow + 1) - tofBinLow)/bin_size * (Tof[klow+1]-offset) + (tofBinUp - xaxis.position(kup))/bin_size * (Tof[kup]-offset);
@@ -276,10 +276,8 @@ void pp401::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  //unsigned average = settings.value("NbrOfVariance", 0).toUInt();
-  //_alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _pHist = setupDependency("HistName");
   _ave = setupDependency("AveHistName");
   bool ret (setupCondition());
@@ -288,10 +286,9 @@ void pp401::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor '"<<_key
-     <<"'Calcurate variance '"<< _pHist->key()
-   <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "'Calcurate variance '" + _pHist->key() +
+           "'. Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp401::histogramsChanged(const HistogramBackend* in)
@@ -313,9 +310,9 @@ void pp401::histogramsChanged(const HistogramBackend* in)
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
-  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-             <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<endl);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+           "': histograms changed => delete existing histo" +
+           " and create new one from input");
 }
 
 void pp401::process(const CASSEvent& evt)
@@ -375,7 +372,7 @@ void pp402::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   unsigned average = settings.value("NbrOfAverages", 1).toUInt();
   _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
@@ -386,11 +383,10 @@ void pp402::loadSettings(size_t)
   const HistogramBackend &one(_pHist->getHist(0));
   _result = one.clone();
   createHistList(2*NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor '"<<_key
-     <<"' sqaverages histograms from PostProcessor '"<< _pHist->key()
-    <<"' alpha for the averaging '"<<_alpha
-   <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key +
+           "' sqaverages histograms from PostProcessor '" +  _pHist->key() +
+           "' alpha for the averaging '" + toString(_alpha) +
+           "'. Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp402::histogramsChanged(const HistogramBackend* in)
@@ -412,9 +408,9 @@ void pp402::histogramsChanged(const HistogramBackend* in)
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
-  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-             <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<endl);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+           "': histograms changed => delete existing histo" +
+           " and create new one from input");
 }
 
 void pp402::process(const CASSEvent& evt)
@@ -426,8 +422,8 @@ void pp402::process(const CASSEvent& evt)
   _result->lock.lockForWrite();
   ++_result->nbrOfFills();
   float scale = (1./_result->nbrOfFills() < _alpha) ?
-        _alpha :
-        1./_result->nbrOfFills();
+                _alpha :
+                1./_result->nbrOfFills();
   transform(one.memory().begin(),one.memory().end(),
             dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
             dynamic_cast<HistogramFloatBase*>(_result)->memory().begin(),
@@ -483,14 +479,12 @@ void pp403::loadSettings(size_t)
 
   createHistList(2*NbrOfWorkers);
 
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' returns a subset of histogram in pp '" << _pHist->key()
-    <<"' which has dimension '"<<one.dimension()
-   <<"'. Subset is xLow:"<<xLow<<"("<<_inputOffset<<")"
-  <<", xUp:"<<xUp<<"("<<binXUp<<")"
-  <<", xNbrBins:"<<nXBins
-  <<". Condition on postprocessor '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' returns a subset of histogram in pp '" + _pHist->key() +
+           "' which has dimension '" + toString(one.dimension()) +
+           "'. Subset is xLow:" + toString(xLow) + "(" + toString(_inputOffset) +
+           ") xUp:" + toString(xUp) +"(" + toString(binXUp) + ") xNbrBins:" +
+           toString(nXBins) + ". Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp403::histogramsChanged(const HistogramBackend* in)
@@ -516,14 +510,12 @@ void pp403::histogramsChanged(const HistogramBackend* in)
   else if (2 == in->dimension())
     throw invalid_argument("PostProcessor: '" + _key +"' only works on 1d histograms.");
   createHistList(2*NbrOfWorkers);
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' histogramsChanged: returns a subset of histogram in pp '" << _pHist->key()
-    <<"' which has dimension '"<<in->dimension()
-   <<"'. Subset is xLow:"<<xLow<<"("<<_inputOffset<<")"
-  <<", xUp:"<<xUp<<"("<<binXUp<<")"
-  <<", xNbrBins:"<<nXBins
-  <<". Condition on postprocessor '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key +
+           "' histogramsChanged: returns a subset of histogram in pp '" + _pHist->key() +
+           "' which has dimension '" + toString(in->dimension()) + "'. Subset is xLow:" +
+           toString(xLow) + "(" + toString(_inputOffset) + "), xUp:" + toString(xUp) +
+           "(" + toString(binXUp) +"), xNbrBins:" + toString(nXBins) +
+           ". Condition on postprocessor '" + _condition->key() + "'");
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -605,17 +597,18 @@ void pp404::loadSettings(size_t)
 
   NbrBins = settings.value("NbrBins",0).toInt();
 
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into MassTo ChargeRatio scale'" << _pHist->key()
-    <<"' which has dimension '"<<one.dimension()<<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-   <<"'. Conversion parameters MtC0:"<<MtC0<<" t0(bin):"<<t0<<"'. Conversion parameters MtC1:"<<MtC1<<" t1(bin):"<<t1
-  <<", NbrBins:"<<NbrBins;
-
   _result = new Histogram1DFloat(NbrBins,pow(_userTofRange.first/alpha-beta,2),pow(_userTofRange.second/alpha-beta,2));//
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key +
+           "' converts ToF into MassTo ChargeRatio scale'" + _pHist->key() +
+           "' which has dimension '" + toString(one.dimension()) + "  TofUp:" +
+           toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
+           " binTofUp:" + toString(binTofUp) + "'. Conversion parameters MtC0:" +
+           toString(MtC0) + " t0(bin):" + toString(t0) + "'. Conversion parameters MtC1:" +
+           toString(MtC1) + " t1(bin):" + toString(t1) +", NbrBins:"+ toString(NbrBins) +
+           ". Condition on postprocessor '" + _condition->key() +"'");
+
 }
 
 void pp404::histogramsChanged(const HistogramBackend* in)
@@ -635,24 +628,24 @@ void pp404::histogramsChanged(const HistogramBackend* in)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into MassToChargeRatio scale'" << _pHist->key()
-    <<"' which has dimension '"<<in->dimension()<<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-   <<"'. Conversion parameters MtC0:"<<MtC0<<" t0(bin):"<<t0<<"'. Conversion parameters MtC1:"<<MtC1<<" t1(bin):"<<t1
-  <<", NbrBins:"<<NbrBins;
-
-
   _result = new Histogram1DFloat(NbrBins,pow(_userTofRange.first/alpha-beta,2),pow(_userTofRange.second/alpha-beta,2));
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
+
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key +
+           "' converts ToF into MassToChargeRatio scale'" + _pHist->key() +
+           "' which has dimension '" + toString(in->dimension()) + "  TofUp:" +
+           toString(_userTofRange.second) + " binTofLow:" + toString(binTofLow) +
+           " binTofUp:" + toString(binTofUp) + "'. Conversion parameters MtC0:" +
+           toString(MtC0) + " t0(bin):" + toString(t0) + "'. Conversion parameters MtC1:" +
+           toString(MtC1) + " t1(bin):" + toString(t1) + ", NbrBins:" +
+           toString(NbrBins) + ". Condition on postprocessor '" + _condition->key() + "'");
+
 }
 
 
@@ -699,11 +692,6 @@ double pp404::calcToftoMtC (double Timeoflight)
 void pp404::ToftoMtC(const HistogramFloatBase& hist , HistogramFloatBase::storage_t& MtC, double offset)
 {
   const AxisProperty &xaxis(hist.axis()[HistogramBackend::xAxis]);
-  //    const size_t binTofLow=xaxis.bin(_userTofRange.first);
-  //    const size_t binTofUp=xaxis.bin(_userTofRange.second);
-
-  //HistogramFloatBase::storage_t& output
-  //(dynamic_cast<Histogram1DFloat*>(_result)->memory());
   double bin_size=xaxis.position(2)-xaxis.position(1);
 
   const HistogramFloatBase::storage_t& Tof(hist.memory());
@@ -720,16 +708,10 @@ void pp404::ToftoMtC(const HistogramFloatBase& hist , HistogramFloatBase::storag
     long klow(0), kup(0);
     klow=xaxis.bin(tofBinLow);
     kup=xaxis.bin(tofBinUp);
-    //std::cout << "klow: "<<klow << std::endl;
-    //std::cout << "kup: "<<kup << std::endl;
-    //klow = static_cast<long>(tofBinLow);
-    //kup = static_cast<long>(tofBinUp);
 
-
-    if (klow == kup) {
+    if (klow == kup)
+    {
       MtC[i] =  (Tof[klow]-offset)*(tofBinUp-tofBinLow)/bin_size;
-      //std::cout << Tof[klow] << std:: endl;
-      //std::cout << tofBinUp-tofBinLow << std:: endl;
     }
     else if ((kup - klow) == 1 ) MtC[i] =(Tof[klow]-offset)*(xaxis.position(klow + 1) - tofBinLow)/bin_size + (Tof[kup]-offset)*(tofBinUp -xaxis.position(kup))/bin_size;
     else if ((kup - klow) > 1 )
@@ -757,10 +739,8 @@ void pp405::loadSettings(size_t)
   _result = new Histogram0DFloat();
   setupGeneral();
   createHistList(2*NbrOfWorkers);
-  std::cout << "PostProcessor: "<<_key
-            <<" calc pulse duration from beamline data"
-           <<". Condition is"<<_condition->key()
-          <<std::endl;
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' calc pulse duration from" +
+            " beamline data. Condition is '" + _condition->key() + "'");
 }
 
 void pp405::process(const CASSEvent& evt)
@@ -780,7 +760,6 @@ void pp405::process(const CASSEvent& evt)
 
   _result->lock.lockForWrite();
   *dynamic_cast<Histogram0DFloat*>(_result) = puleduration;
-  //  std::cout << "puleduration:" <<puleduration<< " EbeamChage:"<<ebCharge<<" EbeamPkCurrBC2:" <<peakCurrent <<  std::endl;
   _result->lock.unlock();
 }
 
@@ -802,7 +781,7 @@ void pp406::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
   _constHist = setupDependency("HistZeroD");
@@ -815,12 +794,8 @@ void pp406::loadSettings(size_t)
     throw runtime_error("pp406::loadSettings(): Unknown dimension of incomming histogram");
   const HistogramFloatBase &constHist(dynamic_cast<const HistogramFloatBase&>(_constHist->getHist(0)));
   if (constHist.dimension() != 0 )
-  {
-    stringstream ss;
-    ss << "pp406::loadSettings(): HistZeroD '"<<constHist.key()
-       <<"' is not a 0D histogram";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("pp406::loadSettings(): HistZeroD '" + constHist.key() +
+                           "' is not a 0D histogram");
 
   _userTofRange = make_pair(settings.value("TofLow",0).toFloat(),
                             settings.value("TofUp",1).toFloat());
@@ -840,19 +815,18 @@ void pp406::loadSettings(size_t)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<one.dimension()
-   <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
-  <<" test TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-  <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);//
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '"+ _key + "' converts ToF into Energy scale '" +
+           _pHist->key() + "' which has dimension '" + toString(one.dimension()) +
+           "' with constant in 0D Histogram in PostProcessor '" + _constHist->key() +
+           " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
+           toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:"+ toString(e0) + " t0(bin):" +
+           toString(t0) + "(" + toString(bint0) + ") alpha:" + toString(alpha) +
+            ", NbrBins:" + toString(NbrBins) + ". Condition on postprocessor '" +
+            _condition->key() +"'");
 }
 
 void pp406::histogramsChanged(const HistogramBackend* in)
@@ -877,21 +851,18 @@ void pp406::histogramsChanged(const HistogramBackend* in)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<in->dimension()
-   <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
-  <<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-  <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key + "' converts ToF into Energy scale '" +
+           _pHist->key() + "' which has dimension '" + toString(in->dimension()) +
+           "' with constant in 0D Histogram in PostProcessor '" + _constHist->key() +
+           "  TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
+           toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" + toString(t0) +
+           "(" + toString(bint0) + ") alpha:" + toString(alpha) + ", NbrBins:" +
+           toString(NbrBins) + ". Condition on postprocessor '" + _condition->key() + "'");
+
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -966,8 +937,6 @@ void pp406::ToftoEnergy(const HistogramFloatBase& TofHisto , HistogramFloatBase:
     kup = xaxis.bin(tofBinUp);
 
 
-    //      std::cout<<" kup:"<<kup<<" klow:"<<klow<<std::endl;
-
     if (klow == kup) Energy[i] = (tofBinUp - tofBinLow)/bin_size * (Tof[klow]-offset);
 
     else if ((kup - klow) == 1 ) Energy[i] = (xaxis.position(klow + 1) - tofBinLow)/bin_size * (Tof[klow+1]-offset) + (tofBinUp - xaxis.position(kup))/bin_size * (Tof[kup]-offset);
@@ -994,7 +963,7 @@ void pp407::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
   bool ret (setupCondition());
@@ -1023,17 +992,16 @@ void pp407::loadSettings(size_t)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<one.dimension()<<" test TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-   <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);//
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' converts ToF into Energy scale '" +
+           _pHist->key() + "' which has dimension '" + toString(one.dimension()) +
+           " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
+           toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" + toString(t0) +
+           "(" + toString(bint0) + ") alpha:" + toString(alpha) + ", NbrBins:" +
+           toString(NbrBins) + ". Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp407::histogramsChanged(const HistogramBackend* in)
@@ -1054,19 +1022,17 @@ void pp407::histogramsChanged(const HistogramBackend* in)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<in->dimension()<<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-   <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key +
+           "' converts ToF into Energy scale '" + _pHist->key() + "' which has dimension '" +
+           toString(in->dimension()) + " TofUp:" + toString(_userTofRange.second) +
+           " binTofLow:" + toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:" + toString(e0) + " t0(bin):"+ toString(t0) +
+           "(" + toString(bint0) + ") alpha:" + toString(alpha) + ", NbrBins:" +
+           toString(NbrBins) + ". Condition on postprocessor '" + _condition->key() + "'");
+
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -1146,9 +1112,6 @@ void pp407::ToftoEnergy(const HistogramFloatBase& TofHisto , HistogramFloatBase:
     double tofValueUp = calcTofValue(tofBinUp,klow,bin_size,TofHisto);
     double tofValueLow = calcTofValue(tofBinLow,klow,bin_size,TofHisto);
 
-
-    //      std::cout<<" kup:"<<kup<<" klow:"<<klow<<std::endl;
-
     //        if (klow == kup) Energy[i] = (tofBinUp - tofBinLow)/bin_size * (Tof[klow]-offset);
     if (klow == kup) Energy[i] = (tofBinUp - tofBinLow)*((tofValueUp+tofValueLow)/2-offset)/bin_size;
 
@@ -1167,6 +1130,9 @@ void pp407::ToftoEnergy(const HistogramFloatBase& TofHisto , HistogramFloatBase:
   }
 }
 
+
+
+
 // ***  pp 408 ToF to Energy correct from 0D Histogram value & linear corection***
 
 pp408::pp408(PostProcessors& pp, const PostProcessors::key_t &key)
@@ -1180,7 +1146,7 @@ void pp408::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
   _pHist = setupDependency("HistName");
   _constHist = setupDependency("HistZeroD");
@@ -1193,12 +1159,8 @@ void pp408::loadSettings(size_t)
     throw runtime_error("pp408::loadSettings(): Unknown dimension of incomming histogram");
   const HistogramFloatBase &constHist(dynamic_cast<const HistogramFloatBase&>(_constHist->getHist(0)));
   if (constHist.dimension() != 0 )
-  {
-    stringstream ss;
-    ss << "pp408::loadSettings(): HistZeroD '"<<constHist.key()
-       <<"' is not a 0D histogram";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("pp408::loadSettings(): HistZeroD '" + constHist.key() +
+                           "' is not a 0D histogram");
 
   _userTofRange = make_pair(settings.value("TofLow",0).toFloat(),
                             settings.value("TofUp",1).toFloat());
@@ -1218,19 +1180,18 @@ void pp408::loadSettings(size_t)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<one.dimension()
-   <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
-  <<" test TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-  <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);//
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' converts ToF into Energy scale '" +
+           _pHist->key() + "' which has dimension '" + toString(one.dimension()) +
+           "' with constant in 0D Histogram in PostProcessor '" + _constHist->key() +
+           " test TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
+           toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" +
+           toString(t0) + "(" + toString(bint0) + ") alpha:"+ toString(alpha) +
+           ", NbrBins:"+ toString(NbrBins) + ". Condition on postprocessor '" +
+           _condition->key() + "'");
 }
 
 void pp408::histogramsChanged(const HistogramBackend* in)
@@ -1255,21 +1216,20 @@ void pp408::histogramsChanged(const HistogramBackend* in)
   bintb1=xaxis.bin(tb1);
   bintb2=xaxis.bin(tb2);
 
-
-  cout<<endl<<"PostProcessor '"<<_key
-     <<"' converts ToF into Energy scale '" << _pHist->key()
-    <<"' which has dimension '"<<in->dimension()
-   <<"' with constant in 0D Histogram in PostProcessor '" << _constHist->key()
-  <<"  TofUp:"<<_userTofRange.second<<" binTofLow:"<<binTofLow<<" binTofUp:"<<binTofUp
-  <<"'. Conversion parameters e0:"<<e0<<" t0(bin):"<<t0<<"("<<bint0<<")"<<" alpha:"<<alpha
-  <<", NbrBins:"<<NbrBins;
-
-
   _result = new Histogram1DFloat(NbrBins,pow(alpha/(_userTofRange.second-t0),2)-e0,pow(alpha/(_userTofRange.first-t0),2)-e0);
-
-  cout <<". Condition on postprocessor '"<<_condition->key()<<"'"
-      <<endl;
   createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::VERBOSEINFO,"PostProcessor '" + _key +
+           "' converts ToF into Energy scale '" + _pHist->key() +
+           "' which has dimension '" + toString(in->dimension()) +
+           "' with constant in 0D Histogram in PostProcessor '" + _constHist->key() +
+           "  TofUp:" + toString(_userTofRange.second) + " binTofLow:" +
+           toString(binTofLow) + " binTofUp:" + toString(binTofUp) +
+           "'. Conversion parameters e0:" + toString(e0) + " t0(bin):" +
+           toString(t0) + "(" + toString(bint0) + ") alpha:" + toString(alpha) +
+           ", NbrBins:" + toString(NbrBins) + ". Condition on postprocessor '" +
+           _condition->key() + "'");
+
   //notify all pp that depend on us that our histograms have changed
   PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
   PostProcessors::keyList_t::iterator it (dependands.begin());
@@ -1385,10 +1345,8 @@ void pp410::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  //unsigned average = settings.value("NbrOfVariance", 0).toUInt();
-  //_alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _pHist = setupDependency("HistName");
   _ave = setupDependency("AveHistName");
   bool ret (setupCondition());
@@ -1404,10 +1362,8 @@ void pp410::loadSettings(size_t)
                                  one.axis()[HistogramBackend::xAxis].title(),
                                  one.axis()[HistogramBackend::xAxis].title());
   createHistList(2*NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor '"<<_key
-     <<"'Calcurate variance '"<< _pHist->key()
-   <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
-  <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key + "'Calculate variance '"+
+           _pHist->key() + "'. Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp410::histogramsChanged(const HistogramBackend* in)
@@ -1437,9 +1393,9 @@ void pp410::histogramsChanged(const HistogramBackend* in)
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
-  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-             <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<endl);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+           "': histograms changed => delete existing histo" +
+           " and create new one from input");
 }
 
 void pp410::process(const CASSEvent& evt)
@@ -1489,6 +1445,11 @@ void pp410::calcCovariance(const HistogramFloatBase::storage_t& data ,
     }
 }
 
+
+
+
+
+
 //------------pp412 calculate covariance for intensity correction
 
 pp412::pp412(PostProcessors& pp, const PostProcessors::key_t &key)
@@ -1502,10 +1463,8 @@ void pp412::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  //    unsigned average = settings.value("NbrOfVariance", 0).toUInt();
-  //    _alpha =  average ? 2./static_cast<float>(average+1.) : 0.;
   _hist1D = setupDependency("HistName1D");
   _ave1D = setupDependency("AveHistName1D");
   _hist0D = setupDependency("HistName0D");
@@ -1516,11 +1475,8 @@ void pp412::loadSettings(size_t)
   const HistogramFloatBase &one(dynamic_cast<const HistogramFloatBase&>(_hist1D->getHist(0)));
   _result = one.clone();
   createHistList(2*NbrOfWorkers,true);
-  cout<<endl<<"Postprocessor '"<<_key
-     <<"'Calcurate variance '"<< _hist1D->key()
-       //      <<"' alpha for the averaging '"<<_alpha
-    <<"'. Condition on postprocessor '"<<_condition->key()<<"'"
-   <<endl;
+  Log::add(Log::INFO,"Postprocessor '" + _key + "'Calcurate variance '" +
+           _hist1D->key() + "'. Condition on postprocessor '" + _condition->key() + "'");
 }
 
 void pp412::histogramsChanged(const HistogramBackend* in)
@@ -1543,9 +1499,9 @@ void pp412::histogramsChanged(const HistogramBackend* in)
   PostProcessors::keyList_t::iterator it (dependands.begin());
   for (; it != dependands.end(); ++it)
     _pp.getPostProcessor(*it).histogramsChanged(_result);
-  VERBOSEOUT(cout<<"Postprocessor '"<<_key
-             <<"': histograms changed => delete existing histo"
-             <<" and create new one from input"<<endl);
+  Log::add(Log::VERBOSEINFO,"Postprocessor '" + _key +
+           "': histograms changed => delete existing histo" +
+           " and create new one from input");
 }
 
 void pp412::process(const CASSEvent& evt)
@@ -1598,6 +1554,11 @@ void pp412::calcCovariance(const HistogramFloatBase::storage_t& waveTrace ,
   }
 }
 
+
+
+
+
+
 // *** postprocessors 420 indicate number of event  ***
 
 pp420::pp420(PostProcessors& pp, const PostProcessors::key_t &key)
@@ -1611,24 +1572,19 @@ void pp420::loadSettings(size_t)
   using namespace std;
   CASSSettings settings;
   settings.beginGroup("PostProcessor");
-  settings.beginGroup(_key.c_str());
+  settings.beginGroup(QString::fromStdString(_key));
   setupGeneral();
-  //    _pHist = setupDependency("HistName");
-  if (!setupCondition() /*&& _pHist*/)
+  if (!setupCondition())
     return;
   freq = settings.value("Frequency",1).toUInt();
   _result = new Histogram0DFloat();
   createHistList(2*NbrOfWorkers,true);
-  cout << "PostProcessor: "<<_key
-       <<" indicate the number of event"
-       <<". Condition is"<<_condition->key()
-       <<" Frequency:"<<freq
-       <<endl;
+  Log::add(Log::INFO,"PostProcessor: " + _key + " indicate the number of event" +
+       ". Condition is '" + _condition->key() + "' Frequency:" + toString(freq));
 }
 
 void pp420::process(const CASSEvent& /*evt*/)
 {
-
   _result->lock.lockForWrite();
   ++_result->nbrOfFills();
   *dynamic_cast<Histogram0DFloat*>(_result) = _result->nbrOfFills();
@@ -1636,5 +1592,4 @@ void pp420::process(const CASSEvent& /*evt*/)
 
   if (_result->nbrOfFills() % freq == 0)
     std::cout <<" Event Counter :" << _result->nbrOfFills()<<std::endl;
-
 }

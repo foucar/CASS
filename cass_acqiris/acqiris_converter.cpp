@@ -11,6 +11,8 @@
 
 #include "acqiris_converter.h"
 #include "cass_event.h"
+#include "log.h"
+
 #include "pdsdata/xtc/Xtc.hh"
 #include "pdsdata/xtc/TypeId.hh"
 #include "pdsdata/xtc/DetInfo.hh"
@@ -73,14 +75,14 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
               *reinterpret_cast<const Pds::Acqiris::ConfigV1*>(xtc->payload());
           //extract how many channels are in the acqiris device//
           nbrChannels = config.nbrChannels();
-          std::cout <<"AcqirisConverter::ConfigXtc: Instrument "
-              <<info.detector() << " has "
-              <<config.nbrChannels()<<" Channels"
-              <<std::endl;
+          Log::add(Log::VERBOSEINFO, "AcqirisConverter::ConfigXtc: Instrument " +
+              toString(info.detector()) + " has " + toString(config.nbrChannels()) +
+              " Channels");
         }
         break;
       default:
-        std::cout <<"Unsupported acqiris configuration version "<<version<<std::endl;
+        throw runtime_error("Unsupported acqiris configuration version '" +
+                            toString(version) + "'");
         break;
       }
     }
@@ -156,7 +158,9 @@ void cass::ACQIRIS::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* 
     }
     break;
   default:
-    std::cout<<"xtc type \""<<Pds::TypeId::name(xtc->contains.id())<<"\" is not handled by REMIConverter"<<std::endl;
+    throw logic_error(string("ACQIRIS::Converter(): xtc type '") +
+                      Pds::TypeId::name(xtc->contains.id()) +
+                      "' is not handled by Acqiris Converter");
     break;
   }
 }
