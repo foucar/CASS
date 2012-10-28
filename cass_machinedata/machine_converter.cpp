@@ -37,7 +37,7 @@ cass::ConversionBackend::shared_pointer Converter::instance()
 // ========================================================
 
 
-//Use the code copied from matt weaver to extract the value from the epicsheader
+/** Use the code copied from matt weaver to extract the value from the epicsheader */
 #define CASETOVAL(timetype,valtype) case timetype: {			\
   const Pds::EpicsPvTime<valtype>& p = static_cast<const Pds::EpicsPvTime<valtype>&>(epicsData); \
   const Pds::EpicsDbrTools::DbrTypeFromInt<valtype>::TDbr* value = &p.value;	\
@@ -59,8 +59,9 @@ Converter::Converter()
 
 void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* cassevent)
 {
-  //during a configure transition we don't get a cassevent, so we should extract the machineevent//
-  //only when cassevent is non zero//
+  /** during a configure transition we don't get a cassevent, so we should extract the machineevent
+   *  only when cassevent is non zero
+   */
   MachineDataDevice *md = 0;
   if (cassevent)
   {
@@ -146,63 +147,64 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
   case(Pds::TypeId::Id_Epics):
     {
-      //std::cout << "found epics typeid ";
       const Pds::EpicsPvHeader& epicsData = 
         *reinterpret_cast<const Pds::EpicsPvHeader*>(xtc->payload());
-      //std::cout << epicsData.iDbrType<<std::endl;
-      //cntrl is a configuration type and will only be send with a configure transition//
+      /** cntrl is a configuration type and will only be send with a configure transition */
       if ( dbr_type_is_CTRL(epicsData.iDbrType) )
       {
         const Pds::EpicsPvCtrlHeader& ctrl = 
           static_cast<const Pds::EpicsPvCtrlHeader&>(epicsData);
-        //std::cout << "epics control with id "<<ctrl.iPvId<<" and name "<< ctrl.sPvName<<" is added to index map"<<std::endl;
-        //record what name the pvId has, this help later to find the name, which is the index of map in machineevent//
+        /** record what name the pvId has, this help later to find the name, which is the index of map in machineevent */
         _index2name[ctrl.iPvId] = ctrl.sPvName;
-        //now we need to create the map which we will fill later with real values//
-        //if this epics variable is an array we want an entry in the map for each entry in the array//
+        /** now we need to create the map which we will fill later with real values
+         *  if this epics variable is an array we want an entry in the map for each entry in the array
+         */
         if (ctrl.iNumElements > 1)
         {
-          //std::cout << "ctrl is bigger than 1"<<std::endl;
-          //go through all entries of the array//
-          //create an entry in the map with the the index in brackets//
-          //and initialize it with 0//
+          /** go through all entries of the array
+           *  create an entry in the map with the the index in brackets
+           *  and initialize it with 0
+           */
           for (int i=0;i<ctrl.iNumElements;++i)
           {
             std::stringstream entryname;
             entryname << ctrl.sPvName << "[" << i << "]";
             _store.EpicsData()[entryname.str()] = 0.;
-            std::cout << "MachineData::Converter: '"<<entryname.str() << "' is available in Epics Data"<<std::endl;
+            Log::add(Log::INFO,"MachineData::Converter: '" + entryname.str() + \
+                     "' is available in Epics Data");;
           }
         }
-        //otherwise we just add the name to the map and initialze it with 0//
+        /** otherwise we just add the name to the map and initialze it with 0 */
         else
         {
           _store.EpicsData()[ctrl.sPvName] = 0.;
-          std::cout << "MachineData::Converter: '"<<ctrl.sPvName <<"' is available in Epics Data"<<std::endl;
+          Log::add(Log::INFO,"MachineData::Converter: '" + toString(ctrl.sPvName) +
+                   "' is available in Epics Data");
         }
       }
-      //time is the actual data, that will be send down the xtc with 1 Hz
+      /** time is the actual data, that will be send down the xtc with 1 Hz */
       else if(dbr_type_is_TIME(epicsData.iDbrType))
       {
-        //now we need to find the variable name in the map//
-        //therefore we look up the name in the indexmap//
+        /** now we need to find the variable name in the map
+         *  therefore we look up the name in the indexmap
+         */
         std::string name = _index2name[epicsData.iPvId];
-        //std::cout <<"found id "<<epicsData.iPvId<<" lookup in the indexmap revealed the name "<<name<<std::endl;
-        //if it is an array we added the braces with the array index before,
-        //so we need to add it also now before trying to find the name in the map//
+        /** if it is an array we added the braces with the array index before,
+         *  so we need to add it also now before trying to find the name in the map
+         */
         if (epicsData.iNumElements > 1)
           name.append("[0]");
-        //std::cout << "now the name is "<<name<<std::endl;
-        //try to find the the name in the map//
-        //this returns an iterator to the first entry we found//
-        //if it was an array we can then use the iterator to the next values//
+        /** try to find the the name in the map
+         *  this returns an iterator to the first entry we found
+         *  if it was an array we can then use the iterator to the next values
+         */
         MachineDataDevice::epicsDataMap_t::iterator it = 
           _store.EpicsData().find(name);
-        //if the name is not in the map//
-        //then output an erromessage//
+        /** if the name is not in the map, ouput error message */
         if (it == _store.EpicsData().end())
-          std::cerr << "epics variable with id "<<epicsData.iPvId<<" was not defined"<<std::endl;
-        //otherwise extract the epicsData and write it into the map
+          Log::add(Log::ERROR, "MachineData::Converter: Epics variable with id '" +
+                   toString(epicsData.iPvId) + "' was not defined");
+        /** otherwise extract the epicsData and write it into the map */
         else
         {
           switch(epicsData.iDbrType)
@@ -220,19 +222,19 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
   case(Pds::TypeId::Id_EvrData):
     {
-      //clear the status bytes of the event code//
+      /** clear the status bytes of the event code */
       std::fill(md->EvrData().begin(),md->EvrData().end(),false);
-      //get the evr data//
+      /** get the evr data */
       const Pds::EvrData::DataV3 &evrData =
           *reinterpret_cast<const Pds::EvrData::DataV3*>(xtc->payload());
-      //how many events have happened between the last event and now//
+      /** how many events have happened between the last event and now */
       const uint32_t nbrFifoEvents = evrData.numFifoEvents();
-      //go through all events and extract the eventcode from them//
+      /** go through all events and extract the eventcode from them */
       for (size_t i=0;i<nbrFifoEvents;++i)
       {
         const Pds::EvrData::DataV3::FIFOEvent& fifoEvent = evrData.fifoEvent(i);
         uint32_t eventcode = fifoEvent.EventCode;
-        //check if the array is big enough to hold the recorded eventcode
+        /** check if the array is big enough to hold the recorded eventcode */
         if (md->EvrData().size() < eventcode )
           md->EvrData().resize(eventcode+1,false);
         md->EvrData()[eventcode]=true;
@@ -263,7 +265,6 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
       {
         stringstream ss;
         ss << detector << "_CorrectChannel" << i;
-//        cout << ss.str()<<endl;
         md->BeamlineData()[ss.str()] = ipmfex.channel[i];
       }
       md->BeamlineData()[detector + "_sum"]  = ipmfex.sum;
@@ -275,25 +276,20 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
   case(Pds::TypeId::Id_ControlConfig):
   {
       const Pds::ControlData::ConfigV1& config = *reinterpret_cast<const Pds::ControlData::ConfigV1*>(xtc->payload()); 
-//      if (config.npvControls()>1)
-//        throw std::runtime_error("MachineData::Converter:implement more than one control PV");
       for (unsigned int i = 0; i < config.npvControls(); i++) 
       {
         const Pds::ControlData::PVControl &pvControlCur = config.pvControl(i);
         _pvStore[pvControlCur.name()] = pvControlCur.value();
-//        _pvControl = pvControlCur.value();
-//        _pvControlName = pvControlCur.name();
       }
   }
   break;
 
   default: break;
   }
-  //copy the epics values in the storedevent to the machineevent
+  /** copy the epics values in the storedevent to the machineevent */
   if (cassevent)
   {
     md->EpicsData() = _store.EpicsData();
-//    md->BeamlineData()[_pvControlName] = _pvControl;
     for(MachineDataDevice::bldMap_t::const_iterator it(_pvStore.begin()); it != _pvStore.end();++it)
     {
       md->BeamlineData()[it->first] = it->second;

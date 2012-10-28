@@ -94,7 +94,7 @@ FormatConverter::FormatConverter()
 
 void FormatConverter::loadSettings(size_t)
 {
-  // initialze all xtc ids with blank converters to be on the save side//
+  /** initialze all xtc ids with blank converters to be on the save side */
   for (int i(Pds::TypeId::Any); i<Pds::TypeId::NumberOf; ++i)
     _usedConverters[static_cast<Pds::TypeId::Type>(i)] =
         ConversionBackend::instance("Blank");
@@ -103,8 +103,7 @@ void FormatConverter::loadSettings(size_t)
   s.beginGroup("Converter");
   QStringList usedConvertersList(s.value("Used").toStringList());
 
-  //this part is used to make it backward compatible (not all converters are
-  //available with this)//
+  /** make it backward compatible (not all converters are available with this) */
   if (s.value("useCommercialCCDConverter",false).toBool())
     if (!usedConvertersList.contains("CCD"))
       usedConvertersList << "CCD";
@@ -124,49 +123,49 @@ void FormatConverter::loadSettings(size_t)
 enum {NoGoodData=0,GoodData};
 bool FormatConverter::operator()(CASSEvent *cassevent)
 {
-  //intialize the return value//
-  // the return value reflects the whether the datagram was a L1Transition(an event)
+  /** intialize the return value
+   *  (the return value reflects the whether the datagram was a good L1Transition(an event))
+   */
   bool retval(NoGoodData);
-  //get the datagram from the cassevent//
+  /** get the datagram from the cassevent */
   Pds::Dgram *datagram = reinterpret_cast<Pds::Dgram*>(cassevent->datagrambuffer());
 
-/*
-  cout << "transition \""<< Pds::TransitionId::name(datagram->seq.service())<< "\" ";
-  cout << "0x"<< hex<< datagram->xtc.sizeofPayload()<<dec<<"  ";
-  cout << "0x"<< hex<<datagram->xtc.damage.value()<<dec<<" ";
-  cout << "0x"<< hex<< datagram->seq.clock().seconds()<<dec<<" ";
-  cout << "0x"<< hex<< static_cast<uint32_t>(datagram->seq.stamp().fiducials())<<dec<<" ";
-  cout << dec <<endl;
-*/
 
-  //if datagram is configuration or an event (L1Accept) then we will iterate through it//
-  //otherwise we ignore the datagram//
+  Log::add(Log::DEBUG4,"transition '"+ string(Pds::TransitionId::name(datagram->seq.service()))+ "'");
+  Log::add(Log::DEBUG4,"payload size '" + toString(datagram->xtc.sizeofPayload()) + "'");
+  Log::add(Log::DEBUG4,"damage value '" + toString(datagram->xtc.damage.value()) + "'");
+  Log::add(Log::DEBUG4,"clock seconds '" + toString(datagram->seq.clock().seconds()) + "'");
+  Log::add(Log::DEBUG4,"fiducials '" + toString(datagram->seq.stamp().fiducials()) + "'");
+
+
+  /** if datagram is configuration or an event (L1Accept) then we will iterate through it
+   *  otherwise we ignore the datagram
+   */
   if ((datagram->seq.service() == Pds::TransitionId::Configure) ||
       (datagram->seq.service() == Pds::TransitionId::L1Accept) ||
       (datagram->seq.service() == Pds::TransitionId::BeginCalibCycle))
   {
-    //when it is a configuration transition then set the flag accordingly//
+    /** when it is a configuration transition then set the flag accordingly */
     if (datagram->seq.service() == Pds::TransitionId::Configure)
       _configseen=true;
-    //if the datagram is an event, create the id from time and fiducial//
+    /** if the datagram is an event, create the id from time and fiducial */
     if (_configseen && datagram->seq.service() == Pds::TransitionId::L1Accept)
     {
-      //extract the bunchId from the datagram//
+      /** extract the bunchId from the datagram */
       uint64_t bunchId = datagram->seq.clock().seconds();
       bunchId = (bunchId<<32) + static_cast<uint32_t>(datagram->seq.stamp().fiducials()<<8);
-      //put the id into the cassevent
+      /** put the id into the cassevent */
       cassevent->id() = bunchId;
       cassevent->pvControl = _pvSS->str();
 
-      //when the datagram was an event we need to tell the caller//
+      /** set the return value to true */
       retval = GoodData;
-      //clear the beamline data//
+      /** clear the beamline data */
       dynamic_cast<MachineData::MachineDataDevice*>
           (cassevent->devices()[CASSEvent::MachineData])->clear();
     }
     else if (_configseen && datagram->seq.service() == Pds::TransitionId::BeginCalibCycle) 
     {
-      cout << "BeginCalibCycle " ;
       CalibCycleIterator iter(&(datagram->xtc), _pvNum, _pvControlValue, _pvControlName);
       retval = iter.iterate() && retval;
       if (_pvSS) delete _pvSS;
@@ -176,26 +175,15 @@ bool FormatConverter::operator()(CASSEvent *cassevent)
         *_pvSS << _pvControlName[i] << "=" << _pvControlValue[i];
         if (!(i+1 == _pvNum)) *_pvSS << ",";
       }
-      cout << _pvSS->str() << endl;
+      Log::add(Log::INFO, "BeginCalibCycle " +  _pvSS->str());
     }
 
-    //iterate through the datagram and find the wanted information//
-    //if the return value of the iterateor is false, then the transition
-    //did not contain all information//
+    /** now iterate through the datagram and find the wanted information
+     *  if the return value of the iterateor is false, then the transition
+     *  did not contain all information
+     */
     XtcIterator iter(&(datagram->xtc),_usedConverters,cassevent,0);
     retval = iter.iterate() && retval;
   }
-//  cout<< boolalpha<<retval<<endl;
   return retval;
 }
-
-
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
