@@ -15,6 +15,7 @@
 #include "pdsdata/control/PVControl.hh"
 
 #include "cass_event.h"
+#include "log.h"
 #include "machine_device.h"
 
 using namespace cass::MachineData;
@@ -81,15 +82,56 @@ void cass::MachineData::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEve
     }
   case(Pds::TypeId::Id_EBeam):
     {
+      uint32_t version (xtc->contains.version());
       const Pds::BldDataEBeam &beam = 
         *reinterpret_cast<const Pds::BldDataEBeam*>(xtc->payload());
-      md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
-      md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
-      md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
-      md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
-      md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
-      md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
-      md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
+      if (beam.uDamageMask)
+      {
+        for(size_t i(0); i<Pds::BldDataEBeam::nbrOf; ++i)
+        {
+          if ((0x1 << i) & beam.uDamageMask)
+            Log::add(Log::WARNING,"'" +
+                     string(Pds::BldDataEBeam::name(static_cast<Pds::BldDataEBeam::varname>(i))) +
+                     "' is damaged");
+        }
+      }
+      switch (version)
+      {
+      case (3):
+        {
+          if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC1) & beam.uDamageMask))
+            md->BeamlineData()["EbeamPkCurrBC1"]= beam.fEbeamPkCurrBC1;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC1) & beam.uDamageMask))
+            md->BeamlineData()["fEbeamEnergyBC1"]= beam.fEbeamEnergyBC1;
+        }
+      case (2):
+        {
+          if(!((0x1 << Pds::BldDataEBeam::EbeamEnergyBC2) & beam.uDamageMask))
+            md->BeamlineData()["fEbeamEnergyBC2"]= beam.fEbeamEnergyBC2;
+        }
+      case (1):
+        {
+          if(!((0x1 << Pds::BldDataEBeam::EbeamPkCurrBC2) & beam.uDamageMask))
+            md->BeamlineData()["EbeamPkCurrBC2"]= beam.fEbeamPkCurrBC2;
+        }
+      case (0):
+        {
+          if(!((0x1 << Pds::BldDataEBeam::EbeamCharge) & beam.uDamageMask))
+            md->BeamlineData()["EbeamCharge"]   = beam.fEbeamCharge;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamL3Energy) & beam.uDamageMask))
+            md->BeamlineData()["EbeamL3Energy"] = beam.fEbeamL3Energy;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngX) & beam.uDamageMask))
+            md->BeamlineData()["EbeamLTUAngX"]  = beam.fEbeamLTUAngX;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUAngY) & beam.uDamageMask))
+            md->BeamlineData()["EbeamLTUAngY"]  = beam.fEbeamLTUAngY;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosX) & beam.uDamageMask))
+            md->BeamlineData()["EbeamLTUPosX"]  = beam.fEbeamLTUPosX;
+          if(!((0x1 << Pds::BldDataEBeam::EbeamLTUPosY) & beam.uDamageMask))
+            md->BeamlineData()["EbeamLTUPosY"]  = beam.fEbeamLTUPosY;
+        }
+      default:
+        break;
+      }
       break;
     }
   case(Pds::TypeId::Id_PhaseCavity):

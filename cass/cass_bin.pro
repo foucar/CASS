@@ -239,7 +239,7 @@ DEPENDPATH         += ./postprocessing
 
 LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata -lcass_pixeldetector\
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata\
+                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata -lbld\
                       -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
