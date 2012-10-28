@@ -11,9 +11,11 @@
 
 #include <map>
 #include <iostream>
+#include <string>
 
 #include "format_converter.h"
 #include "conversion_backend.h"
+#include "log.h"
 
 #include "pdsdata/xtc/XtcIterator.hh"
 #include "pdsdata/xtc/Xtc.hh"
@@ -59,43 +61,40 @@ namespace cass
      */
     int process(Pds::Xtc* xtc)
     {
-      //if it is another xtc, then iterate through it//
+      /** if it is another xtc, then iterate through it */
       if (xtc->contains.id() == Pds::TypeId::Id_Xtc)
         iterate(xtc);
-      //otherwise use the responsible format converter for this xtc//
+      /** otherwise use the responsible format converter for this xtc */
       else
       {
-        //first check whether datagram is damaged or the xtc id is bigger than//
-        //we expect when it contains an incomplete contribution stop iterating//
-        //and return that it is not good//
+        /** first check whether datagram is damaged or the xtc id is bigger than
+         *  we expect when it contains an incomplete contribution stop iterating
+         *  and return that it is not good
+         */
         uint32_t damage = xtc->damage.value();
         if (xtc->contains.id() >= Pds::TypeId::NumberOf)
         {
-          std::cout << xtc->contains.id()
-              <<" is an unkown xtc id. Skipping Event"
-              <<std::endl;
+          Log::add(Log::ERROR, toString(xtc->contains.id()) +
+                   " is an unkown xtc id. Skipping Event");
           return Stop;
         }
         else if (damage)
         {
-          std::cout <<std::hex<<Pds::TypeId::name(xtc->contains.id())
-              << " is damaged: 0x" <<xtc->damage.value()
-//              <<" skipping event."
-              <<std::dec<<std::endl;
-//          if (damage & ( 0x1 << Pds::Damage::IncompleteContribution))
+          Log::add(Log::WARNING,std::string(Pds::TypeId::name(xtc->contains.id())) +
+                   " is damaged: " + toString(xtc->damage.value()) );
           if (damage & ( 0x1 << Pds::Damage::DroppedContribution))
           {
-            std::cout <<std::hex<<"0x"<<xtc->damage.value()
-                <<" is dropped Contribution. Skipping Event"
-                <<std::dec<<std::endl;
+            Log::add(Log::ERROR,"'"+ toString(xtc->damage.value()) +
+                     "' is dropped Contribution. Skipping Event");
             return Stop;
+          }
+          else if(damage & (0x1 <<Pds::Damage::UserDefined))
+          {
+            (*_converters[xtc->contains.id()])(xtc,_cassevent);
           }
         }
         else
         {
-//          std::cout<<"XtcIterator::process(): found:"
-//              << Pds::TypeId::name(xtc->contains.id())<<std::endl;
-          //use the converter that is good for this xtc type//
           (*_converters[xtc->contains.id()])(xtc,_cassevent);
         }
       }
