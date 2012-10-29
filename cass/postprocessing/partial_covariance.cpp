@@ -1273,6 +1273,8 @@ void pp408::process(const CASSEvent& evt)
 double pp408::calcEtoTof (double energy)
 {
   if (energy<0) energy = 0;
+  if ((energy + ediff) < 0)
+    return -1;
   return (alpha / sqrt(energy + ediff) + t0);
 }
 double pp408::calcTofValue(const double tofPos, const size_t binlow ,const double bin_size, const HistogramFloatBase& TofHisto)
@@ -1304,7 +1306,8 @@ void pp408::ToftoEnergy(const HistogramFloatBase& TofHisto , HistogramFloatBase:
 
     double tofBinUp = calcEtoTof (SizeOfBins * i+Elow);
     double tofBinLow = calcEtoTof (SizeOfBins * ( i + 1 )+Elow);
-
+    if((tofBinUp < 0)|| (tofBinUp > TofUp))
+      continue;
     size_t klow(0), kup(0);
 
     klow = xaxis.bin(tofBinLow);
