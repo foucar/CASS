@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "acqiris_detectors.h"
+#include "achimcalibrator_hex.h"
 #include "histogram.h"
 #include "ccd.h"
 #include "alignment.h"
@@ -843,6 +844,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
   case DelaylineAllReconstuctedHits:
     processor = PostprocessorBackend::shared_pointer
           (new pp166(*this, key));
+    break;
+  case HEXCalibrator:
+    processor = PostprocessorBackend::shared_pointer
+          (new HexCalibrator(*this, key));
     break;
   case Cos2Theta:
     processor = PostprocessorBackend::shared_pointer

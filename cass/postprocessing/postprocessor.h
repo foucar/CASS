@@ -164,6 +164,8 @@ the Class description for information about what parameters are user settable.
 00165: Delayline reconstructed Number of detectorhits
 00166: Delayline data of all reconstructed detectorhits
 
+00170: Hex Delayline Calibrator
+
 ---Data analysis--
 00200: Scalar value of <cos^2\theta> from 2D Histogram
 00201: Angular distribution from a 2D Histogram (interpolating)
@@ -395,6 +397,8 @@ public:
     DelaylineFirstGoodHit=164,
     DelaylineNbrReconstructedHits=165,
     DelaylineAllReconstuctedHits=166,
+
+    HEXCalibrator = 170,
 
     Cos2Theta=200,
     RealAngularDistribution=201,

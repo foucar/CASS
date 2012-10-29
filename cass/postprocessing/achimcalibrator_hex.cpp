@@ -16,6 +16,7 @@
 #include "cass_settings.h"
 #include "histogram.h"
 #include "convenience_functions.h"
+#include "log.h"
 
 using namespace cass;
 using namespace cass::ACQIRIS;
@@ -206,12 +207,8 @@ void HexCalibrator::loadSettings(size_t)
         HelperAcqirisDetectors::instance(_detector)->detector());
   const DelaylineDetector &d (dynamic_cast<const DelaylineDetector&>(rawdet));
   if(!d.isHex())
-  {
-    stringstream ss;
-    ss << "HexCalibrator::loadSettings: Error The Hex-Sorter cannot work on '"<<d.name()
-        << "' which is not a Hex Detector.";
-    throw invalid_argument(ss.str());
-  }
+    throw invalid_argument("HexCalibrator::loadSettings: Error The Hex-Sorter cannot work on '" +
+                           d.name() + "' which is not a Hex Detector.");
   CASSSettings s;
   s.beginGroup("AcqirisDetectors");
   s.beginGroup(QString::fromStdString(_detector));
@@ -249,11 +246,8 @@ void HexCalibrator::loadSettings(size_t)
                                                                                     _scalefactors[w]));
   _result = new Histogram0DFloat();
   createHistList(2*cass::NbrOfWorkers);
-  cout<<endl<< "PostProcessor '"<<_key
-      <<"' calibrates the hex detector '"<< _detector
-      <<"'. Condition is '"<<_condition->key()<<"'"
-      <<std::endl;
-
+  Log::add(Log::INFO,"PostProcessor '" + _key + "' calibrates the hex detector '" +
+           _detector + "'. Condition is '" + _condition->key() + "'");
 }
 
 void HexCalibrator::process(const CASSEvent &evt)
@@ -316,4 +310,3 @@ void HexCalibrator::process(const CASSEvent &evt)
   }
   _result->lock.unlock();
 }
-
