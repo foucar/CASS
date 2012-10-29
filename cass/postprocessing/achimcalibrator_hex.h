@@ -40,10 +40,10 @@ namespace cass
  *
  * @cassttng PostProcessor/\%name\%/{Detector}\n
  *           Name of the delayline detector that we work on. Default is "blubb"
- *           See cass::ACQIRIS::HelperAcqirisDetectors. Speciality of this
- *           PostProcessor is, that it will only work with Hex Delayline detectors
- *           and the appropriate HexSorter. Make sure that all settings of the
- *           HexSorter are correctly set. See cass::ACQIRIS::HexSorter.
+ *           Speciality of this PostProcessor is, that it will only work with
+ *           hex Delayline detectors and the appropriate HexSorter. Make sure
+ *           that all settings of the HexSorter are correctly set. See
+ *           cass::ACQIRIS::HexSorter and cass::ACQIRIS::DelaylineDetector.
  *
  * @author Lutz Foucar
  */

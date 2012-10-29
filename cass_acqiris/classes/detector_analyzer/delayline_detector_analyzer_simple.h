@@ -28,25 +28,25 @@ namespace cass
      * Do a simple sorting by checking the timesum for each MCP Signal that was
      * identified. This is done for only one pair of anode layers.
      *
-     * @cassttng .../Simple/{Runtime}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{Runtime}\n
      *           maximum time a signal will run over the complete delayline.
      *           Default is 150.
-     * @cassttng .../Simple/{McpRadius}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{McpRadius}\n
      *           Radius of the MCP in mm. Default is 88
-     * @cassttng .../Simple/{LayersToUse}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{LayersToUse}\n
      *           Layers that should be used for sorting. Default is 0. Possible
      *           choises are:
      *           - 0: Layers X and Y (Quad Anode)
      *           - 1: Layers U and V (Hex Anode)
      *           - 2: Layers U and W (Hex Anode)
      *           - 3: Layers V and W (Hex Anode)
-     * @cassttng .../Simple/{TimesumFirstLayerLow|TimesumFirstLayerHigh}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{TimesumFirstLayerLow|TimesumFirstLayerHigh}\n
      *           the timesum condition range for the first layer.
      *           Default is 0 | 200
-     * @cassttng .../Simple/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{TimesumSecondLayerLow|TimesumSecondLayerHigh}\n
      *           the timesum condition range for the second layer.
      *           Default is 0 | 200
-     * @cassttng .../Simple/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
+     * @cassttng AcqirisDetectors/\%detectorname\%/Simple/{ScalefactorFirstLayer|ScalefactorSecondLayer}\n
      *           the scalefactors that convert ns to mm for the two layers.
      *           Default is 0.4 | 0.4
      *

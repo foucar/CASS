@@ -27,41 +27,46 @@ namespace ACQIRIS
 /** Achims resort routine wrapper
  *
  * this class will use achims resort routine to calculate the detectorhits
- * from the signals on the wireends and the mcp.
+ * from the signals on the wireends and the mcp. It needs to be used closely
+ * together with PostProcessor 170 (cass::HexCalibrator) that will calculate
+ * parameters for full functionality of achims resort routine.
  *
- * @cassttng .../HexSorting/{TimeSumU}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumU}\n
  *           Center of the timesum of layer U. Default is 100.
- * @cassttng .../HexSorting/{TimeSumUWidth}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumUWidth}\n
  *           With at the base of timesum of layer U. Default is 0.
- * @cassttng .../HexSorting/{TimeSumV}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumV}\n
  *           Center of the timesum of layer W. Default is 100.
- * @cassttng .../HexSorting/{TimeSumVWidth}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumVWidth}\n
  *           With at the base of timesum of layer U. Default is 0.
- * @cassttng .../HexSorting/{TimeSumW}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumW}\n
  *           Center of the timesum of layer W. Default is 100.
- * @cassttng .../HexSorting/{TimeSumWWidth}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{TimeSumWWidth}\n
  *           With at the base of timesum of layer U. Default is 0.
- * @cassttng .../HexSorting/{MaxRuntime}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{MaxRuntime}\n
  *           the maximum time it takes a signal to get across the delayline wire.
- *           Default is 130.
- * @cassttng .../HexSorting/{DeadTimeAnode}\n
+ *           Default is 150.
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{DeadTimeAnode}\n
  *           the deadtime betwenn 2 anode singals in ns. Default is 20.
- * @cassttng .../HexSorting/{DeadTimeMCP}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{DeadTimeMCP}\n
  *           the deadtime between 2 mcp signals in ns. Default is 20.
- * @cassttng .../HexSorting/{MCPRadius}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{MCPRadius}\n
  *           The radius of the MCP in mm. Should be ~10 percent bigger that the
  *           actual value. Default is 88.
- * @cassttng .../HexSorting/{UseMCP}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{UseMCP}\n
  *           use the mcp signal when reconstructing the detector hits. Default
  *           is 'true'
- * @cassttng .../HexSorting/{ScalefactorU}\n
- *           Conversion factor to convert postion from ns to mm.
- * @cassttng .../HexSorting/{CenterX|CenterY}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{ScalefactorU}\n
+ *           Conversion factor to convert postion from ns to mm. The scalefactors
+ *           of the other two layers will be determined by the calibrator and
+ *           written into the settingsfile (see parameter SettingsFilename)
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{CenterX|CenterY}\n
  *           Center position of the detector image, if not centered around 0.
  *           Default is 0|0
- * @cassttng .../HexSorting/{SettingsFilename}\n
+ * @cassttng AcqirisDetectors/\%detectorname\%/HexSorting/{SettingsFilename}\n
  *           Name of the file that contains the advanced settings. This will be
- *           created by the PostProcessor that does the Hex calibration (pp170)
+ *           created by the PostProcessor that does the Hex calibration (pp170).
+ *           See cass::HexCalibrator for descriptions of this PostProcessor.
  *
  * @author Lutz Foucar
  */
