@@ -68,6 +68,8 @@ void FileInput::run()
     throw invalid_argument("FileInput::run(): filelist '" + _filelistname +
                            "' could not be opened");
 
+  /** add an eventcounter */
+  uint64_t eventcounter(0);
   /** get a list of all filenames and go trhough that list */
   vector<string> filelist(tokenize(filelistfile));
   vector<string>::const_iterator filelistIt(filelist.begin());
@@ -110,6 +112,8 @@ void FileInput::run()
         if (!isGood)
           Log::add(Log::WARNING,"FileInput: Event with id '"+
                    toString(cassevent->id()) + "' is bad: skipping Event");
+        else
+          ++eventcounter;
         cassevent->setFilename(filelistIt->c_str());
         _ringbuffer.doneFilling(cassevent, isGood);
         newEventAdded();
@@ -124,13 +128,6 @@ void FileInput::run()
     while(_control != _quit)
       this->sleep(1);
   Log::add(Log::VERBOSEINFO, "FileInput::run(): closing the input");
+  Log::add(Log::INFO,"FileInput::run(): Analysed '" + toString(eventcounter) +
+           "' events.");
 }
-
-
-// Local Variables:
-// coding: utf-8
-// mode: C++
-// c-file-offsets: ((c . 0) (innamespace . 0))
-// c-file-style: "Stroustrup"
-// fill-column: 100
-// End:
