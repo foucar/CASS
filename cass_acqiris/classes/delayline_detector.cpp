@@ -95,7 +95,8 @@ void DelaylineDetector::loadSettings(CASSSettings &s)
     s.endGroup();
     break;
   default:
-    throw std::invalid_argument("delayline type does not exist");
+    throw std::invalid_argument("DelaylineDetector::loadSettings(): delayline type '" +
+                                toString(delaylinetype) + "' does not exist");
     break;
   }
   _analyzer =

@@ -123,8 +123,6 @@ namespace cass
      *           - 0: Simple Analysis:
      *                (see cass::ACQIRIS::DelaylineDetectorAnalyzerSimple)
      *           - 1: Achims Routine for Hex anodes: See cass::ACQIRIS::HexSorter)
-     *           - 2: Achims Calibrator for Achims Routine for Hex anodes:
-     *                See cass::ACQIRIS::HexCalibrator
      *           - 3: Simple non sorting: See cass::ACQIRIS::DelaylineNonSorting)
      * @cassttng AcqirisDetectors/\%detectorname\%/{DelaylineType}\n
      *           What kind of Delaylinedetector are we. Default is 0
