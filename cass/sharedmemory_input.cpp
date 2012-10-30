@@ -14,6 +14,7 @@
 #include "sharedmemory_input.h"
 #include "format_converter.h"
 #include "pdsdata/xtc/Dgram.hh"
+#include "log.h"
 
 
 using namespace cass;
@@ -56,29 +57,27 @@ void SharedMemoryInput::load()
 void SharedMemoryInput::run()
 {
   _status = lmf::PausableThread::running;
-  VERBOSEOUT(cout << "starting shared memory in put with partition Tag: \""
-      <<_partitionTag <<"\""
-      << " and Client Index "<< _index<<endl);
+  Log::add(Log::DEBUG0,"SharedMemoryInput::run(): starting shared memory in put with partition Tag: '" +
+      _partitionTag + "' and Client Index " + toString(_index));
   Pds::XtcMonitorClient::run(_partitionTag.c_str(),_index,_index,2);
-  VERBOSEOUT(cout << "shared memory input is closing down"<<endl);
+  Log::add(Log::DEBUG0,"SharedMemoryInput::run(): shared memory input is closing down");
 }
 
 void SharedMemoryInput::end()
 {
-  VERBOSEOUT(cout << "SharedMemoryInput::end(): got signal to close"<<endl);
+  Log::add(Log::DEBUG0,"SharedMemoryInput::end(): got signal to close");
   _control = _quit;
-  VERBOSEOUT(cout << "SharedMemoryInput::end(): wait for 5 s that shared memory"
-             << " shuts down"<<endl);
+  Log::add(Log::DEBUG0,"SharedMemoryInput::end(): wait for 5 s that shared memory shuts down");
   if(!wait(5000))
   {
-    VERBOSEOUT(cout << "SharedMemoryInput::end(): time has elapsed. So we"
-        <<" probably lost connection to the shared memory. Therefore we will"
-        <<" terminate the thread"<<endl);
+    Log::add(Log::DEBUG0,string("SharedMemoryInput::end(): time has elapsed. So we") +
+        " probably lost connection to the shared memory. Therefore we will" +
+        " terminate the thread");
     terminate();
   }
   else
   {
-    VERBOSEOUT(cout << "Ok. Shared Memory input thread has shut down within 5 s"<<endl);
+    Log::add(Log::DEBUG0,"SharedMemoryInput::end(): Ok. Shared Memory input thread has shut down within 5 s");
   }
 }
 
@@ -101,10 +100,9 @@ int SharedMemoryInput::processDgram(Pds::Dgram* datagram)
   memcpy(&dg,datagram,sizeof(Pds::Dgram));
   if (datagram->xtc.sizeofPayload() > static_cast<int>(DatagramBufferSize))
   {
-    cout << "datagram size is bigger than the maximum buffer size of "
-         <<DatagramBufferSize/1024/1024
-         <<" MB. Something is wrong. Skipping the datagram"
-         <<endl;
+    throw runtime_error(string("SharedMemoryInput::processDgram(): Datagram size is bigger ") +
+                        "than the maximum buffer size of " + toString(DatagramBufferSize/1024/1024) +
+                        " MB. Something is wrong. Skipping the datagram");
     return  _control == _quit;
   }
   memcpy(dg.xtc.payload(),datagram+1,datagram->xtc.sizeofPayload());
