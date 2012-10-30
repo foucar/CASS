@@ -2048,6 +2048,9 @@ void pp83::process(const cass::CASSEvent& evt)
     tmp_mean += ((*element - tmp_mean) / accumulatedValues);
     tmp_variance  += ((*element - old_mean)*(*element - tmp_mean));
   }
+  if (tmp_variance < 0)
+    throw logic_error("pp83::process:Variance is negative '" + toString(tmp_variance) +
+                      "'. This is wrong");
   const float standartdeviation(sqrt(tmp_variance/(accumulatedValues-1)));
 
   dynamic_cast<Histogram0DFloat*>(_result)->fill(standartdeviation);
