@@ -203,6 +203,7 @@ void HexCalibrator::loadSettings(size_t)
   settings.beginGroup("PostProcessor");
   settings.beginGroup(QString::fromStdString(_key));
   _detector = loadDelayDet(settings,161,_key);
+  _ratio = settings.value("RatioFullBins",0.9).toDouble();
   const DetectorBackend &rawdet(
         HelperAcqirisDetectors::instance(_detector)->detector());
   const DelaylineDetector &d (dynamic_cast<const DelaylineDetector&>(rawdet));

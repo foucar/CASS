@@ -44,6 +44,10 @@ namespace cass
  *           hex Delayline detectors and the appropriate HexSorter. Make sure
  *           that all settings of the HexSorter are correctly set. See
  *           cass::ACQIRIS::HexSorter and cass::ACQIRIS::DelaylineDetector.
+ * @cassttng PostProcessor/\%name\%/{RatioFullBins}\n
+ *           The ratio of how many bins in the detector image have to be full
+ *           before the calibration is started and the results written to the
+ *           settingsfile.
  *
  * @author Lutz Foucar
  */
