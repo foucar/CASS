@@ -272,9 +272,9 @@ void HexCalibrator::process(const CASSEvent &evt)
   layer[w] = values[w1] - values[w2];
 
   vector<bool> layerChecksum(3);
-  layerChecksum[u] = abs(values[u1]+values[u2]-2.*values[mcp]) < _timesums[u].second;
-  layerChecksum[v] = abs(values[v1]+values[v2]-2.*values[mcp]) < _timesums[v].second;
-  layerChecksum[w] = abs(values[w1]+values[w2]-2.*values[mcp]) < _timesums[w].second;
+  layerChecksum[u] = abs(values[u1]+values[u2]-2.*values[mcp] - _timesums[u].first) < _timesums[u].second;
+  layerChecksum[v] = abs(values[v1]+values[v2]-2.*values[mcp] - _timesums[v].first) < _timesums[v].second;
+  layerChecksum[w] = abs(values[w1]+values[w2]-2.*values[mcp] - _timesums[w].first) < _timesums[w].second;
 
   AchimCalibrator::shift_sum(values,_timesums);
   AchimCalibrator::shift_pos(layer,_center,_scalefactors);
