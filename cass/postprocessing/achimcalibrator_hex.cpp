@@ -246,7 +246,7 @@ void HexCalibrator::loadSettings(size_t)
                                                                                     _scalefactors[v],
                                                                                     _scalefactors[w]));
   _result = new Histogram0DFloat();
-  createHistList(2*cass::NbrOfWorkers);
+  createHistList(2*cass::NbrOfWorkers,true);
   Log::add(Log::INFO,"PostProcessor '" + _key + "' calibrates the hex detector '" +
            _detector + "'. Condition is '" + _condition->key() + "'");
 }
@@ -295,10 +295,11 @@ void HexCalibrator::process(const CASSEvent &evt)
   /** write the parameters when we are told that we can or our set threshold is
    *  reached.but only if it has not been written yet
    */
+  const float ratio(_scalefactor_calibrator->get_ratio_of_full_bins());
   if (!_calibwritten)
   {
     if (_scalefactor_calibrator->map_is_full_enough() ||
-        _scalefactor_calibrator->get_ratio_of_full_bins() > _ratio)
+        ratio > _ratio)
     {
       _calibwritten = true;
       QSettings hexsettings(QString::fromStdString(_calibrationFilename),
@@ -309,5 +310,7 @@ void HexCalibrator::process(const CASSEvent &evt)
       hexsettings.endGroup();
     }
   }
+  *dynamic_cast<Histogram0DFloat*>(_result) = ratio;
+  _result->nbrOfFills()=1;
   _result->lock.unlock();
 }
