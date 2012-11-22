@@ -48,7 +48,7 @@ void cass::pnCCD::Converter::operator()(const Pds::Xtc* xtc, cass::CASSEvent* ca
   {
   case (Pds::TypeId::Id_pnCCDconfig) :
     {
-      //Get the the detecotor id //
+      //Get the the detector id //
       const Pds::DetInfo& info = *(Pds::DetInfo*)(&xtc->src);
       const size_t detectorId = info.devId();
       //the configuration version//
