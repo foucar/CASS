@@ -14,12 +14,14 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <string>
 #include <stdint.h>
 
 #include "cass_pixeldetector.h"
 #include "serializer.h"
 #include "serializable.h"
 #include "device_backend.h"
+#include "log.h"
 
 namespace cass
 {
@@ -182,7 +184,9 @@ bool cass::pixeldetector::Detector::deserialize(cass::SerializerBackend &in)
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
-    std::cerr<<"version conflict in pixel detector: "<<ver<<" "<<_version<<std::endl;
+    Log::add(Log::ERROR,std::string("pixeldetector::Detector::deserialize(): ") +
+                               " version conflict in pixel detector: " +
+                               toString(ver) + " "+ toString(_version));
     return false;
   }
   //get the number of columns and rows. This defines the size of//
@@ -219,8 +223,9 @@ bool cass::pixeldetector::Device::deserialize(cass::SerializerBackend &in)
   uint16_t ver = in.retrieveUint16();
   if(ver!=_version)
   {
-    std::cerr<<"version conflict in pixel detector device: "<<ver
-            <<" "<<_version<<std::endl;
+    Log::add(Log::ERROR,std::string("pixeldetector::Device::deserialize(): ") +
+                               " version conflict in pixel detector device: " +
+                               toString(ver) + " "+ toString(_version));
     return false;
   }
   //how many detectors//

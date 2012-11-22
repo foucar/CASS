@@ -23,6 +23,7 @@
 
 #include "cass_event.h"
 #include "pixeldetector.hpp"
+#include "log.h"
 
 using namespace cass;
 using namespace pixeldetector;
@@ -199,13 +200,13 @@ Converter::Converter()
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 {
-//  cout<< "XTC: '"<<TypeId::name(xtc->contains.id())
-//      <<"'("<<xtc->contains.id()
-//      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector())
-//      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->detId()
-//      <<"), '"<<DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device())
-//      <<"'("<<reinterpret_cast<const DetInfo*>(&xtc->src)->devId()
-//      <<")"<<endl;
+  Log::add(Log::DEBUG4, string("XTC: '") +
+           TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+           "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+           "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+           "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+           "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+           ")");
 
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
@@ -271,13 +272,13 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       columnsOfSegment = config.second->numSubmoduleChannels();
       if(det.rows()>1024||det.columns()>1024||rowsOfSegment>512||columnsOfSegment>512)
       {
-        std::cout<<"pnCCDConverter::DataXTC: rows:"<<det.rows()<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: cols:"<<det.columns()<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: info:"<<det.info()<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: tfileName:"<<det.timingFilename()<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: camaxMagic:"<<std::hex<<det.camaxMagic()<<std::dec<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: SegRows:"<<rowsOfSegment<<std::endl;
-        std::cout<<"pnCCDConverter::DataXTC: SegCols:"<<columnsOfSegment<<std::endl;
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: rows:" + toString(det.rows()));
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: cols:" + toString(det.columns()));
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: info:" + det.info());
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: tfileName:" + det.timingFilename());
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: camaxMagic:" + toString(det.camaxMagic()));
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegRows:" + toString(rowsOfSegment));
+        Log::add(Log::ERROR,"pnCCDConverter::DataXTC: SegCols:" + toString(columnsOfSegment));
         //in this case I am overwriting the values
         rowsOfSegment=512;
         columnsOfSegment=512;
