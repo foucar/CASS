@@ -31,6 +31,7 @@ PRE_TARGETDEPS     += $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libipimbdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libopal1kdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpnccddata.a \
+                      $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libcspaddata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libprincetondata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libpulnixdata.a \
                       $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a \
@@ -79,7 +80,7 @@ lclsxtc.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/li
 lclslusi.target      = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/liblusidata.a
 lclslusi.depends     = $$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt/libxtcdata.a
 
-QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr lclsipm lclsopal lclspnccd lclsprinc lclspul lclsxtc lclslusi
+QMAKE_EXTRA_TARGETS+= lclsacq lclsapp lclsbld lclscam lclsctrl lclsepic lclsevr lclsipm lclsopal lclspnccd lclscspad lclsprinc lclspul lclsxtc lclslusi
 
 
 # create SOAP sources and descriptions
@@ -239,7 +240,7 @@ DEPENDPATH         += ./postprocessing
 
 LIBS               += -L$${CASS_ROOT}/lib -lcass_acqiris -lcass_pnccd -lcass_ccd -lcass_machinedata -lcass_pixeldetector\
                       -L$$PWD/../LCLS/build/pdsdata/lib/x86_64-linux-static-opt \
-                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata -lbld\
+                      -lappdata -lacqdata -lcamdata -levrdata -lpnccddata -lpulnixdata -lcontroldata -lxtcdata -lipimbdata -llusidata -lbld -lcspaddata\
                       -lgsoap++ -lgsoap
 LIBS               += -L$${CASS_ROOT}/cass_acqiris/classes/detector_analyzer/resorter -lResort64c_x64
 
