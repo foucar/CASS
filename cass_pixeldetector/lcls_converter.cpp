@@ -18,6 +18,12 @@
 #include "pdsdata/pnCCD/ConfigV2.hh"
 #include "pdsdata/pnCCD/FrameV1.hh"
 #include "pdsdata/camera/FrameV1.hh"
+#include "pdsdata/cspad/ConfigV1.hh"
+#include "pdsdata/cspad/ConfigV2.hh"
+#include "pdsdata/cspad/ConfigV3.hh"
+#include "pdsdata/cspad/ConfigV4.hh"
+#include "pdsdata/cspad/ElementHeader.hh"
+#include "pdsdata/cspad/ElementIterator.hh"
 
 #include "lcls_converter.h"
 
@@ -155,6 +161,8 @@ Converter::Converter()
   _pdsTypeList.push_back(TypeId::Id_pnCCDconfig);
   _pdsTypeList.push_back(TypeId::Id_pnCCDframe);
   _pdsTypeList.push_back(TypeId::Id_Frame);
+  _pdsTypeList.push_back(TypeId::Id_CspadConfig);
+  _pdsTypeList.push_back(TypeId::Id_CspadElement);
 
   Key FrontPnCCD(TypeId::Id_pnCCDframe,
                  DetInfo::Camp, 0,
@@ -184,6 +192,19 @@ Converter::Converter()
              DetInfo::XppSb3Pim, 1,
              DetInfo::TM6740, 1);
 
+  Key CXIFrontCsPadConfig(TypeId::Id_CspadConfig,
+                          DetInfo::Camp, 0,
+                          DetInfo::pnCCD, 0);
+  Key CXIFrontCsPad(TypeId::Id_CspadElement,
+                    DetInfo::Camp, 0,
+                    DetInfo::pnCCD, 0);
+  Key CXIBackCsPadConfig(TypeId::Id_CspadConfig,
+                         DetInfo::Camp, 0,
+                         DetInfo::pnCCD, 0);
+  Key CXIBackCsPad(TypeId::Id_CspadElement,
+                   DetInfo::Camp, 0,
+                   DetInfo::pnCCD, 0);
+
 
 
 
@@ -196,6 +217,12 @@ Converter::Converter()
   _LCLSToCASSId[commCCD3] = 4;
   _LCLSToCASSId[commCCD4] = 6;
   _LCLSToCASSId[xppCCD] = 5;
+
+  _LCLSToCASSId[CXIFrontCsPadConfig] = 7;
+  _LCLSToCASSId[CXIFrontCsPad] = 7;
+  _LCLSToCASSId[CXIBackCsPadConfig] = 8;
+  _LCLSToCASSId[CXIBackCsPad] = 8;
+
 }
 
 void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
@@ -223,6 +250,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
   }
   const idmap_t::mapped_type &casskey(lclsmapIt->second);
 
+
   switch( xtc->contains.id() )
   {
 
@@ -234,7 +262,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       throw runtime_error("pixeldetector::Converter::operator: pnCCD Config version" +
                           toString(version) + "is not supported");
     }
-    config_t config
+    pnCCDconfig_t config
         (make_pair(version,shared_ptr<PNCCD::ConfigV2>(new PNCCD::ConfigV2())));
     *(config.second) = *(reinterpret_cast<const Pds::PNCCD::ConfigV2*>(xtc->payload()));
     _pnccdConfigStore[casskey] = config;
@@ -244,10 +272,10 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
 
   case (Pds::TypeId::Id_pnCCDframe) :
   {
-    map<int32_t,config_t>::const_iterator storeIt(_pnccdConfigStore.find(casskey));
+    map<int32_t,pnCCDconfig_t>::const_iterator storeIt(_pnccdConfigStore.find(casskey));
     if(storeIt == _pnccdConfigStore.end())
       break;
-    const config_t config(storeIt->second);
+    const pnCCDconfig_t config(storeIt->second);
 
     Detector &det(retrieveDet(*evt,casskey));
     const PNCCD::FrameV1* frameSegment
@@ -347,6 +375,76 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
               det.frame().begin(),
               bind2nd(minus<float>(),static_cast<float>(frame.offset())));
     fill(det.frame().begin(),det.frame().begin()+8,*(det.frame().begin()+9));
+  }
+    break;
+
+
+  case (Pds::TypeId::Id_CspadConfig) :
+  {
+    uint32_t version = xtc->contains.version();
+    if (4 < version)
+    {
+      throw runtime_error("pixeldetector::Converter::operator: csPad Config version" +
+                          toString(version) + "is not supported");
+    }
+    CsPadconfig_t config
+        (make_pair(version,shared_ptr<CsPad::ConfigV4>(new CsPad::ConfigV4())));
+    *(config.second) = *(reinterpret_cast<const Pds::CsPad::ConfigV4*>(xtc->payload()));
+    _CsPadConfigStore[casskey] = config;
+  }
+    break;
+
+
+
+  case (Pds::TypeId::Id_CspadElement) :
+  {
+    /** get the configuration for this element and return when there is no config */
+    map<int32_t,CsPadconfig_t>::const_iterator storeIt(_CsPadConfigStore.find(casskey));
+    if(storeIt == _CsPadConfigStore.end())
+      break;
+    const CsPadconfig_t config(storeIt->second);
+
+    //get a reference to the detector we are working on right now//
+    Detector &det(retrieveDet(*evt,casskey));
+
+    //Get the frame from the xtc
+    const int asic_nx(194);
+    const int asic_ny(185);
+    Pds::CsPad::ElementIterator iter(*config.second, *xtc);
+    const Pds::CsPad::ElementHeader* element;
+    /**  2 asics per segment. 8 segments per quadrant. */
+    const int pixelsPerQuadrant(2*asic_nx*8*asic_ny);
+    /** 4 quadrants */
+    const int FrameSize(4*pixelsPerQuadrant);
+    det.frame().resize(FrameSize);
+    pixel_t* rawframe = &det.frame()[0];
+    // loop  over quadrants
+    while( (element=iter.next() ))
+    {
+      /** @todo if element->quad() >= 4  Error? */
+
+      // nr of quadrant
+      int quadrantNr = element->quad();
+
+      // sections:
+      const Pds::CsPad::Section* section;
+      unsigned int section_id;
+      while(( section=iter.next(section_id) ))
+      {
+        //memcpy( rawframe+quadrantNr*pixelsPerQuadrant, section->pixel[0]);
+        const uint16_t* pixels = section->pixel[0];
+        for (int ii=0; ii<FrameSize; ++ii)
+        {
+          *rawframe = *pixels;
+          ++rawframe;
+          ++pixels;
+        }
+      }
+    }
+
+    det.rows() = 4*asic_nx;  // 4 quadrants
+    det.columns() = 8*2*asic_ny;  // 8 segments with 2 asics on each quadrant
+
   }
     break;
 

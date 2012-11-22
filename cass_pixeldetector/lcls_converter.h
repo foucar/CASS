@@ -25,6 +25,13 @@ namespace PNCCD
 class ConfigV1;
 class ConfigV2;
 }
+namespace CsPad
+{
+class ConfigV1;
+class ConfigV2;
+class ConfigV3;
+class ConfigV4;
+}
 }
 
 namespace cass
@@ -38,11 +45,12 @@ namespace lclsid
 class Key;
 }
 
-/** Converter for pnCCD and commercial CCD Data.
+/** Converter for pnCCD, CsPad and commercial CCD Data.
  *
  * see Converter::operator() for details about the functionality
  *
  * @author Lutz Foucar
+ * @author Stephan Kassemeyer
  */
 class Converter : public cass::ConversionBackend
 {
@@ -128,8 +136,11 @@ private:
   /** map that will map the LCLS key to the CASS key */
   typedef std::map<lclsid::Key, int32_t>  idmap_t;
 
-  /** pair the version of the config with a shared pointer of the config */
-  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::PNCCD::ConfigV2> > config_t;
+  /** pair the version of the pnccd config with a shared pointer of the config */
+  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::PNCCD::ConfigV2> > pnCCDconfig_t;
+
+  /** pair the version of the cspad config with a shared pointer of the config */
+  typedef std::pair<uint32_t, std::tr1::shared_ptr<Pds::CsPad::ConfigV4> > CsPadconfig_t;
 
   /** constructor
    *
@@ -157,7 +168,13 @@ private:
    *
    * Will store the version and the configuration itself in a pair
    */
-  std::map<int32_t, config_t > _pnccdConfigStore;
+  std::map<int32_t, pnCCDconfig_t > _pnccdConfigStore;
+
+  /** store for the cspad configuration.
+   *
+   * Will store the version and the configuration itself in a pair
+   */
+  std::map<int32_t, CsPadconfig_t > _CsPadConfigStore;
 };
 }//end namespace vmi
 }//end namespace cass
