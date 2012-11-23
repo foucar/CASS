@@ -193,11 +193,11 @@ Converter::Converter()
              DetInfo::TM6740, 1);
 
   Key CXIFrontCsPadConfig(TypeId::Id_CspadConfig,
-                          DetInfo::Camp, 0,
-                          DetInfo::pnCCD, 0);
+                          DetInfo::CxiDsd, 0,
+                          DetInfo::Cspad, 0);
   Key CXIFrontCsPad(TypeId::Id_CspadElement,
-                    DetInfo::Camp, 0,
-                    DetInfo::pnCCD, 0);
+                    DetInfo::CxiDsd, 0,
+                    DetInfo::Cspad, 0);
   Key CXIBackCsPadConfig(TypeId::Id_CspadConfig,
                          DetInfo::Camp, 0,
                          DetInfo::pnCCD, 0);
@@ -414,10 +414,11 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
     const Pds::CsPad::ElementHeader* element;
     /**  2 asics per segment. 8 segments per quadrant. */
     const int pixelsPerQuadrant(2*asic_nx*8*asic_ny);
+    const int pixelsPerSegment(2*asic_nx*asic_ny);
     /** 4 quadrants */
     const int FrameSize(4*pixelsPerQuadrant);
     det.frame().resize(FrameSize);
-    pixel_t* rawframe = &det.frame()[0];
+    pixel_t* rawframe = &det.frame().front();
     // loop  over quadrants
     while( (element=iter.next() ))
     {
@@ -433,7 +434,7 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
       {
         //memcpy( rawframe+quadrantNr*pixelsPerQuadrant, section->pixel[0]);
         const uint16_t* pixels = section->pixel[0];
-        for (int ii=0; ii<FrameSize; ++ii)
+        for (int ii=0; ii<pixelsPerSegment; ++ii)
         {
           *rawframe = *pixels;
           ++rawframe;
