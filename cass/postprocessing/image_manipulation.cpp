@@ -269,3 +269,65 @@ void pp55::process(const CASSEvent &evt)
   hist.lock.unlock();
 }
 
+
+
+
+
+
+
+pp1600::pp1600(PostProcessors& pp, const PostProcessors::key_t &key)
+  : PostprocessorBackend(pp, key),
+    _nx(194),
+    _ny(185),
+    _na(8)
+{
+  loadSettings(0);
+}
+
+void pp1600::loadSettings(size_t)
+{
+  CASSSettings s;
+  s.beginGroup("PostProcessor");
+  s.beginGroup(QString::fromStdString(_key));
+  setupGeneral();
+  _one = setupDependency("HistName");
+  bool ret (setupCondition());
+  if (!(_one && ret)) return;
+
+  _result = new Histogram2DFloat(_na*_nx,_na*_ny);
+
+  createHistList(2*NbrOfWorkers);
+
+  Log::add(Log::INFO,"PostProcessor '" +  _key + "' will convert Histogram in " +
+           "PostProcessor '" +  _one->key() + " into the format that cheetah is using."
+           ". Condition is '" + _condition->key() + "'");
+}
+
+void pp1600::process(const CASSEvent &evt)
+{
+  // Get the input histogram
+  const Histogram2DFloat &hist
+      (dynamic_cast<const Histogram2DFloat&>((*_one)(evt)));
+
+  hist.lock.lockForRead();
+  const HistogramFloatBase::storage_t& src(hist.memory()) ;
+  _result->lock.lockForWrite();
+  HistogramFloatBase::storage_t& dest(
+        dynamic_cast<HistogramFloatBase*>(_result)->memory());
+  _result->nbrOfFills()=1;
+
+  const size_t pix_per_quad(8*_ny*2*_nx);
+  for(size_t quadrant=0; quadrant<4; quadrant++)
+  {
+    for(size_t k=0; k < pix_per_quad; k++)
+    {
+      const size_t i = k % (2*_nx) + quadrant*(2*_nx);
+      const size_t j = k / (2*_nx);
+      const size_t ii  = i+(_na*_nx)*j;
+      dest[ii] = src[quadrant * pix_per_quad + k];
+    }
+  }
+  _result->lock.unlock();
+  hist.lock.unlock();
+}
+

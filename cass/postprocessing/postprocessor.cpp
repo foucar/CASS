@@ -962,6 +962,10 @@ PostprocessorBackend::shared_pointer PostProcessors::create(const key_t &key)
     processor = PostprocessorBackend::shared_pointer
         (new pp1500(*this,key,_outputfilename));
     break;
+  case ChetahConv:
+    processor = PostprocessorBackend::shared_pointer
+        (new pp1600(*this,key));
+    break;
 #ifdef CERNROOT
   case ROOTDump:
     processor = PostprocessorBackend::shared_pointer

@@ -91,5 +91,57 @@ protected:
   std::string _operation;
 };
 
+
+
+
+
+
+/** convert cspad 2d histogram into cheetah layout
+ *
+ * @see PostprocessorBackend for a list of all commonly available cass.ini
+ *      settings.
+ *
+ * @cassttng PostProcessor/\%name\%/{HistName} \n
+ *           the postprocessor name that contains the histogram containing the
+ *           cspad image in cass layout. Default is "".
+ *
+ * @author Lutz Foucar
+ */
+class pp1600 : public PostprocessorBackend
+{
+public:
+  /** constructor
+   *
+   * @param pp the postprocessor manager that manages this pp
+   * @param key the name of this postprocessor in the ini file
+   */
+  pp1600(PostProcessors& pp, const PostProcessors::key_t& key);
+
+  /** process event
+   *
+   * @param evt the event to process
+   */
+  virtual void process(const CASSEvent& evt);
+
+  /** load the settings of this pp
+   *
+   * @param unused this parameter is not used
+   */
+  virtual void loadSettings(size_t /*unused*/);
+
+protected:
+  /** pp containing 2d histogram */
+  PostprocessorBackend *_one;
+
+  /** nbr bins in x of asic */
+  const size_t _nx;
+
+  /** nbr bins in y of asic */
+  const size_t _ny;
+
+  /** magic cheetah number */
+  const size_t _na;
+};
+
 }//end namspace cass
 #endif
