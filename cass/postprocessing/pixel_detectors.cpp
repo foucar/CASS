@@ -203,7 +203,6 @@ void pp107::loadSettings(size_t)
   _mapLock = &CommonData::instance(_detector)->lock;
   _result = new Histogram2DFloat(CommonData::instance(_detector)->columns,
                                  CommonData::instance(_detector)->rows);
-  /** @todo enable to resize the histogram, when the map does not have the default size */
   createHistList(2*cass::NbrOfWorkers,true);
   Log::add(Log::INFO,"Postprocessor '" + _key + "' will display the '"+ mapType +
            "' map of detector '" + _detector + "'. It will use condition '" +
@@ -214,6 +213,21 @@ void pp107::process(const cass::CASSEvent&/* evt*/)
 {
   QReadLocker locker(_mapLock);
   _result->lock.lockForWrite();
+  if (_result->axis()[HistogramBackend::xAxis].nbrBins() != CommonData::instance(_detector)->columns ||
+      _result->axis()[HistogramBackend::yAxis].nbrBins() != CommonData::instance(_detector)->rows)
+  {
+    histogramList_t::iterator hist(_histList.begin());
+    for (; hist != _histList.end(); ++hist)
+    {
+      Histogram2DFloat *histo(dynamic_cast<Histogram2DFloat*>(hist->second));
+      histo->resize(CommonData::instance(_detector)->columns,0,CommonData::instance(_detector)->columns-1,
+                    CommonData::instance(_detector)->rows,   0,CommonData::instance(_detector)->rows   -1);
+    }
+    PostProcessors::keyList_t dependands (_pp.find_dependant(_key));
+    PostProcessors::keyList_t::iterator dependand (dependands.begin());
+    for (; dependand != dependands.end(); ++dependand)
+      _pp.getPostProcessor(*dependand).histogramsChanged(_result);
+  }
   copy(_map->begin(), _map->end(),
        dynamic_cast<Histogram2DFloat*>(_result)->memory().begin());
   _result->nbrOfFills() = 1;
