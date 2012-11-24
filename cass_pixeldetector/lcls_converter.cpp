@@ -235,18 +235,19 @@ void Converter::operator()(const Pds::Xtc* xtc, CASSEvent* evt)
            "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
            ")");
 
+  /** skip if there is no corresponding cass key for that xtc */
   idmap_t::key_type lclskey(xtc->contains.id(), xtc->src.phy());
   idmap_t::iterator lclsmapIt(_LCLSToCASSId.find(lclskey));
   if (lclsmapIt == _LCLSToCASSId.end())
   {
-    throw runtime_error("pixeldetector::Converter::operator(): There is no corresponding cass key for '"+
-                         string(TypeId::name(xtc->contains.id())) +
-                        "'(" + toString(xtc->contains.id()) +
-                        "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
-                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
-                        "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
-                        "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
-                        ")");
+    Log::add(Log::ERROR, string("pixeldetector::Converter::operator(): There is no corresponding cass key for : '") +
+             TypeId::name(xtc->contains.id()) + "'(" + toString(xtc->contains.id()) +
+             "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->detector()) +
+             "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->detId()) +
+             "), '" + DetInfo::name(reinterpret_cast<const DetInfo*>(&xtc->src)->device()) +
+             "'(" + toString(reinterpret_cast<const DetInfo*>(&xtc->src)->devId()) +
+             ")");
+    return;
   }
   const idmap_t::mapped_type &casskey(lclsmapIt->second);
 
